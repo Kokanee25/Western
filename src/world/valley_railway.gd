@@ -390,6 +390,9 @@ func _physics_process(delta: float) -> void:
 ## heard and its engineer's body stands still (Train.far); back inside `far_m - 50` it's all as ever.
 ## The fog hides anything past ~500 m.
 var far_m := 800.0
+## Past this (m) it's only distant (Train.distant): drawn every other frame, its lookout and bridge
+## loads every tenth tick (#881). Back inside `distant_m - 50`, as near.
+var distant_m := 400.0
 
 
 func _check_far() -> void:
@@ -404,6 +407,9 @@ func _check_far() -> void:
 	var mid := line.to_global(line.point_at(sim.s - sim.length * 0.5))
 	var d := mid.distance_to(eye.global_position) - sim.length * 0.5
 	var far := d > far_m if not train.far else d > far_m - 50.0
+	var distant := d > distant_m if not train.distant else d > distant_m - 50.0
+	if distant != train.distant:
+		train.distant = distant
 	if far != train.far:
 		train.far = far
 		if engineer_body and is_instance_valid(engineer_body):

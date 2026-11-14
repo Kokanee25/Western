@@ -38,6 +38,9 @@ var seen_from := ""
 var shots := 0
 ## Why it ended (&"done", &"cody_down", &"stalled_..."): the after beats play out either way.
 var end_reason := &""
+## Cody's come in: from here it's the story's (`nolaw.murder` set). Over before that (no Earl, no
+## Cody), nothing's written and the folk try it again a while on (review A5, #864).
+var played := false
 var _cody: Dictionary
 var _str: Dictionary
 var _route: Array[Vector3] = []
@@ -86,19 +89,20 @@ func begin() -> void:
 	_take_chair(c)
 	barkeep = folk.folk_man(StringName(data.get("barkeep", "barkeep")))
 	folk.murder = self
-	fact("nolaw.murder", "begun")
 	_start_stranger()
 	state = &"stranger"
 
 
 # --- Where --------------------------------------------------------------------------------------
 
-## The folk's places named, as points (those that exist).
+## The folk's places named, as points; a name that isn't one is an error (#864), left out.
 func _points(names: Array) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	for n: String in names:
 		if folk.places.has(StringName(n)):
 			out.append(folk.places.at(StringName(n)))
+		else:
+			push_error("NoLawMurder: no place '%s' among the valley folk's" % n)
 	return out
 
 
@@ -230,7 +234,10 @@ func _walk_off(man: HumanBody, way: Array[Vector3], speed: float, delta: float, 
 	if (from_you > float(_cody.get("gone_m", 30.0)) and not _in_your_sight(man.global_position)) or walking_s > 240.0:
 		return true
 	if _walk_way(man, way, speed, delta):
-		# His way walked and you still on him (following): on down the street the same way.
+		# His way walked and you still on him (following): on down the street the same way. You
+		# saw which way he went (S10: at the camp you'll know it already, No Justice step 2).
+		if man == victim and not StoryState.has_fact("nolaw.followed"):
+			fact("nolaw.followed", true)
 		var off: Array = _cody.get("off", [1.0, 0.0])
 		var on := Vector3(float(off[0]), 0.0, float(off[1])).normalized()
 		man.set_pose(&"stand")
@@ -406,6 +413,8 @@ func _cody_in() -> void:
 	way.pop_front()
 	_route = way
 	_watch_men()
+	played = true
+	fact("nolaw.murder", "begun")
 	_note("Cody comes in")
 	# Shouting at Earl as he comes into the yard (Sean, 2026-11-12), not once he's at the table.
 	_accused = true
@@ -502,6 +511,7 @@ func _shoot_head() -> void:
 	if victim.hat_body != null:
 		exclude.append(victim.hat_body.get_rid())
 	var dir := (head - origin).normalized()
+	_clear_to_head(origin, head, exclude)
 	var t_rev: RevolverTuning = load("res://config/revolver.tres")
 	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
 	bullet.form = t_rev.form_factor
@@ -516,6 +526,31 @@ func _shoot_head() -> void:
 	shots += 1
 	_shot_t = t
 	_note("Cody shoots Earl in the head (%d)" % shots)
+
+
+## What lies on the ball's line from his muzzle short of Earl's head is let through (`exclude`): the
+## pieces of the chair Earl went over with, and Earl's own neck, arm or shoulder when Cody stands
+## at his feet. He's stood over a man on the floor with the muzzle a pace from his head: the beat
+## is that he doesn't miss, and how Earl's ragdoll came to lie mustn't decide the story. Measured
+## (#925, 16 murders in fresh valleys): 2 left Earl alive after all three shots, one with every
+## ball in a chair leg lying over his face, one with every ball in his neck. A wall or the table
+## in the way isn't let through (it's left in, and the shot is what it is).
+func _clear_to_head(origin: Vector3, head: Vector3, exclude: Array[RID]) -> void:
+	var space := World.space(cheater)
+	if space == null:
+		return
+	var head_part := cheater.parts[&"head"] as CollisionObject3D
+	var own: Array = cheater.parts.values()
+	for i in 24:
+		var q := PhysicsRayQueryParameters3D.create(origin, head, Layers.BULLETS)
+		q.exclude = exclude
+		var hit := space.intersect_ray(q)
+		if hit.is_empty() or hit.collider == head_part:
+			return
+		var c := hit.collider as CollisionObject3D
+		if c == null or not (c is RigidBody3D or own.has(c)):
+			return  # (something standing: a loose piece at rest is still a RigidBody3D, frozen)
+		exclude.append(c.get_rid())
 
 
 ## Where you were for it: sat at the table, in the yard with it in front of you, in earshot, away.
@@ -618,11 +653,9 @@ func _after_step(delta: float) -> void:
 	var left_all := end_reason != &"done" or _sent.size() >= ((data.get("after", {}) as Dictionary).get("leave", {}) as Dictionary).size()
 	if _str_state in [&"leave", &"gone"] and left_all and (_barkeep_more or _barkeep_t < 0.0):
 		_release_you()
-		if end_reason == &"done":
-			fact("nolaw.murder", "done")
-		else:
-			fact("nolaw.murder", String(end_reason))
-		fact("nolaw.earl", "dead" if cheater != null and is_instance_valid(cheater) and not cheater.physiology.alive else "alive")
+		if played:
+			fact("nolaw.murder", "done" if end_reason == &"done" else String(end_reason))
+			fact("nolaw.earl", "dead" if cheater != null and is_instance_valid(cheater) and not cheater.physiology.alive else "alive")
 		_finish(end_reason)
 
 
@@ -630,7 +663,7 @@ func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
 			"end": String(end_reason), "shots": shots, "you_held": you_held, "seen_from": seen_from,
 			"stranger": String(_str_state), "stranger_chair": String(stranger_chair.name) if stranger_chair and is_instance_valid(stranger_chair) else "",
-			"chair_loose": chair != null and is_instance_valid(chair) and chair.loose, "strikes": strikes.duplicate(),
+			"played": played, "chair_loose": chair != null and is_instance_valid(chair) and chair.loose, "strikes": strikes.duplicate(),
 			"earl_fell": _fell_t >= 0.0, "earl_dead": cheater != null and is_instance_valid(cheater) and not cheater.physiology.alive,
 			"game": String(game.state) if game else "", "events": events.duplicate()}
 	if cheater != null and is_instance_valid(cheater):

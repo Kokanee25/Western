@@ -5,6 +5,11 @@ class_name GameReset
 ## the second start differ from the first is put back first: the props' per-id counters (each
 ## prop's id, variant, glass and seed come from them) and SightLight's lamp list (it would read a
 ## freed lamp). The settings, the look in force and the caches of materials and sounds stay.
+##
+## The story (StoryState; review A5, #864): a reload is a fresh start and wipes it, so No Law's
+## murder plays again after Backspace; a mission's retry (`retry`) puts back the story as it stood
+## when that mission began. A save's load (after the slice) will be the retry's shape: the world's
+## statics cleared (`clear_world`), then the saved story put back, never wiped.
 
 
 ## The overlay says so once the new scene is up.
@@ -25,8 +30,29 @@ static func reload_scene(tree: SceneTree, what := "the scene's reload") -> void:
 	tree.reload_current_scene.call_deferred()
 
 
-## Everything static that a fresh start would have empty.
+## A mission tried again (Enter after a lost try, or held): the game reloaded as `reload_scene`, but
+## the story as it stood when the mission began (StoryState.checkpoint), not wiped: what earlier
+## missions set still holds, what this try set is gone.
+static func retry(tree: SceneTree, what := "the mission's retry") -> void:
+	CrashReports.begin_load(what)
+	clear_for_retry()
+	tree.reload_current_scene.call_deferred()
+
+
+## A fresh start: everything static a new game would have empty, the story too.
 static func clear_statics() -> void:
+	clear_world()
+	StoryState.wipe()
+
+
+## A retry: the world's statics cleared, the story put back to the mission's checkpoint.
+static func clear_for_retry() -> void:
+	clear_world()
+	StoryState.restore(StoryState.checkpoint)
+
+
+## The world's statics (not the story): what a fresh start, a retry and a load all clear.
+static func clear_world() -> void:
 	PropKit._made.clear()
 	PropLibrary._made.clear()
 	SightLight._lamps.clear()

@@ -43,7 +43,8 @@ func test_places_and_where_they_are() -> void:
 			check(not v.entry(p).is_empty(), "mission %s's %s is a place, bridge or viewpoint" % [m.id, p])
 	check(not v.viewpoint("vp_depot").is_empty(), "a viewpoint")
 	check(not v.mission("opening").is_empty(), "a mission")
-	check(v.place("nowhere").is_empty() and v.entry("nowhere").is_empty(), "nothing by an id that isn't there")
+	# An unknown place is an error (place() says so, #864); has_place asks without one.
+	check(not v.has_place("nowhere") and v.entry("nowhere").is_empty(), "nothing by an id that isn't there")
 
 
 func test_roads_and_bridges() -> void:

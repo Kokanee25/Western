@@ -510,6 +510,36 @@ taken once at noon) taken again when the room's light changes. By day nothing ye
 empty: R1's haze and shade read as washed noon to the cheap judge, round 2).
 Trials: `screenshots.gd --variants=` files that set `settings.real_look` first, then the dials.
 
+**The real sky** (#918; `RealSky`, RealLook's child; dials `config/looks/real_sky.json`; `tests/test_real_sky.gd`).
+Under the real look it swaps our own sky in for the painted one on the world's Sky (`-- --painted-sky`:
+the before) and lights the world from it each frame after DayCycle (process priority 101): `SkyModel`
+(`src/render/sky_model.gd`: Hillaire 2020 / Bruneton 2017 air, dust and ozone, a 128x32 transmittance
+table, CPU single scattering for the fog and clouds, the moon's phase, Allen's phase law, the stars'
+frame) gives the sun's colour and energy (what the air leaves of it), the moon's (phase by date: day 1
+full, so every shot keeps its moon; it rides `(phase - 0.5) * 24.8` h behind DayCycle's full-moon
+path), the fog's colour (the horizon's radiance; density x `light.fog`, x `fog_far` with far land), the
+ambient (the sky's own radiance, contribution 1). `src/render/real_sky.gdshader` draws it: the
+scattering at quarter size (Rayleigh, Mie, ozone, multiple scattering as a share), sun disk and glare,
+the moon lit from its phase, airglow, stars on a cube grid (PCG hash) and the Milky Way turning round
+the pole (opposite the noon sun, `sun_tilt_degrees` up). Its uniforms are named apart from the painted
+sky's (DayCycle keeps sending `sun_dir`/`moon_dir`/`star_strength` to whatever sky is in place); it
+reads no `POSITION` (a sky that does is re-lit whenever the camera moves: `eye_height` in 25 m steps).
+`sky.<uniform>` addresses reach it while it's on; `sky.coverage` is the clouds' coverage.
+**The clouds** (`src/render/cloud_layer.gdshader`): a dome kept on the camera, drawn at the back of the
+depth range (behind everything, over the sky), a flat sheet `height` m up, two scales of a tiling noise
+and a broad one bunching them, Beer and powder along the light (Schneider 2015), lit by the sun at a
+third of their height, then the moon; `coverage` (RealSky.set_coverage(to, seconds), for weather)
+dims the sun (`overcast_sun`), fades its shadows and greys the sky. **The far land** (`FarLand`, the valley
+only; `-- --no-far-land`): the bake every 32 m (its quads re-sorted back to front from the camera every
+150 m, ~8 ms) and the ranges round the valley to 45 km (a ring mesh, outer rings first), in the
+transparent pass at depth 0 so only the sky's pixels take it, unshaded: lit and hazed in its shader
+from RealSky's light (`FarLand.set_light`, `set_haze`). Traps: Godot keeps a 24-bit depth where the card
+has it (one step behind the far plane: no far-plane depth tricks); the scene's fog reads a fragment's
+depth (the far land is fog_disabled and hazes itself); a 45 km far plane drew the whole valley from the
+trestle (22.7 M primitives); LightFinish's quad (sorting -1000) lays the pre-transparent screen over the
+frame, so the clouds and far land sort after it (`RealSky.SORT_*`), and anything transparent sorted
+before it is wiped.
+
 **Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
 dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab
 `experiments/light_lab/`). **Off** (`Settings.room_light`; `-- --room-light=on`, `settings.room_light`);
@@ -550,6 +580,11 @@ real look RoomLight is on whatever `Settings.room_light` says.
 - `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
   clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
   lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
+  **The story (#864):** a reload (`reset`, `reload_scene`: Backspace, the look's I/M, the bridge's
+  `world`) is a fresh start and wipes StoryState (`clear_statics` = `clear_world` + `StoryState.wipe`);
+  a mission's retry (`GameReset.retry`: the coach's and the farmhouse's Enter) reloads with the story
+  at the mission's checkpoint (`StoryState.mark_checkpoint()` as each mission begins;
+  `clear_for_retry`). A save's load (after the slice) will be the retry's shape, never a wipe.
 - `GameQuit` (`game_quit.gd`, #435): every way out (the window's close, the smoke test, the soak,
   the bridge's `quit`) goes `GameQuit.quit(tree, code)`: `quitting` up; if a task of ours runs
   (`in_flight`: shadow merges, analyses, the fire's check, the sound warm-up, smoke steps) the tree
@@ -615,6 +650,12 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/world
 
+- `WorldPlaces` (`world_places.gd`, #864): where things are in whichever world is loaded. `wake_spots`
+  (knocked out: the valley's doctor's `bedside`, else the general store's walk, ValleyWorld.wake_spots;
+  the old town's `DoctorInside`/`StoreInside`; none: where you fell) and `street_spot` (the outlaws'
+  call-out spot on the loaded Main Street). ValleyWorld is in group `valley_world`; a Moment's
+  `places()` in the valley are the valley's. `ValleyLayout.place` errors on an unknown id (`has_place`
+  to ask). `tests/test_world_places.gd`.
 - `World` (`src/world/world.gd`): the determinism rules (docs/briefs/more-cores.md "The design" F).
   `World.space(node)` is the only way to the physics space; a debug build errors once a site when
   it's asked outside the physics frame (the test runner fails on it: fire a shot or a query from
@@ -1370,6 +1411,23 @@ as you move round; Senses' eye is then his leading eye, `PostPose.eye_now`). Not
 entering it, stepping out to shoot a man in the open, recoil. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
 `sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
 
+**The garment handoff** (#917, from the lab #895): `WornGarment` makes a garment from his own
+Skin_whole (the triangles under it by bone weight, welded, simplified with
+`SurfaceTool.generate_lod`, pushed out; his weights kept; `relief`: how far his skin stands above
+each point between them) and wears it (`wear`: a MeshInstance3D under his Skeleton3D with his skin
+and his `custom_aabb`); `posed()` skins it on the CPU as the GPU does (only the binds it uses).
+`GarmentHandoff` (`glove_on(man, parent, side)`, `take(hand)`, `let_go_of_arm()`, `let_go(v)`;
+signals `taken`, `came_to_rest`) swaps it for a `GarmentCloth` (a ClothProp of the garment's mesh:
+`pin_to`, `hold_on` carriers at his bones, `release`; at rest baked, its soft body freed) and runs
+the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every).
+`SkinCollider`: a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
+`skin_every` ticks from the triangles near the free cloth (Jolt pays ~1.5 µs a triangle to rebuild
+one in the world). Choreography stays the caller's (`experiments/garment_handoff/handoff.gd`).
+Traps: a SoftBody3D mesh needs normals; reach_to must be renewed every tick or the arm drops (the
+worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a hand apart on the
+floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
+his own). `tests/test_garment_handoff.gd`.
+
 ## src/moments
 
 **Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
@@ -1406,7 +1464,8 @@ Earl's chair; over him Cody aims and fires (a real ball at his head: Ballistics,
 `shot_fired`; again if he lives), "no law", holsters and walks out by `out`; 1.6 s on the barman's
 line (the hush down to `hush_s`). After (`after` state, also on `cody_down` and stalls): the stranger's
 word, you let go, he and Cody walk off and are taken out of the world once clear of the table and out
-of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun, earl, done),
+of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun once Cody's in, earl,
+done; over before he came in, `played` false: nothing written, and ValleyFolk tries again a minute on),
 `nolaw.seen_from` (table, yard, heard, away), `nolaw.witnessed`, `nolaw.earl`. Cody (#796: not the red shirt;
 the role `cody`, the blacksmith's model) shouts his accusation as he's taken in off the street; the stranger's
 warning `warn_after_s` after it.
@@ -1497,6 +1556,34 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `answer` (HeadGesture; none = shake), the badge, the revolver (`Player.give`), death by his gut's clock
   (Physiology). Facts nolaw.sheriff, accepted, deputy, revolver, acting, held_him, death.sheriff.
   `-- --world=valley --mission=sheriff_dies [--care=..]` or `moment sheriff_dies set_up=1 care=..`.
+- **The funeral** (#868, No Law beat 6; `src/missions/funeral.gd`, `Funeral`, an `Act`; data
+  `config/moments/funeral.json`; `tests/test_funeral.gd`): started by `ValleyFolk._funeral_step` the day after
+  nolaw.sheriff = dead (`days_after`, `hours`; before it nolaw.funeral_due = tomorrow / today, which the
+  townsman's `talk` lines say; the clock past it unseen: started `over`, missed, the grave filled). Every mourner
+  is a CivilianBrain at a post by the grave (`spot`s are [east, south] of `grave`), `rest_pose` `mourn`
+  (HumanBody's pose: head bowed, hands together), his hat hidden: the day folk sent up (`day`: walking if you'd
+  see them go, with "It's time."), the night's men borrowed out of `_waiting` (`ValleyFolk.borrow`), the act's
+  own (`take`; the wife and the doctor carried on from SheriffDies by its `hand_over`). All go back with
+  `ValleyFolk.give_back` (out of the tree into `_waiting`, the act's Brain and Senses freed: never built in
+  play). Beats on game seconds whether you're there or not; a line is spoken only within `hear_m` of its
+  speaker (`prayer_m` the prayer). Facts: nolaw.funeral (attended: `attend_s` within `attend_m`; distance:
+  within `seen_m` with the ground not between, `_in_sight`; missed), nolaw.offer_heard, baron.met,
+  nolaw.funeral_broken (a shot within `break_m`). The box, the hole, the earth and the headboards are plain
+  blocks (`_block`: stand-ins). Church Lane's points go into the folk's places (`funeral_lane_N`).
+  `-- --world=valley --mission=funeral` or `moment funeral set_up=1 [pace=0.3]`; the bench's `funeral` spot.
+- **No Justice's doctor's and camp** (#859, step 2 of #843's plan; `src/missions/no_justice_camp.gd`,
+  `NoJusticeCamp`, an `Act`; data `config/moments/no_justice_camp.json`, lines from `docs/scripts/no_justice.json`;
+  `tests/test_no_justice_camp.gd`): Joe (`CompanionBrain.make_joe`, `held`: the scene walks him while it's quiet),
+  ValleyFolk's `doc` and `cowboy` in the doctor's front office; you walk in, the beats (S11), Joe's ask: nod,
+  shake (he goes out; follow him and you've come: `followed`; stay `follow_s` and he rides alone: `declined`).
+  The ride: a card (`ute_trail`'s length at `ride.mps`, the clock on). The camp's frame from the trail's last leg
+  into `ute_community`; the raid's damage (kit props tipped, `Structure.show_fire` char, balls fired through some
+  by Ballistics while the card's up); Joe to the survivors (no bodies, no Ute lines), back with S1/S10 (`you_knew`
+  if `nolaw.followed`, set by NoLawMurder when you follow Cody's walk off), the costume (`CompanionBrain.costume`;
+  the look is characters'), S37 by looking at him, the trail read toward `hideout`, then `held` off. Facts
+  nojustice.met, camp, knew_the_way, costume, trail. `-- --world=valley --mission=no_justice [--followed]`,
+  `moment no_justice_camp set_up=1 [at_camp=1 met=..]`; valley_bench spot `ute_camp`. Playtest brief
+  `experiments/no_justice/PLAYTEST_CAMP.md`. Joe's lab dials: `--joe-tune=key:value+...` (CompanionBrain).
 - **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
   out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
   `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.
@@ -1631,25 +1718,40 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   bucket down where he is; calm, he picks them up wherever they are and finishes. TownLife gives
   him both chores (`[mopping, wipe]`).
 - **`ValleyFolk`** (`src/people/valley_folk.gd`, #756; data `config/valley_folk.json`;
-  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). Each man in the data has
-  a model, `hours` [from, to] (past midnight when to < from), a `from` place (his way in and out) and
-  a `post`: `behind`/`at_bar` the set's bar (`along` it, + north) or a `chair` of the card table (n, e,
-  s, w). A CivilianBrain at his post (`go_to` gives him a new one and drops his old route), finding
-  his way by the folk's own `places` (ValleyTown.add_ways onto a new Waypoints, ~560 places, plus the
-  data's `nolaw_*`; a route ~6 ms); the card players held in their chairs by **`SitChore`**
+  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). **The day and the book**
+  (townsfolk step 2, #870; `docs/briefs/townsfolk.md` §3): each man has a model, a `home` (a place: a
+  building's lot id, its door, or a way out of town such as `back@0`) and a `day`: blocks by the hour
+  (`from`, the last running round to the first), each `at` a named spot (`spots`: `behind`/`at_bar`
+  the set's bar, a card table `chair`, or `lot` + `at` facing `faces`; the place's, not the man's) or
+  `in` a place (**on the book**, `TownBook`: a row, no body, no cost), and `do` (`stand`, `drink`...;
+  on the book `sleep`, `home`, `work`, `breakfast`, `supper`, `away`). One list, or one a **day kind**
+  (`ordinary` the default; `calendar.kinds`: `sunday` by `week_day`, `payday` `every` 14 from day 13,
+  an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
+  past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
+  (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
+  to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
+  (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
+  (ValleyTown.add_ways onto a new Waypoints, ~560, plus the data's `nolaw_*`); a jump past and he's
+  there at once (`_place`). **Nothing in view**: he comes out of a door only when you can't see it
+  and goes in only once you can't see him (`seen`: the camera's frustum, nearer than the book's
+  `seen_m` 120 m, no WORLD between; waiting `_due` behind it, or at the door; `GONE_ANYWAY` 240 s only
+  out of sight); `view_log` logs every body in or out with whether it was seen (the test's probe).
+  **BookLights** (`src/people/book_lights.gd`, a greybox stand-in for art's fronts): each building in
+  anyone's day gets a window beside its door lit after dark (`book.dark`) while someone's in at a
+  `lamp` doing, and chimney smoke while someone's at a `smoke` doing (`book.doings`). A CivilianBrain
+  at his spot (`go_to` a new one), the card players held in their chairs by **`SitChore`**
   (`src/people/sit_chore.gd`: within 2 m of a free chair, free, wanted: Seating.sit_step; trouble or
-  sent off: up out of it). The clock read every 0.5 s: run into a man's hours (within `walk_in_h`,
-  0.5 h) and he walks in from `from`; jumped past (7, a bridge `time`, a load at night) he's at his
-  post; past his hours he walks back out to `from` and is freed (`GONE_AT` 1.6 m; `GONE_ANYWAY` 240
-  s), or at once on a jump. Built while the valley loads and kept out of the tree (TownLife's riders,
-  #488): ~4.3 s the first time a process builds these five models, ~12 ms a man after. Tonight: the
-  barkeep 17-3 (from the saloon's door), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the
-  rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
-  seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
-  valley_bench spot `saloon_yard`.
+  sent off: up out of it). Built while the valley loads and kept out of the tree (TownLife's riders,
+  #488): ~4.3 s the first time a process builds these models, ~12 ms a man after. Tonight: the barkeep
+  17-3 (the saloon), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the rancher 19.3-1 (Back
+  Street), Earl 19.5-2 (the yard's back), the band's fiddler and piano player 19-1.5 (#799, `plays`: PlayChore at
+  their spot); by day the townsman, the loudmouth and the undertaker on their
+  walks. `report()` (state, block, book, where, seated; `_day`: number, kind, the windows and smoke);
+  Prof `valley_folk`; valley_bench spot `saloon_yard`.
   A man with `act` (No Law's Cody and the stranger, #773) has no hours: prebuilt with the rest, the
   act `take`s him (no brain) and `release`s him. A dead man stays (state `dead`); `send_off(id)` walks
-  a man out for the rest of his hours (`kept_out`). It starts No Law's murder (`_maybe_murder`,
+  a man home for the rest of his block (`kept_out`). It starts No Law's murder (`_maybe_murder`,
   `start_murder`; src/moments). **CivilianBrain**'s lines: a man's no closer than `SAY_GAP` 2.5 s
   (but fire, thanks, his chair), a shot's cry `CRY_SPREAD` after it, kept back if another just cried,
   never another man's line of the last 4 s; `hush(s)` (an act's quiet); a gun drawn within `GUN_SEEN`
@@ -1726,6 +1828,21 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   --manifest=experiments/sound_lab/blast_recordings.json` into `assets/audio/blast/s1/` (crack,
   boom, sub, roll; no debris, glass or groan yet). Your ears hold clear `BlastTuning.ear_hold_s`
   after a blast reaches you, then dull over `ear_ease_s` (the crack comes through first).
+- `src/audio/band.gd` — `Band` (#799): the band from one tune's note data. `tools/band/render_band.py
+  TUNE` renders each part once by the sound lab's own models (`experiments/sound_lab/fiddle/`: fiddle
+  B, banjo, piano, harmonica, bones, tambourine; ~3 min, the banjo most of it) into
+  `assets/audio/band/<tune>/<part>.ogg` (all from the tune's t = 0, levels baked) and `notes.json`
+  (bars, phrases every 4 bars, the fiddle's strokes, the piano's keys). `config/band.json`: the lot,
+  hours, tunes, players (a `man` plays it in person; without, placed sound only). Every part an
+  AudioStreamPlayer3D on one clock, re-placed by `GameAudio.replace_loop` every 0.25 s (Room,
+  Muffled, the air; no distance delay). A part stops any time (`stop_s`, the bow lifted), comes in
+  only at a phrase's top; a shot within `shot_m` stops all and they start `quiet_s` after the last
+  at the top of the phrase they stopped in; a killing within `death_m` ends their night; out of hours
+  they finish the tune. The clock follows the parts (a slow frame); with no audio device (Dummy: tests, a movie) the parts
+  follow the clock. Built by `ValleyFolk` when the band's lot is the set's (`-- --no-band`: not).
+  `PlayChore` (src/people): a folk man with `plays` at his instrument (the pianist in his chair's
+  SitChore), his hands by `reach_to` from `Band.bow_at` / `hand_at`; the fiddle and bow drawn from
+  the prop lab's `fiddle.glb`, held. Bridge: `band [hush]`. Tests `tests/test_band.gd`.
 
 ## src/creatures (the horse)
 
@@ -2228,6 +2345,15 @@ the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `t
 cuts a review run's crops and writes the judge's prompt; with `--before` a blind A/B (sets P and Q, the
 key under `build/`). scan_wood's later dials: `contact`/`arris` (joints as shadowed gaps; a board's covered
 edges in UV2, SamplePanel), `age_split`/`checks`/`end_rot` (few against old), `varnish_dark`.
+**Eased edges** (#873): every library board's edges drawn rounded by the normal alone (scan_wood's
+`edge_round`, radius new/old in m by age, `edge_round_end` the crosscut ends' share;
+`MaterialLibrary.EDGE_ROUND` per class or an entry's own `edge_round`): each face takes its half of a
+quarter round toward each of its edges (the board's box in CUSTOM1, the face's own side `v_side`), the
+scan's detail laid over it by reoriented normal mapping; under a pixel it fades, so it never sparkles.
+No geometry (a bevelled board mesh, `tools/edge_round_bench.gd` on saloon B's 7,287 boards: x2.25 vertices,
+x3.6 triangles, x2.2 build time, +1.4 s);
+silhouettes and collision stay square. A shaped board (role + 10: `PropKit.lib_cut_mesh`, `lib_profile_mesh`)
+keeps its own normals and isn't eased.
 **Paint** (#721's paint round, 2026-11-11): entries of family `paint` (codes P1-P6) lie `over` a wood
 (`MaterialLibrary.resolved`: the wood's fields under the paint's; `panel_class` the panel's gaps;
 `wood_class` the resolved class SamplePanel uses); `--panels=paint`; an `inside` entry adds the 1 m night
@@ -2245,6 +2371,14 @@ pine, FN3 walnut) carry `furniture`: rubbed arrises, grease round pulls (role 2,
 `lib:<entry>/<age>/front`), dust on tops, duller varnish in patches; their scans mapped small.
 `panel_class` names the boards' class where `class` is the family. `--panels=floor` (SamplePanel's floor
 room: a painted wall, a doorway, a path) and `--panels=furniture` (a chest of drawers on the fir floor).
+**Stone and lime** (#860, #857 1a): family `stone` (S1 `rubble_stone`) and `plaster` (PL1 `plaster_whitewash`,
+PL2 `rubble_whitewash`) drawn by `src/render/rubble_stone.gdshader` (a procedural rubble height field in the
+building's space, the scans `face_scan`/`plaster_scan` under it; quoins at `corners`, `drips` streaks,
+inside `regions` by floor height and finish). `StoneFinish` (`src/art/stone_finish.gd`) makes the material,
+sets its space and gives each stone member a chamfered mesh (`piece_mesh`, `exposed`); `SpecBuilding._stone_finish`
+uses it only once the spec's `materials.stone.want` is approved (or `"trial": true`, lab only, never committed).
+`--panels=stone|plaster` (SamplePanel's `_stone_wall`). Not yet approved: two judge rounds failed on the
+screen-space bump's drawn outlines (`docs/screenshots/judge/2026-11-13_stone_r*`).
 
 ## src/props/prop_models.gd
 
@@ -2372,11 +2506,17 @@ room: a painted wall, a doorway, a path) and `--panels=furniture` (a chest of dr
 **Library woods, baked metal and the factory's doctor's batch** (#788, `docs/briefs/prop-factory.md`
 "The recipe brought up to date"): kit looks `lib:<entry>/<age>[/top]` (`PropKit.dress_lib`, a member
 drawn as a material library board by `PropKit.board_mesh`, the building lab's board mesh shared;
+a member run to a profile in a library wood by `PropKit.lib_profile_mesh`, #873: the sides one long face
+whose across runs round the outline, so the scan wraps it; a member's meta `draw` keeps its profile when
+a library finish is laid over it later, as `Railing`'s rail does;
 `lib_material` one a wood and age, indoors) and `pbr:<model>` (`PropModels.pbr`: a model's baked
 `_albedo.png` and `_orm.png`, from `tools/blender/props/metal.py`'s finishes, the guns' recipes).
 `tools/props/doctor.py` writes the doctor's kit files, `tools/blender/props/doctor_d1.py` their
-models (`cushion`, `soft_box`, `drape`); `experiments/prop_lab/doctor/dress.gd` + `dress.json` lay a
-batch into his rooms on his valley lot and render the views (the doors' leaves set aside). A kit
+models (`cushion`, `soft_box`, `drape`). A building's props are its spec's `dressing`, placed by its
+build (`SpecBuilding._dressing` -> `PropDressing.place`, `src/props/prop_dressing.gd`; #844), in play and
+in every lab alike, its glass props' fixed parts drawn by a `StaticBatch` under it (`-- --no-dressing`:
+the rooms bare, the bench's before); `experiments/prop_lab/doctor/dress.gd` renders a batch's views from
+`building.dressed` (the doors' leaves set aside). A kit
 lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp). Cloth wipes
 (`ClothProp.wipe_at`, a kit file's `wipe_rate`) and hangs over a rail (`hang_over`).
 
@@ -2469,6 +2609,15 @@ the bridge's `stand` and `prop_light`).
 
 ## Characters by image-to-3D (tools/characters)
 
+- **Private people: MetaHumans** (#889): the Character Studio's `tools/metahuman_to_game.sh <build>`
+  lays a MetaHuman into the git-ignored `assets/people/private/` (never committed: the licence, #692);
+  his model is `private/<build>`, his lighter levels `private/<build>_lod1..3` (reports only:
+  `PeopleBodies.glb_of`, `simplified`, `thin_cards` cut them from his GLB at load). His report's
+  `alpha_cut` (the grooms' coverage, `body_skin`'s `alpha_cut`), `wears` (BodyMesh's hat on a whole
+  man) and `under_hat`. `tools/characters/private_people.gd` builds each level as the game does;
+  `tools/characters/metahuman_bench.py` is the valley bench with him as the townsfolk
+  (perf_bench `--folk-model=`, `--folk-far-model=`, `--folk-dress`). Report:
+  `docs/reviews/2026-11-metahumans-town.md`.
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` paints each man in `characters.json` full length
   in an A-pose, clean (Tripo wants a smooth picture; the squares are made last). **The fal

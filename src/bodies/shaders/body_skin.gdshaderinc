@@ -12,6 +12,8 @@ uniform sampler2D albedo_tex : source_color, GRID_FILTER, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
 uniform float uv_scale = 5.0;
 uniform float roughness_value = 0.8;
+// A groom's cards (a MetaHuman's hair, #889): the texture's alpha is the strands' coverage, cut here.
+uniform float alpha_cut = 0.0;
 // The generated body: texture by UV (uv_scale per UV unit), and wounds placed by the rest-pose
 // position in the segment's own space, carried in CUSTOM0 (the mesh itself is skinned).
 uniform bool use_uv = false;
@@ -235,6 +237,9 @@ void fragment() {
 	if (painted && !real) {
 		base = painted_to_scene(base);
 		glow = self_lit;
+	}
+	if (alpha_cut > 0.0 && texture(albedo_tex, tuv).a < alpha_cut) {
+		discard;
 	}
 	float reach = wound_reach(local_pos);
 	ROUGHNESS = roughness_value;

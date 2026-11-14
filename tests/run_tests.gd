@@ -1,7 +1,7 @@
 extends SceneTree
 ## Headless test runner: loads every tests/test_*.gd, runs its test_* methods, and exits with
 ## status 1 if any check fails or any script error is logged while a test runs.
-##   godot --headless --fixed-fps 60 -s res://tests/run_tests.gd [-- --only=<file or method>]
+##   godot --headless --fixed-fps 60 -s res://tests/run_tests.gd [-- --only=<file or method>[,<another>...]]
 
 
 class ErrorCatcher:
@@ -35,6 +35,17 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 
+## `--only=` takes one name or several with commas between (files by a part of their name, or
+## methods by their whole name): the files still run in the suite's order.
+static func _wanted(only: String, file: String, method: String) -> bool:
+	if only == "":
+		return true
+	for o: String in only.split(",", false):
+		if file.contains(o) or method == o:
+			return true
+	return false
+
+
 func _run() -> void:
 	var only := ""
 	for arg in OS.get_cmdline_user_args():
@@ -61,7 +72,7 @@ func _run() -> void:
 		var methods: Array[String] = []
 		for m in script.get_script_method_list():
 			var n: String = m.name
-			if n.begins_with("test_") and not methods.has(n) and (only == "" or file.contains(only) or n == only):
+			if n.begins_with("test_") and not methods.has(n) and _wanted(only, file, n):
 				methods.append(n)
 		if methods.is_empty():
 			continue

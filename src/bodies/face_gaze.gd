@@ -104,7 +104,8 @@ func step(delta: float) -> void:
 	var goal_eye := Vector2.ZERO
 	var goal_head := Vector2.ZERO
 	if active:
-		var at := target.global_position if target != null else target_point
+		# (A man looked at may be out of the world, not freed: ValleyFolk.give_back.)
+		var at := target.global_position if target != null and target.is_inside_tree() else target_point
 		var eye := head.global_transform * _eye_local
 		# The target in his body's frame (where he faces), for how far his head should go ...
 		goal_head = _angles(body.global_transform.basis.inverse() * (at - eye))

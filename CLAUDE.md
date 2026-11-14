@@ -55,7 +55,10 @@ the history in `docs/status/`.
 - **Pull `main` before starting and again before merging** (`git fetch origin main && git merge
   origin/main`), run all the tests, and **merge small and often**: one finished, tested piece
   of work per merge, not a day's worth. **Don't pile on:** if main's "Test and build" is still
-  running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). The
+  running, wait for it to finish before you merge (Sean, 2026-10-21: many labs at once). **Suspended from
+  2026-11-13 evening until Sean says otherwise** (about ten PRs ready at once merged one an hour): merge as
+  soon as your PR's own "Test and build" is green, after merging main in; if main goes red after, the next
+  session finds which merge did it and fixes it first. The
   status logs merge by union (`.gitattributes`), so two sessions' entries both land.
 - **CI builds PRs, not branch pushes** (Sean, #504: Actions minutes): run the tests locally
   before every push. A plain push to your branch builds nothing; opening the PR builds it, and

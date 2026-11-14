@@ -17,6 +17,18 @@ extends RefCounted
 const MODELS := ["storekeeper_s1_talking", "miner_s4_talking", "mexican_rancher_s1_talking",
 		"old_rancher_s3_talking", "young_drifter_s3_talking", "barkeep_s2_talking", "blacksmith_s1_talking",
 		"bold_cowboy_s3_talking", "doctor_s2_talking", "heavy_factory", "oldtimer_factory", "young_factory"]
+## The men they're made of instead (perf_bench --folk-model=, #889: one MetaHuman repeated), and the
+## far band's (--folk-far-model=: his lighter level down the street); empty: MODELS.
+static var models: Array = []
+static var far_models: Array = []
+## Re-dressed (--folk-dress, #889): each repeat a hat of its own colour or none, and his vest tinted,
+## so a street of one man doesn't read as clones from a distance. Costs nothing a frame: a man's
+## pieces have their own materials already.
+static var dress := false
+const HATS := [Color(0.28, 0.22, 0.16), Color(0, 0, 0, 0), Color(0.55, 0.47, 0.36), Color(0.12, 0.11, 0.1),
+		Color(0, 0, 0, 0), Color(0.4, 0.3, 0.2)]
+const VESTS := [Color(1, 1, 1), Color(0.55, 0.62, 0.75), Color(0.6, 0.6, 0.58), Color(0.85, 0.6, 0.45),
+		Color(0.45, 0.45, 0.42), Color(1.0, 0.9, 0.7)]
 ## Main Street's walks run along z = +-WALK_Z (the fronts 20.1 m apart, the walks 2.4 m deep).
 const WALK_Z := 10.5
 ## Near: within this of `around` (m); far: this far down the street from `at` and on.
@@ -60,18 +72,27 @@ static func lay(world: Node3D, n: int, at: Vector3, band := "mix", around := Vec
 			post = Vector3(x, 0.0, side * WALK_Z)
 			faces = Vector3(x, 1.5, 0.0)
 		# Down from just above the ground (2.4 m: over a walk, under an awning or a roof), not from the sky.
-		var g: float = ground.height_at(post.x, post.z) if ground else 0.0
-		var q := PhysicsRayQueryParameters3D.create(Vector3(post.x, g + 2.4, post.z), Vector3(post.x, g - 2.0, post.z), Layers.STAND)
-		var hit := space.intersect_ray(q)
-		if not hit.is_empty():
-			post.y = (hit.position as Vector3).y
+		# Higher than any walk (the bank's 1.2 m) is a wall's top, not a walk (the jail's 7 ft yard wall on
+		# the street line, #857): slide along the street and try again.
+		for _try in 4:
+			var g: float = ground.height_at(post.x, post.z) if ground else 0.0
+			post.y = 0.0
+			var q := PhysicsRayQueryParameters3D.create(Vector3(post.x, g + 2.4, post.z), Vector3(post.x, g - 2.0, post.z), Layers.STAND)
+			var hit := space.intersect_ray(q)
+			if not hit.is_empty():
+				post.y = (hit.position as Vector3).y
+			if hit.is_empty() or post.y - g < 1.5:
+				break
+			post.x += GAP * (1.0 if post.x >= at.x else -1.0)
+			faces.x = post.x if absf(faces.z) < 0.01 else faces.x
 		var man := HumanBody.new()
 		man.name = "Townsman%d" % i
 		man.person_id = StringName("townsman_%d" % i)
 		man.rng_seed = 9100 + i
 		man.has_gun = false
-		man.body_model = StringName(MODELS[i % MODELS.size()])
-		man.hat_color = Color(0, 0, 0, 0)
+		var pool: Array = far_models if not near and not far_models.is_empty() else (models if not models.is_empty() else MODELS)
+		man.body_model = StringName(pool[i % pool.size()])
+		man.hat_color = HATS[i % HATS.size()] if dress else Color(0, 0, 0, 0)
 		man.bandana_color = Color(0, 0, 0, 0)
 		var brain := CivilianBrain.new()
 		brain.name = "Brain"
@@ -83,5 +104,10 @@ static func lay(world: Node3D, n: int, at: Vector3, band := "mix", around := Vec
 		man.move_child(brain, 0)
 		man.enter(world, post, HumanBody.yaw_toward(post, faces))
 		man.set_meta(&"bench_band", &"near" if near else &"far")
+		if dress:
+			for key: String in man.skin_meshes:
+				var mat = (man.skin_meshes[key] as MeshInstance3D).material_override
+				if key.begins_with("vest/") and mat is ShaderMaterial:
+					(mat as ShaderMaterial).set_shader_parameter(&"tint", VESTS[(i / HATS.size() + i) % VESTS.size()])
 		made.append(man)
 	return made

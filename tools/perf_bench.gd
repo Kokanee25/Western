@@ -70,6 +70,9 @@ var census_by := false
 ## The valley's bench (#865): N more townsfolk, where they stand, the bodies census.
 var townsfolk := 0
 var band := "mix"
+var folk_models := []
+var folk_far_models := []
+var folk_dress := false
 var bodies := false
 var valley := false
 ## --extra-bodies=N: N more static boxes at rest off the town (what more bodies cost Jolt, #865).
@@ -99,6 +102,14 @@ func _initialize() -> void:
 			townsfolk = int(a.substr(12))
 		elif a.begins_with("--band="):
 			band = a.substr(7)
+		elif a.begins_with("--folk-model="):
+			# The townsfolk all made of these men instead (#889: one MetaHuman repeated), the far band
+			# of --folk-far-model's (his lighter level), re-dressed with --folk-dress.
+			folk_models = Array(a.substr(13).split(","))
+		elif a.begins_with("--folk-far-model="):
+			folk_far_models = Array(a.substr(17).split(","))
+		elif a == "--folk-dress":
+			folk_dress = true
 		elif a == "--bodies":
 			bodies = true
 		elif a.begins_with("--extra-bodies="):
@@ -148,7 +159,8 @@ func _frames(n: int) -> void:
 ## Frame times (ms) over `n` frames, wall clock, plus the monitors averaged.
 func _measure(n: int) -> Dictionary:
 	var times := PackedFloat32Array()
-	var mon := {"render_cpu_ms": 0.0, "draw_calls": 0.0, "objects_in_frame": 0.0, "process_ms": 0.0, "physics_ms": 0.0, "ticks": 0.0}
+	var mon := {"render_cpu_ms": 0.0, "render_gpu_ms": 0.0, "draw_calls": 0.0, "objects_in_frame": 0.0, "primitives": 0.0,
+			"process_ms": 0.0, "physics_ms": 0.0, "ticks": 0.0}
 	# The frame's own process and physics, from the bug report's ring (#435; Godot's monitors are a
 	# second's worst frame and worst tick): none with --no-perf-ring.
 	var rec = main.get_node_or_null(^"BugRecorder") if main else null
@@ -188,6 +200,7 @@ func _measure(n: int) -> Dictionary:
 		i += 1
 		mon.draw_calls += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME) / n
 		mon.objects_in_frame += Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME) / n
+		mon.primitives += Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME) / n
 		# The main thread's own work (headless the loop isn't paced: one tick a frame).
 		if ring:
 			var row: Dictionary = ring.last_frame()
@@ -195,11 +208,16 @@ func _measure(n: int) -> Dictionary:
 			mon.physics_ms += float(row.get("physics_ms", 0.0)) / n
 		if vp_rid.is_valid():
 			mon.render_cpu_ms += RenderingServer.viewport_get_measured_render_time_cpu(vp_rid) / n
+			mon.render_gpu_ms += RenderingServer.viewport_get_measured_render_time_gpu(vp_rid) / n
 	if by_ticks:  # the sums above were over n; there were i frames
 		for k in mon:
 			mon[k] *= float(n) / maxf(i, 1)
 	mon.ticks = float(Engine.get_physics_frames() - ticks0) / maxf(i, 1)  # physics ticks a frame (the catch-up, #435)
 	mon["frames_measured"] = i
+	# Memory after the run (#889): the engine's static memory and, drawn, the video memory.
+	mon["static_mb"] = Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0
+	mon["video_mb"] = Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0
+	mon["texture_mb"] = Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / 1048576.0
 	var sorted := times.duplicate()
 	sorted.sort()
 	var avg := 0.0
@@ -635,10 +653,17 @@ func _run_valley() -> void:
 			folk._look = 0.0  # (the folk read the clock now, not in half a second)
 		await _frames(60)
 		var made: Array = []
+		var lay_ms := 0.0
 		if townsfolk > 0:
 			await physics_frame
-			made = load("res://tools/valley/valley_townsfolk.gd").lay(street, townsfolk, player.global_position,
+			var vt = load("res://tools/valley/valley_townsfolk.gd")
+			vt.models = folk_models
+			vt.far_models = folk_far_models
+			vt.dress = folk_dress
+			var tl := Time.get_ticks_usec()
+			made = vt.lay(street, townsfolk, player.global_position,
 					band, Vector3(NIGHT_AT.x, 0.0, NIGHT_AT.z) if night else Vector3.INF)
+			lay_ms = (Time.get_ticks_usec() - tl) / 1000.0
 		await _frames(120)
 		var extra := {}
 		if s == "gunfight":
@@ -650,6 +675,7 @@ func _run_valley() -> void:
 		var m: Dictionary = await _measure(int(seconds * 60.0))
 		var entry := {"frames": m, "census": _census(), "people": _people_census(player)}
 		entry.people["townsfolk_added"] = made.size()
+		entry.people["townsfolk_lay_ms"] = lay_ms
 		entry.merge(extra)
 		if bodies:
 			entry["bodies"] = _bodies_census()

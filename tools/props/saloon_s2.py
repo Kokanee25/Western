@@ -261,7 +261,8 @@ def cookstove():
     }
 
 
-BATCH_S2 = [wall_bench, handsaw, fiddle, fiddle_bow, beer_keg, keg_rack, cookstove]
+# keg_rack is S3's since #892 (redone as a stillage, its kegs on their sides: tools/props/saloon_s3.py).
+BATCH_S2 = [wall_bench, handsaw, fiddle, fiddle_bow, beer_keg, cookstove]
 
 
 def main():

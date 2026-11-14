@@ -41,8 +41,8 @@ adds its own lines.
 - **Scanned woods for the material library** (#701; `assets/textures/scans/<id>/`, fetched on GitHub
   by `.github/workflows/scans.yml`, cut to 2048 albedo / 1024 normal / 512 roughness JPEGs): CC0 1.0,
   no credit asked; credited all the same.
-  - **Poly Haven** (polyhaven.com, CC0): `black_walnut_veneer_02` (https://polyhaven.com/a/black_walnut_veneer_02), `oak_veneer_01` (https://polyhaven.com/a/oak_veneer_01), `red_oak_veneer` (https://polyhaven.com/a/red_oak_veneer), `sapele_veneer` (https://polyhaven.com/a/sapele_veneer).
-  - **ambientCG** (ambientcg.com, by Lennart Demes, CC0): `Wood009` (https://ambientcg.com/view?id=Wood009), `Wood014` (https://ambientcg.com/view?id=Wood014), `Wood015` (https://ambientcg.com/view?id=Wood015), `Wood047` (https://ambientcg.com/view?id=Wood047), `Wood048` (https://ambientcg.com/view?id=Wood048), `Wood050` (https://ambientcg.com/view?id=Wood050), `Wood051` (https://ambientcg.com/view?id=Wood051), `Wood058` (https://ambientcg.com/view?id=Wood058), `Wood059` (https://ambientcg.com/view?id=Wood059), `Wood061` (https://ambientcg.com/view?id=Wood061), `Wood062` (https://ambientcg.com/view?id=Wood062), `Wood063` (https://ambientcg.com/view?id=Wood063), `Wood081` (https://ambientcg.com/view?id=Wood081), `Wood086` (https://ambientcg.com/view?id=Wood086), `Wood087` (https://ambientcg.com/view?id=Wood087).
+  - **Poly Haven** (polyhaven.com, CC0): `black_walnut_veneer_02` (https://polyhaven.com/a/black_walnut_veneer_02), `oak_veneer_01` (https://polyhaven.com/a/oak_veneer_01), `red_oak_veneer` (https://polyhaven.com/a/red_oak_veneer), `sapele_veneer` (https://polyhaven.com/a/sapele_veneer), `rock_surface` (https://polyhaven.com/a/rock_surface), `painted_plaster_wall` (https://polyhaven.com/a/painted_plaster_wall).
+  - **ambientCG** (ambientcg.com, by Lennart Demes, CC0): `Wood009` (https://ambientcg.com/view?id=Wood009), `Wood014` (https://ambientcg.com/view?id=Wood014), `Wood015` (https://ambientcg.com/view?id=Wood015), `Wood047` (https://ambientcg.com/view?id=Wood047), `Wood048` (https://ambientcg.com/view?id=Wood048), `Wood050` (https://ambientcg.com/view?id=Wood050), `Wood051` (https://ambientcg.com/view?id=Wood051), `Wood058` (https://ambientcg.com/view?id=Wood058), `Wood059` (https://ambientcg.com/view?id=Wood059), `Wood061` (https://ambientcg.com/view?id=Wood061), `Wood062` (https://ambientcg.com/view?id=Wood062), `Wood063` (https://ambientcg.com/view?id=Wood063), `Wood081` (https://ambientcg.com/view?id=Wood081), `Wood086` (https://ambientcg.com/view?id=Wood086), `Wood087` (https://ambientcg.com/view?id=Wood087); for the stone and lime (#860, #857): `Rock023`, `Rock030`, `Rock035`, `Plaster001`, `Plaster003`, `PaintedPlaster017` (https://ambientcg.com/view?id=<id>).
 
 ## Prop references (the prop lab)
 
@@ -130,6 +130,9 @@ of it is in the game yet:
   and that the samples aren't sold as they are). The solo violin's sustains (`Arco Vib`) and short
   strokes (`spic`), fetched into `build/` by `experiments/sound_lab/fiddle/fetch.sh`; render A and
   the hybrid C are made from them.
+  For the travelling band's cornet and drums (#822): its trumpet (`Brass/Trumpet/sus`, `stac`), bass
+  drum (`BDrumNewhit`) and snare (`Snare2-*`), the same way; `band_samples.py`'s render A, the
+  listening set's real instruments (nothing of them ships).
 - **"Sallie Gooden"** played by A. C. "Eck" Robertson, recorded for Victor in 1922 (Victor 18956),
   public domain in the US (a sound recording published before 1923: its federal protection under
   the Music Modernization Act ended on 1 January 2022; the tune is traditional). From the Internet
