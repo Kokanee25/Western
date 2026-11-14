@@ -227,6 +227,42 @@ func test_a_bleeding_man_dragged_smears_the_ground() -> void:
 			kinds, "on" if is_instance_valid(man.signs._smear_tail) else "ended", man.signs._smear_still, speeds])
 
 
+## However he came to lie (#925): the same drag over a dozen landings, each a hair's turn from the
+## last (how a ragdoll lands turns on less), smears every time. Before, the touch test's reach sat
+## in the middle of where his chest rests (0.17 to 0.26 m up, on an arm or a shoulder), so 1 landing
+## in 200 laid one piece and half laid only two; now none of 200 lays fewer than three.
+func test_a_drag_smears_however_he_landed() -> void:
+	Settings.library_motion = false
+	var fewest := 99
+	for i in 12:
+		var m := HumanBody.new()
+		m.has_gun = false
+		m.rng_seed = 40 + i
+		m.position = Vector3(-12.0 + i * 2.0, 0.0, -10.0)
+		m.rotation.y = i * 0.0007
+		world.add_child(m)
+		await physics_frames(30)
+		m.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
+		m.physiology.bleeds[0].rate = 3.0
+		m.go_limp()
+		await physics_frames(150)
+		m.signs._end_smear()
+		var before := _smears().size()
+		for k in 60:
+			for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
+				var rb := m.parts[sid] as RigidBody3D
+				rb.linear_velocity = Vector3(0, rb.linear_velocity.y, 1.2)
+			await physics_frames(1)
+		await physics_frames(90)
+		await wait_until(func() -> bool: return not is_instance_valid(m.signs._smear_tail), 180)
+		var n := _smears().size() - before
+		fewest = mini(fewest, n)
+		check(n >= 2, "landing %d: smears along where he was dragged (%d)" % [i, n])
+		m.queue_free()
+		await physics_frames(2)
+	check(fewest >= 3, "a 0.95 m drag lays three pieces at least, however he lay (fewest %d)" % fewest)
+
+
 func test_a_smear_runs_out_as_the_blood_on_him_does() -> void:
 	man.physiology.apply_trace({"segment": &"chest", "track_cm": 12.0, "hits": []})
 	man.physiology.bleeds[0].rate = 0.0  # what's on him, nothing more coming

@@ -61,6 +61,7 @@ const SMEAR_SPEED := 0.3  ## m/s along the surface
 const SMEAR_SLIDE := 0.6  ## at least this share of the part's speed along the surface (not landing on it)
 const SMEAR_EVERY := 0.25  ## a piece at least this long (m)
 const SMEAR_BREAK := 0.8  ## a jump further than this between looks (lifted, thrown) starts a new swipe
+const SMEAR_GAP := 0.15  ## m between a trunk part's skin and the floor that still drags on it (an arm or a fold of his coat under him)
 const SMEAR_STILL := 1.0  ## s not sliding and the swipe has ended
 const SMEAR_WIDTH := 1.25  ## of the touching part's width (his back lies flatter and wider than its capsule)
 const SMEAR_LOAD_MAX := 30.0  ## ml his clothes hold where they touch
@@ -92,6 +93,7 @@ var _hand_stain := {}  ## "r"/"l" -> the Decal of blood on that hand
 var _smear_last := Vector3.INF  ## where the swipe's last piece ended (INF: no swipe)
 var _smear_normal := Vector3.UP
 var _smear_load := 0.0  ## ml of his blood on what touches
+var _smear_part := &""  ## the part of his trunk the swipe is drawn under (kept while it still slides: no hopping)
 var _smear_tail: Decal  ## the swipe's last piece (drawn as its end when it stops)
 var _smear_pieces := 0
 var _smear_still := 0.0
@@ -612,6 +614,11 @@ func _sliding_contact(world: Node3D) -> Dictionary:
 	for seg: StringName in [&"abdomen", &"chest", &"pelvis"]:
 		if not order.has(seg):
 			order.append(seg)
+	# The part this swipe is under first: which of them the ray finds changes with a centimetre of
+	# how he lies, and a swipe that hopped from his chest to his belly lost a part's length (#925).
+	if _smear_part != &"" and order.has(_smear_part):
+		order.erase(_smear_part)
+		order.push_front(_smear_part)
 	for sid in order:
 		var rb := body.parts.get(sid) as RigidBody3D
 		if rb == null:
@@ -620,13 +627,17 @@ func _sliding_contact(world: Node3D) -> Dictionary:
 		if v.length() < SMEAR_SPEED:
 			continue
 		var radius := float(body.anatomy.segments[sid].radius)
-		var hit := _touching(world, rb.global_position, radius + 0.08)
+		# He seldom lies flat on it: an arm under him, a shoulder, his coat (his chest's middle rests
+		# 0.17 to 0.26 m up, its radius 0.13). The old reach (radius + 0.08) sat in the middle of that,
+		# so whether a drag smeared at all turned on a centimetre of his landing (#925).
+		var hit := _touching(world, rb.global_position, radius + SMEAR_GAP)
 		if hit.is_empty():
 			continue
 		var n: Vector3 = hit.normal
 		var along := v - n * v.dot(n)
 		if along.length() < SMEAR_SPEED or along.length() < v.length() * SMEAR_SLIDE:
 			continue
+		_smear_part = sid
 		return {"at": hit.position, "normal": n, "width": radius * 2.0 * SMEAR_WIDTH}
 	return {}
 
@@ -636,6 +647,7 @@ func _end_smear() -> void:
 	if is_instance_valid(_smear_tail) and _smear_tail.is_inside_tree():
 		_smear_tail.texture_albedo = PixelArt.blood("smear_end", 73, false, 32)
 	_smear_tail = null
+	_smear_part = &""
 	_smear_last = Vector3.INF
 	_smear_pieces = 0
 	_smear_still = 0.0

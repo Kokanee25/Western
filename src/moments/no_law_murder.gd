@@ -511,6 +511,7 @@ func _shoot_head() -> void:
 	if victim.hat_body != null:
 		exclude.append(victim.hat_body.get_rid())
 	var dir := (head - origin).normalized()
+	_clear_to_head(origin, head, exclude)
 	var t_rev: RevolverTuning = load("res://config/revolver.tres")
 	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
 	bullet.form = t_rev.form_factor
@@ -525,6 +526,31 @@ func _shoot_head() -> void:
 	shots += 1
 	_shot_t = t
 	_note("Cody shoots Earl in the head (%d)" % shots)
+
+
+## What lies on the ball's line from his muzzle short of Earl's head is let through (`exclude`): the
+## pieces of the chair Earl went over with, and Earl's own neck, arm or shoulder when Cody stands
+## at his feet. He's stood over a man on the floor with the muzzle a pace from his head: the beat
+## is that he doesn't miss, and how Earl's ragdoll came to lie mustn't decide the story. Measured
+## (#925, 16 murders in fresh valleys): 2 left Earl alive after all three shots, one with every
+## ball in a chair leg lying over his face, one with every ball in his neck. A wall or the table
+## in the way isn't let through (it's left in, and the shot is what it is).
+func _clear_to_head(origin: Vector3, head: Vector3, exclude: Array[RID]) -> void:
+	var space := World.space(cheater)
+	if space == null:
+		return
+	var head_part := cheater.parts[&"head"] as CollisionObject3D
+	var own: Array = cheater.parts.values()
+	for i in 24:
+		var q := PhysicsRayQueryParameters3D.create(origin, head, Layers.BULLETS)
+		q.exclude = exclude
+		var hit := space.intersect_ray(q)
+		if hit.is_empty() or hit.collider == head_part:
+			return
+		var c := hit.collider as CollisionObject3D
+		if c == null or not (c is RigidBody3D or own.has(c)):
+			return  # (something standing: a loose piece at rest is still a RigidBody3D, frozen)
+		exclude.append(c.get_rid())
 
 
 ## Where you were for it: sat at the table, in the yard with it in front of you, in earshot, away.
