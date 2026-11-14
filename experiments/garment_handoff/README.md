@@ -3,7 +3,36 @@
 Sean, 2026-11-13 (toward #874's variety acts): "Could we have her really take off a stocking or long
 glove". The reusable core is **the garment handoff**: a worn, skinned garment becoming real cloth as
 it's taken off. Here a long glove is drawn off MetaHuman Sean's left arm by his right hand, tossed,
-and left lying on a chair. **A lab only: nothing in the game changes.**
+and left lying on a chair. **Promoted (#917, 2026-11-14):** the glove, the cloth, the release rule
+and his skin's shape are the game's `GarmentHandoff` (`src/bodies/`; docs/LAYOUT.md "src/bodies");
+this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on the part. Below,
+"glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
+`GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
+
+## On the game's part (#917, `results/2026-11-14/`)
+
+- **The film:** [`results/2026-11-14/garment_handoff_part.mp4`](results/2026-11-14/garment_handoff_part.mp4)
+  (the same three angles and the draw at half speed, on Sean's Studio man `sean_s3_talking`: the
+  MetaHuman's files weren't to hand), and **beside the lab's**:
+  [`results/2026-11-14/beside_the_lab.mp4`](results/2026-11-14/beside_the_lab.mp4) (left the lab,
+  right the part). Each run's numbers: `film_runs.jsonl`.
+- **Measured on `sean_s3_talking`** (bench, 700 triangles, 372 points): no pop (1.5-1.6 mm), the
+  whole glove off his arm 1.1 s after the take, at rest on the chair 7.1-7.5 s after the cue, stretch
+  at most 1.06, nothing below the floor, flung or lost (`measure.json`); under his skin more than
+  2 mm at most 26 (10 deeper than 5 mm, 1 deeper than 1 cm; 23-29 over runs while tuning). The worn glove itself counts 4 (his modelled sleeve
+  folds stand above its points: they show through it worn in places, white patches on the forearm in
+  the film's first seconds). The lab's MetaHuman (bare skin) counted 8; the ≤ 8 bar wants a run on him.
+- **The cost** (`cost.md`, 3 runs each way, x0.65 to Sean's): worn 0; while it simulates, take
+  +0.53 ms (9 ticks; the take's own tick builds the soft body), draw **+0.43**, toss +0.19 (0.40 over
+  the 188 ticks it simulates); falling +0.14; at rest 0. (The lab: +1.0 while it simulated.) The skin
+  shape's cost was Jolt rebuilding the concave shape in the world (~1.5 µs a triangle, ~0.4 ms a
+  tick for 700), not the skinning (0.07 ms for 372 points through only the binds used): it's rebuilt
+  every 2nd tick (the arm moves ~1 mm a tick) from the triangles near the free cloth, and Jolt's own
+  soft-body cost halves with it (its contacts aren't thrown away every tick).
+- **Not native:** crates.io isn't reachable from this workspace, so the Rust route wasn't built;
+  the GDScript route met the target.
+- **Rest:** the cloth's speed is compared a quarter second apart (a glove on a floor shivers a mm for
+  ever, cm/s tick to tick; on the floor it never came to rest by the tick measure).
 
 **The film:** [`results/2026-11-13/garment_handoff.mp4`](results/2026-11-13/garment_handoff.mp4)
 (33 s, in the game's real look on the street at 16:12: the hands, wide, the chair, then the draw at
@@ -58,7 +87,8 @@ godot --headless --import
 godot --headless --fixed-fps 60 -s res://experiments/garment_handoff/bench.gd -- --out=DIR [--seconds=14]   # measured: DIR/summary.json
 xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 60 -s res://experiments/garment_handoff/bench.gd -- \
     --out=DIR --shots=2.7,3.3,4.2 --cam=hands|left|close|front|side|floor   # stills, plain lights
-# The cost, three runs each way (--bare: the same hands, no glove), then the table:
+# (--model=NAME: the man, barkeep_s2_talking by default; --tris=N; --precision=, --skin_every=, --give=: the part's tune)
+# The cost, runs each way (--bare: the same hands, no glove), then the table:
 godot --headless --fixed-fps 60 -s res://experiments/garment_handoff/bench.gd -- --out=build/gh/perf_glove_1 --perf --seconds=14
 godot --headless --fixed-fps 60 -s res://experiments/garment_handoff/bench.gd -- --out=build/gh/perf_bare_1 --perf --bare --seconds=14
 python3 experiments/garment_handoff/cost.py build/gh/perf_glove_* -- build/gh/perf_bare_* > cost.md
@@ -68,10 +98,10 @@ while IFS= read -r l; do python3 tools/bridge.py "$l"; done < experiments/garmen
 python3 tools/bridge.py stop
 ```
 
-Bench flags: `--shapes` makes the cloth meet the fitted shapes instead of his skin; `--debug` draws
-those shapes; `--no-take` stops after the reach; `--hide-glove` hides the worn glove. With
-`GH_DEBUG=1` each step prints what it found. The bridge's commands: `gh_man`, `gh_dress`, `gh_cam`,
-`gh_film`, `gh_clear` (`bridge.gd`).
+Bench flags: `--no-take` stops after the reach; `--hide-glove` hides the worn glove; `--all-skin`
+rebuilds all of his skin shape (not only near the cloth). (The lab's `--shapes`, `--debug` and
+`GH_DEBUG` went with its first files.) The bridge's commands: `gh_man X Y Z [YAW] [MODEL]`,
+`gh_dress`, `gh_cam`, `gh_film`, `gh_clear` (`bridge.gd`).
 
 ## Results (2026-11-13, `results/2026-11-13/`)
 

@@ -4,16 +4,16 @@ extends BridgeLab
 ## street with a kit chair by him; the long glove worn; drawn off, tossed onto the chair. Lab only;
 ## README.md beside it has the runs.
 ##
-##   gh_man X Y Z [YAW]     him there, no brain, his GLB's own materials; a chair at his right front
-##   gh_dress [shapes]      the glove on him (`shapes`: the cloth meets fitted shapes, not his skin)
+##   gh_man X Y Z [YAW] [MODEL]   him there, no brain (a MetaHuman: his GLB's own materials); a chair at his right front
+##   gh_dress               the glove on him (the game's GarmentHandoff, #917)
 ##   gh_cam NAME            hands | wide | chair | side: the free camera, set in his frame
 ##   gh_film DIR [SECONDS=11]   the handoff from its cue, every frame drawn to DIR; its measures back
 ##   gh_clear               him, the chair, the glove gone
 
-const MODEL := &"sean_metahuman_s3"
+var MODEL := &"barkeep_s2_talking"  # (the lab's was sean_metahuman_s3, never committed; gh_man's 5th word)
 const HELP := {
-	"gh_man": "gh_man X Y Z [YAW] -> MetaHuman Sean there (no brain, his own materials), a chair by him (#895)",
-	"gh_dress": "gh_dress [shapes] -> the long glove on his left arm, worn",
+	"gh_man": "gh_man X Y Z [YAW] [MODEL] -> MetaHuman Sean there (no brain, his own materials), a chair by him (#895)",
+	"gh_dress": "gh_dress -> the long glove on his left arm, worn (the game's GarmentHandoff)",
 	"gh_cam": "gh_cam hands|wide|chair|side -> the free camera in his frame",
 	"gh_film": "gh_film DIR [SECONDS=11] -> the handoff from its cue, each frame to DIR/0000.png...",
 	"gh_clear": "gh_clear -> him, the chair and the glove gone",
@@ -42,6 +42,8 @@ func _cmd_gh_man(a: Array) -> Dictionary:
 	await physics_frames(2)
 	var at := vec(a, 0)
 	var yaw := deg_to_rad(-float(a[3])) if a.size() >= 4 else 0.0
+	if a.size() >= 5:
+		MODEL = StringName(a[4])
 	man = HumanBody.new()
 	man.person_id = &"gh_man"
 	man.name = "GhMan"
@@ -49,7 +51,7 @@ func _cmd_gh_man(a: Array) -> Dictionary:
 	man.body_model = MODEL
 	man.enter(street, at, yaw)
 	await physics_frames(30)
-	var own := _own_materials()
+	var own := _own_materials() if String(MODEL).contains("metahuman") else 0
 	chair = PropKit.spawn(&"chair")
 	street.add_child(chair)
 	chair.global_position = man.global_transform * Vector3(0.95, 0.0, -0.75)
@@ -65,7 +67,6 @@ func _cmd_gh_dress(a: Array) -> Dictionary:
 		return {"ok": false, "error": "dressed already (gh_man again for a fresh one)"}
 	handoff = load("res://experiments/garment_handoff/handoff.gd").new()
 	handoff.name = "GloveHandoff"
-	handoff.skin_collider = not (a.size() > 0 and a[0] == "shapes")
 	handoff.measure_skin = false  # (the bench counts it; here it would slow the film)
 	street.add_child(handoff)
 	return handoff.dress(man, chair)
@@ -110,7 +111,7 @@ func _cmd_gh_clear(_a: Array) -> Dictionary:
 		if n != null and is_instance_valid(n):
 			n.queue_free()
 	for n in street.get_children():
-		if String(n.name) in ["Glove", "GloveArm"] or n.get_script() == load("res://experiments/garment_handoff/glove_cloth.gd"):
+		if n is GarmentHandoff:
 			n.queue_free()
 	handoff = null
 	chair = null

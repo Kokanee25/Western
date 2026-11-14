@@ -12,7 +12,9 @@ extends SceneTree
 ##
 ## Writes DIR/summary.json (and s_<tick>.png for --shots).
 
-const MODEL := &"sean_metahuman_s3"
+## The man: a Studio man in the repo by default (`--model=`; the lab used `sean_metahuman_s3`, his
+## files copied in for a run and never committed).
+var MODEL := &"barkeep_s2_talking"
 var Handoff: GDScript
 const CAMS := {
 	"front": [Vector3(0.9, 1.45, -2.1), Vector3(0.25, 1.05, 0.0), 40.0],
@@ -38,7 +40,7 @@ var phase_ms := {}
 var phase_us := {}
 var _prof_was := {}
 ## Prof's systems read a tick: the glove's own and the man's.
-const SYSTEMS := [&"cloth", &"glove_handoff", &"glove_arm", &"people_body", &"people_skeleton"]
+const SYSTEMS := [&"cloth", &"glove_handoff", &"garment", &"people_body", &"people_skeleton"]
 
 
 func _initialize() -> void:
@@ -51,6 +53,7 @@ func _run() -> void:
 		if a.begins_with("--"):
 			var kv := a.substr(2).split("=", true, 1)
 			opts[kv[0]] = kv[1] if kv.size() > 1 else "true"
+	MODEL = StringName(opts.get("model", String(MODEL)))
 	var out_dir := String(opts.get("out", "build/garment_handoff"))
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	prof = load("res://src/debug/prof.gd")
@@ -76,23 +79,29 @@ func _run() -> void:
 	chair.rotation_degrees.y = 200.0
 	for i in 20:
 		await physics_frame
-	_own_materials()
+	if String(MODEL).contains("metahuman"):
+		_own_materials()
 	var info := {}
 	if not opts.has("no-glove") or opts.has("bare"):
 		handoff = Handoff.new()
 		handoff.name = "Handoff"
-		handoff.debug_shapes = opts.has("debug")
 		handoff.no_take = opts.has("no-take")
-		handoff.skin_collider = not opts.has("shapes")
 		handoff.with_glove = not opts.has("bare")
 		if opts.has("perf"):
 			handoff.measure = false
 			handoff.measure_skin = false
 			handoff.tune.end_after_rest = 2.0
+		handoff.tris = int(opts.get("tris", "700"))
+		handoff.part_tune = {}
+		for k in ["precision", "skin_every", "give"]:
+			if opts.has(k):
+				handoff.part_tune[k] = float(opts[k])
 		world.add_child(handoff)
 		info = handoff.dress(man, chair)
-		if opts.has("hide-glove"):
-			handoff.worn.visible = false
+		if opts.has("hide-glove") and handoff.part:
+			handoff.part.worn_mesh.visible = false
+		if opts.has("all-skin") and handoff.part:
+			handoff.part.taken.connect(func() -> void: handoff.part.collider.near = false)
 		print("dressed ", info)
 	var total := int(float(opts.get("seconds", "11")) * 60.0)
 	var last := Time.get_ticks_usec()

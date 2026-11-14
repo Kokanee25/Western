@@ -9,7 +9,7 @@ import sys
 
 SCALE = 0.65  # this workspace's 2.1 GHz core to Sean's 3.25 GHz (CLAUDE.md's frame budget)
 PHASES = ["worn", "present", "reach", "take", "draw", "toss", "lie", "rest"]
-OWN = ["glove_arm", "glove_handoff", "cloth"]
+OWN = ["garment", "glove_handoff", "cloth"]
 
 
 def load(dirs):
@@ -27,7 +27,7 @@ def main():
     args = sys.argv[1:]
     cut = args.index("--")
     glove, bare = load(args[:cut]), load(args[cut + 1:])
-    print("| Phase | ticks | tick, glove (ms) | tick, bare (ms) | difference | its arm (skin shape) | handoff script | ClothProp script |")
+    print("| Phase | ticks | tick, glove (ms) | tick, bare (ms) | difference | GarmentHandoff (rule, skin shape) | the lab's choreography | ClothProp script |")
     print("|---|---|---|---|---|---|---|---|")
     for ph in PHASES:
         g = [r["phase_ms"][ph] for r in glove if ph in r["phase_ms"]]

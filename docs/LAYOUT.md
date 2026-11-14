@@ -1381,6 +1381,23 @@ as you move round; Senses' eye is then his leading eye, `PostPose.eye_now`). Not
 entering it, stepping out to shoot a man in the open, recoil. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
 `sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
 
+**The garment handoff** (#917, from the lab #895): `WornGarment` makes a garment from his own
+Skin_whole (the triangles under it by bone weight, welded, simplified with
+`SurfaceTool.generate_lod`, pushed out; his weights kept; `relief`: how far his skin stands above
+each point between them) and wears it (`wear`: a MeshInstance3D under his Skeleton3D with his skin
+and his `custom_aabb`); `posed()` skins it on the CPU as the GPU does (only the binds it uses).
+`GarmentHandoff` (`glove_on(man, parent, side)`, `take(hand)`, `let_go_of_arm()`, `let_go(v)`;
+signals `taken`, `came_to_rest`) swaps it for a `GarmentCloth` (a ClothProp of the garment's mesh:
+`pin_to`, `hold_on` carriers at his bones, `release`; at rest baked, its soft body freed) and runs
+the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every).
+`SkinCollider`: a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
+`skin_every` ticks from the triangles near the free cloth (Jolt pays ~1.5 µs a triangle to rebuild
+one in the world). Choreography stays the caller's (`experiments/garment_handoff/handoff.gd`).
+Traps: a SoftBody3D mesh needs normals; reach_to must be renewed every tick or the arm drops (the
+worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a hand apart on the
+floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
+his own). `tests/test_garment_handoff.gd`.
+
 ## src/moments
 
 **Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
