@@ -462,3 +462,17 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | doctor_daylight_r2 | desk_N | **cheap indie** | 2, 3, 4, 7 | Painted, toy-like finish | 23% / 1.2 / 1.08 / 0.16 | #829 + window shadows by day, warm |
 | doctor_daylight_r2 | dispensary_N | **cheap indie** | 1, 2, 3, 4, 6, 9 | Dead window | 49% / 1.0 / 1.30 / 0.27 | #829 + window shadows by day, warm |
 | doctor_daylight_r2 | window_N | **cheap indie** | 3, 4, 5, 7, 9 | Hanging porch post | 6% / 3.8 / 1.02 / 0.35 | #829 + window shadows by day, warm |
+| 2026-11-14_cheap_fp_hands | colt_hip_day | **cheap indie** | 3, 4, 6, 7, 9 | The hand and gun look like a placeholder rig | 12% / 1.4 / 0.80 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | colt_aim_day | **cheap indie** | 3, 4, 6, 7, 8, 9 | A giant forearm and cuff block a third of the view | 13% / 0.8 / 0.86 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | colt_cock_day | **cheap indie** | 3, 4, 6, 7, 9 | The rubbery hand holding the revolver sideways | 13% / 1.4 / 0.79 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | rifle_aim_day | **cheap indie** | 3, 6, 7, 8, 9 | The rifle aim is a wall of arm and a bright-blue toy receiver | 14% / 0.5 / 1.01 / 0.05 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | rifle_lever_day | **cheap indie** | 3, 4, 5, 6, 7, 9 | Hands that don't grip the rifle | 14% / 1.6 / 0.82 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | colt_hip_lamp | **cheap indie** | 1, 2, 3, 6, 7, 9 | The rubbery hand and sideways revolver again | 53% / 0.0 / 1.29 / 0.19 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | rifle_lever_lamp | **cheap indie** | 1, 2, 3, 5, 6, 7, 9 | Hands that don't hold the rifle, and plastic-blue steel | 56% / 0.0 / 1.21 / 0.17 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_hip_day | **good indie** | 3, 6, 7, 8 | Mannequin hand on a smeared revolver | 13% / 1.5 / 0.80 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_aim_day | **cheap indie** | 3, 5, 6, 7, 8 | Giant black sleeve filling the lower middle | 13% / 0.8 / 0.86 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_cock_day | **good indie** | 3, 6, 7, 8 | Mannequin hand on a smeared revolver | 13% / 1.5 / 0.79 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | rifle_aim_day | **cheap indie** | 3, 5, 6, 7, 8 | Two black tubes eat the screen | 13% / 0.7 / 0.98 / 0.05 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | rifle_lever_day | **cheap indie** | 3, 5, 6, 7 | Plastic blue rifle | 14% / 1.6 / 0.82 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_hip_lamp | **good indie** | 2, 3, 5, 6, 8, 9 | Mannequin hand glowing orange | 53% / 0.0 / 1.32 / 0.19 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | rifle_lever_lamp | **good indie** | 2, 3, 5, 6, 9 | Fingers through the stock | 56% / 0.0 / 1.26 / 0.17 | #914 option 2 hands in the game, round 2 |
