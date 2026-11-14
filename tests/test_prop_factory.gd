@@ -795,15 +795,15 @@ func test_the_arm_rail_sits_on_the_bars_top() -> void:
 
 # --- Saloon B, batch S2 (#879; tools/props/saloon_s2.py, tools/blender/props/saloon_s2.py) -----------
 
-const SALOON_S2_MEMBERS := [&"wall_bench", &"fiddle", &"fiddle_bow", &"beer_keg", &"keg_rack", &"cookstove"]
+const SALOON_S2_MEMBERS := [&"wall_bench", &"fiddle", &"fiddle_bow", &"beer_keg", &"cookstove"]
 
 
 func test_saloon_s2_stands_weighs_and_draws_in_a_few_batches() -> void:
 	# kg (the keg full of beer; the fiddle's hollow box weighs its inside as char, ~1.7 for a real 0.5),
 	# and each member a physics body standing (README "Saloon B, batch S2").
 	var weights := {&"wall_bench": [8.0, 35.0], &"fiddle": [0.2, 2.5], &"fiddle_bow": [0.02, 0.5], &"beer_keg": [55.0, 95.0],
-			&"keg_rack": [25.0, 120.0], &"cookstove": [120.0, 800.0]}
-	var bodies := {&"wall_bench": 10, &"fiddle": 1, &"fiddle_bow": 1, &"beer_keg": 10, &"keg_rack": 10, &"cookstove": 12}
+			&"cookstove": [120.0, 800.0]}
+	var bodies := {&"wall_bench": 10, &"fiddle": 1, &"fiddle_bow": 1, &"beer_keg": 10, &"cookstove": 12}
 	for id: StringName in SALOON_S2_MEMBERS:
 		var def := PropKit.definition(id)
 		check(def.get("factory", "") == "tools/props/saloon_s2.py", "%s is the factory's" % id)
@@ -854,26 +854,80 @@ func test_a_keg_holds_beer_and_a_hole_lets_it_run() -> void:
 	check(c.litres < before, "and the beer runs out (%.2f l)" % (before - c.litres))
 
 
-func test_kegs_stand_on_their_rack_and_come_down_with_it() -> void:
+# --- Saloon B, batch S3 (#892; tools/props/saloon_s3.py) ----------------------------------------------
+
+const SALOON_S3 := [&"beer_keg_side", &"keg_rack", &"plank_bed", &"owner_desk"]
+
+
+func test_saloon_s3_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg (the keg full of beer), and each member a physics body standing (README "Saloon B, batch S3").
+	var weights := {&"beer_keg_side": [55.0, 95.0], &"keg_rack": [40.0, 140.0], &"plank_bed": [20.0, 80.0], &"owner_desk": [30.0, 110.0]}
+	var bodies := {&"beer_keg_side": 12, &"keg_rack": 10, &"plank_bed": 14, &"owner_desk": 13}
+	for id: StringName in SALOON_S3:
+		check(PropKit.definition(id).get("factory", "") == "tools/props/saloon_s3.py", "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= bodies[id], "%s stands as %d bodies (at most %d)" % [id, p.member_count(), bodies[id]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_the_lying_keg_lies_along_z_on_its_bottom_staves() -> void:
+	var keg := await _place(&"beer_keg_side")
+	var box := PropKit.bounds(keg.definition)
+	check(box.size.z > box.size.x + 0.04 and absf(box.size.x - box.size.y) < 0.03, "it lies along z (%s)" % box.size)
+	var feet := keg.get_members().filter(func(m: StructureMember) -> bool: return m.grounded)
+	check(feet.size() == 4, "its two bottom staves, in two lengths each, are its feet (%d)" % feet.size())
+	for m: StructureMember in keg.get_members():
+		if String(m.member_id).contains("stave"):
+			check(absf(m.axis().z) > 0.99, "%s lies along the keg's axis" % m.member_id)
+	var c := keg.contents
+	check(c != null and c.liquid == &"beer", "it's full of beer")
+	check(c.litres > 50.0 and c.litres < 66.0, "a half-barrel's worth lying (%.1f l)" % c.litres)
+	# A hole in a low stave lets it run; one in the top stave, over the beer, doesn't.
+	var low := _m(keg, "stave0a")
+	var at := low.global_position
+	var out := (at - Vector3(0, 0.24, at.z)).normalized()
+	low.add_hole(at + out * 0.02, at - out * 0.02, 0.0057)
+	await physics_frames(2)
+	check(c.leaks.size() == 1, "a hole low in it leaks")
+	var before := c.litres
+	await physics_frames(60)
+	check(c.litres < before, "and the beer runs out (%.2f l)" % (before - c.litres))
+
+
+func test_kegs_lie_on_their_rack_and_come_down_with_it() -> void:
 	var rack := await _place(&"keg_rack")
-	var top := float(saloon_rack_tier(1))
-	var keg := PropKit.spawn(&"beer_keg") as KitProp
-	keg.position = Vector3(0.24, top, 0)
-	world.add_child(keg)
-	await physics_frames(KitProp.SETTLE_FRAMES + 4)
-	check(not keg.loose, "a keg stands on the rack's upper rails")
+	var kegs: Array[KitProp] = []
+	for slot: Array in PropKit.definition(&"keg_rack").slots:
+		var keg := PropKit.spawn(&"beer_keg_side") as KitProp
+		keg.position = PropKit.vec(slot)
+		world.add_child(keg)
+		kegs.append(keg)
+	await physics_frames(KitProp.SETTLE_FRAMES + 8)
+	for keg in kegs:
+		check(not keg.loose, "a keg lies on the rack (%s)" % keg.position)
+		check(absf(keg.position.y - float(PropKit.definition(&"keg_rack").slots[kegs.find(keg)][1])) < 0.01,
+				"on its rails, not sunk through them (%.3f)" % keg.position.y)
 	rack.go_loose(Vector3(0, 0, 1.5))
-	await wait_until(func() -> bool: return keg.loose, 90)
-	check(keg.loose, "the rack going over takes it down")
+	await wait_until(func() -> bool: return kegs.all(func(k: KitProp) -> bool: return k.loose), 120)
+	check(kegs.all(func(k: KitProp) -> bool: return k.loose), "the rack going over takes them all down")
 
 
-## The keg rack's tier `i`'s rail tops (its kit file's posts are as high as the top tier).
-func saloon_rack_tier(i: int) -> float:
-	var hi := 0.0
-	for spec: Dictionary in PropKit.expand(PropKit.definition(&"keg_rack")):
-		if String(spec.id).begins_with("rail%d" % i):
-			hi = float(spec.at[1]) + float(spec.size[1]) * 0.5
-	return hi
+func test_a_man_lies_on_the_bed_and_the_desk_carries_his_books() -> void:
+	var bed := await _place(&"plank_bed")
+	_m(bed, "tick").extra_load = 90.0 * 9.81
+	check(bed.settle().is_empty() and not bed.loose, "the bed carries a 90 kg man")
+	check(String(_m(bed, "tick").get_meta(&"kit").draw.model) == "iron_cot", "its bedding is the cot's")
+	var desk := await _place(&"owner_desk", Vector3(3, 0, 0))
+	var top := _m(desk, "top1")
+	check(absf(top.position.y + top.size.y * 0.5 - 0.76) < 0.03, "its top at a desk's height")
+	_m(desk, "top1").extra_load = 40.0 * 9.81
+	check(desk.settle().is_empty() and not desk.loose, "it carries a man leaning on it")
 
 
 func test_the_cookstove_spills_its_coals_when_it_goes_over_lit() -> void:

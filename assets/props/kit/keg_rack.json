@@ -1,5 +1,5 @@
 {
-  "_doc": "A keg rack (#879; refs experiments/prop_lab/refs/saloon/, batch S2): the cellar's stillage, two tiers of heavy oak (4 in posts, 3 x 4 in rails), each tier a pair of long rails the kegs stand across, four kegs a tier (`beer_keg`, placed on it: the lower tier's rails at 16 cm, the upper's at 88), on six posts. 1.9 m long, 0.5 m deep, 0.88 m high. Old oak from the material library (a cellar's: unpainted, slopped and dark; the library's painted pine read as teal paint). Saloon B's store room and cellar: 2. 10 physics bodies (its members). ~70 kg. Written by tools/props/saloon_s2.py.",
+  "_doc": "A keg rack (#879, redone #892; refs experiments/prop_lab/refs/saloon/, the Columbia racking room's kegs on their sides): the cellar's stillage, two tiers of heavy oak cradle rails (3 x 4 in) running its length on six 4 in posts, the kegs lying across the rails on their sides, tap end out (+z), four a tier (`beer_keg_side`, placed on it: `rack_slots` in tools/props/saloon_s3.py, the lower tier's rails at 16 cm, the upper's clear of the lower kegs), a chock either side of each keg nailed to the rail (drawn on). 2.47 m long, 0.57 m deep, 0.74 m to the upper rails. Old oak from the material library (a cellar's: unpainted, slopped and dark). Saloon B's store room and cellar: 2. 10 physics bodies (its members). Written by tools/props/saloon_s3.py.",
   "id": "keg_rack",
   "kind": "members",
   "fixture": true,
@@ -7,19 +7,61 @@
   "wood": "oak",
   "splits_below": 0.5,
   "blow_wood_share": 0.5,
+  "slots": [
+    [
+      -0.865,
+      0.16,
+      0.0
+    ],
+    [
+      -0.325,
+      0.16,
+      0.0
+    ],
+    [
+      0.325,
+      0.16,
+      0.0
+    ],
+    [
+      0.865,
+      0.16,
+      0.0
+    ],
+    [
+      -0.865,
+      0.745,
+      0.0
+    ],
+    [
+      -0.325,
+      0.745,
+      0.0
+    ],
+    [
+      0.325,
+      0.745,
+      0.0
+    ],
+    [
+      0.865,
+      0.745,
+      0.0
+    ]
+  ],
   "members": [
     {
       "id": "post0b",
       "kind": "post",
       "size": [
         0.09,
-        0.88,
+        0.745,
         0.09
       ],
       "at": [
-        -0.905,
-        0.44,
-        -0.22
+        -1.19,
+        0.3725,
+        -0.24
       ],
       "look": "lib:furniture_oak/old",
       "blow_span": 0.16
@@ -29,13 +71,13 @@
       "kind": "post",
       "size": [
         0.09,
-        0.88,
+        0.745,
         0.09
       ],
       "at": [
-        -0.905,
-        0.44,
-        0.22
+        -1.19,
+        0.3725,
+        0.24
       ],
       "look": "lib:furniture_oak/old",
       "blow_span": 0.16
@@ -45,13 +87,13 @@
       "kind": "post",
       "size": [
         0.09,
-        0.88,
+        0.745,
         0.09
       ],
       "at": [
         0.0,
-        0.44,
-        -0.22
+        0.3725,
+        -0.24
       ],
       "look": "lib:furniture_oak/old",
       "blow_span": 0.16
@@ -61,13 +103,13 @@
       "kind": "post",
       "size": [
         0.09,
-        0.88,
+        0.745,
         0.09
       ],
       "at": [
         0.0,
-        0.44,
-        0.22
+        0.3725,
+        0.24
       ],
       "look": "lib:furniture_oak/old",
       "blow_span": 0.16
@@ -77,13 +119,13 @@
       "kind": "post",
       "size": [
         0.09,
-        0.88,
+        0.745,
         0.09
       ],
       "at": [
-        0.905,
-        0.44,
-        -0.22
+        1.19,
+        0.3725,
+        -0.24
       ],
       "look": "lib:furniture_oak/old",
       "blow_span": 0.16
@@ -93,13 +135,13 @@
       "kind": "post",
       "size": [
         0.09,
-        0.88,
+        0.745,
         0.09
       ],
       "at": [
-        0.905,
-        0.44,
-        0.22
+        1.19,
+        0.3725,
+        0.24
       ],
       "look": "lib:furniture_oak/old",
       "blow_span": 0.16
@@ -108,62 +150,646 @@
       "id": "rail0b",
       "kind": "furniture_top",
       "size": [
-        1.9,
+        2.47,
         0.075,
         0.09
       ],
       "at": [
         0.0,
         0.1225,
-        -0.13
+        -0.15
       ],
-      "look": "lib:furniture_oak/old"
+      "look": "lib:furniture_oak/old",
+      "dress": [
+        {
+          "look": "lib:furniture_oak/old",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -1.045,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.685,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.505,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.145,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.145,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.505,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.685,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  1.045,
+                  0.175,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "rail0f",
       "kind": "furniture_top",
       "size": [
-        1.9,
+        2.47,
         0.075,
         0.09
       ],
       "at": [
         0.0,
         0.1225,
-        0.13
+        0.15
       ],
-      "look": "lib:furniture_oak/old"
+      "look": "lib:furniture_oak/old",
+      "dress": [
+        {
+          "look": "lib:furniture_oak/old",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -1.045,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.685,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.505,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.145,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.145,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.505,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.685,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  1.045,
+                  0.175,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "rail1b",
       "kind": "furniture_top",
       "size": [
-        1.9,
+        2.47,
         0.075,
         0.09
       ],
       "at": [
         0.0,
-        0.8425,
-        -0.13
+        0.7075,
+        -0.15
       ],
-      "look": "lib:furniture_oak/old"
+      "look": "lib:furniture_oak/old",
+      "dress": [
+        {
+          "look": "lib:furniture_oak/old",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -1.045,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.685,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.505,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.145,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.145,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.505,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.685,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  1.045,
+                  0.76,
+                  -0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "rail1f",
       "kind": "furniture_top",
       "size": [
-        1.9,
+        2.47,
         0.075,
         0.09
       ],
       "at": [
         0.0,
-        0.8425,
-        0.13
+        0.7075,
+        0.15
       ],
-      "look": "lib:furniture_oak/old"
+      "look": "lib:furniture_oak/old",
+      "dress": [
+        {
+          "look": "lib:furniture_oak/old",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -1.045,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.685,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.505,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  -0.145,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.145,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.505,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  0.685,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  35.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.05,
+                  0.07
+                ],
+                "at": [
+                  1.045,
+                  0.76,
+                  0.15
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -35.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
     }
   ],
-  "factory": "tools/props/saloon_s2.py"
+  "factory": "tools/props/saloon_s3.py"
 }
