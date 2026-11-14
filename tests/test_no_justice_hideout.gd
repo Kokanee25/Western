@@ -185,7 +185,7 @@ func test_a_win_with_joe() -> void:
 	# The fight a while, then the crew down.
 	await wait_until(func() -> bool: return m.kett_state == NoJusticeHideout.HOLED_UP, 60 * 20)
 	await physics_frames(60 * 6)
-	check(m.joe_brain._fight_on or m.shots.joe > 0, "Joe's in it (%s)" % m.result())
+	check(is_instance_valid(m.joe_brain) and (m.joe_brain._fight_on or m.shots.joe > 0), "Joe's in it (%s)" % m.result())
 	_kill_crew(m)
 	var over := await wait_until(func() -> bool: return m.done, 60 * 20)
 	check(over, "it ends (%s)" % m.result())
@@ -212,7 +212,7 @@ func test_joe_down_but_not_dead() -> void:
 	check(over, "it ends (%s)" % m.result())
 	check(jp.alive, "Joe alive at the end")
 	check_eq(StoryState.get_fact("nojustice.joe"), "down", "nojustice.joe")
-	var up := await wait_until(func() -> bool: return jp.is_conscious() and not m.joe.limp, 60 * 30)
+	var up := await wait_until(func() -> bool: return is_instance_valid(m.joe) and jp.is_conscious() and not m.joe.limp, 60 * 30)
 	check(up, "he comes to and gets up after it")
 
 
