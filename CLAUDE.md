@@ -97,6 +97,9 @@ the history in `docs/status/`.
 - **Frame budget:** every system has a budget in milliseconds (table below, filled in by the
   gameplay session's performance benchmark); the frame must fit 60 fps on one 3.25 GHz core with
   headroom. A merge that pushes a system over its budget isn't done until it's back under.
+  **Performance never fakes the game** (Sean, 2026-10-25): cut waste, go native or wide, spread work over frames
+  or simplify what's unseen; never fake what the player sees or does (canned debris, men who stop sensing). If a
+  fix would, ask Sean.
 - **Art merges get a blind critic:** after every art merge, a fresh sub-agent that hasn't seen the
   work or its reasoning gets only the concept paintings and the new renders, and lists the five
   biggest differences a viewer would notice, with crops. Saved as
