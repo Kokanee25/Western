@@ -59,7 +59,8 @@ studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over t
 height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side (a
 partition's `-`/`+`; `out` on an outer wall's siding outside, #886), lit [from, until], energy, reach,
 shadows}; a front's painted sign letters (`letters_<sign>`, the factory's `lettering`) are laid on its
-board, cut to them, which takes a finish (`front/sign`), #886;
+board, cut to them, which takes a finish (`front/sign`), the letters at most `front.sign_width` m
+across (shorter where the name is long), #886;
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
 

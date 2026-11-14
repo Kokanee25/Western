@@ -1506,7 +1506,7 @@ func _false_front() -> void:
 	_wall_member("front/cornice", &"trim", &"dark_trim", front, -0.15, w + 0.15, h - 0.3, h - 0.05, d0, d0 + 0.18)
 	_wall_member("front/cornice_band", &"trim", &"dark_trim", front, -0.05, w + 0.05, h - 0.55, h - 0.45, d0, d0 + 0.05)
 	_wall_member("front/cap", &"trim", &"dark_trim", front, -0.2, w + 0.2, h, h + 0.04, -STUD_D - 0.02, d0 + 0.22)
-	# The sign-writer's letters where they're painted (#886, saloon B's THE SALT CREEK): the board
+	# The sign-writer's letters where they're painted (#886, saloon B's THE NEW OCCIDENTAL): the board
 	# cut to them (a margin round them a fifth of their height each side), the letters laid on its
 	# face as the jail's are on its boards (FacadeArt); else the factory's painted board, else blank.
 	var ink := SignArt.letters(sign_text)
@@ -1516,8 +1516,11 @@ func _false_front() -> void:
 	var x1 := w - 1.5
 	var lh := (y1 - y0) / 1.4
 	var lw := lh * float(ink.get_width()) / float(ink.get_height()) if ink else 0.0
-	if ink and lw > x1 - x0 - lh * 0.4:
-		lw = x1 - x0 - lh * 0.4
+	# `front.sign_width`: the letters at most this wide (saloon B's 4.9 m, kept when its name grew
+	# from THE SALT CREEK to THE NEW OCCIDENTAL); they shrink in height to fit, the board keeps its.
+	var most := minf(x1 - x0 - lh * 0.4, float(spec.get("front", {}).get("sign_width", INF)))
+	if ink and lw > most:
+		lw = most
 		lh = lw * float(ink.get_height()) / float(ink.get_width())
 	if ink:
 		x0 = w * 0.5 - lw * 0.5 - lh * 0.2

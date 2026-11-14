@@ -1,9 +1,9 @@
 {
-	"_doc": "Saloon B, the corner saloon (The Salt Creek; #772, Sean's answers of 2026-11-10 in docs/briefs/saloon-design.md; step 1 of #848: the spec and the frame). Format: experiments/building_lab/FORMAT.md. Sizes come from this file, never off the pictures (saloon_b/sheet, saloon_b/concept.json are the target). Metres in the building's own space. It stands on a NORTH-side lot facing south (facing 180), so x runs from its EAST corner (the yard, x 0) to the North-South Street (x 16.46), z back from Main Street's front wall, y up from the ground at the walk's street edge. Walls are named by what they face: front (Main Street), side (the North-South Street), yard (east), back. 54 x 72 ft, two storeys: 13 ft floor to floor below (the fall over the gallery's rail, #759), 11 ft above.",
+	"_doc": "Saloon B, the corner saloon (The New Occidental; #772, Sean's answers of 2026-11-10 in docs/briefs/saloon-design.md; step 1 of #848: the spec and the frame). Format: experiments/building_lab/FORMAT.md. Sizes come from this file, never off the pictures (saloon_b/sheet, saloon_b/concept.json are the target). Metres in the building's own space. It stands on a NORTH-side lot facing south (facing 180), so x runs from its EAST corner (the yard, x 0) to the North-South Street (x 16.46), z back from Main Street's front wall, y up from the ground at the walk's street edge. Walls are named by what they face: front (Main Street), side (the North-South Street), yard (east), back. 54 x 72 ft, two storeys: 13 ft floor to floor below (the fall over the gallery's rail, #759), 11 ft above.",
 	"format": 1,
 	"id": "saloon_b",
 	"identity": {
-		"owner": "The Salt Creek's owner, who built the whole corner in 1881 and meant to stay",
+		"owner": "The New Occidental's owner, who built the whole corner in 1881 and meant to stay",
 		"trade": "saloon, gaming room and lunch counter; a dance hall over the bar; four rooms let upstairs",
 		"means": "the first man in town to build two storeys on a corner lot; dark red with cream trim, a bracketed cornice on the street",
 		"age_and_repair": "1 year: the paint new, the floor already worn pale from the corner door to the bar",
@@ -2003,8 +2003,9 @@
 		"look": "wood:int_oak"
 	},
 	"front": {
-		"sign": "THE SALT CREEK",
+		"sign": "THE NEW OCCIDENTAL",
 		"sign_from": 8.45,
+		"sign_width": 4.9,
 		"cornice": "dark_trim",
 		"brackets": {
 			"_doc": "Step 2 (#867): the sheet's bracketed cornice on BOTH streets: a bracket every ~3 ft under Main Street's cornice, and the side street's eave given the same band, crown and brackets (`sides`).",
@@ -2016,7 +2017,7 @@
 				"side"
 			]
 		},
-		"_sign_doc": "#886: THE SALT CREEK in the factory's painted letters (letters_the_salt_creek, gold-ochre sign-writer's paint) on the board, cut to them (sign_from 8.45, down from 8.75: a 1.05 m board, the letters 0.75 m tall and ~4.9 m across), in the dark walnut (the `oak` finish); the sheet's dark maroon board with gold letters."
+		"_sign_doc": "#886: THE NEW OCCIDENTAL (Sean's name, 2026-11-13; was THE SALT CREEK) in the factory's painted letters (letters_the_new_occidental, gold-ochre sign-writer's paint) on the board, cut to them (sign_from 8.45, down from 8.75: a 1.05 m board, the letters at most 0.75 m tall and 4.9 m across, `sign_width`), in the dark walnut (the `oak` finish); the sheet's dark maroon board with gold letters."
 	},
 	"rooms": [
 		{

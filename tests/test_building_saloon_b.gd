@@ -362,7 +362,7 @@ func test_saloon_b_has_its_finishes_cornices_and_dust() -> void:
 		check(falling == 1, "a step above shakes one fall down (%d)" % falling)
 
 
-## #886 (Sean's yes on #885): THE SALT CREEK painted on the false front's board (the factory's
+## #886 (Sean's yes on #885; the name his, 2026-11-13): THE NEW OCCIDENTAL painted on the false front's board (the factory's
 ## letters, laid on a board cut to them in the dark walnut), and the walks lit: four reflector lamps
 ## on the outside walls under the balcony, two a street, lit from dusk, one casting shadows.
 func test_saloon_bs_sign_is_lettered_and_its_walks_lit() -> void:
@@ -370,7 +370,7 @@ func test_saloon_bs_sign_is_lettered_and_its_walks_lit() -> void:
 	var sid := String(b.structure_id) + "/"
 	var sign: StructureMember = b.get_member(StringName(sid + "front/sign"))
 	check(sign != null, "the false front has its sign board")
-	check(SignArt.letters("THE SALT CREEK") != null, "THE SALT CREEK's letters are painted (letters_the_salt_creek)")
+	check(SignArt.letters("THE NEW OCCIDENTAL") != null, "THE NEW OCCIDENTAL's letters are painted (letters_the_new_occidental)")
 	var painted := sign.find_children("PaintedLetters", "MeshInstance3D", true, false)
 	check(painted.size() == 1, "the letters are laid on the board (%d)" % painted.size())
 	if painted.size() == 1:
@@ -379,7 +379,8 @@ func test_saloon_bs_sign_is_lettered_and_its_walks_lit() -> void:
 		check(q.size.x < sign.size.x and q.size.y < sign.size.y, "inside the board (%s on %s)" % [q.size, Vector2(sign.size.x, sign.size.y)])
 		check(q.size.x > sign.size.x * 0.75, "the board cut to them (%.2f of %.2f m)" % [q.size.x, sign.size.x])
 		check(absf(at.x - b.width * 0.5) < 0.05 and at.z < -0.05, "centred on the front, on the board's face (%s)" % at)
-		check(q.size.x > 4.0, "big enough to read down the street (%.2f m)" % q.size.x)
+		check(q.size.x > 4.0 and q.size.x < 4.95, "big enough to read down the street, kept to 4.9 m (%.2f m)" % q.size.x)
+		check(q.size.y > 0.45, "letters tall enough to read down the street (%.2f m)" % q.size.y)
 	check(b._finish_of(sign) == "oak", "the board in the dark walnut (%s)" % b._finish_of(sign))
 	var ground := float(b._lv.ground)
 	var walks := {"front": 0, "side": 0}
