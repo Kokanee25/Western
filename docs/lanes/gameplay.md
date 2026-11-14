@@ -73,9 +73,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
-- **The garment handoff** (#917; LAYOUT "src/bodies"): `GarmentHandoff` in the game (a glove; take, the pull's
-  release, his skin the collider, baked at rest); +0.40 ms while it simulates. Next: polish (inside of the glove,
-  wrist dips, the toss), then a bridge command or scene to trigger it; then stocking, coat, torn-shirt bandage.
+- **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` (a glove; take, the pull's release,
+  his skin the collider, his skin under it hidden until the cloth leaves it, baked at rest) and `GloveAct` (the
+  choreography; bridge `glove MAN [toss_to X Y Z]`). Cost as #917 (~+0.4 ms while it simulates at Sean's). Open: his
+  fingers through the glove where it gathers over his hand at the draw's end (the reveal rule looks only two edges
+  round). Next: the stocking, then the coat and the torn-shirt bandage.
 
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·

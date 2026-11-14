@@ -228,3 +228,36 @@ func test_cloth_takes_its_own_mesh() -> void:
 	var lo := cloth.height_range()
 	check(lo.x > -0.01 and lo.y < 0.1, "it fell and lies on the floor (%.3f..%.3f)" % [lo.x, lo.y])
 	cloth.queue_free()
+
+
+## The act (GloveAct, the bridge's `glove`): put on, the whole choreography from its cue, the glove
+## off his arm, flicked away and lying still at no cost; his skin all drawn again; his arms down.
+func test_the_act_takes_it_off_and_flicks_it_away() -> void:
+	var man := HumanBody.new()
+	man.body_model = MODEL
+	man.person_id = &"glove_act"
+	man.has_gun = false
+	world.add_child(man)
+	man.global_position = Vector3.ZERO
+	man.face(Vector3(0, 1.4, -3.0))
+	await physics_frames(20)
+	var act := GloveAct.put_on(man, world, "l")
+	if not check(act != null, "the act and its glove made from his skin"):
+		return
+	await physics_frames(2)
+	act.begin()
+	var off_at := -1.0
+	for f in 900:
+		await physics_frames(1)
+		if off_at < 0.0 and act.part.state == GarmentHandoff.State.FREE:
+			off_at = act.t
+		if act.done:
+			break
+	check(act.done, "the act ends (%s at %.1f s)" % [act.phase, act.t])
+	check(off_at > 4.0 and off_at < 6.0, "out of his hand after the draw and the flick (%.2f s)" % off_at)
+	check(act.part.state == GarmentHandoff.State.REST, "it lies at rest")
+	check(not act.glove.skin_covered(), "his skin all drawn again")
+	var c := act.cloth.centre()
+	var flat := Vector2(c.x, c.z).length()
+	check(c.is_finite() and c.y < 0.2 and flat > 0.3 and flat < 3.0,
+			"flicked away from him, lying near (%.2f m off, %.2f m up)" % [flat, c.y])

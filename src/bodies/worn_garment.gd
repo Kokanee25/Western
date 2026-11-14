@@ -888,6 +888,18 @@ static func _closest_on_tri(p: Vector3, a: Vector3, b: Vector3, c: Vector3) -> V
 	return Vector3(1.0 - v - w, v, w)
 
 
+## A glove's inside: the leather's flesh side, undyed (a dull dark brown suede: not so light it reads as a hole onto the floor), drawn from inside only
+## (its back faces) at its points, a few mm under the outside (the outside is drawn proud of them):
+## the cuff's opening shows the leather's thickness, and where the bunched glove folds through
+## itself (the cloth doesn't meet itself) it's a fold's inside, not a black hole.
+static func lining() -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.17, 0.12, 0.09)
+	m.roughness = 0.95
+	m.cull_mode = BaseMaterial3D.CULL_FRONT
+	return m
+
+
 ## The glove's look: black kid, a soft sheen at its edges (cloth's rim), its grain a fine noise.
 static func kid_leather() -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -896,7 +908,10 @@ static func kid_leather() -> StandardMaterial3D:
 	m.rim_enabled = true
 	m.rim = 0.35
 	m.rim_tint = 0.4
-	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# Its outside (black kid) and its inside (`lining`: undyed, the leather's flesh side), each drawn
+	# only from its own side: the glove's triangles face out, as the skin they were made from does.
+	m.cull_mode = BaseMaterial3D.CULL_BACK
+	m.next_pass = lining()
 	# Drawn 4 mm proud of its points (the physics' cloth is where its points are): between them its
 	# flat triangles would dip into his skin's finer shape where the cloth lies on him.
 	m.grow = true

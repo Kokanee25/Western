@@ -52,6 +52,7 @@ const HELP := {
 	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
 	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
 	"joe": "joe [here|wait|come|state] -> Joe, the companion (#843): here brings him in beside you (none yet), wait/come is your word to him (G looking at him), state what he's doing (the default)",
+	"glove": "glove MAN [toss_to X Y Z] -> MAN (any man with a Skin_whole: a Studio man) takes off a long glove (#949, GloveAct): it's made from his skin and put on his left arm, drawn off by his right hand as real cloth and flicked away (toward X Y Z if given: not aimed, it lands where it lands); again while he's at it: its phase",
 	"nod": "nod -> nod your head (the view down, up, down: HeadGesture's yes)",
 	"shake": "shake -> shake your head (the view left, right, left: HeadGesture's no)",
 	"world": "world [town|valley] -> which world is loaded (Settings.world; docs/briefs/valley-plan.md G1); with a name, that world loaded instead: it answers, then the scene reloads (tools/bridge.py waits for it and goes on)",
@@ -821,6 +822,31 @@ func _cmd_joe(a: Array) -> Dictionary:
 		"from_you_m": snappedf(CompanionBrain._flat(man.global_position, player.global_position), 0.1), "waiting": b.wait_at != Vector3.INF,
 		"conscious": man.physiology.is_conscious(), "alive": man.physiology.alive, "in_your_line": b.in_your_line(),
 		"doing": b.describe(), "stats": b.stats}
+
+
+var _gloves := {}  # person -> GloveAct
+
+
+func _cmd_glove(a: Array) -> Dictionary:
+	if a.is_empty():
+		return {"ok": false, "error": "glove MAN [toss_to X Y Z]"}
+	var man := _person(a[0])
+	if man == null:
+		return {"ok": false, "error": "no one called %s ('read people')" % a[0]}
+	var act := _gloves.get(man) as GloveAct
+	if act != null and is_instance_valid(act) and not act.done:
+		return {"person": a[0], "phase": act.phase, "t": snappedf(act.t, 0.01)}
+	act = GloveAct.put_on(man, street, "l")
+	if act == null:
+		return {"ok": false, "error": "%s has no Skin_whole to make a glove from (a Studio man has)" % a[0]}
+	if a.size() >= 5 and a[1] == "toss_to":
+		act.toss_to = _vec(a, 2)
+	_gloves[man] = act
+	await _physics_frames(2)  # (worn a moment before he starts)
+	act.begin()
+	return {"person": a[0], "phase": act.phase, "glove": act.glove.report.get("points", 0),
+			"toss_to": _arr(act.toss_to) if act.toss_to.is_finite() else "out to his right",
+			"off_after_s": snappedf(float(act.tune.draw_at) + float(act.tune.draw), 0.1)}
 
 
 func _cmd_nod(_a: Array) -> Dictionary:

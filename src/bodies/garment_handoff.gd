@@ -30,7 +30,8 @@ const COLLIDER_TRIS := 0
 ## far from the tips let go at the take; `clear_after`: his skin shape stays this long after he lets
 ## go (it's falling off him).
 var tune := {"release_lead": 0.035, "give": 1.05, "front_step": 0.01, "clear_after": 0.25,
-		"precision": 12, "skin_every": 2, "uncover_at": 0.018}
+		"precision": 12, "skin_every": 2, "uncover_at": 0.018,
+		"free_damping": 0.5}
 
 var man: HumanBody
 var garment: WornGarment
@@ -172,6 +173,10 @@ func let_go(velocity := Vector3.ZERO) -> void:
 		return
 	let_go_of_arm()
 	cloth.let_go(velocity)
+	# Falling and lying, damped harder: Godot's soft body has no bending stiffness, and an undamped
+	# glove crumples to a knot of fingers through each other (it doesn't meet itself); damped, it
+	# keeps its hand's shape as leather does.
+	cloth.soft.damping_coefficient = float(tune.free_damping)
 	garment.cover_skin(false)  # out of his hand: all his skin drawn again
 	state = State.FREE
 	_clear_t = float(tune.clear_after)

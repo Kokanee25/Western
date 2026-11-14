@@ -9,6 +9,47 @@ this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on
 "glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
 `GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
 
+## The clipping fixed (#949, `results/2026-11-14b/`)
+
+Sean, 2026-11-14, on #917's film: "The gloves still need a lot of work, lots of clipping".
+
+- **The film:** [`results/2026-11-14b/glove_clipping.mp4`](results/2026-11-14b/glove_clipping.mp4)
+  (hands, wide, chair, then the draw at half speed; `films.txt`, on `sean_s3_talking`), and
+  [`before_after.mp4`](results/2026-11-14b/before_after.mp4) (the hands angle, left #917's, right now).
+- **His skin through the worn glove** (the white patches): his skin under it isn't drawn while it's
+  worn (a copy of his Skin_whole without the 5,132 covered triangles, swapped in at `wear`). Drawn
+  off, his covered skin is shown only where the cloth has left it (moved 18 mm off its worn spot,
+  and no cloth two edges round it within 18 mm), as a small mesh of its own whose index buffer
+  alone is replaced (0.16 ms a reveal; `add_surface_from_arrays` took 0.85).
+- **The cloth into his arm while it's drawn:** the held points were carried rigid on one bone
+  each, 7.5 mm off his skinned skin at the elbow and wrist (into it: the glove stands 2-4 mm off).
+  Carried by his skinning now (every 2nd tick): pop 1.6 -> 0.5 mm, under his skin more than 2 mm
+  26 -> 15-20 over three runs (`--seed`), 1-3 deeper than 1 cm. The glove's flat triangles still
+  dip between its points into his finer skin: drawn 4 mm proud of its points (`grow`).
+- **Tried, not kept:** a denser skin shape (1,400 triangles from a less simplified copy of his skin:
+  8-14 under, but +0.25 ms a tick; 2,000-2,500 no better; `--under-tris=N`); the shape rebuilt every
+  tick, all of it (no better); precision 24-30 (no better); the worn glove pushed out by `relief`
+  (worn under 4 -> 7: the coarse glove's normals push points sideways at his sleeve's folds);
+  pressure (the glove is open at the cuff: its volume means nothing, it balloons).
+- **The measure:** under the nearest point on his skin's triangles, by his smooth normal there (the
+  nearest vertex's normal agreed within a point: it wasn't what rose when the glove was pushed out).
+- **Bunched through itself:** Godot's soft body has no bending stiffness (stiffness is already 1.0),
+  so once let go it's damped harder (0.5, was 0.06): it keeps a hand's shape instead of a knot of
+  fingers through each other. Its inside is drawn, a dark brown lining (a tan one read as holes onto
+  the seat's wood).
+- **The toss is a flick from the wrist** (GloveAct, now in `src/bodies/`): a wind-up back, out and
+  up, let go with a little more than his hand's speed toward the chair; it lands where it lands
+  (on the seat, over its back or on the floor).
+- **Still seen:** at the draw's end, where the glove has gathered over his hand, his fingers show
+  through it in places (the cloth over them came from further up his arm, which the reveal rule
+  doesn't look for); a brief patch on the forearm as the cloth first slides.
+- **On the MetaHuman** (`measure_metahuman.json`, his files copied in for the run, never committed):
+  12 points under his skin more than 2 mm, none deeper than 1 cm, pop 0.6 mm.
+- **The cost** (`cost.md`, x0.65; this workspace runs slower than #917's: main measured here
+  draw +0.62, take +0.78): take +0.58, draw +0.64, flick +0.34, falling +0.20 (longer: at rest
+  ~9.7 s from the cue, damped), worn and at rest 0. GarmentHandoff's own share of a held tick
+  ~0.40 (main 0.30).
+
 ## On the game's part (#917, `results/2026-11-14/`)
 
 - **The film:** [`results/2026-11-14/garment_handoff_part.mp4`](results/2026-11-14/garment_handoff_part.mp4)
@@ -98,7 +139,9 @@ while IFS= read -r l; do python3 tools/bridge.py "$l"; done < experiments/garmen
 python3 tools/bridge.py stop
 ```
 
-Bench flags: `--no-take` stops after the reach; `--hide-glove` hides the worn glove; `--all-skin`
+Bench flags: `--seed=N` (his idle's noise: another run of the same handoff), `--under-tris=N` (the
+skin shape from a denser copy of his skin), `--by-vertex` (#917's measure), `--cam=seat|toss` (the
+chair close, the flick); `--no-take` stops after the reach; `--hide-glove` hides the worn glove; `--all-skin`
 rebuilds all of his skin shape (not only near the cloth). (The lab's `--shapes`, `--debug` and
 `GH_DEBUG` went with its first files.) The bridge's commands: `gh_man X Y Z [YAW] [MODEL]`,
 `gh_dress`, `gh_cam`, `gh_film`, `gh_clear` (`bridge.gd`).
