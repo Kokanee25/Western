@@ -6,7 +6,7 @@ picks](https://github.com/Kokanee25/Western/issues/830#issuecomment-6814545058))
 its question as "Sean's pick", and the other bible files follow it; the options stay below it as the
 record. **C8 is the one exception:** Sean left it to the session ("whatever makes sense"), so its
 pick is P until he nods on #830. **C16 is new (2026-11-13):** Sean decided the sheriff's shooter
-isn't Kett; who it is waits on his pick (his lean, the stranger at the table, is written in as P).
+isn't Kett, and on #906 he picked the stranger at the card table (C16 a, D).
 Where a line says "leans", that was this bible's reading before he
 answered and no more. Status words as in `OUTLINE.md` (D, P, P·bible, O). Sources are the cards on
 PR #743's branch, #744, #809's and #830's comments, and `DESIGN.md`.
@@ -21,7 +21,7 @@ opened by the picks, and have no reading that stands.
 |---|---|---|---|
 | 1 | Evidence was "a maybe", but Act IV runs on papers | **Settled** (D, 2026-11-11): evidence is a real system (the papers, the witness, what people saw); its strength sets the Baron's fate | What the papers **are** (Sean, 2026-11-09: "only the mission idea is decided, not what the papers are"); whether Dig Him Up's find counts (s9) |
 | 2 | Where the game ends | **Settled** (D, 2026-11-11): the trestle is the climax, the raid and arrest the finale, then the paper and the talk, then a quiet walk | Rourke's fate and the soldiers: **settled** by C11 a (the Baron's hired men; Rourke dies on the trestle). What if the trestle isn't blown: s25 |
-| 3 | Who works for whom | **Mostly settled** (D, 2026-11-11): Kett's crew are the Baron's hired guns; the Colters are a separate family; Cody is the Baron's man. Since: the Colters hold the farm on the Baron's pay (C5 b); the raid was provocation (C4 a); the stranger is the Baron's foreman (C10 b). Kett did not shoot the sheriff (D, Sean 2026-11-13, #830); Sean's lean is the stranger (C16 a, P) | Who lets Kett go: **C8 a**, P until Sean nods; who Gang A is (s6); whether Cody is at the cabin (s24) |
+| 3 | Who works for whom | **Mostly settled** (D, 2026-11-11): Kett's crew are the Baron's hired guns; the Colters are a separate family; Cody is the Baron's man. Since: the Colters hold the farm on the Baron's pay (C5 b); the raid was provocation (C4 a); the stranger is the Baron's foreman (C10 b). Kett did not shoot the sheriff (D, Sean 2026-11-13, #830); Sean's lean is the stranger (C16 a, D) | Who lets Kett go: **C8 a**, P until Sean nods; who Gang A is (s6); whether Cody is at the cabin (s24) |
 | 4 | The Balcony Ambush can't be in Act I | **Settled** (D, 2026-11-11): after Payday Night and after dynamite. Where and why: the men who sawed the girder, on the hotel's gallery the night after (C9 a) | "The night after" is the captain's day, and the dynamite: s22 |
 | 5 | Joe can die, but Act IV is written with him | **Settled** (D, 2026-11-11): he can die, it isn't hard to save him, and the later missions have paths without him | Who is goaded in I Am the Law without him (s7); the rope's cause on two branches (s1, s2) |
 | 6 | The saloon's shooter, and where Harlan meets Joe | The shooter is **settled** (D, 2026-11-11): Cody | Where Harlan meets Joe is still Sean's "gotta be flagged" (s3); what the bold cowboy is for (s4) |
@@ -243,7 +243,7 @@ The cost to weigh, whichever: whose building it is, and who else is under it.
 **Sean's pick (2026-11-11): b.** "The stranger at the table is the Baron's foreman." D (Sean,
 2026-11-11, #830). The built stranger lines are his. It opens s21 (his voice) and s26 (who sends
 Harlan to the saloon, this question's second half, which the pick doesn't answer). Since
-2026-11-13 Sean's lean is that the stranger also shot the sheriff that morning (C16 a, P).
+2026-11-13 Sean's pick (#906) is that the stranger also shot the sheriff that morning (C16 a, D).
 
 Built (No Law): "Don't move, friend. Whatever happens next, you sit still." and "You didn't see a
 thing tonight. Nobody did. Remember that." So he knew. His identity and return are O on the card,
@@ -356,11 +356,10 @@ of joes wife if he also shot the sheriff". **The man who shot the sheriff is not
 Joe's wife.** No authority would turn loose the man who shot the county sheriff, so Kett, released
 in the arrest ending, can't be both. Kett keeps the faded red shirt, the camp and the cabin.
 
-**Sean's lean (2026-11-13, #905), P until he picks on the `waiting on Sean` issue:** **a**, the
-stranger at the card table. The rest of the bible is written to it, marked P; the marks below are
-P·bible.
+**DECIDED (Sean, 2026-11-13, #906):** **a**, the stranger at the card table. "Yeah let's go with the
+stranger." What is his is D; the details worked out from it stay P·bible.
 
-- **a. The stranger at the table, the Baron's foreman, shot the sheriff at dawn** (Sean's lean).
+- **a. The stranger at the table, the Baron's foreman, shot the sheriff at dawn** (D).
   Kett's crew raided Joe's camp that night (D, unchanged). Worked through:
   - **Why him:** he's new to the valley this season (P·bible), hired by the Baron for the work his
     old hands won't do. The sheriff knew Kett's crew by sight and would never have let one ride up
@@ -417,8 +416,8 @@ P·bible.
   gives "the Kid wants out" (`SETUPS.md` M13) its reason and pays it off when he confesses; the
   sheriff's clue is a young man's voice and a horse.
 
-**The lines that now read wrong** (Sean's lean, a; not changed here: gameplay's data and the
-scripts change once Sean picks, and the sheriff's voice takes, #846, hold these until then):
+**The lines that now read wrong** (Sean's pick, a; changed 2026-11-14, #908, to the "Proposed" column;
+the sheriff's voice takes, #846, are free to go ahead):
 
 | File | Id | Says now | Proposed |
 |---|---|---|---|
@@ -476,7 +475,7 @@ Sean says, or the script that meets it asks him. The options are only to show th
 
 | # | What doesn't fit | Options (none picked) |
 |---|---|---|
-| s21 | The stranger is the foreman (C10 b), but the foreman's sheet is a cowman's "flat, friendly, practical talk" and the stranger's built lines are calm, low and educated (Sean wanted him "more educated": from the master chat, to confirm) | An educated foreman, the built lines as they are / the built lines re-recorded plainer / a cowman who can talk like his boss when he's sent to. (By C16 a, P: his voice is one of the sheriff's marks, "called me friend", soft-spoken; any of the three keeps that) |
+| s21 | The stranger is the foreman (C10 b), but the foreman's sheet is a cowman's "flat, friendly, practical talk" and the stranger's built lines are calm, low and educated (Sean wanted him "more educated": from the master chat, to confirm) | An educated foreman, the built lines as they are / the built lines re-recorded plainer / a cowman who can talk like his boss when he's sent to. (By C16 a, D: his voice is one of the sheriff's marks, "called me friend", soft-spoken; any of the three keeps that) |
 | s22 | The Balcony Ambush is "the night after" (C9 a), but the day after Payday Night is the captain's day (I Am the Law), and the balcony needs dynamite (D) that the player may not have yet. And with v6's sawdust gone (C3 b), how Harlan knows which men sawed the girder is unsaid | The night after the captain leaves / whenever he has dynamite, with the men still in town; known by the storekeeper's day-book (S23), Gang B's man, or the Kid |
 | s23 | Two barrels (C1 a): the saw is bought and the girder cut before anyone knows how the train will go. When is it cut? And if the train is wrecked (C2 b), the outrage has landed: why drop the floor too? (And the band, S24, came on that train.) | Cut that morning, as the outline's version A says; the floor falls because the Baron wants the Army, not one outrage; the band comes another way, or not at all, on a wreck |
 | s24 | Cody is arrested in the saloon after the funeral (C6 b), but the cards (P) have him one of the six at No Justice's cabin, and No Justice can come first. Killed at the cabin, he never walks back in | He isn't at the cabin / the saloon comes before No Justice / at the cabin he can be taken, and the saloon is for a player who didn't |

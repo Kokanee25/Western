@@ -9,7 +9,7 @@ extends Node3D
 ## calls or checks and a shake folds (HeadGesture), and waited on you check, or fold to a bet.
 ##
 ## It runs till something stops it: a shot or a blast near, a man in the hand out of his chair
-## (kicked, up and running), or an act's `interrupt` (No Law's next step: the red shirt walks up).
+## (kicked, up and running), or an act's `interrupt` (No Law's next step: Cody walks up).
 ## Stopped, the cards stay where they lie and the pot rides; it deals again once it's been calm
 ## `resume_after_s` with two or more sat, unless an act `hold`s it.
 
@@ -420,7 +420,7 @@ func _deal_step() -> void:
 	var s: Dictionary = job[0]
 	var c: int = deck.pop_back()
 	# The cheat dealing himself his last card: from the bottom, one that pairs his best (No Law: the
-	# card player the red shirt believes has been cheating).
+	# card player Cody believes has been cheating).
 	var cheat: Dictionary = data.get("cheat", {})
 	if int(job[1]) == 4 and s.id == dealer_id and s.id == String(cheat.get("who", "")) and rng.randf() < float(cheat.get("odds", 0.0)):
 		var best := -1
