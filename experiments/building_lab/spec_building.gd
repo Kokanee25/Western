@@ -2649,7 +2649,12 @@ func _library_finishes() -> void:
 		# room's floor, not the street's ground (#821, the review's cause 7: the doctor's floor is
 		# 0.95 m up, so his hand band fell at the floor line and the scuffs under it).
 		var ground := gy + (_floor_under(m) if INSIDE_FINISHES.has(fname) else 0.0)
-		if strip > 0.0:
+		if m.has_meta(&"draw"):
+			# Run to a profile (a railing's handrail, #873): the library's wood along the same shape,
+			# trued as joinery is (a third of a board's warp).
+			mi.mesh = PropKit.lib_profile_mesh(m.get_meta(&"draw"), m.size, Transform3D(Basis(ex, ey, ez), -ex * length * 0.5),
+					float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp * 0.3, ground)
+		elif strip > 0.0:
 			mi.mesh = strips_mesh(length, s[order[1]], s[order[2]], strip, rng, warp, nails, ground)
 		else:
 			mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground)

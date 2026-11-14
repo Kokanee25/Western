@@ -2799,6 +2799,10 @@ func _clip_strikes(delta: float) -> void:
 			if pairs.size() >= 2:
 				at = pairs[1]
 			var result: StringName = s.call(&"take_blow", m, at, v * CLIP_BLOW_MASS, CLIP_BLOW_MASS)
+			if result == &"broke":
+				# The piece his boot broke goes off at his boot's speed, against his own leg: not a
+				# blow on him (Structure._on_rubble_hit spares the man who broke it, a moment).
+				s.set_meta(&"broken_by", [self, Engine.get_physics_frames()])
 			clip_struck.emit(m, result, v.length())
 			# The boot's energy went into what it met, and the clip's follow-through is off: a part
 			# moved by script would plough on through the chair and the man in it, throwing him as
