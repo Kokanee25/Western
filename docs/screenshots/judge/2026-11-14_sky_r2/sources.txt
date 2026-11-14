@@ -1,0 +1,12 @@
+a main_midday build/sky/r13/main_midday.jpg
+b road_midday build/sky/r13/road_midday.jpg
+c trestle_midday build/sky/r13/trestle_midday.jpg
+d main_golden build/sky/r13/main_golden.jpg
+e road_golden build/sky/r13/road_golden.jpg
+f trestle_golden build/sky/r13/trestle_golden.jpg
+g main_night build/sky/r13/main_night.jpg
+h road_night build/sky/r13/road_night.jpg
+i trestle_night build/sky/r13/trestle_night.jpg
+j main_overcast build/sky/r13/main_overcast.jpg
+k road_overcast build/sky/r13/road_overcast.jpg
+l trestle_overcast build/sky/r13/trestle_overcast.jpg
