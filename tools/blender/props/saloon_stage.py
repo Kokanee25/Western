@@ -483,7 +483,12 @@ def footlight():
     f = ss.FOOT
     fr, fh = f["font_r"], f["font_h"]
     pw, pt, pd = f["plate"]
-    plate = box("Plate", (pw, pt, pd), (0, pt * 0.5, 0), bevel=0.0012)
+    rh = 0.022  # the trough's rim height
+    plate = merged("Plate", [box("floor", (pw, pt, pd), (0, pt * 0.5, 0), bevel=0.0012),
+                             box("rf", (pw, rh, pt), (0, rh * 0.5, pd * 0.5 - pt * 0.5), bevel=0.001),
+                             box("rb", (pw, rh, pt), (0, rh * 0.5, -pd * 0.5 + pt * 0.5), bevel=0.001),
+                             box("rl", (pt, rh, pd), (-pw * 0.5 + pt * 0.5, rh * 0.5, 0), bevel=0.001),
+                             box("rr", (pt, rh, pd), (pw * 0.5 - pt * 0.5, rh * 0.5, 0), bevel=0.001)])
     font = lathe("Font", [(fr * 0.9, pt), (fr, pt + 0.006), (fr, fh * 0.75), (fr * 0.8, fh), (0.02, fh + 0.006), (0.019, fh + 0.01)], 24)
     by = f["burner_y"]
     burner = merged("Burner", [lathe("b", [(0.019, fh + 0.01), (0.022, fh + 0.014), (0.022, by), (0.028, by + 0.005), (0.025, by + 0.01)], 16),
@@ -493,32 +498,31 @@ def footlight():
     c0, c1, cr = f["chimney"]
     chimney = lathe("Chimney", [(cr, by + 0.008), (cr + 0.006, by + 0.02), (cr + 0.008, by + 0.04), (cr + 0.002, by + 0.07), (cr - 0.004, c1)], 20,
                     caps=(False, False))
-    # The hood: a curved tin reflector, a half-cylinder's arc standing on the plate's front edge (the
-    # house's side, +z), nearly flat and leaning back over the flame, its top turned back as a lip;
-    # braced to the plate.
+    # The reflector (round 3, after two critics read a flat shield as a tin box): a bright, curved, polished
+    # tin reflector standing BEHIND the chimney (its -z) and open toward the house (+z), a ~160 degree
+    # arc about the flame, so the chimney and flame are seen plainly in front of it; its top rolled back
+    # as a lip; on a low tinplate trough foot (a tray with rims) rather than a flat plate.
     h = f["hood"]
-    W, Hh, hz, dish = h["width"], h["height"], h["z"], h["dish"]
-    nx, ny = 12, 6
+    Hh, R = h["height"], h["radius"]
+    nx, ny = 20, 6
     verts, faces = [], []
     for j in range(ny + 1):
         v = j / ny
         for k in range(nx + 1):
             u = k / nx
-            x = -W * 0.5 + W * u
-            bow = dish * (1 - (2 * u - 1) ** 2)  # bowed toward +z at its middle
-            lip = 0.04 * max(0.0, (v - 0.8) / 0.2) ** 2
-            lean = Hh * v * 0.27  # (round 1's critic: a bowed hood read as a tin can: a flat shield leaning back over the flame)
-            verts.append((x, pt + Hh * v, hz + bow - lip - lean))
+            a_ = math.radians(-80 + 160 * u)
+            rr = R * (1 + 0.28 * v * v)  # flared: a dish opening upward and out toward the house
+            lip = 0.012 * max(0.0, (v - 0.85) / 0.15)
+            verts.append((math.sin(a_) * rr * (1 + lip), pt + 0.01 + Hh * v, -math.cos(a_) * rr))
     for j in range(ny):
         for k in range(nx):
             a = j * (nx + 1) + k
             faces.append([a, a + nx + 1, a + nx + 2, a + 1])
     sheet = Part("s", smooth=True).add(verts, faces)
-    back = Part("s2", smooth=True).add([(x, y, z + 0.0012) for x, y, z in verts], [list(reversed(fc)) for fc in faces])
-    rim = tube("r", [(x, y + 0.002, z) for x, y, z in verts[ny * (nx + 1):]], 0.0025, sides=5)
-    brace = [box("b", (0.006, 0.004, hz - 0.02), (s * W * 0.35, pt + 0.002, hz * 0.5 + 0.01), bevel=0.001) for s in (-1, 1)]
-    hood = merged("Hood", [sheet, back, rim] + brace)
-    metal.export_baked("footlight", [(plate, "japanned"), (font, "tin"), (burner, "brass"), (chimney, "glass"), (hood, "tin")], size=512)
+    back = Part("s2", smooth=True).add([(x * 1.0, y, z - 0.0012) for x, y, z in verts], [list(reversed(fc)) for fc in faces])
+    rim = tube("r", [(x, y + 0.002, z) for x, y, z in verts[ny * (nx + 1):]], 0.003, sides=6)
+    hood = merged("Hood", [sheet, back, rim])
+    metal.export_baked("footlight", [(plate, "japanned"), (font, "tin"), (burner, "brass"), (chimney, "glass"), (hood, "tin_bright")], size=512)
 
 
 STEPS = {"mirror": mirror, "pegs": pegs, "trunk": trunk, "screen": screen, "footlight": footlight}

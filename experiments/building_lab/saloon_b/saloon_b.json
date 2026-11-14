@@ -74,7 +74,8 @@
 		},
 		"plate": 8.26,
 		"false_front": 10.5,
-		"roof_pitch": 9.46
+		"roof_pitch": 9.46,
+		"roof_tight": true
 	},
 	"frame": {
 		"_doc": "A balloon frame (Bell 1858; Woodward 1865): studs sill to plate through both storeys, the upper joists on a 1x6 ribbon let into them. The dance floor by the brief's section 7: 3x12 joists at 16 in over 18 ft (Hatfield 1880 pp.126-128), on two lines of 10x12 girders on 8x8 posts 10-14 ft apart (Hatfield p.142; How to Build Houses 1889). Dressed sizes, metres [width, depth]; spans to checks.gd's sizing.",
@@ -662,7 +663,7 @@
 					"level": "ground",
 					"from": 0.1,
 					"to": 14.020000000000001,
-					"finish": "boards",
+					"finish": "wainscot",
 					"to_y": 4.43
 				},
 				{
@@ -765,7 +766,7 @@
 					"level": "ground",
 					"from": 2.44,
 					"to": 15.24,
-					"finish": "boards",
+					"finish": "wainscot",
 					"to_y": 4.43
 				},
 				{
@@ -1098,7 +1099,7 @@
 			"inside": [
 				{
 					"side": "-",
-					"finish": "boards"
+					"finish": "wainscot"
 				},
 				{
 					"side": "+",
@@ -2004,7 +2005,17 @@
 	"front": {
 		"sign": "THE SALT CREEK",
 		"sign_from": 8.75,
-		"cornice": "dark_trim"
+		"cornice": "dark_trim",
+		"brackets": {
+			"_doc": "Step 2 (#867): the sheet's bracketed cornice on BOTH streets: a bracket every ~3 ft under Main Street's cornice, and the side street's eave given the same band, crown and brackets (`sides`).",
+			"spacing": 0.9,
+			"drop": 0.34,
+			"reach": 0.16,
+			"width": 0.09,
+			"sides": [
+				"side"
+			]
+		}
 	},
 	"rooms": [
 		{
@@ -2870,17 +2881,17 @@
 		]
 	},
 	"light": {
-		"_doc": "#824/#829's rules, the doctor's numbers until step 2 tunes them here: a near-neutral low fill, the windows lighting the rooms by day.",
+		"_doc": "#824/#829's rules, tuned for a room 54 ft wide and 13 ft high (#867): the doctor's 0.1 and 7 left the bar room's far half near black (results/2026-11-13_look/light_a_b.jpg); the windows still light it, the fill only lifts the far walls.",
 		"fill": [
 			0.62,
 			0.6,
 			0.57
 		],
-		"window_day": 7.0,
-		"day_fill": 0.1
+		"window_day": 14.0,
+		"day_fill": 0.32
 	},
 	"materials": {
-		"_doc": "Step 1 (the frame): finishes by name from the material library, the passing entries only; step 2 picks and judges them (#848's second issue). Dark red board and batten with cream trim outside (the approved oxblood), pale beaded boards inside, the worn fir floor.",
+		"_doc": "Step 2 (#867): finishes by name from the material library, the passing entries only. Outside: ox-blood board and batten (painted_oxblood_batten, passed at a few years and old: drawn at 'few', the nearest passed age to a paint a year in this sun), buff trim (the cornice and its brackets on both streets, corner boards, casings, sashes, the balcony's posts, beams and rails). Inside: the bar room's street walls and its back wall wainscoted in oak to 0.9 m with a picture rail, pale beaded boards over; pale boards in the other rooms; the posts, girders, brackets and the open joists over the bar brown rough-sawn pine (R1: the library has no dressed timber yet); the worn fir floor with the building's ways; the hall stair, the well's rail, the inside doors and the corner's doors oak.",
 		"floor": "wood:int_floor",
 		"wall_boards": "int_boards",
 		"woodwork": "wood:int_oak",
@@ -2914,7 +2925,7 @@
 			},
 			"inside": {
 				"want": {
-					"entry": "painted_pale_tg",
+					"entry": "painted_buff_drop",
 					"age": "few"
 				},
 				"use": {
@@ -2948,9 +2959,33 @@
 					"age": "few",
 					"role": "wall"
 				}
+			},
+			"oak": {
+				"_doc": "the wainscot, the well's rail, the hall stair, the doors: dark varnished wood (the library's walnut; furniture_oak drew a flat fresh orange the judges called plastic, round 1 of #867)",
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"timber": {
+				"_doc": "the posts, girders and the open joists over the bar: dark dressed timber (the library's walnut; R1 read as bark or concrete to the round 1 critic, oak a flat orange, planed pine a weathered grey: no dressed-timber entry yet)",
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				}
 			}
 		},
 		"surfaces": [
+			[
+				"/wainscot",
+				"oak"
+			],
+			[
+				"/picture_rail",
+				"oak"
+			],
 			[
 				"/casing",
 				"trim"
@@ -2980,7 +3015,7 @@
 				"trim"
 			],
 			[
-				"front/cornice",
+				"/cornice",
 				"trim"
 			],
 			[
@@ -2992,24 +3027,12 @@
 				"trim"
 			],
 			[
-				"front/door_",
-				"trim"
-			],
-			[
-				"back/door_",
-				"trim"
-			],
-			[
-				"yard/door_",
-				"trim"
-			],
-			[
-				"side/door_",
-				"trim"
-			],
-			[
 				"corner/leaf",
-				"trim"
+				"oak"
+			],
+			[
+				"/door_",
+				"oak"
 			],
 			[
 				"corner/out/",
@@ -3018,6 +3041,10 @@
 			[
 				"corner/in/",
 				"inside"
+			],
+			[
+				"corner/beam",
+				"timber"
 			],
 			[
 				"/in_ground/",
@@ -3033,18 +3060,6 @@
 			],
 			[
 				"/p/board/",
-				"inside"
-			],
-			[
-				"/m/casing",
-				"inside"
-			],
-			[
-				"/p/casing",
-				"inside"
-			],
-			[
-				"/door_",
 				"inside"
 			],
 			[
@@ -3076,6 +3091,62 @@
 				"floor"
 			],
 			[
+				"floor/dance/joist",
+				"timber"
+			],
+			[
+				"floor/office/joist",
+				"timber"
+			],
+			[
+				"floor/gallery/joist",
+				"timber"
+			],
+			[
+				"floor/link/joist",
+				"timber"
+			],
+			[
+				"floor/hall/joist",
+				"timber"
+			],
+			[
+				"floor/rooms/joist",
+				"timber"
+			],
+			[
+				"beam/",
+				"timber"
+			],
+			[
+				"bracket/",
+				"-"
+			],
+			[
+				"wall_post/",
+				"timber"
+			],
+			[
+				"gallery/",
+				"oak"
+			],
+			[
+				"stair/hall",
+				"oak"
+			],
+			[
+				"street/post",
+				"trim"
+			],
+			[
+				"street/beam",
+				"trim"
+			],
+			[
+				"street/rail",
+				"trim"
+			],
+			[
 				"roof/board",
 				"rough"
 			],
@@ -3098,11 +3169,21 @@
 			[
 				"landing/",
 				"rough"
+			],
+			[
+				"post/",
+				"timber"
 			]
 		]
 	},
 	"sources": [
 		"docs/briefs/saloon-design.md sections 5-7 (HABS AZ-7, Hatfield 1877/1880, Trautwine 1883, Kidder 1895, Bell 1858/75, Woodward 1869, How to Build Houses 1889, Hodgson 1884)",
 		"experiments/building_lab/saloon_b/concept.json and sheet/ (the plans and three views: the target)"
-	]
+	],
+	"dust": {
+		"_doc": "Sean's answer 4: dust sifts through the dance floor's boards onto the bar (FloorDust): a little always in the air, a fall under anyone moving above.",
+		"floor": "dance",
+		"rest": 0.2,
+		"motes": 70
+	}
 }
