@@ -512,7 +512,9 @@ func test_the_stage_curtain_opens_closes_and_saves() -> void:
 	fresh.from_dict({"open": false})
 	check(not fresh.is_open() and fresh.to_dict() == {"open": false}, "and a shut one shut")
 	fresh.queue_free()
-	check(b.backdrop != null and not b.backdrop.painted() and absf(b.backdrop.width - 4.6) < 0.01, "the drop hangs, plain canvas till its painting is OK'd")
+	check(b.backdrop != null and b.backdrop.painted() and absf(b.backdrop.width - 4.6) < 0.01, "the drop hangs, painted (Salt Creek as the Baron promises it, #960)")
+	var cloth := b.backdrop.get_node(^"Cloth") as MeshInstance3D
+	check(cloth != null and (cloth.material_override as StandardMaterial3D).albedo_texture != null, "its painting on the canvas")
 
 
 ## The cloth a curtain draws across the stage's middle metre (x) and its folds' depth (y), from its meshes.
