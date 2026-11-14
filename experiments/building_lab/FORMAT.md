@@ -93,6 +93,15 @@ stretch of finish at a level (its ids under `in_<level>/s1`); stairs' `stoop` ag
 wall; `lot.side_walk` {at, turn, length, depth, steps} a boardwalk down a side street, built by
 whoever places the building (ValleyWorld, the lab).
 
+**Saloon B's look** (#867, step 2): an inside stretch's `finish: "wainscot"` with `inside_finish`
+(panelled oak to 0.9 m, the boards over it drawn as judged, a picture rail over the openings' heads;
+a window whose sill is under the cap stops the wainscot, a plain apron under its stool);
+`front.brackets` {spacing, drop, reach, width, sides: [wall ids]}: brackets under the false front's
+cornice, and on each wall in `sides` the eave given the same band, crown and brackets (ids
+`<wall>/cornice...`); `dust` {floor, rest, motes}: FloorDust under that upper floor. In `materials.surfaces`
+the finish `-` leaves a member as it is drawn (a dressed bracket keeps its cove); `levels.roof_tight`
+butts the roof's boards (no gaps of sky from inside a big room).
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers

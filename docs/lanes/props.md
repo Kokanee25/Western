@@ -30,8 +30,11 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   `costume_pegs` (the doctor's coat pegs extended), `travelling_trunk` (lid on the kit's hinges),
   `dressing_screen`, `footlight`. `tools/props/saloon_stage.py`, `tools/blender/props/saloon_stage.py`, stand
   `experiments/prop_lab/saloon/stage_sheet.py`, results `results/2026-11-13_saloon_stage/` (r2: screen SAME,
-  mirror/pegs/trunk CLOSE, footlight DIFFERENT: reads as tin boxes). Where each goes: README "Saloon B, the
-  stage and dressing room". Placing waits for #902 (the room). No period refs saved (Commons came back thin).
+  mirror/pegs/trunk CLOSE, footlight DIFFERENT: reads as tin boxes). **Footlight redone** (#941, r3: a bright curved
+  reflector behind the chimney on a trough; critic still DIFFERENT: at noon pale-blue cups on the stand, too small,
+  no trough along the row, flame white; two rounds spent: next is placing it in the room and judging it there by
+  lamplight, a continuous trough for the row is the cheap fix). Where each goes: README "Saloon B, the
+  stage and dressing room". Placing waits for #902 (the room; not merged on 2026-11-14). No period refs saved (Commons came back thin).
 - **Next:** the placing session once #865's body fix and #862's route land; or S4 (the chair and strongbox, the
   CLOSE notes; Blender needs `bpy`, which needs pypi: this session's sandbox had none).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books

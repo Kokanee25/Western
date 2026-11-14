@@ -20,12 +20,14 @@ voices (does anyone say what they couldn't know, or in a word from 1950?).
 
 1. Salt Creek, 1882. The Baron wants every drop of water in the valley, and he's patient.
 2. He can't use the Army against a quiet town, so he sets out to make it look like one in revolt.
-3. His hired gun, Silas Kett, shoots the sheriff over the family's water. Harlan finds him on the
-   road, and the dying man swears him in.
+3. A stranger shoots the sheriff over the family's water: not Kett (Sean, 2026-11-13), and by
+   Sean's lean the Baron's new foreman (C16, proposed). Harlan finds the sheriff on the road, and the
+   dying man swears him in.
 4. That first night another of the Baron's men, Cody, murders a card player in front of the whole
-   saloon, because there's no law left to stop him, while the Baron's foreman holds Harlan in his
-   chair. The same night the crew raids Joe's camp, to start an "outbreak" for the Baron's telegrams.
-5. Harlan and Joe hunt Kett down. Joe asks: are you going to stop me? Arrest him and the law lets him
+   saloon, because there's no law left to stop him, while the foreman, the sheriff's killer, holds
+   Harlan in his chair. The same night Kett's crew raids Joe's camp, to start an "outbreak" for the
+   Baron's telegrams.
+5. Harlan and Joe hunt down Kett, the man in the faded red shirt. Joe asks: are you going to stop me? Arrest him and the law lets him
    go; step aside and Joe has his revenge. Either way someone comes for Joe with a rope, and Harlan
    saves him with the dead sheriff's rifle, or doesn't.
 6. Cody walks back into the saloon, and Harlan arrests him: the one man who can tie the Baron to it.
@@ -48,9 +50,11 @@ voices (does anyone say what they couldn't know, or in a word from 1950?).
    one. Later he's in Harlan's cell with his own side coming to silence him, and the law is the only
    thing that can save him. No Law, No Justice, I Am the Law: the three titles are one sentence.
    (S2. The payoff line is proposed, not yours yet.)
-2. **The faded red shirt.** The dying sheriff says it on the road in the first ten minutes. Joe's
-   people say it again at the camp. The player joins the two killings himself; nobody tells him.
-   (S1. Yours, and half built.)
+2. **"Friend."** The dying sheriff says the man who shot him called him "friend" and rode a
+   bald-faced sorrel. That night the sorrel is at the saloon's rail and the stranger at Harlan's
+   table says "Don't move, friend." The player knows the killer himself, and can do nothing about it;
+   nobody tells him. (S40, by your lean, C16 a: proposed. It replaces the faded red shirt here: the
+   shirt is the camp's now, S1, since you decided on 2026-11-13 the two killers are two men.)
 3. **The sheriff's rifle.** It rides into town on his horse on day one, the widow hands it over in
    the quiet mission, and it's the rifle that cuts Joe down. (S13, S14. Yours, but for the rifle being on the saddle on day one, which is proposed.)
 
@@ -84,6 +88,9 @@ sheriff, and the doctor as coroner keeps Harlan on; **C13** a few slurs, the wor
 on the road and No Law.
 
 **Still yours:**
+- **C16** (2026-11-13): you decided the sheriff's shooter isn't Kett. Who he is: your lean, the
+  stranger at the table, or one of two others (`CONTRADICTIONS.md` C16). The sheriff's lines that
+  name the red shirt wait on it.
 - **C8** was left to the session ("whatever makes sense"): its pick is a (federal; Kett sits a couple
   of days, then Rourke's officer turns him loose on the platform). It stays proposed until you nod
   on #830.
