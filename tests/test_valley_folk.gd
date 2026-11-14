@@ -273,14 +273,14 @@ func test_the_book_shows_lit_windows_and_smoke() -> void:
 	var f := _folk()
 	var shows := func() -> Dictionary: return f.report()["_day"]["shows"]
 	check(f.lights.shows.has(&"hotel") and f.lights.shows.has(&"saloon") and f.lights.shows.has(&"undertaker"),
-			"a window and a chimney for each building the day takes them into (%s)" % f.lights.shows.keys())
+			"a window and a chimney for each building the day takes them into (%s)" % [f.lights.shows.keys()])
 	check(not f.lights.shows.has(&"back@0"), "none for a way out of town")
 	# Nine at night: the townsman at home in the hotel, the undertaker over his shop, the loudmouth in
 	# the saloon's back: lamps lit; nobody cooking.
 	await _at(21.0)
 	var s: Dictionary = shows.call()
-	check(s.hotel.lit and s.undertaker.lit and s.saloon.lit, "lit windows at nine (%s)" % s)
-	check(not s.hotel.smoke and not s.undertaker.smoke, "no smoke at nine (%s)" % s)
+	check(s.hotel.lit and s.undertaker.lit and s.saloon.lit, "lit windows at nine (%s)" % [s])
+	check(not s.hotel.smoke and not s.undertaker.smoke, "no smoke at nine (%s)" % [s])
 	check(f.book.inside(&"hotel").has(&"townsman") and not f.people.has(&"townsman"), "the townsman on the book, in the hotel")
 	# Half past eleven: all abed but the saloon's (out in the yard): dark.
 	await _at(23.5)
@@ -289,15 +289,15 @@ func test_the_book_shows_lit_windows_and_smoke() -> void:
 	# Breakfast: smoke from the hotel's and the undertaker's chimneys, daylight (no lamp).
 	await _at(6.5)
 	s = shows.call()
-	check(s.hotel.smoke and s.undertaker.smoke, "breakfast smoke (%s)" % s)
+	check(s.hotel.smoke and s.undertaker.smoke, "breakfast smoke (%s)" % [s])
 	check(not s.hotel.lit, "no lamp by day")
 	# Supper, after dark: the undertaker's lit and smoking; the hotel's smoke (the miner at supper).
 	await _at(18.5)
 	s = shows.call()
-	check(s.undertaker.lit and s.undertaker.smoke and s.hotel.smoke, "supper (%s)" % s)
+	check(s.undertaker.lit and s.undertaker.smoke and s.hotel.smoke, "supper (%s)" % [s])
 	await _at(12.0)
 	s = shows.call()
-	check(not s.hotel.smoke and not s.undertaker.smoke, "nothing cooking at noon (%s)" % s)
+	check(not s.hotel.smoke and not s.undertaker.smoke, "nothing cooking at noon (%s)" % [s])
 
 
 ## The player stood across Main Street from the hotel's door, looking at it (or away).
@@ -367,11 +367,12 @@ func test_day_kinds_sunday_and_payday() -> void:
 	check_eq(String(f.day_kind(7)), "sunday", "day 7 a Sunday")
 	check_eq(String(f.day_kind(13)), "payday", "day 13 a payday (the second Saturday)")
 	c.day = 7
+	await _at(4.0)  # (the day set while the clock's jumped: a cut, not a day kind changing as you watch)
 	await _at(12.0)
 	check(f.book.row(&"undertaker").get("in") == &"undertaker" and not f.people.has(&"undertaker"),
 			"the undertaker's shut on a Sunday (%s)" % f.report().get("undertaker"))
 	check(f.book.row(&"townsman").is_empty() and f.people.has(&"townsman"), "the townsman out on the hotel's walk")
-	await _at(8.5)
+	await _at(8.7)
 	check_eq(String(f.book.row(&"townsman").get("do", "")), "breakfast", "a Sunday's late breakfast")
 	# A night past midnight is still Sunday's.
 	c.day = 8
