@@ -1,0 +1,228 @@
+{
+ "alarm": 87.23,
+ "blocking": [
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:House/floor_loft_board_029_0",
+  "1.6:House/floor_loft_joist_018",
+  "1.6:House/floor_loft_board_023_0",
+  "1.6:House/floor_loft_board_024_0",
+  "1.6:House/floor_loft_board_025_0",
+  "1.6:House/floor_loft_board_027_0",
+  "1.6:House/floor_loft_board_028_0",
+  "1.6:House/floor_loft_board_026_0",
+  "1.6:House/floor_loft_joist_024",
+  "1.6:House/floor_loft_joist_022",
+  "1.6:House/floor_loft_joist_020",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 86.73,
+  "freed": 102.37,
+  "hid": 84.48,
+  "phase_at": {
+   "lit": 81.78,
+   "out": 102.37,
+   "plant": 79.72,
+   "rescue": 100.63,
+   "through": 88.23
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 87.23,
+ "end": -1.0,
+ "executed": -1.0,
+ "found": 96.05,
+ "frames": {
+  "blast_ms": 2176.21,
+  "fight_ticks": 1518,
+  "max_ms": 2176.21,
+  "mean_ms": 502.77,
+  "p95_ms": 1436.01
+ },
+ "freed": 102.87,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   5.82,
+   0.73,
+   3.5
+  ],
+  "limp": true,
+  "pelvis": [
+   5.44,
+   0.7,
+   2.92
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  5.57,
+  0.78,
+  3.26
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "run: past his nerve (fear 0.96 / 0.95)",
+   "id": "brody",
+   "inside": true,
+   "knows": 10.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "tend his wound: bleeding 0.0 ml/s, 15 s since your last shot",
+   "id": "lyle",
+   "inside": true,
+   "knows": 10.2,
+   "mood": "SURRENDERED",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 11.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "tend his wound: bleeding 0.0 ml/s, 2 s since your last shot",
+   "id": "kid",
+   "inside": false,
+   "knows": 16.5,
+   "mood": "TENDING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  4.03,
+  1.13,
+  3.44
+ ],
+ "seed": 3,
+ "state": "ON",
+ "surprise": 87.23,
+ "t": 112.52,
+ "threat": 87.27,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.23,
+   "Hollis down"
+  ],
+  [
+   87.23,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.27,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   88.88,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   88.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   89.02,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   96.05,
+   "found: you fired"
+  ],
+  [
+   96.05,
+   "Dutch down"
+  ],
+  [
+   102.87,
+   "the rancher cut loose"
+  ]
+ ],
+ "way": "breach",
+ "where": "back"
+}

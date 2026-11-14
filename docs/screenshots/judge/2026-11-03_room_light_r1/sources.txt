@@ -1,0 +1,8 @@
+a saloon_toward_door_night_room_on build/final/saloon_toward_door_night_room_on.png
+b saloon_night build/final/saloon_night.png
+c saloon_back_wall_night_room_on build/final/saloon_back_wall_night_room_on.png
+d man_saloon_night build/final/man_saloon_night.png
+e saloon_night_room_on build/final/saloon_night_room_on.png
+f saloon_toward_door_night build/final/saloon_toward_door_night.png
+g man_saloon_night_room_on build/final/man_saloon_night_room_on.png
+h saloon_back_wall_night build/final/saloon_back_wall_night.png

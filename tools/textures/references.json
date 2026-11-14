@@ -132,6 +132,108 @@
    "finish": "Painted exactly in the hand of the images given: realistic forms and proportions, painted in broad, angular patches of colour that follow each form (the boards' grain, the cloth's folds, the metal's curve), with a slight squareness to the paint, as on the man's coat and the tin mugs in the saloon picture; no photographic texture, no film grain, no lens blur or depth of field: everything in focus. No added text, no frame, no border.",
    "aspect": "16:9",
    "out": "docs/concept/judge/made_%s.jpg"
+  },
+  "gun_revolver": {
+   "base": "docs/concept/guns/revolver_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png"
+   ],
+   "look": "paint this old single-action cavalry revolver from its right side in exactly the same hand as the second image (the game's painted men: their painted cloth, leather and skin, a few close tones a surface with soft painted light and fine dry-brushed wear). The barrel, ejector housing and cylinder deep worn blue-black steel with soft blue-grey highlights along their tops and the bluing rubbed to grey on the edges; the frame, top strap and hammer case-hardened, mottled in soft blue, plum and straw faded to grey; the trigger guard and backstrap worn brass; the grip warm old walnut, rubbed darker and smooth by hands, with grain. Light from the upper right.",
+   "finish": "Keep the plain flat grey background exactly as it is, even and empty (it is cut away): no shadow cast on it, no ground, no table, no hands. Keep the gun's outline and every part's outline exactly where they are in the first image, at the same size, nothing added or left out; the gun seen exactly from the side, no perspective. A luminous painted illustration with soft painterly brushwork, no pixel squares, no text, no maker's marks or logos, no frame, no border.",
+   "aspect": "21:9",
+   "out": "assets/textures/guns/%s_painted.jpg",
+   "about": "The revolver's side painting (the gun lab's remake, docs/briefs/gun-remake.md; Sean's $3): its base is views.gd --side's render, its canvas assets/textures/guns/revolver.json."
+  },
+  "gun_shotgun": {
+   "base": "docs/concept/guns/shotgun_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png"
+   ],
+   "look": "paint this old side-by-side hammer coach gun with a pistol-grip stock from its right side in exactly the same hand as the second image (the game's painted men: their painted cloth, leather and skin, a few close tones a surface with soft painted light and fine dry-brushed wear). The barrels and rib deep worn blue-black steel with soft blue-grey highlights along their tops; the action, lockplates and hammers case-hardened, mottled in soft blue, plum and straw faded to grey; the trigger guard and butt plate dark steel; the stock and forend warm old walnut with flowing grain, rubbed darker at the grip and the wrist, a few dents. Light from the upper right.",
+   "finish": "Keep the plain flat grey background exactly as it is, even and empty (it is cut away): no shadow cast on it, no ground, no table, no hands. Keep the gun's outline and every part's outline exactly where they are in the first image, at the same size, nothing added or left out; the gun seen exactly from the side, no perspective. A luminous painted illustration with soft painterly brushwork, no pixel squares, no text, no maker's marks or logos, no frame, no border.",
+   "aspect": "21:9",
+   "out": "assets/textures/guns/%s_painted.jpg",
+   "about": "The coach gun's side painting (the gun lab's remake, docs/briefs/gun-remake.md; Sean's $3): its base is views.gd --side's render, its canvas assets/textures/guns/shotgun.json."
+  },
+  "gun_arm": {
+   "base": "docs/concept/guns/arm_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png"
+   ],
+   "look": "paint this man's right arm, seen from four sides (from outside, from the front, from inside with the palm, from behind), in exactly the same hand as the second image (the game's painted men: their painted skin and cloth, a few close tones a surface with soft painted light and shade). Weathered sun-browned skin on the forearm and the back of the hand, paler on the inside of the forearm and the palm, the knuckles, wrist bones and tendons modelled softly in paint, short dark hairs only hinted, clean short nails; the rolled-up sleeve of a worn off-white cotton shirt above the elbow with soft painted folds. Light from the upper left, the same in all four.",
+   "finish": "Keep the plain flat grey background exactly as it is, even and empty (it is cut away): no shadow cast on it, no ground, no body, no gun, nothing held. Keep each of the four arms' outlines exactly where they are in the first image, at the same size, every finger where it is, nothing added or left out; each seen straight on, no perspective. A luminous painted illustration with soft painterly brushwork, no pixel squares, no text, no frame, no border.",
+   "aspect": "1:1",
+   "out": "assets/textures/guns/%s_painted.jpg",
+   "about": "Your arms in first person (Sean, 2026-10-24: \"paint the arms\"): Sean's Studio man's right arm from four sides (experiments/gun_lab/blender/arm_blender.py --base; canvas assets/textures/guns/arm.json), baked back onto both arms by its --bake (assets/weapons/held_arm_skin.png)."
+  },
+  "hold_coach_hip": {
+   "prompt": "Make a new illustration for our game. These images are concept art from our own indie western game, made by our team. The first is our character sheet: match its painterly look (soft brushwork, a few close tones, warm light). The second image is the gun he holds: draw exactly this gun, its shape, metal and wood. The third image is his arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. A first-person view from his own eyes: he holds the side-by-side hammer coach gun at the hip, ready, pointing ahead just left of centre. The gun is big in the lower right of the frame, angled in from the bottom-right corner towards the centre, the twin barrels reaching to just below the middle of the picture. His right hand grips the walnut pistol grip low at the bottom right, the thumb by the hammers, the index finger along the trigger guard; his right forearm comes in from the bottom-right edge. His left hand is far forward, cradling the wooden fore-end under the barrels from below with the fingers wrapped up its far side; his left forearm, bare to the rolled sleeve, comes in from the lower left. Natural relaxed wrists and fingers, as a real man holds a gun; nothing else of his body shows. Behind, out of focus, a dusty western street of weathered false-front timber buildings at four in the afternoon, warm low light. No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares. Wide 16:9 frame.",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_shotgun_painted.jpg",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "finish": "No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares.",
+   "about": "A first-person hold drawn as reference for docs/briefs/viewmodel-rig.md (Sean, 2026-10-24: \"do a ChatGPT call ... get it to draw what you're looking for\"); paint_model openai/gpt-5-image."
+  },
+  "hold_coach_aim": {
+   "prompt": "Make a new illustration for our game. These images are concept art from our own indie western game, made by our team. The first is our character sheet: match its painterly look (soft brushwork, a few close tones, warm light). The second image is the gun he holds: draw exactly this gun, its shape, metal and wood. The third image is his arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. A first-person view from his own eyes: he has the side-by-side hammer coach gun shouldered and aimed, looking straight down the rib between the two hammers to the brass bead at the muzzles, which sits at the centre of the picture. The barrels run straight up the middle of the frame from the bottom edge to the centre, the action and hammers close to the eye at the bottom. His right hand grips the pistol grip at the bottom right with the index finger on the front trigger; his left hand holds the fore-end from below at the lower left, the forearm coming in from the bottom-left corner. Natural relaxed wrists and fingers, as a real man holds a gun; nothing else of his body shows. Behind, out of focus, a dusty western street of weathered false-front timber buildings at four in the afternoon, warm low light. No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares. Wide 16:9 frame.",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_shotgun_painted.jpg",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "finish": "No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares.",
+   "about": "As hold_coach_hip: the coach gun aimed."
+  },
+  "hold_revolver": {
+   "prompt": "Make a new illustration for our game. These images are concept art from our own indie western game, made by our team. The first is our character sheet: match its painterly look (soft brushwork, a few close tones, warm light). The second image is the gun he holds: draw exactly this gun, its shape, metal and wood. The third image is his arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. A first-person view from his own eyes: he holds the single-action revolver out in his right hand at the ready, the arm half extended, the gun in the lower right of the frame pointing ahead and a little left, seen from behind and slightly above and to the right so its cylinder, hammer and walnut grip show. His hand wraps the grip high, the wrist straight, the thumb resting along the hammer, the index finger on the trigger; his right forearm comes in from the bottom-right edge with the rolled sleeve at the edge of the frame. His left hand is not in view. Natural relaxed wrists and fingers, as a real man holds a gun; nothing else of his body shows. Behind, out of focus, a dusty western street of weathered false-front timber buildings at four in the afternoon, warm low light. No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares. Wide 16:9 frame.",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_revolver_painted.jpg",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "finish": "No text, no HUD, no crosshair, no frame, no border. A luminous painted illustration with soft painterly brushwork, no pixel squares.",
+   "about": "As hold_coach_hip: the revolver."
+  },
+  "hold_game_hip": {
+   "prompt": "The first image is a frame from our own indie western game, seen from the player's own eyes. Repaint it as the same frame: keep the camera, the street, the buildings, the sky and the light exactly as they are, and keep the gun the same gun, in the same place, at the same size and angle. Change only the player's arms and hands so that they hold the gun the way a real man does, relaxed and natural: the double-barrelled coach gun held at the hip, ready. His right hand wraps the walnut pistol grip low at the bottom right, the index finger along the trigger guard, the thumb behind the hammers, the right forearm and rolled sleeve coming in from the bottom edge. His left hand is forward under the wooden fore-end below the barrels, cradling it from beneath with the fingers wrapped up its far side, the bare left forearm coming in from the lower left of the frame towards it. The second image is our character sheet: paint the arms, hands and the whole frame in its painterly look (soft brushwork, a few close tones a surface, warm light). The third image is the player's own arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. No text, no HUD, no crosshair, no frame, no border.",
+   "base": "docs/concept/guns/hold_game_hip_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "about": "A frame from the game with the hands repainted holding the gun right, as the rig's target in the game's own framing (docs/briefs/viewmodel-rig.md; Sean, 2026-10-24: \"yes run it\"); paint_model google/gemini-3-pro-image-preview."
+  },
+  "hold_game_aim": {
+   "prompt": "The first image is a frame from our own indie western game, seen from the player's own eyes. Repaint it as the same frame: keep the camera, the street, the buildings, the sky and the light exactly as they are, and keep the gun the same gun, in the same place, at the same size and angle. Change only the player's arms and hands so that they hold the gun the way a real man does, relaxed and natural: the double-barrelled coach gun shouldered and aimed down its rib. His right hand wraps the walnut pistol grip at the bottom right with the index finger on the front trigger; his left hand holds the wooden fore-end from below, further forward, at the lower left, both forearms coming in from the two bottom corners. The wrists are straight, the fingers wrap the wood. The second image is our character sheet: paint the arms, hands and the whole frame in its painterly look (soft brushwork, a few close tones a surface, warm light). The third image is the player's own arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. No text, no HUD, no crosshair, no frame, no border.",
+   "base": "docs/concept/guns/hold_game_aim_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "about": "A frame from the game with the hands repainted holding the gun right, as the rig's target in the game's own framing (docs/briefs/viewmodel-rig.md; Sean, 2026-10-24: \"yes run it\"); paint_model google/gemini-3-pro-image-preview."
+  },
+  "hold_game_rev": {
+   "prompt": "The first image is a frame from our own indie western game, seen from the player's own eyes. Repaint it as the same frame: keep the camera, the street, the buildings, the sky and the light exactly as they are, and keep the gun the same gun, in the same place, at the same size and angle. Change only the player's arms and hands so that they hold the gun the way a real man does, relaxed and natural: the single-action revolver held out in his right hand at the ready. His hand wraps the walnut grip high under the hammer, the wrist straight in line with the forearm, the thumb resting along the side of the frame by the hammer, the index finger on the trigger, the other three fingers curled round the front of the grip; the forearm and rolled sleeve come in from the bottom right. His left hand is not in view. The second image is our character sheet: paint the arms, hands and the whole frame in its painterly look (soft brushwork, a few close tones a surface, warm light). The third image is the player's own arm: the same tanned forearm and hand and the rolled-up off-white shirt sleeve above the elbow. No text, no HUD, no crosshair, no frame, no border.",
+   "base": "docs/concept/guns/hold_game_rev_base.png",
+   "refs": [
+    "docs/concept/targets/9_studio_men.png",
+    "assets/textures/guns/gun_arm_painted.jpg"
+   ],
+   "aspect": "16:9",
+   "out": "assets/textures/guns/%s.jpg",
+   "about": "A frame from the game with the hands repainted holding the gun right, as the rig's target in the game's own framing (docs/briefs/viewmodel-rig.md; Sean, 2026-10-24: \"yes run it\"); paint_model google/gemini-3-pro-image-preview."
   }
  }
 }

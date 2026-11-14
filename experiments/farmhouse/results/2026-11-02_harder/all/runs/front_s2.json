@@ -1,0 +1,290 @@
+{
+ "alarm": 12.97,
+ "blocking": [
+  "0.3:House/floor_ground_joist_042",
+  "0.3:House/floor_ground_board_014_1",
+  "0.3:House/floor_ground_board_016_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/girder_260_1",
+  "0.3:House/floor_ground_joist_044",
+  "0.3:House/floor_ground_joist_046",
+  "0.3:House/floor_ground_board_015_1",
+  "0.3:House/floor_ground_board_019_1",
+  "0.3:House/floor_ground_board_017_1",
+  "0.3:House/floor_ground_board_020_1",
+  "0.3:House/floor_ground_joist_043",
+  "1.0:TestStreet/Player",
+  "1.0:@Node3D@22123/Rag_upper_arm_r",
+  "RB RigidBody3D at [7.36, 1.44, 2.27] mass 2.24000000953674 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22123/Rag_head",
+  "RB RigidBody3D at [7.28, 1.57, 2.56] mass 5.51999998092651 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22123/Rag_neck",
+  "RB RigidBody3D at [7.42, 1.56, 2.57] mass 0.95999997854233 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22123/Rag_chest",
+  "RB RigidBody3D at [7.6, 1.45, 2.51] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22123/Rag_chest",
+  "RB RigidBody3D at [7.6, 1.45, 2.51] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22123/Rag_chest",
+  "RB RigidBody3D at [7.6, 1.45, 2.51] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22123/Rag_shin_l",
+  "RB RigidBody3D at [7.4, 1.07, 2.47] mass 3.72000002861023 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22123/Rag_thigh_l",
+  "RB RigidBody3D at [7.6, 1.21, 2.53] mass 8.0 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "rescue": 41.87
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "bot_target": "Brody",
+ "breach": -1.0,
+ "end": 41.03,
+ "executed": 40.95,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1684,
+  "max_ms": 210.37,
+  "mean_ms": 20.98,
+  "p95_ms": 34.87
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   7.28,
+   1.57,
+   2.56
+  ],
+  "limp": true,
+  "pelvis": [
+   7.76,
+   1.14,
+   2.45
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.6,
+  1.45,
+  2.51
+ ],
+ "men": 7,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "drag Kid to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.5,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Pike down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.9,
+   "mood": "RELOADING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.8,
+   "mood": "RELOADING",
+   "order": "kitchen_table",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "kid",
+   "inside": true,
+   "knows": 3.8,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "RELOADING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "pike",
+   "inside": true,
+   "knows": 4.4,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.9,
+   "mood": "RELOADING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  6.92,
+  0.56,
+  2.8
+ ],
+ "quits": [
+  [
+   34.12,
+   "kid",
+   "gives up",
+   "to inside door: inside door (you're front)",
+   true
+  ],
+  [
+   35.17,
+   "pike",
+   "gives up",
+   "to inside door: inside door (you're front)",
+   true
+  ]
+ ],
+ "rover_found": "Pike saw you at 12.5 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 2,
+ "shots_men": 28,
+ "shots_out": 24,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 41.03,
+ "threat": 35.18,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.53,
+   "Pike saw you at 12.5 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.53,
+   "Pike warns you off"
+  ],
+  [
+   12.97,
+   "the alarm: you drew on them"
+  ],
+  [
+   12.97,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   12.97,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   31.53,
+   "Kid down"
+  ],
+  [
+   34.12,
+   "Kid gives up (to inside door: inside door (you're front))"
+  ],
+  [
+   35.17,
+   "Pike down"
+  ],
+  [
+   35.17,
+   "Pike gives up (to inside door: inside door (you're front))"
+  ],
+  [
+   35.18,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   35.93,
+   "the guard's last word"
+  ],
+  [
+   40.95,
+   "the guard shoots the rancher"
+  ],
+  [
+   41.03,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   41.03,
+   "the rancher dead (brain)"
+  ],
+  [
+   41.03,
+   "lost: hostage_dead"
+  ],
+  [
+   41.03,
+   "the rancher hit (blow, by Brody)"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

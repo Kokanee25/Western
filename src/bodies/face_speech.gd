@@ -109,7 +109,7 @@ static var _words_re: RegEx
 
 var body: HumanBody
 var tuning: SpeechTuning
-## Stepped from _physics_process (a fixed step); off: call step() yourself.
+## Stepped on its tick (PeopleTick: a fixed step); off: call step() yourself.
 var auto := true
 ## Where the camera is for the near_camera rest (null: the viewport's; none: always near).
 var camera: Node3D
@@ -140,6 +140,7 @@ var _own_nod := 0.0                   # with no FaceGaze: what this added to his
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	if tuning == null:
 		tuning = load("res://config/speech.tres")
 	if body == null and get_parent() is HumanBody:
@@ -148,7 +149,21 @@ func _ready() -> void:
 	Events.spoke.connect(_on_spoke)
 
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	if auto and enabled and FaceLife.enabled:
 		var t0 := Prof.start()
 		step(delta)

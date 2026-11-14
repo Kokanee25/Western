@@ -85,7 +85,7 @@ func _people(street: Node) -> Array:
 
 
 func _probe(street: Node3D, phase: String, skip: Array) -> void:
-	var space := street.get_world_3d().direct_space_state
+	var space := World.space(street)
 	for man in _people(street):
 		if man in skip or man.skeleton == null:
 			continue
@@ -103,7 +103,8 @@ func _person(man, phase: String, space: PhysicsDirectSpaceState3D) -> void:
 			data.bones.append(sk.get_bone_name(b))
 	var mats: Array[Transform3D] = []
 	for b in sk.get_bone_count():
-		mats.append(sk.global_transform * sk.get_bone_pose(b) * sk.get_bone_rest(b).affine_inverse())
+		# (Global: a Studio man's finger bones hang from the hand's, posed and at rest on it.)
+		mats.append(sk.global_transform * sk.get_bone_global_pose(b) * sk.get_bone_global_rest(b).affine_inverse())
 	var by_shape := {}
 	for key: String in man.skin_meshes:
 		(by_shape.get_or_add(key.get_slice("/", 0), []) as Array).append(man.skin_meshes[key])

@@ -1,0 +1,195 @@
+extends TestCase
+## The light pass's looks (issue #318): the grade's lookup leaves colours alone at strength 0, pulls
+## oranges toward grey more than blues, cools the shadows and warms the light; each look file sets
+## only addresses LookPreset knows; 8 cycles today / A / B / C and today puts back what it read.
+
+
+func test_the_grade() -> void:
+	var off := LightGrade.DEFAULTS.duplicate()
+	var c := Color(0.8, 0.45, 0.2)
+	check(LightGrade.grade(c, off).is_equal_approx(c), "strength 0 leaves a colour alone")
+	var d := LightGrade.DEFAULTS.duplicate()
+	d.strength = 1.0
+	d.orange_pull = 0.5
+	var orange := LightGrade.grade(Color(0.8, 0.45, 0.2), d)
+	var blue := LightGrade.grade(Color(0.2, 0.4, 0.8), d)
+	check(orange.s < 0.75 * Color(0.8, 0.45, 0.2).s, "an orange pulled toward grey (%.2f)" % orange.s)
+	check(blue.s > 0.95 * Color(0.2, 0.4, 0.8).s, "a blue left (%.2f)" % blue.s)
+	d.orange_pull = 0.0
+	d.shadow_amount = 1.0
+	d.highlight_amount = 1.0
+	var shade := LightGrade.grade(Color(0.12, 0.12, 0.12), d)
+	var light := LightGrade.grade(Color(0.9, 0.9, 0.9), d)
+	check(shade.b > shade.r, "the shadows cool")
+	check(light.r > light.b, "the light warm")
+	var lut := LightGrade.build(d)
+	check_eq(lut.get_width(), LightGrade.SIZE, "a %d-cube lookup" % LightGrade.SIZE)
+
+
+func test_each_look_sets_known_addresses() -> void:
+	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building", "global"]
+	for f: String in LightLooks.FILES:
+		var preset := LookPreset.load_file(f)
+		check(not preset.is_empty(), "%s reads" % f)
+		for a: String in preset.get("values", {}):
+			check(a.get_slice(".", 0) in groups, "%s: %s is a look address" % [f, a])
+			var key := a.get_slice(".", 1)
+			if a.begins_with("grade."):
+				check(LightGrade.DEFAULTS.has(key), "%s: grade.%s is a dial" % [f, key])
+			elif a.begins_with("finish."):
+				check(LightFinish.DEFAULTS.has(key), "%s: finish.%s is a dial" % [f, key])
+			elif a.begins_with("day."):
+				check(key in DayCycleConfig.new(), "%s: day.%s is in DayCycleConfig" % [f, key])
+
+
+func test_the_key_cycles_and_today_puts_back() -> void:
+	check(InputMap.has_action(&"light_look"), "8 is bound")
+	# The painted look's light (the real look's own is test_the_real_look_has_its_own_light).
+	var was_real := Settings.real_look
+	Settings.real_look = false
+	# A test that ran the main scene leaves the game's light in the statics: start from none.
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
+	LookPreset.defaults.clear()
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)
+	add_child(street)
+	await physics_frames(3)
+	var before: float = LookPreset.get_value(get_tree(), "day.exposure_day")
+	LightLooks.pick(get_tree(), 3)
+	var b := LookPreset.load_file(LightLooks.FILES[1])
+	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), b.values["day.exposure_day"], 0.001, "B's noon exposure")
+	check_near(LightGrade.dials.strength, b.values["grade.strength"], 0.001, "B's grade")
+	check(LookPreset.environment(get_tree()).adjustment_enabled, "the grade on the environment")
+	LightLooks.pick(get_tree(), 1)
+	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), before, 0.001, "today's exposure back")
+	check_eq(LightGrade.dials.strength, 0.0, "no grade")
+	check(not LookPreset.environment(get_tree()).adjustment_enabled, "the environment's adjustment off again")
+	# The game's light (Sean, #321): B by day, C at night, blended as the sun goes down.
+	var c := LookPreset.load_file(LightLooks.FILES[2])
+	var clock := street.get_node(^"DayCycle") as DayCycle
+	clock.set_time(12.0)
+	LightLooks.pick(get_tree(), 0)
+	check_eq(LightLooks.night_share(get_tree()), 0.0, "noon is all day")
+	check_near(LookPreset.get_value(get_tree(), "lamps.saloon_hanging.energy"), b.values["lamps.saloon_hanging.energy"], 0.001, "noon: B's dials")
+	clock.set_time(21.5)
+	check_eq(LightLooks.night_share(get_tree()), 1.0, "21:30 is all night")
+	LightLooks.blend(get_tree(), LightLooks.night_share(get_tree()))
+	check_near(LookPreset.get_value(get_tree(), "lamps.saloon_hanging.energy"), c.values["lamps.saloon_hanging.energy"], 0.001, "night: C's")
+	# The game's own night over C's (light pass round 3, #412): its night_values win.
+	var night_values: Dictionary = LookPreset.load_file(LightLooks.GAME).get("night_values", {})
+	check_near(LookPreset.get_value(get_tree(), "grade.contrast"), night_values.get("grade.contrast", c.values["grade.contrast"]), 0.001, "and the night's grade")
+	check_near(LookPreset.get_value(get_tree(), "grade.shadow_amount"), c.values["grade.shadow_amount"], 0.001, "C's where the game's night doesn't say")
+	var mid: float = LightLooks.mix(b.values["day.exposure_day"], c.values["day.exposure_day"], 0.5)
+	LightLooks.blend(get_tree(), 0.5)
+	check_near(LookPreset.get_value(get_tree(), "day.exposure_day"), mid, 0.001, "half way down, half each")
+	check_eq(LookPreset.get_value(get_tree(), "sky.cloud_scale"), b.values["sky.cloud_scale"], "the sky's dials stay day's")
+	# The game's own low sun over B's (light pass round 4): day's at every share.
+	var day_values: Dictionary = LookPreset.load_file(LightLooks.GAME).get("day_values", {})
+	check(day_values.has("day.ambient_low_sun"), "the game's low sun sets the golden hour's fill")
+	check_near(LookPreset.get_value(get_tree(), "day.ambient_low_sun"), day_values["day.ambient_low_sun"], 0.001, "the low sun's dials stay day's")
+	check("day.ambient_low_sun" in LightLooks.addresses(), "and today's puts them back")
+	LightLooks.pick(get_tree(), 1)
+	LightLooks.current = 0
+	street.free()
+	LookPreset.defaults.clear()
+	Settings.real_look = was_real
+	await process_frames(1)
+
+
+## The real look's own light (docs/briefs/red-dead.md R1): config/looks/real_light.json goes over
+## the game's night and day only while Settings.real_look is on; the painted look's numbers stay.
+func test_the_real_look_has_its_own_light() -> void:
+	var real := LookPreset.load_file(LightLooks.REAL)
+	var real_night: Dictionary = real.get("night_values", {})
+	check(not real_night.is_empty(), "the real look's night reads")
+	var groups := ["day", "sky", "ground", "env", "grade", "finish", "lamps", "building", "global", "room", "real"]
+	for a: String in real_night.keys() + (real.get("day_values", {}) as Dictionary).keys():
+		check(a.get_slice(".", 0) in groups, "real_light.json: %s is a look address" % a)
+		check(a in LightLooks.addresses(), "and today's puts %s back" % a)
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
+	LookPreset.defaults.clear()
+	var was := Settings.real_look
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)
+	add_child(street)
+	await physics_frames(3)
+	(street.get_node(^"DayCycle") as DayCycle).set_time(21.5)
+	var game_night: Dictionary = LookPreset.load_file(LightLooks.GAME).get("night_values", {})
+	const A := "building.saloon.night_ambient"
+	check(real_night.has(A) and game_night.has(A), "both say the saloon's night fill")
+	Settings.real_look = false
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), game_night[A], 0.001, "painted: light pass round 3's fill")
+	Settings.real_look = true
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), real_night[A], 0.001, "real: its own")
+	Settings.real_look = false
+	LightLooks.pick(get_tree(), 0)
+	check_near(LookPreset.get_value(get_tree(), A), game_night[A], 0.001, "painted again: put back")
+	Settings.real_look = was
+	LightLooks.pick(get_tree(), 1)
+	LightLooks.current = 0
+	street.free()
+	LookPreset.defaults.clear()
+	await process_frames(1)
+
+
+## #491: the dusk blend stalled the game ~160 ms at Sean's each step (every ~2.4 s): each of its
+## dials searched the whole tree for the lamps and buildings, and each grade step built a lookup.
+## Now they're found by their groups and every step's lookup is built when the look is picked.
+func test_the_dusk_blend_is_quick() -> void:
+	LightGrade.dials = LightGrade.DEFAULTS.duplicate()
+	LightFinish.dials = LightFinish.DEFAULTS.duplicate()
+	LookPreset.defaults.clear()
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	street.get_node(^"TownLife").set(&"gang_arrives", 99999.0)
+	add_child(street)
+	await physics_frames(3)
+	var tree := get_tree()
+	# The groups find what the tree's search found.
+	var searched := tree.root.find_children("*", "OilLamp", true, false)
+	check(not searched.is_empty(), "the street has lamps")
+	check_eq(LookPreset._lamps(tree, "all").size(), searched.size(), "every lamp by its group")
+	check_eq(LookPreset._clock(tree), tree.root.find_child("DayCycle", true, false), "the clock by its group")
+	for n in tree.root.find_children("*", "FalseFrontBuilding", true, false):
+		check_eq(LookPreset._building(tree, String(n.get(&"structure_id"))), n, "%s by its group" % n.get(&"structure_id"))
+	LightLooks.pick(tree, 0)
+	var built := LightGrade._cache.size()
+	var steps := LightLooks.grade_steps()
+	var worst := 0.0
+	for i in steps + 1:
+		var lut_before := LightGrade._lut
+		var t0 := Time.get_ticks_usec()
+		LightLooks.blend(tree, float(i) / steps)
+		worst = maxf(worst, (Time.get_ticks_usec() - t0) / 1000.0)
+		check_eq(LightGrade._cache.size(), built, "step %d: its lookup was built at the pick" % i)
+		if i > 0:
+			check(LightGrade._lut != lut_before, "step %d: a lookup of its own" % i)
+	# Was ~360 ms here; ~3-5 now. Generous for a busy runner.
+	check(worst < 60.0, "a blend step takes %.1f ms" % worst)
+	LightLooks.pick(tree, 1)
+	LightLooks.current = 0
+	street.free()
+	LookPreset.defaults.clear()
+	await process_frames(1)
+
+
+## The real look's exposure (#641, Sean 2026-11-08: daytime washed out under a high sun): R0's x1.4
+## kept for the night, lower by day for the whole scene, blended by the sun between.
+func test_the_real_looks_exposure_is_lower_by_day() -> void:
+	var real := LookPreset.load_file(LightLooks.REAL)
+	var day: float = (real.get("day_values", {}) as Dictionary).get("real.exposure", -1.0)
+	var night: float = (real.get("night_values", {}) as Dictionary).get("real.exposure", -1.0)
+	check(day >= 1.0 and day <= 1.1, "by day x1.0-1.1 (%.2f)" % day)
+	check_near(night, 1.4, 0.001, "at night R0's x1.4: the saloon unchanged")
+	var was := Settings.real_look
+	Settings.real_look = true
+	check_near(LightLooks.blended(get_tree(), 0.0, "real.")["real.exposure"], day, 0.001, "noon")
+	var dusk: float = LightLooks.blended(get_tree(), 0.5, "real.")["real.exposure"]
+	check(dusk > day and dusk < night, "between at dusk (%.2f)" % dusk)
+	check_near(LightLooks.blended(get_tree(), 1.0, "real.")["real.exposure"], night, 0.001, "night")
+	Settings.real_look = false
+	check(not LightLooks.blended(get_tree(), 0.0, "real.").has("real.exposure"), "the painted look doesn't set it")
+	Settings.real_look = was

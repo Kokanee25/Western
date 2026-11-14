@@ -63,6 +63,31 @@ func test_not_through_a_wall() -> void:
 	check(not senses.sees(player), "a wall between you")
 
 
+## A window pane (issue #565; the perception lab's fix 3): he sees you through unbroken glass, as
+## a little less plain than in the open (Sight.see), where a wall the same size hides you.
+func test_sees_you_through_a_window_pane() -> void:
+	var pane := StructureMember.new()
+	pane.kind = &"glass"
+	pane.collision_layer = Layers.WORLD
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(4, 3, 0.006)
+	cs.shape = bs
+	pane.add_child(cs)
+	pane.position = Vector3(0, 1.5, -5)
+	world.add_child(pane)
+	await physics_frames(2)
+	var eye := senses.eye()
+	var at := player.global_position + Vector3.UP * 1.2
+	var ex: Array[RID] = [player.get_rid()]
+	check(not World.space(man).intersect_ray(PhysicsRayQueryParameters3D.create(eye, at, Layers.WORLD)).is_empty(), "the pane's solid to the physics")
+	check(Sight.clear(man, eye, at, ex), "a sight line passes it")
+	var through := Sight.see(man, eye, at, ex, 0.15, 0.8)
+	check(is_equal_approx(through, 0.8), "and says it went through glass (%.2f)" % through)
+	var spotted := await wait_until(func() -> bool: return senses.sees(player), 150)
+	check(spotted, "picks you out through the window")
+
+
 func test_night_shortens_his_sight() -> void:
 	senses.light = 0.0
 	player.global_position = Vector3(0, 0, 10)  # 20 m off
@@ -204,3 +229,30 @@ func test_forgets_people_who_are_gone() -> void:
 	check(senses.known.size() <= others.size() + 2, "only the living (and you) are (%d known)" % senses.known.size())
 	for n: Node in others:
 		n.free()
+
+
+## A planted stick's hiss (issue #537, Sean): heard only really close (Blast.t().fuse_heard, 3 m)
+## and only on its side of the wall it's set on, however thin: the wall-side noise is made a hand
+## off the face the stick is on, and none of a fuse's hiss gets through a wall.
+func test_a_fuse_is_heard_only_close_and_on_its_side_of_the_wall() -> void:
+	var wall := _box(Vector3(0, 1.5, -8.0), Vector3(12, 3, 0.15))
+	await physics_frames(2)
+	var hissed := []
+	senses.heard.connect(func(_at: Vector3, kind: StringName, _w: Node) -> void:
+		if kind == &"fuse":
+			hissed.append(kind))
+	# [where on the wall's face, the face's way out, heard?, what]; he stands at (0, 0, -10).
+	var cases := [[Vector3(0.3, 1.2, -7.92), Vector3(0, 0, 1), false, "the far side of the wall, 2 m from him"],
+			[Vector3(0.3, 1.2, -8.08), Vector3(0, 0, -1), true, "his side of the wall, 2 m off"],
+			[Vector3(4.4, 1.2, -8.08), Vector3(0, 0, -1), false, "his side, 4.5 m along it"]]
+	for c: Array in cases:
+		hissed.clear()
+		var s := DynamiteStick.make(world, c[0], Vector3.ZERO, 30.0)
+		var n: Vector3 = c[1]
+		s.global_basis = Basis(n, Vector3.UP, n.cross(Vector3.UP))  # as planted: its x the face's normal
+		s.stick_to(wall)
+		s.light()
+		await physics_frames(40)
+		check_eq(not hissed.is_empty(), c[2], "%s: %s" % [c[3], "heard" if not hissed.is_empty() else "not heard"])
+		s.queue_free()
+		await physics_frames(2)

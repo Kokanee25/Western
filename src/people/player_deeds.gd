@@ -57,7 +57,7 @@ func _physics_process(delta: float) -> void:
 func _clear(from: Vector3, to: Vector3) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
 	q.exclude = [player.get_rid()]
-	return player.get_world_3d().direct_space_state.intersect_ray(q).is_empty()
+	return World.space(player).intersect_ray(q).is_empty()
 
 
 ## "Drop it!" is a deed against whoever you're covering (or anyone in front of you); calling a man

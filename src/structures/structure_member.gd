@@ -8,6 +8,11 @@ extends StaticBody3D
 ## on the ground itself.
 const TIERS := {
 	&"sill": 0,
+	## A railroad tie in its ballast (TrackChunk, the train's track): it rests on the bed, and a
+	## blast can splinter it (it's not bedded on a footing as a sill is: Blast._bedded).
+	&"tie": 0,
+	## An iron rail spiked to the ties: it bends or tears loose whole, never snaps (TrackChunk).
+	&"rail": 1,
 	&"post": 1,
 	&"joist": 1,
 	&"stud": 2,
@@ -28,20 +33,49 @@ const TIERS := {
 	&"baluster": 5,
 	&"glass": 6,
 	&"door": 6,
+	## The timber viaduct's (Trestle, the trestle lab #623): the stone pier a bent stands on, the
+	## mud and intermediate sills, the cap, sway and longitudinal braces, girts, stringers, guard
+	## timbers. Its links are set from the bents, not searched: these tiers are for anything that
+	## asks (a cut piece relinked).
+	&"pier": 0,
+	&"bent_sill": 1,
+	&"cap": 2,
+	&"girt": 2,
+	&"brace": 2,
+	&"stringer": 3,
+	&"guard": 5,
 }
 
 @export var member_id: StringName
 @export var kind: StringName
 @export var wood: StringName
 @export var size := Vector3.ONE
+## The wood it's drawn in, if not its own (art, Sean 2026-10-26, #405: an inside floor drawn in the
+## interior wood): its mesh takes that wood's look, while `wood` still decides how it bears,
+## breaks, burns and stops a ball. Empty: drawn in `wood`.
+@export var look: StringName:
+	set(value):
+		look = value
+		var meshes: Array = get_children().filter(func(c): return c is MeshInstance3D)
+		if _rest_mesh:
+			meshes.append(_rest_mesh)
+		for mi in meshes:
+			(mi as MeshInstance3D).material_override = WoodMaterials.get_material(drawn_wood(), hash(member_id))
 
 ## Emitted when something damages the member (a bullet hole): the structure re-checks its loads.
 signal damaged
 
 ## Weight resting on this member that isn't a member (goods on a shelf, a man on the porch), N.
 @export var extra_load := 0.0
+## Weights resting on it at points along it (a train's axles on a rail: the trestle lab, #623):
+## Vector2(t along its length from its middle, N) each. Counted with `extra_load`; a lying member
+## bends under each where it is (`extra_load` bears at its middle).
+var extra_points := PackedVector2Array()
 
 var supported_by: Array[StringName] = []
+## The members resting on it (the other way up; set with supported_by by Structure._link), for
+## what a change to it reaches: StructuralAnalysis.begin_update.
+var dependents: Array[StringName] = []
 ## Where it rests on each support (structure space), for how the load comes down.
 var support_points := {}
 ## The contact region with each support (structure space AABB): a member lying along another
@@ -61,19 +95,65 @@ var analysis_cache := {}
 
 # Fire (FireSystem runs it): degrees C, alight or not, how deep the char has gone from each face
 # (m), how long it's been alight, and whether it's burnt away to nothing.
-var temperature := 20.0
-var burning := false
-var char_depth := 0.0
-var burn_time := 0.0
-var consumed := false
+## Once the fire has met it, its temperature, water, char and burn time live in the fire's core
+## (FireSystem's `_core`: the native FireCore, or FireCoreScript), slot `fire_slot`, where the
+## fire's tick works them out (more-cores step 8); these read and write them there.
+var temperature: float:
+	get: return fire_core.temperature(fire_slot) if fire_slot >= 0 else _temperature
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_temperature(fire_slot, v)
+		else:
+			_temperature = v
+var burning := false:
+	set(v):
+		burning = v
+		if fire_slot >= 0:
+			fire_core.set_flag(fire_slot, FireCoreScript.F_BURNING, v)
+var char_depth: float:
+	get: return fire_core.char_depth(fire_slot) if fire_slot >= 0 else _char_depth
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_char_depth(fire_slot, v)
+		else:
+			_char_depth = v
+var burn_time: float:
+	get: return fire_core.burn_time(fire_slot) if fire_slot >= 0 else _burn_time
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_burn_time(fire_slot, v)
+		else:
+			_burn_time = v
+var consumed := false:
+	set(v):
+		consumed = v
+		if fire_slot >= 0:
+			fire_core.set_flag(fire_slot, FireCoreScript.F_CONSUMED, v)
 ## Litres of water soaked into it (a bucket thrown on it): while it's wet, heat goes into drying it
 ## and it gets no hotter than boiling (FireSystem._heat). Dries in the air and the heat.
-var wet := 0.0
+var wet: float:
+	get: return fire_core.wet(fire_slot) if fire_slot >= 0 else _wet
+	set(v):
+		if fire_slot >= 0:
+			fire_core.set_wet(fire_slot, v)
+		else:
+			_wet = v
+## The fire's core and this member's slot in it (-1: the fire hasn't met it).
+var fire_core: Object = null
+var fire_slot := -1
+var _temperature := 20.0
+var _char_depth := 0.0
+var _burn_time := 0.0
+var _wet := 0.0
 ## Bullet holes, in member space: {entry: Vector3, exit: Vector3, through: bool, radius: float}.
 ## Kept for saving (the difference from the authored town) and drawn by member_holes.gdshader.
 var holes: Array[Dictionary] = []
 ## Broken members are gone from the world (a shattered pane). Saved.
-var broken := false
+var broken := false:
+	set(v):
+		broken = v
+		if fire_slot >= 0:
+			fire_core.set_flag(fire_slot, FireCoreScript.F_BROKEN, v)
 
 const MAX_DRAWN_HOLES := 16
 const HOLE_SHADER := preload("res://src/structures/member_holes.gdshader")
@@ -101,6 +181,96 @@ static var voxel_tuning: VoxelDamageTuning
 static var _fresh := {}
 ## Chips lying about, oldest first (untyped: a chip may be freed with its world).
 static var _chips: Array = []
+
+## At rest (drawn in its structure's batch, nothing yet happened to it) a member can be its body
+## alone (docs/briefs/props-scale.md): its mesh and shape nodes are taken out of the tree and kept
+## here, the shape held on the body as a shape owner, so a kit prop of a hundred members is a
+## hundred nodes, not three hundred. Anything that touches it (`realise`) puts them back as built.
+var _rest_mesh: MeshInstance3D
+var _rest_shape: CollisionShape3D
+var _rest_owner := -1
+
+
+## The wood its mesh is drawn in: its `look`, else its own.
+func drawn_wood() -> StringName:
+	return look if look != &"" else wood
+
+
+## Its mesh node, in the tree or kept aside at rest (what its structure batches).
+func drawn_node() -> MeshInstance3D:
+	return _rest_mesh if _rest_mesh else get_child(0) as MeshInstance3D
+
+
+func resting() -> bool:
+	return _rest_mesh != null
+
+
+## Take its mesh and shape nodes out of the tree (the structure has it in a batch): the body keeps
+## the shape. Only as built: child 0 its mesh, child 1 its shape.
+func rest() -> void:
+	if _rest_mesh or get_child_count() < 2:
+		return
+	var mi := get_child(0) as MeshInstance3D
+	var cs := get_child(1) as CollisionShape3D
+	if mi == null or cs == null or cs.shape == null:
+		return
+	remove_child(mi)
+	remove_child(cs)
+	_rest_mesh = mi
+	_rest_shape = cs
+	_rest_owner = create_shape_owner(self)
+	shape_owner_add_shape(_rest_owner, cs.shape)
+	shape_owner_set_transform(_rest_owner, cs.transform)
+	shape_owner_set_disabled(_rest_owner, cs.disabled)
+
+
+## Its mesh and shape nodes back in the tree, where they were (child 0 and 1), before anything
+## reads or changes them.
+func realise() -> void:
+	if _rest_mesh == null:
+		return
+	var mi := _rest_mesh
+	var cs := _rest_shape
+	_rest_mesh = null
+	_rest_shape = null
+	remove_shape_owner(_rest_owner)
+	_rest_owner = -1
+	add_child(mi)
+	move_child(mi, 0)
+	add_child(cs)
+	move_child(cs, 1)
+
+
+## Its mesh and shape nodes out of the tree, for a body of its own (it's going loose,
+## Structure._drop), in the order they hang under it (its mesh, its shape, then any others), each
+## with its transform as it is under the member. At rest, the pair kept aside as they are: put back
+## under the member only to be moved again was a kit prop's going loose twice over (#538).
+func take_parts() -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	if _rest_mesh:
+		out.append(_rest_mesh)
+		out.append(_rest_shape)
+		_rest_mesh = null
+		_rest_shape = null
+		remove_shape_owner(_rest_owner)
+		_rest_owner = -1
+	for c in get_children():
+		if c is MeshInstance3D or c is CollisionShape3D:
+			out.append(c as Node3D)
+	for c in out:
+		if c.get_parent() == self:
+			remove_child(c)
+	return out
+
+
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_PREDELETE:
+		return
+	if fire_slot >= 0:
+		fire_core.release(fire_slot)  # nothing heats it now, nothing it heats
+	if _rest_mesh:
+		_rest_mesh.free()
+		_rest_shape.free()
 
 
 static func tier_of(member_kind: StringName) -> int:
@@ -166,11 +336,26 @@ func weight(tuning: TimberTuning) -> float:
 	var c := char_depth * 2.0
 	var sound := maxf(size.x - c, 0.0) * maxf(size.y - c, 0.0) * maxf(size.z - c, 0.0) * solid_share
 	# Char weighs about a fifth of the wood it was.
-	return (sound + (volume() - sound) * 0.2) * float(tuning.wood(wood).density) * 9.81
+	return (sound + (volume() - sound) * 0.2) * density(tuning) * 9.81
+
+
+## kg/m³: masonry's from materials.json (MasonryMaterials), the rest TimberTuning's.
+func density(tuning: TimberTuning) -> float:
+	if wood != MasonryMaterials.OLD_STONE and MasonryMaterials.is_masonry(wood):
+		return MasonryMaterials.density(wood)
+	return float(tuning.wood(wood).density)
+
+
+## Stone, brick or adobe (MasonryMaterials.is_masonry): never burns, carves as stone, rings and
+## throws stone dust. The one test the game asks.
+func is_masonry() -> bool:
+	return MasonryMaterials.is_masonry(wood)
 
 
 ## Where it is in the world now (it may be lying in the street as rubble).
 func world_aabb() -> AABB:
+	if _rest_mesh and is_inside_tree():
+		return global_transform * _rest_mesh.transform * _rest_mesh.get_aabb()
 	var box := AABB()
 	var first := true
 	for p: Array in pieces:
@@ -179,9 +364,18 @@ func world_aabb() -> AABB:
 		if not is_instance_valid(p[0]):
 			continue
 		var mi := p[0] as MeshInstance3D
-		if mi == null or not mi.is_inside_tree():
+		if mi == null:
 			continue
-		var b := mi.global_transform * mi.get_aabb()
+		var xf: Transform3D
+		if mi.is_inside_tree():
+			xf = mi.global_transform
+		else:
+			# Lying in its cell (RubbleRest keeps its mesh aside): where its body is.
+			var rb: Variant = mi.get_meta(&"rest_body", null)
+			if not is_instance_valid(rb) or not (rb as Node3D).is_inside_tree():
+				continue
+			xf = (rb as Node3D).global_transform * mi.transform
+		var b := xf * mi.get_aabb()
 		box = b if first else box.merge(b)
 		first = false
 	if first and is_inside_tree():
@@ -252,6 +446,7 @@ func exit_distance(entry: Vector3, direction: Vector3) -> float:
 ## Record a bullet hole. `exit` is where it came out (world), or null if it stopped inside.
 ## Voxelised, it's carved: a channel of `radius` (a blind one is a pit at `entry`).
 func add_hole(entry: Vector3, exit: Variant, radius: float) -> void:
+	realise()
 	if _use_voxels():
 		var to: Vector3 = exit if exit != null else entry
 		carve_hit(entry, to, exit != null, (to - entry).normalized(), radius, 0.0, 0.0)
@@ -268,6 +463,7 @@ func add_hole(entry: Vector3, exit: Variant, radius: float) -> void:
 func _draw_holes() -> void:
 	if voxels != null:
 		return  # carved for real
+	realise()
 	var mi := get_child(0) as MeshInstance3D
 	if mi == null:
 		return
@@ -297,24 +493,61 @@ func _draw_holes() -> void:
 
 
 ## Glass: the pane breaks into shards that fall (and stay), with the sound of it. The member is
-## then broken: no longer drawn or solid.
-func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
+## then broken: no longer drawn or solid. `spare`: bodies the shards don't cut (a man whose own gun
+## hand broke it, #607: they go on with his arm, away from him).
+func shatter(at: Vector3, direction: Vector3, seed := 0, spare: Array[RID] = []) -> void:
 	if broken:
 		return
+	realise()
 	broken = true
-	Events.noise.emit(at, 40.0, &"glass", null)
+	if get_parent() is Structure:
+		(get_parent() as Structure).mark_dirty(member_id)
+	if not get_parent() is Structure or (get_parent() as Structure).first_this_tick(&"glass"):
+		Events.noise.emit(at, 40.0, &"glass", null)  # (once a tick a building, as its timber, #538)
 	var mi := get_child(0) as MeshInstance3D
 	var cs := get_child(1) as CollisionShape3D
 	if mi:
 		mi.visible = false
 	if cs:
 		cs.set_deferred(&"disabled", true)
+		Sight.changed(self, true)  # gone from sight with its shape, at the frame's end
+	var host := get_parent().get_parent() if get_parent() and get_parent().get_parent() else get_parent()
+	# The shards themselves are made as the tick has room (SpawnQueue: a blast's dozens of panes
+	# were ~0.1 s of its frame); a ball's one pane, at once.
+	SpawnQueue.run(self, _make_shards.bind(at, direction, seed, host), shard_count(), SpawnQueue.LATER)
+	# The shards cut whoever's close.
+	var excl: Array[RID] = [get_rid()]
+	excl.append_array(spare)
+	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
+	# (As many panes a tick a building as can sound at once: the rest weren't heard anyway, #538.)
+	var sounds := not get_parent() is Structure or (get_parent() as Structure).under_this_tick(&"glass", GameAudio.t().breaking_limit)
+	if sounds and GameAudio.enabled():
+		GameAudio.play(host, &"glass", at, {"unit_size": 6.0, "limit": GameAudio.t().breaking_limit})
+	elif sounds:
+		var snd := AudioStreamPlayer3D.new()
+		snd.stream = SynthSounds.get_sound(&"glass")
+		snd.unit_size = 6.0
+		host.add_child(snd)
+		snd.global_position = at
+		snd.play()
+		snd.finished.connect(snd.queue_free)
+	Events.member_broken.emit(member_id)
+
+
+## How many shards a pane breaks into.
+func shard_count() -> int:
+	return clampi(int(size.x * size.y * 30.0), 8, 26)
+
+
+## The shards of a shattered pane, falling from where it stood (its own seeded dice: the same
+## pane breaks the same way whenever they're made).
+func _make_shards(at: Vector3, direction: Vector3, seed: int, host: Node) -> void:
+	if not is_inside_tree() or not is_instance_valid(host) or not host.is_inside_tree():
+		return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(member_id) + seed
-	var host := get_parent().get_parent() if get_parent() and get_parent().get_parent() else get_parent()
 	var local_hit := global_transform.affine_inverse() * at
-	var count := clampi(int(size.x * size.y * 30.0), 8, 26)
-	for i in count:
+	for i in shard_count():
 		var shard := RigidBody3D.new()
 		shard.name = "GlassShard"
 		shard.mass = 0.04
@@ -337,26 +570,13 @@ func shatter(at: Vector3, direction: Vector3, seed := 0) -> void:
 		smi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		shard.add_child(smi)
 		host.add_child(shard)
+		RubbleRest.watch(shard)
 		var local := Vector3(rng.randf_range(-0.5, 0.5) * size.x, rng.randf_range(-0.5, 0.5) * size.y, 0.0)
 		shard.global_transform = Transform3D(global_transform.basis.rotated(global_transform.basis.z, rng.randf() * TAU), global_transform * local)
 		# Pieces near the hit fly with the bullet; the rest mostly drop.
 		var near := 1.0 - clampf(local.distance_to(Vector3(local_hit.x, local_hit.y, 0.0)) / maxf(size.x, 0.1), 0.0, 1.0)
 		shard.linear_velocity = direction * rng.randf_range(0.5, 3.0) * near + Vector3(rng.randf_range(-0.4, 0.4), rng.randf_range(-0.2, 0.6), rng.randf_range(-0.4, 0.4))
 		shard.angular_velocity = Vector3(rng.randf_range(-8, 8), rng.randf_range(-8, 8), rng.randf_range(-8, 8))
-	# The shards cut whoever's close.
-	var excl: Array[RID] = [get_rid()]
-	GlassCuts.spray(host as Node3D if host is Node3D else null, at, direction, size.x * size.y, hash(member_id) + seed, excl)
-	if GameAudio.enabled():
-		GameAudio.play(host, &"glass", at, {"unit_size": 6.0, "limit": GameAudio.t().breaking_limit})
-	else:
-		var snd := AudioStreamPlayer3D.new()
-		snd.stream = SynthSounds.get_sound(&"glass")
-		snd.unit_size = 6.0
-		host.add_child(snd)
-		snd.global_position = at
-		snd.play()
-		snd.finished.connect(snd.queue_free)
-	Events.member_broken.emit(member_id)
 
 
 func to_dict() -> Dictionary:
@@ -404,7 +624,7 @@ func _make_voxels() -> bool:
 		return false
 	var t := voxel_damage_tuning()
 	voxels = ClassDB.instantiate(&"VoxelMember")
-	voxels.setup(size, t.cells_per_metre, t.max_voxels, wood == &"stone")
+	voxels.setup(size, t.cells_per_metre, t.max_voxels, is_masonry())
 	return true
 
 
@@ -424,6 +644,7 @@ func solid_runs(from: Vector3, direction: Vector3) -> PackedFloat32Array:
 ## hits come, so a charge's pellets meet each other's holes); the mesh and collision follow from
 ## the worker threads; chips thrown. Not: a drawn hole, as before.
 func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, radius: float, joules: float, blast: float) -> void:
+	realise()
 	if not _make_voxels():
 		add_hole(entry, to if through else null, radius)
 		return
@@ -435,7 +656,7 @@ func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, r
 	var seed := hash(member_id) + holes.size() * 7919
 	holes.append({"entry": local_entry, "exit": local_to, "through": through, "radius": radius, "spall": spall})
 	var removed: int = voxels.carve(local_entry, local_to, radius * t.channel_scale, spall, seed, t.ragged, t.flare,
-			-1 if wood == &"stone" else axis_index(), t.grain_split, t.island_max, t.chips_per_hit)
+			-1 if is_masonry() else axis_index(), t.grain_split, t.island_max, t.chips_per_hit)
 	if removed > 0:
 		_section_stale = true
 		solid_share = float(voxels.solid()) / maxf(float(voxels.total()), 1.0)
@@ -448,12 +669,22 @@ func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, r
 ## The worker's mesh: drawn and solid as carved. The outside keeps the member's own material; the
 ## carved faces are fresh-cut wood.
 func apply_voxel_mesh(m: Array) -> void:
+	realise()
 	if m.size() < 3 or has_meta(&"snapped") or consumed or pieces.is_empty() or not is_instance_valid(pieces[0][0]):
 		return
 	var mi := pieces[0][0] as MeshInstance3D
+	if mi.mesh and mi.mesh.has_meta(&"board_frame"):
+		# A material library board (#765, #788) is drawn in its own frame by its own shader: carved,
+		# it's the member's box in the member's space, in its wood's texel material.
+		var frame := mi.transform
+		mi.transform = Transform3D()
+		mi.material_override = WoodMaterials.get_material(drawn_wood(), hash(member_id))
+		for c in mi.get_children():  # (its dress layers stay where they were: KitProp, #805)
+			if c is Node3D and String(c.name).begins_with("Dress"):
+				(c as Node3D).transform = frame * (c as Node3D).transform
 	var mesh := ArrayMesh.new()
 	if not (m[0] as Array).is_empty():
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, m[0])
+		mesh = MemberMesh.made(m[0])  # (its arrays kept: RubbleRest joins it without a read back)
 	mi.mesh = mesh
 	var inner := mi.get_node_or_null(^"Carved") as MeshInstance3D
 	if inner == null:
@@ -471,13 +702,14 @@ func apply_voxel_mesh(m: Array) -> void:
 		var shape := ConcavePolygonShape3D.new()
 		shape.set_faces(m[2])
 		(pieces[0][1] as CollisionShape3D).shape = shape
+		Sight.changed(self)  # sight sees through the hole as the ball does
 
 
 func _fresh_material() -> Material:
 	var key := wood
 	if not _fresh.has(key):
 		var t := voxel_damage_tuning()
-		var stone := wood == &"stone"
+		var stone := is_masonry()
 		var base := t.fresh_stone if stone else t.fresh_wood
 		if wood == &"dark_trim":
 			base = base.darkened(0.25)
@@ -523,13 +755,13 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 	rng.seed = seed
 	var cell: float = voxels.cell_volume()
 	var ai := axis_index()
-	var density := 2300.0 if wood == &"stone" else 480.0
+	var rho := MasonryMaterials.density(wood) if is_masonry() else 480.0
 	for c: Vector4 in voxels.chunks():
 		if c.w < t.chip_min_voxels:
 			continue
 		var side := pow(c.w * cell, 1.0 / 3.0)
 		var dims := Vector3.ONE * side * 0.7
-		if wood != &"stone":
+		if not is_masonry():
 			dims[ai] = side * 2.2  # splinters run along the grain
 		dims = dims.clampf(0.004, 0.12)
 		var chip := RigidBody3D.new()
@@ -537,7 +769,10 @@ func _throw_chips(direction: Vector3, seed: int) -> void:
 		chip.add_to_group(&"wood_chips")
 		chip.collision_layer = Layers.DEBRIS
 		chip.collision_mask = Layers.DEBRIS_MASK
-		chip.mass = maxf(dims.x * dims.y * dims.z * density, 0.002)
+		chip.mass = maxf(dims.x * dims.y * dims.z * rho, 0.002)
+		# It starts inside this member's box (the hole it came out of): free of it, or the physics
+		# shoves it out of the solid it's in, now and then at hundreds of m/s, off the map.
+		chip.add_collision_exception_with(self)
 		var cs := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = dims

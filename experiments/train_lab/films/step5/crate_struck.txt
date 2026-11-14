@@ -1,0 +1,5 @@
+# Step 5 film 4 (#616): a crate on the line struck by the pilot at 20 km/h (nobody braking).
+train_lab
+train_caption A crate on the line, 20 km/h: the pilot throws it aside.
+train_cam side 384 8
+train_derail kmh=20 at=380 how=crate hour=16 driver=none run_up=80 riders=0 secs=3 past=40

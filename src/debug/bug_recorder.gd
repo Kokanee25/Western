@@ -3,20 +3,24 @@ extends Node
 ## The bug-report key (docs/briefs/automated-checks.md, item 1). Always listening, cheaply: every
 ## physics tick it notes which actions changed (keys, buttons, sticks, as strengths) and how far the
 ## mouse turned the view, and every second where everyone is. F12 writes one file,
-## user://bug_reports/<date-time>.saltbug (a zip): the screenshot, the recording, the game's log,
+## <date-time>.saltbug.zip in the reports folder (CrashReports.folder(): `Salt Creek crash reports` on
+## the desktop, else user://crash_reports; a zip, named so GitHub takes it): the screenshot, the recording, the game's log,
 ## the build, where you are and what you're holding, the settings, what's been happening.
 ## `tools/replay.gd FILE` plays the recording back and says where the game went differently.
+## The frame's numbers go in it too (PerfRing, #433): `perf.json`, and `perf_summary` at the top of
+## `report.json` (`tools/perf_report.py FILE` prints them).
 ##
 ## A session under REPLAY_FROM_START minutes is replayed from the start (the most faithful: the
 ## same scene, the same seeds, every input since); a longer one from a snapshot of where everyone
 ## was 30 s before the report (people put back where they stood, which is close but not exact).
 
-const DIR := "user://bug_reports"
 const REPLAY_FROM_START := 20.0
 const KEEP_SECONDS := 30.0
 const CHECK_EVERY := 60  # ticks between position checkpoints
 ## Actions that aren't play (menus) aren't recorded.
 const SKIP_PREFIX := ["ui_"]
+## The last things that happened, kept for the reports (F12's and the black box's).
+const EVENTS_KEPT := 300
 
 var _actions: Array[StringName] = []
 var _strength := PackedFloat32Array()
@@ -33,10 +37,17 @@ var _snapshots: Array = []
 var _events: Array = []
 var _toast_left := 0.0
 var _toast: Label
+## The frame's timing, every frame (PerfRing).
+var perf := PerfRing.new()
+## Where the last report went (globalized), "" before one.
+var last_path := ""
+## `-- --no-perf-ring`: no timing ring and no viewport measuring (the bench's before, #437).
+var perf_on := not OS.get_cmdline_user_args().has("--no-perf-ring")
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	process_priority = 1000  # last in the frame, after the overlay has rolled Prof's frame
 	for a in InputMap.get_actions():
 		if not SKIP_PREFIX.any(func(p: String) -> bool: return String(a).begins_with(p)):
 			_actions.append(a)
@@ -49,10 +60,20 @@ func _ready() -> void:
 	layer.layer = 30
 	add_child(layer)
 	_toast = Label.new()
-	_toast.position = Vector2(16, 16)
 	_toast.modulate = Color(1.0, 0.85, 0.5)
+	_toast.add_theme_font_size_override(&"font_size", 18)
+	_toast.add_theme_color_override(&"font_outline_color", Color(0.05, 0.03, 0.02))
+	_toast.add_theme_constant_override(&"outline_size", 6)
 	_toast.visible = false
 	layer.add_child(_toast)
+	if perf_on:  # every viewport's render time, measured from the start (F3 reads them too)
+		add_child(perf.make_clock())
+		perf.watch(get_tree().root)
+		for vp in get_tree().root.find_children("*", "SubViewport", true, false):
+			perf.watch(vp as Viewport)
+		_hook(get_tree().node_added, func(n: Node) -> void:
+			if n is SubViewport:
+				perf.watch(n as Viewport))
 
 
 func _exit_tree() -> void:
@@ -87,9 +108,14 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if perf_on:
+		perf.sample()
 	if _toast_left > 0.0:
 		_toast_left -= delta
 		_toast.visible = _toast_left > 0.0
+		# At the foot of the screen, clear of F3's readout.
+		var vp := get_viewport().get_visible_rect().size
+		_toast.position = Vector2(16.0, vp.y - _toast.size.y - 72.0)
 
 
 ## Past REPLAY_FROM_START minutes only the last KEEP_SECONDS (and the snapshot before them) are kept.
@@ -105,9 +131,13 @@ func _trim(tick: int) -> void:
 
 ## Write the report. Returns its path.
 func save() -> String:
-	DirAccess.make_dir_recursive_absolute(DIR)
+	var dir := CrashReports.folder()
 	var stamp := Time.get_datetime_string_from_system().replace(":", "-")
-	var path := "%s/%s.saltbug" % [DIR, stamp]
+	var path := "%s/%s.saltbug.zip" % [dir, stamp]
+	var n := 2
+	while FileAccess.file_exists(path):  # two in one second: the second its own file
+		path = "%s/%s-%d.saltbug.zip" % [dir, stamp, n]
+		n += 1
 	var shot: Image = null
 	if DisplayServer.get_name() != "headless":  # headless, nothing is drawn (and no frame is posted)
 		await RenderingServer.frame_post_draw
@@ -125,8 +155,11 @@ func save() -> String:
 	if zip.open(ProjectSettings.globalize_path(path)) != OK:
 		_say("couldn't write %s" % path)
 		return ""
-	_put(zip, "report.json", JSON.stringify(report(get_tree(), tick, _events), "  "))
+	var rep := {"perf_summary": perf.summary()}
+	rep.merge(report(get_tree(), tick, _events))
+	_put(zip, "report.json", JSON.stringify(rep, "  ", false))
 	_put(zip, "recording.json", JSON.stringify(recording))
+	_put(zip, "perf.json", JSON.stringify(perf.to_dict(), "", false))  # systems stay largest first
 	var log_path := "user://logs/godot.log"
 	if FileAccess.file_exists(log_path):
 		_put(zip, "godot.log", FileAccess.get_file_as_string(log_path))
@@ -135,9 +168,53 @@ func save() -> String:
 		zip.write_file(shot.save_png_to_buffer())
 		zip.close_file()
 	zip.close()
-	_say("Bug report saved: %s" % ProjectSettings.globalize_path(path))
-	print("[bug report] %s" % ProjectSettings.globalize_path(path))
+	last_path = ProjectSettings.globalize_path(path)
+	_say("Bug report saved: %s" % shown_path(last_path), 12.0)
+	print("[bug report] %s" % last_path)
+	for line in PerfRing.summary_lines(rep.perf_summary):
+		print("[bug report] " + line)
 	return path
+
+
+## The physics tick the recording counts from.
+func start_tick() -> int:
+	return _start_tick
+
+
+## What's been happening (a copy).
+func events() -> Array:
+	return _events.duplicate()
+
+
+## The recording as replay.gd reads it, for the black box (CrashReports): the last `seconds` of it,
+## from the snapshot before them (a session shorter than that from the start). The entries are
+## shared, not copied (they're never changed once made).
+func recording(seconds: float) -> Dictionary:
+	var tps := Engine.physics_ticks_per_second
+	var tick := Engine.get_physics_frames() - _start_tick
+	var snap: Dictionary = {}
+	var from := 0
+	if tick > seconds * tps and not _snapshots.is_empty():
+		snap = _snapshots[0]
+		from = int(snap[&"tick"])
+	return {
+		"tick": tick, "ticks_per_second": tps,
+		"actions": _actions.map(func(a: StringName) -> String: return String(a)),
+		"from": "snapshot" if not snap.is_empty() else "start", "snapshot": snap,
+		"inputs": _since(_inputs, from), "looks": _since(_looks, from), "checks": _since(_checks, from),
+	}
+
+
+static func _since(rows: Array, tick: int) -> Array:
+	if tick <= 0 or rows.is_empty():
+		return rows.duplicate()
+	var i := rows.bsearch_custom(tick, func(row: Array, t: int) -> bool: return row[0] < t)
+	return rows.slice(i)
+
+
+## The path as the desktop writes it (backslashes on Windows).
+static func shown_path(p: String) -> String:
+	return p.replace("/", "\\") if OS.get_name() == "Windows" else p
 
 
 static func _put(zip: ZIPPacker, name: String, text: String) -> void:
@@ -146,10 +223,15 @@ static func _put(zip: ZIPPacker, name: String, text: String) -> void:
 	zip.close_file()
 
 
-func _say(text: String) -> void:
+## A line at the foot of the screen for `seconds` (CrashReports' too).
+func say(text: String, seconds := 6.0) -> void:
+	_say(text, seconds)
+
+
+func _say(text: String, seconds := 6.0) -> void:
 	_toast.text = text
 	_toast.visible = true
-	_toast_left = 6.0
+	_toast_left = seconds
 
 
 # -- What goes in it -------------------------------------------------------------------------------
@@ -162,8 +244,9 @@ static func report(tree: SceneTree, tick: int, events: Array) -> Dictionary:
 	var out := {
 		"build": load("res://src/debug/debug_overlay.gd").build_label(), "engine": Engine.get_version_info().string,
 		"os": OS.get_name(), "renderer": RenderingServer.get_current_rendering_method(),
-		"video": RenderingServer.get_video_adapter_name(), "game_seconds": snappedf(float(tick) / Engine.physics_ticks_per_second, 0.01),
+		"video": _video_name(), "game_seconds": snappedf(float(tick) / Engine.physics_ticks_per_second, 0.01),
 		"clock": clock.get_clock_text() if clock else "", "fps": Engine.get_frames_per_second(),
+		"scene": tree.current_scene.scene_file_path if tree.current_scene else "",
 		"events": events,
 	}
 	if player:
@@ -174,7 +257,11 @@ static func report(tree: SceneTree, tick: int, events: Array) -> Dictionary:
 	if settings:
 		out["settings"] = {"internal_resolution": str(settings.internal_resolution), "mosaic": settings.mosaic,
 			"quantise_once": settings.quantise_once, "tile_look": String(settings.tile_look),
-			"texels_per_meter": settings.texels_per_meter, "reduced_gore": settings.reduced_gore}
+			"texels_per_meter": settings.texels_per_meter, "reduced_gore": settings.reduced_gore,
+			# Which threads this run had (#435: the runs told apart only by the engine's warning).
+			"render_thread": settings.render_thread, "physics_thread": settings.physics_thread,
+			"people_threads": settings.people_threads, "people_bands": settings.people_bands,
+			"max_physics_steps_per_frame": Engine.max_physics_steps_per_frame}
 	var people := []
 	for n in tree.get_nodes_in_group(&"people"):
 		var man := n as HumanBody
@@ -183,6 +270,16 @@ static func report(tree: SceneTree, tick: int, events: Array) -> Dictionary:
 				"alive": man.physiology.alive, "how": man.physiology.describe()})
 	out["people"] = people
 	return out
+
+
+## The graphics card's name, asked once (with the render thread each ask waits for its frame).
+static var _video := ""
+
+
+static func _video_name() -> String:
+	if _video == "":
+		_video = RenderingServer.get_video_adapter_name()
+	return _video
 
 
 ## Where everyone is (the player and each person by their path in the street): [x, y, z, yaw].
@@ -199,7 +296,7 @@ static func positions(tree: SceneTree) -> Dictionary:
 
 
 static func street_of(tree: SceneTree) -> Node:
-	return tree.root.find_child("TestStreet", true, false)
+	return World.root(tree.root)  # the old town's street, or the valley (Settings.world)
 
 
 ## Enough to put the world back roughly as it was: the clock and everyone's place.
@@ -223,7 +320,7 @@ func _listen() -> void:
 	var note := func(kind: String, text: String) -> void:
 		_events.append({"t": snappedf(float(Engine.get_physics_frames() - _start_tick) / Engine.physics_ticks_per_second, 0.1),
 			"kind": kind, "text": text})
-		if _events.size() > 80:
+		if _events.size() > EVENTS_KEPT:
 			_events.pop_front()
 	var who := func(n: Variant) -> String:
 		if n == null or not is_instance_valid(n):
@@ -233,7 +330,11 @@ func _listen() -> void:
 		return String(n.person_id) if n is HumanBody else String((n as Node).name)
 	_hook(Events.spoke, func(w: Node, text: String) -> void: note.call("said", "%s: %s" % [who.call(w), text]))
 	_hook(Events.shot_fired, func(_o: Vector3, _d: Vector3, s: Node) -> void: note.call("shot", "%s fired" % who.call(s)))
-	_hook(Events.body_hit, func(info: Dictionary) -> void: note.call("hit", "%s hit (%s)" % [who.call(info.get("person")), info.get("segment", "?")]))
+	_hook(Events.body_hit, func(info: Dictionary) -> void:
+		if info.get("kind") == &"blast":  # what the blast did to him, not a "hit" in the chest (#488)
+			note.call("hit", "%s caught by the blast: %s" % [who.call(info.get("person")), ", ".join(info.get("harm", []))])
+		else:
+			note.call("hit", "%s hit (%s)" % [who.call(info.get("person")), info.get("segment", "?")]))
 	_hook(Events.person_died, func(p: Node, cause: StringName) -> void: note.call("died", "%s died (%s)" % [who.call(p), cause]))
 	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: note.call("blast", "%.2f kg at %s" % [kg, _arr(at)]))
 

@@ -89,6 +89,8 @@ def run_one(job):
         words.append(f"body={body}")
     if seconds:
         words.append(f"seconds={seconds}")
+    if opt("hour"):
+        words.append(f"hour={opt('hour')}")
     if render:
         words.append("shots")
     if opt("novoxels"):

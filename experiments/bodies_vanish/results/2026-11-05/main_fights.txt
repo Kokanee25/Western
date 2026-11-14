@@ -1,0 +1,27 @@
+blast_r2 
+blast_r3 
+blast_r4 
+farm_back_1 
+farm_back_2 
+farm_breach_1 
+farm_breach_2 
+farm_front_1 
+farm_front_2 
+gf_saloon_1 
+gf_saloon_2 "end":"gang_out" "outcomes":{"surrendered":3} 
+gf_saloon_3 "end":"you_down" "outcomes":{"standing":3} 
+gf_saloon_4 "end":"gang_out" "outcomes":{"dead":1,"down":1,"surrendered":1} 
+gf_spec_front_1 "end":"gang_out" "outcomes":{"down":3} 
+gf_spec_front_2 "end":"gang_out" "outcomes":{"down":1,"fled":1,"surrendered":1} 
+gf_spec_front_3 "end":"gang_out" "outcomes":{"broke_off":1,"down":1,"surrendered":1} 
+gf_spec_front_4 "end":"you_down" "outcomes":{"dead":1,"standing":2} 
+gf_spec_hall_1 "end":"timeout" "outcomes":{"down":1,"standing":1,"surrendered":1} 
+gf_spec_hall_2 "end":"timeout" "outcomes":{"down":1,"standing":2} 
+gf_spec_hall_3 "end":"you_down" "outcomes":{"dead":1,"standing":2} 
+gf_spec_hall_4 "end":"you_down" "outcomes":{"standing":3} 
+gf_street_1 "end":"gang_out" "outcomes":{"down":2,"surrendered":1} 
+gf_street_2 "end":"you_dead" "outcomes":{"standing":3} 
+gf_street_3 "end":"timeout" "outcomes":{"down":1,"standing":2} 
+gf_street_4 "end":"timeout" "outcomes":{"dead":1,"standing":1,"surrendered":1} 
+street_gang_1 
+street_gang_2 

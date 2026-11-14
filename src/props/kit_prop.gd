@@ -53,6 +53,8 @@ var loose := false
 signal went_loose
 ## The man sitting on it (a HumanBody), or null.
 var seated: Node3D = null
+## What it holds (its kit file's "holds" and "contents": a barrel's whiskey), or null.
+var contents: PropContents
 
 var _feet := {}  # grounded StructureMember -> [[floor member or null for solid ground, its position]]
 var _footed := false
@@ -65,12 +67,46 @@ var _seat_mass := 0.0
 
 
 func _ready() -> void:
+	blast_first_whole = SLICED_ABOVE  # (settled on the blast's tick: _on_exploded reads what's left)
 	if definition.is_empty() and kit_id != &"":
 		definition = PropKit.definition(kit_id)
 	super._ready()
-	if not Events.member_broken.is_connected(_on_member_broken):
-		Events.member_broken.connect(_on_member_broken)
+	if contents == null:
+		contents = PropContents.make(self)
+		if contents:
+			add_child(contents)
+	# One listener for every prop's breaks (#538: ~110 props each hearing each of a stick's ~600
+	# breaks was ~0.15 ms a break): by the structure id the member's id starts with.
+	var mine: Array = _by_structure.get_or_add(structure_id, [])
+	if not mine.has(self):
+		mine.append(self)
+	if not Events.member_broken.is_connected(_any_member_broken):
+		Events.member_broken.connect(_any_member_broken)
+	if not Events.exploded.is_connected(_on_exploded):
 		Events.exploded.connect(_on_exploded)
+	if not Events.bullet_hit.is_connected(_any_bullet_hit):
+		Events.bullet_hit.connect(_any_bullet_hit)
+	_put_in_carried()
+	if definition.has("stove") and get_node_or_null(^"StoveFire") == null:
+		# A firebox (#866: the box stove): its glow by the hour, its coals when it goes over.
+		var sf := StoveFire.new()
+		sf.name = "StoveFire"
+		add_child(sf)
+
+
+## Every kit prop by its structure id (KitProp ids have no "/": "chair_3").
+static var _by_structure := {}
+
+
+static func _any_member_broken(id: StringName) -> void:
+	var props: Variant = _by_structure.get(StringName(String(id).get_slice("/", 0)))
+	if props == null:
+		return
+	for p: Variant in (props as Array).duplicate():
+		if is_instance_valid(p):
+			(p as KitProp)._on_member_broken(id)
+		else:
+			(props as Array).erase(p)
 
 
 func build() -> void:
@@ -81,6 +117,11 @@ func build() -> void:
 		var m := add_member(spec.id, StringName(spec.kind), StringName(spec.get("wood", definition.get("wood", "oak"))),
 				PropKit.vec(spec.size), PropKit.vec(spec.at), PropKit.basis_of(spec))
 		m.set_meta(&"kit", spec)
+		if spec.has("solid"):
+			# A hollow member (#866: a cast firebox, a stovepipe, a brass tube): the share of its box
+			# that's metal, for its weight. StructureMember.weight counts the rest as char (a fifth of
+			# its density), so a hollow member weighs at least a fifth of its box.
+			m.solid_share = float(spec.solid)
 		var mi := m.get_child(0) as MeshInstance3D
 		var own_look: String = spec.get("look", definition.get("look", ""))
 		PropKit.dress_member(m, spec.get("draw", {}), own_look)
@@ -98,9 +139,16 @@ func build() -> void:
 			for mesh: Mesh in looks[look]:
 				st.append_from(mesh, 0, Transform3D.IDENTITY)
 			layer.mesh = st.commit()
-			layer.material_override = PropKit.material(look, hash(m.member_id))
+			# A "wood:" look's first strip for every layer, as dress_member gives members: one batch a look.
+			layer.material_override = PropKit.material(look, 0 if look.begins_with("wood:") else hash(m.member_id))
+			# In the member's own space: a library board's mesh is drawn in its board's frame (#805:
+			# the frame's half-length offset carried every pull, knob and paper on a `lib:` member
+			# off to one end; StructureMember.apply_voxel_mesh puts them back when it's carved).
+			layer.transform = mi.transform.affine_inverse()
 			mi.add_child(layer)
 		m.damaged.connect(_check_split.bind(m))
+		m.set_meta(&"closed", m.transform)
+	_hinge_angle.clear()
 	var seat: Dictionary = definition.get("seat", {})
 	_seat_member = members.get(StringName("%s/%s" % [structure_id, seat.get("member", "")]))
 	_seat_point = PropKit.vec(seat.get("at", [0, 0, 0]))
@@ -114,6 +162,8 @@ func _physics_step(delta: float) -> void:
 		_frames += 1
 		if _frames >= SETTLE_FRAMES:
 			_find_footing()
+			if _footed and not loose:
+				_join_batch()
 		return
 	_check_t -= delta
 	if _check_t > 0.0:
@@ -144,6 +194,7 @@ var _nailed := {}  # StructureMember -> [nail points through it (prop space)]: a
 
 func infer_supports() -> void:
 	super.infer_supports()
+	_hang_hinged()
 	# Hung on nails (a picture, a mount): what the nails go through is held as if it stood on the
 	# ground, and everything else hangs from it.
 	_nailed.clear()
@@ -216,9 +267,9 @@ func _rebuild_dirty_batches() -> void:
 func _batch_dress() -> void:
 	var groups := {}
 	for m: StructureMember in _batched:
-		if not is_instance_valid(m) or m.get_child_count() == 0:
+		if not is_instance_valid(m) or (m.get_child_count() == 0 and not m.resting()):
 			continue
-		var mi := m.get_child(0) as MeshInstance3D
+		var mi := m.drawn_node()
 		for c in mi.get_children():
 			if c is MeshInstance3D and c.name.begins_with("Dress"):
 				var layer := c as MeshInstance3D
@@ -246,11 +297,63 @@ func batch_count() -> int:
 	return super.batch_count() + _dress.size()
 
 
+## Its own batch meshes (members, dress, the far-lamps' shadow): what PropBatch joins.
+func batch_nodes() -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
+	for d: Dictionary in [_batches, _dress]:
+		for mi: Variant in d.values():
+			if is_instance_valid(mi):
+				out.append(mi)
+	if _shadow and is_instance_valid(_shadow):
+		out.append(_shadow)
+	return out
+
+
+# --- Drawn with its neighbours at rest (PropBatch) -----------------------------------------------
+
+var _prop_batch: PropBatch
+
+
+func _join_batch() -> void:
+	if _prop_batch == null or not is_instance_valid(_prop_batch):
+		_prop_batch = PropBatch.for_prop(self)
+	if _prop_batch:
+		_prop_batch.join(self)
+		set_notify_transform(true)
+
+
+func _leave_batch() -> void:
+	if _prop_batch and is_instance_valid(_prop_batch) and _prop_batch.has(self):
+		_prop_batch.leave(self)
+
+
+## In a PropBatch: anything happening to a member, or to it (moved, hidden), and it draws itself.
+func unbatch(m: StructureMember, soon := false, aside := false) -> void:
+	_leave_batch()
+	super.unbatch(m, soon, aside)
+
+
+## Heated or charred: drawn by its own batches, which carry the char (Structure.show_fire).
+func show_fire(m: StructureMember, char_amount: float, glow: float) -> void:
+	_leave_batch()
+	super.show_fire(m, char_amount, glow)
+
+
+func rebuild() -> void:
+	_leave_batch()
+	super.rebuild()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED or what == NOTIFICATION_VISIBILITY_CHANGED:
+		_leave_batch()
+
+
 # --- What it stands on ---------------------------------------------------------------------------
 
 ## Each foot's floor: what's in a thin box just under it (the room's members, the ground).
 func _find_footing() -> void:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var own: Array[RID] = []
 	for m in get_members():
 		own.append(m.get_rid())
@@ -285,7 +388,7 @@ func _find_footing() -> void:
 		for hit in space.intersect_shape(q, 16):
 			var c: Object = hit.collider
 			if c is StructureMember:
-				under.append([c, (c as StructureMember).global_position])
+				under.append([c, _floor_place(c)])
 			elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 				under.append([null, Vector3.ZERO])  # the ground, a fixed floor: never goes
 		_feet[m] = under
@@ -317,7 +420,7 @@ func _find_nails(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> void:
 			for hit in space.intersect_shape(q, 8):
 				var c: Object = hit.collider
 				if c is StructureMember:
-					into.append([c, (c as StructureMember).global_position])
+					into.append([c, _floor_place(c)])
 				elif c is StaticBody3D and not c.has_meta(&"oil_lamp"):
 					into.append([null, Vector3.ZERO])
 		_feet[m] = into
@@ -348,6 +451,7 @@ func _set_down(space: PhysicsDirectSpaceState3D, own: Array[RID]) -> bool:
 		drop = minf(drop, from.y - SET_LIFT - (hit.position as Vector3).y)
 	if drop != INF and absf(drop) > 0.002:
 		global_position.y -= drop
+		Sight.changed(self, true)  # its members moved with it (the server has them next frame)
 	return true
 
 
@@ -370,9 +474,28 @@ func _has_footing(m: StructureMember) -> bool:
 		if f == null:
 			return true
 		if is_instance_valid(f) and not (f as StructureMember).broken and not (f as StructureMember).consumed \
-				and (f as StructureMember).global_position.distance_to(e[1]) < MOVED:
+				and _floor_place(f).distance_to(e[1]) < MOVED:
 			return true
 	return false
+
+
+## Footed where it is, its feet not looked for: something carries it (a coach on its road, driven by
+## CoachDrive: on a Jolt height field a foot a few mm under the surface finds nothing, #794).
+func keep_footed() -> void:
+	_put_down = true
+	_footed = true
+	_feet.clear()
+
+
+## Where a floor member is, to tell whether it's moved from under a foot: in the world, or, for a
+## floor of what carries this prop (the coach's under its strongbox; a building's under its props),
+## in the carrier's space: a driven coach moves its floor and its strongbox together (it dropped it
+## in the first quarter second, #794); a building that stands still reads as the world.
+func _floor_place(f: StructureMember) -> Vector3:
+	var s := f.get_parent()
+	while s != null and not s is Structure:
+		s = s.get_parent()
+	return (s as Node3D).to_local(f.global_position) if s != null and s.is_ancestor_of(self) else f.global_position
 
 
 ## The four lowest corners of a member (structure space): its footprint.
@@ -390,7 +513,8 @@ static func _bottom_corners(m: StructureMember) -> Array[Vector3]:
 # --- Balance -------------------------------------------------------------------------------------
 
 func _on_member_broken(id: StringName) -> void:
-	if loose or not String(id).begins_with(String(structure_id) + "/") or not members.has(id):
+	# (Every prop hears every break: the cheap test first.)
+	if loose or not members.has(id) or not String(id).begins_with(String(structure_id) + "/"):
 		return
 	if _seat_member and id == _seat_member.member_id:
 		_unseat()
@@ -399,9 +523,9 @@ func _on_member_broken(id: StringName) -> void:
 		_check_balance.call_deferred()
 
 
-## Mass of what's left standing (kg).
+## Mass of what's left standing and what's in it (kg).
 func mass() -> float:
-	var kg := 0.0
+	var kg := contents.kg() if contents else 0.0
 	for m in get_members():
 		if not m.broken:
 			kg += m.weight(tuning) / 9.81
@@ -421,6 +545,9 @@ func centre_of_weight() -> Vector4:
 	if seated and _seat_member and not _seat_member.broken:
 		sum += _seat_point * _seat_member.extra_load
 		w += _seat_member.extra_load
+	if contents and not contents.released:
+		sum += contents.centre() * contents.kg() * 9.81
+		w += contents.kg() * 9.81
 	return Vector4(sum.x / maxf(w, 1e-6), sum.y / maxf(w, 1e-6), sum.z / maxf(w, 1e-6), w)
 
 
@@ -439,10 +566,18 @@ func _check_balance() -> void:
 	_balance_queued = false
 	if loose or not is_inside_tree():
 		return
+	var t := Prof.start()
+	_balance_now()
+	Prof.stop(&"kit_balance", t)
+
+
+func _balance_now() -> void:
 	var left := get_members().filter(func(m: StructureMember) -> bool: return not m.broken)
 	if left.is_empty():
 		loose = true
 		_unseat()
+		if contents:
+			contents.release()
 		return
 	if hung():
 		return  # it hangs from its nails (whatever's left on them: _physics_step)
@@ -473,34 +608,42 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 	if not ids.is_empty():
 		_drop(ids)
 	for i in range(before, rubble.size()):
-		var rb := rubble[i]
-		if not is_instance_valid(rb):
-			continue
+		if is_instance_valid(rubble[i]):
+			made.append(rubble[i])
+	# What it holds goes into its body first (its weight with it), so a blow moves the two of them;
+	# let go instead (a side out), the blow, reckoned with it in, moves only what's left.
+	if contents:
+		var with_it := mass()
+		contents.on_loose(made)
+		if contents.released and impulse != Vector3.ZERO:
+			impulse *= _mass_of(made) / maxf(with_it, 0.1)
+	for rb in made:
 		rb.linear_velocity = velocity
 		if impulse != Vector3.ZERO:
 			var point := at if at != Vector3.INF else rb.global_position
 			rb.apply_impulse(impulse, point - rb.global_position)
-		made.append(rb)
 	went_loose.emit()
 	_drop_fittings(made)
 	_unseat()
 	return made
 
 
-static var _fittings: WeakRef
+static func _mass_of(bodies: Array[RigidBody3D]) -> float:
+	var kg := 0.0
+	for rb in bodies:
+		if is_instance_valid(rb):
+			kg += rb.mass
+	return kg
 
 
 ## What stood on it alone (a lamp, a bottle: Fittings' items) comes down with it now, not at
 ## Fittings' next look: left there a moment, it's a fixed thing the table rises into.
 func _drop_fittings(bodies: Array[RigidBody3D]) -> void:
-	var f: Node = _fittings.get_ref() if _fittings else null
-	if f == null or not f.is_inside_tree():
-		var found := get_tree().root.find_children("*", "Fittings", true, false)
-		f = found[0] if not found.is_empty() else null
-		_fittings = weakref(f) if f else null
+	var f := get_tree().get_first_node_in_group(&"fittings") as Fittings
 	if f == null:
 		return
-	for item: Dictionary in f.get(&"items"):
+	# Only what its own members hold (Fittings' index, in its order) can be all its.
+	for item: Dictionary in f.items_on_any(get_members()):
 		if item.down or (item.members as Array).is_empty():
 			continue
 		var mine := (item.members as Array).all(func(e: Array) -> bool:
@@ -510,9 +653,11 @@ func _drop_fittings(bodies: Array[RigidBody3D]) -> void:
 			# A lamp's hitbox stays a fixed body inside its fallen lamp (Fittings): what's left of the
 			# prop mustn't meet it as an immovable box.
 			for b: Variant in item.get("bodies", []):
-				if b is StaticBody3D and is_instance_valid(b):
+				# (Valid first: `is` on a freed body is an error, and a smashed lamp's may be gone.)
+				if is_instance_valid(b) and b is StaticBody3D:
 					for rb in bodies:
-						rb.add_collision_exception_with(b)
+						if is_instance_valid(rb):
+							rb.add_collision_exception_with(b)
 
 
 # --- Splitting -----------------------------------------------------------------------------------
@@ -588,7 +733,7 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 ## The next of its standing members a blow going `dir` from `at` meets (within its size), and where:
 ## [member, point], or [] (what it broke is rubble now, and left out).
 func _next_in_line(at: Vector3, dir: Vector3, after: StructureMember) -> Array:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var reach := PropKit.bounds(definition).size.length()
 	var q := PhysicsRayQueryParameters3D.create(at, at + dir * reach, Layers.WORLD)
 	var skip: Array[RID] = [after.get_rid()]
@@ -617,13 +762,60 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
 		return
 	await get_tree().physics_frame  # after the blast's own breaking has settled
+	# (Its breaking spread over the ticks after, #647: once it's done, as before it was on one.)
+	for k in 12:
+		if not Structure.any_breaking():
+			break
+		await get_tree().physics_frame
+	# (Every prop in the town hears every blast: out of reach, done. This runs as `physics_frame`
+	# is emitted, before any system's tick, so it's timed here: `kit_blast`.)
+	if loose or not is_inside_tree() or global_position.distance_to(at) > Blast.reach(kg) + 2.0:
+		return
+	var t := Prof.start()
+	# (Not a SpawnQueue job: thrown a few ticks late, behind a stick's shards, props flew into a
+	# changed building and three sticks brought down 450 members, not main's 240: #538.)
+	_blast_push(at, kg)
+	Prof.stop(&"kit_blast", t)
+
+
+var _faces_sum := 0.0
+var _faces_of := -1
+
+
+## Every member's broadest side by its length together (m²), as built (`_blast_push`'s bound).
+func _faces() -> float:
+	if _faces_of != get_members().size():
+		_faces_sum = 0.0
+		for m in get_members():
+			var cs := m.cross_section()
+			_faces_sum += maxf(cs.x, cs.y) * m.length()
+		_faces_of = get_members().size()
+	return _faces_sum
+
+
+func _blast_push(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
+		return
+	# The most any of it could take, all its faces at its nearest point to the charge, short of
+	# moving it: done, before its members are walked (#538, round 5: most of the ~100 props a
+	# stick reaches; the blast's push only falls off with distance, so this can't stop one moving).
+	var r := maxf(bounds_distance(at), 0.02)
+	var kgs := mass()
+	if Blast.impulse(kg, r) * Blast.reflection(Blast.overpressure_kpa(kg, r)) * _faces() / maxf(kgs, 0.1) < LOOSE_FROM:
 		return
 	var left: Array[StructureMember] = []
 	for m in get_members():
 		if not m.broken:
 			left.append(m)
-	if left.is_empty() or global_position.distance_to(at) > Blast.reach(kg) + 2.0:
+	if left.is_empty():
+		return
+	# The most it could be pushed (every face as near and square as its nearest point, nothing in
+	# between) short of moving it: it doesn't, and its faces needn't be walked (#538: a prop's
+	# faces and rays were ~0.2 ms a member, for the dozens a stick reaches and doesn't move).
+	var most := 0.0
+	for m in left:
+		most += Blast.most_face_impulse(m, at, kg)
+	if most / maxf(kgs, 0.1) < LOOSE_FROM:
 		return
 	var pushes := {}  # member -> its push (N·s)
 	var total := Vector3.ZERO
@@ -636,7 +828,6 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 			push = _off_the_wall(push)
 		pushes[m] = push
 		total += push
-	var kgs := mass()
 	if total.length() / maxf(kgs, 0.1) < LOOSE_FROM:
 		return
 	# No faster than Blast throws anything.
@@ -645,6 +836,15 @@ func _on_exploded(at: Vector3, kg: float) -> void:
 	for m: StructureMember in pushes:
 		at_m[m.member_id] = m.global_position
 	var bodies := go_loose()
+	# (The shards and pieces waiting make way, #538: by its members, each a mesh and a shape moved
+	# into its body, as a shard is a body made, not by its bodies, a dozen members one of them.)
+	var cost := 0
+	for rb in bodies:
+		cost += (rb.get_meta(&"members", []) as Array).size()
+	SpawnQueue.spent(self, cost)
+	# What actually moves: what it held may have run out as it went (a full barrel blown open).
+	if contents and contents.released:
+		scale = minf(1.0, Blast.t().max_throw * maxf(_mass_of(bodies), 0.1) / total.length())
 	set_meta(&"blast_push", total * scale)
 	# Pushed once the new body is in the physics world (given in the frame it's made, half of it
 	# was lost).
@@ -685,6 +885,7 @@ func sit(man: Node3D) -> bool:
 		kg = 80.0
 	_seat_mass = kg * float(definition.get("seat", {}).get("share", 0.75))
 	_seat_member.extra_load = _seat_mass * 9.81
+	mark_dirty(_seat_member.member_id)
 	if man.has_signal(&"fell") and not man.is_connected(&"fell", _on_seated_fell):
 		man.connect(&"fell", _on_seated_fell)
 	settle_soon()
@@ -713,6 +914,7 @@ func _clear_seat() -> void:
 	_seat_mass = 0.0
 	if _seat_member and is_instance_valid(_seat_member):
 		_seat_member.extra_load = 0.0
+		mark_dirty(_seat_member.member_id)
 
 
 ## The chair's gone from under him: he goes down with it (limp, as any man who loses his footing;
@@ -726,3 +928,162 @@ func _unseat() -> void:
 		if man.has_method(&"brace"):
 			man.call(&"brace")
 
+
+
+# --- Hinges: doors and lids that open (the Baron's coach, its strongbox; #782) --------------------
+
+## A kit file's "hinges": {name: {"members": [ids], "axis": [[x, y, z], [x, y, z]] (prop space: the
+## line it turns about), "open": degrees (signed, about the axis from its first point to its
+## second: fully open), "on": [ids] (what its hinges are fixed to: it hangs on them, at any angle,
+## and falls with them), "locked_by": [ids] (shut while every one of these is whole, until
+## `unlock`ed: a padlock, a hasp; break one and it opens)}}. Its members are turned about the line,
+## drawn on their own while it isn't shut.
+var _hinge_angle := {}  # name -> degrees open now (absent: shut)
+var _unlocked := {}  # name -> true: its key turned
+
+
+func hinge_names() -> Array:
+	return (definition.get("hinges", {}) as Dictionary).keys()
+
+
+## Shut and held: every member in its "locked_by" whole and no key turned.
+func is_locked(hinge: String) -> bool:
+	var h: Dictionary = definition.get("hinges", {}).get(hinge, {})
+	var by: Array = h.get("locked_by", [])
+	if by.is_empty() or _unlocked.has(hinge):
+		return false
+	for id: String in by:
+		var m := _kit_member(id)
+		if m == null or m.broken:
+			return false
+	return true
+
+
+## The key turned (taken off a guard): it opens from now on.
+func unlock(hinge: String) -> void:
+	_unlocked[hinge] = true
+
+
+## How far open, 0 (shut) to 1 (its "open" angle).
+func hinge_open(hinge: String) -> float:
+	var h: Dictionary = definition.get("hinges", {}).get(hinge, {})
+	var full := float(h.get("open", 90.0))
+	return float(_hinge_angle.get(hinge, 0.0)) / full if absf(full) > 0.001 else 0.0
+
+
+## Opens it `amount` of the way (0 shuts it). False if it can't: no such hinge, locked, or the
+## prop's gone loose (rubble now, whatever its doors were). What's broken of it stays where it fell.
+func open_hinge(hinge: String, amount := 1.0) -> bool:
+	var h: Dictionary = definition.get("hinges", {}).get(hinge, {})
+	if h.is_empty() or loose or (amount > 0.0 and is_locked(hinge)):
+		return false
+	var deg := float(h.get("open", 90.0)) * clampf(amount, 0.0, 1.0)
+	var a := PropKit.vec(h.axis[0])
+	var b := PropKit.vec(h.axis[1])
+	var about := Transform3D(Basis(), a) * Transform3D(Basis((b - a).normalized(), deg_to_rad(deg)), Vector3.ZERO) \
+			* Transform3D(Basis(), -a)
+	var moved := false
+	for id: String in h.get("members", []):
+		var m := _kit_member(id)
+		if m == null or m.broken or not m.has_meta(&"closed"):
+			continue
+		unbatch(m)
+		m.transform = about * (m.get_meta(&"closed") as Transform3D)
+		moved = true
+	if absf(deg) < 0.001:
+		_hinge_angle.erase(hinge)
+	else:
+		_hinge_angle[hinge] = deg
+	if moved:
+		infer_supports()
+	return true
+
+
+## Each hinged member hangs on what its hinges are fixed to, whatever its angle (an open door
+## touches nothing under it).
+func _hang_hinged() -> void:
+	var hinges: Dictionary = definition.get("hinges", {})
+	for hinge: String in hinges:
+		var h: Dictionary = hinges[hinge]
+		var axis_mid := (PropKit.vec(h.axis[0]) + PropKit.vec(h.axis[1])) * 0.5
+		# Open, it hangs on its hinges alone (its box still touches the sill at the hinge's corner);
+		# shut, it stands in its frame as well.
+		if _hinge_angle.has(hinge):
+			var own := {}
+			for id: String in h.get("members", []) + h.get("on", []):
+				var k := _kit_member(id)
+				if k:
+					own[k.member_id] = true
+			for id: String in h.get("members", []):
+				var m := _kit_member(id)
+				if m == null:
+					continue
+				for s: StringName in m.supported_by.duplicate():
+					if not own.has(s):
+						m.supported_by.erase(s)
+						m.support_points.erase(s)
+						m.support_boxes.erase(s)
+						var o := get_member(s)
+						if o:
+							o.dependents.erase(m.member_id)
+		for on_id: String in h.get("on", []):
+			var o := _kit_member(on_id)
+			if o == null:
+				continue
+			for id: String in h.get("members", []):
+				var m := _kit_member(id)
+				if m == null or m.supported_by.has(o.member_id):
+					continue
+				m.supported_by.append(o.member_id)
+				o.dependents.append(m.member_id)
+				m.support_points[o.member_id] = axis_mid
+				m.support_boxes[o.member_id] = AABB(axis_mid - Vector3.ONE * 0.02, Vector3.ONE * 0.04)
+
+
+func _kit_member(id: String) -> StructureMember:
+	return members.get(StringName("%s/%s" % [structure_id, id]))
+
+
+# --- Shot apart: a padlock, a trace hook ----------------------------------------------------------
+
+## A member whose kit entry has "shot_breaks": J breaks when a ball strikes it with that much (iron
+## isn't carved, so it never splits by `splits_below`: a padlock shot off, a trace hook).
+static func _any_bullet_hit(info: Dictionary) -> void:
+	var id: StringName = info.get("member_id", &"")
+	if id == &"":
+		return
+	var props: Variant = _by_structure.get(StringName(String(id).get_slice("/", 0)))
+	if props == null:
+		return
+	for p: Variant in props:
+		if not is_instance_valid(p):
+			continue
+		var prop := p as KitProp
+		var m := prop.get_member(id)
+		if m == null or m.broken or not m.has_meta(&"kit"):
+			continue
+		var need: Variant = (m.get_meta(&"kit") as Dictionary).get("shot_breaks")
+		if need != null and float(info.get("energy_before", 0.0)) >= float(need):
+			prop.break_member(m, (info.get("direction", Vector3.ZERO) as Vector3) * 2.0)
+
+
+# --- What it carries: kit props inside it (the coach's strongbox) ---------------------------------
+
+## A kit file's "carries": [{"id": a kit id, "name", "at": [x, y, z], "yaw": degrees}]: each put in
+## as a kit prop of its own, a child of this one, standing on what's under it (the coach's floor):
+## it moves with it, and when what it stands on goes it falls, as any kit prop on a floor does.
+func _put_in_carried() -> void:
+	for c: Dictionary in definition.get("carries", []):
+		var nm := String(c.get("name", c.id)).to_pascal_case()
+		if has_node(NodePath(nm)):
+			continue
+		var p := PropKit.spawn(StringName(c.id))
+		p.name = nm
+		p.position = PropKit.vec(c.get("at", [0, 0, 0]))
+		p.rotation.y = deg_to_rad(float(c.get("yaw", 0.0)))
+		add_child(p)
+
+
+## A carried kit prop by its name ("strongbox"), or null.
+func carried(nm: String) -> KitProp:
+	return get_node_or_null(NodePath(nm.to_pascal_case())) as KitProp

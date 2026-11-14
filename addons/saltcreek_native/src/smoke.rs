@@ -10,8 +10,10 @@
 //! the open, and leaves by the top and sides of the box. Blocked cells (members) take none.
 //! Cells are x fastest, then y (up), then z: i = x + nx * (y + ny * z).
 
+use crate::fire::FireCore;
 use crate::pool;
 use godot::prelude::*;
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -28,6 +30,13 @@ pub struct SmokeGrid {
     /// The smoke as bytes after the last finished step, and how many steps have finished.
     latest: Arc<Mutex<Vec<u8>>>,
     steps: Arc<AtomicU64>,
+    /// The members drawn into the cells, by their slots in the fire's core (SmokeField's
+    /// `_drawn`), and each one's vents (the open cells its smoke goes into, how much a second into
+    /// each): a step's sources are read off the core's burning flags here, not looped in GDScript
+    /// (six fields over a burning saloon were ~4 ms a frame of it, more-cores step 8).
+    drawn: Vec<i32>,
+    vents: HashMap<i32, (Vec<i32>, f32)>,
+    lit: i64,
 }
 
 #[derive(Default, Clone)]
@@ -465,6 +474,66 @@ impl SmokeGrid {
         if cell >= 0 {
             self.pending.push((cell as usize, smoke, heat));
         }
+    }
+
+    /// `emit` for many cells at once, each its own smoke, all the same heat (a step's sources in
+    /// one call: a burning saloon's were thousands of calls, 15 a second, for each field).
+    #[func]
+    fn emit_many(&mut self, cells: PackedInt32Array, smoke: PackedFloat32Array, heat: f32) {
+        for (&c, &s) in cells.as_slice().iter().zip(smoke.as_slice().iter()) {
+            if c >= 0 {
+                self.pending.push((c as usize, s, heat));
+            }
+        }
+    }
+
+    /// The drawn members' slots in the fire's core, in the order drawn (their vents forgotten:
+    /// the cells have changed).
+    #[func]
+    fn set_drawn(&mut self, slots: PackedInt32Array) {
+        self.drawn = slots.to_vec();
+        self.vents.clear();
+    }
+
+    /// A drawn member's vents and its smoke a second into each.
+    #[func]
+    fn set_vents(&mut self, slot: i64, cells: PackedInt32Array, each: f32) {
+        self.vents.insert(slot as i32, (cells.to_vec(), each));
+    }
+
+    /// Every drawn member burning in `core` puts its smoke (and `heat`) into its vents for the next
+    /// step. Returns the burning ones with no vents yet (FireSystem's slots), for SmokeField to work
+    /// out (`set_vents`) and emit itself; `lit()` is how many smoked.
+    #[func]
+    fn emit_burning(&mut self, core: Gd<FireCore>, heat: f32) -> PackedInt32Array {
+        let c = core.bind();
+        let mut need = Vec::new();
+        self.lit = 0;
+        for &s in &self.drawn {
+            if !c.burning_slot(s) {
+                continue;
+            }
+            match self.vents.get(&s) {
+                Some((cells, each)) => {
+                    if cells.is_empty() {
+                        continue;
+                    }
+                    self.lit += 1;
+                    for &cell in cells {
+                        if cell >= 0 {
+                            self.pending.push((cell as usize, *each, heat));
+                        }
+                    }
+                }
+                None => need.push(s),
+            }
+        }
+        PackedInt32Array::from(need)
+    }
+
+    #[func]
+    fn lit(&self) -> i64 {
+        self.lit
     }
 
     /// One step of `dt` seconds with the wind (m/s, world x and z: the box is laid square to

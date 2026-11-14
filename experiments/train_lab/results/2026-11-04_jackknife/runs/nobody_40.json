@@ -1,0 +1,136 @@
+{
+  "derail": {
+    "key": {
+      "at": 374.859306334528,
+      "section": "p0"
+    },
+    "kind": "broken",
+    "kmh": 39.6735411854106,
+    "numeric": false,
+    "s": 374.859306334528,
+    "side": -1,
+    "t": 13.2500000000002,
+    "what": "rail gone"
+  },
+  "engine": {
+    "front_past_break_m": 9.78124994039536,
+    "off_m": 1.60493421554565,
+    "tilt_deg": 109.529043303919
+  },
+  "frames": {
+    "before_mean_ms": 11.7463751584284,
+    "frames": 483,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 13.4764906832298,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 14.11605,
+    "second_ms": 21.294,
+    "slow_spell_s": 0.0,
+    "worst_ms": 21.717
+  },
+  "outcome": "derailed",
+  "seen": [
+    {
+      "daylight": 1.0,
+      "distance": 143.999312769958,
+      "kind": "broken",
+      "kmh": 39.9944536480769,
+      "lux": 10000.0,
+      "range": 220.0,
+      "s": 230.740687230041,
+      "t": 0.1,
+      "what": "rail gone",
+      "who": "engineer"
+    }
+  ],
+  "spec": {
+    "at": 380.0,
+    "driver": "none",
+    "hour": 12.0,
+    "how": "rail",
+    "kmh": 40.0,
+    "out": "/home/user/Western/build/train_lab/derail_jk3/nobody_40.json",
+    "past": 120.0,
+    "riders": 6,
+    "run_up": 150.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "struck": [],
+  "thrown": 6,
+  "wreck": {
+    "asleep": 2,
+    "bodies": 7,
+    "events": [
+      {
+        "kmh": 39.6735411854106,
+        "side": -1.0,
+        "t": 0.0,
+        "what": "derailed"
+      },
+      {
+        "between": [
+          0,
+          1
+        ],
+        "t": 0.35,
+        "what": "coupler torn",
+        "why": "jackknife"
+      },
+      {
+        "car": 6,
+        "g": 0.904932096625846,
+        "t": 0.950000000000001,
+        "tilt": 0.162574777306435,
+        "what": "thrown",
+        "who": "passenger_5"
+      },
+      {
+        "car": 6,
+        "g": 0.904932096625846,
+        "t": 0.966666666666668,
+        "tilt": 0.162574777306435,
+        "what": "thrown",
+        "who": "passenger_4"
+      },
+      {
+        "car": 6,
+        "g": 0.904932096625846,
+        "t": 0.983333333333335,
+        "tilt": 0.162574777306435,
+        "what": "thrown",
+        "who": "passenger_3"
+      },
+      {
+        "car": 6,
+        "g": 0.904932096625846,
+        "t": 1.0,
+        "tilt": 0.162574777306435,
+        "what": "thrown",
+        "who": "passenger_2"
+      },
+      {
+        "car": 6,
+        "g": 0.904932096625846,
+        "t": 1.01666666666667,
+        "tilt": 0.162574777306435,
+        "what": "thrown",
+        "who": "passenger_1"
+      },
+      {
+        "car": 6,
+        "g": 0.904932096625846,
+        "t": 1.03333333333333,
+        "tilt": 0.162574777306435,
+        "what": "thrown",
+        "who": "passenger_0"
+      }
+    ],
+    "furthest_past_m": 5.78125,
+    "max_fold_deg": 20.3251591113608,
+    "most_off_m": 2.27904152870178,
+    "tipped": 4
+  }
+}

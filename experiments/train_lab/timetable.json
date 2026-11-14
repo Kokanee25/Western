@@ -1,0 +1,13 @@
+{
+  "name": "The lab's daily run: depot to the mine and back",
+  "_doc": "Step 2 (#551): the stops by name (the route's marks), the dwell at each; the arrive and leave times are worked out from the line (TrainTimetable.fill: the run driven once at planned_kmh, plus padding), so the same timetable runs on a re-laid line. The engineer may run up to max_kmh to make up time. All PROPOSED.",
+  "start": 0,
+  "planned_kmh": 22,
+  "max_kmh": 32,
+  "padding": 0.2,
+  "stops": [
+    {"mark": "depot"},
+    {"mark": "mine", "dwell": 180},
+    {"mark": "depot"}
+  ]
+}

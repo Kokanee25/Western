@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cl1bk4355p3oq"
-path="res://.godot/imported/framing.png-66525528dcd83d16b9193d86c55bfc34.ctex"
+uid="uid://bk8xvj48jumsb"
+path.bptc="res://.godot/imported/framing.png-66525528dcd83d16b9193d86c55bfc34.bptc.ctex"
+path.astc="res://.godot/imported/framing.png-66525528dcd83d16b9193d86c55bfc34.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/framing.png"
-dest_files=["res://.godot/imported/framing.png-66525528dcd83d16b9193d86c55bfc34.ctex"]
+dest_files=["res://.godot/imported/framing.png-66525528dcd83d16b9193d86c55bfc34.bptc.ctex", "res://.godot/imported/framing.png-66525528dcd83d16b9193d86c55bfc34.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

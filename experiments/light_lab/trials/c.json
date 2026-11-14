@@ -1,0 +1,1 @@
+{"name": "c: middle bounce, more fill, less tint", "values": {"settings.room_light": true, "room.bounce_gain": 2.2, "room.ambient_scale": 0.6, "room.tint": 0.6}}

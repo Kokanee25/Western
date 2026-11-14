@@ -4,13 +4,17 @@
 Start the game with the bridge, send it commands, stop it:
 
     python3 tools/bridge.py start [--size=960x540] [--headless] [--port=8737] [--fps=N] [--movie=OUT.avi]
+        [--game-args=--young-town,...] [--render-thread=on]
     python3 tools/bridge.py "goto saloon_porch" "look saloon_door" "screenshot /tmp/a.png"
     python3 tools/bridge.py -f script.txt          # one command a line, # comments
     python3 tools/bridge.py stop
 
 or all at once (start, the script, stop), the way a session collects screenshots:
 
-    python3 tools/bridge.py run script.txt [--size=...]
+    python3 tools/bridge.py run script.txt [--size=...] [--timeout=S]
+
+--timeout: the seconds (wall) one command may take before the game counts as lost (600; a film's
+long command under the movie writer at lavapipe's pace needs more).
 
 --movie records every frame drawn, with the game's sound, to an AVI (Godot's Movie Maker; it
 runs on a fixed step, 30 fps unless --fps says otherwise, so slow rendering doesn't slow the game's
@@ -19,6 +23,11 @@ clock), from start to stop; cut clips from it with ffmpeg by the game's clock.
 Each command prints the game's one-line JSON answer. `start` runs Godot under xvfb with the
 Vulkan renderer (lavapipe here) so screenshots work; --headless is quicker but draws nothing.
 The game's own output goes to build/bridge/godot.log.
+
+The game starts with the renderer on the main thread (Godot's --render-thread safe), whatever the
+game's own setting (Settings.render_thread): screenshots are of the frame the commands set up.
+--render-thread=on draws on its own thread (more-cores step 7): a screenshot is then a drawn
+frame, but may be one later than the one asked for.
 """
 import json
 import os
@@ -50,7 +59,7 @@ def start(args):
         return 0
     size = _opt(args, "size", "960x540")
     godot = os.environ.get("GODOT", "godot")
-    cmd = [godot, "--path", ROOT]
+    cmd = [godot, "--path", ROOT, "--render-thread", "separate" if _opt(args, "render-thread") == "on" else "safe"]
     if _opt(args, "headless"):
         cmd += ["--headless"]
     else:
@@ -65,12 +74,16 @@ def start(args):
     if movie:
         cmd += ["--write-movie", os.path.abspath(movie)]
     cmd += ["--", "--dev-bridge", f"--bridge-port={port}"]
+    # The game's own flags, comma separated (--game-args=--young-town: every building as new).
+    game_args = _opt(args, "game-args")
+    if game_args:
+        cmd += game_args.split(",")
     script = _opt(args, "script")
     if script:
         cmd.append(f"--bridge-script={os.path.abspath(script)}")
-    log = open(os.path.join(STATE, "godot.log"), "w")
+    log = open(os.path.join(STATE, _per_port("godot.log", port)), "w")
     proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-    with open(os.path.join(STATE, "pid"), "w") as f:
+    with open(os.path.join(STATE, _per_port("pid", port)), "w") as f:
         f.write(str(proc.pid))
     deadline = time.time() + 180
     while time.time() < deadline:
@@ -94,6 +107,30 @@ def _connect(port, quiet=False):
         if not quiet:
             print(f"nothing listening on {port} (python3 tools/bridge.py start)")
         return None
+
+
+def _reconnect(port, timeout):
+    """After a scene reload: wait for the old bridge to go and the new one to listen."""
+    time.sleep(1.0)
+    deadline = time.time() + 180
+    while time.time() < deadline:
+        s = _connect(port, quiet=True)
+        if s:
+            # A ping answered on this connection: the old bridge, still closing, would drop it.
+            try:
+                s.settimeout(timeout)
+                s.sendall(b"ping\n")
+                buf = b""
+                while b"\n" not in buf:
+                    chunk = s.recv(65536)
+                    if not chunk:
+                        raise ConnectionError
+                    buf += chunk
+                return s
+            except (OSError, ConnectionError):
+                s.close()
+        time.sleep(0.5)
+    return None
 
 
 def send(lines, port=PORT, timeout=600):
@@ -120,6 +157,14 @@ def send(lines, port=PORT, timeout=600):
             out.append(answer)
             print(json.dumps(answer))
             sys.stdout.flush()
+            if answer.get("reloading"):
+                # `world NAME`: the game reloads its scene and its bridge with it; go on once the
+                # new one is listening.
+                s.close()
+                s = _reconnect(port, timeout)
+                if s is None:
+                    raise ConnectionError("the game didn't come back after the reload")
+                buf = b""
     except (ConnectionError, socket.timeout) as e:
         if not (lines and lines[-1].strip() == "quit"):
             print(f"lost the game: {e}")
@@ -128,10 +173,16 @@ def send(lines, port=PORT, timeout=600):
     return out
 
 
+def _per_port(name, port):
+    """The game's pid and log files: the default port's as they were, another port's its own (two
+    games at once, each stopped by its own pid)."""
+    return name if int(port) == PORT else f"{name}.{port}"
+
+
 def stop(port=PORT):
     if _connect(port, quiet=True):
         send(["quit"], port)
-    pid_file = os.path.join(STATE, "pid")
+    pid_file = os.path.join(STATE, _per_port("pid", port))
     if os.path.exists(pid_file):
         pid = int(open(pid_file).read())
         for _ in range(20):
@@ -163,7 +214,7 @@ def main(argv):
         if start(argv[2:]) != 0:
             return 1
         try:
-            send(open(script).read().splitlines(), port)
+            send(open(script).read().splitlines(), port, int(_opt(argv, "timeout", 600)))
         finally:
             stop(port)
         return 0

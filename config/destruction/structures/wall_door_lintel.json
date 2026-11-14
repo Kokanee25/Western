@@ -1,0 +1,30 @@
+{
+	"format": 1,
+	"id": "wall_door_lintel",
+	"piece": 2,
+	"_doc": "Test piece 2: the wall panel with a door and a timber lintel. Proves that an opening weakens a wall and that a lintel's failure drops the stone above it (the load triangle, destruction-spec.md S3 and S6). The door is 3 ft 4 in by 7 ft (1.0 x 2.1 m), its lintel three 8 x 7 in timbers side by side through the 0.55 m wall, bearing 0.25 m into the stone each side (Baker 1889: at least 8 in).",
+	"seed": 1,
+	"ground": {"y": 0.0},
+	"swap_materials": ["rubble_stone", "adobe", "cut_stone", "fired_brick"],
+	"walls": [
+		{
+			"id": "panel",
+			"material": "rubble_stone",
+			"from": [0.0, 0.0],
+			"to": [4.0, 0.0],
+			"bottom": 0.0,
+			"top": 3.0,
+			"footing": {"material": "rubble_stone", "deep": 0.3, "wider": 0.1},
+			"openings": [
+				{"id": "door", "x": [1.5, 2.5], "y": [0.0, 2.1], "lintel": "door_lintel"}
+			]
+		}
+	],
+	"timbers": [
+		{"id": "door_lintel", "kind": "lintel", "material": "timber_in_masonry", "wall": "panel",
+			"x": [1.25, 2.75], "y": 2.1, "section": [0.2, 0.18], "pieces": 3}
+	],
+	"loads": [],
+	"elements": [],
+	"joints": []
+}

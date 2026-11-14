@@ -1,0 +1,4 @@
+a desk build/light_before/desk.png
+b dispensary build/light_before/dispensary.png
+c window build/light_before/window.png
+d night build/light_before/night.png

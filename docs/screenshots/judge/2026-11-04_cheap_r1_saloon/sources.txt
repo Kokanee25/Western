@@ -1,0 +1,4 @@
+a saloon_night_real build/r1/j1/saloon_night_real.png
+b saloon_back_wall_night_real build/r1/j1/saloon_back_wall_night_real.png
+c saloon_toward_door_night_real build/r1/j1/saloon_toward_door_night_real.png
+d man_saloon_night_real build/r1/j1/man_saloon_night_real.png

@@ -1,0 +1,22 @@
+{
+  "_doc": "The band (#799; Band, src/audio/band.gd): who plays where, when, and what. `lot` and each player's `at` [a, b] as ValleyFolk's points (a m east of the lot's west side, b m back from the street front), `up` m over the ground (where the sound is when no man holds it). A player with a `man` (a ValleyFolk man with `plays`, config/valley_folk.json) sounds only while he's at his instrument and calm (PlayChore: his hands follow the note data); one without is placed sound only. `tunes` in turn (assets/audio/band/<tune>/: tools/band/render_band.py), `between_s` [min, max] between them. `stop_s` the bow lifted (a part fades that long), `start_s` a part coming in at a phrase's top. `hush`: a shot within `shot_m` of the band's middle (a blast within `blast_m`) stops them dead; `quiet_s` after the last they start again at the top of the phrase they stopped in; a man killed within `death_m` and they're done for the night. `sound`: each part's AudioStreamPlayer3D (the sound lab's music scenarios: unit_size 2, 0 dB, max 3; the parts' levels are baked in, the fiddle at -20 LUFS).",
+  "status": "PROPOSED (#799): saloon B's dance hall (#884) isn't on main, so the band plays in No Law's yard set (saloon_annex: config/valley_folk.json's set), at its back, the piano against the saloon's east wall. Its place in saloon B is the dance hall's platform once that's built.",
+  "lot": "saloon_annex",
+  "hours": [19.0, 1.5],
+  "tunes": ["payday_night"],
+  "between_s": [6.0, 14.0],
+  "stop_s": 0.25,
+  "start_s": 0.06,
+  "seed": 1882,
+  "replace_every": 0.25,
+  "hush": {"shot_m": 80.0, "blast_m": 200.0, "death_m": 30.0, "quiet_s": 45.0},
+  "sound": {"unit_size": 2.0, "volume_db": 0.0, "max_db": 3.0},
+  "players": [
+    {"id": "fiddle", "man": "fiddler", "at": [3.4, 10.8], "up": 1.45},
+    {"id": "piano", "man": "pianist", "at": [0.9, 10.4], "up": 1.0},
+    {"id": "banjo", "at": [4.5, 11.1], "up": 0.95},
+    {"id": "harmonica", "at": [2.3, 11.3], "up": 1.55},
+    {"id": "bones", "at": [5.5, 10.9], "up": 1.2},
+    {"id": "tambourine", "at": [6.3, 10.6], "up": 1.25}
+  ]
+}

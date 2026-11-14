@@ -1,0 +1,120 @@
+{
+  "derail": {
+    "key": {
+      "at": 157.638556504634,
+      "section": "p1"
+    },
+    "kind": "broken",
+    "kmh": 37.3905043250114,
+    "numeric": false,
+    "s": 557.6761216088,
+    "side": -1,
+    "t": 29.4666666666663,
+    "what": "rail gone"
+  },
+  "engine": {
+    "front_past_break_m": 12.9682006239891,
+    "off_m": 2.21526122093201,
+    "tilt_deg": 9.27900067143814
+  },
+  "frames": {
+    "before_mean_ms": 12.6542572402044,
+    "frames": 484,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 13.6277210743802,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 14.82325,
+    "second_ms": 22.591,
+    "slow_spell_s": 0.0,
+    "worst_ms": 22.805
+  },
+  "outcome": "derailed",
+  "seen": [],
+  "spec": {
+    "at": 560.0,
+    "driver": "engineer",
+    "hour": 23.0,
+    "how": "rail",
+    "kmh": 40.0,
+    "out": "/home/user/Western/build/train_lab/derail/bend_40_night.json",
+    "riders": 6,
+    "run_up": 320.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "struck": [],
+  "thrown": 7,
+  "wreck": {
+    "asleep": 5,
+    "bodies": 7,
+    "events": [
+      {
+        "kmh": 37.3905043250114,
+        "side": -1.0,
+        "t": 0.0,
+        "what": "derailed"
+      },
+      {
+        "car": 0,
+        "g": 0.878686569517176,
+        "t": 0.2,
+        "tilt": 5.91662362088004,
+        "what": "thrown",
+        "who": "engineer"
+      },
+      {
+        "car": 6,
+        "g": 0.928451453509316,
+        "t": 0.5,
+        "tilt": 0.588620099782145,
+        "what": "thrown",
+        "who": "passenger_5"
+      },
+      {
+        "car": 6,
+        "g": 0.928451453509316,
+        "t": 0.516666666666667,
+        "tilt": 0.588620099782145,
+        "what": "thrown",
+        "who": "passenger_4"
+      },
+      {
+        "car": 6,
+        "g": 0.928451453509316,
+        "t": 0.533333333333333,
+        "tilt": 0.588620099782145,
+        "what": "thrown",
+        "who": "passenger_3"
+      },
+      {
+        "car": 6,
+        "g": 0.928451453509316,
+        "t": 0.55,
+        "tilt": 0.588620099782145,
+        "what": "thrown",
+        "who": "passenger_2"
+      },
+      {
+        "car": 6,
+        "g": 0.928451453509316,
+        "t": 0.566666666666667,
+        "tilt": 0.588620099782145,
+        "what": "thrown",
+        "who": "passenger_1"
+      },
+      {
+        "car": 6,
+        "g": 0.928451453509316,
+        "t": 0.583333333333333,
+        "tilt": 0.588620099782145,
+        "what": "thrown",
+        "who": "passenger_0"
+      }
+    ],
+    "furthest_past_m": 8.96820068359375,
+    "most_off_m": 2.68215107917786,
+    "tipped": 3
+  }
+}

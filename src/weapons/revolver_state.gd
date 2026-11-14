@@ -101,11 +101,28 @@ func open_gate() -> bool:
 func close_gate() -> bool:
 	if not ready() or not gate_open:
 		return false
+	var turns := line_up()
 	gate_open = false
 	hammer = Hammer.DOWN
-	busy = tuning.gate_time * 0.6
+	busy = tuning.gate_time * 0.6 + turns * tuning.turn_time
 	gate_changed.emit(false)
 	return true
+
+
+## Before the gate shuts, turn the cylinder (it turns freely at half-cock) so the next cock brings
+## a loaded round under the hammer. Without it a part load leaves the hammer at the last chamber
+## worked on, and the empties after it come up first: three rounds in, three clicks before a shot
+## (the D+ playtest, 2026-11-02). Returns how many chambers it turned.
+func line_up() -> int:
+	if rounds_loaded() == 0:
+		return 0
+	var turns := 0
+	while chambers[(under_hammer + 1) % chambers.size()] != Chamber.LOADED and turns < chambers.size():
+		under_hammer = (under_hammer + 1) % chambers.size()
+		turns += 1
+	if turns > 0:
+		cylinder_turned.emit()
+	return turns
 
 
 ## At half-cock the cylinder turns freely: bring the next chamber to the gate.

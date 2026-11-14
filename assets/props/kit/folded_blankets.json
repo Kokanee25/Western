@@ -1,0 +1,77 @@
+{
+  "_doc": "A pile of three folded blankets (#819; refs experiments/prop_lab/refs/doctor/): wool blankets folded in three and laid flat, 48 x 37 cm, the folds' bights to +x, the wards' issue of the 1860s-80s (grey with a dark band at each end; white with blue bands; brown). A blanket a member (wood `canvas`): it burns, and the pile comes down with what it lies on. A member drawn soft, not cloth (ClothProp): nobody unfolds one yet. Baked the gun way (tools/blender/props/doctor_d3.py). Written by tools/props/doctor.py.",
+  "id": "folded_blankets",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "canvas",
+  "look": "pbr:folded_blankets",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "blanket0",
+      "kind": "post",
+      "size": [
+        0.48,
+        0.105,
+        0.37
+      ],
+      "at": [
+        0.0,
+        0.0525,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "pbr:folded_blankets",
+      "draw": {
+        "shape": "mesh",
+        "model": "folded_blankets",
+        "part": "Blanket0"
+      }
+    },
+    {
+      "id": "blanket1",
+      "kind": "furniture_top",
+      "size": [
+        0.48,
+        0.105,
+        0.37
+      ],
+      "at": [
+        0.0,
+        0.1575,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "pbr:folded_blankets",
+      "draw": {
+        "shape": "mesh",
+        "model": "folded_blankets",
+        "part": "Blanket1"
+      }
+    },
+    {
+      "id": "blanket2",
+      "kind": "trim",
+      "size": [
+        0.48,
+        0.105,
+        0.37
+      ],
+      "at": [
+        0.0,
+        0.2625,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "pbr:folded_blankets",
+      "draw": {
+        "shape": "mesh",
+        "model": "folded_blankets",
+        "part": "Blanket2"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

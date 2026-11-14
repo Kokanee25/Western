@@ -1,0 +1,3 @@
+run        n  frame    p95 people    len outlaw_b people_b people_s   senses     fire floor_ma structur civilian   player    faces
+P_D       10   19.7   41.5   10.2   40.9     2.84     3.85     1.47     1.15     1.56     0.95     0.35     0.51     0.37     0.04
+P_Dplus   10   19.9   42.8   10.6   50.5     2.94     3.85     1.44     1.13     1.58     0.89     0.34     0.85     0.37     0.05

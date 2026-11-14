@@ -1,0 +1,265 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 81.42,
+  "phase_at": {
+   "out": 81.42,
+   "rescue": 79.57
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 102.68,
+ "executed": 80.65,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2055,
+  "max_ms": 140.61,
+  "mean_ms": 12.89,
+  "p95_ms": 19.3
+ },
+ "freed": 81.92,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   4.4,
+   1.26,
+   19.05
+  ],
+  "limp": false,
+  "pelvis": [
+   4.4,
+   0.52,
+   18.94
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  4.4,
+  0.9,
+  18.96
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": false,
+   "at": "bedroom",
+   "decision": "give up: past his nerve (fear 1.26 / 0.95), covered close",
+   "id": "brody",
+   "inside": true,
+   "knows": 21.0,
+   "mood": "DEAD",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 1.86 / 1.32), covered close",
+   "id": "lyle",
+   "inside": true,
+   "knows": 28.8,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 8.2,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.38 / 0.38)",
+   "id": "kid",
+   "inside": true,
+   "knows": 13.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 29.1,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding a little.",
+ "player_local": [
+  4.4,
+  0.52,
+  27.62
+ ],
+ "quits": [
+  [
+   69.08,
+   "hollis",
+   "gives up",
+   ""
+  ],
+  [
+   73.33,
+   "dutch",
+   "gives up",
+   "to behind table: behind table (you're kitchen)"
+  ],
+  [
+   75.62,
+   "lyle",
+   "gives up",
+   "give up: past his nerve (fear 1.86 / 1.32), covered close"
+  ],
+  [
+   75.62,
+   "kid",
+   "gives up",
+   "give up: past his nerve (fear 0.38 / 0.38)"
+  ],
+  [
+   83.75,
+   "brody",
+   "gives up",
+   "give up: past his nerve (fear 1.26 / 0.95), covered close"
+  ]
+ ],
+ "seed": 8,
+ "shots_men": 7,
+ "shots_out": 0,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 102.68,
+ "threat": 73.35,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   69.08,
+   "Hollis down"
+  ],
+  [
+   69.08,
+   "Hollis gives up ()"
+  ],
+  [
+   73.33,
+   "Dutch down"
+  ],
+  [
+   73.33,
+   "Dutch gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   73.35,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   75.62,
+   "Lyle gives up (give up: past his nerve (fear 1.86 / 1.32), covered close)"
+  ],
+  [
+   75.62,
+   "Kid gives up (give up: past his nerve (fear 0.38 / 0.38))"
+  ],
+  [
+   75.63,
+   "the guard's last word"
+  ],
+  [
+   75.92,
+   "Lyle down, out"
+  ],
+  [
+   80.65,
+   "the guard shoots the rancher"
+  ],
+  [
+   81.92,
+   "the rancher cut loose"
+  ],
+  [
+   83.05,
+   "Brody down"
+  ],
+  [
+   83.3,
+   "Hollis dead"
+  ],
+  [
+   83.75,
+   "Brody gives up (give up: past his nerve (fear 1.26 / 0.95), covered close)"
+  ],
+  [
+   84.27,
+   "Brody down, out"
+  ],
+  [
+   85.75,
+   "Lyle dead"
+  ],
+  [
+   92.07,
+   "Brody dead"
+  ],
+  [
+   99.97,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   102.68,
+   "won"
+  ]
+ ],
+ "way": "back",
+ "where": "bedroom"
+}

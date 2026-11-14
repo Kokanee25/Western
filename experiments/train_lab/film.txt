@@ -1,0 +1,22 @@
+time 15.5
+train_lab
+train_cam side 142
+wait 1
+throttle 1
+wait 13
+train_cam chase
+wait 11
+train_place 380 25
+train_drive hold 25
+train_cam chase
+wait 6
+train_cam curve
+wait 13
+wait 13
+train_drive off
+train_place 240 30
+train_cam side 330
+wait 1
+brake 1
+wait 11
+wait 10

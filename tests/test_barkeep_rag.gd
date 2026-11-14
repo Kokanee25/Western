@@ -16,6 +16,7 @@ var chore: WipeBar
 
 
 func before_each() -> void:
+	FireSystem.in_play = true  # a lit lamp smashed starts a fire here (off in the game, #458)
 	world = Node3D.new()
 	add_child(world)
 	var ground := StaticBody3D.new()
@@ -31,6 +32,8 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
+	FireSystem.in_play = "--fire" in OS.get_cmdline_user_args()
 	world.queue_free()
 	man = null
 	brain = null
@@ -132,6 +135,8 @@ func test_held_dropped_and_it_lies_on_the_floor() -> void:
 
 
 func test_a_shove_or_a_blast_knocks_it_off_his_shoulder() -> void:
+	# On the procedural pose (library clips off, #539): this measures where the rag lies on his shoulder.
+	Settings.library_motion = false
 	await _barkeep(false)
 	await physics_frames(30)
 	Events.deed.emit(null, &"shove", man, man.global_position)

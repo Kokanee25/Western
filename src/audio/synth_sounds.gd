@@ -7,7 +7,7 @@ class_name SynthSounds
 const RATE := 22050
 const HI_RATE := 44100
 ## Made at HI_RATE.
-const HI := [&"report", &"report_big", &"rolling", &"rolling_big", &"whirr", &"impact_wood", &"impact_dirt",
+const HI := [&"report", &"report_big", &"report_rifle", &"rolling", &"rolling_big", &"rolling_rifle", &"whirr", &"impact_wood", &"impact_dirt",
 	&"impact_metal", &"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"blast",
 	&"blast_roll", &"fire_crackle", &"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0", &"step_dirt_1", &"step_dirt_2", &"step_dirt_3"]
 
@@ -23,7 +23,8 @@ const ALL := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing"
 	&"report_big", &"rolling", &"rolling_big", &"whirr", &"blast", &"blast_roll", &"fire_crackle",
 	&"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0",
 	&"step_dirt_1", &"step_dirt_2", &"step_dirt_3", &"impact_wood", &"impact_dirt", &"impact_metal",
-	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone"]
+	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"thump", &"whoosh",
+	&"rifle", &"report_rifle", &"rolling_rifle"]
 
 
 ## Make every sound on a worker thread, so none is made mid-game. A sound asked for before its turn
@@ -41,7 +42,21 @@ static func warm_all() -> void:
 				_lock.lock()
 				if not _cache.has(id):
 					_cache[id] = wav
-				_lock.unlock(), false, "SynthSounds.warm_all")
+				_lock.unlock(), true, "SynthSounds.warm_all")  # high priority: a low one can hang the quit (#392, #435)
+
+
+## Another warm-up's pool task (BlastSounds' recordings), so `warming` and `finish_warm` (and so
+## GameQuit) wait for it as for this one's.
+static func track(task: int) -> void:
+	_more_tasks.append(task)
+
+
+## `warm_all`'s thread still making sounds (GameQuit waits for it).
+static func warming() -> bool:
+	for task in _more_tasks:
+		if not WorkerThreadPool.is_task_completed(task):
+			return true
+	return _warm_task >= 0 and not WorkerThreadPool.is_task_completed(_warm_task)
 
 
 ## Wait for `warm_all`'s thread (at quit, or in a test that needs every sound made).
@@ -49,6 +64,17 @@ static func finish_warm() -> void:
 	if _warm_task >= 0:
 		WorkerThreadPool.wait_for_task_completion(_warm_task)
 		_warm_task = -2
+	for task in _more_tasks:
+		WorkerThreadPool.wait_for_task_completion(task)
+	_more_tasks.clear()
+
+
+## Made already (asking for it won't make it on the spot).
+static func made(id: StringName) -> bool:
+	_lock.lock()
+	var have := _cache.has(id)
+	_lock.unlock()
+	return have
 
 
 static func get_sound(id: StringName) -> AudioStreamWAV:
@@ -69,10 +95,13 @@ static func get_sound(id: StringName) -> AudioStreamWAV:
 static func _make(id: StringName) -> AudioStreamWAV:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(id)
+	if TrainSynth.is_train(id):
+		return _make_train(id, rng)
 	var samples: PackedFloat32Array
 	match id:
 		&"gunshot": samples = _gunshot(rng)
 		&"shotgun": samples = _gunshot(rng, 52.0, 0.22, 0.13)
+		&"rifle": samples = _gunshot(rng, 62.0, 0.2, 0.12)
 		&"dynamite": samples = _blast(rng)
 		&"fuse": samples = _fuse(rng)
 		&"match": samples = _match(rng)
@@ -87,6 +116,8 @@ static func _make(id: StringName) -> AudioStreamWAV:
 		&"eject": samples = _tink(rng)
 		&"glass": samples = _glass(rng)
 		&"flesh": samples = _flesh(rng)
+		&"thump": samples = _thump(rng)
+		&"whoosh": samples = _whoosh(rng)
 		&"zip": samples = _zip(rng)
 		&"crack": samples = _crack(rng)
 		&"ricochet": samples = _ricochet(rng)
@@ -98,8 +129,10 @@ static func _make(id: StringName) -> AudioStreamWAV:
 		&"steam": samples = _steam(rng)
 		&"report": samples = _report(rng, false)
 		&"report_big": samples = _report(rng, true)
+		&"report_rifle": samples = _report_rifle(rng)
 		&"rolling": samples = _rolling(rng, false)
 		&"rolling_big": samples = _rolling(rng, true)
+		&"rolling_rifle": samples = _rolling(rng, true)
 		&"whirr": samples = _whirr(rng)
 		&"blast": samples = _blast_near(rng)
 		&"blast_roll": samples = _blast_roll(rng)
@@ -122,6 +155,46 @@ static func _make(id: StringName) -> AudioStreamWAV:
 
 ## A black-powder shot: `boom_hz` the low thump (a shotgun's is deeper), `boom_decay` and
 ## `body_decay` how long the thump and the roar last.
+## The train's (TrainSynth, train step 4): at its own rate; a loop cleaned of sub-bass as if it had
+## been playing (the filter run over it twice, the second pass kept: no step at the seam); a
+## one-shot given its lead of silence (TrainSound starts it early, by how late it is).
+static func _make_train(id: StringName, rng: RandomNumberGenerator) -> AudioStreamWAV:
+	var rec := TrainSynth.recording(id)
+	if rec != null:
+		return rec
+	return make_train_synth(id, rng)
+
+
+## The train sound made in code (what `_make_train` falls back to without a recording; the lab's
+## before).
+static func make_train_synth(id: StringName, rng: RandomNumberGenerator) -> AudioStreamWAV:
+	var samples := TrainSynth.make(id, rng)
+	var rate := TrainSynth.RATE
+	var wav: AudioStreamWAV
+	if TrainSynth.is_loop(id):
+		var twice := samples.duplicate()
+		twice.append_array(samples)
+		twice = _no_sub_bass(twice, rate)
+		samples = twice.slice(samples.size())
+		wav = _to_wav(samples, rate)
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_end = samples.size()
+	else:
+		wav = _to_wav(TrainSynth.lead(_no_sub_bass(samples, rate)), rate)
+	return wav
+
+
+## Make `ids` on a worker thread ahead of their first use (the train's sounds, when a train is
+## heard: not every game makes them). Waited for at quit as warm_all is.
+static var _more_tasks: Array[int] = []
+
+
+static func warm(ids: Array) -> void:
+	_more_tasks.append(WorkerThreadPool.add_task(func() -> void:
+		for id: StringName in ids:
+			get_sound(id), true, "SynthSounds.warm"))  # high priority (#392, #435)
+
+
 static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 0.16, body_decay := 0.09) -> PackedFloat32Array:
 	var n := int(RATE * 2.2)
 	var out := PackedFloat32Array()
@@ -160,14 +233,25 @@ static func _gunshot(rng: RandomNumberGenerator, boom_hz := 70.0, boom_decay := 
 ## the room, the fronts and the hills are where it's heard (GameAudio). `big` for the coach gun: a
 ## bigger bore and three times the powder, so a longer, deeper push. 44.1 kHz.
 static func _report(rng: RandomNumberGenerator, big: bool) -> PackedFloat32Array:
-	var n := int(HI_RATE * (0.9 if big else 0.7))
+	if big:
+		return _report_shaped(rng, 0.9, 0.0016, 64.0, 0.10, 0.028, 0.15)
+	return _report_shaped(rng, 0.7, 0.0011, 86.0, 0.07, 0.018, 0.10)
+
+
+## The Winchester's (#734): the Colt's 40 grains of powder, but burnt in a 24" barrel: the gas
+## leaves slower and later, the bullet faster (~400 m/s, past the speed of sound), so a sharper
+## shock than the coach gun's, and a longer, heavier push than the Colt's.
+static func _report_rifle(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	return _report_shaped(rng, 0.85, 0.0013, 74.0, 0.09, 0.024, 0.13)
+
+
+## `seconds` long; the shock's positive phase `t_pos`; the boom's pitch and fall; the gas's and the
+## body's decay.
+static func _report_shaped(rng: RandomNumberGenerator, seconds: float, t_pos: float, boom_hz: float, boom_tau: float,
+		gas_tau: float, body_tau: float) -> PackedFloat32Array:
+	var n := int(HI_RATE * seconds)
 	var out := PackedFloat32Array()
 	out.resize(n)
-	var t_pos := 0.0016 if big else 0.0011  # the shock's positive phase
-	var boom_hz := 64.0 if big else 86.0
-	var boom_tau := 0.10 if big else 0.07
-	var gas_tau := 0.028 if big else 0.018
-	var body_tau := 0.15 if big else 0.10
 	var lp := 0.0
 	var slow := 0.0
 	var deep := 0.0
@@ -631,6 +715,36 @@ static func _flesh(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		lp += (rng.randf_range(-1, 1) - lp) * 0.18
 		out[i] = lp * exp(-t / 0.018) * 1.4 + sin(TAU * lerpf(140.0, 70.0, minf(t / 0.08, 1.0)) * t) * exp(-t / 0.05) * 0.8
 	return _normalise(out, 0.8)
+
+
+## A boot or two hands landing on a man (PlayerShove): the dull thud of a body taking it through
+## his clothes, lower and longer than a ball's slap, with the cloth's scuff on top.
+static func _thump(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.3)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var lp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1, 1) - lp) * 0.08
+		out[i] = sin(TAU * lerpf(95.0, 55.0, minf(t / 0.12, 1.0)) * t) * exp(-t / 0.07) \
+				+ lp * exp(-t / 0.03) * 1.6
+	return _normalise(out, 0.8)
+
+
+## A swing that meets nothing: the air past a sleeve or a trouser leg, swelling and gone.
+static func _whoosh(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.28)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var bp := 0.0
+	var lp := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		lp += (rng.randf_range(-1, 1) - lp) * 0.3
+		bp += (lp - bp) * 0.25
+		out[i] = (lp - bp) * sin(PI * t / 0.28)
+	return _normalise(out, 0.4)
 
 
 ## The whiz of a tumbling ball (a ricochet) going by: tearing air coming fast, a tick as it's

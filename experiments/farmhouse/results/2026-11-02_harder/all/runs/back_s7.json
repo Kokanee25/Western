@@ -1,0 +1,264 @@
+{
+ "alarm": 124.97,
+ "blocking": [
+  "0.3:FarmhouseChair2/post_back_l",
+  "0.3:House/floor_ground_joist_013",
+  "0.3:House/floor_ground_board_022_0",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_board_024_0",
+  "0.3:House/floor_ground_joist_015",
+  "0.3:House/floor_ground_board_026_0",
+  "0.3:House/floor_ground_board_025_0",
+  "0.3:House/floor_ground_joist_017",
+  "0.3:House/floor_ground_board_027_0",
+  "0.3:House/floor_ground_board_028_0",
+  "0.3:House/floor_ground_board_029_0",
+  "1.0:FarmhouseChair2/crest",
+  "1.0:FarmhouseChair2/post_back_l",
+  "1.0:TestStreet/Player",
+  "1.6:House/stair_loft_rail_baluster_08",
+  "1.6:House/stair_loft_tread_09",
+  "1.6:House/stair_loft_riser_09",
+  "1.6:House/stair_loft_riser_08",
+  "1.6:House/stair_loft_tread_08",
+  "1.6:House/stair_loft_tread_07",
+  "1.6:House/stair_loft_stringer_0",
+  "1.6:House/stair_loft_stringer_0",
+  "1.6:House/stair_loft_stringer_0",
+  "1.6:House/stair_loft_stringer_0",
+  "1.6:House/stair_loft_stringer_0",
+  "1.6:House/stair_loft_stringer_0"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 3.31666666666666,
+  "gate_left": 86.3,
+  "gate_wait": 60.9999999999978,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Kid",
+ "breach": -1.0,
+ "end": 133.72,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 525,
+  "max_ms": 121.2,
+  "mean_ms": 21.37,
+  "p95_ms": 31.01
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.28,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 7,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.2,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 4.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to kitchen door: kitchen door (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 2.2,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.52 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.2,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "pike",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, bone broken.",
+ "player_local": [
+  1.92,
+  0.56,
+  4.05
+ ],
+ "quits": [
+  [
+   126.42,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.52 / 1.12)",
+   true
+  ],
+  [
+   131.43,
+   "lyle",
+   "gives up",
+   "to behind table: behind table (you're kitchen)",
+   true
+  ]
+ ],
+ "route_left": 5,
+ "route_next": [
+  3.0,
+  0.56,
+  3.75
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 7,
+ "shots_men": 16,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 133.72,
+ "threat": 131.45,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   124.97,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   124.97,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   124.97,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   125.38,
+   "Hollis down"
+  ],
+  [
+   126.42,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.52 / 1.12))"
+  ],
+  [
+   131.43,
+   "Lyle down"
+  ],
+  [
+   131.43,
+   "Lyle gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   131.45,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   133.72,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

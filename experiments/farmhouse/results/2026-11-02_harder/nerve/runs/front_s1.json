@@ -1,0 +1,239 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:House/floor_ground_joist_042",
+  "0.3:House/floor_ground_board_014_1",
+  "0.3:House/floor_ground_board_016_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/girder_260_1",
+  "0.3:House/floor_ground_joist_044",
+  "0.3:House/floor_ground_joist_046",
+  "0.3:FarmhouseChair4/seat",
+  "0.3:FarmhouseChair4/stretcher_r",
+  "0.3:FarmhouseChair4/leg_front_r",
+  "0.3:House/floor_ground_board_015_1",
+  "0.3:House/floor_ground_board_019_1",
+  "1.0:@Node3D@22059/Rag_chest",
+  "RB RigidBody3D at [6.85, 1.21, 2.27] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22059/Rag_chest",
+  "RB RigidBody3D at [6.85, 1.21, 2.27] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22059/Rag_upper_arm_l",
+  "RB RigidBody3D at [6.79, 1.31, 2.48] mass 2.24000000953674 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22059/Rag_thigh_l",
+  "RB RigidBody3D at [7.05, 1.17, 2.46] mass 8.0 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22059/Rag_abdomen",
+  "RB RigidBody3D at [7.03, 1.27, 2.29] mass 11.1199998855591 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22059/Rag_abdomen",
+  "RB RigidBody3D at [7.03, 1.27, 2.29] mass 11.1199998855591 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22059/Rag_pelvis",
+  "RB RigidBody3D at [7.19, 1.24, 2.35] mass 11.3599996566772 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:@Node3D@22059/Rag_forearm_l",
+  "RB RigidBody3D at [7.05, 1.38, 2.55] mass 1.27999997138977 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:TestStreet/Player",
+  "1.0:@Node3D@22059/Rag_hand_l",
+  "RB RigidBody3D at [7.23, 1.35, 2.55] mass 0.47999998927116 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "rescue": 42.32
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 42.5,
+ "executed": 42.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1532,
+  "max_ms": 188.34,
+  "mean_ms": 16.42,
+  "p95_ms": 27.73
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   6.62,
+   0.94,
+   2.31
+  ],
+  "limp": true,
+  "pelvis": [
+   7.19,
+   1.24,
+   2.35
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  6.85,
+  1.21,
+  2.27
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": true,
+   "knows": 1.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Brody down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 1.2,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 7.5,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "hold on: Brody told him to stay in it",
+   "id": "kid",
+   "inside": true,
+   "knows": 7.5,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.62 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 1.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": true,
+ "player_how": "Out cold, grey and cold, pulse thready, going pale with no wound to show for it, bleeding steady, gut-shot, bone broken.",
+ "player_local": [
+  6.72,
+  0.56,
+  2.84
+ ],
+ "quits": [
+  [
+   35.57,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.62 / 1.12)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 1,
+ "shots_men": 21,
+ "shots_out": 15,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 42.5,
+ "threat": 34.55,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   21.07,
+   "Kid down, out"
+  ],
+  [
+   34.53,
+   "Hollis down"
+  ],
+  [
+   34.55,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   35.57,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.62 / 1.12))"
+  ],
+  [
+   36.98,
+   "the guard's last word"
+  ],
+  [
+   37.83,
+   "Dutch down, out"
+  ],
+  [
+   42.0,
+   "the guard shoots the rancher"
+  ],
+  [
+   42.5,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   42.5,
+   "the rancher dead (brain)"
+  ],
+  [
+   42.5,
+   "lost: hostage_dead"
+  ],
+  [
+   42.5,
+   "Brody down"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

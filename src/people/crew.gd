@@ -118,9 +118,11 @@ func out_share() -> float:
 	return float(out.size()) / float(known.size() + 1)
 
 
+## He runs the gang (OutlawBrain.leads; Brody, TownLife.GANG): in variant D, the fights that
+## commit; A to C fought as if nobody did, as they were measured.
 static func leads(mate: Node) -> bool:
 	var b := brain_of(mate)
-	return b != null and b.leads
+	return b != null and b.leads and b.variant == OutlawBrain.Variant.D
 
 
 static func brain_of(mate: Node) -> OutlawBrain:

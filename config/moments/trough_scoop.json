@@ -1,0 +1,12 @@
+{
+  "_doc": "A man at the street's water trough scoops water in his hands and splashes his face (Sean, 2026-10-24). The trough is the nearest WaterTrough (group water_source) to `table`; he stands at its side and plays scoop_water once; at the clip's splash mark a little water is spilt at his hands.",
+  "script": "res://src/moments/trough_scoop.gd",
+  "hour": 17.5,
+  "table": [2.6, 0.0, -4.2],
+  "trigger_m": 0.0,
+  "man": {"id": "thirsty", "name": "Colter", "model": "colter_rider_s2_talking", "seed": 811},
+  "clip": "scoop_water",
+  "stand_off_m": 0.45,
+  "splash_litres": 0.3,
+  "hold_after_s": 2.0
+}

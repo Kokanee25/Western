@@ -11,12 +11,17 @@ config/version="0.0.1-m0"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+config/project_settings_override="user://engine.cfg"
 
 [autoload]
 
 Events="*res://src/autoload/events.gd"
 Settings="*res://src/autoload/settings.gd"
 Controls="*res://src/autoload/controls.gd"
+
+[debug]
+
+settings/gdscript/always_track_call_stacks=true
 
 [display]
 
@@ -30,13 +35,28 @@ pointing/emulate_mouse_from_touch=false
 [physics]
 
 3d/physics_engine="Jolt Physics"
+; At most 2 physics ticks a frame to catch up (Godot's default 8): a slow frame stays a stutter, not
+; a crawl that multiplies itself (issue #435). Safe only with GameQuit's drain and watchdog (#392).
+common/max_physics_steps_per_frame=2
 common/physics_ticks_per_second=60
 jolt_physics_3d/simulation/velocity_steps=20
 jolt_physics_3d/simulation/position_steps=8
-jolt_physics_3d/limits/max_bodies=32768
+jolt_physics_3d/limits/max_bodies=65536
 
 [shader_globals]
 
+real_relief={
+"type": "float",
+"value": 0.004
+}
+real_groove={
+"type": "float",
+"value": 0.003
+}
+real_specular={
+"type": "float",
+"value": 0.35
+}
 tile_light={
 "type": "float",
 "value": 1.0
@@ -64,6 +84,30 @@ light_bands={
 seam_px={
 "type": "float",
 "value": 0.0
+}
+grime_amount={
+"type": "float",
+"value": 0.0
+}
+grime_height={
+"type": "float",
+"value": 1.1
+}
+grime_tint={
+"type": "vec4",
+"value": Vector4(0.62, 0.55, 0.47, 1)
+}
+bleach_amount={
+"type": "float",
+"value": 0.0
+}
+bleach_from={
+"type": "float",
+"value": 3.2
+}
+bleach_to={
+"type": "float",
+"value": 6.5
 }
 
 [rendering]

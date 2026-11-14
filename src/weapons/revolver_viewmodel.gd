@@ -98,7 +98,10 @@ func _read_controls(delta: float) -> void:
 		reload_press()
 	elif Input.is_action_pressed(&"reload"):
 		_reload_held += delta
-		if _reload_held > 0.3 and state.ready():
+		# Held, it keeps working round the cylinder and shuts the gate when it's done, but never
+		# opens it again: a held key used to shut and reopen the gate over and over, and a let-go
+		# left the hammer at half cock (the D+ playtest).
+		if _reload_held > 0.3 and state.ready() and state.gate_open:
 			reload_press()
 	if Input.is_action_just_pressed(&"cock"):
 		cock_press()
@@ -120,6 +123,21 @@ func reload_press() -> void:
 		state.close_gate()
 
 
+## Empty (a shot that's a click: reload), or out of cartridges: none on the belt, and none left in
+## the cylinder (or some, but none to load).
+func _why_not(action: StringName) -> String:
+	if state == null:
+		return ""
+	var loaded := state.chambers.count(RevolverState.Chamber.LOADED)
+	if state.belt > 0:
+		return "it's empty: reload" if loaded == 0 and action in [&"fire", &"cock"] else ""
+	if loaded == 0 and action in [&"fire", &"reload", &"cock"]:
+		return "you're out of cartridges"
+	if action == &"reload" and not state.chambers.has(RevolverState.Chamber.SPENT) and not state.chambers.has(RevolverState.Chamber.DUD):
+		return "you've no cartridges left to load (%d in the gun)" % loaded
+	return ""
+
+
 func pull_trigger() -> RevolverState.Shot:
 	_trigger = 1.0
 	return state.pull_trigger()
@@ -128,6 +146,7 @@ func pull_trigger() -> RevolverState.Shot:
 func toggle_holster() -> void:
 	drawn = not drawn
 	if not drawn and state.gate_open:
+		state.line_up()
 		state.gate_open = false
 		state.hammer = RevolverState.Hammer.DOWN
 	if _player and _player.body:
@@ -146,6 +165,10 @@ func take_out() -> void:
 
 
 func _on_fired() -> void:
+	_in_tick(_fire)
+
+
+func _fire() -> void:
 	var line := _shot_line(model.muzzle.global_position)
 	var origin: Vector3 = line[0]
 	var dir: Vector3 = line[1]
@@ -220,7 +243,8 @@ func _animate(delta: float) -> void:
 
 func _apply_pose(drawn_amount: float) -> void:
 	var t := smoothstep(0.0, 1.0, tuck)
-	var pos := HOLSTER_POS.lerp(_pose_pos.lerp(TUCK_POS, t), drawn_amount) + Vector3(0.0, kick.back * 0.2, kick.back)
+	var pos := HOLSTER_POS.lerp(_pose_pos.lerp(TUCK_POS, t), drawn_amount) + Vector3(0.0, kick.back * 0.2, kick.back) \
+			+ _body_pos() * drawn_amount
 	var rot := _pose_rot.lerp(TUCK_ROT, t) + Vector3(kick.pitch, -kick.yaw, -kick.roll) * (1.0 - t) \
 			+ _sway_rotation() * (1.0 - t) * (0.0 if state.gate_open else 1.0)
 	position = pos

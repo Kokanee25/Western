@@ -243,7 +243,7 @@ func _v(a: Variant) -> Vector3:
 
 ## Down onto whatever floor is under a point (a boardwalk, a building's floor, the street).
 func _floor(p: Vector3) -> Vector3:
-	var space := _street.get_world_3d().direct_space_state
+	var space := World.space(_street)
 	var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 1.5, p + Vector3.DOWN * 3.0, Layers.STAND)
 	var hit := space.intersect_ray(q)
 	return hit.position if not hit.is_empty() else p
@@ -314,7 +314,7 @@ func _line(from: Vector3, to: Vector3, ignore: Array = []) -> String:
 		if n is CollisionObject3D:
 			ex.append((n as CollisionObject3D).get_rid())
 	q.exclude = ex
-	var hit := _street.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(_street).intersect_ray(q)
 	if hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15:
 		return ""
 	var c := hit.collider as Node

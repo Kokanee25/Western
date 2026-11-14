@@ -45,6 +45,8 @@ static var use_factory := true
 ## the texels, no palette, assets/textures/smooth/), so the only quantisation is the screen
 ## mosaic's. Off by default; tools/screenshots.gd --quantise-once.
 static var smooth := false
+## The real look in force (Settings.real_look; RealLook does the drawing).
+static var real := false
 ## The bold set (tools/textures/reduce.py --bold: the same paintings at BOLD_TEXELS a metre, each
 ## texel a clearly different colour from its neighbours, assets/textures/bold/): the street
 ## painting's style (Sean, 2026-10-05, DESIGN.md §4). Picked under the surface-blocks look (M).
@@ -392,8 +394,11 @@ static func _apply(m: ShaderMaterial) -> void:
 		m.set_shader_parameter(&"smooth_source", true)
 
 
-## Filtering for StandardMaterial3Ds that follow the mipmap setting (people's baked garments).
+## Filtering for StandardMaterial3Ds that follow the mipmap setting (people's baked garments);
+## smooth under the real look (Settings.real_look).
 static func texture_filter() -> BaseMaterial3D.TextureFilter:
+	if real:
+		return BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS if use_mipmaps else BaseMaterial3D.TEXTURE_FILTER_NEAREST
 
 

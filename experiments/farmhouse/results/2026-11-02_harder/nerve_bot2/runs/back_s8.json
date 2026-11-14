@@ -1,0 +1,234 @@
+{
+ "alarm": 60.43,
+ "blocking": [
+  "0.3:Brody/Blocker",
+  "0.3:House/floor_ground_joist_038",
+  "0.3:House/floor_ground_joist_040",
+  "0.3:House/floor_ground_joist_042",
+  "0.3:House/floor_ground_board_016_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_015_1",
+  "0.3:House/floor_ground_board_019_1",
+  "0.3:House/floor_ground_board_017_1",
+  "0.3:House/floor_ground_board_022_1",
+  "0.3:House/floor_ground_board_020_1",
+  "0.3:House/floor_ground_joist_039",
+  "1.0:Brody/Blocker",
+  "1.0:upper_arm_l/Part",
+  "1.0:chest/Part",
+  "1.0:chest/Part",
+  "1.0:chest/Part",
+  "1.0:forearm_r/Part",
+  "1.0:forearm_l/Part",
+  "1.0:abdomen/Part",
+  "1.0:abdomen/Part",
+  "1.0:abdomen/Part",
+  "1.0:pelvis/Part",
+  "1.0:TestStreet/Player",
+  "1.6:Brody/Blocker",
+  "1.6:neck/Part",
+  "1.6:head/Part",
+  "1.6:upper_arm_l/Part",
+  "1.6:chest/Part",
+  "1.6:chest/Part",
+  "1.6:chest/Part",
+  "1.6:forearm_r/Part",
+  "1.6:upper_arm_r/Part",
+  "1.6:TestStreet/Player",
+  "1.6:hand_r/Part"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "rescue": 69.62
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 71.02,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 635,
+  "max_ms": 163.47,
+  "mean_ms": 19.19,
+  "p95_ms": 28.34
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.28,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "drag Hollis to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 3.2,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 4.7,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "give up: past his nerve (fear 1.15 / 1.12), covered close",
+   "id": "hollis",
+   "inside": true,
+   "knows": 5.4,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, bone broken.",
+ "player_local": [
+  6.34,
+  0.56,
+  2.91
+ ],
+ "quits": [
+  [
+   62.2,
+   "hollis",
+   "gives up",
+   "give up: past his nerve (fear 1.15 / 1.12), covered close",
+   true
+  ],
+  [
+   67.1,
+   "dutch",
+   "gives up",
+   "to behind table: behind table (you're kitchen)",
+   true
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 8,
+ "shots_men": 12,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 71.02,
+ "threat": 67.12,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   60.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   62.02,
+   "Hollis down"
+  ],
+  [
+   62.2,
+   "Hollis gives up (give up: past his nerve (fear 1.15 / 1.12), covered close)"
+  ],
+  [
+   62.88,
+   "Hollis down, out"
+  ],
+  [
+   67.1,
+   "Dutch down"
+  ],
+  [
+   67.1,
+   "Dutch gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   67.12,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   71.02,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "bedroom"
+}

@@ -7,6 +7,8 @@ extends RefCounted
 
 var points := {}  ## name -> Vector3
 var links := {}  ## name -> Array[StringName]
+## Links that go up a stair ("a|b", both ways): walked by its ramp, not a straight sweep.
+var stairs := {}
 
 
 func add(name: StringName, at: Vector3, linked: Array = []) -> void:
@@ -21,6 +23,17 @@ func link(a: StringName, b: StringName) -> void:
 		links[a].append(b)
 	if not (links.get_or_add(b, []) as Array).has(a):
 		links[b].append(a)
+
+
+## The link between `a` and `b` climbs a stair (its ramp carries a man up; a level sweep would meet
+## its treads).
+func mark_stair(a: StringName, b: StringName) -> void:
+	stairs["%s|%s" % [a, b]] = true
+	stairs["%s|%s" % [b, a]] = true
+
+
+func is_stair(a: StringName, b: StringName) -> bool:
+	return stairs.has("%s|%s" % [a, b])
 
 
 func has(name: StringName) -> bool:
@@ -38,27 +51,120 @@ func route(space: PhysicsDirectSpaceState3D, from: Vector3, to: StringName, excl
 	var goal: Vector3 = points[to]
 	if _walkable(space, from, goal, exclude) and absf(from.y - goal.y) < 0.6:
 		return [goal]
-	# Nearest points he can walk straight to, then the shortest way along the links.
-	var starts: Array[StringName] = []
+	# The shortest way: straight to a point he can walk to, then along the links. Whether he can walk
+	# straight to a point (a sphere cast and a ray every 0.3 m) is most of a route's cost, and was
+	# asked of every point first (the three riders' first routes, 30-37 ms each; #510). Then the
+	# shortest way was found as if he could walk straight to any point and only its first point
+	# asked, one he couldn't crossed off and the way found again: a search a point asked, ~1 s from a
+	# back yard in the valley's town (G5: ~360 points, ~140 asked). Now one search back from `to`
+	# gives every point's way there; the points are asked in order of the straight line to them and
+	# their way on, the first he can walk to starts it: the same way (test_places holds it to that).
+	var back := _ways_to(to)
+	var dist: Dictionary = back[0]
+	var next: Dictionary = back[1]
+	var order: Array = []
+	var seq := 0
+	for n: StringName in dist:
+		order.append([from.distance_to(points[n]) + float(dist[n]), seq, n])
+		seq += 1
+	order.sort_custom(_heap_less)
+	for e: Array in order:
+		var first: StringName = e[2]
+		if _walkable(space, from, points[first], exclude):
+			var path: Array[Vector3] = []
+			var n := first
+			while true:
+				path.append(points[n])
+				if n == to:
+					break
+				n = next[n]
+			return path
+	# No way from any point: none, if he can walk straight to a point with no way to `to` (as before,
+	# when the starts were all asked first); nothing in a straight line, head for the nearest anyway.
 	for n: StringName in points:
-		if _walkable(space, from, points[n], exclude):
-			starts.append(n)
-	if starts.is_empty():
-		# Nothing in a straight line: head for the nearest anyway.
-		var best := &""
-		var best_d := INF
-		for n: StringName in points:
-			var d := from.distance_to(points[n])
-			if d < best_d:
-				best_d = d
-				best = n
-		starts.append(best)
-	var dist := {}
+		if not dist.has(n) and _walkable(space, from, points[n], exclude):
+			return []
+	return _route_from_nearest(from, to)
+
+
+## Every point's way to `to` along the links (Dijkstra's by a binary heap, ties to the point found
+## first): [{name: distance}, {name: the next point on}].
+func _ways_to(to: StringName) -> Array:
+	var dist := {to: 0.0}
+	var next := {}
+	var heap: Array = [[0.0, 0, to]]
+	var seq := 1
+	var done := {}
+	while not heap.is_empty():
+		var e: Array = _heap_pop(heap)
+		var cur: StringName = e[2]
+		if done.has(cur):
+			continue
+		done[cur] = true
+		for nb: StringName in links.get(cur, []):
+			var d: float = dist[cur] + (points[cur] as Vector3).distance_to(points[nb])
+			if d < dist.get(nb, INF):
+				dist[nb] = d
+				next[nb] = cur
+				_heap_push(heap, [d, seq, nb])
+				seq += 1
+	return [dist, next]
+
+
+## A heap of [distance, order, name]: the least distance first, then the earliest.
+static func _heap_less(a: Array, b: Array) -> bool:
+	return float(a[0]) < float(b[0]) or (float(a[0]) == float(b[0]) and int(a[1]) < int(b[1]))
+
+
+static func _heap_push(h: Array, e: Array) -> void:
+	h.append(e)
+	var i := h.size() - 1
+	while i > 0:
+		var p := (i - 1) >> 1
+		if not _heap_less(h[i], h[p]):
+			break
+		var t: Variant = h[p]
+		h[p] = h[i]
+		h[i] = t
+		i = p
+
+
+static func _heap_pop(h: Array) -> Array:
+	var top: Array = h[0]
+	var last: Array = h.pop_back()
+	if h.is_empty():
+		return top
+	h[0] = last
+	var i := 0
+	while true:
+		var l := i * 2 + 1
+		var r := l + 1
+		var m := i
+		if l < h.size() and _heap_less(h[l], h[m]):
+			m = l
+		if r < h.size() and _heap_less(h[r], h[m]):
+			m = r
+		if m == i:
+			break
+		var t: Variant = h[m]
+		h[m] = h[i]
+		h[i] = t
+		i = m
+	return top
+
+
+## No point he can walk straight to: the way from the nearest point, along the links.
+func _route_from_nearest(from: Vector3, to: StringName) -> Array[Vector3]:
+	var start := &""
+	var best_d := INF
+	for n: StringName in points:
+		var d := from.distance_to(points[n])
+		if d < best_d:
+			best_d = d
+			start = n
+	var dist := {start: best_d}
 	var prev := {}
-	var open: Array[StringName] = []
-	for n in starts:
-		dist[n] = from.distance_to(points[n])
-		open.append(n)
+	var open: Array[StringName] = [start]
 	while not open.is_empty():
 		var cur: StringName = open[0]
 		for n in open:
@@ -156,7 +262,27 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 ## hitching rail he'd walk into.
 static func _walkable(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
 	var low := minf(a.y, b.y)
-	return Cover.path_clear(space, Vector3(a.x, low, a.z), Vector3(b.x, low, b.z), exclude, WIDTH) and _no_step_up(space, a, b, exclude)
+	var from := Vector3(a.x, low, a.z)
+	var to := Vector3(b.x, low, b.z)
+	return not _centre_blocked(space, from, to, exclude) and Cover.path_clear(space, from, to, exclude, WIDTH) \
+			and _no_step_up(space, a, b, exclude)
+
+
+## A ray down the middle of Cover.path_clear's sweep (the same height, mask and stretch) hits
+## something before the sweep's end: then the sweep, a sphere round that line, hits it no later, and
+## isn't clear. A ray is a few hundredths of a ms; the sweep over tens of metres of town ~0.65 ms
+## here, and from the west edge 33 of the 38 places are behind a wall (#510). Back faces not
+## counted, so it only ever says "blocked" where the sweep would.
+static func _centre_blocked(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array[RID]) -> bool:
+	var lift := Vector3.UP * 0.75  # Cover.path_clear's sphere height
+	var q := PhysicsRayQueryParameters3D.create(from + lift, to + lift, Layers.WORLD, exclude)
+	q.hit_back_faces = false
+	Prof.count(&"q_walk")
+	var hit := space.intersect_ray(q)
+	if hit.is_empty():
+		return false
+	var along := (to - from).length()
+	return along > 0.0 and ((hit.position as Vector3) - (from + lift)).length() < 0.98 * along
 
 
 ## The tallest rise a way may have from one footfall to the next: the steps' rise and the slope over
@@ -164,7 +290,8 @@ static func _walkable(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, 
 const STEP_UP := 0.25
 
 
-## No sudden rise or drop in the ground along the way from `a` to `b` (looked at every 0.3 m).
+## No sudden rise or drop in the ground along the way from `a` to `b` (looked at every 0.3 m; a
+## look that finds nothing within half a metre under the lower end is a drop too).
 static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3, exclude: Array[RID]) -> bool:
 	var n := maxi(1, ceili(Vector2(b.x - a.x, b.z - a.z).length() / 0.3))
 	var top := maxf(a.y, b.y) + 0.6
@@ -173,14 +300,37 @@ static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3
 	for i in range(n + 1):
 		var p := a.lerp(b, float(i) / n)
 		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, top, p.z), Vector3(p.x, bottom, p.z), Layers.STAND, exclude)
+		Prof.count(&"q_walk")
 		var hit := space.intersect_ray(q)
-		if hit.is_empty():
-			continue
-		var h := (hit.position as Vector3).y
-		if absf(h - prev) > STEP_UP:
+		# Nothing within half a metre under the lower end: a drop (off a high walk into an alley,
+		# #737), unless the ray only fell between two planks.
+		var h := (hit.position as Vector3).y if not hit.is_empty() else _foot_height(space, p, top, bottom, exclude)
+		if h == -INF:
 			return false
+		if absf(h - prev) > STEP_UP:
+			# A foot is wider than a ray: one that fell between two boards (a boardwalk's planks are
+			# 18 mm apart) is asked again a foot's width round, and the highest taken.
+			h = maxf(h, _foot_height(space, p, top, bottom, exclude))
+			if absf(h - prev) > STEP_UP:
+				return false
 		prev = h
 	return true
+
+
+## The highest of four rays FOOT round `p` (top to bottom), or -INF.
+static func _foot_height(space: PhysicsDirectSpaceState3D, p: Vector3, top: float, bottom: float, exclude: Array[RID]) -> float:
+	var best := -INF
+	for o: Vector2 in [Vector2(FOOT, 0.0), Vector2(-FOOT, 0.0), Vector2(0.0, FOOT), Vector2(0.0, -FOOT)]:
+		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x + o.x, top, p.z + o.y), Vector3(p.x + o.x, bottom, p.z + o.y), Layers.STAND, exclude)
+		Prof.count(&"q_walk")
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty():
+			best = maxf(best, (hit.position as Vector3).y)
+	return best
+
+
+## How far round a ray that found a drop the foot is asked again (m): past a board's gap.
+const FOOT := 0.06
 
 
 ## Half the width a man needs to get through somewhere without catching his shoulder.
@@ -191,18 +341,29 @@ const WIDTH := 0.3
 ## counter, and behind it), their doors and porches, the street itself and the road out west.
 static func test_street() -> Waypoints:
 	var w := Waypoints.new()
-	# Main Street, east to west down the middle (config/town.json: Freight Street at the east end,
-	# Market Street at the west, the road out west beyond it).
-	w.add(&"west_edge", Vector3(-50, 0, -9))
-	w.add(&"street_west", Vector3(-20, 0, -9), [&"west_edge"])
-	w.add(&"street_mid", Vector3(0, 0, -9), [&"street_west"])
-	w.add(&"street_east", Vector3(20, 0, -9), [&"street_mid"])
+	# Main Street, east to west just north of its middle (config/town.json: Freight Street at the east
+	# end, Market Street at the west where the street jogs north, the road out west beyond it).
+	var street := func(x: float) -> Vector3: return TownLayout.street_point(x, -0.6)
+	# A place out in the street before a building stands on the street's ground there, not at the
+	# building's footing (the ground slopes: config/town.json ground).
+	var ground := func(p: Vector3) -> Vector3: return Vector3(p.x, TownLayout.ground_height(p.x, p.z), p.z)
+	w.add(&"west_edge", street.call(-50.0))
+	w.add(&"street_market", street.call(-32.0), [&"west_edge"])
+	w.add(&"street_west", street.call(-20.0), [&"street_market"])
+	w.add(&"street_mid", street.call(0.0), [&"street_west"])
+	w.add(&"street_east", street.call(20.0), [&"street_mid"])
 	# The street in front of the jail, off everyone's way (the sheriff stands here).
-	w.add(&"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 0, -4.0)), [&"street_mid"])
+	w.add(&"jail_front", ground.call(TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 0, -4.0))), [&"street_mid"])
 	# The street in front of the doctor's, off everyone's way (the doctor stands here).
-	w.add(&"doctor_front", TownLayout.point(&"Doctor", Vector3(3.0, 0, -4.0)), [&"street_west"])
+	w.add(&"doctor_front", ground.call(TownLayout.point(&"Doctor", Vector3(3.0, 0, -4.0))), [&"street_west"])
 	# The street in front of the livery, off everyone's way (the fourth Colter waits here).
-	w.add(&"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 0, -4.0)), [&"street_east"])
+	w.add(&"livery_front", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 0, -4.0))), [&"street_east"])
+	# Along the livery's front, at its west end, off everyone's way (the Mexican rancher stands here).
+	w.add(&"livery_side", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(8.5, 0, -4.0))), [&"street_east"])
+	# Along the livery's front, at its east end, off everyone's way (the blacksmith stands here).
+	w.add(&"livery_east", ground.call(TownLayout.point(&"StreetDressing/Livery", Vector3(1.5, 0, -4.0))), [&"street_east"])
+	# The street in front of the assay office, off everyone's way (the miner stands here).
+	w.add(&"assay_front", ground.call(TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 0, -4.0))), [&"street_mid"])
 	var floor_top := float(TownLayout.data().get("floor", 0.38))
 	# The store (its door in the middle of its front, the front to -Z), up the steps at its west end.
 	var store := func(x: float, y: float, z: float) -> Vector3: return TownLayout.point(&"Store", Vector3(x, y, z))
@@ -210,8 +371,8 @@ static func test_street() -> Waypoints:
 	var sw := float(store_set.get("width", 6.0))
 	var store_steps: Array = (TownLayout.entry(&"Boardwalk").get("set", {}) as Dictionary).get("steps", [[sw * 0.5, 2.0]])
 	var sx := float(store_steps[0][0])
-	w.add(&"store_front", store.call(sx, 0, -7.0), [&"street_mid", &"street_west"])
-	w.add(&"store_steps", store.call(sx, 0, -3.4), [&"store_front"])
+	w.add(&"store_front", ground.call(store.call(sx, 0, -7.0)), [&"street_mid", &"street_west"])
+	w.add(&"store_steps", ground.call(store.call(sx, 0, -3.4)), [&"store_front"])
 	w.add(&"store_landing", store.call(sx, floor_top, -1.2), [&"store_steps"])
 	w.add(&"store_porch", store.call(sw * 0.5, floor_top, -1.5), [&"store_landing"])
 	w.add(&"store_door", store.call(sw * 0.5, floor_top, 0.9), [&"store_porch"])
@@ -228,8 +389,8 @@ static func test_street() -> Waypoints:
 	var saloon_top := float((TownLayout.entry(&"Saloon").get("set", {}) as Dictionary).get("floor_top", floor_top))
 	var saloon_steps: Array = (TownLayout.entry(&"SouthBoardwalk").get("set", {}) as Dictionary).get("steps", [[5.0, 2.0]])
 	var lx := float(saloon_steps[0][0])
-	w.add(&"saloon_front", saloon.call(lx, 0, -7.0), [&"street_mid", &"street_east"])
-	w.add(&"saloon_steps", saloon.call(lx, 0, -3.4), [&"saloon_front"])
+	w.add(&"saloon_front", ground.call(saloon.call(lx, 0, -7.0)), [&"street_mid", &"street_east"])
+	w.add(&"saloon_steps", ground.call(saloon.call(lx, 0, -3.4)), [&"saloon_front"])
 	w.add(&"saloon_landing", saloon.call(lx, saloon_top, -1.2), [&"saloon_steps"])
 	# Along the walk from the store's door to the saloon's (they stand side by side), up the steps
 	# between the two walks.
@@ -238,6 +399,8 @@ static func test_street() -> Waypoints:
 	w.add(&"saloon_porch", saloon.call(5, saloon_top, -1.5), [&"saloon_landing", &"saloon_walk_west"])
 	w.add(&"saloon_door", saloon.call(5, saloon_top, 0.9), [&"saloon_porch"])
 	w.add(&"saloon_floor", saloon.call(6.0, saloon_top, 3.5), [&"saloon_door"])
+	# By the front windows, west of the door, off everyone's way (the working girl stands here).
+	w.add(&"saloon_window", saloon.call(2.5, saloon_top, 2.0), [&"saloon_floor"])
 	# Along the bar: a line in front of the stools, and a place at the bar between each pair.
 	for i in 3:
 		var z := 4.45 + i * 1.3
@@ -247,4 +410,7 @@ static func test_street() -> Waypoints:
 	w.add(&"bar_end", saloon.call(6.7, saloon_top, 2.3), [&"saloon_floor"])
 	w.add(&"bar_end_inside", saloon.call(8.8, saloon_top, 2.3), [&"bar_end"])
 	w.add(&"behind_bar", saloon.call(8.8, saloon_top, 5.8), [&"bar_end_inside"])
+	# The road east and the farmhouse out on its knoll (issue #520): its door, rooms, loft and yard.
+	if not TownLayout.entry(&"Farmhouse").is_empty():
+		Farmhouse.add_places(w)
 	return w

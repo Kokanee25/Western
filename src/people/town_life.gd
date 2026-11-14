@@ -20,12 +20,21 @@ var widow: HumanBody
 var sheriff: HumanBody
 var doctor: HumanBody
 var colter: HumanBody
+var miner: HumanBody
+var rancher: HumanBody
+var blacksmith: HumanBody
 var gang: Array[HumanBody] = []
 var _t := 0.0
 var _arrived := false
+## Held out of town (the farmhouse mission on offer: FarmhouseMission._hold_the_gang).
+var hold_gang := false
+## The riders built while the street loads and kept out of the world till they ride in (id ->
+## HumanBody, not in the tree): building three Studio men (their meshes cut, painted faces, hands,
+## ~1,700 nodes) took one frame of 2.4 s at ~45 s into every game (#488). `bring_gang` only adds them.
+var _waiting := {}
 
 const GANG := [
-	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "bar": &"bar_0", "model": &"bold_cowboy_s3_talking",
+	{"id": &"brody", "temper": 0.2, "nerve": 0.95, "proud": true, "leads": true, "bar": &"bar_0", "model": &"bold_cowboy_s3_talking",
 			"shirt": Color(0.5, 0.46, 0.4), "coat": Color(0.2, 0.17, 0.14, 1.0), "hat": Color(0.12, 0.1, 0.09)},
 	{"id": &"lyle", "temper": 0.9, "nerve": 0.7, "proud": true, "bar": &"bar_1", "model": &"hothead_lyle_s2_talking",
 			"shirt": Color(0.55, 0.28, 0.22), "coat": Color(0.0, 0.0, 0.0, 0.0), "hat": Color(0.32, 0.26, 0.18)},
@@ -39,6 +48,16 @@ func _ready() -> void:
 	# What boots, spills and blood leave on the boards (deferred: the town's still being put together).
 	(func() -> void: FloorMarks.ensure(get_parent())).call_deferred()
 	_spawn_townsfolk.call_deferred()
+	_build_gang.call_deferred()  # after the townsfolk: the riders keep the tick order they had (PeopleTick)
+
+
+func _notification(what: int) -> void:
+	# Riders still waiting are nobody's children: they go with the street.
+	if what == NOTIFICATION_PREDELETE:
+		for man: HumanBody in _waiting.values():
+			if is_instance_valid(man) and not man.is_inside_tree():
+				man.free()
+		_waiting.clear()
 
 
 func _process(delta: float) -> void:
@@ -48,7 +67,7 @@ func _process(delta: float) -> void:
 
 
 func _process_step(delta: float) -> void:
-	if not _arrived:
+	if not _arrived and not hold_gang:
 		_t += delta
 		if _t >= gang_arrives or Input.is_action_just_pressed(&"debug_gang"):
 			bring_gang()
@@ -57,13 +76,13 @@ func _process_step(delta: float) -> void:
 
 
 func _spawn_townsfolk() -> void:
-	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + Vector3(-1.0, 1.4, 0.0), 101,
-			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"old_rancher_s3_talking")
+	storekeeper = _civilian(&"storekeeper", &"store_keeper", places.at(&"store_counter") + TownLayout.facing_toward(&"Store", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 101,
+			Color(0.8, 0.78, 0.7), Color(0.3, 0.3, 0.32), &"storekeeper_s1_talking")
 	barkeep = _civilian(&"barkeep", &"behind_bar", places.at(&"bar_1") + TownLayout.facing_toward(&"Saloon", Vector3(-1.0, 0.0, 0.0)) + Vector3.UP * 1.4, 102,
 			Color(0.85, 0.84, 0.8), Color(0.15, 0.14, 0.13), &"barkeep_s2_talking")
 	_give_cloth.call_deferred(barkeep)
 	widow = _civilian(&"widow", &"store_aisle", places.at(&"store_counter") + Vector3.UP * 1.4, 103,
-			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s2_talking")
+			Color(0.55, 0.28, 0.2), Color(0, 0, 0, 0), &"widow_s6_talking")
 	# The sheriff (the Studio's sean_s2, Sean as him) in front of his jail, watching the street. A
 	# civilian's mind for now: no gun, no law yet.
 	sheriff = _civilian(&"sheriff", &"jail_front", TownLayout.point(&"StreetDressing/Jail", Vector3(3.2, 1.4, -9.0)), 104,
@@ -79,6 +98,20 @@ func _spawn_townsfolk() -> void:
 	# in front of the livery. A civilian's mind for now, unarmed: riding with the gang is to come.
 	colter = _civilian(&"colter", &"livery_front", TownLayout.point(&"StreetDressing/Livery", Vector3(5.0, 1.4, -9.0)), 106,
 			Color(0.6, 0.15, 0.12), Color(0.55, 0.42, 0.28), &"colter_rider_s2_talking")
+	# A miner (the Studio's miner_s4, a background one-off; Sean, 2026-10-23) in front of the assay
+	# office, where the mine's ore is weighed. A civilian's mind, unarmed.
+	miner = _civilian(&"miner", &"assay_front", TownLayout.point(&"StreetDressing/Assay", Vector3(3.0, 1.4, -9.0)), 107,
+			Color(0.3, 0.42, 0.6), Color(0, 0, 0, 0), &"miner_s4_talking")
+	# No working girl for now (Sean, 2026-11-07, #698): working_girl_s3's files stay in
+	# assets/people/, she's just not made; the saloon_window spot goes unused.
+	# The Mexican rancher (the Studio's mexican_rancher_s1; DESIGN.md mission 4, the vaquero's horses)
+	# along the livery's front from the fourth Colter, looking in at its doors. A civilian's mind.
+	rancher = _civilian(&"rancher", &"livery_side", TownLayout.point(&"StreetDressing/Livery", Vector3(8.5, 1.4, 2.0)), 109,
+			Color(0.88, 0.82, 0.7), Color(0.45, 0.3, 0.2), &"mexican_rancher_s1_talking")
+	# The blacksmith (the Studio's blacksmith_s1; Sean, 2026-10-27). No smithy in town yet: in a town
+	# this size the smith shod at the livery, so he stands along its front at the east end, looking in.
+	blacksmith = _civilian(&"blacksmith", &"livery_east", TownLayout.point(&"StreetDressing/Livery", Vector3(1.5, 1.4, 2.0)), 110,
+			Color(0.55, 0.5, 0.42), Color(0, 0, 0, 0), &"blacksmith_s1_talking")
 
 
 func _civilian(id: StringName, at: StringName, faces: Vector3, seed_value: int, shirt: Color, vest: Color,
@@ -144,7 +177,63 @@ func _give_cloth(man: HumanBody) -> void:
 const MOP_CORNER := Vector3(9.25, 0.78, 1.3)
 
 
-## Three riders in from the west, a few paces apart, with a day planned (`only`: just these).
+## The three riders built while the street loads, where they'll ride in, and taken straight out of
+## the world again (no frame passes with them in it: nobody sees them, nothing ticks them), to wait
+## for `bring_gang`. Their minds come with them then (a mind out of the world would hear the town).
+func _build_gang() -> void:
+	if _arrived or not is_inside_tree():
+		return
+	for i in GANG.size():
+		var man := _rider(i)
+		man.enter(get_parent(), _ride_in_at(i), -PI * 0.5)
+		get_parent().remove_child(man)
+		_waiting[man.person_id] = man
+
+
+## The riders, if they haven't ridden in: theirs to take (id -> HumanBody, built, not in the
+## tree), and they won't ride in (the farmhouse's men, issue #520: the gang's holding the rancher
+## out at his place). Empty once they've come.
+func gang_came() -> bool:
+	return _arrived
+
+
+func take_riders() -> Dictionary:
+	if _arrived:
+		return {}
+	_arrived = true
+	var out := _waiting.duplicate()
+	_waiting.clear()
+	return out
+
+
+## Rider `i` of GANG, his body only, not yet in the world.
+func _rider(i: int) -> HumanBody:
+	return make_rider(i)
+
+
+## Rider `i` of GANG's body (the valley's farmhouse makes its gang's men so too, G6: there's no
+## TownLife there).
+static func make_rider(i: int) -> HumanBody:
+	var g: Dictionary = GANG[i]
+	var man := HumanBody.new()
+	man.name = String(g.id).capitalize()
+	man.person_id = g.id
+	man.rng_seed = 200 + i
+	man.shirt_color = g.shirt
+	man.coat_color = g.coat
+	man.hat_color = g.hat
+	man.body_model = g.get("model", man.body_model)
+	return man
+
+
+## Where rider `i` comes in: at the west edge, a few paces apart.
+func _ride_in_at(i: int) -> Vector3:
+	return places.at(&"west_edge") + Vector3(-1.6 * i, 0.0, 0.6 * (i % 2))
+
+
+## Three riders in from the west, a few paces apart, with a day planned (`only`: just these). The
+## ones built while the street loaded only step in (#488); any more (U again, after they're gone)
+## are built here.
 func bring_gang(only: Array = []) -> void:
 	_arrived = true
 	gang.clear()
@@ -155,19 +244,18 @@ func bring_gang(only: Array = []) -> void:
 		var g: Dictionary = GANG[i]
 		if not only.is_empty() and not only.has(g.id):
 			continue
-		var man := HumanBody.new()
-		man.name = String(g.id).capitalize()
-		man.person_id = g.id
-		man.rng_seed = 200 + i
-		man.shirt_color = g.shirt
-		man.coat_color = g.coat
-		man.hat_color = g.hat
-		man.body_model = g.get("model", man.body_model)
+		var man: HumanBody = _waiting.get(g.id)
+		_waiting.erase(g.id)
+		if man != null and not is_instance_valid(man):
+			man = null
+		if man == null:
+			man = _rider(i)
 		var brain := OutlawBrain.new()
 		brain.name = "Brain"
 		brain.temper = g.temper
 		brain.nerve = g.nerve
 		brain.proud = g.proud
+		brain.leads = g.get("leads", false)
 		var friends: Array[StringName] = []
 		for other in ids:
 			if other != g.id:
@@ -177,8 +265,11 @@ func bring_gang(only: Array = []) -> void:
 		brain.bar_spot = g.bar
 		brain.agenda = _plan(g, i)
 		man.add_child(brain)
+		# His mind first among his nodes, as when it came with his body (PeopleTick ticks them in
+		# tree order).
+		man.move_child(brain, 0)
 		# Facing east, into town.
-		man.enter(get_parent(), places.at(&"west_edge") + Vector3(-1.6 * i, 0.0, 0.6 * (i % 2)), -PI * 0.5)
+		man.enter(get_parent(), _ride_in_at(i), -PI * 0.5)
 		gang.append(man)
 
 

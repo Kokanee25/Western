@@ -117,6 +117,23 @@ func test_point_it_at_him_and_he_covers_you_then_eases_off() -> void:
 	check(holstered, "and in the end his goes back in its holster")
 
 
+## #595: when the player blacked out, the men said "That's better.", "Smart.", "Go on, then.": the
+## lines for a man who's put his gun away, said over one lying out cold.
+func test_out_cold_you_havent_backed_down() -> void:
+	await _draw()
+	var covering := await wait_until(func() -> bool: return _stance() == Relations.Stance.THREAT, 60 * 6)
+	check(covering, "he's covering you (%s)" % Relations.Stance.keys()[_stance()])
+	var said := lines.size()
+	player.wounds.stays_down = true
+	player.wounds.physiology.blood_ml = 2800.0  # out cold where you stand
+	await physics_frames(60 * 4)
+	check(not player.wounds.physiology.is_conscious(), "you're out cold")
+	var after := lines.slice(said)
+	for l: String in after:
+		check(not l in OutlawBrain.LINES[&"stand_down"], "no \"%s\" over a man out cold" % l)
+	check_eq(shots_by_outlaw, 0, "nor shoots you lying there")
+
+
 func test_keep_it_on_him_and_it_comes_to_shooting() -> void:
 	await _draw()
 	var shot := await wait_until(func() -> bool: return shots_by_outlaw > 0, 60 * 20)

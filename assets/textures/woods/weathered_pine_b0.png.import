@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ct7nyx3wri6s7"
-path="res://.godot/imported/weathered_pine_b0.png-6f3c99f1a275c7b0274b0fc135b0401b.ctex"
+uid="uid://cfqupg7ivtqij"
+path.bptc="res://.godot/imported/weathered_pine_b0.png-6f3c99f1a275c7b0274b0fc135b0401b.bptc.ctex"
+path.astc="res://.godot/imported/weathered_pine_b0.png-6f3c99f1a275c7b0274b0fc135b0401b.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/weathered_pine_b0.png"
-dest_files=["res://.godot/imported/weathered_pine_b0.png-6f3c99f1a275c7b0274b0fc135b0401b.ctex"]
+dest_files=["res://.godot/imported/weathered_pine_b0.png-6f3c99f1a275c7b0274b0fc135b0401b.bptc.ctex", "res://.godot/imported/weathered_pine_b0.png-6f3c99f1a275c7b0274b0fc135b0401b.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -77,6 +77,22 @@ static func get_material(wood: StringName, variant: int) -> Material:
 	return _cache[key]
 
 
+## Newer boards than their neighbours (BuildingAge: a patch put in years later, a replaced plank):
+## the same wood, paler and yellower, not yet weathered grey.
+const NEWER_TINT := Color(1.14, 1.07, 0.86)
+
+
+static func newer(wood: StringName, variant: int) -> Material:
+	var key := "%s:newer%d" % [wood, posmod(variant, variant_count(wood))]
+	if not _cache.has(key):
+		var m := get_material(wood, variant).duplicate() as ShaderMaterial
+		if m:
+			var tint: Color = m.get_shader_parameter(&"tint")
+			m.set_shader_parameter(&"tint", tint * NEWER_TINT)
+		_cache[key] = m if m else get_material(wood, variant)
+	return _cache[key]
+
+
 ## The pixel-art texture for a wood (see PixelArt). Grain runs along u.
 static func texture_for(wood: StringName) -> Texture2D:
 	var palette: Array = PALETTES.get(wood, [Color(0.5, 0.45, 0.4)])

@@ -1,0 +1,270 @@
+{
+  "_doc": "The dressing room's costume pegs (#903; refs experiments/prop_lab/refs/saloon_stage/): the doctor's hall pegs (`coat_pegs`, its rail, turned pegs and coat, tools/props/doctor.py) at a dressing room's length, 1.5 m of painted pine with six pegs, nailed to the wall through two nails; hung on them a variety actress's dress (faded crimson satin, a black lace flounce at its hem) on the second, a showman's frock coat (the doctor's coat's cut in worn plum velvet, brass buttons) on the fourth, and a woman's felt hat with an ostrich plume on the sixth. Hung (KitProp `hangs`): it holds while a nail's in the wall and falls when its board goes; a peg shot off drops what's on it; the clothes burn (wood `canvas`). The rail from the material library (a few years); the pegs and clothes baked the gun way (tools/blender/props/saloon_stage.py). The wall's face at z = 0, the pegs toward +z, the rail's middle the origin (hang it at ~1.7 m: the dress's hem then ~0.35 m off the floor). 10 physics bodies, ~10 kg. Saloon B's dressing room (room_6), on the wall opposite the mirror. Written by tools/props/saloon_stage.py.",
+  "id": "costume_pegs",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "weathered_pine",
+  "drawn_bounds": true,
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "hangs": {
+    "nails": [
+      [
+        -0.69,
+        0.0,
+        0.004
+      ],
+      [
+        0.69,
+        0.0,
+        0.004
+      ]
+    ]
+  },
+  "members": [
+    {
+      "id": "rail",
+      "kind": "post",
+      "size": [
+        1.5,
+        0.115,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.011
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "peg0",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        -0.65,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Peg0"
+      }
+    },
+    {
+      "id": "peg1",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        -0.39,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Peg1"
+      }
+    },
+    {
+      "id": "peg2",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        -0.13,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Peg2"
+      }
+    },
+    {
+      "id": "peg3",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        0.13,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Peg3"
+      }
+    },
+    {
+      "id": "peg4",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        0.39,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Peg4"
+      }
+    },
+    {
+      "id": "peg5",
+      "kind": "furniture_frame",
+      "size": [
+        0.023,
+        0.023,
+        0.09
+      ],
+      "at": [
+        0.65,
+        0.0,
+        0.067
+      ],
+      "wood": "oak",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Peg5"
+      }
+    },
+    {
+      "id": "dress",
+      "kind": "trim",
+      "size": [
+        0.42,
+        1.34,
+        0.2
+      ],
+      "at": [
+        -0.39,
+        -0.658,
+        0.152
+      ],
+      "wood": "canvas",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Dress"
+      },
+      "dress": [
+        {
+          "look": "pbr:costume_pegs",
+          "draw": {
+            "shape": "mesh",
+            "model": "costume_pegs",
+            "part": "DressLace"
+          }
+        }
+      ]
+    },
+    {
+      "id": "coat",
+      "kind": "trim",
+      "size": [
+        0.19,
+        1.04,
+        0.15
+      ],
+      "at": [
+        0.13,
+        -0.508,
+        0.127
+      ],
+      "wood": "canvas",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Coat"
+      },
+      "dress": [
+        {
+          "look": "pbr:costume_pegs",
+          "draw": {
+            "shape": "mesh",
+            "model": "costume_pegs",
+            "part": "CoatButtons"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hat",
+      "kind": "trim",
+      "size": [
+        0.34,
+        0.34,
+        0.12
+      ],
+      "at": [
+        0.65,
+        -0.05,
+        0.112
+      ],
+      "wood": "canvas",
+      "look": "pbr:costume_pegs",
+      "draw": {
+        "shape": "mesh",
+        "model": "costume_pegs",
+        "part": "Hat"
+      },
+      "dress": [
+        {
+          "look": "pbr:costume_pegs",
+          "draw": {
+            "shape": "mesh",
+            "model": "costume_pegs",
+            "part": "HatBand"
+          }
+        },
+        {
+          "look": "pbr:costume_pegs",
+          "draw": {
+            "shape": "mesh",
+            "model": "costume_pegs",
+            "part": "Plume"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon_stage.py"
+}

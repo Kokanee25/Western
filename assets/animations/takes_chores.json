@@ -1,0 +1,462 @@
+{
+ "best": {
+  "mop_floor": 3,
+  "scoop_water": 2,
+  "wipe_bar": 3
+ },
+ "takes": {
+  "mop_floor": {
+   "1": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 0.1,
+     "r": 0.15
+    },
+    "frames": 179,
+    "hip_max_legs": 0.991,
+    "hip_min_legs": 0.959,
+    "jitter": 0.0326,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 179,
+     "json": "build/motion_chores/takes/mop_floor_01.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.103,
+     "slide_before": 0.19,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": 0.734,
+    "seconds": 5.93,
+    "slide_m": 0.103,
+    "travel_m": 0.16
+   },
+   "2": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 0.41,
+     "r": 0.16
+    },
+    "frames": 179,
+    "hip_max_legs": 0.993,
+    "hip_min_legs": 0.947,
+    "jitter": 0.0301,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 179,
+     "json": "build/motion_chores/takes/mop_floor_02.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.259,
+     "slide_before": 0.323,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": 0.566,
+    "seconds": 5.93,
+    "slide_m": 0.259,
+    "travel_m": 0.08
+   },
+   "3": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 0.11,
+     "r": 0.08
+    },
+    "frames": 179,
+    "hip_max_legs": 0.972,
+    "hip_min_legs": 0.936,
+    "jitter": 0.0269,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 179,
+     "json": "build/motion_chores/takes/mop_floor_03.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.106,
+     "slide_before": 0.19,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": 0.93,
+    "seconds": 5.93,
+    "slide_m": 0.106,
+    "travel_m": 0.06
+   }
+  },
+  "scoop_water": {
+   "1": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 1.64,
+     "r": 1.31
+    },
+    "frames": 179,
+    "hip_max_legs": 0.982,
+    "hip_min_legs": 0.947,
+    "jitter": 0.055,
+    "missing": [],
+    "notes": {
+     "events": {
+      "splash": 4.3
+     },
+     "frames_in": 179,
+     "json": "build/motion_chores/takes/scoop_water_01.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.138,
+     "slide_before": 0.258,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": -0.396,
+    "seconds": 5.93,
+    "slide_m": 0.138,
+    "travel_m": 0.48
+   },
+   "2": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 1.27,
+     "r": 1.39
+    },
+    "frames": 179,
+    "hip_max_legs": 0.981,
+    "hip_min_legs": 0.862,
+    "jitter": 0.1129,
+    "missing": [],
+    "notes": {
+     "events": {
+      "splash": 4.1
+     },
+     "frames_in": 179,
+     "json": "build/motion_chores/takes/scoop_water_02.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.257,
+     "slide_before": 0.386,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": -0.281,
+    "seconds": 5.93,
+    "slide_m": 0.257,
+    "travel_m": 0.36
+   },
+   "3": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 2.58,
+     "r": 1.9
+    },
+    "frames": 179,
+    "hip_max_legs": 0.984,
+    "hip_min_legs": 0.818,
+    "jitter": 0.0734,
+    "missing": [],
+    "notes": {
+     "events": {
+      "splash": 1.1
+     },
+     "frames_in": 179,
+     "json": "build/motion_chores/takes/scoop_water_03.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.423,
+     "slide_before": 0.621,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": -1.427,
+    "seconds": 5.93,
+    "slide_m": 0.423,
+    "travel_m": 0.96
+   }
+  },
+  "wipe_bar": {
+   "1": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 0.08,
+     "r": 0.05
+    },
+    "frames": 149,
+    "hip_max_legs": 0.978,
+    "hip_min_legs": 0.962,
+    "jitter": 0.025,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 149,
+     "json": "build/motion_chores/takes/wipe_bar_01.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.062,
+     "slide_before": 0.092,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": 1.047,
+    "seconds": 4.93,
+    "slide_m": 0.062,
+    "travel_m": 0.05
+   },
+   "2": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 0.05,
+     "r": 0.04
+    },
+    "frames": 149,
+    "hip_max_legs": 0.969,
+    "hip_min_legs": 0.962,
+    "jitter": 0.0206,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 149,
+     "json": "build/motion_chores/takes/wipe_bar_02.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.054,
+     "slide_before": 0.088,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": 0.989,
+    "seconds": 4.93,
+    "slide_m": 0.054,
+    "travel_m": 0.13
+   },
+   "3": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 0.06,
+     "r": 0.05
+    },
+    "frames": 149,
+    "hip_max_legs": 0.976,
+    "hip_min_legs": 0.961,
+    "jitter": 0.0242,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 149,
+     "json": "build/motion_chores/takes/wipe_bar_03.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.067,
+     "slide_before": 0.098,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": 1.082,
+    "seconds": 4.93,
+    "slide_m": 0.067,
+    "travel_m": 0.03
+   }
+  }
+ }
+}

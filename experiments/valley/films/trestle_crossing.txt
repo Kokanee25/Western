@@ -1,0 +1,8 @@
+# Valley G3 (#716): the six-car train crossing the great trestle in the valley's own canyon (the
+# bake's) at 40 km/h, from the canyon's floor 35 m downstream (the rim and the overlook, 267 m off, show it
+# too small for a film, behind the rim's slope).
+# python3 tools/bridge.py run experiments/valley/films/trestle_crossing.txt --size=960x540 --movie=build/films/valley_crossing.avi --game-args=--world=valley
+trestle_lab
+train_caption The six-car train crossing the great trestle in the valley's canyon at 40 km/h, from the canyon's floor.
+trestle_cam floor
+trestle_collapse how=none train=cross kmh=40 run_up=0 secs=2 fresh=0

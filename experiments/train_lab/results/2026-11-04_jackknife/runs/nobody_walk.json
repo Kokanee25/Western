@@ -1,0 +1,88 @@
+{
+  "derail": {
+    "key": {
+      "at": 374.744408319666,
+      "section": "p0"
+    },
+    "kind": "broken",
+    "kmh": 5.29443225543933,
+    "numeric": false,
+    "s": 374.744408319666,
+    "side": -1,
+    "t": 11.1333333333335,
+    "what": "rail gone"
+  },
+  "engine": {
+    "front_past_break_m": -3.20565801858902,
+    "off_m": 0.526795268058777,
+    "tilt_deg": 3.26216515538591
+  },
+  "frames": {
+    "before_mean_ms": 11.7848957703928,
+    "frames": 483,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 10.6092629399586,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 15.14825,
+    "second_ms": 18.813,
+    "slow_spell_s": 0.0,
+    "worst_ms": 23.305
+  },
+  "outcome": "derailed",
+  "seen": [
+    {
+      "daylight": 1.0,
+      "distance": 14.6474434140468,
+      "kind": "broken",
+      "kmh": 4.99627949850275,
+      "lux": 10000.0,
+      "range": 220.0,
+      "s": 360.092556585953,
+      "t": 0.1,
+      "what": "rail gone",
+      "who": "engineer"
+    }
+  ],
+  "spec": {
+    "at": 380.0,
+    "driver": "none",
+    "hour": 12.0,
+    "how": "rail",
+    "kmh": 5.0,
+    "out": "/home/user/Western/build/train_lab/derail_jk3/nobody_walk.json",
+    "past": 120.0,
+    "riders": 6,
+    "run_up": 20.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "struck": [],
+  "thrown": 0,
+  "wreck": {
+    "asleep": 7,
+    "bodies": 7,
+    "events": [
+      {
+        "kmh": 5.29443225543933,
+        "side": -1.0,
+        "t": 0.0,
+        "what": "derailed"
+      },
+      {
+        "between": [
+          0,
+          1
+        ],
+        "t": 1.45,
+        "what": "coupler torn",
+        "why": "jackknife"
+      }
+    ],
+    "furthest_past_m": 0.0,
+    "max_fold_deg": 20.0671128569704,
+    "most_off_m": 0.526795268058777,
+    "tipped": 0
+  }
+}

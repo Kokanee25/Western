@@ -55,8 +55,13 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
   the hitching rail, the saloon's props (`PropLibrary`), the bar and crates; S art's oak stair
   (`OakStair` with `solid` on, `room` off: #172), down its flight, at its foot, and over its
   walkway's 1 m railing. `start` places him in the fixture's space, `focus_y` aims the cameras,
-  `views` picks a scenario's own cameras where the usual ones would look through the fixture.
+  `focus_ahead` (m along his heading) where he ends up rather than where he's hit, `views` picks a
+  scenario's own cameras where the usual ones would look through the fixture.
 - Joints of a torn-off limb aren't measured; `lab.gd` quits if `lab_runner.gd` doesn't load.
+- The reference his joints and swings are measured from is taken as he goes limp (`HumanBody.fell`).
+  Before 2026-10-28 (#471) a man stumbling on after a `knock` was measured from a tick later: at a
+  run his parts had gone ~5 cm from the joints, and a bent knee or elbow read 8-12 cm apart with the
+  joint whole (`results/2026-10-28_stair_jam/`). Older runs' `joint_gap` on those is too high.
 
 **Since 2026-10-21, round 4** (`results/2026-10-21_round4/`):
 - `--model=ID` stops with an error if that body isn't imported (it used to draw the outlaw without
@@ -72,6 +77,25 @@ To try a controller later, put it behind a switch read by the scenario (a new fi
 - `spread.py BASE COND,...`: a fall's spread over `--jitter` runs (`j_<COND>_<N>` roots).
   `blind.py A B OUT SEED`: pairs of sheets in random order for a blind judge, the key beside OUT.
 - The hitching rail is its own fixture (`hitch`); it had stood in `oak_stair` by mistake.
+
+**Since 2026-10-28** (`results/2026-10-28_tone/`, issue #442):
+- `--tone=off|fade|dying` (or a scenario's `tone` field): `HumanBody.tone_style`, how his tone lets
+  go; none, the game's (the quick fade, `off`; `dying` was the game's for build 2668). `run.py` passes
+  it on, `--perf` too.
+- `python3 experiments/physics_lab/tone.py ROOT [ROOT...] [--each] [--only=...]`: time to the
+  ground, planked landings, how fast his head and chest land, settle, frame ms.
+- `segments.csv` has a `world_contacts` column: contacts with anything but a man's own parts
+  (`contacts` counts his parts touching each other too).
+- `blind.py A B OUT SEED [TIMES]`: the sheets' times, for renders shorter than 6 s.
+
+**Since 2026-10-28, momentum** (`results/2026-10-28_momentum/`, issue #446):
+- `--momentum=on|off`: `HumanBody.keep_stride` (the stumble keeps his speed and goes limp into a
+  solid thing within a step; off in the game). `run.py` passes it on.
+- Group X: walking and running into a kit chair, the card table (`x_chair`, `x_table`), a thin
+  plank wall of the game's members (`x_wall`, `lab_plank_wall.gd`), the breakable railing and the
+  saloon stair, shot in the back or side.
+- `tone.py` also prints `speed` (as he went limp), `travel` (his centre of mass, level, from there
+  to the end), `broke` (members broken after) and where he ends.
 
 ## Files
 
@@ -278,6 +302,15 @@ Frame time is the whole frame (his body's script, physiology and pools included)
 - Everyone was asleep within 3–4 s.
 - Not split out: the physics engine on its own. Pausing the server freezes the fall it would
   measure.
+
+
+**Since 2026-11-04, group Z** (issue #596 step 3b, men thrown through the air;
+`results/2026-11-04_thrown/`): a stick on the floor (0.36 kg as it hits, the ground counted) 1, 3
+and 6 m in front of him, 1 m behind, off the porch, over the hitching rail, onto a saloon table,
+through the game saloon's balcony rail, and three men from one stick (`cause` `"one": true`: one
+charge for all the men, `from` in the first man's frame). `--lift=F` (or a scenario's `lift`) sets
+`BlastTuning.blast_lift`; `thrown.py ROOT...` prints each one's lift, the arc's top, where he first
+lies and ends, what broke, the blast's harm and the landing's blows (`blow` events, the first man's).
 
 
 ## Limitations

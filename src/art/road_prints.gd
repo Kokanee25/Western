@@ -23,7 +23,9 @@ func _ready() -> void:
 	if not info is Dictionary:
 		return
 	for p: Dictionary in (info as Dictionary).get("prints", []):
-		press(StringName(p["kind"]), Vector3(float(p["x"]), 0.0, float(p["z"])), float(p["turn"]), float(p["wear"]))
+		var x := float(p["x"])
+		var z := float(p["z"])
+		press(StringName(p["kind"]), Vector3(x, TownLayout.ground_height(x, z), z), float(p["turn"]), float(p["wear"]))
 
 
 ## A print of `kind` (hoof, boot) at `at` on the ground, turned `turn` radians about the vertical,

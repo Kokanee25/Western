@@ -1,0 +1,6 @@
+# Dynamite bundles (#647): two bundles of four on the tallest bent's two inner posts, wired to the
+# plunger and fired a tick apart as the engine comes on (40 m short) at 40 km/h. From the floor.
+trestle_lab
+train_caption Two bundles on the inner posts, the plunger, as the engine comes on at 40 km/h.
+trestle_cam floor
+trestle_collapse how=stick posts=inner sticks=4 stagger=1 train=cross when=under lead=40 kmh=40 run_up=120 secs=10

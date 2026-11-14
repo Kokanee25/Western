@@ -1,0 +1,219 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:Ground/Rise_4",
+  "0.3:Ground/Rise_4",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 80.75,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "out": 80.75,
+   "rescue": 78.85
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 95.45,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1621,
+  "max_ms": 209.92,
+  "mean_ms": 14.43,
+  "p95_ms": 23.03
+ },
+ "freed": 81.25,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   0.89,
+   1.14,
+   22.66
+  ],
+  "limp": false,
+  "pelvis": [
+   0.91,
+   0.4,
+   22.56
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  0.91,
+  0.78,
+  22.58
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": false,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 18.0,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.89 / 1.64)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 21.7,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "drag Brody to cover: he's down in the open",
+   "id": "dutch",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "drag Lyle to cover: he's down in the open",
+   "id": "kid",
+   "inside": true,
+   "knows": 13.7,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.45 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 24.4,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding a little, bone broken.",
+ "player_local": [
+  -2.87,
+  4.69,
+  38.97
+ ],
+ "quits": [
+  [
+   69.92,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.45 / 1.12)"
+  ],
+  [
+   74.58,
+   "kid",
+   "gives up",
+   "drag Lyle to cover: he's down in the open"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 1,
+ "shots_men": 8,
+ "shots_out": 0,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 95.45,
+ "threat": 73.07,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.88,
+   "Hollis down"
+  ],
+  [
+   69.92,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.45 / 1.12))"
+  ],
+  [
+   73.05,
+   "Lyle down"
+  ],
+  [
+   73.07,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   74.58,
+   "Kid down"
+  ],
+  [
+   74.58,
+   "Kid gives up (drag Lyle to cover: he's down in the open)"
+  ],
+  [
+   79.52,
+   "Brody down, out"
+  ],
+  [
+   81.25,
+   "the rancher cut loose"
+  ],
+  [
+   90.05,
+   "Lyle dead"
+  ],
+  [
+   93.42,
+   "Brody dead"
+  ],
+  [
+   95.45,
+   "won"
+  ]
+ ],
+ "way": "back",
+ "where": "kitchen"
+}

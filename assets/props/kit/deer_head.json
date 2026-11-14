@@ -1,12 +1,12 @@
 {
-  "_doc": "A stag's head mounted on a plaque (PropModels._deer_head's shape and look, built of members): the plaque nailed to the wall through two nails, the neck's form (pine, in hide) on it, the head and muzzle; eyes, ears and antlers drawn on the head (they go where it goes). Hung: it holds while a nail's still in the wall (KitProp 'hangs'), falls when its board goes, and burns.",
+  "_doc": "A whitetail's shoulder mount on a shaped plaque, made by Rodin from Sean's six pictures (2026-10-24; tools/blender/props/deer_head_rodin.py: Rodin's model turned into this space, cut to 6,000 triangles and split into the members' parts; its own painted texture, look model:deer_head). The plaque nailed to the wall through two nails, the neck's form (pine, in hide) on it, the head and muzzle; the ears, glass eyes and rack drawn with the head (they go where it goes). Hung: it holds while a nail's still in the wall (KitProp 'hangs'), falls when its board goes, and burns.",
   "id": "deer_head",
   "kind": "members",
   "replaces": "deer_head",
   "in_game": true,
   "drawn_bounds": true,
   "wood": "weathered_pine",
-  "look": "prop:hide",
+  "look": "model:deer_head",
   "splits_below": 0.4,
   "blow_wood_share": 0.5,
   "hangs": {
@@ -28,388 +28,83 @@
       "id": "plaque",
       "kind": "post",
       "wood": "dark_trim",
-      "look": "prop:dark_wood",
+      "look": "model:deer_head",
       "size": [
-        0.3628,
-        0.4695,
-        0.032
+        0.3558,
+        0.4697,
+        0.0449
       ],
       "at": [
-        0.0,
-        -0.2153,
-        0.0358
-      ]
+        0.0002,
+        -0.2151,
+        0.0424
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "deer_head",
+        "part": "plaque"
+      }
     },
     {
       "id": "neck",
       "kind": "furniture_frame",
       "size": [
-        0.2134,
-        0.2774,
-        0.2134
+        0.2348,
+        0.2822,
+        0.1603
       ],
       "at": [
-        0.0,
-        -0.2579,
-        0.1478
+        0.0006,
+        -0.2248,
+        0.1357
       ],
-      "rot": [
-        -20.0535,
-        0,
-        0
-      ]
+      "draw": {
+        "shape": "mesh",
+        "model": "deer_head",
+        "part": "neck"
+      },
+      "look": "model:deer_head"
     },
     {
       "id": "head",
       "kind": "furniture_top",
       "size": [
-        0.16,
-        0.16,
-        0.2134
+        0.2358,
+        0.1852,
+        0.2966
       ],
       "at": [
-        0.0,
-        -0.1406,
-        0.3185
+        -0.0029,
+        -0.0326,
+        0.203
       ],
-      "rot": [
-        14.3239,
-        0,
-        0
-      ],
-      "dress": [
-        {
-          "look": "prop:hide_dark",
-          "draw": {
-            "shape": "boxes",
-            "boxes": [
-              {
-                "size": [
-                  0.0213,
-                  0.0213,
-                  0.0213
-                ],
-                "at": [
-                  -0.0747,
-                  -0.1086,
-                  0.3718
-                ]
-              },
-              {
-                "size": [
-                  0.0213,
-                  0.0213,
-                  0.0213
-                ],
-                "at": [
-                  0.0747,
-                  -0.1086,
-                  0.3718
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "look": "prop:hide",
-          "draw": {
-            "shape": "boxes",
-            "boxes": [
-              {
-                "size": [
-                  0.128,
-                  0.0533,
-                  0.0213
-                ],
-                "at": [
-                  -0.128,
-                  -0.0339,
-                  0.2758
-                ],
-                "rot": [
-                  0,
-                  0,
-                  28.6479
-                ]
-              },
-              {
-                "size": [
-                  0.128,
-                  0.0533,
-                  0.0213
-                ],
-                "at": [
-                  0.128,
-                  -0.0339,
-                  0.2758
-                ],
-                "rot": [
-                  0,
-                  0,
-                  -28.6479
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "look": "prop:antler",
-          "draw": {
-            "shape": "boxes",
-            "boxes": [
-              {
-                "from": [
-                  -0.0533,
-                  -0.0446,
-                  0.2865
-                ],
-                "to": [
-                  -0.16,
-                  0.0835,
-                  0.2438
-                ],
-                "thick": 0.0235
-              },
-              {
-                "from": [
-                  -0.16,
-                  0.0835,
-                  0.2438
-                ],
-                "to": [
-                  -0.2667,
-                  0.2115,
-                  0.2331
-                ],
-                "thick": 0.0203
-              },
-              {
-                "from": [
-                  -0.16,
-                  0.0835,
-                  0.2438
-                ],
-                "to": [
-                  -0.1814,
-                  0.1902,
-                  0.3185
-                ],
-                "thick": 0.0128
-              },
-              {
-                "from": [
-                  -0.2667,
-                  0.2115,
-                  0.2331
-                ],
-                "to": [
-                  -0.3308,
-                  0.3395,
-                  0.2865
-                ],
-                "thick": 0.0171
-              },
-              {
-                "from": [
-                  -0.2667,
-                  0.2115,
-                  0.2331
-                ],
-                "to": [
-                  -0.2881,
-                  0.3182,
-                  0.3078
-                ],
-                "thick": 0.0128
-              },
-              {
-                "from": [
-                  -0.3308,
-                  0.3395,
-                  0.2865
-                ],
-                "to": [
-                  -0.3201,
-                  0.4462,
-                  0.3505
-                ],
-                "thick": 0.0139
-              },
-              {
-                "from": [
-                  -0.3308,
-                  0.3395,
-                  0.2865
-                ],
-                "to": [
-                  -0.3521,
-                  0.4462,
-                  0.3612
-                ],
-                "thick": 0.0128
-              },
-              {
-                "from": [
-                  -0.0533,
-                  -0.0446,
-                  0.2865
-                ],
-                "to": [
-                  -0.0854,
-                  0.0195,
-                  0.3825
-                ],
-                "thick": 0.0149
-              },
-              {
-                "from": [
-                  0.0533,
-                  -0.0446,
-                  0.2865
-                ],
-                "to": [
-                  0.16,
-                  0.0835,
-                  0.2438
-                ],
-                "thick": 0.0235
-              },
-              {
-                "from": [
-                  0.16,
-                  0.0835,
-                  0.2438
-                ],
-                "to": [
-                  0.2667,
-                  0.2115,
-                  0.2331
-                ],
-                "thick": 0.0203
-              },
-              {
-                "from": [
-                  0.16,
-                  0.0835,
-                  0.2438
-                ],
-                "to": [
-                  0.1814,
-                  0.1902,
-                  0.3185
-                ],
-                "thick": 0.0128
-              },
-              {
-                "from": [
-                  0.2667,
-                  0.2115,
-                  0.2331
-                ],
-                "to": [
-                  0.3308,
-                  0.3395,
-                  0.2865
-                ],
-                "thick": 0.0171
-              },
-              {
-                "from": [
-                  0.2667,
-                  0.2115,
-                  0.2331
-                ],
-                "to": [
-                  0.2881,
-                  0.3182,
-                  0.3078
-                ],
-                "thick": 0.0128
-              },
-              {
-                "from": [
-                  0.3308,
-                  0.3395,
-                  0.2865
-                ],
-                "to": [
-                  0.3201,
-                  0.4462,
-                  0.3505
-                ],
-                "thick": 0.0139
-              },
-              {
-                "from": [
-                  0.3308,
-                  0.3395,
-                  0.2865
-                ],
-                "to": [
-                  0.3521,
-                  0.4462,
-                  0.3612
-                ],
-                "thick": 0.0128
-              },
-              {
-                "from": [
-                  0.0533,
-                  -0.0446,
-                  0.2865
-                ],
-                "to": [
-                  0.0854,
-                  0.0195,
-                  0.3825
-                ],
-                "thick": 0.0149
-              }
-            ]
-          }
-        }
-      ]
+      "draw": {
+        "shape": "mesh",
+        "model": "deer_head",
+        "part": "head"
+      },
+      "look": "model:deer_head"
     },
     {
       "id": "muzzle",
       "kind": "trim",
       "size": [
-        0.096,
-        0.0854,
-        0.1494
+        0.0878,
+        0.1093,
+        0.1286
       ],
       "at": [
+        0.0042,
         0.0,
-        -0.2046,
-        0.4572
+        0.3404
       ],
-      "rot": [
-        25.7831,
-        0,
-        0
-      ],
-      "dress": [
-        {
-          "look": "prop:hide_dark",
-          "draw": {
-            "shape": "boxes",
-            "boxes": [
-              {
-                "size": [
-                  0.064,
-                  0.0427,
-                  0.032
-                ],
-                "at": [
-                  0.0,
-                  -0.2473,
-                  0.5319
-                ]
-              }
-            ]
-          }
-        }
-      ]
+      "look": "model:deer_head",
+      "draw": {
+        "shape": "mesh",
+        "model": "deer_head",
+        "part": "nose"
+      }
     }
-  ]
+  ],
+  "factory": "tools/blender/props/deer_head_rodin.py"
 }

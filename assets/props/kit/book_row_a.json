@@ -1,0 +1,203 @@
+{
+  "_doc": "His medical books (#819; refs experiments/prop_lab/refs/doctor/): a shelf's row standing spine out (+z), 53 cm of them. The standard American texts a country doctor of 1882 owned: Gray'S Anatomy (Gray); System Of Surgery Vol. I (Gross); System Of Surgery Vol. Ii (Gross); Practice Of Medicine (Flint); Medical Dictionary (Dunglison); Human Physiology (Dalton); Diseases Of Women (Thomas); Diseases Of Children (Meigs & Pepper); Gunshot Wounds (Longmore). Most in law sheep (tan sheepskin with a red and a black label lettered in gilt, the trade binding of medical books into the 1880s), some in publishers' cloth, a few in calf. Each book a member (wood `paper`: ~1.5 kg an octavo): it burns, a ball goes through it, the row comes down with its shelf. Drawn from glb:medical_books, every face printed on its own sheet (tools/blender/props/doctor_d3.py: Pillow, as the bottles' labels). Written by tools/props/doctor.py.",
+  "id": "book_row_a",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "paper",
+  "look": "pbr:medical_books",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "book0",
+      "kind": "post",
+      "size": [
+        0.062,
+        0.262,
+        0.18
+      ],
+      "at": [
+        -0.238,
+        0.131,
+        0.0
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book0"
+      }
+    },
+    {
+      "id": "book2",
+      "kind": "post",
+      "size": [
+        0.066,
+        0.255,
+        0.175
+      ],
+      "at": [
+        -0.1725,
+        0.1275,
+        -0.0035
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book2"
+      }
+    },
+    {
+      "id": "book3",
+      "kind": "post",
+      "size": [
+        0.066,
+        0.255,
+        0.175
+      ],
+      "at": [
+        -0.105,
+        0.1275,
+        0.0005
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book3"
+      }
+    },
+    {
+      "id": "book1",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.245,
+        0.165
+      ],
+      "at": [
+        -0.0405,
+        0.1225,
+        -0.0015
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book1"
+      }
+    },
+    {
+      "id": "book8",
+      "kind": "post",
+      "size": [
+        0.072,
+        0.25,
+        0.17
+      ],
+      "at": [
+        0.027,
+        0.125,
+        0.001
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book8"
+      }
+    },
+    {
+      "id": "book6",
+      "kind": "post",
+      "size": [
+        0.052,
+        0.24,
+        0.162
+      ],
+      "at": [
+        0.0905,
+        0.12,
+        0.009
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book6"
+      }
+    },
+    {
+      "id": "book5",
+      "kind": "post",
+      "size": [
+        0.048,
+        0.238,
+        0.16
+      ],
+      "at": [
+        0.142,
+        0.119,
+        0.004
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book5"
+      }
+    },
+    {
+      "id": "book12",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.242,
+        0.162
+      ],
+      "at": [
+        0.1975,
+        0.121,
+        0.007
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book12"
+      }
+    },
+    {
+      "id": "book11",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.225,
+        0.15
+      ],
+      "at": [
+        0.249,
+        0.1125,
+        0.006
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book11"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

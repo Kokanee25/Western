@@ -1,0 +1,211 @@
+{
+ "alarm": 87.22,
+ "blocking": [
+  "0.3:Props/@RigidBody3D@23565",
+  "RB RigidBody3D at [2.74, 0.86, 5.59] mass 16.9290008544922 kids [] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\"]",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 86.72,
+  "freed": 104.73,
+  "hid": 84.47,
+  "phase_at": {
+   "lit": 81.78,
+   "out": 104.73,
+   "plant": 79.7,
+   "rescue": 101.27,
+   "through": 88.22
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 87.22,
+ "end": -1.0,
+ "executed": -1.0,
+ "found": 101.27,
+ "frames": {
+  "blast_ms": 340.4,
+  "fight_ticks": 9198,
+  "max_ms": 340.4,
+  "mean_ms": 20.67,
+  "p95_ms": 34.62
+ },
+ "freed": 105.23,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   1.74,
+   0.65,
+   4.86
+  ],
+  "limp": true,
+  "pelvis": [
+   2.46,
+   0.75,
+   4.9
+  ],
+  "pose": "crouch",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.09,
+  0.73,
+  4.87
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "",
+   "id": "brody",
+   "inside": true,
+   "knows": 128.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Brody down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 126.7,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: his friends' word (give up)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 112.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "tend his wound: bleeding 0.0 ml/s, 2 s since your last shot",
+   "id": "kid",
+   "inside": false,
+   "knows": 135.0,
+   "mood": "TENDING",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 118.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  2.95,
+  0.88,
+  6.31
+ ],
+ "seed": 2,
+ "state": "ON",
+ "surprise": 87.22,
+ "t": 240.5,
+ "threat": 87.25,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.22,
+   "Hollis down"
+  ],
+  [
+   87.22,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.25,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   89.73,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.57,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.68,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   91.3,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   101.27,
+   "found: Brody sees you"
+  ],
+  [
+   101.37,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   102.55,
+   "Brody down"
+  ],
+  [
+   105.23,
+   "the rancher cut loose"
+  ],
+  [
+   105.42,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   115.35,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   128.8,
+   "the rancher hit (blow, ?)"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

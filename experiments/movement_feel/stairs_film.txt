@@ -1,0 +1,31 @@
+time 10
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+press debug_teleport 0.1
+wait 1
+goto -57.43 0.9 30.96 180
+wait 1.5
+hold move_forward
+wait 6
+release move_forward
+wait 1
+turn 60
+wait 0.15
+turn 60
+wait 0.15
+turn 60
+wait 1
+hold move_forward
+wait 5
+release move_forward
+wait 1
+goto -56.22 0.1 34.63 0
+wait 1.5
+hold move_forward
+wait 7
+release move_forward
+wait 1.5

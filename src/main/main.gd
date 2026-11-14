@@ -5,12 +5,32 @@ extends Node
 ## pixels big. Also turns mouse motion into
 ## look input and handles capturing the mouse.
 
+const VALLEY_SCENE := "res://scenes/valley.tscn"
+
 @onready var game_viewport: SubViewport = $GameViewport
 @onready var screen: TextureRect = $Screen
 
 
+## The world switch (Settings.world, docs/briefs/valley-plan.md §12 G1): main.tscn holds the old
+## town's street; for the valley it's taken out and freed before it enters the tree (nothing of it
+## builds), and the valley's scene goes in its place. The two never load together.
+func _enter_tree() -> void:
+	if Settings.world != &"valley":
+		return
+	var viewport := get_node(^"GameViewport")
+	var street := viewport.get_node_or_null(^"TestStreet")
+	if street:
+		viewport.remove_child(street)
+		street.free()
+	var valley: Node = (load(VALLEY_SCENE) as PackedScene).instantiate()
+	viewport.add_child(valley)
+	viewport.move_child(valley, 0)
+
+
 func _ready() -> void:
+	get_tree().auto_accept_quit = false  # the window's close quits through GameQuit (#435)
 	SynthSounds.warm_all()  # every sound made ahead on a worker, so the first shot doesn't freeze
+	BlastSounds.warm()  # the dynamite's recordings loaded on a worker too (#596)
 	screen.texture = game_viewport.get_texture()
 	screen.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	screen.stretch_mode = TextureRect.STRETCH_SCALE
@@ -25,17 +45,36 @@ func _ready() -> void:
 	var recorder := BugRecorder.new()  # F12: a bug report with a replayable recording
 	recorder.name = "BugRecorder"
 	add_child(recorder)
+	CrashReports.start(self, recorder)  # the black box, the crash and freeze reports (#624)
 	DevBridge.maybe_start(self)  # only with --dev-bridge, in a debug build
+	CompanionBrain.maybe_start(self)  # --joe: Joe beside you, the companion (#843)
+	var town := Settings.world == &"town"  # the moments and the labs' keys need the old town
+	if town:
+		Moment.maybe_start(self)  # --moment=NAME: a showcase moment once the town's in (config/moments/)
 	SmokeTest.maybe_start(self)  # only with --smoke-test: 30 s of the street, then a verdict
 	var play := "res://experiments/gunfight_lab/play.gd"  # Y/X/Z: the three gunmen, played (if the lab's here)
-	if ResourceLoader.exists(play):
+	if town and ResourceLoader.exists(play):
 		var node: Node = (load(play) as GDScript).new()
 		node.name = "GunfightPlay"
+		add_child(node)
+	var trains := "res://experiments/train_lab/play.gd"  # 9/0: the train lab's line and cab (if the lab's here)
+	if town and ResourceLoader.exists(trains):
+		var node: Node = (load(trains) as GDScript).new()
+		node.name = "TrainLabPlay"
 		add_child(node)
 	var panel := LookPanel.new()  # N: the live look panel
 	panel.name = "LookPanel"
 	add_child(panel)
 	LookPreset.apply_from_args.call_deferred(get_tree())  # --look=FILE
+	var looks := LightLooks.new()  # 8: the light pass's looks, today / A / B / C
+	looks.name = "LightLooks"
+	add_child(looks)
+	var room := RoomLight.new()  # indoor light that knows the building (Settings.room_light; off)
+	room.name = "RoomLight"
+	add_child(room)
+	var real := RealLook.new()  # the real look (Settings.real_look, docs/briefs/red-dead.md R0; off)
+	real.name = "RealLook"
+	add_child(real)
 	if not DisplayServer.is_touchscreen_available() and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -43,8 +82,8 @@ func _ready() -> void:
 func _apply_settings() -> void:
 	game_viewport.size = Settings.render_size(get_viewport().get_visible_rect().size)
 	var post := screen.material as ShaderMaterial
-	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading)
-	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish else 0.0)
+	post.set_shader_parameter(&"shading_enabled", Settings.pixel_shading and not Settings.real_look)
+	post.set_shader_parameter(&"finish_soften", Settings.FINISH_SOFTEN if Settings.finish and not Settings.real_look else 0.0)
 	post.set_shader_parameter(&"source_size", Vector2(game_viewport.size))
 	DepthMosaic.apply(game_viewport.get_camera_3d(), Settings.mosaic_active(), Settings.MOSAIC_K, Settings.MOSAIC_STEPS)
 	ProbeMosaic.apply(game_viewport.get_camera_3d(), Settings.probe_active(), Settings.probe_texels, Settings.probe_cell, Settings.probe_bands)
@@ -103,7 +142,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		Settings.set_surface_blocks(not Settings.surface_blocks)
 	elif event.is_action_pressed(&"debug_probe_mosaic"):
 		Settings.set_probe_mosaic(not Settings.probe_mosaic)
+	elif event.is_action_pressed(&"reset_game"):
+		GameReset.reset(get_tree())
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		GameQuit.quit(get_tree())
 
 
 func _exit_tree() -> void:
+	get_tree().auto_accept_quit = true
 	SynthSounds.finish_warm()

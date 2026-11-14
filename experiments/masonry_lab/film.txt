@@ -1,0 +1,20 @@
+time 15
+clock off
+masonry_lab seed=1
+masonry_cam front 6
+wait 1.5
+masonry_blast sticks=1 wait=4
+masonry_cam back 6
+wait 1.5
+masonry_lab seed=2
+masonry_cam side 6
+wait 1.0
+masonry_blast sticks=1 wait=4
+masonry_cam back 6
+wait 1.5
+masonry_lab seed=3
+masonry_cam high 7
+wait 1.0
+masonry_blast sticks=1 wait=4
+masonry_cam front 5
+wait 1.5

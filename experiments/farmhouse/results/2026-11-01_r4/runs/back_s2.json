@@ -1,0 +1,96 @@
+{
+ "alarm": 21.5,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {
+   "rescue": 0.02
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "breach": -1.0,
+ "end": 32.37,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 652,
+  "max_ms": 187.2,
+  "mean_ms": 13.07,
+  "p95_ms": 31.32
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 0,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "CALM",
+   "order": "window_east",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "inside_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "CALM",
+   "order": "window_front_w",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "hollis",
+   "inside": true,
+   "mood": "CALM",
+   "order": "by_stove",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Dead (brain).",
+ "seed": 2,
+ "state": "LOST",
+ "t": 32.37,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   21.5,
+   "the alarm: Kid saw you"
+  ],
+  [
+   32.37,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "east"
+}

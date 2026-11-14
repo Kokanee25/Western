@@ -93,6 +93,9 @@ func test_the_shot_goes_where_the_barrel_points() -> void:
 		if k > 0:
 			gun.jerk(1.2, rng)  # well off line, so which side it went is plain
 			await process_frames(1)
+		# Pulled in the physics frame, the ball leaves now, with the sway read here (pulled outside
+		# it, the shot waits for the next tick: World.space's rule).
+		await physics_frames(1)
 		var sway := gun.sway
 		var look := -cam.global_transform.basis.z
 		# Where the barrel would point with steady hands (the sights' zero raises it a touch).

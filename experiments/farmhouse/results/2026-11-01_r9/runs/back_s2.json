@@ -1,0 +1,108 @@
+{
+ "alarm": 68.43,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {
+   "rescue": 78.95
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "breach": -1.0,
+ "end": 80.95,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 751,
+  "max_ms": 154.9,
+  "mean_ms": 13.35,
+  "p95_ms": 23.75
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, bone broken.",
+ "seed": 2,
+ "state": "LOST",
+ "t": 80.95,
+ "threat": 73.62,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.95,
+   "Hollis down"
+  ],
+  [
+   73.62,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   75.47,
+   "Dutch down"
+  ],
+  [
+   80.95,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "bedroom"
+}

@@ -18,6 +18,7 @@ __pycache__/
 /addons/saltcreek_native/bin/*.so
 /addons/saltcreek_native/bin/*.dll
 /addons/saltcreek_native/bin/*.dylib
+/addons/saltcreek_native/bin/*.pdb
 
 # Written and removed by tests/test_chaos.gd for its child runs (one worker thread)
 /override.cfg
@@ -34,6 +35,18 @@ __pycache__/
 /assets/textures/mlab_studio10*/
 /assets/textures/mlab_studio11*/
 /assets/textures/mlab_flat/
+/assets/textures/mlab_game_*/
+/assets/textures/mlab_studio1p/
 /assets/textures/weather/stains_studio9*
 /assets/textures/weather/stains_studio1[0-9]*
 /assets/textures/mlab_studio_int/
+/assets/textures/mlab_cint/
+/assets/textures/mlab_r1dark_*/
+/assets/textures/weather/stains_r1dark*
+
+# The material library's 4K scans (lab only; pulled from the pool branch, #721)
+/assets/textures/scans4k/
+
+# Private people (#889): MetaHumans the Character Studio lays in (its tools/metahuman_to_game.sh).
+# Never committed: MetaHuman files stay out of this public repo (#692, the licence).
+/assets/people/private/

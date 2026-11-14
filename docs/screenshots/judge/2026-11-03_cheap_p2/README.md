@@ -1,0 +1,1 @@
+The pictures were the probes in `docs/concept/judge/cheap_probes/` under the letters in `sources.txt` (removed here: copies). Check: `python3 tools/critic.py cheap-probes docs/screenshots/judge/2026-11-03_cheap_p2 --check`.

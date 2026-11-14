@@ -1,0 +1,142 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:House/floor_ground_joist_009",
+  "0.3:House/floor_ground_joist_011",
+  "0.3:House/floor_ground_joist_013",
+  "0.3:House/floor_ground_board_022_0",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_board_024_0",
+  "0.3:House/floor_ground_board_026_0",
+  "0.3:House/floor_ground_board_025_0",
+  "0.3:House/floor_ground_board_027_0",
+  "0.3:House/floor_ground_board_028_0",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Dutch",
+ "breach": -1.0,
+ "end": 73.83,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 324,
+  "max_ms": 117.44,
+  "mean_ms": 10.98,
+  "p95_ms": 18.4
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "hostage_local": [
+  7.36,
+  1.52,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, bone broken.",
+ "player_local": [
+  1.26,
+  0.56,
+  3.97
+ ],
+ "route_left": 5,
+ "route_next": [
+  3.0,
+  0.56,
+  3.75
+ ],
+ "seed": 4,
+ "state": "LOST",
+ "t": 73.83,
+ "threat": 72.43,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.95,
+   "Hollis down"
+  ],
+  [
+   72.43,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   73.83,
+   "the rancher hit (bullet, by Player)"
+  ],
+  [
+   73.83,
+   "the rancher dead (brain)"
+  ],
+  [
+   73.83,
+   "lost: hostage_dead"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

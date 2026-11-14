@@ -1,0 +1,1 @@
+{"name": "e: as d, the bounce stronger still and the fill as it was", "values": {"settings.room_light": true, "room.bounce_gain": 4.5, "room.ambient_scale": 0.7, "room.tint": 0.4, "room.bounce_attenuation": 0.5, "room.bounce_offset": 0.25, "room.ambient_colour": [0.95, 0.6, 0.32, 1.0]}}

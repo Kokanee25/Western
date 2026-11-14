@@ -1,0 +1,41 @@
+table: examining_table at (2.0, 0.95, 5.5), 13204 triangles, 7 batches, standing
+side: table at (0.42, 0.95, 5.25), 120 triangles, 2 batches, standing
+tray: instrument_tray at (0.42, 1.73, 5.05), 2026 triangles, standing
+wash: washstand at (3.77, 0.95, 7.6), 1116 triangles, 6 batches, standing
+basin: wash_basin at (3.75, 1.71, 7.6), 1308 triangles, standing
+pitcher: wash_pitcher at (3.75, 1.74, 7.62), 1764 triangles, standing
+cot_1: iron_cot at (0.6, 0.95, 9.27), 12132 triangles, 2 batches, standing
+cot_2: iron_cot at (3.42, 0.95, 9.27), 12132 triangles, 2 batches, standing
+shelves: dispensary_shelves at (6.62, 0.95, 7.97), 1832 triangles, 3 batches, standing
+counter: dispensary_counter at (8.13, 0.95, 6.55), 7720 triangles, 4 batches, standing
+scales: scales at (8.16, 1.87, 6.85), 4704 triangles, 6 batches, standing
+mortar: mortar at (8.12, 1.87, 6.2), 1880 triangles, standing
+c_round: medicine_bottle_round at (8.3, 1.87, 7.4), 838 triangles, standing
+c_panel: medicine_bottle at (8.15, 1.87, 7.28), 790 triangles, standing
+c_jar: drug_jar at (8.3, 1.87, 5.75), 976 triangles, standing
+c_poison: poison_bottle at (8.32, 1.87, 7.58), 838 triangles, standing
+desk: roll_top_desk at (1.2, 0.95, 3.36), 8744 triangles, 6 batches, standing
+chair: bentwood_chair at (1.2, 0.95, 2.6), 4192 triangles, 2 batches, standing
+bookcase: bookcase at (2.75, 0.95, 3.61), 648 triangles, 4 batches, standing
+case_row3: book_row_a at (2.75, 2.03, 3.61), 1080 triangles, 1 batches, standing
+case_row2: book_row_b at (2.75, 1.72, 3.61), 1200 triangles, 1 batches, standing
+case_row1: book_row_c at (2.75, 1.4, 3.61), 1320 triangles, 1 batches, standing
+case_pile: book_stack at (2.86, 1.05, 3.6), 360 triangles, 1 batches, standing
+desk_books: book_stack at (1.72, 1.71, 3.14), 360 triangles, 1 batches, standing
+pegs: coat_pegs at (4.11, 2.6, 8.2), 8196 triangles, 3 batches, standing
+bag: doctors_bag at (4.26, 0.95, 8.05), 10000 triangles, 1 batches, standing
+wash_sick: washstand at (2.0, 0.95, 11.11), 1116 triangles, 6 batches, standing
+basin_sick: wash_basin at (2.0, 1.71, 11.11), 1308 triangles, standing
+pitcher_sick: wash_pitcher at (2.0, 1.74, 11.09), 1764 triangles, standing
+spare_blanket: folded_blanket at (2.0, 0.95, 11.11), 7072 triangles, 1 batches, standing
+blankets: folded_blankets at (3.42, 1.52, 9.95), 21216 triangles, 1 batches, standing
+sick_chair: bentwood_chair at (1.75, 0.95, 9.099999), 4192 triangles, 2 batches, standing
+pot_1: chamber_pot at (1.0, 0.95, 10.0), 2960 triangles, standing
+pot_2: chamber_pot at (3.2, 0.95, 9.45), 2960 triangles, standing
+sit_case: bookcase at (6.3, 0.95, 8.38), 648 triangles, 4 batches, standing
+sit_row3: book_row_b at (6.3, 2.03, 8.38), 1200 triangles, 1 batches, standing
+sit_row2: book_row_a at (6.3, 1.72, 8.38), 1080 triangles, 1 batches, standing
+sit_row1: book_row_c at (6.3, 1.4, 8.38), 1320 triangles, 1 batches, standing
+sit_table: table at (6.75, 0.95, 10.25), 120 triangles, 2 batches, standing
+sit_chair: bentwood_chair at (7.55, 0.95, 9.55), 4192 triangles, 2 batches, standing
+sit_books: book_stack at (6.62, 1.71, 10.18), 360 triangles, 1 batches, standing

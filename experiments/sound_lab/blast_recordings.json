@@ -1,0 +1,66 @@
+{
+ "_doc": "The dynamite's recorded layers (#596): Freesound CC0 sources Sean downloaded (#599), cut by experiments/train_lab/recordings.py --manifest=experiments/sound_lab/blast_recordings.json into assets/audio/blast/<set>/<layer>.wav; the sets are assets/audio/blast/sets.json (BlastSounds). Sources go in build/blast_rec/src/ (not in the repo).",
+ "src_dir": "build/blast_rec/src",
+ "out": "assets/audio/blast",
+ "report": "build/blast_rec/cuts.json",
+ "sources": {
+  "fs49711": {
+   "file": "fs49711.wav",
+   "title": "m-150-020927-24-bit",
+   "author": "boilingsand",
+   "page": "https://freesound.org/s/49711/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  },
+  "fs251401": {
+   "file": "fs251401.wav",
+   "title": "dynamite explosion in the mountain",
+   "author": "felixblume",
+   "page": "https://freesound.org/s/251401/",
+   "licence": "CC0",
+   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/",
+   "note": "downloaded by hand by Sean from Freesound's CC0-only search (#599)"
+  }
+ },
+ "cuts": [
+  {
+   "id": "s1/crack",
+   "src": "fs49711",
+   "kind": "shot",
+   "at": 0.88,
+   "len": 0.4,
+   "hp": 800,
+   "tail": 0.25
+  },
+  {
+   "id": "s1/boom",
+   "src": "fs251401",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 2.4,
+   "hp": 50,
+   "tail": 0.9
+  },
+  {
+   "id": "s1/sub",
+   "src": "fs251401",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 1.6,
+   "hp": 40,
+   "lp": 140,
+   "tail": 0.8
+  },
+  {
+   "id": "s1/roll",
+   "src": "fs251401",
+   "kind": "shot",
+   "at": 0.04,
+   "len": 9.5,
+   "hp": 50,
+   "lp": 2500,
+   "tail": 3.0
+  }
+ ]
+}

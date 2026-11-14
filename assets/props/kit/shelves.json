@@ -21,7 +21,7 @@
         0.95,
         -0.985
       ],
-      "look": "wood:framing"
+      "look": "wood:int_r1_framing"
     },
     {
       "id": "upright_r",
@@ -37,7 +37,7 @@
         0.95,
         0.985
       ],
-      "look": "wood:framing"
+      "look": "wood:int_r1_framing"
     },
     {
       "id": "shelf0",
@@ -96,5 +96,5 @@
       ]
     }
   ],
-  "look": "wood:floor"
+  "look": "wood:int_r1_floor"
 }

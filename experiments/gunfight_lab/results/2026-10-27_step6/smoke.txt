@@ -1,0 +1,12 @@
+thr_1 exit 134 135 s 
+on_headless_1 exit 1 57 s [smoke] FAILED:
+off_drawn_1 exit 1 205 s [smoke] FAILED:
+fix_on_1 exit 0 119 s [smoke] ok: 50 s, 15 frames, 20 people, 16336 nodes, native plugin loaded, first
+final_1 exit 0 101 s [smoke] ok: 44 s, 15 frames, 20 people, 16336 nodes, native plugin loaded, first
+final_2 exit 0 104 s [smoke] ok: 43 s, 15 frames, 20 people, 16336 nodes, native plugin loaded, first
+final_3 exit 0 103 s [smoke] ok: 45 s, 15 frames, 20 people, 16336 nodes, native plugin loaded, first
+final_4 exit 0 107 s [smoke] ok: 45 s, 15 frames, 20 people, 16336 nodes, native plugin loaded, first
+final_5 exit 0 104 s [smoke] ok: 45 s, 15 frames, 20 people, 16336 nodes, native plugin loaded, first
+final_headless_1 exit 0 51 s [smoke] ok: 30 s, 1659 frames, 19 people, 16111 nodes, native plugin loaded
+final_headless_2 exit 0 48 s [smoke] ok: 30 s, 1078 frames, 19 people, 16116 nodes, native plugin loaded
+final_headless_3 exit 0 49 s [smoke] ok: 30 s, 1583 frames, 19 people, 16110 nodes, native plugin loaded

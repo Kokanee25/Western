@@ -15,7 +15,7 @@ const RESOLUTION_PRESETS: Array[Vector2i] = [
 ]
 ## Bumped when the default look changes: a settings file from before keeps the player's choices
 ## but moves an old default resolution to the new one.
-const LOOK_VERSION := 6
+const LOOK_VERSION := 7
 ## The finish (docs/ART_REVIEW.md §8.7): block edges softened by about a render pixel
 ## (pixel_screen.gdshader `finish_soften`) and a faint gradient of the real lighting across each
 ## tile (tiles.gdshaderinc `tile_gradient`). Off by default since the screen mosaic (2026-10-03):
@@ -88,6 +88,12 @@ var mosaic := false
 var fire_flipbooks := true
 ## The quantise-once look (QUANTISE_TUNING) on (I).
 var quantise_once := false
+## The real look (docs/briefs/red-dead.md R0; RealLook, src/render/real_look.gd): the game drawn
+## realistically (smooth filtered textures, no texel squares, mosaic or quantising, anti-aliased,
+## AgX, SSIL, SDFGI outdoors, relief). The default since Sean's pick (#641, 2026-11-08; a settings
+## file from before is moved to it once, look_version 7); the look panel (N) turns it off, saved.
+## `--real` / `--painted` on the command line for one run, unsaved.
+var real_look := true
 var surface_blocks := false
 ## The probe mosaic (src/render/probe_mosaic.gdshader, ProbeMosaic; a trial, V toggles, not saved):
 ## the frame in blocks fixed to the world by direction from an origin snapped to a grid (texel
@@ -126,6 +132,55 @@ var texels_per_meter := 32.0
 var reduced_gore := false
 ## Tests turn this off so they never touch the player's settings file.
 var autosave := true
+## The people's pure half of their tick on the worker pool (PeopleTick, more-cores step 4): the same
+## game either way. In the settings file ([performance] people_threads, no panel yet); for one run,
+## `-- --people-threads=on|off`.
+var people_threads := PEOPLE_THREADS
+const PEOPLE_THREADS := true
+var _people_threads_file := PEOPLE_THREADS
+## People far off ticking less often, each tick with the time they missed (PeopleTick's bands,
+## more-cores step 4b). In the settings file ([performance] people_bands); for one run,
+## `-- --people-bands=on|off`.
+var people_bands := PEOPLE_BANDS
+const PEOPLE_BANDS := true
+var _people_bands_file := PEOPLE_BANDS
+## People moved by the library clips (LibraryMotion: CMU motion capture and Uthana's gun moves,
+## #529/#539): on in the game since Sean passed them as stand-ins (2026-11-02). Not saved; for one
+## run, `-- --library-motion=on|off`, or the dev bridge's `library on|off`.
+var library_motion := true
+## Indoor light that knows the building (RoomLight, art, #608 part 1): the lamps' bounce, each
+## room's own fill, sky through openings and holes, haze that holds the gunsmoke. Off until Sean
+## has looked; not saved. For one run `-- --room-light=on|off`; the look address
+## `settings.room_light` (the screenshots' --variants, the bridge's `set`).
+var room_light := false
+## Which world the game loads (docs/briefs/valley-plan.md §12, G1): `town`, the old Main Street
+## (scenes/test_street.tscn, the default), or `valley`, the new valley being built beside it from
+## config/valley.json (scenes/valley.tscn; ValleyLayout). Only one is ever loaded: main.tscn
+## swaps its street for the valley before either is in the tree (`main.gd`). Not saved: for one
+## run `-- --world=valley`; the bridge's `world` switches and reloads. G8 flips the default.
+const WORLDS: Array[StringName] = [&"town", &"valley"]
+## Read from the command line as Settings is made, not in `_ready`: the main scene enters the tree
+## (and main.gd picks its world) before the autoloads' `_ready`.
+var world: StringName = _world_asked()
+## Physics on its own thread (more-cores step 6): Jolt's step runs beside the idle frame and the
+## draw instead of after the physics ticks. Godot reads it only at start, from `ENGINE_PATH`
+## (project.godot's `application/config/project_settings_override`), so this is what this run has
+## and `set_physics_thread` is for the next start. Off until Sean has played it; no panel or key.
+## `-- --physics-thread=on|off` sets it for the next start.
+var physics_thread: bool = ProjectSettings.get_setting("physics/3d/run_on_separate_thread", false)
+## The renderer on its own thread (more-cores step 7, Godot's "Separate" thread model): the draw
+## runs beside the next frame's ticks instead of after them. Read at start like the physics thread
+## (`ENGINE_PATH`, `[rendering] driver/threads/thread_model=2`); this is what this run has, and
+## `set_render_thread` is for the next start. Off until Sean has played it; no panel or key.
+## `-- --render-thread=on|off` sets it for the next start. A script run (`-s`: the screenshot,
+## golden, tour and lab tools read the drawn frame) never takes it from the file: it refuses to
+## start (`_refuse_render_thread`); Godot's own `--render-thread separate` on its command line
+## asks for it by name (the suite run under it, `perf_bench`).
+var render_thread: bool = not RenderingServer.is_on_render_thread()
+## Engine settings read at start, before any script runs (Godot's own keys, section by section).
+const ENGINE_PATH := "user://engine.cfg"
+const THREAD_MODEL_KEY := "rendering/driver/threads/thread_model"
+const THREAD_MODEL_SEPARATE := 2
 
 
 func _ready() -> void:
@@ -151,7 +206,83 @@ func _ready() -> void:
 		if "--probe-squares" in args:
 			quantise_once = false
 	load_from_disk()
+	if "--real" in args or "--painted" in args:
+		real_look = "--real" in args
+		autosave = false
+		_apply_quantise()
+		_apply_tiles()
+	for a in args:
+		if a.begins_with("--people-threads="):
+			people_threads = a.substr(17) == "on"
+		elif a.begins_with("--people-bands="):
+			people_bands = a.substr(15) == "on"
+		elif a.begins_with("--library-motion="):
+			library_motion = a.substr(17) == "on"
+		elif a.begins_with("--room-light="):
+			room_light = a.substr(13) == "on"
+		elif a.begins_with("--physics-thread="):
+			set_physics_thread(a.substr(17) == "on")
+		elif a.begins_with("--render-thread="):
+			set_render_thread(a.substr(16) == "on")
 	_protect_speakers()
+	_refuse_render_thread()
+	if physics_thread and DisplayServer.get_name() != "headless":
+		add_child(SoftBodyDraw.new())
+
+
+## `-- --world=NAME`, or the town.
+static func _world_asked() -> StringName:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--world="):
+			var w := StringName(a.substr(8))
+			if w in WORLDS:
+				return w
+			push_error("Settings: no world %s (town or valley)" % w)
+	return &"town"
+
+
+## The world the next load builds (the running scene keeps what it has: reload it to change).
+## False, and nothing changed, for a name that isn't one.
+func set_world(w: StringName) -> bool:
+	if not w in WORLDS:
+		return false
+	world = w
+	return true
+
+
+## Physics on its own thread from the next start on (`ENGINE_PATH`); this run keeps what it has.
+func set_physics_thread(on: bool) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(ENGINE_PATH)
+	cfg.set_value("physics", "3d/run_on_separate_thread", on)
+	cfg.save(ENGINE_PATH)
+	print("Physics thread %s from the next start (this run: %s)" % ["on" if on else "off", "on" if physics_thread else "off"])
+
+
+## The renderer on its own thread from the next start on (`ENGINE_PATH`); this run keeps what it has.
+func set_render_thread(on: bool) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(ENGINE_PATH)
+	# Godot's keys: 1 is "Safe" (drawn on the main thread, the default), 2 "Separate".
+	cfg.set_value("rendering", "driver/threads/thread_model", THREAD_MODEL_SEPARATE if on else 1)
+	cfg.save(ENGINE_PATH)
+	print("Render thread %s from the next start (this run: %s)" % ["on" if on else "off", "on" if render_thread else "off"])
+
+
+## A script run (`-s`) that got the render thread from `ENGINE_PATH` quits at once. The tools
+## await `frame_post_draw` and read the viewport's texture: with the thread, Godot posts that signal
+## a frame late (deferred from the render thread) and the read waits for the frame drawing then,
+## so the image isn't the frame the tool set up. Godot's `--render-thread separate` on the command
+## line leaves the project setting alone, so a run that asks for the thread by name goes on.
+func _refuse_render_thread() -> void:
+	if not render_thread or not ("-s" in OS.get_cmdline_args() or "--script" in OS.get_cmdline_args()):
+		return
+	if int(ProjectSettings.get_setting(THREAD_MODEL_KEY, 1)) != THREAD_MODEL_SEPARATE:
+		return
+	push_error("The render thread is on in %s (Settings.render_thread): the tools read the drawn frame and need it off. "
+			% ProjectSettings.globalize_path(ENGINE_PATH)
+			+ "Run with Godot's --render-thread safe, or ask for the thread by name with --render-thread separate.")
+	get_tree().quit(1)
 
 
 ## The master output never clips and carries no sub-bass: a hard limiter just under full scale,
@@ -187,6 +318,7 @@ func reset_to_defaults() -> void:
 	tile_look = &"square"
 	quantise_once = false
 	surface_blocks = false
+	real_look = true
 	probe_mosaic = false
 	probe_texels = 384.0
 	probe_cell = 0.5
@@ -238,6 +370,10 @@ func load_from_disk() -> void:
 			or (look_version < 3 and is_equal_approx(texels_per_meter, 64.0)):
 		texels_per_meter = PixelArt.DENSITY_PRESETS[0][0]
 	reduced_gore = cfg.get_value("content", "reduced_gore", reduced_gore)
+	_people_threads_file = bool(cfg.get_value("performance", "people_threads", PEOPLE_THREADS))
+	people_threads = _people_threads_file
+	_people_bands_file = bool(cfg.get_value("performance", "people_bands", PEOPLE_BANDS))
+	people_bands = _people_bands_file
 	tile_look = StringName(cfg.get_value("video", "tile_look", tile_look))
 	if not tile_look in TILE_LOOKS:
 		tile_look = &"square"
@@ -246,6 +382,10 @@ func load_from_disk() -> void:
 	if not ("--blocks" in asked or "--quantise-once" in asked or "--probe-mosaic" in asked):
 		quantise_once = cfg.get_value("video", "quantise_once", quantise_once)
 		surface_blocks = cfg.get_value("video", "surface_blocks", surface_blocks)
+	real_look = bool(cfg.get_value("video", "real_look", real_look))
+	# 7: the real look the default (#641): saved off while the painted look was the default.
+	if look_version < 7:
+		real_look = true
 	_apply_quantise()
 	_apply_texels()
 	_apply_tiles()
@@ -265,11 +405,14 @@ func save_to_disk() -> void:
 	cfg.set_value("video", "tile_look", String(tile_look))
 	cfg.set_value("video", "quantise_once", quantise_once)
 	cfg.set_value("video", "surface_blocks", surface_blocks)
+	cfg.set_value("video", "real_look", real_look)
 	cfg.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	cfg.set_value("controls", "stick_look_speed", stick_look_speed)
 	cfg.set_value("controls", "touch_look_sensitivity", touch_look_sensitivity)
 	cfg.set_value("controls", "invert_y", invert_y)
 	cfg.set_value("content", "reduced_gore", reduced_gore)
+	cfg.set_value("performance", "people_threads", _people_threads_file)
+	cfg.set_value("performance", "people_bands", _people_bands_file)
 	cfg.save(PATH)
 
 
@@ -304,6 +447,21 @@ func set_finish(on: bool) -> void:
 func set_mosaic(on: bool) -> void:
 	mosaic = on
 	_changed()
+
+
+## The real look on or off (RealLook follows on its next frame, no reload: the world's shaders are
+## recompiled, the viewport and environment changed and put back). The texel grid's squares,
+## ragged tiles, seams and the screen mosaic are off under it.
+func set_real_look(on: bool) -> void:
+	real_look = on
+	_apply_quantise()
+	_apply_tiles()
+	_changed()
+
+
+## RoomLight on or off (it follows on its next frame). Not saved.
+func set_room_light(on: bool) -> void:
+	room_light = on
 
 
 ## The simulated fire's flipbooks on or off (FireFX.flipbooks; burning members change over as
@@ -343,13 +501,13 @@ func set_probe_mosaic(on: bool) -> void:
 
 ## Whether the probe mosaic is drawn: the trial's setting, unless the surface-blocks look is on.
 func probe_active() -> bool:
-	return probe_mosaic and not surface_blocks
+	return probe_mosaic and not surface_blocks and not real_look
 
 
 ## Whether the screen mosaic is drawn: the setting, unless the surface-blocks look is on (it has
 ## no screen pass) or the probe mosaic trial is (it takes the screen mosaic's place).
 func mosaic_active() -> bool:
-	return mosaic and not surface_blocks and not probe_active()
+	return mosaic and not surface_blocks and not probe_active() and not real_look
 
 
 func cycle_texel_density() -> void:
@@ -368,7 +526,8 @@ func look_description() -> String:
 	var res := "native" if internal_resolution == NATIVE else "%d×%d" % [internal_resolution.x, internal_resolution.y]
 	return "%s · texels %d/m %s · tiles %s · mosaic %s · finish %s · shading %s%s" % [res, int(texels_per_meter),
 			"smoothed" if PixelArt.use_mipmaps else "crisp", tile_look, "on" if mosaic_active() else "off", "on" if finish else "off",
-			"on" if pixel_shading else "off", (" · quantise once" if quantise_once else "") + (" · surface blocks" if surface_blocks else "")] \
+			"on" if pixel_shading else "off", (" · quantise once" if quantise_once else "") + (" · surface blocks" if surface_blocks else "")
+			+ (" · real" if real_look else "")] \
 			+ (" · probe mosaic %d texels, %.2f m" % [int(probe_texels), probe_cell] if probe_active() else "")
 
 
@@ -384,6 +543,10 @@ func cycle_tile_look() -> void:
 
 ## The shader globals every tiled material reads (src/render/tiles.gdshaderinc) for this look.
 func tile_globals() -> Dictionary:
+	if real_look:
+		# The real look: none of the texel grid's own drawing (the shaders' REAL_LOOK paths do the rest).
+		return {&"tile_light": 0.0, &"tile_ragged": 0.0, &"tile_gradient": 0.0, &"min_square_px": 0.0,
+				&"block_soft": 0.0, &"light_bands": 0.0, &"seam_px": 0.0}
 	return {&"tile_light": 1.0 if surface_blocks else (0.0 if tile_look == &"off" or quantise_once else 1.0),
 			&"tile_ragged": TILE_RAGGED if tile_look == &"ragged" and not surface_blocks else 0.0,
 			&"tile_gradient": FINISH_GRADIENT if finish and not surface_blocks else 0.0,
@@ -391,6 +554,11 @@ func tile_globals() -> Dictionary:
 			&"block_soft": BLOCK_SOFT if surface_blocks else (probe_soft if probe_active() else 0.0),
 			&"light_bands": LIGHT_BANDS if surface_blocks else 0.0,
 			&"seam_px": BOLD_SEAM_PX if surface_blocks else 0.0}
+
+
+## The tile globals for the look in force, set now (RealLook, as it turns on and off).
+func apply_tile_globals() -> void:
+	_apply_tiles()
 
 
 func _apply_tiles() -> void:
@@ -422,7 +590,7 @@ func set_quantise_once(on: bool) -> void:
 	_apply_tiles()
 	_changed()
 	if is_inside_tree() and get_tree().current_scene != null:
-		get_tree().reload_current_scene.call_deferred()
+		GameReset.reload_scene(get_tree(), "the look's reload")  # (#671)
 
 
 ## M: the surface-blocks look on or off; the scene reloads (the materials take their shader when
@@ -434,7 +602,7 @@ func set_surface_blocks(on: bool) -> void:
 	_apply_tiles()
 	_changed()
 	if is_inside_tree() and get_tree().current_scene != null:
-		get_tree().reload_current_scene.call_deferred()
+		GameReset.reload_scene(get_tree(), "the look's reload")  # (#671)
 
 
 ## What the look sets before any material is built: the smooth texture sets and the mosaic's knobs.
@@ -443,6 +611,7 @@ func _apply_quantise() -> void:
 	PixelArt.blocks = surface_blocks
 	PixelArt.bold = surface_blocks
 	PixelArt.smooth = quantise_once
+	PixelArt.real = real_look
 	PeopleBodies.smooth_paint = quantise_once
 	DepthMosaic.tuning = QUANTISE_TUNING.duplicate() if quantise_once else {}
 

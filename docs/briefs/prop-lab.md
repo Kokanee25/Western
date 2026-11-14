@@ -56,6 +56,12 @@ least as good as `PropModels`' chair in the same shot, so nothing that already l
   buildings do; a prop draws on its own only once it's damaged.
 - **No scripted outcomes:** a prop that only fails right with a special case is reported, not
   patched.
+- **A working prop leaves something behind** (Sean, 2026-10-28): a prop that's used truly works
+  only when what it does lasts after the motion ends: a filled bucket, a dealt hand, a lamp
+  turned down, an open cell, a printed paper, a note still ringing. Men and the player use the
+  same mechanism (the barkeep draws water from the pump the player pumps). Amounts are numbers
+  (a bottle's whiskey, a lamp's oil), not fluid simulation. The list of working props is idea
+  issue "Props that work, and unique buildings".
 
 ## Order
 

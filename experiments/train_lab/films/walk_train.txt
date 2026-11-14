@@ -1,0 +1,13 @@
+# Step 3 film: walking the whole train, back to front, at speed: off the coach's back platform,
+# up its aisle past seated passengers, through the express car, up the boxcar's ladder, along its
+# roof walk and down the other end, along the ore cars, over the tender's coal to the cab.
+time 15.5
+train_lab
+train_drive off
+train_place 200 22
+train_drive hold 22
+train_passengers 14
+train_board coach back
+wait 1
+train_cross 90
+wait 2

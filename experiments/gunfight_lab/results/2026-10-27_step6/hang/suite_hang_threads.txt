@@ -1,0 +1,97 @@
+17:Thread 11 (Thread 0x7f10b62d26c0 (LWP 11859) "godot"):
+18:#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64  at ./nptl/futex-internal.c:57
+19:#1  __futex_abstimed_wait_common
+20:#2  __GI___futex_abstimed_wait_cancelable64
+21:#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x141ceff8, cond=0x141cf020) at ./nptl/pthread_cond_wait.c:503
+22:#4  ___pthread_cond_wait (cond=0x141cf020, mutex=0x141ceff8) at ./nptl/pthread_cond_wait.c:627
+23:#5  0x00000000044f3da3 in ?? ()
+24:#6  0x0000000004406195 in ?? ()
+25:#7  0x00000000052e6c23 in ?? ()
+27:Thread 10 (Thread 0x7f10b5aa86c0 (LWP 11862) "WorkerThread 0"):
+28:#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64  at ./nptl/futex-internal.c:57
+29:#1  __futex_abstimed_wait_common
+30:#2  __GI___futex_abstimed_wait_cancelable64
+31:#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x148e0ad0, cond=0x148e0b08) at ./nptl/pthread_cond_wait.c:503
+32:#4  ___pthread_cond_wait (cond=0x148e0b08, mutex=0x148e0ad0) at ./nptl/pthread_cond_wait.c:627
+33:#5  0x0000000003d873ad in ?? ()
+34:#6  0x0000000003d41e5e in ?? ()
+35:#7  0x0000000000facc43 in ?? ()
+37:Thread 9 (Thread 0x7f10b52a76c0 (LWP 11863) "WorkerThread 1"):
+38:#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64  at ./nptl/futex-internal.c:57
+39:#1  __futex_abstimed_wait_common
+40:#2  __GI___futex_abstimed_wait_cancelable64
+41:#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x141d09d8, cond=0x1431db48) at ./nptl/pthread_cond_wait.c:503
+42:#4  ___pthread_cond_wait (cond=0x1431db48, mutex=0x141d09d8) at ./nptl/pthread_cond_wait.c:627
+43:#5  0x000000000490545d in ?? ()
+44:#6  0x0000000004406195 in ?? ()
+45:#7  0x00000000052e6c23 in ?? ()
+47:Thread 8 (Thread 0x7f10b4aa66c0 (LWP 11864) "WorkerThread 2"):
+48:#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64  at ./nptl/futex-internal.c:57
+49:#1  __futex_abstimed_wait_common
+50:#2  __GI___futex_abstimed_wait_cancelable64
+51:#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x141d09d8, cond=0x1431dbb0) at ./nptl/pthread_cond_wait.c:503
+52:#4  ___pthread_cond_wait (cond=0x1431dbb0, mutex=0x141d09d8) at ./nptl/pthread_cond_wait.c:627
+53:#5  0x000000000490545d in ?? ()
+54:#6  0x0000000004406195 in ?? ()
+55:#7  0x00000000052e6c23 in ?? ()
+57:Thread 7 (Thread 0x7f10a7fff6c0 (LWP 11865) "WorkerThread 3"):
+58:#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64  at ./nptl/futex-internal.c:57
+59:#1  __futex_abstimed_wait_common
+60:#2  __GI___futex_abstimed_wait_cancelable64
+61:#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x141d09d8, cond=0x1431dc18) at ./nptl/pthread_cond_wait.c:503
+62:#4  ___pthread_cond_wait (cond=0x1431dc18, mutex=0x141d09d8) at ./nptl/pthread_cond_wait.c:627
+63:#5  0x000000000490545d in ?? ()
+64:#6  0x0000000004406195 in ?? ()
+65:#7  0x00000000052e6c23 in ?? ()
+67:Thread 6 (Thread 0x7f10a71546c0 (LWP 11874) "godot"):
+68:#0  0x00007f10b64ecbdf in __GI___clock_nanosleep (clock_id=clock_id@entry=0, flags=flags@entry=0, req=0x7f10a7152a70, rem=0x7f10a7152a80) at ../sys
+69:#1  0x00007f10b64f9b27 in __GI___nanosleep (req=<optimized out>, rem=<optimized out>) at ../sysdeps/unix/sysv/linux/nanosleep.c:25
+70:#2  0x0000000004d9a34a in ?? ()
+71:#3  0x0000000003b051a3 in ?? ()
+72:#4  0x0000000004406195 in ?? ()
+73:#5  0x00000000052e6c23 in ?? ()
+74:#6  0x00007f10b649cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+75:#7  0x00007f10b6529ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+77:Thread 5 (Thread 0x7f10a69536c0 (LWP 11882) "godot"):
+78:#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64  at ./nptl/futex-internal.c:57
+79:#1  __futex_abstimed_wait_common
+80:#2  __GI___futex_abstimed_wait_cancelable64
+81:#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x1571d9e0, cond=0x1571da08) at ./nptl/pthread_cond_wait.c:503
+82:#4  ___pthread_cond_wait (cond=0x1571da08, mutex=0x1571d9e0) at ./nptl/pthread_cond_wait.c:627
+83:#5  0x00000000006e23d6 in ?? ()
+84:#6  0x00000000052e6c23 in ?? ()
+85:#7  0x00007f10b649cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+87:Thread 4 (Thread 0x7f109f4956c0 (LWP 11927) "saltcreek-worke"):
+88:#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+89:#1  0x00007f10a770dce7 in <std::sync::mpmc::list::Channel<alloc::boxed::Box<dyn core::ops::function::FnOnce<(), Output = ()> + core::marker::Send>>
+90:#2  0x00007f10a7712636 in <std::sync::mpmc::list::Channel<alloc::boxed::Box<dyn core::ops::function::FnOnce<(), Output = ()> + core::marker::Send>>
+91:#3  0x00007f10a7708a91 in std::sys::backtrace::__rust_begin_short_backtrace::<saltcreek_native::pool::pool::{closure#0}::{closure#1}, ()> () from /
+92:#4  0x00007f10a7731aee in <std::thread::lifecycle::spawn_unchecked<saltcreek_native::pool::pool::{closure#0}::{closure#1}, ()>::{closure#1} as core
+93:#5  0x00007f10a778c7e0 in <std::sys::thread::unix::Thread>::new::thread_start () from /home/user/Western/addons/saltcreek_native/bin/libsaltcreek_n
+94:#6  0x00007f10b649cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+95:#7  0x00007f10b6529ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+97:Thread 3 (Thread 0x7f109f2946c0 (LWP 11928) "saltcreek-worke"):
+98:#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+99:#1  0x00007f10a7778dc6 in <std::sys::sync::mutex::futex::Mutex>::lock_contended () from /home/user/Western/addons/saltcreek_native/bin/libsaltcreek
+100:#2  0x00007f10a7708b30 in std::sys::backtrace::__rust_begin_short_backtrace::<saltcreek_native::pool::pool::{closure#0}::{closure#1}, ()> () from 
+101:#3  0x00007f10a7731aee in <std::thread::lifecycle::spawn_unchecked<saltcreek_native::pool::pool::{closure#0}::{closure#1}, ()>::{closure#1} as cor
+102:#4  0x00007f10a778c7e0 in <std::sys::thread::unix::Thread>::new::thread_start () from /home/user/Western/addons/saltcreek_native/bin/libsaltcreek_
+103:#5  0x00007f10b649cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+104:#6  0x00007f10b6529ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+106:Thread 2 (Thread 0x7f109f0936c0 (LWP 11929) "saltcreek-worke"):
+107:#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+108:#1  0x00007f10a7778dc6 in <std::sys::sync::mutex::futex::Mutex>::lock_contended () from /home/user/Western/addons/saltcreek_native/bin/libsaltcree
+109:#2  0x00007f10a7708b30 in std::sys::backtrace::__rust_begin_short_backtrace::<saltcreek_native::pool::pool::{closure#0}::{closure#1}, ()> () from 
+110:#3  0x00007f10a7731aee in <std::thread::lifecycle::spawn_unchecked<saltcreek_native::pool::pool::{closure#0}::{closure#1}, ()>::{closure#1} as cor
+111:#4  0x00007f10a778c7e0 in <std::sys::thread::unix::Thread>::new::thread_start () from /home/user/Western/addons/saltcreek_native/bin/libsaltcreek_
+112:#5  0x00007f10b649cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+113:#6  0x00007f10b6529ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+115:Thread 1 (Thread 0x7f10b67b8b00 (LWP 11840) "godot"):
+116:#0  0x00007f10b6498e51 in __futex_abstimed_wait_common64  at ./nptl/futex-internal.c:57
+117:#1  __futex_abstimed_wait_common
+118:#2  __GI___futex_abstimed_wait_cancelable64
+119:#3  0x00007f10b649b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x1590d9d0, cond=0x1590da08) at ./nptl/pthread_cond_wait.c:503
+120:#4  ___pthread_cond_wait (cond=0x1590da08, mutex=0x1590d9d0) at ./nptl/pthread_cond_wait.c:627
+121:#5  0x00000000042954ab in ?? ()
+122:#6  0x0000000000565d1b in ?? ()
+123:#7  0x000000000042c157 in ?? ()

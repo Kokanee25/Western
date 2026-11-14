@@ -6,11 +6,22 @@ extends TestCase
 
 var world: Node3D
 var store: FalseFrontBuilding
+## Each test's world in a physics space of its own: the falls here (a porch's rubble, a wall's) are
+## chaotic, and in the test run's shared space they hung on every body the tests before had made
+## (Jolt's ids and broadphase): #653's new tests, run earlier, landed the porch's pile on 78% down,
+## the same to the centimetre every run, where it was 97%+ alone (as #604's and train-sound-2's
+## CI flake). The rules tested are the same; only the history is gone.
+var _space: SubViewport
 
 
 func before_each() -> void:
+	_space = SubViewport.new()
+	_space.own_world_3d = true
+	_space.disable_3d = false
+	_space.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(_space)
 	world = Node3D.new()
-	add_child(world)
+	_space.add_child(world)
 	var ground := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
@@ -27,7 +38,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	world.queue_free()
+	_space.queue_free()
 	await physics_frames(1)
 
 
@@ -84,11 +95,12 @@ func test_the_street_buildings_stand_as_built() -> void:
 
 func test_untouched_members_are_drawn_together_until_something_happens_to_one() -> void:
 	# One mesh per material: a wood has up to seven board strips (WoodMaterials), so a store with
-	# four or five woods draws in ~20-25 meshes, not ~500.
-	check(store.batch_count() > 0 and store.batch_count() < 32,
+	# four or five woods draws in ~20-25 meshes, not ~500; the inside floor and framing in their
+	# own woods (#405: int_r1_floor's 7 strips, int_r1_framing's 3) about ten more.
+	check(store.batch_count() > 0 and store.batch_count() < 42,
 			"%d members in %d meshes" % [store.member_count(), store.batch_count()])
 	var post := store.get_member(&"store/porch/post0")
-	var own := post.get_child(0) as MeshInstance3D
+	var own := post.drawn_node()
 	check(not own.visible, "a post in the batch isn't drawn on its own")
 	post.add_hole(post.global_position + Vector3(0, 0, -0.07), null, 0.006)
 	check(own.visible, "holed, it's drawn on its own (with the hole)")
@@ -119,15 +131,21 @@ func test_porch_comes_down_without_its_posts() -> void:
 	check(store.rubble.size() >= 2, "as rubble (%d pieces)" % store.rubble.size())
 	# Down on the ground: every piece's lowest corner near the ground (a rafter may end up leaning
 	# on the wall).
+	# By the body's shape owners: a piece lying still in RubbleRest's cell has its shape nodes set
+	# aside, its shapes held as owners on the body (the CI run of #538 had them all down, asleep,
+	# with no shape nodes left: read from those, every piece was "nowhere").
 	var lowest := func(rb: RigidBody3D) -> float:
 		var y := INF
-		for c in rb.get_children():
-			if c is CollisionShape3D:
-				var cs := c as CollisionShape3D
-				var half: Vector3 = (cs.shape as BoxShape3D).size * 0.5
+		for owner_id: int in rb.get_shape_owners():
+			var at := rb.global_transform * rb.shape_owner_get_transform(owner_id)
+			for k in rb.shape_owner_get_shape_count(owner_id):
+				var box := rb.shape_owner_get_shape(owner_id, k) as BoxShape3D
+				if box == null:
+					continue
+				var half: Vector3 = box.size * 0.5
 				for i in 8:
 					var corner := Vector3(half.x * (1 if i & 1 else -1), half.y * (1 if i & 2 else -1), half.z * (1 if i & 4 else -1))
-					y = minf(y, (cs.global_transform * corner).y)
+					y = minf(y, (at * corner).y)
 		return y
 	# Nearly all of it (a piece can end up propped on the post that's left or leaning on the wall).
 	var down_share := func() -> float:
@@ -141,7 +159,14 @@ func test_porch_comes_down_without_its_posts() -> void:
 		return float(down) / maxf(n, 1)
 	await wait_until(func() -> bool: return down_share.call() >= 0.95, 60 * 6)
 	var share: float = down_share.call()
-	check(share >= 0.85, "and it's on the ground within a few seconds (%.0f%% of pieces)" % (share * 100.0))
+	# (What each piece is doing, in the message when it fails: #538's CI failed here and nowhere else.)
+	var pieces: Array[String] = []
+	for rb in store.rubble:
+		if is_instance_valid(rb):
+			var shapes := rb.get_shape_owners().size()
+			pieces.append("y %.2f low %.2f v %.2f%s%s %d shapes" % [rb.global_position.y, lowest.call(rb), rb.linear_velocity.length(),
+					" asleep" if rb.sleeping else "", " frozen" if rb.freeze else "", shapes])
+	check(share >= 0.85, "and it's on the ground within a few seconds (%.0f%% of pieces: %s)" % [share * 100.0, "; ".join(pieces)])
 	var asleep := func() -> Vector2i:
 		var n := Vector2i.ZERO
 		for rb in store.rubble:

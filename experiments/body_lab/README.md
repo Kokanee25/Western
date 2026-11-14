@@ -44,6 +44,22 @@ as the fourth.
 - `body_treat PERSON tourniquet|packing|doctor` treats him now.
 - `body_read PERSON` reports his wounds, what they crossed, what he can do, and his blood run
   forward from now under each treatment.
+- `body_drag PERSON DX DZ [SECONDS] [BLEED]` drops him limp (bleeding from the chest, 3 ml/s, if
+  nothing is) and drags him DX DZ metres: the smear he leaves (`WoundSigns._smears`). `body_marks`
+  lists the blood marks in the world. In the saloon (2026-10-27, the smear's before and after):
+  `"time 13" "body_spawn barkeep_s1 11.5 0.8 3.2 0" "body_drag body1 -2.2 1.0 3.0 3"
+  "camera 10.2 2.4 2.2 10.6 0.8 3.6 60" "wait 6" "screenshot OUT.png"` (needs Vulkan: under the
+  OpenGL fallback decals don't draw).
+- Bloody hands (2026-10-28, `results/2026-10-28_hands/`): `body_blood X Z ML` lays a pool of fresh
+  blood on the floor; `body_crawl PERSON DX DZ [SECONDS]` puts him on his front and crawls him there
+  (his hands, the prints, the most wet blood under each hand on the way); `body_hands PERSON [r|l|both
+  PRINTS]` reads or wets his hands; `body_haul PERSON HELPER DX DZ [SECONDS]` has HELPER drag him by
+  the collar. The crawl in the saloon: `"time 13" "body_blood 10.4 3.9 400" "body_spawn
+  bold_cowboy_s3_talking 10.65 0.8 2.4 180" "body_crawl body1 0 3.0 10"`.
+- `body_where PERSON` (his head, chest and pelvis, blood lost, his pool soaks), `body_meshes PERSON`
+  (each drawn mesh, its layers and shader: a Studio man is one `Skin_whole` mesh, his clothes
+  painted on), `body_probe PERSON SEG SIZE [parent|world] [TEXTURE]` (a test decal on his body
+  layer at a part: does a decal reach that cloth?).
 
 ```sh
 python3 tools/bridge.py start --headless
@@ -296,10 +312,14 @@ The baseline above is kept as it was. Each change, with its before and after:
   4 ms at Sean's. The worst 1% of frames reach ~4.3 ms.
 - `results/2026-10-21_dynamite_options/` (item 7, nothing changed): Sean's call between leaving
   dynamite as it is, counting the ground, or the ground and the man's front.
+- `results/2026-10-28_dynamite_c/`: Sean's pick (c), for everything. A charge on the ground hits
+  as 1.8 times its TNT, and people take the reflected pressure; blast lung is now 400 / 1,000 kPa.
+  A stick a metre off takes his feet, and eardrums go out past 3 m. One stick on the floor by a
+  wall now usually blows a hole a man walks through (his call, #484).
 
 Still open: the cut through the bone's shaft rather than the joint (4 below; it needs the mesh cut
 mid-part, the people pipeline's job), capped stumps, the rancher's hat crown (characters), the gut's
-time (Sean's call), and the artery rates against their resting flow (no source to set them by).
+time (Sean: stays at 30 game hours), and the artery rates against their resting flow (no source to set them by).
 
 ## Where the game is furthest from the medicine
 

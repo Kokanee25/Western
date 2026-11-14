@@ -1,0 +1,126 @@
+{
+ "alarm": 16.97,
+ "bot": {
+  "blast": -1.0,
+  "freed": 35.1,
+  "phase_at": {
+   "clear": 51.78,
+   "out": 35.1,
+   "rescue": 33.3
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "breach": -1.0,
+ "end": 50.97,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2040,
+  "max_ms": 143.88,
+  "mean_ms": 9.44,
+  "p95_ms": 14.24
+ },
+ "freed": 35.6,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "window_front_w",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "west",
+   "id": "kid",
+   "inside": false,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding a little, bone broken.",
+ "seed": 4,
+ "state": "WON",
+ "t": 50.97,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   31.8,
+   "Brody down"
+  ],
+  [
+   32.73,
+   "Brody down"
+  ],
+  [
+   35.6,
+   "the rancher cut loose"
+  ],
+  [
+   35.7,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   35.72,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   36.18,
+   "Kid down"
+  ],
+  [
+   45.77,
+   "Kid dead"
+  ],
+  [
+   50.97,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

@@ -1,0 +1,4 @@
+base they stays 658 look for you 140 top [('leave his cover', 288), ('look for you', 140), ('go round on you', 94), ('open', 68), ('drag Brody to cover', 11), ('go for you', 11)] open s/man 9.5 hunts/man 1.10
+base shoot stays 661 look for you 96 top [('leave his cover', 246), ('go round on you', 130), ('look for you', 96), ('open', 60), ('run for cover', 26), ('drag Brody to cover', 18)] open s/man 13.3 hunts/man 0.92
+posts_final they stays 756 look for you 161 top [('leave his cover', 259), ('look for you', 161), ('go round on you', 141), ('open', 83), ('run for cover', 31), ('go for you', 17)] open s/man 9.8 hunts/man 1.13
+posts_final shoot stays 647 look for you 130 top [('leave his cover', 187), ('look for you', 130), ('go round on you', 121), ('open', 67), ('run for cover', 35), ('drag Brody to cover', 20)] open s/man 10.4 hunts/man 0.91

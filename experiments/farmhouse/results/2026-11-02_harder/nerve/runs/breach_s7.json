@@ -1,0 +1,254 @@
+{
+ "alarm": 87.22,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 86.72,
+  "freed": 106.52,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "hid": 84.47,
+  "phase_at": {
+   "lit": 81.78,
+   "out": 106.52,
+   "plant": 79.7,
+   "rescue": 103.85,
+   "through": 88.22
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 87.22,
+ "end": -1.0,
+ "executed": -1.0,
+ "found": 98.03,
+ "frames": {
+  "blast_ms": 192.13,
+  "fight_ticks": 9198,
+  "max_ms": 192.13,
+  "mean_ms": 15.03,
+  "p95_ms": 29.58
+ },
+ "freed": 107.02,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   3.96,
+   0.53,
+   27.51
+  ],
+  "limp": true,
+  "pelvis": [
+   4.3,
+   0.49,
+   26.9
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  4.16,
+  0.55,
+  27.24
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 133.1,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Dutch dead (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 131.5,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "hold on: past his nerve (fear 1.16 / 1.06), nowhere to run (1 of 3)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 137.9,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "give up: past his nerve (fear 0.73 / 0.69), covered close",
+   "id": "kid",
+   "inside": true,
+   "knows": 130.2,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  4.37,
+  0.9,
+  28.99
+ ],
+ "quits": [
+  [
+   87.23,
+   "hollis",
+   "gives up",
+   ""
+  ],
+  [
+   98.97,
+   "dutch",
+   "gives up",
+   "hold on: past his nerve (fear 1.16 / 1.06), nowhere to run (1 of 3)"
+  ],
+  [
+   102.62,
+   "kid",
+   "gives up",
+   "give up: past his nerve (fear 0.73 / 0.69), covered close"
+  ],
+  [
+   105.42,
+   "brody",
+   "gives up",
+   "to bedroom door: bedroom door (you're kitchen)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 7,
+ "shots_men": 8,
+ "shots_out": 0,
+ "state": "ON",
+ "surprise": 87.22,
+ "t": 240.5,
+ "threat": 98.98,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.22,
+   "Hollis down"
+  ],
+  [
+   87.22,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.23,
+   "Hollis gives up ()"
+  ],
+  [
+   88.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   89.17,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   98.03,
+   "found: you fired"
+  ],
+  [
+   98.97,
+   "Dutch down"
+  ],
+  [
+   98.97,
+   "Dutch gives up (hold on: past his nerve (fear 1.16 / 1.06), nowhere to run (1 of 3))"
+  ],
+  [
+   98.98,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   102.62,
+   "Kid gives up (give up: past his nerve (fear 0.73 / 0.69), covered close)"
+  ],
+  [
+   105.42,
+   "Brody down"
+  ],
+  [
+   105.42,
+   "Brody gives up (to bedroom door: bedroom door (you're kitchen))"
+  ],
+  [
+   107.02,
+   "the rancher cut loose"
+  ],
+  [
+   109.55,
+   "Dutch dead"
+  ],
+  [
+   113.32,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   114.4,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   114.9,
+   "the rancher hit (blow, ?)"
+  ]
+ ],
+ "way": "breach",
+ "where": "bedroom"
+}

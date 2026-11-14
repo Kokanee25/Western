@@ -1,0 +1,18 @@
+{
+  "_doc": "Four Studio men with no walk of their own crossing the street toward the camera (issue #529's film): with Settings.library_motion off they walk the swinging gait, on the library's walk. Models without a walk in config/walks.json, and person ids it doesn't name.",
+  "script": "res://src/moments/walks_lineup.gd",
+  "hour": 17.5,
+  "table": [0.0, 0.0, -6.0],
+  "trigger_m": 0.0,
+  "from_x": -10.0,
+  "to_x": 3.5,
+  "z_first": -3.2,
+  "z_step": -1.2,
+  "speed": 1.3,
+  "walkers": [
+    {"id": "lib_walker_a", "name": "Brody", "model": "bold_cowboy_s3_talking", "seed": 901},
+    {"id": "lib_walker_b", "name": "the Kid", "model": "young_drifter_s3_talking", "seed": 902},
+    {"id": "lib_walker_c", "name": "Lyle", "model": "hothead_lyle_s2_talking", "seed": 903},
+    {"id": "lib_walker_d", "name": "the barkeep", "model": "barkeep_s2_talking", "seed": 904}
+  ]
+}

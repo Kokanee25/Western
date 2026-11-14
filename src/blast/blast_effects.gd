@@ -28,7 +28,7 @@ static func spawn(world: Node3D, at: Vector3, kg: float) -> void:
 ## A black scorch on whatever's below (it stays, like blood and bullet holes).
 static func _scorch(world: Node3D, at: Vector3, size: float) -> void:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.2, at + Vector3.DOWN * 1.5, Layers.WORLD)
-	var hit := world.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(world).intersect_ray(q)
 	if hit.is_empty():
 		return
 	if _scorch_tex == null:

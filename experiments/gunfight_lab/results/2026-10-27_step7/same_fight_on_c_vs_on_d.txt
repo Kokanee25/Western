@@ -1,0 +1,11 @@
+SAME  spec_hall_golden_revolver_careful_studio_s1  (126 events, 30.4 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s10  (79 events, 18.6 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s2  (74 events, 23.4 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s3  (137 events, 66.8 s, broke_off)
+SAME  spec_hall_golden_revolver_careful_studio_s4  (78 events, 28.2 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s5  (163 events, 61.4 s, surrendered)
+SAME  spec_hall_golden_revolver_careful_studio_s6  (124 events, 42.5 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s7  (183 events, 69.4 s, surrendered)
+SAME  spec_hall_golden_revolver_careful_studio_s8  (128 events, 50.6 s, you_down)
+SAME  spec_hall_golden_revolver_careful_studio_s9  (147 events, 56.1 s, surrendered)
+10 of 10 fights the same

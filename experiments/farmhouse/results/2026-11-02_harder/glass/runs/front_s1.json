@@ -1,0 +1,197 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 35.93,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "out": 35.93,
+   "rescue": 33.57
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 47.95,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1859,
+  "max_ms": 278.26,
+  "mean_ms": 20.88,
+  "p95_ms": 39.46
+ },
+ "freed": 36.43,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   4.53,
+   1.05,
+   -11.88
+  ],
+  "limp": false,
+  "pelvis": [
+   4.55,
+   0.31,
+   -11.77
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  4.55,
+  0.69,
+  -11.79
+ ],
+ "men": 5,
+ "men_out": 1,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": false,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 2.3,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window front w: window front w (you're front)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window front e: window front e (you're front)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, short of breath, bubbling cough, bone broken.",
+ "player_local": [
+  3.31,
+  -1.09,
+  -18.21
+ ],
+ "quits": [
+  [
+   21.4,
+   "kid",
+   "gives up",
+   "to inside door: inside door (you're front)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 1,
+ "shots_men": 19,
+ "shots_out": 19,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 47.95,
+ "threat": 36.98,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   21.4,
+   "Kid down"
+  ],
+  [
+   21.4,
+   "Kid gives up (to inside door: inside door (you're front))"
+  ],
+  [
+   36.43,
+   "the rancher cut loose"
+  ],
+  [
+   36.98,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.98,
+   "the guard's last word"
+  ],
+  [
+   41.0,
+   "you backed off"
+  ],
+  [
+   47.95,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

@@ -1,0 +1,214 @@
+{
+  "A": {
+    "burns": {
+      "charred_s": -1.0,
+      "gone_s": 156.5,
+      "loose": true
+    },
+    "drawn": {
+      "batches": 1,
+      "frame_ms": 0.012,
+      "hung": true,
+      "kg": 14.32,
+      "loose": false,
+      "made_ms": 16.9,
+      "material": "ShaderMaterial",
+      "members": 4,
+      "triangles": 29630
+    },
+    "falls": {
+      "broken_members": 4,
+      "loose": true,
+      "lowest_member_y": 1.78
+    },
+    "shot": {
+      "head": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          1.0
+        ]
+      },
+      "loose": false,
+      "neck": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          0.9
+        ]
+      },
+      "plaque": {
+        "broken": false,
+        "section_left": [
+          0.98,
+          0.98
+        ]
+      }
+    },
+    "tests": {
+      "test_prop_factory::test_the_deer_head_is_drawn_from_its_mount": "ok",
+      "test_wall_props::test_a_stick_close_by_tears_the_head_off_its_nails_and_one_far_off_leaves_it": "ok",
+      "test_wall_props::test_the_board_its_nails_are_in_shot_out_it_falls": "ok",
+      "test_wall_props::test_the_head_and_the_painting_hang_on_the_wall_as_big_as_the_drawn_ones": "ok"
+    }
+  },
+  "C1f": {
+    "burns": {
+      "charred_s": -1.0,
+      "gone_s": 156.5,
+      "loose": true
+    },
+    "drawn": {
+      "batches": 1,
+      "frame_ms": 0.012,
+      "hung": true,
+      "kg": 14.32,
+      "loose": false,
+      "made_ms": 9.2,
+      "material": "ShaderMaterial",
+      "members": 4,
+      "triangles": 5999
+    },
+    "falls": {
+      "broken_members": 4,
+      "loose": true,
+      "lowest_member_y": 1.78
+    },
+    "shot": {
+      "head": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          1.0
+        ]
+      },
+      "loose": true,
+      "neck": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          0.9
+        ]
+      },
+      "plaque": {
+        "broken": true,
+        "section_left": [
+          0.98,
+          0.98
+        ]
+      }
+    },
+    "tests": {
+      "test_prop_factory::test_the_deer_head_is_drawn_from_its_mount": "ok",
+      "test_wall_props::test_a_stick_close_by_tears_the_head_off_its_nails_and_one_far_off_leaves_it": "ok",
+      "test_wall_props::test_the_board_its_nails_are_in_shot_out_it_falls": "ok",
+      "test_wall_props::test_the_head_and_the_painting_hang_on_the_wall_as_big_as_the_drawn_ones": "ok"
+    }
+  },
+  "C4": {
+    "burns": {
+      "charred_s": -1.0,
+      "gone_s": 156.5,
+      "loose": true
+    },
+    "drawn": {
+      "batches": 1,
+      "frame_ms": 0.012,
+      "hung": true,
+      "kg": 14.32,
+      "loose": false,
+      "made_ms": 5.4,
+      "material": "ShaderMaterial",
+      "members": 4,
+      "triangles": 5999
+    },
+    "falls": {
+      "broken_members": 4,
+      "loose": true,
+      "lowest_member_y": 1.78
+    },
+    "shot": {
+      "head": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          1.0
+        ]
+      },
+      "loose": true,
+      "neck": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          0.9
+        ]
+      },
+      "plaque": {
+        "broken": true,
+        "section_left": [
+          0.98,
+          0.98
+        ]
+      }
+    },
+    "tests": {
+      "test_prop_factory::test_the_deer_head_is_drawn_from_its_mount": "ok",
+      "test_wall_props::test_a_stick_close_by_tears_the_head_off_its_nails_and_one_far_off_leaves_it": "ok",
+      "test_wall_props::test_the_board_its_nails_are_in_shot_out_it_falls": "ok",
+      "test_wall_props::test_the_head_and_the_painting_hang_on_the_wall_as_big_as_the_drawn_ones": "ok"
+    }
+  },
+  "game": {
+    "burns": {
+      "charred_s": -1.0,
+      "gone_s": 156.5,
+      "loose": true
+    },
+    "drawn": {
+      "batches": 1,
+      "frame_ms": 0.011,
+      "hung": true,
+      "kg": 14.32,
+      "loose": false,
+      "made_ms": 6.2,
+      "material": "ShaderMaterial",
+      "members": 4,
+      "triangles": 5999
+    },
+    "falls": {
+      "broken_members": 4,
+      "loose": true,
+      "lowest_member_y": 1.78
+    },
+    "shot": {
+      "head": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          1.0
+        ]
+      },
+      "loose": true,
+      "neck": {
+        "broken": false,
+        "section_left": [
+          1.0,
+          0.9
+        ]
+      },
+      "plaque": {
+        "broken": true,
+        "section_left": [
+          0.98,
+          0.98
+        ]
+      }
+    },
+    "tests": {
+      "test_prop_factory::test_the_deer_head_is_drawn_from_its_mount": "ok",
+      "test_wall_props::test_a_stick_close_by_tears_the_head_off_its_nails_and_one_far_off_leaves_it": "ok",
+      "test_wall_props::test_the_board_its_nails_are_in_shot_out_it_falls": "ok",
+      "test_wall_props::test_the_head_and_the_painting_hang_on_the_wall_as_big_as_the_drawn_ones": "ok"
+    }
+  }
+}

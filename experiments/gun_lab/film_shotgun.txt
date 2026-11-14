@@ -1,0 +1,34 @@
+time 16
+goto 24 0 -9 270
+weapon shotgun
+wait 2
+hold move_forward
+wait 2
+release move_forward
+wait 1
+press cock 0.1
+wait 0.8
+press cock 0.1
+wait 1
+hold aim
+wait 2.5
+press fire 0.1
+wait 1.5
+press fire 0.1
+wait 1.5
+release aim
+wait 1
+hold reload
+wait 5
+release reload
+wait 1
+press cock 0.1
+wait 1.5
+hold aim
+wait 2
+turn 15
+wait 1
+turn -30
+wait 1
+release aim
+wait 1.5

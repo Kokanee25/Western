@@ -1,0 +1,72 @@
+# Playtest: ten gunfights in the new saloon
+
+You are a playtester. You have **not** read the game's code and mustn't: don't open anything under
+`src/`, `experiments/` (but this file), `tests/`, `DESIGN.md` or `docs/briefs/`. Play the way a
+player would and report what you find.
+
+The game is a first-person Western, Salt Creek, 1882. Three gunmen, Brody, Lyle and the Kid, are
+in a saloon with you. You have a single-action revolver (cock, then fire; `shoot N` does both) and
+five rounds; reloading is one cartridge at a time (`press reload 3` holds the key 3 s: about a
+round a second, and the gate shuts by itself once all six are in). Nobody's an enemy until it
+comes to shooting: you can start it with your first shot, or wait and they'll go for their guns
+after about six seconds.
+
+You play through a command line (the "dev bridge"); every command answers with one line of JSON.
+
+## Starting and stopping
+
+```sh
+python3 tools/bridge.py start --headless          # the game, not drawn (a minute to start)
+python3 tools/bridge.py "COMMAND" "COMMAND" ...    # any number of commands, run in order
+python3 tools/bridge.py stop
+```
+
+## A fight
+
+`gf_play SETUP seed=N fixes=all+pain_fight+floor_fight+odds+flinch` sets one up (the `fixes=`
+part is the build being tested, "D+": always give it) and answers once they're in (it can take ~20 s: the saloon is
+being built). **One fight a game**: your wounds and rounds carry over, so stop and start the game
+before each fight (`gf_play` says so if you forget). Once you're down (or dead) the fight is over and you stay where
+you fell; `gf_result` says how you are (`you`). The seed changes the men's dice, not where
+anyone starts. Setups: `spec_hall`, `spec_stair`, `spec_gallery`, `spec_back`,
+`spec_front`. `gf_result` says whether it's over, how long it's run and each man's state. Play it
+with the ordinary commands:
+
+- `read all` (where you are, who's near: distance, side, armed, mood), `read people`, `events 20`
+  (what was said and done: **their words are your best clue**).
+- `look NAME` (turn to face a man's chest; `look NAME head`, or `abdomen`, `upper_arm_l`,
+  `thigh_r`..., a part of him). It says what's in your line of fire and stops a ball (`in_the_way`:
+  a post, a stud), what's in it a ball goes through (`a_ball_goes_through`: a batwing), what the
+  barrel's own line meets when it isn't your eye's (`from_the_barrel`: from the hip the gun's a
+  hand's width off your eye line; aiming, `press aim`, it's at your eye) and which parts of him
+  you have a clear line to (`clear_to`), as your eyes would. `press reload`/`press fire` that does
+  nothing says why (`why`: out of cartridges, gun put away).
+- `hold aim` raises the sights and keeps them up (`shoot N` then fires aimed; `release aim` lowers
+  them; the weapon line says "aimed"). `turn DEGREES [PITCH]`, `shoot N`,
+  `press crouch_toggle`, `walk X Z` / `walk X Z run` (metres; `read all` gives yours),
+  `press reload SECONDS`, `wait SECONDS`, `press shout` ("Drop it!" with your gun out).
+- `weapon revolver` draws (your gun starts away).
+
+## What to do
+
+Play **ten fights**: each setup twice, seeds 1 and 2 (`gf_play spec_hall seed=1 fixes=...`, then
+`gf_play spec_hall seed=2 fixes=...`, ...). Play each one for real until `gf_result` says it's over (or
+you're down). Vary what you do: shoot first in some, wait for them in others; stand and shoot,
+crouch, move, back off through a door. Note after each: how long it lasted, what each man did, who
+gave up or ran and when, whether that seemed earned (was he hurt? were his friends down? was he
+alone or cornered?), and anything that felt wrong or unfair.
+
+## The report
+
+Write the report file the session that sent you names (e.g. `docs/playtests/<date>-gunfight-d-plus.md`), in plain English for the game's director (not a
+programmer):
+
+- **The ten fights**: a line or three each (setup, what you did, what they did, how it ended, how
+  long).
+- **Did they fight?** Did they shoot back, take cover, move, come at you? Or fold?
+- **Who quit, and was it earned?**
+- **What broke**: commands that did nothing, men stuck or walking through walls, anything odd.
+- **What was fun**, and **what was flat**.
+- **The top three things to fix**, most important first.
+
+Short sentences. Don't guess at causes in the code.

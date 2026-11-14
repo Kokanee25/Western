@@ -1,0 +1,286 @@
+{
+ "alarm": 87.22,
+ "blocking": [
+  "0.3:House/back_stud_012",
+  "0.3:House/back_siding_c18_0",
+  "0.3:House/back_in_ground_board_018_0",
+  "0.3:House/back_in_ground_board_019_0",
+  "0.3:House/back_siding_c19_0",
+  "0.3:House/back_stud_010",
+  "0.3:House/back_stud_011",
+  "0.3:House/back_in_ground_nailer_2_1_0",
+  "0.3:House/back_in_ground_board_016_0",
+  "0.3:House/back_siding_c15_0",
+  "0.3:House/back_siding_c16_0",
+  "0.3:House/back_in_ground_board_017_0",
+  "1.0:House/back_stud_012",
+  "1.0:House/back_siding_c18_0",
+  "1.0:House/back_in_ground_board_018_0",
+  "1.0:House/back_in_ground_board_019_0",
+  "1.0:House/back_siding_c19_0",
+  "1.0:House/back_stud_010",
+  "1.0:House/back_stud_011",
+  "1.0:House/back_in_ground_nailer_2_1_0",
+  "1.0:House/back_in_ground_board_016_0",
+  "1.0:House/back_siding_c15_0",
+  "1.0:House/back_siding_c16_0",
+  "1.0:House/back_in_ground_board_017_0",
+  "1.6:House/floor_loft_board_031_1",
+  "1.6:House/back_stud_012",
+  "1.6:House/floor_loft_joist_035",
+  "1.6:House/floor_loft_stair_header_1",
+  "1.6:House/back_in_ground_nailer_3_0_1",
+  "1.6:House/back_siding_c18_0",
+  "1.6:House/back_in_ground_board_018_0",
+  "1.6:House/back_in_ground_board_019_0",
+  "1.6:House/back_siding_c19_0",
+  "1.6:House/back_ribbon_1",
+  "1.6:House/back_in_ground_nailer_3_0_0",
+  "1.6:House/lean_to_ledger"
+ ],
+ "bot": {
+  "blast": 86.72,
+  "freed": 103.43,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "hid": 84.47,
+  "phase_at": {
+   "lit": 81.78,
+   "out": 103.43,
+   "plant": 79.7,
+   "rescue": 101.78,
+   "through": 88.22
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 87.22,
+ "end": -1.0,
+ "executed": -1.0,
+ "found": 96.0,
+ "frames": {
+  "blast_ms": 130.13,
+  "fight_ticks": 9198,
+  "max_ms": 186.31,
+  "mean_ms": 19.73,
+  "p95_ms": 31.75
+ },
+ "freed": 103.93,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   1.69,
+   0.7,
+   4.96
+  ],
+  "limp": true,
+  "pelvis": [
+   1.3,
+   0.71,
+   4.43
+  ],
+  "pose": "crouch",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  1.42,
+  0.72,
+  4.78
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 130.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Dutch dead (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 134.6,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 125.7,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "kid",
+   "inside": true,
+   "knows": 128.2,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 112.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "player_local": [
+  4.47,
+  1.21,
+  5.53
+ ],
+ "quits": [
+  [
+   87.23,
+   "hollis",
+   "gives up",
+   ""
+  ],
+  [
+   96.0,
+   "dutch",
+   "gives up",
+   "to behind table: behind table (you're kitchen)"
+  ],
+  [
+   99.35,
+   "kid",
+   "gives up",
+   "to kitchen table: kitchen table (you're front room)"
+  ],
+  [
+   104.45,
+   "brody",
+   "gives up",
+   "to bedroom door: bedroom door (you're kitchen)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 8,
+ "shots_men": 6,
+ "shots_out": 0,
+ "state": "ON",
+ "surprise": 87.22,
+ "t": 240.5,
+ "threat": 96.02,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.22,
+   "Hollis down"
+  ],
+  [
+   87.22,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.23,
+   "Hollis gives up ()"
+  ],
+  [
+   88.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   89.17,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   96.0,
+   "found: you fired"
+  ],
+  [
+   96.0,
+   "Dutch down"
+  ],
+  [
+   96.0,
+   "Dutch gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   96.02,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   99.35,
+   "Kid down"
+  ],
+  [
+   99.35,
+   "Kid gives up (to kitchen table: kitchen table (you're front room))"
+  ],
+  [
+   103.93,
+   "the rancher cut loose"
+  ],
+  [
+   104.45,
+   "Brody down"
+  ],
+  [
+   104.45,
+   "Brody gives up (to bedroom door: bedroom door (you're kitchen))"
+  ],
+  [
+   111.58,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   113.45,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   174.02,
+   "Dutch dead"
+  ]
+ ],
+ "way": "breach",
+ "where": "bedroom"
+}

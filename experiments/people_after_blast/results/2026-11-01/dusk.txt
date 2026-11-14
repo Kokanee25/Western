@@ -1,0 +1,14 @@
+== build/pab/dusk_x1.log
+frame 1306 (17.79 h): 44.9 ms here, 29.2 at Sean's; its biggest (ms here): people_body 26.2, civilian_brain 10.2, senses 1.5, people_prep_sum 1.1, lines_senses 0.5, people_skeleton 0.5, people_prep 0.4, player 0.3
+frame 1314 (17.79 h): 46.4 ms here, 30.2 at Sean's; its biggest (ms here): civilian_brain 27.8, people_body 6.0, senses 1.4, people_prep_sum 0.9, floor_marks 0.7, people_skeleton 0.6, people_prep 0.5, lines_senses 0.5
+frame 1333 (17.80 h): 37.7 ms here, 24.5 at Sean's; its biggest (ms here): people_body 26.3, people_prep 3.8, senses 2.3, people_skeleton 1.0, people_prep_sum 0.9, lines_senses 0.8, civilian_brain 0.5, horses 0.3
+dusk_frame: 1800 frames, worst 46.4 ms here (30.2 at Sean's), 3 over 20 ms at Sean's
+== build/pab/dusk_x1_1.log
+dusk_frame: 1800 frames, worst 17.4 ms here (11.3 at Sean's), 0 over 20 ms at Sean's
+== build/pab/dusk_x1_2.log
+dusk_frame: 1800 frames, worst 18.1 ms here (11.8 at Sean's), 0 over 20 ms at Sean's
+== build/pab/dusk_x1b.log
+dusk_frame: 1800 frames, worst 19.1 ms here (12.4 at Sean's), 0 over 20 ms at Sean's
+== build/pab/dusk_spec.log
+frame 9 (18.00 h): 164.7 ms here, 107.0 at Sean's; its biggest (ms here): fire 157.8, fire_loads 157.8, fire_wait 157.0, people_body 0.9, fire_apply 0.7, structures 0.7, senses 0.7, player 0.4
+dusk_frame: 1800 frames, worst 164.7 ms here (107.0 at Sean's), 1 over 20 ms at Sean's

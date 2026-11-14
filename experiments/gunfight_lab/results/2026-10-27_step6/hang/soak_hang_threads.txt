@@ -1,0 +1,53 @@
+Thread 11 (LWP 11861) "godot"): | #5 0x00000000044f3da3 ??
+Thread 11 (LWP 11861) "godot"): | #6 0x0000000004406195 ??
+Thread 11 (LWP 11861) "godot"): | #7 0x00000000052e6c23 ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #5 0x00000000049065c1 ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #6 0x0000000004907ca0 ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #7 0x00000000041fcdfc ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #8 0x0000000001989fe6 ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #9 0x00000000049052a8 ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #10 0x000000000490535c ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #11 0x0000000004406195 ??
+Thread 10 (LWP 11866) "WorkerThread 0"): | #12 0x00000000052e6c23 ??
+Thread 9 (LWP 11867) "WorkerThread 1"): | #5 0x000000000490545d ??
+Thread 9 (LWP 11867) "WorkerThread 1"): | #6 0x0000000004406195 ??
+Thread 9 (LWP 11867) "WorkerThread 1"): | #7 0x00000000052e6c23 ??
+Thread 8 (LWP 11868) "WorkerThread 2"): | #5 0x000000000490545d ??
+Thread 8 (LWP 11868) "WorkerThread 2"): | #6 0x0000000004406195 ??
+Thread 8 (LWP 11868) "WorkerThread 2"): | #7 0x00000000052e6c23 ??
+Thread 7 (LWP 11869) "WorkerThread 3"): | #5 0x000000000490545d ??
+Thread 7 (LWP 11869) "WorkerThread 3"): | #6 0x0000000004406195 ??
+Thread 7 (LWP 11869) "WorkerThread 3"): | #7 0x00000000052e6c23 ??
+Thread 6 (LWP 11876) "godot"): | #0 0x00007fe4ba0ecbdf __GI___clock_nanosleep
+Thread 6 (LWP 11876) "godot"): | #1 0x00007fe4ba0f9b27 __GI___nanosleep
+Thread 6 (LWP 11876) "godot"): | #2 0x0000000004d9a34a ??
+Thread 6 (LWP 11876) "godot"): | #3 0x0000000003b051a3 ??
+Thread 6 (LWP 11876) "godot"): | #4 0x0000000004406195 ??
+Thread 6 (LWP 11876) "godot"): | #5 0x00000000052e6c23 ??
+Thread 5 (LWP 11883) "godot"): | #5 0x00000000006e23d6 ??
+Thread 5 (LWP 11883) "godot"): | #6 0x00000000052e6c23 ??
+Thread 4 (LWP 13861) "saltcreek-worke"): | #0 syscall at
+Thread 4 (LWP 13861) "saltcreek-worke"): | #2 0x00007fe4b7308b30 std::sys::backtrace::__rust_begin_s
+Thread 4 (LWP 13861) "saltcreek-worke"): | #3 0x00007fe4b7331aee <std::thread::lifecycle::spawn_unch
+Thread 4 (LWP 13861) "saltcreek-worke"): | #4 0x00007fe4b738c7e0 <std::sys::thread::unix::Thread>::n
+Thread 3 (LWP 13862) "saltcreek-worke"): | #0 syscall at
+Thread 3 (LWP 13862) "saltcreek-worke"): | #2 0x00007fe4b7308b30 std::sys::backtrace::__rust_begin_s
+Thread 3 (LWP 13862) "saltcreek-worke"): | #3 0x00007fe4b7331aee <std::thread::lifecycle::spawn_unch
+Thread 3 (LWP 13862) "saltcreek-worke"): | #4 0x00007fe4b738c7e0 <std::sys::thread::unix::Thread>::n
+Thread 2 (LWP 13863) "saltcreek-worke"): | #0 syscall at
+Thread 2 (LWP 13863) "saltcreek-worke"): | #1 0x00007fe4b730dce7 <std::sync::mpmc::list::Channel<all
+Thread 2 (LWP 13863) "saltcreek-worke"): | #2 0x00007fe4b7312636 <std::sync::mpmc::list::Channel<all
+Thread 2 (LWP 13863) "saltcreek-worke"): | #3 0x00007fe4b7308a91 std::sys::backtrace::__rust_begin_s
+Thread 2 (LWP 13863) "saltcreek-worke"): | #4 0x00007fe4b7331aee <std::thread::lifecycle::spawn_unch
+Thread 2 (LWP 13863) "saltcreek-worke"): | #5 0x00007fe4b738c7e0 <std::sys::thread::unix::Thread>::n
+Thread 1 (LWP 11844) "godot"): | #5 0x0000000004e0fe3b ??
+Thread 1 (LWP 11844) "godot"): | #6 0x00000000004f7fdf ??
+Thread 1 (LWP 11844) "godot"): | #7 0x000000000428f16c ??
+Thread 1 (LWP 11844) "godot"): | #8 0x00000000031b4cbf ??
+Thread 1 (LWP 11844) "godot"): | #9 0x00000000031be9b5 ??
+Thread 1 (LWP 11844) "godot"): | #10 0x00000000048bff41 ??
+Thread 1 (LWP 11844) "godot"): | #11 0x000000000308d98d ??
+Thread 1 (LWP 11844) "godot"): | #12 0x0000000000706a45 ??
+Thread 1 (LWP 11844) "godot"): | #13 0x00000000048f6c2d ??
+Thread 1 (LWP 11844) "godot"): | #14 0x000000000496332e ??
+Thread 1 (LWP 11844) "godot"): | #15 0x0000000000afe78a ??

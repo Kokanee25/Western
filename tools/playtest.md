@@ -5,7 +5,8 @@ player would and report what you find. The game is a first-person Western set in
 town, Salt Creek, in 1882: a dusty street of false-front buildings, a general store, a saloon, a
 few townsfolk, and a gang of three riders (Brody, Lyle and the Kid) who come into town and may
 make trouble. Nobody is an enemy by default: people react to what you do. Guns are a single-action
-revolver (cock it, then fire; one cartridge at a time to reload) and a double-barrelled shotgun;
+revolver (cock it, then fire; one cartridge at a time to reload), a double-barrelled shotgun and a
+lever-action rifle (work the lever to put a round in, then fire; rounds go in one at a time);
 there's dynamite, and the timber buildings burn and break.
 
 You play through a command line (the "dev bridge"), not a keyboard. Every command answers with
@@ -35,11 +36,24 @@ whenever something is worth showing: good or bad.
 - `events 20` — the last things that happened: who said what, shots, hits, falls, deaths,
   timber breaking, explosions. People talk: their words are the best clue to what they think.
 - `walk PLACE` (from `read places`), `walk NAME` (to a person), `walk X Z`, add `run` to run.
-- `look NAME` / `look PLACE` / `look X Y Z` — turn to face it. `turn DEGREES [PITCH]`.
+- `look NAME` / `look PLACE` / `look X Y Z` — turn to face it. `turn DEGREES [PITCH]`. `look NAME`
+  faces his chest; `look NAME head` (or `abdomen`, `upper_arm_l`, `thigh_r`...) a part of him. At a
+  man it also says what stands in the line and stops a ball (`in_the_way`), what's in it a ball
+  goes through (`a_ball_goes_through`: a batwing, a gallery board), what the barrel's own line
+  meets when it differs from your eye's (`from_the_barrel`: from the hip it's a hand's width off;
+  aim and it's at your eye) and which of him you can see (`clear_to`), as your eyes would.
+- `press reload` / `press fire` that won't do anything says why (`why`: out of cartridges, the gun
+  put away), as the screen does.
 - `goto PLACE` — jump straight there (use it to save time, not instead of walking everywhere).
-- `weapon revolver` / `weapon shotgun` / `weapon dynamite` / `weapon none` — draw or put away.
+- `weapon revolver` / `weapon shotgun` / `weapon rifle` / `weapon dynamite` / `weapon none` — draw or put away.
   Drawing a gun is something people notice.
 - `shoot N` — cock and fire what's in your hands N times, wherever you're facing.
+- `shove` / `kick` — lay hands on whoever's in front of you (a tap of E in the game), or kick
+  (E held and let go). Arm's length is about 0.75 m, a kick's reach about 1 m. The answer and
+  `events` say what it did, a miss included. (Not `press shove`: drawn this slowly, a press is
+  held long enough to be a kick every time.)
+- `hold ACTION` / `release ACTION` — keep a key down across commands: `hold aim`, then `shoot N`
+  fires with the sights up (the weapon line says "aimed"), `release aim`.
 - `press ACTION [SECONDS]` — a key: `aim` (raise the sights; hold it with a duration), `reload`
   (hold ~3 s to load the revolver a round at a time), `holster`, `shout` (shout "Drop it!" with a
   gun out; with your gun holstered and facing an armed man, call him out to a duel), `crouch_toggle`,

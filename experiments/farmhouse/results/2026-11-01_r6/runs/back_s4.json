@@ -1,0 +1,132 @@
+{
+ "alarm": 67.77,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {
+   "rescue": 80.25
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "rescue",
+ "breach": -1.0,
+ "end": 78.85,
+ "executed": 78.55,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 665,
+  "max_ms": 111.54,
+  "mean_ms": 9.46,
+  "p95_ms": 13.9
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Blood pumping out bright, bone broken.",
+ "seed": 4,
+ "state": "LOST",
+ "t": 78.85,
+ "threat": 73.53,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   67.77,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.28,
+   "Hollis down"
+  ],
+  [
+   73.52,
+   "Dutch down"
+  ],
+  [
+   73.53,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   75.67,
+   "Dutch down, out"
+  ],
+  [
+   77.9,
+   "Kid down, out"
+  ],
+  [
+   77.9,
+   "Kid dead"
+  ],
+  [
+   78.55,
+   "the guard shoots the rancher"
+  ],
+  [
+   78.85,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   78.85,
+   "the rancher dead (brain)"
+  ],
+  [
+   78.85,
+   "lost: hostage_dead"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

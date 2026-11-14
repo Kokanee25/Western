@@ -241,9 +241,18 @@ func _lay_step() -> void:
 			_go(Step.WIPE)
 
 
+## The clip of a man wiping a bar (assets/animations/wipe_bar.json, from the Studio's Uthana
+## takes, 2026-10-24) plays looped under the wiping for his body: his lean, his weight going
+## stroke to stroke, his free hand on the counter. His working arm stays the deed's: reach_to runs
+## after the clip and keeps his palm and the cloth on the real bar top. None: the pose as before.
+const CLIP := &"wipe_bar"
+
+
 ## Circles drifting across the stretch, then long strokes along it, the hand on the bar top.
 func _wipe_step(_delta: float) -> void:
 	_stand()
+	if not body.clip_playing() and MotionClip.load_clip(CLIP) != null:
+		body.play_clip(CLIP, 1.0, true, {"travel": false})
 	var centre := _centre()
 	var side: Vector3 = _bar.side
 	var fwd: Vector3 = _bar.fwd
@@ -524,6 +533,8 @@ func _holding() -> bool:
 
 
 func _go(s: Step) -> void:
+	if body.clip_playing() and body.clip_name() == CLIP:
+		body.stop_clip()
 	step = s
 	_t = 0.0
 	_phase = 0
@@ -667,7 +678,7 @@ func _find_bar(along: float) -> Dictionary:
 	var fwd := _forward()
 	var side := _side()
 	var base := post + side * along
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	var d := tuning.bar_ahead.x
 	while d <= tuning.bar_ahead.y:
 		var p := base + fwd * d
@@ -681,7 +692,7 @@ func _find_bar(along: float) -> Dictionary:
 ## The top under `p` (near the stretch's height): {at, n}, or empty.
 func _surface(p: Vector3) -> Dictionary:
 	var y: float = (_bar.near as Vector3).y
-	var hit := _ray_down(body.get_world_3d().direct_space_state, Vector3(p.x, y + 0.2, p.z), Vector3(p.x, y - 0.15, p.z))
+	var hit := _ray_down(World.space(body), Vector3(p.x, y + 0.2, p.z), Vector3(p.x, y - 0.15, p.z))
 	if hit.is_empty():
 		return {}
 	return {"at": hit.position, "n": hit.normal}
@@ -713,7 +724,7 @@ func _cluttered(centre: Vector3) -> bool:
 	q.shape = sphere
 	q.transform = Transform3D(Basis.IDENTITY, centre + Vector3.UP * 0.12)
 	q.collision_mask = Layers.WORLD | Layers.DEBRIS
-	for hit in body.get_world_3d().direct_space_state.intersect_shape(q, 8):
+	for hit in World.space(body).intersect_shape(q, 8):
 		var c: Object = hit.collider
 		if c is Node and ((c as Node).has_meta(&"glass_prop") or ((c as Node).has_meta(&"prop_id") and not (c as Node).get_meta(&"prop_id") in CUPS)):
 			return true
@@ -755,7 +766,7 @@ func _find_cup() -> Node3D:
 	# Its own side or in front of him (not across his body), well inside his reach.
 	var own_side := _side() * (1.0 if other == "r" else -1.0)
 	var arm := body.palm(other).distance_to(sh) + 0.05
-	for hit in body.get_world_3d().direct_space_state.intersect_shape(q, 16):
+	for hit in World.space(body).intersect_shape(q, 16):
 		var c: Object = hit.collider
 		if c is Node3D and (c as Node).get_meta(&"prop_id", &"") in CUPS:
 			var top := (c as Node3D).global_position + Vector3.UP * 0.05

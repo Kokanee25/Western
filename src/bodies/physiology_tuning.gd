@@ -46,6 +46,13 @@ extends Resource
 	"concussion": 45.0, "skull": 220.0, "ribs": 90.0, "lung": 260.0, "belly_organ": 160.0,
 	"pelvis": 380.0, "thigh": 300.0, "shin": 190.0, "upper_arm": 150.0, "forearm": 110.0,
 	"hand": 70.0, "foot": 90.0,
+	# Falls from height (issue #759, Sean's table on #762): a skull crushed (dead at once); and what
+	# a landing does deep inside (Physiology.axial: from `<kind>` J, certain at `<kind>_all`): the
+	# neck broken head first and the low back feet first (by the load up the spine, FallTuning
+	# neck_share, spine_share), the aorta torn by the whole body's stop (his weight and the speed it
+	# stopped, ~785 J a metre fallen; FallTuning.feet_soften): from ~3.5 m, certain from ~16 m on his back.
+	"skull_crush": 900.0, "neck": 160.0, "neck_all": 440.0, "spine": 350.0, "spine_all": 2000.0,
+	"aorta": 2500.0, "aorta_all": 11000.0,
 }
 ## Seconds out cold per 10 J over the concussion threshold (with at least a few).
 @export var concussion_seconds_per_10j := 1.5

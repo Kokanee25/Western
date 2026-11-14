@@ -162,7 +162,10 @@ func test_a_drop_at_a_slant_lands_long() -> void:
 			long = dec
 		elif dec.global_position.distance_to(down) < 0.01:
 			round = dec
-	check(long != null and long.size.z > long.size.x * 1.8, "the slanting drop's stain is long (%s)" % (long.size if long else null))
+	# Drawn with the long drop, whose stain is already longer than its box (Blood.LONG_BOX).
+	check(long != null and long.texture_albedo.resource_path.ends_with("splat_long.png"), "drawn as a long drop")
+	var drawn := long.size.z / long.size.x / Blood.LONG_BOX if long != null else 0.0
+	check(drawn > 1.8, "the slanting drop's stain is long (%.2f to 1)" % drawn)
 	check(long != null and absf(long.global_basis.z.normalized().x) > 0.9, "and points the way it flew")
 	check(round != null and absf(round.size.z - round.size.x) < 0.001, "the one straight down is round")
 	Blood.clear()

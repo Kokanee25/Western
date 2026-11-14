@@ -1,0 +1,9 @@
+run         n  frame    p95 people    len | people_b outlaw_b people_s   senses     fire floor_ma civilian   player structur day_cycl
+base_a      3   22.5   42.2   10.7   47.9 |     4.42     2.59     1.41     1.19     1.51     0.89     0.56     0.48     0.42     0.25
+   _s1       23.2   41.2   11.0   34.2 you_down     you shots 2 hits 1, hits taken 4 |     4.68     2.40     1.48     1.25     1.54     0.88     0.59     0.53     0.43     0.28
+   _s2       22.6   44.5   11.1   36.4 you_down     you shots 1 hits 0, hits taken 5 |     4.33     3.12     1.41     1.19     1.41     0.88     0.55     0.46     0.42     0.25
+   _s3       21.6   41.0   10.0   73.1 fled         you shots 7 hits 3, hits taken 1 |     4.25     2.26     1.34     1.14     1.58     0.92     0.54     0.44     0.40     0.22
+base_b      3   22.5   43.4   10.6   47.9 |     4.38     2.64     1.38     1.20     1.54     0.90     0.55     0.46     0.42     0.24
+   _s1       22.0   40.5   10.2   34.2 you_down     you shots 2 hits 1, hits taken 4 |     4.27     2.30     1.35     1.18     1.54     0.84     0.54     0.48     0.41     0.24
+   _s2       23.0   46.7   11.3   36.4 you_down     you shots 1 hits 0, hits taken 5 |     4.41     3.23     1.42     1.22     1.43     0.90     0.56     0.46     0.42     0.25
+   _s3       22.4   42.9   10.5   73.1 fled         you shots 7 hits 3, hits taken 1 |     4.47     2.38     1.38     1.20     1.66     0.96     0.56     0.46     0.42     0.23

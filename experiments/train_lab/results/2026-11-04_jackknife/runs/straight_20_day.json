@@ -1,0 +1,48 @@
+{
+  "derail": {},
+  "frames": {
+    "before_mean_ms": 11.687837806301,
+    "frames": 484,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 10.9726280991735,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 11.79035,
+    "second_ms": 17.354,
+    "slow_spell_s": 0.0,
+    "worst_ms": 18.139
+  },
+  "outcome": "stopped",
+  "seen": [
+    {
+      "daylight": 1.0,
+      "distance": 219.52993982622,
+      "kind": "broken",
+      "kmh": 20.185071378753,
+      "lux": 10000.0,
+      "range": 220.0,
+      "s": 155.210060173779,
+      "t": 13.5000000000003,
+      "what": "rail gone",
+      "who": "engineer"
+    }
+  ],
+  "short_by": 170.709769472916,
+  "spec": {
+    "at": 380.0,
+    "driver": "engineer",
+    "hour": 12.0,
+    "how": "rail",
+    "kmh": 20.0,
+    "out": "/home/user/Western/build/train_lab/derail_jk3/straight_20_day.json",
+    "past": 120.0,
+    "riders": 6,
+    "run_up": 300.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "stopped_at": 209.290230527084,
+  "struck": [],
+  "thrown": 0
+}

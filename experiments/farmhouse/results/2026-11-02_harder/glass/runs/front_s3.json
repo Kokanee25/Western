@@ -1,0 +1,221 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 45.48,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "out": 45.48,
+   "rescue": 41.05
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 52.43,
+ "executed": 43.95,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2128,
+  "max_ms": 299.9,
+  "mean_ms": 21.85,
+  "p95_ms": 43.71
+ },
+ "freed": 45.98,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.5,
+   1.31,
+   -8.48
+  ],
+  "limp": false,
+  "pelvis": [
+   2.45,
+   0.57,
+   -8.39
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.46,
+  0.95,
+  -8.4
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "get back up: knocked down, not beat (fear 0.49 / 0.95)",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.0,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 17.9,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.38 / 0.75)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 6.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: far past his nerve (fear 0.97 / 0.38), covered close",
+   "id": "kid",
+   "inside": true,
+   "knows": 2.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "get back up: knocked down, not beat (fear 0.06 / 0.65)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 6.5,
+   "mood": "DOWN",
+   "order": "by_stove",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "player_local": [
+  3.28,
+  -1.05,
+  -17.61
+ ],
+ "quits": [
+  [
+   36.52,
+   "kid",
+   "gives up",
+   "give up: far past his nerve (fear 0.97 / 0.38), covered close"
+  ],
+  [
+   38.4,
+   "dutch",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.38 / 0.75)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 3,
+ "shots_men": 24,
+ "shots_out": 24,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 52.43,
+ "threat": 34.32,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   31.17,
+   "Dutch down"
+  ],
+  [
+   34.3,
+   "Lyle down, out"
+  ],
+  [
+   34.32,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.52,
+   "Kid gives up (give up: far past his nerve (fear 0.97 / 0.38), covered close)"
+  ],
+  [
+   38.4,
+   "Dutch gives up (get back up: knocked down, not beat (fear 0.38 / 0.75))"
+  ],
+  [
+   38.93,
+   "the guard's last word"
+  ],
+  [
+   43.95,
+   "the guard shoots the rancher"
+  ],
+  [
+   44.35,
+   "Brody down"
+  ],
+  [
+   45.98,
+   "the rancher cut loose"
+  ],
+  [
+   52.42,
+   "Hollis down"
+  ],
+  [
+   52.43,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "bedroom"
+}

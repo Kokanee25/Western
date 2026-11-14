@@ -19,7 +19,9 @@ var blood_ml := 5000.0
 ## &"internal" (inside him, nothing shows: a burst spleen, a bleeding skull).
 var bleeds: Array[Dictionary] = []
 ## Whether packing holds a bleed too fast to clot on its own (PhysiologyTuning.packing_holds) is
-## rolled from this once a bleed is pressed; seeded by the body (HumanBody.rng_seed).
+## rolled from this once a bleed is pressed; seeded by the body (HumanBody.rng_seed, the player's
+## PlayerWounds), else a fixed seed: a new generator's own seed is random, and the player's packing
+## held or slipped differently each run of the same fight (more-cores step 2's gate).
 var roll_rng := RandomNumberGenerator.new()
 ## A .45 Colt ball's radius: the size flesh bleeding is reckoned against.
 const BALL_RADIUS := 0.0057
@@ -58,12 +60,21 @@ var burns := 0.0
 var alive := true
 var cause_of_death := &""
 var wounds := 0
+## Can't die of an ordinary wound (the companion, Joe: "the only full companion", DESIGN.md; #843).
+## A wound that would kill him puts him down instead (`_spare`): out cold, the killing part of it
+## made a wound a man lives through, his bleeding stopped short of the loss that kills. The rope
+## turns it off (the one way he dies), and then he dies like anyone.
+var spared := false
+## How many times a wound that would have killed him was turned (`_spare`), and the last cause.
+var spared_times := 0
+var spared_cause := &""
 
 
 func _init(t: PhysiologyTuning = null, a: Anatomy = null) -> void:
 	tuning = t if t != null else load("res://config/physiology.tres")
 	anatomy = a if a != null else Anatomy.shared()
 	blood_ml = tuning.blood_ml
+	roll_rng.seed = 1
 
 
 ## Take a bullet's path through one segment (an `Anatomy.trace()` result). Returns the ids of
@@ -420,7 +431,13 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 			if joules > float(b.concussion):
 				concussion = maxf(concussion, maxf(3.0, (joules - float(b.concussion)) / 10.0 * tuning.concussion_seconds_per_10j))
 				out.append("concussion")
-			if past.call("skull"):
+			if past.call("skull_crush"):
+				# Crushed (a fall onto his head from height): dead where he lands.
+				broken[&"skull"] = true
+				brain_dead = true
+				_die(&"brain")
+				out.append("skull crushed")
+			elif past.call("skull"):
 				broken[&"skull"] = true
 				wound_pain += tuning.pain_bone
 				_add_bleed(&"skull", segment, 0.4, &"internal")
@@ -464,6 +481,41 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 	return out
 
 
+## What a landing does deep inside (issue #759, HumanBody._step_fall), by `joules` against
+## PhysiologyTuning.blunt's `<kind>` (where it starts) and `<kind>_all` (where it always does), the
+## chance rising evenly between (the papers' death rates rise about evenly with height):
+## &"neck" (head first: the neck broken, the cord cut, as a ball through it does), &"spine" (feet
+## first: the low back broken, the cord cut there, his legs gone), &"aorta" (the whole body's sudden
+## stop: torn where it's tethered, it bleeds inside at the artery's rate, dead in under a minute).
+func axial(kind: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
+	var out: PackedStringArray = []
+	if not alive or joules <= 0.0:
+		return out
+	var from := float(tuning.blunt.get(String(kind), INF))
+	var all := float(tuning.blunt.get(String(kind) + "_all", from * 2.0))
+	if joules <= from or rng.randf() >= clampf((joules - from) / maxf(all - from, 1.0), 0.0, 1.0):
+		return out
+	match kind:
+		&"neck":
+			wound_pain += tuning.pain_bone
+			broken[&"cervical_spine"] = true
+			cut[&"cord_cervical"] = true
+			if neck_seconds < 0.0:
+				neck_seconds = 0.0
+			out.append("neck broken")
+		&"spine":
+			wound_pain += tuning.pain_bone
+			broken[&"lumbar_spine"] = true
+			cut[&"cord_lumbar"] = true
+			out.append("back broken")
+		&"aorta":
+			if not cut.has(&"aorta"):
+				cut[&"aorta"] = true
+				_add_bleed(&"aorta", &"chest", float(anatomy.structure(&"aorta").get(&"bleed", 90.0)), &"internal")
+				out.append("aorta torn")
+	return out
+
+
 ## Burnt by fire: pain now, and shock and death if it's bad enough.
 func burn(amount: float) -> void:
 	if not alive or amount <= 0.0:
@@ -476,9 +528,42 @@ func burn(amount: float) -> void:
 
 
 func _die(cause: StringName) -> void:
+	if alive and spared:
+		_spare(cause)
+		return
 	if alive:
 		alive = false
 		cause_of_death = cause
+
+
+## Out cold this long at least (s) after a wound that would have killed a spared man; whoever keeps
+## him (CompanionBrain) holds him down longer while the fight's on.
+const SPARED_OUT := 8.0
+
+
+## A spared man's killing wound turned into one he lives through: the brain, the neck and the cord
+## not gone (a near thing: a graze to the skull, a wrenched neck), the lungs holding, the gut not a
+## death sentence, the bleeding clotting, his blood kept short of the loss that kills; and he's out
+## cold for a while. The broken bones and the rest of the wound stay as they are.
+func _spare(cause: StringName) -> void:
+	spared_times += 1
+	spared_cause = cause
+	brain_dead = false
+	neck_seconds = -1.0
+	for c: StringName in [&"cord_cervical", &"cord_thoracic", &"cord_lumbar"]:
+		cut.erase(c)
+	lung_damage.clear()
+	airway_blood = false
+	if gut_seconds >= 0.0:
+		gut_seconds = 0.0
+	if burns >= tuning.burns_fatal:
+		burns = tuning.burns_fatal * 0.8
+	for b in bleeds:
+		b.clots = true
+		b.clot = minf(float(b.clot), 0.15)
+	blood_ml = maxf(blood_ml, tuning.blood_ml * (1.0 - tuning.unconscious_at_loss * 0.95))
+	oxygen = maxf(oxygen, 0.6)
+	concussion = maxf(concussion, SPARED_OUT)
 
 
 # --- What the body can do ---------------------------------------------------------------------
@@ -511,6 +596,14 @@ func muscle_strength(group: String, side: String) -> float:
 ## The muscles of a group on one side, in the anatomy's order (asked every tick by standing,
 ## walking and aiming, so listed once per anatomy rather than searched for each time).
 static var _muscle_lists := {}  # [anatomy id, group, side] -> Array[StringName]
+
+
+## Every group's lists made now, on the main thread: `prepare` asks them from the workers
+## (PeopleTick), which only read the shared Dictionary.
+func warm() -> void:
+	for group: String in ["leg", "arm", "grip"]:
+		for side: String in ["r", "l"]:
+			_muscles(group, side)
 
 
 func _muscles(group: String, side: String) -> Array:
@@ -614,6 +707,27 @@ func can_hold(side: String) -> bool:
 	return fingers >= 3
 
 
+## Why this hand can't hold a gun, in plain words ("" when it can): what `can_hold` found.
+func why_cant_hold(side: String) -> String:
+	var arm := "right" if side == "r" else "left"
+	if not is_conscious():
+		return "you're out cold"
+	if severed_segments.has(StringName("hand_" + side)):
+		return "your %s hand is gone" % arm
+	if arms_paralysed():
+		return "your arms won't move"
+	for part: Array in [["humerus_", "a broken upper arm"], ["radius_", "a broken forearm"], ["ulna_", "a broken forearm"],
+			["hand_bones_", "a broken hand"], ["clavicle_", "a broken collarbone"],
+			["radial_nerve_", "the nerve in your arm cut"], ["median_nerve_", "the nerve in your arm cut"]]:
+		if broken.has(StringName(part[0] + side)) or cut.has(StringName(part[0] + side)):
+			return part[1]
+	if muscle_strength("grip", side) < 0.3:
+		return "no grip left in your %s hand" % arm
+	if not can_hold(side):
+		return "too many fingers gone from your %s hand" % arm
+	return ""
+
+
 ## Which finger works the trigger on this hand: index, else middle, else none.
 func trigger_finger(side: String) -> StringName:
 	for f in ["index_", "middle_"]:
@@ -641,7 +755,9 @@ func describe() -> String:
 			inside += bleed_rate(b)
 	var r := total_bleed_rate() - inside
 	if inside > 0.5 and s > 0.2:
-		parts.append("going pale with no wound to show for it")
+		# "No wound to show" only when there's none (#607: said of men with a hole in them).
+		var shows := bleeds.any(func(b: Dictionary) -> bool: return b.get("kind", &"ooze") != &"internal")
+		parts.append("going pale, bleeding inside" if shows else "going pale with no wound to show for it")
 	if concussion > 0.0:
 		parts.append("knocked senseless")
 	if r > 6.0:
@@ -688,7 +804,8 @@ func to_dict() -> Dictionary:
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
-			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys()}
+			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys(),
+			"spared": spared, "spared_times": spared_times}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -713,6 +830,8 @@ func from_dict(d: Dictionary) -> void:
 		infections[StringName(k)] = (d.infections[k] as Dictionary).duplicate()
 	gangrene_hours = d.get("gangrene_hours", 0.0)
 	lost_parts = _set_of(d.get("lost_parts", []))
+	spared = d.get("spared", false)
+	spared_times = d.get("spared_times", 0)
 	blood_in_eye = {}
 	for k in d.get("blood_in_eye", {}):
 		blood_in_eye[StringName(k)] = d.blood_in_eye[k]

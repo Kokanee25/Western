@@ -119,7 +119,7 @@ func step(b: Bullet, delta: float) -> void:
 	if not b.alive:
 		return
 	b.age += delta
-	var space := get_viewport().find_world_3d().direct_space_state if get_viewport() else null
+	var space := World.space(self)
 	if space == null:
 		return
 	var remaining := b.velocity.length() * delta
@@ -131,6 +131,7 @@ func step(b: Bullet, delta: float) -> void:
 		var to := b.position + dir * remaining
 		var q := PhysicsRayQueryParameters3D.create(b.position, to, Layers.BULLETS)
 		q.exclude = b.exclude
+		Prof.count(&"q_balls")
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
 			b.position = to
@@ -166,7 +167,7 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 	var collider: Object = hit.collider
 	var e_before := b.energy()
 	var info := {"position": hit.position, "normal": hit.normal, "direction": dir, "collider": collider,
-			"member_id": &"", "penetrated": false, "energy_before": e_before, "energy_after": 0.0}
+			"member_id": &"", "penetrated": false, "energy_before": e_before, "energy_after": 0.0, "mass": b.mass}
 	if collider != null and collider.has_meta(&"human_body"):
 		var person: Node = collider.get_meta(&"human_body")  # HumanBody, or the player's PlayerWounds
 		var travelled: float = b.path[0].distance_to(hit.position) if not b.path.is_empty() else 99.0
@@ -179,6 +180,11 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		info.segment = res.segment
 		info.shooter = b.shooter
 		var victim: Node = person.get(&"player") if person is PlayerWounds else person
+		if victim is Player:
+			# A ball that hit you didn't pass you (#607: every hit was also "passed 0.0 m"; your
+			# composure takes the hit as its own fright). A man's brain still takes his: it's how
+			# the shot turns him on its shooter (the hit itself doesn't carry who fired it yet).
+			b.passed[victim] = true
 		if b.shooter and victim:
 			victim.set_meta(&"last_hit_by", b.shooter)
 			Events.deed.emit(b.shooter, &"hit", victim, hit.position)
@@ -274,6 +280,17 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		Events.bullet_hit.emit(info)
 		stick.shot(dir * b.mass * sqrt(2.0 * e_before / maxf(b.mass, 1e-4)))
 		return remaining
+	elif collider != null and collider.has_meta(&"rope"):
+		# A hanging rope (#734): the ball cuts what it passes through and goes on.
+		var rope: Rope = collider.get_meta(&"rope")
+		_set_energy(b, maxf(e_before - rope.take_ball(hit.position, dir, b.diameter, e_before), 0.0))
+		b.exclude.append((collider as CollisionObject3D).get_rid())
+		info.rope = rope
+		info.penetrated = true
+		info.energy_after = b.energy()
+		b.hits.append(info)
+		Events.bullet_hit.emit(info)
+		return remaining
 	elif collider != null and collider.has_meta(&"oil_lamp"):
 		(collider.get_meta(&"oil_lamp") as OilLamp).smash(dir)
 		b.exclude.append((collider as CollisionObject3D).get_rid())
@@ -285,7 +302,13 @@ func _impact(b: Bullet, hit: Dictionary, remaining: float) -> float:
 		return remaining
 	elif collider is RigidBody3D:
 		var body := collider as RigidBody3D
-		body.apply_impulse(dir * b.mass * b.velocity.length() * tuning.impulse_transfer, hit.position - body.global_position)
+		var j := dir * b.mass * b.velocity.length() * tuning.impulse_transfer
+		# Lying at rest in its cell, a knock it wouldn't show (a blast's gravel on a beam: ~0.05 m/s)
+		# leaves it lying, as a blast's own push does (Blast.t().min_throw; #538, round 5: a stick's
+		# gravel let go of ~50 pieces of rubble the tick after, ~0.25 ms each).
+		if not (RubbleRest.resting(body) and j.length() / maxf(body.mass, 0.01) < Blast.t().min_throw):
+			RubbleRest.let_go(body)  # (lying in its cell: its own again before it moves)
+			body.apply_impulse(j, hit.position - body.global_position)
 		var thin: float = body.get_meta(&"ballistic_thickness", -1.0)
 		if thin >= 0.0:
 			_set_energy(b, maxf(e_before - thin * 100.0 * tuning.default_resistance, 0.0))
@@ -360,7 +383,7 @@ static func surface_of(collider: Object, normal: Vector3) -> StringName:
 		var m := collider as StructureMember
 		if m.kind == &"glass":
 			return &""
-		return &"stone" if m.wood == &"stone" else (&"metal" if m.wood == &"iron" else &"wood")
+		return &"stone" if m.is_masonry() else (&"metal" if m.wood == &"iron" else &"wood")
 	if collider is StaticBody3D:
 		return &"ground" if normal.y > 0.7 else &"wood"
 	return &""

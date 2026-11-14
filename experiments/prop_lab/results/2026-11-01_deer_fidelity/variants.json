@@ -1,0 +1,51 @@
+{
+  "master": "/home/user/saltcreek-characters/paid/526815a52c02259a02f3bb0664b7f31c2bb7d3f454b617b09952c9d98868ce29",
+  "master_sha256": "526815a52c02259a02f3bb0664b7f31c2bb7d3f454b617b09952c9d98868ce29",
+  "meshes": {
+    "g_master": {
+      "triangles": 29630,
+      "vertices": 16547
+    },
+    "g30k": {
+      "triangles": 29630,
+      "vertices": 16547
+    },
+    "g15k": {
+      "triangles": 14998,
+      "vertices": 9099
+    },
+    "g6k": {
+      "triangles": 5999,
+      "vertices": 4219
+    }
+  },
+  "split_texels": {
+    "fur": 1247179,
+    "antler": 199246,
+    "eye": 3100,
+    "nose": 5634,
+    "plaque": 813633
+  },
+  "classes": [
+    [
+      "fur",
+      0.85
+    ],
+    [
+      "antler",
+      0.55
+    ],
+    [
+      "eye",
+      0.06
+    ],
+    [
+      "nose",
+      0.25
+    ],
+    [
+      "plaque",
+      0.38
+    ]
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "_doc": "An oak barrel of water, full (barrel.json; PropContents): ~169 l, 169 kg; a fire barrel, as a street kept them along its boardwalks.",
+  "like": "barrel",
+  "id": "water_barrel",
+  "contents": {
+    "liquid": "water",
+    "full": true
+  }
+}

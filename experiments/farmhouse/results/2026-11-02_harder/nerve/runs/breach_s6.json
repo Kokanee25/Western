@@ -1,0 +1,249 @@
+{
+ "alarm": 87.22,
+ "blocking": [
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_019_1",
+  "0.3:House/floor_ground_board_017_1",
+  "0.3:House/bedroom_p_casing0_jamb1",
+  "0.3:House/bedroom_opening0_king1",
+  "0.3:House/floor_ground_board_022_1",
+  "0.3:House/floor_ground_board_020_1",
+  "0.3:House/floor_ground_board_024_1",
+  "0.3:House/bedroom_p_nailer_0_1_0",
+  "0.3:House/floor_ground_joist_039",
+  "0.3:House/floor_ground_joist_041",
+  "0.3:House/floor_ground_joist_043",
+  "1.0:House/bedroom_p_casing0_jamb1",
+  "1.0:House/bedroom_opening0_king1",
+  "1.0:House/bedroom_p_nailer_2_1_0",
+  "1.0:TestStreet/Player",
+  "1.6:House/bedroom_p_casing0_jamb1",
+  "1.6:House/bedroom_opening0_king1",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 86.72,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "hid": 84.47,
+  "phase_at": {
+   "lit": 81.78,
+   "plant": 79.7,
+   "through": 88.22
+  },
+  "planted": 81.78
+ },
+ "bot_phase": "through",
+ "bot_target": "",
+ "breach": 87.22,
+ "end": 105.53,
+ "executed": -1.0,
+ "found": 98.27,
+ "frames": {
+  "blast_ms": 138.05,
+  "fight_ticks": 1099,
+  "max_ms": 260.96,
+  "mean_ms": 25.09,
+  "p95_ms": 38.86
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   6.79,
+   2.65,
+   2.43
+  ],
+  "limp": false,
+  "pelvis": [
+   6.81,
+   1.91,
+   2.5
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  6.81,
+  2.29,
+  2.47
+ ],
+ "men": 5,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "hold on: past his nerve (fear 1.53 / 1.20), nowhere to run (1 of 3)",
+   "id": "brody",
+   "inside": true,
+   "knows": 3.7,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Brody down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 2.8,
+   "mood": "CALM",
+   "order": "kitchen_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "back in it: his fear's settled (1.06 / 1.06)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 8.4,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "kid",
+   "inside": true,
+   "knows": 2.8,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, going pale with no wound to show for it, bleeding steady, can't feel his legs, bone broken.",
+ "player_local": [
+  5.77,
+  0.56,
+  3.21
+ ],
+ "quits": [
+  [
+   87.23,
+   "hollis",
+   "gives up",
+   ""
+  ],
+  [
+   99.2,
+   "dutch",
+   "gives up",
+   "back in it: his fear's settled (1.06 / 1.06)"
+  ]
+ ],
+ "route_left": 1,
+ "route_next": [
+  6.3,
+  0.56,
+  3.3
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 6,
+ "shots_men": 9,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": 87.22,
+ "t": 105.53,
+ "threat": 99.22,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   87.22,
+   "Hollis down"
+  ],
+  [
+   87.22,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   87.23,
+   "Hollis gives up ()"
+  ],
+  [
+   88.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   89.17,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   98.27,
+   "found: you fired"
+  ],
+  [
+   98.27,
+   "Dutch down"
+  ],
+  [
+   99.2,
+   "Dutch down"
+  ],
+  [
+   99.2,
+   "Dutch gives up (back in it: his fear's settled (1.06 / 1.06))"
+  ],
+  [
+   99.22,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   102.43,
+   "the rancher hit (bullet, by Player)"
+  ],
+  [
+   102.43,
+   "Brody down"
+  ],
+  [
+   104.3,
+   "Brody down, out"
+  ],
+  [
+   105.53,
+   "lost: you_down"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

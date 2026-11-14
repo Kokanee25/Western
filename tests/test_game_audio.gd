@@ -101,6 +101,7 @@ func test_it_slaps_back_off_a_front() -> void:
 
 
 func test_a_charge_thumps_rolls_and_rains_down() -> void:
+	BlastSounds.use(0)  # the synthesised blast (the fallback)
 	ears.global_position = Vector3(0, 1.6, 0)
 	var made: Array[AudioStreamPlayer3D] = []
 	var note := func(n: Node) -> void:
@@ -118,6 +119,42 @@ func test_a_charge_thumps_rolls_and_rains_down() -> void:
 	await physics_frames(int(3.0 * Engine.physics_ticks_per_second))
 	check(debris.all(func(p: AudioStreamPlayer3D) -> bool: return not is_instance_valid(p) or p.playing),
 			"all of it down within 3 s (landed and done, or landing)")
+	BlastSounds.use(-1)
+
+
+## The recorded blast (#596): each layer of the set plays, placed like any sound; the crack is
+## full only close, the sub further than the boom; dirt rains down after; with no building near,
+## no boards, glass or groan.
+func test_a_recorded_charge_plays_its_layers() -> void:
+	var rec := {}
+	for layer: StringName in BlastSounds.LAYERS:
+		rec[layer] = SynthSounds.get_sound(&"thump").duplicate()
+	BlastSounds.inject(99, rec)
+	BlastSounds.use(99)
+	GameAudio.forget_volley()
+	check_eq(BlastSounds.active(), 99, "set 99 in play")
+	ears.global_position = Vector3(0, 1.6, 0)
+	var made: Array[AudioStreamPlayer3D] = []
+	var note := func(n: Node) -> void:
+		if n is AudioStreamPlayer3D:
+			made.append(n)
+	get_tree().node_added.connect(note)
+	GameAudio.blast(world, Vector3(30, 0.2, 0), 0.2)
+	get_tree().node_added.disconnect(note)
+	BlastSounds.use(-1)
+	var of := func(layer: StringName) -> Array:
+		return made.filter(func(p: AudioStreamPlayer3D) -> bool: return p.stream == rec[layer])
+	for layer: StringName in [&"crack", &"boom", &"sub", &"roll"]:
+		check(of.call(layer).size() >= 1, "the %s plays" % layer)
+	check(not made.any(func(p: AudioStreamPlayer3D) -> bool: return p.stream == SynthSounds.get_sound(&"blast")),
+			"nothing synthesised for the blast itself")
+	var crack: AudioStreamPlayer3D = of.call(&"crack")[0]
+	var boom: AudioStreamPlayer3D = of.call(&"boom")[0]
+	var sub: AudioStreamPlayer3D = of.call(&"sub")[0]
+	check(crack.unit_size < boom.unit_size and boom.unit_size < sub.unit_size, "crack close, boom, sub furthest")
+	check_eq(of.call(&"debris_dirt").size(), 2, "dirt raining down")
+	check(of.call(&"debris_wood").is_empty() and of.call(&"groan").is_empty(), "no building near: no boards, no groan")
+	check(not crack.playing, "30 m off: not heard yet (sound's 0.09 s)")
 
 
 ## A wall coming down was 108 sounds at once: of one breaking sound only `limit` play, the
@@ -144,3 +181,59 @@ func test_a_crowd_keeps_its_loudest() -> void:
 	for p: AudioStreamPlayer3D in panes:
 		furthest = maxf(furthest, p.global_position.x)
 	check(furthest < 14.0, "the four nearest (furthest at %.0f m)" % furthest)
+
+
+## The game's sets of recordings (assets/audio/blast/sets.json, #596): every file each names
+## loads, and each set has at least its boom and roll.
+func test_every_recorded_set_loads() -> void:
+	var sets := BlastSounds.sets()
+	for n: String in sets:
+		if not int(n) in [1, 2, 3]:
+			continue
+		for layer: StringName in BlastSounds.LAYERS:
+			for i in BlastSounds.files(int(n), layer).size():
+				check(BlastSounds.stream(int(n), layer, i) != null, "set %s's %s %d loads" % [n, layer, i])
+		check(BlastSounds.stream(int(n), &"boom") != null and BlastSounds.stream(int(n), &"roll") != null,
+				"set %s has a boom and a roll" % n)
+
+
+## Charges fired together (#647's bundles on one plunger) are one volley: each its own crack and
+## boom, pitched apart so they don't comb into a flange; the sub and the roll once, grown.
+func test_charges_fired_together_are_one_volley() -> void:
+	var rec := {}
+	for layer: StringName in [&"crack", &"boom", &"sub", &"roll"]:
+		rec[layer] = SynthSounds.get_sound(&"thump").duplicate()
+	BlastSounds.inject(98, rec)
+	BlastSounds.use(98)
+	GameAudio.forget_volley()
+	ears.global_position = Vector3(0, 1.6, 0)
+	var made: Array[AudioStreamPlayer3D] = []
+	var note := func(n: Node) -> void:
+		if n is AudioStreamPlayer3D:
+			made.append(n)
+	get_tree().node_added.connect(note)
+	for x: float in [30.0, 36.0, 42.0]:
+		GameAudio.blast(world, Vector3(x, 0.2, 0), 1.6)
+	get_tree().node_added.disconnect(note)
+	BlastSounds.use(-1)
+	var of := func(layer: StringName) -> Array:
+		return made.filter(func(p: AudioStreamPlayer3D) -> bool: return p.stream == rec[layer])
+	check_eq(of.call(&"crack").size(), 3, "three cracks, one a charge")
+	check_eq(of.call(&"boom").size(), 3, "three booms")
+	check_eq(of.call(&"sub").size(), 1, "one sub for the volley")
+	check_eq(of.call(&"roll").size(), 1, "one roll for the volley")
+	var pitches := {}
+	for p: AudioStreamPlayer3D in of.call(&"boom"):
+		pitches[snappedf(p.pitch_scale, 0.001)] = true
+	check_eq(pitches.size(), 3, "each boom pitched its own (%s)" % str(pitches.keys()))
+	var sub: AudioStreamPlayer3D = of.call(&"sub")[0]
+	check(sub.volume_db > GameAudio.t().rec_sub_db + 4.0, "the sub grown by the two that joined (%.1f dB)" % sub.volume_db)
+	# A charge well after the volley starts its own.
+	await physics_frames(int(GameAudio.t().volley_s * Engine.physics_ticks_per_second) + 5)
+	made.clear()
+	BlastSounds.use(98)
+	get_tree().node_added.connect(note)
+	GameAudio.blast(world, Vector3(30, 0.2, 0), 0.2)
+	get_tree().node_added.disconnect(note)
+	BlastSounds.use(-1)
+	check_eq(of.call(&"sub").size(), 1, "a later charge has its own sub")

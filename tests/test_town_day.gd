@@ -121,6 +121,29 @@ func test_folk_on_the_porches_and_in_the_street_take_their_ease_and_get_down_at_
 	check_eq((bench.get_node(^"Brain") as CivilianBrain).mood, CivilianBrain.Mood.COWERING, "a shot close by: he gets down")
 
 
+## The riders are built while the street loads and wait out of the world (#488: building them took
+## one frame of 2.4 s when they rode in); riding in only puts them in, with their minds.
+func test_the_riders_are_built_before_they_ride_in() -> void:
+	var waiting: Array = town._waiting.values()
+	check_eq(waiting.size(), 3, "three riders built at load")
+	var ids := PackedStringArray()
+	for man: HumanBody in waiting:
+		check(not man.is_inside_tree(), "%s not in the world yet" % man.person_id)
+		check(man.skeleton != null, "%s's body already made" % man.person_id)
+		check(man.get_node_or_null(^"Brain") == null, "%s's mind not with him yet" % man.person_id)
+		ids.append(String(man.person_id))
+	for p in get_tree().get_nodes_in_group(&"people"):
+		check(not String((p as HumanBody).person_id) in ids, "%s isn't among the people yet" % (p as HumanBody).person_id)
+	town.bring_gang([&"kid"])
+	check(waiting.has(town.gang[0]), "the Kid who rides in is the one built")
+	var kid := town.gang[0]
+	check(kid.is_inside_tree() and kid.get_child(0) is OutlawBrain, "in, his mind first among his nodes")
+	check_eq(town._waiting.size(), 2, "the other two still waiting")
+	await physics_frames(30)
+	check(kid.global_position.distance_to(town.places.at(&"west_edge")) < 6.0, "the Kid on the street by the west edge (%s)" % str(kid.global_position))
+	check(kid.get_node_or_null(^"Senses") != null, "his senses with his mind")
+
+
 func test_the_gang_rides_in_and_drinks() -> void:
 	town.drink_seconds = 60.0
 	town.bring_gang()
@@ -305,6 +328,30 @@ func test_they_ride_out() -> void:
 	check(not is_instance_valid(kid), "out of the world")
 
 
+## #562: a man leaving town with no way out from where he is (or stuck short of it) isn't freed
+## where he stands; he stays, and looks for the way again.
+func test_with_no_way_out_he_stays() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	var nowhere := Waypoints.new()
+	nowhere.add(&"somewhere", kid.global_position + Vector3(4.0, 0.0, 0.0))
+	b.places = nowhere  # no road out of town on it
+	b.agenda = [{"do": &"leave"}]
+	b._step_started = false
+	var gone := [false]
+	b.left_town.connect(func() -> void: gone[0] = true)
+	await physics_frames(60 * 8)
+	check(not gone[0] and is_instance_valid(kid) and kid.is_inside_tree(), "still in the world, not freed where he stood")
+	check(not b.agenda.is_empty() and b.agenda[0].do == &"leave", "still meaning to leave")
+	# The way out back (the town's places): he walks it and is gone at its end.
+	b.places = town.places
+	b.walk_speed = 3.0
+	kid.global_position = town.places.at(&"street_west")
+	var left := await wait_until(func() -> bool: return gone[0], 60 * 20)
+	check(left, "with a way, he walks out")
+
+
 func test_in_a_fight_they_work_together() -> void:
 	town.bring_gang()
 	for g in town.gang:
@@ -366,12 +413,20 @@ func test_a_man_down_gives_himself_up_when_you_come_and_you_can_arrest_him() -> 
 	kid.global_position = town.places.at(&"street_west")
 	await physics_frames(10)
 	b.relations.provoke(player)
+	# Down and beat: his gun gone as he falls (with it in his hand and unhurt he'd get back up:
+	# variant D's `floored`; whether it fell from his hand was the fall's luck).
+	kid.drop_gun()
 	kid.go_limp()
 	await physics_frames(60 * 10)
 	check(kid.physiology.is_conscious() and b.mood == OutlawBrain.Mood.DOWN, "down, and awake")
 	check(b.mood != OutlawBrain.Mood.SURRENDERED, "lying there with you nowhere near, he hasn't given up")
 	var at := OutlawBrain._lying_at(kid)
-	_put_player(Vector3(at.x + 2.0, kid.global_position.y, at.z), 90.0)
+	# Beside him, two paces off his middle (where he hears you from), whichever way he fell; on the
+	# ground there (the street slopes west of the store).
+	var along := Vector3(at.x - kid.global_position.x, 0.0, at.z - kid.global_position.z)
+	along = along.normalized() if along.length() > 0.05 else Vector3.RIGHT
+	var beside := kid.global_position + along * 0.6 + along.cross(Vector3.UP) * 2.0
+	_put_player(Vector3(beside.x, TownLayout.ground_height(beside.x) + 0.05, beside.z), 90.0)
 	_look_at(at)
 	var gave := await wait_until(func() -> bool: return b.mood == OutlawBrain.Mood.SURRENDERED, 60 * 3)
 	check(gave, "you come up on him and he gives himself up")
@@ -472,7 +527,7 @@ func _saloon_floor() -> float:
 func test_the_studios_people_are_cast_in_town() -> void:
 	check_eq(town.barkeep.body_model, &"barkeep_s2_talking", "the barkeep is the Studio's")
 	check(town.widow != null and town.widow.held_gun == null, "the widow is in town, unarmed")
-	check_eq(town.widow.body_model, &"widow_s2_talking", "the widow is the Studio's first woman")
+	check_eq(town.widow.body_model, &"widow_s6_talking", "the widow is the Studio's first woman")
 	check(town.widow.global_position.distance_to(town.places.at(&"store_aisle")) < 0.6, "browsing in the store")
 	check(town.sheriff != null, "the sheriff is in town")
 	check_eq(town.sheriff.body_model, &"sean_s3_talking", "the sheriff is the Studio's sean_s3, talking")
@@ -483,7 +538,105 @@ func test_the_studios_people_are_cast_in_town() -> void:
 	check(town.colter != null and town.colter.held_gun == null, "the fourth Colter is in town, unarmed for now")
 	check_eq(town.colter.body_model, &"colter_rider_s2_talking", "he is the Studio's colter_rider_s2, talking")
 	check(town.colter.global_position.distance_to(town.places.at(&"livery_front")) < 0.6, "in front of the livery")
+	check(town.miner != null and town.miner.held_gun == null, "the miner is in town, unarmed")
+	check_eq(town.miner.body_model, &"miner_s4_talking", "he is the Studio's miner_s4, talking")
+	check(town.miner.global_position.distance_to(town.places.at(&"assay_front")) < 0.6, "in front of the assay office")
+	check(not "working_girl" in town, "no working girl for now (#698)")
+	check(town.rancher != null and town.rancher.held_gun == null, "the Mexican rancher is in town, unarmed")
+	check_eq(town.rancher.body_model, &"mexican_rancher_s1_talking", "he is the Studio's mexican_rancher_s1, talking")
+	check(town.rancher.global_position.distance_to(town.places.at(&"livery_side")) < 0.6, "along the livery's front")
+	check(town.blacksmith != null and town.blacksmith.held_gun == null, "the blacksmith is in town, unarmed")
+	check_eq(town.blacksmith.body_model, &"blacksmith_s1_talking", "he is the Studio's blacksmith_s1, talking")
+	check(town.blacksmith.global_position.distance_to(town.places.at(&"livery_east")) < 0.6, "along the livery's front, its east end")
+	check_eq(town.storekeeper.body_model, &"storekeeper_s1_talking", "the storekeeper is the Studio's storekeeper_s1, talking")
 	# Every Studio person in town has the talking face (tools/faces/talking_face.py: a mouth, lids,
 	# expressions as blend shapes; Sean, 2026-10-21: "ship them").
-	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter]:
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.colter, town.miner, town.rancher, town.blacksmith]:
 		check(String(p.body_model).ends_with("_talking"), "%s has a talking face (%s)" % [p.person_id, p.body_model])
+
+
+## PeopleTick's bands (more-cores step 4b): with you two streets off (east of town, looking away),
+## the gang walking in ticks a tick in four. They reach the bar at the same times, a far man's tick
+## or so either way, by the same road as with the bands off; and they tick less often on the way.
+func _ride_in_from_afar(bands: bool) -> Array:
+	Settings.people_bands = bands
+	_put_player(Vector3(130.0, 0.0, -8.4), -90.0)
+	player.set_physics_process(false)  # he stands there (no ground under him out there to fall to)
+	await physics_frames(3)
+	town.bring_gang()
+	for g in town.gang:
+		(g.get_node(^"Brain") as OutlawBrain).walk_speed = 2.2  # a brisk walk, not a run
+	var seen_far := 0
+	var at_bar := {}
+	var road := []
+	for f in 60 * 50:
+		await physics_frames(1)
+		for g in town.gang:
+			if not is_instance_valid(g):
+				continue
+			if g.tick_band == 2:
+				seen_far += 1
+			var b := g.get_node(^"Brain") as OutlawBrain
+			if not at_bar.has(g.person_id) and g.global_position.distance_to(town.places.at(b.bar_spot)) < 0.5:
+				at_bar[g.person_id] = f
+		if f % 120 == 0:
+			for g in town.gang:
+				road.append(g.global_position if is_instance_valid(g) else Vector3.INF)
+		if at_bar.size() == town.gang.size():
+			break
+	return [at_bar, road, seen_far]
+
+
+func _fresh_street() -> void:
+	after_each()
+	await physics_frames(2)
+	await before_each()
+
+
+func test_far_off_the_gang_comes_in_on_time_with_the_bands() -> void:
+	town.drink_seconds = 60.0
+	var on: Array = await _ride_in_from_afar(true)
+	await _fresh_street()
+	town.drink_seconds = 60.0
+	var off: Array = await _ride_in_from_afar(false)
+	Settings.people_bands = Settings.PEOPLE_BANDS
+	check(on[2] > 0, "they were in the far band on the way (%d man-ticks)" % on[2])
+	check_eq(off[2], 0, "bands off: never")
+	for id in [&"brody", &"lyle", &"kid"]:
+		check(on[0].has(id) and off[0].has(id), "%s got to the bar both ways" % id)
+		if on[0].has(id) and off[0].has(id):
+			# Within two of the far band's steps: a man there ticks every 4th frame, so where on
+			# that grain the gang land (who else is in town shifts it) moves his arrival a few frames.
+			check(absi(int(on[0][id]) - int(off[0][id])) <= 8, "%s at the bar at the same time (frame %d against %d)" % [id, on[0][id], off[0][id]])
+	var worst := 0.0
+	for i in mini(on[1].size(), off[1].size()):
+		if on[1][i] != Vector3.INF and off[1][i] != Vector3.INF:
+			worst = maxf(worst, (on[1][i] as Vector3).distance_to(off[1][i]))
+	check(worst < 0.25, "by the same road, every two seconds (worst %.3f m)" % worst)
+
+
+## A stick far off (#495): the street hears it and cowers, then stands shaken, but far from you and
+## from any fight they still tick slowly (the bands' own rule), and a cowering man isn't trouble
+## that keeps his neighbours at every tick. Your gun on one of them: every tick, and trouble.
+func test_far_off_the_street_cowers_from_a_blast_and_still_ticks_slowly() -> void:
+	Settings.people_bands = true
+	_put_player(Vector3(130.0, 0.0, -8.4), -90.0)
+	player.set_physics_process(false)
+	await physics_frames(3)
+	Events.noise.emit(Vector3(0.0, 0.5, -5.0), 1.0, &"blast", null)
+	await physics_frames(30)
+	var cowering: Array[HumanBody] = []
+	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.rancher, town.blacksmith]:
+		var b := p.get_node_or_null(^"Brain") as CivilianBrain
+		if b != null and b.mood == CivilianBrain.Mood.COWERING:
+			cowering.append(p)
+	check(cowering.size() >= 3, "the street cowers from the blast (%d of them)" % cowering.size())
+	for p in cowering:
+		check(p.can_slow() and not p.in_trouble(), "%s cowering: he can slow, and he's no trouble" % p.person_id)
+		check(p.tick_every > 1, "%s, 100 m and more from you: ticks every %d" % [p.person_id, p.tick_every])
+	if not cowering.is_empty():
+		var b := cowering[0].get_node(^"Brain") as CivilianBrain
+		b._aimed = 2.0
+		check(not cowering[0].can_slow() and cowering[0].in_trouble(), "aimed at: he can't slow, and he's trouble")
+		b._aimed = 0.0
+	Settings.people_bands = Settings.PEOPLE_BANDS

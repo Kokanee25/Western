@@ -1,0 +1,15 @@
+{
+ "about": "StreetWear (src/art/street_wear.gd; the light pass, round 2, Sean #321: 'damp dark ground by the trough and hitching rails, scattered straw, droppings'). Damp: radius (m) and strength round each trough and rail (the ground shader's damp_dark and damp_tint, set by the light looks, say how dark). Straw and droppings: how many, where (round the rails and troughs, and loose over the street), their size and colour. seed: the scatter's.",
+ "seed": 11,
+ "damp_trough": [2.2, 1.0],
+ "damp_rail": [1.8, 0.7],
+ "straw_round_spot": 70,
+ "straw_spot_reach": 3.0,
+ "straw_loose": 500,
+ "straw_size": [0.2, 0.012],
+ "straw_colour": [0.78, 0.66, 0.38],
+ "droppings_piles": 26,
+ "droppings_near_rails": 0.6,
+ "droppings_colour": [0.2, 0.15, 0.1],
+ "street_box": [-80.0, -17.0, 30.0, 0.0]
+}

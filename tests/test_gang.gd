@@ -258,6 +258,7 @@ func test_a_friends_stray_round_is_cursed_not_fought() -> void:
 	await physics_frames(5)
 	await _shoot_past(men[&"a"])
 	await wait_until(func() -> bool: return _all_fighting_you([&"a", &"b"]), 60 * 6)
+	await physics_frames(60 * 2)  # (past what he said as it started: one line at a time, #607)
 	var lines: Array[String] = []
 	var hear := func(who: Node, text: String) -> void: if who == men[&"a"]: lines.append(text)
 	Events.spoke.connect(hear)
@@ -323,6 +324,39 @@ func test_a_friend_down_in_the_open_gets_dragged_to_cover() -> void:
 	check_eq(b.mood, OutlawBrain.Mood.FIGHTING, "and b's back in the fight")
 
 
+## #595: the Kid, on the gallery over Brody, called "Hold on, I got you!" every 20 s for 100 s and
+## never got down to him. A friend he ran for and couldn't reach, he doesn't run for again while
+## the friend lies there.
+func test_a_friend_he_cant_get_to_he_gives_up_on() -> void:
+	_crate(Vector3(4.0, 0, -9.0))
+	var places := Waypoints.new()
+	places.add(&"w", Vector3(-1.0, 0, -9.0))
+	places.add(&"e", Vector3(4.0, 0, -9.5), [&"w"])
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	_man(&"b", Vector3(4.0, 0, -10.5), {"gang": [&"a", &"b"]})
+	for id: StringName in [&"a", &"b"]:
+		_brain(id).variant = OutlawBrain.Variant.D
+		_brain(id).places = places
+	var b := _brain(&"b")
+	b.run_speed = 0.02  # his legs won't take him there
+	await physics_frames(5)
+	_shoot_past(men[&"a"])
+	var a := men[&"a"] as HumanBody
+	await wait_until(func() -> bool: return _brain(&"a").target == player, 30)
+	a.physiology.broken[&"femur_r"] = true
+	await wait_until(func() -> bool: return a.prone, 60)
+	var going := await wait_until(func() -> bool: return b.rescuing == a, 60 * 3)
+	check(going, "b goes to get him (%s)" % b.describe().substr(0, 60))
+	var gave_up := await wait_until(func() -> bool: return b.rescuing == null, 60 * 12)
+	check(gave_up, "and gives it up when he can't get there (%s)" % b.describe().substr(0, 60))
+	check(b._unreachable.has(a), "and remembers he couldn't")
+	var drags := calls.filter(func(c: Dictionary) -> bool: return c.who == &"b" and c.kind == &"drag").size()
+	await physics_frames(60 * 20)
+	var after := calls.filter(func(c: Dictionary) -> bool: return c.who == &"b" and c.kind == &"drag").size()
+	check_eq(after, drags, "no more \"Hold on, I got you!\" in the 20 s after (was again every 20 s)")
+	check(b.rescuing == null, "nor goes for him again")
+
+
 func test_an_unconscious_friend_gets_hauled_out_too() -> void:
 	_crate(Vector3(4.0, 0, -9.0))
 	_man(&"a", Vector3(-2.0, 0, -13.0), {"gang": [&"a", &"b"]})
@@ -380,7 +414,7 @@ func test_a_friend_shot_down_goes_through_the_rest() -> void:
 func test_the_green_one_breaks_when_his_friend_goes_down() -> void:
 	await _three()
 	var c := _brain(&"c")
-	c.fear = 0.2
+	c.fear = 0.3  # at the edge of his nerve (in D the leader beside him steadies him a little: +0.08)
 	(men[&"b"] as HumanBody).go_limp()
 	var broke := await wait_until(func() -> bool: return c.mood in [OutlawBrain.Mood.FLEEING, OutlawBrain.Mood.SURRENDERED], 60 * 2)
 	check(broke, "the Kid's nerve goes (%s)" % c.describe().substr(0, 60))
@@ -481,3 +515,59 @@ func test_a_hunter_takes_steps_where_you_could_be_for_yours() -> void:
 	var before := b.senses.last_known(player)
 	Events.noise.emit(Vector3(0, 0, -40.0), 13.0, &"footsteps", null)
 	check(b.senses.last_known(player).distance_to(before) < 0.01, "steps far off where you couldn't be: not yours")
+
+
+## #607: Lyle's "Easy, I got you. Come on!" twice to the Kid, who was knocked off his feet and got
+## up again. A friend down but not hurt past it is getting up himself: nobody goes to drag him.
+func test_a_friend_getting_up_himself_isnt_dragged() -> void:
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	_man(&"b", Vector3(4.0, 0, -10.5), {"gang": [&"a", &"b"]})
+	await physics_frames(5)
+	_shoot_past(men[&"a"])
+	var a := men[&"a"] as HumanBody
+	await wait_until(func() -> bool: return _brain(&"a").target == player and _brain(&"b").target == player, 60 * 3)
+	a.go_limp()
+	a.brace()  # knocked down, not hurt: he'll get up
+	await physics_frames(60 * 2)
+	check(a.rise_ok or a.rising or not a.limp, "a's getting up himself")
+	check(_brain(&"b").rescuing == null and not _called(&"b", &"drag"), "and b doesn't go to drag him (%s)" % _brain(&"b").describe().substr(0, 60))
+
+
+## #607: you called Brody out, and he and both his friends shot it out with you. A duel is his:
+## while he's on his feet in it, his friends don't take it up, from his shouts or your shots at him.
+func test_a_duel_is_his_own() -> void:
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	_man(&"b", Vector3(4.0, 0, -10.5), {"gang": [&"a", &"b"]})
+	await physics_frames(5)
+	var a := _brain(&"a")
+	var b := _brain(&"b")
+	a.duel_with = player
+	a.relations.provoke(player)
+	await wait_until(func() -> bool: return a.target == player, 60)
+	a.callout(&"spotted", player, player.global_position)
+	Events.deed.emit(player, &"shoot_at", men[&"a"], player.global_position)
+	await physics_frames(30)
+	check(b.relations.stance(player) < Relations.Stance.FIGHT, "b keeps out of it (%s)" % str(b.relations.to_dict()))
+	check(b.target != player, "and isn't fighting you")
+	# He's down: then it's all of them.
+	(men[&"a"] as HumanBody).go_limp()
+	await physics_frames(5)
+	b._join(player, men[&"a"])  # (as his shout that he's down, or that you got him, has it)
+	var joined := await wait_until(func() -> bool: return b.relations.stance(player) == Relations.Stance.FIGHT, 60 * 3)
+	check(joined, "once he's down, b takes it up")
+
+
+## The fourth playtest: "My leg! Get me out of here!" from Brody, shot in the chest. Down with his legs
+## his own he calls for help without them; the press says why he's going ("He's loading!", not
+## "He's empty!" at a man with two rounds left).
+func test_what_they_shout_fits_why() -> void:
+	_man(&"a", Vector3(-1.0, 0, -11.0), {"gang": [&"a", &"b"]})
+	await physics_frames(5)
+	var lines: Array[String] = []
+	var hear := func(who: Node, text: String) -> void: if who == men[&"a"]: lines.append(text)
+	Events.spoke.connect(hear)
+	_brain(&"a").callout(&"help", player)
+	_brain(&"a").callout(&"press", player, Vector3.INF, &"call_press_reload")
+	Events.spoke.disconnect(hear)
+	check(lines.size() == 2 and lines[0] in OutlawBrain.LINES[&"call_help_hurt"], "help without his legs in it: %s" % str(lines))
+	check(lines.size() == 2 and lines[1] in OutlawBrain.LINES[&"call_press_reload"], "the press by why: %s" % str(lines))

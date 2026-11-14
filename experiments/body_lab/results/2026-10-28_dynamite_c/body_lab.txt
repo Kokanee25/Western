@@ -1,0 +1,22 @@
+## build/body_lab/dyn_main
+   0.5m: 4 men | limbs off: foot_l x4, foot_r x4 | lungs torn 0, bruised 0 | eardrums 8/8 | senseless 0 | down 4 | dead (untreated) 4 (287, 287, 287, 287 s)
+   0.8m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 8/8 | senseless 0 | down 4 | dead (untreated) 0
+   1.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 8/8 | senseless 0 | down 4 | dead (untreated) 0
+   1.2m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 8/8 | senseless 0 | down 4 | dead (untreated) 0
+   1.4m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 4 | dead (untreated) 0
+   1.7m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 4 | dead (untreated) 0
+   2.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 4 | dead (untreated) 0
+   3.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 0 | dead (untreated) 0
+   5.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 0 | dead (untreated) 0
+   6.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 0 | dead (untreated) 0
+## build/body_lab/dyn_c
+   0.5m: 4 men | limbs off: foot_l x4, foot_r x4, hand_l x4, hand_r x4, shin_l x4, shin_r x4, thigh_l x4, thigh_r x4 | lungs torn 4, bruised 0 | eardrums 8/8 | senseless 4 | down 4 | dead (untreated) 4 (55, 55, 55, 55 s)
+   0.8m: 4 men | limbs off: foot_l x4, foot_r x4, hand_l x4, hand_r x4, shin_l x4, shin_r x4 | lungs torn 0, bruised 4 | eardrums 8/8 | senseless 4 | down 4 | dead (untreated) 4 (136, 136, 136, 136 s)
+   1.0m: 4 men | limbs off: foot_l x4, foot_r x4 | lungs torn 0, bruised 4 | eardrums 8/8 | senseless 4 | down 4 | dead (untreated) 4 (275, 275, 275, 275 s)
+   1.2m: 4 men | limbs off: foot_l x4, foot_r x4 | lungs torn 0, bruised 4 | eardrums 8/8 | senseless 4 | down 4 | dead (untreated) 4 (273, 273, 273, 273 s)
+   1.4m: 4 men | limbs off: none | lungs torn 0, bruised 4 | eardrums 8/8 | senseless 4 | down 4 | dead (untreated) 4 (5776, 5776, 5776, 5776 s)
+   1.7m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 8/8 | senseless 4 | down 4 | dead (untreated) 0
+   2.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 8/8 | senseless 0 | down 4 | dead (untreated) 0
+   3.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 8/8 | senseless 0 | down 4 | dead (untreated) 0
+   5.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 0 | dead (untreated) 0
+   6.0m: 4 men | limbs off: none | lungs torn 0, bruised 0 | eardrums 0/8 | senseless 0 | down 0 | dead (untreated) 0

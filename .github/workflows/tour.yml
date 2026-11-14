@@ -1,15 +1,15 @@
 name: Tour video
 
-# After every green build on main (and by hand), render the 30-second camera tour (tools/tour.gd)
-# under software Vulkan, encode it, keep it on the "tour" release, and redeploy Pages with it at
-# /tour/ (the phone page, tools/tour_page.py). The build's own Pages deploy brings the videos kept
-# on the release along too, so /tour/ is never empty between the two.
+# Once a day (and by hand): render the 30-second camera tour (tools/tour.gd) of the latest green
+# build on main under software Vulkan, encode it, keep it on the "tour" release, and redeploy Pages
+# with it at /tour/ (the phone page, tools/tour_page.py). The day's run renders nothing when that
+# build's video is already on the release (main hasn't changed since the last tour). It ran after
+# every build on main until #504 (Sean, 2026-10-29: 132 tours a week, ~3,800 minutes). The build's
+# own Pages deploy brings the videos kept on the release along too, so /tour/ is never empty.
 
 on:
-  workflow_run:
-    workflows: ["Test and build"]
-    types: [completed]
-    branches: [main]
+  schedule:
+    - cron: "11 5 * * *"  # 05:11 UTC, before the visual checks (06:43) and the soak (09:17)
   workflow_dispatch:
 
 env:
@@ -24,8 +24,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The latest green build on main, and whether its tour is already kept (a minute, no checkout).
+  pick:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      build: ${{ steps.which.outputs.build }}
+      sha: ${{ steps.which.outputs.sha }}
+      render: ${{ steps.which.outputs.render }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Which build
+        id: which
+        run: |
+          read -r num sha < <(gh run list --repo "${{ github.repository }}" --workflow build.yml --branch main \
+            --status success --event push --limit 1 --json number,headSha -q '.[0] | "\(.number) \(.headSha)"')
+          echo "build=$num" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          kept=$(gh release view tour --repo "${{ github.repository }}" --json assets -q '.assets[].name' 2>/dev/null | grep -cx "build-$num.mp4" || true)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$kept" = "0" ]; then
+            echo "render=true" >> "$GITHUB_OUTPUT"
+            echo "Touring build $num ($sha)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "render=false" >> "$GITHUB_OUTPUT"
+            echo "Build $num's tour is already kept: main hasn't changed since the last tour." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   tour:
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    needs: pick
+    if: needs.pick.outputs.render == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     permissions:
@@ -41,20 +71,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-
-      - name: Which build
-        id: which
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            echo "build=${{ github.event.workflow_run.run_number }}" >> "$GITHUB_OUTPUT"
-            echo "run=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
-          else
-            run=$(gh run list --repo "${{ github.repository }}" --workflow build.yml --branch main --status success --event push --limit 1 --json databaseId,number -q '.[0].databaseId')
-            num=$(gh run list --repo "${{ github.repository }}" --workflow build.yml --branch main --status success --event push --limit 1 --json databaseId,number -q '.[0].number')
-            echo "build=$num" >> "$GITHUB_OUTPUT"
-            echo "run=$run" >> "$GITHUB_OUTPUT"
-          fi
+          ref: ${{ needs.pick.outputs.sha }}
 
       - name: Cache Godot
         id: cache-godot
@@ -87,7 +104,7 @@ jobs:
 
       - name: Stamp the build number
         run: |
-          printf '{"number": "%s", "commit": "%s"}\n' "${{ steps.which.outputs.build }}" "$(git rev-parse --short HEAD)" > build_info.json
+          printf '{"number": "%s", "commit": "%s"}\n' "${{ needs.pick.outputs.build }}" "$(git rev-parse --short HEAD)" > build_info.json
 
       - name: Render the tour
         run: |
@@ -102,7 +119,7 @@ jobs:
         run: |
           # From frame 3: the first are written before the tour's camera takes over.
           ffmpeg -y -loglevel error -framerate 30 -start_number 3 -i build/tour/frame%08d.png -c:v libx264 -preset slow \
-            -crf 30 -pix_fmt yuv420p -movflags +faststart "build/tour/build-${{ steps.which.outputs.build }}.mp4"
+            -crf 30 -pix_fmt yuv420p -movflags +faststart "build/tour/build-${{ needs.pick.outputs.build }}.mp4"
           ls -la build/tour/*.mp4
 
       - name: Keep it on the tour release
@@ -112,21 +129,34 @@ jobs:
           name: Tour videos
           body: "The camera tour of each build (tools/tour.gd). Watch on the phone at the site's /tour/."
           make_latest: false
-          files: build/tour/build-${{ steps.which.outputs.build }}.mp4
+          files: build/tour/build-${{ needs.pick.outputs.build }}.mp4
 
       - name: The site, with the tour
+        id: site
+        # The latest green build's site, looked up now (a merge may have landed during the render).
+        # Its Pages artifact is kept a day; if it's gone, the video stays on the release and the
+        # next build's own deploy brings it to /tour/.
         run: |
+          run=$(gh run list --repo "${{ github.repository }}" --workflow build.yml --branch main --status success \
+            --event push --limit 1 --json databaseId -q '.[0].databaseId')
           mkdir -p pages site/tour
-          gh run download "${{ steps.which.outputs.run }}" --repo "${{ github.repository }}" -n github-pages -D pages
+          if ! gh run download "$run" --repo "${{ github.repository }}" -n github-pages -D pages; then
+            echo "::warning::build run $run's Pages artifact is gone: the video is on the tour release, Pages not redeployed"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           tar -xf pages/artifact.tar -C site
           gh release download tour --repo "${{ github.repository }}" -p 'build-*.mp4' -D site/tour --clobber
           python3 tools/tour_page.py site/tour --settings="${TOUR_NOTE}"
           ls -la site/tour
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-pages-artifact@v3
+        if: steps.site.outputs.deploy == 'true'
         with:
           path: site
 
       - name: Deploy to GitHub Pages
+        if: steps.site.outputs.deploy == 'true'
         id: deploy
         uses: actions/deploy-pages@v4

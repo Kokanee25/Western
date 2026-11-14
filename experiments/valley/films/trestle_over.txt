@@ -1,0 +1,7 @@
+# Valley G3 (#716): three bents blown as the engine comes on (60 m short) at 40 km/h, the train
+# goes over into the valley's canyon. From the canyon's floor.
+# python3 tools/bridge.py run experiments/valley/films/trestle_over.txt --size=960x540 --movie=build/films/valley_over.avi --game-args=--world=valley
+trestle_lab
+train_caption Three bents blown as the engine comes on at 40 km/h: the valley's canyon.
+trestle_cam floor
+trestle_collapse how=stick posts=all sticks=4 bents=3 train=cross when=under lead=60 kmh=40 run_up=120 secs=10 fresh=0

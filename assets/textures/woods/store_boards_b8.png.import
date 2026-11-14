@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://db1uvm3dpmjme"
-path="res://.godot/imported/store_boards_b8.png-dec6b3e85e6ec795a41402e8730bf7ac.ctex"
+uid="uid://dlroxfnpyrud4"
+path.bptc="res://.godot/imported/store_boards_b8.png-dec6b3e85e6ec795a41402e8730bf7ac.bptc.ctex"
+path.astc="res://.godot/imported/store_boards_b8.png-dec6b3e85e6ec795a41402e8730bf7ac.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/store_boards_b8.png"
-dest_files=["res://.godot/imported/store_boards_b8.png-dec6b3e85e6ec795a41402e8730bf7ac.ctex"]
+dest_files=["res://.godot/imported/store_boards_b8.png-dec6b3e85e6ec795a41402e8730bf7ac.bptc.ctex", "res://.godot/imported/store_boards_b8.png-dec6b3e85e6ec795a41402e8730bf7ac.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

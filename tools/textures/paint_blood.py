@@ -135,13 +135,28 @@ SHEETS = {
                "running; a contact wound with the muzzle pressed against the skin over bone, a "
                "dark red-black hole with the skin split round it in a small star of short tears, "
                "black soot in and round it. Each seen straight on, flat. " + WHITE,
+    # The drag smear (WoundSigns._smears, #439): a swipe left by a bleeding body drawn over a
+    # floor, heavy where he lay, streaked along the way he went by the cloth, breaking into
+    # separate feathered streaks at its end, the feathered edge pointing the way he went (Bevel &
+    # Gardner, Bloodstain Pattern Analysis, ch. 9; James, Kish & Sutton 2005, "swipes"). Painted
+    # top to bottom so smear_band.py --painted cuts each into the pieces the game lays end to end.
+    "smears": "Four separate long smears of blood for a gritty frontier Western game, frank and "
+              "bloody, where a bleeding man's body was dragged across a floor: each a vertical band "
+              "running from the top of the picture to the bottom, side by side in a row with white "
+              "between them, each about a fifth of the picture wide; heavy, dark and wet at the top "
+              "where he lay, then a long swipe streaked lengthwise by the cloth that dragged it, "
+              "ragged uneven edges, gaps where the cloth lifted, thinner as it goes, and at the very "
+              "bottom breaking into separate thin feathered streaks of different lengths. Only the "
+              "blood, on a plain, flat, pure white background, no floor, no boards, nothing touching "
+              "the side edges. " + factory.MAN_HAND + " Seen from straight above, flat on. No "
+              "shadows cast, no text, no border, no frame, no hands, no people.",
 }
 
 # The model each sheet is painted with, where it isn't the texture factory's.
 GEMINI = "google/gemini-3-pro-image-preview"
 MODELS = {"stumps": GEMINI, "gore": GEMINI, "marks2": GEMINI, "aftercare": GEMINI, "cloth": GEMINI,
           "aftercare2": GEMINI, "face": GEMINI,
-          "wounds3": GEMINI}
+          "wounds3": GEMINI, "smears": GEMINI}
 
 
 def main():

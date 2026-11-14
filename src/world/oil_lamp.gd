@@ -63,6 +63,11 @@ var _flame: MeshInstance3D
 var _chimney: MeshInstance3D
 var _flame_material: StandardMaterial3D
 var _time := 0.0
+## With the render thread (Settings.render_thread) every write to the light wakes that thread
+## and waits on its queue's lock: the flicker, a write a lamp a frame, was 0.2 -> 1.0 ms a frame
+## in the lab's saloon fight. Then each lamp writes it every third frame (lamps staggered); the
+## flicker is a few hertz, so 20 writes a second draw the same. Without the thread, every frame.
+const THREAD_FLICKER_FRAMES := 3
 
 
 func _ready() -> void:
@@ -119,6 +124,8 @@ func _process_step(delta: float) -> void:
 			_shadow_check = SHADOW_CHECK
 			_shadow_for_distance()
 	_time += delta
+	if Settings.render_thread and (Engine.get_process_frames() + get_instance_id()) % THREAD_FLICKER_FRAMES != 0:
+		return
 	var flicker := 1.0 + sin(_time * 7.3) * 0.04 + sin(_time * 13.1 + 1.7) * 0.03
 	_light.light_energy = energy * flicker
 
@@ -292,11 +299,11 @@ func smash(direction := Vector3.DOWN) -> void:
 	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.05, global_position + Vector3.DOWN * 4.0, Layers.WORLD)
 	if hitbox:
 		q.exclude = [hitbox.get_rid()]
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	if not hit.is_empty():
 		at = hit.position
 	if hitbox:
 		hitbox.queue_free()
 	var fire := FireSystem.find(get_tree())
-	if fire:
+	if fire and FireSystem.in_play:  # (fire out of the game for now: FireSystem.in_play)
 		fire.spill(at)

@@ -384,7 +384,7 @@ func _dropped_rest() -> Dictionary:
 				low = minf(low, (m.global_transform * box.get_endpoint(i)).y)
 		var q := PhysicsRayQueryParameters3D.create(rb.global_position + Vector3.UP, rb.global_position + Vector3.DOWN * 3.0, Layers.WORLD)
 		q.exclude = [rb.get_rid()]
-		var hit := rb.get_world_3d().direct_space_state.intersect_ray(q)
+		var hit := World.space(rb).intersect_ray(q)
 		var ground: float = hit.position.y if not hit.is_empty() else 0.0
 		return {"lowest_above_ground_mm": roundf((low - ground) * 1000.0), "asleep": rb.sleeping,
 				"speed": snappedf(rb.linear_velocity.length(), 0.01), "at": lab.arr(rb.global_position)}

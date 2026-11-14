@@ -1,0 +1,88 @@
+{
+  "derail": {},
+  "frames": {
+    "before_mean_ms": 12.5877116279069,
+    "frames": 484,
+    "gate": "pass",
+    "last_under_50fps_s": 7.23333333333292,
+    "mean_ms": 12.036617768595,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 20.345,
+    "second_ms": 25.04,
+    "slow_spell_s": 0.0313000000000017,
+    "worst_ms": 31.3
+  },
+  "outcome": "ran through",
+  "seen": [
+    {
+      "daylight": 1.0,
+      "distance": 79.8148259018854,
+      "kind": "blocked",
+      "kmh": 19.9977901823717,
+      "lux": 10000.0,
+      "range": 450.0,
+      "s": 300.185174098115,
+      "t": 1.9,
+      "what": "on_line4",
+      "who": "engineer"
+    }
+  ],
+  "short_by": -164.393208258981,
+  "spec": {
+    "at": 380.0,
+    "driver": "none",
+    "hour": 12.0,
+    "how": "man",
+    "kmh": 20.0,
+    "out": "/home/user/Western/build/train_lab/derail/man_20_nobody.json",
+    "riders": 0,
+    "run_up": 80.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "stopped_at": 544.393208258981,
+  "struck": [
+    {
+      "car": 0,
+      "how": "run over, upper_arm_r off",
+      "part": "upper_arm_r",
+      "speed": 5.57841182329479,
+      "t": 16.9000000000003,
+      "who": "on_line4"
+    },
+    {
+      "car": 0,
+      "how": "run over, shin_l off",
+      "part": "shin_l",
+      "speed": 5.57810189199336,
+      "t": 16.916666666667,
+      "who": "on_line4"
+    },
+    {
+      "car": 0,
+      "how": "run over, shin_r off",
+      "part": "shin_r",
+      "speed": 5.57655101705218,
+      "t": 17.0000000000003,
+      "who": "on_line4"
+    },
+    {
+      "car": 0,
+      "how": "run over",
+      "part": "shin_r",
+      "speed": 5.55767382460377,
+      "t": 18.0166666666669,
+      "who": "on_line4"
+    },
+    {
+      "car": 0,
+      "how": "run over",
+      "part": "foot_r",
+      "speed": 5.54913233858499,
+      "t": 18.5000000000002,
+      "who": "on_line4"
+    }
+  ],
+  "thrown": 0
+}

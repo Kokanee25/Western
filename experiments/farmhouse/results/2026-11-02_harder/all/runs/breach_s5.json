@@ -1,0 +1,319 @@
+{
+ "alarm": 170.25,
+ "blocking": [
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_006_0",
+  "0.3:House/floor_lean_to_joist_004",
+  "0.3:House/floor_lean_to_board_008_0",
+  "0.3:House/floor_lean_to_joist_005",
+  "0.3:House/floor_lean_to_joist_006",
+  "0.3:House/floor_lean_to_board_010_0",
+  "0.3:House/floor_lean_to_joist_007",
+  "0.3:Hollis/Rag_thigh_l",
+  "RB RigidBody3D at [1.57, 0.74, 5.93] mass 8.0 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "0.3:Hollis/Rag_thigh_r",
+  "RB RigidBody3D at [1.49, 0.69, 6.16] mass 8.0 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "0.3:TestStreet/HatOf_Dutch",
+  "RB RigidBody3D at [1.72, 0.65, 5.77] mass 0.11999999731779 kids [&\"@CollisionShape3D@24509\", &\"@MeshInstance3D@24510\", &\"@MeshInstance3D@24511\", &\"@MeshInstance3D@24512\"] meta [&\"hat_of\"]",
+  "0.3:Hollis/Rag_shin_l",
+  "RB RigidBody3D at [1.9, 0.71, 6.05] mass 3.72000002861023 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 169.75,
+  "freed": -1.0,
+  "froze": 26.1166666666665,
+  "gate_left": 106.1,
+  "gate_wait": 54.8833333333315,
+  "hid": 167.5,
+  "phase_at": {
+   "lit": 164.82,
+   "plant": 162.73,
+   "through": 171.25
+  },
+  "planted": 164.82
+ },
+ "bot_phase": "through",
+ "bot_target": "Lyle",
+ "breach": 170.25,
+ "end": 181.53,
+ "executed": -1.0,
+ "found": 173.03,
+ "frames": {
+  "blast_ms": 217.23,
+  "fight_ticks": 677,
+  "max_ms": 217.23,
+  "mean_ms": 32.03,
+  "p95_ms": 49.1
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   6.82,
+   2.67,
+   2.51
+  ],
+  "limp": false,
+  "pelvis": [
+   6.82,
+   1.91,
+   2.51
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  6.82,
+  2.29,
+  2.51
+ ],
+ "men": 7,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're back)",
+   "id": "brody",
+   "inside": true,
+   "knows": 4.3,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "hold on: past his nerve (fear 1.22 / 1.06), nowhere to run (1 of 3)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 4.1,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "hold on: past his nerve (fear 0.75 / 0.69), nowhere to run (1 of 3)",
+   "id": "kid",
+   "inside": true,
+   "knows": 4.3,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 4.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "back",
+   "decision": "to kitchen crates: kitchen crates (you're back)",
+   "id": "pike",
+   "inside": false,
+   "knows": 5.1,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to kitchen door: kitchen door (you're back)",
+   "id": "wes",
+   "inside": true,
+   "knows": 4.3,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, going pale with no wound to show for it, bleeding steady, can't feel his legs, gut-shot, bone broken.",
+ "player_local": [
+  2.19,
+  0.56,
+  6.79
+ ],
+ "quits": [
+  [
+   170.27,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   175.9,
+   "pike",
+   "gives up",
+   "to kitchen crates: kitchen crates (you're back)",
+   true
+  ],
+  [
+   179.07,
+   "dutch",
+   "gives up",
+   "hold on: past his nerve (fear 1.22 / 1.06), nowhere to run (1 of 3)",
+   true
+  ]
+ ],
+ "route_left": 9,
+ "route_next": [
+  1.6,
+  0.56,
+  6.35
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 5,
+ "shots_men": 4,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": 170.25,
+ "t": 181.53,
+ "threat": 175.92,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   170.25,
+   "Hollis down"
+  ],
+  [
+   170.25,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   170.25,
+   "Pike falls back to the house (the alarm, 6 m from the door, you 9 m off)"
+  ],
+  [
+   170.25,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 16 m off)"
+  ],
+  [
+   170.27,
+   "Hollis gives up ()"
+  ],
+  [
+   171.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.95,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.95,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.98,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   173.03,
+   "found: you fired"
+  ],
+  [
+   175.9,
+   "Pike down"
+  ],
+  [
+   175.9,
+   "Pike gives up (to kitchen crates: kitchen crates (you're back))"
+  ],
+  [
+   175.92,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   179.07,
+   "Dutch down"
+  ],
+  [
+   179.07,
+   "Dutch gives up (hold on: past his nerve (fear 1.22 / 1.06), nowhere to run (1 of 3))"
+  ],
+  [
+   181.53,
+   "lost: you_down"
+  ]
+ ],
+ "way": "breach",
+ "where": "kitchen"
+}

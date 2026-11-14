@@ -1,0 +1,12 @@
+a man_saloon_night build/final2/man_saloon_night.png
+b saloon_toward_door_night build/final2/saloon_toward_door_night.png
+c saloon_night build/final2/saloon_night.png
+d saloon_back_wall_night_r2b build/final2/saloon_back_wall_night_r2b.png
+e saloon_night_r2a build/final2/saloon_night_r2a.png
+f man_saloon_night_r2b build/final2/man_saloon_night_r2b.png
+g saloon_back_wall_night_r2a build/final2/saloon_back_wall_night_r2a.png
+h saloon_toward_door_night_r2b build/final2/saloon_toward_door_night_r2b.png
+i saloon_toward_door_night_r2a build/final2/saloon_toward_door_night_r2a.png
+j saloon_back_wall_night build/final2/saloon_back_wall_night.png
+k man_saloon_night_r2a build/final2/man_saloon_night_r2a.png
+l saloon_night_r2b build/final2/saloon_night_r2b.png

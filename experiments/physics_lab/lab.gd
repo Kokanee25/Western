@@ -9,6 +9,9 @@ extends SceneTree
 ## --friction=F, --friction-ends=F: his parts' friction (hands and feet: ends) from the tick he goes
 ## limp, in place of HumanBody's 0.9 (an experiment; logged in the events). --surface-friction=F:
 ## the fixture's (all but the ground).
+## --tone=STYLE: HumanBody.tone_style for every scenario (off, fade, dying), over each one's own `tone` field.
+## --momentum=on|off: HumanBody.keep_stride (issue #446), the game's without it.
+## --lift=F: BlastTuning.blast_lift (issue #596 step 3b), over each scenario's own `lift`.
 ## --seed=N (HumanBody.rng_seed). --model=ID (the body: outlaw, the MakeHuman man, by default).
 ## --repeat=K (each scenario K times in this one process, compared tick by tick with the first).
 ## --perf (1, 5 and 10 men going limp on the same tick; frame times).
@@ -125,7 +128,8 @@ func _run() -> void:
 			runner.out_dir = dir
 			runner.count = int(s.get("men", 1))
 			runner.render = args.has("render")
-			runner.light = bool(s.get("light", false))
+			# --light: no per-tick logging, for a frame's cost (group O's rail broken by a kick).
+			runner.light = bool(s.get("light", false)) or args.has("light")
 			if args.has("views"):
 				runner.views = Array(args.views.split(","))
 			if args.has("size"):
@@ -151,6 +155,12 @@ func _run() -> void:
 				runner.surface_friction = float(args["surface-friction"])
 			if args.has("friction-ends"):
 				runner.friction_ends = float(args["friction-ends"])
+			if args.has("tone"):
+				runner.tone = StringName(args.tone)
+			if args.has("momentum"):
+				runner.momentum = String(args.momentum)
+			if args.has("lift"):
+				runner.lift = float(args.lift)
 			root.add_child(runner)
 			while not runner.done:
 				await physics_frame

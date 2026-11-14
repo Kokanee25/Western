@@ -1,0 +1,960 @@
+{
+  "after": {
+    "bents_down": 2,
+    "broken": 163,
+    "by_kind": {
+      "bent_sill": 6,
+      "brace": 55,
+      "cap": 2,
+      "girt": 24,
+      "guard": 6,
+      "post": 32,
+      "rail": 6,
+      "stringer": 8,
+      "tie": 24
+    },
+    "deck_damage": 11,
+    "rails_gone": 6
+  },
+  "derail": {
+    "key": {
+      "at": 162.084763392953,
+      "section": "gorge_bend"
+    },
+    "kind": "blocked",
+    "kmh": 39.3478487266225,
+    "numeric": false,
+    "s": 612.098285027568,
+    "side": 0,
+    "t": 28.333333333333,
+    "what": "TrestleLabLine @RigidBody3D@38215"
+  },
+  "fired": {
+    "how": "stick",
+    "kg_each": 0.4,
+    "ms": 508.567,
+    "posts": 8,
+    "stagger_ticks": 1,
+    "worst_one_ms": 21.8
+  },
+  "frames": {
+    "before_mean_ms": 19.89,
+    "frames": 918,
+    "gate": "fail",
+    "last_under_50fps_s": 20.07,
+    "mean_ms": 25.06,
+    "over_100": 0,
+    "over_50": 16,
+    "sean_worst_ms": 60.7,
+    "second_ms": 93.0,
+    "slow_spell_s": 1.26,
+    "worst_at_s": 0.57,
+    "worst_ms": 93.4
+  },
+  "frames_fall": {
+    "before_mean_ms": 21.26,
+    "frames": 723,
+    "gate": "fail",
+    "last_under_50fps_s": 13.93,
+    "mean_ms": 23.35,
+    "over_100": 0,
+    "over_50": 6,
+    "sean_worst_ms": 43.3,
+    "second_ms": 64.3,
+    "slow_spell_s": 0.61,
+    "worst_at_s": 4.89,
+    "worst_ms": 66.6
+  },
+  "load_cost": {
+    "seeds": 14,
+    "set": 183,
+    "settles": 0,
+    "updates": 158,
+    "us": 1662454
+  },
+  "outcome": "fell",
+  "prof_ms_a_frame": {
+    "ballistics": 0.32,
+    "bu_forget": 0.06,
+    "civilian_brain": 0.79,
+    "day_cycle": 0.17,
+    "fire": 0.11,
+    "fire_loads": 0.08,
+    "floor_marks": 0.09,
+    "horses": 0.2,
+    "kit_balance": 0.09,
+    "lamps": 0.15,
+    "lines_senses": 0.93,
+    "mop": 0.09,
+    "outlaw_brain": 0.1,
+    "people_bands": 0.27,
+    "people_body": 4.92,
+    "people_prep": 1.21,
+    "people_prep_sum": 2.67,
+    "people_skeleton": 1.19,
+    "player": 0.61,
+    "rubble_rest": 0.06,
+    "senses": 2.39,
+    "sight_sync": 0.16,
+    "structures": 0.73,
+    "train": 1.28,
+    "train_bridge": 0.08,
+    "train_carry": 0.16,
+    "train_lookout": 0.09,
+    "train_sound": 0.27,
+    "train_view": 0.21,
+    "trestle_advance": 0.42,
+    "trestle_analyse": 0.54,
+    "trestle_start": 0.12,
+    "trestle_want": 0.14
+  },
+  "rubble": {
+    "awake_at_end": 2,
+    "pieces": 92
+  },
+  "slow_frames": [
+    {
+      "awake": 0,
+      "ms": 42.1,
+      "physics_ms": 23.9,
+      "process_ms": 8.7,
+      "rubble": 0,
+      "t": 21.03,
+      "top": {
+        "lines_senses": 5.1,
+        "people_bands": 2.4,
+        "people_body": 6.7,
+        "people_prep": 1.3,
+        "people_prep_sum": 2.8,
+        "people_skeleton": 1.2,
+        "player": 3.0,
+        "senses": 6.7
+      }
+    },
+    {
+      "awake": 0,
+      "ms": 40.4,
+      "physics_ms": 24.5,
+      "process_ms": 4.5,
+      "rubble": 0,
+      "t": 23.6,
+      "top": {
+        "civilian_brain": 6.7,
+        "horses": 1.0,
+        "lines_senses": 2.9,
+        "people_body": 7.0,
+        "people_prep": 1.1,
+        "people_prep_sum": 2.6,
+        "people_skeleton": 1.1,
+        "senses": 8.2
+      }
+    },
+    {
+      "awake": 13,
+      "ms": 72.6,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 13,
+      "t": 24.3,
+      "top": {
+        "ballistics": 23.4,
+        "blast_break": 10.8,
+        "blast_fx": 6.6,
+        "blast_settle": 7.4,
+        "people_body": 4.5,
+        "people_prep_sum": 4.1,
+        "settle_analyse": 6.0,
+        "train": 3.8
+      }
+    },
+    {
+      "awake": 19,
+      "ms": 83.7,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 19,
+      "t": 24.32,
+      "top": {
+        "ballistics": 5.3,
+        "kit_balance": 1.7,
+        "people_body": 5.3,
+        "people_prep_sum": 2.5,
+        "senses": 3.5,
+        "structures": 4.3,
+        "train": 4.3,
+        "train_bridge": 3.8
+      }
+    },
+    {
+      "awake": 21,
+      "ms": 40.5,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 21,
+      "t": 24.33,
+      "top": {
+        "ballistics": 4.5,
+        "blast_fx": 1.2,
+        "people_body": 4.1,
+        "people_prep": 1.6,
+        "people_prep_sum": 2.7,
+        "senses": 1.5,
+        "train": 3.7,
+        "train_bridge": 3.3
+      }
+    },
+    {
+      "awake": 31,
+      "ms": 54.6,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 31,
+      "t": 24.35,
+      "top": {
+        "ballistics": 13.2,
+        "batches": 2.9,
+        "blast_break": 2.8,
+        "blast_snap": 2.5,
+        "people_body": 3.4,
+        "people_prep_sum": 2.9,
+        "train": 3.5,
+        "train_bridge": 3.1
+      }
+    },
+    {
+      "awake": 45,
+      "ms": 93.0,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 45,
+      "t": 24.37,
+      "top": {
+        "ballistics": 25.9,
+        "batches": 2.7,
+        "blast_break": 7.0,
+        "blast_snap": 6.5,
+        "people_body": 5.8,
+        "senses": 3.4,
+        "train": 4.7,
+        "train_bridge": 4.2
+      }
+    },
+    {
+      "awake": 49,
+      "ms": 55.0,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 49,
+      "t": 24.38,
+      "top": {
+        "ballistics": 9.1,
+        "blast_break": 2.9,
+        "blast_snap": 2.7,
+        "people_body": 5.1,
+        "people_prep_sum": 2.3,
+        "senses": 2.0,
+        "train": 4.5,
+        "train_bridge": 3.9
+      }
+    },
+    {
+      "awake": 51,
+      "ms": 82.7,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 51,
+      "t": 24.4,
+      "top": {
+        "ballistics": 20.3,
+        "batches": 3.2,
+        "blast_break": 2.9,
+        "blast_snap": 2.6,
+        "people_body": 6.2,
+        "senses": 3.7,
+        "train": 4.6,
+        "train_bridge": 4.0
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 93.4,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 61,
+      "t": 24.42,
+      "top": {
+        "ballistics": 29.7,
+        "batches": 3.9,
+        "blast_break": 5.2,
+        "blast_snap": 4.6,
+        "people_body": 5.6,
+        "senses": 2.9,
+        "train": 4.7,
+        "train_bridge": 4.0
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 65.2,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 61,
+      "t": 24.43,
+      "top": {
+        "ballistics": 15.3,
+        "batches": 2.3,
+        "lines_senses": 1.5,
+        "people_body": 5.6,
+        "people_prep": 1.4,
+        "people_prep_sum": 2.7,
+        "senses": 3.1,
+        "voxels": 5.4
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 76.2,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 61,
+      "t": 24.45,
+      "top": {
+        "ballistics": 15.8,
+        "batches": 2.1,
+        "fire": 35.9,
+        "fire_analyse": 33.6,
+        "fire_loads": 35.8,
+        "people_body": 4.4,
+        "people_prep_sum": 1.9,
+        "senses": 2.7
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 41.5,
+      "physics_ms": 37.3,
+      "process_ms": 3.5,
+      "rubble": 61,
+      "t": 24.47,
+      "top": {
+        "ballistics": 11.4,
+        "batches": 1.4,
+        "fire": 7.4,
+        "fire_analyse": 6.7,
+        "fire_loads": 7.3,
+        "people_body": 3.9,
+        "people_prep_sum": 1.9,
+        "voxels": 1.8
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 41.1,
+      "physics_ms": 89.1,
+      "process_ms": 8.1,
+      "rubble": 61,
+      "t": 24.53,
+      "top": {
+        "ballistics": 8.2,
+        "fire": 3.0,
+        "fire_analyse": 2.4,
+        "fire_loads": 3.0,
+        "horses": 1.9,
+        "people_body": 4.7,
+        "people_prep_sum": 2.8,
+        "senses": 6.7
+      }
+    },
+    {
+      "awake": 61,
+      "ms": 55.1,
+      "physics_ms": 89.1,
+      "process_ms": 8.1,
+      "rubble": 61,
+      "t": 24.55,
+      "top": {
+        "ballistics": 10.8,
+        "day_cycle": 6.0,
+        "fire": 6.0,
+        "fire_analyse": 5.3,
+        "fire_loads": 6.0,
+        "people_body": 5.7,
+        "people_prep_sum": 2.5,
+        "senses": 2.8
+      }
+    },
+    {
+      "awake": 66,
+      "ms": 44.5,
+      "physics_ms": 89.1,
+      "process_ms": 8.1,
+      "rubble": 66,
+      "t": 24.7,
+      "top": {
+        "ballistics": 9.2,
+        "fire": 3.7,
+        "fire_analyse": 3.2,
+        "fire_loads": 3.7,
+        "people_body": 6.8,
+        "senses": 3.4,
+        "train": 4.9,
+        "train_bridge": 4.3
+      }
+    },
+    {
+      "awake": 72,
+      "ms": 41.7,
+      "physics_ms": 89.1,
+      "process_ms": 8.1,
+      "rubble": 72,
+      "t": 24.8,
+      "top": {
+        "ballistics": 5.7,
+        "fire": 5.2,
+        "fire_apply": 4.4,
+        "fire_loads": 5.1,
+        "people_body": 5.4,
+        "senses": 3.1,
+        "train": 3.9,
+        "train_bridge": 3.2
+      }
+    },
+    {
+      "awake": 75,
+      "ms": 44.4,
+      "physics_ms": 89.1,
+      "process_ms": 8.1,
+      "rubble": 75,
+      "t": 24.85,
+      "top": {
+        "ballistics": 4.1,
+        "kit_balance": 2.6,
+        "people_body": 5.7,
+        "people_prep_sum": 2.6,
+        "senses": 3.3,
+        "structures": 6.2,
+        "train": 5.0,
+        "train_bridge": 4.4
+      }
+    },
+    {
+      "awake": 88,
+      "ms": 48.2,
+      "physics_ms": 48.3,
+      "process_ms": 8.3,
+      "rubble": 88,
+      "t": 25.02,
+      "top": {
+        "ballistics": 6.3,
+        "fire": 9.1,
+        "fire_apply": 7.2,
+        "fire_loads": 9.0,
+        "people_body": 5.5,
+        "people_prep": 5.0,
+        "people_prep_sum": 8.2,
+        "senses": 2.9
+      }
+    },
+    {
+      "awake": 90,
+      "ms": 41.0,
+      "physics_ms": 48.3,
+      "process_ms": 8.3,
+      "rubble": 90,
+      "t": 25.05,
+      "top": {
+        "ballistics": 5.0,
+        "batches": 3.2,
+        "fire": 7.7,
+        "fire_analyse": 3.7,
+        "fire_apply": 3.8,
+        "fire_loads": 7.6,
+        "people_body": 5.4,
+        "people_prep_sum": 2.5
+      }
+    },
+    {
+      "awake": 90,
+      "ms": 43.1,
+      "physics_ms": 44.9,
+      "process_ms": 5.2,
+      "rubble": 90,
+      "t": 25.63,
+      "top": {
+        "ballistics": 4.6,
+        "people_body": 6.5,
+        "senses": 4.5,
+        "shadow_set": 3.4,
+        "train": 5.4,
+        "train_carry": 4.6,
+        "trestle_advance": 3.2,
+        "trestle_analyse": 3.9
+      }
+    },
+    {
+      "awake": 89,
+      "ms": 40.4,
+      "physics_ms": 44.9,
+      "process_ms": 5.2,
+      "rubble": 90,
+      "t": 26.08,
+      "top": {
+        "ballistics": 3.8,
+        "people_body": 6.0,
+        "people_prep_sum": 2.5,
+        "senses": 3.8,
+        "train": 8.3,
+        "train_carry": 7.2,
+        "trestle_advance": 4.9,
+        "trestle_analyse": 6.1
+      }
+    },
+    {
+      "awake": 65,
+      "ms": 42.1,
+      "physics_ms": 36.6,
+      "process_ms": 4.3,
+      "rubble": 90,
+      "t": 27.63,
+      "top": {
+        "people_body": 6.8,
+        "people_prep_sum": 3.0,
+        "people_skeleton": 1.7,
+        "senses": 3.5,
+        "train": 12.8,
+        "trestle_advance": 8.0,
+        "trestle_analyse": 10.2,
+        "trestle_start": 2.2
+      }
+    },
+    {
+      "awake": 65,
+      "ms": 63.3,
+      "physics_ms": 36.6,
+      "process_ms": 4.3,
+      "rubble": 92,
+      "t": 27.73,
+      "top": {
+        "bu_forget": 2.7,
+        "people_body": 6.2,
+        "senses": 4.1,
+        "settle_analyse": 21.6,
+        "train": 35.5,
+        "trestle_advance": 6.8,
+        "trestle_analyse": 8.4,
+        "trestle_want": 26.0
+      }
+    },
+    {
+      "awake": 60,
+      "ms": 41.8,
+      "physics_ms": 60.7,
+      "process_ms": 4.0,
+      "rubble": 92,
+      "t": 28.18,
+      "top": {
+        "lines_senses": 2.0,
+        "people_body": 6.3,
+        "people_prep_sum": 2.4,
+        "senses": 5.4,
+        "train": 13.7,
+        "trestle_advance": 8.5,
+        "trestle_analyse": 10.5,
+        "trestle_start": 2.1
+      }
+    },
+    {
+      "awake": 45,
+      "ms": 42.1,
+      "physics_ms": 60.7,
+      "process_ms": 4.0,
+      "rubble": 92,
+      "t": 28.48,
+      "top": {
+        "bu_closure": 2.6,
+        "people_body": 3.7,
+        "people_prep_sum": 2.9,
+        "senses": 2.6,
+        "train": 22.3,
+        "trestle_advance": 14.6,
+        "trestle_analyse": 18.5,
+        "trestle_start": 3.9
+      }
+    },
+    {
+      "awake": 36,
+      "ms": 64.3,
+      "physics_ms": 40.0,
+      "process_ms": 3.4,
+      "rubble": 93,
+      "t": 28.93,
+      "top": {
+        "bu_forget": 2.5,
+        "people_body": 6.0,
+        "senses": 3.7,
+        "settle_analyse": 21.3,
+        "train": 37.1,
+        "trestle_advance": 7.1,
+        "trestle_analyse": 8.8,
+        "trestle_want": 26.4
+      }
+    },
+    {
+      "awake": 36,
+      "ms": 42.6,
+      "physics_ms": 61.1,
+      "process_ms": 5.3,
+      "rubble": 93,
+      "t": 29.38,
+      "top": {
+        "people_body": 6.7,
+        "people_prep_sum": 2.8,
+        "senses": 3.1,
+        "structures": 4.5,
+        "train": 10.9,
+        "trestle_advance": 6.6,
+        "trestle_analyse": 8.4,
+        "trestle_start": 1.8
+      }
+    },
+    {
+      "awake": 24,
+      "ms": 43.9,
+      "physics_ms": 61.1,
+      "process_ms": 5.3,
+      "rubble": 92,
+      "t": 29.73,
+      "top": {
+        "lines_senses": 2.3,
+        "people_body": 6.2,
+        "people_prep_sum": 3.6,
+        "senses": 4.5,
+        "train": 15.8,
+        "trestle_advance": 10.0,
+        "trestle_analyse": 12.8,
+        "trestle_start": 2.9
+      }
+    },
+    {
+      "awake": 23,
+      "ms": 41.0,
+      "physics_ms": 40.8,
+      "process_ms": 3.5,
+      "rubble": 92,
+      "t": 30.03,
+      "top": {
+        "people_body": 6.0,
+        "people_prep_sum": 2.9,
+        "senses": 3.1,
+        "train": 16.0,
+        "trestle_advance": 10.3,
+        "trestle_analyse": 12.9,
+        "trestle_start": 2.6,
+        "trestle_want": 1.6
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 42.5,
+      "physics_ms": 40.8,
+      "process_ms": 3.5,
+      "rubble": 92,
+      "t": 30.13,
+      "top": {
+        "bu_forget": 1.5,
+        "people_body": 6.3,
+        "people_prep_sum": 2.9,
+        "senses": 3.5,
+        "train": 16.1,
+        "trestle_advance": 10.2,
+        "trestle_analyse": 13.2,
+        "trestle_start": 3.0
+      }
+    },
+    {
+      "awake": 18,
+      "ms": 47.6,
+      "physics_ms": 40.8,
+      "process_ms": 3.5,
+      "rubble": 92,
+      "t": 30.38,
+      "top": {
+        "people_body": 6.7,
+        "people_prep_sum": 2.7,
+        "senses": 2.1,
+        "train": 20.1,
+        "trestle_advance": 12.8,
+        "trestle_analyse": 16.3,
+        "trestle_start": 3.6,
+        "trestle_want": 2.1
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 66.6,
+      "physics_ms": 44.5,
+      "process_ms": 3.9,
+      "rubble": 92,
+      "t": 30.58,
+      "top": {
+        "bu_forget": 3.7,
+        "people_body": 8.0,
+        "senses": 5.4,
+        "train": 24.6,
+        "trestle_advance": 13.1,
+        "trestle_analyse": 19.2,
+        "trestle_start": 6.0,
+        "trestle_want": 4.0
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 53.3,
+      "physics_ms": 44.5,
+      "process_ms": 3.9,
+      "rubble": 92,
+      "t": 30.62,
+      "top": {
+        "civilian_brain": 2.1,
+        "lines_senses": 3.0,
+        "people_body": 16.0,
+        "people_prep": 1.6,
+        "people_prep_sum": 3.0,
+        "people_skeleton": 2.9,
+        "player": 1.7,
+        "senses": 7.4
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 63.2,
+      "physics_ms": 44.5,
+      "process_ms": 3.9,
+      "rubble": 92,
+      "t": 30.63,
+      "top": {
+        "people_body": 9.4,
+        "people_prep_sum": 2.9,
+        "senses": 4.6,
+        "train": 27.8,
+        "trestle_advance": 18.4,
+        "trestle_analyse": 22.5,
+        "trestle_start": 4.1,
+        "trestle_want": 2.5
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 43.3,
+      "physics_ms": 44.5,
+      "process_ms": 3.9,
+      "rubble": 92,
+      "t": 30.73,
+      "top": {
+        "people_body": 6.1,
+        "people_prep": 1.9,
+        "people_prep_sum": 2.9,
+        "senses": 2.6,
+        "train": 16.2,
+        "trestle_advance": 10.6,
+        "trestle_analyse": 13.4,
+        "trestle_start": 2.7
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 40.3,
+      "physics_ms": 44.5,
+      "process_ms": 3.9,
+      "rubble": 92,
+      "t": 30.88,
+      "top": {
+        "people_body": 4.9,
+        "people_prep": 1.6,
+        "people_prep_sum": 3.5,
+        "senses": 3.9,
+        "train": 14.8,
+        "trestle_advance": 9.5,
+        "trestle_analyse": 12.1,
+        "trestle_start": 2.6
+      }
+    },
+    {
+      "awake": 17,
+      "ms": 43.4,
+      "physics_ms": 44.5,
+      "process_ms": 3.9,
+      "rubble": 92,
+      "t": 30.98,
+      "top": {
+        "people_body": 5.4,
+        "people_prep_sum": 2.2,
+        "senses": 3.7,
+        "structures": 4.4,
+        "train": 16.1,
+        "trestle_advance": 10.3,
+        "trestle_analyse": 13.2,
+        "trestle_start": 2.8
+      }
+    },
+    {
+      "awake": 15,
+      "ms": 40.8,
+      "physics_ms": 63.4,
+      "process_ms": 7.5,
+      "rubble": 92,
+      "t": 31.33,
+      "top": {
+        "lines_senses": 1.5,
+        "people_body": 5.7,
+        "people_prep_sum": 2.9,
+        "senses": 3.6,
+        "train": 15.9,
+        "trestle_advance": 10.4,
+        "trestle_analyse": 13.3,
+        "trestle_start": 2.9
+      }
+    },
+    {
+      "awake": 15,
+      "ms": 47.5,
+      "physics_ms": 38.0,
+      "process_ms": 3.2,
+      "rubble": 92,
+      "t": 31.73,
+      "top": {
+        "people_body": 7.2,
+        "people_prep_sum": 2.5,
+        "people_skeleton": 1.6,
+        "senses": 7.2,
+        "train": 17.4,
+        "trestle_advance": 11.5,
+        "trestle_analyse": 14.8,
+        "trestle_start": 3.3
+      }
+    },
+    {
+      "awake": 15,
+      "ms": 41.0,
+      "physics_ms": 38.0,
+      "process_ms": 3.2,
+      "rubble": 92,
+      "t": 31.78,
+      "top": {
+        "people_body": 5.6,
+        "people_prep_sum": 2.7,
+        "senses": 3.9,
+        "structures": 4.8,
+        "train": 13.1,
+        "trestle_advance": 8.2,
+        "trestle_analyse": 10.7,
+        "trestle_start": 2.4
+      }
+    },
+    {
+      "awake": 0,
+      "ms": 55.9,
+      "physics_ms": 44.9,
+      "process_ms": 6.2,
+      "rubble": 92,
+      "t": 32.53,
+      "top": {
+        "people_body": 13.8,
+        "people_prep": 3.4,
+        "people_prep_sum": 6.2,
+        "people_skeleton": 5.1,
+        "senses": 8.7,
+        "train": 10.4,
+        "trestle_advance": 7.0,
+        "trestle_analyse": 8.9
+      }
+    }
+  ],
+  "spec": {
+    "at": 0.6,
+    "bent": "mid",
+    "bents": 2,
+    "board": -1,
+    "fresh": 1,
+    "how": "stick",
+    "kmh": 40.0,
+    "lead": 40.0,
+    "out": "/home/user/Western/build/r2/runs/two_under_40.json",
+    "posts": "all",
+    "riders": 0,
+    "run_up": 250.0,
+    "secs": 12.0,
+    "stagger": 1,
+    "sticks": 2,
+    "story": "bottom",
+    "train": "cross",
+    "wait": 6.0,
+    "when": "under"
+  },
+  "t_fire": 24.3,
+  "t_off": 27.5333333333333,
+  "wreck": {
+    "bents_s": [
+      617.8,
+      622.6
+    ],
+    "bodies": 9,
+    "events": [
+      {
+        "kmh": 39.3478487266225,
+        "side": 1.0,
+        "t": 0.0,
+        "what": "derailed"
+      },
+      {
+        "between": [
+          0,
+          1
+        ],
+        "t": 2.06666666666666,
+        "what": "coupler torn",
+        "why": "jackknife"
+      },
+      {
+        "between": [
+          1,
+          2
+        ],
+        "t": 2.13333333333333,
+        "what": "coupler torn",
+        "why": "jackknife"
+      },
+      {
+        "car": 2,
+        "dv": 0.0,
+        "t": 2.13333333333333,
+        "what": "car broken",
+        "why": "jackknife"
+      }
+    ],
+    "fell_into_gorge": 4,
+    "gaps": [
+      "broken 605.7-614.9",
+      "broken 605.7-614.9",
+      "blocked 612.0-616.0",
+      "broken 612.9-627.3",
+      "broken 614.9-624.0",
+      "broken 614.9-624.0",
+      "blocked 616.0-620.0",
+      "blocked 620.0-624.0",
+      "broken 624.0-633.1",
+      "broken 624.0-633.1",
+      "blocked 624.0-628.0"
+    ],
+    "where": [
+      "0/whole s635.1 dy-25.8 v1.5 on Gorge",
+      "1/whole s611.9 dy-24.8 v2.2 on Gorge",
+      "3/whole s604.7 dy-0.1 v0.0",
+      "4/whole s595.8 dy-0.0 v0.0 on tie_00993",
+      "5/whole s585.5 dy0.0 v0.0 on str_2_004",
+      "6/whole s573.3 dy-0.1 v0.0",
+      "2/front s610.2 dy-27.4 v0.0",
+      "2/back s620.4 dy-26.5 v1.5 on Gorge"
+    ]
+  }
+}

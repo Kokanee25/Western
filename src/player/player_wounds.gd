@@ -10,8 +10,15 @@ extends Node
 ## Sits under the Player; registers itself as the thing bullets hit (meta "human_body").
 
 signal knocked_out
+## A line put on the screen (`say`): the dev bridge's `events` logs it.
+signal shown(text: String)
 
 const OVERLAY_SHADER := preload("res://src/player/wound_overlay.gdshader")
+const GRIT_SHADER := preload("res://src/player/blast_grit.gdshader")
+## The whine of ringing ears (SynthSounds' `ringing`), Hz.
+const RING_HZ := 3800.0
+## What's between a blast and you is asked from this far over the charge (m).
+const SHIELD_FROM := 0.3
 const CLOTHES_RESISTANCE := 3.0
 const TEND_TOURNIQUET_SECONDS := 4.0
 ## Out cold, you come round this many game hours later, with this share of your blood still
@@ -27,6 +34,12 @@ var player: Player
 var wounds: Array[Dictionary] = []
 var tending := 0.0
 var out_cold := 0.0
+## Down (or dead), you stay down: no coming round (the gunfight lab, once its played fight is over,
+## so its record, `read all` and what happens next agree: #595's "dead, then up again").
+var stays_down := false
+## Why the gun in your hand can't be used, as last told (so it's said once, and again only when tried).
+var _gun_why := ""
+var _gun_told := -INF
 
 var _rng := RandomNumberGenerator.new()
 var _flash := 0.0
@@ -37,11 +50,48 @@ var _message: Label
 var _message_time := 0.0
 var _held := 0.0
 var _day_cycle: Node
-## Seconds of ringing ears left, and how hard the view is shaking (from a blast).
+## What a blast does to you that isn't a wound (#596 step 2; BlastTuning's "On you"), each by the
+## pressure at your ear: the world dulled, ringing ears, the view shaken, grit in your eyes.
+## Seconds of ringing ears left, of `_ring_len` when it began, its whine `_ring_top` loud (linear).
 var ringing := 0.0
+var _ring_len := 0.0
+var _ring_top := 0.0
+## What you hear through now (Hz: the ears' low-pass), and the dulling's way: from what you heard
+## through when it hit, down to its deepest, for `_muffle_len` s after it settles in.
+var muffle_hz := 20000.0
+var _muffle_from := 20000.0
+var _muffle_deep := 20000.0
+var _muffle_len := 0.0
+var _muffle_t := INF
+## The whine's clock: from when its blast reached you (it comes in as your ears give).
+var _ring_t := INF
+## Burst eardrums' muffle as it's come in (it comes in as your ears give, after the blast).
+var _deaf := 0.0
+## How far the view is shaken now (degrees), and the shake's way: its top, its length, its clock
+## (less than 0 while the blast is still on its way), the kick away from it (pitch, yaw: degrees),
+## its wobble's phases, and the turn it gives the camera now (degrees: pitch, yaw, roll; the gun in
+## your hands puts it on with its kick, WeaponViewmodel._animate_camera).
+var view_shake := Vector3.ZERO
 var shake := 0.0
+var _shake_top := 0.0
+var _shake_len := 0.0
+var _shake_t := INF
+var _jolt := Vector2.ZERO
+var _shake_phase := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0])
+## Grit on your eyes: how much is left (0-1), how much it threw (0-1), its dust wash, the seconds it
+## takes to clear and to arrive.
+var grit := 0.0
+var _grit_top := 0.0
+var _dust := 0.0
+var _grit_len := 1.0
+var _grit_wait := 0.0
+var _grit_rect: ColorRect
 var _ear_filter: AudioEffectLowPassFilter
 var _ring: AudioStreamPlayer
+## Since the last blast reached you (s; less than 0 while it's on its way): your ears hold, then
+## give (BlastTuning.ear_hold_s). The dulling and the whine keep clocks of their own (a weaker
+## blast on top of them doesn't start them again).
+var _since_blast := INF
 
 
 func _ready() -> void:
@@ -50,6 +100,7 @@ func _ready() -> void:
 	_rng.seed = 1882
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
+	physiology.roll_rng.seed = hash(["physiology", "player"])
 	var layer := CanvasLayer.new()
 	layer.name = "WoundOverlay"
 	layer.layer = 4
@@ -61,11 +112,29 @@ func _ready() -> void:
 	mat.shader = OVERLAY_SHADER
 	_overlay.material = mat
 	layer.add_child(_overlay)
+	_grit_rect = ColorRect.new()
+	_grit_rect.name = "BlastGrit"
+	_grit_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_grit_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var grit_mat := ShaderMaterial.new()
+	grit_mat.shader = GRIT_SHADER
+	_grit_rect.material = grit_mat
+	_grit_rect.visible = false
+	layer.add_child(_grit_rect)
+	layer.move_child(_grit_rect, 0)  # under the wounds' red and the black
+	# Across the middle 80% of the screen at the bottom, wrapped (a long line, the doctor's in No
+	# Justice, ran off both edges, #859's playtest), growing upward from where one line sits.
 	_message = Label.new()
-	_message.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_message.position.y -= 60
+	_message.anchor_left = 0.1
+	_message.anchor_right = 0.9
+	_message.anchor_top = 1.0
+	_message.anchor_bottom = 1.0
+	_message.offset_top = -60.0
+	_message.offset_bottom = -36.0
+	_message.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_message.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_message.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	_message.add_theme_color_override(&"font_color", Color(0.95, 0.9, 0.8))
 	_message.add_theme_color_override(&"font_outline_color", Color.BLACK)
 	_message.add_theme_constant_override(&"outline_size", 4)
@@ -90,11 +159,16 @@ func _on_spoke(speaker: Node, text: String) -> void:
 	if speaker is Node3D and (speaker as Node3D).global_position.distance_to(player.global_position) < 45.0:
 		var who := String((speaker as HumanBody).person_id).capitalize() if speaker is HumanBody else "Someone"
 		# Up as long as he takes to say it (his mouth, FaceSpeech), and a moment more.
-		say("%s: \"%s\"" % [who, text], FaceSpeech.subtitle_seconds(text))
+		_show("%s: \"%s\"" % [who, text], FaceSpeech.subtitle_seconds(text))
 
 
 ## Show a line; `hold` keeps people's talk from writing over it while it shows.
 func say(text: String, seconds := 3.0, hold := false) -> void:
+	_show(text, seconds, hold)
+	shown.emit(text)
+
+
+func _show(text: String, seconds: float, hold := false) -> void:
 	_message.text = text
 	_message_time = seconds
 	_held = seconds if hold else 0.0
@@ -105,7 +179,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	var xf := player.global_transform
 	var inv := xf.affine_inverse()
 	# Crouched, the body is squashed into the shorter capsule: stretch back to standing.
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var o := inv * pos
 	var d := inv.basis * dir
 	o.y /= squash
@@ -117,8 +191,9 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 		return {"segment": &"", "exit": null, "energy_out": energy}
 	var hits: Array = []
 	var segs: Array = []
+	var new_bleeds: Array = []
 	for tr: Dictionary in res.traces:
-		physiology.apply_trace(tr)
+		new_bleeds.append_array(physiology.apply_trace(tr))
 		segs.append(tr.segment)
 		for h: Dictionary in tr.hits:
 			hits.append({"id": h.id, "effect": h.effect})
@@ -136,7 +211,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	var info := {"person": player, "person_id": &"player", "segment": first.segment, "hits": hits,
 			"position": xf * entry_local, "direction": dir, "exit": exit_world, "lodged": res.exit == null}
 	Events.body_hit.emit(info)
-	say(_hit_words(segs, hits), 3.5)
+	say(hit_words(res.traces, new_bleeds), 3.5)
 	return {"segment": first.segment, "exit": exit_world, "energy_out": res.energy_out, "hits": hits}
 
 
@@ -144,7 +219,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 func take_cut(_collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedded := false) -> Dictionary:
 	var seg := _segment_at(pos)
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var o := xf.affine_inverse() * pos
 	o.y /= squash
 	var d := (xf.affine_inverse().basis * dir).normalized()
@@ -171,17 +246,60 @@ func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.
 	return harm
 
 
+## You land from a fall (issue #759; Falls, config/falls.tres): you always land on your feet, so the
+## feet-first rules a falling man's landing has (HumanBody._step_fall): your weight and `speed`
+## (m/s down as you landed), your feet first, the rest up your legs as the falls lab measured, the
+## load into your pelvis and low back, and the whole body's stop on the aorta. Under `min_speed`
+## (about 1.5 m) nothing. Returns what it did.
+func take_fall(speed: float) -> PackedStringArray:
+	var ft := Falls.t()
+	var harm: PackedStringArray = []
+	if speed < ft.min_speed or not physiology.alive:
+		return harm
+	var joules := Falls.hurt_energy(ft.player_mass, speed, 0.0, ft) * ft.feet_soften
+	var blows := {}
+	blows[&"foot_r"] = joules * ft.feet_lead_share * 0.5
+	blows[&"foot_l"] = joules * ft.feet_lead_share * 0.5
+	var weights := 0.0
+	for region: String in ft.player_rest:
+		weights += float(ft.player_rest[region])
+	for region: String in ft.player_rest:
+		var j := joules * (1.0 - ft.feet_lead_share) * float(ft.player_rest[region]) / maxf(weights, 1e-6)
+		if region in ["thigh", "shin", "foot", "upper_arm", "forearm", "hand"]:
+			blows[StringName(region + "_r")] = float(blows.get(StringName(region + "_r"), 0.0)) + j * 0.5
+			blows[StringName(region + "_l")] = float(blows.get(StringName(region + "_l"), 0.0)) + j * 0.5
+		else:
+			blows[StringName(region)] = float(blows.get(StringName(region), 0.0)) + j
+	blows[&"pelvis"] = float(blows.get(&"pelvis", 0.0)) + joules * ft.spine_share
+	for seg: StringName in blows:
+		if float(blows[seg]) >= ft.least_blow:
+			for h in physiology.blow(seg, float(blows[seg]), _rng):
+				if h != "bruised" and not harm.has(h):
+					harm.append(h)
+	harm.append_array(physiology.axial(&"spine", joules * ft.spine_share, _rng))
+	harm.append_array(physiology.axial(&"aorta", joules / maxf(ft.injury_share, 1e-6), _rng))
+	_flash = 1.0
+	player.add_look(Vector2(_rng.randf_range(-3.0, 3.0), _rng.randf_range(-10.0, -4.0)))
+	say("You land hard%s." % (": " + ", ".join(harm) if not harm.is_empty() else ""), 3.0)
+	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": &"foot_r", "hits": [],
+			"position": player.global_position, "direction": Vector3.DOWN, "exit": null, "lodged": false,
+			"kind": &"blow", "harm": harm, "joules": joules, "fall": true})
+	return harm
+
+
 ## Caught by a charge going off at `at` (`held`: it went off in your own right hand). The same
 ## rules as anyone: ears, lungs, head, burns, a hand or more torn off; and you hear nothing but
 ## ringing for a while (for good, muffled, if an eardrum went).
 func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 	var bt := Blast.t()
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var kpa := {}
 	var chest := xf * Vector3(0, 1.3 * squash, 0)
 	var head := player.camera.global_position
-	var shield := 1.0 if held else Blast.shielding(player.get_parent() as Node3D, at, chest, [player.get_rid()])
+	# (Asked from the blast's air just over the charge: from the dirt it lay on, the lip of its own
+	# crater, dug a moment before, stopped the line to you from 15 m or more.)
+	var shield := 1.0 if held else Blast.shielding(player.get_parent() as Node3D, at + Vector3.UP * SHIELD_FROM, chest, [player.get_rid()])
 	for sid: StringName in anatomy.segments:
 		if physiology.severed_segments.has(sid):
 			continue
@@ -192,8 +310,9 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 			# The stick in your right hand, out in front of you.
 			d = {&"hand_r": 0.03, &"forearm_r": 0.18, &"upper_arm_r": 0.42, &"head": 0.5, &"neck": 0.5,
 					&"chest": 0.45}.get(sid, maxf(d, 0.6))
-		kpa[sid] = Blast.overpressure_kpa(kg, maxf(d, 0.02)) * shield
-	var ear_kpa: float = kpa.get(&"head", Blast.overpressure_kpa(kg, head.distance_to(at)) * shield)
+		# The side turned to it takes the reflected pressure (#220).
+		kpa[sid] = Blast.reflected_kpa(Blast.overpressure_kpa(kg, maxf(d, 0.02)) * shield)
+	var ear_kpa: float = kpa.get(&"head", Blast.reflected_kpa(Blast.overpressure_kpa(kg, head.distance_to(at)) * shield))
 	var harm := physiology.blast_injury(ear_kpa, kpa.get(&"chest", 0.0), ear_kpa, bt, _rng)
 	if chest.distance_to(at) < Blast.fireball_radius(kg) or held:
 		physiology.burn(bt.burn_in_fireball)
@@ -208,28 +327,134 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 			if take != &"":
 				physiology.sever(take)
 				harm.append("your %s is gone" % _place(take))
-	ringing = clampf(maxf(ringing, ear_kpa * bt.ringing_per_kpa), 0.0, bt.ringing_max)
+	_feel(at, ear_kpa)
 	var dir := (chest - at).normalized()
 	var speed := minf(Blast.impulse(kg, maxf(chest.distance_to(at), 0.05)) * shield * 0.7 * bt.throw_factor / 80.0, bt.max_throw)
 	player.velocity += (dir + Vector3.UP * 0.3).normalized() * speed * 1.5
-	_flash = 1.0
-	shake = maxf(shake, clampf(ear_kpa / 40.0, 0.2, 3.0))
+	# The red is for a wound (it flashed for every blast in reach: a stick across the street that
+	# did nothing to you flashed you red); the dust and grit are the rest (_feel).
 	if not harm.is_empty():
-		say("The blast: %s." % ", ".join(harm), 5.0)
-	wounds.append({"segments": [&"chest"], "lodged": false, "hits": [], "kind": &"blast", "harm": harm})
+		_flash = 1.0
 	var info := {"person": player, "person_id": &"player", "segment": &"chest", "hits": [], "position": chest,
 			"direction": dir, "exit": null, "lodged": false, "kind": &"blast", "harm": harm, "kpa": kpa.get(&"chest", 0.0)}
+	# Only what it did to you is a wound and a hit (as HumanBody.take_blast, #488): the ringing,
+	# the shake and the shove above are all a blast that missed you leaves, and it rattles you as
+	# a hit would (PlayerComposure took it from the hit before).
+	if harm.is_empty():
+		if player.composure:
+			player.composure.incoming(1.0)
+		return info
+	say("The blast: %s." % ", ".join(harm), 5.0)
+	wounds.append({"segments": [&"chest"], "lodged": false, "hits": [], "kind": &"blast", "harm": harm})
 	Events.body_hit.emit(info)
 	return info
+
+
+## A blast past its reach for anything else (Blast.detonate, out to BlastTuning.felt_reach_x times
+## it): only what it does to you by the pressure at your ear (_feel), most of all the shake.
+func feel_blast(at: Vector3, kg: float) -> void:
+	var head := player.camera.global_position
+	var shield := Blast.shielding(player.get_parent() as Node3D, at + Vector3.UP * SHIELD_FROM, head, [player.get_rid()])
+	_feel(at, Blast.reflected_kpa(Blast.overpressure_kpa(kg, head.distance_to(at)) * shield))
+
+
+## How much of something a blast does to you at `kpa` at your ear: none at `from`, all at `full`,
+## by the log of the pressure between (the ear's own scale).
+static func blast_share(kpa: float, from: float, full: float) -> float:
+	if kpa <= from:
+		return 0.0
+	return clampf(log(kpa / from) / log(maxf(full / from, 1.0001)), 0.0, 1.0)
+
+
+## A blast reaching your ears at `ear_kpa` (reflected): it dulls the world, rings, shakes the view
+## and throws grit in your eyes, each by its share (BlastTuning "On you"), each from when its wave
+## gets to you (the sound's speed: 0.09 s from 30 m). A weaker blast on top of a stronger one adds
+## nothing the stronger one isn't already doing.
+func _feel(at: Vector3, ear_kpa: float) -> void:
+	var bt := Blast.t()
+	var head := player.camera.global_position
+	var arrive := head.distance_to(at) / GameAudio.SPEED_OF_SOUND
+	# Your ears hold clear for a bang only if they've come back: a second charge while you're still
+	# deafened by the first (bundles a moment apart, #647) stays muffled (ear_rehold_ringing).
+	var deafened := ringing >= bt.ear_rehold_ringing
+	var m := blast_share(ear_kpa, bt.muffle_from_kpa, bt.muffle_full_kpa)
+	var deep := 20000.0 * pow(bt.muffle_floor_hz / 20000.0, m)
+	if m > 0.0 and deep <= muffle_hz:
+		_muffle_from = muffle_hz
+		_muffle_deep = deep
+		_muffle_len = bt.muffle_s * m
+		_muffle_t = -arrive + (bt.ear_hold_s if deafened else 0.0)
+	var r := blast_share(ear_kpa, bt.ring_from_kpa, bt.ring_full_kpa)
+	var ring_len := bt.ringing_max * r
+	if ring_len > ringing:
+		# One already sounding goes on, louder and longer; else it comes in as this one's bang passes.
+		if ring_level(clampf((_ring_t - bt.ear_hold_s) / maxf(bt.ear_ease_s, 0.01), 0.0, 1.0)) <= 0.0:
+			_ring_t = -arrive
+		ringing = ring_len
+		_ring_len = ring_len
+		_ring_top = bt.ring_level * r * r
+	_since_blast = -arrive
+	var sh := blast_share(ear_kpa, bt.shake_from_kpa, bt.shake_full_kpa)
+	var top := bt.shake_deg * pow(sh, 1.5)
+	# (the shake left of an earlier one, at this one's start)
+	var left := _shake_top * pow(clampf(1.0 - _shake_t / maxf(_shake_len, 0.01), 0.0, 1.0), 2.0) if _shake_len > 0.0 else 0.0
+	var local := player.camera.global_basis.inverse() * (at - head)
+	var toward := local.normalized() if local.length() > 0.01 else Vector3.FORWARD
+	if sh > 0.0 and top >= left:
+		_shake_top = top
+		_shake_len = bt.shake_s * (0.35 + 0.65 * sh)
+		_shake_t = -arrive
+		for i in _shake_phase.size():
+			_shake_phase[i] = _rng.randf() * TAU
+		# The kick: your head snapped back from it (up, and more from in front) and turned off it.
+		var j := bt.shake_jolt_deg * pow(sh, 1.5)
+		_jolt = Vector2(j * (0.5 + 0.5 * maxf(-toward.z, 0.0)), j * 0.7 * toward.x)
+	var g := blast_share(ear_kpa, bt.grit_from_kpa, bt.grit_full_kpa) * (0.6 + 0.4 * maxf(-toward.z, 0.0))
+	if g > 0.0 and g >= _grit_top * grit:
+		_grit_top = g
+		grit = 1.0
+		_dust = g
+		_grit_len = bt.grit_clear_s * (0.5 + 0.5 * g)
+		_grit_wait = arrive
+		var mat := _grit_rect.material as ShaderMaterial
+		var side := Vector2(toward.x, -toward.y)
+		mat.set_shader_parameter(&"from_dir", side.normalized() * minf(side.length() * 1.5, 1.0) if side.length() > 0.01 else Vector2.ZERO)
+		mat.set_shader_parameter(&"seed", _rng.randf() * 100.0)
+		mat.set_shader_parameter(&"strength", g)
 
 
 ## Ears: after a blast you hear the world through a pillow under a high whine, fading; a burst
 ## eardrum keeps it muffled for good (until the doctor, one day).
 func _update_ears(delta: float) -> void:
-	ringing = maxf(ringing - delta, 0.0)
-	var muffle := clampf(ringing / 12.0, 0.0, 1.0)
-	var deaf := physiology.deaf_ears() * 0.3
-	var cutoff := lerpf(20000.0, 500.0, maxf(muffle, deaf))
+	_since_blast += delta
+	_muffle_t += delta
+	_ring_t += delta
+	var bt := Blast.t()
+	var hold := bt.ear_hold_s
+	var ease := maxf(bt.ear_ease_s, 0.01)
+	# How far your ears have given since its bang: not at all for ear_hold_s, then all of it.
+	var give := clampf((_ring_t - hold) / ease, 0.0, 1.0)
+	if give > 0.0:
+		ringing = maxf(ringing - delta, 0.0)
+	# The dulling: held at what you heard through for ear_hold_s, down to its deepest over ear_ease_s,
+	# held there, then given back over its last muffle_recover (on the log of the cutoff: as heard).
+	muffle_hz = 20000.0
+	if _muffle_len > 0.0:
+		var settle := clampf((_muffle_t - hold) / ease, 0.0, 1.0)
+		var back_len := maxf(_muffle_len * bt.muffle_recover, 0.01)
+		var back := clampf((_muffle_t - hold - ease - (_muffle_len - back_len)) / back_len, 0.0, 1.0)
+		if back <= 0.0:
+			muffle_hz = exp(lerpf(log(_muffle_from), log(_muffle_deep), smoothstep(0.0, 1.0, settle)))
+		else:
+			muffle_hz = exp(lerpf(log(_muffle_deep), log(20000.0), smoothstep(0.0, 1.0, back)))
+		if back >= 1.0:
+			_muffle_len = 0.0
+			muffle_hz = 20000.0
+	# A burst eardrum: the world stays dull (comes in after the bang, as the rest).
+	var deaf_to := physiology.deaf_ears() * 0.3
+	if _since_blast > hold or deaf_to < _deaf:
+		_deaf = move_toward(_deaf, deaf_to, delta / ease)
+	var cutoff := minf(muffle_hz, lerpf(20000.0, 500.0, _deaf))
 	if _ear_filter == null:
 		var master := AudioServer.get_bus_index(&"Master")
 		for i in AudioServer.get_bus_effect_count(master):
@@ -243,18 +468,105 @@ func _update_ears(delta: float) -> void:
 		_ring = AudioStreamPlayer.new()
 		_ring.stream = SynthSounds.get_sound(&"ringing")
 		add_child(_ring)
-	if ringing > 0.05:
-		_ring.volume_db = linear_to_db(clampf(ringing / 20.0, 0.02, 0.5))
+	var level := ring_level(give)
+	if level > 0.0:
+		# The whine is in your head, not the world: it plays through the ears' filter (Master's;
+		# a stream can't skip its bus's effects), so it's raised by just what the filter takes off
+		# at its pitch.
+		_ring.volume_db = linear_to_db(level) - lowpass_db(cutoff, RING_HZ, _ear_filter.resonance)
 		if not _ring.playing:
 			_ring.play()
 	elif _ring.playing:
 		_ring.stop()
 
 
+## The whine's loudness now (linear; 0 when there's none): its top, fading as the square of the
+## time left, coming in as your ears give (`give`).
+func ring_level(give := 1.0) -> float:
+	if ringing <= 0.05 or _ring_len <= 0.0 or give <= 0.0:
+		return 0.0
+	return maxf(_ring_top * pow(ringing / _ring_len, 2.0) * give, 0.001)
+
+
+## What Godot's low-pass at `cutoff` (Hz) does to a tone at `hz` (dB, 0 or less): its filter is the
+## Audio EQ Cookbook's biquad (Robert Bristow-Johnson) with Q its resonance, one stage at 6 dB.
+static func lowpass_db(cutoff: float, hz: float, q := 0.5) -> float:
+	var rate := AudioServer.get_mix_rate()
+	var fc := minf(cutoff, rate * 0.5 - 1.0)
+	var w0 := TAU * fc / rate
+	var alpha := sin(w0) / (2.0 * maxf(q, 0.0001))
+	var c := cos(w0)
+	var b0 := (1.0 - c) * 0.5
+	var b1 := 1.0 - c
+	var a0 := 1.0 + alpha
+	var a1 := -2.0 * c
+	var a2 := 1.0 - alpha
+	var w := TAU * hz / rate
+	var nr := b0 + b1 * cos(w) + b0 * cos(2.0 * w)
+	var ni := -(b1 * sin(w) + b0 * sin(2.0 * w))
+	var dr := a0 + a1 * cos(w) + a2 * cos(2.0 * w)
+	var di := -(a1 * sin(w) + a2 * sin(2.0 * w))
+	return minf(linear_to_db(sqrt((nr * nr + ni * ni) / maxf(dr * dr + di * di, 1e-30))), 0.0)
+
+
+## The view shaken and the grit on it, a drawn frame at a time. The shake is the camera's only (on
+## top of the gun's kick, which owns the camera's turn: WeaponViewmodel._animate_camera), so your
+## aim stays where it was.
+func _process(delta: float) -> void:
+	_shake_view(delta)
+	_grit_view(delta)
+
+
+func _shake_view(delta: float) -> void:
+	if _shake_len <= 0.0 or player == null or player.camera == null:
+		return
+	_shake_t += delta
+	view_shake = Vector3.ZERO
+	shake = 0.0
+	if _shake_t >= 0.0:
+		var k := clampf(1.0 - _shake_t / _shake_len, 0.0, 1.0)
+		if k <= 0.0:
+			_shake_len = 0.0
+		else:
+			shake = _shake_top * k * k
+			var w := TAU * Blast.t().shake_hz * _shake_t
+			var p := _shake_phase
+			var kick := exp(-_shake_t / 0.09)
+			view_shake = Vector3(
+					shake * (0.7 * sin(w + p[0]) + 0.3 * sin(2.3 * w + p[1])) + _jolt.x * kick,
+					shake * (0.7 * sin(0.9 * w + p[2]) + 0.3 * sin(2.1 * w + p[3])) + _jolt.y * kick,
+					shake * 1.4 * sin(0.6 * w + p[4]))
+	# With no gun in your hands to put it on (none selected), on the camera here; its roll always.
+	var cam := player.camera
+	if player.weapon == null or not player.weapon.selected:
+		cam.rotation.x = deg_to_rad(view_shake.x)
+		cam.rotation.y = deg_to_rad(view_shake.y)
+	cam.rotation.z = deg_to_rad(view_shake.z)
+
+
+func _grit_view(delta: float) -> void:
+	if grit <= 0.0 and _dust <= 0.0:
+		if _grit_rect.visible:
+			_grit_rect.visible = false
+		return
+	if _grit_wait > 0.0:
+		_grit_wait -= delta
+		return
+	grit = maxf(grit - delta / maxf(_grit_len, 0.01), 0.0)
+	_dust = maxf(_dust - delta / 1.2, 0.0)
+	var mat := _grit_rect.material as ShaderMaterial
+	var size := get_viewport().get_visible_rect().size if is_inside_tree() else Vector2(16, 9)
+	mat.set_shader_parameter(&"aspect", size.x / maxf(size.y, 1.0))
+	# The last of it goes faster (a blink, a wipe): what's left as the square.
+	mat.set_shader_parameter(&"amount", grit * (0.5 + 0.5 * grit))
+	mat.set_shader_parameter(&"dust", _dust * Blast.t().dust_wash)
+	_grit_rect.visible = true
+
+
 ## Which part of you is at a world point (standing, or crouched and squashed down).
 func _segment_at(point: Vector3) -> StringName:
 	var xf := player.global_transform
-	var squash := player.tuning.crouch_height / player.tuning.stand_height if player.is_crouching else 1.0
+	var squash := player.height_share()
 	var p := xf.affine_inverse() * point
 	p.y /= squash
 	var best := &"chest"
@@ -275,22 +587,179 @@ func _place(seg: StringName) -> String:
 	return String(seg).replace("_r", "").replace("_l", "").replace("_", " ")
 
 
-func _hit_words(segs: Array, hits: Array) -> String:
-	var where := String(segs[0]).replace("_r", "").replace("_l", "").replace("_", " ")
-	for h: Dictionary in hits:
-		if h.effect == &"broken":
-			return "Hit in the %s. Something broke." % where
-		if h.effect == &"cut":
-			return "Hit in the %s. It's pumping." % where
-		if h.effect == &"severed":
-			return "Your %s finger's gone." % String(h.id).get_slice("_", 0)
-	return "Hit in the %s." % where
+## Bones by what you'd call them ("Your upper arm's broken", as `Physiology.why_cant_hold` says it).
+const BONE_WORDS := {"humerus": "upper arm", "radius": "forearm", "ulna": "forearm", "hand_bones": "hand",
+		"femur": "thigh", "tibia": "shin", "fibula": "shin", "patella": "kneecap", "foot_bones": "foot",
+		"pelvis_bone": "hip", "sacrum": "hip", "clavicle": "collarbone", "scapula": "shoulder blade",
+		"sternum": "breastbone", "skull": "skull", "jaw": "jaw", "ribs": "ribs",
+		"cervical_spine": "neck", "thoracic_spine": "back", "lumbar_spine": "back"}
+## An artery or vein outside him this fast or more pumps (ml/s; as `Physiology.describe`'s
+## "blood pumping out bright").
+const PUMPING := 6.0
+
+
+## What you're told when a ball goes into you (#607): the wound that matters, not only the first
+## part it went through. Each thing it did is ranked (a killing wound, a bleed pumping out, inside,
+## the gut, a lung, a broken bone, the cord, a lost part); the worst two are said, the worst's part
+## named first. How it bleeds is read from the bleeds it made (`bleed_ids`, the physiology's).
+func hit_words(traces: Array, bleed_ids: Array) -> String:
+	var found: Array = []  # [rank, segment, words]
+	for tr: Dictionary in traces:
+		var seg: StringName = tr.segment
+		for h: Dictionary in tr.hits:
+			var w := _wound_words(h, seg)
+			if not w.is_empty():
+				found.append([w[0], seg, w[1]])
+	# The bleeds as the physiology has them: outside or inside, and how fast.
+	var out_rate := {}
+	var inside := false
+	for i: int in bleed_ids:
+		if i >= physiology.bleeds.size():
+			continue
+		var b: Dictionary = physiology.bleeds[i]
+		if b.kind == &"internal":
+			# (a broken bone bleeding into the flesh round it is the bone's, said with it)
+			inside = inside or not physiology.broken.has(b.source)
+		elif b.kind == &"artery" or b.kind == &"vein":
+			out_rate[b.segment] = maxf(float(out_rate.get(b.segment, 0.0)), float(b.rate))
+	for seg: StringName in out_rate:
+		var r: float = out_rate[seg]
+		found.append([9 if r >= PUMPING else 5, seg, "It's pumping." if r >= PUMPING else "It's bleeding steady."])
+	if inside and not found.any(func(f: Array) -> bool: return f[0] >= 10):
+		var seg_in: StringName = traces[0].segment
+		for i: int in bleed_ids:
+			if i < physiology.bleeds.size() and physiology.bleeds[i].kind == &"internal" and not physiology.broken.has(physiology.bleeds[i].source):
+				seg_in = physiology.bleeds[i].segment
+				break
+		found.append([8, seg_in, "You're bleeding inside."])
+	# Every finger it took in one line (#607: four gone and told of two, the rest past the second line).
+	var fingers: PackedStringArray = []
+	var finger_seg := &""
+	for f: Array in found.duplicate():
+		if String(f[2]).begins_with("finger:"):
+			fingers.append(String(f[2]).get_slice(":", 1))
+			finger_seg = f[1]
+			found.erase(f)
+	if not fingers.is_empty():
+		found.append([4, finger_seg, _fingers_words(fingers)])
+	# The bone that takes your gun is said, whatever else it did (#607: disarmed by "a broken
+	# collarbone" never told of).
+	var gun_why := physiology.why_cant_hold("r")
+	var disarms := ""
+	for f: Array in found:
+		if String(f[2]).begins_with("Your ") and String(f[2]).ends_with("'s broken.") and gun_why.contains(String(f[2]).trim_prefix("Your ").trim_suffix("'s broken.")):
+			disarms = f[2]
+	found.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
+	var places: PackedStringArray = []
+	if not found.is_empty():
+		places.append(_place(found[0][1]))
+	for tr: Dictionary in traces:
+		var p := _place(tr.segment)
+		if not places.has(p) and places.size() < 2:
+			places.append(p)
+	var text := "Hit in the %s." % " and the ".join(places)
+	var said: PackedStringArray = []
+	for f: Array in found:
+		if said.size() >= 2:
+			break
+		if not said.has(f[2]):
+			said.append(f[2])
+	if disarms != "" and not said.has(disarms):
+		said.append(disarms)
+	return text if said.is_empty() else "%s %s" % [text, " ".join(said)]
+
+
+## "Your thumb's gone.", "Your ring and little fingers are gone.", "Your thumb and index finger are gone."
+static func _fingers_words(fingers: PackedStringArray) -> String:
+	var thumb := fingers.has("thumb")
+	var rest: PackedStringArray = []
+	for f in fingers:
+		if f != "thumb" and not rest.has(f):
+			rest.append(f)
+	var named := " and ".join(rest) if rest.size() <= 2 else ", ".join(rest.slice(0, -1)) + " and " + rest[-1]
+	if rest.is_empty():
+		return "Your thumb's gone."
+	var what := "%s finger%s" % [named, "s" if rest.size() > 1 else ""]
+	if thumb:
+		return "Your thumb and %s are gone." % what
+	return "Your %s are gone." % what if rest.size() > 1 else "Your %s's gone." % what
+
+
+## One thing a ball did inside you, as [rank, words] (none: [] ).
+func _wound_words(h: Dictionary, seg: StringName) -> Array:
+	var id := String(h.id)
+	var st := anatomy.structure(h.id)
+	match h.kind:
+		&"organ":
+			match String(st.get(&"organ", "")):
+				"heart": return [10, "It's your heart."]
+				"brain": return [10, "It's in your head."]
+				"lung": return [7, "A lung's holed."]
+				"gut": return [7, "You're gut-shot."]
+				"gullet": return [7, "Your throat's torn."]  # (#607: a neck hit called "gut-shot")
+				"airway": return [7, "There's blood in your throat."]
+				"eye": return [7, "An eye's gone."]
+				"liver", "spleen", "kidney": return [6, "Something inside's torn."]
+		&"artery", &"vein":
+			if id in ["aorta", "vena_cava", "abdominal_aorta", "abdominal_vena_cava"]:
+				return [10, "You're bleeding inside, bad."]
+		&"nerve":
+			if st.has(&"cord"):
+				return [8, "You can't feel your legs." if String(st.get(&"cord", "")) != "cervical" else "You can't move."]
+		&"bone":
+			if h.effect == &"broken":
+				for k: String in BONE_WORDS:
+					if id.begins_with(k):
+						var w: String = BONE_WORDS[k]
+						return [6, "Your ribs are broken." if w == "ribs" else "Your %s's broken." % w]
+				return [6, "Something broke."]
+		&"finger":
+			return [4, "finger:" + id.get_slice("_", 0)]  # (all of a ball's fingers said as one: hit_words)
+		&"appendage":
+			return [4, "Your nose is shot off." if id == "nose" else "Your ear's shot off."]
+	return []
 
 
 func _physics_process(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"player", t)
+
+
+## The gun in your hand can't be used (a broken gun arm, your hands on a wound): say why when it
+## first goes, and again when you try it (draw, fire, aim, reload), at most every few seconds.
+func _tell_gun() -> void:
+	var w := player.weapon
+	if w == null or not w.selected or not physiology.is_conscious():
+		_gun_why = ""
+		return
+	var why := w.why_not_usable() if w.armed else ""
+	var now := _throb_t  # (game time)
+	if why == "" and w.armed and player.input_enabled:
+		# A reload or a shot that does nothing: out of cartridges, the gun put away (#607).
+		for a: StringName in [&"reload", &"fire"]:
+			if InputMap.has_action(a) and Input.is_action_just_pressed(a):
+				var not_now := w.why_not(a)
+				if not_now != "" and (not_now != _gun_why or now - _gun_told > 1.0):
+					_gun_why = not_now
+					_gun_told = now
+					say(not_now.substr(0, 1).to_upper() + not_now.substr(1) + ".", 2.5)
+				return
+	var tried := false
+	for a: StringName in [&"fire", &"aim", &"holster", &"reload", &"cock", &"weapon_revolver", &"weapon_shotgun"]:
+		if InputMap.has_action(a) and Input.is_action_just_pressed(a):
+			tried = true
+	# The ones you're doing yourself (your hands on a wound; sat at a table, said only when you try
+	# the gun): nothing to tell.
+	if why == "" or why == "your hands are pressing on a wound" or (why == w.busy_why and not tried):
+		_gun_why = ""
+		return
+	if why != _gun_why or (tried and now - _gun_told > 2.0):
+		_gun_why = why
+		_gun_told = now
+		var line := "You can't hold the gun: %s." % why
+		# What hit you (said the tick before) stays on with it.
+		say(line if _message_time <= 0.0 or _message.text.contains(line) else "%s\n%s" % [_message.text, line], 4.0)
 
 
 ## Arm's reach of a man who's given himself up (or one you've arrested), in front of you: the
@@ -342,8 +811,12 @@ func _physics_step(delta: float) -> void:
 	if player.input_enabled and Input.is_action_just_pressed(&"shout") and physiology.can_speak():
 		var w := player.weapon
 		var given_up := _given_up_in_reach()
+		var companion := CompanionBrain.in_view(player)
 		if given_up != null:
 			_arrest(given_up)
+		elif companion != null:
+			# Your companion in the middle of your view: a word to him (wait here, come on; #843).
+			say(companion.told(player), 2.0)
 		elif w != null and w.armed and w.selected and w.drawn:
 			say("\"Drop it! Hands where I can see 'em!\"", 2.5)
 			Events.shouted.emit(player, &"drop_it")
@@ -353,9 +826,6 @@ func _physics_step(delta: float) -> void:
 			Events.shouted.emit(player, &"call_out")
 	_tend(delta)
 	_update_ears(delta)
-	if shake > 0.0:
-		player.add_look(Vector2(_rng.randf_range(-1.0, 1.0), _rng.randf_range(-1.0, 1.0)) * shake)
-		shake = maxf(shake - delta * 4.0, 0.0)
 	physiology.step(delta * scale)
 	_drip(delta * scale)
 	var p := physiology
@@ -365,14 +835,21 @@ func _physics_step(delta: float) -> void:
 	player.can_sprint = p.can_run()
 	player.can_jump = legs and p.shock() < 0.5
 	for gun in player.weapons:
-		gun.hands_busy = tending > 0.0
-		# The shotgun takes both hands; the revolver only the right.
-		gun.arm_disabled = not p.can_hold("r") or (gun is ShotgunViewmodel and not p.can_hold("l"))
+		# Sat at a table no gun comes out (PlayerSeat, #766), as with your hands on a wound.
+		var sat := player.seat != null and player.seat.seated()
+		# One you don't carry (No Law: the revolver till the sheriff gives it, Player.lacks).
+		var lacked := not player.carries(gun)
+		gun.hands_busy = tending > 0.0 or sat or lacked
+		gun.busy_why = "you haven't got one" if lacked else ("you're sat at the table" if sat and tending <= 0.0 else "")
+		# The shotgun and the rifle take both hands; the revolver only the right.
+		gun.arm_disabled = not p.can_hold("r") or ((gun is ShotgunViewmodel or gun is Winchester73Viewmodel) and not p.can_hold("l"))
 		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))
 		gun.extra_spread = p.felt_pain() * 1.5 + p.shock() * 3.0 + (1.0 - steadiness) * 4.0
+		gun.arm_why = "" if not gun.arm_disabled else p.why_cant_hold("r") if p.why_cant_hold("r") != "" else p.why_cant_hold("l")
+	_tell_gun()
 	if not p.is_conscious():
 		out_cold += delta
-		if out_cold > 4.0:
+		if out_cold > 4.0 and not stays_down:
 			_come_round()
 	else:
 		out_cold = 0.0
@@ -404,7 +881,8 @@ func _drip(dt: float) -> void:
 
 ## Hold the tend button: press on the worst bleeding; hold on and a belt goes round a limb.
 func _tend(delta: float) -> void:
-	var held := player.input_enabled and Input.is_action_pressed(&"tend_wounds")
+	# (Out cold you can't: #607, "Pressing on the wound..." on the screen of a man blacked out.)
+	var held := player.input_enabled and Input.is_action_pressed(&"tend_wounds") and physiology.is_conscious()
 	if not held or physiology.bleeds.is_empty():
 		if tending > 0.0:
 			for b in physiology.bleeds:
@@ -453,8 +931,9 @@ func _limb_top(seg: StringName) -> StringName:
 ## Out cold (or killed): somebody carries you off and patches you up, and you come round hours
 ## later, hurt as you were but bound up, and told what happened (DESIGN.md §3: you wake up at the
 ## doctor's, hurt, poorer, and the town knows): beside the doctor's cot (no doctor himself yet:
-## M5), or the store's floor where there's no doctor's; until there's a purse it costs you nothing
-## but the hours.
+## M5), or the store where there's no doctor's (WorldPlaces.wake_spots: the valley's own, #864);
+## where the world has neither, where you fell. Until there's a purse it costs you nothing but
+## the hours.
 func _come_round() -> void:
 	knocked_out.emit()
 	# Whoever hit you last may be long freed: read the meta untyped and check it's still there.
@@ -466,18 +945,11 @@ func _come_round() -> void:
 	out_cold = 0.0
 	if player.has_meta(&"last_hit_by"):
 		player.remove_meta(&"last_hit_by")
-	var marker: Node = null
-	var where := "on the store floor"
-	for spot: Array in [["DoctorInside", "at the doctor's"], ["StoreInside", "on the store floor"]]:
-		var root: Node = get_tree().current_scene if get_tree().current_scene else get_tree().root
-		marker = root.find_child(spot[0], true, false)
-		if marker == null:
-			marker = get_tree().root.find_child(spot[0], true, false)
-		if marker != null:
-			where = spot[1]
-			break
-	if marker is Node3D:
-		player.global_position = (marker as Node3D).global_position
+	var where := "where you fell"
+	var spots := WorldPlaces.wake_spots(get_tree())
+	if not spots.is_empty():
+		where = String(spots[0].where)
+		player.global_position = spots[0].at
 		player.velocity = Vector3.ZERO
 	var clock := ""
 	var day := get_tree().get_first_node_in_group(&"day_cycle")
@@ -579,4 +1051,10 @@ func _name_of(who: Node) -> String:
 func describe() -> String:
 	return "You: blood %d%%, bleeding %.1f ml/s, pain %.2f, adrenaline %.2f, breath %.2f. %s" % [
 			roundi((1.0 - physiology.blood_loss()) * 100.0), physiology.total_bleed_rate(),
-			physiology.felt_pain(), physiology.adrenaline, physiology.breath_capacity(), physiology.describe()]
+			physiology.felt_pain(), physiology.adrenaline, physiology.breath_capacity(), _yours(physiology.describe())]
+
+
+## The physiology's words are a man's from outside ("blood in his throat"): yours are yours (#607).
+static func _yours(text: String) -> String:
+	var re := RegEx.create_from_string("\\bhis\\b")
+	return re.sub(text, "your", true)

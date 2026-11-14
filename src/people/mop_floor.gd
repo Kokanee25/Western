@@ -272,8 +272,16 @@ func _press_step(delta: float) -> void:
 		_go(_then)
 
 
+## The clip of a man mopping (assets/animations/mop_floor.json, the Studio's Uthana takes,
+## 2026-10-24) plays looped under the mopping for his body: the sway into each stroke, his steps
+## back. Both arms stay the deed's (reach_to after the clip puts his hands on the real handle).
+const CLIP := &"mop_floor"
+
+
 ## Side to side over the stretch, working back toward himself.
 func _mop_step(delta: float) -> void:
+	if not body.clip_playing() and MotionClip.load_clip(CLIP) != null:
+		body.play_clip(CLIP, 1.0, true, {"travel": false})
 	var side := _fwd.cross(Vector3.UP).normalized()
 	_progress = minf(_progress + tuning.work_back * delta, tuning.stretch_depth)
 	var a := sin(TAU * tuning.stroke_hz * _t)
@@ -483,6 +491,8 @@ func _lean_to(forward: float, turn: float, delta: float) -> void:
 
 
 func _go(s: Step) -> void:
+	if body.clip_playing() and body.clip_name() == CLIP:
+		body.stop_clip()
 	step = s
 	_t = 0.0
 	_phase = 0

@@ -68,7 +68,7 @@ func test_commands_answer_in_order_and_move_you() -> void:
 	var player: Player = street.get_node(^"Player")
 	check(player.global_position.distance_to(Vector3(3, 0, -9)) < 0.3, "goto put you there (%s)" % player.global_position)
 	check_eq(int(replies[1].facing), 90, "facing east")
-	check_eq(replies[2].player.weapon, "revolver put away, 5 loaded, hammer down", "read player says what's in your hands")
+	check_eq(replies[2].player.weapon, "revolver put away, 5 loaded, 24 on the belt, hammer down", "read player says what's in your hands")
 	check(not replies[3].ok and "no such command" in String(replies[3].error), "a bad command says so")
 	check_eq(replies[4].clock, "17:30", "time sets the clock")
 	check(float(replies[5].t) - float(replies[4].t) >= 0.49, "wait lets game time pass (%.2f s)" % (float(replies[5].t) - float(replies[4].t)))
@@ -80,6 +80,84 @@ func test_walk_draw_and_shoot() -> void:
 	check(replies[2].ok and String(replies[2].weapon).begins_with("revolver in hand"), "drew the revolver")
 	check_eq(int(replies[4].fired), 1, "one shot")
 	check(replies[5].events.any(func(e: Dictionary) -> bool: return e.text == "you fired"), "and the log has it")
+
+
+## `walk X Z` routes as `walk PLACE` does: from the street into the store's aisle, up its steps and
+## through its door (straight at it, it walked into the store's front; the D+ playtest's walks
+## stopped on chairs and posts).
+func test_walk_to_a_point_routes_round_what_is_in_the_way() -> void:
+	# Inside the store, between its door and its aisle: straight from the street is its front wall.
+	var inside := bridge._places().at(&"store_door").lerp(bridge._places().at(&"store_aisle"), 0.45)
+	var replies := await _ask(["goto street_mid", "walk %.2f %.2f" % [inside.x, inside.z]], 60 * 60)
+	check(replies[1].arrived, "walked into the store (%s)" % str(replies[1]))
+	check(int(replies[1].get("legs", 0)) > 1, "by a route, not straight (%s legs)" % replies[1].get("legs"))
+
+
+## A run ends where it was sent, not 1.1-1.4 m on (the second D+ playtest slid on after "arrived"),
+## and it answers once you've stopped.
+func test_a_run_stops_where_it_was_sent() -> void:
+	var to := bridge._places().at(&"street_mid") + Vector3(9.0, 0.0, 0.0)
+	var replies := await _ask(["goto street_mid", "walk %.2f %.2f run" % [to.x, to.z], "wait 1", "read player"], 60 * 60)
+	check(replies[1].arrived, "ran there (%s)" % str(replies[1]))
+	var at := Vector3(float(replies[1].at[0]), 0.0, float(replies[1].at[2]))
+	var flat := Vector2(at.x - to.x, at.z - to.z).length()
+	check(flat < 0.7, "and stopped there (%.2f m off)" % flat)
+	var player: Player = street.get_node(^"Player")
+	check(player.global_position.distance_to(Vector3(at.x, player.global_position.y, at.z)) < 0.1, "and stays (%s)" % player.global_position)
+	check(replies[1].has("crouching"), "it says whether you're crouched")
+
+
+## A broken gun arm: the gun won't come out, and you're told why (the second D+ playtest's `weapon
+## revolver` answered ok: false and nothing more).
+func test_a_gun_you_cant_hold_says_why() -> void:
+	var player: Player = street.get_node(^"Player")
+	player.wounds.physiology.broken[&"humerus_r"] = true
+	var replies := await _ask(["weapon revolver", "shoot 1", "events 10"])
+	check(not replies[0].ok, "it doesn't come out")
+	check(String(replies[0].get("why", "")).contains("broken upper arm"), "and says why (%s)" % str(replies[0]))
+	check(String(replies[1].get("why", "")).contains("broken upper arm"), "shoot says why too (%s)" % str(replies[1]))
+	check(replies[2].events.any(func(e: Dictionary) -> bool: return e.kind == "screen" and "can't hold the gun" in String(e.text)),
+			"and the screen's line is in the events (%s)" % str(replies[2].events))
+
+
+## `look PERSON [PART]` faces that part of him and says what's in the line and what of him you can
+## see (#595: the D+ playtest's sights were on posts while the gang aimed at its head).
+func test_look_at_a_man_says_what_you_can_see_of_him() -> void:
+	var man := HumanBody.new()
+	man.person_id = &"looked_at"
+	street.add_child(man)
+	var player: Player = street.get_node(^"Player")
+	var spot := bridge._places().at(&"street_mid")
+	man.global_position = spot + Vector3(6.0, 0.0, 0.0)
+	await process_frames(3)
+	var replies := await _ask(["goto street_mid", "look looked_at head", "look looked_at elbow"])
+	check(replies[1].has("clear_to") and "head" in replies[1].clear_to, "his head's in plain view (%s)" % str(replies[1]))
+	check(not replies[1].has("in_the_way"), "nothing in the way")
+	check(player.camera.global_basis.z.dot(((man.parts[&"head"] as Node3D).global_position - player.camera.global_position).normalized()) < -0.99,
+			"facing his head")
+	check(not replies[2].ok, "a part he hasn't says so")
+	# What's in the line says whether a ball gets through it, as Ballistics charges it: a board yes,
+	# a post no (the third playtest's balls went through batwings `look` called "in the way").
+	var says := {}
+	for m: StructureMember in street.find_children("*", "StructureMember", true, false):
+		if m.kind == &"glass" or says.size() >= 40:
+			continue
+		var c := (m as Node3D).global_position
+		var from := c + Vector3(0.0, 0.0, 3.0)
+		var q := PhysicsRayQueryParameters3D.create(from, c)
+		q.exclude = [player.get_rid()]
+		var hit := street.get_world_3d().direct_space_state.intersect_ray(q)
+		if not hit.is_empty() and hit.collider == m:
+			var line := bridge._ball_through(m, hit.position, Vector3(0, 0, -1))
+			says[line.begins_with("a ball goes through")] = line
+	check(says.has(true) and says.has(false), "some it goes through, some stop it: %s" % str(says))
+
+
+## Your "Drop it!" goes in the log (the D+ playtest's shouts read as doing nothing).
+func test_a_shout_is_in_the_log() -> void:
+	var replies := await _ask(["weapon revolver", "press shout", "events 5"])
+	check(replies[2].events.any(func(e: Dictionary) -> bool: return e.kind == "shout" and "Drop it" in String(e.text)),
+			"the shout is in the events (%s)" % str(replies[2].events))
 
 
 func test_a_look_value_set_and_read_back() -> void:
@@ -115,3 +193,46 @@ func test_the_real_labs_load() -> void:
 	await process_frames(2)
 	for lab: String in b._labs:
 		check(b._labs[lab] is Array, "%s's commands all added (%s)" % [lab, b._labs[lab]])
+
+
+## #607: `press reload` with no cartridges left answered fine and left "0 loaded", and with the gun
+## put away too: now it says why, as the screen does.
+func test_a_reload_that_does_nothing_says_why() -> void:
+	var player: Player = street.get_node(^"Player")
+	var replies := await _ask(["weapon revolver", "wait 1"])
+	var gun := player.revolver()
+	gun.state.belt = 0
+	for i in gun.state.chambers.size():
+		gun.state.chambers[i] = RevolverState.Chamber.EMPTY
+	replies = await _ask(["press reload", "press holster", "wait 1", "press reload"])
+	check(String(replies[0].get("why", "")).contains("out of cartridges"), "out of cartridges (%s)" % str(replies[0]))
+	check(String(replies[3].get("why", "")).contains("put away"), "the gun put away (%s)" % str(replies[3]))
+
+
+## #607: crouched behind the bar `look` said the line was clear and the shots went into its frieze:
+## the ball leaves the barrel, a hand's width under your eye from the hip. `look` says what the
+## barrel's line meets when it isn't what your eye's does.
+func test_look_says_what_the_barrels_line_meets() -> void:
+	var man := HumanBody.new()
+	man.person_id = &"looked_at"
+	street.add_child(man)
+	var player: Player = street.get_node(^"Player")
+	var spot := bridge._places().at(&"street_mid")
+	man.global_position = spot + Vector3(6.0, 0.0, 0.0)
+	await process_frames(3)
+	var replies := await _ask(["goto street_mid", "weapon revolver", "wait 1", "look looked_at head"])
+	var eye := player.camera.global_position
+	# A rail across the line, its top just under your eye: the eye clears it, the barrel doesn't.
+	var rail := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(0.1, 0.2, 3.0)
+	cs.shape = bs
+	rail.add_child(cs)
+	street.add_child(rail)
+	rail.global_position = eye + (Vector3(man.global_position.x, eye.y, man.global_position.z) - eye).normalized() * 1.0 + Vector3(0, -0.13, 0)
+	await process_frames(3)
+	replies = await _ask(["look looked_at head"])
+	check(not replies[0].has("in_the_way"), "your eye's line is clear (%s)" % str(replies[0]))
+	check(replies[0].has("from_the_barrel") and not String(replies[0].from_the_barrel).begins_with("clear"),
+			"and the barrel's isn't (%s)" % str(replies[0]))

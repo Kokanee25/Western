@@ -1,0 +1,52 @@
+time 16
+goto 24 0 -9 270
+weapon revolver
+wait 1.5
+press cock 0.1
+wait 0.8
+hold aim
+wait 1.2
+press fire 0.1
+wait 1.0
+press cock 0.1
+wait 0.7
+press fire 0.1
+wait 1.0
+press cock 0.1
+wait 0.7
+press fire 0.1
+wait 1.2
+release aim
+wait 0.8
+hold reload
+wait 14
+release reload
+wait 1.5
+press cock 0.1
+wait 1.2
+hold aim
+wait 1.0
+press fire 0.1
+wait 1.5
+release aim
+wait 1
+weapon shotgun
+wait 2
+press cock 0.1
+wait 0.8
+press cock 0.1
+wait 1
+hold aim
+wait 1.2
+press fire 0.1
+wait 1.2
+press fire 0.1
+wait 1.5
+release aim
+wait 0.8
+hold reload
+wait 5
+release reload
+wait 1
+press cock 0.1
+wait 2

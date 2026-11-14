@@ -14,6 +14,12 @@ cores). --max=S caps a fight (180 s). --opening=draw: your gun starts away and t
 fixes, unless said). Then analyse.py OUT writes OUT/baseline.md and .json.
 --sheet=NAME draws that one fight (xvfb and lavapipe; --every=S between pairs of frames, --size=WxH)
 into OUT/sheets/NAME/ (fight.json, shots/, sheet.png): the same fight as the headless one.
+--physics-thread=on|off: physics on its own thread or not for this run's games (more-cores step 6;
+written to the game's user://engine.cfg while it runs, then put back); without it, as the game is set.
+--joe=1: Joe beside you (CompanionBrain, #843); the record gets a "joe" part (joe_stats.py sums them).
+--render-thread=on|off: the renderer on its own thread or not for the fights (more-cores step 7;
+Godot's --render-thread separate|safe on each game's command line); without it, as the game is set.
+A --sheet is always drawn on the main thread (its shots are the frames it sets up).
 """
 import itertools
 import json
@@ -48,7 +54,8 @@ def seeds(spec):
 
 
 def name_of(f):
-    return "{scenario}_{hour}_{weapon}_{style}_{bodies}_s{seed}".format(**f)
+    name = "{scenario}_{hour}_{weapon}_{style}_{bodies}_s{seed}".format(**f)
+    return name + ("_" + f["opening"] if f.get("opening") else "")
 
 
 def matrix(args):
@@ -60,7 +67,8 @@ def matrix(args):
         "bodies": opt(args, "bodies", "studio").split(","),
         "seed": seeds(opt(args, "seeds", "1-6")),
         "variant": [opt(args, "variant", "C")],
-        "opening": [opt(args, "opening", "")],
+        "opening": opt(args, "opening", "").split(","),
+        "fixes": [opt(args, "fixes", "all")],  # variant D's: all, none, a+b, -a (all but a)  # "" (as the arena starts), draw, shoot; several: a,b
     }
     return [dict(zip(keys, combo)) for combo in itertools.product(*keys.values())]
 
@@ -72,10 +80,16 @@ def run_one(f, out, ports, max_s, godot):
         return name, "kept", 0.0
     script = os.path.join(out, "scripts", name + ".txt")
     with open(script, "w") as fh:
-        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} max={max} out={out}\nquit\n".format(
-            max=max_s, out=os.path.abspath(rec), **f))
-    cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--bridge-port=PORT",
+        fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} opening={opening} fixes={fixes} dress={dress} falls={falls} momentum={momentum} joe={joe} max={max} out={out}\nquit\n".format(
+            max=max_s, out=os.path.abspath(rec), dress=opt(sys.argv[1:], "dress", ""), joe=opt(sys.argv[1:], "joe", ""),
+            falls=opt(sys.argv[1:], "falls", ""), momentum=opt(sys.argv[1:], "momentum", ""), **f))
+    cmd = [godot, "--headless", "--fixed-fps", "60", "--path", ROOT, "--", "--dev-bridge", "--deterministic", "--bridge-port=PORT",
            f"--bridge-script={os.path.abspath(script)}"]
+    # --game-args=A,B: more of the game's own (--jolt-sight: sight lines asked of Jolt, the before).
+    cmd += [a for a in opt(sys.argv[1:], "game-args", "").split(",") if a]
+    render = opt(sys.argv[1:], "render-thread")
+    if render:
+        cmd[1:1] = ["--render-thread", "separate" if render == "on" else "safe"]
     t0 = time.time()
     port = ports.get()
     cmd[cmd.index("--bridge-port=PORT")] = f"--bridge-port={port}"
@@ -100,13 +114,44 @@ def sheet(name, out, every, size, variant="C"):
         fh.write("gf_fight {scenario} hour={hour} weapon={weapon} style={style} bodies={bodies} seed={seed} variant={variant} out={d}/fight.json "
                  "shots={d}/shots every={every}\nquit\n".format(d=d, every=every, **f))
     godot = os.environ.get("GODOT", "godot")
-    cmd = ["xvfb-run", "-a", "-s", f"-screen 0 {size}x24", godot, "--path", ROOT, "--rendering-driver", "vulkan", "--resolution", size,
-           "--fixed-fps", "60", "--", "--dev-bridge", "--bridge-port=8899", f"--bridge-script={script}"]
+    cmd = ["xvfb-run", "-a", "-s", f"-screen 0 {size}x24", godot, "--path", ROOT, "--render-thread", "safe", "--rendering-driver", "vulkan", "--resolution", size,
+           "--fixed-fps", "60", "--", "--dev-bridge", "--deterministic", "--bridge-port=8899", f"--bridge-script={script}"]
     with open(os.path.join(d, "godot.log"), "w") as log:
         subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=7200)
     here = os.path.dirname(os.path.abspath(__file__))
     return subprocess.run([sys.executable, os.path.join(here, "sheet.py"), os.path.join(d, "fight.json"), os.path.join(d, "shots"),
                            f"--out={os.path.join(d, 'sheet.png')}"]).returncode
+
+
+def engine_cfg():
+    """The game's user://engine.cfg (Settings.ENGINE_PATH): engine settings read at start."""
+    data = os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share")
+    return os.path.join(data, "godot", "app_userdata", "Salt Creek", "engine.cfg")
+
+
+def physics_thread(on):
+    """Physics on its own thread (more-cores step 6) for the games this run starts: written to
+    user://engine.cfg (read at start, as the game's own setting); returns what was there, to put back."""
+    path = engine_cfg()
+    old = open(path).read() if os.path.exists(path) else None
+    lines = [l for l in (old or "").splitlines() if not l.startswith("3d/run_on_separate_thread")]
+    if "[physics]" not in lines:
+        lines += ["", "[physics]"]
+    lines.insert(lines.index("[physics]") + 1, "3d/run_on_separate_thread=%s" % ("true" if on else "false"))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as fh:
+        fh.write("\n".join(lines).strip() + "\n")
+    return old
+
+
+def restore_engine_cfg(old):
+    path = engine_cfg()
+    if old is None:
+        if os.path.exists(path):
+            os.remove(path)
+    else:
+        with open(path, "w") as fh:
+            fh.write(old)
 
 
 def main(argv):
@@ -129,15 +174,26 @@ def main(argv):
     godot = os.environ.get("GODOT", "godot")
     sha = subprocess.run(["git", "-C", ROOT, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
     version = subprocess.run([godot, "--version"], capture_output=True, text=True).stdout.strip()
+    thread = opt(argv, "physics-thread")
     with open(os.path.join(out, "manifest.json"), "w") as fh:
         json.dump({"source": sha, "godot": version, "cpu": os.cpu_count(), "jobs": jobs, "max_s": max_s,
-                   "command": " ".join(["run.py"] + argv), "fights": len(fights)}, fh, indent=1)
+                   "physics_thread": thread or "as set", "render_thread": opt(argv, "render-thread") or "as set", "command": " ".join(["run.py"] + argv), "fights": len(fights)}, fh, indent=1)
+    if thread:
+        old_cfg = physics_thread(thread == "on")
+        try:
+            return run_all(fights, out, jobs, max_s, godot)
+        finally:
+            restore_engine_cfg(old_cfg)
+    return run_all(fights, out, jobs, max_s, godot)
+
+
+def run_all(fights, out, jobs, max_s, godot):
     t0 = time.time()
     done = 0
     failed = []
     ports = queue.Queue()
     for i in range(jobs):
-        ports.put(8800 + i)
+        ports.put(int(opt(sys.argv[1:], "port_base", "8800")) + i)
     with ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = [pool.submit(run_one, f, out, ports, max_s, godot) for f in fights]
         for fu in futures:

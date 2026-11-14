@@ -1,26 +1,46 @@
 name: Test and build
 
-# Every push runs the headless tests. Pushes to main also export Windows, macOS, Linux and Web
-# builds, attach the desktop builds to a GitHub Release, and publish the web build to GitHub Pages.
-# No pull_request trigger: every PR branch is ours and its push run already shows on the PR, so a
-# second run per push only doubled the queue (Sean, 2026-10-21).
+# What builds (Sean, 2026-10-29, #504: ~800 branch-push builds a week were most of ~21,000 Actions
+# minutes):
+# - every push to main: tests, then Windows, Linux and Web exported, the desktop builds
+#   released and the web build published to Pages, so each merge gets its build number;
+# - a pull request, when it opens and on every push to it after: tests and the native plugin;
+# - a branch push whose last commit's message says [build]: the same, for a session that wants CI
+#   before its PR;
+# - by hand (workflow_dispatch).
+# No macOS: Sean tests only the Windows build (2026-11-03), and a macOS runner bills 10x. The
+# native-build action and the export preset still know macOS, to bring it back.
+# Any other branch push starts a run whose jobs are all skipped (no runner, no minutes): sessions
+# run the tests locally before pushing.
 
 on:
   push:
     branches: ["**"]
+  pull_request:
   workflow_dispatch:
 
 env:
   GODOT_VERSION: "4.7.2"
 
 # A newer push to a branch cancels its older run, except on main: every merge's build finishes,
-# so each merge gets its build number and green check.
+# so each merge gets its build number and green check. A [build] push and its open PR's run share
+# a group (the branch's name), so only one of the two builds. A push that builds nothing gets a
+# group of its own, so it never cancels a PR's build.
 concurrency:
-  group: build-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || 'branch' }}
+  group: >-
+    build-${{ (github.event_name == 'push' && github.ref != 'refs/heads/main'
+    && !contains(github.event.head_commit.message, '[build]'))
+    && format('skip-{0}', github.run_id)
+    || format('{0}-{1}', github.head_ref || github.ref_name,
+    github.ref == 'refs/heads/main' && github.sha || 'branch') }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test:
+    # Builds unless it's a plain branch push (see the top).
+    if: >-
+      github.event_name != 'push' || github.ref == 'refs/heads/main'
+      || contains(github.event.head_commit.message, '[build]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -74,9 +94,13 @@ jobs:
             python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print('| Feel | Measured | Agreed |\n|---|---|---|'); [print(f'| {k} | {v[\"value\"]} | {v[\"min\"]} to {v[\"max\"]} |') for k,v in sorted(d.items())]" "$f" >> "$GITHUB_STEP_SUMMARY"
           fi
 
-  # The native plugin (addons/saltcreek_native, Rust) for the three desktop platforms. Each runner
+  # The native plugin (addons/saltcreek_native, Rust) for the desktop platforms. Each runner
   # builds its own; the export job collects them. The web export runs without the plugin.
   native:
+    # Builds unless it's a plain branch push (see the top).
+    if: >-
+      github.event_name != 'push' || github.ref == 'refs/heads/main'
+      || contains(github.event.head_commit.message, '[build]')
     strategy:
       fail-fast: false
       matrix:
@@ -84,12 +108,11 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             file: libsaltcreek_native.so
+            symbols: ""
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             file: saltcreek_native.dll
-          - os: macos-latest
-            target: universal-apple-darwin
-            file: libsaltcreek_native.dylib
+            symbols: saltcreek_native.pdb
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -99,12 +122,18 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: native-${{ matrix.target }}
-          path: addons/saltcreek_native/bin/${{ matrix.file }}
+          path: |
+            addons/saltcreek_native/bin/${{ matrix.file }}
+            ${{ matrix.symbols && format('addons/saltcreek_native/bin/{0}', matrix.symbols) || '' }}
           if-no-files-found: error
 
   export:
     needs: [test, native]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # main; or a branch push whose message says [smoke] (the exports and smoke tests run, nothing
+    # is released or published: release and pages are main's alone).
+    if: >-
+      github.event_name == 'push' && (github.ref == 'refs/heads/main'
+      || contains(github.event.head_commit.message, '[smoke]'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -135,7 +164,7 @@ jobs:
           dest=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
           mkdir -p "$dest"
           unzip -q -j "Godot_v${GODOT_VERSION}-stable_export_templates.tpz" \
-            'templates/linux_*x86_64' 'templates/windows_*x86_64*' 'templates/macos.zip' \
+            'templates/linux_*x86_64' 'templates/windows_*x86_64*' \
             'templates/web_nothreads_*' 'templates/version.txt' -d "$dest"
           rm ./*.zip ./*.tpz
 
@@ -156,19 +185,19 @@ jobs:
 
       - name: Export
         run: |
-          mkdir -p build/windows build/macos build/linux build/web
+          mkdir -p build/windows build/linux build/web
           ~/godot/godot --headless --export-release "Windows" build/windows/SaltCreek.exe
-          ~/godot/godot --headless --export-release "macOS" build/macos/SaltCreek.zip
           ~/godot/godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64
           ~/godot/godot --headless --export-release "Web" build/web/index.html
           test -s build/windows/SaltCreek.exe
-          test -s build/macos/SaltCreek.zip
           test -s build/linux/SaltCreek.x86_64
-          # The native plugin goes beside the game (Windows, Linux) or into the app (macOS): an
+          # The native plugin goes beside the game (Windows, Linux): an
           # export without it runs with no voxel damage, so make sure it's there.
           test -s build/windows/saltcreek_native.dll
           test -s build/linux/libsaltcreek_native.so
-          unzip -l build/macos/SaltCreek.zip | grep -q libsaltcreek_native.dylib
+          # The plugin's symbols beside its DLL: crash dumps read with them (tools/crash_report.py, #624).
+          cp addons/saltcreek_native/bin/saltcreek_native.pdb build/windows/
+          test -s build/windows/saltcreek_native.pdb
           ls -la build/windows build/linux
           test -s build/web/index.wasm
           ls -la addons/saltcreek_native/bin
@@ -190,7 +219,6 @@ jobs:
           mkdir -p dist
           # Everything the export wrote, the native plugin's library beside the game included.
           (cd build/windows && zip -q -9 -r ../../dist/SaltCreek-windows.zip .)
-          cp build/macos/SaltCreek.zip dist/SaltCreek-macos.zip
           (cd build/linux && chmod +x SaltCreek.x86_64 && tar -czf ../../dist/SaltCreek-linux.tar.gz .)
           ls -la dist
 
@@ -229,8 +257,6 @@ jobs:
             how: drawn
           - os: windows-latest
             how: headless
-          - os: macos-latest
-            how: headless
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     name: smoke (${{ matrix.os }}, ${{ matrix.how }})
@@ -253,7 +279,6 @@ jobs:
             Linux-headless) tar -xzf dist/SaltCreek-linux.tar.gz; game=(./SaltCreek.x86_64 --headless) ;;
             Linux-drawn) tar -xzf dist/SaltCreek-linux.tar.gz; game=(xvfb-run -a -s "-screen 0 640x360x24" ./SaltCreek.x86_64 --rendering-driver vulkan --resolution 640x360) ;;
             Windows-headless) unzip -q dist/SaltCreek-windows.zip; game=(./SaltCreek.exe --headless) ;;
-            macOS-headless) unzip -q dist/SaltCreek-macos.zip; app=$(ls -d *.app | head -1); game=("$app/Contents/MacOS/$(ls "$app/Contents/MacOS" | head -1)" --headless) ;;
           esac
           out="$(pwd -W 2>/dev/null || pwd)/smoke.out"  # a Windows path on Windows
           limit=(); command -v timeout >/dev/null && limit=(timeout 900)  # macOS has none: the job's limit
@@ -269,8 +294,37 @@ jobs:
             exit 1
           fi
 
+      - name: What the crash guard wrote (on a failure)
+        # #650's CrashGuard notes a crash (crash.txt) or a freeze (freeze_*.txt) in user://blackbox,
+        # and Godot logs to user://logs: printed here, since a failed runner keeps nothing.
+        if: failure() && runner.os == 'Linux'
+        shell: bash
+        run: |
+          d="$HOME/.local/share/godot/app_userdata/Salt Creek"
+          find "$d" -maxdepth 3 -type f -newer dist 2>/dev/null | head -50
+          for f in "$d"/blackbox/*.txt "$d"/blackbox/*.json; do [ -f "$f" ] && { echo "=== $f"; head -c 20000 "$f"; echo; }; done
+          for f in "$d"/logs/*.log; do [ -f "$f" ] && { echo "=== $f (tail)"; tail -n 80 "$f"; }; done
+          ls -la "$HOME/Desktop/Salt Creek crash reports" 2>/dev/null || true
+
+      - name: The same run under gdb (on a failure, the drawn build)
+        # Where the crash is: every thread's backtrace at the signal. The watchdog's own SIGSEGV
+        # (a freeze it ends) shows as tgkill from 'saltcreek-crash-watchdog'.
+        if: failure() && matrix.how == 'drawn'
+        shell: bash
+        run: |
+          sudo apt-get install -y -q gdb > /dev/null
+          rm -f smoke.out
+          timeout 900 xvfb-run -a -s "-screen 0 640x360x24" gdb -q -batch \
+            -ex "handle SIGSEGV stop print" -ex "handle SIGABRT stop print" -ex "handle SIGUSR1 nostop noprint" \
+            -ex run -ex "info threads" -ex "thread apply all bt 25" \
+            --args ./SaltCreek.x86_64 --rendering-driver vulkan --resolution 640x360 -- --smoke-test --smoke-out="$(pwd)/smoke.out" \
+            > gdb.log 2>&1 || true
+          grep -n -E "^Thread|signal SIG|^#[0-9]+ " gdb.log | head -300
+          echo "--- verdict:"; cat smoke.out 2>/dev/null || echo "(no verdict written)"
+
   release:
     needs: [export, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -294,6 +348,7 @@ jobs:
 
   pages:
     needs: [export, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write

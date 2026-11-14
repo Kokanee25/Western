@@ -1,0 +1,6 @@
+P_D         10 frame  19.7 p95  41.5 people  10.2 len  40.9 | outlaw 2.84 people 3.85 people 1.47 senses 1.15 fire 1.56 floor_ 0.95 struct 0.35 civili 0.51
+   endings ['broke_off', 'surrendered', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down']
+P_D_phys    10 frame  17.0 p95  36.1 people   9.7 len  36.7 | outlaw 2.81 people 3.45 people 1.33 senses 1.05 fire 1.15 floor_ 0.85 struct 0.31 civili 0.74
+   endings ['broke_off', 'you_dead', 'you_dead', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down']
+
+[exited with code 0]

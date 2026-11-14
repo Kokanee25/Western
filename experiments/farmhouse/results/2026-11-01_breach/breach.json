@@ -1,0 +1,272 @@
+{
+  "walk": 7,
+  "stoop": 7,
+  "of": 7,
+  "rows": [
+    {
+      "wall": "front",
+      "clear": 1.9,
+      "walk": true,
+      "stoop": true,
+      "events": [
+        {
+          "kind": "said",
+          "t": 3.9,
+          "text": "outlaw: \"Help you?\""
+        },
+        {
+          "count": 79,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "79 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 13.0,
+          "text": "0.20 kg went off at [95.21, 3.1, -46.16]"
+        },
+        {
+          "count": 219,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "219 pieces of timber broke"
+        }
+      ]
+    },
+    {
+      "wall": "west",
+      "clear": 1.9,
+      "walk": true,
+      "stoop": true,
+      "events": [
+        {
+          "count": 79,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "79 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 13.0,
+          "text": "0.20 kg went off at [95.21, 3.1, -46.16]"
+        },
+        {
+          "count": 219,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "219 pieces of timber broke"
+        },
+        {
+          "count": 56,
+          "kind": "broke",
+          "t": 35.6,
+          "text": "56 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 35.6,
+          "text": "0.20 kg went off at [102.54, 3.06, -47.4]"
+        },
+        {
+          "count": 63,
+          "kind": "broke",
+          "t": 35.6,
+          "text": "63 pieces of timber broke"
+        }
+      ]
+    },
+    {
+      "wall": "east",
+      "clear": 1.9,
+      "walk": true,
+      "stoop": true,
+      "events": [
+        {
+          "count": 56,
+          "kind": "broke",
+          "t": 35.6,
+          "text": "56 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 35.6,
+          "text": "0.20 kg went off at [102.54, 3.06, -47.4]"
+        },
+        {
+          "count": 63,
+          "kind": "broke",
+          "t": 35.6,
+          "text": "63 pieces of timber broke"
+        },
+        {
+          "count": 54,
+          "kind": "broke",
+          "t": 58.3,
+          "text": "54 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 58.3,
+          "text": "0.20 kg went off at [93.46, 3.09, -50.2]"
+        },
+        {
+          "count": 42,
+          "kind": "broke",
+          "t": 58.4,
+          "text": "42 pieces of timber broke"
+        }
+      ]
+    },
+    {
+      "wall": "back",
+      "clear": 1.9,
+      "walk": true,
+      "stoop": true,
+      "events": [
+        {
+          "count": 54,
+          "kind": "broke",
+          "t": 58.3,
+          "text": "54 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 58.3,
+          "text": "0.20 kg went off at [93.46, 3.09, -50.2]"
+        },
+        {
+          "count": 42,
+          "kind": "broke",
+          "t": 58.4,
+          "text": "42 pieces of timber broke"
+        },
+        {
+          "count": 46,
+          "kind": "broke",
+          "t": 80.9,
+          "text": "46 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 80.9,
+          "text": "0.20 kg went off at [95.2, 3.15, -51.44]"
+        },
+        {
+          "count": 46,
+          "kind": "broke",
+          "t": 80.9,
+          "text": "46 pieces of timber broke"
+        }
+      ]
+    },
+    {
+      "wall": "lean_back",
+      "clear": 1.9,
+      "walk": true,
+      "stoop": true,
+      "events": [
+        {
+          "count": 88,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "88 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 13.0,
+          "text": "0.20 kg went off at [99.6, 3.11, -53.84]"
+        },
+        {
+          "count": 174,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "174 pieces of timber broke"
+        }
+      ]
+    },
+    {
+      "wall": "lean_west",
+      "clear": 1.9,
+      "walk": true,
+      "stoop": true,
+      "events": [
+        {
+          "count": 88,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "88 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 13.0,
+          "text": "0.20 kg went off at [99.6, 3.11, -53.84]"
+        },
+        {
+          "count": 174,
+          "kind": "broke",
+          "t": 13.0,
+          "text": "174 pieces of timber broke"
+        },
+        {
+          "count": 43,
+          "kind": "broke",
+          "t": 35.7,
+          "text": "43 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 35.7,
+          "text": "0.20 kg went off at [102.54, 3.06, -52.6]"
+        },
+        {
+          "count": 45,
+          "kind": "broke",
+          "t": 35.7,
+          "text": "45 pieces of timber broke"
+        }
+      ]
+    },
+    {
+      "wall": "lean_east",
+      "clear": 1.9,
+      "walk": true,
+      "stoop": true,
+      "events": [
+        {
+          "count": 43,
+          "kind": "broke",
+          "t": 35.7,
+          "text": "43 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 35.7,
+          "text": "0.20 kg went off at [102.54, 3.06, -52.6]"
+        },
+        {
+          "count": 45,
+          "kind": "broke",
+          "t": 35.7,
+          "text": "45 pieces of timber broke"
+        },
+        {
+          "count": 58,
+          "kind": "broke",
+          "t": 58.4,
+          "text": "58 pieces of timber broke"
+        },
+        {
+          "kind": "blast",
+          "t": 58.4,
+          "text": "0.20 kg went off at [96.86, 3.16, -52.6]"
+        },
+        {
+          "count": 52,
+          "kind": "broke",
+          "t": 58.4,
+          "text": "52 pieces of timber broke"
+        }
+      ]
+    }
+  ]
+}

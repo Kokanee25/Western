@@ -1,0 +1,154 @@
+{
+ "alarm": 22.7,
+ "bot": {
+  "blast": 67.95,
+  "freed": -1.0,
+  "phase_at": {
+   "lit": 63.02,
+   "plant": 60.93,
+   "through": 69.45
+  },
+  "planted": 63.02
+ },
+ "bot_phase": "through",
+ "breach": 68.45,
+ "end": 83.0,
+ "executed": 77.98,
+ "frames": {
+  "blast_ms": 168.05,
+  "fight_ticks": 3618,
+  "max_ms": 168.05,
+  "mean_ms": 10.77,
+  "p95_ms": 20.62
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "brody",
+   "inside": true,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, gut-shot, bone broken.",
+ "seed": 4,
+ "state": "LOST",
+ "t": 83.0,
+ "threat": 68.48,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   22.7,
+   "the alarm: Kid saw you"
+  ],
+  [
+   55.68,
+   "Hollis down"
+  ],
+  [
+   63.9,
+   "the rancher hit (graze, by Brody)"
+  ],
+  [
+   63.9,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   68.45,
+   "a blast at the house"
+  ],
+  [
+   68.48,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   73.78,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   73.8,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   73.8,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   73.83,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   73.85,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   73.87,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   74.32,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   77.98,
+   "the guard shoots the rancher"
+  ],
+  [
+   81.7,
+   "Kid down"
+  ],
+  [
+   83.0,
+   "lost: you_down"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

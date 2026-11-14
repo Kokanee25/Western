@@ -25,7 +25,11 @@ var drawn := true
 var aiming := false
 ## Wounds: hands busy pressing on a wound, or the gun arm can't hold it (PlayerWounds sets these).
 var hands_busy := false
+## Why the hands are busy, when it isn't a wound (sat at a table): PlayerWounds sets it.
+var busy_why := ""
 var arm_disabled := false
+## Why the arm can't hold it, in plain words (PlayerWounds sets it with `arm_disabled`).
+var arm_why := ""
 ## Extra wobble from pain, shock and a wounded arm, degrees.
 var extra_spread := 0.0
 ## Tests and scripted scenes drive the gun without a captured mouse.
@@ -41,12 +45,17 @@ var sway := Vector2.ZERO
 var steady := 0.0
 ## How much this gun wanders, against a revolver held out at arm's length.
 var sway_factor := 1.0
+## How much of the fine shake reaches the muzzle (a rifle in the shoulder, the cheek on the comb and
+## both hands on it, damps it; the revolver and the coach gun keep all of it).
+var shake_factor := 1.0
 ## Tests: hold it dead still (no sway at all).
 var steady_hands := false
 ## The wander itself (Sway: the same model the gang's guns use, GunHand).
 var sway_model := Sway.new(9001)
 
 var _player: Player
+## The gun's dice: a fixed seed unless the gun sets its own before _setup_common (a new
+## generator's own seed is random: a thrown stick's tumble differed each run of the same fight).
 var _rng := RandomNumberGenerator.new()
 var _pose_pos := Vector3.ZERO
 var _pose_rot := Vector3.ZERO
@@ -66,6 +75,10 @@ var _kick_rng := RandomNumberGenerator.new()
 var _climb_left := 0.0
 const CLIMB_TIME := 0.12
 var _cam_base := Vector3.ZERO
+
+
+func _init() -> void:
+	_rng.seed = 1
 
 
 func _setup_common() -> void:
@@ -103,7 +116,7 @@ func _add_fill() -> void:
 
 func _mark_held() -> void:
 	for mi in find_children("*", "MeshInstance3D", true, false):
-		(mi as MeshInstance3D).layers |= Layers.VIS_HELD
+		Layers.hold(mi as MeshInstance3D)
 
 
 func _update_fill() -> void:
@@ -153,14 +166,60 @@ func is_ready_in_hand() -> bool:
 	return selected and drawn and _draw >= 0.9
 
 
+## Why it can't be used now, in plain words ("" when it can): said on the screen and in the bridge's
+## answers (#595: a broken gun arm put the revolver away, and draw, shoot and reload did nothing,
+## without a word).
+func why_not_usable() -> String:
+	if arm_disabled:
+		return arm_why if arm_why != "" else "your arm won't hold it"
+	if hands_busy:
+		return busy_why if busy_why != "" else "your hands are pressing on a wound"
+	return ""
+
+
+## Why `action` (fire, reload, aim) won't do what you meant, in plain words ("" when it will):
+## the gun you can't hold first (`why_not_usable`), then one that's put away, then the gun's own
+## (`_why_not`: out of cartridges). #607: `press reload` with none left, or with the gun put away,
+## did nothing without a word.
+func why_not(action: StringName) -> String:
+	var why := why_not_usable()
+	if why != "":
+		return why
+	if not selected:
+		return ""
+	if not drawn and action in [&"fire", &"reload", &"aim", &"cock"]:
+		return "your gun's put away"
+	return _why_not(action)
+
+
+func _why_not(_action: StringName) -> String:
+	return ""
+
+
 ## Fully put away (switching guns waits for this).
 func is_put_away() -> bool:
 	return _draw <= 0.02
 
 
 func _physics_process(_delta: float) -> void:
+	for f in _due:
+		f.call()
+	_due.clear()
 	_tuck_target = _probe_wall()
 	_update_fill()
+
+
+## Shots fired outside the physics frame (the trigger read in _process, a tool's pull_trigger):
+## each leaves in the next tick, its line, sway and kick read then, so the ball flies by the
+## query rule (World.space) and in the same tick order every run.
+var _due: Array[Callable] = []
+
+
+func _in_tick(f: Callable) -> void:
+	if Engine.is_in_physics_frame():
+		f.call()
+	else:
+		_due.append(f)
 
 
 ## How far the gun must pull back so the muzzle, in the pose it's heading for, stops short of
@@ -183,7 +242,7 @@ func _probe_wall() -> float:
 	q.collision_mask = TUCK_MASK
 	if _player:
 		q.exclude = [_player.get_rid()]
-	var fractions := get_world_3d().direct_space_state.cast_motion(q)
+	var fractions := World.space(self).cast_motion(q)
 	var free := fractions[0] * (reach + TUCK_MARGIN)
 	return clampf((reach + TUCK_MARGIN - free) / TUCK_RANGE, 0.0, 1.0)
 
@@ -227,7 +286,7 @@ func _shot_line(muzzle: Vector3) -> Array:
 	if cam:
 		var q0 := PhysicsRayQueryParameters3D.create(cam.global_position, origin, Layers.BULLETS)
 		q0.exclude = exclude
-		var blocked := get_world_3d().direct_space_state.intersect_ray(q0)
+		var blocked := World.space(self).intersect_ray(q0)
 		if not blocked.is_empty():
 			origin = blocked.position + (cam.global_position - blocked.position).normalized() * 0.01
 		# Where the barrel's pointing: your line of sight, turned by the sway and by what's left of
@@ -241,7 +300,7 @@ func _shot_line(muzzle: Vector3) -> Array:
 		aim_point = cam.global_position + aim_dir * 80.0
 		var q := PhysicsRayQueryParameters3D.create(cam.global_position, aim_point, Layers.BULLETS)
 		q.exclude = exclude
-		var hit := get_world_3d().direct_space_state.intersect_ray(q)
+		var hit := World.space(self).intersect_ray(q)
 		if not hit.is_empty() and cam.global_position.distance_to(hit.position) > 0.6:
 			aim_point = hit.position
 	last_shot_origin = origin
@@ -284,9 +343,22 @@ func _update_sway(delta: float) -> void:
 	# Breathing deeper and faster when winded; a fine shake that a hurt arm (extra_spread) and being
 	# rattled make worse.
 	var breath := t.breath * (1.0 + winded * 1.5) * (t.crouch_sway if _player and _player.is_crouching else 1.0)
-	var shake := (t.tremor + extra_spread * 0.12) * scale
+	var shake := (t.tremor + extra_spread * 0.12) * scale * shake_factor
 	var s := sway_model.step(delta, amp, breath, t.breath_rate, 1.0 + winded * 1.5, shake)
-	sway = Vector2.ZERO if steady_hands else s
+	# The body carries the gun too: it lags your turns and rides your steps (PlayerMotion).
+	var body := _player.motion.hand_turn if _player else Vector2.ZERO
+	sway = Vector2.ZERO if steady_hands else s + body
+
+
+## Where the body has pushed the gun off its pose this frame (m: the steps, a landing, a push off).
+func _body_pos() -> Vector3:
+	return _player.motion.hand_pos if _player and not steady_hands else Vector3.ZERO
+
+
+## The body's turn of what's in your hands, for a held thing that doesn't sway (degrees).
+func _body_rotation() -> Vector3:
+	var turn := _player.motion.hand_turn if _player and not steady_hands else Vector2.ZERO
+	return Vector3(turn.y, -turn.x, 0.0)
 
 
 ## A flinch: the gun jerks off line (degrees), then comes back.
@@ -356,8 +428,10 @@ func _animate_camera(delta: float, aim_fov: float) -> void:
 	if cam == null or not selected:
 		return
 	view_kick.step(delta)
-	cam.rotation.x = deg_to_rad(view_kick.pitch)
-	cam.rotation.y = deg_to_rad(-view_kick.yaw)
+	# And a blast's shake on top (PlayerWounds.view_shake, #596 step 2: the view, not your aim).
+	var shook: Vector3 = _player.wounds.view_shake if _player and _player.wounds else Vector3.ZERO
+	cam.rotation.x = deg_to_rad(view_kick.pitch + shook.x)
+	cam.rotation.y = deg_to_rad(-view_kick.yaw + shook.y)
 	cam.position = _cam_base + Vector3(0.0, 0.0, view_kick.back)
 	# What doesn't come back: handed to your own pitch over a moment, not in one jump.
 	if _climb_left > 0.0 and _player:
@@ -365,5 +439,5 @@ func _animate_camera(delta: float, aim_fov: float) -> void:
 		if _climb_left < 0.01:
 			give = _climb_left
 		_climb_left -= give
-		_player.add_look(Vector2(0.0, give))
+		_player.add_look(Vector2(0.0, give), false)
 	cam.fov = lerpf(cam.fov, aim_fov if aiming else _base_fov, 1.0 - exp(-delta * 10.0))

@@ -58,7 +58,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if freeze:
 		return
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.1, global_position + Vector3.DOWN * 0.4, Layers.WORLD, [get_rid()])
 	var hit := space.intersect_ray(q)
 	if is_instance_valid(ground) and not hit.is_empty() and Ground.is_ground(hit.collider):

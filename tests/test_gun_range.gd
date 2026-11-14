@@ -109,6 +109,49 @@ func test_empty_then_reload_drops_brass() -> void:
 	check(not gun.state.gate_open, "one more press closes the gate")
 
 
+## The D+ playtest: three rounds in, then three clicks before a shot. A part load shuts the gate
+## with the loaded rounds coming up next.
+func test_part_load_fires_every_round_it_put_in() -> void:
+	for i in 5:
+		await _tap(&"cock")
+		await _wait_ready()
+		await _tap(&"fire")
+		await _wait_ready()
+	Input.action_press(&"reload")
+	await wait_until(func() -> bool: return gun.state.rounds_loaded() == 3, 60 * 12)
+	Input.action_release(&"reload")
+	check_eq(gun.state.rounds_loaded(), 3, "three rounds in")
+	await _wait_ready()
+	var shots := []
+	for i in 4:
+		await _tap(&"cock")  # the first shuts the gate, as the bridge's shoot does
+		await _wait_ready()
+		if gun.state.hammer != RevolverState.Hammer.FULL_COCK:
+			await _tap(&"cock")
+			await _wait_ready()
+		shots.append(gun.pull_trigger())
+		await _wait_ready()
+	var went := shots.slice(0, 3).filter(func(s: int) -> bool: return s == RevolverState.Shot.FIRED or s == RevolverState.Shot.MISFIRE)
+	check_eq(went.size(), 3, "all three go, no clicks first (%s)" % [shots])
+	check_eq(shots[3], RevolverState.Shot.CLICK, "then the empties")
+
+
+## Holding the key past a full load shuts the gate once and leaves it shut, the hammer down.
+func test_held_reload_does_not_reopen_the_gate() -> void:
+	await _tap(&"cock")
+	await _wait_ready()
+	await _tap(&"fire")
+	await _wait_ready()
+	Input.action_press(&"reload")
+	await process_frames(60 * 4)
+	check_eq(gun.state.rounds_loaded(), 6, "all six in (%s)" % [gun.state.chambers])
+	check(not gun.state.gate_open, "held past the end, the gate's shut")
+	await process_frames(60 * 2)
+	Input.action_release(&"reload")
+	check(not gun.state.gate_open, "and stays shut")
+	check_eq(gun.state.hammer, RevolverState.Hammer.DOWN, "hammer down, not half cock")
+
+
 func test_holster() -> void:
 	await _tap(&"holster")
 	await process_frames(40)
@@ -215,6 +258,7 @@ func test_gun_pulls_back_from_a_wall() -> void:
 	if not check(not wall.is_empty(), "found a wall to face"):
 		return
 	await process_frames(40)
+	await physics_frames(1)  # queries in the physics frame (World.space)
 	var eye := player.camera.global_position
 	var q := PhysicsRayQueryParameters3D.create(eye, gun.model.muzzle.global_position, Layers.WORLD)
 	q.exclude = [player.get_rid()]
@@ -239,4 +283,7 @@ func test_shot_against_a_wall_hits_that_wall() -> void:
 	await wait_until(func() -> bool: return not hits.is_empty(), 30)
 	check(not hits.is_empty(), "the shot hit something")
 	if not hits.is_empty():
-		check_eq(hits[0].member_id, (wall.member as StructureMember).member_id, "first thing hit is the wall in front")
+		# A board of that wall (an old wall's boards differ in width: the ball may take the next one).
+		var wall_of := func(id: StringName) -> String: return String(id).get_base_dir()
+		check_eq(wall_of.call(hits[0].member_id), wall_of.call((wall.member as StructureMember).member_id),
+				"first thing hit is the wall in front")

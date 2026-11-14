@@ -1,0 +1,314 @@
+{
+ "alarm": 170.25,
+ "blocking": [
+  "0.3:House/lean_back_opening1_king1",
+  "0.3:House/floor_lean_to_board_010_0",
+  "0.3:House/lean_to_sill_back_0",
+  "0.3:House/floor_lean_to_joist_007",
+  "0.3:House/floor_lean_to_joist_008",
+  "0.3:House/floor_lean_to_joist_009",
+  "0.3:House/floor_lean_to_joist_010",
+  "0.3:House/floor_lean_to_board_012_1",
+  "0.3:House/floor_lean_to_board_013_1",
+  "0.3:House/lean_to_sill_back_1",
+  "0.3:TestStreet/Player",
+  "0.3:Farmhouse/@RigidBody3D@23200",
+  "RB RigidBody3D at [2.77, 0.24, 7.92] mass 1.0842182636261 kids [&\"@CollisionShape3D@23202\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\"]",
+  "1.0:House/lean_back_opening1_king1",
+  "1.0:TestStreet/Player",
+  "1.6:House/lean_back_opening1_king1",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 169.75,
+  "freed": -1.0,
+  "froze": 26.1166666666665,
+  "gate_left": 106.1,
+  "gate_wait": 54.8833333333315,
+  "hid": 167.5,
+  "phase_at": {
+   "lit": 164.82,
+   "plant": 162.73,
+   "through": 171.25
+  },
+  "planted": 164.82
+ },
+ "bot_phase": "through",
+ "bot_target": "",
+ "breach": 170.25,
+ "end": 179.43,
+ "executed": -1.0,
+ "found": 172.97,
+ "frames": {
+  "blast_ms": 253.13,
+  "fight_ticks": 551,
+  "max_ms": 253.13,
+  "mean_ms": 33.35,
+  "p95_ms": 44.92
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   6.79,
+   2.66,
+   2.51
+  ],
+  "limp": false,
+  "pelvis": [
+   6.82,
+   1.91,
+   2.51
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  6.81,
+  2.29,
+  2.51
+ ],
+ "men": 7,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're back)",
+   "id": "brody",
+   "inside": true,
+   "knows": 3.9,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 3.9,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to window back: window back (you're back)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 3.3,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "to kitchen table: kitchen table (you're back)",
+   "id": "kid",
+   "inside": false,
+   "knows": 3.9,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 3.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "back",
+   "decision": "give up: past his nerve (fear 0.96 / 0.94), covered close",
+   "id": "pike",
+   "inside": false,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to kitchen door: kitchen door (you're back)",
+   "id": "wes",
+   "inside": true,
+   "knows": 3.9,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, can't feel his legs, bone broken.",
+ "player_local": [
+  2.75,
+  0.33,
+  7.77
+ ],
+ "quits": [
+  [
+   170.27,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   175.5,
+   "pike",
+   "gives up",
+   "give up: past his nerve (fear 0.96 / 0.94), covered close",
+   false
+  ],
+  [
+   177.53,
+   "dutch",
+   "gives up",
+   "to window back: window back (you're back)",
+   true
+  ]
+ ],
+ "route_left": 10,
+ "route_next": [
+  2.6,
+  0.56,
+  7.2
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 1,
+ "shots_men": 2,
+ "shots_out": 2,
+ "state": "LOST",
+ "surprise": 170.25,
+ "t": 179.43,
+ "threat": 175.52,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   170.25,
+   "Hollis down"
+  ],
+  [
+   170.25,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   170.25,
+   "Pike falls back to the house (the alarm, 6 m from the door, you 9 m off)"
+  ],
+  [
+   170.25,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 16 m off)"
+  ],
+  [
+   170.27,
+   "Hollis gives up ()"
+  ],
+  [
+   171.9,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.92,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.93,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.95,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.95,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   171.98,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   172.97,
+   "found: you fired"
+  ],
+  [
+   175.5,
+   "Pike gives up (give up: past his nerve (fear 0.96 / 0.94), covered close)"
+  ],
+  [
+   175.52,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   177.53,
+   "Dutch down"
+  ],
+  [
+   177.53,
+   "Dutch gives up (to window back: window back (you're back))"
+  ],
+  [
+   179.43,
+   "lost: you_down"
+  ]
+ ],
+ "way": "breach",
+ "where": "kitchen"
+}

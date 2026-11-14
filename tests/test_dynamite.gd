@@ -29,8 +29,9 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	Events.exploded.disconnect(_on_boom)
-	for a in [&"fire", &"cock", &"aim", &"weapon_dynamite"]:
+	for a in [&"fire", &"cock", &"aim", &"weapon_dynamite", &"shove"]:
 		Input.action_release(a)
 	world.queue_free()
 	await physics_frames(2)
@@ -94,6 +95,108 @@ func test_pressure_falls_with_distance() -> void:
 	check(Blast.overpressure_kpa(kg, 0.3) > 2500.0, "at arm's length: thousands")
 	check(Blast.overpressure_kpa(1.5, 3.0) > Blast.overpressure_kpa(0.15, 3.0) * 3.0, "ten sticks hit much harder")
 	check(Blast.impulse(kg, 1.0) > Blast.impulse(kg, 3.0), "impulse falls off too")
+
+
+## The face's sum taken the plain way (impulse() and reflection(overpressure_kpa()) per strip, as
+## face_impulse was before #538 inlined them): the same to the last bit, so the same boards break
+## and are cut the same.
+static func _face_reference(m: StructureMember, at: Vector3, kg: float, window := INF, center := NAN) -> float:
+	var length := m.length()
+	var cs := m.cross_section()
+	var width := maxf(cs.x, cs.y)
+	var half := length * 0.5
+	var t0 := clampf((at - m.global_position).dot(m.axis()), -half, half)
+	var tc := t0 if is_nan(center) else clampf(center, -half, half)
+	var perp := Blast._nearest_on(m, at).distance_to(at)
+	var out := Blast._out_from_face(m, at)
+	var offsets := [0.0]
+	for d in [0.03, 0.08, 0.15, 0.3, 0.6, 1.2, 2.4, 4.8]:
+		offsets.append(d)
+		offsets.append(-d)
+	var ts: Array[float] = []
+	for o: float in offsets:
+		var t := clampf(t0 + o, -half, half)
+		if not ts.has(t):
+			ts.append(t)
+	if tc != t0 and window < INF:
+		for o: float in [0.0, -0.4, -0.15, 0.15, 0.4]:
+			var t := clampf(tc + o * window, -half, half)
+			if not ts.has(t):
+				ts.append(t)
+	ts.sort()
+	var total := 0.0
+	for i in ts.size():
+		var lo := -half if i == 0 else (ts[i - 1] + ts[i]) * 0.5
+		var hi := half if i == ts.size() - 1 else (ts[i] + ts[i + 1]) * 0.5
+		if window < INF:
+			lo = maxf(lo, tc - window * 0.5)
+			hi = minf(hi, tc + window * 0.5)
+		var seg := hi - lo
+		if seg <= 0.0:
+			continue
+		var along := ts[i] - t0
+		var r := maxf(sqrt(perp * perp + along * along), 0.02)
+		var mean := 0.0
+		for k in 3:
+			var off := width * (k - 1) / 3.0
+			var rk := sqrt(r * r + off * off)
+			var square_on := clampf(out / rk, 0.0, 1.0)
+			mean += Blast.impulse(kg, rk) * (1.0 + (Blast.reflection(Blast.overpressure_kpa(kg, rk)) - 1.0) * square_on)
+		total += mean / 3.0 * seg * width
+	return total
+
+
+func test_the_face_sum_is_the_plain_one_to_the_bit() -> void:
+	var store := await _store()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 538
+	var members := store.get_members()
+	var n := 0
+	var most_ok := true
+	for i in 120:
+		var m := members[rng.randi() % members.size()]
+		var at := m.global_position + Vector3(rng.randf_range(-2, 2), rng.randf_range(-1, 1), rng.randf_range(-2, 2))
+		var kg := rng.randf_range(0.05, 1.5)
+		if Blast.face_impulse(m, at, kg) == _face_reference(m, at, kg):
+			n += 1
+		var c := rng.randf_range(-1.0, 1.0)
+		if Blast.face_impulse(m, at, kg, 0.3, c) == _face_reference(m, at, kg, 0.3, c):
+			n += 1
+		most_ok = most_ok and Blast.face_impulse(m, at, kg) <= Blast.most_face_impulse(m, at, kg) * (1.0 + 1e-9)
+	check_eq(n, 240, "face_impulse is the plain sum exactly, whole and windowed (%s)" % ("native" if Blast.native else "script"))
+	check(most_ok, "and never more than most_face_impulse (what KitProp skips a blast by)")
+
+
+## The plugin's sums (BlastCore, #538) against the script's own: the same to the bit, so the same
+## boards break and are cut the same with it or without (the web runs without).
+func test_the_native_face_sum_is_the_scripts() -> void:
+	if Blast.native == null:
+		check(true, "no plugin here: the script's sums are the game's")
+		return
+	var store := await _store()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5380
+	var members := store.get_members()
+	var timber: TimberTuning = load("res://config/timber.tres")
+	var faces := 0
+	var cuts := 0
+	var cut_some := 0
+	var native: Object = Blast.native
+	for i in 150:
+		var m := members[rng.randi() % members.size()]
+		var at := m.global_position + Vector3(rng.randf_range(-1.5, 1.5), rng.randf_range(-1, 1), rng.randf_range(-1.5, 1.5))
+		var kg := rng.randf_range(0.05, 1.5)
+		var c := rng.randf_range(-1.0, 1.0)
+		var a := [Blast.face_impulse(m, at, kg), Blast.face_impulse(m, at, kg, 0.3, c), Blast.torn_stretch(m, at, kg, timber)]
+		Blast.native = null
+		var b := [Blast.face_impulse(m, at, kg), Blast.face_impulse(m, at, kg, 0.3, c), Blast.torn_stretch(m, at, kg, timber)]
+		Blast.native = native
+		faces += int(a[0] == b[0]) + int(a[1] == b[1])
+		cuts += int(a[2] == b[2])
+		cut_some += int((b[2] as Vector2).y > (b[2] as Vector2).x)
+	check_eq(faces, 300, "the native face sum is the script's to the bit, whole and windowed")
+	print("  native vs script: %d faces, %d stretches the same, %d of them torn" % [faces, cuts, cut_some])
+	check_eq(cuts, 150, "and the stretch it tears out the same (%d of them a stretch)" % cut_some)
 
 
 # --- Buildings --------------------------------------------------------------------------------------
@@ -166,7 +269,70 @@ func test_a_crowded_street_doesnt_hide_whats_beside_it() -> void:
 	check(siding.broken, "and the board beside it goes (%d broken)" % report.broken.size())
 
 
-## One stick on the floor against the inside of a plank wall holes it where it's overcome (boards
+## The rubble and fallen fittings are found by their groups, not the queries (#538): the same set
+## the queries found. Rubble inside the reach, outside it, and a long board and a chip whose middles
+## are past it but reach into it (the board on timber's layer, into where timber breaks).
+func test_gather_finds_the_rubble_the_queries_found() -> void:
+	var at := Vector3(0, 1, 0)
+	var kg := 0.15
+	var r_max := Blast.reach(kg)
+	var r_break := Blast.break_reach(kg)
+	var made := []  # (untyped: the queries find the ground too)
+	var place := func(pos: Vector3, size: Vector3, layer: int, group: StringName, rot := 0.0) -> RigidBody3D:
+		var rb := RigidBody3D.new()
+		rb.collision_layer = layer
+		rb.collision_mask = 0
+		rb.freeze = true
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = size
+		cs.shape = box
+		cs.position = Vector3(0.0, 0.0, size.z * 0.1)
+		rb.add_child(cs)
+		rb.add_to_group(group)
+		world.add_child(rb)
+		rb.global_position = pos
+		rb.rotation.y = rot
+		made.append(rb)
+		return rb
+	for k in 24:
+		var a := TAU * k / 24.0
+		var r := 1.0 + k * 0.9
+		place.call(at + Vector3(cos(a) * r, 0.0, sin(a) * r), Vector3(0.3, 0.1, 0.1), Layers.DEBRIS if k % 2 else Layers.WORLD, &"rubble" if k % 3 else &"fallen")
+	var chip_in: RigidBody3D = place.call(at + Vector3(r_max + 0.1, 0, 0), Vector3(0.6, 0.1, 0.1), Layers.DEBRIS, &"rubble")
+	var chip_out: RigidBody3D = place.call(at + Vector3(0, 0, r_max + 0.2), Vector3(0.2, 0.1, 0.1), Layers.DEBRIS, &"rubble")
+	var board_in: RigidBody3D = place.call(at + Vector3(-(r_max + 1.0), 0, 0), Vector3(2 * (r_max + 1.0 - r_break) + 0.4, 0.1, 0.1), Layers.WORLD, &"rubble")
+	var board_out: RigidBody3D = place.call(at + Vector3(0, 0, -(r_max + 1.0)), Vector3(0.1, 0.1, 2 * (r_max + 1.0 - r_break) + 0.4), Layers.WORLD, &"rubble", PI * 0.5)
+	await physics_frames(2)
+	# The old way: both queries (rubble in them) and every loose body by its middle.
+	var before := {}
+	for spec: Array in [[r_break, Layers.WORLD | Layers.DEBRIS | Layers.BODY_PARTS], [r_max, Layers.DEBRIS | Layers.BODY_PARTS]]:
+		var shape := SphereShape3D.new()
+		shape.radius = spec[0]
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = shape
+		q.transform = Transform3D(Basis.IDENTITY, at)
+		q.collision_mask = spec[1]
+		for f: Dictionary in world.get_world_3d().direct_space_state.intersect_shape(q, 1 << 12):
+			if f.collider in made:
+				before[f.collider] = true
+	for rb in made:
+		if rb.global_position.distance_to(at) <= r_max:
+			before[rb] = true
+	var looked := Blast.gather(world, at, kg)
+	var now := {}
+	for c in looked:
+		if c in made:
+			now[c] = true
+	check_eq(now.size(), before.size(), "as many rubble pieces (%d)" % before.size())
+	for rb: RigidBody3D in before:
+		check(now.has(rb), "found as before: %s" % rb.global_position)
+	check(now.has(chip_in), "a chip past the reach reaching into it")
+	check(now.has(board_in), "a board past the reach reaching where timber breaks")
+	check(not now.has(chip_out) and not now.has(board_out), "but not ones that don't (a board on timber's layer only the near query takes)")
+
+
+## cut, not whole boards gone): a hole to crawl through, at least. Three in a bundle: a way to walk out.
 ## cut, not whole boards gone): a hole to crawl through. Three in a bundle: a way to walk out.
 func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
 	var store := await _store()
@@ -194,7 +360,10 @@ func test_a_stick_inside_against_the_wall_blows_a_way_out() -> void:
 	check(cut >= 3 and whole == 0, "the boards are holed, not gone whole (%d cut, %d whole)" % [cut, whole])
 	await physics_frames(120)
 	check(_way_through(store, at, 0.6), "a hole in the wall a man can crawl through")
-	check(not _way_through(store, at, 1.3), "not one he can walk through upright, from one stick")
+	# Not checked since the ground counts (#220, a stick on the floor hits as ~1.4-1.8 of its TNT):
+	# that it isn't one he walks through upright. Along this wall one stick now blows a full-height
+	# slot at 5 spots in 8 and a ~1.4 m hole at the rest (before: 4 in 8, and 1.0-1.3 m holes); Sean's
+	# call on it is #484 (experiments/body_lab/results/2026-10-28_dynamite_c/README.md).
 
 
 func test_a_bundle_inside_against_the_wall_blows_a_door() -> void:
@@ -268,23 +437,59 @@ func test_far_off_it_only_cracks_panes() -> void:
 	check_eq(timber, 0, "no timber broken from 7 m")
 
 
-func test_it_can_start_a_fire() -> void:
+func test_it_lights_nothing_itself() -> void:
+	# Sean, 2026-10-28: dry siding in the flash, four sticks, and nothing catches; a fire after a
+	# blast comes from a lamp it smashed (test_glass_props).
 	var store := await _store()
 	var fire := FireSystem.new()
 	world.add_child(fire)
 	await physics_frames(1)
 	var siding := _side_board(store)
-	var lit := 0
 	for k in 4:
 		Blast.detonate(world, _outside(store, siding, 0.3) + Vector3.UP * 0.4 * k, 0.15)
 		await physics_frames(1)
-	check_eq(fire.burning_members().size(), 0, "nothing alight in the flash itself")
 	fire.step(Blast.t().ignite_delay.y + 0.1)
-	lit = fire.burning_members().size()
-	check(lit >= 1, "dry wood caught a moment after (%d burning)" % lit)
+	check_eq(fire.burning_members().size(), 0, "no wood alight after the flash")
+	check_eq(fire.spills.size(), 0, "and nothing burning on the ground")
+
+
+## On the ground a charge blasts a hemisphere: it hits as 1.8 times its TNT, fading to its own by a
+## third of a metre up (#220, Sean's option c).
+func test_on_the_ground_it_hits_harder() -> void:
+	var kg := Blast.t().tnt_per_stick
+	check_near(Blast.ground_share(kg, 0.0), 1.8, 0.001, "lying on the ground: x1.8")
+	check_near(Blast.ground_share(kg, 1.2), 1.0, 0.001, "held at the chest: its own")
+	check_near(Blast.ground_share(kg, INF), 1.0, 0.001, "nothing under it: its own")
+	var report := Blast.detonate(world, Vector3(0, DynamiteStick.RADIUS, 0), kg)
+	check(float(report.kg) > kg * 1.7, "a stick on the dirt hits as %.2f kg" % float(report.kg))
+	var high := Blast.detonate(world, Vector3(10, 1.5, 0), kg)
+	check_near(float(high.kg), kg, 0.001, "one going off 1.5 m up hits as its own")
+	check_eq(booms[0][1], report.kg, "the town hears the blast as it hit")
+	# What faces it takes the reflected pressure: 2x weak, toward 8x strong.
+	check_near(Blast.reflected_kpa(1.0), 2.0, 0.05, "a weak shock: twice")
+	check(Blast.reflected_kpa(1000.0) > 5.0 * 1000.0, "a strong one: more than five times")
 
 
 # --- People -------------------------------------------------------------------------------------------
+
+## A stick lying on the ground a metre in front of him (Sean's pick, #220, the body lab's
+## results/2026-10-28_dynamite_c/): his feet go, his lungs are bruised, his eardrums burst.
+func test_a_stick_on_the_ground_a_metre_off_takes_his_feet() -> void:
+	var man := await _man(Vector3.ZERO)
+	Blast.detonate(world, Vector3(0, 0.05, -1.0), Blast.t().tnt_per_stick)
+	var p := man.physiology
+	check(p.severed_segments.has(&"foot_r") and p.severed_segments.has(&"foot_l"), "both feet gone (%s)" % str(p.severed_segments.keys()))
+	check(not p.severed_segments.has(&"thigh_r") and not p.severed_segments.has(&"thigh_l"), "his thighs left")
+	check_eq(p.eardrums_burst.size(), 2, "both eardrums")
+	check(" ".join(man.describe_wounds()).contains("lungs bruised"), "lungs bruised: %s" % "; ".join(man.describe_wounds()))
+
+
+func test_five_metres_off_on_his_feet() -> void:
+	var man := await _man(Vector3.ZERO)
+	Blast.detonate(world, Vector3(0, 0.05, -5.5), Blast.t().tnt_per_stick)
+	check(man.physiology.severed_segments.is_empty() and not man.limp, "whole and standing at 5.5 m")
+
+
 
 func test_a_man_a_metre_off() -> void:
 	var man := await _man(Vector3.ZERO)
@@ -306,6 +511,76 @@ func test_across_the_street_ringing_but_whole() -> void:
 	check(man.physiology.alive, "alive")
 
 
+## Where a stick's chest wounds end (docs/briefs/blast-surfaces.md, "What a stick does to people"):
+## the distance from the charge to the skin at which the reflected pressure falls to `kpa`.
+func _radius(kg: float, kpa: float) -> float:
+	var lo := 0.02
+	var hi := 100.0
+	for i in 60:
+		var mid := (lo + hi) * 0.5
+		if Blast.reflected_kpa(Blast.overpressure_kpa(kg, mid)) > kpa:
+			lo = mid
+		else:
+			hi = mid
+	return lo
+
+
+## The stick's people radii as the brief states them: lungs bruised within 1.7 m of the chest's
+## skin, torn within 1.3 m, eardrums from 5.0 m in (a 0.2 kg stick on the ground, 1.8x).
+func test_a_sticks_radii_are_the_briefs() -> void:
+	var bt := Blast.t()
+	var kg := bt.tnt_per_stick * bt.ground_factor
+	check_near(_radius(kg, bt.lung_kpa), 1.7, 0.05, "lungs bruised within 1.7 m")
+	check_near(_radius(kg, bt.lung_severe_kpa), 1.3, 0.05, "lungs torn within 1.3 m")
+	check_near(_radius(kg, bt.eardrum_kpa), 5.0, 0.1, "eardrums from 5 m")
+
+
+## A stick on the street (#488: every townsperson in its reach was logged "hit (chest)"): no chest
+## is wounded beyond its injury radius, and a man it does nothing to has no wound and no hit; the
+## one by it has both.
+func test_a_stick_on_the_street_wounds_no_chest_beyond_its_radius() -> void:
+	var bt := Blast.t()
+	var radius := _radius(bt.tnt_per_stick * bt.ground_factor, bt.lung_kpa)
+	var men: Array[HumanBody] = []
+	# A fan of men round it, none in another's way: 1, 3, 6, 10 and 17 m off.
+	var offs := [1.0, 3.0, 6.0, 10.0, 17.0]
+	for k in offs.size():
+		var a := TAU * k / offs.size()
+		men.append(await _man(Vector3(sin(a), 0.0, cos(a)) * float(offs[k])))
+	var hits := {}
+	var on_hit := func(info: Dictionary) -> void: hits[info.get("person")] = info.get("harm")
+	Events.body_hit.connect(on_hit)
+	Blast.detonate(world, Vector3(0, 0.05, 0), bt.tnt_per_stick)
+	Events.body_hit.disconnect(on_hit)
+	for man in men:
+		var chest := (man.parts[&"chest"] as Node3D).global_position
+		var lungs := " ".join(man.describe_wounds()).contains("lungs")
+		var away := chest.distance_to(Vector3(0, 0.05, 0))
+		var blasted := man.wounds.filter(func(w: Dictionary) -> bool: return w.kind == &"blast")
+		if away > radius + 0.3:
+			check(not lungs, "no chest wound %.1f m off" % away)
+		if blasted.is_empty():
+			check(not hits.has(man), "unhurt %.1f m off, so no hit (%s)" % [away, str(hits.get(man))])
+		else:
+			check(hits.has(man) and not (hits[man] as PackedStringArray).is_empty(), "a blast wound %.1f m off is its harm, hit" % away)
+	var far := men.slice(3)
+	for man: HumanBody in far:
+		check(man.wounds.is_empty() and not hits.has(man), "nothing at all %.0f m off" % man.global_position.length())
+	check(hits.has(men[0]), "the man a metre off is hit (%s)" % str(hits.get(men[0])))
+
+
+## You, a stick going off 12 m away: ringing, no wound, no hit (#488).
+func test_a_stick_across_the_street_isnt_a_hit_on_you() -> void:
+	var player := await _player()
+	var hits := []
+	var on_hit := func(info: Dictionary) -> void: hits.append(info)
+	Events.body_hit.connect(on_hit)
+	Blast.detonate(world, player.global_position + Vector3(12.0, 0.05, 0.0), Blast.t().tnt_per_stick)
+	Events.body_hit.disconnect(on_hit)
+	check(hits.is_empty(), "no hit on you (%s)" % str(hits))
+	check(player.wounds.wounds.is_empty(), "no wound")
+
+
 func test_at_his_feet_it_takes_a_leg() -> void:
 	var man := await _man(Vector3.ZERO)
 	var foot := (man.parts[&"foot_r"] as Node3D).global_position
@@ -324,8 +599,12 @@ func test_at_his_feet_it_takes_a_leg() -> void:
 func test_the_blast_pushes_him_along_its_line() -> void:
 	var man := await _man(Vector3.ZERO)
 	var chest := (man.parts[&"chest"] as Node3D).global_position
-	# Level with his chest, a metre and a bit in front: the wind is level.
+	# Level with his chest, a metre and a bit in front: the wind is level. The real push alone: the
+	# game's lift (blast_lift 0.8, #636) throws him up on purpose (test_blast_thrown has that).
+	var lift := Blast.t().blast_lift
+	Blast.t().blast_lift = 0.0
 	man.take_blast(chest + Vector3(0, 0, -1.1), 0.15)
+	Blast.t().blast_lift = lift
 	check(man.limp, "thrown down")
 	var v := (man.parts[&"chest"] as RigidBody3D).linear_velocity
 	print("  chest thrown at (%.2f, %.2f, %.2f) m/s" % [v.x, v.y, v.z])
@@ -335,6 +614,8 @@ func test_the_blast_pushes_him_along_its_line() -> void:
 
 ## A limb torn off goes with what tore it off, and no spin is thrown in.
 func test_a_torn_off_limb_isnt_spun() -> void:
+	# On the procedural pose (library clips off, #539): this measures the spin the blast gives (a clip's swing adds its own).
+	Settings.library_motion = false
 	var man := await _man(Vector3.ZERO)
 	man.sever_limb(&"forearm_r")
 	var w := (man.parts[&"forearm_r"] as RigidBody3D).angular_velocity.length()
@@ -419,6 +700,62 @@ func test_light_and_throw() -> void:
 	check(player.wounds.physiology.severed_segments.is_empty(), "you're whole")
 
 
+## #668: 3 brings the stick out unlit, and it stays so till you light it.
+func test_three_brings_it_out_unlit() -> void:
+	var player: Player = load("res://scenes/player.tscn").instantiate()
+	world.add_child(player)
+	await physics_frames(3)
+	var d := player.dynamite()
+	d.needs_captured_mouse = false
+	Input.action_press(&"weapon_dynamite")
+	await physics_frames(2)
+	Input.action_release(&"weapon_dynamite")
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	check(d.is_ready_in_hand(), "3: the dynamite in hand")
+	await physics_frames(120)
+	check(not d.lit and d.lighting <= 0.0, "not lit (lit %s, lighting %.2f)" % [d.lit, d.lighting])
+	check(booms.is_empty(), "nothing went off")
+
+
+## #668: a match struck and the stick put away before the fuse caught: the fuse never catches in
+## your pocket, and the stick comes back out unlit.
+func test_put_away_while_lighting_it_stays_unlit() -> void:
+	var player := await _player()
+	var d := player.dynamite()
+	d.strike_match()
+	await physics_frames(10)
+	check(d.lighting > 0.0, "the match is at the fuse")
+	player.select_weapon(player.revolver())
+	await physics_frames(90)
+	check(not d.lit, "put away, the fuse didn't catch")
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	await physics_frames(60)
+	check(not d.lit and d.lighting <= 0.0, "out again, unlit")
+	check(booms.is_empty(), "nothing went off")
+
+
+## #668 with a set stick: put away while the match is at its fuse, the next match in hand lights
+## the stick in your hand, not the one you'd set.
+func test_put_away_while_lighting_a_set_one() -> void:
+	var player := await _player()
+	var d := player.dynamite()
+	var set_one := DynamiteStick.make(world, player.global_position + Vector3(1, 0.1, 0), Vector3.ZERO, 5.0, 1)
+	d.light_planted(set_one)
+	await physics_frames(10)
+	player.select_weapon(player.revolver())
+	await physics_frames(90)
+	check(not set_one.lit, "put away, the set one didn't catch")
+	player.select_weapon(d)
+	await wait_until(func() -> bool: return d.is_ready_in_hand(), 180)
+	d.strike_match()
+	await wait_until(func() -> bool: return d.lit, 120)
+	check(d.lit, "the match lit the stick in hand")
+	check(not set_one.lit, "not the set one")
+	d.windup = 1.0
+	d.throw()
+
+
 func test_hold_it_too_long() -> void:
 	var player := await _player()
 	var d := player.dynamite()
@@ -430,6 +767,279 @@ func test_hold_it_too_long() -> void:
 	check(p.severed_segments.has(&"hand_r"), "your hand's gone (%s)" % str(p.severed_segments.keys()))
 	check(player.wounds.ringing > 5.0, "your ears ring (%.0f s)" % player.wounds.ringing)
 	check(not p.can_hold("r"), "you can't hold anything in it")
+
+
+## The bang comes through before your ears give (#596: the crack was lost under the muffle): just
+## after a near blast the world is still clear, then it dulls and rings.
+func test_you_hear_the_crack_before_your_ears_give() -> void:
+	var player := await _player()
+	var w := player.wounds
+	w.take_blast(player.global_position + Vector3(4, 0.3, 0), 0.2)
+	check(w.ringing > 1.0, "your ears will ring (%.1f s)" % w.ringing)
+	await physics_frames(6)  # 0.1 s
+	check(w._ear_filter == null or w._ear_filter.cutoff_hz > 15000.0,
+			"0.1 s on you still hear it clear (%.0f Hz)" % (w._ear_filter.cutoff_hz if w._ear_filter else 20000.0))
+	await physics_frames(60)  # 1.1 s
+	check(w._ear_filter != null and w._ear_filter.cutoff_hz < 8000.0,
+			"a second on it's muffled (%.0f Hz)" % (w._ear_filter.cutoff_hz if w._ear_filter else 20000.0))
+
+
+
+# --- On you (#596 step 2: the ears, the dull world, the shake, the grit) --------------------------
+
+## One stick on the ground `d` m to your right; then `seconds` of game time, sampling what it does
+## to you each tick: {muffle_s (cutoff under 15 kHz), deepest_hz, ring_s (the whine heard),
+## ring_top (its loudest, linear), shake_top (deg), grit (its top), grit_s}.
+func _on_you(d: float, seconds: float) -> Dictionary:
+	var player := await _player()
+	var w := player.wounds
+	var view := player.camera.transform
+	Blast.detonate(world, player.global_position + Vector3(d, 0.05, 0.0), Blast.t().tnt_per_stick)
+	var out := {"muffle_s": 0.0, "deepest_hz": 20000.0, "ring_s": 0.0, "ring_top": 0.0, "shake_top": 0.0,
+			"grit": 0.0, "grit_s": 0.0, "view": view, "player": player}
+	for i in int(seconds * 60.0):
+		await physics_frames(1)
+		var hz := w.muffle_hz  # (the blast's dulling; burst eardrums' is for good)
+		out.deepest_hz = minf(out.deepest_hz, hz)
+		if hz < 15000.0:
+			out.muffle_s += 1.0 / 60.0
+		if w._ring and w._ring.playing:
+			out.ring_s += 1.0 / 60.0
+			out.ring_top = maxf(out.ring_top, w.ring_level())
+		out.shake_top = maxf(out.shake_top, w.shake)
+		out.grit = maxf(out.grit, w._grit_top if w._grit_rect.visible else 0.0)
+		if w._grit_rect.visible:
+			out.grit_s += 1.0 / 60.0
+	return out
+
+
+## Closer is worse, for every part of it, and each is over by the end; 30 m off (past the blast's
+## reach for anything else) you still feel it shake you, and nothing more than a moment's dulling.
+func test_on_you_by_distance() -> void:
+	var at := {}
+	for d: float in [2.0, 5.0, 12.0, 30.0]:
+		at[d] = await _on_you(d, 26.0)
+		var r: Dictionary = at[d]
+		var player: Player = r.player
+		print("    %2.0f m: muffled %.1f s (to %.0f Hz), ringing %.1f s (top %.3f), shake %.2f deg, grit %.2f for %.1f s" % [
+				d, r.muffle_s, r.deepest_hz, r.ring_s, r.ring_top, r.shake_top, r.grit, r.grit_s])
+		check(player.camera.transform.is_equal_approx(r.view), "%.0f m: the view's back where it was on the head (%s, was %s)" % [d, player.camera.transform, r.view])
+		check(not player.wounds._grit_rect.visible, "%.0f m: the grit's gone" % d)
+		player.queue_free()
+		await physics_frames(2)
+	for pair in [[2.0, 5.0], [5.0, 12.0], [12.0, 30.0]]:
+		var near: Dictionary = at[pair[0]]
+		var far: Dictionary = at[pair[1]]
+		check(near.shake_top > far.shake_top, "shaken more at %.0f m than %.0f (%.2f, %.2f)" % [pair[0], pair[1], near.shake_top, far.shake_top])
+		check(near.ring_s > far.ring_s, "rings longer at %.0f m than %.0f (%.1f, %.1f s)" % [pair[0], pair[1], near.ring_s, far.ring_s])
+		check(near.deepest_hz < far.deepest_hz, "duller at %.0f m than %.0f (%.0f, %.0f Hz)" % [pair[0], pair[1], near.deepest_hz, far.deepest_hz])
+	check(at[2.0].muffle_s > 4.0 and at[2.0].deepest_hz < 800.0, "2 m: the world dull for seconds (%.1f s, %.0f Hz)" % [at[2.0].muffle_s, at[2.0].deepest_hz])
+	check(at[5.0].muffle_s > 2.0 and at[5.0].muffle_s < at[2.0].muffle_s, "5 m: dull for less (%.1f s)" % at[5.0].muffle_s)
+	check(at[30.0].muffle_s < 1.0, "30 m: barely dulled (%.1f s)" % at[30.0].muffle_s)
+	check(at[30.0].shake_top > 0.05, "30 m: still felt (%.2f deg)" % at[30.0].shake_top)
+	check(at[2.0].grit > 0.5 and at[2.0].grit_s > 1.5, "2 m: grit in your eyes (%.2f for %.1f s)" % [at[2.0].grit, at[2.0].grit_s])
+	check(at[12.0].grit == 0.0 and at[30.0].grit == 0.0, "none from 12 m or 30 m")
+	check(at[12.0].ring_s < 15.0, "12 m: the ringing is short (%.1f s)" % at[12.0].ring_s)
+
+
+## The whine is in your head: the ears' filter would take it off with the world's highs, so it's
+## raised by just that (Godot's low-pass, the Cookbook's biquad, at the whine's pitch).
+func test_the_ringing_is_heard_through_the_dull_world() -> void:
+	check(PlayerWounds.lowpass_db(20000.0, 3800.0) > -0.5, "wide open, the whine's untouched (%.2f dB)" % PlayerWounds.lowpass_db(20000.0, 3800.0))
+	var deep := PlayerWounds.lowpass_db(300.0, 3800.0)
+	check(deep < -40.0 and deep > -50.0, "at 300 Hz the filter takes ~44 dB off it (%.1f)" % deep)
+	check(absf(PlayerWounds.lowpass_db(1000.0, 1000.0) + 6.02) < 0.2, "-6 dB at its cutoff with Q 0.5 (%.2f)" % PlayerWounds.lowpass_db(1000.0, 1000.0))
+	var player := await _player()
+	var w := player.wounds
+	Blast.detonate(world, player.global_position + Vector3(3.0, 0.05, 0.0), Blast.t().tnt_per_stick)
+	await physics_frames(120)
+	var hz := w._ear_filter.cutoff_hz
+	check(hz < 2000.0, "2 s on, the world's dull (%.0f Hz)" % hz)
+	check(w._ring.playing, "and your ears ring")
+	var heard := w._ring.volume_db + PlayerWounds.lowpass_db(hz, PlayerWounds.RING_HZ)
+	check(absf(heard - linear_to_db(w.ring_level())) < 0.5, "heard at its own level through the filter (%.1f dB, %.1f)" % [heard, linear_to_db(w.ring_level())])
+
+
+## A weaker blast on top of a stronger one doesn't clear your ears or start the dulling again.
+func test_a_far_stick_after_a_near_one_doesnt_clear_your_ears() -> void:
+	var player := await _player()
+	var w := player.wounds
+	Blast.detonate(world, player.global_position + Vector3(3.0, 0.05, 0.0), Blast.t().tnt_per_stick)
+	await physics_frames(90)
+	var before := w._ear_filter.cutoff_hz
+	var ring := w.ringing
+	Blast.detonate(world, player.global_position + Vector3(0.0, 0.05, 25.0), Blast.t().tnt_per_stick)
+	for i in 30:
+		await physics_frames(1)
+		check(w._ear_filter.cutoff_hz < before * 1.05 + 1.0, "still dull %d ticks after (%.0f Hz, was %.0f)" % [i, w._ear_filter.cutoff_hz, before])
+		if w._ear_filter.cutoff_hz >= before * 1.05 + 1.0:
+			break
+	check(w.ringing > ring - 1.0, "and still ringing (%.1f s)" % w.ringing)
+## A second charge while you're still deafened by the first (bundles a moment apart, #647) doesn't
+## open your ears again for its bang.
+func test_a_second_bang_while_deafened_stays_muffled() -> void:
+	var player := await _player()
+	var w := player.wounds
+	w.take_blast(player.global_position + Vector3(4, 0.3, 0), 0.2)
+	await physics_frames(90)  # 1.5 s: muffled
+	var before := w._ear_filter.cutoff_hz
+	check(before < 8000.0, "muffled by the first (%.0f Hz)" % before)
+	w.take_blast(player.global_position + Vector3(-6, 0.3, 0), 0.2)
+	await physics_frames(6)
+	check(w._ear_filter.cutoff_hz < 8000.0, "still muffled at the second's bang (%.0f Hz)" % w._ear_filter.cutoff_hz)
+
+
+# --- Planted at a wall's foot (#506: hold E by a wall, lit when you let go) -------------------------
+
+## The player in the store, `off` m in from its side wall, facing it and looking `pitch` degrees
+## (down is less than 0), the stick in hand.
+func _facing_wall(off: float, pitch: float) -> Array:
+	var store := await _store()
+	var player := await _player()
+	var board := _side_board(store)
+	player.global_position = Vector3(off, store.floor_top + 0.05, board.global_position.z - 3.0)
+	player.rotation.y = PI * 0.5  # -Z turned to -X: at the wall
+	player.add_look(Vector2(0.0, pitch - player.get_pitch_degrees()), false)
+	await physics_frames(10)
+	return [store, player]
+
+
+func _key(down: bool) -> void:
+	var ev := InputEventAction.new()
+	ev.action = &"shove"
+	ev.pressed = down
+	ev.strength = 1.0 if down else 0.0
+	Input.parse_input_event(ev)
+
+
+func _sticks() -> Array:
+	return get_tree().get_nodes_in_group(&"dynamite").filter(func(n: Node) -> bool: return n is DynamiteStick and not n.is_queued_for_deletion())
+
+
+func test_held_by_a_wall_it_plants_and_lights_on_letting_go() -> void:
+	var r := await _facing_wall(0.9, -35.0)
+	var store: FalseFrontBuilding = r[0]
+	var player: Player = r[1]
+	var d := player.dynamite()
+	check(d.claims_use(), "a wall in reach: E is the stick's")
+	var sticks := d.sticks
+	var hisses := []
+	var on_noise := func(at: Vector3, _l: float, kind: StringName, _s: Node) -> void:
+		if kind == &"fuse":
+			hisses.append(at)
+	Events.noise.connect(on_noise)
+	_key(true)
+	await physics_frames(int(Blast.t().plant_time * 60.0) + 6)
+	var set_down := _sticks()
+	check_eq(set_down.size(), 1, "a stick set down")
+	check_eq(player.shove.move, &"", "no shove or kick")
+	check(player.shove.holding < 0.0, "nor one wound up")
+	if set_down.size() == 1:
+		var s: DynamiteStick = set_down[0]
+		check(not s.lit, "unlit while you hold the key")
+		check(s.planted, "planted, not thrown")
+		var aim := _aimed(player)
+		check(s.global_position.distance_to(aim) < 0.03, "where you aimed (%s, aimed %s)" % [s.global_position, aim])
+		check(aim.y > store.floor_top + 0.6, "up the wall, not at its foot (%.2f)" % aim.y)
+		check(absf(s.global_basis.z.normalized().y) < 0.2 or absf(s.global_basis.z.normalized().y) > 0.95, "lying along the board or the stud")
+		check_eq(d.sticks, sticks - 1, "one fewer in hand")
+		await physics_frames(30)
+		check(not s.lit, "still unlit, key down")
+		check(s.global_position.distance_to(aim) < 0.03, "held there, not fallen")
+		_key(false)
+		await physics_frames(3)
+		check(s.lit, "lit as the key comes up")
+		check_near(s.fuse_left, Blast.t().plant_fuse_seconds, 0.2, "a fuse to get round a corner")
+		await physics_frames(70)
+		check(not hisses.is_empty(), "its hiss is a noise men hear (%d)" % hisses.size())
+		await wait_until(func() -> bool: return not booms.is_empty(), int(Blast.t().plant_fuse_seconds * 60.0) + 30)
+		check_eq(booms.size(), 1, "and it goes")
+	Events.noise.disconnect(on_noise)
+
+
+func test_let_go_too_soon_sets_nothing() -> void:
+	var r := await _facing_wall(0.9, -35.0)
+	var player: Player = r[1]
+	var sticks := player.dynamite().sticks
+	_key(true)
+	await physics_frames(int(Blast.t().plant_time * 30.0))
+	_key(false)
+	await physics_frames(20)
+	check(_sticks().is_empty(), "nothing set down")
+	check_eq(player.dynamite().sticks, sticks, "still in hand")
+	check_eq(player.shove.move, &"", "and no shove either")
+
+
+## Where the player's eye line meets the store, a stick's radius out from it.
+func _aimed(player: Player) -> Vector3:
+	var cam := player.camera
+	var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position - cam.global_basis.z * 3.0, Layers.WORLD)
+	q.exclude = [player.get_rid()]
+	var hit := world.get_world_3d().direct_space_state.intersect_ray(q)
+	return (hit.position as Vector3) + (hit.normal as Vector3) * (DynamiteStick.RADIUS + 0.003) if not hit.is_empty() else Vector3.INF
+
+
+func test_it_goes_where_you_aim() -> void:
+	var store := await _store()
+	var space := world.get_world_3d().direct_space_state
+	var z := _side_board(store).global_position.z - 3.0
+	var eye := Vector3(1.0, store.floor_top + 1.6, z)
+	# The wall high and low, the floor in front of it.
+	for look: Vector3 in [Vector3(-1, -0.1, 0), Vector3(-1, -1.4, 0), Vector3(-0.3, -1, 0)]:
+		var spot := DynamiteViewmodel.plant_spot(space, eye, look, 2.2)
+		check(not spot.is_empty(), "a spot looking %s" % look)
+		if spot.is_empty():
+			continue
+		var q := PhysicsRayQueryParameters3D.create(eye, eye + look.normalized() * 2.2, Layers.WORLD)
+		var hit := space.intersect_ray(q)
+		check((spot.at as Vector3).distance_to(hit.position) < 0.02, "right where the line meets it (%s)" % look)
+	# A stud: up it, along it.
+	var stud: StructureMember = null
+	for m in store.get_members():
+		if m.kind == &"stud" and String(m.member_id).contains("left/stud") and absf(m.global_position.z - z) < 1.5:
+			stud = m
+			break
+	check(stud != null, "a stud by you")
+	if stud:
+		var at := stud.global_position + Vector3(0.3, 0.0, 0.0)
+		var spot := DynamiteViewmodel.plant_spot(space, at + Vector3(0.6, 0.0, 0.0), Vector3(-1, 0, 0), 2.2)
+		check(not spot.is_empty() and spot.collider == stud, "on the stud (%s)" % [spot.get("collider")])
+		if not spot.is_empty():
+			check(absf((spot.basis as Basis).z.y) > 0.95, "lying up it")
+	check(DynamiteViewmodel.plant_spot(space, eye, Vector3(1, -0.2, 0), 1.6).is_empty(), "nothing that way in reach")
+	# A man in front: no spot (E is the shove).
+	await _man(Vector3(0.45, store.floor_top, z))
+	check(DynamiteViewmodel.plant_spot(space, eye, Vector3(-1, -0.4, 0), 2.2).is_empty(), "not through a man")
+
+
+func test_on_a_stud_until_the_stud_goes() -> void:
+	var store := await _store()
+	var stud: StructureMember = null
+	for m in store.get_members():
+		if m.kind == &"stud" and String(m.member_id).contains("left/stud"):
+			stud = m
+			break
+	var s := DynamiteStick.make(world, stud.global_position + Vector3(0.1, 0.4, 0.0))
+	s.stick_to(stud)
+	await physics_frames(30)
+	check_near(s.global_position.y, stud.global_position.y + 0.4, 0.01, "held on the stud")
+	(stud.get_parent() as Structure).break_member(stud)
+	await physics_frames(40)
+	check(not s.freeze, "let go when the stud breaks")
+	check(s.global_position.y < stud.global_position.y + 0.3, "and it falls (%.2f)" % s.global_position.y)
+
+
+func test_aimed_at_nothing_in_reach_e_is_still_the_shove() -> void:
+	var player := await _player()
+	player.add_look(Vector2(0.0, -20.0 - player.get_pitch_degrees()), false)
+	await physics_frames(5)
+	check(not player.dynamite().claims_use(), "nothing to set it against")
+	_key(true)
+	await physics_frames(3)
+	check(player.shove.holding >= 0.0 or player.shove.move != &"", "E winds up the shove")
+	_key(false)
+	await physics_frames(3)
+	check(_sticks().is_empty(), "no stick set down")
 
 
 # --- On the real street (Sean: "it doesn't destroy the buildings nor damage the bad guy") ------

@@ -1,0 +1,6 @@
+# Step 5 film 3 (#616): a wreck at line speed. Nobody watching, 40 km/h onto the torn-out rail, six
+# passengers in the coach. Lineside, the sunlit side, ahead of the break.
+train_lab
+train_caption 40 km/h onto the broken rail, six in the coach: the cars pile up and jackknife.
+train_cam side 398 18
+train_derail kmh=40 at=380 how=rail hour=16 driver=none run_up=120 riders=6 secs=8

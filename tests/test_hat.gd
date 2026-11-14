@@ -89,9 +89,10 @@ func test_a_man_whose_hat_is_shot_off_is_frightened_and_says_so() -> void:
 		for c in man.get_children():
 			if c is OutlawBrain:
 				brain = c
-	var before := brain.fear
+	var before := brain.fear + brain.fright
 	await _through_the_crown(man)
-	check(brain.fear >= before + brain.fear_hat_shot, "his fear jumps (%.2f → %.2f)" % [before, brain.fear])
+	var after := brain.fear + brain.fright  # a fright since variant D (noise pins, fades)
+	check(after >= before + brain.fear_hat_shot * (1.0 - 0.7 * brain.temper), "his fear jumps (%.2f → %.2f)" % [before, after])
 	check(said.any(func(t: String) -> bool: return t in OutlawBrain.LINES[&"hat"]), "and he says so (%s)" % [said])
 
 

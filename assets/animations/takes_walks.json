@@ -1,0 +1,107 @@
+{
+ "best": {
+  "walk_old": 2
+ },
+ "takes": {
+  "walk_old": {
+   "1": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 2.56,
+     "r": 2.13
+    },
+    "frames": 149,
+    "hip_max_legs": 0.971,
+    "hip_min_legs": 0.926,
+    "jitter": 0.133,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 149,
+     "json": "build/motion_walks/takes/walk_old_01.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.36,
+     "slide_before": 0.685,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": -0.569,
+    "seconds": 4.93,
+    "slide_m": 0.36,
+    "travel_m": 1.81
+   },
+   "2": {
+    "bones": {
+     "abdomen": "mixamorig:Spine",
+     "chest": "mixamorig:Spine1",
+     "foot_l": "mixamorig:LeftFoot",
+     "foot_r": "mixamorig:RightFoot",
+     "forearm_l": "mixamorig:LeftForeArm",
+     "forearm_r": "mixamorig:RightForeArm",
+     "hand_l": "mixamorig:LeftHand",
+     "hand_r": "mixamorig:RightHand",
+     "head": "mixamorig:Head",
+     "neck": "mixamorig:Neck",
+     "pelvis": "mixamorig:Hips",
+     "shin_l": "mixamorig:LeftLeg",
+     "shin_r": "mixamorig:RightLeg",
+     "thigh_l": "mixamorig:LeftUpLeg",
+     "thigh_r": "mixamorig:RightUpLeg",
+     "upper_arm_l": "mixamorig:LeftArm",
+     "upper_arm_r": "mixamorig:RightArm"
+    },
+    "foot_peak_mps": {
+     "l": 1.96,
+     "r": 2.08
+    },
+    "frames": 149,
+    "hip_max_legs": 0.955,
+    "hip_min_legs": 0.912,
+    "jitter": 0.0326,
+    "missing": [],
+    "notes": {
+     "events": {},
+     "frames_in": 149,
+     "json": "build/motion_walks/takes/walk_old_02.json",
+     "leg_source_m": 0.827,
+     "missing": [],
+     "scale": 0.968,
+     "slide_after": 0.585,
+     "slide_before": 0.704,
+     "source_fps": 30,
+     "trimmed": [
+      0,
+      0
+     ]
+    },
+    "score": 0.28,
+    "seconds": 4.93,
+    "slide_m": 0.585,
+    "travel_m": 1.1
+   }
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "source": "84155a40",
+ "godot": "4.7.2.stable.official.ed1daf0bf",
+ "cpu": 4,
+ "jobs": 1,
+ "max_s": 180.0,
+ "physics_thread": "as set",
+ "render_thread": "on",
+ "command": "run.py --scenarios=spec_hall --hours=golden --weapons=revolver --styles=careful --bodies=studio --variant=D --seeds=1-10 --jobs=1 --render-thread=on --out=build/gf/on_b",
+ "fights": 10
+}

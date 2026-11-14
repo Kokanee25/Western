@@ -124,12 +124,15 @@ func _wear_map(building: Node3D, cam: Camera3D, viewport: SubViewport, clock, on
 	var structures: Array = [building]
 	structures.append_array(building.find_children("*", "KitProp", true, false))
 	var members: Array = []
+	for pb in root.find_children("PropBatch", "", true, false):
+		(pb as Node3D).visible = false  # the kit props drawn together
 	for st in structures:
 		for c in st.get_children(true):
 			if c is MeshInstance3D:
 				(c as MeshInstance3D).visible = false  # the batches
 		for m in st.get_members():
 			members.append(m)
+			m.call(&"realise")  # its own mesh back in the tree (at rest it's its body alone)
 			var mi := m.get_child(0) as MeshInstance3D
 			mi.visible = true
 			# Marks over the whole member tint it; a mark with a stretch (`along`) or a place

@@ -1,0 +1,1212 @@
+[
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.42,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 0,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 23388.5097503662,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 22253.6087036133,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 20998.8307952881,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 22094.2878723145,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 15.66565,
+      "max_ms": 24.101,
+      "mean_ms": 3.44690409026798,
+      "over_100_at_seans": 0,
+      "p99_ms": 12.889
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 0: roll 2.70 s, foot 8.41, hit 7.71 (vz 7.46 vy -1.96 at y 2.59), lean 106 OVER, traces left 0, dents 0, deepest 0.0 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.46341180801392,
+      "t": 6.81666666666665,
+      "vy": -0.163333341479301,
+      "vz": 7.46162462234497,
+      "y": 2.79631280899048
+    },
+    "log_at_foot": {
+      "drop": 5.50601534843445,
+      "speed": 8.4073657989502,
+      "t": 6.73333333333331,
+      "vz": 6.99535036087036,
+      "y": 2.79398465156555
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.71475458145142,
+      "t": 6.99999999999998,
+      "vy": -1.95999991893768,
+      "vz": 7.46162462234497,
+      "x": 0.724724734194751,
+      "y": 2.5867018699646
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 105.777917072126,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.3,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 1,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.00731048713187313,
+        "into": 255.203199725689,
+        "joules": 850.677332418963,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 8299,
+        "tick": 427,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00215627820265971,
+        "into": 22.2025607342941,
+        "joules": 74.0085357809803,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 8307,
+        "tick": 427,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00381783387175676,
+        "into": 69.6029320228979,
+        "joules": 232.00977340966,
+        "member": "heist_coach/plate_l_fore_low",
+        "t": 8507,
+        "tick": 454,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00302175640970671,
+        "into": 43.6025998470163,
+        "joules": 145.341999490054,
+        "member": "heist_coach/plate_front_low",
+        "t": 8553,
+        "tick": 456,
+        "torn": false
+      }
+    ],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 10265.5982971191,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 22333.0783843994,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 20824.6898651123,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 22143.7931060791,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 21.33755,
+      "max_ms": 32.827,
+      "mean_ms": 3.2762581100141,
+      "over_100_at_seans": 0,
+      "p99_ms": 7.833
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 1: roll 2.70 s, foot 8.39, hit 7.82 (vz 7.50 vy -2.22 at y 2.55), lean 101 OVER, traces left 0, dents 4, deepest 0.7 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.51071691513062,
+      "t": 6.81666666666665,
+      "vy": -0.420591473579407,
+      "vz": 7.49893093109131,
+      "y": 2.80583333969116
+    },
+    "log_at_foot": {
+      "drop": 5.48633961677551,
+      "speed": 8.39163398742676,
+      "t": 6.73333333333331,
+      "vz": 6.98226356506348,
+      "y": 2.81366038322449
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.81985950469971,
+      "t": 6.99999999999998,
+      "vy": -2.21725821495056,
+      "vz": 7.49893093109131,
+      "x": 0.556655535001482,
+      "y": 2.54905819892883
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 100.922376572299,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.18,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 2,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0239673763770285,
+        "into": 2743.05473243461,
+        "joules": 9143.51577478205,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 10825,
+        "tick": 426,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00294016752467492,
+        "into": 41.2798046985927,
+        "joules": 137.599348995309,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 10866,
+        "tick": 431,
+        "torn": false
+      }
+    ],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 9548.46382141113,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 21722.4884033203,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 18416.3475036621,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 21309.1087341309,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 10.54625,
+      "max_ms": 16.225,
+      "mean_ms": 3.49515796897038,
+      "over_100_at_seans": 0,
+      "p99_ms": 7.673
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 2: roll 2.70 s, foot 8.41, hit 7.71 (vz 7.45 vy -1.96 at y 2.58), lean 101 OVER, traces left 0, dents 2, deepest 2.4 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.45631122589111,
+      "t": 6.81666666666665,
+      "vy": -0.163333341479301,
+      "vz": 7.45452213287354,
+      "y": 2.79394125938416
+    },
+    "log_at_foot": {
+      "drop": 5.50838856697083,
+      "speed": 8.40922546386719,
+      "t": 6.73333333333331,
+      "vz": 6.99689817428589,
+      "y": 2.79161143302917
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.7078857421875,
+      "t": 6.99999999999998,
+      "vy": -1.95999991893768,
+      "vz": 7.45452213287354,
+      "x": 0.388754483883531,
+      "y": 2.58433032035828
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 100.652891458596,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": -0.06,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 3,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 22184.6294403076,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 21701.7650604248,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 21150.1502990723,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 21632.7953338623,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 8.398,
+      "max_ms": 12.92,
+      "mean_ms": 3.41562623413258,
+      "over_100_at_seans": 0,
+      "p99_ms": 8.833
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 3: roll 2.70 s, foot 8.41, hit 7.71 (vz 7.46 vy -1.96 at y 2.59), lean 101 OVER, traces left 0, dents 0, deepest 0.0 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.45900964736938,
+      "t": 6.81666666666665,
+      "vy": -0.163333341479301,
+      "vz": 7.45722103118896,
+      "y": 2.79486346244812
+    },
+    "log_at_foot": {
+      "drop": 5.50746564865112,
+      "speed": 8.4084415435791,
+      "t": 6.73333333333331,
+      "vz": 6.99624586105347,
+      "y": 2.79253435134888
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.71049547195435,
+      "t": 6.99999999999998,
+      "vy": -1.95999991893768,
+      "vz": 7.45722103118896,
+      "x": 0.220759096861002,
+      "y": 2.58525252342224
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 100.88706449429,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.06,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 4,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.0449610611000412,
+        "into": 9653.09512044936,
+        "joules": 32176.9837348312,
+        "member": "heist_coach/plate_l_aft_up_a",
+        "t": 16037,
+        "tick": 426,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00288903454213706,
+        "into": 39.8564808806034,
+        "joules": 132.854936268678,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 16084,
+        "tick": 432,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00210331653601415,
+        "into": 21.1252936094104,
+        "joules": 70.4176453647015,
+        "member": "heist_coach/plate_l_aft_slit",
+        "t": 16086,
+        "tick": 433,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.0020715183318853,
+        "into": 20.491372263044,
+        "joules": 68.3045742101465,
+        "member": "heist_coach/plate_l_fore_up_b",
+        "t": 16785,
+        "tick": 541,
+        "torn": false
+      },
+      {
+        "by": "RollingLog",
+        "depth": 0.00230992014894237,
+        "into": 25.4792954943316,
+        "joules": 84.9309849811052,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 16799,
+        "tick": 544,
+        "torn": false
+      }
+    ],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 14845.7908630371,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 14310.8749389648,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 13703.4702301025,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 14234.7240447998,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 19.7977,
+      "max_ms": 30.458,
+      "mean_ms": 3.20928067700987,
+      "over_100_at_seans": 0,
+      "p99_ms": 8.036
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 4: roll 2.70 s, foot 8.41, hit 7.72 (vz 7.46 vy -1.96 at y 2.59), lean 103 OVER, traces left 0, dents 5, deepest 4.5 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.46431112289429,
+      "t": 6.81666666666665,
+      "vy": -0.163333341479301,
+      "vz": 7.46252393722534,
+      "y": 2.79661774635315
+    },
+    "log_at_foot": {
+      "drop": 5.5057101726532,
+      "speed": 8.40714931488037,
+      "t": 6.73333333333331,
+      "vz": 6.99517107009888,
+      "y": 2.7942898273468
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.71562433242798,
+      "t": 6.99999999999998,
+      "vy": -1.95999991893768,
+      "vz": 7.46252393722534,
+      "x": 0.05269875945487,
+      "y": 2.58700680732727
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 103.160971072771,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.18,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 5,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.00591253103917778,
+        "into": 166.932289036097,
+        "joules": 556.440963453656,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 18614,
+        "tick": 428,
+        "torn": false
+      }
+    ],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 10546.2455749512,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 21945.4383850098,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 20754.4612884521,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 21796.4744567871,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 8.788,
+      "max_ms": 13.52,
+      "mean_ms": 3.44550493653032,
+      "over_100_at_seans": 0,
+      "p99_ms": 7.518
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 5: roll 2.70 s, foot 8.39, hit 7.82 (vz 7.50 vy -2.22 at y 2.55), lean 105 OVER, traces left 0, dents 1, deepest 0.6 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.50741815567017,
+      "t": 6.81666666666665,
+      "vy": -0.420565366744995,
+      "vz": 7.49562883377075,
+      "y": 2.80460929870605
+    },
+    "log_at_foot": {
+      "drop": 5.48756580352783,
+      "speed": 8.39257621765137,
+      "t": 6.73333333333331,
+      "vz": 6.98304557800293,
+      "y": 2.81243419647217
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.81668519973755,
+      "t": 6.99999999999998,
+      "vy": -2.21723198890686,
+      "vz": 7.49562883377075,
+      "x": -0.115340931442915,
+      "y": 2.54783916473389
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 104.814081757589,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.3,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 6,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.00658909173672173,
+        "into": 207.321617925097,
+        "joules": 691.072059750324,
+        "member": "heist_coach/plate_l_fore_slit",
+        "t": 21161,
+        "tick": 426,
+        "torn": false
+      }
+    ],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 21577.9113769531,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 21621.6945648193,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 21706.3331604004,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 21630.2585601807,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 9.2118,
+      "max_ms": 14.172,
+      "mean_ms": 3.22449788434415,
+      "over_100_at_seans": 0,
+      "p99_ms": 8.555
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 6: roll 2.70 s, foot 8.39, hit 7.83 (vz 7.51 vy -2.22 at y 2.55), lean 99 OVER, traces left 0, dents 1, deepest 0.7 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.5172233581543,
+      "t": 6.81666666666665,
+      "vy": -0.420643389225006,
+      "vz": 7.50544500350952,
+      "y": 2.80826687812805
+    },
+    "log_at_foot": {
+      "drop": 5.4839017868042,
+      "speed": 8.38976192474365,
+      "t": 6.73333333333331,
+      "vz": 6.98070383071899,
+      "y": 2.8160982131958
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.82612085342407,
+      "t": 6.99999999999998,
+      "vy": -2.21730995178223,
+      "vz": 7.50544500350952,
+      "x": -0.28317803988466,
+      "y": 2.55148220062256
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 98.8426864228677,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  },
+  {
+    "case": {
+      "guards": 4,
+      "lead_shift": 0.42,
+      "ledge": 0.6,
+      "log_r": 0.3,
+      "seconds": 12.0,
+      "seed": 7,
+      "step": 2.5
+    },
+    "coach": "coach_stand_in",
+    "coach_kg": 1491.09677788544,
+    "dents": [
+      {
+        "by": "RollingLog",
+        "depth": 0.00379649277467677,
+        "into": 68.8269677491626,
+        "joules": 229.423225830542,
+        "member": "heist_coach/plate_l_door_up",
+        "t": 23658,
+        "tick": 431,
+        "torn": false
+      }
+    ],
+    "drop": 5.5,
+    "events": [
+      {
+        "bodies": 1,
+        "t": 6.99999999999998,
+        "what": "handed_off",
+        "why": "struck"
+      },
+      {
+        "t": 6.99999999999998,
+        "what": "thrown",
+        "who": "guard_0"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_out",
+        "newtons": 10991.9166564941,
+        "t": 7.01666666666665,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.01666666666665,
+        "what": "thrown",
+        "who": "guard_1"
+      },
+      {
+        "hook": "heist_coach/trace_hook_l_in",
+        "newtons": 24469.9001312256,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_out",
+        "newtons": 20946.1975097656,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "hook": "heist_coach/trace_hook_r_in",
+        "newtons": 24029.2644500732,
+        "t": 7.03333333333331,
+        "what": "trace_broke"
+      },
+      {
+        "t": 7.03333333333331,
+        "what": "thrown",
+        "who": "guard_2"
+      },
+      {
+        "t": 7.04999999999998,
+        "what": "thrown",
+        "who": "guard_3"
+      }
+    ],
+    "frames": {
+      "max_at_seans": 13.03575,
+      "max_ms": 20.055,
+      "mean_ms": 3.30265021156559,
+      "over_100_at_seans": 0,
+      "p99_ms": 7.195
+    },
+    "guards": [
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_0"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_1"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_2"
+      },
+      {
+        "conscious": true,
+        "falls": {},
+        "limp": true,
+        "who": "guard_3"
+      }
+    ],
+    "head_blows": [],
+    "ledge": 0.6,
+    "line": "seed 7: roll 2.70 s, foot 8.41, hit 7.72 (vz 7.46 vy -1.96 at y 2.59), lean 102 OVER, traces left 0, dents 1, deepest 0.4 cm, heads 0",
+    "log_at_face": {
+      "speed": 7.46501159667969,
+      "t": 6.81666666666665,
+      "vy": -0.163333341479301,
+      "vz": 7.46322441101074,
+      "y": 2.79684829711914
+    },
+    "log_at_foot": {
+      "drop": 5.50547962188721,
+      "speed": 8.40698337554932,
+      "t": 6.73333333333331,
+      "vz": 6.99503469467163,
+      "y": 2.79452037811279
+    },
+    "log_at_hit": {
+      "after_release": 2.69999999999999,
+      "speed": 7.71630191802979,
+      "t": 6.99999999999998,
+      "vy": -1.95999991893768,
+      "vz": 7.46322441101074,
+      "x": -0.451330741459969,
+      "y": 2.58723735809326
+    },
+    "log_kg": 1255.38037109375,
+    "lossless_at_foot": 8.48174510345601,
+    "max_lean": 102.241709572757,
+    "over": true,
+    "released_at": 4.29999999999999,
+    "step": 2.5,
+    "traces_on": 0
+  }
+]

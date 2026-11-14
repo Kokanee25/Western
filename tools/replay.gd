@@ -2,10 +2,10 @@ extends SceneTree
 ## Plays a bug report back (src/debug/bug_recorder.gd, F12 in game): the same scene, every key,
 ## button, stick and mouse turn on the tick it happened, and says where the game went differently
 ## from the recording (everyone's place each second). Headless is quickest; drawn, it saves the last
-## frame beside the report's own screenshot.
+## frame beside the report's own screenshot. It prints the report's frame timing first (`perf_summary`).
 ##
-##   godot --headless --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug
-##   xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug --out=DIR
+##   godot --headless --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug.zip
+##   xvfb-run -a godot --path . --rendering-driver vulkan --fixed-fps 60 -s res://tools/replay.gd -- FILE.saltbug.zip --out=DIR
 ##
 ## Exit code 0 when it stayed within DRIFT_M of the recording all the way, 1 otherwise. A report
 ## from a long session replays from the snapshot 30 s before (people put back where they were), so
@@ -43,9 +43,12 @@ func _initialize() -> void:
 		elif not a.begins_with("--"):
 			file = a
 	if file == "" or not _read(file):
-		printerr("replay: give it a .saltbug file (%s)" % file)
+		printerr("replay: give it a .saltbug.zip file (%s)" % file)
 		quit(2)
 		return
+	if _report.has("perf_summary"):  # the frame's numbers first (PerfRing; tools/perf_report.py has the table)
+		for line in load("res://src/debug/perf_ring.gd").summary_lines(_report.perf_summary):
+			print(line)
 	print("replaying %s: %s, %.1f s of play, from the %s" % [file.get_file(), _report.get("build", "?"),
 			float(_rec.tick) / float(_rec.ticks_per_second), _rec.from])
 	if String(_report.get("build", "")) != load("res://src/debug/debug_overlay.gd").build_label():

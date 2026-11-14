@@ -18,26 +18,36 @@ const OUT := [9.0, 18.0]
 
 ## The way (points to walk through, the last the place) away from the fire.
 static func way_out(fire: FireSystem, places: Waypoints, body: HumanBody, clear: float) -> Array[Vector3]:
+	var t := Prof.start()
+	var out := _way_out(fire, places, body, clear)
+	Prof.stop(&"fire_flight", t)
+	return out
+
+
+static func _way_out(fire: FireSystem, places: Waypoints, body: HumanBody, clear: float) -> Array[Vector3]:
 	var map := fire.burning_map()
 	var me := body.global_position
 	var ways: Array = []  # [way, place]
 	if body.is_inside_tree():
-		var space := body.get_world_3d().direct_space_state
+		var space := World.space(body)
 		if places:
 			var routes := places.routes_from(space, me, exclude(body))
 			for n: StringName in routes:
 				var p: Vector3 = places.points[n]
-				if p.y < 0.2:  # out on the street, not in a building or on a porch
+				if p.y - Ground.height_in(body.get_tree(), p.x, p.z) < 0.2:  # out on the street, not in a building or on a porch
 					ways.append([routes[n], p])
 		# Straight out across open ground, where nothing's in the way.
 		for i in DIRECTIONS:
 			var dir := Vector3.FORWARD.rotated(Vector3.UP, TAU * i / DIRECTIONS)
 			for d: float in OUT:
 				var c := Vector3(me.x, 0.0, me.z) + dir * d
+				c.y = Ground.height_in(body.get_tree(), c.x, c.z)
 				if Waypoints._walkable(space, me, c, exclude(body)):
 					ways.append([[c] as Array[Vector3], c])
 	if ways.is_empty():
 		var away := Vector3(me.x, 0.0, me.z) + Vector3.FORWARD.rotated(Vector3.UP, body.rng_seed * 2.4) * OUT[-1]
+		if body.is_inside_tree():
+			away.y = Ground.height_in(body.get_tree(), away.x, away.z)
 		return [away]
 	var best: Array[Vector3] = []
 	var best_len := INF
@@ -98,11 +108,13 @@ static func distance(map: Dictionary, at: Vector3, reach: float) -> float:
 
 ## The way to a point: along the town's places where he can't walk straight there.
 static func route(places: Waypoints, body: HumanBody, point: Vector3) -> Array[Vector3]:
+	var t := Prof.start()
 	var out: Array[Vector3] = []
 	if places and body.is_inside_tree():
-		out = places.route_to_point(body.get_world_3d().direct_space_state, body.global_position, point, exclude(body))
+		out = places.route_to_point(World.space(body), body.global_position, point, exclude(body))
 	if out.is_empty():
 		out.append(point)
+	Prof.stop(&"fire_route", t)
 	return out
 
 

@@ -183,7 +183,7 @@ func _set_down(b: int) -> void:
 		return
 	var at := node.global_position
 	at.y = 0.0
-	var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(
+	var hit := World.space(self).intersect_ray(PhysicsRayQueryParameters3D.create(
 			node.global_position + Vector3.UP * 0.2, node.global_position + Vector3.DOWN * 3.0, Layers.STAND))
 	if not hit.is_empty():
 		at = hit.position
@@ -218,7 +218,7 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 	var fallback := Vector3(fire_at.x, water_spot.y, fire_at.z) + away * THROW_STAND
 	if not is_inside_tree():
 		return fallback
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var best := fallback
 	var best_d := INF
 	var probe := SphereShape3D.new()
@@ -226,11 +226,13 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 	for k in 8:
 		var dir := Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0))
 		var p := Vector3(fire_at.x, 0.0, fire_at.z) + dir * THROW_STAND
-		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, STAND_HIGHEST + 0.8, p.z), Vector3(p.x, -1.0, p.z), Layers.STAND))
+		# Heights over the ground there (the town's ground slopes: TownLayout.ground_height).
+		var g := Ground.height_in(get_tree(), p.x, p.z)
+		var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(p.x, g + STAND_HIGHEST + 0.8, p.z), Vector3(p.x, g - 1.0, p.z), Layers.STAND))
 		if down.is_empty() or (down.normal as Vector3).y < 0.7:
 			continue
 		var stand: Vector3 = down.position
-		if stand.y > STAND_HIGHEST:
+		if stand.y - g > STAND_HIGHEST:
 			continue
 		var q := PhysicsShapeQueryParameters3D.new()
 		q.shape = probe
@@ -238,7 +240,7 @@ func _stand_by(fire_at: Vector3) -> Vector3:
 		q.transform = Transform3D(Basis(), stand + Vector3.UP * 0.9)
 		if not space.intersect_shape(q, 1).is_empty():
 			continue  # inside a wall
-		var d := stand.distance_to(water_spot) + (RAISED_COST if stand.y > 0.15 else 0.0)
+		var d := stand.distance_to(water_spot) + (RAISED_COST if stand.y - g > 0.15 else 0.0)
 		if d < best_d:
 			best_d = d
 			best = stand
@@ -255,7 +257,7 @@ func _place_slots() -> void:
 	var town := get_tree().get_first_node_in_group(&"town_life") if is_inside_tree() else null
 	var places: Waypoints = town.get(&"places") if town else null
 	if places and is_inside_tree():
-		_path.append_array(places.route_to_point(get_world_3d().direct_space_state, water_spot, throw_spot))
+		_path.append_array(places.route_to_point(World.space(self), water_spot, throw_spot))
 	else:
 		_path.append(throw_spot)
 	slots.clear()
@@ -288,6 +290,12 @@ func _along(d: float) -> Vector3:
 # --- Working it ----------------------------------------------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	var t := Prof.start()
+	_physics_step(delta)
+	Prof.stop(&"bucket_line", t)
+
+
+func _physics_step(delta: float) -> void:
 	if fire == null or not is_instance_valid(fire) or water == null or not is_instance_valid(water):
 		disband()
 		return

@@ -1,0 +1,146 @@
+{
+ "alarm": 22.7,
+ "bot": {
+  "blast": 67.97,
+  "freed": -1.0,
+  "phase_at": {
+   "lit": 63.03,
+   "plant": 60.95,
+   "through": 69.47
+  },
+  "planted": 63.03
+ },
+ "bot_phase": "through",
+ "breach": 68.47,
+ "end": -1.0,
+ "executed": 80.92,
+ "frames": {
+  "blast_ms": 175.4,
+  "fight_ticks": 13069,
+  "max_ms": 175.4,
+  "mean_ms": 8.72,
+  "p95_ms": 13.53
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "brody",
+   "inside": true,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Hurt, but steady.",
+ "seed": 1,
+ "state": "ON",
+ "t": 240.5,
+ "threat": 68.5,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   22.7,
+   "the alarm: Kid saw you"
+  ],
+  [
+   55.7,
+   "Hollis down"
+  ],
+  [
+   68.47,
+   "a blast at the house"
+  ],
+  [
+   68.5,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   70.83,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.88,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   72.0,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   80.92,
+   "the guard shoots the rancher"
+  ],
+  [
+   83.18,
+   "Kid down"
+  ],
+  [
+   86.63,
+   "Kid down, out"
+  ],
+  [
+   86.8,
+   "Lyle down"
+  ],
+  [
+   100.35,
+   "Kid dead"
+  ],
+  [
+   109.23,
+   "Lyle dead"
+  ],
+  [
+   133.5,
+   "Hollis dead"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

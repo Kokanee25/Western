@@ -1,0 +1,12 @@
+x_off (keep_stride off): 16 falls, 25 flags {'awake_at_end': 2, 'discontinuity': 4, 'joint_pulled_apart': 4, 'launch': 5, 'never_settled': 2, 'sunk_into_world': 7, 'swing_past_limit': 1}
+  joint_gap     sum    0.37  worst  0.068 (X_stair_banister_run_back, foot_l)
+  penetration   sum    0.54  worst  0.068 (X_stair_banister_run_back, shin_l)
+  swing_excess  sum  109.62  worst 28.400 (X_stair_banister_run_back, foot_l)
+  twist_excess  sum   92.29  worst 18.870 (X_stair_down_run_back, foot_r)
+  ends {'face_down': 4, 'back': 9, 'side': 3}; both knees folded > 120 deg at rest 2; up on his knees at the end 0; kneeling 1.2 s in all; deepest hand at rest 0.009 m (X_table_walk_back); hands > 2 cm in: 0
+x_on (keep_stride on): 16 falls, 63 flags {'awake_at_end': 2, 'joint_pulled_apart': 5, 'launch': 35, 'never_settled': 3, 'sunk_into_world': 12, 'swing_past_limit': 5, 'twist_past_limit': 1}
+  joint_gap     sum    0.41  worst  0.072 (X_stair_down_walk_back, foot_r)
+  penetration   sum    0.66  worst  0.079 (X_rail_run_side, head)
+  swing_excess  sum  138.23  worst 17.210 (X_rail_walk_back, neck)
+  twist_excess  sum  128.24  worst 22.870 (X_stair_down_walk_back, foot_r)
+  ends {'face_down': 7, 'back': 8, 'side': 1}; both knees folded > 120 deg at rest 0; up on his knees at the end 0; kneeling 1.7 s in all; deepest hand at rest 0.010 m (X_wall_walk_back); hands > 2 cm in: 0

@@ -1,0 +1,248 @@
+# The train lab
+
+The train, built step by step (`docs/briefs/train.md`, plan #542). **Step 1 (#543): the track and
+the 1D train. Step 2 (#551): couplers, riding, and stops to a timetable** (below). Nothing in the town changes: the test line is laid far out on the flat south and
+east of town, and only while the lab's built (its own ground drawn under it, the painted
+backdrop's rings hidden: the line runs out through them).
+
+## The parts (src/train/, to be promoted into the game)
+
+- `TrainTuning` (`config/train.tres`): every dial, all *proposed*; where each number comes from is
+  in the brief's "Numbers and where they're from".
+- `TrainSim`: the train in one dimension, `s` (its front's distance along the line) and `v`, from
+  tractive effort (least of steam effort falling with speed, power over speed, adhesion), Davis
+  resistance, curves, breakaway, the grade under each car by its weight, and brakes gripping
+  harder as the wheels slow. The regulator follows the hand at a rate, the steam the regulator with
+  a lag, the brakes set and release over seconds. Fixed step, no dice: deterministic.
+- `TrackLine`: the line as plan (segments of linearly changing curvature: straights, arcs, easement
+  spirals) and profile (grades eased over vertical curves), made into a `Curve3D` (a point every
+  5 m, handles on the tangent, baked every 0.25 m); `grade_at`, `curvature_at`, `transform_at`;
+  draws rails, ties (a MultiMesh a 100 m chunk), ballast and the fill to the ground (fill and
+  ballast collide).
+- `TrainView`: boxes on trucks; each truck stands on the line at its own distance, the body is the
+  chord between them, so it swings through the bend.
+- `Train`: the sim on the physics tick, the cars drawn at the interpolated distance each frame
+  (`s_before` to `s`), so they move smoothly at any frame rate; `cost` counters.
+
+## The test line (`routes/test_line.json`; since step 2 a route file, `test_line.gd` loads it)
+
+| s (m) | What |
+|---|---|
+| 0–400 | straight, level, south; **the depot** (step 1's mark A) at 120 |
+| 400–648 | a left-hand bend, 120 m radius, 90 degrees, 30 m spirals in and out |
+| 750–1050 | the climb, 2.5 % (7.5 m up on a fill) |
+| 1050–1350 | the descent, 2.5 % |
+| 1350–1500 | level; **the mine** (step 1's B) at 1440; the end of the line at 1500 |
+
+## Running it
+
+```sh
+# The scenarios on the 1D train alone (seconds), then the graphs
+godot --headless -s res://experiments/train_lab/run.gd -- --out=build/train_lab
+python3 experiments/train_lab/graphs.py --runs=build/train_lab --frames=build/train_lab/frames_curve.csv --out=build/train_lab/graphs
+
+# In the game
+python3 tools/bridge.py start --size=960x540
+python3 tools/bridge.py "train_lab" "train_cam chase" "throttle 1" "wait 20" "train" "train_cost 10"
+python3 tools/bridge.py run experiments/train_lab/film.txt --size=960x540 --movie=build/train_lab/film.avi
+```
+
+Bridge commands (`bridge.gd`): `train_lab`, `train`, `throttle X`, `brake X`, `reverser 1|-1`,
+`train_place S|A|B [KMH]`, `train_drive off|hold [KMH]|whole [KMH]`, `train_cam
+cab|chase|curve|side_a|side S|player`, `train_log on|off|PATH` (every drawn frame: the jitter and
+drift checks), `train_record on|off|PATH` (every tick), `train_cost [S]`.
+
+**In a build** (`play.gd`, added by `main.gd`): **9** builds the line and puts you in the cab (9
+again to get out); **0** the next camera (cab, chase, lineside at the bend, lineside at A, you).
+In the cab: **W/S** open and shut the regulator, **D/A** the brake on and off, **R** the reverser,
+the mouse looks round.
+
+Scenarios (`scenarios.gd`; tests `tests/test_train.gd`): `start`, `stop30`, `climb`, `descent`,
+`whole_run` (a simple driver A to B), `top_speed`.
+
+## Results
+
+Step 1: `results/2026-11-01_step1/`: the summary, the graphs, the frame-cost numbers and the film
+(`films/start_curve_stop.mp4`, 80 s: the start at A from the lineside then chasing, the bend
+chasing and from the lineside, the stop from 30 km/h). The faint vertical stripes in the film are
+the movie writer's at this size, in the raw frames too, not the train.
+
+
+## Step 2 (#551): couplers, riding, the timetable
+
+**What's new in `src/train/`** (docs/LAYOUT.md "src/train"):
+
+- **Slack:** `TrainSim` steps each car as its own mass, coupled by 65 mm of free play and a draft
+  gear's spring past it (dials `coupler_slack`, `draft_stiffness`, `draft_damping`, `substeps`); the
+  brakes come on car by car (`brake_propagation`, 0.35 s a car). A start takes the slack up front to
+  back (the coach moves ~1.9 s after the engine); a stop bunches it back to front. Every slack-out
+  and bunch is an event `{t, coupler, kind out|in, speed, bang}` (`Train.coupler`, `train_events`).
+- **The six cars** (`TrainTuning.consist`, #552): engine 9.4 m / 31 t, tender 6.4 / 24, two ore cars
+  7.3 / 14 (loaded), a boxcar 9.1 / 12, the express car 10.4 / 11, a coach 12.8 / 13.5: 119.5 t, 66 m.
+- **Solids** (`TrainCars`, `TrainView.solids`): every car is boxes you can walk end to end at a
+  1.1 m deck with 0.3 m gaps: through the coach and express car (doorways), up steps over the
+  boxcar's roof and the tender's tank, along the ore cars, into the cab (open at the gangway). The
+  stairs are walked as ramps over them (as the saloon's stair). Bullets hit them; they shove crates
+  (struck, a crate goes loose and the pilot's wedge turns it aside) and strike men.
+- **The route as data** (`TrainRoute`, `routes/*.json`): plan, profile and named marks. The
+  re-laid line (`routes/relaid.json`: 2.1 km, a right-hand bend and a left-hand one, 3 % up, 1.5 %
+  down, a water stop) runs the same timetable.
+- **The timetable** (`timetable.json`, `TrainTimetable`): stops by mark and dwell; the run times are
+  measured on the line itself (the engineer drives it once at `planned_kmh`) plus `padding`.
+- **The engineer** (`TrainEngineer`): drives by the regulator, brake and reverser to the timetable;
+  brakes for the mark from the stopping distance; late, he runs up to `max_kmh` and stands only
+  `dwell_min`. His body stands in the cab (a ball kills him, and then nobody drives).
+
+**Running it**
+
+```sh
+# The scenarios (step 1's and step 2's: slack, ten stops, the timetable on time / late / re-laid)
+godot --headless -s res://experiments/train_lab/run.gd -- --out=build/train_lab
+python3 experiments/train_lab/graphs.py --runs=build/train_lab --out=build/train_lab/graphs
+
+# In a game: the engineer runs the timetable, you on the coach, walk to the cab, jump off
+python3 tools/bridge.py "train_lab" "train_run 0" "train_board coach back" "wait 30" "train_cross" "train_jump_off right"
+# The films (each a game under xvfb, ~10-20 min under lavapipe)
+python3 tools/bridge.py run experiments/train_lab/films/slack.txt --size=960x540 --movie=build/films/slack.avi
+```
+
+New bridge commands: `train_route test_line|relaid`, `train_run [LATE]`, `train_goto MARK [KMH]`,
+`train_engineer`, `train_board CAR [back|front|mid]`, `train_cross [run] [nojump]`,
+`train_jump_off [left|right]`, `train_rider`, `train_crate S [SIDE]`, `train_man S [SIDE]`,
+`train_struck`, `train_placed`, `train_hits`, `train_events [N]`, `train_where CAR`, `train_watch
+CAR ... [follow]`, `train_slowmo X`.
+
+**In a build:** **8** starts the engineer on the timetable and puts you on the coach's back
+platform: walk forward through the train to the cab, ride it round, jump off (8 again for a new run).
+
+Results: `results/2026-11-01_step2/` (its `summary.md`).
+
+
+## Step 3 (#542): the models
+
+**What's new:**
+
+- **The engine and tender** from Blender by script (`blender/engine.py` -> `assets/train/engine.glb`,
+  `tender.glb`, `engine_rig.json`; `~/bpyenv/bin/python experiments/train_lab/blender/engine.py`,
+  bpy 5.2): a D&RG class 70-style 2-8-0 (37 in drivers, 15 x 20 in cylinders, a diamond stack, box
+  headlight, wooden pilot and cab), the tender a U tank round its coal. `EngineModel` moves its
+  parts by distance: drivers s / r, the side rods on the pins (right leading left by a quarter),
+  the main rods from pin to crosshead; four exhaust beats a wheel turn, each a puff up the stack
+  sized by the steam, the cylinder cocks blowing at a start; the stack's own smoke; the headlight
+  at night. Materials by name in the game's look (PixelArt metals, woods mapped in their own space).
+- **The five cars of boards** (`TrainModels`): sills, a plank deck, truss rods, drawheads,
+  stirrups; the ore cars' plank sides on stakes and a low heap of ore; the boxcar's red sheathing,
+  sliding doors, roof walk, end ladders and brake wheel; the express car's green sheathing, doors,
+  barred windows, and inside the strongbox, mail case and parcels; the coach's varnished sides,
+  windows, clerestory, platforms with railings, and inside benches both sides of the aisle, a stove
+  and two lamps (lit at night). Arch-bar trucks, their wheels turning with distance.
+- **Ladders:** the boxcar is shut; you go over it by the ladder at each end and its roof walk
+  (`Ladder`, the player's `_ladder_step`: walk into it to climb, walk out over its top to go down;
+  it carries you with the car). Step 2's steps up its ends are gone.
+- **Passengers:** `train_passengers N` seats the Studio's men in the coach, window seats first.
+
+New bridge commands: `train_passengers N`, `train_models on|off`. Run files: `sheet.txt` (golden
+hour and night), `cost.txt` (the frame with the whole train in view, models then boxes),
+`films/rods_start.txt`, `films/walk_train.txt`.
+
+Results: `results/2026-11-02_step3/` (its `summary.md`).
+
+## Step 4 (#571): the sound
+
+**What's new:** `TrainSound` (`src/train/train_sound.gd`, a child of `Train`; dials
+`config/train_sound.tres`, proposed) and the sounds, all synthesised (`src/audio/train_synth.gd`:
+the recording sites are outside this workspace's network policy). Every one-shot is timed from the
+sim to the sub-tick and heard on its moment at any frame rate:
+
+- **the exhaust:** a chuff each quarter turn of the drivers (four a turn, as the puffs), long and
+  heavy below 3 beats a second, short above 8 (a blur at speed), louder with `TrainSim.steam`, each
+  of the four beats its own level and pitch; the cylinder cocks' burst on each beat at a start and
+  their hiss between;
+- **the rail joints:** a clack each axle over a joint (`rail_length` 9.14 m): the engine's pony and
+  four drivers (heavier, lower), two axles a truck under the rest, louder with speed;
+- **the couplers:** a bang (or a soft bump) each slack-out and bunch (`TrainSim`'s events);
+- **the brakes:** grind at speed, squeal as the shoes grip near a stand;
+- **rolling** by speed; the engine **simmering** standing; the **safety valve** lifting after
+  `valve_after` s standing with the regulator shut; the **bell** and a three-chime **whistle**;
+- placed by `GameAudio`'s rules: late by distance / 343 m/s, the air's highs, walls; **Doppler** on
+  every sound (one-shots at their moment, loops each frame).
+
+Bridge: `train_whistle [--o-|on|off]`, `train_bell on|off`, `train_valve`, `train_sound
+[on|off|counts|reset]` (counts and its cost), `train_caption TEXT` (for films), `train_cam side S
+OFF`; `train_cost` adds the sound's tick and frame. The cab: H the whistle (held), B the bell.
+Film: `films/sound.txt`; measured by `sound_measure.py FILM BRIDGE_LOG OUTDIR` (each section's
+levels and beats a second, a spectrogram). Tests `tests/test_train_sound.gd`.
+
+Results: `results/2026-11-02_step4/` (its `summary.md`).
+
+## Train sound 2 (#586): the sounds from real recordings
+
+18 of the 20 train sounds cut from four Wikimedia Commons recordings (CC0, CC BY; `CREDITS.md`) by
+`recordings.py` from `recordings.json` into `assets/audio/train/` (the brakes' squeal and grind
+stay synthesised); `SynthSounds` plays a recording where there is one (`TrainSynth.recording`),
+`-- --train-synth` the synthesis. Sources go in `build/train_rec/src/` (`recordings.py fetch`,
+or by hand: Wikimedia refused this workspace's address); the loudness each is set to comes from
+`tools/train_synth_dump.gd`. Dials set for them in `config/train_sound.tres`. Film and levels:
+`results/2026-11-03_sound2/`.
+
+## Step 5 (#616): breakable track, derails, the repair crew
+
+**What's new in `src/train/`** (docs/LAYOUT.md "src/train"; every number a proposed dial in
+`config/train.tres`, group "Breakable track", "The lookout", "The derail", "The repair crew"):
+
+- **The track as members** (`TrackChunk`, a `Structure` a ~100 m of whole rails): wooden ties
+  (`tie`, tier 0, on the bed: a charge splinters them, `Blast._bedded` leaves them out) and iron
+  rails (`rail`, tier 1, on the ties under them, touching the next at the joint). A rail never
+  snaps: what would break it tears it loose whole (`tear_loose`); a charge short of that bows it
+  (`bend`, `Blast.rail_share`). At rest in the chunk's batches like any building's members: the
+  1.5 km line adds 2,933 nodes and costs nothing measurable idle (`results/2026-11-03_step5/idle_*`).
+  `-- --track-drawn` is step 1's drawn track.
+- **The track's state** (`TrackState`, `line.state`): stretches **broken** (a rail gone, three ties
+  gone in a row), **bent** (a rail bowed past `bent_passable`) and **blocked** (anything on the
+  line found by a box scan over the rails, a few cells a tick ahead of the train), each keyed by
+  the route's **section id** and the distance along it (`TrainRoute.sections`, `TrackLine.key_of`
+  / `s_of`; plan items take an `"id"`). `to_dict`/`from_dict` put the damage back on any line built
+  from a route with the same sections (the test lays it on a re-laid one).
+- **Solid wheels** (`TrainCars.axles`, a disc a wheel on each rail): a man down across the rails is
+  run over (`Train._run_over`: each axle over a part of him on a rail crushes it, `take_blow`, and a
+  limb under it comes off, `sever_limb`, unless reduced gore).
+- **The engineer's eyes** (`TrainLookout`, `train.lookout`): the first thing wrong ahead, seen from
+  his eye leaning out of the cab's right side (`Sight.see`: the boiler hides the inside of a
+  left-hand bend), in the light on it (`SightLight.sky_lux`, the headlight's beam at night), by
+  `see_break`/`see_block` between their night and day reach, a seeded reaction later. Alarmed,
+  `TrainEngineer` shuts off, throws the brake on full and whistles; the 1D stopping distance says
+  whether it's enough.
+- **The derail** (`Train._check_rails`/`leave_rails`, `derailed`): the leading wheels on a break
+  (bent: faster than `bent_pass_speed`; a block over `block_derail_kg`). Off screen
+  (`train.physical` off) it ploughs to a stand in numbers (`TrainSim.plough`); near, `TrainWreck`:
+  each car a RigidBody3D with its shapes, model and riders, at the speed the 1D train had it
+  (momentum handed over), couplers as joints with their slack (yaw free to 75 degrees: the
+  jackknife; torn past `coupler_tears`), the engine's leading wheels thrown off to the broken side,
+  rolling over the ties (`roll_g`) and ploughing off the bed (`plough_g`); a car stopped by more
+  than `car_break_dv` breaks into its front, back and roof (`TrainModels.car_section`); riders go
+  limp (thrown on by their own momentum) when their car jolts past `thrown_g` or tips. The bodies
+  are rubble (`rubble` group: RubbleSleep freezes them once still).
+- **The save** (`TrackState.to_dict`, `TrainWreck.to_dict`/`restore`): the wreck's bodies kept in
+  the line's frame at their section and distance, laid again asleep.
+- **The repair crew** (`TrackRepair`, `line.repair`): sent for when the line's damaged, it comes
+  `repair_delay_h` game hours later (the next day): four men walk in along the line, drag what's on
+  it aside (`clear_s_per_t` a tonne), lay each damaged chunk again as new members (`tie_s`,
+  `rail_s` a piece), and walk off (`mended`). The wreck stays beside the line.
+
+**Running it**
+
+```sh
+# The table: breaks at three speeds by day and night, one on the bend, nobody driving, a stick, a
+# bent rail, a crate and a 2 t block (one fresh headless game each, --fixed-fps 60: ~1 min a run)
+python3 experiments/train_lab/derail_runs.py --out=build/train_lab/derail [--only=a,b]
+python3 experiments/train_lab/derail_runs.py --table=build/train_lab/derail
+# One run in a game
+python3 tools/bridge.py "train_lab" "train_derail kmh=40 at=380 how=rail hour=23 out=/tmp/d.json"
+# The films (each a game under xvfb, lavapipe)
+python3 tools/bridge.py run experiments/train_lab/films/step5/wreck_speed.txt --size=960x540 --movie=build/films/wreck.avi
+# Save, load (on the same route, or the re-laid one), the crew, the next train
+python3 tools/bridge.py "train_save /tmp/s.json" "train_load /tmp/s.json relaid" "train_repair now" "train_next run"
+```
+
+New bridge commands: `train_derail`, `train_save`, `train_load`, `train_repair`, `train_next`.
+Tests `tests/test_track.gd`. Results: `results/2026-11-03_step5/` (its `summary.md`).

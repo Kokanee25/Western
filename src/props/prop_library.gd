@@ -33,8 +33,14 @@ static func ids() -> Array:
 	return manifest().get("props", {}).keys()
 
 
+## A kit prop that's another's with something in it (a whiskey barrel) takes the drawn one's entry.
 static func definition(id: StringName) -> Dictionary:
-	return manifest().get("props", {}).get(String(id), {})
+	var def: Dictionary = manifest().get("props", {}).get(String(id), {})
+	if def.is_empty() and PropKit.has(id):
+		var replaces := String(PropKit.definition(id).get("replaces", ""))
+		if replaces != "" and replaces != String(id):
+			return definition(StringName(replaces))
+	return def
 
 
 static func size_of(id: StringName) -> Vector3:
@@ -51,14 +57,17 @@ static func has_model(id: StringName) -> bool:
 ## overrides the .glb lookup (tests use it). A kit prop (a KitProp, not a StaticBody3D) carries the
 ## same metas.
 static func spawn(id: StringName, model: Node3D = null) -> Node3D:
-	var def := definition(id)
-	assert(not def.is_empty(), "Unknown prop %s" % id)
+	# A kit prop new to the game (the factory's wagons, sacks...) has no drawn entry: it's only its kit file.
 	if model == null and use_kit and use_models and PropKit.has(id) and PropKit.definition(id).get("in_game", false):
 		var kit := PropKit.make(id)
 		kit.set_meta(&"prop_id", id)
 		kit.set_meta(&"placeholder", false)
 		kit.set_meta(&"bounds", PropKit.bounds(PropKit.definition(id)))
 		return kit
+	var def := definition(id)
+	assert(not def.is_empty(), "Unknown prop %s" % id)
+	if not manifest().get("props", {}).has(String(id)):
+		id = StringName(PropKit.definition(id).get("replaces", id))  # drawn: the barrel it's like
 	var target := size_of(id)
 	var body := StaticBody3D.new()
 	body.name = String(id).to_pascal_case()

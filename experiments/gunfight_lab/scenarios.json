@@ -1,5 +1,5 @@
 {
-	"note": "The gunfight lab's arenas (README.md). Positions are world metres on the test street (config/town.json: the saloon's front on z 0 from x 5 to 15, its porch to z -2.2 at 0.78 m; the trough from x 2.6 to 4.6 at z -4.2). Facing: degrees from north (-Z), east +X; 'gang' faces the gang's middle. A man's 'cover': true puts him in the nearest spot within 1.5 m that hides him from where you start (Cover.evaluate, the gang's own test), crouched and waiting his moment. 'start': standoff (everyone's in plain sight and the gang turns at once), ambush (you walk on, gun away, and they open fire from cover). 'lamps': lit lights every lamp in the building named, whatever the hour. gang_models: studio is the Character Studio's three men (the lab's choice), outlaw the gang's bodies before the Studio's (the MakeHuman outlaw and the Kid's), game whatever TownLife.GANG wears now.",
+	"note": "The gunfight lab's arenas (README.md). Positions are world metres on the test street (config/town.json: the saloon's front on z 0 from x 5 to 15, its porch to z -2.2 at 0.78 m; the trough from x 2.6 to 4.6 at z -4.2). Facing: degrees from north (-Z), east +X; 'gang' faces the gang's middle. A man's 'cover': true puts him in the nearest spot within 1.5 m that hides him from where you start (Cover.evaluate, the gang's own test), crouched and waiting his moment. 'start': standoff (everyone's in plain sight and the gang turns at once), ambush (you walk on, gun away, and they open fire from cover). 'lamps': lit lights every lamp in the building named, whatever the hour. gang_models: studio is the Character Studio's three men (the lab's choice), outlaw the gang's bodies before the Studio's (the MakeHuman outlaw and the Kid's), game whatever TownLife.GANG wears now. Since 2026-10-23 the spec_* arenas are in the building lab's saloon (experiments/building_lab/, F5's eighth stop: 'building': 'spec'), their positions in its own space (x along the front from its west corner, z back from the front, y up; the floor 0.78, the upper floor 4.44): the bar along the west wall, the three card tables, the hall stair up the east wall to the galleries round the well, the kitchen and back room behind, the street balcony out front.",
 	"hours": {"golden": 17.4, "night": 22.0},
 	"gang_models": {
 		"studio": {"brody": "bold_cowboy_s0", "lyle": "old_rancher_s1", "kid": "young_drifter_s1"},
@@ -40,6 +40,71 @@
 				"kid": {"at": [3.6, 0.0, -3.5], "cover": true}
 			},
 			"camera": {"at": [-1.0, 5.5, -13.0], "look": [7.0, 0.5, -4.0]}
+		},
+		"spec_hall": {
+			"what": "The new saloon's hall, every lamp lit: you just in at the batwings; Brody at the bar, Lyle by the middle card table, the Kid by the far one.",
+			"building": "spec",
+			"start": "standoff",
+			"lamps": {"lit": "SpecSaloon"},
+			"player": {"at": [7.62, 0.78, 1.4], "facing": "gang"},
+			"gang": {
+				"brody": {"at": [2.69, 0.78, 6.6]},
+				"lyle": {"at": [9.4, 0.78, 6.0]},
+				"kid": {"at": [12.3, 0.78, 9.6]}
+			},
+			"camera": {"at": [13.5, 3.6, 0.6], "look": [6.0, 0.8, 7.0]}
+		},
+		"spec_stair": {
+			"what": "The new saloon's hall: you in by the door; Brody behind the bar, Lyle at the foot of the hall stair, the Kid a third of the way up it.",
+			"building": "spec",
+			"start": "standoff",
+			"lamps": {"lit": "SpecSaloon"},
+			"player": {"at": [7.0, 0.78, 3.2], "facing": "gang"},
+			"gang": {
+				"brody": {"at": [1.0, 0.78, 7.5]},
+				"lyle": {"at": [13.6, 0.78, 5.2]},
+				"kid": {"at": [14.57, 2.3, 8.0]}
+			},
+			"camera": {"at": [3.0, 3.6, 1.0], "look": [11.0, 1.5, 7.0]}
+		},
+		"spec_gallery": {
+			"what": "The new saloon's hall: you in the middle of it; Brody at the bar, Lyle up on the west gallery at its rail, the Kid on the back gallery over the tables.",
+			"building": "spec",
+			"start": "standoff",
+			"lamps": {"lit": "SpecSaloon"},
+			"player": {"at": [8.6, 0.78, 4.4], "facing": "gang"},
+			"gang": {
+				"brody": {"at": [2.69, 0.78, 8.8]},
+				"lyle": {"at": [4.69, 4.44, 6.0]},
+				"kid": {"at": [9.24, 4.44, 11.35]}
+			},
+			"camera": {"at": [13.8, 4.0, 1.2], "look": [6.0, 2.4, 8.0]}
+		},
+		"spec_back": {
+			"what": "The back of the new saloon's hall: you between the far tables facing the back wall; Brody by the back room's door, Lyle behind the bar's far end by the kitchen door, the Kid at the back gallery's rail above.",
+			"building": "spec",
+			"start": "standoff",
+			"lamps": {"lit": "SpecSaloon"},
+			"player": {"at": [9.6, 0.78, 10.0], "facing": "gang"},
+			"gang": {
+				"brody": {"at": [11.8, 0.78, 11.6]},
+				"lyle": {"at": [1.0, 0.78, 11.0]},
+				"kid": {"at": [7.0, 4.44, 11.0]}
+			},
+			"camera": {"at": [8.0, 3.4, 4.0], "look": [7.0, 1.8, 12.0]}
+		},
+		"spec_front": {
+			"what": "Out front of the new saloon: you in the desert by the boardwalk's steps; Brody up on the street balcony, Lyle along the boardwalk, the Kid at the batwings.",
+			"building": "spec",
+			"start": "standoff",
+			"lamps": {"lit": "SpecSaloon"},
+			"player": {"at": [6.0, 0.0, -8.5], "facing": "gang"},
+			"gang": {
+				"brody": {"at": [7.64, 4.44, -1.4]},
+				"lyle": {"at": [12.0, 0.78, -1.2]},
+				"kid": {"at": [7.62, 0.78, 0.4]}
+			},
+			"camera": {"at": [0.0, 3.0, -12.0], "look": [8.0, 2.0, -1.0]}
 		}
 	}
 }

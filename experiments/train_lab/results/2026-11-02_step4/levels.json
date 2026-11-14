@@ -1,0 +1,59 @@
+{
+ "seconds": 113.8,
+ "sections": [
+  {
+   "section": "A start, close by the engine",
+   "from": 0.3,
+   "to": 22.7,
+   "rms_db": -14.9,
+   "peak_db": -1.6,
+   "loudest_s_db": -11.4,
+   "quietest_s_db": -41.3
+  },
+  {
+   "section": "Passing at 10 m, working (about 35 km/h)",
+   "from": 22.7,
+   "to": 41.9,
+   "rms_db": -24.5,
+   "peak_db": -2.7,
+   "loudest_s_db": -17.4,
+   "quietest_s_db": -39.8
+  },
+  {
+   "section": "Passing at 40 m, blowing for a crossing",
+   "from": 41.9,
+   "to": 61.1,
+   "rms_db": -22.8,
+   "peak_db": -5.0,
+   "loudest_s_db": -16.2,
+   "quietest_s_db": -44.7
+  },
+  {
+   "section": "Passing at 150 m",
+   "from": 61.1,
+   "to": 81.3,
+   "rms_db": -41.5,
+   "peak_db": -22.0,
+   "loudest_s_db": -39.7,
+   "quietest_s_db": -51.5
+  },
+  {
+   "section": "A stop, close by: the brakes, the slack bunching, then standing",
+   "from": 81.3,
+   "to": 104.6,
+   "rms_db": -30.3,
+   "peak_db": -11.4,
+   "loudest_s_db": -23.7,
+   "quietest_s_db": -47.7
+  },
+  {
+   "section": "Standing: the safety valve lifts",
+   "from": 104.6,
+   "to": 113.7,
+   "rms_db": -25.4,
+   "peak_db": -11.4,
+   "loudest_s_db": -24.1,
+   "quietest_s_db": -30.7
+  }
+ ]
+}

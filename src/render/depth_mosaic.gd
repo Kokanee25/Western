@@ -89,7 +89,7 @@ func _physics_process(delta: float) -> void:
 	_since_check += delta
 	if _since_check >= ROOF_CHECK:
 		_since_check = 0.0
-		var space := get_world_3d().direct_space_state if get_world_3d() != null else null
+		var space := World.space(self)
 		if space != null:
 			var from := global_position
 			var q := PhysicsRayQueryParameters3D.create(from, from + Vector3.UP * ROOF_REACH, Layers.WORLD)

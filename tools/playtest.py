@@ -2,7 +2,7 @@
 """The playtest's runner (tools/playtest.md): the game under xvfb with the dev bridge, and
 screenshots kept for the report in docs/playtests/<date>/.
 
-    python3 tools/playtest.py start [--date=YYYY-MM-DD]
+    python3 tools/playtest.py start [--date=YYYY-MM-DD] [--game-args=--world=valley,--mission=sheriff]
     python3 tools/playtest.py shot NAME
     python3 tools/playtest.py stop
 """
@@ -27,7 +27,9 @@ def main(argv):
         os.makedirs(os.path.dirname(STATE), exist_ok=True)
         with open(STATE, "w") as f:
             f.write(folder)
-        r = subprocess.call(BRIDGE + ["start", "--size=960x540"])
+        # Anything else (--game-args=..., a mission's brief says which) goes to the bridge's start.
+        extra = [a for a in argv[1:] if a.startswith("--") and not a.startswith("--date=")]
+        r = subprocess.call(BRIDGE + ["start", "--size=960x540"] + extra)
         if r == 0:
             print(f"date {date}; screenshots go in docs/playtests/{date}/; the report is docs/playtests/{date}.md")
         return r

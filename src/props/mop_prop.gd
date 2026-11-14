@@ -48,6 +48,10 @@ func _ready() -> void:
 		definition = PropKit.definition(kit_id)
 	add_to_group(&"mops")
 	_build()
+	# Its strands are pinned to the handle and moved there every tick: to Jolt, points of no give.
+	# A body falling into them (rubble, shards) takes an impulse it can't settle: NaN, or flung off
+	# the map (test_chaos, seed 97). What falls passes through the head; it lies on the world.
+	PinnedSoft.keep_clear(head, self)
 
 
 func length() -> float:
@@ -235,7 +239,7 @@ func _lay_head() -> void:
 	# What would hang below the floor is laid out along it instead, splayed from the foot.
 	var f := xf.origin
 	var q := PhysicsRayQueryParameters3D.create(f + Vector3.UP * 0.2, f - Vector3.UP * 0.6, Layers.WORLD)
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(self).intersect_ray(q)
 	var floor_y: float = (hit.position as Vector3).y + 0.012 if not hit.is_empty() else -INF
 	for i in verts.size():
 		var p := xf * verts[i]

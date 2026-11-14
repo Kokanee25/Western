@@ -1,0 +1,17 @@
+soak   5:00: frame 17.36 ms (p99 62.4), 1449 MB (resident 1615), 16670 nodes, 15957 orphans, 22 people
+soak  10:00: frame 16.21 ms (p99 61.2), 1345 MB (resident 1615), 15976 nodes, 15957 orphans, 19 people
+soak  15:00: frame 15.47 ms (p99 57.2), 1421 MB (resident 1615), 16446 nodes, 15957 orphans, 21 people
+soak  20:00: frame 13.26 ms (p99 52.1), 1448 MB (resident 1615), 16665 nodes, 15963 orphans, 22 people
+soak  25:00: frame 16.44 ms (p99 62.9), 1352 MB (resident 1632), 16082 nodes, 15914 orphans, 19 people
+soak  30:00: frame 17.34 ms (p99 59.5), 1357 MB (resident 1633), 17260 nodes, 15687 orphans, 19 people
+soak  35:00: frame 16.46 ms (p99 60.6), 1363 MB (resident 1640), 17104 nodes, 15642 orphans, 19 people
+soak  40:00: frame 16.23 ms (p99 62.8), 1470 MB (resident 1654), 17769 nodes, 15642 orphans, 22 people
+soak  45:00: frame 15.35 ms (p99 60.1), 1363 MB (resident 1654), 17084 nodes, 15636 orphans, 19 people
+soak  50:00: frame 15.59 ms (p99 60.5), 1470 MB (resident 1654), 17740 nodes, 15636 orphans, 22 people
+soak  55:00: frame 14.56 ms (p99 60.3), 1364 MB (resident 1654), 17046 nodes, 15636 orphans, 19 people
+soak  60:00: frame 15.82 ms (p99 63.4), 1437 MB (resident 1654), 17512 nodes, 15636 orphans, 21 people
+soak  65:00: frame 13.95 ms (p99 58.8), 1471 MB (resident 1654), 17740 nodes, 15636 orphans, 22 people
+soak  70:00: frame 17.00 ms (p99 68.6), 1374 MB (resident 1658), 17057 nodes, 15634 orphans, 19 people
+soak  75:00: frame 14.51 ms (p99 63.5), 1444 MB (resident 1665), 17519 nodes, 15634 orphans, 21 people
+soak  80:00: frame 13.37 ms (p99 59.1), 1495 MB (resident 1665), 20671 nodes, 15448 orphans, 22 people
+soak  85:00: frame 37.22 ms (p99 117.4), 1454 MB (resident 1763), 21861 nodes, 12034 orphans, 21 people

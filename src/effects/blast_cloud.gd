@@ -33,14 +33,23 @@ static func spawn(world: Node3D, at: Vector3, kg: float) -> BlastCloud:
 	c.name = "BlastCloud"
 	world.add_child(c)
 	c.global_position = at
-	c._start(vent, dust, size, seed_value, GunSmoke._is_indoors(c, at))
+	c._start_next_tick(vent, dust, size, seed_value)
 	return c
+
+
+## The dust begins a tick after the flash (#538: its three particle systems were ~5-8 ms of the
+## blast's own tick, the heaviest of the game's frames; a tick later is the same picture).
+func _start_next_tick(vent: Vector3, dust: Color, size: float, seed_value: int) -> void:
+	_size = size
+	await get_tree().physics_frame
+	if is_inside_tree():
+		_start(vent, dust, size, seed_value, GunSmoke._is_indoors(self, global_position))
 
 
 ## The way the blast vents: away from whatever's close round the charge (the ground under it, a
 ## wall it lay against), from rays a metre out every way; straight up in the open.
 static func vent_of(world: Node3D, at: Vector3) -> Vector3:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var open := Vector3.ZERO
 	for x in [-1, 0, 1]:
 		for y in [-1, 0, 1]:
@@ -60,11 +69,11 @@ static func vent_of(world: Node3D, at: Vector3) -> Vector3:
 ## The colour of what it throws up: the street's dirt, boards' wood, stone.
 static func dust_of(world: Node3D, at: Vector3) -> Color:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.1, at + Vector3.DOWN * 0.6, Layers.WORLD)
-	var hit := world.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit := World.space(world).intersect_ray(q)
 	if not hit.is_empty() and hit.collider is StructureMember:
 		var m := hit.collider as StructureMember
-		if m.wood == &"stone":
-			return Color(0.58, 0.56, 0.52)
+		if m.is_masonry():
+			return MasonryMaterials.dust_colour(m.wood, Color(0.58, 0.56, 0.52))
 		return Color(0.6, 0.5, 0.38)
 	return Color(0.56, 0.45, 0.34)
 
@@ -114,6 +123,7 @@ static func _chunks(world: Node3D, at: Vector3, vent: Vector3, dust: Color, size
 
 static func _particles(world: Node3D, amount: int, lifetime: float, seed_value: int) -> GPUParticles3D:
 	var p := GPUParticles3D.new()
+	p.emitting = false  # (made emitting: set again when placed, `finished` never came, #459)
 	p.one_shot = true
 	p.amount = maxi(amount, 1)
 	p.lifetime = lifetime

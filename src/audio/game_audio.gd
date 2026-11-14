@@ -41,9 +41,9 @@ static func t() -> SoundTuning:
 
 ## A gun going off at `at`: the report (its blast, close), the roll of it (the boom that carries,
 ## and the hills sending it back), and outdoors the slap off the fronts. `big` for the coach gun.
-static func gunshot(host: Node, at: Vector3, big := false) -> void:
-	var near := &"report_big" if big else &"report"
-	var far := &"rolling_big" if big else &"rolling"
+static func gunshot(host: Node, at: Vector3, big := false, near_id := &"", far_id := &"") -> void:
+	var near := near_id if near_id != &"" else (&"report_big" if big else &"report")
+	var far := far_id if far_id != &"" else (&"rolling_big" if big else &"rolling")
 	var k := t()
 	var heard := play(host, near, at, {"unit_size": k.report_unit_size, "volume_db": k.report_db, "max_db": k.report_db})
 	play(host, far, at, {"unit_size": k.roll_unit_size, "volume_db": k.roll_db, "max_db": k.roll_max_db, "panning": 0.5})
@@ -59,6 +59,10 @@ static func gunshot(host: Node, at: Vector3, big := false) -> void:
 static func blast(host: Node, at: Vector3, kg: float) -> void:
 	var k := t()
 	var size := pow(maxf(kg, 0.01) / 0.2, 1.0 / 3.0)
+	var rec_set := BlastSounds.active()
+	if rec_set > 0:
+		_blast_recorded(host, at, size, rec_set)
+		return
 	var heard := play(host, &"blast", at, {"unit_size": k.blast_unit_size * size, "volume_db": 6.0, "max_db": 6.0})
 	play(host, &"blast_roll", at, {"unit_size": k.blast_roll_unit_size * size, "volume_db": k.blast_roll_db,
 			"max_db": k.blast_roll_max_db, "panning": 0.4})
@@ -80,8 +84,103 @@ static func blast(host: Node, at: Vector3, kg: float) -> void:
 		play(holder, id, where, {"volume_db": db, "normal": Vector3.UP, "after": rng.randf_range(0.5, 2.8)})
 
 
+## The blast from a set of recordings (BlastSounds): crack, boom and sub at the charge, the roll
+## off the hills, outdoors the boom slapping back off the fronts; then what it threw pattering down
+## round it (dirt always; boards and glass with a building near), and the nearest building's
+## timbers groaning as it settles. Which take of each layer plays is by where it went off, so a
+## seeded run sounds the same twice.
+static func _blast_recorded(host: Node, at: Vector3, size: float, rec_set: int) -> void:
+	var k := t()
+	var take := absi(hash(Vector3i(at.round())))
+	var rec := func(layer: StringName, i := 0) -> AudioStream: return BlastSounds.stream(rec_set, layer, take + i)
+	# Charges fired together (bundles on one plunger, #647) are one volley: the same recording from
+	# a few metres apart lands a few ms apart and combs into a hollow flange, not a bigger bang. So
+	# each charge keeps its own crack and boom, each pitched apart (a stick never sounds the same
+	# twice either), while the sub and the roll play once and grow (one bigger thunder).
+	var join := _join_volley(at)
+	var pitch: float = [1.0, 0.93, 1.07, 0.88, 1.12][mini(join, 4)] * (0.97 + 0.06 * float(take % 101) / 100.0)
+	var boom: AudioStream = rec.call(&"boom")
+	var heard := play(host, &"blast", at, {"stream": boom, "unit_size": k.blast_unit_size * size,
+			"volume_db": k.rec_boom_db, "max_db": k.rec_boom_db, "pitch": pitch})
+	if rec.call(&"crack"):
+		play(host, &"blast", at, {"stream": rec.call(&"crack"), "unit_size": k.rec_crack_unit_size * size,
+				"volume_db": k.rec_crack_db, "max_db": k.rec_crack_db, "pitch": pitch})
+	if join > 0:
+		for key: String in ["sub", "roll"]:
+			var p: Variant = _volley.get(key)
+			if is_instance_valid(p) and int(_volley.n) <= k.volley_grow_max:
+				(p as AudioStreamPlayer3D).volume_db += k.volley_db
+				(p as AudioStreamPlayer3D).max_db += k.volley_db
+	else:
+		if rec.call(&"sub"):
+			_volley.sub = play(host, &"blast", at, {"stream": rec.call(&"sub"), "unit_size": k.rec_sub_unit_size * size,
+					"volume_db": k.rec_sub_db, "max_db": k.rec_sub_db, "panning": 0.2, "pitch": pitch})
+		_volley.roll = play(host, &"blast_roll", at, {"stream": rec.call(&"roll"), "unit_size": k.blast_roll_unit_size * size,
+				"volume_db": k.rec_roll_db, "max_db": k.rec_roll_max_db, "panning": 0.4, "pitch": pitch})
+	if heard and join == 0 and not heard.get_meta(&"inside", false):
+		for s: Dictionary in slaps(host, at):
+			play(host, &"blast", s.at, {"stream": boom, "unit_size": k.blast_unit_size * size,
+					"volume_db": k.rec_boom_db + k.slap_db, "max_db": k.rec_boom_db + k.slap_db, "walls": false})
+	var holder := _holder(host)
+	if holder == null:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = take
+	var near := _nearest_structure(holder, at, k.rec_groan_reach)
+	var layers: Array[StringName] = [&"debris_dirt", &"debris_dirt"]
+	if near.size() > 0 and near.d < k.rec_wood_reach:
+		layers.append_array([&"debris_wood", &"debris_glass"])
+	for i in layers.size():
+		var s: AudioStream = rec.call(layers[i], i)
+		if s == null:
+			continue
+		var a := rng.randf() * TAU
+		var where := at + Vector3(cos(a), 0.0, sin(a)) * rng.randf_range(1.0, 5.0) * size
+		play(holder, layers[i], where, {"stream": s, "volume_db": k.rec_debris_db + rng.randf_range(-3.0, 0.0),
+				"unit_size": 6.0, "normal": Vector3.UP, "after": rng.randf_range(0.25, 0.7)})
+	if near.size() > 0 and join == 0 and rec.call(&"groan"):
+		play(holder, &"groan", near.at, {"stream": rec.call(&"groan"), "unit_size": 10.0 * size,
+				"volume_db": k.rec_groan_db, "max_db": k.rec_groan_db, "after": rng.randf_range(0.8, 1.6)})
+
+
+## The volley a charge going off at `at` now belongs to: 0 if it starts one, else how many went
+## before it (within SoundTuning.volley_s of the first, on the physics clock, and volley_m of it).
+static var _volley := {}
+
+
+## For tests: the next charge starts a volley of its own.
+static func forget_volley() -> void:
+	_volley = {}
+
+
+static func _join_volley(at: Vector3) -> int:
+	var k := t()
+	var now := Engine.get_physics_frames()
+	if not _volley.is_empty() and now - int(_volley.frame) <= int(round(k.volley_s * Engine.physics_ticks_per_second)) \
+			and (_volley.at as Vector3).distance_to(at) <= k.volley_m:
+		_volley.n = int(_volley.n) + 1
+		return int(_volley.n) - 1
+	_volley = {"frame": now, "at": at, "n": 1}
+	return 0
+
+
+## The structure nearest `at` within `reach` (by its bounds): {at: its nearest point, d}, else {}.
+static func _nearest_structure(holder: Node, at: Vector3, reach: float) -> Dictionary:
+	var best := {}
+	for n: Node in holder.get_tree().get_nodes_in_group(&"structures"):
+		var st := n as Structure
+		if st == null or not st.is_inside_tree():
+			continue
+		var b := st.bounds()
+		var p := at.clamp(b.position, b.end)
+		var d := p.distance_to(at)
+		if d < reach and (best.is_empty() or d < float(best.d)):
+			best = {"at": p, "d": d}
+	return best
+
+
 ## Play `id` at `at` as heard from the ears. `o`: unit_size (6), volume_db (0), max_db (3),
-## panning (1), delay (true: distance / the speed of sound; an image source is already the reflected
+## panning (1), pitch (1: its pitch_scale), stream (a recording to play in place of the synthesised `id`), delay (true: distance / the speed of sound; an image source is already the reflected
 ## path's length away), after (seconds more before it starts), walls (true: the room and the walls by
 ## where it is), normal (the face a sound made on a surface came off).
 static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStreamPlayer3D:
@@ -94,7 +193,8 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 	var ears := ears_of(host)
 	var d := ears.global_position.distance_to(at) if ears else 0.0
 	var p := AudioStreamPlayer3D.new()
-	p.stream = SynthSounds.get_sound(id)
+	var rec: AudioStream = o.get("stream")
+	p.stream = rec if rec else SynthSounds.get_sound(id)
 	p.unit_size = float(o.get("unit_size", 6.0))
 	p.volume_db = float(o.get("volume_db", 0.0))
 	p.max_db = float(o.get("max_db", 3.0))
@@ -102,6 +202,7 @@ static func play(host: Node, id: StringName, at: Vector3, o := {}) -> AudioStrea
 		p.free()
 		return null
 	p.panning_strength = float(o.get("panning", 1.0))
+	p.pitch_scale = float(o.get("pitch", 1.0))
 	p.attenuation_filter_cutoff_hz = air_cutoff(d)
 	if bool(o.get("walls", true)) and ears:
 		place(p, holder, at, ears.global_position, o.get("normal", Vector3.ZERO))
@@ -198,7 +299,7 @@ static func air_cutoff(d: float) -> float:
 ## Under a roof with walls round: a roof overhead and a wall every way (a porch's roof with the
 ## street open in front isn't a room).
 static func inside(world: Node3D, at: Vector3) -> bool:
-	var space := world.get_world_3d().direct_space_state
+	var space := World.space(world)
 	var from := at + Vector3.UP * 0.1
 	if _ray(space, from, from + Vector3.UP * ROOF_REACH).is_empty():
 		return false
@@ -209,10 +310,11 @@ static func inside(world: Node3D, at: Vector3) -> bool:
 
 
 ## Something solid between the ears and the sound (more than a hand's breadth short of it).
-static func walled(world: Node3D, ears: Vector3, at: Vector3) -> bool:
+## `exclude`: bodies looked past (a moving source's own: the train's cars).
+static func walled(world: Node3D, ears: Vector3, at: Vector3, exclude: Array[RID] = []) -> bool:
 	if ears.distance_to(at) < WALL_MARGIN * 2.0:
 		return false
-	var hit := _ray(world.get_world_3d().direct_space_state, ears, at)
+	var hit := _ray(World.space(world), ears, at, exclude)
 	return not hit.is_empty() and (hit.position as Vector3).distance_to(at) > WALL_MARGIN
 
 
@@ -225,7 +327,7 @@ static func slaps(host: Node, at: Vector3) -> Array:
 	var ears := ears_of(host)
 	if holder == null or ears == null:
 		return []
-	var space := holder.get_world_3d().direct_space_state
+	var space := World.space(holder)
 	var direct := ears.global_position.distance_to(at)
 	var found := []
 	for i in 8:
@@ -268,8 +370,9 @@ static func _wall(space: PhysicsDirectSpaceState3D, at: Vector3, dir: Vector3) -
 
 ## The first solid thing on the line: buildings, the ground, fixed props; not people (the player's
 ## capsule is on WORLD) or loose things, which are looked past.
-static func _ray(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3) -> Dictionary:
+static func _ray(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, exclude: Array[RID] = []) -> Dictionary:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
+	q.exclude = exclude
 	for i in 4:
 		var hit := space.intersect_ray(q)
 		if hit.is_empty() or hit.collider is StaticBody3D:

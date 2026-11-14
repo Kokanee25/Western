@@ -5,7 +5,7 @@ class_name SaloonDressing
 ## door with pictures beside it, and lamps in sconces round the walls. Called by SaloonBuilding at
 ## the end of its furnishing. Lit like the painting's room: two dozen lamps in sconces round the
 ## walls, on the back bar and hanging over the bar, a back bar packed with bottles in front of a tall
-## mirror (a reflection probe gives it the room to show). Everything structural is a member (it burns, breaks, falls and is
+## mirror (painted: mirror.gdshader gives back the lamplit room). Everything structural is a member (it burns, breaks, falls and is
 ## saved like the rest of the building); loose things are PropLibrary props in its Props node.
 ##
 ## Saloon space (FalseFrontBuilding): the front wall's inside face is z = STUD_D, the side walls'
@@ -23,6 +23,12 @@ class_name SaloonDressing
 const SCONCE_ENERGY := 0.8
 const SCONCE_FALLOFF := 2.0
 const SCONCE_REACH := 4.0
+## Where a lamp's flame burns in its own model's space (PropModels.lamp, chimney_glass's flame_y),
+## and how far over its own origin an OilLamp puts its light.
+const FLAME_IN_LAMP := 0.21
+const LIGHT_OVER_ORIGIN := 0.22
+## The saloon's ambient fill's colour (light pass round 3).
+const ROOM_FILL_COLOUR := Color(1.0, 0.68, 0.38)
 const BALCONY_HEIGHT := 2.3
 const BALCONY_X := 8.4
 const BALCONY_Z := 1.9
@@ -39,14 +45,31 @@ static func build(s: FalseFrontBuilding) -> void:
 	_panelling(s, f)
 	_balcony(s, f)
 	_stair(s, f)
+	# The balcony's and stair's boards and framing in the inside woods (FalseFrontBuilding.INSIDE_LOOK:
+	# R1 darkened, Sean 2026-10-26).
+	for m in s.get_members():
+		var id := String(m.member_id)
+		if (id.contains("/balcony/") or id.contains("/stair/")) and FalseFrontBuilding.INSIDE_LOOK.has(m.wood):
+			m.look = FalseFrontBuilding.INSIDE_LOOK[m.wood]
 	_mirrors(s, f)
 	_bottle_wall(s, f)
 	var props := s.get_node_or_null(^"Props") as Node3D
 	if props:
 		_props(s, props, f)
 		_lamps(s, props, _fresh(s, "Lamps"), f)
+		# Every lamp prop's light where its flame burns and its glass glowing with it (the
+		# building's own sconces and lamps too).
+		for lamp: OilLamp in props.find_children("Light", "OilLamp", true, false):
+			var prop := lamp.get_parent() as Node3D
+			_light_at_flame(prop, lamp)
+			var chimney := _prop_chimney(prop, lamp) as MeshInstance3D
+			if chimney and lamp._chimney != chimney:
+				lamp._chimney = chimney
+				lamp.set_lit(lamp.lit)
 	_reflections(s, f)
+	_room_fill.call_deferred(s)  # the building adds its fill after the dressing
 	_brighten_lamps(s)
+	MoonWindows.add(s)  # moonlight in at the door and windows at night (the light pass, round 2)
 
 
 ## Every lamp in the room (the dressing's and the building's own) brighter and reaching further
@@ -232,44 +255,60 @@ static func _stair(s: FalseFrontBuilding, f: float) -> void:
 ## in dark frames: glass members (a shot breaks them) with a mirror's finish. Tall, as the
 ## painting's: the bottles stand in front of their lower half, the room shows in the top.
 const MIRROR_TOP := 2.95
+## The room the mirrors give back (mirror.gdshader's box: the far wall, the ceiling, the lamps and
+## the gallery's rail over this room's floor), its haze gold and bright as the painting's mirror
+## (its glass ~(145, 103, 48) in the shot; ~(137, 89, 49) at these, the kit's numbers ~(99, 45, 20)).
+## The far wall near and the ceiling high: from a seat the glass looks up, and the kit's room put
+## the ceiling's dark beams in all of it.
+const MIRROR_ROOM := {&"room_depth": 3.0, &"ceiling": 7.6, &"lamp_height": 2.6, &"rail_height": 3.2,
+		&"exposure": 2.0, &"room_haze": Color(0.5, 0.36, 0.17)}
 static func _mirrors(s: FalseFrontBuilding, f: float) -> void:
 	var w := s.width
 	var x := w - FalseFrontBuilding.STUD_D - 0.025
 	var y0 := f + 1.0
 	var y1 := f + MIRROR_TOP
+	var glass_look := mirror_material()
+	s.set_meta(&"mirror_look", glass_look)
 	for m in [[3.8, 5.95, "a"], [7.25, 8.7, "b"]]:
 		var z0: float = m[0]
 		var z1: float = m[1]
 		var glass := s.add_member("backbar/mirror_%s" % m[2], &"glass", &"glass", Vector3(0.01, y1 - y0, z1 - z0), Vector3(x, (y0 + y1) * 0.5, (z0 + z1) * 0.5))
-		(glass.get_child(0) as MeshInstance3D).material_override = mirror_material()
+		(glass.get_child(0) as MeshInstance3D).material_override = glass_look
 		for e in [[z0 - 0.04, z0], [z1, z1 + 0.04]]:
 			s.add_member("backbar/mirror_%s/side_%d" % [m[2], int(e[0] * 10)], &"trim", &"dark_trim", Vector3(0.03, y1 - y0 + 0.08, 0.04), Vector3(x - 0.005, (y0 + y1) * 0.5, (e[0] + e[1]) * 0.5))
 		s.add_member("backbar/mirror_%s/top" % m[2], &"trim", &"dark_trim", Vector3(0.04, 0.08, z1 - z0 + 0.12), Vector3(x - 0.01, y1 + 0.04, (z0 + z1) * 0.5))
 
 
-static func mirror_material() -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(0.5, 0.42, 0.3)
-	m.metallic = 1.0
-	m.roughness = 0.18
+## The mirrors' glass: the game's painted looking glass (PropModels.mirror, mirror.gdshader: the
+## lamplit room given back as a warm, smoky haze, the lamps glowing in it), set to this room. It was
+## a metal finish showing the room's reflection probe, which kept the room as it was when taken (the
+## game starts at noon, lamps out): at night two black voids over the bottle shelves where the
+## painting has a gold-lit mirror (light pass round 5, the critic's second point). RoomReflections
+## puts its lamps out by day.
+static func mirror_material() -> ShaderMaterial:
+	var m := PropModels.mirror().duplicate() as ShaderMaterial
+	for k: StringName in MIRROR_ROOM:
+		m.set_shader_parameter(k, MIRROR_ROOM[k])
+	m.set_shader_parameter(&"seed", 3.0)
 	return m
 
 
-## The room as the mirrors (and brass, glass and tin) see it: one probe the size of the room,
-## taken once (the lamps are lit by the time it's drawn at night; by day it shows the day).
+## The room as the brass, glass and tin see it: one probe the size of the room, taken again when the
+## room's light changes (RoomReflections: lamps lit or out, the sun up or down).
 static func _reflections(s: FalseFrontBuilding, f: float) -> void:
 	var old := s.get_node_or_null(^"RoomReflections")
 	if old:
 		old.free()
-	var probe := ReflectionProbe.new()
+	var probe := RoomReflections.new()
 	probe.name = "RoomReflections"
-	probe.update_mode = ReflectionProbe.UPDATE_ONCE
 	probe.interior = true
 	probe.box_projection = true
 	probe.size = Vector3(s.width - 0.2, s.wall_height - 0.1, s.depth - 0.2)
 	probe.ambient_mode = ReflectionProbe.AMBIENT_DISABLED
 	probe.intensity = 1.0
 	probe.max_distance = 20.0
+	if s.has_meta(&"mirror_look"):
+		probe.mirrors.append(s.get_meta(&"mirror_look"))
 	s.add_child(probe)
 	probe.position = Vector3(s.width * 0.5, f + (s.wall_height - 0.1) * 0.5, s.depth * 0.5)
 
@@ -427,11 +466,47 @@ static func _lit_prop(s: FalseFrontBuilding, props: Node3D, id: StringName, pos:
 	prop.add_child(lamp)
 	props.add_child(prop)
 	# The prop's own chimney glows with the lamp (the light's own lamp model is hidden).
-	var chimney := prop.find_child("Chimney", true, false) as MeshInstance3D
+	var chimney := _prop_chimney(prop, lamp) as MeshInstance3D
 	if chimney:
 		lamp._chimney = chimney
 		lamp.set_lit(lamp.lit)
 	return prop
+
+
+## A lamp prop's light moved to burn where its own chimney's flame is. PropLibrary's
+## "light_height" put a sconce's light ~0.3 m over its flame, so each sconce lit a hot patch of
+## wall above itself: the critic's "big overexposed white-orange smears" (light pass round 3,
+## 2026-10-27).
+static func _light_at_flame(prop: Node3D, lamp: OilLamp) -> void:
+	var chimney := _prop_chimney(prop, lamp)
+	if chimney == null:
+		return
+	var to_prop := Transform3D.IDENTITY
+	var n: Node = chimney
+	while n != null and n != prop:
+		to_prop = (n as Node3D).transform * to_prop
+		n = n.get_parent()
+	if n != prop:
+		return
+	lamp.position = to_prop * Vector3(0.0, FLAME_IN_LAMP, 0.0) - Vector3(0.0, LIGHT_OVER_ORIGIN, 0.0)
+
+
+## The room's fill (its ambient probe, lifted at night by the game's light) in the lamps' gold, not
+## the plain warm white of every building's: raised in that, the night room read as daylit.
+static func _room_fill(s: FalseFrontBuilding) -> void:
+	var fill := s.get_node_or_null(^"InteriorAmbient") as ReflectionProbe if is_instance_valid(s) else null
+	if fill:
+		fill.ambient_color = ROOM_FILL_COLOUR
+
+
+## A lamp prop's own chimney, not the one in its light's hidden lamp model (the light is added
+## before the prop's model is built, so a plain find_child met the hidden one first, and the
+## dressing's sconces' glass never glowed).
+static func _prop_chimney(prop: Node3D, lamp: OilLamp) -> Node3D:
+	for c in prop.find_children("Chimney", "", true, false):
+		if not lamp.is_ancestor_of(c):
+			return c as Node3D
+	return null
 
 
 ## A lamp hung on a rod from the roof: its font in a brass ring, a tin shade over the chimney.

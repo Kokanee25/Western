@@ -1,0 +1,95 @@
+{
+ "alarm": 16.97,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "breach": -1.0,
+ "end": 35.03,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1084,
+  "max_ms": 179.72,
+  "mean_ms": 11.98,
+  "p95_ms": 22.41
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "id": "brody",
+   "inside": true,
+   "mood": "RELOADING",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "dutch",
+   "inside": true,
+   "mood": "CALM",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "kid",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "tactic": "HIDDEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, gut-shot, bone broken.",
+ "seed": 1,
+ "state": "LOST",
+ "t": 35.03,
+ "threat": 34.97,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   24.55,
+   "Hollis down"
+  ],
+  [
+   34.95,
+   "Kid down"
+  ],
+  [
+   34.97,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   35.03,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front"
+}

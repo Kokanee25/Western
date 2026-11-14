@@ -1,0 +1,9 @@
+{
+  "_doc": "An oak barrel of lamp oil (coal oil, kerosene), full (barrel.json; PropContents): ~169 l at 0.8 kg a litre; it burns where it runs into flames.",
+  "like": "barrel",
+  "id": "oil_barrel",
+  "contents": {
+    "liquid": "lamp_oil",
+    "full": true
+  }
+}

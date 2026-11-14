@@ -1,0 +1,151 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "0.3:TestStreet/@RigidBody3D@23663",
+  "RB RigidBody3D at [4.33, -1.78, -41.24] mass 0.01200000010431 kids [&\"@CollisionShape3D@23662\", &\"Brass\"] meta []",
+  "0.3:TestStreet/@RigidBody3D@23660",
+  "RB RigidBody3D at [4.19, -1.78, -41.22] mass 0.01200000010431 kids [&\"@CollisionShape3D@23659\", &\"Brass\"] meta []",
+  "0.3:TestStreet/@RigidBody3D@23648",
+  "RB RigidBody3D at [4.31, -1.78, -41.23] mass 0.01200000010431 kids [&\"@CollisionShape3D@23647\", &\"Brass\"] meta []",
+  "0.3:TestStreet/@RigidBody3D@23639",
+  "RB RigidBody3D at [4.32, -1.78, -41.23] mass 0.01200000010431 kids [&\"@CollisionShape3D@23638\", &\"Brass\"] meta []",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 37.12,
+  "phase_at": {
+   "clear": 56.28,
+   "out": 37.12,
+   "rescue": 35.32
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 82.53,
+ "executed": 42.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 3934,
+  "max_ms": 148.16,
+  "mean_ms": 10.1,
+  "p95_ms": 16.62
+ },
+ "freed": 37.62,
+ "hostage_alive": true,
+ "hostage_local": [
+  2.87,
+  0.8,
+  -10.33
+ ],
+ "men": 5,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "id": "kid",
+   "inside": false,
+   "mood": "TENDING",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "hollis",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "window_front_w",
+   "tactic": "HIDDEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding steady, short of breath, bubbling cough, bone broken.",
+ "player_local": [
+  4.5,
+  -1.77,
+  -40.85
+ ],
+ "seed": 2,
+ "state": "WON",
+ "t": 82.53,
+ "threat": 36.98,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   36.98,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.98,
+   "the guard's last word"
+  ],
+  [
+   37.62,
+   "the rancher cut loose"
+  ],
+  [
+   39.05,
+   "Dutch down"
+  ],
+  [
+   42.0,
+   "the guard shoots the rancher"
+  ],
+  [
+   42.67,
+   "Lyle down, out"
+  ],
+  [
+   69.68,
+   "Lyle dead"
+  ],
+  [
+   82.53,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

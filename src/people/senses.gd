@@ -26,7 +26,7 @@ const PERIPHERAL := 100.0
 const NOTICE_RATE := 3.0
 
 ## Knowledge per person: {seen (bool now), awareness 0..1, last_pos, last_time (s, game clock),
-## heard_pos, heard_time}.
+## heard_pos, heard_time, turn and owed (the calm looks)}.
 var known := {}
 ## Sounds he heard and couldn't put to anyone, newest last: {at (his guess), kind, time}. A shot in
 ## the next building doesn't come with a name (the perception lab's baseline, 2026-10-22: every
@@ -39,19 +39,36 @@ var body: HumanBody
 var light := -1.0
 
 var _t := 0.0
+## The while between his last look and the next as it was set (TICK, or TICK times his band's).
+var _every_t := TICK
 var _clock := 0.0
 var _rng := RandomNumberGenerator.new()
 var _day: Node
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	body = get_parent() as HumanBody
 	_rng.seed = (body.rng_seed if body else 1) * 13 + 5
 	_t = _rng.randf() * TICK  # stagger people's ticks
 	Events.noise.connect(_on_noise)
 
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"senses", t)
@@ -59,11 +76,19 @@ func _physics_process(delta: float) -> void:
 
 func _physics_step(delta: float) -> void:
 	_clock += delta
+	# A far man (PeopleTick's bands) looks round as many times less often as he's ticked, each look
+	# taking in the time since the last; nearer again, he looks within a near man's while.
+	var every := body.tick_every if body != null else 1
+	var cut := _t - TICK * every
+	if cut > 0.0:
+		_t -= cut
+		_every_t -= cut
 	_t -= delta
 	if _t > 0.0:
 		return
-	var dt := TICK - _t
-	_t = TICK
+	var dt := _every_t - _t
+	_every_t = TICK * every
+	_t = _every_t
 	_forget_gone()
 	if body == null or not is_instance_valid(body) or not body.physiology.is_conscious():
 		var entries := known.values()
@@ -160,12 +185,19 @@ func since_seen(who: Node) -> float:
 func _entry(who: Node) -> Dictionary:
 	if not known.has(who):
 		known[who] = {"seen": false, "awareness": 0.0, "last_pos": Vector3.INF, "last_time": -INF,
-				"heard_pos": Vector3.INF, "heard_time": -INF}
+				"heard_pos": Vector3.INF, "heard_time": -INF,
+				# The calm looks (`_look`): which of them this is (each man on his own turn, so a
+				# look takes in half of them, not all and then none), and the time since the last.
+				"turn": (who as HumanBody).tick_index if who is HumanBody else 0, "owed": 0.0}
 	return known[who]
 
 
-## His eye, in the world.
+## His eye, in the world. Bladed behind a post (#531) it's his leading eye itself, leaned out past
+## the post's edge a few centimetres (PostPose), not his head's middle, still behind it.
 func eye() -> Vector3:
+	# (not once he's gone limp: his pose still reads post, but the pivots went with the rig, #671)
+	if body.pose == &"post" and body.pivots.has(&"head"):
+		return PostPose.eye_now(body)
 	var head := body.parts.get(&"head") as Node3D
 	return head.global_position + Vector3.UP * 0.04 if head else body.global_position + Vector3.UP * 1.62
 
@@ -194,14 +226,33 @@ func range_to(who: Node3D) -> float:
 	return SightLight.range_of(who, _light())
 
 
+static var _tick_tuning: PeopleTickTuning
+
+
+static func _calm_look_every() -> int:
+	if _tick_tuning == null:
+		_tick_tuning = load("res://config/people_tick.tres")
+	return maxi(_tick_tuning.calm_look_every, 1)
+
+
 ## Look round: for everyone who could be seen, how plainly, and awareness building or fading.
+## A calm man looks at another calm man only every `calm_look_every`th look (PeopleTick's tuning),
+## taking in the time between (`k.owed`): what one sees of the other builds as fast (#881).
 func _look(dt: float) -> void:
+	var calm_every := _calm_look_every() if body.tick_calm else 1
 	var from := eye()
 	var fwd := facing()
-	var space := body.get_world_3d().direct_space_state
+	var space := World.space(body)
 	var far := SightLight.tune().range_day + 2.0
 	for who: Node in _people():
 		var k := _entry(who)
+		if calm_every > 1 and who is HumanBody and (who as HumanBody).tick_calm:
+			k.turn = (int(k.turn) + 1) % calm_every
+			if k.turn != 0:
+				k.owed = float(k.owed) + dt
+				continue
+		var pair_dt := dt + float(k.owed)
+		k.owed = 0.0
 		var was := k.seen as bool
 		var vis := 0.0
 		# Out of reach, or plainly behind him (more than 3 m off, his head and pelvis are within
@@ -211,9 +262,9 @@ func _look(dt: float) -> void:
 		if d < far and (d < 3.0 or rad_to_deg(fwd.angle_to(to)) < PERIPHERAL + 25.0):
 			vis = _visibility(who as Node3D, from, fwd, range_to(who as Node3D), space)
 		if vis > 0.0:
-			k.awareness = minf(float(k.awareness) + vis * NOTICE_RATE * dt, 1.0)
+			k.awareness = minf(float(k.awareness) + vis * NOTICE_RATE * pair_dt, 1.0)
 		else:
-			k.awareness = maxf(float(k.awareness) - dt * 0.05, 0.0)
+			k.awareness = maxf(float(k.awareness) - pair_dt * 0.05, 0.0)
 		k.seen = vis > 0.0 and k.awareness >= 1.0
 		if k.seen:
 			k.last_pos = (who as Node3D).global_position
@@ -242,8 +293,13 @@ func _visibility(who: Node3D, from: Vector3, fwd: Vector3, range_m: float, space
 		dist = dist * dist * 0.8 + 0.2 * float(d < range_m * 0.5)
 		var v := cone * dist
 		# The line looked along only for a point that would show him better than one already seen.
-		if v <= best or not _clear(from, p, who, space):
+		if v <= best:
 			continue
+		var through := _see(from, p, who, space)
+		if through < 1.0:
+			v *= through * _glare(who) if through > 0.0 else 0.0
+			if v <= best:
+				continue
 		best = v
 	if best <= 0.0:
 		return 0.0
@@ -270,14 +326,33 @@ func _points_on(who: Node3D) -> Array[Vector3]:
 	return [who.global_position + Vector3.UP * 1.2]
 
 
-func _clear(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceState3D) -> bool:
-	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.WORLD)
+## Asked of Sight (the sight service, docs/briefs/more-cores.md step 3); `space` is Jolt's, Sight
+## knows it. 1 a clear line, 0 none, between for one through a window pane (issue #565).
+func _see(from: Vector3, to: Vector3, who: Node3D, space: PhysicsDirectSpaceState3D) -> float:
 	var ex: Array[RID] = []
 	if who is CollisionObject3D:
 		ex.append((who as CollisionObject3D).get_rid())
-	q.exclude = ex
-	var hit := space.intersect_ray(q)
-	return hit.is_empty() or (hit.position as Vector3).distance_to(to) < 0.15
+	Prof.count(&"q_senses")
+	# Timed on its own (`lines_senses`): what one batch of the tick's lines could save at most
+	# (more-cores step 4, "The design" B phase 3).
+	var t := Prof.start()
+	var seen := Sight.see(space, from, to, ex, 0.15, SightLight.tune().glass_seen)
+	Prof.stop(&"lines_senses", t)
+	return seen
+
+
+## Through glass, the glare off it: the light on him against the light on me (SightTuning glass_*).
+func _glare(who: Node3D) -> float:
+	var tn := SightLight.tune()
+	var mine := SightLight.lux_on(body, _light())
+	if mine <= 0.0:
+		return 1.0
+	var ratio := SightLight.lux_on(who, _light()) / mine
+	if ratio >= 1.0:
+		return 1.0
+	var k := sqrt(maxf(ratio, tn.glass_glare_ratio) / 1.0)
+	var lo := sqrt(tn.glass_glare_ratio)
+	return lerpf(tn.glass_glare_min, 1.0, (k - lo) / (1.0 - lo))
 
 
 func _speed_of(who: Node3D) -> float:
@@ -305,6 +380,11 @@ func _people() -> Array[Node]:
 	return out
 
 
+## How much of a sound's reach gets through a wall: half, but a fuse's hiss (a planted stick,
+## issue #537) none: only a man on its side of the wall hears it.
+const THROUGH_WALLS := {&"fuse": 0.0}
+
+
 ## A noise somewhere: heard if it's loud enough for the distance (less through walls), placed only
 ## roughly (the further, the rougher).
 func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> void:
@@ -312,16 +392,22 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 		return
 	var from := eye()
 	var d := from.distance_to(at)
+	if d > loudness:
+		return  # out of earshot whatever's between (walls and deaf ears only shorten it): no ray
 	var reach := loudness
 	# Walls in between muffle it.
 	var q := PhysicsRayQueryParameters3D.create(from, at, Layers.WORLD)
-	var hit := body.get_world_3d().direct_space_state.intersect_ray(q)
+	if source is CollisionObject3D:
+		q.exclude = [(source as CollisionObject3D).get_rid()]  # his own body doesn't muffle him
+	Prof.count(&"q_senses")
+	var hit := World.space(body).intersect_ray(q)
 	if not hit.is_empty() and (hit.position as Vector3).distance_to(at) > 0.3:
-		reach *= 0.5
+		reach *= float(THROUGH_WALLS.get(kind, 0.5))
 	if body.physiology.deaf_ears() > 0:
 		reach *= 1.0 - 0.35 * body.physiology.deaf_ears()
 	if d > reach:
 		return
+	body.wake()  # heard: he takes it in next tick, far off or not (PeopleTick's bands)
 	var err := d * 0.12
 	var guess := at + Vector3(_rng.randf_range(-err, err), 0.0, _rng.randf_range(-err, err))
 	# Who made it he knows only if he can see him as he makes it.
@@ -342,4 +428,4 @@ func _on_noise(at: Vector3, loudness: float, kind: StringName, source: Node) -> 
 func _in_view(who: Node3D, from: Vector3) -> bool:
 	if body == null or not body.is_inside_tree():
 		return false
-	return _visibility(who, from, facing(), range_to(who), body.get_world_3d().direct_space_state) > 0.0
+	return _visibility(who, from, facing(), range_to(who), World.space(body)) > 0.0

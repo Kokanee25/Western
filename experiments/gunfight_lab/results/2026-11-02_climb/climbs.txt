@@ -1,0 +1,6 @@
+| Run | Opening | Fights with a climb | Climbs | How they ended | Way m (med) | Run s (med) | Stays at the spot climbed to: n, s a stay (mean), hits on you, hits on him | Other stays up: n, s, hits on you, on him | Stays up behind a screen |
+|---|---|---|---|---|---|---|---|---|---|
+| base | you | 0 of 100 | 0 | - | - | - | 0, 0.0, 0, 0 | 101, 8.0, 18, 20 | 0 of 101 |
+| base | they | 0 of 100 | 0 | - | - | - | 0, 0.0, 0, 0 | 167, 7.6, 18, 12 | 0 of 167 |
+| climb | you | 12 of 100 | 14 | got there 11, get away 1, drag Brody to cover 1, go up for height 1 | 23.5 | 5.9 | 11, 6.5, 1, 1 | 149, 6.5, 14, 13 | 56 of 160 |
+| climb | they | 16 of 100 | 20 | got there 15, drag Brody to cover 3, go up for height 2 | 25.0 | 6.8 | 15, 9.9, 1, 4 | 240, 8.0, 25, 16 | 101 of 255 |

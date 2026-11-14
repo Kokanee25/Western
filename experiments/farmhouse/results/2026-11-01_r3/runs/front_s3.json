@@ -1,0 +1,115 @@
+{
+ "alarm": 16.97,
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "breach": -1.0,
+ "end": 54.17,
+ "executed": 42.12,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2232,
+  "max_ms": 158.26,
+  "mean_ms": 10.22,
+  "p95_ms": 18.7
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "lyle",
+   "inside": true,
+   "mood": "FIGHTING",
+   "tactic": "SEARCHING"
+  },
+  {
+   "alive": true,
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "kid",
+   "inside": false,
+   "mood": "SURRENDERED",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Bleeding steady, short of breath, bubbling cough, bone broken.",
+ "seed": 3,
+ "state": "LOST",
+ "t": 54.17,
+ "threat": 30.85,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   30.83,
+   "Dutch down"
+  ],
+  [
+   30.85,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   32.48,
+   "Hollis down"
+  ],
+  [
+   42.12,
+   "the guard shoots the rancher"
+  ],
+  [
+   42.6,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   43.3,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   43.3,
+   "the rancher hit (graze, by Brody)"
+  ],
+  [
+   54.17,
+   "the rancher dead (blood_loss)"
+  ],
+  [
+   54.17,
+   "lost: hostage_dead"
+  ]
+ ],
+ "way": "front"
+}

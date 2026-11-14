@@ -1,0 +1,6 @@
+{"run": "m0_l0_r1.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 127, "worst_sean": 82, "over100_sean": 0, "over50_sean": 3, "back_50fps_s": 8.02, "mean5_sean": 20.9, "broken": 632}
+{"run": "m0_l0_r2.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 131, "worst_sean": 85, "over100_sean": 0, "over50_sean": 6, "back_50fps_s": 9.94, "mean5_sean": 23.0, "broken": 632}
+{"run": "m3_l0_r1.json", "lift": 0.0, "men": 3, "thrown_m": [1.6, 1.4, 1.0], "worst": 335, "worst_sean": 218, "over100_sean": 2, "over50_sean": 11, "back_50fps_s": 11.68, "mean5_sean": 27.2, "broken": 632}
+{"run": "m3_l0_r2.json", "lift": 0.0, "men": 3, "thrown_m": [1.6, 1.4, 0.9], "worst": 221, "worst_sean": 143, "over100_sean": 1, "over50_sean": 8, "back_50fps_s": 9.55, "mean5_sean": 25.5, "broken": 633}
+{"run": "m3_l1.1_r1.json", "lift": 1.1, "men": 3, "thrown_m": [6.3, 5.7, 1.4], "worst": 231, "worst_sean": 150, "over100_sean": 1, "over50_sean": 8, "back_50fps_s": 10.53, "mean5_sean": 27.6, "broken": 633}
+{"run": "m3_l1.1_r2.json", "lift": 1.1, "men": 3, "thrown_m": [6.3, 5.7, 0.9], "worst": 215, "worst_sean": 140, "over100_sean": 1, "over50_sean": 5, "back_50fps_s": 10.11, "mean5_sean": 23.4, "broken": 633}

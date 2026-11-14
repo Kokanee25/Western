@@ -1,0 +1,294 @@
+{
+ "alarm": 124.97,
+ "blocking": [
+  "0.3:House/floor_ground_board_018_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_018_1",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 140.6,
+  "froze": 3.31666666666666,
+  "gate_left": 86.3,
+  "gate_wait": 60.9999999999978,
+  "phase_at": {
+   "out": 140.6,
+   "rescue": 138.63
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 145.9,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1256,
+  "max_ms": 143.35,
+  "mean_ms": 21.39,
+  "p95_ms": 34.81
+ },
+ "freed": 141.1,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   5.92,
+   1.66,
+   2.69
+  ],
+  "limp": false,
+  "pelvis": [
+   5.93,
+   0.95,
+   2.48
+  ],
+  "pose": "crouch",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  5.93,
+  1.31,
+  2.55
+ ],
+ "men": 7,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 3.0,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Pike down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 2.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "kitchen",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 14.1,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "drag Hollis to cover: he's down in the open",
+   "id": "kid",
+   "inside": true,
+   "knows": 3.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.67 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 14.1,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to by stove: by stove (you're bedroom)",
+   "id": "pike",
+   "inside": true,
+   "knows": 3.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to kitchen door: kitchen door (you're kitchen)",
+   "id": "wes",
+   "inside": true,
+   "knows": 3.0,
+   "mood": "CALM",
+   "order": "kitchen_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, can't feel his legs, gut-shot, bone broken.",
+ "player_local": [
+  4.36,
+  0.56,
+  3.41
+ ],
+ "quits": [
+  [
+   129.43,
+   "dutch",
+   "gives up",
+   "fight from where he is: no cover he can reach (in the open)",
+   true
+  ],
+  [
+   132.33,
+   "kid",
+   "gives up",
+   "drag Hollis to cover: he's down in the open",
+   true
+  ],
+  [
+   143.42,
+   "pike",
+   "gives up",
+   "to by stove: by stove (you're bedroom)",
+   true
+  ],
+  [
+   144.95,
+   "lyle",
+   "gives up",
+   "go for you: Pike down (a hothead's rage)",
+   true
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 5,
+ "shots_men": 21,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 145.9,
+ "threat": 129.45,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   124.97,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   124.97,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   124.97,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   125.48,
+   "Hollis down"
+  ],
+  [
+   129.43,
+   "Dutch down"
+  ],
+  [
+   129.43,
+   "Dutch gives up (fight from where he is: no cover he can reach (in the open))"
+  ],
+  [
+   129.45,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   132.32,
+   "Kid down"
+  ],
+  [
+   132.33,
+   "Kid gives up (drag Hollis to cover: he's down in the open)"
+  ],
+  [
+   136.85,
+   "Dutch dead"
+  ],
+  [
+   141.1,
+   "the rancher cut loose"
+  ],
+  [
+   143.42,
+   "Pike down"
+  ],
+  [
+   143.42,
+   "Pike gives up (to by stove: by stove (you're bedroom))"
+  ],
+  [
+   144.95,
+   "Lyle down"
+  ],
+  [
+   144.95,
+   "Lyle gives up (go for you: Pike down (a hothead's rage))"
+  ],
+  [
+   144.97,
+   "the guard's last word"
+  ],
+  [
+   145.9,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

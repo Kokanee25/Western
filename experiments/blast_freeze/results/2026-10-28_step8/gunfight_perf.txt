@@ -1,0 +1,7 @@
+run            n  frame    p95 people   len outlaw_b people_b people_s   senses     fire floor_ma structur civilian   player day_cycl
+main          10   24.0   29.5   11.1  48.4     3.43     3.38     0.71     1.18     0.14     0.16     0.58     0.78     0.76     0.35
+   endings ['broke_off', 'down', 'surrendered', 'surrendered', 'surrendered', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down']
+s8_a          10   22.9   27.6   10.6  48.4     3.29     3.23     0.68     1.13     0.09     0.16     0.57     0.74     0.73     0.34
+   endings ['broke_off', 'down', 'surrendered', 'surrendered', 'surrendered', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down']
+s8_b          10   23.5   28.5   10.9  48.4     3.37     3.31     0.70     1.15     0.09     0.16     0.58     0.76     0.75     0.35
+   endings ['broke_off', 'down', 'surrendered', 'surrendered', 'surrendered', 'you_down', 'you_down', 'you_down', 'you_down', 'you_down']

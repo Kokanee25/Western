@@ -1,0 +1,160 @@
+{
+  "kind": "members",
+  "in_game": true,
+  "splits_below": 0.2,
+  "blow_wood_share": 0.3,
+  "_doc": "Three 100 lb sacks of grain stacked, two side by side and one across them (the prop factory's, the sack modelled in Blender by tools/blender/props/grain_sack.py): each sack a member, the top one on the two under it, so it comes down when one of them burns or is thrown. ~135 kg.",
+  "id": "grain_sacks",
+  "factory": "tools/blender/props/grain_sack.py",
+  "wood": "grain_sack",
+  "look": "prop:burlap",
+  "members": [
+    {
+      "id": "sack0",
+      "kind": "post",
+      "size": [
+        0.75,
+        0.24,
+        0.45
+      ],
+      "at": [
+        0,
+        0.12,
+        -0.235
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "grain_sack",
+        "part": "sack",
+        "at": [
+          0,
+          0,
+          -0.235
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:leather",
+          "draw": {
+            "shape": "mesh",
+            "model": "grain_sack",
+            "part": "tie",
+            "at": [
+              0,
+              0,
+              -0.235
+            ],
+            "rot": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sack1",
+      "kind": "post",
+      "size": [
+        0.75,
+        0.24,
+        0.45
+      ],
+      "at": [
+        0.03,
+        0.12,
+        0.235
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "grain_sack",
+        "part": "sack",
+        "at": [
+          0.03,
+          0,
+          0.235
+        ],
+        "rot": [
+          0,
+          180,
+          0
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:leather",
+          "draw": {
+            "shape": "mesh",
+            "model": "grain_sack",
+            "part": "tie",
+            "at": [
+              0.03,
+              0,
+              0.235
+            ],
+            "rot": [
+              0,
+              180,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sack2",
+      "kind": "furniture_top",
+      "size": [
+        0.45,
+        0.24,
+        0.75
+      ],
+      "at": [
+        0.0,
+        0.36,
+        0.0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "grain_sack",
+        "part": "sack",
+        "at": [
+          0.0,
+          0.24,
+          0.0
+        ],
+        "rot": [
+          0,
+          84,
+          0
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:leather",
+          "draw": {
+            "shape": "mesh",
+            "model": "grain_sack",
+            "part": "tie",
+            "at": [
+              0.0,
+              0.24,
+              0.0
+            ],
+            "rot": [
+              0,
+              84,
+              0
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

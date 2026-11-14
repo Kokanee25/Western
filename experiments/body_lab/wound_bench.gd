@@ -27,7 +27,7 @@ static func scenarios() -> Array:
 				out.append({"name": "%s_%02dm_%s" % [w, int(r), spot], "group": w, "kind": "shot",
 						"weapon": w, "range": float(r), "spot": spot})
 	for r in d.dynamite.distances:
-		out.append({"name": "dynamite_%dm" % int(r), "group": "dynamite", "kind": "blast", "range": float(r)})
+		out.append({"name": "dynamite_%sm" % (str(int(r)) if float(r) == floorf(r) else String.num(r)), "group": "dynamite", "kind": "blast", "range": float(r)})
 	# The hand to the wound (HumanBody._grab): a ball from 15 m into each spot, his hand watched.
 	for spot: String in d.spots:
 		out.append({"name": "grab_%s" % spot, "group": "grab", "kind": "shot", "weapon": "revolver", "range": 15.0,
@@ -128,7 +128,7 @@ static func sample(man: HumanBody, ballistics: Ballistics, eye: Vector3, spot: D
 	var dist := eye.distance_to(target)
 	var fl: Dictionary = ballistics.flight(dist, g.speed, g.mass, g.diameter, g.form)
 	var energy := 0.5 * float(g.mass) * float(fl.speed) * float(fl.speed)
-	var space := man.get_world_3d().direct_space_state
+	var space := World.space(man)
 	var trng := RandomNumberGenerator.new()
 	trng.seed = 7
 	var want: Array = spot.aims_for

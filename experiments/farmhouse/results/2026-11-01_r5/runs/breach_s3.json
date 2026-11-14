@@ -1,0 +1,209 @@
+{
+ "alarm": 22.7,
+ "bot": {
+  "blast": 68.15,
+  "freed": 88.13,
+  "phase_at": {
+   "clear": 100.13,
+   "lit": 63.22,
+   "out": 88.13,
+   "plant": 61.13,
+   "rescue": 86.43,
+   "through": 69.65
+  },
+  "planted": 63.22
+ },
+ "bot_phase": "clear",
+ "breach": 68.65,
+ "end": 118.08,
+ "executed": 84.97,
+ "frames": {
+  "blast_ms": 190.55,
+  "fight_ticks": 5723,
+  "max_ms": 190.55,
+  "mean_ms": 10.57,
+  "p95_ms": 19.02
+ },
+ "freed": 88.63,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "brody",
+   "inside": true,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "dutch",
+   "inside": true,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "id": "kid",
+   "inside": true,
+   "mood": "DEAD",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding steady, short of breath, bubbling cough, bone broken.",
+ "seed": 3,
+ "state": "WON",
+ "t": 118.08,
+ "threat": 79.95,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   22.7,
+   "the alarm: Kid saw you"
+  ],
+  [
+   55.88,
+   "Hollis down"
+  ],
+  [
+   66.02,
+   "the rancher hit (graze, by Brody)"
+  ],
+  [
+   66.02,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   67.4,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   68.65,
+   "a blast at the house"
+  ],
+  [
+   71.43,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.45,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.45,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.45,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.45,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.45,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.45,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.47,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   71.48,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   79.95,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   83.55,
+   "Kid down"
+  ],
+  [
+   84.97,
+   "the guard shoots the rancher"
+  ],
+  [
+   88.63,
+   "the rancher cut loose"
+  ],
+  [
+   92.08,
+   "Kid down"
+  ],
+  [
+   97.67,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   97.8,
+   "Kid dead"
+  ],
+  [
+   98.67,
+   "the rancher hit (blow, by Dutch)"
+  ],
+  [
+   98.67,
+   "the rancher hit (blow, by Dutch)"
+  ],
+  [
+   99.2,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   99.42,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   104.08,
+   "Lyle down"
+  ],
+  [
+   114.93,
+   "Lyle dead"
+  ],
+  [
+   118.08,
+   "won"
+  ]
+ ],
+ "way": "breach",
+ "where": "back"
+}

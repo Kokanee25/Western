@@ -83,6 +83,8 @@ voice.
 - `runner.gd`: one scenario, recorded and written out. `scenarios.json`: the scenarios (guns are made
   from its `guns` block: `WEAPON_PLACE_LISTENER`).
 - `run.py`: the runs, the table, the clips. `measure.py`: the measures.
+- `on_you.py`: what a stick does to you (`dynamite_you_2/5/12/30`: the ears' cutoff, the whine, the
+  shake and the grit, from `voices.csv`'s extra columns and `heard.wav`; #596 step 2).
 - `baseline/`: `baseline.md` (inventory, table, the ten worst), `measures.json`, `clips/` (a few mp3s).
 - `results/<date>_<change>/`: each change against the baseline: what changed, the numbers before
-  and after (from one build, `--old-sound`), before-and-after clips. 2026-10-22: `gunshots`, `strikes`, `dynamite`, `breaking`, `fire_steps`.
+  and after (from one build, `--old-sound`), before-and-after clips. 2026-10-22: `gunshots`, `strikes`, `dynamite`, `breaking`, `fire_steps`; 2026-11-04: `on_you`.

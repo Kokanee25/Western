@@ -1,0 +1,48 @@
+{
+  "derail": {},
+  "frames": {
+    "before_mean_ms": 11.8301477591037,
+    "frames": 484,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 11.8233119834711,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 13.79105,
+    "second_ms": 20.656,
+    "slow_spell_s": 0.0,
+    "worst_ms": 21.217
+  },
+  "outcome": "stopped",
+  "seen": [
+    {
+      "daylight": 1.0,
+      "distance": 131.94015243066,
+      "kind": "broken",
+      "kmh": 20.1052150085052,
+      "lux": 10000.0,
+      "range": 220.0,
+      "s": 425.59984756934,
+      "t": 33.1999999999994,
+      "what": "rail gone",
+      "who": "fireman"
+    }
+  ],
+  "short_by": 81.5868672945517,
+  "spec": {
+    "at": 560.0,
+    "driver": "engineer",
+    "hour": 12.0,
+    "how": "rail",
+    "kmh": 20.0,
+    "out": "/home/user/Western/build/train_lab/derail_jk3/bend_20_day.json",
+    "past": 120.0,
+    "riders": 6,
+    "run_up": 320.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "stopped_at": 478.413132705448,
+  "struck": [],
+  "thrown": 0
+}

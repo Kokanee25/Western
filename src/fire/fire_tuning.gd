@@ -12,7 +12,7 @@ extends Resource
 @export var ignition_temperature := 290.0
 @export var ambient_temperature := 20.0
 ## Materials that never burn (they still get hot, and glass cracks).
-@export var fireproof := [&"stone", &"glass", &"iron"]
+@export var fireproof := [&"stone", &"glass", &"iron", &"bone"]
 ## Glass cracks and falls out of its frame this hot.
 @export var glass_cracks_at := 240.0
 
@@ -49,6 +49,13 @@ extends Resource
 ## How often the fire's rules run (s), and how often burning buildings recheck their loads.
 @export var tick := 0.25
 @export var settle_every := 1.0
+## Far from the player the rules run in bigger steps (FireSystem's bands, more-cores step 5): a
+## structure within `near_m` (m, from its box) every tick, to `far_m` every `middle_every`th, further
+## every `far_every`th (people's bands are 25 and 60 m; a fire's near band reaches further).
+@export var near_m := 30.0
+@export var far_m := 60.0
+@export var middle_every := 2
+@export var far_every := 4
 ## Limits on what gets drawn: members with flames, and fire lights.
 @export var max_flames := 40
 ## A member's flames (FireFX): each tongue's size (m, wide × tall) when the member catches and

@@ -11,9 +11,10 @@ const EXCEPTIONS := {
 	&"stair_ramp": "a stair's walking ramp, Layers.WALK only (falling men meet the treads); the builder frees it when the stringers go - gameplay, the Stair part (experiments/building_lab/stair.gd, to be promoted)",
 	&"lamp_hitbox": "an OilLamp's hitbox (a ball smashes the lamp) - gameplay, src/world/oil_lamp.gd",
 	&"ground": "the ground (here boxes round the cellar's pit) - gameplay, the town's ground",
+	&"static_batch": "the dressing's glass props' fixed parts drawn together (StaticBatch; a prop shot or falling is handed back) - #844, src/world/static_batch.gd",
 }
 ## Not things (they neither collide nor draw a surface): allowed, counted.
-const NOT_THINGS := "the lamps' lights (OilLamp), the room's light probe and haze (FalseFrontBuilding._add_interior_ambient), use points (Marker3D)"
+const NOT_THINGS := "the lamps' lights (OilLamp), the room's light probe and haze (FalseFrontBuilding._add_interior_ambient), use points (Marker3D), the dust in the air under a floor (FloorDust)"
 
 
 ## The walk: every node under `root` that collides or draws, sorted. "bad" lists any that's
@@ -28,6 +29,16 @@ static func destructible(root: Node, building: Structure) -> Dictionary:
 
 static func _walk(n: Node, building: Structure, out: Dictionary) -> void:
 	for c in n.get_children(true):
+		if c is GlassProp or c is ClothProp:
+			# A kit prop that shatters (a hung lamp, #824) or a cloth (the doctor's towel, #844): its
+			# own body and pieces are the prop's, its OilLamp the light it carries.
+			out.kit_props += 1
+			out.lamps += c.find_children("*", "OilLamp", true, false).size()
+			continue
+		if c is FloorDust:
+			# Dust in the air under a floor (#867): motes, nothing to hit, break or burn.
+			out.not_things += 1
+			continue
 		_sort(c, building, out)
 		_walk(c, building, out)
 
@@ -71,6 +82,9 @@ static func _sort(n: Node, building: Structure, out: Dictionary) -> void:
 			if p is StructureMember or p is OilLamp:
 				return
 			p = p.get_parent()
+		if n.get_parent() is StaticBatch:
+			allowed[&"static_batch"] = int(allowed.get(&"static_batch", 0)) + 1
+			return
 		if n.get_parent() is Structure and _internal(n):
 			allowed[&"batch"] = int(allowed.get(&"batch", 0)) + 1
 			return
@@ -94,7 +108,8 @@ static func stands(b: Structure, crowd := 1915.0, balcony := 2873.0) -> Dictiona
 	var out := {}
 	var falling := b.members_without_load_path()
 	var a := StructuralAnalysis.new().analyse(b)
-	out.dead = {"falling": falling.size(), "over": a.overloaded().size(), "worst": _worst(a, 8)}
+	out.dead = {"falling": falling.size(), "over": a.overloaded().size(), "worst": _worst(a, 8),
+		"falling_first": falling.slice(0, 12).map(func(m: Variant) -> String: return String(m.member_id if m is StructureMember else m).get_slice("/", 1) + "/" + String(m.member_id if m is StructureMember else m).get_slice("/", 2))}
 	# A crowd on every floor board (40 lb/ft2), 60 on the balcony and galleries (people pressing
 	# to the rail).
 	var before := {}
@@ -144,7 +159,7 @@ static func knockouts(b: Structure, ids: Array) -> Array:
 ## line, and each use point on a floor (not a step, not in a doorway) with room to stand.
 static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 	var failures := []
-	var space := b.get_world_3d().direct_space_state
+	var space := World.space(b)
 	var lv: Dictionary = spec.levels
 	var doors := []
 	for w: Dictionary in spec.walls:
@@ -175,6 +190,24 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 				var m := hit.collider as StructureMember
 				if m and m.kind != &"door":
 					failures.append("%s door at %.2f: %s in the way" % [w.id, o.at, String(m.member_id).trim_prefix("saloon_spec/")])
+			# And its way in either side (#844: the kitchen chimney stood in the kitchen side of the hall's
+			# door): 0.45 m beyond each face, 0.6 wide, from a tread over the floor; nothing but a leaf.
+			var across := Vector3(along.z, 0, along.x).abs()
+			var normal := Vector3(-along.z, 0, along.x)
+			for side: float in [-1.0, 1.0]:
+				var way := BoxShape3D.new()
+				way.size = along.abs() * 0.6 + Vector3.UP * 1.8 + across * 0.45
+				var wq := PhysicsShapeQueryParameters3D.new()
+				wq.shape = way
+				wq.transform = Transform3D(Basis(), b.to_global(Vector3(mid.x, y0 + 1.0, mid.z) + normal * side * 0.325))
+				wq.collision_mask = Layers.WORLD
+				for hit in space.intersect_shape(wq, 8):
+					var m := hit.collider as StructureMember
+					# (a ladder up to a door is its way in: the doctor's loft door; a gate opens like a door:
+					# the jail's cell-corridor grille inside its back door)
+					if m and m.kind != &"door" and not String(m.member_id).contains("/ladder/") \
+							and not String(m.member_id).contains("/gate/"):
+						failures.append("%s door at %.2f: %s in its way in" % [w.id, o.at, String(m.member_id).trim_prefix("saloon_spec/")])
 	# Stairs: two metres over the nosings all the way up.
 	var stairs := 0
 	for ramp in b.find_children("Ramp_*", "StaticBody3D", false, false):
@@ -227,8 +260,15 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 		q.shape = cap
 		q.transform = Transform3D(Basis(), b.to_global(at + Vector3.UP * 0.92))
 		q.collision_mask = Layers.WORLD
-		for h in space.intersect_shape(q, 4):
+		# A point on furniture (a bed, the table, his chair: `prop`, #844) leaves that prop out; it
+		# must be there.
+		var on_prop := StringName(u.get_meta(&"prop", &""))
+		if on_prop != &"" and not b.find_children("*", "KitProp", true, false).any(func(k: Node) -> bool: return (k as KitProp).structure_id == on_prop):
+			failures.append("%s: its %s isn't there" % [u.name, on_prop])
+		for h in space.intersect_shape(q, 8):
 			var m := h.collider as StructureMember
+			if m and on_prop != &"" and m.get_parent() is KitProp and (m.get_parent() as KitProp).structure_id == on_prop:
+				continue
 			failures.append("%s: no room (%s)" % [u.name, String(m.member_id).trim_prefix("saloon_spec/") if m else str(h.collider)])
 	return {"ok": failures.is_empty(), "failures": failures, "doors": doors.size(), "stairs": stairs, "use_points": points}
 
@@ -312,3 +352,151 @@ static func _under(n: Node, cls: String) -> bool:
 static func _axis(n: String) -> Vector3:
 	var v := {"x": Vector3.RIGHT, "y": Vector3.UP, "z": Vector3.BACK}[n.trim_prefix("-").trim_prefix("+")] as Vector3
 	return -v if n.begins_with("-") else v
+
+
+## Built right (#695, Sean 2026-11-07: "windows aren't being blocked by studs or boards"): through
+## every opening in every wall, from the siding's face outside to the finish's face inside, nothing
+## but its glass and its door's leaf; every opening in an outer wall framed (a king stud each side,
+## a header over it, a rough sill under a window) and glazed if it's a window, so what's a window
+## outside is a window inside. A member's box is tested by its long edges and its middle line (a
+## rafter is tilted: its box is not its bounds).
+static func built_right(b: Node, spec: Dictionary) -> Dictionary:
+	var failures := []
+	var sid := String(b.structure_id) + "/"
+	var lv: Dictionary = b._lv
+	var by_id := {}
+	for m: StructureMember in b.get_members():
+		by_id[String(m.member_id).trim_prefix(sid)] = m
+	var openings := 0
+	var framed := 0
+	for w: Dictionary in spec.walls:
+		var wl: Dictionary = b.walls.get(w.id, {})
+		if wl.is_empty():
+			failures.append("%s: not built" % w.id)
+			continue
+		var wall: Dictionary = wl.dict
+		var partition: bool = w.get("partition", false)
+		var origin: Vector3 = wall.origin
+		var along: Vector3 = wall.along
+		var out: Vector3 = wall.out
+		# Through the wall: an outer wall from the siding's face to its inside finish's; a partition both faces.
+		var d0 := -0.1 - 0.025 if not partition else -0.075
+		var d1 := 0.025 + 0.01 if not partition else 0.075
+		var stone: bool = w.get("stone", false)
+		if stone:
+			# A stone wall (#780): from its outer face (its line) through its thickness at a man's height.
+			var t := 0.56
+			for p: Array in w.get("profile", []):
+				if float(p[0]) <= float(lv.ground) + 1.0:
+					t = -float(p[1])
+			d0 = -t + 0.012
+			d1 = -0.012
+		var j := 0
+		for o: Dictionary in w.get("openings", []):
+			if o.type == "void":
+				j += 1
+				continue  # a cut corner: open by design, its column and beams its frame (saloon B)
+			openings += 1
+			var lvl: String = o.get("level", w.get("level", "ground"))
+			var y0 := float(lv[lvl]) + float(o.get("sill", 0.0))
+			var s0 := float(o.at) - float(o.width) * 0.5
+			var s1 := float(o.at) + float(o.width) * 0.5
+			var pts := [origin + along * (s0 + 0.012) + out * d0 + Vector3.UP * (y0 + 0.012),
+				origin + along * (s1 - 0.012) + out * d1 + Vector3.UP * (y0 + float(o.height) - 0.012)]
+			var lo: Vector3 = (pts[0] as Vector3).min(pts[1])
+			var hi: Vector3 = (pts[0] as Vector3).max(pts[1])
+			var clear := AABB(lo, hi - lo)
+			for id: String in by_id:
+				var m: StructureMember = by_id[id]
+				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_") or id.contains("/window_") or id.contains("/bars_"):
+					continue  # its glass, its leaf, a door's transom bar, its sash window and lining, its bars
+				if not m.structure_aabb().intersects(clear):
+					continue
+				if _crosses(m, clear):
+					failures.append("%s %s at %.2f: %s across it" % [w.id, o.type, float(o.at), id])
+			if not partition:
+				var pre := "%s/opening%d/" % [w.id, j]
+				var ok := by_id.has(pre + "king0") and by_id.has(pre + "king1") and by_id.has(pre + "header")
+				if stone:
+					ok = by_id.has(pre + "lintel")  # a stone wall's opening: its lintel (and a window's sill)
+				if o.type == "window" and y0 > float(lv[lvl]) + 0.4:
+					ok = ok and by_id.has(pre + "sill")
+				if ok:
+					framed += 1
+				else:
+					failures.append("%s %s at %.2f: not framed (%s%s)" % [w.id, o.type, float(o.at), "lintel" if stone else "kings, header", ", sill" if o.type == "window" else ""])
+				if o.type == "window" and o.get("glass", true):
+					var glazed := false
+					for id: String in by_id:
+						var gm: StructureMember = by_id[id]
+						if gm.kind == &"glass" and clear.grow(0.02).has_point(gm.transform.origin):
+							glazed = true
+					if not glazed:
+						failures.append("%s window at %.2f: no glass" % [w.id, float(o.at)])
+					# A sash window (#826): its lights built, a pane each, and its reveal lined.
+					if o.has("lights"):
+						var panes := 0
+						var linings := 0
+						for id: String in by_id:
+							if not id.begins_with(w.id + "/window_"):
+								continue
+							var wm: StructureMember = by_id[id]
+							if not clear.grow(0.03).has_point(wm.transform.origin):
+								continue
+							if wm.kind == &"glass":
+								panes += 1
+							elif id.contains("/lining_"):
+								linings += 1
+						if panes != int(o.lights):
+							failures.append("%s window at %.2f: %d panes for %d lights" % [w.id, float(o.at), panes, int(o.lights)])
+						if linings < 4:
+							failures.append("%s window at %.2f: its reveal open (%d linings of 4)" % [w.id, float(o.at), linings])
+			j += 1
+	return {"ok": failures.is_empty(), "failures": failures, "openings": openings, "framed": framed}
+
+
+## Whether a member (an oriented box) passes through `clear`: its middle line and its four long edges.
+static func _crosses(m: StructureMember, clear: AABB) -> bool:
+	var t := m.transform
+	var h := m.size * 0.5
+	var ax := 0
+	if h.y > h[ax]:
+		ax = 1
+	if h.z > h[ax]:
+		ax = 2
+	var u := Vector3.ZERO
+	u[ax] = h[ax]
+	var others := [0, 1, 2]
+	others.erase(ax)
+	var a: int = others[0]
+	var c: int = others[1]
+	var offs := [Vector3.ZERO]
+	for sa in [-1.0, 1.0]:
+		for sc in [-1.0, 1.0]:
+			var v := Vector3.ZERO
+			v[a] = h[a] * sa * 0.98
+			v[c] = h[c] * sc * 0.98
+			offs.append(v)
+	for off: Vector3 in offs:
+		var p0 := t * (off - u)
+		var p1 := t * (off + u)
+		if clear.has_point(p0) or clear.has_point(p1) or clear.intersects_segment(p0, p1):
+			return true
+	return false
+
+
+## Every member as data (the X-ray sheet's: tools/buildings/xray.py): id, kind, wood, its box's
+## centre, axes (columns of its basis) and size, in the structure's space.
+static func export_members(b: Structure, path: String) -> int:
+	var out := []
+	var sid := String(b.structure_id) + "/"
+	for m: StructureMember in b.get_members():
+		var t := m.transform
+		out.append({"id": String(m.member_id).trim_prefix(sid), "kind": String(m.kind), "wood": String(m.wood),
+			"c": [t.origin.x, t.origin.y, t.origin.z], "x": [t.basis.x.x, t.basis.x.y, t.basis.x.z],
+			"y": [t.basis.y.x, t.basis.y.y, t.basis.y.z], "z": [t.basis.z.x, t.basis.z.y, t.basis.z.z],
+			"s": [m.size.x, m.size.y, m.size.z]})
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"structure": String(b.structure_id), "members": out}))
+	f.close()
+	return out.size()

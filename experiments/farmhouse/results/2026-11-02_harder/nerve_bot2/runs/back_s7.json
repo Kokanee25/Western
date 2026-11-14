@@ -1,0 +1,198 @@
+{
+ "alarm": 60.43,
+ "blocking": [
+  "0.3:Shelves/shelf0",
+  "0.3:House/floor_ground_joist_005",
+  "0.3:House/floor_ground_joist_007",
+  "0.3:House/floor_ground_joist_009",
+  "0.3:House/floor_ground_board_026_0",
+  "0.3:House/floor_ground_board_025_0",
+  "0.3:House/floor_ground_board_027_0",
+  "0.3:House/floor_ground_board_028_0",
+  "0.3:House/floor_ground_board_032_0",
+  "0.3:House/floor_ground_board_029_0",
+  "0.3:House/floor_ground_board_030_0",
+  "0.3:House/floor_ground_board_031_0",
+  "1.0:Shelves/shelf2",
+  "1.0:Shelves/shelf1",
+  "1.0:TestStreet/Player",
+  "1.6:Shelves/shelf3",
+  "1.6:Shelves/shelf2",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Lyle",
+ "breach": -1.0,
+ "end": 66.8,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 382,
+  "max_ms": 171.46,
+  "mean_ms": 20.73,
+  "p95_ms": 34.21
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.42,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.36,
+  1.45,
+  2.5
+ ],
+ "men": 5,
+ "men_out": 1,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to bedroom door: bedroom door (you're front room)",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.8,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Hollis down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "run for cover: in the open, 2 m",
+   "id": "dutch",
+   "inside": true,
+   "knows": 2.2,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "kid",
+   "inside": false,
+   "knows": 2.8,
+   "mood": "CALM",
+   "order": "kitchen_table",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.51 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.8,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, gut-shot, bone broken.",
+ "player_local": [
+  1.08,
+  0.56,
+  4.89
+ ],
+ "quits": [
+  [
+   62.4,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.51 / 1.12)",
+   true
+  ]
+ ],
+ "route_left": 6,
+ "route_next": [
+  1.0,
+  0.56,
+  3.9
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 7,
+ "shots_men": 10,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 66.8,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   60.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   60.85,
+   "Hollis down"
+  ],
+  [
+   62.4,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.51 / 1.12))"
+  ],
+  [
+   66.8,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

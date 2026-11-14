@@ -1,0 +1,50 @@
+{
+  "kind": "members",
+  "in_game": true,
+  "splits_below": 0.2,
+  "blow_wood_share": 0.3,
+  "_doc": "A two-string hay bale (3 ft by 18 in by 16 in, ~27 kg) lying along X (the prop factory's, modelled in Blender by tools/blender/props/hay_bale.py): one member of pressed hay, its twine and loose stalks drawn on. A ball goes into it and stops (half a metre of hay); it burns fast; a stick throws it; bales stack (each settles onto the one under it).",
+  "id": "hay_bale",
+  "factory": "tools/blender/props/hay_bale.py",
+  "wood": "hay",
+  "look": "prop:straw",
+  "members": [
+    {
+      "id": "bale",
+      "kind": "post",
+      "size": [
+        0.9,
+        0.45,
+        0.5
+      ],
+      "at": [
+        0,
+        0.225,
+        0
+      ],
+      "draw": {
+        "shape": "mesh",
+        "model": "hay_bale",
+        "part": "bale"
+      },
+      "dress": [
+        {
+          "look": "prop:burlap",
+          "draw": {
+            "shape": "mesh",
+            "model": "hay_bale",
+            "part": "twine"
+          }
+        },
+        {
+          "look": "prop:straw",
+          "draw": {
+            "shape": "mesh",
+            "model": "hay_bale",
+            "part": "stalks"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 34.45,
+  "phase_at": {
+   "out": 34.45,
+   "rescue": 32.47
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 41.97,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1500,
+  "max_ms": 182.51,
+  "mean_ms": 11.4,
+  "p95_ms": 18.39
+ },
+ "freed": 34.95,
+ "hostage_alive": true,
+ "hostage_local": [
+  3.01,
+  0.73,
+  -11.36
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "by_stove",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "id": "kid",
+   "inside": false,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "hollis",
+   "inside": true,
+   "mood": "SURRENDERED",
+   "order": "",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "player_local": [
+  3.26,
+  -1.03,
+  -17.34
+ ],
+ "seed": 3,
+ "state": "WON",
+ "t": 41.97,
+ "threat": 29.93,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   29.92,
+   "Hollis down"
+  ],
+  [
+   29.93,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   32.97,
+   "Brody down"
+  ],
+  [
+   34.95,
+   "the rancher cut loose"
+  ],
+  [
+   35.13,
+   "Brody down, out"
+  ],
+  [
+   36.87,
+   "Lyle down"
+  ],
+  [
+   41.97,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "bedroom"
+}

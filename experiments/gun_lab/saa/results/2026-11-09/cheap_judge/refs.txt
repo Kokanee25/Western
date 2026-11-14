@@ -1,0 +1,27 @@
+read in place from /home/user/studio-refs/references (never copied here)
+games/hunt1896/street_noon_1.jpg
+games/kcd2/street_noon_1.jpg
+games/kcd2/street_noon_2.jpg
+games/rdr2/street_noon_1.jpg
+games/rdr2/street_noon_2.jpg
+games/hunt1896/street_golden_1.jpg
+games/rdr2/street_golden_1.jpg
+games/rdr2/street_golden_2.jpg
+games/hunt1896/saloon_night_1.jpg
+games/hunt1896/saloon_night_2.jpg
+games/hunt1896/saloon_night_3.jpg
+games/kcd2/saloon_night_1.jpg
+games/rdr2/saloon_night_1.jpg
+games/rdr2/saloon_night_2.jpg
+games/rdr2/saloon_night_3.jpg
+games/hunt1896/face_1.jpg
+games/kcd2/face_1.jpg
+games/kcd2/face_2.jpg
+games/rdr2/face_1.jpg
+games/rdr2/face_2.jpg
+games/hunt1896/horizon_1.jpg
+games/rdr2/horizon_1.jpg
+games/rdr2/horizon_2.jpg
+games/rdr2/horizon_3.jpg
+games/hunt1896/street_night_1.jpg
+games/kcd2/street_night_1.jpg

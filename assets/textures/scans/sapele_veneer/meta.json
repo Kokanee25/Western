@@ -1,0 +1,22 @@
+{
+ "id": "sapele_veneer",
+ "source": "polyhaven",
+ "licence": "CC0 1.0",
+ "page": "https://polyhaven.com/a/sapele_veneer",
+ "metres": [
+  0.5,
+  0.5
+ ],
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-09",
+ "lossless": 2,
+ "mean_linear": [
+  0.56675,
+  0.21849,
+  0.09979
+ ]
+}

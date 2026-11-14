@@ -24,7 +24,7 @@ static var enabled := true
 var body: HumanBody
 var tuning: FaceLifeTuning
 var gaze: FaceGaze
-## Stepped from _physics_process (a fixed step, so a run plays the same twice); off: call step().
+## Stepped on its tick (PeopleTick: a fixed step, so a run plays the same twice); off: call step().
 var auto := true
 ## Where the camera is for the near_camera rest (null: the viewport's camera; none: always near).
 var camera: Node3D
@@ -49,9 +49,11 @@ var _rng := RandomNumberGenerator.new()
 ## tick it's wanted (`attend_to`); a start and a fight still take his eyes off it.
 var _attend := Vector3.INF
 var _attend_frame := -10
+var _attend_over := false  ## ... even in a fight or a start (a man looking at his own wound)
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	if tuning == null:
 		tuning = load("res://config/face_life.tres")
 	if body == null and get_parent() is HumanBody:
@@ -71,7 +73,21 @@ func _ready() -> void:
 	Events.near_miss.connect(_on_near_miss)
 
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	if auto and enabled:
 		step(delta)
 
@@ -134,7 +150,7 @@ func step(delta: float) -> void:
 		_pick(fear)
 	if not is_instance_valid(_who):
 		_who = null   # (gone: he looks at the point he had till his next pick)
-	if attending() and _startled <= 0.0 and not _fighting():
+	if attending() and (_attend_over or _startled <= 0.0 and not _fighting()):
 		_who = null   # at his work: his eyes on it
 		_point = _attend
 	gaze.target = _who
@@ -168,10 +184,12 @@ func expression() -> Dictionary:
 
 
 ## His eyes on `point` this tick, for whatever he's doing (WipeBar: the cloth under his hand). Call
-## it every tick he's to keep watching it; stop, and his eyes are his own again.
-func attend_to(point: Vector3) -> void:
+## it every tick he's to keep watching it; stop, and his eyes are his own again. `over_all`: even in
+## a fight and just started (OutlawBrain's wince: his eyes on his wound).
+func attend_to(point: Vector3, over_all := false) -> void:
 	_attend = point
 	_attend_frame = Engine.get_physics_frames()
+	_attend_over = over_all
 
 
 func attending() -> bool:
@@ -307,7 +325,8 @@ func _start(at: Vector3, who: Node) -> void:
 
 
 func _awake() -> bool:
-	return enabled and body != null and is_instance_valid(body) and body.physiology.is_conscious()
+	# (In the world: a rider waiting to come in, TownLife's, hears the town's events out of it.)
+	return enabled and body != null and is_instance_valid(body) and body.is_inside_tree() and body.physiology.is_conscious()
 
 
 func _on_heard(at: Vector3, kind: StringName, who: Node) -> void:

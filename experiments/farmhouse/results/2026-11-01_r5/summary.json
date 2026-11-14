@@ -1,0 +1,32 @@
+{
+ "back": {
+  "runs": 4,
+  "lives": 4,
+  "won": 2,
+  "down": 1,
+  "executed": 4,
+  "alarm_median": 22.7,
+  "end_median": 153.93,
+  "men_out_mean": 2.25
+ },
+ "breach": {
+  "runs": 4,
+  "lives": 4,
+  "won": 1,
+  "down": 2,
+  "executed": 4,
+  "alarm_median": 22.7,
+  "end_median": 118.08,
+  "men_out_mean": 3.5
+ },
+ "front": {
+  "runs": 4,
+  "lives": 4,
+  "won": 2,
+  "down": 2,
+  "executed": 0,
+  "alarm_median": 16.97,
+  "end_median": 50.97,
+  "men_out_mean": 3.0
+ }
+}

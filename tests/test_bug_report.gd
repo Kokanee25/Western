@@ -51,6 +51,9 @@ func test_f12_saves_everything_in_one_file() -> void:
 		check(names.has(n), "with %s in it (%s)" % [n, names])
 	var report: Dictionary = JSON.parse_string(zip.read_file("report.json").get_string_from_utf8())
 	check(report.has("build") and report.has("player") and report.has("people") and report.has("settings"), "the build, you, everyone, the settings")
+	check(path.ends_with(".saltbug.zip"), "named .saltbug.zip, as GitHub takes it (%s)" % path)
+	for k in ["render_thread", "physics_thread", "people_threads", "max_physics_steps_per_frame"]:
+		check((report.settings as Dictionary).has(k), "the settings say %s" % k)
 	var rec: Dictionary = JSON.parse_string(zip.read_file("recording.json").get_string_from_utf8())
 	check_eq(rec.from, "start", "a short session replays from the start")
 	var moves := (rec.inputs as Array).filter(func(e: Array) -> bool: return rec.actions[int(e[1])] == "move_forward")
@@ -78,3 +81,93 @@ func test_the_replay_ends_where_the_play_did() -> void:
 	var m := RegEx.create_from_string("(\\d+) checkpoints").search(text)
 	check(m != null and int(m.get_string(1)) >= 3, "having compared everyone's place each second (%s)" % (m.get_string(1) if m else "none"))
 	DirAccess.remove_absolute(path)
+
+
+## F12's frame timing (PerfRing, #433): with F3 closed the ring has every frame's split and no
+## systems; with F3 up (the profiler on) each frame carries its biggest systems, and the summary
+## at the top of report.json names the three biggest.
+func test_f12_carries_the_frames_numbers() -> void:
+	var recorder := main.get_node(^"BugRecorder") as BugRecorder
+	await process_frames(30)
+	var perf := await _press_f12(recorder)
+	for k in ["frames_columns", "frames", "seconds_columns", "seconds", "recorder_us"]:
+		check(perf.has(k), "perf.json has %s" % k)
+	var cols: Array = perf.frames_columns
+	for f in PerfRing.FIELDS:
+		check(cols.has(f), "a frame has %s" % f)
+	check((perf.frames as Array).size() >= 20, "every frame is in it (%d)" % (perf.frames as Array).size())
+	var row: Array = perf.frames[-1]
+	check_eq(row.size(), cols.size(), "a row is its columns")
+	check(float(row[cols.find("frame_ms")]) > 0.0 and float(row[cols.find("nodes")]) > 100.0, "with the frame's time and the nodes (%s)" % [row])
+	check((row[-1] as Dictionary).is_empty(), "and no systems with F3 closed")
+	# The frame's own process and physics (#435), inside its wall clock, physics only with ticks.
+	var fi := cols.find("frame_ms")
+	var pi := cols.find("process_ms")
+	var hi := cols.find("physics_ms")
+	var ti := cols.find("ticks")
+	var ticked := 0
+	for r: Array in (perf.frames as Array).slice(2):
+		check(float(r[pi]) >= 0.0 and float(r[hi]) >= 0.0 and float(r[pi]) + float(r[hi]) <= float(r[fi]) + 0.05,
+				"a frame's process and physics fit in it (%s)" % [r])
+		if int(r[ti]) == 0:
+			check_eq(float(r[hi]), 0.0, "no ticks, no physics")
+		else:
+			ticked += 1
+			check(float(r[hi]) > 0.0, "ticks take time (%s)" % [r])
+	check(ticked > 10, "frames that ticked (%d)" % ticked)
+	# A lab with the profiler on before F3 opens (the gunfight lab's Y play): F3's first frame reads
+	# only that frame, not everything summed since.
+	Prof.on = true
+	Prof.add(&"rest", 9000000)
+	check(not (perf.seconds as Array).is_empty(), "the per-second ring has this second at least")
+	check(float(perf.recorder_us.f3_closed.mean) < 100.0, "the recorder takes under 0.1 ms a frame (%.1f µs)" % float(perf.recorder_us.f3_closed.mean))
+	_key(&"debug_overlay", true)  # F3: the profiler on
+	await process_frames(2)
+	_key(&"debug_overlay", false)
+	await process_frames(60)
+	check(Prof.on, "F3 turns the profiler on")
+	perf = await _press_f12(recorder)
+	_key(&"debug_overlay", true)  # F3 again: off
+	await process_frames(2)
+	_key(&"debug_overlay", false)
+	await process_frames(1)
+	check(Prof.on, "and F3 again leaves it as the lab had it")
+	Prof.on = false
+	for r: Array in perf.frames:
+		check(float((r[-1] as Dictionary).get("rest", 0.0)) < 1000.0, "no frame carries the sums from before F3 (%s)" % [r[-1]])
+	var named := (perf.frames as Array).filter(func(r: Array) -> bool: return not (r[-1] as Dictionary).is_empty())
+	check(named.size() >= 30, "with F3 up the frames name their systems (%d)" % named.size())
+	var zip := ZIPReader.new()
+	zip.open(_last)
+	var text := zip.read_file("report.json").get_string_from_utf8()
+	zip.close()
+	check(text.strip_edges().begins_with("{\n  \"perf_summary\""), "perf_summary leads report.json")
+	var s: Dictionary = JSON.parse_string(text).perf_summary
+	check(s.has("worst") and s.has("mean_ms") and float(s.worst.frame_ms) >= float(s.mean_ms) and s.worst.has("untimed_ms"), "the worst frame, its untimed share and the mean (%s)" % [s.get("worst")])
+	check_eq((s.biggest as Array).size(), 3, "and the three biggest named costs (%s)" % [s.biggest])
+	check(not (s.biggest as Array).any(func(b: Dictionary) -> bool: return String(b.name).begins_with("q_") or String(b.name).begins_with("n_")), "costs, not counts")
+	check(PerfRing.summary_lines(s).size() >= 3, "which the replay prints")
+	DirAccess.remove_absolute(_last)
+
+
+var _last := ""
+
+
+## Press F12 (the action, as the key would) and read the report's perf.json.
+func _press_f12(recorder: BugRecorder) -> Dictionary:
+	var before := recorder.last_path
+	_key(&"bug_report", true)
+	await process_frames(2)
+	_key(&"bug_report", false)
+	await process_frames(1)
+	check(recorder.last_path != "" and recorder.last_path != before, "F12 writes a report")
+	if _last != "" and _last != recorder.last_path:
+		DirAccess.remove_absolute(_last)
+	_last = recorder.last_path
+	var zip := ZIPReader.new()
+	if not check_eq(zip.open(_last), OK, "it's one zip"):
+		return {}
+	check(zip.file_exists("perf.json"), "with perf.json in it")
+	var perf: Variant = JSON.parse_string(zip.read_file("perf.json").get_string_from_utf8())
+	zip.close()
+	return perf if perf is Dictionary else {}

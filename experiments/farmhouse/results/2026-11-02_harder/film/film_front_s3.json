@@ -1,0 +1,277 @@
+{
+ "alarm": 13.0,
+ "blocking": [
+  "0.3:House/floor_ground_board_010_0",
+  "0.3:House/floor_ground_joist_024",
+  "0.3:House/floor_ground_joist_022",
+  "0.3:House/floor_ground_joist_026",
+  "0.3:House/floor_ground_board_011_0",
+  "0.3:House/floor_ground_board_012_0",
+  "0.3:House/floor_ground_board_013_0",
+  "0.3:House/floor_ground_board_014_0",
+  "0.3:House/floor_ground_board_015_0",
+  "0.3:House/floor_ground_board_016_0",
+  "0.3:House/floor_ground_board_017_0",
+  "0.3:House/floor_ground_joist_025",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Pike",
+ "breach": -1.0,
+ "end": 42.88,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1793,
+  "max_ms": 5533.83,
+  "mean_ms": 392.57,
+  "p95_ms": 886.3
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.27,
+   1.81,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 7,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "come at you: you're reloading",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.4,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "back in it: his fear's settled (1.02 / 1.06)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 2.4,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.1,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARNING",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "pike",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "give up: past his nerve (fear 0.88 / 0.88)",
+   "id": "wes",
+   "inside": false,
+   "knows": 4.4,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, bone broken.",
+ "player_local": [
+  3.63,
+  0.56,
+  1.93
+ ],
+ "quits": [
+  [
+   15.7,
+   "wes",
+   "gives up",
+   "give up: past his nerve (fear 0.88 / 0.88)",
+   false
+  ],
+  [
+   39.95,
+   "kid",
+   "gives up",
+   "to inside door: inside door (you're front)",
+   true
+  ],
+  [
+   40.52,
+   "dutch",
+   "gives up",
+   "back in it: his fear's settled (1.02 / 1.06)",
+   true
+  ]
+ ],
+ "route_left": 4,
+ "route_next": [
+  4.75,
+  0.56,
+  3.35
+ ],
+ "rover_found": "Pike saw you at 12.5 s (his beat's stop 1, front; you front)",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 3,
+ "shots_men": 35,
+ "shots_out": 28,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 42.88,
+ "threat": 38.63,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   12.53,
+   "Pike saw you at 12.5 s (his beat's stop 1, front; you front)"
+  ],
+  [
+   12.53,
+   "Pike warns you off"
+  ],
+  [
+   13.0,
+   "the alarm: you drew on them"
+  ],
+  [
+   13.0,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 34 m off)"
+  ],
+  [
+   13.0,
+   "Wes falls back to the house (the alarm, 7 m from the door, you 31 m off)"
+  ],
+  [
+   15.7,
+   "Wes gives up (give up: past his nerve (fear 0.88 / 0.88))"
+  ],
+  [
+   27.72,
+   "Wes down, out"
+  ],
+  [
+   38.63,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   38.63,
+   "the guard's last word"
+  ],
+  [
+   39.95,
+   "Kid down"
+  ],
+  [
+   39.95,
+   "Kid gives up (to inside door: inside door (you're front))"
+  ],
+  [
+   40.52,
+   "Dutch down"
+  ],
+  [
+   40.52,
+   "Dutch gives up (back in it: his fear's settled (1.02 / 1.06))"
+  ],
+  [
+   42.88,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

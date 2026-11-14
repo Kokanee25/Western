@@ -1,0 +1,47 @@
+{
+ "back": {
+  "runs": 8,
+  "lives": 8,
+  "won": 3,
+  "down": 5,
+  "executed": 1,
+  "alarm_median": 68.43,
+  "end_median": 92.53,
+  "men_out_mean": 2.875,
+  "first_quit_median": 2.1199999999999903,
+  "gave_up": 14,
+  "ran": 0,
+  "shots_out": 4,
+  "shots_men": 82
+ },
+ "breach": {
+  "runs": 8,
+  "lives": 8,
+  "won": 4,
+  "down": 2,
+  "executed": 0,
+  "alarm_median": 87.22,
+  "end_median": 134.83,
+  "men_out_mean": 3.625,
+  "first_quit_median": 0.010000000000005116,
+  "gave_up": 27,
+  "ran": 0,
+  "shots_out": 1,
+  "shots_men": 59
+ },
+ "front": {
+  "runs": 8,
+  "lives": 6,
+  "won": 3,
+  "down": 4,
+  "executed": 4,
+  "alarm_median": 16.97,
+  "end_median": 44.22,
+  "men_out_mean": 2.25,
+  "first_quit_median": 23.480000000000004,
+  "gave_up": 10,
+  "ran": 0,
+  "shots_out": 137,
+  "shots_men": 150
+ }
+}

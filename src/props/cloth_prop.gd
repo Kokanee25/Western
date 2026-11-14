@@ -88,7 +88,14 @@ func _ready() -> void:
 	var pts: Array = definition.get("points", [8, 6])
 	cols = int(pts[0])
 	rows = int(pts[1])
+	var own := own_mesh(definition)
+	if not own.is_empty():
+		# Its own points and triangles (#917: a garment), not a grid: a point a column, one row.
+		cols = (own[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+		rows = 1
 	_build()
+	# Held, its points are pinned to his hand: what falls passes through it (PinnedSoft).
+	PinnedSoft.keep_clear(soft, self)
 	Events.bullet_hit.connect(_on_bullet_hit)
 	Events.exploded.connect(_on_exploded)
 	Events.doused.connect(_on_doused)
@@ -114,8 +121,12 @@ func _build() -> void:
 
 
 ## Laid flat, its length along X and its breadth along Z, about the node's origin; UVs in metres
-## (as the game's textures are laid).
+## (as the game's textures are laid). Or, with a kit field `mesh`, its own points and triangles
+## where they are in the node's frame (`own_mesh`).
 func _grid_mesh() -> ArrayMesh:
+	var own := own_mesh(definition)
+	if not own.is_empty():
+		return _own_mesh(own)
 	var verts := PackedVector3Array()
 	_rest = PackedVector3Array()
 	var normals := PackedVector3Array()
@@ -144,12 +155,70 @@ func _grid_mesh() -> ArrayMesh:
 	return m
 
 
+## The kit's `mesh` (#917): a Mesh (or its res:// path) whose first surface is the cloth, or a
+## dictionary {"vertices", "indices", "uvs"} of packed arrays. Its arrays (empty if it has none).
+static func own_mesh(def: Dictionary) -> Array:
+	var m: Variant = def.get("mesh")
+	if m is String and m != "":
+		m = load(m)
+	if m is Mesh and (m as Mesh).get_surface_count() > 0:
+		return (m as Mesh).surface_get_arrays(0)
+	if m is Dictionary and (m as Dictionary).has("vertices"):
+		var a := []
+		a.resize(Mesh.ARRAY_MAX)
+		a[Mesh.ARRAY_VERTEX] = PackedVector3Array(m.vertices)
+		a[Mesh.ARRAY_INDEX] = PackedInt32Array(m.get("indices", []))
+		if m.has("uvs"):
+			a[Mesh.ARRAY_TEX_UV] = PackedVector2Array(m.uvs)
+		return a
+	return []
+
+
+## Its own points and triangles, with normals: a soft body writes position and normal into the
+## drawn mesh's buffer by the layout of one with both, and without them it's drawn scrambled (a bar
+## a metre long while its physics points are right; the garment lab, #895).
+func _own_mesh(own: Array) -> ArrayMesh:
+	var verts: PackedVector3Array = own[Mesh.ARRAY_VERTEX]
+	var idx: PackedInt32Array = own[Mesh.ARRAY_INDEX] if own[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+	_rest = verts.duplicate()
+	_uv = own[Mesh.ARRAY_TEX_UV] if own[Mesh.ARRAY_TEX_UV] != null else PackedVector2Array()
+	if _uv.size() != verts.size():
+		_uv = PackedVector2Array()
+		for v in verts:
+			_uv.append(Vector2(v.x, v.z))
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals_of(verts, idx)
+	arrays[Mesh.ARRAY_TEX_UV] = _uv
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var m := ArrayMesh.new()
+	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return m
+
+
+## Smooth normals of `pts` by its triangles (UP where a point has none).
+static func normals_of(pts: PackedVector3Array, tris: PackedInt32Array) -> PackedVector3Array:
+	var acc := PackedVector3Array()
+	acc.resize(pts.size())
+	for t in range(0, tris.size(), 3):
+		var n := (pts[tris[t + 1]] - pts[tris[t]]).cross(pts[tris[t + 2]] - pts[tris[t]])
+		for k in 3:
+			acc[tris[t + k]] += n
+	for i in acc.size():
+		acc[i] = acc[i].normalized() if acc[i].length_squared() > 0.0 else Vector3.UP
+	return acc
+
+
 func _material() -> StandardMaterial3D:
 	var factory := PixelArt.factory("bar_cloth")
 	_image = factory.get_image() if factory else paint(definition, rng_seed)
 	if _image.is_compressed():
 		_image.decompress()
 	_image.convert(Image.FORMAT_RGBA8)
+	if factory:
+		hem(_image, rng_seed)  # the painted cloth is its weave and stains; its edges are drawn here
+	stripes(_image, definition)
 	_tex = ImageTexture.create_from_image(_image)
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = _tex
@@ -191,13 +260,10 @@ static func paint(def: Dictionary, seed_value: int) -> Image:
 			var s := blot.get_noise_2d(x, y)
 			if s > 0.18:
 				col = col.lerp(stain, clampf((s - 0.18) * 3.0, 0.0, 0.55))
-			var edge := mini(mini(x, w - 1 - x), mini(y, h - 1 - y))
-			if edge < 2:
-				col = col.darkened(0.12 if edge == 0 else 0.06)  # the hem
-				if edge == 0 and rng.randf() < 0.25:
-					col = col.darkened(0.2)  # frayed
 			img.set_pixel(x, y, col)
+	hem(img, seed_value)
 	# A few grease spots.
+	rng.seed = seed_value + 2
 	for i in 5:
 		var px := rng.randi_range(4, w - 5)
 		var py := rng.randi_range(4, h - 5)
@@ -207,6 +273,48 @@ static func paint(def: Dictionary, seed_value: int) -> Image:
 				if dx * dx + dy * dy <= r * r:
 					img.set_pixel(px + dx, py + dy, img.get_pixel(px + dx, py + dy).lerp(stain.darkened(0.3), 0.45))
 	return img
+
+
+## Its hemmed edge a shade darker, frayed here and there (on the code's cloth and the factory's).
+static func hem(img: Image, seed_value: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var w := img.get_width()
+	var h := img.get_height()
+	for y in h:
+		for x in w:
+			var edge := mini(mini(x, w - 1 - x), mini(y, h - 1 - y))
+			if edge >= 2:
+				continue
+			var col := img.get_pixel(x, y).darkened(0.12 if edge == 0 else 0.06)
+			if edge == 0 and rng.randf() < 0.25:
+				col = col.darkened(0.2)  # frayed
+			img.set_pixel(x, y, col)
+
+
+## A bar towel's woven stripes (Sean, 2026-10-23: so it isn't his shirt's white): a band of `stripe`
+## colour `stripe_width` metres wide at each of `stripe_at` (shares of its breadth from an edge),
+## along its length, the cloth's own light and stains kept under it.
+static func stripes(img: Image, def: Dictionary) -> void:
+	var sc: Array = def.get("stripe", [])
+	if sc.size() < 3:
+		return
+	var stripe := Color(sc[0], sc[1], sc[2])
+	var sz: Array = def.get("size", [0.4, 0.3])
+	var h := img.get_height()
+	var half := maxf(float(def.get("stripe_width", 0.012)) / float(sz[1]) * h * 0.5, 0.5)
+	var base := Color(1, 1, 1)
+	var c: Array = def.get("colour", [0.86, 0.83, 0.75])
+	base = Color(c[0], c[1], c[2])
+	for at: float in def.get("stripe_at", [0.15, 0.85]):
+		var mid := at * (h - 1)
+		for y in range(maxi(int(floor(mid - half)), 0), mini(int(ceil(mid + half)), h - 1) + 1):
+			var cover := clampf(half + 0.5 - absf(y - mid), 0.0, 1.0)
+			for x in img.get_width():
+				var col := img.get_pixel(x, y)
+				# The thread dyed: its own shade carried over (a stain darkens the stripe too).
+				var shade := clampf(col.get_luminance() / maxf(base.get_luminance(), 0.05), 0.0, 1.3)
+				img.set_pixel(x, y, col.lerp(Color(stripe.r * shade, stripe.g * shade, stripe.b * shade), cover * 0.9))
 
 
 # --- Where it is ---------------------------------------------------------------------------------
@@ -316,6 +424,26 @@ func hang_on(by: HumanBody, shoulder_side: String) -> void:
 	_take_holder(by)
 	held = Held.SHOULDER
 	side = shoulder_side
+
+
+## Over a rail (a washstand's towel bar, a line, a chair's back; #788): laid flat across it, its
+## length (X) across the rail's `along` (world) and its middle there, the points over the rail pinned
+## to it, the rest left to hang by its own physics (a rail a couple of centimetres thick slips
+## between its points otherwise). The rail carries it: broken off or knocked, it goes with it; picked
+## up, let go or freed rail, it's free.
+func hang_over(rail: Node3D, along: Vector3, top: Vector3) -> void:
+	if burnt or rail == null:
+		return
+	_release_all()
+	var a := along.normalized()
+	var x := a.cross(Vector3.UP).normalized()
+	place(Transform3D(Basis(x, Vector3.UP, x.cross(Vector3.UP).normalized() * -1.0).orthonormalized(), top + Vector3.UP * 0.01))
+	var mid := cols / 2
+	var take: Array[int] = []
+	for j in rows:
+		for i in [mid - 1, mid]:
+			take.append(j * cols + i)
+	_pin(take, rail)
 
 
 ## On top of his shoulder (world), where a rag over it lies: above the joint, in toward his neck.
@@ -455,6 +583,7 @@ func _physics_step(delta: float) -> void:
 	var at := centre()
 	_fire_step(at, CHECK_EVERY)
 	_blood_step(CHECK_EVERY)
+	_wipe_step(CHECK_EVERY)
 	wet = maxf(wet - CHECK_EVERY / 600.0, 0.0)  # dries over ten minutes
 	if _tex_dirty:
 		_tex_dirty = false
@@ -536,6 +665,63 @@ func _blood_step(dt: float) -> void:
 	if flow <= 0.0:
 		return
 	soak(flow * float(definition.get("soaks", 0.8)) * dt, holder.palm(side))
+
+
+# --- Wiping (#788, Sean: "can be used to wipe up blood") ------------------------------------------
+# Held in a hand and drawn over a wooden surface (a table's top, the floor), it takes up what's
+# under its lowest points through the surface's marks (FloorMarks.take: spilt water and drink, the
+# blood of marks and pools, Blood.take), as a mop's head does (MopProp._exchange) but dry linen:
+# `wipe_rate` of what's under it a second at a wiping pace (0.3 m/s), less as it fills, up to
+# `holds_ml` all told. Blood reddens it where it touched (soak); the rest wets it.
+
+## What else it's taken up wiping (ml: water, whiskey, beer, lamp oil).
+var spills_ml := 0.0
+var _wipe_last := Vector3.INF
+
+
+func _wipe_step(dt: float) -> void:
+	if held != Held.HAND or holder == null or burnt or float(definition.get("wipe_rate", 0.0)) <= 0.0:
+		_wipe_last = Vector3.INF
+		return
+	var low := Vector3(0, INF, 0)
+	for i in point_count():
+		var p := point(i)
+		if p.y < low.y:
+			low = p
+	var moved := 0.0 if _wipe_last == Vector3.INF else Vector2(low.x - _wipe_last.x, low.z - _wipe_last.z).length() / dt
+	_wipe_last = low
+	wipe_at(low, moved, dt)
+
+
+## Wipes the surface under `at` (world: its lowest point, within 3 cm of the surface), moving
+## `speed` m/s across it, for `dt` s. What it took: {blood, other} (ml).
+func wipe_at(at: Vector3, speed: float, dt: float) -> Dictionary:
+	var out := {"blood": 0.0, "other": 0.0}
+	var marks := FloorMarks.find(get_tree())
+	var cap := float(definition.get("holds_ml", 120.0))
+	var full := (blood_ml + spills_ml) / maxf(cap, 1.0)
+	if marks == null or burnt or full >= 1.0:
+		return out
+	var under := marks.surface_at(at, 0.06)
+	if under.is_empty() or at.y - (under.at as Vector3).y > 0.03:
+		return out
+	var share := float(definition.get("wipe_rate", 0.0)) * clampf(speed / 0.3, 0.1, 1.0) * (1.0 - full) * dt
+	var radius := clampf(minf(size.x, size.y) * 0.4, 0.06, 0.2)
+	var got := marks.take(under.at, radius, share)
+	var blood := float(got.blood)
+	for kind: StringName in got.liquid:
+		if kind == &"blood":
+			blood += float(got.liquid[kind])
+		else:
+			out.other += float(got.liquid[kind])
+	blood = minf(blood, cap - blood_ml)
+	out.blood = blood
+	if blood > 0.0:
+		soak(blood, at)
+	if out.other > 0.0:
+		spills_ml = minf(spills_ml + out.other, maxf(cap - blood_ml, 0.0))
+		wet = clampf(wet + out.other / maxf(cap, 1.0), 0.0, 1.0)
+	return out
 
 
 ## Takes up `ml` of blood where it touches `at` (world): red there, spreading as it fills.

@@ -4,7 +4,7 @@ extends SceneTree
 ## three-quarter on each side, saved as DIR/<pose>_<view>.png. Untyped where it touches game
 ## classes (-s scripts compile before the autoloads exist).
 ##   xvfb-run -a godot --path . --rendering-driver vulkan -s res://tools/characters/arm_poses.gd -- \
-##       --id=barkeep_s2_talking --out=DIR [--size=640x640] [--only=forward,side]
+##       --id=barkeep_s2_talking --out=DIR [--size=640x640] [--only=forward,side] [--share=0.35]
 
 ## Degrees over his stand pose (HumanBody.pose_offsets: x lifts an arm forward, z out to his side).
 const ARM_POSES := {
@@ -38,6 +38,9 @@ func _run() -> void:
 			size = Vector2i(int(wh[0]), int(wh[1]))
 		elif a.begins_with("--only="):
 			only = a.substr(7).split(",")
+		elif a.begins_with("--share="):
+			# PeopleBodies.shoulder_share (0: no shoulder helpers), for a before and after.
+			load("res://src/bodies/people_bodies.gd").shoulder_share = float(a.substr(8))
 	DirAccess.make_dir_recursive_absolute(out)
 	var vp := SubViewport.new()
 	vp.size = size

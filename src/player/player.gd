@@ -2,17 +2,40 @@ class_name Player
 extends CharacterBody3D
 ## First-person player: walk, run, crouch, jump and look, on keyboard + mouse or controller.
 ## Actions are polled, so the player works wherever it sits in the viewport tree. Mouse and touch
-## look arrive through Events.look_input; the right stick is read here.
+## look arrive through Events.look_input; the right stick is read here. How the body carries the
+## eyes and the gun (steps, lean, dips, momentum's feel) is PlayerMotion; three ways of moving
+## (light, middle, heavy) are presets of its dials, switched on F (`set_movement`).
+
+signal movement_changed(preset: StringName)
+## Down off your feet as a man is (HumanBody's): what a kit chair you're sat in listens for
+## (KitProp.sit) to take your weight off its seat.
+signal fell(conscious: bool)
+
+## The movement presets (config/movement/): only the movement dials are taken from them.
+const MOVEMENT_PRESETS := {&"light": "res://config/movement/light.tres",
+		&"middle": "res://config/movement/middle.tres", &"heavy": "res://config/movement/heavy.tres"}
 
 @export var tuning: PlayerTuning
+## Which preset the movement dials came from (the game's own tuning is middle).
+var movement := &"middle"
+var motion := PlayerMotion.new()
 
 var input_enabled := true
 ## Set by wounds (PlayerWounds): slower, no running or jumping, down on the ground.
 var move_factor := 1.0
+## Something heavy carried (the Baron's strongbox on your shoulder, CoachFight): your pace's share.
+var burden := 1.0
 var can_sprint := true
 var can_jump := true
 var force_crouch := false
 var is_crouching := false
+## Flat on your belly (#737; is_crouching is true too): under a high boardwalk, a wagon, a low
+## gap. `force_crawl` holds you there (the dev bridge, tests).
+var is_crawling := false
+var force_crawl := false
+var _crawl_toggled := false
+var _crouch_toggle_held := 0.0
+var _jump_spent := false
 var is_running := false
 var wounds: PlayerWounds
 var composure: PlayerComposure
@@ -20,16 +43,22 @@ var composure: PlayerComposure
 var weapons: Array[WeaponViewmodel] = []
 var weapon: WeaponViewmodel
 var _switch_to: WeaponViewmodel
-var _step_left := 0.75
 ## What you do that people notice (drawing, aiming at them, crowding them...).
 var deeds: PlayerDeeds
+## Your shove and kick (E).
+var shove: PlayerShove
+## Sitting in a kit chair (E by a free one; #766).
+var seat: PlayerSeat
 
 var _crouch_toggled := false
 var _run_latched := false
 var _eye_height := 0.0
-var _bob_phase := 0.0
 var _pitch := 0.0
-var _capsule: CapsuleShape3D
+## The lean's pitch now on the head (degrees), on top of your own.
+var _tilt := 0.0
+## The body's collision (a capsule; bullets that reach you hit it too, so its shape is your
+## profile: a stair's nosings are taken by _step_up, not by squaring it off).
+var _body_shape: CapsuleShape3D
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -48,11 +77,12 @@ func _ready() -> void:
 	composure = PlayerComposure.new()
 	composure.name = "Composure"
 	add_child(composure)
-	_capsule = CapsuleShape3D.new()
-	_capsule.radius = tuning.radius
-	collision.shape = _capsule
+	_body_shape = CapsuleShape3D.new()
+	_body_shape.radius = tuning.radius
+	collision.shape = _body_shape
 	_set_collision_height(tuning.stand_height)
 	_eye_height = tuning.stand_eye_height
+	motion.reset(_eye_height)
 	head.position.y = _eye_height
 	floor_snap_length = 0.3
 	floor_max_angle = deg_to_rad(46.0)
@@ -64,21 +94,17 @@ var _step_n := 0
 
 
 ## Footfalls people can hear: running carries, walking a little, creeping crouched hardly at all.
-func _footsteps(delta: float) -> void:
-	var speed := get_horizontal_speed()
-	if speed < 0.3 or not is_on_floor():
+## One on each step the body takes (PlayerMotion), so the sound lands with the head's low.
+func _footsteps() -> void:
+	if not motion.footfall:
 		return
-	_step_left -= speed * delta
-	if _step_left > 0.0:
-		return
-	_step_left = 0.75
-	var loud := 2.0 if is_crouching else (13.0 if is_running else 6.0)
+	var loud := (1.0 if is_crawling else 2.0) if is_crouching else (13.0 if is_running else 6.0)
 	Events.noise.emit(global_position, loud, &"footsteps", self)
 	if GameAudio.enabled():
 		# The sound lab: on boards (any timber underfoot) a hollow knock, on the street's dirt a crunch.
 		var q := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.2, global_position + Vector3.DOWN * 0.4, Layers.STAND)
 		q.exclude = [get_rid()]
-		var under := get_world_3d().direct_space_state.intersect_ray(q)
+		var under := World.space(self).intersect_ray(q)
 		var boards: bool = not under.is_empty() and (under.collider is StructureMember or under.collider is KitProp)
 		_step_n += 1
 		var id := StringName("step_%s_%d" % ["boards" if boards else "dirt", _step_n % 4])
@@ -86,8 +112,8 @@ func _footsteps(delta: float) -> void:
 				"volume_db": -14.0 if is_crouching else (-4.0 if is_running else -9.0)})
 
 
-## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the dynamite and a water
-## bucket are added beside it, put away.
+## The revolver comes from the scene (Head/Camera3D/Gun); the shotgun, the rifle, the dynamite, a water
+## bucket and the plunger box (the bundles' blasting machine, #647) are added beside it, put away.
 func _arm() -> void:
 	var revolver := camera.get_node_or_null(^"Gun") as WeaponViewmodel
 	if revolver:
@@ -99,6 +125,13 @@ func _arm() -> void:
 	shotgun._draw = 0.0
 	camera.add_child(shotgun)
 	weapons.append(shotgun)
+	var rifle := Winchester73Viewmodel.new()
+	rifle.name = "Rifle"
+	rifle.selected = false
+	rifle.drawn = false
+	rifle._draw = 0.0
+	camera.add_child(rifle)
+	weapons.append(rifle)
 	var dynamite := DynamiteViewmodel.new()
 	dynamite.name = "Dynamite"
 	dynamite.selected = false
@@ -113,6 +146,13 @@ func _arm() -> void:
 	bucket._draw = 0.0
 	camera.add_child(bucket)
 	weapons.append(bucket)
+	var plunger := PlungerViewmodel.new()
+	plunger.name = "Plunger"
+	plunger.selected = false
+	plunger.drawn = false
+	plunger._draw = 0.0
+	camera.add_child(plunger)
+	weapons.append(plunger)
 	weapon = weapons[0]
 	# You walk about with the gun in its holster; drawing it is something people notice (H).
 	if revolver:
@@ -124,6 +164,14 @@ func _arm() -> void:
 	deeds = PlayerDeeds.new()
 	deeds.name = "Deeds"
 	add_child(deeds)
+	shove = PlayerShove.new()
+	shove.name = "Shove"
+	shove.player = self
+	add_child(shove)
+	seat = PlayerSeat.new()
+	seat.name = "Seat"
+	seat.player = self
+	add_child(seat)
 
 
 func revolver() -> RevolverViewmodel:
@@ -134,6 +182,11 @@ func shotgun() -> ShotgunViewmodel:
 	return camera.get_node_or_null(^"Shotgun") as ShotgunViewmodel
 
 
+## The Winchester 1873, slung (6).
+func rifle() -> Winchester73Viewmodel:
+	return camera.get_node_or_null(^"Rifle") as Winchester73Viewmodel
+
+
 func dynamite() -> DynamiteViewmodel:
 	return camera.get_node_or_null(^"Dynamite") as DynamiteViewmodel
 
@@ -142,9 +195,50 @@ func bucket() -> BucketViewmodel:
 	return camera.get_node_or_null(^"Bucket") as BucketViewmodel
 
 
+func plunger() -> PlungerViewmodel:
+	return camera.get_node_or_null(^"Plunger") as PlungerViewmodel
+
+
+## What you don't carry yet (No Law, #796: Harlan's unarmed till the dying sheriff gives him his
+## revolver): kinds (`revolver`, `shotgun`, `rifle`, `dynamite`, `bucket`, `plunger`) -> true. A gun
+## you lack won't come out (PlayerWounds keeps its hands busy: "you haven't got one") and isn't in
+## the weapon wheel. The story's start in the valley (`-- --mission=sheriff`) takes the revolver.
+var lacks := {}
+const KIND_NODES := {&"revolver": ^"Gun", &"shotgun": ^"Shotgun", &"rifle": ^"Rifle",
+		&"dynamite": ^"Dynamite", &"bucket": ^"Bucket", &"plunger": ^"Plunger"}
+
+
+## You carry this one (not lacked).
+func carries(w: WeaponViewmodel) -> bool:
+	if w == null or lacks.is_empty():
+		return w != null
+	for k: StringName in lacks:
+		if camera.get_node_or_null(KIND_NODES.get(k, ^"")) == w:
+			return false
+	return true
+
+
+## Without this kind from now (put away if it's in your hands).
+func lack(kind: StringName) -> void:
+	lacks[kind] = true
+	var w := camera.get_node_or_null(KIND_NODES.get(kind, ^"")) as WeaponViewmodel
+	if w and w.drawn:
+		w.put_away()
+	if kind == &"revolver" and body:
+		body.set_gun_holstered(false)  # no grip in an empty holster
+
+
+## Given it (the sheriff's revolver): in its holster, yours to draw.
+func give(kind: StringName) -> void:
+	lacks.erase(kind)
+	if kind == &"revolver" and body:
+		var r := revolver()
+		body.set_gun_holstered(r == null or not r.drawn)
+
+
 ## Put the gun in your hands away and bring out another once it is.
 func select_weapon(w: WeaponViewmodel) -> void:
-	if w == null:
+	if w == null or not carries(w):
 		return
 	if w == weapon and _switch_to == null:
 		w.take_out()
@@ -156,18 +250,28 @@ func select_weapon(w: WeaponViewmodel) -> void:
 
 
 func _update_weapon_switch() -> void:
-	if input_enabled:
+	# Sat at a table no gun comes out (PlayerSeat; PlayerWounds keeps your hands busy).
+	if input_enabled and not (seat and seat.seated()):
 		if Input.is_action_just_pressed(&"weapon_revolver"):
 			select_weapon(revolver())
 		elif Input.is_action_just_pressed(&"weapon_shotgun"):
 			select_weapon(shotgun())
+		elif Input.is_action_just_pressed(&"weapon_rifle"):
+			select_weapon(rifle())
 		elif Input.is_action_just_pressed(&"weapon_dynamite"):
 			select_weapon(dynamite())
 		elif Input.is_action_just_pressed(&"weapon_bucket"):
 			select_weapon(bucket())
+		elif Input.is_action_just_pressed(&"weapon_plunger"):
+			select_weapon(plunger())
 		elif Input.is_action_just_pressed(&"weapon_next") and weapons.size() > 1:
 			var current := _switch_to if _switch_to else weapon
-			select_weapon(weapons[(weapons.find(current) + 1) % weapons.size()])
+			var i := weapons.find(current)
+			for k in weapons.size() - 1:
+				var next := weapons[(i + 1 + k) % weapons.size()]
+				if carries(next):
+					select_weapon(next)
+					break
 	if _switch_to and (weapon == null or weapon.is_put_away()):
 		weapon = _switch_to
 		_switch_to = null
@@ -175,13 +279,35 @@ func _update_weapon_switch() -> void:
 		weapon.take_out()
 
 
-## Turn and pitch the view. x turns right, y pitches up, both in degrees.
-func add_look(delta_degrees: Vector2) -> void:
+## Turn and pitch the view. x turns right, y pitches up, both in degrees. `lags`: the gun in
+## your hands lags the turn (not when the gun itself is what turned you: its kick's climb).
+func add_look(delta_degrees: Vector2, lags := true) -> void:
 	if not input_enabled:
 		return
 	rotate_y(deg_to_rad(-delta_degrees.x))
+	if seat:
+		seat.clamp_turn()
+	var was := _pitch
 	_pitch = clampf(_pitch + delta_degrees.y, -tuning.max_pitch_degrees, tuning.max_pitch_degrees)
-	head.rotation.x = deg_to_rad(_pitch)
+	head.rotation.x = deg_to_rad(_pitch + _tilt)
+	if lags:
+		motion.looked(Vector2(delta_degrees.x, _pitch - was))
+
+
+## Move like this preset (light, middle or heavy): its movement dials, not the gun's.
+func set_movement(preset: StringName) -> void:
+	if not MOVEMENT_PRESETS.has(preset):
+		return
+	if tuning.resource_path != "":
+		tuning = tuning.duplicate()  # don't change the shared config for every scene after
+	tuning.take_movement(load(MOVEMENT_PRESETS[preset]) as PlayerTuning)
+	movement = preset
+	movement_changed.emit(preset)
+
+
+func next_movement() -> void:
+	var names: Array = MOVEMENT_PRESETS.keys()
+	set_movement(names[(names.find(movement) + 1) % names.size()])
 
 
 func get_pitch_degrees() -> float:
@@ -209,6 +335,8 @@ func _physics_process(delta: float) -> void:
 
 func _physics_step(delta: float) -> void:
 	_update_weapon_switch()
+	if input_enabled and Input.is_action_just_pressed(&"movement_preset"):
+		next_movement()
 	var move := Vector2.ZERO
 	var wants_jump := false
 	var wants_run := false
@@ -216,8 +344,20 @@ func _physics_step(delta: float) -> void:
 	if input_enabled:
 		move = Input.get_vector(&"move_left", &"move_right", &"move_forward", &"move_back")
 		_stick_look(delta)
+		# Crouch's toggle: a tap crouches or stands (from a crawl, comes up to a crouch); held, you
+		# go down flat and crawl.
 		if Input.is_action_just_pressed(&"crouch_toggle"):
-			_crouch_toggled = not _crouch_toggled
+			_crouch_toggle_held = 0.0
+			if _crawl_toggled:
+				_crawl_toggled = false
+				_crouch_toggle_held = -INF
+			else:
+				_crouch_toggled = not _crouch_toggled
+		if Input.is_action_pressed(&"crouch_toggle"):
+			_crouch_toggle_held += delta
+			if _crouch_toggle_held >= tuning.crawl_hold_s and not _crawl_toggled:
+				_crawl_toggled = true
+				_crouch_toggled = true
 		if Input.is_action_just_pressed(&"run_toggle"):
 			_run_latched = true
 		if move.length() < 0.1:
@@ -225,29 +365,60 @@ func _physics_step(delta: float) -> void:
 		wants_run = Input.is_action_pressed(&"run") or _run_latched
 		if wants_run and move.length() > 0.1:
 			_crouch_toggled = false
+			_crawl_toggled = false
+		if _crawl_toggled and Input.is_action_just_pressed(&"jump"):
+			# Up off your belly first; the jump is the next press.
+			_crawl_toggled = false
+			_crouch_toggled = false
+			_jump_spent = true
 		wants_crouch = _crouch_toggled or Input.is_action_pressed(&"crouch")
-		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump
+		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump and not _jump_spent
+		_jump_spent = false
 	wants_run = wants_run and can_sprint
-	wants_crouch = wants_crouch or force_crouch
+	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())
+	var wants_crawl := force_crawl or (input_enabled and _crawl_toggled)
 
-	_update_crouch(wants_crouch)
+	# On the floor where your chair went from under you: still a moment (PlayerSeat).
+	if seat and seat.down_t > 0.0:
+		move = Vector2.ZERO
+		wants_jump = false
+		wants_run = false
+	if seat and seat.step(delta):
+		# Sat, the crouch keys do nothing (and leave nothing behind for when you stand: the
+		# playtest stood up into a crawl).
+		_crouch_toggled = false
+		_crawl_toggled = false
+		_crouch_toggle_held = 0.0
+		_update_head(delta, 0.0)
+		Sight.moved(self)
+		return
+	_update_crouch(wants_crouch, wants_crawl)
 	is_running = wants_run and not is_crouching and move.length() > 0.1
+	if _ladder_step(move, wants_jump, delta):
+		_update_head(delta, 0.0)
+		Sight.moved(self)
+		return
 
 	var speed := tuning.walk_speed
-	if is_crouching:
+	if is_crawling:
+		speed = tuning.crawl_speed
+	elif is_crouching:
 		speed = tuning.crouch_speed
 	elif is_running:
-		speed = tuning.run_speed
-	speed *= move_factor
+		# Blown from running, the run sags.
+		var blown := clampf((composure.winded - 0.5) * 2.0, 0.0, 1.0) if composure else 0.0
+		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
+	speed *= move_factor * burden * (shove.pace() if shove else 1.0)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
 	var target := Vector2(wish.x, wish.z) * speed
 
 	var on_floor := is_on_floor()
-	var accel := tuning.ground_accel if on_floor else tuning.air_accel
-	if on_floor and target.length() < 0.01:
-		accel = tuning.ground_decel
-	var horizontal := Vector2(velocity.x, velocity.z).move_toward(target, accel * delta)
+	var horizontal := Vector2(velocity.x, velocity.z)
+	if not on_floor:
+		horizontal = horizontal.move_toward(target, tuning.air_accel * delta)
+	else:
+		horizontal = _momentum(horizontal, target, delta)
 	velocity.x = horizontal.x
 	velocity.z = horizontal.y
 	if on_floor:
@@ -255,9 +426,204 @@ func _physics_step(delta: float) -> void:
 			velocity.y = tuning.jump_velocity
 	else:
 		velocity.y -= tuning.gravity * delta
-	move_and_slide()
-	_footsteps(delta)
-	_update_head(delta)
+	var falling := -velocity.y
+	_wade()
+	if on_floor and _step_up(delta):
+		# Up onto the step and this frame's way along it; the slide only settles him there.
+		var keep := velocity
+		velocity = Vector3.ZERO
+		move_and_slide()
+		velocity = keep
+	else:
+		move_and_slide()
+	if not on_floor and is_on_floor() and wounds:
+		wounds.take_fall(falling)  # a fall from height hurts (issue #759): nothing under ~1.5 m
+	_update_head(delta, falling)
+	Sight.moved(self)  # where he is now, for the lines asked after him this tick
+	_footsteps()
+
+
+## Crawling among light loose pieces (rubble no heavier than `tuning.wade_max_kg`: a broken chair's,
+## a plank): they don't collide with you, and each one at or in you is shoved out of your way
+## (`wade_push`, plus your own crawl into it). A CharacterBody3D doesn't push rigid bodies, and the
+## engine moves it out of whatever overlaps it: a chair's seat lying on a man downed by its going
+## carried him half a metre with his own speed nil, and two of its pieces either side wedged him
+## (#834). A piece stays let through till it's clear of you (stood up among them, too); only
+## crawling lets new ones through: on your feet you stand on what's underfoot.
+const WADE_REACH := 0.12
+var _waded := {}  ## instance id -> the piece's RID, let through
+
+
+func _wade() -> void:
+	if not is_crawling and _waded.is_empty():
+		return
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = collision.shape
+	q.transform = collision.global_transform
+	q.margin = WADE_REACH
+	q.collision_mask = Layers.WORLD
+	q.exclude = [get_rid()]
+	var near := {}
+	var way := Vector3(velocity.x, 0.0, velocity.z)
+	for hit: Dictionary in World.space(self).intersect_shape(q, 32):
+		var rb := hit.collider as RigidBody3D
+		if rb == null or rb.mass > tuning.wade_max_kg or not rb.is_in_group(&"rubble"):
+			continue
+		var id := rb.get_instance_id()
+		if near.has(id):
+			continue
+		near[id] = true
+		if not _waded.has(id):
+			if not is_crawling:
+				continue
+			add_collision_exception_with(rb)
+			_waded[id] = rb.get_rid()
+		_shove_aside(rb, int(hit.shape), way)
+	for id: int in _waded.keys():
+		if not near.has(id):
+			PhysicsServer3D.body_remove_collision_exception(get_rid(), _waded[id])
+			_waded.erase(id)
+
+
+## A piece at or in you pushed out flat, away from your middle, at least `wade_push` (more if you're
+## crawling into it).
+func _shove_aside(rb: RigidBody3D, shape: int, way: Vector3) -> void:
+	var at := rb.global_transform * PhysicsServer3D.body_get_shape_transform(rb.get_rid(), shape).origin \
+			if shape >= 0 and shape < PhysicsServer3D.body_get_shape_count(rb.get_rid()) else rb.global_position
+	var dir := at - global_position
+	dir.y = 0.0
+	if dir.length() < 0.02:
+		dir = -global_basis.z
+		dir.y = 0.0
+	dir = dir.normalized()
+	var want := tuning.wade_push + maxf(way.dot(dir), 0.0)
+	var has := rb.linear_velocity.dot(dir)
+	if has >= want:
+		return
+	RubbleRest.let_go(rb)
+	if rb.freeze:
+		return  # (held by something else: a prop's own; it stays let through, unpushed)
+	rb.sleeping = false
+	rb.apply_central_impulse(dir * (want - has) * rb.mass)
+
+
+## Is this piece let through you now (`_wade`)?
+func wading_through(rb: Object) -> bool:
+	return rb != null and _waded.has(rb.get_instance_id())
+
+
+## On a ladder (Ladder, train step 3): carried with it (a moving car's keeps you on the car),
+## forward and back climbing it (forward up from its foot, down from its top), over onto what's
+## behind its top, off at its foot, jump to let go. True while on one (the walk is skipped).
+var ladder: Ladder
+var _ladder_x := 0.0
+var _ladder_y := 0.0
+var _ladder_dir := 1.0
+var _ladder_was := Transform3D()
+
+
+func _ladder_step(move: Vector2, wants_jump: bool, delta: float) -> bool:
+	if ladder != null and not is_instance_valid(ladder):
+		ladder = null
+	if ladder == null:
+		if not input_enabled or move.y > -0.5 or not is_on_floor():
+			return false
+		var along := -global_basis.z
+		along.y = 0.0
+		var got := Ladder.reach(get_tree(), global_position, along.normalized())
+		if got.is_empty():
+			return false
+		ladder = got.ladder
+		var p := ladder.local(global_position)
+		_ladder_x = clampf(p.x, -ladder.width * 0.25, ladder.width * 0.25)
+		_ladder_y = clampf(p.y, 0.0, ladder.height)
+		_ladder_dir = -1.0 if got.from_top else 1.0
+		_ladder_was = ladder.global_transform
+	var g := ladder.global_transform
+	var carried := (g.origin - _ladder_was.origin) / maxf(delta, 0.001)
+	_ladder_was = g
+	var off := tuning.radius + 0.05
+	if wants_jump:
+		_ladder_off(g * Vector3(_ladder_x, _ladder_y, off + 0.2), carried + g.basis.z * 2.0)
+		return true
+	var climb := -move.y * _ladder_dir * ladder.climb_speed
+	_ladder_y += climb * delta
+	if _ladder_y >= ladder.height:
+		_ladder_off(g * Vector3(_ladder_x, ladder.height + 0.05, -off - 0.15), carried)
+		return true
+	if _ladder_y <= 0.0 and climb < 0.0:
+		_ladder_off(g * Vector3(_ladder_x, 0.02, off + 0.05), carried)
+		return true
+	_ladder_y = maxf(_ladder_y, 0.0)
+	global_position = g * Vector3(_ladder_x, _ladder_y, off)
+	velocity = carried
+	return true
+
+
+func _ladder_off(at: Vector3, carried: Vector3) -> void:
+	ladder = null
+	global_position = at
+	velocity = carried
+
+
+## Steps and stairs: blocked low down (a riser, a tread's nosing, a porch step), try the same move
+## lifted by up to `step_height`; if it lands on floor you can stand on, go up onto it. The eyes
+## ease over the lift (PlayerMotion.stepped) so a stair is a climb, not a jolt. True if he stepped.
+func _step_up(delta: float) -> bool:
+	var move := Vector3(velocity.x, 0.0, velocity.z) * delta
+	if move.length() < 0.0005:
+		return false
+	var hit := KinematicCollision3D.new()
+	if not test_move(global_transform, move, hit):
+		return false
+	# Anything low in the way (a riser, a nosing, a stair's ramp under its treads' edges): try the
+	# move lifted, and come down where it lands if that's ground to stand on. Up a slope that's
+	# the same climb the slide would make, without the treads' edges catching underfoot.
+	if hit.get_position().y - global_position.y > tuning.step_height:
+		return false
+	# Up onto the tread a little way on (at least a quarter of the body's width), so a rounded heel
+	# doesn't come down on its very edge and teeter there.
+	var reach := move.normalized() * maxf(move.length(), tuning.radius * 0.25)
+	var lifted := global_transform
+	var rise := Vector3.UP * tuning.step_height
+	if test_move(lifted, rise):
+		return false  # no headroom
+	lifted.origin += rise
+	if test_move(lifted, reach):
+		return false  # still blocked up there: a wall, not a step
+	lifted.origin += reach
+	var down := KinematicCollision3D.new()
+	if not test_move(lifted, -rise, down) or down.get_normal().y < cos(floor_max_angle):
+		return false
+	var gained := lifted.origin.y + down.get_travel().y - global_position.y
+	if gained < 0.01 or gained > tuning.step_height:
+		return false
+	global_position += Vector3(0.0, gained, 0.0) + reach
+	motion.stepped(gained)
+	return true
+
+
+## Speed on the ground with weight: along the way you want to go it builds (quick to a walk,
+## slower on to a full run) and sheds (letting go, or pushing back against it); across it, your
+## boots grip and take it off, so a turn at a run carries you wide a little.
+func _momentum(horizontal: Vector2, target: Vector2, delta: float) -> Vector2:
+	var t := tuning
+	if target.length() < 0.01:
+		return horizontal.move_toward(Vector2.ZERO, t.ground_decel * delta)
+	var dir := target.normalized()
+	var along := horizontal.dot(dir)
+	var across := horizontal - dir * along
+	var goal := target.length()
+	var rate := t.run_build
+	if along < 0.0:
+		rate = t.reverse_decel
+	elif along > goal:
+		rate = t.ground_decel
+	elif along < t.walk_speed * move_factor:
+		rate = t.ground_accel
+	along = move_toward(along, goal, rate * delta)
+	across = across.move_toward(Vector2.ZERO, t.turn_grip * delta)
+	return dir * along + across
 
 
 func _stick_look(delta: float) -> void:
@@ -269,7 +635,23 @@ func _stick_look(delta: float) -> void:
 	add_look(Vector2(stick.x, stick.y * y_sign) * Settings.stick_look_speed * delta)
 
 
-func _update_crouch(wants_crouch: bool) -> void:
+func _update_crouch(wants_crouch: bool, wants_crawl := false) -> void:
+	if wants_crawl:
+		if not is_crawling:
+			is_crawling = true
+			is_crouching = true
+			_set_collision_height(tuning.crawl_height, tuning.crawl_radius)
+		return
+	if is_crawling:
+		# Up off your belly only with room over you: to a crouch, or on up if you're standing.
+		if not can_stand(tuning.crouch_height):
+			return
+		is_crawling = false
+		_set_collision_height(tuning.crouch_height)
+		if not wants_crouch and can_stand():
+			is_crouching = false
+			_set_collision_height(tuning.stand_height)
+		return
 	if wants_crouch and not is_crouching:
 		is_crouching = true
 		_set_collision_height(tuning.crouch_height)
@@ -278,32 +660,100 @@ func _update_crouch(wants_crouch: bool) -> void:
 		_set_collision_height(tuning.stand_height)
 
 
-## True when there is headroom to stand up from a crouch.
-func can_stand() -> bool:
+## Your height now over your feet as a share of standing (crouched or crawling less): the wounds
+## squash your body's parts down by it.
+func height_share() -> float:
+	if motion.seated:
+		return tuning.crouch_height / tuning.stand_height
+	if is_crawling:
+		return tuning.crawl_height / tuning.stand_height
+	return tuning.crouch_height / tuning.stand_height if is_crouching else 1.0
+
+
+## Down into a chair (PlayerSeat.sit has put you at its seat): sat height, no crouch or crawl.
+func sit_down() -> void:
+	_crouch_toggled = false
+	_crawl_toggled = false
+	_run_latched = false
+	is_crouching = false
+	is_crawling = false
+	is_running = false
+	motion.seated = true
+	body.seated = true
+	_set_collision_height(tuning.crouch_height)
+
+
+## Up out of it (PlayerSeat.stand has put you clear of it).
+func stand_up_from_seat() -> void:
+	motion.seated = false
+	body.seated = false
+	_set_collision_height(tuning.stand_height)
+
+
+## The chair went from under you: down flat on the floor (the crawl: a tap of crouch, jump or run
+## gets you up once PlayerSeat lets you move), your head thrown back a little as you go.
+func dumped_from_seat() -> void:
+	motion.seated = false
+	body.seated = false
+	_crawl_toggled = true
+	_crouch_toggled = true
+	is_crouching = false
+	_set_collision_height(tuning.stand_height)
+	_update_crouch(true, true)
+	add_look(Vector2(0.0, 8.0), false)
+
+
+## True when there is headroom to stand up from a crouch (or to come up to `height`).
+func can_stand(height := -1.0) -> bool:
+	if height < 0.0:
+		height = tuning.stand_height
 	var shape := CapsuleShape3D.new()
 	shape.radius = tuning.radius * 0.9
-	shape.height = tuning.stand_height - 0.12
+	shape.height = maxf(height - 0.12, shape.radius * 2.0)
 	var params := PhysicsShapeQueryParameters3D.new()
 	params.shape = shape
-	params.transform = Transform3D(Basis(), global_position + Vector3.UP * (tuning.stand_height * 0.5 + 0.08))
-	params.exclude = [get_rid()]
+	params.transform = Transform3D(Basis(), global_position + Vector3.UP * (height * 0.5 + 0.08))
+	var ex: Array[RID] = [get_rid()]
+	ex.append_array(_waded.values())  # (what you're crawling through doesn't keep you down: `_wade`)
+	params.exclude = ex
 	params.collision_mask = collision_mask
-	return get_world_3d().direct_space_state.intersect_shape(params, 1).is_empty()
+	return World.space(self).intersect_shape(params, 1).is_empty()
 
 
-func _set_collision_height(height: float) -> void:
-	_capsule.height = height
+func _set_collision_height(height: float, radius := -1.0) -> void:
+	var r := tuning.radius if radius < 0.0 else radius
+	# A capsule's height is never under its width: the order that keeps it so on the way.
+	if r < _body_shape.radius:
+		_body_shape.radius = r
+		_body_shape.height = height
+	else:
+		_body_shape.height = height
+		_body_shape.radius = r
 	collision.position = Vector3(0.0, height * 0.5, 0.0)
+	Sight.changed(self, true)  # his capsule, crouched or not
 
 
-func _update_head(delta: float) -> void:
-	var target_eye := tuning.crouch_eye_height if is_crouching else tuning.stand_eye_height
-	_eye_height = move_toward(_eye_height, target_eye, tuning.crouch_transition_speed * delta)
+## The eyes where the body carries them (PlayerMotion): steps, lean, dips, the crouch's spring.
+## `falling` is how fast you were coming down before this frame's move (m/s).
+func _update_head(delta: float, falling: float) -> void:
 	var speed := get_horizontal_speed()
 	var grounded := is_on_floor()
-	if grounded and speed > 0.2:
-		_bob_phase += speed * delta * tuning.bob_cycles_per_meter
-	var bob_strength := clampf(speed / tuning.walk_speed, 0.0, 1.6) if grounded else 0.0
-	head.position.y = _eye_height + sin(_bob_phase * TAU) * tuning.bob_amplitude * bob_strength
+	var aiming := weapon != null and weapon.aiming
+	var winded := composure.winded if composure else 0.0
+	motion.crawling = is_crawling
+	motion.step(tuning, delta, global_basis.inverse() * velocity, grounded, is_crouching, aiming, winded, falling)
+	# Flat on the ground the body you see is under you, not round you: put away.
+	body.visible = not is_crawling
+	_eye_height = motion.eye_height
+	head.position = Vector3(motion.head_pos.x, _eye_height + motion.head_pos.y, 0.0)
+	# The lean's pitch (and a kick's look down) goes on top of yours by its change, so whoever else
+	# turns the head keeps it.
+	var kick_look := shove.view_pitch() if shove else 0.0
+	head.rotation.x += deg_to_rad(motion.head_turn.x + kick_look - _tilt)
+	_tilt = motion.head_turn.x + kick_look
+	head.rotation.z = deg_to_rad(motion.head_turn.z)
 	var crouch_amount := inverse_lerp(tuning.stand_eye_height, tuning.crouch_eye_height, _eye_height)
-	body.update_pose(delta, speed, clampf(crouch_amount, 0.0, 1.0), grounded, _bob_phase, _pitch)
+	# The legs: widest apart as each foot comes down.
+	body.update_pose(delta, speed, clampf(crouch_amount, 0.0, 1.0), grounded, motion.steps + 0.5, _pitch)
+	if shove:
+		body.kick_leg(shove.leg())

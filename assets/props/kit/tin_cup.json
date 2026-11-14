@@ -1,0 +1,37 @@
+{
+  "_doc": "A tin cup (PropModels' cup: tinplate on a strap handle, a loose rigid prop: LooseProp), ~150 g, a splash of whiskey in it. Knocked off its table by a ball or a blast it rolls; a ball holes it through both sides (the tin costs a ball what ~1 mm of wood would); landing hard (3 m/s) or kicked it dents; it never breaks or burns.",
+  "id": "tin_cup",
+  "kind": "loose",
+  "replaces": "tin_cup",
+  "in_game": true,
+  "model": "tin_cup",
+  "fit": true,
+  "shape": "cylinder",
+  "size": [
+    0.11,
+    0.1,
+    0.08
+  ],
+  "mass": 0.15,
+  "wall": 0.001,
+  "hole_radius": 0.006,
+  "breaks_at": 3.0,
+  "shatters_kpa": 1000000000.0,
+  "spills_below": 0.3,
+  "dent": {
+    "radius": 0.025,
+    "shot": 0.004,
+    "kick": 0.008,
+    "fall": 0.003
+  },
+  "contents": {
+    "liquid": "whiskey",
+    "litres": 0.05,
+    "level": 0.3,
+    "colour": [
+      0.55,
+      0.32,
+      0.1
+    ]
+  }
+}

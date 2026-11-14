@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://crajoigr6ssjt"
-path="res://.godot/imported/saloon_red_b7.png-33e11abc3df01b1b494ff7e0a4613df5.ctex"
+uid="uid://cai12uvd80r84"
+path.bptc="res://.godot/imported/saloon_red_b7.png-33e11abc3df01b1b494ff7e0a4613df5.bptc.ctex"
+path.astc="res://.godot/imported/saloon_red_b7.png-33e11abc3df01b1b494ff7e0a4613df5.astc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/woods/saloon_red_b7.png"
-dest_files=["res://.godot/imported/saloon_red_b7.png-33e11abc3df01b1b494ff7e0a4613df5.ctex"]
+dest_files=["res://.godot/imported/saloon_red_b7.png-33e11abc3df01b1b494ff7e0a4613df5.bptc.ctex", "res://.godot/imported/saloon_red_b7.png-33e11abc3df01b1b494ff7e0a4613df5.astc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

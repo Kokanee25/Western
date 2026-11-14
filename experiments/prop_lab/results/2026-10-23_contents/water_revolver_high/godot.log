@@ -1,0 +1,4 @@
+Initialize godot-rust (API v4.7.stable.official, runtime v4.7.2.stable.official, safeguards balanced)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{"caught":[],"consumed":[],"consumed_t":[],"contents":{"capacity_l":168.7,"fire_spills":0,"first_l_per_s":0.036,"leaks":1,"left_l":168.58,"liquid":"water","on_bus_l":0.13,"out_l":0.14,"released":false,"slots":0},"farthest_m":0.0,"faults":{"below_ground":0,"flung":0,"part_fast":0,"sunk":0},"fingerprint":5863005,"frame":{"added_ms_first_1s":0.33,"before_ms":0.02,"event_ms":0.35,"settle_ms":5.48},"hits":[{"j_in":606.0,"through":true,"what":"stave10"},{"j_in":257.0,"through":false,"what":"stave4"}],"loose":false,"loose_t":null,"max_piece_speed":0.0,"members":20,"pieces":0,"prop":"water_barrel","scenario":"water_revolver_high","snapped":[],"upright":true}

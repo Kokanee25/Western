@@ -5,8 +5,9 @@
 // Included by texel_grid.gdshader and, with HOLES defined, by member_holes.gdshader.
 
 #include "res://src/render/tiles.gdshaderinc"
+#include "res://src/render/real_look.gdshaderinc"
 
-uniform sampler2D albedo_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D albedo_tex : source_color, GRID_FILTER, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
 // Offset of the texture, in repeats (0..1 of the texture). The texture repeats every
 // texels_per_meter / its own size metres (code-painted textures are 64 square, the texture
@@ -24,6 +25,16 @@ uniform float edge_shade : hint_range(0.0, 1.0) = 0.7;
 // The painting's seam: within this many screen pixels of a member face's long edges, this dark
 // (global: set by the look; 0 = off, only the texel-wide line above).
 global uniform float seam_px;
+// Grime and sun (the light pass, round 2; Sean, #321: "walls darker and dirtier toward the ground
+// (splash, dust, mud), lighter and more bleached toward the roofline, on every building"): on
+// upright faces, by world height (the street is y 0), with a ragged edge so it reads as splash, not
+// a painted band. grime_amount 0 and bleach_amount 0 = as before. Set by the light looks (`global.`).
+global uniform float grime_amount;
+global uniform float grime_height;
+global uniform vec4 grime_tint;
+global uniform float bleach_amount;
+global uniform float bleach_from;
+global uniform float bleach_to;
 uniform float seam_shade : hint_range(0.0, 1.0) = 0.45;
 uniform float seam_lip : hint_range(1.0, 2.0) = 1.3;
 // A member's long edges as the exterior wood sheet draws a board's: the near one (v 0) a lit lip,
@@ -50,20 +61,20 @@ uniform vec3 shade_tint : source_color = vec3(1.0);
 
 // The material lab's end grain (2026-10-14, LabGeometry): faces its meshes flag as a member's cut
 // ends (COLOR r 1, g 0) are drawn from this texture, at the same density; off everywhere else.
-uniform sampler2D end_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D end_tex : source_color, GRID_FILTER, repeat_enable;
 uniform bool use_end_tex = false;
 varying float end_face;
 // The material lab (lab3): a painted board's paint worn through to `wear_tex` (its bare wood)
 // within about `end_wear` m of the board's own ends, ragged row by row (0: never). Long faces of
 // flagged (LabGeometry) members only, which carry their face's length in UV2.x.
-uniform sampler2D wear_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D wear_tex : source_color, GRID_FILTER, repeat_enable;
 uniform float end_wear = 0.0;
 varying float lab_face;
 // lab4: end grain at its own density (texels a metre; 0: texels_per_meter), and each flagged
 // member's long faces starting `lab_u0` m along its strip (COLOR.b x 2 m: LabGeometry's per-member
 // offset, so members sharing a strip don't show the same knot at the same place).
 uniform float end_texels = 0.0;
-varying float lab_u0;
+varying flat float lab_u0;
 // The board's edge lines at least a screen pixel wide (material lab round 3, 2026-10-21): a
 // texel-wide line on a fine wood (384 a metre: 2.6 mm) is under a pixel past a metre or two and
 // broke into dashes as it fell on and off the pixels' centres (both blind critics' "black dashes
@@ -111,13 +122,15 @@ uniform float weather_bleach_walls = 0.45;
 // shapes on the wood rather than a coat with the bare wood showing as pale shapes in it (round 4's
 // "pale clouds"); 1 = as before.
 uniform float weather_mud_cover = 1.0;
-varying vec4 weather_frame;
-varying vec4 weather_nails;
+varying flat vec4 weather_frame;
+varying flat vec4 weather_nails;
 varying vec3 weather_n;
 
 varying vec3 tri_pos;
 varying vec3 tri_weights;
 varying vec3 local_pos;
+varying vec3 grime_world;  // world position and the face's world normal's y (grime_up)
+varying float grime_up;
 
 #ifdef HOLES
 uniform int hole_count = 0;
@@ -133,6 +146,8 @@ float seg_dist(vec3 p, vec3 a, vec3 b) {
 
 void vertex() {
 	local_pos = VERTEX;
+	grime_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	grime_up = (mat3(MODEL_MATRIX) * NORMAL).y;
 	end_face = use_end_tex && COLOR.g < 0.5 ? COLOR.r : 0.0;
 	lab_face = use_end_tex && COLOR.g < 0.5 ? 1.0 - COLOR.r : 0.0;
 	lab_u0 = lab_face > 0.5 ? COLOR.b * 2.0 : 0.0;
@@ -239,6 +254,9 @@ void fragment() {
 	bool soft = block_soft > 0.0;
 	// The squares the texture is drawn in (square_texels, end_square_texels), texels a side.
 	float sq = soft ? 1.0 : max(endf ? end_square_texels : square_texels, 1.0);
+#ifdef REAL_LOOK
+	sq = 1.0;  // the real look: the texture drawn smooth, never in squares
+#endif
 	if (mapping == 0 && endf) {
 		grid_uv = UV * uv_scale + uv_offset.xy;
 		if (sq > 1.0) {
@@ -321,7 +339,25 @@ void fragment() {
 	vec3 dpdv = (dpy * du1.x - dpx * du2.x) * sign(jd);
 	float up = length(dpdv) > 1e-12 ? normalize(dpdv).y : 0.0;
 	float lap = up > 0.7 ? 1.0 : (up < -0.7 ? -1.0 : 0.0);
+	float relief_edge = 0.0;
+#ifdef REAL_LOOK
 	if (mapping == 0 && UV2.x > 0.0) {
+		// The real look: the line between boards as a real gap does it, a soft dark groove a few
+		// millimetres wide (at least a pixel, anti-aliased) and a rounded arris either side of it
+		// for the light to catch (the bevel goes into the relief below), not a row of dark texels.
+		vec2 ue = UV - vec2(lab_u0, 0.0);
+		vec2 dm = min(ue, UV2 - ue);
+		vec2 aa = max(fwidth(ue), vec2(1e-5));
+		float gw = max(real_groove, aa.y);
+		float g_long = 1.0 - smoothstep(0.0, gw + aa.y, dm.y);
+		float g_end = 1.0 - smoothstep(0.0, max(real_groove, aa.x) + aa.x, dm.x);
+		edge = mix(1.0, edge_shade, g_long) * mix(1.0, mix(edge_shade, 1.0, 0.4), g_end);
+		relief_edge = smoothstep(real_groove * 2.5, 0.0, min(dm.x, dm.y));
+	}
+	if (false) {
+#else
+	if (mapping == 0 && UV2.x > 0.0) {
+#endif
 		// Members (MemberMesh) carry their face's size in metres in UV2; the face runs from UV 0
 		// to it. Keep the point the light is worked out at on this face: a face thinner than a
 		// texel (a plank's edge) would otherwise be lit from a point off it, above the plank and
@@ -391,14 +427,20 @@ void fragment() {
 	// A cube-built mesh (the voxel trial, VoxelTrial): each cube face is its own tile, far smaller
 	// than a texel, so the light stays where the fragment is (the texel's centre would be off the
 	// face, inside the thing, and in its shadow).
+#ifndef REAL_LOOK
 	if (!cube_faces) {
 		tile_light_at(texel, centre, VERTEX, NORMAL, LIGHT_VERTEX, NORMAL, 0.15 * lb);
 	}
+#endif
 #ifdef HOLES
 	// Bullet holes, tested at the centre of the texel (so they're drawn in whole texels).
 	// Holes that went right through are cut out, so you see — and the sun shines — through
 	// them; the ones that stopped inside are dark pits. Fresh splintered wood rings each.
+#ifdef REAL_LOOK
+	vec3 p = local_pos;  // the real look: holes round, not in whole texels
+#else
 	vec3 p = tile_snap(local_pos, tile_step(texel, floor(texel) + 0.5));
+#endif
 	float min_r = 1.05 / texels_per_meter;
 	for (int i = 0; i < hole_count; i++) {
 		float r = max(hole_a[i].w, min_r);
@@ -415,16 +457,42 @@ void fragment() {
 		}
 	}
 #endif
+	if ((grime_amount > 0.0 || bleach_amount > 0.0) && abs(grime_up) < 0.6) {
+		vec2 gp = grime_world.xz * 1.7 + vec2(grime_world.y * 0.6, 0.0);
+		vec2 gi = floor(gp);
+		vec2 gf = fract(gp);
+		gf = gf * gf * (3.0 - 2.0 * gf);
+		float g00 = fract(sin(dot(gi, vec2(127.1, 311.7))) * 43758.5);
+		float g10 = fract(sin(dot(gi + vec2(1.0, 0.0), vec2(127.1, 311.7))) * 43758.5);
+		float g01 = fract(sin(dot(gi + vec2(0.0, 1.0), vec2(127.1, 311.7))) * 43758.5);
+		float g11 = fract(sin(dot(gi + vec2(1.0, 1.0), vec2(127.1, 311.7))) * 43758.5);
+		float gn = mix(mix(g00, g10, gf.x), mix(g01, g11, gf.x), gf.y);
+		float low = 1.0 - smoothstep(0.0, max(grime_height, 0.01) * (0.6 + 0.8 * gn), grime_world.y);
+		albedo *= mix(vec3(1.0), grime_tint.rgb, clamp(grime_amount * low, 0.0, 1.0));
+		float high = smoothstep(bleach_from, max(bleach_to, bleach_from + 0.01), grime_world.y + (gn - 0.5) * 0.8);
+		float lum = dot(albedo, vec3(0.2126, 0.7152, 0.0722));
+		albedo = mix(albedo, vec3(lum) * 1.12 + 0.04, clamp(bleach_amount * high, 0.0, 1.0));
+	}
 	ALBEDO = albedo;
 	ROUGHNESS = roughness;
 	METALLIC = metallic;
 	SPECULAR = specular;
+#ifdef REAL_LOOK
+	// The real look's material: relief from the texture's own light and dark (grain stands up,
+	// cracks sink) and the boards' rounded edges; a touch more roughness in the dark of the grain.
+	// Until scanned maps come (R2), the albedo is the height.
+	float lum = dot(col.rgb, vec3(0.2126, 0.7152, 0.0722));
+	float h = (lum - 0.5) * real_relief - relief_edge * real_relief * 1.5;
+	NORMAL = real_bump(VERTEX, NORMAL, h);
+	ROUGHNESS = clamp(roughness + (0.5 - lum) * 0.15, 0.3, 1.0);
+	SPECULAR = max(specular, real_specular);
+#endif
 #ifdef WEAR
 	WEAR_FRAGMENT  // the building lab's lived-in marks (experiments/building_lab/wear.gdshaderinc)
 #endif
 }
 
-#ifdef BLOCKS
+#if defined(BLOCKS) && !defined(REAL_LOOK)
 // The surface-blocks look's light (texel_grid_blocks.gdshader, member_holes_blocks.gdshader):
 // Lambert cut into light_bands per light (the bands' sum is banded too, so the whole direct light
 // steps), the lower bands leaning toward the material's shade_tint; a small banded highlight.

@@ -161,7 +161,7 @@ func _tick(delta: float) -> void:
 		swinging -= delta
 		if swinging <= 0.0:
 			swinging = 0.0
-			_let_go()
+			_in_tick(_let_go)  # (the swing's timed in _process)
 
 
 ## The water leaves the bucket: drops fly on their own arcs from in front of you; each lands on
@@ -172,7 +172,7 @@ func _let_go() -> Dictionary:
 	var eye := _eye()
 	var fwd := -basis.z
 	var from := eye + fwd * 0.45 - basis.y * 0.25
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var exclude: Array[RID] = []
 	if _player:
 		exclude.append(_player.get_rid())
@@ -226,6 +226,7 @@ static func _fly(space: PhysicsDirectSpaceState3D, from: Vector3, v: Vector3, ex
 ## The water seen going: a burst of drops on the throw's arc.
 func _spray(from: Vector3, v: Vector3) -> void:
 	var p := GPUParticles3D.new()
+	p.emitting = false  # (made emitting: set again below, `finished` never came, #459)
 	p.amount = 90
 	p.lifetime = 0.9
 	p.one_shot = true
@@ -300,5 +301,5 @@ func _animate(delta: float) -> void:
 
 func _apply_pose(drawn_amount: float) -> void:
 	var t := smoothstep(0.0, 1.0, tuck)
-	position = PUT_AWAY_POS.lerp(_pose_pos.lerp(Vector3(0.18, -0.4, -0.2), t), drawn_amount)
-	rotation_degrees = _pose_rot
+	position = PUT_AWAY_POS.lerp(_pose_pos.lerp(Vector3(0.18, -0.4, -0.2), t), drawn_amount) + _body_pos() * drawn_amount
+	rotation_degrees = _pose_rot + _body_rotation() * drawn_amount

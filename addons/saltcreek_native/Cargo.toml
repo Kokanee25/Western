@@ -13,7 +13,27 @@ glam = "0.29"
 # Godot 4.7.2 is pinned in .github/workflows/build.yml: the bindings target that exact API.
 godot = { version = "0.5.5", features = ["api-4-7"] }
 
+# The crash guard (src/crash_guard.rs, issue #624): signals on Linux, the exception handler,
+# minidumps and the freeze's end on Windows.
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Kernel",
+    "Win32_System_IO",
+    "Win32_System_Memory",
+    "Win32_System_Threading",
+] }
+
 [profile.release]
 opt-level = 3
 lto = "thin"
 codegen-units = 4
+# Line tables in the release build, so a crash's minidump names this plugin's functions and lines
+# (on Windows they're in saltcreek_native.pdb, shipped beside the DLL; #624).
+debug = "line-tables-only"

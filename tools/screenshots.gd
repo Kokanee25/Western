@@ -93,6 +93,8 @@ const VIEWS := [
 	# Roadmap 1.2's street half (art, 2026-10-15): the seated man's model (--model=) standing in
 	# the street at golden hour, the low sun behind you, framed on his face; --face-probe finds him.
 	["face_street_golden", 17.6, Vector3(1.6, 0.0, -9.0), -90.0, 0.0, "face_street"],
+	# The same at noon (art, #641: the real look's day exposure judged on a face under a high sun).
+	["face_street_noon", 12.5, Vector3(1.6, 0.0, -9.0), -90.0, 0.0, "face_street"],
 	# The road (art, 2026-10-15, docs/briefs/road.md): low and down the ruts toward the low sun, as
 	# Sean's road target is (docs/concept/targets/6_road_target.jpg), at golden hour and at noon.
 	["road_low_golden", 17.6, Vector3(14.0, 0.0, -8.0), -90.0, 0.0, "road_low"],
@@ -133,8 +135,9 @@ static func _view_move(view: String) -> Transform3D:
 			move = Transform3D(Basis(), Vector3.UP * lift) * move
 		return move
 	if view in STORE_VIEWS:
+		# The old store's door (x 3) to the store's door (the middle of its front), turned with it.
 		var w := float((town.entry(&"Store").get("set", {}) as Dictionary).get("width", 6.0))
-		return Transform3D(Basis(), town.point(&"Store", Vector3(w * 0.5, 0, 0)) - Vector3(3.0, 0, 0))
+		return town.transform_of(&"Store") * Transform3D(Basis(), Vector3(w * 0.5 - 3.0, 0, 0))
 	if view in RANGE_VIEWS:
 		return town.transform_of(&"RangeCover")
 	return Transform3D()
@@ -160,6 +163,10 @@ func _run() -> void:
 	var out := "user://screenshots"
 	var only := ""
 	var window_shot := false
+	# --variants=A.json,B.json: after the view's own render, each LookPreset file applied in turn
+	# (over the game's light put back first) and the view saved again as <view>_<file's name>.png.
+	var variants := PackedStringArray()
+	var real_at_start: bool = root.get_node(^"Settings").real_look
 	var screen_squares := 0.0
 	var mosaic_steps := 14.0
 	var view_tune := {}
@@ -173,13 +180,19 @@ func _run() -> void:
 	var settings = root.get_node(^"Settings")
 	settings.autosave = false
 	# The talking men's faces at rest in the fixed views, as their goldens (FaceLife; --face-life: alive).
-	FaceLife.enabled = OS.get_cmdline_user_args().has("--face-life")
+	# (By path: naming it compiles FaceLife, which uses the Events autoload, before the autoloads exist.)
+	load("res://src/bodies/face_life.gd").enabled = OS.get_cmdline_user_args().has("--face-life")
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)
 		elif arg.begins_with("--only="):
 			only = arg.substr(7)
 		# --only=a,b renders every view whose name contains a or b.
+		elif arg.begins_with("--lab-set="):
+			# A material lab set's woods in place of the game's, everywhere they're drawn (art).
+			PixelArt.lab = true
+			PixelArt.lab_set = arg.substr(10)
+			WoodMaterials.reset()
 		elif arg.begins_with("--man-dist="):
 			man_dist = float(arg.substr(11))
 		elif arg.begins_with("--model="):
@@ -307,6 +320,8 @@ func _run() -> void:
 			for part in arg.substr(11).split(";"):
 				var xyz := part.get_slice(":", 1).split(",")
 				man_pose[StringName(part.get_slice(":", 0))] = Vector3(float(xyz[0]), float(xyz[1]), float(xyz[2]))
+		elif arg.begins_with("--variants="):
+			variants = arg.substr(11).split(",")
 		elif arg.begins_with("--suffix="):
 			suffix = arg.substr(9)
 		# Any shader global for this run (after the look's own): --global=block_soft:0.5,light_bands:12
@@ -352,6 +367,8 @@ func _run() -> void:
 		clock.set_time(v[1])
 		var move := _view_move(v[0])
 		player.global_position = move * (v[2] as Vector3)
+		# On the town's ground where it slopes (config/town.json ground; 0 where the views were laid out).
+		player.global_position.y += TownLayout.ground_height(player.global_position.x)
 		player.velocity = Vector3.ZERO
 		player.rotation = Vector3(0.0, deg_to_rad(v[3]) + move.basis.get_euler().y, 0.0)
 		player.input_enabled = true
@@ -508,7 +525,7 @@ func _run() -> void:
 			var fwd: Vector3 = -(cam.global_transform.basis.z as Vector3)
 			var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position + fwd * 8.0, 1)
 			q.exclude = [player.get_rid()]
-			var hit: Dictionary = player.get_world_3d().direct_space_state.intersect_ray(q)
+			var hit: Dictionary = World.space(player).intersect_ray(q)
 			if not hit.is_empty():
 				var flat := Vector3(fwd.x, 0, fwd.z).normalized()
 				player.global_position += flat * (Vector2(hit.position.x - cam.global_position.x, hit.position.z - cam.global_position.z).length() - 0.36)
@@ -606,6 +623,35 @@ func _run() -> void:
 		big.resize(img.get_width() * 3, img.get_height() * 3, Image.INTERPOLATE_NEAREST)
 		big.save_png("%s/%s_x3.png" % [out, v[0]])
 		print("saved ", v[0])
+		for path in variants:
+			var looks: Variant = load("res://src/render/light_looks.gd")
+			var preset: Variant = load("res://src/debug/look_preset.gd")
+			looks.blend(self, looks.night_share(self))
+			var file: Dictionary = preset.load_file(path)
+			var missed: PackedStringArray = preset.apply(self, file)
+			# A file may ask for more frames to settle (the real look's TAA and SDFGI: "frames").
+			for i in int(file.get("frames", 8)):
+				await process_frame
+			# RoomLight (settings.room_light, art #608) casts its lamps' rays over a few ticks.
+			var room = root.find_child("RoomLight", true, false)
+			for i in 240:
+				if room == null or not room.busy():
+					break
+				await physics_frame
+			if room:
+				for i in 4:
+					await process_frame
+			viewport.get_texture().get_image().save_png("%s/%s_%s.png" % [out, v[0], path.get_file().get_basename()])
+			print("saved ", v[0], " ", path, "" if missed.is_empty() else " (not here: %s)" % ", ".join(missed))
+		if not variants.is_empty():
+			# The real look off again if a variant turned it on (it puts back what it set).
+			if not real_at_start and root.get_node(^"Settings").real_look:
+				root.get_node(^"Settings").set_real_look(false)
+				for i in 4:
+					await process_frame
+			# The game's light back for the next view (a dial no look sets keeps the last variant's).
+			var looks: Variant = load("res://src/render/light_looks.gd")
+			looks.blend(self, looks.night_share(self))
 		if man_mask:
 			await _save_man_mask(viewport, player, "%s/%s_man.png" % [out, v[0]])
 		if face_probe:
@@ -669,6 +715,12 @@ func _save_face_probe(viewport: SubViewport, player, base: String) -> void:
 		var we := viewport.find_child("WorldEnvironment", true, false) as WorldEnvironment
 		env = we.environment if we else null
 	var exposure: float = env.tonemap_exposure if env else 1.0
+	# The real look's exposure is a camera-attributes multiplier on top (RealLook, #641): divided
+	# out too, so the paint pass shows the paint at the frame's exposure whichever look is on.
+	var we_attr := viewport.find_child("WorldEnvironment", true, false) as WorldEnvironment
+	var attrs: CameraAttributes = cam.attributes if cam.attributes else (we_attr.camera_attributes if we_attr else null)
+	if attrs:
+		exposure *= attrs.exposure_multiplier
 	var heads: Array = []
 	for mi: MeshInstance3D in man.find_children("Head_*", "MeshInstance3D", true, false):
 		if mi.material_override is ShaderMaterial:
@@ -811,7 +863,7 @@ func _man_setup(main, player) -> void:
 	man.name = "MatchMan"
 	man.person_id = &"stranger"
 	var chosen: StringName = load("res://src/art/shot_match.gd").model
-	man.body_model = &"bold_cowboy_layered" if chosen == &"stranger2s" else chosen
+	man.body_model = chosen  # the Studio's man (Sean, 2026-10-24: not the old layered cowboy)
 	man.rng_seed = 7
 	street.add_child(man)
 	var fwd: Vector3 = -player.camera.global_basis.z

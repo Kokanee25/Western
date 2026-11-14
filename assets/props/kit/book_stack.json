@@ -1,0 +1,77 @@
+{
+  "_doc": "His medical books (#819; refs experiments/prop_lab/refs/doctor/): a pile of three lying on a table or a desk's top, the army's big quarto under his visiting list. The standard American texts a country doctor of 1882 owned: Medical & Surgical History Of The War (Surg. Genl.); The Physician Himself (Cathell); Physician'S Visiting List (a year's volume). Most in law sheep (tan sheepskin with a red and a black label lettered in gilt, the trade binding of medical books into the 1880s), some in publishers' cloth, a few in calf. Each book a member (wood `paper`: ~1.5 kg an octavo): it burns, a ball goes through it, the row comes down with its shelf. Drawn from glb:medical_books, every face printed on its own sheet (tools/blender/props/doctor_d3.py: Pillow, as the bottles' labels). Written by tools/props/doctor.py.",
+  "id": "book_stack",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "paper",
+  "look": "pbr:medical_books",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "book17",
+      "kind": "post",
+      "size": [
+        0.3,
+        0.07,
+        0.24
+      ],
+      "at": [
+        0.012,
+        0.035,
+        0.0
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book17"
+      }
+    },
+    {
+      "id": "book21",
+      "kind": "furniture_top",
+      "size": [
+        0.195,
+        0.03,
+        0.13
+      ],
+      "at": [
+        -0.008,
+        0.085,
+        0.01
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book21"
+      }
+    },
+    {
+      "id": "book20",
+      "kind": "trim",
+      "size": [
+        0.17,
+        0.022,
+        0.105
+      ],
+      "at": [
+        0.0,
+        0.111,
+        -0.006
+      ],
+      "wood": "paper",
+      "look": "pbr:medical_books",
+      "draw": {
+        "shape": "mesh",
+        "model": "medical_books",
+        "part": "Book20"
+      }
+    }
+  ],
+  "factory": "tools/props/doctor.py"
+}

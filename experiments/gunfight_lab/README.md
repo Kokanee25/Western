@@ -8,11 +8,15 @@ improvement:** the men are the game's (`TownLife.GANG`'s tempers, nerve and prid
 `Senses`, `Cover`, untouched), the guns are yours as the keys work them. Only where everyone
 stands, which bodies the three wear, the hour and the lamps are the lab's.
 
-Since 2026-10-22 its three fixes are **variants of the gang** (`OutlawBrain.Variant`): A as the
-game plays (the default everywhere), B (fixes 1 and 2: aim by the hand, a moment to react, the
-town's cover), C (B and fix 3, shaken first). The lab runs C unless told (`variant=`,
-`run.py --variant=`). **You can play them** in the game: Y, X, Z (`play.gd`, the sheet and the
-protocol in `PLAYTEST.md`).
+Since 2026-10-22 its fixes are **variants of the gang** (`OutlawBrain.Variant`): A as the game
+played until 2026-10-23, B (fixes 1 and 2: aim by the hand, a moment to react, the town's cover),
+C (B and fix 3, shaken first), and since 2026-10-23 **D, the game's default**: C and fights that
+commit (nine fixes, `OutlawBrain.D_FIXES`, `fixes=` picks them; `results/2026-10-23_commit/`).
+The lab runs C unless told (`variant=`, `run.py --variant=`).
+
+**Since 2026-10-23 the lab fights in the new saloon** (the building lab's: `spec_*` arenas, below)
+and **you can play it there**: Y, X, Z (`play.gd`, `PLAYTEST.md`). The street arenas stay as they
+were.
 
 Everything is in this folder. Outputs go under `build/gunfight_lab/` (git-ignored). The baseline's
 numbers and its contact sheet are in `baseline/`.
@@ -27,16 +31,21 @@ python3 experiments/gunfight_lab/analyse.py build/gunfight_lab/base      # basel
 # a narrower set (any of --scenarios --hours --weapons --styles --bodies --seeds=1-4,7)
 python3 experiments/gunfight_lab/run.py --scenarios=street --styles=cover --seeds=1-20 --out=build/gunfight_lab/try
 python3 experiments/gunfight_lab/run.py --list ...                         # what it would run
+python3 experiments/gunfight_lab/run.py ... --game-args=--jolt-sight      # the game's own flags too (here: sight lines asked of Jolt)
+python3 experiments/gunfight_lab/perf.py ROOT [ROOT...]                     # what a frame cost: each run's frame, worst 5%, systems
+python3 experiments/gunfight_lab/moves.py ROOT [ROOT...]                    # how the gang moves: runs, stays, drops, posts, the galleries
 # one fight, drawn, with a pair of frames every 1.5 s (overview + your eyes) for the contact sheet
 xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan --resolution 960x540 --fixed-fps 60 \
     -- --dev-bridge --bridge-script=FILE   # FILE: "gf_fight street seed=2 style=cover out=/abs/f.json shots=/abs/shots every=1.5" and "quit"
 python3 experiments/gunfight_lab/sheet.py /abs/f.json /abs/shots --out=sheet.png
+# a film of one fight, the camera on a man at a post (gf_postcam) and else your eyes: mp4 + cuts
+experiments/gunfight_lab/film_posts.sh spec_hall 17 shoot build/film 640x360 30
 ```
 
 The bridge commands (`bridge.gd`, `python3 tools/bridge.py help` lists them with the game running):
 
 - `gf_fight SCENARIO [hour=golden|night|H] [weapon=revolver|shotgun] [style=hold|cover|push|human]
-  [variant=A|B|C] [bodies=studio|outlaw|game] [seed=N] [max=S] [out=FILE.json] [shots=DIR every=S]`:
+  [variant=A|B|C|D] [fixes=...] [opening=draw|shoot] [bodies=studio|outlaw|game] [seed=N] [max=S] [out=FILE.json] [shots=DIR every=S]`:
   one fight to its end; answers the headline, writes the whole record to `out`. `style=human`
   has no bot: you (or nobody) play it, your gun starts away, and they turn when you draw or after
   `count=S` (3).
@@ -53,6 +62,12 @@ cores. A drawn fight (lavapipe) is drawn only round each capture
 (`RenderingServer.render_loop_enabled` off between), ~8 minutes for a 7.5 s fight with a pair of
 frames a second; `run.py --sheet=NAME` does it and makes the sheet.
 
+**Every man down** (2026-10-28, issue #446): `run.py ... --falls=1` adds `fall_log.gd`, and each
+record a `falls` list (his speed and heading as he went limp, what's within 2 m ahead, his travel
+once limp, what he touched and broke); `falls.py ROOT [ROOT...] [--each]` sums them. The bridge
+waits up to 4 s after the fight for the last fall. `--momentum=on` is `HumanBody.keep_stride`.
+Numbers: `experiments/physics_lab/results/2026-10-28_momentum/`.
+
 ## Playing it (`play.gd`, `PLAYTEST.md`)
 
 `main.gd` adds `GunfightPlay` when this folder is in the build. Y starts the next of nine blind
@@ -61,6 +76,39 @@ one again, Z is free play (the next variant, shown). Each run reloads the scene,
 whole again; `fight.gd` (style `human`) records it to `user://gunfight_runs/` (a JSON a run and
 `runs.csv`). F3 shows each man's last decision and why (`OutlawBrain.decision`). The sheet and the
 protocol for Sean (and anyone else who plays) are in `PLAYTEST.md`.
+
+## In the new saloon (2026-10-23)
+
+The building lab's saloon (`experiments/building_lab/`, F5's eighth stop) is built out in the
+desert west of town by `spec_saloon.gd` when a `spec_*` arena needs it, and its ways (48 places:
+in at the batwings, along the bar, round its open end to behind it, the tables, the kitchen round
+its open cellar trap, the back room, the yard, the hall stair, the galleries, the rooms, the street
+balcony) joined to the town's (`Waypoints`). Every link walked by a man (`gf_ways`: 52 of 52).
+What it took: the batwings were solid members (on `Layers.DEBRIS` now in the builder: a ball still
+hits them, anyone walks through), and the places. Positions are in the saloon's own space.
+
+| Setup | You | Brody | Lyle | The Kid |
+|---|---|---|---|---|
+| `spec_hall` | just in at the batwings | at the bar | by the middle card table | by the far table |
+| `spec_stair` | in the hall by the door | behind the bar | at the foot of the hall stair | a third of the way up it |
+| `spec_gallery` | in the middle of the hall | at the bar | on the west gallery, at its rail | on the back gallery over the tables |
+| `spec_back` | between the far tables | by the back room's door | behind the bar's far end, by the kitchen | at the back gallery's rail |
+| `spec_front` | in the desert by the boardwalk's steps | on the street balcony | along the boardwalk | at the batwings |
+
+**Openings:** as each arena starts (a standoff: they turn on you at once), or `opening=shoot`
+(`run.py --opening=,shoot`): your gun away and the men at their drink, the bot draws and fires
+first (as Sean did), and the men take it up by the game's own rules. Played (`play.gd`,
+`gf_play`), drawing doesn't start it (they warn you off, as in town): your shot does, or they go
+for theirs when the count's out (6 s).
+
+**How they quit:** `quits.py ROOT...` (by variant and opening): how often and how soon anyone
+quits, on how many hits, who first, from what fear (the brain's own ledger,
+`OutlawBrain.fear_from`), whether they fired at all, and the shooting's length (to the last shot:
+the lab ends a fight on 45 s of quiet, which isn't fighting). The baseline, the nine steps and
+the final table are in `results/2026-10-23_commit/README.md`.
+
+**The blind playtest** plays it through the bridge: `gf_play SETUP [seed=N]` and `gf_result`
+(`PLAYTEST_AGENT.md`; its report `docs/playtests/2026-10-23-gunfight.md`).
 
 ## The arenas (`scenarios.json`)
 
@@ -88,6 +136,10 @@ Lyle `hothead_lyle_s1`, the Kid `young_drifter_s1`); it isn't in the baseline.
 judgement), the scripted player his own, and Godot's global `seed()`. The same build gives the
 same fight: the same seed in two processes, or headless and drawn, gave the same record event for
 event (perf aside). Across machines or Godot builds, compare within a tolerance.
+`python3 experiments/gunfight_lab/same_fight.py RUN_A RUN_B` says so for two runs: each fight
+paired by name, compared event for event (the timeline, the ending, every man's and your shots
+and hits), the first divergence printed; exit 0 when all are the same. The more-cores steps
+(docs/briefs/more-cores.md) are each gated on it: the same seeds twice on the new build.
 
 ## The scripted player (`player_bot.gd`)
 
@@ -137,7 +189,9 @@ after 45 s with no shot from anyone (a lull), or at 180 s.
   `OutlawBrain.decision`), how his flanks and his looking for you came out (`flanks_made`,
   `flanks_failed`, `searches_found`, `searches_failed`), seconds stuck on the way to cover
   (`stuck_s`), and in the record `unfair`: a man firing at you, or calling he's spotted you, with
-  no clear line from his eyes to you for over half a second; and since fix 3, where his fear came from (`fear_from`), what he'd been through
+  no clear line from his eyes to you for over half a second; since 2026-10-28 each run for cover
+  (`moves`) and each stay behind it (`stays`, with what a drop was against), to a post or up on the
+  galleries, and his hits on you from up there (`hits_from_up`); and since fix 3, where his fear came from (`fear_from`), what he'd been through
   when he quit (`quit`), and times shaken and rallied (also situations `shaken`, `rallied`).
 - **Situation changes:** **cover shot away** (a member broken within 2.5 m of a hidden man's
   spot, or of yours; once a second), **lamps hit** (an `OilLamp` broken), **fires started**,
@@ -303,6 +357,44 @@ Each in `results/<date>_<name>/` (a README, `compare.md` from `analyse.py NEW --
   every variant); `2026-10-22_perception/`: the perception lab's fix 1 merged in locally, and the
   fairness check widened to what a man knows. No leak before or after; the street's fights run
   longer, but cover dropped on arrival doubles (47 → 95).
+- `2026-10-23_commit/`: in the new saloon, fights that commit (variant D, the game's default):
+  you shooting first, A → D, someone quits in 98% → 88% of fights, the first at 1.4 → 3.8 s,
+  2.3 → 1.4 quits a fight, the shooting 3.5 → 15.3 s (20 s+: 12% → 38%); Brody quits 76% → 38%,
+  Lyle 78% → 32%, the Kid 80% → 72% and first to go. 45–90 s of shooting is still rare (4–12%):
+  hits decide it now. The night's round (four more fixes: rescue and pressing by the town's ways,
+  staying in while a friend's on you, a knee under fire, one man pressing on your reload; two tried
+  and dropped): 45–90 s of shooting 4% → 14% when you shoot first, 12% → 16% when they do.
+
+- `2026-10-28_hold_cover/`: how the gang moves (`moves.py`: runs, stays, posts, the galleries),
+  and `hold_cover` (#294, in D): behind cover he holds it against the idea of you he chose it by,
+  not every new guess at a sound, and a heard shot puts you at your feet. Cover left within 2 s of
+  getting there 39% → 23% of arrivals (they draw first), 27% → 19% (you shoot first); stays twice
+  as long; the fights as long and as dangerous. Posts and the galleries next.
+
+- `2026-11-02_step_out/`: `step_out` (#566, in D): at a post he points round it near, steps out
+  past its edge to aim far (`PostStepTuning`, `config/post_step.tres`: range, nerve, your fire,
+  pain), and back in when shot at or after his hold. 96 / 74 steps out in a hundred fights, a
+  second each; from out one hit on you in 3.2 shots, pointed one in 11; the fights as long and as
+  dangerous (`shots.py`, `steps.py`; films by `film_posts.sh`).
+
+- `2026-11-02_climb/`: `climb` (#572, in D): his cover stale with you below the galleries, he goes
+  up the stair and fights from the rail (`Cover.climb_search`, `ClimbTuning`, `config/climb.tres`);
+  up over you a balustrade is a screen (`Cover._screen_spot`). 34 climbs in 200 fights (none
+  before), stays up 268 -> 415; hits on you from up unchanged (50 -> 52); the fights as long and as
+  dangerous inside the noise, the medians a little lower (`climbs.py`; a film by
+  `film_posts.sh ... climb`; a drawn fight is the headless one at `--fixed-fps 30` with the same
+  script).
+
+## Joe beside you (2026-11-12, #843)
+
+`run.py ... --joe=1` (or `gf_fight ... joe=1`, `gf_play SETUP joe=1`, Shift+Y to play it) puts Joe,
+the companion (`CompanionBrain`), 2.2 m to your right and a pace back, his gun out. The record gets
+a `joe` part: his shots and hits (and those on your man), who put each man out (the last ball in
+him), his seconds in your line of fire and steps out of it, how often he held fire on your man, your
+balls in him, the gang's shots at him and hits on him, his downs, his calls. The timeline has his
+changes of mind (`joe`) and his words. `joe_stats.py RUN [RUN...]` sets runs side by side.
+20 fights without him and 20 with: `results/2026-11-12_joe/README.md`. The blind playtest:
+`PLAYTEST_JOE.md`, `docs/playtests/2026-11-12-joe.md`.
 
 ## Limitations
 

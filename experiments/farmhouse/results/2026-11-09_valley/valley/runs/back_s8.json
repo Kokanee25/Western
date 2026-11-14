@@ -1,0 +1,268 @@
+{
+ "alarm": 125.75,
+ "blocking": [
+  "0.3:House/floor_ground_joist_005",
+  "0.3:House/floor_ground_joist_009",
+  "0.3:House/floor_ground_joist_007",
+  "0.3:House/floor_ground_board_026_0",
+  "0.3:House/floor_ground_board_025_0",
+  "0.3:House/floor_ground_board_030_0",
+  "0.3:House/floor_ground_board_028_0",
+  "0.3:House/floor_ground_board_029_0",
+  "0.3:House/floor_ground_board_027_0",
+  "0.3:House/floor_ground_board_031_0",
+  "0.3:House/floor_ground_board_032_0",
+  "0.3:Props/Rubble",
+  "RB RigidBody3D at [0.33, 1.51, 3.52] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\"]",
+  "1.0:Props/Rubble",
+  "RB RigidBody3D at [0.33, 1.51, 3.52] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\"]",
+  "1.0:Props/Rubble",
+  "RB RigidBody3D at [0.33, 1.51, 3.52] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\"]",
+  "1.0:Valley/Player",
+  "1.6:Props/Rubble",
+  "RB RigidBody3D at [0.33, 1.51, 3.52] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\"]",
+  "1.6:Props/Rubble",
+  "RB RigidBody3D at [0.33, 1.51, 3.52] mass 50.6720008850098 kids [&\"@CollisionShape3D@23405\", &\"@CollisionShape3D@23415\", &\"@CollisionShape3D@23407\", &\"@CollisionShape3D@23413\", &\"@CollisionShape3D@23411\", &\"@CollisionShape3D@23409\"] meta [&\"members\", &\"rest_reach\", &\"v\", &\"resting_in\"]",
+  "1.6:Valley/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 3.91666666666666,
+  "gate_left": 86.33,
+  "gate_wait": 60.8999999999978,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Lyle",
+ "breach": -1.0,
+ "end": 132.42,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 399,
+  "max_ms": 159.91,
+  "mean_ms": 9.79,
+  "p95_ms": 16.97
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.28,
+   1.82,
+   2.48
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.33,
+  1.46,
+  2.49
+ ],
+ "men": 7,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 3.4,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Brody down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.55 / 1.06)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom corner: bedroom corner (you're front room)",
+   "id": "kid",
+   "inside": true,
+   "knows": 1.6,
+   "mood": "CALM",
+   "order": "bedroom_corner",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.55 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "pike",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "drag Brody to cover: he's down in the open",
+   "id": "wes",
+   "inside": false,
+   "knows": 2.3,
+   "mood": "CALM",
+   "order": "loft_stair",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, can't feel his legs, bone broken.",
+ "player_local": [
+  1.09,
+  0.56,
+  4.91
+ ],
+ "quits": [
+  [
+   127.95,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.55 / 1.12)",
+   true
+  ],
+  [
+   130.43,
+   "dutch",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.55 / 1.06)",
+   true
+  ]
+ ],
+ "route_left": 6,
+ "route_next": [
+  1.0,
+  0.56,
+  3.9
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 8,
+ "shots_men": 9,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 132.42,
+ "threat": 128.9,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   125.75,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   125.75,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   125.75,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   126.4,
+   "Hollis down"
+  ],
+  [
+   127.95,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.55 / 1.12))"
+  ],
+  [
+   128.88,
+   "Dutch down"
+  ],
+  [
+   128.9,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   130.07,
+   "the rancher hit (bullet, by Player)"
+  ],
+  [
+   130.43,
+   "Dutch gives up (get back up: knocked down, not beat (fear 0.55 / 1.06))"
+  ],
+  [
+   131.0,
+   "Brody down"
+  ],
+  [
+   132.42,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

@@ -15,6 +15,8 @@ extends Node
 ## Child of a HumanBody (with no gun).
 
 enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING }
+## "...They gone?" only after this long without a shot heard (s).
+const RELIEF_QUIET := 8.0
 
 const LINES := {
 	&"shoved": ["Hey—! There's no call for that.", "Please, I don't want any trouble.", "Easy! Easy..."],
@@ -28,7 +30,21 @@ const LINES := {
 	&"fire": ["Fire! FIRE!", "Fire! Get out, get out!", "Lord, it's burning!", "Fire! Somebody get water!",
 			"It's going up! Clear out!"],
 	&"thanks": ["Obliged to you, mister. Truly.", "Thank God you came along.", "I owe you one, friend."],
+	&"gun_out": ["Whoa, now. Easy with that iron.", "Put that away, mister.", "Hey now. There's no call for that."],
+	&"chair": ["What the hell?!", "Who kicked my damn chair?", "Son of a...!"],
 }
+## A man's lines come no closer than this (s) (#773, the cards playtest: the drifter's hiding and
+## pleading lines two a second for 20 s), but for these, which come once and matter.
+const SAY_GAP := 2.5
+const SAY_ALWAYS := [&"fire", &"thanks", &"chair"]
+## A shot near: each man's cry comes this long after it (s, at random), not all on the same tick
+## (the playtest: all five "Lord almighty!" in the same instant).
+const CRY_SPREAD := Vector2(0.15, 1.1)
+## Another man's cower line this recently (ms): he's likelier to keep quiet, and never says the same.
+const CROWD_MS := 900
+const SAME_LINE_MS := 4000
+## Seen drawing within this (m), a gun makes him uneasy (not on him: `aim_at` is that).
+const GUN_SEEN := 9.0
 
 ## Where he stands, and the point he faces there (set by whoever put him there).
 var post := Vector3.INF
@@ -53,11 +69,28 @@ var thanked := false
 var _aimed := 0.0
 var _aimed_by: Node3D
 var _cower := 0.0
+## A cry still to come (s): a blast's (`_scared_by_shooting`).
+var _cry_in := 0.0
+## A man's start at a blast before he cries out (s), the sound's travel to him on top.
+const CRY_AFTER := 0.2
 var _flinch := 0.0
 var _say_again := 0.0
 var _calm_for := 0.0
 var _rng := RandomNumberGenerator.new()
+## Quiet for an act's beat (s left; `hush`): he says nothing of his own.
+var _hush := 0.0
+## Since his last line (s).
+var _since_said := INF
+## A drawn gun he's keeping an eye on, and for how long (s).
+var _gun_seen: Node3D
+var _gun_watch := 0.0
+## Every man's lines, when last said (ms of game ticks): two men don't say the same thing in the same breath.
+static var _said_at := {}
+static var _cower_at := -100000
 
+## Seen kicking a man (PlayerShove's deeds), within this (m), it frightens him.
+const ASSAULTS := [&"kick", &"kick_down"]
+const ASSAULT_SEEN := 15.0
 ## Fire within `FIRE_REACH` m of him sends him off to somewhere `FIRE_CLEAR` m from any; he goes
 ## back once his post has had none within `FIRE_CLEAR` for `FIRE_OVER` s. Looked for every
 ## `FIRE_LOOK` s.
@@ -98,6 +131,7 @@ var _home_route: Array[Vector3] = []
 
 
 func _ready() -> void:
+	set_physics_process(true)  # its switch (PeopleTick ticks it while on)
 	body = get_parent() as HumanBody
 	_rng.seed = body.rng_seed * 23 + 11
 	senses = Senses.new()
@@ -114,17 +148,51 @@ func _ready() -> void:
 	_fire_look = _rng.randf_range(0.0, FIRE_LOOK)  # not everyone looking on the same tick
 
 
+## A new post (and the point he faces there): he walks to it by the town's places, a route on his
+## way to the old one dropped (ValleyFolk sends its people out of town by it).
+func go_to(point: Vector3, facing := Vector3.INF) -> void:
+	post = point
+	faces = facing
+	_home_route.clear()
+
+
 func say(kind: StringName) -> void:
 	var lines: Array = LINES.get(kind, [])
-	if lines.is_empty() or not body.physiology.is_conscious() or not body.physiology.can_speak():
+	if lines.is_empty() or not body.physiology.is_conscious() or not body.physiology.can_speak() or _hush > 0.0:
 		return
-	Events.spoke.emit(body, lines[_rng.randi() % lines.size()])
+	if _since_said < SAY_GAP and not kind in SAY_ALWAYS:
+		return
+	# Game time, not the wall's (the labs' runs the same twice: same_fight.py).
+	var now := Engine.get_physics_frames() * 1000 / Engine.physics_ticks_per_second
+	if kind == &"cower":
+		if now - _cower_at < CROWD_MS and _rng.randf() < 0.6:
+			return  # someone's just cried out: he keeps it to himself
+		_cower_at = now
+	# Not a line another man's just said.
+	var fresh := lines.filter(func(l: String) -> bool: return now - int(_said_at.get(l, -100000)) > SAME_LINE_MS)
+	if fresh.is_empty():
+		if not kind in SAY_ALWAYS:
+			return  # all of them just said by others: he's no need to say it again
+		fresh = lines
+	var pick: String = fresh[_rng.randi() % fresh.size()]
+	_said_at[pick] = now
+	_since_said = 0.0
+	Events.spoke.emit(body, pick)
+
+
+## Quiet for `seconds` from now (0: not; an act's beat: No Law's room going quiet after the shot,
+## #773): he does as he would, but says nothing; a cry still to come is dropped.
+func hush(seconds: float) -> void:
+	_hush = seconds
+	_cry_in = 0.0
 
 
 func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void:
 	if actor == body or senses == null or not body.physiology.is_conscious():
 		return
 	var to_me := target == body
+	if to_me:
+		body.wake()  # done to him: he takes it in next tick, far off or not (PeopleTick's bands)
 	var loud := kind in [&"shoot_at", &"hit", &"kill"]
 	# The men who troubled him being run off, taken or shot: whoever did it did him a turn, if he
 	# saw it.
@@ -139,12 +207,27 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 	if not to_me:
 		if loud and actor is Node3D and (actor as Node3D).global_position.distance_to(body.global_position) < 25.0:
 			_scared_by_shooting()
+		elif kind in ASSAULTS and actor is Node3D and senses.sees(actor) \
+				and (actor as Node3D).global_position.distance_to(body.global_position) < ASSAULT_SEEN:
+			# A man kicked in front of him: it's turned ugly.
+			fear += 0.1 if kind == &"kick" else 0.2
+			_flinch = 1.0
+		elif kind == &"draw" and actor is Node3D and actor != _gun_seen \
+				and (actor as Node3D).global_position.distance_to(body.global_position) < GUN_SEEN and senses.sees(actor):
+			# A gun out near him (the playtest's, #773: drawn 3 m from the table and nobody minded):
+			# uneasy, an eye on the man, and he says so.
+			fear += 0.1
+			_gun_seen = actor
+			_gun_watch = 6.0
+			say(&"gun_out")
+		elif kind == &"holster" and actor == _gun_seen:
+			_gun_watch = 0.0
 		return
 	if not loud and not senses.sees(actor) and senses.aware_of(actor) < 0.4:
 		return  # done behind his back and he never knew
 	match kind:
-		&"shove":
-			fear += 0.25
+		&"shove", &"kick", &"kick_down":
+			fear += 0.25 if kind == &"shove" else 0.5
 			_flinch = 1.0
 			_troubled(actor)
 			say(&"shoved")
@@ -184,9 +267,9 @@ func _troubled(who: Node) -> void:
 		thanked = false
 
 
-func _scared_by_shooting() -> void:
-	if _cower <= 0.0:
-		say(&"cower")
+func _scared_by_shooting(cry_in := 0.0) -> void:
+	if _cower <= 0.0 and _hush <= 0.0:
+		_cry_in = cry_in if cry_in > 0.0 else _rng.randf_range(CRY_SPREAD.x, CRY_SPREAD.y)
 	_cower = maxf(_cower, 7.0)
 	fear += 0.3
 
@@ -206,7 +289,9 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 	fear = 0.0
 	_aimed = 0.0
 	_cower = 0.0
+	_cry_in = 0.0
 	_flinch = 0.0
+	_gun_watch = 0.0
 	troubled_by.clear()
 	if mood in [Mood.HANDS_UP, Mood.COWERING, Mood.SHAKEN]:
 		mood = Mood.CALM
@@ -220,7 +305,9 @@ func _mind_fire(delta: float) -> bool:
 	_fire_look -= delta
 	if _fire_look <= 0.0:
 		_fire_look = FIRE_LOOK
+		var t := Prof.start()
 		_look_for_fire()
+		Prof.stop(&"civ_fire_look", t)
 	if mood != Mood.FLEEING and _route.is_empty():
 		return false
 	if _shout_in > 0.0:
@@ -405,6 +492,7 @@ func _flee(from: Vector3) -> void:
 	_fire_at = from
 	_fire_out = 0.0
 	_cower = 0.0
+	_cry_in = 0.0
 	_aimed = 0.0
 	_flinch = 0.0
 	_route = FireFlight.way_out(_fire, _places(), body, FIRE_CLEAR)
@@ -421,17 +509,74 @@ func _places() -> Waypoints:
 func _on_noise(at: Vector3, _loudness: float, kind: StringName, _source: Node) -> void:
 	if kind in [&"gunshot", &"blast"] and at.distance_to(body.global_position) < (25.0 if kind == &"gunshot" else 60.0):
 		if body.physiology.is_conscious():
-			_scared_by_shooting()
+			# A blast's cry comes as its sound reaches him and he takes it in, not on its own tick
+			# (#538, round 5: the whole street's cries on the stick's frame, each heard by all the
+			# rest, a ray apiece, were ~14 ms of it).
+			_scared_by_shooting(CRY_AFTER + at.distance_to(body.global_position) / GameAudio.SPEED_OF_SOUND if kind == &"blast" else 0.0)
 
 
 func _player() -> Player:
 	return get_tree().get_first_node_in_group(&"player") as Player
 
 
-func _physics_process(delta: float) -> void:
+## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
+## _physics_process here, and physics processing on is its switch, as before.
+func _enter_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.add_ticker(self)
+
+
+func _exit_tree() -> void:
+	var man := get_parent() as HumanBody
+	if man:
+		man.remove_ticker(self)
+
+
+func tick(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"civilian_brain", t)
+
+
+## Far off, may he tick less often (PeopleTick, step 4b)? Going about his day, or cowering or
+## shaken where he stands from a shot or a blast he heard (#495: after a stick the whole street
+## cowers for 7 s and stays frightened for ~8 more; far from you and from any fight, the bands' own
+## rule, he can tick slowly through it). Not with your gun on him or his hands up, flinching from a
+## deed, running from a fire or in a bucket line, about to shout, or at a chore that has his hands
+## (the bar cloth, the mop: they move what the physics holds).
+func can_slow() -> bool:
+	return slow_reason() == &""
+
+
+const MOOD_NAMES: Array[StringName] = [&"calm", &"shaken", &"hands_up", &"cowering", &"down", &"dead", &"fleeing"]
+
+
+## Why he can't slow (the first of `can_slow`'s rules he fails; &"" when he can): for PeopleTick's
+## counts (#495).
+func slow_reason() -> StringName:
+	if mood not in [Mood.CALM, Mood.SHAKEN, Mood.COWERING]:
+		return MOOD_NAMES[mood]
+	if _aimed > 0.0:
+		return &"aimed"
+	if _flinch > 0.0:
+		return &"flinch"
+	if not _route.is_empty():
+		return &"route"
+	if _bucket != &"":
+		return &"bucket"
+	if _shout_in > 0.0:
+		return &"shout"
+	if chore != null and chore.call(&"busy") and not (chore.has_method(&"lets_slow") and chore.call(&"lets_slow")):
+		return &"chore"
+	return &""
+
+
+## Hands up or aimed at, running from a fire or fighting it (PeopleTick: whoever's near him ticks
+## every tick too). Cowering isn't trouble of his own (#495): it's from a shot or a blast, and the
+## shooting's own men are the trouble.
+func in_trouble() -> bool:
+	return mood in [Mood.HANDS_UP, Mood.FLEEING] or _aimed > 0.0 or _bucket != &""
 
 
 func _physics_step(delta: float) -> void:
@@ -445,6 +590,12 @@ func _physics_step(delta: float) -> void:
 	if mood == Mood.DOWN:
 		# Back on his feet (HumanBody.get_up): shaken by it.
 		mood = Mood.SHAKEN
+	_since_said += delta
+	_hush = maxf(_hush - delta, 0.0)
+	if _cry_in > 0.0:
+		_cry_in -= delta
+		if _cry_in <= 0.0:
+			say(&"cower")
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	if _mind_fire(delta):
@@ -478,10 +629,13 @@ func _physics_step(delta: float) -> void:
 		_chore(delta, false)
 		body.set_pose(&"hands_up" if _flinch > 0.5 else &"stand")
 		return
+	_gun_watch -= delta
+	if _gun_watch <= 0.0 or _gun_seen == null or not is_instance_valid(_gun_seen):
+		_gun_seen = null
 	if mood in [Mood.HANDS_UP, Mood.COWERING]:
 		mood = Mood.SHAKEN
-		if not _still_over_me():
-			say(&"relief")
+		if not _still_over_me() and senses.last_sound([&"gunshot"], RELIEF_QUIET).is_empty():
+			say(&"relief")  # (only once it's gone quiet: #607, "...They gone?" with shots still flying)
 	_calm_for += delta
 	if mood == Mood.SHAKEN and _calm_for > 6.0 and fear < 0.2:
 		mood = Mood.CALM
@@ -503,7 +657,9 @@ func _physics_step(delta: float) -> void:
 	_home_route.clear()
 	body.set_pose(rest_pose)
 	_thank(delta)
-	if faces != Vector3.INF and not (helped_by and not thanked):
+	if _gun_seen != null:
+		body.face(_gun_seen.global_position + Vector3.UP * 1.4)
+	elif faces != Vector3.INF and not (helped_by and not thanked):
 		body.face(faces)
 
 

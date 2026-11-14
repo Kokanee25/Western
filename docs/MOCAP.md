@@ -36,9 +36,14 @@ animation hands over to the active ragdoll.
 - Name: `<action>_<variant>_<take>`, e.g. `gut_shot_stagger_front_01.fbx`, `walk_normal_02.fbx`.
 - Put raw exports in `assets/mocap/raw/`. Keep the best take per action; delete the rest before
   committing (FBX files are large).
-- Pipeline (Claude): raw FBX → headless Blender script in `tools/blender/` retargets to the game
-  skeleton, trims, fixes foot sliding and jitter, makes loops loop → glTF in `assets/animations/` →
-  Godot import. Record which take became which animation in `assets/mocap/README.md`.
+- Pipeline (Claude): raw FBX (or a generated glTF: Uthana's text-to-motion through the Studio,
+  `motions/`) → `tools/blender/retarget_motion.py` (headless Blender; the glTF read by
+  `gltf_motion.py`) retargets to the game's 17 segments, trims, holds the planted foot, marks a
+  strike → `assets/animations/<name>.json` (what `HumanBody.play_clip` plays, `MotionClip`) and
+  `<name>.glb` (our rig, for the record) → the game. Which take became which clip and why:
+  `assets/animations/README.md` and the retarget's `takes.json`. Loops (walks) are played looped
+  and steered by whoever plays them; a clip's turning is in its pelvis, the node never turns with it.
+  First used 2026-10-24 for the card cheat (`config/moments/card_cheat.json`).
 
 ## Shot list
 

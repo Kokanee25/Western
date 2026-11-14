@@ -1,0 +1,262 @@
+{
+  "A": {
+    "label": "A Rodin's master untouched: 30k, 4k colour, normal, roughness",
+    "load_ms": 1277.2,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.19,
+        "draws": 1,
+        "gpu_ms": 25.79
+      },
+      "close": {
+        "cpu_ms": 0.2,
+        "draws": 1,
+        "gpu_ms": 27.82
+      }
+    },
+    "rgba8": 268435456,
+    "triangles": 29630,
+    "vram_bc": 55924053
+  },
+  "Ag": {
+    "label": "Ag the master's 30k and 4k paint through the grid shader (no mipmaps, as the game)",
+    "load_ms": 432.5,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.19,
+        "draws": 1,
+        "gpu_ms": 27.75
+      },
+      "close": {
+        "cpu_ms": 0.2,
+        "draws": 1,
+        "gpu_ms": 28.09
+      }
+    },
+    "rgba8": 67108864,
+    "triangles": 29630,
+    "vram_bc": 16777216
+  },
+  "C0": {
+    "label": "C0 the game's deer now: 6k, 1k paint, grid shader, no mipmaps, roughness 0.85",
+    "load_ms": 2478.9,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.16,
+        "draws": 1,
+        "gpu_ms": 16.25
+      },
+      "close": {
+        "cpu_ms": 0.16,
+        "draws": 1,
+        "gpu_ms": 17.1
+      }
+    },
+    "rgba8": 4194304,
+    "triangles": 5999,
+    "vram_bc": 1048576
+  },
+  "C1": {
+    "label": "C1 C0 with mipmaps",
+    "load_ms": 14.7,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.2,
+        "draws": 1,
+        "gpu_ms": 19.16
+      },
+      "close": {
+        "cpu_ms": 0.17,
+        "draws": 1,
+        "gpu_ms": 19.99
+      }
+    },
+    "rgba8": 5592405,
+    "triangles": 5999,
+    "vram_bc": 1398101
+  },
+  "C1f": {
+    "label": "C1f C1 without the min-square coarsening (fixed_squares: a texel a square)",
+    "load_ms": 13.1,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.21,
+        "draws": 1,
+        "gpu_ms": 18.93
+      },
+      "close": {
+        "cpu_ms": 0.18,
+        "draws": 1,
+        "gpu_ms": 19.55
+      }
+    },
+    "rgba8": 5592405,
+    "triangles": 5999,
+    "vram_bc": 1398101
+  },
+  "C1fl": {
+    "label": "C1fl C1f lit per pixel, not per texel (global tile_light 0: the wall too)",
+    "load_ms": 12.6,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.17,
+        "draws": 1,
+        "gpu_ms": 16.66
+      },
+      "close": {
+        "cpu_ms": 0.17,
+        "draws": 1,
+        "gpu_ms": 18.52
+      }
+    },
+    "rgba8": 5592405,
+    "triangles": 5999,
+    "vram_bc": 1398101
+  },
+  "C2": {
+    "label": "C2 C0 drawn by a standard (PBR) material: filtered, mipmapped",
+    "load_ms": 14.4,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.17,
+        "draws": 1,
+        "gpu_ms": 17.79
+      },
+      "close": {
+        "cpu_ms": 0.18,
+        "draws": 1,
+        "gpu_ms": 19.84
+      }
+    },
+    "rgba8": 5592405,
+    "triangles": 5999,
+    "vram_bc": 1398101
+  },
+  "C3": {
+    "label": "C3 6k, 2k paint, standard material",
+    "load_ms": 145.8,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.18,
+        "draws": 1,
+        "gpu_ms": 17.95
+      },
+      "close": {
+        "cpu_ms": 0.17,
+        "draws": 1,
+        "gpu_ms": 20.01
+      }
+    },
+    "rgba8": 22369621,
+    "triangles": 5999,
+    "vram_bc": 5592405
+  },
+  "C4": {
+    "label": "C4 C3 + normals baked from the master + Rodin's roughness (2k)",
+    "load_ms": 232.5,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.19,
+        "draws": 1,
+        "gpu_ms": 18.31
+      },
+      "close": {
+        "cpu_ms": 0.17,
+        "draws": 1,
+        "gpu_ms": 20.08
+      }
+    },
+    "rgba8": 67108864,
+    "triangles": 5999,
+    "vram_bc": 13981013
+  },
+  "C5": {
+    "label": "C5 15k, 2k, baked normals, Rodin's roughness",
+    "load_ms": 137.4,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.18,
+        "draws": 1,
+        "gpu_ms": 22.66
+      },
+      "close": {
+        "cpu_ms": 0.18,
+        "draws": 1,
+        "gpu_ms": 24.34
+      }
+    },
+    "rgba8": 67108864,
+    "triangles": 14998,
+    "vram_bc": 13981013
+  },
+  "C6": {
+    "label": "C6 the master's 30k, 2k maps (its own normal and roughness)",
+    "load_ms": 133.9,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.2,
+        "draws": 1,
+        "gpu_ms": 28.11
+      },
+      "close": {
+        "cpu_ms": 0.24,
+        "draws": 1,
+        "gpu_ms": 30.97
+      }
+    },
+    "rgba8": 67108864,
+    "triangles": 29630,
+    "vram_bc": 13981013
+  },
+  "C7": {
+    "label": "C7 C5 with roughness by surface (fur, antler, glass eye, wet nose, varnished plaque)",
+    "load_ms": 55.0,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.18,
+        "draws": 1,
+        "gpu_ms": 20.81
+      },
+      "close": {
+        "cpu_ms": 0.18,
+        "draws": 1,
+        "gpu_ms": 23.03
+      }
+    },
+    "rgba8": 67108864,
+    "triangles": 14998,
+    "vram_bc": 13981013
+  },
+  "Cg2": {
+    "label": "Cg2 grid shader kept, 15k and 2k paint, mipmaps",
+    "load_ms": 0.5,
+    "materials": 1,
+    "render": {
+      "across": {
+        "cpu_ms": 0.23,
+        "draws": 1,
+        "gpu_ms": 23.95
+      },
+      "close": {
+        "cpu_ms": 0.24,
+        "draws": 1,
+        "gpu_ms": 24.46
+      }
+    },
+    "rgba8": 22369621,
+    "triangles": 14998,
+    "vram_bc": 5592405
+  }
+}

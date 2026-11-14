@@ -186,7 +186,7 @@ func _shoot() -> Dictionary:
 	for k: String in targets:
 		var dir := ((targets[k] as Vector3) - from).normalized()
 		var q := PhysicsRayQueryParameters3D.create(from, from + dir * 30.0, Layers.WORLD)
-		var hit := b.get_world_3d().direct_space_state.intersect_ray(q)
+		var hit := World.space(b).intersect_ray(q)
 		var m := hit.get("collider") as StructureMember
 		var holes_before := m.holes.size() if m else 0
 		var bullet: Ballistics.Bullet = lab.ballistics.fire(from, dir, tune.muzzle_velocity, tune.bullet_mass, tune.bullet_diameter)

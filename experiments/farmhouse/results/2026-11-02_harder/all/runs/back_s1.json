@@ -1,0 +1,251 @@
+{
+ "alarm": 124.97,
+ "blocking": [
+  "0.3:House/floor_ground_joist_009",
+  "0.3:House/floor_ground_joist_011",
+  "0.3:House/floor_ground_joist_013",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_board_024_0",
+  "0.3:House/floor_ground_board_026_0",
+  "0.3:House/floor_ground_board_025_0",
+  "0.3:House/floor_ground_board_027_0",
+  "0.3:House/floor_ground_board_028_0",
+  "0.3:House/floor_ground_board_029_0",
+  "0.3:House/floor_ground_board_030_0",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 3.31666666666666,
+  "gate_left": 86.3,
+  "gate_wait": 60.9999999999978,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 131.05,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 365,
+  "max_ms": 163.61,
+  "mean_ms": 20.22,
+  "p95_ms": 34.84
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.28,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 7,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.7,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.3,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to kitchen door: kitchen door (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 2.7,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "run for cover: in the open, 2 m",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.8,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.52 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.7,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "to loft stair: loft stair (you're front room)",
+   "id": "pike",
+   "inside": false,
+   "knows": 2.5,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "wes",
+   "inside": false,
+   "knows": 2.7,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Dead (brain).",
+ "player_local": [
+  1.22,
+  0.56,
+  4.24
+ ],
+ "quits": [
+  [
+   126.45,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.52 / 1.12)",
+   true
+  ],
+  [
+   130.37,
+   "lyle",
+   "gives up",
+   "to behind table: behind table (you're kitchen)",
+   true
+  ]
+ ],
+ "route_left": 5,
+ "route_next": [
+  3.0,
+  0.56,
+  3.75
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 1,
+ "shots_men": 15,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 131.05,
+ "threat": 130.38,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   124.97,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   124.97,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   124.97,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   125.42,
+   "Hollis down"
+  ],
+  [
+   126.45,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.52 / 1.12))"
+  ],
+  [
+   130.37,
+   "Lyle down"
+  ],
+  [
+   130.37,
+   "Lyle gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   130.38,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   131.05,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

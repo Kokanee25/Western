@@ -1,0 +1,25 @@
+[smoke] dev build on Linux, forward_plus
+ERROR: /root: The caller thread can't call the function `propagate_notification()` on this node. Use `call_deferred()` or `call_deferred_thread_group()` instead.
+   at: propagate_notification (scene/main/node.cpp:2578)
+
+================================================================
+handle_crash: Program crashed with signal 11
+Engine version: Godot Engine v4.7.2.stable.official (ed1daf0bf001b61586d9930840f2f1394092c079)
+Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
+Load address: 7fae01400000
+
+[1] 7fae01445330 (main+45330) - /lib/x86_64-linux-gnu/libc.so.6(+0x45330) [0x7fae01445330]
+[2] 323400b (godot+2e3400b) - godot() [0x323400b]
+[3] ec4145 (godot+ac4145) - godot() [0xec4145]
+[4] 4f7e67 (godot+f7e67) - godot() [0x4f7e67]
+[5] 41fce24 (godot+3dfce24) - godot() [0x41fce24]
+[6] 1989fe6 (godot+1589fe6) - godot() [0x1989fe6]
+[7] 49052a8 (godot+45052a8) - godot() [0x49052a8]
+[8] 490535c (godot+450535c) - godot() [0x490535c]
+[9] 4406195 (godot+4006195) - godot() [0x4406195]
+[10] 52e6c23 (godot+4ee6c23) - godot() [0x52e6c23]
+[11] 7fae0149cb84 (main+9cb84) - /lib/x86_64-linux-gnu/libc.so.6(+0x9cb84) [0x7fae0149cb84]
+[12] 7fae01529ecc (main+129ecc) - /lib/x86_64-linux-gnu/libc.so.6(+0x129ecc) [0x7fae01529ecc]
+-- END OF C++ BACKTRACE --
+================================================================
+Aborted

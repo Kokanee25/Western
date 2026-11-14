@@ -12,6 +12,7 @@ func before_each() -> void:
 	clock.config = load("res://config/day_cycle.tres")
 	add_child(clock)
 	clock.set_physics_process(false)
+	clock.held = false  # these tests run the clock (test_the_clock_starts_held_at_noon: the hold)
 	hours.clear()
 	days.clear()
 	Events.hour_changed.connect(_on_hour)
@@ -62,6 +63,38 @@ func test_runs_on_the_physics_tick() -> void:
 	clock.set_physics_process(false)
 	var expected := 8.0 + 60.0 / Engine.physics_ticks_per_second * 24.0 / 2700.0
 	check_near(clock.time_of_day, expected, 24.0 / 2700.0 / 30.0, "one real second of clock time")
+
+
+## Sean, 2026-10-23: "daytime stays daytime": the game starts at noon with the clock standing still;
+## T lets it run, then faster, then holds it again; 7 jumps between noon, afternoon, golden hour and
+## night. Held, the clock stands still but time_scale doesn't drop to 0 (bleeding runs on it).
+func test_the_clock_starts_held_at_noon() -> void:
+	var c := DayCycle.new()
+	c.config = load("res://config/day_cycle.tres")
+	add_child(c)
+	c.set_physics_process(false)
+	check_eq(c.get_clock_text(), "12:00", "the day starts at noon")
+	check(c.held, "with the clock held")
+	c.advance(600.0)
+	check_eq(c.get_clock_text(), "12:00", "ten real minutes later it's still noon")
+	check_eq(c.time_scale, 1.0, "time_scale stays 1 (the body's clocks run on it)")
+	c.cycle_time_scale()
+	check(not c.held and c.time_scale == 1.0, "T lets it run at 1x")
+	c.advance(112.5)
+	check_eq(c.get_clock_text(), "13:00", "an hour on")
+	for i in c.config.debug_time_scales.size() - 1:
+		c.cycle_time_scale()
+	check(c.time_scale > 1.0 and not c.held, "T again: faster")
+	c.cycle_time_scale()
+	check(c.held, "past the fastest, T holds it again")
+	c.set_time_scale(30.0)
+	check(not c.held, "setting a speed (the soak, the labs, the bridge) lets it run")
+	var stops: Array[String] = []
+	for i in c.config.hour_stops.size() + 1:
+		c.next_hour_stop()
+		stops.append(c.get_clock_text())
+	check_eq(stops, ["12:00", "15:30", "17:36", "21:30", "12:00"] as Array[String], "7: noon, afternoon, golden hour, night, round")
+	c.queue_free()
 
 
 func test_debug_time_scale() -> void:

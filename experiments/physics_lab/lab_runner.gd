@@ -41,6 +41,17 @@ var surface_friction := -1.0
 ## --jitter=N: his start moved by up to 2 cm and turned by up to 3 deg, drawn from N (0: none), so a
 ## chaotic fall can be run several times and its spread compared rather than one sample.
 var jitter := 0
+## What a "push" cause did to man 0 (group O): its numbers and take_push's answer.
+var _push_info := {}
+## --tone=STYLE: how his tone lets go as he goes limp (HumanBody.tone_style; none: the game's, "off"
+## the quick fade from before 2026-10-28, "fade" the regions in turn, "dying" that and what he does as he goes; 2026-10-28), over the scenario's own `tone` field.
+var tone := &""
+## --momentum=on: HumanBody.keep_stride (issue #446: the stumble keeps his speed and he falls into
+## what's in his way); off or none: the game's.
+var momentum := ""
+## --lift=F: BlastTuning.blast_lift (issue #596 step 3b: men thrown up and back by a blast; 0 the
+## real push alone), over a scenario's own "lift"; < 0 keeps the game's.
+var lift := -1.0
 ## Several men side by side (the performance runs): each one is logged in the summary only.
 var count := 1
 ## The performance runs: no per-tick measuring (its queries would be counted as his cost).
@@ -95,6 +106,15 @@ var _pairs: Array = []  ## non-adjacent segment pairs
 func _ready() -> void:
 	process_physics_priority = -100
 	HumanBody.mocap_gait = mocap
+	# No --tone and no `tone` field: the game's (HumanBody.TONE_GAME).
+	var style := StringName(tone if tone != &"" else StringName(scenario.get("tone", "")))
+	if style != &"":
+		HumanBody.tone_style = &"" if style == &"off" else style
+	if momentum != "":
+		HumanBody.keep_stride = momentum == "on"
+	var lift_now := lift if lift >= 0.0 else float(scenario.get("lift", -1.0))
+	if lift_now >= 0.0:
+		Blast.t().blast_lift = lift_now
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	# A body that isn't imported draws as the outlaw without a word (PeopleBodies falls back):
 	# stop instead, so a run never claims a man it didn't use.
@@ -107,6 +127,11 @@ func _ready() -> void:
 	_world.name = "LabWorld"
 	add_child(_world)
 	_build_fixture(String(scenario.get("fixture", "ground")))
+	# A blow he takes once down (a thrown man's landing, issue #596 step 3b: HumanBody._step_thrown).
+	Events.body_hit.connect(func(info: Dictionary) -> void:
+		if info.get("kind", &"") == &"blow" and not _men.is_empty() and info.get("person") == _men[0]:
+			_events.append({"tick": _tick, "kind": "blow", "segment": String(info.get("segment", "")),
+					"joules": snappedf(float(info.get("joules", 0.0)), 0.1), "harm": Array(info.get("harm", []))}))
 	Events.member_broken.connect(func(id: StringName) -> void:
 		_events.append({"tick": _tick, "kind": "member_broken", "member": String(id), "source": "the structure (BodyImpacts, a blow, a fall)"}))
 	if surface_friction >= 0.0:
@@ -141,11 +166,13 @@ func _ready() -> void:
 		var gap := float(scenario.get("spacing", 1.2))
 		man.global_transform = Transform3D(_start_xf.basis, _start_xf.origin + _start_xf.basis.x * gap * i)
 		_men.append(man)
+		if i == 0:
+			man.fell.connect(_on_fell.bind(man))
 	if not light:
 		_ticks_csv = FileAccess.open(out_dir.path_join("ticks.csv"), FileAccess.WRITE)
 		_ticks_csv.store_line("tick,t,phase,com_x,com_y,com_z,com_vx,com_vy,com_vz,max_speed,max_penetration,max_self_overlap,max_joint_gap,awake,contacts,contact_impulse_sum,frame_ms")
 		_segs_csv = FileAccess.open(out_dir.path_join("segments.csv"), FileAccess.WRITE)
-		_segs_csv.store_line("tick,t,segment,px,py,pz,qx,qy,qz,qw,vx,vy,vz,wx,wy,wz,vel_source,sleeping,contacts,contact_impulse,penetration,self_overlap,swing,twist,swing_limit,twist_limit,bend,joint_gap,step_m,step_deg")
+		_segs_csv.store_line("tick,t,segment,px,py,pz,qx,qy,qz,qw,vx,vy,vz,wx,wy,wz,vel_source,sleeping,contacts,contact_impulse,penetration,self_overlap,swing,twist,swing_limit,twist_limit,bend,joint_gap,step_m,step_deg,world_contacts")
 	if render:
 		_build_cameras()
 	_last_us = Time.get_ticks_usec()
@@ -173,7 +200,9 @@ func _start_point() -> Vector3:
 		"balcony_back":
 			return Vector3(0, FLIGHT_TOP, 2.6)
 		"porch", "porch_steps":
-			return Vector3(0, PORCH_TOP, 0)
+			# "start" moves him along it (group O: a step back from the edge, at 0.15).
+			var ps: Array = scenario.get("start", [0, PORCH_TOP, 0])
+			return Vector3(ps[0], ps[1], ps[2])
 	return Vector3.ZERO
 
 
@@ -332,6 +361,18 @@ func _build_fixture(kind: String) -> void:
 			var rail = load(LAB_DIR + "lab_railing.gd").new()
 			rail.structure_id = &"lab_rail"
 			_world.add_child(rail)
+		"x_chair", "x_table":
+			# Issue #446 (group X): the kit's chair (its back toward him) or card table across his
+			# way, its near side 2.5 m ahead: he walks or runs at it and is shot on the way.
+			if kind == "x_chair":
+				_prop(&"chair", Vector3(0, 0, -2.75), 180.0)
+			else:
+				_prop(&"card_table", Vector3(0, 0, -3.0))
+		"x_wall":
+			# A thin plank wall of the game's members across his way, its boards 2.5 m ahead.
+			var wall = load(LAB_DIR + "lab_plank_wall.gd").new()
+			wall.structure_id = &"lab_wall"
+			_world.add_child(wall)
 		"saloon":
 			_prop(&"card_table", Vector3(0, 0, -1.0))
 			_prop(&"chair", Vector3(-0.85, 0, -1.0), 90.0)
@@ -418,6 +459,9 @@ func _focus() -> Vector3:
 		travel = float(pre.get("speed", 0.0)) * float(pre.get("seconds", 0.0))
 	var push: Array = scenario.get("push", [0, 0, 0])
 	var lean := Vector3(push[0], 0, push[2]).normalized() * 0.6 if Vector3(push[0], 0, push[2]).length() > 0.01 else Vector3.ZERO
+	# "focus_ahead": metres along his heading the cameras look, where he ends up rather than where
+	# he's knocked (a run down the stair lands him 2.5 m on).
+	travel = float(scenario.get("focus_ahead", travel))
 	# "focus_y": the height the cameras look at (a man on his feet: ~0.9).
 	return _start_xf.origin + _start_xf.basis * (Vector3(0, 0, -travel) + lean) + Vector3.UP * float(scenario.get("focus_y", 0.5))
 
@@ -469,7 +513,7 @@ func _build_cameras() -> void:
 ## camera's frame (50 deg high, 4:3). "front^1.5" is the view from 1.5 m above the focus, as a
 ## scenario's "views" can name it.
 func _sample_seen() -> void:
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	var f := _focus()
 	var man := _men[0]
 	var keys: Array = ["top"]
@@ -531,6 +575,12 @@ func _physics_process(delta: float) -> void:
 	var pre_ticks := int(round(float(pre.get("seconds", 0.5)) * 60.0))
 	if not light:
 		_record(frame_ms)
+	if _tick == 0 and scenario.has("wound"):
+		# "wound": {"leg": D} tears his right thigh's muscles by D (0-1) before he stands his time:
+		# a wounded man, favouring it by the time the cause comes.
+		for man in _men:
+			for id: StringName in man.physiology._muscles("leg", "r"):
+				man.physiology.muscle_damage[id] = float(scenario.wound.get("leg", 0.0))
 	if _tick < pre_ticks:
 		_before(pre, delta)
 		# In the kit chair: his weight on its seat once he's sat (KitProp.sit), before the cause.
@@ -565,15 +615,18 @@ func _physics_process(delta: float) -> void:
 		var cause: Dictionary = scenario.get("cause", {})
 		if not cause.is_empty() and _hit_tick < 0:
 			_hit_tick = _tick
+			# "one": a single charge for all the men ("from" in the first man's frame), not one each.
+			var one_at: Vector3 = _men[0].global_transform * _arr3(cause.get("from", [0, 0, -1]))
 			for man in _men:
 				match String(cause.kind):
 					"blast":
 						var f: Array = cause.get("from", [0, 0, -1])
-						var at := man.global_transform * Vector3(f[0], f[1], f[2])
+						var at := one_at if bool(cause.get("one", false)) else man.global_transform * Vector3(f[0], f[1], f[2])
 						var info: Dictionary = man.take_blast(at, float(cause.get("kg", 0.15)))
 						if man == _men[0]:
 							_events.append({"tick": _tick, "kind": "blast", "source": "HumanBody.take_blast", "at": _v(at),
-									"kg": cause.get("kg", 0.15), "harm": info.get("harm", []), "down": info.get("knocked_down", false)})
+									"kg": cause.get("kg", 0.15), "harm": info.get("harm", []), "down": info.get("knocked_down", false),
+									"lift": info.get("lift", 0.0), "blast_lift": Blast.t().blast_lift})
 					"chair_legs":
 						# The kit chair's legs: "remove" breaks each one and knocks it clear (shot out),
 						# "kick" gives each the chair's own blow (KitProp.take_blow, "impulse" N*s in
@@ -597,6 +650,8 @@ func _physics_process(delta: float) -> void:
 									_kit_chair.break_member(m, out.normalized() * 2.5)
 							_events.append({"tick": _tick, "kind": "chair_legs", "how": cause.get("how", "remove"), "members": cause.get("members", []),
 									"did": did, "loose": _kit_chair.loose})
+					"push":
+						_push(man, cause)
 					"sever":
 						man.sever_limb(StringName(cause.segment))
 					"blow":
@@ -696,6 +751,38 @@ func _before(pre: Dictionary, delta: float) -> void:
 				pass
 
 
+## "cause" "push" (group O, issue #479): the player's shove or kick through HumanBody.take_push.
+## "move" shove|kick works out its momentum and blow as PlayerShove does (ShoveTuning: the share
+## of a man behind the hands or the boot at their speed, "one_hand", "run" m/s of his own), or
+## "momentum" and "joules" given; it lands on "segment" at "point" (its rest-centred space) along
+## "dir" (his frame). --jitter=N varies it as a player would: the momentum by up to 10%, the point
+## 4 cm up or down, the way 6 deg either side. Whether he stays up is the push's to decide: the run
+## goes on its "seconds" either way, and the summary's "push" says what it did.
+func _push(man: HumanBody, cause: Dictionary) -> void:
+	var tu := ShoveTuning.t()
+	var kick := String(cause.get("move", "shove")) == "kick"
+	var r := RandomNumberGenerator.new()
+	r.seed = jitter
+	var vary := Vector3(r.randf_range(-0.1, 0.1), r.randf_range(-0.04, 0.04), r.randf_range(-6.0, 6.0)) if jitter > 0 else Vector3.ZERO
+	var part := man.parts[StringName(cause.get("segment", "abdomen" if kick else "chest"))] as Node3D
+	var p: Array = cause.get("point", [0, 0, -0.12])
+	var d: Array = cause.get("dir", [0, 0, 1])
+	var at := part.global_transform * Vector3(p[0], p[1] + vary.y, p[2])
+	var dw := (_start_xf.basis * Basis(Vector3.UP, deg_to_rad(vary.z)) * Vector3(d[0], d[1], d[2])).normalized()
+	var share := (tu.kick_mass_share if kick else tu.shove_mass_share) * (tu.shove_one_hand if cause.get("one_hand", false) else 1.0)
+	var v := (tu.kick_speed if kick else tu.shove_speed) + float(cause.get("run", 0.0))
+	var k := PlayerShove.knock(tu.mass * share, v, man._body_mass(), kick)
+	var momentum := float(cause.get("momentum", k.momentum)) * (1.0 + vary.x)
+	var joules := float(cause.get("joules", k.joules)) * (1.0 + vary.x) * (1.0 + vary.x)
+	var catch := man.catch_speed()
+	var result := man.take_push(at, dw, momentum, joules)
+	if man == _men[0]:
+		_push_info = {"move": "kick" if kick else "shove", "result": String(result), "momentum": snappedf(momentum, 0.1),
+				"joules": snappedf(joules, 0.1), "his_speed": snappedf(momentum / man._body_mass(), 0.01),
+				"catch": snappedf(catch, 0.01), "at_y": snappedf(at.y - man.global_position.y, 0.01)}
+		_events.append({"tick": _tick, "kind": "push", "source": "HumanBody.take_push"}.merged(_push_info))
+
+
 func _go_limp() -> void:
 	_limp_tick = _tick
 	var push_local: Array = scenario.get("push", [0, 0, 0])
@@ -771,7 +858,21 @@ func _go_limp() -> void:
 			for man in _men:
 				if man.has_method(&"_hunch"):
 					man._hunch(sid, man.parts[sid].global_transform * Vector3(p[0], p[1], p[2]), jw.normalized())
-	_take_reference(man0)
+	if not _ref_taken:
+		_take_reference(man0)
+
+
+## The reference is taken as he goes limp, before the solver moves him: the joints are made where
+## his parts are then. Stumbling on after a ball (`knock` on the move), he goes limp in his own tick
+## and the lab only sees it a tick later, when at a run his parts have gone on ~5 cm from the
+## joints' points (issue #471: knees and elbows read 8-12 cm apart once bent, the joints whole).
+var _ref_taken := false
+
+
+func _on_fell(_conscious: bool, man: HumanBody) -> void:
+	if not _ref_taken:
+		_ref_taken = true
+		_take_reference(man)
 
 
 func _take_reference(man: HumanBody) -> void:
@@ -865,7 +966,7 @@ func _record(frame_ms: float) -> void:
 	var awake := 0
 	var contacts := 0
 	var cimp := 0.0
-	var space := get_world_3d().direct_space_state
+	var space := World.space(self)
 	for sid: StringName in man.parts:
 		var n := man.parts[sid] as Node3D
 		var pos := n.global_position
@@ -879,6 +980,7 @@ func _record(frame_ms: float) -> void:
 		var src := "finite_diff"
 		var sleeping := false
 		var nc := 0
+		var nw := 0  ## contacts with anything but a man's own parts (the world, a fixture, a prop)
 		var ci := 0.0
 		if n is RigidBody3D:
 			var rb := n as RigidBody3D
@@ -896,6 +998,9 @@ func _record(frame_ms: float) -> void:
 				nc = st.get_contact_count()
 				for i in nc:
 					ci += st.get_contact_impulse(i).length()
+					var o := st.get_contact_collider_object(i)
+					if not (o is Node and (o as Node).has_meta(&"human_body")):
+						nw += 1
 		contacts += nc
 		cimp += ci
 		max_speed = maxf(max_speed, v.length())
@@ -965,7 +1070,7 @@ func _record(frame_ms: float) -> void:
 					"%.4f" % pos.x, "%.4f" % pos.y, "%.4f" % pos.z, "%.5f" % q.x, "%.5f" % q.y, "%.5f" % q.z, "%.5f" % q.w,
 					"%.4f" % v.x, "%.4f" % v.y, "%.4f" % v.z, "%.4f" % w.x, "%.4f" % w.y, "%.4f" % w.z, src,
 					int(sleeping), nc, "%.4f" % ci, "%.4f" % pen, "%.4f" % self_o, "%.2f" % swing, "%.2f" % twist,
-					lim[0], lim[1], "%.2f" % bend, "%.4f" % gap, "%.4f" % step_m, "%.2f" % step_deg])))
+					lim[0], lim[1], "%.2f" % bend, "%.4f" % gap, "%.4f" % step_m, "%.2f" % step_deg, nw])))
 	if limp:
 		_peak.penetration = maxf(_peak.penetration, max_pen)
 		_peak.self_overlap = maxf(_peak.self_overlap, max_self)
@@ -1278,6 +1383,8 @@ func _finish() -> void:
 		"men_rest": _men_rest() if _men.size() > 1 else [],
 		"model": String(model),
 		"seen": _seen_summary(),
+		"push": _push_info.merged({"went_down": _limp_tick >= 0, "down_at_end": _men[0].limp, "rose": _men[0].rise_ok and not _men[0].limp,
+				"end_local": _v(_start_xf.affine_inverse() * _com(_men[0])), "drop": snappedf(_start_xf.origin.y + 0.95 - _com(_men[0]).y, 0.01)}) if not _push_info.is_empty() else {},
 	}
 	var f := FileAccess.open(out_dir.path_join("summary.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary, "  "))
@@ -1301,3 +1408,7 @@ static func _stats(ms: Array[float]) -> Dictionary:
 	for m in s:
 		total += m
 	return {"mean": total / s.size(), "p50": s[s.size() / 2], "p99": s[mini(s.size() - 1, int(s.size() * 0.99))], "max": s[-1], "n": s.size()}
+
+
+static func _arr3(a: Array) -> Vector3:
+	return Vector3(float(a[0]), float(a[1]), float(a[2]))

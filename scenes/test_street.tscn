@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://src/world/day_cycle.gd" id="1_day"]
 [ext_resource type="Script" path="res://src/world/town_layout.gd" id="30_town"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://src/structures/well.gd" id="32_well"]
 [ext_resource type="Script" path="res://src/structures/windpump.gd" id="33_windpump"]
 [ext_resource type="Script" path="res://src/structures/corral.gd" id="34_corral"]
+[ext_resource type="Script" path="res://src/missions/farmhouse.gd" id="37_farmhouse"]
+[ext_resource type="Script" path="res://src/missions/farmhouse_mission.gd" id="38_mission"]
 [ext_resource type="Resource" path="res://config/day_cycle.tres" id="2_daycfg"]
 [ext_resource type="Shader" path="res://src/world/sky.gdshader" id="3_sky"]
 [ext_resource type="Shader" path="res://src/world/ground.gdshader" id="4_ground"]
@@ -201,6 +203,12 @@ script = ExtResource("34_corral")
 structure_id = &"corral"
 build_seed = 30
 
+[node name="Farmhouse" type="Node3D" parent="."]
+script = ExtResource("37_farmhouse")
+
+[node name="FarmhouseMission" type="Node" parent="."]
+script = ExtResource("38_mission")
+
 [node name="Ballistics" type="Node" parent="."]
 script = ExtResource("13_ballistics")
 
@@ -270,6 +278,10 @@ transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 15, 0, -12.5)
 [node name="SpecSaloon" type="Marker3D" parent="DebugSpawns"]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -64.38, 0.8, 22.5)
 metadata/builds = "res://experiments/building_lab/play.gd"
+
+[node name="RopeRange" type="Marker3D" parent="DebugSpawns"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 39.4, 3.05, 12)
+metadata/builds = "res://experiments/gun_lab/win73/rope_range.gd"
 
 [node name="Scenery" type="Node3D" parent="."]
 script = ExtResource("9_scenery")

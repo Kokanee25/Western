@@ -1,0 +1,461 @@
+{
+  "_doc": "A rented room's bed (#892; saloon-design.md \"Upstairs\": beds, iron or plain wood, for the four rented rooms): a plain single cottage bedstead of the period's boarding houses and hotels, four square posts with turned caps, a headboard of two wide boards (the upper one deeper) at 1.15 m and a footboard of two at 0.78, side rails carrying a bottom of slats, and on it the doctor's cot's bedding (`iron_cot`'s Tick, Blanket and Pillow: a straw tick in blue-and-white ticking, a grey wool blanket, a pillow; the same size, a single bed's). Walnut-stained hardwood from the material library, old (rubbed pale on the posts' caps and the rails' edges). The head at -z: a man lies looking +z. The rails, slats and bedding burn; a ball through a post splits it. 14 physics bodies (its members). Written by tools/props/saloon_s3.py.",
+  "id": "plank_bed",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "walnut",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "seat": {
+    "member": "tick",
+    "at": [
+      0.0,
+      0.55,
+      0.1
+    ],
+    "share": 1.0,
+    "hold": 0.1,
+    "sway": 0.0
+  },
+  "members": [
+    {
+      "id": "post0",
+      "kind": "post",
+      "size": [
+        0.06,
+        1.15,
+        0.06
+      ],
+      "at": [
+        -0.46,
+        0.575,
+        -0.98
+      ],
+      "look": "lib:furniture_walnut/old",
+      "blow_span": 0.3,
+      "dress": [
+        {
+          "look": "lib:furniture_walnut/old",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.033,
+                1.15
+              ],
+              [
+                0.036,
+                1.17
+              ],
+              [
+                0.027,
+                1.2
+              ],
+              [
+                0.0,
+                1.21
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              -0.46,
+              0.0,
+              -0.98
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "post1",
+      "kind": "post",
+      "size": [
+        0.06,
+        1.15,
+        0.06
+      ],
+      "at": [
+        0.46,
+        0.575,
+        -0.98
+      ],
+      "look": "lib:furniture_walnut/old",
+      "blow_span": 0.3,
+      "dress": [
+        {
+          "look": "lib:furniture_walnut/old",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.033,
+                1.15
+              ],
+              [
+                0.036,
+                1.17
+              ],
+              [
+                0.027,
+                1.2
+              ],
+              [
+                0.0,
+                1.21
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              0.46,
+              0.0,
+              -0.98
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "post2",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.78,
+        0.06
+      ],
+      "at": [
+        -0.46,
+        0.39,
+        0.98
+      ],
+      "look": "lib:furniture_walnut/old",
+      "blow_span": 0.3,
+      "dress": [
+        {
+          "look": "lib:furniture_walnut/old",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.033,
+                0.78
+              ],
+              [
+                0.036,
+                0.8
+              ],
+              [
+                0.027,
+                0.8300000000000001
+              ],
+              [
+                0.0,
+                0.8400000000000001
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              -0.46,
+              0.0,
+              0.98
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "post3",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.78,
+        0.06
+      ],
+      "at": [
+        0.46,
+        0.39,
+        0.98
+      ],
+      "look": "lib:furniture_walnut/old",
+      "blow_span": 0.3,
+      "dress": [
+        {
+          "look": "lib:furniture_walnut/old",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.033,
+                0.78
+              ],
+              [
+                0.036,
+                0.8
+              ],
+              [
+                0.027,
+                0.8300000000000001
+              ],
+              [
+                0.0,
+                0.8400000000000001
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              0.46,
+              0.0,
+              0.98
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "rail_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.03,
+        0.13,
+        1.9
+      ],
+      "at": [
+        -0.415,
+        0.365,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "rail_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.03,
+        0.13,
+        1.9
+      ],
+      "at": [
+        0.415,
+        0.365,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "head_board0",
+      "kind": "furniture_frame",
+      "size": [
+        0.86,
+        0.2,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.42,
+        -0.98
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "head_board1",
+      "kind": "furniture_frame",
+      "size": [
+        0.86,
+        0.32,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.93,
+        -0.98
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "foot_board0",
+      "kind": "furniture_frame",
+      "size": [
+        0.86,
+        0.2,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.47,
+        0.98
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "foot_board1",
+      "kind": "furniture_frame",
+      "size": [
+        0.86,
+        0.2,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.66,
+        0.98
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "slats",
+      "kind": "furniture_top",
+      "size": [
+        0.8,
+        0.02,
+        1.8
+      ],
+      "at": [
+        0.0,
+        0.41,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.8,
+              0.02,
+              0.09
+            ],
+            "at": [
+              0.0,
+              0.41,
+              -0.79
+            ]
+          },
+          {
+            "size": [
+              0.8,
+              0.02,
+              0.09
+            ],
+            "at": [
+              0.0,
+              0.41,
+              -0.474
+            ]
+          },
+          {
+            "size": [
+              0.8,
+              0.02,
+              0.09
+            ],
+            "at": [
+              0.0,
+              0.41,
+              -0.158
+            ]
+          },
+          {
+            "size": [
+              0.8,
+              0.02,
+              0.09
+            ],
+            "at": [
+              0.0,
+              0.41,
+              0.158
+            ]
+          },
+          {
+            "size": [
+              0.8,
+              0.02,
+              0.09
+            ],
+            "at": [
+              0.0,
+              0.41,
+              0.474
+            ]
+          },
+          {
+            "size": [
+              0.8,
+              0.02,
+              0.09
+            ],
+            "at": [
+              0.0,
+              0.41,
+              0.79
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tick",
+      "kind": "trim",
+      "size": [
+        0.82,
+        0.13,
+        1.86
+      ],
+      "at": [
+        0.0,
+        0.485,
+        0.0
+      ],
+      "wood": "straw",
+      "look": "pbr:iron_cot",
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Tick"
+      }
+    },
+    {
+      "id": "blanket",
+      "kind": "trim",
+      "size": [
+        0.82,
+        0.02,
+        1.3
+      ],
+      "at": [
+        0.0,
+        0.56,
+        0.28
+      ],
+      "wood": "canvas",
+      "look": "pbr:iron_cot",
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Blanket"
+      }
+    },
+    {
+      "id": "pillow",
+      "kind": "trim",
+      "size": [
+        0.56,
+        0.11,
+        0.32
+      ],
+      "at": [
+        0.0,
+        0.605,
+        -0.74
+      ],
+      "wood": "straw",
+      "look": "pbr:iron_cot",
+      "draw": {
+        "shape": "mesh",
+        "model": "iron_cot",
+        "part": "Pillow"
+      }
+    }
+  ],
+  "factory": "tools/props/saloon_s3.py"
+}

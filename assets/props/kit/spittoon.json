@@ -1,0 +1,37 @@
+{
+  "_doc": "A brass spittoon (PropModels' spittoon, the kit's third kind, a loose rigid prop: LooseProp). Spun brass about a millimetre thick on a heavy rim, ~2 kg, with a third of a litre of spit and tobacco juice in its bowl. A ball goes through it (the brass costs a ball what ~3 mm of wood would, each side) and knocks it rolling; a boot sends it; a hard landing (4 m/s, a fall from a table's height onto boards) dents it; it never breaks or burns. Tipped over or holed low, it lets what's in it go. docs/briefs/prop-lab.md, src/props/loose_prop.gd.",
+  "id": "spittoon",
+  "kind": "loose",
+  "replaces": "spittoon",
+  "in_game": true,
+  "model": "spittoon",
+  "fit": true,
+  "shape": "cylinder",
+  "size": [
+    0.3,
+    0.25,
+    0.3
+  ],
+  "mass": 2.0,
+  "wall": 0.003,
+  "hole_radius": 0.006,
+  "breaks_at": 4.0,
+  "shatters_kpa": 1000000000.0,
+  "spills_below": 0.3,
+  "dent": {
+    "radius": 0.045,
+    "shot": 0.006,
+    "kick": 0.012,
+    "fall": 0.006
+  },
+  "contents": {
+    "liquid": "spit",
+    "litres": 0.3,
+    "level": 0.4,
+    "colour": [
+      0.22,
+      0.15,
+      0.07
+    ]
+  }
+}

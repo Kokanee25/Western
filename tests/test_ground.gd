@@ -25,7 +25,7 @@ func _down(x: float, z: float) -> Dictionary:
 
 
 func test_the_flat_ground_is_at_zero_out_past_its_drawn_edge() -> void:
-	for p: Vector2 in [Vector2(0, 0), Vector2(-50.3, -8.4), Vector2(299, -299), Vector2(-1200, 900)]:
+	for p: Vector2 in [Vector2(0, 0), Vector2(30.3, -8.4), Vector2(299, -299), Vector2(1200, 900)]:
 		var hit := _down(p.x, p.y)
 		check(not hit.is_empty() and absf((hit.position as Vector3).y) < 1e-3, "ground at y 0 at %s" % p)
 		check(not hit.is_empty() and Ground.is_ground(hit.collider), "and it's the ground")
@@ -225,6 +225,101 @@ func test_a_box_asleep_on_the_ground_falls_into_a_hole_dug_under_it() -> void:
 	check(rb.global_position.y < -0.15, "it fell into the hole (y %.2f)" % rb.global_position.y)
 
 
+## Earth laid where a thing lies (a crater's lip, a clod's earth) comes up under it, not through it
+## (#584: left inside the height field, it's held there between the field and the solid column under
+## it and jitters or is thrown out, and its pile never sleeps).
+func test_earth_laid_where_a_box_lies_comes_up_under_it() -> void:
+	ground.take(Vector3(5.0, 0, 5.0), 1.0, 0.3)
+	var rb := RigidBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.3, 0.04, 0.12)
+	cs.shape = box
+	rb.add_child(cs)
+	rb.position = Vector3(5.1, 0.2, 5.0)
+	world.add_child(rb)
+	await wait_until(func() -> bool: return rb.sleeping, 600)
+	check(rb.sleeping, "it's asleep in the hole")
+	var before := ground.height_at(5.1, 5.0)
+	ground.put(Vector3(5.0, 0, 5.0), 0.08, 0.7)
+	check(ground.height_at(5.1, 5.0) > before + 0.06, "the earth's come up %.2f m where it lay" % (ground.height_at(5.1, 5.0) - before))
+	var low := INF
+	for i in 8:
+		var c := rb.global_transform * (Vector3(0.15 if i & 1 else -0.15, 0.02 if i & 2 else -0.02, 0.06 if i & 4 else -0.06))
+		low = minf(low, c.y - ground.height_at(c.x, c.z))
+	check(low > -Ground.LIFT_OVER - 0.005, "it's on the earth, not in it (lowest corner %.3f m off it)" % low)
+	await wait_until(func() -> bool: return rb.sleeping, 600)
+	check(rb.sleeping, "and asleep on it again")
+	check(rb.global_position.y < ground.height_at(5.1, 5.0) + 0.2, "where it was, not thrown out")
+
+
+## Under a dug tile's surface there's a gap down to its solid columns (their tops under the lowest
+## of the surface over them: on a crater's wall, centimetres). A piece pressed through the field is
+## held there; a structure's rubble found so is set back on top (#584).
+func test_rubble_pressed_through_a_dug_tile_is_set_back_on_it() -> void:
+	ground.take(Vector3(5.0, 0, 5.0), 1.0, 0.3)
+	var s := Structure.new()
+	s.structure_id = &"rig"
+	world.add_child(s)
+	s.add_member("board", &"board", &"framing", Vector3(0.3, 0.04, 0.12), Vector3(9.0, 0.3, 9.0))
+	await physics_frames(2)
+	s._drop([&"rig/board"] as Array[StringName])
+	var rb: RigidBody3D = s.rubble[0]
+	# Into the crater's wall, its middle 1.5 cm under the surface.
+	var x := 5.6
+	var h := ground.height_at(x, 5.0)
+	rb.global_transform = Transform3D(Basis(), Vector3(x, h - 0.015, 5.0))
+	rb.linear_velocity = Vector3.ZERO
+	rb.sleeping = false
+	await physics_frames(Structure.RESCUE_TICKS + 2)
+	var low := INF
+	for i in 8:
+		var c := rb.global_transform * (Vector3(0.15 if i & 1 else -0.15, 0.02 if i & 2 else -0.02, 0.06 if i & 4 else -0.06))
+		low = minf(low, c.y - ground.height_at(c.x, c.z))
+	check(low > -0.03, "set back on the earth (lowest corner %.3f m off it)" % low)
+	await wait_until(func() -> bool: return rb.sleeping, 600)
+	check(rb.sleeping, "and it sleeps there")
+	check(rb.global_position.distance_to(Vector3(x, h, 5.0)) < 0.5, "where it was, not thrown out (%.2f m off)" % rb.global_position.distance_to(Vector3(x, h, 5.0)))
+
+
+## #642: slow rubble doesn't report what it touches (Jolt's manifold reduction), so a piece through
+## the field with its middle still over it is found by its points; one lying on the crater isn't.
+func test_a_quiet_piece_through_a_dug_tile_by_its_end_is_set_back_but_one_lying_there_isn_t() -> void:
+	ground.take(Vector3(5.0, 0, 5.0), 1.0, 0.3)
+	var s := Structure.new()
+	s.structure_id = &"rig"
+	world.add_child(s)
+	s.add_member("a", &"board", &"framing", Vector3(0.6, 0.04, 0.12), Vector3(9.0, 0.3, 9.0))
+	s.add_member("b", &"board", &"framing", Vector3(0.6, 0.04, 0.12), Vector3(9.0, 0.3, 11.0))
+	await physics_frames(2)
+	s._drop([&"rig/a"] as Array[StringName])
+	s._drop([&"rig/b"] as Array[StringName])
+	var through: RigidBody3D = s.rubble[0]
+	var lying: RigidBody3D = s.rubble[1]
+	# Tilted 25 degrees, its middle 6 cm over the crater's floor, one end ~8 cm under it.
+	var h := ground.height_at(5.0, 5.0)
+	through.global_transform = Transform3D(Basis(Vector3.BACK, deg_to_rad(25.0)), Vector3(5.0, h + 0.06, 5.0))
+	lying.global_transform = Transform3D(Basis(), Vector3(5.0, ground.height_at(5.0, 4.6) + 0.5, 4.6))
+	for rb in [through, lying]:
+		rb.linear_velocity = Vector3.ZERO
+		rb.sleeping = false
+	check(ground._deepest(through, true) > Ground.CAUGHT_DEEP, "one end under the field (%.3f m)" % ground._deepest(through, true))
+	# Its reports off as a slow piece's, held there till rescue looks (the pile on it, as it were).
+	through.freeze = true
+	await physics_frames(2)
+	through.max_contacts_reported = 0
+	through.freeze = false
+	through.sleeping = false
+	var before := Ground.rescued
+	check(ground.rescue(through), "rescued without its contacts")
+	check(Ground.rescued == before + 1, "counted")
+	check(ground._deepest(through, true) <= Ground.LIFT_OVER, "and set on top (%.3f m under)" % ground._deepest(through, true))
+	await wait_until(func() -> bool: return lying.sleeping, 600)
+	lying.sleeping = false
+	lying.max_contacts_reported = 0
+	check(not ground.rescue(lying), "the one lying on the crater stays where it is (%.3f m in)" % ground._deepest(lying, true))
+
+
 func test_an_edit_is_cheap() -> void:
 	var t0 := Time.get_ticks_usec()
 	ground.take(Vector3(1.6, 0, 1.6), 0.25, 0.13)
@@ -405,3 +500,90 @@ func test_a_small_fast_thing_doesn_t_go_through_a_dug_tile() -> void:
 	for rb in bits:
 		worst = maxf(worst, ground.height_at(rb.global_position.x, rb.global_position.z) - rb.global_position.y)
 	check(worst < 0.12, "none ends deeper than a crater's own depth under the surface (worst %.3f m)" % worst)
+
+
+func test_west_of_the_store_it_slopes_as_the_layout_says_with_no_seam() -> void:
+	# The town's ground (config/town.json): height fields by the chunk, the flat slabs east of them.
+	var worst := 0.0
+	var missed := 0
+	for p: Vector2 in [Vector2(-6, -8), Vector2(-20.3, -9), Vector2(-35, 4), Vector2(-60, -18), Vector2(-80.3, -20.6),
+			Vector2(-120, -30), Vector2(-152, 40), Vector2(-140, 210), Vector2(-299, -299), Vector2(-1.0, 0.0)]:
+		var hit := _down(p.x, p.y)
+		if hit.is_empty() or not Ground.is_ground(hit.collider):
+			missed += 1
+			continue
+		worst = maxf(worst, absf((hit.position as Vector3).y - TownLayout.ground_height(p.x)))
+		check_near(ground.height_at(p.x, p.y), TownLayout.ground_height(p.x), 0.001, "height_at says so at %s" % p)
+	check_eq(missed, 0, "a ray finds the ground everywhere on the slope")
+	check(worst < 0.02, "at the layout's height (worst %.3f m off)" % worst)
+	check(TownLayout.ground_height(-120) > 1.0, "and it's up there")
+
+
+func test_a_splinter_doesn_t_slide_down_a_seam_in_the_slope() -> void:
+	# 2026-10-24, test_chaos: a 6 mm chip off the barber's front came down on the seam between two
+	# chunks (z 0) and slid on down it, Jolt's rounded box edges pushing it only sideways. Chips on
+	# the chunks' seam, on a column's seam (x -19.2) and where both meet, edge-on and flat.
+	var size := ground.tuning.tile_size()
+	var bits: Array[RigidBody3D] = []
+	for at: Vector2 in [Vector2(-17.1, 0.0), Vector2(-19.2, 3.0), Vector2(-19.2, 0.0), Vector2(-6.0 * size, 0.0)]:
+		for k in 2:
+			var rb := RigidBody3D.new()
+			var cs := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(0.08, 0.036, 0.006)
+			cs.shape = box
+			rb.add_child(cs)
+			rb.mass = 0.01
+			rb.continuous_cd = true
+			if k == 1:
+				rb.rotation = Vector3(0.0, PI * 0.5, 0.0)  # its thin side along x, over the column's seam
+			rb.position = Vector3(at.x, TownLayout.ground_height(at.x) + 0.3, at.y)
+			rb.linear_velocity = Vector3(-0.2, -2.5, 0.0)
+			world.add_child(rb)
+			bits.append(rb)
+	await physics_frames(120)
+	var worst := 0.0
+	for rb in bits:
+		worst = maxf(worst, TownLayout.ground_height(rb.global_position.x) - rb.global_position.y)
+	check(worst < 0.03, "none goes under the slope (worst %.3f m)" % worst)
+
+
+func test_the_slope_s_boxes_don_t_reach_over_a_dug_tile() -> void:
+	# A tile dug just over a chunk's edge (z 0, x -19.2): the next chunk's boxes stop at it.
+	var size := ground.tuning.tile_size()
+	var at := Vector3(-6.5 * size, 0.0, 0.5 * size)
+	ground.take(Vector3(at.x, ground.height_at(at.x, at.z), at.z), 0.6, 0.3)
+	await physics_frames(2)
+	var key := ground.key_at(at.x, at.z)
+	var wrong := 0
+	for p: Vector2 in [Vector2(key.x * size + 0.03, at.z), Vector2((key.x + 1) * size - 0.03, at.z),
+			Vector2(at.x, key.y * size + 0.03), Vector2(at.x, (key.y + 1) * size - 0.03)]:
+		var hit := _down(p.x, p.y)
+		if hit.is_empty() or not hit.collider is GroundTile:
+			wrong += 1
+	check_eq(wrong, 0, "3 cm inside each of its edges a ray meets the tile, not a box reaching over")
+
+
+func test_a_tile_dug_on_the_rise_starts_as_the_ground_was() -> void:
+	var at := Vector3(-100.0, 0.0, -24.0)
+	var before := ground.height_at(at.x, at.z)
+	check(before > 1.0, "risen ground (%.2f m)" % before)
+	var bank := ground.take(Vector3(at.x, before, at.z), 0.5, 0.3)
+	await physics_frames(2)
+	check(bank > 0.0, "earth came out")
+	check_near(ground.height_at(at.x, at.z), before - 0.3, 0.02, "the hole's 30 cm under the ground there")
+	var off := at + Vector3(1.0, 0.0, 0.0)
+	check_near(ground.height_at(off.x, off.z), TownLayout.ground_height(off.x, off.z), 0.005, "beside it, the ground as it was")
+	var hit := _down(off.x, off.z)
+	check(not hit.is_empty() and absf((hit.position as Vector3).y - TownLayout.ground_height(off.x, off.z)) < 0.02,
+			"and a ray meets it there (%s)" % [hit.get("position")])
+	# Across the dug tile's edge to the chunk's small fields round it: no seam.
+	var size := ground.tuning.tile_size()
+	var key := ground.key_at(at.x, at.z)
+	var missed := 0
+	for i in 40:
+		var x := key.x * size - 0.5 + i * 0.11
+		var h := _down(x, at.z + 1.3)
+		if h.is_empty():
+			missed += 1
+	check_eq(missed, 0, "a ray finds the ground across the tile's edge")

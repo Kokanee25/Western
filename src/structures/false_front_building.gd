@@ -80,6 +80,14 @@ const JOIST_W := 0.06
 var door_rect := Rect2()
 
 
+## Inside, the woods drawn darker (art, Sean 2026-10-26, #405: R1 darkened, set r1dark_a): a
+## member made of the left wood is drawn in the right one; it still bears and breaks as its wood.
+const INSIDE_LOOK := {&"floor": &"int_r1_floor", &"framing": &"int_r1_framing"}
+## The kinds of member seen only from inside: the floor, the walls' framing, the roof's framing.
+const INSIDE_KINDS := [&"floor_board", &"stud", &"cripple", &"plate", &"header", &"rafter", &"ridge",
+		&"furniture_frame", &"furniture_top"]
+
+
 func build() -> void:
 	var w := width
 	var d := depth
@@ -151,8 +159,21 @@ func build() -> void:
 		_build_porch()
 	if furnished:
 		_build_furniture()
+	_inside_looks()
 	_add_interior_ambient()
 	FacadeArt.dress(self)  # the painting's parts on a front that asks for them (art)
+
+
+## The members seen from inside drawn in the inside woods (INSIDE_LOOK); the porch is outside.
+func _inside_looks() -> void:
+	for m in get_members():
+		if m.kind in INSIDE_KINDS and INSIDE_LOOK.has(m.wood) and not String(m.member_id).contains("/porch/"):
+			m.look = INSIDE_LOOK[m.wood]
+
+
+## The inside wood a kit prop's top is drawn in (its `look`; its wood stays).
+static func inside_look(wood: StringName) -> StringName:
+	return INSIDE_LOOK.get(wood, wood)
 
 
 ## The sky's ambient light shouldn't fill the inside of a closed building. This probe replaces it
@@ -315,7 +336,11 @@ func _vertical_siding(wall: Dictionary, top_at: Callable, openings: Array[Rect2]
 	var col := 0
 	var x := x_from
 	while x < x_to - 0.02:
-		var x1 := minf(x + VERTICAL_BOARD_W, x_to)
+		var bw := VERTICAL_BOARD_W
+		if age_years > 0.0 and BuildingAge.enabled:
+			# An old building's boards came from whatever the mill had (BuildingAge).
+			bw *= 1.0 + rand_range(-1.0, 1.0) * BuildingAge.tuning().board_width_spread
+		var x1 := minf(x + bw, x_to)
 		var top := minf(top_at.call(x), top_at.call(x1))
 		var cuts: Array[Vector2] = []
 		for o in openings:
@@ -368,7 +393,7 @@ func sign_room_bottom() -> float:
 func _hang_gable_sign() -> void:
 	if not gable_sign.has_area():
 		return
-	var id: StringName = SignArt.BOARDS.get(sign_text.to_upper(), &"")
+	var id: StringName = SignArt.board_id(sign_text)
 	var painted := SignArt.board_size(id)
 	if painted == Vector2.ZERO:
 		return
@@ -482,44 +507,10 @@ func _build_roof(tanp: float) -> void:
 			Vector3(w * 0.5, cap_y + BOARD_T * 0.5 - 0.005, (STUD_D + d + 0.25) * 0.5))
 
 
-## Porch awning over the boardwalk: two posts, a beam, a ledger on the facade, rafters, boards.
-## The lantern bracket is here too.
+## Porch awning over the boardwalk (PorchRoof: two posts, a beam, a ledger on the facade, rafters,
+## boards). The lantern bracket is here too.
 func _build_porch() -> void:
-	var w := width
-	var post := 0.14
-	var beam_y0 := porch_height
-	var beam_y1 := porch_height + 0.18
-	var ledger_y1 := porch_height + 0.37
-	var zb := -porch_depth
-	for i in 2:
-		var px := post * 0.5 + 0.05 if i == 0 else w - post * 0.5 - 0.05
-		add_member("porch/post%d" % i, &"post", &"framing", Vector3(post, beam_y0, post), Vector3(px, beam_y0 * 0.5, zb))
-	add_member("porch/beam", &"beam", &"framing", Vector3(w + 0.2, beam_y1 - beam_y0, 0.16), Vector3(w * 0.5, (beam_y0 + beam_y1) * 0.5, zb))
-	add_member("porch/ledger", &"ledger", &"framing", Vector3(w, 0.15, 0.05), Vector3(w * 0.5, ledger_y1 - 0.075, -0.025))
-
-	var a := atan2(ledger_y1 - beam_y1, -0.05 - zb)
-	var basis := Basis(Vector3.RIGHT, -a)
-	var up_slope := basis.z  # toward the building, rising
-	var z_start := zb - 0.3
-	var start := Vector3(0.0, beam_y1 - (zb - z_start) * tan(a), z_start)
-	var length := (-0.05 - z_start) / cos(a)
-	var i := 0
-	var x := 0.2
-	while x < w - 0.1:
-		var c := start + up_slope * (length * 0.5) + basis.y * 0.06
-		c.x = x
-		add_member("porch/rafter/%02d" % i, &"rafter", &"framing", Vector3(0.05, 0.12, length), c, basis)
-		x += 0.75
-		i += 1
-	i = 0
-	var sl := 0.0
-	while sl < length - 0.02:
-		var bw := minf(0.195, length - sl)
-		var c := start + up_slope * (sl + bw * 0.5) + basis.y * (0.12 + BOARD_T * 0.5)
-		c.x = w * 0.5
-		add_member("porch/board/%02d" % i, &"roof_board", &"weathered_pine", Vector3(w + 0.3, BOARD_T, bw), c, basis)
-		sl += 0.2
-		i += 1
+	PorchRoof.build(self, "porch", width, porch_depth, porch_height)
 
 	if not porch_lantern:
 		return
@@ -594,14 +585,14 @@ func _local(at: Vector2, p: Vector3) -> Array:
 ## each corner.
 func _table(id: String, x0: float, x1: float, z0: float, z1: float, h: float, top_wood: StringName = &"dark_trim", extra: Array = []) -> KitProp:
 	return _fixture(&"table", id, Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5), Vector3(x1 - x0, h, z1 - z0), 0.0,
-			{"top": {"wood": String(top_wood), "look": "wood:" + String(top_wood)}}, extra)
+			{"top": {"wood": String(top_wood), "look": "wood:" + String(inside_look(top_wood))}}, extra)
 
 
 ## A counter (the kit's) across the room from the left wall to `x1` at depth z0..z1: a front, its
 ## end and a top (overhanging the front by 6 cm).
 func _counter(id: String, x0: float, x1: float, z0: float, z1: float, top_wood: StringName = &"dark_trim", extra: Array = []) -> KitProp:
 	return _fixture(&"counter", id, Vector2((x0 + x1) * 0.5, (z0 - 0.06 + z1) * 0.5), Vector3(x1 - x0, 0.99, z1 - z0 + 0.06), 0.0,
-			{"end_l": null, "top": {"wood": String(top_wood), "look": "wood:" + String(top_wood)}}, extra)
+			{"end_l": null, "top": {"wood": String(top_wood), "look": "wood:" + String(inside_look(top_wood))}}, extra)
 
 
 ## Shelves (the kit's, four boards) on an upright pair against a wall at x0..x1 (deep across x),

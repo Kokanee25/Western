@@ -34,6 +34,10 @@ const PART_OF := {
 	&"saloon_red": [&"siding", &"siding_low"],
 	&"store_boards": [&"siding", &"siding_low"],
 	&"weathered_pine": [&"siding", &"siding_low", &"stringers"],
+	# The painted sidings (the false fronts' paint: the light pass, #321), on the wall.
+	&"painted_white": [&"siding", &"siding_low"],
+	&"painted_red": [&"siding", &"siding_low"],
+	&"painted_green": [&"siding", &"siding_low"],
 	&"floor": [&"deck", &"treads"],
 	&"timber": [&"frame"],
 	&"fascia": [&"rim"],

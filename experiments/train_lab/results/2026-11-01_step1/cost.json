@@ -1,0 +1,8 @@
+{
+  "_doc": "bridge train_cost 10 in a headless game here (2.1 GHz core, another game rendering the film beside it); x0.65 for Sean's 3.25 GHz (clock_scale). Render CPU: Sean's F3.",
+  "through_the_bend_25kmh": {"tick_ms": 0.047, "draw_ms": 0.069, "ticks": 600, "frames": 329},
+  "starting_at_A": {"tick_ms": 0.055, "draw_ms": 0.080, "ticks": 600, "frames": 25},
+  "at_seans": {"tick_ms_a_frame": 0.035, "draw_ms_a_frame": 0.05, "total_ms_a_frame": 0.09},
+  "jitter_and_drift": {"frames": 2810, "worst_curvature_roughness_per_km": 2.74, "max_truck_off_mm": 0.0,
+    "_doc": "graphs.py --frames: the drawn heading turn a metre through the bend frame to frame; 2.7 /km over a ~0.1 m frame is ~0.015 degree. The test holds the engine truck's walked path to the 1D distance within 0.1 %."}
+}

@@ -26,15 +26,23 @@ const RAGDOLL := 64
 const WALK := 128
 ## What a walker stands on: the world and the walking ramps.
 const STAND := WORLD | WALK
+## Physics: a hanging rope (Rope, #734): only balls look for it (nothing walks into or lands on it).
+const ROPES := 256
 ## Everything a bullet can hit.
 const BULLETS := 0xFFFFFFFF & ~PEOPLE & ~WALK
+## Sight only, no physics body is on it: an unbroken window pane as the sight service holds it
+## (`Sight`, issue #565). A pane stays on WORLD for the physics (balls, the player, a blast), but
+## a line looked along on WORLD passes it; one asked on this bit finds it (`Sight.see`).
+const SIGHT_GLASS := 1 << 20
 
 ## Render: people's skin and clothes (wound and blood decals paint only these).
 const VIS_BODY := 2
 ## Render: what's inside a body, seen through a wound (decals don't paint it).
 const VIS_INSIDE := 4
-## Render: what's in your hands (guns, your hand and sleeve, a stick of dynamite), on the world's
-## layer too: its own fill light reaches only this (WeaponViewmodel).
+## Render: what's in your hands (guns, your hand and sleeve, a stick of dynamite): its own fill
+## light reaches only this (WeaponViewmodel). Off the world's layer (`hold`), so no world decal (a
+## blood pool, floor marks, a splat, a blast's scorch) paints it (#669); lights and cameras see
+## every layer.
 const VIS_HELD := 8
 ## Render: what a far lamp's shadow is cast by (OilLamp): each structure's shadow mesh (on this
 ## alone) and its members' own meshes (on this and 1). The sun, the moon and near lamps leave the
@@ -44,3 +52,8 @@ const ALL_BUT_WALLS := 0xFFFFFFFF & ~VIS_WALLS
 ## Render: dust and smoke in the air, off the world's layer so the ground's decals (a blast's scorch)
 ## don't paint it; cameras and lights see it as any other.
 const VIS_AIR := 32
+
+
+## A mesh in your hands: on VIS_HELD alone, off the world's layer that world decals paint (#669).
+static func hold(mi: MeshInstance3D) -> void:
+	mi.layers = (mi.layers & ~WORLD) | VIS_HELD

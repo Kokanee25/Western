@@ -1,0 +1,6 @@
+a noon_far build/ml_r2/rough/rough_pine_batten_few/noon_far.png
+b golden_near build/ml_r2/rough/rough_pine_batten_old/golden_near.png
+c saloon_far build/ml_r2/rough/rough_pine_batten_new/saloon_far.png
+d golden_far build/ml_r2/rough/rough_cottonwood_boards_new/golden_far.png
+e noon_near build/ml_r2/rough/rough_cottonwood_boards_old/noon_near.png
+f saloon_far build/ml_r2/rough/rough_cottonwood_boards_few/saloon_far.png

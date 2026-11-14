@@ -1,0 +1,101 @@
+{
+ "alarm": 16.97,
+ "bot": {
+  "blast": -1.0,
+  "freed": 34.1,
+  "phase_at": {
+   "out": 34.1,
+   "rescue": 32.3
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "breach": -1.0,
+ "end": 48.7,
+ "executed": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1904,
+  "max_ms": 201.73,
+  "mean_ms": 13.2,
+  "p95_ms": 20.82
+ },
+ "freed": 34.6,
+ "hostage_alive": true,
+ "men": 5,
+ "men_out": 0,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "id": "brody",
+   "inside": true,
+   "mood": "CALM",
+   "order": "bedroom_door",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "lyle",
+   "inside": true,
+   "mood": "CALM",
+   "order": "window_front_w",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "id": "dutch",
+   "inside": true,
+   "mood": "CALM",
+   "order": "window_front_e",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "id": "kid",
+   "inside": false,
+   "mood": "TENDING",
+   "order": "",
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "id": "hollis",
+   "inside": true,
+   "mood": "CALM",
+   "order": "behind_table",
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, short of breath, bubbling cough, bone broken.",
+ "seed": 1,
+ "state": "LOST",
+ "t": 48.7,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   34.6,
+   "the rancher cut loose"
+  ],
+  [
+   48.7,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

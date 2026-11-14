@@ -1,0 +1,18 @@
+build/physics_lab/t_off: 74 falls, 41 flags {'awake_at_end': 8, 'bounce': 1, 'joint_pulled_apart': 7, 'launch': 2, 'never_settled': 11, 'sunk_into_world': 3, 'swing_past_limit': 7, 'twist_past_limit': 2}
+  joint_gap     sum    1.04  worst  0.041 (L_run_chest_front, upper_arm_l)
+  penetration   sum    1.95  worst  0.052 (P_flight_top_ball_back, hand_r)
+  swing_excess  sum  408.37  worst 17.720 (S_oak_top_blackout, foot_r)
+  twist_excess  sum  364.48  worst 26.580 (P_flight_side_ball, upper_arm_l)
+  ends {'back': 45, 'face_down': 18, 'side': 11}; both knees folded > 120 deg at rest 23; up on his knees at the end 2; kneeling 14.9 s in all; deepest hand at rest 0.019 m (S_oak_top_blackout); hands > 2 cm in: 0
+build/physics_lab/f_fade: 74 falls, 49 flags {'awake_at_end': 4, 'joint_pulled_apart': 12, 'launch': 4, 'lingering_motion': 13, 'never_settled': 4, 'sunk_into_world': 4, 'swing_past_limit': 6, 'twist_past_limit': 2}
+  joint_gap     sum    1.06  worst  0.047 (L_run_belly_side, thigh_l)
+  penetration   sum    2.14  worst  0.080 (P_flight_backwards_ball, foot_r)
+  swing_excess  sum  386.64  worst 15.680 (L_run_belly_side, abdomen)
+  twist_excess  sum  411.48  worst 30.250 (S_oak_top_dead_head, upper_arm_l)
+  ends {'back': 51, 'face_down': 17, 'side': 6}; both knees folded > 120 deg at rest 26; up on his knees at the end 1; kneeling 11.3 s in all; deepest hand at rest 0.020 m (M_men5_blackout_close); hands > 2 cm in: 0
+build/physics_lab/f_dying: 74 falls, 64 flags {'awake_at_end': 4, 'discontinuity': 3, 'joint_pulled_apart': 16, 'launch': 5, 'lingering_motion': 14, 'never_settled': 5, 'sunk_into_world': 9, 'swing_past_limit': 7, 'twist_past_limit': 1}
+  joint_gap     sum    1.15  worst  0.060 (L_run_chest_front, forearm_l)
+  penetration   sum    2.19  worst  0.063 (P_flight_top_dead_head, forearm_l)
+  swing_excess  sum  474.22  worst 16.310 (S_oak_walk_rail_blast, hand_l)
+  twist_excess  sum  409.43  worst 30.250 (S_oak_top_dead_head, upper_arm_l)
+  ends {'back': 49, 'face_down': 16, 'side': 9}; both knees folded > 120 deg at rest 27; up on his knees at the end 2; kneeling 11.6 s in all; deepest hand at rest 0.020 m (P_bar_side_ball_left); hands > 2 cm in: 0

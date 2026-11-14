@@ -1,0 +1,41 @@
+{
+ "name": "the game's light",
+ "about": "Sean's pick (2026-10-23, issue #321): B by day, C at night. LightLooks blends every dial the two set from day's to night's as the sun goes down: all day's with the sun over night_from_sun (its height, the sun direction's y; ~0.26 is 15 degrees up), all night's under night_full_sun. The sky's own dials stay day's (each change re-lights the sky); the grade steps in grade_steps (each step its own lookup, built once).",
+ "day": "res://config/looks/light_b.json",
+ "night": "res://config/looks/light_c.json",
+ "night_from_sun": 0.26,
+ "night_full_sun": -0.05,
+ "grade_steps": 4,
+ "day_only": [
+  "sky."
+ ],
+ "night_values_about": "Light pass round 3 (issue #412, 2026-10-27): the game's night over light C's, so C's own file stays as it was for 8. The saloon's room lit warm all over as the painting's is, not pools in black (the judge on the saloon shot 1.20 -> 0.44: deep shadow 0.56 -> 0.12, midtones 7 -> 28): its fill (the room's ambient probe, in the lamps' gold: SaloonDressing.ROOM_FILL_COLOUR) up, its lamps' falloff softer and reaching further so their pools spread; the night grade's S of contrast down, the blacks lifted a touch, the oranges kept and a touch more colour, the shade warm, the vignette lighter.",
+ "night_values": {
+  "building.saloon.night_ambient": 0.7,
+  "building.saloon.room_haze": 0.05,
+  "lamps.saloon_wall.energy": 1.0,
+  "grade.contrast": 0.05,
+  "grade.black": 0.04,
+  "grade.orange_pull": 0.0,
+  "grade.saturation": 1.1,
+  "grade.shadow_tint": [
+   1.0,
+   0.97,
+   0.9,
+   1.0
+  ],
+  "finish.vignette": 0.2,
+  "lamps.saloon_wall.attenuation": 0.8,
+  "lamps.saloon_wall.light_range": 0.7
+ },
+ "day_values_about": "Light pass round 4 (2026-10-27, the street at golden hour, shot_match_street 17.82): the game's low sun over B's, so B's own file stays as it was for 8. Each acts only with the sun low (DayCycle's golden, the painted sky's hours, the road's low-sun fill), so they are day's at every night share. The fronts and the road lit as the painting lights them (judge 0.878 -> 0.21: midtones 21 -> 41, deep shadow 0.21 -> 0.03): the fill in the shade a warm colour (its share from the coded sky's radiance down, that colour up: the sky's radiance at golden hour is dim and is what held the fronts dark), the exposure up, the road's fill from the glow round the sun up; and the painted sky's blue brought down between the clouds (its panels' span shorter, so their blue tops come lower), its orange less pushed and the whole of it dimmer.",
+ "day_values": {
+  "day.exposure_low_sun": 1.2,
+  "day.ambient_low_sun": 6.0,
+  "day.ambient_sky_low_sun": 0.25,
+  "ground.sky_fill_low_sun": 0.25,
+  "sky.paint_span": 42.0,
+  "sky.paint_saturation": 1.0,
+  "sky.paint_gain": 0.55
+ }
+}

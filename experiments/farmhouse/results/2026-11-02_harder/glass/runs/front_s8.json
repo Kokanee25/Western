@@ -1,0 +1,239 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 39.87,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "out": 39.87,
+   "rescue": 37.97
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 53.87,
+ "executed": 42.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2214,
+  "max_ms": 193.8,
+  "mean_ms": 18.93,
+  "p95_ms": 35.23
+ },
+ "freed": 40.37,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.82,
+   1.25,
+   -9.27
+  ],
+  "limp": false,
+  "pelvis": [
+   2.81,
+   0.51,
+   -9.18
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.81,
+  0.89,
+  -9.19
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "drag Lyle to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "RELOADING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.68 / 1.32)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 10.8,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "back in it: his fear's settled (0.67 / 0.75)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 11.8,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.39 / 0.38), covered close",
+   "id": "kid",
+   "inside": true,
+   "knows": 10.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 12.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding steady, blood in his throat, rattling breath, gut-shot.",
+ "player_local": [
+  3.93,
+  -1.75,
+  -30.07
+ ],
+ "quits": [
+  [
+   38.22,
+   "kid",
+   "gives up",
+   "give up: past his nerve (fear 0.39 / 0.38), covered close"
+  ],
+  [
+   38.22,
+   "hollis",
+   "gives up",
+   "fight from where he is: no cover he can reach (in the open)"
+  ],
+  [
+   42.97,
+   "dutch",
+   "gives up",
+   "back in it: his fear's settled (0.67 / 0.75)"
+  ],
+  [
+   43.83,
+   "lyle",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.68 / 1.32)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 8,
+ "shots_men": 23,
+ "shots_out": 22,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 53.87,
+ "threat": 36.98,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   36.98,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.98,
+   "the guard's last word"
+  ],
+  [
+   37.63,
+   "Lyle down"
+  ],
+  [
+   38.22,
+   "Hollis down"
+  ],
+  [
+   38.22,
+   "Kid gives up (give up: past his nerve (fear 0.39 / 0.38), covered close)"
+  ],
+  [
+   38.22,
+   "Hollis gives up (fight from where he is: no cover he can reach (in the open))"
+  ],
+  [
+   40.37,
+   "the rancher cut loose"
+  ],
+  [
+   42.0,
+   "the guard shoots the rancher"
+  ],
+  [
+   42.97,
+   "Dutch down"
+  ],
+  [
+   42.97,
+   "Dutch gives up (back in it: his fear's settled (0.67 / 0.75))"
+  ],
+  [
+   43.83,
+   "Lyle gives up (get back up: knocked down, not beat (fear 0.68 / 1.32))"
+  ],
+  [
+   53.87,
+   "won"
+  ],
+  [
+   53.87,
+   "Lyle dead"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

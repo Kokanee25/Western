@@ -5,24 +5,45 @@
 //! Step 2, members that take damage: `VoxelMember` (member.rs) over the brick volume
 //! (volume.rs, from Pixel-factory), carving (carve.rs), greedy meshing (mesh.rs) on the worker
 //! pool (pool.rs).
+//! The sight service (docs/briefs/more-cores.md step 3): `SightWorld` (sight.rs) over the sight
+//! layers' shapes (sight_geo.rs), rays answered in batches across the pool.
+//! The fire's member tick (more-cores step 8): `FireCore` (fire.rs).
+//! The quit's last layer (issue #435): `QuitWatchdog` (watchdog.rs).
+//! The blast's face sums (issue #538): `BlastCore` (blast.rs).
+//! Crash and freeze reports (issue #624): `CrashGuard` (crash_guard.rs).
 
 use godot::classes::Node;
 use godot::prelude::*;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
+pub mod blast;
 pub mod carve;
+pub mod crash_guard;
+pub mod fire;
 pub mod member;
 pub mod mesh;
 pub mod pool;
+pub mod sight;
+pub mod sight_geo;
 pub mod smoke;
 pub mod volume;
 pub mod voxel;
+pub mod watchdog;
 
 struct SaltCreekNative;
 
 #[gdextension]
-unsafe impl ExtensionLibrary for SaltCreekNative {}
+unsafe impl ExtensionLibrary for SaltCreekNative {
+    fn on_stage_deinit(stage: InitStage) {
+        // Past the cleanup that can hang (issue #435): the quit's watchdog stands down before the
+        // library unloads.
+        if stage == InitStage::Scene {
+            watchdog::stand_down();
+            crash_guard::stand_down();  // (its thread ends before the library goes, #624)
+        }
+    }
+}
 
 /// A job's output: positions, normals and colours of every visible cube face, as triangles.
 pub struct MeshJob {

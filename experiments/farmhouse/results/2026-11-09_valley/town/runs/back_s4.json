@@ -1,0 +1,242 @@
+{
+ "alarm": 124.83,
+ "blocking": [
+  "0.3:Wes/Blocker",
+  "0.3:House/floor_ground_board_018_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_019_1",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_022_0",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_board_024_0",
+  "0.3:House/floor_ground_board_025_0",
+  "0.3:House/floor_ground_joist_029",
+  "1.0:Wes/Blocker",
+  "1.0:TestStreet/Player",
+  "1.6:Wes/Blocker",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": -1.0,
+  "froze": 3.28333333333333,
+  "gate_left": 86.3,
+  "gate_wait": 60.9999999999978,
+  "phase_at": {},
+  "planted": -1.0
+ },
+ "bot_phase": "in",
+ "bot_target": "Wes",
+ "breach": -1.0,
+ "end": 134.4,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 574,
+  "max_ms": 97.47,
+  "mean_ms": 23.15,
+  "p95_ms": 51.19
+ },
+ "freed": -1.0,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   7.28,
+   1.82,
+   2.5
+  ],
+  "limp": false,
+  "pelvis": [
+   7.32,
+   1.08,
+   2.5
+  ],
+  "pose": "sit_back",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  7.34,
+  1.46,
+  2.5
+ ],
+ "men": 7,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 2.5,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "back in it: his fear's settled (0.86 / 1.06)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 3.6,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to kitchen door: kitchen door (you're front room)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "get back up: knocked down, not beat (fear 0.62 / 1.12)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 3.9,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "pike",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "drag Dutch to cover: he's down in the open",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARNING",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, blood pumping out bright, bone broken.",
+ "player_local": [
+  4.27,
+  0.56,
+  3.45
+ ],
+ "quits": [
+  [
+   126.38,
+   "hollis",
+   "gives up",
+   "get back up: knocked down, not beat (fear 0.62 / 1.12)",
+   true
+  ]
+ ],
+ "route_left": 4,
+ "route_next": [
+  4.75,
+  0.56,
+  3.35
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 4,
+ "shots_men": 19,
+ "shots_out": 0,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 134.4,
+ "threat": 132.82,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   124.83,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   124.83,
+   "Pike falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   124.83,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 15 m off)"
+  ],
+  [
+   125.35,
+   "Hollis down"
+  ],
+  [
+   126.38,
+   "Hollis gives up (get back up: knocked down, not beat (fear 0.62 / 1.12))"
+  ],
+  [
+   132.8,
+   "Dutch down, out"
+  ],
+  [
+   132.82,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   134.4,
+   "lost: you_down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

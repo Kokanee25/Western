@@ -1,0 +1,6 @@
+a saloon_night build/cheap_r2_src/saloon_night.png
+b saloon_back_wall_night build/cheap_r2_src/saloon_back_wall_night.png
+c man_saloon_night build/cheap_r2_src/man_saloon_night.png
+d road_low_noon build/cheap_r2_src/road_low_noon.png
+e street_golden_hour build/cheap_r2_src/street_golden_hour.png
+f film build/cheap_r2_src/film.png

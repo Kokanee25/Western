@@ -17,7 +17,8 @@ colors = PackedColorArray(0.06, 0.08, 0.17, 1, 0.07, 0.08, 0.18, 1, 0.3, 0.2, 0.
 [resource]
 script = ExtResource("1_cfg")
 day_length_seconds = 2700.0
-start_hour = 17.0
+start_hour = 12.0
+hold_clock = true
 debug_time_scales = Array[float]([1.0, 30.0, 180.0])
 sun_tilt_degrees = 35.0
 day_bias = 0.1

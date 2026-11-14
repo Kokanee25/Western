@@ -1,0 +1,14 @@
+# Film 2 (#551): riding an ore car through the bend at 17 km/h, then jumping off the outside of it.
+time 15.5
+train_lab
+train_place 330 17
+train_drive hold 17
+train_board ore2 mid
+turn -30 -5
+wait 30
+turn 30 0
+wait 6
+train_jump_off right
+wait 2
+turn 150 0
+wait 7

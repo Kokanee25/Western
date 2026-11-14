@@ -30,6 +30,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Settings.library_motion = true  # the game's (a test above may pin it off)
 	Events.body_hit.disconnect(_on_body_hit)
 	world.queue_free()
 	await physics_frames(1)
@@ -127,6 +128,9 @@ func test_broken_leg_drops_him_but_he_lives() -> void:
 
 
 func test_shot_off_finger_falls() -> void:
+	# On the procedural pose (library clips off, #539): this measures a ball aimed at where his hand was a tick ago.
+	Settings.library_motion = false
+	await physics_frames(30)  # back on his pose from the clip he stood on
 	var st := man.anatomy.structure(&"index_r")
 	var at := _world(&"hand_r", st.a.lerp(st.b, 0.75))
 	var side: Vector3 = (man.parts[&"hand_r"] as Node3D).global_basis.x
@@ -229,6 +233,8 @@ func _knee_bend(man: HumanBody, side: String) -> float:
 ## over his legs and down on his front, not down onto his knees. Before the stance leg held for an
 ## instant, a running man killed folded one knee right under him (150 deg by 0.4 s) and knelt.
 func test_killed_running_he_pitches_over_not_onto_his_knees() -> void:
+	# On the procedural pose (library clips off, #539): this measures the fall from the old gait's stride; with the clips the run's swing knee can be caught folded (112 deg, one stride of four): Sean's call (#539's turn-on).
+	Settings.library_motion = false
 	for n in 4:
 		var runner := HumanBody.new()
 		runner.has_gun = false
@@ -430,6 +436,8 @@ func test_an_arm_hit_lets_his_gun_hand_sag() -> void:
 
 
 func test_a_body_hit_slows_him() -> void:
+	# On the procedural pose (library clips off, #539): this measures the chest's lean in the tenth of a second after the hit (the clips' walk-to-idle crossfade moves it ~3 deg).
+	Settings.library_motion = false
 	var from := man.global_position
 	for i in 60:
 		man.walk_to(from + Vector3(0, 0, -10), 1.4, 1.0 / 60.0)
@@ -598,7 +606,10 @@ func _joint_bend(man: HumanBody, upper: StringName, lower: StringName) -> float:
 	return rad_to_deg((-a_part.global_basis.y).signed_angle_to(-b_part.global_basis.y, right))
 func test_skin_and_clothes_are_one_skinned_body() -> void:
 	check(man.skeleton != null, "a skeleton")
-	check_eq(man.skeleton.get_bone_count(), 17, "a bone per segment")
+	# A bone per segment first, then the fuller skeleton's 30 finger and 10 deform bones (#696).
+	check_eq(man.skeleton.get_bone_count(), 17 + 30 + DeformRig.NAMES.size(), "a bone per segment, fingers, clavicles, twists")
+	for i in 17:
+		check_eq(man.skeleton.get_bone_name(i), String(man.anatomy.segment_order()[i]), "bone %d is a segment's" % i)
 	for key in ["skin/chest", "skin/thigh_l", "skin/forearm_r", "skin/hand_r", "head/head", "shirt/chest", "vest/chest",
 			"trousers/pelvis", "boots/foot_r", "gun_belt/pelvis", "holster/pelvis", "hat/head", "hat_brim/head"]:
 		var mi: MeshInstance3D = man.skin_meshes.get(key)
@@ -625,8 +636,11 @@ func test_skin_and_clothes_are_one_skinned_body() -> void:
 func test_body_follows_the_ragdoll() -> void:
 	await _shoot(Vector3(0, 1.64, -6), Vector3(0, 1.64, 0))
 	await physics_frames(120)
-	await process_frames(2)
 	var head: Node3D = man.parts[&"head"]
+	# Still, so a frame's lag between the physics and the drawn skin doesn't count (he can still be
+	# rolling at 2 s: his tone lets go a region at a time since 2026-10-28).
+	await wait_until(func() -> bool: return (head as RigidBody3D).linear_velocity.length() < 0.05, 300)
+	await process_frames(2)
 	var i := man.skeleton.find_bone("head")
 	var bone_world := man.skeleton.global_transform * man.skeleton.get_bone_global_pose(i)
 	check(bone_world.origin.distance_to(head.global_position) < 0.01, "the head's skin is where the ragdoll's head is")
@@ -896,3 +910,25 @@ func test_a_studio_man_wears_his_bandana_at_his_neck_or_over_his_face() -> void:
 	check(up.has("bandana_mask") and not up.has("bandana"), "masked: over his face, not at his neck too")
 	var none: Dictionary = PeopleBodies.build(a, {"bandana": false, "mask": false}, &"hothead_lyle_s2_talking").shapes
 	check(not none.has("bandana") and not none.has("bandana_mask"), "no bandana: neither")
+
+
+## #562: his skin is drawn only while its culling box (each skin mesh's custom_aabb, about his
+## root) is on screen; thrown well clear of where he went limp, the box goes with him (it stayed
+## at his root: looking straight at the body from 5 m, nothing drawn but his hat).
+func test_a_thrown_body_keeps_its_skin_drawn() -> void:
+	man.go_limp(Vector3(9.0, 3.0, 0.0))  # (the ground is 40 m: he stays on it)
+	await physics_frames(150)
+	var pelvis := man.parts[&"pelvis"] as Node3D
+	check(pelvis.global_position.distance_to(man.global_position) > 5.0,
+			"thrown clear of where he went limp (%.1f m)" % pelvis.global_position.distance_to(man.global_position))
+	var meshes := man.skeleton.get_children().filter(func(c: Node) -> bool:
+		return c is MeshInstance3D and (c as MeshInstance3D).is_visible_in_tree())
+	check(not meshes.is_empty(), "his skin drawn")
+	for mi: MeshInstance3D in meshes:
+		var box := mi.global_transform * mi.custom_aabb
+		for sid: StringName in man.parts:
+			var p := (man.parts[sid] as Node3D).global_position
+			check(box.has_point(p), "%s's %s inside its culling box" % [mi.name, sid])
+			if not box.has_point(p):
+				return
+

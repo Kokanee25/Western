@@ -1,0 +1,47 @@
+{
+  "derail": {},
+  "frames": {
+    "before_mean_ms": 11.9438151981076,
+    "frames": 484,
+    "gate": "pass",
+    "last_under_50fps_s": -1.0,
+    "mean_ms": 12.8871673553719,
+    "over_100": 0,
+    "over_50": 0,
+    "sean_worst_ms": 14.6393,
+    "second_ms": 21.336,
+    "slow_spell_s": 0.0,
+    "worst_ms": 22.522
+  },
+  "outcome": "stopped",
+  "seen": [
+    {
+      "daylight": 0.0,
+      "distance": 63.719375042749,
+      "kind": "broken",
+      "kmh": 20.1765086184733,
+      "lux": 0.634723605731431,
+      "range": 63.8573894115719,
+      "s": 311.020624957251,
+      "t": 41.2999999999989,
+      "what": "rail gone",
+      "who": "engineer"
+    }
+  ],
+  "short_by": 14.902142224463,
+  "spec": {
+    "at": 380.0,
+    "driver": "engineer",
+    "hour": 23.0,
+    "how": "rail",
+    "kmh": 20.0,
+    "out": "/home/user/Western/build/train_lab/derail/straight_20_night.json",
+    "riders": 6,
+    "run_up": 300.0,
+    "secs": 8.0,
+    "seed": 616
+  },
+  "stopped_at": 365.097857775537,
+  "struck": [],
+  "thrown": 0
+}

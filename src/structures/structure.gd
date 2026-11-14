@@ -24,6 +24,15 @@ const CONTACT_EPSILON := 0.012
 ## of them). A member leaves the batch for good the moment anything happens to it (a hole, heat,
 ## breaking): its own mesh shows again and the batch is rebuilt without it.
 @export var batch_meshes := true
+## Members drawn in a batch are their bodies alone till something happens to them
+## (StructureMember.rest: their mesh and shape nodes out of the tree): a building's or a kit
+## prop's hundred members are a hundred nodes, not three hundred (docs/briefs/props-scale.md).
+@export var rest_batched := true
+## Off for every structure (`-- --no-member-rest`: the bench's before).
+static var members_rest := not "--no-member-rest" in OS.get_cmdline_user_args()
+## How long it has stood (years): 0 as built. Older, it shows it (BuildingAge: sagging, leaning,
+## boards gone and patched, worn steps), the same way every load.
+@export var age_years := 0.0
 
 ## StringName -> StructureMember
 var members := {}
@@ -31,24 +40,119 @@ var members := {}
 var _order: Array[StructureMember] = []
 ## Below this a fallen piece has gone through the ground and is removed (Structure._physics_step).
 const LOST_BELOW := -5.0
+## Rubble below this (world y) has gone through the ground (a viaduct over a gorge lowers it).
+var lost_below := LOST_BELOW
+## Each awake piece of rubble is looked at every this many ticks for having gone under the dug
+## ground (Ground.rescue, #584).
+const RESCUE_TICKS := 15
+## A piece of rubble faster than this has been thrown by the physics, not by anything in the game
+## (a blast throws at most BlastTuning.max_throw, 25 m/s; a fall from the roof ~12): Sean's
+## farmhouse log (#624) had pieces 2.7 km away. It's slowed to this and said once; one gone to a
+## non-number is removed (Jolt in a release build doesn't check them).
+const RUNAWAY_SPEED := 60.0
+static var runaways := 0
 ## A cut leaves no end shorter than this (m): it goes with the stretch.
 const CUT_MIN_PIECE := 0.15
 ## The stretch a cut tears out flies in pieces about this long (m).
 const CUT_CHUNK := 0.3
 ## Fallen pieces (RigidBody3D), still in the world.
 var rubble: Array[RigidBody3D] = []
+## What falls loose weighs where its members do (centre of weight and inertia from each member's
+## own weight, `_weigh_by_members`), not evenly through its shapes: set on a coach going over (the
+## heist, #770), where heavy plates high up decide it.
+var mass_by_members := false
+## A fallen piece of several members comes apart when it lands hard (`_on_rubble_hit`): a wall's
+## boards, a chair. Off for what's built to take a jolt whole (a coach going over, #770: its body
+## stays a body, what's struck hard enough still breaks by its own toughness).
+var breaks_up := true
 var tuning: TimberTuning
-## The last settle's analysis, for debugging (F3 / tests).
+## The last analysis of it, kept and brought up to date for what's changed since (start_analysis);
+## F3 and tests read it.
 var last_analysis: StructuralAnalysis
+## Members changed since last_analysis (id -> true): broken, holed, charred, loaded, added, or the
+## ground gone from under them. `start_analysis` works these out again, and what their loads reach.
+var _dirty := {}
+## Members an update works out again without going down to their supports (StructuralAnalysis.
+## begin_update's `stop`): empty but while a Trestle's train loads move along its deck.
+var closure_stop := {}
+## last_analysis is of this support graph (false once the graph is worked out anew).
+var _analysis_valid := false
+## Analyses carried over and brought up to date (StructuralAnalysis.begin_update); off, every one
+## is done from the top (`-- --full-analysis`: the before for the blast-freeze lab, and the check).
+static var incremental := not "--full-analysis" in OS.get_cmdline_user_args()
+## A settle that has run this long (ms) on one frame hands the rest to the FireSystem's slices
+## (settle_soon): a blast's collapse unfolds over a few frames, not one long one (issue #374).
+const SETTLE_FRAME_MS := 6.0
+## Under World.deterministic a settle's budget is members analysed, this many a millisecond of it
+## (about what a millisecond analyses here: the spec saloon's 5,150 in ~340 ms, measured
+## 2026-10-27 by the blast-freeze lab's `bf_analyse`; it was 30, from ~170 ms).
+const MEMBERS_A_MS := 15
+## A building of more members than this has its first analysis done a slice a frame once it's
+## built (the fire's routine look), so the first thing to break it finds one to carry over. A
+## smaller one with none yet has it a slice a frame when a blast breaks it (`settle(...,
+## first_sliced)`), if it's more than a budgeted settle's frame analyses (Main Street's store had
+## its whole first analysis, ~100 ms, on a stick's frame, #538); one break settles it at once (a
+## post shot out: the porch comes down on that frame, as test_street's F11 and test_loads ask).
+const SLICED_ABOVE := 1500
+## A blast's first analysis of a building is done on its frame only if it has no more members than
+## this: the rest go a slice a frame. A boardwalk's 57-73 members, their planks on many joists, were
+## ~10 ms each here on the street's second stick (~200 µs a member, the estimate's 15 a ms being the
+## saloon's), on a frame already well over budget (#538). Not a kit prop's (`blast_first_whole`):
+## its push, the tick after, reads what's left of it once the blast's breaking has settled.
+const BLAST_FIRST_WHOLE := 24
+var blast_first_whole := BLAST_FIRST_WHOLE
+## A budgeted settle with more changed members than this waiting (a blast's cuts and panes on top
+## of a fire's charring) leaves them all to the FireSystem's slices, not the frame that broke them.
+const SETTLE_DIRTY_NOW := 48
+## An analysis in progress with more members than this still to do isn't finished on a budgeted
+## settle's frame either.
+const SLICE_LEFT := 300
+## What falls in one round, at most (members; whole clumps): the rest the next round, so a floor
+## of hundreds coming down is a few frames' rubble, not one frame's.
+const DROP_PER_ROUND := 40
 var _settle_pending := false
 var _sound_cooldown := 0.0
+var _heard := {}  # what -> the tick it was last heard (first_this_tick)
+var _heard_n := {}  # what -> Vector2i(tick, how many so far that tick) (under_this_tick)
+## While break_members runs: the cuts' wakes, done together at its end (else null).
+var _wakes: Variant = null
+## A blast's breaking past its tick's budget (#647: a bundle on Main Street was ~100 ms of cuts on
+## its own tick here): what's left, nearest first, broken BREAK_FRAME_MS a tick after, then the
+## one settle. [[member, push, cut], ...]; empty when none waits.
+var _breaking: Array = []
+var _broke_some := false  # (timber among what's broken since the last settle of a blast's)
+## Each tick after a blast's: this long (ms) of its breaking (under World.deterministic,
+## BROKEN_A_MS members a millisecond of it: a cut is ~0.25 ms here).
+const BREAK_FRAME_MS := 12.0
+const BROKEN_A_MS := 4
 var _rng := RandomNumberGenerator.new()
 var _shape_cache := {}
-## Material -> MeshInstance3D drawing the batched members of that material.
+## A batch is one material's members, or a piece of them ([Material, piece]: see BATCH_PIECE).
+## Batch -> MeshInstance3D drawing its members.
 var _batches := {}
-## StructureMember -> the Material of the batch it's drawn in.
+## StructureMember -> the batch it's drawn in.
 var _batched := {}
+## Batch -> the members in it (the other way round, so a rebuild reads its own, not all).
+var _batch_members := {}
+## Batch -> its mesh arrays, kept for the shadow mesh (merged off the main thread).
+var _batch_arrays := {}
+## Batch -> the frame its boards are merged and drawn in, for boards drawn by the material
+## library's shader (a mesh with meta `board_frame`, #765): that shader reads each board's own
+## axes from the node it's drawn by and its seed and shape from per-vertex channels (CUSTOM0-2),
+## so such boards batch only with boards facing the same way, merged in their own frame.
+var _batch_axes := {}
 var _batch_dirty := {}
+## The shadow mesh (every batch merged) is built on a worker thread, at most every
+## SHADOW_REBUILD_GAP: a far lamp's shadow of a fallen board lingers that long at most (it was
+## 60 ms on the main thread for the spec saloon, every frame something broke, 2026-10-25).
+const SHADOW_REBUILD_GAP := 1.0
+## The shadow mesh is made again this long (s) after the first change that asks for it at the soonest.
+const SHADOW_FIRST_WAIT := 0.3
+var _shadow_timed := false
+var _shadow_task := -1
+var _shadow_wanted := false
+var _shadow_last := -INF
+var _shadow_result: Array = []
 ## One shadow-only mesh of every batched member, for far lamps' shadows alone (Layers.VIS_WALLS):
 ## the batches are a material each (each wood's board strips, ~45 on the saloon), and a far lamp
 ## drew all of them in each of its shadow passes. The sun and near lamps still take theirs from
@@ -57,21 +161,105 @@ var _batch_dirty := {}
 var _shadow: MeshInstance3D
 var _by_stack: Array[StructureMember] = []  # see by_stack()
 var _show_after := {}  # members unbatched `soon`: shown when their batch is rebuilt
+var _hide_after := {}  # members batched after the build (a cut's ends): hidden when their batch has them
 var _rebuild_queued := false
 var _rebuild_timed := false
 var _panes: Array[StructureMember] = []
 var _panes_of := -1  # _order.size() when _panes was made
+## Every member's box, in its own space, together (`bounds`): made as it's built, kept up to date
+## as members are added (a cut's ends), made again when one's taken out (BuildingAge). A blast asks
+## it before walking a structure's panes, and a kit prop before its members (#538, round 5).
+var _bounds := AABB()
+var _bounds_ok := false
+var _ground: Ground  # (_dug_ground)
+## How far a member may have moved from where it was built (m): a door swung, a board sagged.
+const BOUNDS_SPARE := 1.5
 var _last_rebuild := -INF
 ## The fire takes members out of a burning building's batches one at a time; rebuilding a batch
 ## (every member of that material in the building) each time it did was a long frame.
 const BATCH_REBUILD_GAP := 0.5
+## Batches are rebuilt until this much of a drawn frame's main thread (ms) is spent, every
+## structure's together; the rest wait a frame (a fallen board's copy stands in its batch that frame
+## longer: a collapse dirtied a dozen materials a frame, 65 ms, 2026-10-25). It was each structure's
+## own 6 ms on each physics tick, 90-163 ms a frame for seconds after a stick under the catch-up
+## (Sean's F12 reports, #459); a piece's mesh is now merged on a worker (`_merge_members`) and only
+## made into a mesh here.
+const BATCH_FRAME_MS := 3.0
+## Under World.deterministic, the members rebuilt a frame instead (~25 us each).
+const BATCH_FRAME_MEMBERS := 240
+static var _batch_frame := -1
+static var _batch_frame_us := 0
+static var _batch_frame_units := 0
+## Batch -> how many times it's been made dirty (a job's result is stale if it's changed since).
+var _batch_gen := {}
+## The batches being merged on a worker: [[key, gen, members, fire]], their arrays in _batch_out.
+var _batch_job: Array = []
+var _batch_out: Array = []
+var _batch_task := -1
+## A member mesh's arrays, read once (the worker mustn't ask the rendering server: it waits on the
+## main thread, which deadlocks the moment the main thread waits on it).
+static var _mesh_arrays := {}
+const MESH_ARRAYS_KEPT := 20000
+## A material's members are batched in pieces of at most this many, near ones together (in the
+## order of 2 m cells along a Morton curve): a ball into one board rebuilt the material's batch for
+## the whole building, 683 members of the spec saloon's, ~20 ms on the physics frame every shot
+## (Sean's per-shot hitch, #385). A kit prop or a small building's material is one piece still.
+const BATCH_PIECE := 64
+const BATCH_CELL := 2.0
+## The fire's look on its members (FireSystem: scorch and char, the glow of a burning front):
+## StructureMember -> Vector2(char_amount, glow). A member still in a batch is drawn charred by
+## its batch (#434: a saloon burning whole was 2,500 members each drawn on its own, 18,000 draws):
+## a batch with any of them has each vertex's member's place (CUSTOM2) and the char_batch overlay,
+## its `looks` that place's. One drawn on its own (broken, holed, cut) has a char_overlay, shared by
+## every member whose look is in the same step (CHAR_STEPS, GLOW_STEPS: instance uniforms ran out
+## on a town's charred rubble, 4,096 under the Compatibility renderer).
+var _fire_look := {}
+var _fire_mats := {}  # batch -> its char_batch ShaderMaterial (built with places)
+var _looks := {}  # batch (one with places) -> each place's look, as sent
+var _slot := {}  # StructureMember in a batch with places -> its place
+var _looks_dirty := {}
+var _looks_queued := false
+const CHAR_BATCH := preload("res://src/fire/char_batch.gdshader")
+const CHAR_OVERLAY := preload("res://src/fire/char_overlay.gdshader")
+static var _char_overlays := {}  # Vector2i(char step, glow step) -> ShaderMaterial
+const CHAR_STEPS := 32
+const GLOW_STEPS := 8
 
 
 func _ready() -> void:
 	add_to_group(&"structures")
+	# Lost that far below where it stands, if it stands below the town's ground (the valley's widow's
+	# pad is 8 m down, G6): the town's, all at or over Y 0, keep LOST_BELOW.
+	if lost_below == LOST_BELOW:
+		lost_below = minf(LOST_BELOW, global_position.y + LOST_BELOW)
 	tuning = StructuralAnalysis.load_tuning()
 	rebuild()
 	Events.ground_changed.connect(_on_ground_changed)
+	if _order.size() > SLICED_ABOVE:
+		# A big building's first analysis now, a slice a frame (the fire's routine look), so the
+		# first thing to break it finds one to carry over, not every member to work out.
+		_first_look.call_deferred()
+
+
+func _first_look() -> void:
+	if not is_inside_tree() or _analysis_valid:
+		return
+	var fire := FireSystem.find(get_tree())
+	if fire:
+		fire.queue_check(self)
+
+
+func _notification(what: int) -> void:
+	# A shadow mesh still building on a worker writes to this object when it's done: not after it's gone.
+	if what == NOTIFICATION_PREDELETE and _shadow_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_shadow_task)
+		_shadow_task = -1
+	# Nor its analysis or its batches on a worker (issue #392: every task of ours waited for before it's freed).
+	if what == NOTIFICATION_PREDELETE:
+		wait_analysis()
+		if _batch_task >= 0:
+			WorkerThreadPool.wait_for_task_completion(_batch_task)
+			_batch_task = -1
 
 
 ## The ground was dug (Ground, docs/briefs/dig-ground.md): a member standing on it (a post, a sill)
@@ -98,6 +286,7 @@ func _on_ground_changed(area: Rect2) -> void:
 				break
 		if not held:
 			m.grounded = false
+			mark_dirty(m.member_id)
 			lost = true
 	if lost:
 		settle_soon()
@@ -105,14 +294,19 @@ func _on_ground_changed(area: Rect2) -> void:
 
 func rebuild() -> void:
 	_clear_batches()
+	_fire_look.clear()
 	for m in _order:
 		m.free()
 	members.clear()
 	_order.clear()
 	_panes_of = -1
+	_bounds_ok = false
 	_rng.seed = build_seed
 	build()
+	BuildingAge.alter(self)  # what the years broke and replaced: the graph is worked out with it
 	infer_supports()
+	BuildingAge.settle_in(self)  # how it has settled: a look, after the graph
+	bounds()  # (now, not on the first blast's frame: ~10 ms for the street's ~10,000 members)
 	_batch_all()
 
 
@@ -135,6 +329,45 @@ func get_members() -> Array[StructureMember]:
 
 func members_of_kind(kind: StringName) -> Array[StructureMember]:
 	return _order.filter(func(m: StructureMember) -> bool: return m.kind == kind)
+
+
+## Every member's box together, in its own space (nothing yet: an empty box).
+func bounds() -> AABB:
+	if not _bounds_ok:
+		_bounds = AABB()
+		var first := true
+		for m in _order:
+			var box := m.transform * AABB(-m.size * 0.5, m.size)
+			_bounds = box if first else _bounds.merge(box)
+			first = false
+		_bounds_ok = true
+	return _bounds
+
+
+## Whether any member could come within `radius` of `at` (world): its bounds that near. A scaled
+## structure says yes (its own space isn't the world's in metres).
+func may_reach(at: Vector3, radius: float) -> bool:
+	if _order.is_empty():
+		return false
+	var b := bounds()
+	var basis := global_basis
+	if not basis.is_conformal() or absf(basis.x.length() - 1.0) > 1e-3:
+		return true
+	var local := global_transform.affine_inverse() * at
+	# (With room to spare: a member moved since, a door swung, a board sagged, stays in.)
+	return local.clamp(b.position, b.end).distance_to(local) <= radius + BOUNDS_SPARE
+
+
+## How far `at` (world) is from its bounds, its members as built (0 inside, or scaled).
+func bounds_distance(at: Vector3) -> float:
+	if _order.is_empty():
+		return INF
+	var b := bounds()
+	var basis := global_basis
+	if not basis.is_conformal() or absf(basis.x.length() - 1.0) > 1e-3:
+		return 0.0
+	var local := global_transform.affine_inverse() * at
+	return local.clamp(b.position, b.end).distance_to(local)
 
 
 ## Its panes, kept (a blast looks at glass much further out than at timber: Blast.gather).
@@ -169,18 +402,37 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 	add_child(m)
 	m.pieces = [[mi, cs]]
 	m.damaged.connect(unbatch.bind(m))
-	m.damaged.connect(_on_member_damaged)
+	m.damaged.connect(_on_member_damaged.bind(m))
 	members[id] = m
 	_order.append(m)
+	if _bounds_ok:
+		_bounds = _bounds.merge(m.transform * AABB(-size * 0.5, size))
+	if _panes_of == _order.size() - 1:
+		# Kept up to date (a cut's ends made every blast re-filter all of them: #538).
+		_panes_of = _order.size()
+		if kind == &"glass":
+			_panes.append(m)
 	return m
+
+
+## Take a member out again before the support graph is worked out (BuildingAge: a board long gone).
+func remove_built(m: StructureMember) -> void:
+	invalidate_analysis()
+	members.erase(m.member_id)
+	_order.erase(m)
+	_panes_of = -1
+	_bounds_ok = false
+	m.free()
 
 
 ## Work out supports from geometry: a member rests on every lower-tier member it touches.
 func infer_supports() -> void:
+	invalidate_analysis()
 	_by_stack.clear()
 	var boxes := {}
 	for m in _order:
 		boxes[m] = m.structure_aabb()
+		m.dependents.clear()  # before any linking: the others' links fill it
 	for m in _order:
 		m.supported_by.clear()
 		m.support_points.clear()
@@ -214,6 +466,7 @@ func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AAB
 			and other_box.position.y < box.position.y - CONTACT_EPSILON
 	if other_tier < tier or beneath:
 		m.supported_by.append(other.member_id)
+		other.dependents.append(m.member_id)
 		var contact := grown.intersection(other_box)
 		m.support_points[other.member_id] = contact.get_center()
 		m.support_boxes[other.member_id] = contact
@@ -263,68 +516,284 @@ func _batch_all() -> void:
 		return
 	var groups := {}
 	for m in _order:
-		var mi := m.get_child(0) as MeshInstance3D
+		var mi := m.drawn_node()
 		# Glass stays its own (see-through, no shadow); so does anything already hidden (a sign
 		# member under its painted board) or drawn its own way.
 		if mi == null or not mi.visible or m.kind == &"glass" or mi.material_override == null \
 				or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
 			continue
 		var mat := mi.material_override
-		if not groups.has(mat):
-			groups[mat] = []
-		(groups[mat] as Array).append(m)
-		_batched[m] = mat
+		var gk: Variant = mat
+		var frame: Variant = _frame_of(m, mi)
+		if frame != null:
+			gk = [mat, var_to_str(frame)]
+		if not groups.has(gk):
+			groups[gk] = []
+		(groups[gk] as Array).append(m)
 		mi.visible = false
+	var next := {}
+	for gk in groups:
+		var mat: Material = gk[0] if gk is Array else gk
+		var pieces := _batch_pieces(groups[gk])
+		for i in pieces.size():
+			var key := [mat, int(next.get(mat, 0))]
+			next[mat] = int(next.get(mat, 0)) + 1
+			_batch_members[key] = pieces[i]
+			if gk is Array:
+				_batch_axes[key] = str_to_var(gk[1])
+			for m: StructureMember in pieces[i]:
+				_batched[m] = key
 	# Unbatched members (holed, burning) are walls to a far lamp too (OilLamp).
 	for m in _order:
 		var own := m.get_child(0) as MeshInstance3D
 		if own:
 			own.layers |= Layers.VIS_WALLS
-	for mat in groups:
-		_build_batch(mat)
+	for key in _batch_members:
+		_build_batch(key)
 	_build_shadow()
+	if rest_batched and members_rest:
+		for m: StructureMember in _batched:
+			m.rest()
 
 
-func _build_batch(mat: Material) -> void:
-	var old: MeshInstance3D = _batches.get(mat)
+## One material's members in pieces of at most BATCH_PIECE, each piece near together: sorted by
+## their 2 m cell's place on a Morton curve (then as built), and cut in runs.
+static func _batch_pieces(members: Array) -> Array:
+	if members.size() <= BATCH_PIECE:
+		return [members]
+	var low := Vector3.INF
+	for m: StructureMember in members:
+		low = low.min(m.transform.origin)
+	var keyed: Array = []
+	for i in members.size():
+		var c := ((members[i] as StructureMember).transform.origin - low) / BATCH_CELL
+		keyed.append([_morton(int(c.x), int(c.y), int(c.z)), i])
+	keyed.sort()  # (by cell, then the order they were built in: the same every time)
+	var out: Array = []
+	var n := ceili(members.size() / float(BATCH_PIECE))
+	var each := ceili(members.size() / float(n))  # even pieces, not 64, 64, ..., 3
+	for k in range(0, keyed.size(), each):
+		out.append(keyed.slice(k, k + each).map(func(e: Array) -> StructureMember: return members[e[1]]))
+	return out
+
+
+## Three cell indices (each under 1024) interleaved bit by bit: near cells, near numbers.
+static func _morton(x: int, y: int, z: int) -> int:
+	var out := 0
+	for b in 10:
+		out |= ((x >> b) & 1) << (3 * b) | ((y >> b) & 1) << (3 * b + 1) | ((z >> b) & 1) << (3 * b + 2)
+	return out
+
+
+func _build_batch(key: Array) -> void:
+	var list: Array = _batch_members.get(key, [])
+	var fire := _any_fire(list)
+	if list.is_empty():
+		_apply_batch(key, list, [], false)
+		return
+	if _batch_axes.has(key):
+		var inputs: Variant = _member_inputs(list, _batch_axes[key])
+		if inputs != null:
+			_apply_batch(key, list, _merge_members(inputs, false), false)
+			return
 	var st := SurfaceTool.new()
-	var any := false
-	for m: StructureMember in _batched:
-		if _batched[m] != mat:
-			continue
-		var mi := m.get_child(0) as MeshInstance3D
+	var counts := PackedInt32Array()
+	for m: StructureMember in list:
+		var mi := m.drawn_node()
 		st.append_from(mi.mesh, 0, m.transform * mi.transform)
-		any = true
-	if not any:
+		if fire:
+			counts.append(mi.mesh.surface_get_array_len(0))
+	var arrays := st.commit_to_arrays()
+	if fire:
+		var places := _places(arrays, counts)
+		if places.is_empty():
+			fire = false
+		else:
+			arrays[Mesh.ARRAY_CUSTOM2] = places
+	_apply_batch(key, list, arrays, fire)
+
+
+func _any_fire(list: Array) -> bool:
+	for m: StructureMember in list:
+		if _fire_look.has(m):
+			return true
+	return false
+
+
+## A batch's mesh made from its arrays (worked out here or on a worker) for `list`, its members as
+## they were then; nothing left of it if `list` is empty.
+func _apply_batch(key: Array, list: Array, arrays: Array, fire: bool) -> void:
+	var mat: Material = key[0]
+	var old: MeshInstance3D = _batches.get(key)
+	if list.is_empty() or arrays.is_empty():
 		if old:
 			old.queue_free()
-		_batches.erase(mat)
+		_batches.erase(key)
+		_batch_arrays.erase(key)
+		_batch_axes.erase(key)
+		_fire_mats.erase(key)
+		_looks.erase(key)
 		return
-	var mesh := st.commit()
+	var flags := 0
+	var frame: Variant = _batch_axes.get(key)
+	if frame != null:
+		fire = false  # (its CUSTOM2 is the boards': the char is drawn on members out of the batch)
+		for c in 3:
+			if arrays[Mesh.ARRAY_CUSTOM0 + c] != null:
+				flags |= Mesh.ARRAY_CUSTOM_RGBA_FLOAT << (Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT + c * Mesh.ARRAY_FORMAT_CUSTOM_BITS)
+	elif fire:
+		flags = Mesh.ARRAY_CUSTOM_R_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
+	_batch_arrays[key] = arrays if frame == null else _in_structure(arrays, frame)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 	if old == null:
 		old = MeshInstance3D.new()
 		old.name = "Batch"
 		old.material_override = mat
 		add_child(old, false, Node.INTERNAL_MODE_BACK)
-		_batches[mat] = old
+		_batches[key] = old
 	old.mesh = mesh
+	old.transform = Transform3D(frame as Basis, Vector3.ZERO) if frame != null else Transform3D()
+	if fire:
+		if not _fire_mats.has(key):
+			var cm := ShaderMaterial.new()
+			cm.shader = CHAR_BATCH
+			cm.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
+			_fire_mats[key] = cm
+		var looks := PackedVector2Array()
+		looks.resize(BATCH_PIECE)
+		for i in list.size():
+			if _batched.get(list[i]) == key:  # (not one unbatched since the job began)
+				_slot[list[i]] = i
+			looks[i] = _fire_look.get(list[i], Vector2.ZERO)
+		_looks[key] = looks
+		old.material_overlay = _fire_mats[key]
+		(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", looks)
+	else:
+		_fire_mats.erase(key)
+		_looks.erase(key)
+		old.material_overlay = null
+
+
+## Each vertex's member's place in the batch (CUSTOM2.x), from how many vertices each member's mesh
+## gave it; empty if the batch's vertices aren't those (they always are: append_from keeps them).
+static func _places(arrays: Array, counts: PackedInt32Array) -> PackedFloat32Array:
+	var n: int = (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+	var places := PackedFloat32Array()
+	places.resize(n)
+	var at := 0
+	for i in counts.size():
+		if at + counts[i] > n:
+			push_warning("Structure: a batch's vertices aren't its members' (%d > %d)" % [at + counts[i], n])
+			return PackedFloat32Array()
+		for v in range(at, at + counts[i]):
+			places[v] = float(i)
+		at += counts[i]
+	if at != n:
+		push_warning("Structure: a batch's vertices aren't its members' (%d of %d)" % [at, n])
+		return PackedFloat32Array()
+	return places
+
+
+## The fire's look on a member (FireSystem: `char_amount` 0 sound to 1 charred through, `glow` its
+## burning front's, 0 when out): drawn by its batch while it's in one, else over its own meshes.
+func show_fire(m: StructureMember, char_amount: float, glow: float) -> void:
+	var v := Vector2(snappedf(char_amount, 0.01), snappedf(glow, 0.01))
+	if _fire_look.has(m) and _fire_look[m] == v:
+		return
+	_fire_look[m] = v
+	var key: Variant = _batched.get(m)
+	if key == null:
+		_own_fire_look(m)
+	elif not _fire_mats.has(key):
+		# Its batch was drawn without places: again, with them (a piece of 64 members at most).
+		_dirty_batch(key)
+		if not _rebuild_queued:
+			_rebuild_queued = true
+			_rebuild_dirty_batches.call_deferred()
+	else:
+		var looks: PackedVector2Array = _looks[key]
+		looks[_slot[m]] = v
+		_looks[key] = looks
+		if not _looks_dirty.has(key):
+			_looks_dirty[key] = true
+			if not _looks_queued:
+				_looks_queued = true
+				_send_dirty_looks.call_deferred()
+
+
+func has_fire_look(m: StructureMember) -> bool:
+	return _fire_look.has(m)
+
+
+func fire_look(m: StructureMember) -> Vector2:
+	return _fire_look.get(m, Vector2.ZERO)
+
+
+## The batches whose looks changed this frame send them, once each.
+func _send_dirty_looks() -> void:
+	var t := Prof.start()
+	_looks_queued = false
+	for key: Array in _looks_dirty:
+		if _fire_mats.has(key):
+			(_fire_mats[key] as ShaderMaterial).set_shader_parameter(&"looks", _looks[key])
+	_looks_dirty.clear()
+	Prof.stop(&"char_looks", t)
+
+
+## A member drawn on its own: the char overlay of its look's step over each of its meshes.
+func _own_fire_look(m: StructureMember) -> void:
+	if not _fire_look.has(m):
+		return
+	RubbleRest.touch(m)
+	var mat := char_material(_fire_look[m])
+	for p: Array in m.pieces:
+		if not is_instance_valid(p[0]):
+			continue
+		var mi := p[0] as MeshInstance3D
+		if mi and mi.material_overlay != mat:
+			mi.material_overlay = mat
+
+
+## The char overlay for a look (char_amount, glow), its step's: made once and shared.
+static func char_material(look: Vector2) -> ShaderMaterial:
+	var step := Vector2i(roundi(clampf(look.x, 0.0, 1.0) * CHAR_STEPS), roundi(clampf(look.y, 0.0, 1.0) * GLOW_STEPS))
+	if look.y > 0.0:
+		step.y = maxi(step.y, 1)  # alight: some glow, however little
+	var mat: ShaderMaterial = _char_overlays.get(step)
+	if mat == null:
+		mat = ShaderMaterial.new()
+		mat.shader = CHAR_OVERLAY
+		mat.set_shader_parameter(&"texels_per_meter", PixelArt.texels_per_meter)
+		mat.set_shader_parameter(&"char_amount", float(step.x) / CHAR_STEPS)
+		mat.set_shader_parameter(&"glow", float(step.y) / GLOW_STEPS)
+		_char_overlays[step] = mat
+	return mat
 
 
 ## Draw this member on its own from now on (something's happened to it). `soon` (the fire's
 ## heating, a member at a time all over a burning building): its batch is rebuilt without it at
-## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile.
-func unbatch(m: StructureMember, soon := false) -> void:
+## most every BATCH_REBUILD_GAP, and it's shown then, not drawn twice meanwhile. `aside`: its nodes
+## left aside if it's resting (they're taken for a body of its own next: StructureMember.take_parts).
+func unbatch(m: StructureMember, soon := false, aside := false) -> void:
+	RubbleRest.touch(m)  # (its pieces lying at rest in a cell are their bodies' own again)
+	if not aside:
+		m.realise()
 	if not _batched.has(m):
 		return
-	var mat: Material = _batched[m]
+	var key: Array = _batched[m]
 	_batched.erase(m)
-	_batch_dirty[mat] = true
-	var mi := m.get_child(0) as MeshInstance3D
+	_slot.erase(m)
+	_hide_after.erase(m)
+	(_batch_members.get(key, []) as Array).erase(m)
+	_dirty_batch(key)
+	_own_fire_look(m)  # charred, it stays charred
+	var mi := m.drawn_node()
 	if soon:
-		_show_after[m] = true
+		_show_after[m] = key
 		if not _rebuild_timed and not _rebuild_queued and is_inside_tree():
 			_rebuild_timed = true
-			var wait := maxf(_last_rebuild + BATCH_REBUILD_GAP - Time.get_ticks_msec() / 1000.0, 0.0)
+			var wait := maxf(_last_rebuild + BATCH_REBUILD_GAP - World.now(), 0.0)
 			get_tree().create_timer(wait, true, true).timeout.connect(_rebuild_dirty_batches)
 		return
 	if mi:
@@ -334,33 +803,371 @@ func unbatch(m: StructureMember, soon := false) -> void:
 		_rebuild_dirty_batches.call_deferred()
 
 
+## A member made after the build (a cut's ends) into a batch of its material with room (a new
+## piece if none has), drawn on its own till that batch is drawn with it (#459: a blast's cut boards
+## were each a draw of their own for good).
+func _batch_new(m: StructureMember) -> void:
+	if not batch_meshes or _batch_members.is_empty() or _batched.has(m):
+		return
+	var mi := m.drawn_node()
+	if mi == null or not mi.visible or m.kind == &"glass" or mi.material_override == null \
+			or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
+		return
+	var mat := mi.material_override
+	var frame: Variant = _frame_of(m, mi)
+	var key: Variant = null
+	var next := 0
+	for k: Array in _batch_members:
+		if k[0] == mat:
+			next = maxi(next, int(k[1]) + 1)
+			if key == null and (_batch_members[k] as Array).size() < BATCH_PIECE and _batch_axes.get(k) == frame:
+				key = k
+	if key == null:
+		key = [mat, next]
+		_batch_members[key] = []
+		if frame != null:
+			_batch_axes[key] = frame
+	(_batch_members[key] as Array).append(m)
+	_batched[m] = key
+	_hide_after[m] = key
+	_dirty_batch(key)
+	if not _rebuild_queued:
+		_rebuild_queued = true
+		_rebuild_dirty_batches.call_deferred()
+
+
+func _dirty_batch(key: Array) -> void:
+	_batch_dirty[key] = true
+	_batch_gen[key] = int(_batch_gen.get(key, 0)) + 1
+
+
+## The dirty batches again, within the drawn frame's budget (every structure's together): each
+## piece's members gathered here, merged on a worker, made into its mesh when that's done.
 func _rebuild_dirty_batches() -> void:
 	_rebuild_queued = false
 	_rebuild_timed = false
-	if not is_inside_tree() and _batch_dirty.is_empty():
+	if not is_inside_tree() or _batch_dirty.is_empty():
+		if _batch_task < 0:
+			_show_rebuilt()
 		return
-	for mat in _batch_dirty:
-		_build_batch(mat)
-	_batch_dirty.clear()
-	_build_shadow()
-	for m: Variant in _show_after:
+	if _batch_task >= 0:
+		_rebuild_next_frame()  # (one job at a time: the rest when it's in)
+		return
+	var frame := Engine.get_process_frames()
+	if frame != _batch_frame:
+		_batch_frame = frame
+		_batch_frame_us = 0
+		_batch_frame_units = 0
+	var t := Prof.start()
+	var t0 := Time.get_ticks_usec()
+	var job: Array = []
+	for key: Array in _batch_dirty.keys():
+		if _batch_over(t0):
+			break
+		var list: Array = (_batch_members.get(key, []) as Array).duplicate()
+		_batch_frame_units += list.size()
+		_batch_dirty.erase(key)
+		var inputs: Variant = null if list.is_empty() else _member_inputs(list, _batch_axes.get(key))
+		if inputs == null:
+			_build_batch(key)  # (nothing left of it, or members the merge doesn't take: here)
+			_show_rebuilt(key)
+			continue
+		job.append([key, int(_batch_gen.get(key, 0)), list, _any_fire(list), inputs])
+	_batch_frame_us += Time.get_ticks_usec() - t0
+	if not job.is_empty():
+		_batch_job = job
+		if World.deterministic or GameQuit.quitting:
+			# The same frame for frame: done now, on this thread.
+			_batch_out = _merge_job(job)
+			_batch_done()
+		else:
+			_batch_task = WorkerThreadPool.add_task(func() -> void:
+				_batch_out = _merge_job(job)
+				_batch_done.call_deferred(), true, "structure batches")  # high priority: a low one can hang the quit (#392, #435)
+	Prof.stop(&"batches", t)
+	if not _batch_dirty.is_empty():
+		_rebuild_next_frame()
+	_last_rebuild = World.now()
+
+
+func _batch_over(t0: int) -> bool:
+	if World.deterministic:
+		return _batch_frame_units > BATCH_FRAME_MEMBERS
+	return (_batch_frame_us + Time.get_ticks_usec() - t0) / 1000.0 > BATCH_FRAME_MS
+
+
+## The rest later: the structure's own tick picks a queued rebuild up (`_physics_process`), once a
+## job on a worker is in and the drawn frame's budget allows (a continuation on a signal was lost
+## for a cell of RubbleRest's in a bench run and never came: here a lost one would leave its
+## batches stale for good).
+func _rebuild_next_frame() -> void:
+	_rebuild_queued = true
+
+
+## Each member's mesh arrays (read once a mesh) and where it sits; null if they don't all carry
+## the channels the merge takes (it falls back to the SurfaceTool's, here).
+func _member_inputs(list: Array, frame: Variant = null) -> Variant:
+	var out: Array = []
+	var shape := -1
+	var into := Transform3D(frame as Basis, Vector3.ZERO).affine_inverse() if frame != null else Transform3D()
+	for m: StructureMember in list:
+		var mi := m.drawn_node()
+		if mi == null or mi.mesh == null or mi.mesh.get_surface_count() == 0:
+			return null
+		var arrays: Variant = _mesh_arrays.get(mi.mesh)
+		if arrays == null:
+			if _mesh_arrays.size() > MESH_ARRAYS_KEPT:
+				_mesh_arrays.clear()
+			arrays = MemberMesh.arrays_of(mi.mesh)  # (kept from its making: no read back, #626)
+			_mesh_arrays[mi.mesh] = arrays
+		var has := _channels(arrays)
+		if has < 0 or (shape >= 0 and has != shape):
+			return null
+		shape = has
+		out.append([arrays, into * m.transform * mi.transform])
+	return out
+
+
+## A board drawn by the material library's shader: the frame it's drawn in (its mesh's axes in the
+## structure, snapped), or null for any other member's mesh.
+static func _frame_of(m: StructureMember, mi: MeshInstance3D) -> Variant:
+	if mi.mesh == null or not mi.mesh.has_meta(&"board_frame"):
+		return null
+	var b := (m.transform.basis * mi.transform.basis).orthonormalized()
+	for i in 3:
+		b[i] = Vector3(snappedf(b[i].x, 0.001), snappedf(b[i].y, 0.001), snappedf(b[i].z, 0.001))
+	return b
+
+
+## Which of the merge's channels the arrays carry (a bit each), or -1 if they carry one it doesn't
+## take (custom channels, bones).
+static func _channels(arrays: Array) -> int:
+	if arrays.size() < Mesh.ARRAY_MAX or arrays[Mesh.ARRAY_VERTEX] == null:
+		return -1
+	for slot: int in [Mesh.ARRAY_CUSTOM3, Mesh.ARRAY_BONES, Mesh.ARRAY_WEIGHTS]:
+		if arrays[slot] != null:
+			return -1
+	var has := 0
+	for slot: int in [Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2, Mesh.ARRAY_INDEX,
+			Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2]:
+		if arrays[slot] != null:
+			has |= 1 << slot
+	return has
+
+
+## A job's batches merged (on a worker: pure data, no rendering calls).
+static func _merge_job(job: Array) -> Array:
+	var out: Array = []
+	for j: Array in job:
+		out.append(_merge_members(j[4], j[3]))
+	return out
+
+
+## Members' arrays one after another in the batch's space, as the SurfaceTool's append_from makes
+## them (an index if they have one; each member's vertex count for its places when `fire`).
+static func _merge_members(inputs: Array, fire: bool) -> Array:
+	var first: Array = inputs[0][0]
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var tangents := PackedFloat32Array()
+	var colors := PackedColorArray()
+	var uvs := PackedVector2Array()
+	var uv2s := PackedVector2Array()
+	var indices := PackedInt32Array()
+	var counts := PackedInt32Array()
+	var cu0 := PackedFloat32Array()
+	var cu1 := PackedFloat32Array()
+	var cu2 := PackedFloat32Array()
+	var indexed: bool = first[Mesh.ARRAY_INDEX] != null
+	for inp: Array in inputs:
+		var a: Array = inp[0]
+		var xf: Transform3D = inp[1]
+		var v: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+		var base := verts.size()
+		verts.append_array(xf * v)
+		if first[Mesh.ARRAY_NORMAL] != null:
+			var n: PackedVector3Array = Transform3D(xf.basis, Vector3.ZERO) * (a[Mesh.ARRAY_NORMAL] as PackedVector3Array)
+			for i in n.size():
+				n[i] = n[i].normalized()
+			normals.append_array(n)
+		if first[Mesh.ARRAY_TANGENT] != null:
+			var tin: PackedFloat32Array = a[Mesh.ARRAY_TANGENT]
+			var tout := PackedFloat32Array()
+			tout.resize(tin.size())
+			for i in range(0, tin.size(), 4):
+				var tv := (xf.basis * Vector3(tin[i], tin[i + 1], tin[i + 2])).normalized()
+				tout[i] = tv.x
+				tout[i + 1] = tv.y
+				tout[i + 2] = tv.z
+				tout[i + 3] = tin[i + 3]
+			tangents.append_array(tout)
+		if first[Mesh.ARRAY_COLOR] != null:
+			colors.append_array(a[Mesh.ARRAY_COLOR])
+		if first[Mesh.ARRAY_TEX_UV] != null:
+			uvs.append_array(a[Mesh.ARRAY_TEX_UV])
+		if first[Mesh.ARRAY_TEX_UV2] != null:
+			uv2s.append_array(a[Mesh.ARRAY_TEX_UV2])
+		if first[Mesh.ARRAY_CUSTOM0] != null:
+			cu0.append_array(a[Mesh.ARRAY_CUSTOM0])
+		if first[Mesh.ARRAY_CUSTOM1] != null:
+			cu1.append_array(a[Mesh.ARRAY_CUSTOM1])
+		if first[Mesh.ARRAY_CUSTOM2] != null:
+			cu2.append_array(a[Mesh.ARRAY_CUSTOM2])
+		if indexed:
+			for i: int in (a[Mesh.ARRAY_INDEX] as PackedInt32Array):
+				indices.append(i + base)
+		counts.append(v.size())
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	if first[Mesh.ARRAY_NORMAL] != null:
+		arrays[Mesh.ARRAY_NORMAL] = normals
+	if first[Mesh.ARRAY_TANGENT] != null:
+		arrays[Mesh.ARRAY_TANGENT] = tangents
+	if first[Mesh.ARRAY_COLOR] != null:
+		arrays[Mesh.ARRAY_COLOR] = colors
+	if first[Mesh.ARRAY_TEX_UV] != null:
+		arrays[Mesh.ARRAY_TEX_UV] = uvs
+	if first[Mesh.ARRAY_TEX_UV2] != null:
+		arrays[Mesh.ARRAY_TEX_UV2] = uv2s
+	if indexed:
+		arrays[Mesh.ARRAY_INDEX] = indices
+	if first[Mesh.ARRAY_CUSTOM0] != null:
+		arrays[Mesh.ARRAY_CUSTOM0] = cu0
+	if first[Mesh.ARRAY_CUSTOM1] != null:
+		arrays[Mesh.ARRAY_CUSTOM1] = cu1
+	if first[Mesh.ARRAY_CUSTOM2] != null:
+		arrays[Mesh.ARRAY_CUSTOM2] = cu2
+	if fire and arrays[Mesh.ARRAY_CUSTOM2] == null:
+		arrays[Mesh.ARRAY_CUSTOM2] = _places(arrays, counts)
+	return arrays
+
+
+## A job's batches in: each made into its mesh (as its members were when the job began; a batch
+## changed since is left dirty and its members unbatched meanwhile not shown yet).
+func _batch_done() -> void:
+	if _batch_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_batch_task)
+	_batch_task = -1
+	var job := _batch_job
+	var out := _batch_out
+	_batch_job = []
+	_batch_out = []
+	if not is_inside_tree() or job.size() != out.size():
+		return
+	var t := Prof.start()
+	for i in job.size():
+		var j: Array = job[i]
+		var arrays: Array = out[i]
+		var fire: bool = j[3]
+		if fire and (arrays[Mesh.ARRAY_CUSTOM2] as PackedFloat32Array).is_empty():
+			fire = false  # (the vertices weren't its members': drawn without places)
+			arrays[Mesh.ARRAY_CUSTOM2] = null
+		_apply_batch(j[0], j[2], arrays, fire)
+		if int(_batch_gen.get(j[0], 0)) == int(j[1]):
+			_show_rebuilt(j[0])
+	Prof.stop(&"batches", t)
+	_shadow_soon()
+	if not _batch_dirty.is_empty():
+		_rebuild_next_frame()
+
+
+## A batch merge on a worker, not finished yet (GameQuit waits for it).
+func batches_running() -> bool:
+	return _batch_task >= 0 and not WorkerThreadPool.is_task_completed(_batch_task)
+
+
+## Members unbatched `soon` shown now their batch is drawn without them (`key`; all with no key:
+## nothing left to rebuild).
+func _show_rebuilt(key: Variant = null) -> void:
+	for m: Variant in _hide_after.keys():
+		if key != null and _hide_after[m] != key:
+			continue
+		_hide_after.erase(m)
+		if is_instance_valid(m) and _batched.has(m) and (m as StructureMember).get_child_count() > 0:
+			var own := (m as StructureMember).get_child(0) as MeshInstance3D
+			if own:
+				own.visible = false
+			if rest_batched and members_rest:
+				(m as StructureMember).rest()
+	for m: Variant in _show_after.keys():
+		if key != null and _show_after[m] != key:
+			continue
+		_show_after.erase(m)
 		if is_instance_valid(m) and (m as StructureMember).get_child_count() > 0:
 			var mi := (m as StructureMember).get_child(0) as MeshInstance3D
 			if mi and not (m as StructureMember).consumed:
 				mi.visible = true
-	_show_after.clear()
-	_last_rebuild = Time.get_ticks_msec() / 1000.0
 
 
+## A framed batch's vertices and normals in the structure's space (the shadow's merge takes every
+## batch as sitting at the structure's origin).
+static func _in_structure(arrays: Array, frame: Basis) -> Array:
+	var out: Array = []
+	out.resize(Mesh.ARRAY_MAX)
+	var xf := Transform3D(frame, Vector3.ZERO)
+	out[Mesh.ARRAY_VERTEX] = xf * (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array)
+	if arrays[Mesh.ARRAY_NORMAL] != null:
+		out[Mesh.ARRAY_NORMAL] = xf * (arrays[Mesh.ARRAY_NORMAL] as PackedVector3Array)
+	out[Mesh.ARRAY_INDEX] = arrays[Mesh.ARRAY_INDEX]
+	return out
+
+
+## The shadow mesh now, on this thread (the build; tests).
 func _build_shadow() -> void:
-	var st := SurfaceTool.new()
-	var any := false
-	for mat in _batches:
-		var mi: MeshInstance3D = _batches[mat]
-		if is_instance_valid(mi) and mi.mesh and not mi.is_queued_for_deletion():
-			st.append_from(mi.mesh, 0, mi.transform)
-			any = true
-	if not any:
+	_set_shadow(_merge_batches(_batch_arrays.values()))
+
+
+## One set of mesh arrays of them all (vertices, normals, indices; empty for none). Pure data, no
+## rendering calls: runs on a worker (a worker asking the rendering server for a mesh's arrays
+## waits on the main thread, which deadlocks the moment the main thread waits on the worker).
+## The batches sit at the structure's origin, so their vertices need no moving.
+static func _merge_batches(parts: Array) -> Array:
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var indices := PackedInt32Array()
+	for arrays: Array in parts:
+		var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var n: Variant = arrays[Mesh.ARRAY_NORMAL]
+		var idx: Variant = arrays[Mesh.ARRAY_INDEX]
+		var base := verts.size()
+		verts.append_array(v)
+		if n is PackedVector3Array:
+			normals.append_array(n)
+		if idx is PackedInt32Array:
+			for i: int in idx:
+				indices.append(i + base)
+		else:
+			for i in v.size():
+				indices.append(base + i)
+	if verts.is_empty():
+		return []
+	var out: Array = []
+	out.resize(Mesh.ARRAY_MAX)
+	out[Mesh.ARRAY_VERTEX] = verts
+	if normals.size() == verts.size():
+		out[Mesh.ARRAY_NORMAL] = normals
+	out[Mesh.ARRAY_INDEX] = indices
+	return out
+
+
+func _set_shadow(arrays: Array) -> void:
+	_set_shadow_mesh(_shadow_mesh(arrays))
+
+
+## The shadow mesh of merged arrays (null for none), on the main thread: made on a worker, the
+## main thread used it before the rendering server had set it up (#538 tried it; the suite's
+## barrel test caught it). ~30 ms here for the spec saloon, once a second while it changes.
+static func _shadow_mesh(arrays: Array) -> ArrayMesh:
+	if arrays.is_empty():
+		return null
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
+func _set_shadow_mesh(mesh: ArrayMesh) -> void:
+	if mesh == null:
 		if _shadow and is_instance_valid(_shadow):
 			_shadow.queue_free()
 		_shadow = null
@@ -371,21 +1178,87 @@ func _build_shadow() -> void:
 		_shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 		_shadow.layers = Layers.VIS_WALLS
 		add_child(_shadow, false, Node.INTERNAL_MODE_BACK)
-	_shadow.mesh = st.commit()
+	_shadow.mesh = mesh
+
+
+## The shadow mesh again, soon: on a worker thread, one at a time, at most every
+## SHADOW_REBUILD_GAP; asked again meanwhile, once more when that's done.
+func _shadow_soon() -> void:
+	_shadow_wanted = true
+	if _shadow_task >= 0 or not is_inside_tree() or GameQuit.quitting:
+		return
+	if _shadow_timed:
+		return  # (one timer at a time: a blast asks hundreds of times)
+	# Never at once: a break comes with more on its heels (a stick's ~70 members, then the bodies it
+	# throws), and the mesh made on the main thread (~30 ms for the spec saloon) landed on the
+	# blast's next frame (#538). SHADOW_FIRST_WAIT later, it takes them all.
+	var wait := maxf(_shadow_last + SHADOW_REBUILD_GAP - World.now(), SHADOW_FIRST_WAIT)
+	_shadow_timed = true
+	get_tree().create_timer(wait, true, true).timeout.connect(func() -> void:
+		_shadow_timed = false
+		_shadow_start())
+
+
+func _shadow_start() -> void:
+	if _shadow_task >= 0 or not _shadow_wanted or not is_inside_tree() or GameQuit.quitting:
+		return
+	_shadow_wanted = false
+	_shadow_last = World.now()
+	var parts := _batch_arrays.values()  # the arrays themselves are never changed, only replaced
+	_shadow_task = WorkerThreadPool.add_task(func() -> void:
+		_shadow_result = _merge_batches(parts)
+		_shadow_done.call_deferred(), true, "structure shadow mesh")  # high priority: a low one can hang the quit (#392, #435)
+
+
+## A shadow merge on a worker, not finished yet (GameQuit waits for it).
+func shadow_running() -> bool:
+	return _shadow_task >= 0 and not WorkerThreadPool.is_task_completed(_shadow_task)
+
+
+func _shadow_done() -> void:
+	var t := Prof.start()
+	if _shadow_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_shadow_task)
+	_shadow_task = -1
+	if not is_inside_tree():
+		Prof.stop(&"shadow_set", t)
+		return
+	_set_shadow(_shadow_result)
+	Prof.stop(&"shadow_set", t)
+	_shadow_result = []
+	if _shadow_wanted:
+		_shadow_soon()
 
 
 func _clear_batches() -> void:
+	if _shadow_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_shadow_task)
+		_shadow_task = -1
+	if _batch_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_batch_task)
+		_batch_task = -1
+	_batch_job = []
+	_batch_out = []
+	_shadow_wanted = false
 	if _shadow and is_instance_valid(_shadow):
 		_shadow.free()
 	_shadow = null
-	for mat in _batches:
-		var mi: MeshInstance3D = _batches[mat]
+	for key in _batches:
+		var mi: MeshInstance3D = _batches[key]
 		if is_instance_valid(mi):
 			mi.free()
 	_batches.clear()
 	_batched.clear()
+	_batch_members.clear()
+	_batch_arrays.clear()
+	_batch_axes.clear()
 	_batch_dirty.clear()
 	_show_after.clear()
+	_hide_after.clear()
+	_fire_mats.clear()
+	_looks.clear()
+	_slot.clear()
+	_looks_dirty.clear()
 
 
 ## How many draw calls its intact members take (tests, F3).
@@ -395,8 +1268,96 @@ func batch_count() -> int:
 
 # --- Standing and falling -----------------------------------------------------------------------
 
-func _on_member_damaged() -> void:
+func _on_member_damaged(m: StructureMember) -> void:
+	mark_dirty(m.member_id)
 	settle_soon()
+
+
+## A member whose loads or strength changed since the last analysis (broken, holed, charred, a man
+## on it, new from a cut, the ground gone under it): the next analysis works it, and what its
+## load reaches, out again. Whatever breaks a member says so here (or the building stands wrong
+## until the fire's next full check).
+func mark_dirty(id: StringName) -> void:
+	_dirty[id] = true
+	_record_stale[id] = true
+
+
+## Each member's LoadRecord (what the analysis reads of it), id -> record, taken again when it's
+## been marked dirty since, or for an analysis from the top (`_record_round`): more-cores step 8.
+var _records := {}
+var _record_stale := {}
+var _record_round := 0
+## Analyses begun on it so far (FireSystem knows another has been since its own: a blast's settle).
+var analysis_epoch := 0
+
+
+## Its record as it stands (taken again if it's changed since the last).
+func load_record(m: StructureMember) -> LoadRecord:
+	var r: LoadRecord = _records.get(m.member_id)
+	if r == null or r.taken_in != _record_round or _record_stale.has(m.member_id):
+		if r == null:
+			r = LoadRecord.new()
+			_records[m.member_id] = r
+		r.take(m, tuning, self)
+		r.taken_in = _record_round
+		_record_stale.erase(m.member_id)
+	return r
+
+
+## Every record to take again (an analysis from the top: anything changed without saying so is
+## caught there).
+func records_all_stale() -> void:
+	_record_round += 1
+
+
+## An analysis of it on a worker (FireSystem's) finished before anything else touches it.
+func wait_analysis() -> void:
+	if last_analysis != null:
+		last_analysis.wait()
+
+
+## The graph is new (built, or worked out again): the next analysis starts from the top.
+func invalidate_analysis() -> void:
+	wait_analysis()
+	_analysis_valid = false
+	_dirty.clear()
+	_records.clear()
+	_record_stale.clear()
+
+
+## An analysis of it as it stands, begun (`advance` to finish it, as FireSystem does a slice a
+## frame): the last one brought up to date for what's changed since (a few dozen members), or
+## from the top when there's no last one, the graph is new, `full` is asked, most of it changed,
+## or `incremental` is off.
+func start_analysis(full := false) -> StructuralAnalysis:
+	wait_analysis()
+	analysis_epoch += 1
+	if not full and incremental and _analysis_valid and last_analysis != null \
+			and _dirty.size() * 3 < _order.size() and last_analysis.begin_update(self, _dirty, closure_stop):
+		_dirty.clear()
+		return last_analysis
+	var t := Prof.start()
+	var a := StructuralAnalysis.new(tuning)
+	a.begin(self)
+	Prof.stop(&"analysis_full_begin", t)
+	last_analysis = a
+	_analysis_valid = true
+	_dirty.clear()
+	return a
+
+
+
+## Its first analysis, from the top, begun now and run on a worker (its records copied here): so
+## the first settle asked of it (a shot through a member) is an update of this one, not every
+## member on that frame. A world without a FireSystem (the valley) settles whole on one frame: the
+## saloon's 7,600 members were a 0.9 s hitch on the gunfight's first broken member (#881).
+func warm_analysis() -> void:
+	if not collapses or not is_inside_tree() or (_analysis_valid and last_analysis != null):
+		return
+	var a := start_analysis(true)
+	a.prepare(a.unprepared())
+	if a.left() > 0:
+		a.run_async()
 
 
 ## Settle soon, once however many times it's asked: in a world with a FireSystem it works
@@ -412,25 +1373,64 @@ func settle_soon() -> void:
 
 
 ## Work out the loads again and let whatever can't stand break or fall, until it's stable.
-## Returns the ids that broke or fell.
-func settle() -> Array[StringName]:
+## Returns the ids that broke or fell. Past `budget_ms` on this frame (under World.deterministic,
+## its MEMBERS_A_MS members analysed), a FireSystem in the world takes the rest a slice a frame (its
+## queue), so a big collapse costs a few frames, never one long one; without one (tests, the labs'
+## stands) it runs to the end.
+func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
+	wait_analysis()
 	_settle_pending = false
 	var changed: Array[StringName] = []
 	if not collapses or not is_inside_tree():
 		return changed
+	var budget: WorkBudget = WorkBudget.new(budget_ms, int(budget_ms * MEMBERS_A_MS)) if budget_ms < INF else null
+	var first_over := SLICED_ABOVE if not first_sliced else mini(int(budget_ms * MEMBERS_A_MS), blast_first_whole)
+	if budget_ms < INF and ((not _analysis_valid and _order.size() > first_over) \
+			or (_analysis_valid and last_analysis != null and last_analysis.left() > SLICE_LEFT) \
+			or _dirty.size() > SETTLE_DIRTY_NOW or _settling_sliced()):
+		# No analysis of it yet and it's big (the first is every member), one in progress a slice a
+		# frame with much still to do (the fire's routine look), many changed members waiting, or
+		# it's coming down a slice a frame already (a blast's settle, handed on: a piece of it
+		# landing on a joist was a whole round on the frame after a stick, #538): a slice a frame
+		# for this too.
+		var fire := FireSystem.find(get_tree())
+		if fire and fire.queue_settle(self):
+			return changed
 	for round_ in 64:
-		var a := StructuralAnalysis.new(tuning).analyse(self)
-		if not apply_round(a, changed):
+		var t_a := Prof.start()
+		var a := start_analysis()
+		if budget:
+			budget.spend(a.left() + 1)
+		a.advance(a.left())
+		Prof.stop(&"settle_analyse", t_a)
+		var t_r := Prof.start()
+		var more := apply_round(a, changed)
+		Prof.stop(&"settle_apply", t_r)
+		if not more:
 			break
+		if budget and budget.over():
+			var fire := FireSystem.find(get_tree())
+			if fire and fire.queue_settle(self):
+				break
 	return changed
+
+
+## The fire's queue settling it already, a slice a frame (FireSystem.settling).
+func _settling_sliced() -> bool:
+	var fire := FireSystem.find(get_tree())
+	return fire != null and fire.settling(self)
 
 
 ## One round of settling from an analysis of it as it stands: the worst overloaded member snaps,
 ## else what has no load path falls. True if something did (another round is due). FireSystem
 ## runs a burning building's rounds this way, an analysis spread over frames.
 func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool:
+	a.wait()
+	wait_analysis()
 	last_analysis = a
 	var over := a.overloaded()
+	if not over.is_empty() and _gives_way(over, changed):
+		return true  # (masonry: MasonryStructure)
 	if not over.is_empty():
 		# The worst goes first; the rest may be fine once the loads find new paths.
 		var m := get_member(over[0])
@@ -439,9 +1439,27 @@ func apply_round(a: StructuralAnalysis, changed: Array[StringName] = []) -> bool
 		return true
 	if a.falling.is_empty():
 		return false
-	_drop(a.falling)
-	changed.append_array(a.falling)
+	var dropped := _drop(a.falling, DROP_PER_ROUND)
+	changed.append_array(dropped)
 	return true
+
+
+## Overloaded members that give way other than by snapping (masonry falls whole, all at once:
+## MasonryStructure). True if some did; `changed` gets what fell.
+func _gives_way(_over: Array[StringName], _changed: Array[StringName]) -> bool:
+	return false
+
+
+## A falling member's shape as it goes loose (`cs`, already on its body): as built here; masonry
+## sheds its share of the mortar (MasonryStructure).
+func _loose_shape(_m: StructureMember, _cs: CollisionShape3D) -> void:
+	pass
+
+
+## What falls with a member that falls: what it touches (a building's timbers, nailed). Masonry:
+## what it's still mortared to (MasonryStructure).
+func _clump_with(id: StringName) -> Array[StringName]:
+	return get_member(id).touching
 
 
 ## Break a member outright (an axe, dynamite, the debug key): it falls and the rest settles.
@@ -453,36 +1471,111 @@ func break_member(m: StructureMember, push := Vector3.ZERO) -> Array[StringName]
 		return [m.member_id]
 	_snap(m, m.weakest_t(), push)
 	var out: Array[StringName] = [m.member_id]
-	out.append_array(settle())
+	out.append_array(settle(SETTLE_FRAME_MS))
 	return out
 
 
 ## Break several members at once (a blast), each thrown by its own push, then settle once. A
 ## member with a stretch in `cuts` (Vector2(t0, t1), or null) has that stretch cut out instead.
-func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = []) -> Array[StringName]:
+##
+## With a `budget` (a blast's tick), what doesn't fit in it waits, in the order given (the blast's:
+## nearest first), and is broken BREAK_FRAME_MS a tick on the ticks after, the settle after the
+## last (`breaking()`): the same members, what's furthest a few ticks later (its shock is there
+## ~60 ms after a 20 m reach anyway). Returns what broke now.
+func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = [], budget: WorkBudget = null) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if not collapses:
 		return out
-	var structural := false
+	var todo := []
 	for i in list.size():
-		var m := list[i]
+		todo.append([list[i], pushes[i] if i < pushes.size() else Vector3.ZERO, cuts[i] if i < cuts.size() else null])
+	if not _breaking.is_empty() or (budget and budget.over()):
+		_breaking.append_array(todo)  # (behind what already waits: one settle at the end of it all)
+		_now_breaking[self] = true
+		return out
+	return _break_some(todo, budget)
+
+
+## Is a blast's breaking still under way (a slice a tick)?
+func breaking() -> bool:
+	return not _breaking.is_empty()
+
+
+## Is any building's? (A kit prop's push waits for it: what shields it is what's still standing.)
+static func any_breaking() -> bool:
+	for st: Variant in _now_breaking.keys():
+		if is_instance_valid(st) and not (st as Structure)._breaking.is_empty():
+			return true
+		_now_breaking.erase(st)
+	return false
+
+
+static var _now_breaking := {}
+
+
+## The next tick's share of what a blast left.
+func _break_waiting() -> void:
+	# One budget a tick for every building's (a bundle's breaking is in three or four).
+	var tick := Engine.get_physics_frames()
+	if _tick_budget == null or _tick_budget_at != tick:
+		_tick_budget = WorkBudget.new(BREAK_FRAME_MS, int(BREAK_FRAME_MS * BROKEN_A_MS))
+		_tick_budget_at = tick
+	if _tick_budget.over():
+		return
+	var todo := _breaking
+	_breaking = []
+	var t := Prof.start()
+	_break_some(todo, _tick_budget)
+	Prof.stop(&"blast_break_after", t)
+
+
+static var _tick_budget: WorkBudget
+static var _tick_budget_at := -1
+
+
+func _break_some(todo: Array, budget: WorkBudget) -> Array[StringName]:
+	var out: Array[StringName] = []
+	var structural := false
+	_wakes = []
+	for i in todo.size():
+		if budget and i > 0 and budget.over():
+			_breaking = todo.slice(i)
+			_now_breaking[self] = true
+			break
+		var m: StructureMember = todo[i][0]
 		if m == null or not is_instance_valid(m) or m.broken:
 			continue
-		var push: Vector3 = pushes[i] if i < pushes.size() else Vector3.ZERO
-		var cut: Variant = cuts[i] if i < cuts.size() else null
+		if budget:
+			budget.spend()
+		var push: Vector3 = todo[i][1]
+		var cut: Variant = todo[i][2]
+		var t_b := Prof.start()
 		if m.kind == &"glass":
 			m.shatter(m.global_position, push.normalized() if push.length() > 0.01 else Vector3.DOWN)
+			Prof.stop(&"blast_glass", t_b)
 		elif cut is Vector2:
 			cut_member(m, (cut as Vector2).x, (cut as Vector2).y, push)
+			Prof.stop(&"blast_cut", t_b)
 		else:
 			# Where the blast hit it, if it says; else where it's weakest.
 			_snap(m, float(m.get_meta(&"blast_t", m.weakest_t())), push)
+			Prof.stop(&"blast_snap", t_b)
 		out.append(m.member_id)
 		structural = structural or m.kind != &"glass"
+	_wake_near_all(_wakes)
+	_wakes = null
+	if structural:
+		_broke_some = true
+	if not _breaking.is_empty():
+		return out
+	structural = _broke_some
+	_broke_some = false
 	# Panes carry nothing: a building that only lost glass doesn't need its loads worked out again
 	# (a whole building's analysis, ~0.1 s for the saloon, for a window across the street).
 	if structural:
-		out.append_array(settle())
+		var t_s := Prof.start()
+		out.append_array(settle(SETTLE_FRAME_MS, true))
+		Prof.stop(&"blast_settle", t_s)
 	return out
 
 
@@ -504,14 +1597,18 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		t0 = -half
 	if half - t1 < CUT_MIN_PIECE:
 		t1 = half
+	var t_u := Prof.start()
 	unbatch(m)
+	Prof.stop(&"cut_unbatch", t_u)
 	m.broken = true
+	mark_dirty(m.member_id)
 	m.set_meta(&"cut", Vector2(t0, t1))
 	for c in m.get_children():
 		if c is MeshInstance3D or c is CollisionShape3D:
 			c.queue_free()
 	m.pieces = []
 	var ai := m.axis_index()
+	var t_e := Prof.start()
 	var base := String(m.member_id).trim_prefix(String(structure_id) + "/")
 	for side in 2:
 		var a := -half if side == 0 else t1
@@ -524,14 +1621,53 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		offset[ai] = (a + b) * 0.5
 		var p := add_member("%s/%s" % [base, "a" if side == 0 else "b"], m.kind, m.wood, size, m.transform * offset, m.transform.basis)
 		p.set_meta(&"cut_from", m.member_id)
+		if m.look != &"":
+			p.look = m.look
+		_batch_new(p)
+		mark_dirty(p.member_id)
 		p.temperature = m.temperature
 		p.char_depth = m.char_depth
 		p.wet = m.wet
 		left.append(p)
+	Prof.stop(&"cut_ends", t_e)
+	var t_l := Prof.start()
 	_relink(m, left)
+	Prof.stop(&"cut_relink", t_l)
+	var t_c := Prof.start()
 	m.set_meta(&"cut_pieces", left)
-	# The stretch, in pieces about a hand-span long, thrown.
+	# The stretch, in pieces about a hand-span long, thrown: their dice thrown now (as they always
+	# were, so they fly the same), the bodies made as the tick has room (SpawnQueue, #538).
 	var n := maxi(1, ceili((t1 - t0) / CUT_CHUNK))
+	var throws: Array = []
+	for k in n:
+		var spread := Vector3(_rng.randf_range(-1, 1), _rng.randf_range(-0.2, 1.0), _rng.randf_range(-1, 1)) * 0.25
+		var v := push * _rng.randf_range(0.6, 1.1) + spread * push.length()
+		var w := Vector3(_rng.randf_range(-12, 12), _rng.randf_range(-12, 12), _rng.randf_range(-12, 12))
+		throws.append([v, w])
+	SpawnQueue.run(self, _make_chunks.bind(m, m.global_transform, t0, t1, throws, length + 2.0, Engine.get_physics_frames()), n)
+	Prof.stop(&"cut_chunks", t_c)
+	var t_w := Prof.start()
+	if _wakes is Array:
+		_wakes.append([m.global_position, length + 2.0])  # (break_members wakes them all at once)
+	else:
+		_wake_near(m.global_position, length + 2.0)
+	_play(&"timber_crack", m.global_position)
+	Prof.stop(&"cut_wake", t_w)
+	var t_s := Prof.start()
+	Events.member_broken.emit(m.member_id)
+	Events.member_cut.emit(m, left)
+	Prof.stop(&"cut_signals", t_s)
+	return left
+
+
+## A cut stretch's flying pieces (cut_member): `throws` their velocities and spins, one each,
+## `place` where the member was. Woken round it after, as for any break.
+func _make_chunks(m: StructureMember, place: Transform3D, t0: float, t1: float, throws: Array, wake: float, tick: int) -> void:
+	if not is_inside_tree() or not is_instance_valid(m):
+		return
+	var length := m.length()
+	var ai := m.axis_index()
+	var n := throws.size()
 	for k in n:
 		var ca := t0 + (t1 - t0) * k / n
 		var cb := t0 + (t1 - t0) * (k + 1) / n
@@ -540,10 +1676,10 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		var offset := Vector3.ZERO
 		offset[ai] = (ca + cb) * 0.5
 		var rb := _new_rubble([m.member_id])
-		rb.global_transform = m.global_transform * Transform3D(Basis(), offset)
+		rb.global_transform = place * Transform3D(Basis(), offset)
 		var mi := MeshInstance3D.new()
 		mi.mesh = MemberMesh.box(size)
-		mi.material_override = WoodMaterials.get_material(m.wood, hash(m.member_id) + k)
+		mi.material_override = WoodMaterials.get_material(m.drawn_wood(), hash(m.member_id) + k)
 		rb.add_child(mi)
 		var cs := CollisionShape3D.new()
 		cs.shape = _box_shape(size)
@@ -552,16 +1688,12 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 		# Short pieces are small debris (you walk through them), as wood chips are.
 		if maxf(size.x, maxf(size.y, size.z)) < Fittings.SMALL:
 			rb.collision_layer = Layers.DEBRIS
-			rb.collision_mask = Layers.DEBRIS_MASK
-		var spread := Vector3(_rng.randf_range(-1, 1), _rng.randf_range(-0.2, 1.0), _rng.randf_range(-1, 1)) * 0.25
-		rb.linear_velocity = push * _rng.randf_range(0.6, 1.1) + spread * push.length()
-		rb.angular_velocity = Vector3(_rng.randf_range(-12, 12), _rng.randf_range(-12, 12), _rng.randf_range(-12, 12))
+			rb.collision_mask = Layers.WORLD if "--lab-debris-solo" in _lab_args else Layers.DEBRIS_MASK
+		rb.linear_velocity = throws[k][0]
+		rb.angular_velocity = throws[k][1]
 		rb.set_meta(&"start_v", rb.linear_velocity)
-	_wake_near(m.global_position, length + 2.0)
-	_play(&"timber_crack", m.global_position)
-	Events.member_broken.emit(m.member_id)
-	Events.member_cut.emit(m, left)
-	return left
+	if tick != Engine.get_physics_frames():
+		_rewake.call_deferred(place.origin, wake)  # made after the cut's own wake: theirs
 
 
 ## The pieces left of `old` take its place in the support graph: each touches, rests on and holds
@@ -593,6 +1725,7 @@ func _relink(old: StructureMember, pieces: Array[StructureMember]) -> void:
 func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 	unbatch(m)
 	m.broken = true
+	mark_dirty(m.member_id)
 	var length := m.length()
 	var ai := m.axis_index()
 	var mi: MeshInstance3D = null
@@ -636,7 +1769,7 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 				rb.global_basis = Basis(Vector3(kick.z, 0.0, -kick.x), deg_to_rad(10.0)) * rb.global_basis
 			var pmi := MeshInstance3D.new()
 			pmi.mesh = MemberMesh.box(piece_size)
-			pmi.material_override = WoodMaterials.get_material(m.wood, hash(m.member_id))
+			pmi.material_override = WoodMaterials.get_material(m.drawn_wood(), hash(m.member_id))
 			rb.add_child(pmi)
 			var pcs := CollisionShape3D.new()
 			pcs.shape = _box_shape(piece_size)
@@ -654,18 +1787,25 @@ func _snap(m: StructureMember, t: float, push := Vector3.ZERO) -> void:
 		cs.queue_free()
 		m.pieces = new_pieces
 		m.set_meta(&"snapped", true)
-	_wake_near(m.global_position, m.length() + 2.0)
+		_own_fire_look(m)
+	if _wakes is Array:
+		_wakes.append([m.global_position, m.length() + 2.0])  # (break_members wakes them all at once, as a cut's)
+	else:
+		_wake_near(m.global_position, m.length() + 2.0)
 	_play(&"timber_crack", m.global_position)
 	Events.member_broken.emit(m.member_id)
 
 
 ## Members with nothing holding them up fall; those still touching each other fall together as
-## one piece.
-func _drop(ids: Array[StringName]) -> void:
+## one piece. Up to `at_most` members (whole clumps; every one by default): the ids that fell.
+func _drop(ids: Array[StringName], at_most := 0) -> Array[StringName]:
+	var fallen: Array[StringName] = []
 	var left := {}
 	for id in ids:
 		left[id] = true
 	while not left.is_empty():
+		if at_most > 0 and fallen.size() >= at_most:
+			break
 		var start: StringName = left.keys()[0]
 		var clump: Array[StringName] = []
 		var stack: Array[StringName] = [start]
@@ -673,26 +1813,44 @@ func _drop(ids: Array[StringName]) -> void:
 		while not stack.is_empty():
 			var id: StringName = stack.pop_back()
 			clump.append(id)
-			for n in get_member(id).touching:
+			for n in _clump_with(id):
 				if left.has(n):
 					left.erase(n)
 					stack.append(n)
-		var rb := _new_rubble(clump)
+		fallen.append_array(clump)
+		# Made up whole before it goes in (its shapes and meshes in it as it enters the world, not
+		# each one added to a body already there: a kit prop's ~20 members, #538).
+		var rb := _new_rubble(clump, false)
 		var first := get_member(clump[0])
-		rb.global_transform = Transform3D(Basis(), first.global_position)
+		var at := Transform3D(Basis(), first.global_position)
+		var host := _rubble_host() as Node3D
+		rb.transform = host.global_transform.affine_inverse() * at if host else at
+		var to_rb := at.affine_inverse()
 		var mass := 0.0
+		var spread: Array = []  # (mass_by_members: each member's [kg, centre, basis, size] in the body's space)
 		for id in clump:
 			var m := get_member(id)
-			unbatch(m)
+			unbatch(m, false, true)
 			m.broken = true
+			mark_dirty(id)
 			mass += m.weight(tuning) / 9.81
-			for c in m.get_children():
-				if c is MeshInstance3D or c is CollisionShape3D:
-					c.reparent(rb, true)
+			if mass_by_members:
+				var in_rb := to_rb * m.global_transform
+				spread.append([m.weight(tuning) / 9.81, in_rb.origin, in_rb.basis, m.size])
+			# Its mesh and shape into the body where they are (as reparent(rb, true) put them).
+			var at_m := m.global_transform
+			for c in m.take_parts():
+				c.transform = to_rb * (at_m * c.transform)
+				c.set_meta(&"member", id)  # (whose it is in the body: Dents finds a plate's mesh and shape)
+				rb.add_child(c)
+				if c is CollisionShape3D:
+					_loose_shape(m, c as CollisionShape3D)  # (masonry: the stone without its mortar)
 				if c is CollisionShape3D and not (c as CollisionShape3D).shape is BoxShape3D:
 					# Carved (concave): a moving body takes its box, as in _snap, or it falls
 					# through the ground (a blasted sign, the nightly soak, 2026-10-13).
 					(c as CollisionShape3D).shape = _box_shape(m.size)
+		_enter_rubble(rb)
+		for id in clump:
 			Events.member_broken.emit(id)
 		if not has_solid_shape(rb):
 			# Only shattered glass or burnt-away members: no shape to land with (it'd fall for ever).
@@ -700,15 +1858,90 @@ func _drop(ids: Array[StringName]) -> void:
 			rb.queue_free()
 			continue
 		rb.mass = maxf(mass, 0.3)
+		if mass_by_members and spread.size() > 1:
+			_weigh_by_members(rb, spread)
 		_wake_near(rb.global_position, 6.0)
+	return fallen
+
+
+## A body's centre of weight and its turning inertia from its members' own weights (heavy iron
+## plates high on a coach of pine and oak), not from its shapes' volumes as the physics would have
+## them (Jolt spreads a body's mass evenly through its shapes). Each member a solid box; the
+## inertia about the centre by the parallel axis rule, its diagonal in the body's axes (the body
+## turned square to the structure: a kit prop standing as built).
+func _weigh_by_members(rb: RigidBody3D, spread: Array) -> void:
+	var total := 0.0
+	var com := Vector3.ZERO
+	for e: Array in spread:
+		total += float(e[0])
+		com += (e[1] as Vector3) * float(e[0])
+	if total <= 0.0:
+		return
+	com /= total
+	var ix := 0.0
+	var iy := 0.0
+	var iz := 0.0
+	for e: Array in spread:
+		var kg := float(e[0])
+		var sz: Vector3 = e[3]
+		var b: Basis = (e[2] as Basis).orthonormalized()
+		var own := Vector3(sz.y * sz.y + sz.z * sz.z, sz.x * sz.x + sz.z * sz.z, sz.x * sz.x + sz.y * sz.y) * kg / 12.0
+		# The box's tensor turned into the body's axes: R diag(own) R^T, its diagonal.
+		for axis in 3:
+			var row := Vector3(b.x[axis], b.y[axis], b.z[axis])
+			var v := row.x * row.x * own.x + row.y * row.y * own.y + row.z * row.z * own.z
+			if axis == 0:
+				ix += v
+			elif axis == 1:
+				iy += v
+			else:
+				iz += v
+		var d := (e[1] as Vector3) - com
+		ix += kg * (d.y * d.y + d.z * d.z)
+		iy += kg * (d.x * d.x + d.z * d.z)
+		iz += kg * (d.x * d.x + d.y * d.y)
+	rb.center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+	rb.center_of_mass = com
+	rb.inertia = Vector3(ix, iy, iz)
 
 
 ## Rubble asleep near something that just gave way wakes up (it may have been resting on it).
 func _wake_near(at: Vector3, radius: float) -> void:
+	RubbleSleep.disturbed(self, at, radius)
 	for rb in rubble:
 		if is_instance_valid(rb) and rb.global_position.distance_to(at) < radius:
 			rb.sleeping = false
 	_rewake.call_deferred(at, radius)
+
+
+## Rubble asleep near any of several spots (`spheres`: [at, radius]) wakes, in one pass over it
+## (a blast's 31 cuts were 31 passes over every piece of rubble, and as many again deferred, #538).
+func _wake_near_all(spheres: Array) -> void:
+	if spheres.is_empty():
+		return
+	for sp: Array in spheres:
+		RubbleSleep.disturbed(self, sp[0], float(sp[1]))
+	for rb in rubble:
+		if is_instance_valid(rb) and _near_any(rb.global_position, spheres):
+			rb.sleeping = false
+	_rewake_all.call_deferred(spheres)
+
+
+static func _near_any(p: Vector3, spheres: Array) -> bool:
+	for sp: Array in spheres:
+		if p.distance_to(sp[0]) < float(sp[1]):
+			return true
+	return false
+
+
+func _rewake_all(spheres: Array) -> void:
+	for rb in rubble:
+		if is_instance_valid(rb) and _near_any(rb.global_position, spheres):
+			rb.sleeping = false
+			var v: Vector3 = rb.get_meta(&"start_v", Vector3.ZERO)
+			if v != Vector3.ZERO and rb.linear_velocity.is_zero_approx():
+				rb.linear_velocity = v
+			rb.remove_meta(&"start_v")
 
 
 func _rewake(at: Vector3, radius: float) -> void:
@@ -729,46 +1962,155 @@ static func has_solid_shape(body: Node) -> bool:
 		return c is CollisionShape3D and not (c as CollisionShape3D).disabled and not c.is_queued_for_deletion())
 
 
-func _new_rubble(ids: Array[StringName]) -> RigidBody3D:
+## `enter`: into the world now (else it's made up first: _enter_rubble).
+static var _rubble_material: PhysicsMaterial
+
+
+## A piece reports what it touches (its `body_entered`: _on_rubble_hit) only while it's moving fast
+## enough to matter: faster than this share of the tuning's harmless_speed, on; slower than
+## REPORT_OFF of it, off (#626). Jolt's bodies that report contacts lose its manifold reduction
+## (Godot's JoltBody3D), so every face against a face is a contact of its own: the farmhouse's
+## collapse spent ~26 ms of Jolt's step a tick on ~500 pieces settling, and its piles jostled longer
+## before they slept. Over a dug tile too (#642: a crater's ~150 pieces reporting for good were ~30
+## ms of the step a tick under Sean's two sticks): Ground.rescue finds a slow piece caught under the
+## field by its points, not its contacts.
+const REPORT_ON := 0.5
+const REPORT_OFF := 0.35
+const REPORTED := 4
+
+## The collapse-cost lab's switches (#626; measuring only): `-- --rubble-ccd=off` no piece swept,
+## `-- --rubble-contacts=off` no piece reports what it touches, `-- --rubble-contacts=always` every
+## piece does, as before #626.
+static var _lab_args := OS.get_cmdline_user_args()
+static var lab_ccd := not "--rubble-ccd=off" in _lab_args
+static var lab_contacts := not "--rubble-contacts=off" in _lab_args
+static var lab_contacts_always := "--rubble-contacts=always" in _lab_args
+
+
+func _new_rubble(ids: Array[StringName], enter := true) -> RigidBody3D:
 	var rb := RigidBody3D.new()
 	rb.name = "Rubble"
 	rb.collision_layer = Layers.WORLD
 	rb.collision_mask = Layers.WORLD | Layers.PEOPLE | Layers.BODY_PARTS
-	rb.contact_monitor = true
-	rb.max_contacts_reported = 4
-	rb.continuous_cd = true
+	rb.contact_monitor = lab_contacts
+	rb.max_contacts_reported = REPORTED if lab_contacts else 0  # (a new piece is falling: _report)
+	rb.continuous_cd = lab_ccd
 	rb.set_meta(&"members", ids)
-	var pm := PhysicsMaterial.new()
-	pm.friction = 0.8
-	pm.bounce = 0.05
-	rb.physics_material_override = pm
+	if _rubble_material == null:
+		_rubble_material = PhysicsMaterial.new()
+		_rubble_material.friction = 0.8
+		_rubble_material.bounce = 0.05
+	rb.physics_material_override = _rubble_material  # (one for all: nothing changes it after)
 	rb.add_to_group(&"rubble")
-	var host: Node = get_parent() if get_parent() else self
-	host.add_child(rb)
+	if enter:
+		_enter_rubble(rb)
+	return rb
+
+
+## Where a piece of it's put when it falls (its parent, else itself).
+func _rubble_host() -> Node:
+	return get_parent() if get_parent() else self
+
+
+## A new piece into the world, one of its rubble.
+func _enter_rubble(rb: RigidBody3D) -> void:
+	_rubble_host().add_child(rb)
 	rb.body_entered.connect(_on_rubble_hit.bind(rb))
 	rubble.append(rb)
-	return rb
+	RubbleRest.watch(rb)
+	RubbleSleep.for_node(rb)  # (the piles it lands in put to sleep once they've stopped, #585)
 
 
 func _physics_process(delta: float) -> void:
 	var t := Prof.start()
 	_physics_step(delta)
 	Prof.stop(&"structures", t)
+	if _rebuild_queued and not _rebuild_timed and _batch_task < 0 and not _batch_dirty.is_empty():
+		_rebuild_dirty_batches()  # (within the drawn frame's budget, every structure's together)
 
 
 func _physics_step(delta: float) -> void:
+	if not _breaking.is_empty():
+		_break_waiting()
 	_sound_cooldown = maxf(_sound_cooldown - delta, 0.0)
 	var lost: Array[RigidBody3D] = []
+	var ground := _dug_ground()
+	var tick := Engine.get_physics_frames()
+	var on2 := tuning.harmless_speed * REPORT_ON
+	on2 *= on2
+	var off2 := tuning.harmless_speed * REPORT_OFF
+	off2 *= off2
+	var gated := lab_contacts and not lab_contacts_always
 	for rb in rubble:
 		if is_instance_valid(rb) and not rb.sleeping:
-			rb.set_meta(&"v", rb.linear_velocity)
-			if rb.global_position.y < LOST_BELOW:
+			var v := rb.linear_velocity
+			if v.length_squared() > RUNAWAY_SPEED * RUNAWAY_SPEED:
+				v = _runaway(rb, v, lost)
+			rb.set_meta(&"v", v)
+			if gated and not rb.freeze and not rb.has_meta(&"dent_watch"):  # (Dents.Watch reads its contacts)
+				_report(rb, v.length_squared(), on2, off2, tick)
+			if rb.global_position.y < lost_below:
 				lost.append(rb)
+			elif ground and (tick + rb.get_instance_id()) % RESCUE_TICKS == 0:
+				ground.rescue(rb)
 	for rb in lost:
 		# Gone through the ground somehow: a piece falling for ever costs the physics every frame.
 		push_warning("rubble %s fell through the ground at %s; removed" % [rb.get_meta(&"members", []), rb.global_position])
 		rubble.erase(rb)
 		rb.queue_free()
+
+
+## A piece thrown by the physics (RUNAWAY_SPEED): slowed, or lost if it's gone to a non-number.
+func _runaway(rb: RigidBody3D, v: Vector3, lost: Array[RigidBody3D]) -> Vector3:
+	runaways += 1
+	var p := rb.global_position
+	var bad := not (is_finite(v.x) and is_finite(v.y) and is_finite(v.z) and is_finite(p.x) and is_finite(p.y) and is_finite(p.z))
+	if runaways <= 5:
+		push_warning("rubble %s thrown at %.0f m/s at %s by the physics: %s (#624)" % [rb.get_meta(&"members", []),
+				v.length(), p, "removed (not a number)" if bad else "slowed to %.0f" % RUNAWAY_SPEED])
+	if bad:
+		if not lost.has(rb):
+			lost.append(rb)
+		return Vector3.ZERO
+	v = v.normalized() * RUNAWAY_SPEED
+	rb.linear_velocity = v
+	rb.angular_velocity = rb.angular_velocity.limit_length(50.0)
+	return v
+
+
+## Its contacts reported while it's fast, not while it settles (REPORT_ON).
+## Changing it wakes the body (Godot's JoltBody3D), so it's only changed on an awake one, and with
+## a gap between on and off so a piece at the line doesn't flicker. Turned on, its first reports
+## are what it already touched: `_on_rubble_hit` lets them pass (`reports_from`).
+func _report(rb: RigidBody3D, speed2: float, on2: float, off2: float, tick: int) -> void:
+	var reporting := rb.max_contacts_reported > 0
+	var want := reporting
+	if speed2 > on2:
+		want = true
+	elif speed2 < off2:
+		want = false
+	if want == reporting:
+		return
+	rb.max_contacts_reported = REPORTED if want else 0
+	if want:
+		rb.set_meta(&"reports_from", tick)
+
+
+## The ground, if any of it's been dug (its dug tiles are a height field a piece can be pressed
+## through, Ground.rescue); null where it hasn't, or there's none.
+func _dug_ground() -> Ground:
+	if _ground == null or not is_instance_valid(_ground):
+		if not is_inside_tree():
+			return null
+		_ground = Ground.of(get_tree())
+		if _ground == null:
+			return null
+	return _ground if not _ground.tiles.is_empty() else null
+
+
+## How long (physics frames) the pieces a man's blow broke off spare him (`broken_by`, set by HumanBody's
+## clip blow): long enough for a piece leaving with his boot to clear his leg.
+const BREAKER_SPARED_FRAMES := 30
 
 
 ## Falling timber lands on something: hard enough and it breaks what it hits; a piece of several
@@ -780,11 +2122,26 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 	var speed := v.length()
 	if speed < tuning.harmless_speed:
 		return
+	if Engine.get_physics_frames() - int(rb.get_meta(&"reports_from", -10)) <= 1:
+		return  # (just turned on: what it was already touching, not a landing: _report)
+	if other is RigidBody3D:
+		RubbleSleep.let_go(other, " (landed on)")  # (a piece held still that this lands on: its own again, #585)
 	var energy := 0.5 * rb.mass * speed * speed
 	if other.has_meta(&"human_body") and energy > 5.0:
 		# Timber coming down on someone: once per piece per person.
 		var person: Object = other.get_meta(&"human_body")
 		var hurt: Array = rb.get_meta(&"hurt", [])
+		# A man getting up: what he's lying among is shoved aside by his own body as it's stood up (a
+		# rig moved by hand, at any speed), not falling on him. Earl among his chair's pieces took its
+		# 9 kg seat as a 3,900 J blow to the belly each time he rose, and never got up (#834, #875).
+		if person.get(&"rising") == true:
+			return
+		# The man whose boot just broke it: the piece leaves at his boot's speed, against his own leg
+		# (No Law's kicked chair: Cody went down to his own kick's spindle, #887). Spared a moment.
+		var by: Array = get_meta(&"broken_by", [])
+		if by.size() == 2 and by[0] == person and Engine.get_physics_frames() - int(by[1]) <= BREAKER_SPARED_FRAMES:
+			hurt.append(person)
+			rb.set_meta(&"hurt", hurt)
 		if not hurt.has(person):
 			hurt.append(person)
 			rb.set_meta(&"hurt", hurt)
@@ -800,7 +2157,7 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		_play(&"timber_crash", rb.global_position)
 		ImpactEffects.burst(get_parent(), rb.global_position, Vector3.UP, Color(0.66, 0.56, 0.44), 18, 1.4, 0.07)
 	var ids: Array = rb.get_meta(&"members", [])
-	if ids.size() > 1 and speed > tuning.break_up_speed:
+	if breaks_up and ids.size() > 1 and speed > tuning.break_up_speed:
 		_break_up.call_deferred(rb)
 
 
@@ -808,6 +2165,9 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 func _break_up(rb: RigidBody3D) -> void:
 	if not is_instance_valid(rb) or rb.get_meta(&"broken_up", false):
 		return
+	var rest := RubbleRest.for_node(rb)
+	if rest:
+		rest.release(rb)
 	rb.set_meta(&"broken_up", true)
 	var v := rb.linear_velocity
 	var w := rb.angular_velocity
@@ -833,10 +2193,35 @@ func _break_up(rb: RigidBody3D) -> void:
 	rb.queue_free()
 
 
+## True the first time `what` is asked this physics tick (a noise heard once a tick a building).
+func first_this_tick(what: StringName) -> bool:
+	var tick := Engine.get_physics_frames()
+	if int(_heard.get(what, -1)) == tick:
+		return false
+	_heard[what] = tick
+	return true
+
+
+## Fewer than `n` of `what` so far this tick (and one more counted).
+func under_this_tick(what: StringName, n: int) -> bool:
+	var tick := Engine.get_physics_frames()
+	var seen: Vector2i = _heard_n.get(what, Vector2i(-1, 0))
+	seen = Vector2i(tick, 1) if seen.x != tick else Vector2i(tick, seen.y + 1)
+	_heard_n[what] = seen
+	return seen.y <= n
+
+
 func _play(id: StringName, at: Vector3) -> void:
 	if not is_inside_tree():
 		return
-	Events.noise.emit(at, 60.0, &"timber", null)
+	# Heard once a tick a building (a stick's 31 holed boards were 31 noises, a ray each for
+	# everyone in earshot, #538): what's heard is that timber broke there.
+	if first_this_tick(&"timber"):
+		Events.noise.emit(at, 60.0, &"timber", null)
+	# As many of a sound a tick a building as can sound at once (GameAudio's voice limit): a stick's
+	# ~30 cuts were 30 players made, sorted against the rest and placed by rays, to be dropped (#538).
+	if not under_this_tick(id, GameAudio.t().breaking_limit):
+		return
 	if GameAudio.enabled():
 		GameAudio.play(self, id, at, {"unit_size": 10.0, "limit": GameAudio.t().breaking_limit})
 		return

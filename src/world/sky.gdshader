@@ -28,6 +28,9 @@ uniform float cloud_cover = 0.46;
 uniform float cloud_scale = 2.6;
 uniform float cloud_ragged = 0.32;
 uniform float cloud_tones = 0.0;
+// The heaps' stretch (x across the street, y along it): the streaks of (1.5, 0.45) went thin and
+// long near the horizon; nearer (1, 1) they're rounder heaps (the light pass, issue #318).
+uniform vec2 cloud_band = vec2(1.5, 0.45);
 // How much darker the sky away from the sun gets when the sun is low (the painting's deep blue).
 uniform float low_sun_dim = 0.45;
 // The sky in squares, as the painting's is: directions snapped to a grid this many cells a
@@ -183,7 +186,7 @@ void sky() {
 	// night. They're drawn in the sky's own squares (sky_squares).
 	if (h > 0.0) {
 		vec2 p = d.xz / (h + 0.12) * cloud_scale + vec2(cloud_drift, 0.0);
-		vec2 band = vec2(1.5, 0.45);
+		vec2 band = cloud_band;
 		float n = cloud_shape(p, band);
 		float edge = 1.0 - cloud_cover - 0.12 * gold;
 		// Soft edges, as the painting's heaps have (the blocks on them are the texture's, later).

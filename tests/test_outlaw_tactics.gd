@@ -273,6 +273,30 @@ func test_broken_he_runs_for_it() -> void:
 	check(outlaw.held_gun != null, "keeps his gun")
 
 
+## Holding a house with a man to keep and nowhere to run (the farmhouse, issue #565): broken, he
+## doesn't run or give up while he's armed and not covered close; he goes to ground and holds on.
+func test_cornered_he_holds_on_rather_than_run() -> void:
+	await _outlaw(Vector3(0, 0, -12))
+	brain.flee_chance = 1.0
+	brain.hold = {"inside": func(_p: Vector3) -> bool: return true, "post": outlaw.global_position, "look": Vector3.ZERO, "cornered": true}
+	await _provoke()
+	brain.fear = brain.nerve + 0.5
+	await physics_frames(2)
+	check(brain.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING], "neither runs nor gives up (%s)" % OutlawBrain.Mood.keys()[brain.mood])
+	check(brain.decision.begins_with("hold on"), "holds on (%s)" % brain.decision)
+	check(outlaw.held_gun != null, "his gun still in his hand")
+
+
+func test_cornered_but_covered_close_he_gives_up() -> void:
+	await _outlaw(Vector3(0, 0, -4))
+	brain.hold = {"inside": func(_p: Vector3) -> bool: return true, "post": outlaw.global_position, "look": Vector3.ZERO, "cornered": true}
+	await _provoke()
+	brain._aimed_at = 1.0
+	brain.fear = brain.nerve + 0.5
+	await physics_frames(2)
+	check_eq(brain.mood, OutlawBrain.Mood.SURRENDERED, "a gun on him at 4 m: hands up, cornered or not")
+
+
 func test_covered_up_close_he_gives_up_instead() -> void:
 	await _outlaw(Vector3(0, 0, -4))
 	brain.flee_chance = 1.0
@@ -383,3 +407,623 @@ func test_on_the_range_he_uses_the_cover_there() -> void:
 	check(shots[0] >= 2, "and shoots from it (%d shots)" % shots[0])
 	print("  on the range he took cover at %s (%s)" % [str(b.cover.get("at", "-")), "lying" if b.cover.get("lie", false) else ("low" if b.cover.get("low", false) else "a wall")])
 	street.queue_free()
+
+
+# --- Holding his cover (variant D's hold_cover, #294) ------------------------------------------------
+
+## A wall between you and him: he can hear you, not see you.
+func _wall_between() -> void:
+	_box(Vector3(0, 1.5, -6.0), Vector3(10.0, 3.0, 0.4))
+
+
+func test_a_shot_he_hears_puts_you_at_your_feet_not_over_your_gun() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	brain.senses.note(player, Vector3(0.5, 0.0, 0.0), 0.0)
+	await physics_frames(2)
+	check(not brain.senses.sees(player), "he can't see you through the wall")
+	brain._on_heard(Vector3(0.6, 1.4, 0.2), &"gunshot", null)
+	var lk := brain.senses.last_known(player)
+	check(Vector2(lk.x - 0.6, lk.z - 0.2).length() < 0.01, "he takes the shot for you (%s)" % lk)
+	check(absf(lk.y) < 0.05, "at your feet, not up at your gun (%.2f m up)" % lk.y)
+	check(absf(brain._eye_of(player).y - 1.6) < 0.05, "so your eyes a man's height up (%.2f)" % brain._eye_of(player).y)
+
+
+func test_behind_cover_he_holds_it_against_what_he_knows_not_a_guess() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	brain.senses.note(player, Vector3(0.5, 0.0, 0.0), 0.0)
+	await physics_frames(2)
+	var chosen := Vector3(0.5, 1.6, 0.0)
+	brain.cover = {"at": outlaw.global_position, "eye": chosen, "low": false}
+	brain._sure = false
+	check(brain._held_eye(Vector3(4.0, 1.6, 2.0)) == chosen, "a new guess at where you are doesn't move it")
+	brain._on_near_miss(outlaw, player, 1.0, outlaw.global_position, 300.0, false)
+	check(brain._held_eye(Vector3(4.0, 1.6, 2.0)) == Vector3(4.0, 1.6, 2.0), "a ball past him does")
+	check(brain._held_eye(Vector3(-3.0, 1.6, 1.0)) == Vector3(4.0, 1.6, 2.0), "and holds there till the next thing he's sure of")
+	OutlawBrain.d_fixes.erase(&"hold_cover")
+	check(brain._held_eye(Vector3(-3.0, 1.6, 1.0)) == Vector3(-3.0, 1.6, 1.0), "without the fix, his guess as before")
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
+# --- Watching the spot (variant D's watch_spot, #477) ----------------------------------------------
+
+## As if he last saw or heard you `ago` seconds back, at `at`.
+func _known_ago(at: Vector3, ago: float) -> void:
+	brain.senses.note(player, at, 0.0)
+	var k: Dictionary = brain.senses.known[player]
+	k.seen = false
+	k.heard_time = brain.senses._clock - ago
+	k.last_time = minf(float(k.last_time), k.heard_time)
+
+
+func test_behind_cover_he_watches_where_you_were_rather_than_go_looking() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -12))
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	await physics_frames(2)
+	check(not brain.senses.sees(player), "he can't see you through the wall")
+	_known_ago(Vector3(0.5, 0.0, 0.0), 6.0)
+	check(not brain._lost_you(player), "6 s quiet, 12 m off: he watches the spot")
+	_known_ago(Vector3(0.5, 0.0, 0.0), OutlawBrain.WATCH_ALONE + 1.0)
+	check(brain._lost_you(player), "on his own, past WATCH_ALONE he goes to look")
+	_known_ago(Vector3(0.5, 0.0, 0.0), OutlawBrain.WATCH_ALONE - 1.0)
+	check(not brain._lost_you(player), "short of it he still watches")
+	_known_ago(Vector3(0.0, 0.0, 8.0), 6.0)
+	check(brain._lost_you(player), "his idea of you 20 m off: he's lost you")
+	brain.senses.known.erase(player)
+	check(brain._lost_you(player), "no idea of you at all: he's lost you")
+	_known_ago(Vector3(0.5, 0.0, 0.0), 6.0)
+	OutlawBrain.d_fixes.erase(&"watch_spot")
+	check(brain._lost_you(player), "without the fix, 4 s and he goes, as before")
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
+func test_watching_he_stays_behind_his_cover_in_the_fight() -> void:
+	_wall_between()
+	await _outlaw(Vector3(0, 0, -6.8))  # right behind the wall
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	await physics_frames(2)
+	brain._set_mood(OutlawBrain.Mood.FIGHTING)
+	brain.cover = {"at": outlaw.global_position, "eye": Vector3(0.5, 1.6, 0.0), "low": false, "peek": outlaw.global_position}
+	brain.tactic = OutlawBrain.Tactic.HIDDEN
+	brain._tactic_time = 5.0
+	brain._flank_after = 99.0
+	brain._in_cover = 0.0
+	_known_ago(Vector3(0.5, 0.0, 0.0), 6.0)
+	brain._combat(0.1)
+	check(brain.tactic == OutlawBrain.Tactic.HIDDEN, "6 s quiet: still behind his cover (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes.erase(&"watch_spot")
+	brain._combat(0.1)
+	check(brain.tactic == OutlawBrain.Tactic.SEARCHING, "without the fix he goes to look (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
+# --- Your own cover isn't his (variant D's own_cover, #583) ----------------------------------------
+
+## Crates stacked chest high a pace in front of him, 12 m off; you tight behind a board a hand in
+## front of your eye (a careful man crouched behind his own cover: it's first on every line).
+const OWN_SPOT := Vector3(0.0, 0.0, -12.0)
+
+
+func _own_cover_setup() -> void:
+	_box(Vector3(0.0, 0.6, -11.3), Vector3(2.0, 1.2, 0.6))  # his
+	_box(_eye() + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))  # yours
+
+
+func test_your_own_cover_doesnt_make_his_seen() -> void:
+	await _outlaw(Vector3(4, 0, -16))
+	_box(Vector3(0.0, 0.6, -11.3), Vector3(2.0, 1.2, 0.6))
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var eye := _eye()
+	check(Cover.hidden_at(space, OWN_SPOT, eye, Cover.HIDE_HEAD, _exclude(), true), "ducked behind the crates he's hidden")
+	var plain := Cover.evaluate(space, OWN_SPOT, eye, _exclude(), true)
+	check(not plain.is_empty() and plain.low, "the crates are low cover (%s)" % plain)
+	_box(eye + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))
+	await physics_frames(2)
+	check(not Cover.hidden_at(space, OWN_SPOT, eye, Cover.HIDE_HEAD, _exclude(), true), "the old check: your board first on the line, he reads as seen")
+	check(Cover.hidden_at(space, OWN_SPOT, eye, Cover.HIDE_HEAD, _exclude(), true, true), "own_cover: the crates near him still hide him")
+	check(Cover.hidden_at(space, OWN_SPOT, eye, Cover.CHEST, _exclude(), true, true), "his chest too")
+	check(not Cover.hidden_at(space, OWN_SPOT, eye, Cover.STAND_HEAD, _exclude(), true, true), "but not standing: they're low")
+	var spot := Cover.evaluate(space, OWN_SPOT, eye, _exclude(), true, [], false, 0.0, INF, true)
+	check(not spot.is_empty() and spot.low, "the search finds the crates with your board up (%s)" % spot)
+	check(Cover.evaluate(space, OWN_SPOT, eye, _exclude(), true).is_empty(), "(the old search didn't)")
+	# Out in the open, your board's no cover of his.
+	check(not Cover.hidden_at(space, Vector3(-5.0, 0.0, -12.0), eye, Cover.HIDE_HEAD, _exclude(), true, true),
+			"in the open with nothing near him he's not hidden, whatever's in front of you")
+	check(Cover.evaluate(space, Vector3(-5.0, 0.0, -12.0), eye, _exclude(), true, [], false, 0.0, INF, true).is_empty(),
+			"and the open is no spot")
+
+
+func test_behind_his_cover_your_own_doesnt_drive_him_out() -> void:
+	await _outlaw(OWN_SPOT)
+	_own_cover_setup()
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.target = player
+	await physics_frames(2)
+	brain._set_mood(OutlawBrain.Mood.FIGHTING)
+	var hold := func() -> void:
+		brain.cover = {"at": OWN_SPOT, "eye": _eye(), "low": true, "crouch_ok": true, "peek": OWN_SPOT}
+		brain.tactic = OutlawBrain.Tactic.HIDDEN
+		brain._tactic_time = 5.0
+		brain._flank_after = 99.0
+		brain._in_cover = 0.0
+		brain._check = 0.0
+	hold.call()
+	brain._hide(0.1, _eye())
+	check(brain.tactic == OutlawBrain.Tactic.HIDDEN, "your board up, he holds his crates (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes.erase(&"own_cover")
+	hold.call()
+	brain._hide(0.1, _eye())
+	check(brain.tactic == OutlawBrain.Tactic.OPEN, "without the fix he leaves them, as before (%s)" % OutlawBrain.Tactic.keys()[brain.tactic])
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
+## Fighting from the floor (D+'s floor_fight) a man empty asks to reload every tick: the load he's
+## started goes on to its end, not over again (#583's playtest: "Reloading! Cover me!" for a minute).
+func test_a_reload_once_started_runs_to_its_end() -> void:
+	await _outlaw(OWN_SPOT)
+	brain.target = player
+	await physics_frames(2)
+	brain._set_mood(OutlawBrain.Mood.FIGHTING)
+	brain.rounds = 0
+	brain._start_reload()
+	check(brain.mood == OutlawBrain.Mood.RELOADING, "empty: he reloads")
+	brain._reload_left = 0.4
+	brain._start_reload()
+	check(is_equal_approx(brain._reload_left, 0.4), "asked again, the load goes on (%.2f s left)" % brain._reload_left)
+
+
+## A planted stick's fuse hissing a few metres off (#506): he hears it, it frightens him and turns
+## his head; one round the corner out of earshot he doesn't.
+func test_he_hears_a_planted_fuse() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	# 2 m off: a hiss carries 3 m from the stick to his ears (issue #537), his eyes 1.6 m up.
+	var near := DynamiteStick.make(world, Vector3(2.0, 0.02, -10.0), Vector3.ZERO, 60.0)
+	near.planted = true
+	near.light()
+	await physics_frames(70)
+	var heard := float(brain.fear_from.get(&"a fuse hissing", 0.0))
+	check(heard > 0.0, "a fuse 2 m off frightens him (%.2f)" % heard)
+	near.queue_free()
+	brain.fear_from.erase(&"a fuse hissing")
+	var far := DynamiteStick.make(world, Vector3(30.0, 0.02, -10.0), Vector3.ZERO, 60.0)
+	far.planted = true
+	far.light()
+	await physics_frames(70)
+	check_eq(float(brain.fear_from.get(&"a fuse hissing", 0.0)), 0.0, "one 30 m off he doesn't hear")
+	far.queue_free()
+
+
+# --- Posts as narrow cover (variant D's posts, #531) ----------------------------------------------
+
+## A gallery post (8x8 in, 20 cm) standing 9 m in front of you; the spot 0.4 m behind it.
+const POST_AT := Vector3(0.0, 0.0, -9.0)
+const POST_SPOT := Vector3(0.0, 0.0, -9.5)
+
+
+func _post(width := 0.2, low := 0.0, high := 3.66) -> void:
+	_box(POST_AT + Vector3.UP * (low + high) * 0.5, Vector3(width, high - low, width))
+
+
+func test_a_post_is_cover_side_on_but_not_square_on() -> void:
+	await _outlaw(Vector3(4, 0, -14))
+	_post()
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var eye := Vector3(0.0, 1.6, 0.0)
+	check(Cover.evaluate(space, POST_SPOT, eye, _exclude(), true).is_empty(), "too narrow to hide a man square on (as before)")
+	var spot := Cover.evaluate(space, POST_SPOT, eye, _exclude(), true, [], true)
+	check(spot.get("narrow", false), "but a man bladed behind it: a narrow spot (%s)" % spot)
+	if spot.is_empty():
+		return
+	check(absf(float(spot.post_w) - 0.2) <= 0.05, "its width across the line about 20 cm (%.2f)" % spot.post_w)
+	var post: Vector3 = spot.post
+	check(Vector2(post.x - POST_AT.x, post.z - POST_AT.z).length() < 0.08, "its middle where it stands (%s)" % post)
+	check(spot.peek == spot.at, "he shoots from where he stands")
+	check(not spot.low, "it covers him standing")
+	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), spot.post, spot.post_w), "his legs, belly and chest behind it")
+	# You tight behind your own cover (a board a hand in front of your eye): that hides him too, it's
+	# no reason for him to leave.
+	_box(eye + Vector3(0.0, -0.5, -0.3), Vector3(1.0, 3.0, 0.05))
+	await physics_frames(2)
+	check(not Cover._blocked(space, POST_SPOT, eye, 1.0, _exclude(), true), "(the board's not his cover)")
+	check(Cover.hidden_narrow(space, POST_SPOT, eye, _exclude(), spot.post, spot.post_w), "and he stays at his post behind it")
+	check(not Cover.hidden_narrow(space, POST_SPOT, Vector3(3.0, 1.6, 0.0), _exclude(), spot.post, spot.post_w),
+			"you 3 m to the side: the line's past its edge")
+	world.get_child(world.get_child_count() - 1).free()
+	await physics_frames(2)
+	# Too high above him to point at: not from here.
+	check(Cover.evaluate(space, POST_SPOT, Vector3(0.0, 6.5, 0.0), _exclude(), true, [], true).is_empty(),
+			"a man 5 m up is past his forearm's reach")
+
+
+func test_a_pole_or_a_rail_is_no_post() -> void:
+	await _outlaw(Vector3(4, 0, -14))
+	_post(0.06)
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var eye := Vector3(0.0, 1.6, 0.0)
+	check(Cover.evaluate(space, POST_SPOT, eye, _exclude(), true, [], true).is_empty(), "a 6 cm pole hides nothing")
+	world.get_child(world.get_child_count() - 1).free()
+	_post(0.2, 0.8, 1.8)
+	await physics_frames(2)
+	check(Cover.evaluate(space, POST_SPOT, eye, _exclude(), true, [], true).is_empty(), "a rail open below leaves his legs out")
+
+
+func test_at_a_post_he_blades_himself_and_shoots_round_it() -> void:
+	_post()
+	await _outlaw(POST_SPOT)
+	brain.variant = OutlawBrain.Variant.D  # the game's (an earlier file may leave default_variant at A)
+	brain.nerve = 99.0
+	OutlawBrain.d_fixes.erase(&"step_out")  # only pointing round it here (stepping out: below)
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var spot := Cover.evaluate(space, POST_SPOT, _eye(), _exclude(), true, [], true)
+	check(spot.get("narrow", false), "the post is a narrow spot")
+	if spot.is_empty():
+		return
+	await _provoke()
+	brain._search = null
+	outlaw.global_position = POST_SPOT
+	spot.eye = _eye()
+	brain.cover = spot
+	brain.tactic = OutlawBrain.Tactic.HIDDEN
+	brain._tactic_time = 0.4
+	brain._flank_after = 99.0
+	shots_by_outlaw = 0
+	var posed := 0
+	var side_on := 0
+	var hidden := 0
+	var frames := 60 * 6
+	for i in frames:
+		await physics_frames(1)
+		if brain.cover.get("narrow", false) and brain.tactic in [OutlawBrain.Tactic.HIDDEN, OutlawBrain.Tactic.PEEKING]:
+			if outlaw.pose == &"post":
+				posed += 1
+			var fwd := -outlaw.global_basis.z
+			var to := (_eye() - outlaw.global_position) * Vector3(1, 0, 1)
+			var regular: bool = brain._post_dials.get("style", &"") == &"regular"
+			if absf(fwd.normalized().dot(to.normalized())) < (0.85 if regular else 0.4):
+				side_on += 1
+			if Cover.hidden_narrow(space, brain._trunk_at(_eye()), _eye(), _exclude(), spot.post, spot.post_w):
+				hidden += 1
+	check(brain.cover.get("narrow", false), "he keeps to the post (%s)" % brain.describe().substr(0, 60))
+	check(posed > frames * 0.8, "in his post pose (%d of %d frames)" % [posed, frames])
+	check(side_on > frames * 0.8, "turned side-on to you (%d of %d)" % [side_on, frames])
+	check(hidden > frames * 0.8, "his trunk behind it (%d of %d)" % [hidden, frames])
+	check(shots_by_outlaw >= 1, "and shoots round it (%d shots)" % shots_by_outlaw)
+	var post: Vector3 = spot.post
+	var gap := Vector2(outlaw.global_position.x - post.x, outlaw.global_position.z - post.z).length()
+	check(gap < 0.6, "set against it, not stood off (%.2f m from its middle)" % gap)
+	OutlawBrain.d_fixes = OutlawBrain.D_FIXES.duplicate()
+
+
+func test_from_a_post_he_points_the_gun_rather_than_aims_it() -> void:
+	_post()
+	await _outlaw(POST_SPOT)
+	brain.variant = OutlawBrain.Variant.D
+	await physics_frames(2)
+	brain.cover = {"at": POST_SPOT, "low": false, "peek": POST_SPOT, "narrow": true, "post": POST_AT, "post_w": 0.2}
+	brain._post_dials = PostPose.dials(3)  # seed 3: the gun across him (the sheet's hero)
+	check_eq(brain._post_dials.style, &"cross", "seed 3 holds it across him")
+	brain._hold_post(0.016, _eye())
+	check_eq(outlaw.pose, &"post", "bladed")
+	check(brain._pointing(), "pointing it from there, not sighting")
+	check(brain._in_point_arc(_eye() + Vector3.DOWN * 0.3), "you're along his forearm")
+	check(not brain._in_point_arc(outlaw.global_position + Vector3(6.0, 1.3, 0.0)), "a man off to his side isn't")
+	var origin := outlaw.global_position + Vector3.UP * 1.15
+	var want := brain._want_dir(origin, player)
+	check(want.angle_to((brain._aim_point(player) - origin).normalized()) < 0.001, "no hold-over for range")
+	outlaw.set_pose(&"aim")
+	check(not brain._pointing(), "out of the pose he aims as before")
+
+
+# --- Stepping out from a post to aim (variant D's step_out, #566) --------------------------------
+
+## A man at the post (as above) who always steps out (`always`) or never; returns the spot.
+func _at_post(always: bool) -> Dictionary:
+	_post()
+	await _outlaw(POST_SPOT)
+	brain.variant = OutlawBrain.Variant.D
+	brain.nerve = 99.0
+	var tune: PostStepTuning = (load("res://config/post_step.tres") as PostStepTuning).duplicate()
+	tune.chance_near = 1.0 if always else 0.0
+	tune.chance_far = tune.chance_near
+	tune.chance_off_arc = tune.chance_near
+	tune.unseen_factor = 1.0
+	OutlawBrain._step_tuning = tune
+	await physics_frames(2)
+	var space := world.get_world_3d().direct_space_state
+	var spot := Cover.evaluate(space, POST_SPOT, _eye(), _exclude(), true, [], true)
+	if spot.is_empty():
+		return spot
+	await _provoke()
+	brain._search = null
+	outlaw.global_position = POST_SPOT
+	spot.eye = _eye()
+	brain.cover = spot
+	brain.tactic = OutlawBrain.Tactic.HIDDEN
+	brain._tactic_time = 0.4
+	brain._flank_after = 99.0
+	shots_by_outlaw = 0
+	return spot
+
+
+func test_from_a_post_he_steps_out_to_aim_and_back_in() -> void:
+	var spot := await _at_post(true)
+	check(spot.get("narrow", false), "the post is a narrow spot")
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		return
+	var space := world.get_world_3d().direct_space_state
+	var post: Vector3 = spot.post
+	var across := Vector3.UP.cross(((_eye() - post) * Vector3(1, 0, 1)).normalized())
+	var held := 0
+	var square := 0
+	var out_far := 0
+	var sees := 0
+	var back := 0
+	var back_near := 0
+	var back_posed := 0
+	var was_out := false
+	var in_at := Vector3.INF
+	for i in 60 * 8:
+		await physics_frames(1)
+		if not brain._step.is_empty():
+			in_at = brain._step.in_at
+		if brain._step.get("phase", &"") == &"held":
+			held += 1
+			was_out = true
+			var to := (_eye() - outlaw.global_position) * Vector3(1, 0, 1)
+			if (-outlaw.global_basis.z).normalized().dot(to.normalized()) > 0.95:
+				square += 1
+			# The middle of him at the post's edge or past it, across your line.
+			if absf((outlaw.global_position - post).dot(across)) >= float(spot.post_w) * 0.5 - 0.01:
+				out_far += 1
+			if Cover._sees(space, brain.senses.eye(), _eye(), _exclude()):
+				sees += 1
+		elif was_out and brain._step.is_empty() and brain.tactic == OutlawBrain.Tactic.HIDDEN:
+			back += 1
+			if in_at != Vector3.INF and outlaw.global_position.distance_to(in_at) < 0.02:
+				back_near += 1
+			if outlaw.pose == &"post":
+				back_posed += 1
+	OutlawBrain._step_tuning = null
+	check(brain.steps_out >= 1, "far enough off, he steps out (%d times)" % brain.steps_out)
+	check(held > 20, "and stays out a while to aim (%d frames)" % held)
+	check(square > held * 0.8, "squared up to you out there (%d of %d)" % [square, held])
+	check(out_far > held * 0.8, "out past the post's edge (%d of %d)" % [out_far, held])
+	check(sees > held * 0.8, "where he can see you (%d of %d)" % [sees, held])
+	check(brain.shots_out >= 1, "and takes an aimed shot from there (%d of %d shots)" % [brain.shots_out, shots_by_outlaw])
+	check(back > 0 and back_near == back, "back in where he stood (%d of %d frames)" % [back_near, back])
+	check(back_posed == back, "bladed in his post pose again (%d of %d)" % [back_posed, back])
+	check(brain.cover.get("narrow", false), "and still at the post")
+
+
+func test_near_he_points_round_the_post_instead() -> void:
+	var spot := await _at_post(false)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	var stepped := 0
+	for i in 60 * 5:
+		await physics_frames(1)
+		if not brain._step.is_empty():
+			stepped += 1
+	check_eq(stepped, 0, "never steps out")
+	OutlawBrain._step_tuning = null
+	check_eq(brain.steps_out, 0, "no steps out")
+	check(shots_by_outlaw >= 1 and brain.shots_out == 0, "he shoots from the post (%d shots, %d from out)" % [shots_by_outlaw, brain.shots_out])
+	if brain._post_dials.get("style", &"") == &"cross":
+		check_eq(brain.shots_pointed, shots_by_outlaw, "pointing it round")
+
+
+func test_covering_on_his_last_round_he_doesnt_step_out() -> void:
+	var spot := await _at_post(true)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	brain.rounds = 1
+	var peeks := 0
+	for i in 60 * 3:
+		brain.covering = 5.0
+		brain.rounds = 1
+		await physics_frames(1)
+		if brain.tactic == OutlawBrain.Tactic.PEEKING:
+			peeks += 1
+	OutlawBrain._step_tuning = null
+	check_eq(brain.steps_out, 0, "keeping your head down on his last round: no step out to duck straight back from")
+
+
+func test_shot_at_out_there_he_steps_back_in() -> void:
+	var spot := await _at_post(true)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	var out := false
+	for i in 60 * 6:
+		await physics_frames(1)
+		if brain._step.get("phase", &"") == &"held":
+			out = true
+			break
+	check(out, "he steps out")
+	brain._on_near_miss(outlaw, player, 0.4, outlaw.global_position, 300.0, false)
+	check_eq(brain._step.get("phase", &""), &"in", "a ball past him: back in at once")
+	var back := false
+	for i in 60:
+		await physics_frames(1)
+		if brain._step.is_empty():
+			back = true
+			break
+	check(back, "and back behind the post within a second")
+	var stepped := brain.steps_out
+	for i in 30:
+		await physics_frames(1)
+	check_eq(brain.steps_out, stepped, "and not out again while rounds are cracking past")
+	OutlawBrain._step_tuning = null
+
+
+func test_no_room_by_the_post_no_step() -> void:
+	var spot := await _at_post(true)
+	if spot.is_empty():
+		OutlawBrain._step_tuning = null
+		check(false, "the post is a narrow spot")
+		return
+	# A wall along your line on both sides of the post, a hand off it: nowhere to step to.
+	_box(POST_AT + Vector3(0.45, 1.5, -0.4), Vector3(0.5, 3.0, 1.2))
+	_box(POST_AT + Vector3(-0.45, 1.5, -0.4), Vector3(0.5, 3.0, 1.2))
+	await physics_frames(2)
+	for i in 60 * 4:
+		await physics_frames(1)
+	OutlawBrain._step_tuning = null
+	check_eq(brain.steps_out, 0, "walled in beside the post, he doesn't step out")
+
+
+func test_the_step_chance_by_range_nerve_and_fire() -> void:
+	var tune: PostStepTuning = load("res://config/post_step.tres")
+	var near := tune.chance(4.0, true, 0.0, 0.5, 0.0, 0.0, true, 0.0)
+	var far := tune.chance(15.0, true, 0.0, 0.5, 0.0, 0.0, true, 0.0)
+	check(near < 0.3 and far > 0.7, "near he points, far he steps out (%.2f, %.2f)" % [near, far])
+	check(tune.chance(4.0, false, 0.0, 0.5, 0.0, 0.0, true, 0.0) > 0.8, "you off his forearm's line: he steps out")
+	check(tune.chance(15.0, true, 0.9, 0.5, 0.0, 0.0, true, 0.0) < far * 0.4, "near breaking, he stays in")
+	check(tune.chance(15.0, true, 0.0, 0.5, 1.0, 0.0, true, 0.0) < far * 0.7, "rattled by your fire, less")
+	check(tune.chance(15.0, true, 0.0, 0.9, 0.0, 0.0, true, 0.0) > far, "a hothead more")
+	check(tune.chance(15.0, true, 0.0, 0.5, 0.0, 0.0, false, 0.0) < far * 0.5, "not seeing you, less")
+	var a := tune.dials(1)
+	check_eq(a, tune.dials(1), "his own numbers are his seed's")
+	check(a != tune.dials(2), "and another man's differ")
+
+
+## #595: his gun hand through a board from his eye (lying on the floor with it through the boards,
+## up against a wall), his ball left from the far side and wasn't stopped by it, as yours would be.
+func test_his_ball_meets_what_his_gun_hand_is_through() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var eye := brain.senses.eye()
+	var muzzle := eye + Vector3(0, -0.3, 0.6)  # toward you, past the board
+	var ex: Array[RID] = []
+	for sid: StringName in outlaw.parts:
+		ex.append((outlaw.parts[sid] as CollisionObject3D).get_rid())
+	check(brain.shot_origin(muzzle, ex).is_equal_approx(muzzle), "nothing in the way: from the muzzle")
+	_box(eye + Vector3(0, -0.15, 0.3), Vector3(1.0, 1.0, 0.06))  # a board between his eye and his gun
+	await physics_frames(2)
+	var from := brain.shot_origin(muzzle, ex)
+	check(from.z < eye.z + 0.27, "the ball starts on his side of the board (%.2f, the board from %.2f)" % [from.z - eye.z, 0.27])
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var b := ballistics.fire(from, Vector3(0, 0, 1), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
+	await wait_until(func() -> bool: return not b.alive, 30)
+	check(not b.hits.is_empty() and (b.hits[0].position as Vector3).z < eye.z + 0.4, "and meets the board (%s)" % str(b.path.slice(0, 3)))
+
+
+## #607: his gun hand through a pane (at a window), his own ball broke it and its glass came back
+## at him ("Lyle's own shot wounded Lyle"). The pane breaks with his hand, its shards go on with his
+## arm, and his ball leaves from the muzzle.
+func test_a_pane_his_gun_hand_is_through_breaks_without_cutting_him() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var eye := brain.senses.eye()
+	var muzzle := eye + Vector3(0, -0.3, 0.6)
+	var ex: Array[RID] = []
+	for sid: StringName in outlaw.parts:
+		ex.append((outlaw.parts[sid] as CollisionObject3D).get_rid())
+	var s := Structure.new()
+	s.structure_id = &"window"
+	s.collapses = false
+	world.add_child(s)
+	var pane := s.add_member("pane", &"glass", &"glass", Vector3(1.0, 1.0, 0.004), eye + Vector3(0, -0.15, 0.3))
+	await physics_frames(2)
+	var cuts := []
+	var on_cut := func(info: Dictionary) -> void:
+		if info.get("person") == outlaw and info.get("kind", &"") == &"cut":
+			cuts.append(info.segment)
+	Events.body_hit.connect(on_cut)
+	var from := brain.shot_origin(muzzle, ex)
+	await physics_frames(3)
+	Events.body_hit.disconnect(on_cut)
+	check(pane.broken, "the pane his hand's through is broken")
+	check(from.is_equal_approx(muzzle), "and his ball leaves from the muzzle (%s)" % str(from - eye))
+	check(cuts.is_empty(), "its glass doesn't cut him: %s" % str(cuts))
+
+
+## #607: a man says one thing at a time ("Lord, get me out of this one.", "He's got me pinned!" and
+## "That all you got?" in one breath); a shout to his friends is always said.
+func test_one_line_at_a_time_but_shouts_get_through() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	Events.spoke.connect(on_spoke)
+	brain.say(&"shaken")
+	brain.say(&"taunt")
+	brain.callout(&"shaken", player)
+	Events.spoke.disconnect(on_spoke)
+	check_eq(said.size(), 2, "the second line isn't said, the shout is: %s" % str(said))
+	await physics_frames(60 * 2)
+	said.clear()
+	Events.spoke.connect(on_spoke)
+	brain.say(&"taunt")
+	Events.spoke.disconnect(on_spoke)
+	check_eq(said.size(), 1, "a moment on he talks again: %s" % str(said))
+
+
+## #607: the lab's count ran out and they turned on you with "You damn fool!": their own idea,
+## their own words.
+func test_turning_on_you_himself_isnt_being_provoked() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	Events.spoke.connect(on_spoke)
+	brain.turn_on(player)
+	await physics_frames(10)
+	Events.spoke.disconnect(on_spoke)
+	check(brain.mood == OutlawBrain.Mood.FIGHTING, "he's fighting")
+	check(not said.is_empty() and said[0] in OutlawBrain.LINES[&"jump"], "and says it's on: %s" % str(said))
+	for p: String in OutlawBrain.LINES[&"provoked"]:
+		check(not said.has(p), "not as if you'd crossed him: %s" % str(said))
+
+
+## #607: "Walk on, mister." as he shot you: just out of a fight, the ladder's words aren't his.
+func test_no_warning_straight_out_of_a_fight() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	brain._fought_at = brain._now
+	Events.spoke.connect(on_spoke)
+	brain._on_rung(Relations.Stance.WARY, Relations.Stance.WARNING)
+	Events.spoke.disconnect(on_spoke)
+	check(said.is_empty(), "no warning: %s" % str(said))
+	brain._fought_at = brain._now - 60.0
+	Events.spoke.connect(on_spoke)
+	brain._on_rung(Relations.Stance.WARY, Relations.Stance.WARNING)
+	Events.spoke.disconnect(on_spoke)
+	check_eq(said.size(), 1, "long after, he warns as ever: %s" % str(said))
+
+
+## #607: "Can't... get up..." from Brody, who got up: not said by a man who'll be up in a moment.
+func test_knocked_down_unhurt_he_doesnt_say_he_cant_get_up() -> void:
+	await _outlaw(Vector3(0, 0, -10))
+	var said: Array[String] = []
+	var on_spoke := func(p: Node, text: String) -> void:
+		if p == outlaw:
+			said.append(text)
+	Events.spoke.connect(on_spoke)
+	outlaw.go_limp()
+	outlaw.brace()
+	await physics_frames(3)
+	Events.spoke.disconnect(on_spoke)
+	for l: String in OutlawBrain.LINES[&"down"]:
+		check(not said.has(l), "not \"%s\": %s" % [l, str(said)])

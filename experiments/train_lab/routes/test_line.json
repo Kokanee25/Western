@@ -1,0 +1,13 @@
+{
+  "name": "The train lab's test line",
+  "_doc": "Step 1's line, as data (step 2, #551): 1.5 km south then east of town on the flat. A 400 m straight south, a left-hand bend of 120 m radius (90 degrees, 30 m spirals) turning it east, 2.5 % up 750-1050 (7.5 m on a fill) and 2.5 % down to 1350, level to the end at 1500. The depot (mark A in step 1) at 120, the mine (B) at 1440. climb_foot, crest and descent_foot are the lab's scenario points.",
+  "origin": [60.0, 0.0, 80.0],
+  "heading": 180.0,
+  "plan": [
+    {"straight": 400},
+    {"bend": {"radius": 120, "turn": 90, "spirals": 30, "side": "left"}},
+    {"straight_to": 1500}
+  ],
+  "profile": {"vertical_curve": 60, "grades": [[0, 0], [750, 2.5], [1050, -2.5], [1350, 0]]},
+  "marks": {"depot": 120, "mine": 1440, "climb_foot": 750, "crest": 1050, "descent_foot": 1350}
+}

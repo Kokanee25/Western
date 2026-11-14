@@ -1,0 +1,14 @@
+{
+  "_doc": "What tools/sounds/fetch.py searches Freesound for (CC0 only), a layer of the blast each (BlastSounds, #596). min_s/max_s: the recording's length; keep: how many of the layer go in the pool.",
+  "per_query": 6,
+  "layers": {
+    "crack":        {"min_s": 0.3, "max_s": 6,  "keep": 10, "queries": ["dynamite explosion close", "explosion crack", "blast close"]},
+    "boom":         {"min_s": 1,   "max_s": 12, "keep": 14, "queries": ["dynamite", "explosion", "quarry blast", "detonation", "tnt explosion"]},
+    "sub":          {"min_s": 0.5, "max_s": 10, "keep": 10, "queries": ["explosion low boom", "explosion thump", "sub boom impact"]},
+    "roll":         {"min_s": 3,   "max_s": 25, "keep": 12, "queries": ["distant explosion", "explosion echo", "explosion far away", "blast echo valley"]},
+    "debris_dirt":  {"min_s": 1,   "max_s": 10, "keep": 10, "queries": ["debris dirt falling", "rocks falling debris", "gravel falling"]},
+    "debris_wood":  {"min_s": 1,   "max_s": 10, "keep": 10, "queries": ["wood debris falling", "wood planks falling", "wood crash debris"]},
+    "debris_glass": {"min_s": 0.5, "max_s": 8,  "keep": 8,  "queries": ["glass debris falling", "glass shards falling", "window shatter"]},
+    "groan":        {"min_s": 1,   "max_s": 12, "keep": 8,  "queries": ["wood creak groan", "wood stress creak", "building creak"]}
+  }
+}

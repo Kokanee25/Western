@@ -1,0 +1,239 @@
+{
+ "alarm": 68.43,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 81.75,
+  "phase_at": {
+   "out": 81.75,
+   "rescue": 79.93
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 93.47,
+ "executed": 80.28,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1502,
+  "max_ms": 201.06,
+  "mean_ms": 22.83,
+  "p95_ms": 44.37
+ },
+ "freed": 82.25,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   4.4,
+   1.26,
+   19.03
+  ],
+  "limp": false,
+  "pelvis": [
+   4.4,
+   0.52,
+   18.94
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  4.4,
+  0.9,
+  18.96
+ ],
+ "men": 5,
+ "men_out": 5,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "give up: past his nerve (fear 1.04 / 0.95), can't run",
+   "id": "brody",
+   "inside": true,
+   "knows": 11.2,
+   "mood": "SURRENDERED",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Dutch down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 20.3,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to behind table: behind table (you're kitchen)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 10.2,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: past his nerve (fear 0.43 / 0.38)",
+   "id": "kid",
+   "inside": true,
+   "knows": 10.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 21.1,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "player_local": [
+  4.4,
+  0.56,
+  27.75
+ ],
+ "quits": [
+  [
+   68.95,
+   "hollis",
+   "gives up",
+   ""
+  ],
+  [
+   73.77,
+   "dutch",
+   "gives up",
+   "to behind table: behind table (you're kitchen)"
+  ],
+  [
+   75.25,
+   "kid",
+   "gives up",
+   "give up: past his nerve (fear 0.43 / 0.38)"
+  ],
+  [
+   85.75,
+   "brody",
+   "gives up",
+   "give up: past his nerve (fear 1.04 / 0.95), can't run"
+  ]
+ ],
+ "seed": 4,
+ "shots_men": 6,
+ "shots_out": 0,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 93.47,
+ "threat": 73.78,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   68.43,
+   "the alarm: Hollis saw you"
+  ],
+  [
+   68.95,
+   "Hollis down"
+  ],
+  [
+   68.95,
+   "Hollis gives up ()"
+  ],
+  [
+   73.77,
+   "Dutch down"
+  ],
+  [
+   73.77,
+   "Dutch gives up (to behind table: behind table (you're kitchen))"
+  ],
+  [
+   73.78,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   75.25,
+   "Lyle down, out"
+  ],
+  [
+   75.25,
+   "Kid gives up (give up: past his nerve (fear 0.43 / 0.38))"
+  ],
+  [
+   75.27,
+   "the guard's last word"
+  ],
+  [
+   80.28,
+   "the guard shoots the rancher"
+  ],
+  [
+   82.25,
+   "the rancher cut loose"
+  ],
+  [
+   85.73,
+   "Hollis dead"
+  ],
+  [
+   85.75,
+   "Brody gives up (give up: past his nerve (fear 1.04 / 0.95), can't run)"
+  ],
+  [
+   93.47,
+   "won"
+  ],
+  [
+   93.47,
+   "Brody down"
+  ]
+ ],
+ "way": "back",
+ "where": "front_room"
+}

@@ -1,0 +1,5 @@
+# Step 5 film 3b (#616): the same wreck from beside the coach (riding alongside it), the men inside.
+train_lab
+train_caption The same, alongside the coach: the men in it thrown by their own bodies.
+train_watch coach 6 5 2.4 -3 follow
+train_derail kmh=40 at=380 how=rail hour=16 driver=none run_up=120 riders=6 secs=6

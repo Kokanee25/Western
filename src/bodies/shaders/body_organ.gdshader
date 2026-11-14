@@ -4,8 +4,9 @@ shader_type spatial;
 // otherwise show through a man slimmer than it (experiments/body_lab, the blood look).
 
 #include "res://src/bodies/shaders/wounds.gdshaderinc"
+#include "res://src/render/real_look.gdshaderinc"
 
-uniform sampler2D albedo_tex : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D albedo_tex : source_color, GRID_FILTER, repeat_enable;
 uniform vec2 uv_scale = vec2(1.0);
 uniform float roughness_v = 0.35;
 uniform float sight_slack = 1.25;

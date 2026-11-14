@@ -1,0 +1,223 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 41.52,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "phase_at": {
+   "clear": 58.2,
+   "out": 41.52,
+   "rescue": 39.17
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 61.47,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2670,
+  "max_ms": 171.53,
+  "mean_ms": 14.27,
+  "p95_ms": 24.55
+ },
+ "freed": 42.02,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.9,
+   1.12,
+   -10.96
+  ],
+  "limp": false,
+  "pelvis": [
+   2.9,
+   0.38,
+   -10.87
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.9,
+  0.76,
+  -10.89
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "get back up: knocked down, not beat (fear 0.63 / 1.20)",
+   "id": "brody",
+   "inside": true,
+   "knows": 19.5,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.84 / 1.64)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 29.2,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "to window front e: window front e (you're front)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 24.3,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to inside door: inside door (you're front)",
+   "id": "kid",
+   "inside": true,
+   "knows": 18.6,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to by stove: by stove (you're bedroom)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.5,
+   "mood": "FIGHTING",
+   "order": "by_stove",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "MOVING"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Bleeding a little.",
+ "player_local": [
+  4.5,
+  -1.77,
+  -40.83
+ ],
+ "quits": [
+  [
+   24.72,
+   "kid",
+   "gives up",
+   "to inside door: inside door (you're front)"
+  ],
+  [
+   38.4,
+   "dutch",
+   "gives up",
+   "to window front e: window front e (you're front)"
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 4,
+ "shots_men": 21,
+ "shots_out": 21,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 61.47,
+ "threat": 33.98,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   24.72,
+   "Kid down"
+  ],
+  [
+   24.72,
+   "Kid gives up (to inside door: inside door (you're front))"
+  ],
+  [
+   33.97,
+   "Lyle down"
+  ],
+  [
+   33.98,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.98,
+   "the guard's last word"
+  ],
+  [
+   38.4,
+   "Dutch down"
+  ],
+  [
+   38.4,
+   "Dutch gives up (to window front e: window front e (you're front))"
+  ],
+  [
+   40.17,
+   "Brody down"
+  ],
+  [
+   42.02,
+   "the rancher cut loose"
+  ],
+  [
+   51.45,
+   "Dutch dead"
+  ],
+  [
+   61.47,
+   "won"
+  ],
+  [
+   61.47,
+   "Lyle dead"
+  ]
+ ],
+ "way": "front",
+ "where": "bedroom"
+}

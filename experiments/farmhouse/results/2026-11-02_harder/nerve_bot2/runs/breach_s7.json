@@ -1,0 +1,305 @@
+{
+ "alarm": 89.07,
+ "blocking": [
+  "0.3:House/floor_ground_board_017_0",
+  "0.3:House/floor_ground_board_018_0",
+  "0.3:House/floor_ground_board_019_0",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_018_1",
+  "0.3:House/floor_ground_board_021_0",
+  "0.3:House/floor_ground_board_020_0",
+  "0.3:House/floor_ground_board_022_0",
+  "0.3:House/floor_ground_board_023_0",
+  "0.3:House/floor_ground_board_023_0",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": 88.57,
+  "freed": 107.37,
+  "froze": 0.0,
+  "gate_wait": 0.0,
+  "hid": 86.32,
+  "phase_at": {
+   "lit": 83.63,
+   "out": 107.37,
+   "plant": 81.55,
+   "rescue": 105.13,
+   "through": 90.07
+  },
+  "planted": 83.63
+ },
+ "bot_phase": "out",
+ "bot_target": "",
+ "breach": 89.07,
+ "end": -1.0,
+ "executed": -1.0,
+ "found": 98.45,
+ "frames": {
+  "blast_ms": 166.62,
+  "fight_ticks": 9087,
+  "max_ms": 366.04,
+  "mean_ms": 17.93,
+  "p95_ms": 33.46
+ },
+ "freed": 107.87,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   6.47,
+   0.96,
+   3.89
+  ],
+  "limp": true,
+  "pelvis": [
+   6.01,
+   0.75,
+   3.46
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  6.22,
+  0.78,
+  3.73
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": false,
+   "at": "bedroom",
+   "decision": "drag Dutch to cover: he's down in the open",
+   "id": "brody",
+   "inside": true,
+   "knows": 126.2,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "go for you: Kid dead (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 129.3,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "hold on: past his nerve (fear 1.24 / 1.06), nowhere to run (1 of 3)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 137.7,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "front_room",
+   "decision": "give up: far past his nerve (fear 2.31 / 0.55), can't run",
+   "id": "kid",
+   "inside": true,
+   "knows": 129.3,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 129.3,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 5.1,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "timeout",
+ "player_down": false,
+ "player_how": "Bleeding steady, short of breath, bubbling cough, bone broken.",
+ "player_local": [
+  4.5,
+  0.56,
+  3.32
+ ],
+ "quits": [
+  [
+   89.08,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ],
+  [
+   103.92,
+   "brody",
+   "gives up",
+   "drag Dutch to cover: he's down in the open",
+   true
+  ],
+  [
+   111.23,
+   "kid",
+   "gives up",
+   "give up: far past his nerve (fear 2.31 / 0.55), can't run",
+   true
+  ]
+ ],
+ "rover_found": "",
+ "rovers": [],
+ "seed": 7,
+ "shots_men": 8,
+ "shots_out": 0,
+ "state": "ON",
+ "surprise": 89.07,
+ "t": 240.5,
+ "threat": 100.37,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   89.07,
+   "Hollis down"
+  ],
+  [
+   89.07,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   89.08,
+   "Hollis gives up ()"
+  ],
+  [
+   90.75,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.77,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.77,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.77,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.77,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.77,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.77,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.78,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.78,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.78,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   90.78,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   91.4,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   98.45,
+   "found: you fired"
+  ],
+  [
+   98.45,
+   "Dutch down"
+  ],
+  [
+   100.35,
+   "Dutch down, out"
+  ],
+  [
+   100.37,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   102.37,
+   "Brody down"
+  ],
+  [
+   102.87,
+   "Kid down"
+  ],
+  [
+   103.92,
+   "Brody gives up (drag Dutch to cover: he's down in the open)"
+  ],
+  [
+   107.22,
+   "Dutch dead"
+  ],
+  [
+   107.87,
+   "the rancher cut loose"
+  ],
+  [
+   111.23,
+   "Kid gives up (give up: far past his nerve (fear 2.31 / 0.55), can't run)"
+  ],
+  [
+   111.37,
+   "Kid down, out"
+  ],
+  [
+   132.9,
+   "Brody dead"
+  ],
+  [
+   167.12,
+   "Kid dead"
+  ]
+ ],
+ "way": "breach",
+ "where": "front_room"
+}

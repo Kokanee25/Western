@@ -1,0 +1,179 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Ground/Rise_3",
+  "0.3:TestStreet/Player",
+  "1.0:TestStreet/Player",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 35.13,
+  "phase_at": {
+   "clear": 51.85,
+   "out": 35.13,
+   "rescue": 33.17
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "clear",
+ "bot_target": "",
+ "breach": -1.0,
+ "end": 51.1,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 2048,
+  "max_ms": 328.82,
+  "mean_ms": 25.11,
+  "p95_ms": 45.61
+ },
+ "freed": 35.63,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.82,
+   1.26,
+   -9.29
+  ],
+  "limp": false,
+  "pelvis": [
+   2.81,
+   0.52,
+   -9.19
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  2.81,
+  0.89,
+  -9.21
+ ],
+ "men": 5,
+ "men_out": 4,
+ "men_state": [
+  {
+   "alive": false,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": true,
+   "knows": 18.8,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "go for you: Brody dead (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 12.0,
+   "mood": "FIGHTING",
+   "order": "bedroom_corner",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "give up: his friends' word (give up)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 15.1,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "west",
+   "decision": "run: past his nerve (fear 0.79 / 0.38)",
+   "id": "kid",
+   "inside": false,
+   "knows": 19.5,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "give up: his friends' word (give up)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 19.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "won",
+ "player_down": false,
+ "player_how": "Unhurt.",
+ "player_local": [
+  4.5,
+  -1.77,
+  -40.84
+ ],
+ "seed": 4,
+ "state": "WON",
+ "surprise": -1.0,
+ "t": 51.1,
+ "threat": -1.0,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   33.67,
+   "Brody down"
+  ],
+  [
+   35.63,
+   "the rancher cut loose"
+  ],
+  [
+   36.18,
+   "Kid down"
+  ],
+  [
+   45.77,
+   "Kid dead"
+  ],
+  [
+   48.47,
+   "Brody dead"
+  ],
+  [
+   51.1,
+   "won"
+  ]
+ ],
+ "way": "front",
+ "where": "front"
+}

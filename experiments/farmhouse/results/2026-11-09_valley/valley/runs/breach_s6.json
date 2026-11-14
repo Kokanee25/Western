@@ -1,0 +1,335 @@
+{
+ "alarm": 159.58,
+ "blocking": [
+  "0.3:House/floor_lean_to_board_004_0",
+  "0.3:House/floor_lean_to_joist_003",
+  "0.3:House/floor_lean_to_joist_004",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "0.3:House/floor_lean_to_board_005_0",
+  "1.0:Wes/Rag_neck",
+  "RB RigidBody3D at [1.65, 2.15, 6.34] mass 0.95999997854233 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_upper_arm_r",
+  "RB RigidBody3D at [1.46, 1.91, 6.24] mass 2.24000000953674 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_upper_arm_l",
+  "RB RigidBody3D at [1.85, 1.92, 6.39] mass 2.24000000953674 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_chest",
+  "RB RigidBody3D at [1.67, 1.92, 6.3] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_chest",
+  "RB RigidBody3D at [1.67, 1.92, 6.3] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_chest",
+  "RB RigidBody3D at [1.67, 1.92, 6.3] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Valley/@RigidBody3D@31973",
+  "RB RigidBody3D at [1.39, 1.43, 6.39] mass 1.10000002384186 kids [&\"@CollisionShape3D@31974\", &\"Revolver\"] meta []",
+  "1.0:Wes/Rag_hand_r",
+  "RB RigidBody3D at [1.39, 1.44, 6.33] mass 0.47999998927116 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_forearm_r",
+  "RB RigidBody3D at [1.44, 1.63, 6.26] mass 1.27999997138977 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_thigh_r",
+  "RB RigidBody3D at [1.55, 1.33, 6.23] mass 8.0 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_pelvis",
+  "RB RigidBody3D at [1.67, 1.54, 6.29] mass 11.3599996566772 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.0:Wes/Rag_forearm_l",
+  "RB RigidBody3D at [1.84, 1.64, 6.42] mass 1.27999997138977 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_neck",
+  "RB RigidBody3D at [1.65, 2.15, 6.34] mass 0.95999997854233 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_upper_arm_r",
+  "RB RigidBody3D at [1.46, 1.91, 6.24] mass 2.24000000953674 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_head",
+  "RB RigidBody3D at [1.65, 2.29, 6.35] mass 5.51999998092651 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_upper_arm_l",
+  "RB RigidBody3D at [1.85, 1.92, 6.39] mass 2.24000000953674 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_chest",
+  "RB RigidBody3D at [1.67, 1.92, 6.3] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_chest",
+  "RB RigidBody3D at [1.67, 1.92, 6.3] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_chest",
+  "RB RigidBody3D at [1.67, 1.92, 6.3] mass 17.2800006866455 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_forearm_r",
+  "RB RigidBody3D at [1.44, 1.63, 6.26] mass 1.27999997138977 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_thigh_r",
+  "RB RigidBody3D at [1.55, 1.33, 6.23] mass 8.0 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_pelvis",
+  "RB RigidBody3D at [1.67, 1.54, 6.29] mass 11.3599996566772 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_forearm_l",
+  "RB RigidBody3D at [1.84, 1.64, 6.42] mass 1.27999997138977 kids [&\"Shape0\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]",
+  "1.6:Wes/Rag_abdomen",
+  "RB RigidBody3D at [1.67, 1.72, 6.28] mass 11.1199998855591 kids [&\"Shape0\", &\"Shape1\", &\"Shape2\", &\"Visual\"] meta [&\"human_body\", &\"segment\", &\"mass\", &\"impact_index\"]"
+ ],
+ "bot": {
+  "blast": 159.08,
+  "freed": -1.0,
+  "froze": 15.166666666667,
+  "gate_left": 106.12,
+  "gate_wait": 54.9666666666648,
+  "hid": 156.83,
+  "phase_at": {
+   "lit": 154.15,
+   "plant": 152.07,
+   "through": 160.58
+  },
+  "planted": 154.15
+ },
+ "bot_phase": "through",
+ "bot_target": "",
+ "breach": 159.58,
+ "end": 186.25,
+ "executed": 184.58,
+ "found": 161.87,
+ "frames": {
+  "blast_ms": 451.0,
+  "fight_ticks": 1601,
+  "max_ms": 451.0,
+  "mean_ms": 17.35,
+  "p95_ms": 40.43
+ },
+ "freed": -1.0,
+ "hostage_alive": false,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": false,
+  "head": [
+   8.96,
+   2.1,
+   2.51
+  ],
+  "limp": true,
+  "pelvis": [
+   9.17,
+   1.49,
+   2.61
+  ],
+  "pose": "stand",
+  "prone": false,
+  "tied": true
+ },
+ "hostage_local": [
+  9.17,
+  1.85,
+  2.66
+ ],
+ "men": 7,
+ "men_out": 3,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "bedroom",
+   "decision": "to bedroom door: bedroom door (you're kitchen)",
+   "id": "brody",
+   "inside": true,
+   "knows": 17.9,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "go for you: Wes down (a hothead's rage)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 0.1,
+   "mood": "FIGHTING",
+   "order": "kitchen_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "back",
+   "decision": "drag Pike to cover: he's down in the open",
+   "id": "dutch",
+   "inside": false,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "behind_table",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to by stove: by stove (you're kitchen)",
+   "id": "kid",
+   "inside": true,
+   "knows": 0.1,
+   "mood": "FIGHTING",
+   "order": "by_stove",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "",
+   "id": "hollis",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": false,
+   "at": "back",
+   "decision": "to window back: window back (you're back)",
+   "id": "pike",
+   "inside": false,
+   "knows": 20.0,
+   "mood": "DEAD",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "kitchen",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "wes",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "hostage_dead",
+ "player_down": false,
+ "player_how": "Bleeding a little.",
+ "player_local": [
+  1.52,
+  0.56,
+  6.86
+ ],
+ "quits": [
+  [
+   159.58,
+   "hollis",
+   "gives up",
+   "",
+   true
+  ]
+ ],
+ "route_left": 9,
+ "route_next": [
+  1.6,
+  0.56,
+  6.35
+ ],
+ "rover_found": "",
+ "rovers": [
+  "pike",
+  "wes"
+ ],
+ "seed": 6,
+ "shots_men": 19,
+ "shots_out": 7,
+ "state": "LOST",
+ "surprise": 159.58,
+ "t": 186.25,
+ "threat": 165.75,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   159.58,
+   "Hollis down"
+  ],
+  [
+   159.58,
+   "a blast at the house: the alarm, caught cold"
+  ],
+  [
+   159.58,
+   "Pike falls back to the house (the alarm, 6 m from the door, you 11 m off)"
+  ],
+  [
+   159.58,
+   "Wes falls back to the house (the alarm, 9 m from the door, you 16 m off)"
+  ],
+  [
+   159.58,
+   "Hollis gives up ()"
+  ],
+  [
+   161.25,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.27,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.27,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   161.87,
+   "found: Pike sees you"
+  ],
+  [
+   162.05,
+   "the rancher hit (blow, ?)"
+  ],
+  [
+   165.73,
+   "Pike down, out"
+  ],
+  [
+   165.75,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   179.58,
+   "the guard's last word"
+  ],
+  [
+   184.58,
+   "the guard shoots the rancher"
+  ],
+  [
+   186.08,
+   "Pike dead"
+  ],
+  [
+   186.25,
+   "the rancher hit (bullet, by Brody)"
+  ],
+  [
+   186.25,
+   "the rancher dead (brain)"
+  ],
+  [
+   186.25,
+   "lost: hostage_dead"
+  ],
+  [
+   186.25,
+   "Wes down"
+  ]
+ ],
+ "way": "breach",
+ "where": "kitchen"
+}

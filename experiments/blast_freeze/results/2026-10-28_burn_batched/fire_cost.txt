@@ -1,0 +1,16 @@
+# OpenGL (Compatibility) fallback: main, branch, no fire
+fire_cost sheets     burning 643 sheets  44  frame 2294.80 ms  render cpu 2192.88 ms  gpu 2191.35 ms  draws 11265
+fire_cost flipbooks  burning 643 sheets  44  frame 2065.35 ms  render cpu 1588.83 ms  gpu 1586.08 ms  draws 11322
+fire_cost hidden     burning 643 sheets  44  frame 1910.44 ms  render cpu 1867.38 ms  gpu 1865.61 ms  draws 10334
+fire_cost sheets     burning 643 sheets  44  frame 1822.95 ms  render cpu 1809.79 ms  gpu 1808.75 ms  draws  6518
+fire_cost flipbooks  burning 643 sheets  44  frame 1721.71 ms  render cpu 1620.28 ms  gpu 1617.27 ms  draws  6587
+fire_cost hidden     burning 643 sheets  44  frame 1437.67 ms  render cpu 1352.11 ms  gpu 1350.18 ms  draws  6708
+fire_cost hidden     burning   0 sheets   0  frame 1477.88 ms  render cpu 1456.55 ms  gpu 1455.01 ms  draws  5182
+# Vulkan (lavapipe): main, branch, no fire
+fire_cost sheets     burning 643 sheets  44  frame 1990.24 ms  render cpu 14.46 ms  gpu 1665.53 ms  draws  7591
+fire_cost flipbooks  burning 643 sheets  44  frame 1919.25 ms  render cpu 14.28 ms  gpu 1790.88 ms  draws  7656
+fire_cost hidden     burning 643 sheets  44  frame 1837.17 ms  render cpu 13.00 ms  gpu 1721.53 ms  draws  7655
+fire_cost sheets     burning 643 sheets  44  frame 1812.86 ms  render cpu  9.97 ms  gpu 1661.79 ms  draws  4647
+fire_cost flipbooks  burning 643 sheets  44  frame 2200.26 ms  render cpu 11.06 ms  gpu 1893.36 ms  draws  4720
+fire_cost hidden     burning 643 sheets  44  frame 1867.39 ms  render cpu  9.18 ms  gpu 1765.31 ms  draws  4714
+fire_cost hidden     burning   0 sheets   0  frame 1533.92 ms  render cpu  9.50 ms  gpu 1404.36 ms  draws  3753

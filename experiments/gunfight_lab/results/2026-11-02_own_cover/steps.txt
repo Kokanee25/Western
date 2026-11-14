@@ -1,0 +1,6 @@
+| Run | Opening | Stays at a post | Steps out | s out a step | Shots there (from out) | Hits on you there (from out) | Hits on him there (out) | Shots a hit on you |
+|---|---|---|---|---|---|---|---|---|
+| base | you | 76 | 28 | 1.3 | 94 (19) | 20 (3) | 4 (0) | 4.7 |
+| base | they | 193 | 72 | 1.3 | 204 (45) | 30 (10) | 8 (1) | 6.8 |
+| own | you | 41 | 6 | 1.1 | 44 (2) | 13 (0) | 3 (0) | 3.4 |
+| own | they | 94 | 30 | 1.2 | 87 (22) | 17 (6) | 5 (0) | 5.1 |

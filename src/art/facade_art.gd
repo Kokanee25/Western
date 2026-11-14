@@ -142,6 +142,15 @@ static func _sign(b: FalseFrontBuilding, bt: float, framed: bool, painted := fal
 				c.free()
 	var id: StringName = DRAWN_SIGNS.get(b.sign_text.to_upper(), &"")
 	var tex := _drawn(id)
+	# Painted by the image model in R1's wood (Sean, 2026-10-25, #402: the coded lettering out):
+	# a front's letters alone, laid on its own boards, or the framed board itself; the squares drawn
+	# in code only where nothing's painted.
+	var letters := _drawn(StringName("letters_" + b.sign_text.to_lower().replace(" ", "_"))) if painted else null
+	var board_id := SignArt.board_id(b.sign_text) if framed else &""
+	if letters:
+		tex = letters
+	elif board_id != &"" and SignArt.board_size(board_id) != Vector2.ZERO:
+		tex = _drawn(board_id)
 	var crest := CREST_STEP * CREST_WIDTHS.size() if framed else 0.0
 	var frame := FRAME if framed else 0.0
 	var bottom := b.sign_room_bottom() + (0.15 if framed else 0.05)
@@ -153,13 +162,22 @@ static func _sign(b: FalseFrontBuilding, bt: float, framed: bool, painted := fal
 	var y0 := bottom + frame + (room.y - size.y) * 0.5
 	var x0 := cx - size.x * 0.5
 	# Painted straight on the front's boards (the jail's): the ink alone, no board of its own.
-	var ink := _drawn(StringName("%s_ink" % id)) if painted else null
+	var ink := letters if letters else (_drawn(StringName("%s_ink" % id)) if painted else null)
 	if ink:
-		_paint_letters(b, old, ink, Rect2(x0, y0, size.x, size.y), bt)
+		_paint_letters(b, old, ink, Rect2(x0, y0, size.x, size.y), bt, letters != null)
 		return
 	var panel := _front(b, "facade/sign", &"trim", SIGN if framed else BOARDS, x0, x0 + size.x, y0, y0 + size.y, bt,
 			bt + (0.04 if framed else 0.012))
-	if tex:
+	if tex and tex != _drawn(id):
+		# A painted board (compressed): SignArt's board over the panel, which stays a member
+		# (bullets, fire) but isn't drawn, as on the gable signs.
+		for c in panel.get_children():
+			if c is MeshInstance3D:
+				(c as MeshInstance3D).visible = false
+		var drawn := SignArt.board(board_id, size, 0.04 if framed else 0.012)
+		drawn.transform = Transform3D(Basis(Vector3.UP, PI), Vector3.ZERO)
+		panel.add_child(drawn)
+	elif tex:
 		_letter(panel, tex, size)
 	if not framed:
 		return
@@ -185,10 +203,12 @@ static func _sign(b: FalseFrontBuilding, bt: float, framed: bool, painted := fal
 ## millimetres proud of them over `r` (the building's space), its squares as big as the picture's
 ## texels over the rect, lit as the wall is. A child of the false front's sign member, so it goes
 ## when that does (burnt, broken).
-static func _paint_letters(b: FalseFrontBuilding, sign: StructureMember, ink: Texture2D, r: Rect2, bt: float) -> void:
+static func _paint_letters(b: FalseFrontBuilding, sign: StructureMember, ink: Texture2D, r: Rect2, bt: float,
+		mipmaps := false) -> void:
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = ink
-	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	# A painted ink (192 texels a metre) mipmapped, or it sparkles off down the street.
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS if mipmaps else BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 	m.alpha_scissor_threshold = 0.5
 	m.roughness = 0.95
@@ -223,11 +243,11 @@ static func _letter(panel: StructureMember, tex: Texture2D, size: Vector2) -> vo
 	img.flip_x()
 	var m := ShaderMaterial.new()
 	m.shader = PixelArt.grid_shader()
-	m.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(img))
 	m.set_shader_parameter(&"tint", Color.WHITE)
 	m.set_shader_parameter(&"shade_tint", PixelArt.SHADE_TINT)
 	m.set_shader_parameter(&"roughness", 0.92)
 	m.set_shader_parameter(&"texels_per_meter", float(img.get_width()) / size.x)
+	m.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(img))
 	m.set_shader_parameter(&"use_mipmaps", false)
 	m.set_shader_parameter(&"fixed_squares", true)
 	for c in panel.get_children():

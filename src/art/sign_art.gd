@@ -12,10 +12,25 @@ const BOARDS := {
 	"JAIL": &"sign_jail",
 	"LIVERY": &"sign_livery",
 }
+## The boards painted on R1's wood (Sean, 2026-10-25, #402), taken over BOARDS where they're painted.
+const R1_BOARDS := {
+	"SALOON": &"sign_saloon_r1",
+	"LIVERY": &"sign_livery_r1",
+	"EATING HOUSE": &"sign_eating_house",
+}
 const INDEX_PATH := "res://assets/textures/textures.json"
 
 static var _index := {}
 static var _textures := {}
+
+
+## The painted board for a sign's text: R1's where it's painted, else the older one, else &"".
+static func board_id(text: String) -> StringName:
+	var t := text.to_upper()
+	var r1: StringName = R1_BOARDS.get(t, &"")
+	if r1 != &"" and board_size(r1) != Vector2.ZERO:
+		return r1
+	return BOARDS.get(t, &"")
 
 
 ## The painted board's size in metres (as painted), or zero if there's no such board.
@@ -50,8 +65,9 @@ static func _box(size: Vector3) -> ArrayMesh:
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var uvs := PackedVector2Array()
 	var face := PackedVector2Array()
+	# v runs down the board, as the picture's rows do (the texture stays as imported, compressed).
 	for v in verts:
-		uvs.append(Vector2(v.x + size.x * 0.5, v.y + size.y * 0.5))
+		uvs.append(Vector2(v.x + size.x * 0.5, size.y * 0.5 - v.y))
 		face.append(Vector2(size.x, size.y))
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_TEX_UV2] = face
@@ -67,18 +83,15 @@ static func _material(id: StringName, size: Vector2) -> ShaderMaterial:
 	var key := "%s:%s" % [id, size]
 	if _textures.has(key):
 		return _textures[key]
-	var img := (load(PixelArt.FACTORY_PATH % id) as Texture2D).get_image()
-	if img.is_compressed():
-		img.decompress()
-	# The box's v runs up the board; the picture's rows run down.
-	img.flip_y()
-	img.generate_mipmaps()
+	# The imported texture itself (VRAM-compressed, its mipmaps made on import): never read back
+	# and flipped, which kept a full-size copy of every board in memory (#287).
+	var tex := load(PixelArt.FACTORY_PATH % id) as Texture2D
 	var m := ShaderMaterial.new()
 	m.shader = PixelArt.grid_shader()
-	m.set_shader_parameter(&"albedo_tex", ImageTexture.create_from_image(img))
+	m.set_shader_parameter(&"albedo_tex", tex)
 	m.set_shader_parameter(&"tint", Color.WHITE)
 	m.set_shader_parameter(&"roughness", 0.9)
-	m.set_shader_parameter(&"texels_per_meter", float(img.get_width()) / size.x)
+	m.set_shader_parameter(&"texels_per_meter", float(tex.get_width()) / size.x)
 	m.set_shader_parameter(&"use_mipmaps", true)
 	# The lettering stays as painted however far off (no bigger far squares).
 	m.set_shader_parameter(&"fixed_squares", true)
@@ -90,7 +103,7 @@ static func _material(id: StringName, size: Vector2) -> ShaderMaterial:
 ## as big as fits the front above the porch roof, kept to the board's shape, a hand's width
 ## proud of the boards. False if there's no painted board for that text (the lettered label stays).
 static func hang(building: FalseFrontBuilding, sign: Node3D, text: String) -> bool:
-	var id: StringName = BOARDS.get(text.to_upper(), &"")
+	var id: StringName = board_id(text)
 	var painted := board_size(id)
 	if painted == Vector2.ZERO:
 		return false

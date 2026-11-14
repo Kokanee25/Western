@@ -1,0 +1,223 @@
+{
+ "alarm": 16.97,
+ "blocking": [
+  "0.3:Dutch/Blocker",
+  "0.3:@Node3D@22059/Blocker",
+  "0.3:House/floor_ground_joist_025",
+  "0.3:House/floor_ground_joist_023",
+  "0.3:House/floor_ground_joist_027",
+  "0.3:House/floor_ground_joist_020",
+  "0.3:House/floor_ground_joist_024",
+  "0.3:House/floor_ground_joist_022",
+  "0.3:House/floor_ground_joist_026",
+  "0.3:House/floor_ground_board_011_0",
+  "0.3:House/floor_ground_board_012_0",
+  "0.3:House/floor_ground_board_013_0",
+  "1.0:Dutch/Blocker",
+  "1.0:@Node3D@22059/Blocker",
+  "1.0:hand_r/Part",
+  "1.0:forearm_r/Part",
+  "1.0:abdomen/Part",
+  "1.0:abdomen/Part",
+  "1.0:abdomen/Part",
+  "1.0:pelvis/Part",
+  "1.0:chest/Part",
+  "1.0:chest/Part",
+  "1.0:thigh_r/Part",
+  "1.0:TestStreet/Player",
+  "1.6:Dutch/Blocker",
+  "1.6:head/Part",
+  "1.6:Part/Hat",
+  "1.6:Part/Hat",
+  "1.6:chest/Part",
+  "1.6:chest/Part",
+  "1.6:TestStreet/Player"
+ ],
+ "bot": {
+  "blast": -1.0,
+  "freed": 32.68,
+  "phase_at": {
+   "out": 32.68,
+   "rescue": 30.87
+  },
+  "planted": -1.0
+ },
+ "bot_phase": "out",
+ "bot_target": "Brody",
+ "breach": -1.0,
+ "end": 38.1,
+ "executed": -1.0,
+ "found": -1.0,
+ "frames": {
+  "blast_ms": -1.0,
+  "fight_ticks": 1268,
+  "max_ms": 223.1,
+  "mean_ms": 17.39,
+  "p95_ms": 27.75
+ },
+ "freed": 33.18,
+ "hostage_alive": true,
+ "hostage_body": {
+  "chair": [
+   7.3,
+   0.56,
+   2.5
+  ],
+  "conscious": true,
+  "head": [
+   2.97,
+   1.64,
+   2.98
+  ],
+  "limp": false,
+  "pelvis": [
+   3.17,
+   0.93,
+   2.91
+  ],
+  "pose": "crouch",
+  "prone": false,
+  "tied": false
+ },
+ "hostage_local": [
+  3.1,
+  1.3,
+  2.92
+ ],
+ "men": 5,
+ "men_out": 2,
+ "men_state": [
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "to bedroom door: bedroom door (you're front)",
+   "id": "brody",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "FIGHTING",
+   "order": "bedroom_door",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "HIDDEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "get back up: knocked down, not beat (fear 0.58 / 1.32)",
+   "id": "lyle",
+   "inside": true,
+   "knows": 1.8,
+   "mood": "DOWN",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front_room",
+   "decision": "fight from where he is: no cover he can reach (in the open)",
+   "id": "dutch",
+   "inside": true,
+   "knows": 0.0,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "front",
+   "decision": "give up: past his nerve (fear 0.79 / 0.38), can't run",
+   "id": "kid",
+   "inside": false,
+   "knows": 20.5,
+   "mood": "SURRENDERED",
+   "order": "",
+   "stance": "FIGHT",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  },
+  {
+   "alive": true,
+   "at": "loft",
+   "decision": "to kitchen table: kitchen table (you're front room)",
+   "id": "hollis",
+   "inside": true,
+   "knows": 2.8,
+   "mood": "CALM",
+   "order": "",
+   "stance": "WARY",
+   "stunned": 0.0,
+   "tactic": "OPEN"
+  }
+ ],
+ "outcome": "you_down",
+ "player_down": true,
+ "player_how": "Out cold, bleeding steady, bone broken.",
+ "player_local": [
+  3.72,
+  0.56,
+  2.31
+ ],
+ "quits": [
+  [
+   18.65,
+   "kid",
+   "gives up",
+   "give up: past his nerve (fear 0.79 / 0.38), can't run"
+  ]
+ ],
+ "seed": 7,
+ "shots_men": 18,
+ "shots_out": 16,
+ "state": "LOST",
+ "surprise": -1.0,
+ "t": 38.1,
+ "threat": 36.48,
+ "timeline": [
+  [
+   0.0,
+   "started"
+  ],
+  [
+   16.97,
+   "the alarm: Kid saw you"
+  ],
+  [
+   18.65,
+   "Kid down"
+  ],
+  [
+   18.65,
+   "Kid gives up (give up: past his nerve (fear 0.79 / 0.38), can't run)"
+  ],
+  [
+   22.97,
+   "Kid down, out"
+  ],
+  [
+   33.18,
+   "the rancher cut loose"
+  ],
+  [
+   36.47,
+   "Lyle down"
+  ],
+  [
+   36.48,
+   "the guard puts his gun on the rancher"
+  ],
+  [
+   36.98,
+   "the guard's last word"
+  ],
+  [
+   38.1,
+   "lost: you_down"
+  ]
+ ],
+ "way": "front",
+ "where": "front_room"
+}

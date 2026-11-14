@@ -156,6 +156,10 @@ def events_of(s):
         ms = [m for m in marks if m["name"] == "fight"]
         if ms:
             out.append(("fight", ms[0]["t"], end, None))
+    elif kind == "music":
+        ms = [m for m in marks if m["name"] == "music"]
+        if ms:
+            out.append(("music", ms[0]["t"], end, s["setup"].get("distance_m")))
     return out
 
 
