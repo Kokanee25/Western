@@ -171,3 +171,26 @@ his gut takes him (Physiology's own death; he stays on the cot). Doc's the actin
 See it: `-- --world=valley --mission=sheriff_dies [--care=good|poor|left]` (the morning set up, you on Main
 Street west of the doctor's), or the bridge's `moment sheriff_dies set_up=1 care=poor`. Tests:
 `tests/test_sheriff_dies.gd` (the facts and lines, the morning, both answers).
+
+## Step 5: the funeral (#868, No Law beat 6)
+
+The day after the sheriff dies, at ten (`config/moments/funeral.json`: `days_after`, `hours`), the town is at
+the grave on the cemetery hill up Church Lane. Nobody sends you: the townsman on the hotel's walk says when
+it is (the day before, and that morning), and at the hour, if you're by him, he says "It's time." and walks up.
+At the grave: the widow and the doctor, the preacher at its foot, nine of the town with their hats off and
+heads bowed, the Baron and his foreman stood apart. Once you're near (or after `gather_s`) the preacher reads
+the burial words, the box goes down, two of the town say a small true thing, the Baron goes to the widow with
+his offer and she refuses without looking up; he leaves, with "Mr. Harlan. A sad day for the county." if you
+came; she thanks you if you came; the town walks back to work and the three by the grave stay till you've
+gone, and then it's filled. It plays whether you're there or not, and you hear a line only if you're near its
+speaker: nolaw.funeral = attended, distance (seen from off, not near) or missed (the townsman says so, once).
+A shot by the grave breaks it up (they cower as townsfolk do, then go).
+
+Stand-ins (PROPOSED, the data's `status`): the pine box, the open grave, the earth and the headboards are plain
+blocks; the preacher, the Baron and the foreman are existing men's models; a hat comes off by being hidden;
+no children. The lines are `docs/scripts/no_law.json`'s scene `funeral` as written (No Law's script isn't
+OK'd, #835); "It's time." and the townsman's three lines about it aren't in the scripts yet.
+
+See it: `-- --world=valley --mission=funeral` (the sheriff dead yesterday, ten o'clock, you on Church Lane
+below the church: walk up the lane), or the bridge's `moment funeral set_up=1`. Tests: `tests/test_funeral.gd`
+(told by the town and started by the clock, attended; missed and from a distance; the clock past it).

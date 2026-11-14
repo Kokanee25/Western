@@ -23,6 +23,14 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   day and overcast skies and the Milky Way read real; left: midday clouds flat (no bulk), golden hour
   not golden enough at 17.6, the night street crushed, the moon a plain disk. **Next: weather** (storm
   cells pushed across the valley over the coverage).
+- **Eased edges** (#873): every library board's arrises and ends rounded in `scan_wood.gdshader`'s normal
+  (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
+  normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
+  meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
+  Next on it: wear and dents (#901). Saloon B's gallery rail takes the framing finish (`gallery/` not in its
+  surfaces): its step 2's to name.
+- **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
+  from one change; re-approving them needs each view's diff looked at, not a blanket approve.
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
   `docs/concept/judge/MATERIAL.md`): a swatch passes at "game" or better with no tile tell. Cheap judge
   (`critic.py cheap`, `--refs=<Studio>/references`) for whole views. Judges vary about a grade run to run.
