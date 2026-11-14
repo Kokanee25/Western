@@ -1,6 +1,6 @@
 # The Sheriff on the Road (`the-sheriff`)
 
-> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the sheriff's shooter is not the red shirt, Silas Kett (D, Sean 2026-11-13, #830, C16), and by Sean's lean (C16 a, still P until he picks, #905) he is the stranger from the saloon table on a bald-faced sorrel who called the sheriff "friend", so this card's "the red shirt shot the sheriff" and the dying lines naming the red shirt are out of date; the sheriff was the county sheriff and the doctor, as coroner, keeps Harlan on as deputy until the county names a man (C12 a).
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the sheriff's shooter is not the red shirt, Silas Kett (D, Sean 2026-11-13, #830, C16), and by his pick on #906 (C16 a, D) he is the stranger from the saloon table on a bald-faced sorrel who called the sheriff "friend", so this card's "the red shirt shot the sheriff" and the dying lines naming the red shirt are out of date; the sheriff was the county sheriff and the doctor, as coroner, keeps Harlan on as deputy until the county names a man (C12 a).
 
 Other names: "Opening: the wounded sheriff" (`config/valley.json` `opening`), "Act 1, the sheriff"
 (DESIGN.md §5). Sources: DESIGN.md §1, §5, §11 signature features; PR #621 (Sean's lock 2026-11-03,

@@ -1,6 +1,6 @@
 # The story map
 
-> **Since 2026-11-11 the story bible (docs/story/) wins over this file:** the sheriff's shooter is not the red shirt (D, Sean 2026-11-13, #830, C16; by his lean, C16 a, P, the stranger who is the Baron's foreman, C10 b), so the spine's "the red shirt shot the sheriff" (T1 + T2 + T4 joined) is out of date; evidence is a real system, not "a maybe", and `the-trial` is only a "maybe elsewhere" with the ending told by the paper and the town's talk; the last train carries only the Baron's hired men and Rourke dies on the trestle (C11 a); Payday Night's floor always falls (C1 a).
+> **Since 2026-11-11 the story bible (docs/story/) wins over this file:** the sheriff's shooter is not the red shirt (D, Sean 2026-11-13, #830, C16; by his pick on #906, C16 a, D, the stranger who is the Baron's foreman, C10 b), so the spine's "the red shirt shot the sheriff" (T1 + T2 + T4 joined) is out of date; evidence is a real system, not "a maybe", and `the-trial` is only a "maybe elsewhere" with the ending told by the paper and the town's talk; the last train carries only the Baron's hired men and Rourke dies on the trestle (C11 a); Payday Night's floor always falls (C1 a).
 
 Every mission (`README.md`'s index) as a node, the threads between them, the factions, the places,
 and the systems table. Planning only. Built 2026-11-09 from the cards; where a card says OPEN, so
