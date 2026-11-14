@@ -98,8 +98,16 @@ func place_ids() -> PackedStringArray:
 	return _ids(places())
 
 
+## A place by id; an unknown one is an error (not the map's origin without a word: review A8, #864).
 func place(id: String) -> Dictionary:
-	return _by_id(places(), id)
+	var p := _by_id(places(), id)
+	if p.is_empty():
+		push_error("ValleyLayout: no place '%s' in valley.json's places" % id)
+	return p
+
+
+func has_place(id: String) -> bool:
+	return not _by_id(places(), id).is_empty()
 
 
 ## Where a place stands on the map (its `at`).

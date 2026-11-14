@@ -147,3 +147,50 @@ murmur, not a Payday Night dance. As run (bed at -5 dB) it sat 12 dB under the f
 porch, barely there; the clips raise its part by 6 dB from the same two runs (the mix is linear at
 these levels; the scenarios now say +1 dB): 5.7 dB under the fiddle at the porch, 2.9 across the
 street. Raised together to -20 LUFS at the porch, as the fiddle-only pair.
+
+## A second tune: Arkansas Traveller (B only; 2026-11-11)
+
+Sean: "make me another song and make the same sound board for the distances, just our fiddle".
+`../../fiddle/abc_tune.py` turns any ABC file into note data the same way as Soldier's Joy (string
+and finger in first position, the shuffle, swing, drones from each bar's chord, double stops,
+slides); `arkansas_traveller.json` is Ryan's Mammoth Collection's (1883) reel, both parts twice, 37 s
+at half note = 108. Dry render: 90% of its 212 melody notes within 30 cents (melody alone). The
+chords are guessed per bar from its notes (the B part comes out all D), so they only steer the drones.
+
+`arkansas/`: `balcony_close` (-16 LUFS), `balcony_below` (-24), `street_porch` / `street_across` (the
+porch at -20, across 9.7 dB under, as the game has them), `crowd_porch` / `crowd_across` (the crowd
+bed run at +1 dB in the scenarios; the porch at -20, across 9.2 under). As heard in the game: close
+-19.1, through the floor -37.2, porch -46.6, across -56.3. The porch runs take ~17 min under lavapipe
+with a 37 s tune: `run.py --timeout=2000`.
+
+## Devil's Dream at the game's distances
+
+`devils_dream/`: the plain take (`dry.mp3`) and the six game runs, cut as Arkansas Traveller's (pairs keep the
+game's level). Heard: close -18.6, through the floor -39.5, porch -48.9, across -58.6 LUFS.
+
+## The banjo
+
+`banjo/`: our banjo model (`fiddle/banjo.py`) alone and with the fiddle (`fiddle/duet.py`), Turkey in the
+Straw (open G) and Devil's Dream (open A), plain takes at -18 LUFS. The duet's game distances follow.
+Take 3 (after "still kinda digital"): measured against Uncle Dave Macon's 1924 "Papa's Billie Goat"
+(`spectrogram_macon_vs_take3.png`); the clips in `banjo/` are take 3.
+
+## The minstrel band
+
+`band/`: the bones and the tambourine alone (Turkey in the Straw) and the band (fiddle, banjo, bones,
+tambourine) on Turkey in the Straw and Devil's Dream; plain takes. `turkey_in_the_straw/`: the fiddle
+alone at the game's distances (heard: close -18.9, floor -37.7, porch -47.1, across -56.9 LUFS).
+
+Steel strings (`banjo/turkey_*_steel.mp3`): the same banjo and part strung with steel, alone, with the
+fiddle and in the band (Turkey in the Straw).
+
+Fiddle and banjo (take 3) at the game's distances: `banjo/turkey_duet_game/` (heard: close -19.0, floor
+-36.9, porch -46.4, across -56.1 LUFS).
+
+## The listening pages (Sean, 2026-11-12: one per instrument, one for the band)
+
+Fiddle (the blind test and the tunes) https://claude.ai/artifact/Brm6ru3SYuT2YAxGqduYyR · Banjo (the bench
+and the period takes) https://claude.ai/artifact/1yWnbNpVQRMvN5WnCfVCVT · Bones
+https://claude.ai/artifact/VZqwzo7afwxRvY5MgwNY4i · Tambourine https://claude.ai/artifact/UV2qVWZU8W5jR1hmvgrQER
+· Harmonica https://claude.ai/artifact/XTSEsn19brioFRWQVSBQsT · Piano https://claude.ai/artifact/Cr362YFn3vMLrDFt678Qyn
+· The band https://claude.ai/artifact/Cy32HgZvFY28Te36i9bQuc (private to Sean; each links to the others).

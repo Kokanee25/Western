@@ -1,0 +1,338 @@
+[
+ {
+  "kegs": [
+   {
+    "cleared": 0,
+    "cmd": "props_clear",
+    "ok": true,
+    "t": 2.02
+   },
+   {
+    "cmd": "prop_stand 40.00 0.00 -5.40 0.0",
+    "members": 20,
+    "ok": true,
+    "stand": [
+     40.0,
+     0.0,
+     -5.4
+    ],
+    "t": 2.72
+   },
+   {
+    "at": [
+     40.0,
+     0.0,
+     -5.85
+    ],
+    "cmd": "prop keg_rack 40.000 0.000 -5.850 0.0",
+    "id": "keg_rack",
+    "kg": 77.2,
+    "members": 10,
+    "ok": true,
+    "stands": true,
+    "t": 3.45
+   },
+   {
+    "at": [
+     39.13,
+     0.16,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 39.135 0.160 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 4.12
+   },
+   {
+    "at": [
+     39.67,
+     0.16,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 39.675 0.160 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 4.78
+   },
+   {
+    "at": [
+     40.33,
+     0.16,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 40.325 0.160 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 5.45
+   },
+   {
+    "at": [
+     40.87,
+     0.16,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 40.865 0.160 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 6.12
+   },
+   {
+    "at": [
+     39.13,
+     0.75,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 39.135 0.745 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 6.78
+   },
+   {
+    "at": [
+     39.67,
+     0.75,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 39.675 0.745 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 7.45
+   },
+   {
+    "at": [
+     40.33,
+     0.75,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 40.325 0.745 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 8.12
+   },
+   {
+    "at": [
+     40.87,
+     0.75,
+     -5.85
+    ],
+    "cmd": "prop beer_keg_side 40.865 0.745 -5.850 0.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 8.78
+   },
+   {
+    "at": [
+     41.55,
+     0.0,
+     -5.05
+    ],
+    "cmd": "prop beer_keg_side 41.550 0.000 -5.050 70.0",
+    "id": "beer_keg_side",
+    "kg": 80.3,
+    "members": 12,
+    "ok": true,
+    "stands": true,
+    "t": 9.45
+   },
+   {
+    "at": [
+     38.4,
+     0.0,
+     -5.1
+    ],
+    "cmd": "prop beer_keg 38.400 0.000 -5.100 0.0",
+    "id": "beer_keg",
+    "kg": 78.8,
+    "members": 10,
+    "ok": true,
+    "stands": true,
+    "t": 10.12
+   },
+   {
+    "at": [
+     40.0,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp 40.000 2.000 -5.400 0.0",
+    "id": "hanging_lamp",
+    "ok": true,
+    "t": 10.78
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     40.0,
+     2.17,
+     -5.4
+    ],
+    "ok": true,
+    "t": 11.38
+   }
+  ]
+ },
+ {
+  "bed": [
+   {
+    "cleared": 13,
+    "cmd": "props_clear",
+    "ok": true,
+    "t": 33.35
+   },
+   {
+    "cmd": "prop_stand 40.00 0.00 -5.40 0.0",
+    "members": 20,
+    "ok": true,
+    "stand": [
+     40.0,
+     0.0,
+     -5.4
+    ],
+    "t": 34.05
+   },
+   {
+    "at": [
+     40.0,
+     0.0,
+     -5.3
+    ],
+    "cmd": "prop plank_bed 40.000 0.000 -5.300 0.0",
+    "id": "plank_bed",
+    "kg": 55.5,
+    "members": 14,
+    "ok": true,
+    "stands": true,
+    "t": 34.78
+   },
+   {
+    "at": [
+     40.9,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp 40.900 2.000 -5.400 0.0",
+    "id": "hanging_lamp",
+    "ok": true,
+    "t": 35.45
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     40.9,
+     2.17,
+     -5.4
+    ],
+    "ok": true,
+    "t": 36.05
+   }
+  ]
+ },
+ {
+  "desk": [
+   {
+    "cleared": 3,
+    "cmd": "props_clear",
+    "ok": true,
+    "t": 58.02
+   },
+   {
+    "cmd": "prop_stand 40.00 0.00 -5.40 0.0",
+    "members": 20,
+    "ok": true,
+    "stand": [
+     40.0,
+     0.0,
+     -5.4
+    ],
+    "t": 58.72
+   },
+   {
+    "at": [
+     40.0,
+     0.0,
+     -5.95
+    ],
+    "cmd": "prop owner_desk 40.000 0.000 -5.950 0.0",
+    "id": "owner_desk",
+    "kg": 61.4,
+    "members": 13,
+    "ok": true,
+    "stands": true,
+    "t": 59.45
+   },
+   {
+    "at": [
+     40.05,
+     0.0,
+     -5.45
+    ],
+    "cmd": "prop chair 40.050 0.000 -5.450 180.0",
+    "id": "chair",
+    "kg": 8.9,
+    "members": 13,
+    "ok": true,
+    "stands": true,
+    "t": 60.12
+   },
+   {
+    "at": [
+     40.95,
+     0.0,
+     -6.0
+    ],
+    "cmd": "prop strongbox 40.950 0.000 -6.000 -15.0",
+    "id": "strongbox",
+    "kg": 44.3,
+    "members": 10,
+    "ok": true,
+    "stands": true,
+    "t": 60.78
+   },
+   {
+    "at": [
+     40.5,
+     2.0,
+     -5.4
+    ],
+    "cmd": "prop hanging_lamp 40.500 2.000 -5.400 0.0",
+    "id": "hanging_lamp",
+    "ok": true,
+    "t": 61.45
+   },
+   {
+    "cmd": "prop_light 0.33",
+    "light": [
+     40.5,
+     2.17,
+     -5.4
+    ],
+    "ok": true,
+    "t": 62.05
+   }
+  ]
+ }
+]

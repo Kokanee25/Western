@@ -36,11 +36,20 @@ static var markers_default := not "--no-markers" in OS.get_cmdline_user_args()
 static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args()
 ## `-- --no-farm-mission`: the house without its mission (the bench's split of the two).
 static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
+## The town's spec buildings (the doctor's, the jail, saloon B); `-- --no-buildings`: the valley
+## without them (#925: the people tests run both ways, so a new building can't be what holds them up).
+static var buildings_default := not "--no-buildings" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
 ## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
 ## SheriffDies, the morning after set up, you on Main Street).
 const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
+## `-- --mission=funeral`: No Law's funeral alone (#868: Funeral, the sheriff dead yesterday, you on
+## Church Lane below the church).
+const FUNERAL_ARG := "--mission=funeral"
+## `-- --mission=no_justice [--followed]`: No Justice step 2 alone (#859: NoJusticeCamp, the day the
+## sheriff died set up, you on Main Street by the doctor's; --followed: you'd followed Cody out, S10).
+const NO_JUSTICE_ARG := "--mission=no_justice"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
 ## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
@@ -50,6 +59,7 @@ var load_ms := {}
 
 
 func _ready() -> void:
+	add_to_group(&"valley_world")  # WorldPlaces finds the valley's places by it (#864)
 	var u := Time.get_ticks_usec()
 	if layout == null:
 		layout = ValleyLayout.main()
@@ -73,6 +83,7 @@ func _ready() -> void:
 		u = _took(&"markers", u)
 		_make_buildings()
 		u = _took(&"buildings", u)
+		_warm_buildings.call_deferred()
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
 			folk.layout = layout
@@ -86,6 +97,10 @@ func _ready() -> void:
 		_start_sheriff.call_deferred()
 	if SHERIFF_DIES_ARG in OS.get_cmdline_user_args():
 		_start_sheriff_dies.call_deferred()
+	if FUNERAL_ARG in OS.get_cmdline_user_args():
+		_start_funeral.call_deferred()
+	if NO_JUSTICE_ARG in OS.get_cmdline_user_args():
+		_start_no_justice.call_deferred()
 	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
 		CoachCut.start_on_load = false
 		_start_coach_cut.call_deferred()
@@ -110,6 +125,25 @@ func _start_sheriff_dies() -> void:
 			care = a.get_slice("=", 1)
 	if folk:
 		folk.start_sheriff_dies({"set_up": true, "care": care})
+
+
+## No Law's funeral alone (#868), once the folk are built.
+func _start_funeral() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	if folk:
+		folk.start_funeral({"set_up": true})
+
+
+## No Justice's doctor's and camp (#859), once the folk are built.
+func _start_no_justice() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	if folk:
+		var o := {"set_up": true}
+		if "--followed" in OS.get_cmdline_user_args():
+			o["followed"] = true
+		Moment.start_named(&"no_justice_camp", self, null, o)
 
 
 func _unarmed() -> void:
@@ -180,7 +214,7 @@ func _make_farmhouse() -> void:
 ## built on it in place of its block: set on its lot's `at` and `facing`, its floor at its walk's top
 ## (ValleyTown's: the lot's `walk.h` over the street's edge), on the pad the bake dug for it.
 func _make_buildings() -> void:
-	if markers == null or markers.town == null:
+	if markers == null or markers.town == null or not buildings_default:
 		return
 	var tops := {}
 	for w: Dictionary in markers.town.walks:
@@ -203,6 +237,17 @@ func _make_buildings() -> void:
 			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
 			if not sw.is_empty():
 				_side_walk(String(l.id), b, sw, floor_top)
+
+
+## Each spec building's first analysis on a worker once the load's done (`Structure.warm_analysis`):
+## the valley has no FireSystem to slice a settle, so the first shot to break a member was every
+## member of the building on one frame (#881). A few frames on, its props and fittings are in.
+func _warm_buildings() -> void:
+	for i in 3:
+		await get_tree().physics_frame
+	for b: Variant in buildings.values():
+		if b is Structure and is_instance_valid(b):
+			(b as Structure).warm_analysis()
 
 
 ## A boardwalk down a building's side street (its spec's `lot.side_walk`: saloon B's, under its
@@ -265,3 +310,38 @@ func _make_ground() -> void:
 ## for the dev bridge's goto and look.
 func places() -> Waypoints:
 	return markers.places if markers else Waypoints.new()
+
+
+# --- The valley's own places (WorldPlaces; review A8, #864) --------------------------------------
+
+## Where a man knocked out in the valley is carried, best first (WorldPlaces.wake_spots): beside the
+## cots in the doctor's sick room (its spec's `bedside`), else out on the general store's walk.
+func wake_spots() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var doctor: Node3D = buildings.get("doctor")
+	if doctor != null and is_instance_valid(doctor):
+		var bed := doctor.find_child("bedside", true, false) as Node3D
+		if bed != null:
+			out.append({"at": bed.global_position, "yaw": bed.global_rotation.y, "where": "at the doctor's"})
+	if markers != null and layout.lot("general_store").size() > 0:
+		var lot := layout.lot("general_store")
+		var mid := (float(lot.x1) - float(lot.x0)) * 0.5
+		# A metre out from the store's front: on its walk, facing the street.
+		var at := ValleyFolk.point_of_lot(layout, markers.town, "general_store", mid, -1.0, 0.05)
+		out.append({"at": at, "yaw": PI, "where": "on the general store's walk"})
+	return out
+
+
+## A spot out in Main Street (WorldPlaces.street_spot): `along` m east of `from` (turned back past
+## the town's ends, valley.json's main_street x), `across` m off its middle, on the ground.
+func street_spot(from: Vector3, along: float, across := 0.0) -> Vector3:
+	var ms: Dictionary = layout.town().get("main_street", {})
+	var ends: Array = ms.get("x", [-125.0, 130.0])
+	var lo := float(ends[0]) + 5.0
+	var hi := float(ends[1]) - 5.0
+	var x := from.x + along
+	if x > hi or x < lo:
+		x = from.x - along
+	x = clampf(x, lo, hi)
+	var z := float(ms.get("z", 0.0)) + across
+	return Vector3(x, ValleyFolk.surface_of(markers.town if markers else null, x, z), z)

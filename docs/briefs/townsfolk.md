@@ -135,6 +135,33 @@ first. A person may carry more than one day, picked by the town's **day kind**:
 The day kind is one value the town keeps, set from `StoryState` facts and the town's news (section 5),
 never by a mission script calling people about.
 
+**Built (step 2, #870, 2026-11-14).** `config/valley_folk.json` as `ValleyFolk` reads it (LAYOUT "src/people"):
+a person is one entry in `people`; spots are entries in `spots`; the book's doings and the day kinds are
+`book` and `calendar`. A new person, whole:
+
+```json
+{"id": "barber", "name": "Barber", "model": "storekeeper_s1_talking", "seed": 901,
+ "shirt": [0.8, 0.8, 0.76], "vest": [0.2, 0.2, 0.2], "home": "barber",
+ "day": {
+   "ordinary": [
+     {"from": 6.0, "in": "barber", "do": "breakfast"},
+     {"from": 7.0, "at": "barber_walk", "do": "stand"},
+     {"from": 18.0, "in": "barber", "do": "supper"},
+     {"from": 19.0, "in": "barber", "do": "home"},
+     {"from": 22.0, "in": "barber", "do": "sleep"}],
+   "sunday": [
+     {"from": 8.0, "in": "barber", "do": "home"},
+     {"from": 22.0, "in": "barber", "do": "sleep"}]}}
+```
+
+with `"barber_walk": {"lot": "barber", "at": [5.0, -1.0], "faces": [5.0, -8.0]}` in `spots`. `in` takes any of
+the town's ways (a building's door is its lot id; `back@0` is out of town by Back Street); a building in anyone's
+day gets its lit window and chimney smoke (BookLights) by itself. Built: day kinds `ordinary`, `sunday` (day 7,
+14...), `payday` (day 13, then every 14); the story's kinds (`mourning`, `uneasy`) are `calendar.kinds` entries
+with an `if` on StoryState facts, added with the funeral and the news. The eight day folk (No Law's five at the
+saloon yard and the three on the walks) keep their hours and spots; what's new for them is only where they are
+off the street.
+
 ### Three ways of being present
 
 **DECIDED in principle** (Sean, #276, 2026-11-03, the Living World plan): far away, schedule and place
@@ -565,7 +592,7 @@ its `docs/PARTS.md` row. Nothing here reorders `docs/ROADMAP.md`: Sean places it
 | # | Step | Model line | Reuses | Done when (measured) |
 |---|---|---|---|---|
 | 1 | **Measure, and shut the leaks.** `valley_bench` with 12 near + 12 far and talking faces; the perception lab's baseline re-run on main; fix what's left of "a shot names its shooter" and "acting on what he couldn't know" for townsfolk | `Model: Opus 5.5, effort medium: perception faults whose present state isn't known` | perception lab, `perf_bench --folk`, `valley_bench` | section 7's table filled with measured numbers; leaks 0 in `news` and `leaks` for `CivilianBrain` |
-| 2 | **The day and the book.** `valley_folk.json`'s `day` blocks, day kinds, on and off the book at doors, lit windows and smoke from the book. The five built folk moved onto it, nothing else changed | `Model: Opus 5.5, effort medium: a new system under ValleyFolk` | `ValleyFolk`, `OilLamp`, the ways | the day's and the book's and nothing-in-view's rows pass; No Law still plays (its tests) |
+| 2 | **The day and the book.** (built, #870) `valley_folk.json`'s `day` blocks, day kinds, on and off the book at doors, lit windows and smoke from the book. The five built folk moved onto it, nothing else changed | `Model: Opus 5.5, effort medium: a new system under ValleyFolk` | `ValleyFolk`, `OilLamp`, the ways | the day's and the book's and nothing-in-view's rows pass; No Law still plays (its tests) |
 | 3 | **The roster as data.** The 16 people's days, homes, dials; the street's and buildings' spots (positions only, `stand` for all) | `Model: Sonnet 5.5, effort medium: data to a written table` | step 2's shape; stand-in faces by pick 1 | every person at every hour; a film of the street at 7, 12, 17.5, 21 |
 | 4 | **Spots.** The chore kinds `lean`, `sit`, `counter`, `sweep`, `carry`, `talk`, `drink` with their breaks | `Model: Opus 5.5, effort medium: new behaviour` | `SitChore`, `WipeBar`, `MopFloor`, the bucket's carry, `FaceSpeech`; the prop lab's broom and sack; the motion library | the spots row passes; blind playtest questions 1-3 |
 | 5 | **Reactions in stages.** Start, look, decide, come back in `CivilianBrain`; the dials; the wave; shaken; the gawk ring | `Model: Fable 5.5, effort medium: behaviour that has to read as real, not only work (Sean, 2026-11-12: Fable while its weekly limit is free; Opus if it isn't)` | `Senses`, `Events.noise`/`deed`, `GameAudio`'s delay, the built `gun_out`, cower, hands up | the reactions and leaks rows; playtest question 7 |

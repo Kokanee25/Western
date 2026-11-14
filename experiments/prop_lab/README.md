@@ -89,3 +89,117 @@ oldest freed) and its whole parts one each. The placing session counts the room'
 | `card_deck` | 1 | 1 | each table in play (~5) |
 | `chip_stacks` | 1 | 1 | each table in play (~5) |
 | `bar_arm_rail` | 1 | 1 | on each bar section's top at its front edge (bar space x 0, y 1.095, z 0.455): 4. Its own prop, not a `bar` member: added to every bar in the valley it tipped the card-game chair tests (#834) |
+
+## Saloon B, batch S2 (#879)
+
+Made and judged on the same stand, **not placed** (as S1: #865's body fix and #862's route first).
+`tools/props/saloon_s2.py` (kit files), `tools/blender/props/saloon_s2.py` (models: the saw, the fiddle
+and bow, the cookstove; the keg is the barrel's staves, the bench and rack library pine); the stand's
+groups `bench`, `saw_fiddle`, `kegs`, `cookstove` in `saloon/s1_sheet.py`; references `refs/saloon/`
+("Batch S2"). Results `results/2026-11-13_saloon_s2/`.
+
+S1's three DIFFERENTs were redone first: the **wheel of fortune** (now the Evans dice wheel: 48 in, open,
+30 panels of dice, 16 spokes, a gilt star hub, brass pegs out of its rim, a leather flapper on an oak
+plank), the **lookout's chair** (seat at 1.1 m, a back and a footrest: 11 bodies, was 9) and the **till**
+and the scales' base (`lib:furniture_oak/old`, not `few/top`: its varnish mirrored the sky). Also: the bar
+glasses are `glass:flint` (a thicker, brighter outline: clear vanished at night), the hanging lamps'
+chimney is `prop:chimney_glass@0.330` (its flame's height; the table lamp's 0.205 left it dark), and the
+bridge's `prop_light` puts the lamp 0.16 under the height as the game does (S1's stand lit the lamps from
+their smoke bells; the game's placing was right).
+
+**Judged** (the blind critic, two rounds; `r1/critic.md`, `r2/critic.md`): r1 1 SAME (the plain hanging
+lamp), 15 CLOSE, 2 DIFFERENT (the fiddle a toy guitar, the keg rack); r2 (S2's and the redone S1 groups) 1
+SAME (the cookstove), 8 CLOSE, 1 DIFFERENT: **the keg rack** (kegs stand on end; a rack lays them on their
+sides in cradles, tap end out). A kit prop is held only by what's under its own bottom (`KitProp._find_footing`
+looks down its own y), so a keg turned on its side goes loose: a lying keg needs its own kit file, its staves
+laid out one by one round a horizontal axis. Left for the next step, with the CLOSE notes still open: the
+wheel's dice don't read (a blank navy ring; brighter, fewer, bigger marks), the fiddle's f-holes and teeth-like
+strings, the saw's teeth and its handle's hole (a knife from a few steps), the bow's stick and hair too far
+apart, the gold scales twice too big, the faro table unplayed (no chips), the kegs near-black with hoops the
+wood's colour, the stove's smooth casting, the till a plain box, glass faint at night. (Round 2's critic read
+round 1's file for its format before it was told to skip it, and says it judged only what it saw.)
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `wall_bench` | 10 | its members | dance hall: 6 round its walls; balcony: 1 (Balcony Ambush); the walk: 1-2. Its back against the wall (-z) |
+| `handsaw` | 1 (LooseProp) | 1 (holed, bent) | Payday Night: carried up the outside stair; before that, by the yard's woodpile or the store room (1) |
+| `fiddle` | 1 | 1 | dance hall: on the platform, on or by the fiddler's chair (1); in his hands while he plays (`grips`, no code yet) |
+| `fiddle_bow` | 1 | 1 | with the fiddle (1) |
+| `beer_keg` | 10 (8 staves, 2 heads) | its members; its beer runs (PropContents) | store room and cellar: ~12 on the racks (most as drawn stand-ins: twelve real are 120 bodies), 1 in the work board's ice box, empties on the yard's pile |
+| `keg_rack` | 10 | its members | store room 1, cellar 1: four kegs a tier (rails' tops at 0.16 and 0.88 m). DIFFERENT: redo with kegs on their sides |
+| `cookstove` | 12 | iron doesn't break; its pipe comes down; its coals a small fire | kitchen: 1, its pipe to the chimney (trim the lengths); the doctor's office: 1 (his kitchen) |
+
+S2 as listed is ~145 bodies (eight benches 80, three real kegs 30, two racks 20, the cookstove 12, the
+saw, fiddle and bow 3); with S1's (~219 now, the lookout's chairs 2 more each) ~365 for both batches. The
+valley had ~5,100 to spare at #865's count.
+
+## Saloon B, batch S3 (#892)
+
+Made and judged on the same stand, **not placed** (as S1 and S2: #865's body fix and #862's route first).
+`tools/props/saloon_s3.py` writes the kit files; no Blender this batch (the session couldn't install `bpy`:
+pypi isn't reachable from it). The stand's groups `kegs` (redone), `bed`, `desk` in `saloon/s1_sheet.py`.
+Results `results/2026-11-14_saloon_s3/` (r1: all three groups; r2: the desk again). **No new references**:
+Commons and the Met's images weren't reachable from the session (a sub-agent tried ~12 min); the kegs were
+judged against S2's racking-room photo, the bed and desk against the critic's knowledge of the period.
+
+- **The keg on its side** (`beer_keg_side`, S2's DIFFERENT): S2's keg laid along z, tap head (its bung drawn on)
+  at +z, its eight staves laid out one by one, each with its own `rot` (Godot's YXZ; `euler_yxz` in the factory),
+  the sweep drawn about the keg's axis with the draw's `at`/`rot`. Kinds by height (post, stud, furniture_frame,
+  rafter: the support graph is boxes, and a lying stave's box overlaps its neighbour's in height, so each pair
+  rests on the pair under it by tier). **Its feet:** the two bottom staves, each two members end to end, their
+  boxes flat (`solid` 0.32, a stave's weight): KitProp settles a prop by a ray under the middle of each foot's
+  four lowest corners, so a whole-length foot's ray fell between a rack's rails to the floor, and a tilted box's
+  corners sank it 11 mm. Full of beer: `holds` written for the lying cask (its height across, the middle's radius
+  the round with the middle slice's area, the ends' solved to hold the upright keg's ~59 l).
+- **The keg rack** (`keg_rack`, redone): a stillage, two tiers of oak cradle rails on six posts, the kegs lying
+  across them tap end out, four a tier, chocks either side of each drawn on the rails; its kit file's `slots`
+  say where each keg goes (the tests and the stand read them). 2.35 m long, the upper rails at 0.745 m.
+- **The bed** (`plank_bed`): a single cottage bedstead, square posts with turned caps, a two-board headboard, a
+  footboard, side rails and slats, in library walnut (old); its bedding the doctor's cot's (`iron_cot`'s Tick,
+  Blanket, Pillow, the same size). New, not the cot: a rented room's bed, not a ward's. The brief's "iron or
+  plain wood": two rooms the cot, two this (or four of this).
+- **The owner's desk** (`owner_desk`): a flat-top double-pedestal kneehole desk (three drawers a side with brass
+  pulls, a knee drawer, a modesty panel, a two-board top, a back gallery), library oak; on its top, drawn on,
+  his ledgers (two closed, one open), papers, an inkstand and pen, a cigar box. New, not the doctor's roll-top
+  (42 bodies, a professional man's). His strongbox is the kit's `strongbox`; his chair the kit's.
+- **The washstand set** is the doctor's (`washstand`, `wash_basin`, `wash_pitcher`, `chamber_pot`, `hand_towel`):
+  one set a rented room and one in the owner's office, the pot under each bed.
+
+**Judged** (the blind critic, two rounds): r1 4 CLOSE (the rack, the lying kegs, the bed, the desk's things),
+1 DIFFERENT (the desk: the chair hid one pedestal, it read as a one-pedestal school desk with a Mission chair);
+r2 (the desk, the chair moved, the bentwood chair): the desk and its things CLOSE; **the kit's `bentwood_chair`
+DIFFERENT** (a black tubular bistro chair) and **`strongbox` DIFFERENT** (a black steamer trunk): both existing
+kit props, not S3's, for the placing session or a later batch. CLOSE notes open: the rack's posts and upper
+rails cross the lower kegs' fronts and it's near-black at noon; the kegs near-black at noon (staves, hoops and
+bung one mass: S2's note too); the bed clean and new (a slab blanket, no sag, square rails); the desk dark and
+grainless, no mouldings or plinth; the ledgers blank slabs, the inkstand unreadable.
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `beer_keg_side` | 12 (8 staves, the bottom two in two lengths, 2 heads) | its members; its beer runs (PropContents) | store room and cellar: on the racks (`keg_rack.slots`; most as drawn stand-ins: eight real are 96), a few on the floor |
+| `keg_rack` | 10 | its members; its kegs come down with it | store room 1, cellar 1 (2.35 x 0.57 m), back to the wall, tap ends out |
+| `plank_bed` | 14 | its members; the rails, slats and bedding burn | rented rooms: 2-4 (the rest `iron_cot`), head against the wall (-z), a chamber pot under each |
+| `owner_desk` | 13 | its members (the drawer fronts one member a pedestal) | the owner's office: 1, back to the wall; `strongbox` on the floor by it; his chair |
+
+S3 as listed: two racks 20, a few real lying kegs ~36, four beds 56, the desk 13: ~125 bodies (S1 and S2 ~355
+now the S2 rack's 20 are this one's): ~480 for the three batches.
+
+## Saloon B, the stage and dressing room (#903)
+
+Made and judged on the lab's stand, **not placed**: the room is built by #902 (the stage, the wing and
+room_6 as the dressing room), and the placing waits on it and on #865 and #862 as S1's does.
+`tools/props/saloon_stage.py` (kit files), `tools/blender/props/saloon_stage.py` (models),
+`saloon/stage_sheet.py` (the stand, as S1's), references `refs/saloon_stage/`. Results
+`results/2026-11-13_saloon_stage/`. #902's spec coordinates: building x 0 the yard wall, z 0 Main
+Street's front; the stage x 2.5 to 7.4, z 10.9 to 13.36, 0.76 m high; the wing x 0.1 to 2.5, z 10.9 to
+13.36; room_6 x 0.1 to 2.85, z 15.29 to 21.85, its door on `rooms_front` at x 1.58.
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `dressing_mirror` | 13 | its members; the glass breaks as a window | dressing room (room_6), against its yard (east) wall, the room toward the window: 1 (its back at z -0.29 of its own space to the wall's face) |
+| `costume_pegs` | 10 | its members; a peg gone drops what hangs on it | dressing room, on the wall across from the mirror, its rail at ~1.7 m: 1 |
+| `travelling_trunk` | 7 | its members (the costumes burn) | dressing room at the foot of the pegs, shut: 1; the wing, open (`open_hinge("lid")`), the night's costumes: 1 |
+| `dressing_screen` | 15 | its members (the cloth burns) | dressing room, across its corner by the door: 1; the wing, for a quick change: 1 (if the wing's 2.4 m allows it beside the steps) |
+| `footlight` | 1 | up to 10 shards + the tin; a lit one's oil burns | the stage's front edge (building z ~10.95, on the stage's boards at y 0.76), the hood (+z of its own space) toward the dance floor, the building's -z (turned 180): 5, ~0.9 m apart, x 3.0 to 6.9, each with its OilLamp at `light_height` |
+
+~65 bodies for the set as listed (the valley had ~5,100 to spare at #865's count, before #902's stage).

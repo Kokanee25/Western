@@ -16,6 +16,11 @@ var said: Array = []  # [physics frame, speaker id, text, the act's t, msec]
 func before_each() -> void:
 	ValleyFolk.murder_auto = true
 	StoryState.clear("nolaw.")
+	await _new_valley()
+
+
+## The valley built again (the scene's reload, as after Backspace).
+func _new_valley() -> void:
 	if holder != null:
 		holder.queue_free()
 		await physics_frames(3)
@@ -200,6 +205,51 @@ func test_away_from_the_table_it_happens_all_the_same() -> void:
 	check_eq(StoryState.get_fact("nolaw.witnessed"), false, "not a witness")
 
 
+## What lies between Cody's muzzle and Earl's head doesn't save him (#925): a piece of his chair
+## held over his face as Cody stands over him. Before, the ball stopped in whatever lay on its line
+## (a chair leg, Earl's own neck or arm): of 16 murders in fresh valleys 2 left him alive after all
+## three shots, by how his ragdoll happened to lie.
+func test_a_chair_leg_over_his_face_doesnt_save_him() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	var f := _folk()
+	var p := _player()
+	p.global_position = f.cards.centre() + Vector3(40.0, 0.0, 12.0)
+	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	await physics_frames(10)
+	var m := f.start_murder() as NoLawMurder
+	check(m != null, "started")
+	var over_him := await wait_until(func() -> bool: return m.state == &"stand_over" or m.done, 60 * 60)
+	check(over_him and not m.done, "Cody stands over Earl (%s)" % m.state)
+	if m.done:
+		return
+	# A loose bar (a chair's leg, lying still) across the line from his gun to Earl's head, a hand
+	# from the head, kept there till he fires.
+	var leg := RigidBody3D.new()
+	leg.collision_layer = Layers.WORLD
+	leg.freeze = true
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.3, 0.3, 0.06)
+	shape.shape = box
+	leg.add_child(shape)
+	valley.add_child(leg)
+	var gun := m.victim.held_gun as RevolverModel
+	var across := 0
+	while m.shots == 0 and not m.done and across < 60 * 10:
+		var head := (m.cheater.parts[&"head"] as Node3D).global_position
+		var from := gun.muzzle.global_position if gun != null else m.victim.global_position + Vector3.UP * 1.2
+		var dir := (from - head).normalized()
+		leg.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP if absf(dir.y) < 0.95 else Vector3.RIGHT), head + dir * 0.22)
+		across += 1
+		await physics_frames(1)
+	check(m.shots > 0, "he fires (%s)" % m.result())
+	var dead := await wait_until(func() -> bool: return not m.cheater.physiology.alive, 60 * 3)
+	check(dead, "Earl dead of it, the leg in the way or not (%s; shots %d)" % [m.cheater.physiology.describe(), m.shots])
+	check(m.shots == 1, "of the first shot (%d)" % m.shots)
+	leg.queue_free()
+
+
 func test_after_a_shot_they_cry_out_by_turns() -> void:
 	ValleyFolk.murder_auto = false
 	await _at(21.0)
@@ -239,3 +289,55 @@ func test_a_gun_drawn_by_the_table_is_noticed() -> void:
 	await physics_frames(20)
 	var lines := said.filter(func(s: Array) -> bool: return s[2] in CivilianBrain.LINES[&"gun_out"])
 	check(not lines.is_empty(), "someone minds the gun (%s)" % [said])
+
+
+
+# --- A reset (#864, review A5) -----------------------------------------------------------------
+
+## The murder's places are the valley folk's: none dropped for a misspelt name.
+func test_the_murders_places_are_all_the_folks() -> void:
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://config/moments/no_law_murder.json"))
+	var names: Array = d.cody.get("in", []) + d.cody.get("out", []) + d.stranger.get("in", [])
+	check(names.size() >= 4, "it names its ways (%s)" % [names])
+	for n: String in names:
+		check(_folk().places.has(StringName(n)), "%s is a place" % n)
+
+
+## After the murder, Backspace (a fresh start) and the night again: it plays again.
+func test_after_a_reset_the_murder_plays_again() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	# What the murder leaves the story (test_the_murder_with_you_sat_at_the_table plays it).
+	StoryState.set_fact("nolaw.murder", "done")
+	StoryState.set_fact("nolaw.earl", "dead")
+	ValleyFolk.murder_auto = true
+	await _at(22.0)
+	check(_folk().murder == null, "not again in the same game (%s)" % _folk().report())
+	GameReset.clear_statics()  # Backspace's, before the reload
+	await _new_valley()
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	ValleyFolk.murder_auto = true
+	await _at(22.0)
+	var m := _folk().murder as NoLawMurder
+	check(m != null and not m.done, "it plays again (%s)" % _folk().report())
+	if m != null:
+		m.reset()
+
+
+## Over before Cody came in (no Earl at the table): nothing written, and it comes again.
+func test_a_murder_over_before_it_played_writes_nothing_and_comes_again() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(12.0)
+	var first := _folk().start_murder() as NoLawMurder
+	check(first != null and first.done and not first.played, "over before it began (%s)" % (first.result() if first else {}))
+	check(not StoryState.has_fact("nolaw.murder"), "nothing in the story")
+	var first_id := first.get_instance_id() if first else 0
+	ValleyFolk.murder_auto = true
+	await _at(21.0)  # its hours yet to come: the spent one's let go
+	_folk()._murder_again = 0  # (not a minute's wait)
+	await _at(22.0)
+	var m := _folk().murder as NoLawMurder
+	check(m != null and m.get_instance_id() != first_id and not m.done, "a new one at its hour (%s)" % _folk().report())
+	if m != null:
+		m.reset()

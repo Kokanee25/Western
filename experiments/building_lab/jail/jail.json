@@ -76,7 +76,7 @@
   "_sean": "Sean, 2026-11-11: stone all round, one storey; the office on the corner with a short cell ell and the yard walled in stone to the lane; a flat tin roof behind a stone parapet; three strap-iron cages; raw rubble, dressed corners, oxblood doors; no pad (the stone follows the fall); the walk stops at the building; the stone walls laid as the builder's stone pieces for now (the masonry lab's rubble later, its step 8)."
  },
  "levels": {
-  "_doc": "One storey. The floor 2 ft up (the walk's top, ValleyTown's stone walk); 11 ft clear to the office's roof joists, 10 ft in the cell wing; flat roofs (joists level, the tin laid to fall to the back) behind parapets 2 ft 9 in over the roof with a 4 in coping: the office's coping 17 ft over its floor, the ell's 16 ft.",
+  "_doc": "One storey. The floor 2 ft up (the walk's top, ValleyTown's stone walk); 11 ft clear to the office's roof joists, 10 ft in the cell wing; flat roofs (joists level, the tin laid to fall to the back) behind parapets 2 ft 9 in over the roof with a 4 in coping: the office's coping 17 ft over its floor, the ell's 16 ft. #857 pick 2a (Sean, 2026-11-12): the office's front parapet steps up over the door (to 5.75) with piers at the corners (5.45), the cell wing's parapet about 1 m under the office's (4.2).",
   "ground": {
    "top": 0.6
   },
@@ -91,7 +91,7 @@
   "ell_ceiling": 3.65,
   "ell_roof": 3.907,
   "office_coping": 5.198,
-  "ell_coping": 4.847
+  "ell_coping": 4.2
  },
  "frame": {
   "_doc": "NEW: a load-bearing stone building. Rubble walls carry the roof joists in pockets; inside, one stone cross wall carries the office's joists at mid depth; the floor is timber on girders and piers in the office block, stone flags on rammed fill in the cell wing (nothing to dig through). Sizes from Mahan's and Rankine's rules for rubble walls (a one-storey wall of 12-17 ft: 18-22 in), the joists to checks.gd's sizing (the Wood Handbook; the roof at 40 lb/ft2 with men on it). Dressed sizes, metres [width, depth].",
@@ -120,7 +120,16 @@
     "height": 0.1,
     "proj": 0.04
    },
-   "pocket": 0.15
+   "pocket": 0.15,
+   "dress": {
+    "_doc": "#860: the dressed stones proud of the rubble's face (the sills by `sill.proj`, the coping by `coping.proj`, the lintels by `lintel`), the coping's stones of uneven lengths (m) and a few mm off level; the quoins are the shader's (StoneFinish: the footprint's convex corners).",
+    "lintel": 0.025,
+    "coping_len": [
+     0.55,
+     1.1
+    ],
+    "coping_jitter": 0.005
+   }
   },
   "cross_wall": {
    "thick": 0.45,
@@ -421,6 +430,23 @@
      "bars": true,
      "shutters": "inside"
     }
+   ],
+   "parapet_steps": [
+    [
+     0.0,
+     0.6,
+     5.45
+    ],
+    [
+     3.8850000000000002,
+     7.085000000000001,
+     5.75
+    ],
+    [
+     10.370000000000001,
+     10.97,
+     5.45
+    ]
    ]
   },
   {
@@ -606,6 +632,13 @@
      "strapped": true,
      "_doc": "into the corridor: its leaf swings into the guard room"
     }
+   ],
+   "parapet_steps": [
+    [
+     0.0,
+     0.6,
+     5.45
+    ]
    ]
   },
   {
@@ -623,7 +656,7 @@
    ],
    "out": "-x",
    "stone": true,
-   "top": 4.847,
+   "top": 4.2,
    "profile": [
     [
      -9,
@@ -691,7 +724,7 @@
    ],
    "out": "+x",
    "stone": true,
-   "top": 4.847,
+   "top": 4.2,
    "profile": [
     [
      -9,
@@ -759,7 +792,7 @@
    ],
    "out": "+z",
    "stone": true,
-   "top": 4.847,
+   "top": 4.2,
    "profile": [
     [
      -9,
@@ -878,11 +911,41 @@
   }
  ],
  "inside_finish": {
-  "_doc": "NEW: the office block's stone lime-plastered and whitewashed inside (a grimy band where men lean), the cell wing's bare rubble whitewashed: drawn as the game's stone until a plaster and whitewash are in the library (#811). The guard room's stud partition is boarded in the library's pale painted beaded boards at their judged width (#826, `boards` \"judged\") with a skirting; skirting, casings and the sashes in the trim's finish.",
+  "_doc": "NEW: the office block's stone lime-plastered and whitewashed inside (a grimy band where men lean), the cell wing's bare rubble whitewashed (#857 pick 1a: the library's `plaster_whitewash` and `rubble_whitewash`, drawn by StoneFinish where a stone face looks into a region). The guard room's stud partition is boarded in the library's pale painted beaded boards at their judged width (#826, `boards` \"judged\") with a skirting; skirting, casings and the sashes in the trim's finish.",
   "office": "plaster_whitewash",
   "cells": "rubble_whitewash",
   "boards": "judged",
-  "skirting": 0.2
+  "skirting": 0.2,
+  "regions": [
+   {
+    "rect": [
+     0.56,
+     0.56,
+     10.41,
+     13.46
+    ],
+    "y": [
+     0.6,
+     4.0
+    ],
+    "finish": "plaster_whitewash",
+    "_why": "the office block: office, sheriff's room, guard room"
+   },
+   {
+    "rect": [
+     6.65,
+     14.02,
+     10.41,
+     22.6
+    ],
+    "y": [
+     0.6,
+     3.65
+    ],
+    "finish": "rubble_whitewash",
+    "_why": "the cell wing"
+   }
+  ]
  },
  "roof": {
   "_doc": "NEW: flat roofs behind the parapets. The office's joists front to back in pockets (front wall, cross wall, back wall); the ell's across the wing in pockets in its side walls, the office's back wall's parapet standing over its north end. Tin over boards on both; the office roof is a place to stand (the jail night): a hatch from the guard room with a fixed ladder, a stovepipe through it from the office stove.",
@@ -1006,9 +1069,9 @@
   }
  },
  "yard_walls": {
-  "_doc": "NEW (Sean, 2026-11-11: stone all round): 10 ft rubble walls 18 in thick closing the jail yard, on footings 3 ft down, their tops stepped with the ground in 6 m lengths, a dressed coping; a plank wagon gate (10 ft, two leaves, oxblood) on Main Street and on the rear lane. Lines on the walls' outer faces, the stone inside.",
+  "_doc": "NEW (Sean, 2026-11-11: stone all round): 7 ft rubble walls (#857 pick 3b, Sean 2026-11-12: was 10 ft; the cell wing's end wall and its slit show over it from the lane) 18 in thick closing the jail yard, on footings 3 ft down, their tops stepped with the ground in 6 m lengths, a dressed coping; a plank wagon gate (10 ft, two leaves, oxblood) on Main Street and on the rear lane. Lines on the walls' outer faces, the stone inside.",
   "thick": 0.45,
-  "height": 3.05,
+  "height": 2.13,
   "step": 6.0,
   "walls": [
    {
@@ -1693,7 +1756,15 @@
   "trim_outside": "painted_green",
   "roof": "weathered_pine",
   "rough": "framing",
-  "chimney": "stone"
+  "chimney": "stone",
+  "stone": {
+   "want": {
+    "entry": "rubble_stone",
+    "age": "few"
+   },
+   "inside_age": "few",
+   "_why": "#860: coursed rubble, dressed quoins, lintels, sills and coping (StoneFinish); until it passes the materials judge, the game's stone"
+  }
  },
  "sources": [
   "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021): the game's timber figures and checks.gd's sizing of every span.",
