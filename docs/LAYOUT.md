@@ -510,6 +510,36 @@ taken once at noon) taken again when the room's light changes. By day nothing ye
 empty: R1's haze and shade read as washed noon to the cheap judge, round 2).
 Trials: `screenshots.gd --variants=` files that set `settings.real_look` first, then the dials.
 
+**The real sky** (#918; `RealSky`, RealLook's child; dials `config/looks/real_sky.json`; `tests/test_real_sky.gd`).
+Under the real look it swaps our own sky in for the painted one on the world's Sky (`-- --painted-sky`:
+the before) and lights the world from it each frame after DayCycle (process priority 101): `SkyModel`
+(`src/render/sky_model.gd`: Hillaire 2020 / Bruneton 2017 air, dust and ozone, a 128x32 transmittance
+table, CPU single scattering for the fog and clouds, the moon's phase, Allen's phase law, the stars'
+frame) gives the sun's colour and energy (what the air leaves of it), the moon's (phase by date: day 1
+full, so every shot keeps its moon; it rides `(phase - 0.5) * 24.8` h behind DayCycle's full-moon
+path), the fog's colour (the horizon's radiance; density x `light.fog`, x `fog_far` with far land), the
+ambient (the sky's own radiance, contribution 1). `src/render/real_sky.gdshader` draws it: the
+scattering at quarter size (Rayleigh, Mie, ozone, multiple scattering as a share), sun disk and glare,
+the moon lit from its phase, airglow, stars on a cube grid (PCG hash) and the Milky Way turning round
+the pole (opposite the noon sun, `sun_tilt_degrees` up). Its uniforms are named apart from the painted
+sky's (DayCycle keeps sending `sun_dir`/`moon_dir`/`star_strength` to whatever sky is in place); it
+reads no `POSITION` (a sky that does is re-lit whenever the camera moves: `eye_height` in 25 m steps).
+`sky.<uniform>` addresses reach it while it's on; `sky.coverage` is the clouds' coverage.
+**The clouds** (`src/render/cloud_layer.gdshader`): a dome kept on the camera, drawn at the back of the
+depth range (behind everything, over the sky), a flat sheet `height` m up, two scales of a tiling noise
+and a broad one bunching them, Beer and powder along the light (Schneider 2015), lit by the sun at a
+third of their height, then the moon; `coverage` (RealSky.set_coverage(to, seconds), for weather)
+dims the sun (`overcast_sun`), fades its shadows and greys the sky. **The far land** (`FarLand`, the valley
+only; `-- --no-far-land`): the bake every 32 m (its quads re-sorted back to front from the camera every
+150 m, ~8 ms) and the ranges round the valley to 45 km (a ring mesh, outer rings first), in the
+transparent pass at depth 0 so only the sky's pixels take it, unshaded: lit and hazed in its shader
+from RealSky's light (`FarLand.set_light`, `set_haze`). Traps: Godot keeps a 24-bit depth where the card
+has it (one step behind the far plane: no far-plane depth tricks); the scene's fog reads a fragment's
+depth (the far land is fog_disabled and hazes itself); a 45 km far plane drew the whole valley from the
+trestle (22.7 M primitives); LightFinish's quad (sorting -1000) lays the pre-transparent screen over the
+frame, so the clouds and far land sort after it (`RealSky.SORT_*`), and anything transparent sorted
+before it is wiped.
+
 **Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
 dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab
 `experiments/light_lab/`). **Off** (`Settings.room_light`; `-- --room-light=on`, `settings.room_light`);
@@ -1671,25 +1701,40 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   bucket down where he is; calm, he picks them up wherever they are and finishes. TownLife gives
   him both chores (`[mopping, wipe]`).
 - **`ValleyFolk`** (`src/people/valley_folk.gd`, #756; data `config/valley_folk.json`;
-  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). Each man in the data has
-  a model, `hours` [from, to] (past midnight when to < from), a `from` place (his way in and out) and
-  a `post`: `behind`/`at_bar` the set's bar (`along` it, + north) or a `chair` of the card table (n, e,
-  s, w). A CivilianBrain at his post (`go_to` gives him a new one and drops his old route), finding
-  his way by the folk's own `places` (ValleyTown.add_ways onto a new Waypoints, ~560 places, plus the
-  data's `nolaw_*`; a route ~6 ms); the card players held in their chairs by **`SitChore`**
+  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). **The day and the book**
+  (townsfolk step 2, #870; `docs/briefs/townsfolk.md` §3): each man has a model, a `home` (a place: a
+  building's lot id, its door, or a way out of town such as `back@0`) and a `day`: blocks by the hour
+  (`from`, the last running round to the first), each `at` a named spot (`spots`: `behind`/`at_bar`
+  the set's bar, a card table `chair`, or `lot` + `at` facing `faces`; the place's, not the man's) or
+  `in` a place (**on the book**, `TownBook`: a row, no body, no cost), and `do` (`stand`, `drink`...;
+  on the book `sleep`, `home`, `work`, `breakfast`, `supper`, `away`). One list, or one a **day kind**
+  (`ordinary` the default; `calendar.kinds`: `sunday` by `week_day`, `payday` `every` 14 from day 13,
+  an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
+  past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
+  (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
+  to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
+  (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
+  (ValleyTown.add_ways onto a new Waypoints, ~560, plus the data's `nolaw_*`); a jump past and he's
+  there at once (`_place`). **Nothing in view**: he comes out of a door only when you can't see it
+  and goes in only once you can't see him (`seen`: the camera's frustum, nearer than the book's
+  `seen_m` 120 m, no WORLD between; waiting `_due` behind it, or at the door; `GONE_ANYWAY` 240 s only
+  out of sight); `view_log` logs every body in or out with whether it was seen (the test's probe).
+  **BookLights** (`src/people/book_lights.gd`, a greybox stand-in for art's fronts): each building in
+  anyone's day gets a window beside its door lit after dark (`book.dark`) while someone's in at a
+  `lamp` doing, and chimney smoke while someone's at a `smoke` doing (`book.doings`). A CivilianBrain
+  at his spot (`go_to` a new one), the card players held in their chairs by **`SitChore`**
   (`src/people/sit_chore.gd`: within 2 m of a free chair, free, wanted: Seating.sit_step; trouble or
-  sent off: up out of it). The clock read every 0.5 s: run into a man's hours (within `walk_in_h`,
-  0.5 h) and he walks in from `from`; jumped past (7, a bridge `time`, a load at night) he's at his
-  post; past his hours he walks back out to `from` and is freed (`GONE_AT` 1.6 m; `GONE_ANYWAY` 240
-  s), or at once on a jump. Built while the valley loads and kept out of the tree (TownLife's riders,
-  #488): ~4.3 s the first time a process builds these five models, ~12 ms a man after. Tonight: the
-  barkeep 17-3 (from the saloon's door), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the
-  rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
-  seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
-  valley_bench spot `saloon_yard`.
+  sent off: up out of it). Built while the valley loads and kept out of the tree (TownLife's riders,
+  #488): ~4.3 s the first time a process builds these models, ~12 ms a man after. Tonight: the barkeep
+  17-3 (the saloon), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the rancher 19.3-1 (Back
+  Street), Earl 19.5-2 (the yard's back), the band's fiddler and piano player 19-1.5 (#799, `plays`: PlayChore at
+  their spot); by day the townsman, the loudmouth and the undertaker on their
+  walks. `report()` (state, block, book, where, seated; `_day`: number, kind, the windows and smoke);
+  Prof `valley_folk`; valley_bench spot `saloon_yard`.
   A man with `act` (No Law's Cody and the stranger, #773) has no hours: prebuilt with the rest, the
   act `take`s him (no brain) and `release`s him. A dead man stays (state `dead`); `send_off(id)` walks
-  a man out for the rest of his hours (`kept_out`). It starts No Law's murder (`_maybe_murder`,
+  a man home for the rest of his block (`kept_out`). It starts No Law's murder (`_maybe_murder`,
   `start_murder`; src/moments). **CivilianBrain**'s lines: a man's no closer than `SAY_GAP` 2.5 s
   (but fire, thanks, his chair), a shot's cry `CRY_SPREAD` after it, kept back if another just cried,
   never another man's line of the last 4 s; `hush(s)` (an act's quiet); a gun drawn within `GUN_SEEN`
