@@ -199,7 +199,8 @@ func _add_set_places() -> void:
 		if n.begins_with("_"):
 			continue
 		var d: Dictionary = own[n]
-		var at := _set_point(d.at, 0.05)
+		# A place in another lot (`lot`: a lot with no walk has no door of its own), else in the set's.
+		var at := lot_point(String(d.lot), float(d.at[0]), float(d.at[1]), 0.05) if d.has("lot") else _set_point(d.at, 0.05)
 		var links: Array = []
 		for l: String in d.get("links", []):
 			if places.has(StringName(l)):
@@ -415,6 +416,14 @@ func door(place: StringName, p := {}) -> Vector3:
 ## His home (`home`, else the act men's `from`): where he's built and goes when nothing says.
 static func home_of(p: Dictionary) -> StringName:
 	return StringName(String(p.get("home", p.get("from", ""))))
+
+
+## His dials, each 0 to 1 (townsfolk brief section 2): `nerve` (stays when frightened), `nosy` (comes to
+## look), `duty` (helps, fetches, tells). Data only for now: nothing reads them yet (CivilianBrain will,
+## townsfolk step 5); a man with none gets the middle.
+static func dials_of(p: Dictionary) -> Dictionary:
+	var d: Dictionary = p.get("dials", {})
+	return {"nerve": float(d.get("nerve", 0.5)), "nosy": float(d.get("nosy", 0.5)), "duty": float(d.get("duty", 0.5))}
 
 
 ## The door he's on his way in at (going), else his block's, else his home's.
