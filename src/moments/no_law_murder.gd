@@ -3,7 +3,7 @@ extends CardCheat
 ## No Law, beat 3 (docs/missions/no-law.md; issue #773; data config/moments/no_law_murder.json): at
 ## night in the saloon's yard, the card game going. A stranger walks in and sits in the free chair
 ## you're not in ("Evening. Mind if I sit in a while?"). A minute on, Cody (one of the Baron's hired
-## guns; not the red shirt, who shot the sheriff: Sean, #796) comes in off the street already
+## guns; not the red shirt, Kett, who raids Joe's camp that night; the stranger, the Baron's foreman, shot the sheriff: #905) comes in off the street already
 ## shouting at Earl ("Earl, you cheating son of a bitch!", Sean's note 2026-11-12: as he walks into
 ## the yard, not at the table); as he comes up the game stops and holds (CardGame.interrupt(&"cody",
 ## true)), the stranger tells you not to move, and sat at the table you're held there

@@ -216,7 +216,7 @@ func test_he_dies_and_you_nod() -> void:
 	await _answer_and_end(m, "nod")
 	check_eq(m.answer, "nod", "you nod")
 	var sl := _lines_of("dying_sheriff")
-	check(sl.has("Faded red shirt. I'd know him again. You find him, Harlan."), "clear: the red shirt (%s)" % [sl])
+	check(sl.has("Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan."), "clear: the sorrel and 'friend' (%s)" % [sl])
 	check(sl.has("Good. You're my deputy. Doc, you heard him."), "the nod's line")
 	check(not sl.has("That's not the way this works, son. ... Doc. Pin it on him."), "not the shake's")
 	check(sl.has("Sun's up. Ain't that something."), "his last words")

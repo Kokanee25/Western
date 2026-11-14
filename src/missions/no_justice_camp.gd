@@ -499,6 +499,19 @@ func _do(what: String) -> void:
 			prompt(String(_prompts().get("trail", "")), 6.0)
 			joe_brain.held = false  # with you again
 			_finish(&"done")
+			_next_act()
+
+
+## Step 3 from here (#934, NoJusticeHideout): Joe handed on to it (no longer this scene's to free).
+## Not with `no_next` (the tests of this step alone, the bench's camp).
+var next_act: Moment
+
+
+func _next_act() -> void:
+	if opts.get("no_next", false):
+		return
+	_made.erase(joe)
+	next_act = Moment.start_named(&"no_justice_hideout", street, null, {"joe": joe, "pace": _pace()})
 
 
 ## Toward the hideout from Joe, this far (on the ground).
