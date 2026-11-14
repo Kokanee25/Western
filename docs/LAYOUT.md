@@ -2253,6 +2253,15 @@ the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `t
 cuts a review run's crops and writes the judge's prompt; with `--before` a blind A/B (sets P and Q, the
 key under `build/`). scan_wood's later dials: `contact`/`arris` (joints as shadowed gaps; a board's covered
 edges in UV2, SamplePanel), `age_split`/`checks`/`end_rot` (few against old), `varnish_dark`.
+**Eased edges** (#873): every library board's edges drawn rounded by the normal alone (scan_wood's
+`edge_round`, radius new/old in m by age, `edge_round_end` the crosscut ends' share;
+`MaterialLibrary.EDGE_ROUND` per class or an entry's own `edge_round`): each face takes its half of a
+quarter round toward each of its edges (the board's box in CUSTOM1, the face's own side `v_side`), the
+scan's detail laid over it by reoriented normal mapping; under a pixel it fades, so it never sparkles.
+No geometry (a bevelled board mesh, `tools/edge_round_bench.gd` on saloon B's 7,287 boards: x2.25 vertices,
+x3.6 triangles, x2.2 build time, +1.4 s);
+silhouettes and collision stay square. A shaped board (role + 10: `PropKit.lib_cut_mesh`, `lib_profile_mesh`)
+keeps its own normals and isn't eased.
 **Paint** (#721's paint round, 2026-11-11): entries of family `paint` (codes P1-P6) lie `over` a wood
 (`MaterialLibrary.resolved`: the wood's fields under the paint's; `panel_class` the panel's gaps;
 `wood_class` the resolved class SamplePanel uses); `--panels=paint`; an `inside` entry adds the 1 m night
@@ -2405,6 +2414,9 @@ screen-space bump's drawn outlines (`docs/screenshots/judge/2026-11-13_stone_r*`
 **Library woods, baked metal and the factory's doctor's batch** (#788, `docs/briefs/prop-factory.md`
 "The recipe brought up to date"): kit looks `lib:<entry>/<age>[/top]` (`PropKit.dress_lib`, a member
 drawn as a material library board by `PropKit.board_mesh`, the building lab's board mesh shared;
+a member run to a profile in a library wood by `PropKit.lib_profile_mesh`, #873: the sides one long face
+whose across runs round the outline, so the scan wraps it; a member's meta `draw` keeps its profile when
+a library finish is laid over it later, as `Railing`'s rail does;
 `lib_material` one a wood and age, indoors) and `pbr:<model>` (`PropModels.pbr`: a model's baked
 `_albedo.png` and `_orm.png`, from `tools/blender/props/metal.py`'s finishes, the guns' recipes).
 `tools/props/doctor.py` writes the doctor's kit files, `tools/blender/props/doctor_d1.py` their

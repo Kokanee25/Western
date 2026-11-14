@@ -8,7 +8,9 @@ shader_type spatial;
 //   CUSTOM1 = (L, W, T, warp: how far this board twists, cups, bows and crooks, 0 true .. 1 an old shed's)
 //   CUSTOM2 = (nail rows: 0, 1 or 2; their place across the face, 0..1 of the half width; ground y;
 //              role: 0 a board, 1 a bar's rail top: glass rings and elbow wear where it's varnished,
-//              2 a drawer front: hands round its pulls, under `furniture`)
+//              2 a drawer front: hands round its pulls, under `furniture`; +10 a shaped board, cut to
+//              an outline or run to a profile (PropKit.lib_cut_mesh, lib_profile_mesh): its normals
+//              its own and its edges its shape's, not eased as a box's)
 // so a batch of boards draws the same as the boards one by one (part 5: in the vertex shader, from a
 // seed, not unique meshes). Its collision is still its plain box.
 //
@@ -93,6 +95,16 @@ uniform float end_rot = 0.0;
 // millimetres rounded over, as a handled, weathered edge is.
 uniform float contact = 0.0;
 uniform float arris = 0.0;
+// Eased edges (#873, Sean 2026-11-12: "we need to round the wood edges for sure"): no board has a
+// razor 90 degree edge. A planed board's arrises are eased a couple of millimetres by the plane and
+// the first handling; years of weather, hands and feet round them more. Every face of every board is
+// drawn as if its four edges were rounded to a radius `edge_round` (metres; x new, y old, by age; a
+// crosscut end's arrises `edge_round_end` of it), by the normal only: the box, its silhouette and its
+// collision stay as they are. Each face takes its half of the round (0 to 45 degrees, the other face
+// the rest), so the normal is continuous over the corner and the light catches the edge as a thin
+// highlight (or a dark line on the shaded side) instead of a hard step.
+uniform vec2 edge_round = vec2(0.002, 0.006);
+uniform float edge_round_end = 0.6;
 // The fresh grain's contrast against its own neighbourhood (a high mip): 1 the scan's, less to lose a
 // figure that reads drawn on (Sean, #721: new pine "lose the drawn-on grain").
 uniform float grain_contrast = 1.0;
@@ -196,6 +208,10 @@ varying vec3 v_yaxis;  // across its face in the world
 varying flat vec2 v_cover;
 varying flat float v_length;
 varying flat float v_thick;
+// Which side of the board a face is on (+1 or -1 along its own normal's axis: Z for a long face, Y
+// for an edge, X for an end), for the rounded edges' directions in the face's tangent space.
+varying flat float v_side;
+varying flat float v_shaped;
 
 float hash11(float p) {
 	p = fract(p * 0.1031);
@@ -229,10 +245,12 @@ void vertex() {
 	float corner = smoothstep(0.6, 1.0, a * lift_end) * smoothstep(0.0, 1.0, w * lift_side);
 	float dz = bow * (1.0 - a * a) + cup * (w * w) + twist * a * w + lift * corner;
 	float dy = crook * (1.0 - a * a);
+	v_side = CUSTOM0.w < 0.5 ? sign(NORMAL.z + 1e-6) : (CUSTOM0.w < 1.5 ? sign(NORMAL.x + 1e-6) : sign(NORMAL.y + 1e-6));
 	VERTEX.z += dz;
 	VERTEX.y += dy;
-	// The long faces' normals from the displacement's slope (z = f(x, y)).
-	if (CUSTOM0.w < 0.5) {
+	// The long faces' normals from the displacement's slope (z = f(x, y)); a shaped board keeps its own.
+	v_shaped = step(9.5, CUSTOM2.w);
+	if (CUSTOM0.w < 0.5 && v_shaped < 0.5) {
 		float fx = (bow * -2.0 * a + twist * w) * 2.0 / L;
 		float fy = (cup * 2.0 * w + twist * a) * 2.0 / W;
 		NORMAL = normalize(vec3(-fx, -fy, 1.0) * sign(NORMAL.z));
@@ -251,7 +269,7 @@ void vertex() {
 	v_wnormal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	v_ground = CUSTOM2.z;
 	v_nails = CUSTOM2.xy;
-	v_role = CUSTOM2.w;
+	v_role = CUSTOM2.w - 10.0 * v_shaped;
 	v_cover = UV2;
 	v_length = L;
 	v_thick = max(CUSTOM1.z, 0.001);
@@ -292,6 +310,21 @@ vec3 scan_normal(sampler2D tex, vec2 uv, vec2 flip, bool grain_v) {
 	}
 	n.xy *= flip;
 	return n;
+}
+
+// The eased edges (`edge_round`): the face's normal tilted toward each edge within `r` of it, as a
+// quarter round seen from this face (its half: the tilt's sine 0 at the round's start to 0.71 at the
+// edge, a true round's projection, linear in the distance), in the face's tangent space (TANGENT the
+// board's X on a long face and an edge, Y on an end; BINORMAL = NORMAL x TANGENT). `d` the distances to
+// the face's edges (x: the tangent's way, y: the binormal's), `dir` which way each is (-1, 0, +1).
+// Under a pixel the round is drawn a pixel wide and fainter, so it never sparkles.
+vec2 eased_tilt(vec2 d, vec2 dir, vec2 r) {
+	vec2 fw = max(fwidth(d), vec2(1e-6));
+	vec2 re = max(r, fw * 1.5);
+	vec2 t = clamp(1.0 - d / re, 0.0, 1.0) * (r / re);
+	vec2 tilt = 0.7071 * t * dir;
+	float l = length(tilt);
+	return l > 0.8 ? tilt * (0.8 / l) : tilt;
 }
 
 void fragment() {
@@ -662,7 +695,7 @@ void fragment() {
 	}
 	if (arris > 0.0 && face < 0.5) {
 		float e = smoothstep(v_width * 0.5 - 0.0035, v_width * 0.5, abs(v_m.y));
-		nrm.y += sign(v_m.y) * e * 0.9 * arris;
+		// (Its tilt is the eased edges' now, `edge_round`, on every face and edge.)
 		// Down in the joint it's dark (a tongue-and-groove's V most of all).
 		col *= 1.0 - mix(0.25, 0.5, varnish) * e * e * arris * (1.0 - furniture);
 	}
@@ -810,6 +843,36 @@ void fragment() {
 	ROUGHNESS = clamp(rough + (roughness_add + 0.18 * ag * (1.0 - varnish)) * (1.0 - pcov) - nail * 0.2, 0.05, 1.0);
 	SPECULAR = mix(edge_face && (varnish > 0.0 || traffic > 0.0) && furniture < 0.5 ? 0.15 : mix(specular_wood, 0.5, varnish) * (1.0 - 0.6 * by_joint * varnish), 0.5, pcov);
 	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
+	// The eased edges (`edge_round`), the scan's detail laid over the round by reoriented normal
+	// mapping (Barre-Brisebois and Hill, "Blending in Detail", 2012), so the grain follows the curve.
+	float rr = mix(edge_round.x, edge_round.y, smoothstep(0.0, 1.0, ag)) * (1.0 + 0.25 * rnd(seed, 80.0) * variety);
+	vec2 tilt = vec2(0.0);
+	if (rr > 0.0 && bisect >= 3 && v_shaped < 0.5) {
+		float rmax = 0.45 * min(v_width, v_thick);
+		if (face < 0.5) {
+			// A long face: its ends (along X, the tangent) and its long edges (across Y; the binormal is v_side Y).
+			float dx = min(v_m.x, v_length - v_m.x);
+			float dirx = v_m.x < v_length * 0.5 ? -1.0 : 1.0;
+			tilt = eased_tilt(vec2(dx, v_width * 0.5 - abs(v_m.y)), vec2(dirx, sign(v_m.y) * v_side),
+					vec2(min(rr * edge_round_end, rmax), min(rr, rmax)));
+		} else if (face > 1.5) {
+			// An edge: its ends, and its arrises with the long faces (across Z; the binormal is -v_side Z).
+			float dx = min(v_m.x, v_length - v_m.x);
+			float dirx = v_m.x < v_length * 0.5 ? -1.0 : 1.0;
+			tilt = eased_tilt(vec2(dx, v_thick * 0.5 - abs(v_m.y)), vec2(dirx, -sign(v_m.y) * v_side),
+					vec2(min(rr * edge_round_end, rmax), min(rr, rmax)));
+		} else {
+			// An end: its arrises with the edges (across Y, the tangent) and the long faces (across Z; the
+			// binormal is v_side Z), a crosscut's.
+			float re = min(rr * edge_round_end, rmax);
+			tilt = eased_tilt(vec2(v_width * 0.5 - abs(v_m.x), v_thick * 0.5 - abs(v_m.y)), vec2(sign(v_m.x), sign(v_m.y) * v_side), vec2(re));
+		}
+	}
+	if (dot(tilt, tilt) > 0.0) {
+		vec3 tb = vec3(tilt, sqrt(max(1.0 - dot(tilt, tilt), 0.0))) + vec3(0.0, 0.0, 1.0);
+		vec3 du = n * vec3(-1.0, -1.0, 1.0);
+		n = normalize(tb * dot(tb, du) / tb.z - du);
+	}
 	NORMAL_MAP = n * 0.5 + 0.5;
 	CLEARCOAT = edge_face ? mix(0.0, 0.4 * varnish, furniture) : varnish * (1.0 - smoothstep(0.5, 1.0, wear)) * (1.0 - 0.85 * by_joint) * (1.0 - 0.8 * fdust);
 	CLEARCOAT_ROUGHNESS = mix(0.06, 0.55, clamp(wear + ag * 0.25 + rings + dull * 0.6, 0.0, 1.0));

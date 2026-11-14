@@ -21,6 +21,8 @@ const VIEWS := {
 	"yard": [Vector3(-19.5, 3.2, 12.0), Vector3(0.0, 4.4, 11.0), 58.0, 10.0],
 	# From the gallery's back corner over the rail: the well, the card tables, the bar under the girders.
 	"well": [Vector3(15.9, 6.55, 12.9), Vector3(9.0, 1.6, 6.0), 72.0, 15.5],
+	# The gallery's handrail at a metre (#873): its rounded top and finger groove, the well beyond.
+	"rail": [Vector3(16.05, 6.45, 9.7), Vector3(15.2, 5.75, 8.85), 60.0, 15.5],
 	# The bar room from inside the corner doors: the bar on the right, the posts and girders, the well.
 	"bar_room": [Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 15.5],
 }
