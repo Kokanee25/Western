@@ -14,6 +14,15 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   `painted_oxblood_batten` (few, old). Buildings take finishes by name. Floors and furniture (#825):
   `floor_fir_worn` FL1 (all ages; feet's wear from the building's traffic map), `furniture_oak` FN1 (all),
   `furniture_painted_pine` FN2 (new, few); `furniture_walnut` FN3 parked (top clouds, no walnut figure).
+- **Our own sky** (#918, under the real look; LAYOUT "src/render" "The real sky"): `RealSky` swaps a
+  physically based sky in (scattering, sun and moon light, moon phase by date with day 1 full, stars
+  and the Milky Way), lights the world from it (sun colour and energy, ambient, fog), draws one sheet of
+  drifting cloud (`coverage`; `RealSky.set_coverage` for weather) and in the valley the far land (the
+  bake past 800 m and the ranges to 45 km, over the sky only). Dials `config/looks/real_sky.json`.
+  Judged twice (`docs/screenshots/judge/2026-11-14_sky_r*`): all cheap indie, decided by the grey-box;
+  day and overcast skies and the Milky Way read real; left: midday clouds flat (no bulk), golden hour
+  not golden enough at 17.6, the night street crushed, the moon a plain disk. **Next: weather** (storm
+  cells pushed across the valley over the coverage).
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
   `docs/concept/judge/MATERIAL.md`): a swatch passes at "game" or better with no tile tell. Cheap judge
   (`critic.py cheap`, `--refs=<Studio>/references`) for whole views. Judges vary about a grade run to run.
@@ -67,6 +76,12 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - Waiting on Sean: #615 (yardstick), #641 follow-ups.
 
 ## Traps
+- The sky: Godot keeps a 24-bit depth where the card has it (no tricks behind the far plane); the scene's
+  fog reads a fragment's depth; LightFinish's quad (sorting -1000) wipes any transparent sorted before
+  it; a sky shader reading POSITION re-lights on every camera move; DayCycle sends `sun_dir`/`moon_dir`/
+  `star_strength` to whatever sky is in place. The valley's sun stands in the north at noon (DayCycle
+  tilts it to -Z; valley.json's north is -Z): the stars turn round a southern pole to match. Poly
+  Haven is blocked here (no photo skies for the judges).
 - One lavapipe render at a time (~10 GB each; two OOM). A real-look view ~10 min; a full golden render
   ~2.5 h (batches of 24-25 with `--only=`); a material lab shot ~1 min after ~1.5 min of load.
 - Start with `--game-args=--real`: switching the real look on at runtime crashes lavapipe. Needs
