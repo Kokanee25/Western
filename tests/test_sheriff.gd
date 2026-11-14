@@ -234,3 +234,22 @@ func test_leave_him() -> void:
 	check_eq(m.care, "left him", "care: left him")
 	check_eq(StoryState.get_fact("sheriff.care"), "left him", "the story knows")
 	check(m.phys.alive, "a freighter finds him alive")
+
+
+## Enter after (or held): the scene starts again from dawn with the story as it stood when it
+## began (#864): an earlier fact kept, what the try set gone.
+func test_a_restart_starts_it_from_the_story_as_it_began() -> void:
+	StoryState.clear()
+	StoryState.set_fact("earlier.thing", true)
+	var m := await _start()
+	check(m != null, "started")
+	if m == null:
+		return
+	StoryState.set_fact("sheriff.care", "left him")
+	StoryState.set_fact("during.try", true)
+	var again := m.restart() as SheriffOnRoad
+	await physics_frames(10)
+	check(again != null and not again.done, "started again")
+	check(StoryState.has_fact("earlier.thing"), "the earlier fact kept")
+	check(not StoryState.has_fact("during.try"), "the try's fact gone")
+	check(not StoryState.has_fact("sheriff.care"), "no care yet")

@@ -35,15 +35,18 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   Sean's picks (the `waiting on Sean` issue). The rooms wait on the prop lab's furniture.
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
   `RECIPE.md` (#824-#826, #829); the jail built on them.
-- **Saloon B, the corner saloon** (#772; step 1 done, #848): its spec and frame stand on the corner lot
-  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, nine tests): 7,560 members, the
-  open well and its 36 in rail, the dance hall on two girder lines, the wrapping balcony over both walks, the cut
-  corner on one iron column, the sawn girder (`sabotage`, `saw_girder`: cut, its panel comes down over the bar;
-  uncut it carries a dancing crowd). **Next: step 2, the finishes, light and judges (its own issue).** Not in
-  step 1: the hip and side cornice, the cellar dug in the valley and its bulkhead (#695), No Law's set (still in
-  the yard: gameplay's to move, the spec's `no_law_table` and bar are there), props (the prop lab).
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change (RECIPE "A
-  two-storey building under trusses").
+- **Saloon B, the corner saloon** (#772): step 1 merged (#848: spec and frame on the corner lot,
+  `experiments/building_lab/saloon_b/` README, `tests/test_building_saloon_b.gd`). **Step 2 (the look) is PR #884,
+  held** on three red people tests in its CI (Earl's chair, No Law's murder, the wound smear; the card game is
+  played beside the saloon): Sean's pick, merge red or hold, is #923. **Step 3 (#886), on branch
+  `claude/art-saloon-b-sign` (built on #884)**: THE SALT CREEK painted ($0.10) on a walnut board cut to it,
+  four lamps on the walks (`lamps.kit` `side: "out"`), the corner at dusk judged good indie (was cheap); the
+  critic: the lamps' light doesn't reach the walk, the sign grey on grey by day and lost at dusk. It merges
+  after #884. The girder test (#922) allows only what the falling floor hits. The valley's collision bodies
+  30,993 of Jolt's 32,768 with main today (step 2 measured 27,908): little headroom.
+  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; a factory
+  entry goes under `materials` in materials.json; a People texture run rewrites every painted sign's
+  `.import` bare: restore all but the new one.
 - **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
   floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
   the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
