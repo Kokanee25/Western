@@ -27,8 +27,14 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
   normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
   meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
-  Next on it: wear and dents (#901). Saloon B's gallery rail takes the framing finish (`gallery/` not in its
-  surfaces): its step 2's to name.
+  Saloon B's gallery rail takes the framing finish (`gallery/` not in its surfaces): its step 2's to name.
+- **Wear by use** (#901, PR #963; RECIPE.md "Wear by use", LAYOUT "Wear by use and knocks"): scan_wood's use pass,
+  `use_wear` from a spec's `materials.wear` (saloon B 1.0, jail 0.65, doctor 0.45) and the members' `use_role` (door
+  leaf, tread, walk, jamb) or a kit look's `/<role>` (the bar's top `bar`, plinth and low rail `kick`). **Dents and
+  cuts (`dings`) built but 0** (Sean 2026-11-14: two judge rounds, no grade moved, slightly less liked). Not done:
+  chairs (the kit chair in library oak broke test_perf's 1800 meshes and the texel-grid tests: needs a library chair
+  for the new buildings), the brass foot rail, the card tables' initials. **Next: #964** (FL1's hazy worn path, FN1's
+  laminate oak). Quick look at a wood: `tools/wood_probe.gd` (~1 min).
 - **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
   from one change; re-approving them needs each view's diff looked at, not a blanket approve.
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
@@ -90,7 +96,7 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   `star_strength` to whatever sky is in place. The valley's sun stands in the north at noon (DayCycle
   tilts it to -Z; valley.json's north is -Z): the stars turn round a southern pole to match. Poly
   Haven is blocked here (no photo skies for the judges).
-- One lavapipe render at a time (~10 GB each; two OOM). A real-look view ~10 min; a full golden render
+- One lavapipe render at a time (~10 GB each; two OOM). On an 8 GB box: swap (`fallocate -l 6G`, `mkswap`, `swapon`) or the valley is killed; nothing else heavy beside it. A real-look view ~10 min; a full golden render
   ~2.5 h (batches of 24-25 with `--only=`); a material lab shot ~1 min after ~1.5 min of load.
 - Start with `--game-args=--real`: switching the real look on at runtime crashes lavapipe. Needs
   `mesa-vulkan-drivers`, or Vulkan silently falls back to OpenGL.
