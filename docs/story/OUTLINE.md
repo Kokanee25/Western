@@ -14,7 +14,8 @@ the end as out of date.
   2026-11-11 (#830); each pick is written "D (Sean, 2026-11-11, #830)" with its letter, or
   "(D, Sean 2026-11-11, #830, C*n x*)" inside a line. C8 is the session's pick on his say-so and
   stays **P** until he nods. What the picks opened is in Part C
-  (s21–s27).
+  (s21–s27). **C16 (2026-11-13):** the sheriff's shooter is not Kett (D); who he is waits on
+  Sean's pick, and his lean (the stranger at the table) is written in here as P.
 
 The other parts: `SETUPS.md` (what's planted where), `VOICES.md` (who talks how, and who knows what
 when), `WORDS.md` (1880s speech), `CONTRADICTIONS.md` (what doesn't fit). One-page summary: `README.md`.
@@ -24,7 +25,8 @@ when), `WORDS.md` (1880s speech), `CONTRADICTIONS.md` (what doesn't fit). One-pa
 Salt Creek, 1882. Water is the stakes. The cattle Baron wants every drop in the valley, and the law
 won't let him use the Army to take a quiet town (the Posse Comitatus Act, 1878), so he sets out to
 make Salt Creek **look like a town in revolt**: staged attacks, telegrams, fights in front of an
-Army captain (D, 2026-11-11). His hired guns shoot the sheriff over the family's water right, raid a
+Army captain (D, 2026-11-11). His foreman shoots the sheriff over the family's water right (P,
+Sean's lean, C16 a), his hired guns raid a
 Southern Ute camp to start an "outbreak" for his telegrams, wreck a train and saw through a dance
 floor. Thomas Harlan, a homesteader and
 former army hospital steward, finds the sheriff dying on the road, is sworn in as his deputy, and
@@ -71,11 +73,11 @@ Alive, the Shipment and the last train is mostly O (see `SETUPS.md`, "Missing").
 
 | # | Mission | What happens | What it reveals | Threads |
 |---|---|---|---|---|
-| 1 | [`the-sheriff`](../missions/the-sheriff.md), day 1, dawn | Harlan walks down from his homestead and finds the sheriff gut-shot on the East Road. Nod to help, shake to leave. Pack the wound, lead him in on his own horse, the doctor's. | The sheriff was shot by "a man in a faded red shirt" who "rode up easy" (built lines). Harlan's hands know wounds. | T1 opens |
-| 2 | [`no-law`](../missions/no-law.md), night 1 | The saloon. Harlan is seated and unarmed; a stranger's hand is on his arm. The stranger is **the Baron's foreman** (D, Sean 2026-11-11, #830, C10 b); nobody says so tonight. **Cody**, one of the Baron's hired guns, kicks Earl's chair out and shoots him over cards: "Ain't no law left in this valley to save you now." He rides for the foothills. Who sends Harlan to the saloon: O (s26). | Nobody will stop a murder. The stranger knew it was coming. A player who follows sees which way Cody rode. | T1, T7, T4 |
+| 1 | [`the-sheriff`](../missions/the-sheriff.md), day 1, dawn | Harlan walks down from his homestead and finds the sheriff gut-shot on the East Road. Nod to help, shake to leave. Pack the wound, lead him in on his own horse, the doctor's. | The sheriff was shot by a man he didn't know, who "rode up easy, like he wanted directions" (built). **Not Kett** (D, Sean 2026-11-13, #830, C16). His marks, by Sean's lean (C16 a, P; the wording P·bible): a bald-faced sorrel, and the man called him "friend". The built line still says "a faded red shirt" (to change: C16's table). Harlan's hands know wounds. | T1 opens |
+| 2 | [`no-law`](../missions/no-law.md), night 1 | The saloon. Harlan is seated and unarmed; a stranger's hand is on his arm. The stranger is **the Baron's foreman** (D, Sean 2026-11-11, #830, C10 b); nobody says so tonight. **Cody**, one of the Baron's hired guns, kicks Earl's chair out and shoots him over cards: "Ain't no law left in this valley to save you now." He rides for the foothills. Who sends Harlan to the saloon: O (s26). | Nobody will stop a murder. The stranger knew it was coming. **The stranger shot the sheriff that morning** (P, Sean's lean 2026-11-13, #905, C16 a): he sits with Harlan to learn what the sheriff said. A player who listened knows him by the sorrel at the rail and "Don't move, friend." (S40), and can do nothing about it tonight. A player who follows sees which way Cody rode. | T1, T7, T4 |
 | – | The same night, unseen | Cody's crew, led by **Silas Kett** (the red shirt), raids Joe's camp while the men are hunting. Joe's wife is raped, murdered and scalped (D, 2026-11-09, 2026-11-11). The raid is **provocation**: the Baron wants a Ute "outbreak" for his telegrams (D, Sean 2026-11-11, #830, C4 a). | Nothing yet: Harlan hears of it in No Justice. | T2, T5 |
 | 3 | Day 2 | The sheriff dies at the doctor's, his wife there. His last words follow day 1's care. He swears Harlan in and gives him his revolver; a shake gets "That's not the way this works, son." The funeral: attend or not. **The Baron offers the widow a price for her claim** at the graveside. | The Baron's face and what he wants. Harlan is a deputy, "temporarily": the sheriff was the **county** sheriff, the seat down the line; the coroner acts as sheriff, the coroner is the doctor, and he keeps Harlan on until the county names a man (D, Sean 2026-11-11, #830, C12 a; who and when: O, s27). | T1, T4 opens |
-| 4 | [`no-justice`](../missions/no-justice.md) | Harlan meets Joe (the doctor's office on Sean's card; flagged O by Sean). The camp; the survivors name a faded red shirt. Joe dresses as a cowboy (the costume stays: D, Sean 2026-11-11, #830, C4 a; it's what spoils the Baron's provocation). The hideout: five or six men, the end of Kett's crew (D, Sean 2026-11-11, #830, C5 b). Kett runs for the cabin and surrenders. Joe draws his knife: "Are you going to stop me?" Nod or shake. | The man who shot the sheriff killed Joe's wife. The law will not punish him. | T2 opens, T1, T7 |
+| 4 | [`no-justice`](../missions/no-justice.md) | Harlan meets Joe (the doctor's office on Sean's card; flagged O by Sean). The camp; the survivors name a faded red shirt (the camp's mark only: S1). Joe dresses as a cowboy (the costume stays: D, Sean 2026-11-11, #830, C4 a; it's what spoils the Baron's provocation). The hideout: five or six men, the end of Kett's crew (D, Sean 2026-11-11, #830, C5 b). Kett runs for the cabin and surrenders. Joe draws his knife: "Are you going to stop me?" Nod or shake. | Who killed Joe's wife. **He is not the man who shot the sheriff** (D, Sean 2026-11-13, #830: "he would never be released for the murder of joes wife if he also shot the sheriff"). The law will not punish a Ute woman's killer. | T2 opens, T7 |
 
 **No Justice's endings** (all D, 2026-11-09):
 - **Arrest (nod):** Kett goes to the jail, then off on the train to "the proper authorities", is
@@ -84,7 +86,8 @@ Alive, the Shipment and the last train is mostly O (see `SETUPS.md`, "Missing").
   Sean nods on #830):** Kett sits in Harlan's jail a couple of days; the train brings Rourke's
   officer with a paper (a crime against a Ute woman on the reservation is the United States'
   matter, not the county's); Harlan hands him over on the platform, and the officer turns him loose
-  for want of a witness the court will hear.
+  for want of a witness the court will hear. (C16: the sheriff's killer would never be let go; a Ute
+  woman's is, and that is the point.)
 - **Revenge (shake):** Joe kills and scalps him in the cabin. The bodies are found; the town splits;
   the camp trusts Harlan; the gang's kin or friends come looking.
 - **Harlan shoots the surrendered man:** murder, and Joe saw it. **Killed outside in the fight:** no
@@ -195,8 +198,8 @@ screen.
    | Evidence | Where it comes from | How it's lost |
    |---|---|---|
    | The papers | `barons-shipment` (or `bank-break-in`, P) | Burned, blown up, left, sold |
-   | The witness | Cody, arrested for Earl's murder, alive and safe after the jail night | Killed in the cell, freed, or never taken |
-   | What people saw | Witnesses all game: the sawn girder, the storekeeper's day-book, the captain's own eyes, who saw Harlan do what | Nobody saw, or they saw Harlan do worse |
+   | The witness | Cody, arrested for Earl's murder, alive and safe after the jail night: he can say who shot the sheriff (D) and who paid (by C16 a, P: the foreman, on the Baron's word) | Killed in the cell, freed, or never taken |
+   | What people saw | Witnesses all game: the sheriff's last words (Harlan, the widow, the doctor heard them; C16 a's marks, P), the sawn girder, the storekeeper's day-book, the captain's own eyes, who saw Harlan do what | Nobody saw, or they saw Harlan do worse |
 
    A strong case convicts him. A thin one lets him walk or buy his way out.
 3. **The quiet epilogue.** A few days later Harlan walks the town, and it shows what his choices made
@@ -234,8 +237,11 @@ sneaking mission at the sheriff's grave; what's in his boot is O), `fever-house`
 ## How each thread runs, in one line
 
 - **T1 the sheriff and the badge:** shot (day 1) → sworn (day 2), kept on by the doctor as acting
-  sheriff (C12 a) → the killer named by his shirt (No Justice) → Cody arrested in the saloon (C6 b)
-  → the witness under the tank (C7 c) → who ordered it, in the paper.
+  sheriff (C12 a) → (by C16 a, P) the killer at Harlan's own table that night, known by "friend" and
+  the sorrel → beside the Baron at the funeral → up the widow's lane with the deed → Cody arrested in
+  the saloon (C6 b) → the witness under the tank (C7 c), who can name him → taken in the raid
+  (P·bible) → who ordered it, in the paper. (Was "the killer named by his shirt (No Justice)": the
+  shirt is Kett's, and Kett didn't shoot him, D 2026-11-13.)
 - **T2 Joe:** the raid, the Baron's provocation (C4 a) → the question at the cabin, in the costume
   that spoils it → the rope → the man with plans (P, #738), or a grave → the walk.
 - **T3 the mine:** the rescue → sticks → lessons → bundles → the trestle, and the Sap's props.
@@ -261,6 +267,7 @@ sneaking mission at the sheriff's grave; what's in his boot is O), `fever-house`
 | `payday-night` (v6) | Nine ways, several of which prevent the collapse; "if the floor holds, they leave town"; traces all afternoon for anyone; the Railroad Saloon; joists; Rourke "on their way to their new post" | The floor comes down; one or two hard-to-find ways to know; he's there celebrating (2026-11-11). The girder is what's sawn (2026-11-10, #772). Two barrels (C1 a); a hungry night if the pay is lost (C2 b); if he knows he can only be ready (C3 b). Rourke's post is near from the start (C8 a, P until Sean nods). |
 | `STORY.md`, `MAP.md` | Evidence and the trial "a maybe"; the finale O | Evidence is a system; trestle, raid, paper, walk (2026-11-11) |
 | `no-justice` | "The man in the red shirt is first seen on the first night in the saloon"; who "the proper authorities" are: OPEN | Kett isn't in the saloon; Cody is (2026-11-11). The cabin finishes Kett's crew (C5 b); the raid was provocation and the costume stays (C4 a); the release: C8 a (P until Sean nods) |
+| `the-sheriff`, `no-law`, `no-justice` | "The red shirt is the Baron's hired gun, and the man who shot the sheriff" (D, 2026-11-09) | Not the same man (D, Sean 2026-11-13, #830); the shooter is Sean's lean, the stranger at the table (C16 a, P) |
 | `no-law`, `the-sheriff` | The stranger's identity and return OPEN; "temporarily" ends with the town or the county confirming him | The stranger is the Baron's foreman (C10 b); a county sheriff, the doctor acting as coroner keeps Harlan on until the county names a man (C12 a) |
 | `farmhouse-rescue` | OPEN (#622 item 7): who holds the farm, the Colters or the Baron's own hands | The Colters, hired because the cabin finished Kett's crew; the built mission stands (C5 b). The foreman on the lane is the stranger from the table (C10 b) |
 | `barons-shipment` | A rolling log; the driver as a way in (v2); "the log too late" | A ram on ropes; no driver; that way cut (2026-11-11) |
