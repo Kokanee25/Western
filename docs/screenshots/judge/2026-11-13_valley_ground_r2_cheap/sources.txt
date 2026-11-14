@@ -1,0 +1,6 @@
+a street_noon build/vg/after2/street_noon.png
+b street_golden build/vg/after2/street_golden.png
+c sheriff_road build/vg/after2/sheriff_road.png
+d camp_approach build/vg/after2/camp_approach.png
+e cabin build/vg/after2/cabin.png
+f town_height build/vg/after2/town_height.png

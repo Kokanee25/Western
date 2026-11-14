@@ -1,0 +1,17 @@
+{
+ "id": "dry_ground_rocks",
+ "source": "polyhaven",
+ "licence": "CC0 1.0",
+ "page": "https://polyhaven.com/a/dry_ground_rocks",
+ "metres": [
+  4.0,
+  4.0
+ ],
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-13",
+ "lossless": 2
+}
