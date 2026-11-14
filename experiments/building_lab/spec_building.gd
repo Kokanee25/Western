@@ -2712,7 +2712,8 @@ func _library_finishes() -> void:
 
 
 ## A building's use and knocks where its spec has no `materials.wear` (#901).
-const WEAR_DEFAULT := {"use": 0.5, "dings": 0.5}
+## (Dents and cuts off, `dings` 0, until the judges like them: Sean 2026-11-14, #901.)
+const WEAR_DEFAULT := {"use": 0.5, "dings": 0.0}
 
 
 ## The finishes inside the rooms, whose wear is measured from their floor (`_floor_under`).

@@ -21,8 +21,9 @@ func test_a_looks_use_roles() -> void:
 	check_eq(PropKit.lib_parts("lib:furniture_oak/few/kick")[2], 6.0, "a kick board")
 	check_eq(PropKit.lib_parts("lib:furniture_oak/few/nonsense")[2], 0.0, "an unknown role is a plain board")
 	var mat := PropKit.lib_material("lib:furniture_oak/few")
-	check(float(mat.get_shader_parameter(&"use_wear")) > 0.0 and float(mat.get_shader_parameter(&"dings")) > 0.0,
-			"furniture is used and knocked")
+	check(float(mat.get_shader_parameter(&"use_wear")) > 0.0, "furniture is used")
+	# Dents and cuts are off until the judges like them (Sean, 2026-11-14, #901 round 2).
+	check_eq(float(mat.get_shader_parameter(&"dings")), 0.0, "no dents on furniture yet")
 
 
 func test_the_bar_carries_its_wear() -> void:

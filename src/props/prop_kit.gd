@@ -392,7 +392,8 @@ const LIB_ROLES := {"top": 1.0, "front": 2.0, "door": 3.0, "tread": 4.0, "walk":
 		"bar": 7.0, "seat": 8.0, "grip": 9.0}
 ## Furniture's use and knocks (#901) where a prop's library wood doesn't set its own: kit props share
 ## one material an entry and age across every building, so a middling, much-used piece's.
-const LIB_USE := {"use_wear": 0.7, "dings": 0.6}
+## (Dents and cuts off, `dings` 0, until the judges like them: Sean 2026-11-14, #901.)
+const LIB_USE := {"use_wear": 0.7, "dings": 0.0}
 
 
 static func lib_parts(look: String) -> Array:
