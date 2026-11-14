@@ -2004,7 +2004,7 @@
 	},
 	"front": {
 		"sign": "THE NEW OCCIDENTAL",
-		"sign_from": 8.45,
+		"sign_from": 7.9,
 		"sign_width": 4.9,
 		"cornice": "dark_trim",
 		"brackets": {
@@ -2017,7 +2017,7 @@
 				"side"
 			]
 		},
-		"_sign_doc": "#886: THE NEW OCCIDENTAL (Sean's name, 2026-11-13; was THE SALT CREEK) in the factory's painted letters (letters_the_new_occidental, gold-ochre sign-writer's paint) on the board, cut to them (sign_from 8.45, down from 8.75: a 1.05 m board, the letters at most 0.75 m tall and 4.9 m across, `sign_width`), in the dark walnut (the `oak` finish); the sheet's dark maroon board with gold letters."
+		"_sign_doc": "#886: THE NEW OCCIDENTAL (Sean's name, 2026-11-13; was THE SALT CREEK) in the factory's painted letters (letters_the_new_occidental, gold-ochre sign-writer's paint) on the board, cut to them (painted on two lines, THE NEW small over OCCIDENTAL; sign_from 7.9, down from 8.45 for THE SALT CREEK's one line: a 1.6 m board over the upper doors' heads (7.21), the letters 1.14 m tall and 4.9 m across, `sign_width`), in the dark walnut (the `oak` finish); the sheet's dark maroon board with gold letters."
 	},
 	"rooms": [
 		{

@@ -1172,10 +1172,10 @@
    ],
    "colours": 10,
    "text": "THE NEW OCCIDENTAL",
-   "what": "old gold-ochre sign-writer's paint, tall bold slab-serif capitals with a thin dark brown shadow line, all on one line, the words THE NEW in smaller capitals before a larger OCCIDENTAL",
+   "what": "old gold-ochre sign-writer's paint, tall bold slab-serif capitals with a thin dark brown shadow line, THE NEW in smaller capitals over a larger OCCIDENTAL",
    "texels_per_metre": 192,
    "vram": true,
-   "about": "#886 (Sean's yes on #885: 'Pay'; the name his, 2026-11-13: THE NEW OCCIDENTAL, not THE SALT CREEK): saloon B's sign, as its sheet paints it (gold letters on a dark board); the letters alone, laid on the board the spec builder cuts to them (SignArt.letters), in the walnut. THE NEW smaller so OCCIDENTAL keeps its height at the board's 4.9 m."
+   "about": "#886 (Sean's yes on #885: 'Pay'; the name his, 2026-11-13: THE NEW OCCIDENTAL, not THE SALT CREEK): saloon B's sign, as its sheet paints it (gold letters on a dark board); the letters alone, laid on the board the spec builder cuts to them (SignArt.letters), in the walnut. Run 132 ($0.10) painted it on two lines, THE NEW small over OCCIDENTAL (asked for one line; kept: period and it reads); the board taller to keep 4.9 m."
   }
  }
 }

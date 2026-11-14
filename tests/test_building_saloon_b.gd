@@ -380,7 +380,7 @@ func test_saloon_bs_sign_is_lettered_and_its_walks_lit() -> void:
 		check(q.size.x > sign.size.x * 0.75, "the board cut to them (%.2f of %.2f m)" % [q.size.x, sign.size.x])
 		check(absf(at.x - b.width * 0.5) < 0.05 and at.z < -0.05, "centred on the front, on the board's face (%s)" % at)
 		check(q.size.x > 4.0 and q.size.x < 4.95, "big enough to read down the street, kept to 4.9 m (%.2f m)" % q.size.x)
-		check(q.size.y > 0.45, "letters tall enough to read down the street (%.2f m)" % q.size.y)
+		check(q.size.y > 1.0, "letters tall enough to read down the street (%.2f m)" % q.size.y)
 	check(b._finish_of(sign) == "oak", "the board in the dark walnut (%s)" % b._finish_of(sign))
 	var ground := float(b._lv.ground)
 	var walks := {"front": 0, "side": 0}
