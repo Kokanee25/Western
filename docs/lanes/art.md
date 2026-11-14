@@ -49,18 +49,18 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   The rooms wait on the prop lab's furniture.
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
   `RECIPE.md` (#824-#826, #829); the jail built on them.
-- **Saloon B, the corner saloon** (#772): step 1 merged (#848: spec and frame on the corner lot,
-  `experiments/building_lab/saloon_b/` README, `tests/test_building_saloon_b.gd`). **Step 2 (the look) is PR #884,
-  held** on three red people tests in its CI (Earl's chair, No Law's murder, the wound smear; the card game is
-  played beside the saloon): Sean's pick, merge red or hold, is #923. **Step 3 (#886), on branch
-  `claude/art-saloon-b-sign` (built on #884)**: THE SALT CREEK painted ($0.10) on a walnut board cut to it,
-  four lamps on the walks (`lamps.kit` `side: "out"`), the corner at dusk judged good indie (was cheap); the
-  critic: the lamps' light doesn't reach the walk, the sign grey on grey by day and lost at dusk. It merges
-  after #884. The girder test (#922) allows only what the falling floor hits. The valley's collision bodies
-  30,993 of Jolt's 32,768 with main today (step 2 measured 27,908): little headroom.
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; a factory
-  entry goes under `materials` in materials.json; a People texture run rewrites every painted sign's
-  `.import` bare: restore all but the new one.
+- **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #884): spec, frame and look on the corner lot
+  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, ten tests): 7,763 members,
+  27,908 valley bodies of Jolt's 32,768. Red board and batten, buff trim, a bracketed cornice on both streets, buff
+  boards over a dark wainscot, walnut posts, rail and doors, dust through the dance floor (`FloorDust`). Judged
+  twice (`docs/screenshots/judge/2026-11-13_saloon_b_r2`): **the bar room good indie, the corner cheap indie**
+  (its tells in the README: no town or sky round it, blank sign, no porch lamps, one even red; inside, one glossy
+  red-brown wood, nothing dressed). **Next: the prop lab furnishes it; then the general store.** Open with Sean:
+  the hip or the plain roof, porch lamps (#885). Step 3 (#886): the sign, on `claude/art-saloon-b-sign`. Wants from the
+  material library: a dressed-timber entry and a matt floor. Not done: the cellar dug in the valley (#695), No
+  Law's set (still in the yard: gameplay's to move).
+  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; name every
+  surface, and `-` keeps a dressed member's shape; judge a bar room by lamplight (RECIPE "A big room's look").
 - **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
   floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
   the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
