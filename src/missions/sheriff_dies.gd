@@ -481,6 +481,24 @@ func result() -> Dictionary:
 	return r
 
 
+## The sick room cleared for the funeral (Funeral, #868): his body and the runner out, the cot and
+## the chair with them; his wife and the doctor stay in the world for it to take on (not freed:
+## a Studio man built again in play is a long frame).
+func hand_over() -> void:
+	if folk and is_instance_valid(folk):
+		if wife and is_instance_valid(wife) and chair and is_instance_valid(chair):
+			Seating.stand_up(wife, chair)
+		for id: StringName in [&"dying_sheriff", &"runner"]:
+			if folk.state.get(id) == &"act":
+				folk.release(id)
+		if folk.sheriff_scene == self:
+			folk.sheriff_scene = null
+	for n: Node in _made:
+		if is_instance_valid(n):
+			n.queue_free()
+	queue_free()
+
+
 ## Take back its men and props (the bridge, the tests).
 func reset() -> void:
 	if folk and is_instance_valid(folk):

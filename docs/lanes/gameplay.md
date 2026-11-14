@@ -8,16 +8,21 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746, build 3698): `-- --world=valley --mission=sheriff`; `StoryState`,
   `HeadGesture`, `Act`. Waiting on Sean: #755.
-- **No Law** steps 1-4 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`;
-  `experiments/valley_folk/README.md` "Step 4"). Cody isn't the red shirt (the red shirt, Silas Kett, shot the
-  sheriff; nobody names him yet); he shouts at Earl as he walks in. The morning after: Earl to the
-  undertaker's (`death.earl`), day folk's lines by the story's facts (`talk`); the sheriff dies on the
-  doctor's cot (`-- --world=valley --mission=sheriff_dies --care=good|poor|left`); the story's Harlan is
-  unarmed till then (`Player.lacks`). **Next: step 5, Beat 6, the funeral.**
-  Open: the badge stays drawn on the dying sheriff's chest; the wife's `sit_back` hands float (her model);
-  Earl isn't seen laid out (the undertaker's a block); from the
-  playtest (`docs/playtests/2026-11-12-sheriff-dies.md`): the wife's "Were you with him?" doesn't wait, the
-  bridge's walk out of the doctor's sticks, the boots through the cot's rail, nobody minds a drawn gun by day.
+- **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
+  `experiments/valley_folk/README.md` "Step 4", "Step 5"). Cody isn't the red shirt (the red shirt, Silas
+  Kett, shot the sheriff; nobody names him yet). The morning after: Earl to the undertaker's, day folk's lines
+  by the story's facts (`talk`); the sheriff dies on the doctor's cot (`-- --mission=sheriff_dies`); the story's
+  Harlan is unarmed till then. **The funeral** (#868, `-- --world=valley --mission=funeral`): the day after, at
+  ten, at the cemetery; nolaw.funeral = attended / distance / missed, nolaw.offer_heard, baron.met; mourners
+  are the folk's own men (`borrow`/`give_back`: never built in play). No Law's script still isn't OK'd (#835).
+  Open at the funeral (playtest `docs/playtests/2026-11-13-funeral.md`): nothing but the townsman's word says
+  it's on (a bell is sound's); the grave's filled unseen, never if you stay (no sexton); the mourners don't
+  turn to who's speaking; plain blocks for the box, grave and headboards (the prop lab's to make); the widow's
+  model reads as a man at 6 m and the preacher has nothing clerical (characters'); the Baron and foreman are
+  stand-in models; no children; the townsman walks up at 1.2 m/s (4 min from the hotel).
+  Open from step 4: the badge stays drawn on the dying sheriff's chest; the wife's `sit_back` hands float; Earl isn't seen laid out; the wife's "Were you with him?" doesn't
+  wait; nobody minds a drawn gun by day. **Next: the whole mission played end to end on the real clock and its
+  seams mended (#876).**
 - **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
   `hideout` box canyon, 4 the cabin, the knife and the nod). **Steps 1-2 done.** Joe (`CompanionBrain`;
   `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y, `--joe-tune=k:v+k:v`) helps since #859: he may shoot the
