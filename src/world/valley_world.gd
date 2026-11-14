@@ -44,6 +44,9 @@ const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
 ## `-- --mission=funeral`: No Law's funeral alone (#868: Funeral, the sheriff dead yesterday, you on
 ## Church Lane below the church).
 const FUNERAL_ARG := "--mission=funeral"
+## `-- --mission=no_justice [--followed]`: No Justice step 2 alone (#859: NoJusticeCamp, the day the
+## sheriff died set up, you on Main Street by the doctor's; --followed: you'd followed Cody out, S10).
+const NO_JUSTICE_ARG := "--mission=no_justice"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
 ## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
@@ -93,6 +96,8 @@ func _ready() -> void:
 		_start_sheriff_dies.call_deferred()
 	if FUNERAL_ARG in OS.get_cmdline_user_args():
 		_start_funeral.call_deferred()
+	if NO_JUSTICE_ARG in OS.get_cmdline_user_args():
+		_start_no_justice.call_deferred()
 	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
 		CoachCut.start_on_load = false
 		_start_coach_cut.call_deferred()
@@ -125,6 +130,17 @@ func _start_funeral() -> void:
 		await get_tree().physics_frame
 	if folk:
 		folk.start_funeral({"set_up": true})
+
+
+## No Justice's doctor's and camp (#859), once the folk are built.
+func _start_no_justice() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	if folk:
+		var o := {"set_up": true}
+		if "--followed" in OS.get_cmdline_user_args():
+			o["followed"] = true
+		Moment.start_named(&"no_justice_camp", self, null, o)
 
 
 func _unarmed() -> void:

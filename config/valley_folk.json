@@ -72,7 +72,10 @@
      "_doc": "The Baron, first seen at the sheriff's funeral (Funeral, #868): his offer to the widow. A stand-in till the characters lane makes him: the coat-and-cravat cowboy."},
     {"id": "foreman", "name": "Foreman", "model": "colter_rider_s2_talking", "seed": 870, "gun": true, "shirt": [0.45, 0.4, 0.33], "vest": [0.2, 0.17, 0.14],
      "act": "funeral", "from": "undertaker",
-     "_doc": "The Baron's foreman, a step behind him at the funeral, saying nothing (script setup S39). A stand-in man."}
+     "_doc": "The Baron's foreman, a step behind him at the funeral, saying nothing (script setup S39). A stand-in man."},
+    {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1],
+     "act": "no_justice", "from": "doctor",
+     "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."}
   ],
   "talk": {
     "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",

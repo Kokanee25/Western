@@ -1524,6 +1524,19 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   nolaw.funeral_broken (a shot within `break_m`). The box, the hole, the earth and the headboards are plain
   blocks (`_block`: stand-ins). Church Lane's points go into the folk's places (`funeral_lane_N`).
   `-- --world=valley --mission=funeral` or `moment funeral set_up=1 [pace=0.3]`; the bench's `funeral` spot.
+- **No Justice's doctor's and camp** (#859, step 2 of #843's plan; `src/missions/no_justice_camp.gd`,
+  `NoJusticeCamp`, an `Act`; data `config/moments/no_justice_camp.json`, lines from `docs/scripts/no_justice.json`;
+  `tests/test_no_justice_camp.gd`): Joe (`CompanionBrain.make_joe`, `held`: the scene walks him while it's quiet),
+  ValleyFolk's `doc` and `cowboy` in the doctor's front office; you walk in, the beats (S11), Joe's ask: nod,
+  shake (he goes out; follow him and you've come: `followed`; stay `follow_s` and he rides alone: `declined`).
+  The ride: a card (`ute_trail`'s length at `ride.mps`, the clock on). The camp's frame from the trail's last leg
+  into `ute_community`; the raid's damage (kit props tipped, `Structure.show_fire` char, balls fired through some
+  by Ballistics while the card's up); Joe to the survivors (no bodies, no Ute lines), back with S1/S10 (`you_knew`
+  if `nolaw.followed`, set by NoLawMurder when you follow Cody's walk off), the costume (`CompanionBrain.costume`;
+  the look is characters'), S37 by looking at him, the trail read toward `hideout`, then `held` off. Facts
+  nojustice.met, camp, knew_the_way, costume, trail. `-- --world=valley --mission=no_justice [--followed]`,
+  `moment no_justice_camp set_up=1 [at_camp=1 met=..]`; valley_bench spot `ute_camp`. Playtest brief
+  `experiments/no_justice/PLAYTEST_CAMP.md`. Joe's lab dials: `--joe-tune=key:value+...` (CompanionBrain).
 - **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
   out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
   `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.
