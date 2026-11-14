@@ -85,6 +85,9 @@ func _open_fire(m: NoJusticeHideout) -> void:
 	await _shoot(p.global_position + Vector3.UP * 1.5, m.spot([-4.0, -3.0]), p)
 	var on := await wait_until(func() -> bool: return m.alarm_t >= 0.0, 60 * 3)
 	check(on, "the alarm (%s)" % m.result())
+	# Back up the slope out of their range (five men on you in the open put you down: it's Joe's fight
+	# and Kett's run these tests are about).
+	_put(m.spot([-120.0, -45.0]))
 
 
 func _kill_crew(m: NoJusticeHideout, leave := 0) -> void:
@@ -111,7 +114,12 @@ func test_from_the_camps_trail_the_ride_to_the_slope_above_the_hideout() -> void
 	var was := c.time_of_day if c else 0.0
 	var to := (m.centre - p.global_position)
 	to.y = 0.0
-	_put(p.global_position + to.normalized() * 26.0)
+	# Not the other way (the playtest: any walk took you there).
+	_put(p.global_position - to.normalized() * 26.0)
+	m.joe.global_position = p.global_position + Vector3(1.5, 0.0, 0.0)
+	await physics_frames(30)
+	check_eq(m.state, &"trail", "walking away from their trail isn't following it")
+	_put(m._trail_from + to.normalized() * 26.0)
 	m.joe.global_position = p.global_position + Vector3(1.5, 0.0, 0.0)
 	var rode := await wait_until(func() -> bool: return m.state == &"ride", 60 * 3)
 	check(rode, "on along it, the ride's card (%s)" % m.result())
@@ -170,6 +178,9 @@ func test_a_win_with_joe() -> void:
 	if m == null:
 		return
 	await physics_frames(10)
+	# Joe told to wait on the brow, 25 m off their fire (G): he holds there and fights while you're back.
+	m.joe.global_position = m.spot([-24.0, -4.0], 0.05)
+	check_eq(m.joe_brain.told(_player()), "\"Wait here.\"", "Joe waits")
 	await _open_fire(m)
 	# The fight a while, then the crew down.
 	await wait_until(func() -> bool: return m.kett_state == NoJusticeHideout.HOLED_UP, 60 * 20)

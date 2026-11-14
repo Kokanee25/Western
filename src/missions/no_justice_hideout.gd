@@ -40,6 +40,8 @@ var _trail_from := Vector3.ZERO
 var _spoken := {}
 var _kett_way: Array[Vector3] = []
 var _kett_down_t := 0.0
+var _kett_best := INF
+var _kett_stuck := 0.0
 var _over_t := -1.0
 var _quit_given := false
 var _call_t := 0.0
@@ -382,7 +384,8 @@ func _alarm(by: OutlawBrain, at: Vector3, what: String) -> void:
 	if p == null:
 		return
 	if by != null and is_instance_valid(by) and by.body.physiology.is_conscious():
-		var hill := p.global_position.y - centre.y > float(data.get("hill_over_m", 2.5)) and _flat(p.global_position, centre) > 20.0
+		var hill := p.global_position.y - centre.y > float(data.get("hill_over_m", 2.5)) \
+				and _flat(p.global_position, centre) > float(data.get("hill_far_m", 40.0))
 		_say(by.body, line("alarm_hill" if hill else "alarm"))
 	for g: Dictionary in crew:
 		var b := g.brain as OutlawBrain
@@ -401,6 +404,7 @@ func _alarm(by: OutlawBrain, at: Vector3, what: String) -> void:
 var first_shot := ""
 
 
+var _their_shot_t := -1.0
 ## Shots fired since it started: yours, Joe's, theirs.
 var shots := {"you": 0, "joe": 0, "them": 0}
 
@@ -410,6 +414,8 @@ func _on_shot(_o: Vector3, _d: Vector3, shooter: Node) -> void:
 		return
 	var who := "you" if shooter is Player else ("joe" if shooter == joe else "them")
 	shots[who] += 1
+	if who == "them":
+		_their_shot_t = t
 	if first_shot != "":
 		return
 	# A man's ears can have it before this does (the same shot's signal): still yours.
@@ -458,9 +464,13 @@ func _physics_process(delta: float) -> void:
 func _trail_step(p: Player) -> void:
 	var td: Dictionary = data.get("trail", {})
 	var to := Vector3(centre.x - _trail_from.x, 0.0, centre.z - _trail_from.z).normalized()
-	var on := (p.global_position - _trail_from).dot(to)
+	var gone := p.global_position - _trail_from
+	gone.y = 0.0
+	var on := gone.dot(to)
+	var off := rad_to_deg(gone.angle_to(to)) if gone.length() > 1.0 else 180.0
 	var joe_near := _flat(p.global_position, joe.global_position) < float(td.get("joe_m", 14.0))
-	if on > float(td.get("go_m", 22.0)) and joe_near or state_t > float(td.get("wait_s", 90.0)) * _pace():
+	# Their way only (the playtest: any walk at all, or standing 90 s, took you there).
+	if on > float(td.get("go_m", 22.0)) and off < float(td.get("off_deg", 50.0)) and joe_near:
 		_ride()
 
 
@@ -583,6 +593,24 @@ func _kett_step(delta: float) -> void:
 		_note("Kett up and running again")
 	while not _kett_way.is_empty() and _flat(kett.global_position, _kett_way[0]) < 0.4:
 		_kett_way.pop_front()
+		_kett_best = INF
+	# Stuck on something (a man in the way, a prop): past it to the next point, or nudged round it.
+	if not _kett_way.is_empty():
+		var d := _flat(kett.global_position, _kett_way[0])
+		if d < _kett_best - 0.1:
+			_kett_best = d
+			_kett_stuck = 0.0
+		else:
+			_kett_stuck += delta
+		if _kett_stuck > 1.5:
+			_kett_stuck = 0.0
+			_kett_best = INF
+			if _kett_way.size() > 2 and d < 2.5:
+				_kett_way.pop_front()
+			else:
+				var side := Vector3.UP.cross(_kett_way[0] - kett.global_position).normalized()
+				_kett_way.push_front(kett.global_position + side * 1.2 * (1.0 if _rng.randf() < 0.5 else -1.0))
+			_note("Kett stuck: round it")
 	if _kett_way.is_empty():
 		_holed_up()
 		return
@@ -651,8 +679,13 @@ func _fight_step(p: Player, _delta: float) -> void:
 		fact("nojustice.hideout", "left")
 		_finish(&"left")
 		return
-	var kett_settled := kett_state in [HOLED_UP, DEAD_OUTSIDE, DEAD_INSIDE] or kett_state == DOWN_OUTSIDE and not kett.physiology.can_stand()
-	if crew_out() >= crew.size() and kett_settled:
+	var kett_settled := kett_state in [HOLED_UP, DEAD_OUTSIDE, DEAD_INSIDE] or kett_state == DOWN_OUTSIDE \
+			and (not kett.physiology.can_stand() or not kett.physiology.is_conscious())
+	# Over: every man out of it, or none of them has fired in `quiet_s` and none is up fighting.
+	var quiet := t - maxf(_their_shot_t, alarm_t) > float(data.get("quiet_s", 20.0)) * _pace() \
+			and not crew.any(func(g: Dictionary) -> bool: return not is_out(g) and (g.brain as OutlawBrain).mood == OutlawBrain.Mood.FIGHTING \
+				and not (g.man as HumanBody).limp)
+	if (crew_out() >= crew.size() or quiet) and kett_settled:
 		if _over_t < 0.0:
 			_over_t = t
 		elif t - _over_t > float(data.get("end_after_s", 4.0)):
@@ -681,7 +714,8 @@ func _crew_calls(p: Player) -> void:
 			b.own_lines.erase(&"call_spotted")
 
 
-## Out of it: dead, out cold, given up, run off far, or down for good.
+## Out of it: dead, out cold, given up, run off far, down off his feet with no gun in his hand or
+## not shooting (the playtest: a man down who could still stand held the end off for good).
 func is_out(g: Dictionary) -> bool:
 	var man := g.man as HumanBody
 	if not is_instance_valid(man) or not man.physiology.alive or not man.physiology.is_conscious():
@@ -689,9 +723,13 @@ func is_out(g: Dictionary) -> bool:
 	var b := g.brain as OutlawBrain
 	if b == null or not is_instance_valid(b):
 		return true
-	return b.mood == OutlawBrain.Mood.SURRENDERED \
-			or (b.mood == OutlawBrain.Mood.FLEEING and _flat(man.global_position, centre) > float(data.get("fled_m", 90.0))) \
-			or (man.limp and not man.physiology.can_stand() and b.mood == OutlawBrain.Mood.DOWN)
+	if b.mood == OutlawBrain.Mood.SURRENDERED:
+		return true
+	if b.mood == OutlawBrain.Mood.FLEEING:
+		return _flat(man.global_position, centre) > float(data.get("fled_m", 90.0)) or man.held_gun == null
+	if (man.limp or man.prone) and (man.held_gun == null or not b.mood in [OutlawBrain.Mood.FIGHTING, OutlawBrain.Mood.RELOADING]):
+		return true
+	return man.held_gun == null and b.mood != OutlawBrain.Mood.FIGHTING
 
 
 func crew_out() -> int:
@@ -720,6 +758,8 @@ func _after_step(_p: Player) -> void:
 	if not StoryState.has_fact("nojustice.kett") or StoryState.get_fact("nojustice.kett") == "running":
 		fact("nojustice.kett", kett_state if kett_state != "running" else DOWN_OUTSIDE)
 	fact("nojustice.hideout", "fought")
+	var how := {HOLED_UP: "over_holed_up", DEAD_OUTSIDE: "over_dead", DEAD_INSIDE: "over_dead", DOWN_OUTSIDE: "over_down"}
+	prompt(String(_prompts().get(how.get(kett_state, "over_holed_up"), "")), 8.0)
 	_finish(StringName(kett_state if kett_state != "" else "over"))
 
 
