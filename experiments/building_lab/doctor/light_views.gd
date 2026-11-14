@@ -1,7 +1,7 @@
 extends SceneTree
 ## The doctor's office lit as a room (#824, #821 pick 1): the four views the cheap judge sees before
 ## and after, in the game's own scene (the valley, the real look, its exposure), both prop batches in
-## his rooms (experiments/prop_lab/doctor/dress.gd's `dress`). The doors' leaves are set aside as
+## his rooms (his spec's `dressing`, placed by the building's build, #844). The doors' leaves are set aside as
 ## dress.gd does.
 ##
 ##   xvfb-run -a godot --rendering-driver vulkan -s res://experiments/building_lab/doctor/light_views.gd -- \
@@ -95,9 +95,6 @@ func _run() -> void:
 		if String(m.member_id).contains("/door_"):
 			building.unbatch(m)
 			m.visible = false
-	var dress = load("res://experiments/prop_lab/doctor/dress.gd")
-	dress.dress(building, "D1")
-	dress.dress(building, "D2")
 	var clock = valley.find_child("DayCycle", true, false)
 	if clock:
 		clock.set_physics_process(false)

@@ -1509,6 +1509,21 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `answer` (HeadGesture; none = shake), the badge, the revolver (`Player.give`), death by his gut's clock
   (Physiology). Facts nolaw.sheriff, accepted, deputy, revolver, acting, held_him, death.sheriff.
   `-- --world=valley --mission=sheriff_dies [--care=..]` or `moment sheriff_dies set_up=1 care=..`.
+- **The funeral** (#868, No Law beat 6; `src/missions/funeral.gd`, `Funeral`, an `Act`; data
+  `config/moments/funeral.json`; `tests/test_funeral.gd`): started by `ValleyFolk._funeral_step` the day after
+  nolaw.sheriff = dead (`days_after`, `hours`; before it nolaw.funeral_due = tomorrow / today, which the
+  townsman's `talk` lines say; the clock past it unseen: started `over`, missed, the grave filled). Every mourner
+  is a CivilianBrain at a post by the grave (`spot`s are [east, south] of `grave`), `rest_pose` `mourn`
+  (HumanBody's pose: head bowed, hands together), his hat hidden: the day folk sent up (`day`: walking if you'd
+  see them go, with "It's time."), the night's men borrowed out of `_waiting` (`ValleyFolk.borrow`), the act's
+  own (`take`; the wife and the doctor carried on from SheriffDies by its `hand_over`). All go back with
+  `ValleyFolk.give_back` (out of the tree into `_waiting`, the act's Brain and Senses freed: never built in
+  play). Beats on game seconds whether you're there or not; a line is spoken only within `hear_m` of its
+  speaker (`prayer_m` the prayer). Facts: nolaw.funeral (attended: `attend_s` within `attend_m`; distance:
+  within `seen_m` with the ground not between, `_in_sight`; missed), nolaw.offer_heard, baron.met,
+  nolaw.funeral_broken (a shot within `break_m`). The box, the hole, the earth and the headboards are plain
+  blocks (`_block`: stand-ins). Church Lane's points go into the folk's places (`funeral_lane_N`).
+  `-- --world=valley --mission=funeral` or `moment funeral set_up=1 [pace=0.3]`; the bench's `funeral` spot.
 - **No Justice's doctor's and camp** (#859, step 2 of #843's plan; `src/missions/no_justice_camp.gd`,
   `NoJusticeCamp`, an `Act`; data `config/moments/no_justice_camp.json`, lines from `docs/scripts/no_justice.json`;
   `tests/test_no_justice_camp.gd`): Joe (`CompanionBrain.make_joe`, `held`: the scene walks him while it's quiet),
@@ -2434,8 +2449,11 @@ a library finish is laid over it later, as `Railing`'s rail does;
 `lib_material` one a wood and age, indoors) and `pbr:<model>` (`PropModels.pbr`: a model's baked
 `_albedo.png` and `_orm.png`, from `tools/blender/props/metal.py`'s finishes, the guns' recipes).
 `tools/props/doctor.py` writes the doctor's kit files, `tools/blender/props/doctor_d1.py` their
-models (`cushion`, `soft_box`, `drape`); `experiments/prop_lab/doctor/dress.gd` + `dress.json` lay a
-batch into his rooms on his valley lot and render the views (the doors' leaves set aside). A kit
+models (`cushion`, `soft_box`, `drape`). A building's props are its spec's `dressing`, placed by its
+build (`SpecBuilding._dressing` -> `PropDressing.place`, `src/props/prop_dressing.gd`; #844), in play and
+in every lab alike, its glass props' fixed parts drawn by a `StaticBatch` under it (`-- --no-dressing`:
+the rooms bare, the bench's before); `experiments/prop_lab/doctor/dress.gd` renders a batch's views from
+`building.dressed` (the doors' leaves set aside). A kit
 lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp). Cloth wipes
 (`ClothProp.wipe_at`, a kit file's `wipe_rate`) and hangs over a rail (`hang_over`).
 

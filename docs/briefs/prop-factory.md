@@ -96,13 +96,17 @@ Where it and the steps above disagree, this wins.
    request on GitHub; Sean is cancelling the Rodin subscription), **the cost asked first**, each call
    in the Studio's ledger. Code-built Blender stays for cheap lumps where the shape barely matters
    (a mattress tick, a folded blanket).
-5. **Every prop is checked** before it's merged:
+5. **A building's props are placed by the game's build from the start; a lab only reads that
+   placement** (#844): the batch goes in the building spec's `dressing` (`PropDressing`,
+   `SpecBuilding._dressing`), so a merged prop is in play, not only in the lab's renders. The jail's
+   (#811) and the store's this way from the first.
+6. **Every prop is checked** before it's merged:
    - **a period reference**: a photograph (or a catalogue engraving) of the real thing from about
      1870-1890, in `experiments/prop_lab/refs/<batch>/` with its source and licence, and the prop
      set beside it on the sheet;
    - **judged blind in game light, beside the building it lives in**: the batch is dressed into its
-     building's rooms on its valley lot (`experiments/prop_lab/doctor/dress.gd` and `dress.json`: each
-     prop at the spec's use points, in the game's main scene and real look), rendered at the hours the
+     building's rooms on its valley lot (`experiments/prop_lab/doctor/dress.gd`: each prop at the
+     spec's use points, in the game's main scene and real look), rendered at the hours the
      rooms are used, and a fresh critic gets only those renders, the building's target sheet and the
      references ("does it belong in this room?", the five biggest differences);
    - **a cost limit**: triangles (a small prop ~1-3 k, a big one ~6 k), and **draw calls batched**

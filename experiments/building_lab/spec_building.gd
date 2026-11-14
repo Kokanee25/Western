@@ -35,6 +35,8 @@ var band := 0
 var ramps: Array = []
 var lamps: Array[OilLamp] = []
 var kit_props: Array[KitProp] = []
+## The spec's `dressing` as placed (#844): batch -> {entry id -> its node} (PropDressing).
+var dressed := {}
 ## What the lived-in pass marked (Marks.place: by cause, by kind, what it couldn't place).
 var marks := {}
 ## Where things are: the walls (id -> {wall dict, finish faces}), the levels' heights.
@@ -206,6 +208,7 @@ func build() -> void:
 	ramps.clear()
 	lamps.clear()
 	kit_props.clear()
+	dressed.clear()
 	walls.clear()
 	# What the last build made that isn't a member (Structure.rebuild frees only those).
 	for c in get_children():
@@ -286,6 +289,7 @@ func build() -> void:
 	_outbuildings()
 	_lamps()
 	_kit()
+	_dressing()
 	_use_points()
 	_add_interior_ambient()
 	marks = Marks.place(self, spec)
@@ -1934,6 +1938,27 @@ func _kit() -> void:
 				_lamp(at + Vector3(0.1, top, -0.1))
 
 
+## The spec's furniture and props laid into its rooms (#844, `dressing`: PropDressing), every batch;
+## the labs that judge them read `dressed`, never a placement of their own.
+func _dressing() -> void:
+	if "--no-dressing" in OS.get_cmdline_user_args():
+		return  # (the bench's before: the rooms bare)
+	var d: Dictionary = spec.get("dressing", {})
+	for b: String in d.get("batches", {}):
+		var placed := PropDressing.place(_furnish, d.batches[b], floor_top, String(structure_id))
+		dressed[b] = placed
+		for n: Node3D in placed.values():
+			if n is KitProp:
+				kit_props.append(n)
+	if not dressed.is_empty():
+		# Its glass props' fixed parts (corks, labels, contents: ~750 meshes in the doctor's) drawn
+		# as the town's are (StaticBatch: one draw a kind; a shot or a fall hands a prop back). The
+		# valley has no StaticBatch of its own; its kit props join PropBatch by themselves.
+		var batch := StaticBatch.new()
+		batch.name = "DressingBatch"
+		_furnish.add_child(batch)
+
+
 func _spawn(id: StringName, at: Vector3, yaw: float) -> KitProp:
 	var p := PropKit.spawn(id, StringName("%s_%s_%d" % [structure_id, id, kit_props.size()]))
 	p.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
@@ -1955,6 +1980,9 @@ func _use_points() -> void:
 		m.rotation.y = deg_to_rad(float(u.get("facing", 0.0)))
 		m.set_meta(&"use", u.use)
 		m.set_meta(&"who", u.who)
+		if u.has("prop"):
+			# The dressing entry he sits or lies on (#844): the fit check leaves it out.
+			m.set_meta(&"prop", StringName("%s_dress_%s" % [structure_id, u.prop]))
 		root.add_child(m)
 
 
@@ -2524,8 +2552,12 @@ func _summer_beams() -> void:
 		var z1 := float(sb.z[1])
 		var yb := y1 - float(sec[1])
 		for k in (sb.posts as Array).size():
-			var pz := float(sb.posts[k])
-			add_member("summer/%s/post_%d" % [sb.id, k], &"post", &"framing", Vector3(sec[0], yb - floor_top, sec[0]), Vector3(x, (floor_top + yb) * 0.5, pz))
+			# A post is its z, or [z, depth]: one let into a wall is the wall's depth (#844: the
+			# doctor's front ones stood 0.15 m proud beside the street door, read as a metal post).
+			var pe: Variant = sb.posts[k]
+			var pz := float(pe[0]) if pe is Array else float(pe)
+			var pd := float(pe[1]) if pe is Array else float(sec[0])
+			add_member("summer/%s/post_%d" % [sb.id, k], &"post", &"framing", Vector3(sec[0], yb - floor_top, pd), Vector3(x, (floor_top + yb) * 0.5, pz))
 		var m := add_member("summer/%s/beam" % sb.id, &"beam", &"framing", Vector3(sec[0], sec[1], z1 - z0), Vector3(x, (yb + y1) * 0.5, (z0 + z1) * 0.5))
 		if spec.materials.has("timber"):
 			PropKit.dress_member(m, {}, String(spec.materials.timber))

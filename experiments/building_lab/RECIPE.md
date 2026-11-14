@@ -127,6 +127,13 @@ a file); the X-ray's and plan's images go in a `.gdignore`d folder (Godot import
 - **Furniture is never the floor's wood:** the prop lab dresses the rooms in the library's furniture
   entries (`docs/briefs/prop-factory.md`, point 1); `tests/test_material_library.gd` fails the doctor
   if a kit in his rooms is drawn in his floor's entry.
+- **A building's props are placed by the game's build from the start; a lab only reads that
+  placement** (#844, Sean 2026-11-12: the doctor's D1 and D2 were only in the lab's renders, his rooms
+  empty in play). They go in the spec's `dressing` (`{"batches": {"D1": [...]}}`, entries as
+  `PropDressing` documents: `at`, `facing`, `on`, `fit`, `cloth_over`, `light`, `row`), placed by
+  `SpecBuilding._dressing` wherever the building stands (the valley, the lab, the tests); a lab that
+  judges them (`experiments/prop_lab/doctor/dress.gd`) reads `building.dressed`, never a placement of
+  its own. The jail (#811) and the store take theirs this way from their first prop.
 
 ## Light (#824, Sean's pick 1 on #821: rooms get real light)
 

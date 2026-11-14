@@ -35,6 +35,12 @@ extends Node3D
 ## nolaw.earl = undertaker, death.earl, gone from the world for good); the day folk at their posts
 ## on the walks (`post.lot`) say the town's version of it when you pass (`talk`: lines by the story's
 ## facts); from `sheriff_from` the dying sheriff's scene (SheriffDies) starts, once.
+##
+## The funeral (#868; config/moments/funeral.json): the day after the sheriff dies, in its `hours`,
+## Funeral starts, once; before it the day folk say when it is (`nolaw.funeral_due`: tomorrow,
+## today); the clock past its hours without it, it's missed (started `over`: the grave filled).
+## Its mourners are the folk's own: the day folk, its act men, and the night's men borrowed while
+## they wait out of town (`borrow`, `give_back`).
 
 const DATA := "res://config/valley_folk.json"
 ## `-- --no-folk`: the valley without them (the bench's before).
@@ -80,7 +86,7 @@ var _last_hour := NAN
 var _look := 0.0
 var _clock: DayCycle
 var build_ms := {}
-## Sent off by an act for the rest of his hours (id -> true): not brought back till they're over.
+## Sent off by an act for the rest of his block (id -> his block_key): not brought back till it changes.
 var kept_out := {}
 ## No Law's murder, once started (NoLawMurder), and the hands you've played at the table.
 var murder: Moment
@@ -92,6 +98,9 @@ var _your_hands := 0
 var gone_for_good := {}
 ## The dying sheriff's scene, once started (SheriffDies).
 var sheriff_scene: Moment
+## The funeral, once started (Funeral), and its data.
+var funeral: Moment
+var _funeral_data := {}
 ## What the day folk have said (`talk`): [id, line id, text], and when each last spoke.
 var heard: Array = []
 var _spoke_at := {}
@@ -122,6 +131,9 @@ func _ready() -> void:
 	var mpath := "res://config/moments/%s.json" % MURDER
 	if FileAccess.file_exists(mpath):
 		_murder_data = JSON.parse_string(FileAccess.get_file_as_string(mpath))
+	var fpath := "res://config/moments/funeral.json"
+	if FileAccess.file_exists(fpath):
+		_funeral_data = JSON.parse_string(FileAccess.get_file_as_string(fpath))
 	for p: Dictionary in data.people:
 		state[StringName(p.id)] = &"out"
 	book = TownBook.from_data(data.get("book", {}))
@@ -651,6 +663,9 @@ func _step(delta: float) -> void:
 			book.take(id)
 		if state.get(id) == &"dead":
 			continue
+		if state.get(id) == &"act":
+			book.take(id)  # an act has him (the funeral's mourners): his day waits till it gives him back
+			continue
 		var key := block_key(b)
 		if kept_out.has(id):
 			if kept_out[id] == key:
@@ -671,7 +686,9 @@ func _step(delta: float) -> void:
 				_due.erase(id)
 			else:
 				_due[id] = true  # his door's in your view: he waits behind it
-		elif not book.row(id).is_empty() and b.has("in") and StringName(String(b.in)) == StringName(book.row(id).in):
+		elif b.has("in") and state.get(id) == &"out":
+			# On the book: his doing by the hour (asleep, at supper), or his row again once an act's
+			# given him back.
 			book.put(id, StringName(String(b.in)), StringName(String(b.get("do", "home"))))
 		if state.get(id) == &"coming":
 			var man: HumanBody = people.get(id)
@@ -682,6 +699,7 @@ func _step(delta: float) -> void:
 		lights.show_book(book, h)
 	_maybe_murder(h)
 	_morning_step(h)
+	_funeral_step(h)
 	_talk_step()
 
 
@@ -810,8 +828,48 @@ func release(id: StringName) -> void:
 		man.queue_free()
 
 
-## Up and away for the rest of his hours (an act's: No Law's drifter and miner after the shot): he
-## walks back out the way he came and isn't brought back till his hours are over.
+## A day man who's on the book now (the night's barkeep, by day), for an act: into the world
+## at `at` as `take` does (no brain). Null if he's in town, dead or gone.
+func borrow(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
+	var p := _person(id)
+	var man: HumanBody = _waiting.get(id)
+	if p.is_empty() or p.has("act") or gone_for_good.has(id) or state.get(id, &"out") != &"out" \
+			or man == null or not is_instance_valid(man):
+		return null
+	_waiting.erase(id)
+	man.enter(get_parent(), at, HumanBody.yaw_toward(at, faces))
+	people[id] = man
+	state[id] = &"act"
+	return man
+
+
+## An act's man (taken or borrowed) out of the world and back to wait, as he was built (not freed:
+## his hours, or the next act, bring him in with no long frame). The act's brain goes; a dead man
+## stays where he lies.
+func give_back(id: StringName) -> void:
+	var man: HumanBody = people.get(id)
+	if man == null or not is_instance_valid(man):
+		people.erase(id)
+		state[id] = &"out"
+		return
+	if not man.physiology.alive or man.limp:
+		state[id] = &"dead"
+		return
+	people.erase(id)
+	state[id] = &"out"
+	for n: String in ["Brain", "Senses"]:
+		var c := man.get_node_or_null(NodePath(n))
+		if c:
+			man.remove_child(c)
+			c.free()
+	man.set_pose(&"stand")
+	if man.get_parent():
+		man.get_parent().remove_child(man)
+	_waiting[id] = man
+
+
+## Up and away for the rest of his block (an act's: No Law's drifter and miner after the shot): he
+## walks home and isn't brought back till his day moves on to another block.
 func send_off(id: StringName) -> void:
 	if not state.get(id, &"out") in [&"coming", &"in"]:
 		return
@@ -892,6 +950,36 @@ func to_undertaker(id: StringName) -> void:
 	if id == &"earl":
 		_story("nolaw.earl", "undertaker")
 		_story("death.earl", String((data.get("morning", {}) as Dictionary).get("earl_death", "Earl, shot.")))
+
+
+# --- The funeral (#868) ---------------------------------------------------------------------------
+
+## The sheriff dead: the day after (`days_after`), in its `hours`, the funeral; before then the
+## folk know when (nolaw.funeral_due: tomorrow, today); past it unseen, it's missed.
+func _funeral_step(h: float) -> void:
+	var fd := _funeral_data
+	if fd.is_empty() or not murder_auto or StoryState.has_fact("nolaw.funeral") or StoryState.get_fact("nolaw.sheriff") != "dead":
+		return
+	if funeral != null and is_instance_valid(funeral):
+		return
+	var died := int((StoryState.when.get("nolaw.sheriff", [1, 0.0]) as Array)[0])
+	var due := died + int(fd.get("days_after", 1))
+	var day := _clock.day if _clock and is_instance_valid(_clock) else 1
+	var hours: Array = fd.get("hours", [10.0, 11.5])
+	if day < due or (day == due and h < float(hours[0])):
+		var when := "today" if day == due else ("tomorrow" if day == due - 1 else "later")
+		if StoryState.get_fact("nolaw.funeral_due") != when:
+			_story("nolaw.funeral_due", when)
+	elif day == due and in_hours(h, hours):
+		start_funeral()
+	else:
+		start_funeral({"over": true})
+
+
+## The funeral now (the clock, or `-- --mission=funeral`; the bridge's `moment funeral` starts its own).
+func start_funeral(options := {}) -> Moment:
+	funeral = Moment.start_named(&"funeral", get_parent() as Node3D, null, options)
+	return funeral
 
 
 ## The dying sheriff's scene now (the clock, or the bridge's `moment sheriff_dies`).
