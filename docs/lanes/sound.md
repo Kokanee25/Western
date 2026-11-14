@@ -24,8 +24,14 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
   tambourine, harmonica (against Jenkins 1924), the saloon piano (take 2, against Morton 1924 and Confrey
   1921; "a bit digital" after take 1), `band.py` (any tune, any players), ten fiddle tunes (two drunk), and
   Payday Night, an original reel the band plays (`tunes/payday_night.abc`). One page an instrument and one for
-  the band (links in `experiments/sound_lab/results/2026-11-10_fiddle/README.md`). Left for #822: the
-  cornet and the drums; its piano and banjo are these.
+  the band (links in `experiments/sound_lab/results/2026-11-10_fiddle/README.md`).
+- **The travelling band's cornet and drums (#822 done; Sean's listen #942)**: `cornet.py` (lip-reed, calibrated
+  per note in `cornet_tuning.json`: delete it and run `calibrate()` after changing the model), `drums.py` (modal
+  calfskin bass and side drum, gut snares), `march.py` (Yankee Doodle), `band_samples.py` (VSCO's trumpet and
+  drums: the blind pairs' "real"), `travelling_band.py` (with the game's Payday Night parts). Page
+  https://claude.ai/artifact/GXddFYCNLBv4SHnvi6h4hb. Known: the cornet's attack flares bright then settles
+  darker, short notes start up to ~35 cents sharp, high notes brighter than a trumpet's. No cornet record yet
+  (#942 asks for a host or an upload).
 - **Voiced lines (#807)**: one script a mission as data (`docs/scripts/`, README there) and one artifact page
   each, the listening board (`docs/scripts/board.html`, Sean's notes and picks in its database). The sheriff
   on the road's script is written (66 lines, 5 speakers; page https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX),
@@ -36,6 +42,7 @@ history. Keep under ~10 KB. History to 2026-11-11: `docs/status/current-state-20
 
 ## Traps
 - Pre-1929 music only; recordings CC0/CC BY, credited. Wikimedia refuses downloads here: Sean uploads them.
+  On 2026-11-14 archive.org, loc.gov and PyPI were refused too (no numba: the cornet and drums run without it).
 - The balcony's boards don't stop GameAudio's wall ray.
 - One lavapipe game at a time. The bridge's game renders a few frames a second under lavapipe: the band's
   clock follows the parts (real time), so a tune "ends" in fewer game seconds there.

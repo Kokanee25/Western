@@ -820,6 +820,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   **Saloon B** (#848, `experiments/building_lab/saloon_b/`) stands on the corner lot: its walk's `span`
   runs on west past the corner, and its spec's `lot.side_walk` is a Boardwalk down the North-South
   Street under its balcony (`ValleyWorld._side_walk`). Its cellar isn't dug in the valley yet (#695).
+  Its look (#867): finishes by name, a wainscoted bar room, brackets under both streets' cornices, and
+  `FloorDust` (`src/art/floor_dust.gd`): dust in the air under the dance floor, a fall under anyone moving
+  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor.
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -1411,6 +1414,23 @@ as you move round; Senses' eye is then his leading eye, `PostPose.eye_now`). Not
 entering it, stepping out to shoot a man in the open, recoil. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
 `sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
 
+**The garment handoff** (#917, from the lab #895): `WornGarment` makes a garment from his own
+Skin_whole (the triangles under it by bone weight, welded, simplified with
+`SurfaceTool.generate_lod`, pushed out; his weights kept; `relief`: how far his skin stands above
+each point between them) and wears it (`wear`: a MeshInstance3D under his Skeleton3D with his skin
+and his `custom_aabb`); `posed()` skins it on the CPU as the GPU does (only the binds it uses).
+`GarmentHandoff` (`glove_on(man, parent, side)`, `take(hand)`, `let_go_of_arm()`, `let_go(v)`;
+signals `taken`, `came_to_rest`) swaps it for a `GarmentCloth` (a ClothProp of the garment's mesh:
+`pin_to`, `hold_on` carriers at his bones, `release`; at rest baked, its soft body freed) and runs
+the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every).
+`SkinCollider`: a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
+`skin_every` ticks from the triangles near the free cloth (Jolt pays ~1.5 µs a triangle to rebuild
+one in the world). Choreography stays the caller's (`experiments/garment_handoff/handoff.gd`).
+Traps: a SoftBody3D mesh needs normals; reach_to must be renewed every tick or the arm drops (the
+worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a hand apart on the
+floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
+his own). `tests/test_garment_handoff.gd`.
+
 ## src/moments
 
 **Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
@@ -1712,6 +1732,14 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
   past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
   (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
+  `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
+  only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
+  Act men (`doc`, `preacher`, `wife`, `cowboy`...) have no hours, so the doctor and the preacher have a
+  second id for their day (`doctor` on the book except 14-15; `churchman` on the street 8-9, off by the
+  funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
+  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
+  new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`

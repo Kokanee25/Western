@@ -29,14 +29,24 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   the Winchester). **Sean picked it (#913): next its promotion into the game, #914.** Its glb is private
   (git-ignored); rebuild it from the Studio's frozen `sean_metahuman_s3` before the lab runs.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
-  (`Sean_blendshapes.zip` in the private `sean-metahuman` release). Then his first-person arms holding the
-  guns (#693), week 3.
+  (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
+- **#890's full MetaHuman arms: not taken** (Sean picked option 2 on #913). PR #919 closed unmerged; its
+  Studio tool (`tools/fp_arms.py`, branch `claude/studio-harlan-arms`, rolled sleeves lofted, tan) kept there
+  for reference. What #914 can use, on main: the gun lab's `--gun=winchester` views and fit, bridge `gun_arms`,
+  `arms_sheet.py` (`experiments/gun_lab/README.md`). A MetaHuman's finger bones point +Y to the tip with the
+  hinge flipped (rest hand ~20° closed): reframe them before curling (#919's `_canonical_fingers`).
 - Talking face: four men's jaws go back more than down (#247).
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
+- **The garment handoff** (#895, a lab): `experiments/garment_handoff/`, a worn skinned glove becoming cloth
+  as it's drawn off (the core for #874's acts, coats hung up, a torn-shirt bandage). Into the game is
+  gameplay's, on Sean's word (README: the part, a native skin shape).
 
 ## Traps
 - Bench: `tools/characters/metahuman_bench.py` (~4 h, one game at a time); its `pgrep -f` waits match themselves, use `ps`.
 - After a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - `talking_face.py --pin=no` for loose hair or a short head mesh (the edge pin slashes the chin).
 - Judge every change against Sean's pictures and his words.
+- A MetaHuman in a lab: copy the Studio's `frozen/<build>/` into `assets/people/` and list it in
+  `.git/info/exclude` (never committed, #692). A skinned mesh added to a man needs his `custom_aabb`; a
+  SoftBody3D's mesh needs normals (without them it's drawn scrambled).

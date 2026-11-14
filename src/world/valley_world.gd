@@ -36,6 +36,9 @@ static var markers_default := not "--no-markers" in OS.get_cmdline_user_args()
 static var farmhouse_default := not "--no-farmhouse" in OS.get_cmdline_user_args()
 ## `-- --no-farm-mission`: the house without its mission (the bench's split of the two).
 static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_user_args()
+## The town's spec buildings (the doctor's, the jail, saloon B); `-- --no-buildings`: the valley
+## without them (#925: the people tests run both ways, so a new building can't be what holds them up).
+static var buildings_default := not "--no-buildings" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
 ## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
@@ -211,7 +214,7 @@ func _make_farmhouse() -> void:
 ## built on it in place of its block: set on its lot's `at` and `facing`, its floor at its walk's top
 ## (ValleyTown's: the lot's `walk.h` over the street's edge), on the pad the bake dug for it.
 func _make_buildings() -> void:
-	if markers == null or markers.town == null:
+	if markers == null or markers.town == null or not buildings_default:
 		return
 	var tops := {}
 	for w: Dictionary in markers.town.walks:

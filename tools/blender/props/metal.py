@@ -52,6 +52,10 @@ FINISHES = {
     # dull, specks of rust where the tin's worn.
     "tin": {"kind": "plate", "color": (0.66, 0.66, 0.64), "under": (0.42, 0.33, 0.24), "rust": 0.5,
             "rough": 0.26, "metal": 0.8, "wear": 0.3, "mottle": 0.5},
+    # Bright polished tin (a footlight's reflector, round 3 of #941): lighter and smoother than the
+    # plain tinplate, so a curved reflector catches the lamp and reads as polished metal.
+    "tin_bright": {"kind": "plate", "color": (0.86, 0.86, 0.84), "under": (0.60, 0.58, 0.54), "rust": 0.05,
+                   "rough": 0.10, "metal": 0.8, "wear": 0.1, "mottle": 0.15},
     # White enamel on iron (enamelled hollow-ware, made in the US from the 1870s): a doctor's basin
     # and instrument tray; glossy, chipped black at its rims.
     "enamel": {"kind": "coat", "color": (0.83, 0.83, 0.80), "under": (0.05, 0.05, 0.06), "rust": 0.2,

@@ -39,6 +39,15 @@ fi
 git -C "$B/vsco/repo" config gc.auto 0
 git -C "$B/vsco/repo" checkout -q 440300901dfe9275fd84e0b7763af1f8443ae62e -- LICENSE Readme.txt \
   "Strings/Solo Violin/Arco Vib" "Strings/Solo Violin/spic"
+# the travelling band's real instruments (#822: band_samples.py), into build/sound_lab/cornet/vsco
+C=build/sound_lab/cornet/vsco
+if [ ! -d "$C/.git" ]; then
+  mkdir -p build/sound_lab/cornet
+  GIT_LFS_SKIP_SMUDGE=1 git clone -q --filter=blob:none --no-checkout https://github.com/sgossner/VSCO-2-CE "$C"
+fi
+git -C "$C" config gc.auto 0
+git -C "$C" checkout -q 440300901dfe9275fd84e0b7763af1f8443ae62e -- LICENSE Readme.txt "Brass/Trumpet/sus" "Brass/Trumpet/stac" \
+  $(git -C "$C" ls-tree -r --name-only 440300901dfe9275fd84e0b7763af1f8443ae62e Percussion | grep -E "^Percussion/(BDrumNewhit|Snare2-)")
 mkdir -p "$B/vsco/Strings"
 ln -sfn "$(pwd)/$B/vsco/repo/Strings/Solo Violin" "$B/vsco/Strings/Solo Violin"
 echo "fetched: $B/ref/sallie_gooden.flac, $B/vsco/Strings/Solo Violin"

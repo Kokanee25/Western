@@ -1,0 +1,15 @@
+time 16.2
+clock off
+goto -3 0 -1 180
+gh_man -3 0 -6 0
+gh_dress
+gh_cam hands
+gh_film build/gh_films/hands 10.5
+gh_man -3 0 -6 0
+gh_dress
+gh_cam wide
+gh_film build/gh_films/wide 10.5
+gh_man -3 0 -6 0
+gh_dress
+gh_cam chair
+gh_film build/gh_films/chair 10.5

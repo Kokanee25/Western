@@ -5,7 +5,9 @@ The story bible, part 5 of 5 (#809). Planning only. **Sean picked all fifteen of
 picks](https://github.com/Kokanee25/Western/issues/830#issuecomment-6814545058)). Each pick is under
 its question as "Sean's pick", and the other bible files follow it; the options stay below it as the
 record. **C8 is the one exception:** Sean left it to the session ("whatever makes sense"), so its
-pick is P until he nods on #830. Where a line says "leans", that was this bible's reading before he
+pick is P until he nods on #830. **C16 is new (2026-11-13):** Sean decided the sheriff's shooter
+isn't Kett; who it is waits on his pick (his lean, the stranger at the table, is written in as P).
+Where a line says "leans", that was this bible's reading before he
 answered and no more. Status words as in `OUTLINE.md` (D, P, P·bible, O). Sources are the cards on
 PR #743's branch, #744, #809's and #830's comments, and `DESIGN.md`.
 
@@ -19,7 +21,7 @@ opened by the picks, and have no reading that stands.
 |---|---|---|---|
 | 1 | Evidence was "a maybe", but Act IV runs on papers | **Settled** (D, 2026-11-11): evidence is a real system (the papers, the witness, what people saw); its strength sets the Baron's fate | What the papers **are** (Sean, 2026-11-09: "only the mission idea is decided, not what the papers are"); whether Dig Him Up's find counts (s9) |
 | 2 | Where the game ends | **Settled** (D, 2026-11-11): the trestle is the climax, the raid and arrest the finale, then the paper and the talk, then a quiet walk | Rourke's fate and the soldiers: **settled** by C11 a (the Baron's hired men; Rourke dies on the trestle). What if the trestle isn't blown: s25 |
-| 3 | Who works for whom | **Mostly settled** (D, 2026-11-11): Kett's crew are the Baron's hired guns; the Colters are a separate family; Cody is the Baron's man. Since: the Colters hold the farm on the Baron's pay (C5 b); the raid was provocation (C4 a); the stranger is the Baron's foreman (C10 b) | Who lets Kett go: **C8 a**, P until Sean nods; who Gang A is (s6); whether Cody is at the cabin (s24) |
+| 3 | Who works for whom | **Mostly settled** (D, 2026-11-11): Kett's crew are the Baron's hired guns; the Colters are a separate family; Cody is the Baron's man. Since: the Colters hold the farm on the Baron's pay (C5 b); the raid was provocation (C4 a); the stranger is the Baron's foreman (C10 b). Kett did not shoot the sheriff (D, Sean 2026-11-13, #830); Sean's lean is the stranger (C16 a, P) | Who lets Kett go: **C8 a**, P until Sean nods; who Gang A is (s6); whether Cody is at the cabin (s24) |
 | 4 | The Balcony Ambush can't be in Act I | **Settled** (D, 2026-11-11): after Payday Night and after dynamite. Where and why: the men who sawed the girder, on the hotel's gallery the night after (C9 a) | "The night after" is the captain's day, and the dynamite: s22 |
 | 5 | Joe can die, but Act IV is written with him | **Settled** (D, 2026-11-11): he can die, it isn't hard to save him, and the later missions have paths without him | Who is goaded in I Am the Law without him (s7); the rope's cause on two branches (s1, s2) |
 | 6 | The saloon's shooter, and where Harlan meets Joe | The shooter is **settled** (D, 2026-11-11): Cody | Where Harlan meets Joe is still Sean's "gotta be flagged" (s3); what the bold cowboy is for (s4) |
@@ -198,6 +200,10 @@ loose for want of a witness the court will hear. So Rourke's side is posted near
 platform to see who lets him go. The law still needs checking (`WORDS.md`, "To check", 5). **P**
 (the session's, on Sean's say-so) until he nods.
 
+Sean, 2026-11-13 (#830): the man who shot the sheriff isn't Kett, because nobody would let the
+sheriff's killer go (C16). So a fits cleanly: the man the law lets walk is a Ute woman's killer and
+nothing more, which is exactly the failure No Justice is about.
+
 D (2026-11-09): the prisoner leaves on the train under escort, is released, and comes back; the man
 on the platform who lets him go is "Rourke, or his officer". O on the card: who "the proper
 authorities" are. And the Army couldn't hold or free a town's prisoner: that is the same law the
@@ -236,7 +242,8 @@ The cost to weigh, whichever: whose building it is, and who else is under it.
 
 **Sean's pick (2026-11-11): b.** "The stranger at the table is the Baron's foreman." D (Sean,
 2026-11-11, #830). The built stranger lines are his. It opens s21 (his voice) and s26 (who sends
-Harlan to the saloon, this question's second half, which the pick doesn't answer).
+Harlan to the saloon, this question's second half, which the pick doesn't answer). Since
+2026-11-13 Sean's lean is that the stranger also shot the sheriff that morning (C16 a, P).
 
 Built (No Law): "Don't move, friend. Whatever happens next, you sit still." and "You didn't see a
 thing tonight. Nobody did. Remember that." So he knew. His identity and return are O on the card,
@@ -341,6 +348,104 @@ dream. It decides what Rourke calls him and whether anything is planted in Act I
 - **b. No:** Rourke is a stranger with a letter.
 - **c. Later:** the scripts leave room and plant nothing false.
 
+### C16. Who shot the sheriff, now that it isn't Kett?
+
+**DECIDED (Sean, 2026-11-13, #830):** "did we make a change to who shot the sheriff and kills joes
+wife? Because we figured that it can't be the same man as he would never be released for the murder
+of joes wife if he also shot the sheriff". **The man who shot the sheriff is not the man who killed
+Joe's wife.** No authority would turn loose the man who shot the county sheriff, so Kett, released
+in the arrest ending, can't be both. Kett keeps the faded red shirt, the camp and the cabin.
+
+**Sean's lean (2026-11-13, #905), P until he picks on the `waiting on Sean` issue:** **a**, the
+stranger at the card table. The rest of the bible is written to it, marked P; the marks below are
+P·bible.
+
+- **a. The stranger at the table, the Baron's foreman, shot the sheriff at dawn** (Sean's lean).
+  Kett's crew raided Joe's camp that night (D, unchanged). Worked through:
+  - **Why him:** he's new to the valley this season (P·bible), hired by the Baron for the work his
+    old hands won't do. The sheriff knew Kett's crew by sight and would never have let one ride up
+    to him; a stranger in good clothes could. So the Baron sent the one face the sheriff didn't know.
+    It's also why the town calls him "the stranger" on night one.
+  - **The red shirt goes to the camp.** It's Sean's own No Justice card ("the one thing her people
+    saw"), the cabin's "plain to see", Kett's crew's "Red", and the arrest ending's man on Main
+    Street. The sheriff's clue gets its own marks (`SETUPS.md` S40).
+  - **The sheriff's marks: a word and a horse.** He didn't know the man, so he gives what he saw and
+    heard: a **bald-faced sorrel** (a red-brown horse with a white face, readable at range like the
+    shirt) and that the man **called him "friend"**, soft-spoken, like a traveller asking the way.
+    A line and an object, two kinds of plant (`SETUPS.md` rule 3).
+  - **What the dying sheriff says** (proposed wordings in the table below): on the road, "Stranger on
+    a bald-faced sorrel. Rode up easy, like he wanted directions. Called me friend. Then he shot
+    me."; on day 2, "Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan."
+    Every player passes day 2, so every player gets the marks.
+  - **Recognising him at the table.** He sits with Harlan that night because the whole town knows
+    Harlan brought the sheriff in, and he wants to know what the sheriff said (the Baron "doesn't
+    know what the sheriff said on the road": `VOICES.md`). A player who listened sees the sorrel at
+    the saloon's rail on the way in, then hears the built "Don't move, friend." Nobody tells him;
+    he joins them himself. The built "Easy, friend. I ain't the one you want." becomes a lie, with
+    no word changed.
+  - **If he does recognise him:** nothing he can do tonight, which is No Law's point. He's seated,
+    unarmed, not yet a deputy, with the stranger's hand on his arm and Cody coming in. If he goes for
+    him anyway, the stranger says his built "Put it up" lines and walks out; the world remembers
+    Harlan went for him (P·bible: a flag that turns the lane's line from "You sat very still" to "You
+    should have sat still", and the foreman watches him from then on). Told to the doctor on day 2,
+    it's a dead man's word about a horse: "Not enough to hang a man on, Harlan. Not yet."
+    (P·bible). That is the evidence system's first lesson: a mark is not a case.
+  - **No Law's murderer, the witness** (#744): Cody knows who shot the sheriff (D). Now the man he
+    can name is the Baron's own foreman, on the Baron's word, so Cody's testimony reaches the Baron in
+    one step, and the jail night's "free him or silence him" has a sharper reason. His bible line
+    becomes "I'll say who shot the sheriff, and who paid him. Not here. Not where he can reach."
+  - **The foreman's later scenes pay it off:** the funeral, where the man who shot the sheriff
+    stands behind the Baron while he offers the widow a price, the sorrel at the Baron's buggy
+    (P·bible); the widow's lane, where he walks up with the deed (D, v2) and the widow, who heard
+    her husband's last words at the bedside, knows the horse at her gate (P·bible); the raid, where
+    Harlan can take him alive with the sheriff's own revolver (P·bible: T1 closes there), or he dies
+    in it and the case rests on Cody and the papers.
+  - **C8 is sharper for it:** the man the law lets walk is a Ute woman's killer, and only that; the
+    sheriff's killer is never let go. "No Justice" now says exactly who the law fails. (C8 a itself
+    still waits on Sean's nod on #830.)
+  - **It's where the game began:** `DESIGN.md`'s first story shape (2026-10-15) had the stranger at
+    the table and "the ball the doctor digs out may match the stranger's gun". No ball is examined
+    (Sean, 2026-11-09: "we aren't pulling bullets out"); the horse and the word do that job.
+  - **Costs:** one horse coat (a bald-faced sorrel) for the stranger, tied at the saloon's rail on
+    night one, the Baron's buggy at the funeral and the widow's gate; seven of the sheriff's and the freighter's
+    lines re-worded (the table below; none recorded yet, #846 holds them). The stranger's built lines stay as they are.
+- **b. Cody shot the sheriff at dawn and Earl that night:** his "Ain't no law left" is literal, the
+  man Harlan arrests in the saloon is the sheriff's killer, and the jail night's stakes are the
+  highest in Act I; the sheriff's clue is a mark on Cody (not a red shirt, #796), and Cody can't be
+  let go any more than Kett could.
+- **c. The Kid shot him,** a Colter hired through the foreman for one job and sick of it since: it
+  gives "the Kid wants out" (`SETUPS.md` M13) its reason and pays it off when he confesses; the
+  sheriff's clue is a young man's voice and a horse.
+
+**The lines that now read wrong** (Sean's lean, a; not changed here: gameplay's data and the
+scripts change once Sean picks, and the sheriff's voice takes, #846, hold these until then):
+
+| File | Id | Says now | Proposed |
+|---|---|---|---|
+| `config/moments/the_sheriff.json` | `lines.shot_by.clear` | "Man in a faded red shirt. Rode up easy, like he wanted directions. Then he shot me." | "Stranger on a bald-faced sorrel. Rode up easy, like he wanted directions. Called me friend. Then he shot me." |
+| `config/moments/the_sheriff.json` | `lines.shot_by.weak` | "Red shirt. Faded red. Rode up like a friend." | "Bald-faced sorrel. Rode up like a friend." |
+| `config/moments/the_sheriff.json` | `lines.shot_by.fading` | "...red..." | "...friend..." |
+| `config/moments/sheriff_dies.json` | `lines.red_shirt.clear` | "Faded red shirt. I'd know him again. You find him, Harlan." | "Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan." (and the key `red_shirt` → `shot_by`, with `src/missions/sheriff_dies.gd:327`) |
+| `config/moments/sheriff_dies.json` | `lines.red_shirt.fading` | "...red shirt... rode up easy..." | "...sorrel... said friend..." |
+| `config/moments/sheriff_dies.json` | `sheriff_death` | "...gut-shot on the East Road by a man in a faded red shirt; ..." | "...gut-shot on the East Road by a stranger on a bald-faced sorrel; ..." |
+| `tests/test_sheriff_dies.gd` | line 219 | checks "Faded red shirt. I'd know him again..." | the new day-2 line |
+| `config/moments/no_law_murder.json` | `_doc` | "Cody (...not the red shirt, who shot the sheriff: Sean on #796...)" | "Cody (...not the red shirt, Kett, who raids Joe's camp that night; the stranger, the Baron's foreman, shot the sheriff: #905)" |
+| `config/moments/no_law_murder.json` | `lines.stranger_aimed[0]` | "Easy, friend. I ain't the one you want." | Unchanged: now a lie, and better for it |
+| `config/valley_folk.json` | `folk[cody]._doc` | "the red shirt, who shot the sheriff, is another man and isn't in the saloon" | "the red shirt (Kett) is another man and isn't in the saloon; the stranger shot the sheriff (#905)" |
+| `src/moments/no_law_murder.gd` | line 6 (comment) | "not the red shirt, who shot the sheriff: Sean, #796" | as `no_law_murder.json`'s `_doc` |
+| `src/people/card_game.gd` (12, 423), `src/people/valley_folk.gd` (19), `tests/test_card_game.gd` (212, 216: the act id `&"red_shirt"`) | comments, an id | "the red shirt" meaning Cody (out of date since #796) | "Cody" (`&"cody"`) |
+| `docs/lanes/gameplay.md` | line 12 | "the red shirt, Silas Kett, shot the..." | "the red shirt, Silas Kett, raided Joe's camp; the stranger shot the sheriff (#905)" |
+| `docs/scripts/sheriff_road.json` | `setups[S1]` | S1, the faded red shirt: `road.shot_by`, `left.freighter`, `day2.red_shirt` | S40, "friend" and the sorrel, the same lines; each line's `setups` S1 → S40 |
+| `docs/scripts/sheriff_road.json` | `road.shot_by.clear`, `.weak`, `.fading` | as `the_sheriff.json` | as `the_sheriff.json` above |
+| `docs/scripts/sheriff_road.json` | `left.freighter` | "...Talked about a red shirt the whole way in." / "Red shirt, he kept saying. Red shirt, and a name. Harlan, or near it." | "...Talked about a sorrel horse the whole way in." / "A sorrel, he kept saying. A sorrel, and 'friend'. And a name. Harlan, or near it." |
+| `docs/scripts/sheriff_road.json` | `day2.red_shirt.clear`, `.fading` (ids → `day2.shot_by.*`); `day2.ditch.*` triggers "After the red shirt" | as `sheriff_dies.json` | as `sheriff_dies.json` above; triggers "After the shooter" |
+| `docs/scripts/no_law.json` | `notes[2]`, `notes[3]` | "Nobody names the red shirt (Kett) or says the stranger works for the Baron (K3, K11)"; "...still calls Cody 'the red shirt, the man who shot the sheriff'" | add "or that he shot the sheriff (K14)"; the second note drops once gameplay's `_doc` is fixed |
+| `docs/scripts/no_law.json` | `setups`, new row | none | S40 here: `table.warn` ("Don't move, friend."), `after.aimed`, and the sorrel at the rail (a thing, not a line) |
+| `docs/scripts/no_law.json` | new line, P·bible | none | `table.asks`, the stranger, after `table.sit`, to a player who brought the sheriff in: "Heard it was you brought the sheriff in. He say who it was?" Nod or shake: Harlan can lie to him |
+| `docs/scripts/no_justice.json` | all | `camp.shirt`, `fight.*`, the cabin | Read right: the red shirt is the camp's, as it always was. Nothing changes |
+| The sheriff's script page (#837) | the lines above | built from `sheriff_road.json` | follows the script |
+| Mission cards on PR #743's branch | `the-sheriff.md` 35–36, 107; `no-law.md` 33–34, 51–52; `no-justice.md` 27–28, 45–46 | "the red shirt is the Baron's hired gun, and the man who shot the sheriff" | `OUTLINE.md`, "Cards that are now out of date" |
+
 ## Part C: small ones (say if you care; otherwise the first reading stands)
 
 | # | What doesn't fit | Readings |
@@ -371,7 +476,7 @@ Sean says, or the script that meets it asks him. The options are only to show th
 
 | # | What doesn't fit | Options (none picked) |
 |---|---|---|
-| s21 | The stranger is the foreman (C10 b), but the foreman's sheet is a cowman's "flat, friendly, practical talk" and the stranger's built lines are calm, low and educated (Sean wanted him "more educated": from the master chat, to confirm) | An educated foreman, the built lines as they are / the built lines re-recorded plainer / a cowman who can talk like his boss when he's sent to |
+| s21 | The stranger is the foreman (C10 b), but the foreman's sheet is a cowman's "flat, friendly, practical talk" and the stranger's built lines are calm, low and educated (Sean wanted him "more educated": from the master chat, to confirm) | An educated foreman, the built lines as they are / the built lines re-recorded plainer / a cowman who can talk like his boss when he's sent to. (By C16 a, P: his voice is one of the sheriff's marks, "called me friend", soft-spoken; any of the three keeps that) |
 | s22 | The Balcony Ambush is "the night after" (C9 a), but the day after Payday Night is the captain's day (I Am the Law), and the balcony needs dynamite (D) that the player may not have yet. And with v6's sawdust gone (C3 b), how Harlan knows which men sawed the girder is unsaid | The night after the captain leaves / whenever he has dynamite, with the men still in town; known by the storekeeper's day-book (S23), Gang B's man, or the Kid |
 | s23 | Two barrels (C1 a): the saw is bought and the girder cut before anyone knows how the train will go. When is it cut? And if the train is wrecked (C2 b), the outrage has landed: why drop the floor too? (And the band, S24, came on that train.) | Cut that morning, as the outline's version A says; the floor falls because the Baron wants the Army, not one outrage; the band comes another way, or not at all, on a wreck |
 | s24 | Cody is arrested in the saloon after the funeral (C6 b), but the cards (P) have him one of the six at No Justice's cabin, and No Justice can come first. Killed at the cabin, he never walks back in | He isn't at the cabin / the saloon comes before No Justice / at the cabin he can be taken, and the saloon is for a player who didn't |

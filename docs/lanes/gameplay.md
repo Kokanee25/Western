@@ -38,10 +38,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
   picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
-  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Next: step 3, the
-  roster as data** (the 16 people's days, homes, dials; the street's and buildings' spots). Step 1's perception
-  leaks still wait. Open: BookLights' panes are greybox (art's fronts); a man the player follows into a real
-  interior still goes onto the book at its door; spot-to-spot moves are built but no one has two spots yet.
+  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Step 3 done (#936):**
+  the roster as data: the 16 in `config/valley_folk.json` (home, ordinary day, `sunday` for the store and smithy,
+  `dials` via `ValleyFolk.dials_of`, data only), the street's `<lot>_walk` spots, a `lot` on a `places` entry (the
+  livery's door). The doctor and preacher have day ids (`doctor`, `churchman`) beside their act men (`doc`,
+  `preacher`: no hours). The new men at night are on the book inside the saloon, not in the yard (No Law's).
+  **Next: step 4, spots** (lean, sit, counter, sweep, carry, talk, drink; Opus). Step 1's perception leaks still
+  wait. Open: BookLights' panes are greybox (art's fronts); the doctor's crossing is 14-15 (the brief's 7-12 waits
+  for the sheriff-dies act to borrow him); two women share the widow's body (store wife, landlady), the townsman
+  is the storekeeper's copy; spot-to-spot moves are built but no one has two spots yet; the men's build at load
+  is ~20 s headless (25 men).
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
@@ -73,6 +79,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
+- **The garment handoff** (#917; LAYOUT "src/bodies"): `GarmentHandoff` in the game (a glove; take, the pull's
+  release, his skin the collider, baked at rest); +0.40 ms while it simulates. Next: polish (inside of the glove,
+  wrist dips, the toss), then a bridge command or scene to trigger it; then stocking, coat, torn-shirt bandage.
+
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
 dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 3 (#667) · horse (#341,
@@ -86,10 +96,18 @@ Night floor lab (#745).
   for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
 
 ## Open problems
-- **The card game's chair tests** (#834) fixed: crawling, light rubble is let through and shoved aside
-  (`Player._wade`); a man knocked down mid-rise is let through the pieces in him (`HumanBody._spare_ragdoll`).
-  Two traps left: the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions`
-  on one errors: test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
+- **The valley's people tests** (#925, after #834): three causes found and fixed, none of them chance.
+  `HumanBody._spare_rubble` let through only what its 64-shape query gave, and a building's standing members
+  filled it (Earl's chair broke his thigh as he rose); Cody's ball stopped in whatever lay short of Earl's head
+  (`NoLawMurder._clear_to_head`); a dragged man's chest rested at the edge of the smear's reach
+  (`WoundSigns.SMEAR_GAP`). Each has a fixed test (`test_seated_falls` by a wall, `test_no_law_murder`'s chair
+  leg, `test_wound_signs`' twelve landings). To sample a people test's odds: its scene many times in one process
+  (identical set-ups differ run to run, by the engine's body order), not the suite again.
+  Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
+  differently from a workspace's (the same commit fails there and passes here: read the test's own timeline);
+  the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
+  test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
+  `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
 - **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
   valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
   `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
