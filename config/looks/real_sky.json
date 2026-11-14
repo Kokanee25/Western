@@ -1,0 +1,11 @@
+{
+ "name": "the real sky",
+ "about": "RealSky's dials (src/render/real_sky.gd, #918): the physically based sky, the light it gives the world, the clouds and the far land, under the real look only. `sky` goes to SkyModel and the sky shader (turbidity: the dust; altitude: the town's height above the sea, valley.json; multi: multiple scattering's share; gain: the sky's brightness on screen). `light`: the sun's energy at the zenith (its colour and fall toward the horizon are the air's), the moon's at full (its phase scales it), the share of the sky's radiance in the ambient and its energy, the fog's density as a share of DayCycle's (the far land needs clear air: the valley's own `fog_far`). `clouds`: coverage 0 clear .. 1 overcast (a weather system sets it with RealSky.set_coverage), the sheet's height over the eye, the wind (m/s, x and z) and how many times faster than real it drifts (the game's day is 45 minutes). `moon`: the day number of a full moon (DayCycle's day 1, so every shot made so far keeps its full moon).",
+ "sky": {"turbidity": 1.6, "mie_g": 0.8, "altitude": 2070.0, "multi": 0.35, "gain": 14.0,
+  "night_glow": [0.0012, 0.0016, 0.0034], "sun_radius": 0.0075, "sun_bright": 60.0,
+  "moon_radius": 0.009, "moon_bright": 2.5, "moon_day": 0.06, "moon_sky": 0.0045, "stars": 1.6, "milky_way": 1.0},
+ "light": {"sun_energy": 1.6, "moon_energy": 0.8, "ambient_sky": 1.0, "ambient_energy": 1.0,
+  "fog": 0.5, "fog_far": 0.006, "aerial_perspective": 1.0, "overcast_sun": 0.2, "overcast_bright": 2.2},
+ "clouds": {"coverage": 0.3, "height": 2600.0, "wind": [6.0, -2.5], "time_scale": 6.0, "thickness": 2.5, "scale": 14000.0, "detail_scale": 3500.0},
+ "moon": {"full_day": 1.0}
+}

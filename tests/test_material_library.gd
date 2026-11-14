@@ -13,8 +13,15 @@ func test_every_entry_has_its_scans_and_a_code() -> void:
 		codes[e0.get("code", "")] = true
 		var e := MaterialLibrary.resolved(e0)
 		check(SamplePanel.CLASSES.has(StringName(e["wood_class"])), "%s's wood class is a panel class" % e["id"])
-		for slot in (e["scans"] as Dictionary):
-			var dir: String = MaterialLibrary.SCANS + String(e["scans"][slot]["id"]) + "/"
+		# Stone and lime (#860) name their scans by slot (face_scan, plaster_scan); woods by `scans`.
+		var ids: Array = []
+		for slot in (e.get("scans", {}) as Dictionary):
+			ids.append(String(e["scans"][slot]["id"]))
+		for k in ["face_scan", "plaster_scan"]:
+			if e.has(k):
+				ids.append(String(e[k]))
+		for id: String in ids:
+			var dir: String = MaterialLibrary.SCANS + id + "/"
 			check(ResourceLoader.exists(dir + "albedo.jpg"), "%s's scan %s is in the repo" % [e["id"], dir])
 			check(FileAccess.file_exists(dir + "meta.json"), "%s's scan %s has its source and licence" % [e["id"], dir])
 
@@ -77,7 +84,8 @@ func test_the_rail_top_is_a_bar_rail_for_the_shader() -> void:
 	var rail: Node = p.part_nodes[&"rail"]
 	var top := rail.get_child(rail.get_child_count() - 1) as MeshInstance3D
 	var c2: PackedFloat32Array = top.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM2]
-	check(is_equal_approx(c2[3], 1.0), "the rail's top board carries the bar rail's role (rings, elbows)")
+	# A shaped board (the handrail profile, #873) carries its role + 10: the shader takes the 10 off.
+	check(is_equal_approx(fmod(c2[3], 10.0), 1.0), "the rail's top board carries the bar rail's role (rings, elbows) (%.1f)" % c2[3])
 	var post := rail.get_child(0) as MeshInstance3D
 	var p2: PackedFloat32Array = post.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM2]
 	check(is_equal_approx(p2[3], 0.0), "a post is a plain board")
@@ -89,7 +97,7 @@ func test_the_rail_top_is_a_bar_rail_for_the_shader() -> void:
 func test_every_scan_grain_runs_the_way_the_library_says() -> void:
 	for e0 in MaterialLibrary.entries():
 		var e := MaterialLibrary.resolved(e0)
-		for slot in (e["scans"] as Dictionary):
+		for slot in (e.get("scans", {}) as Dictionary):
 			var sc: Dictionary = e["scans"][slot]
 			var path := ProjectSettings.globalize_path(MaterialLibrary.SCANS + String(sc["id"]) + "/albedo.jpg")
 			var img := Image.load_from_file(path)
@@ -183,8 +191,13 @@ func test_the_doctors_floor_has_his_ways() -> void:
 	check((tw.rooms as Array).size() == 8, "his eight ground-floor rooms")
 	var to_desk := false
 	var hall := 0
+	# (his desk point from the spec: #844 moved it to his chair)
+	var desk := Vector2.ZERO
+	for u: Dictionary in b.spec.use_points:
+		if u.id == "desk":
+			desk = Vector2(float(u.at[0]), float(u.at[2]))
 	for w: Array in tw.ways:
-		if (w[0] as Vector2).distance_to(Vector2(4.71, 0.0)) < 0.05 and (w[1] as Vector2).distance_to(Vector2(1.2, 3.1)) < 0.05:
+		if (w[0] as Vector2).distance_to(Vector2(4.71, 0.0)) < 0.05 and (w[1] as Vector2).distance_to(desk) < 0.05:
 			to_desk = true
 		if (w[0] as Vector2).x > 4.0 and (w[0] as Vector2).x < 5.4 and (w[1] as Vector2).x > 4.0 and (w[1] as Vector2).x < 5.4:
 			hall += 1
@@ -213,7 +226,7 @@ func test_floors_and_furniture_keep_apart() -> void:
 	var floor_id := String(f.use.entry)
 	if f.has("want") and (MaterialLibrary.entry(String(f.want.entry)).get("approved", []) as Array).has(String(f.want.age)):
 		floor_id = String(f.want.entry)
-	var dress: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/prop_lab/doctor/dress.json"))
+	var dress: Dictionary = spec.dressing
 	for batch in dress.batches:
 		for p: Dictionary in dress.batches[batch]:
 			var path := "res://assets/props/kit/%s.json" % p.get("kit", "")

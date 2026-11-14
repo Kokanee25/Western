@@ -93,6 +93,7 @@ func setup() -> void:
 
 ## The coach `start_back` m down the road, its riders in it, driving up into the cut.
 func start_coach() -> void:
+	StoryState.mark_checkpoint()  # a retry starts from the story as it is now (#864)
 	coach = PropKit.spawn(&"baron_coach", &"baron_coach_cut")
 	add_child(coach)
 	var at := middle - road_dir * start_back

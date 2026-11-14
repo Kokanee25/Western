@@ -38,6 +38,8 @@ const VIEWS := {
 	"side": [Vector3(36.0, 2.6, 10.0), Vector3(16.5, 4.6, 10.6), 58.0, 15.5],
 	"yard": [Vector3(-19.5, 3.2, 12.0), Vector3(0.0, 4.4, 11.0), 58.0, 10.0],
 	"door_night": [Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 21.0],
+	# The gallery's handrail at a metre (#873): its rounded top and finger groove, the well beyond.
+	"rail": [Vector3(16.05, 6.45, 9.7), Vector3(15.2, 5.75, 8.85), 60.0, 15.5],
 }
 
 var out_dir := "build/saloon_b_frame"

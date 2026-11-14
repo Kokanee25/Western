@@ -822,7 +822,7 @@ func retry() -> void:
 	var p := player()
 	if p:
 		p.burden = 1.0
-	GameReset.reset(get_tree())
+	GameReset.retry(get_tree(), "the coach's retry")
 
 
 func _say(text: String, seconds: float, hold := false) -> void:

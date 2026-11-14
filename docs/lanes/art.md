@@ -14,6 +14,23 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   `painted_oxblood_batten` (few, old). Buildings take finishes by name. Floors and furniture (#825):
   `floor_fir_worn` FL1 (all ages; feet's wear from the building's traffic map), `furniture_oak` FN1 (all),
   `furniture_painted_pine` FN2 (new, few); `furniture_walnut` FN3 parked (top clouds, no walnut figure).
+- **Our own sky** (#918, under the real look; LAYOUT "src/render" "The real sky"): `RealSky` swaps a
+  physically based sky in (scattering, sun and moon light, moon phase by date with day 1 full, stars
+  and the Milky Way), lights the world from it (sun colour and energy, ambient, fog), draws one sheet of
+  drifting cloud (`coverage`; `RealSky.set_coverage` for weather) and in the valley the far land (the
+  bake past 800 m and the ranges to 45 km, over the sky only). Dials `config/looks/real_sky.json`.
+  Judged twice (`docs/screenshots/judge/2026-11-14_sky_r*`): all cheap indie, decided by the grey-box;
+  day and overcast skies and the Milky Way read real; left: midday clouds flat (no bulk), golden hour
+  not golden enough at 17.6, the night street crushed, the moon a plain disk. **Next: weather** (storm
+  cells pushed across the valley over the coverage).
+- **Eased edges** (#873): every library board's arrises and ends rounded in `scan_wood.gdshader`'s normal
+  (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
+  normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
+  meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
+  Next on it: wear and dents (#901). Saloon B's gallery rail takes the framing finish (`gallery/` not in its
+  surfaces): its step 2's to name.
+- **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
+  from one change; re-approving them needs each view's diff looked at, not a blanket approve.
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
   `docs/concept/judge/MATERIAL.md`): a swatch passes at "game" or better with no tile tell. Cheap judge
   (`critic.py cheap`, `--refs=<Studio>/references`) for whole views. Judges vary about a grade run to run.
@@ -21,22 +38,25 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 ## Open
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
-  **Next: the jail's stone as rubble, not boxes (#860, Sean: "too square and perfect")**, then the general store
-  (#858); saloon B steps 1 and 2 done (below).
-- **The jail's open form** (round 2: critic 4 CLOSE / 4 DIFFERENT; the corridor at night good indie): plaster and
-  whitewash inside and rubble outside not in the library (the game's stone stands in; both judges name it first);
-  the parapet flat where the sheet's steps up in the middle; the 10 ft yard wall hides the cell wing from the lane.
-  Sean's picks (the `waiting on Sean` issue). The rooms wait on the prop lab's furniture.
+  **The jail's stone and form** (#860, PR #927): the stepped parapet with corner piers, the cell wing a metre lower,
+  the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **Next: the general store
+  (#858)**; saloon B is Fable's (#848: step 1 done, below).
+- **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
+  `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
+  failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
+  Drawn only once `materials.stone.want` is approved; `"trial": true` in the lab (never committed). The quoins,
+  drips, damp, whitewash and age dials are reusable under a scanned wall (#928's (a)).
+  The rooms wait on the prop lab's furniture.
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
   `RECIPE.md` (#824-#826, #829); the jail built on them.
-- **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #867): spec, frame and look on the corner lot
+- **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #884): spec, frame and look on the corner lot
   (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, ten tests): 7,763 members,
   27,908 valley bodies of Jolt's 32,768. Red board and batten, buff trim, a bracketed cornice on both streets, buff
   boards over a dark wainscot, walnut posts, rail and doors, dust through the dance floor (`FloorDust`). Judged
   twice (`docs/screenshots/judge/2026-11-13_saloon_b_r2`): **the bar room good indie, the corner cheap indie**
   (its tells in the README: no town or sky round it, blank sign, no porch lamps, one even red; inside, one glossy
   red-brown wood, nothing dressed). **Next: the prop lab furnishes it; then the general store.** Open with Sean:
-  the hip or the plain roof, the sign's paid lettering, porch lamps (#885). Wants from the
+  the hip or the plain roof, porch lamps (#885). Step 3 (#886): the sign, on `claude/art-saloon-b-sign`. Wants from the
   material library: a dressed-timber entry and a matt floor. Not done: the cellar dug in the valley (#695), No
   Law's set (still in the yard: gameplay's to move).
   Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; name every
@@ -64,6 +84,12 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - Waiting on Sean: #615 (yardstick), #641 follow-ups.
 
 ## Traps
+- The sky: Godot keeps a 24-bit depth where the card has it (no tricks behind the far plane); the scene's
+  fog reads a fragment's depth; LightFinish's quad (sorting -1000) wipes any transparent sorted before
+  it; a sky shader reading POSITION re-lights on every camera move; DayCycle sends `sun_dir`/`moon_dir`/
+  `star_strength` to whatever sky is in place. The valley's sun stands in the north at noon (DayCycle
+  tilts it to -Z; valley.json's north is -Z): the stars turn round a southern pole to match. Poly
+  Haven is blocked here (no photo skies for the judges).
 - One lavapipe render at a time (~10 GB each; two OOM). A real-look view ~10 min; a full golden render
   ~2.5 h (batches of 24-25 with `--only=`); a material lab shot ~1 min after ~1.5 min of load.
 - Start with `--game-args=--real`: switching the real look on at runtime crashes lavapipe. Needs

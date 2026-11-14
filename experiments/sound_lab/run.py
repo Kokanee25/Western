@@ -12,6 +12,7 @@ nothing drawn but the view's one frame), the heard WAVs measured by measure.py, 
     --old-sound (the game's sounds as before the lab's changes, GameAudio: the "before" from this build)
     --blast-set=N (dynamite from recording set N, BlastSounds; 0 the synthesised blast; #596)
     --file=WAV (the recording a music scenario plays: the fiddler, #790)
+    --timeout=S (a game's limit in seconds; 900, 2400 drawn: a long tune from the porch needs more)
 """
 import fnmatch
 import json
@@ -65,7 +66,7 @@ def run_one(job):
     t = time.time()
     with open(os.path.join(out_dir, "godot.log"), "w") as log:
         try:
-            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=2400 if picture else 900, start_new_session=True)  # (a drawn run is ~20 min under lavapipe)
+            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=int(_opt('timeout', 2400 if picture else 900)), start_new_session=True)  # (a drawn run is ~20 min under lavapipe)
         except subprocess.TimeoutExpired:
             pass
     if not picture and os.path.exists(movie):

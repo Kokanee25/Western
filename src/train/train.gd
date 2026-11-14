@@ -60,6 +60,14 @@ var far := false:
 				view.place_solids(true)
 const FAR_EVERY := 10
 var _far_tick := 0
+## Distant (set by its world, past a few hundred metres from the eye; never by the labs): seen and
+## heard, but nobody near enough to meet it. Its lookout looks and its weight goes on a bridge only
+## every FAR_EVERY ticks, and its cars are drawn every DISTANT_DRAW_EVERY-th frame (at 400 m a
+## pixel is ~0.7 m: a car at 20 m/s moves about a pixel a frame). Its rails, solids and sound are
+## as near (#881: the day's train cost ~0.5 ms at Sean's, moving inside far_m).
+var distant := false
+const DISTANT_DRAW_EVERY := 2
+var _draw_frame := 0
 ## Its derail ({} till then; see `derailed`), and the wreck it made.
 var derail := {}
 var wreck: TrainWreck
@@ -135,7 +143,7 @@ func _physics_process(delta: float) -> void:
 	var u1 := Time.get_ticks_usec()
 	cost.sim_us = cost.get("sim_us", 0) + u1 - u
 	_far_tick += 1
-	var look_now := not far or _far_tick % FAR_EVERY == 0
+	var look_now := not (far or distant) or _far_tick % FAR_EVERY == 0
 	if not far:
 		view.place_solids()
 	elif look_now:
@@ -161,13 +169,14 @@ func _physics_process(delta: float) -> void:
 		_check_bridge()
 		Prof.stop(&"train_bridge", t_c)
 		cost.bridge_us = cost.get("bridge_us", 0) + Time.get_ticks_usec() - ub
-	if derail.is_empty() and look_now:
+	if derail.is_empty() and (look_now or (distant and not far)):
 		var ul := Time.get_ticks_usec()
-		var t_l := Prof.start()
-		lookout.tick()
-		Prof.stop(&"train_lookout", t_l)
+		if look_now:
+			var t_l := Prof.start()
+			lookout.tick()
+			Prof.stop(&"train_lookout", t_l)
 		var t_r := Prof.start()
-		_check_rails()
+		_check_rails()  # (distant, every tick still: a break is met where it is)
 		Prof.stop(&"train_rails", t_r)
 		cost.lookout_us = cost.get("lookout_us", 0) + Time.get_ticks_usec() - ul
 	if record:
@@ -181,6 +190,9 @@ func _physics_process(delta: float) -> void:
 
 func _process(_delta: float) -> void:
 	if sim == null or wreck or far:
+		return
+	_draw_frame += 1
+	if distant and not riding and _draw_frame % DISTANT_DRAW_EVERY != 0:
 		return
 	var t0 := Prof.start()
 	var u := Time.get_ticks_usec()

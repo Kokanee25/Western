@@ -1347,6 +1347,19 @@ func start_analysis(full := false) -> StructuralAnalysis:
 
 
 
+## Its first analysis, from the top, begun now and run on a worker (its records copied here): so
+## the first settle asked of it (a shot through a member) is an update of this one, not every
+## member on that frame. A world without a FireSystem (the valley) settles whole on one frame: the
+## saloon's 7,600 members were a 0.9 s hitch on the gunfight's first broken member (#881).
+func warm_analysis() -> void:
+	if not collapses or not is_inside_tree() or (_analysis_valid and last_analysis != null):
+		return
+	var a := start_analysis(true)
+	a.prepare(a.unprepared())
+	if a.left() > 0:
+		a.run_async()
+
+
 ## Settle soon, once however many times it's asked: in a world with a FireSystem it works
 ## through it a slice of the building a frame (a big collapse was seconds on one frame); else at
 ## the end of this frame.
@@ -2095,6 +2108,11 @@ func _dug_ground() -> Ground:
 	return _ground if not _ground.tiles.is_empty() else null
 
 
+## How long (physics frames) the pieces a man's blow broke off spare him (`broken_by`, set by HumanBody's
+## clip blow): long enough for a piece leaving with his boot to clear his leg.
+const BREAKER_SPARED_FRAMES := 30
+
+
 ## Falling timber lands on something: hard enough and it breaks what it hits; a piece of several
 ## members breaks up.
 func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
@@ -2113,6 +2131,17 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		# Timber coming down on someone: once per piece per person.
 		var person: Object = other.get_meta(&"human_body")
 		var hurt: Array = rb.get_meta(&"hurt", [])
+		# A man getting up: what he's lying among is shoved aside by his own body as it's stood up (a
+		# rig moved by hand, at any speed), not falling on him. Earl among his chair's pieces took its
+		# 9 kg seat as a 3,900 J blow to the belly each time he rose, and never got up (#834, #875).
+		if person.get(&"rising") == true:
+			return
+		# The man whose boot just broke it: the piece leaves at his boot's speed, against his own leg
+		# (No Law's kicked chair: Cody went down to his own kick's spindle, #887). Spared a moment.
+		var by: Array = get_meta(&"broken_by", [])
+		if by.size() == 2 and by[0] == person and Engine.get_physics_frames() - int(by[1]) <= BREAKER_SPARED_FRAMES:
+			hurt.append(person)
+			rb.set_meta(&"hurt", hurt)
 		if not hurt.has(person):
 			hurt.append(person)
 			rb.set_meta(&"hurt", hurt)

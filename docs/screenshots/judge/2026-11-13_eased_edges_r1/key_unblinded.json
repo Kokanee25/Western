@@ -1,0 +1,26 @@
+{
+ "C1_new": {
+  "P": "before",
+  "Q": "after"
+ },
+ "C1_old": {
+  "P": "before",
+  "Q": "after"
+ },
+ "F2_new": {
+  "P": "after",
+  "Q": "before"
+ },
+ "F2_old": {
+  "P": "before",
+  "Q": "after"
+ },
+ "R1_new": {
+  "P": "before",
+  "Q": "after"
+ },
+ "R1_old": {
+  "P": "before",
+  "Q": "after"
+ }
+}

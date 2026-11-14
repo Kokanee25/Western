@@ -130,6 +130,46 @@
    "id": "Wood076",
    "source": "ambientcg",
    "why": "dark rough brown, spare"
+  },
+  {
+   "id": "Rock030",
+   "source": "ambientcg",
+   "why": "stone face for the rubble's stones (#860): grain inside each stone"
+  },
+  {
+   "id": "Rock035",
+   "source": "ambientcg",
+   "why": "stone face, variant (#860)"
+  },
+  {
+   "id": "Rock023",
+   "source": "ambientcg",
+   "why": "stone face, variant (#860)"
+  },
+  {
+   "id": "Plaster001",
+   "source": "ambientcg",
+   "why": "lime plaster inside (#857 pick 1a)"
+  },
+  {
+   "id": "Plaster003",
+   "source": "ambientcg",
+   "why": "lime plaster, variant (#857)"
+  },
+  {
+   "id": "PaintedPlaster017",
+   "source": "ambientcg",
+   "why": "whitewashed plaster (#857)"
+  },
+  {
+   "id": "rock_surface",
+   "source": "polyhaven",
+   "why": "stone face (#860)"
+  },
+  {
+   "id": "painted_plaster_wall",
+   "source": "polyhaven",
+   "why": "plaster, whitewashed (#857)"
   }
  ]
 }

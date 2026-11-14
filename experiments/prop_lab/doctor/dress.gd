@@ -2,11 +2,12 @@ extends SceneTree
 ## The prop factory's doctor batches in his rooms, in the game's own light (#788; docs/briefs/
 ## prop-factory.md, "Every prop is checked": judged beside the building it lives in). The game's main
 ## scene in the valley (its real look, exposure and grade) with the doctor built on his lot by
-## ValleyWorld (#765), the batch laid in from dress.json, drawn from the views below at their hours.
+## ValleyWorld (#765) with his furniture and props as the game places them (#844: his spec's `dressing`,
+## PropDressing; this lab only reads that placement), drawn from the views below at their hours.
 ## Untyped where it names game classes: -s scripts compile before autoloads.
 ##
 ##   xvfb-run -a godot --rendering-driver vulkan -s res://experiments/prop_lab/doctor/dress.gd -- \
-##       --out=DIR [--batch=D1 | D1,D2,D3] [--views=surgery,sick_room] [--size=1280x720] [--counts] [--no-rows] [--skip=towel]
+##       --out=DIR [--batch=D1 | D1,D2,D3] [--views=surgery,sick_room] [--size=1280x720] [--counts]
 ##
 ## ~10 min a view under lavapipe; never two runs at once (~10 GB each). --counts prints the draws
 ## (the frame's) and the batch's triangles and batches, then quits.
@@ -38,20 +39,21 @@ const VIEWS := {
 	# (the hall has no window: seen at dusk, its lamp lit)
 	"hall": [Vector3(4.75, 2.5, 4.3), Vector3(4.35, 2.1, 8.2), 66.0, 18.0],
 	"pegs": [Vector3(5.3, 2.3, 8.25), Vector3(4.12, 1.95, 8.2), 80.0, 18.0],
-	# The sick room's far end: its washstand, the bedside chair, the spare blankets on the empty cot.
-	"sick_wash": [Vector3(3.3, 2.4, 9.0), Vector3(2.2, 1.4, 11.0), 62.0, 15.0],
+	# The sick room's far end: its washstand, the bedside chair, the spare blankets on the second cot
+	# (#844: that cot along the back wall, clear of the room's doors).
+	"sick_wash": [Vector3(3.3, 2.4, 9.0), Vector3(1.6, 1.4, 11.0), 62.0, 15.0],
 	# The chamber pot under the first cot; the folded blankets, close.
 	"pot": [Vector3(2.2, 1.75, 10.9), Vector3(1.0, 1.08, 10.0), 50.0, 9.0],  # (by the east window's morning light)
-	"blankets": [Vector3(2.5, 2.25, 10.9), Vector3(3.42, 1.62, 9.95), 45.0, 15.0],
+	"blankets": [Vector3(2.6, 2.25, 9.6), Vector3(3.5, 1.62, 10.85), 45.0, 15.0],
 	# His bookcase beside the desk, close; the sitting room's books, table and chair.
 	"bookcase": [Vector3(2.75, 2.45, 1.75), Vector3(2.75, 1.78, 3.6), 50.0, 10.0],
 	"sitting_room": [Vector3(5.7, 2.5, 11.0), Vector3(6.9, 1.6, 9.0), 66.0, 15.0],
 }
-## The views a batch is judged in (all of them without --views). `--batch=D1,D2,D3` lays several
-## (D3's views show D1's cots and D2's desk); its views are the last one's.
+## The views a batch is judged in (all of them without --views).
+## `--batch=D1,D2,D3` reports several; the views are the last one's.
 const BATCH_VIEWS := {"D1": ["surgery", "surgery_night", "wash", "instruments", "sick_room"],
 		"D2": ["dispensary", "counter", "shelves", "front_office", "desk"],
-		"D3": ["hall", "pegs", "sick_room", "pot", "blankets", "bookcase", "front_office", "sitting_room"]}
+		"D3": ["hall", "pegs", "sick_room", "sick_wash", "pot", "blankets", "bookcase", "front_office", "sitting_room"]}
 
 var out_dir := "build/doctor_props"
 var batch := "D1"
@@ -74,104 +76,6 @@ func _initialize() -> void:
 		elif a == "--counts":
 			counts = true
 	_run.call_deferred()
-
-
-## The batch's props laid into `building` (its floor `floor_y` in its space): by name.
-static func dress(building: Node3D, batch_name: String, floor_y := 0.95) -> Dictionary:
-	var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/prop_lab/doctor/dress.json"))
-	var kit = load("res://src/props/prop_kit.gd")
-	var holder := Node3D.new()
-	holder.name = "PropLabDress"
-	building.add_child(holder)
-	var placed := {}
-	var tops := {}
-	var entries: Array = []
-	var listed: Array = []
-	for b in batch_name.split(","):
-		listed.append_array(spec.batches[b])
-	var skip: PackedStringArray = []
-	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--skip="):
-			skip = a.substr(7).split(",")  # (entries left out by id: D1's towel blows through the wall into D3's hall under lavapipe's slow frames)
-	for e: Dictionary in listed:
-		if skip.has(String(e.id)):
-			continue
-		if not e.has("row"):
-			entries.append(e)
-			continue
-		if OS.get_cmdline_user_args().has("--no-rows"):
-			continue  # (a placement check without the shelves' ~190 bottles: the load is minutes shorter)
-		# A row: the kits in turn along its step (a shelf of bottles), its gaps left.
-		var row: Dictionary = e.row
-		for k in int(row.count):
-			if (row.get("skip", []) as Array).has(float(k)) or (row.get("skip", []) as Array).has(k):
-				continue
-			var one := e.duplicate(true)
-			one.erase("row")
-			one.id = "%s_%d" % [e.id, k]
-			one.kit = (row.kits as Array)[k % (row.kits as Array).size()]
-			one.at = [float(e.at[0]) + float(row.step[0]) * k, float(e.at[1]) + float(row.step[1]) * k, float(e.at[2]) + float(row.step[2]) * k]
-			# Set down by hand, not on a ruler (round 1's critic: rows like wallpaper): each a little
-			# off its place and turned, by its id (the same every run).
-			var j: Array = row.get("jitter", [0.0, 0.0, 0.0])
-			if not j.is_empty():
-				var h := hash(String(one.id))
-				one.at[0] += float(j[0]) * (float(h % 1000) / 500.0 - 1.0)
-				one.at[2] += float(j[1]) * (float((h / 1000) % 1000) / 500.0 - 1.0)
-				one.facing = float(e.get("facing", 0.0)) + float(j[2]) * (float((h / 1000000) % 1000) / 500.0 - 1.0)
-			entries.append(one)
-	for e: Dictionary in entries:
-		var id := StringName(e.kit)
-		var node: Node3D
-		if e.has("cloth_over"):
-			# Cloth hung over what it's to hang over (the washstand's towel bar: the kit's
-			# `towel_bar` member): ClothProp.hang_over pins its middle on the bar, the rest drapes.
-			var under: Node3D = placed[e.cloth_over]
-			var cloth: Node3D = kit.make(id)
-			holder.add_child(cloth)
-			var bar = under.call(&"get_member", StringName("%s/towel_bar" % under.get(&"structure_id")))
-			if bar:
-				var top: Vector3 = bar.global_position + Vector3.UP * (float(bar.size.y) * 0.5 + 0.005)
-				cloth.call(&"hang_over", bar, bar.global_basis.z, top)
-			placed[e.id] = cloth
-			continue
-		if e.has("fit"):
-			node = kit.spawn_fitted(id, StringName("dress_%s" % e.id), Vector3(e.fit[0], e.fit[1], e.fit[2]))
-		else:
-			node = kit.make(id)
-		var y := floor_y + float(e.at[1]) + float(e.get("lift", 0.0))
-		if e.has("on"):
-			y = float(tops[e.on]) + float(e.get("lift", 0.0))
-		node.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(e.get("facing", 0.0)))), Vector3(e.at[0], y, e.at[2]))
-		holder.add_child(node)
-		# Its top: a fitted fixture's height, a member prop's highest top board (not a splashback over
-		# it), a glass or loose prop's size.
-		var h: float = float(e.fit[1]) if e.has("fit") else kit.bounds(kit.definition(id)).end.y
-		if not e.has("fit") and kit.definition(id).has("members"):
-			var tb := 0.0
-			for m: Dictionary in kit.expand(kit.definition(id)):
-				if String(m.kind) == "furniture_top":
-					tb = maxf(tb, float(m.at[1]) + float(m.size[1]) * 0.5)
-			if tb > 0.0:
-				h = tb
-		elif not kit.definition(id).has("members"):
-			h = float((kit.definition(id).get("size", [0, 0.1, 0]) as Array)[1])
-		if id == &"wash_basin":
-			h = 0.014  # (its floor: the pitcher stands in it)
-		tops[e.id] = y + h
-		if e.has("light"):
-			var lamp = load("res://src/world/oil_lamp.gd").new()
-			lamp.name = "Light"
-			lamp.show_mesh = false
-			lamp.lit_from_hour = 17
-			lamp.lit_until_hour = 4
-			# (a reflector lamp throws more of its light one way: a little over the sconces' 1.1)
-			lamp.energy = 1.6
-			lamp.light_range = 7.0
-			lamp.position = Vector3(0, float(e.light), 0)
-			node.add_child(lamp)
-		placed[e.id] = node
-	return placed
 
 
 func _run() -> void:
@@ -205,7 +109,15 @@ func _run() -> void:
 		if String(m.member_id).contains("/door_"):
 			building.unbatch(m)
 			m.visible = false
-	var placed := dress(building, batch)
+	# His furniture and props are the building's own (#844: doctor.json's `dressing`, placed by its
+	# build as in the game); the batch's are judged.
+	var placed := {}
+	for b in batch.split(","):
+		placed.merge((building.get(&"dressed") as Dictionary).get(b, {}))
+	if placed.is_empty():
+		push_error("no batch %s in the doctor's dressing" % batch)
+		quit(1)
+		return
 	var clock = valley.find_child("DayCycle", true, false)
 	if clock:
 		clock.set_physics_process(false)

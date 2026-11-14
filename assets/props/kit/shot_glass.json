@@ -1,5 +1,5 @@
 {
-  "_doc": "Bar glass (#866; refs experiments/prop_lab/refs/saloon/): a heavy-bottomed whiskey glass of 2 oz, a shot of whiskey in it. A prop that shatters (GlassProp), as the whiskey bottle: a ball, a fall faster than 4.0 m/s (a heavy glass off the bar onto the boards: some do, some don't) or 50 kPa breaks it, and what's in it goes on the floor (`Events.liquid_spilled`). The glass the kit's `glass:clear` (see-through, no shadow of its own); what's in it baked the gun way (tools/blender/props/saloon_s1.py). One physics body standing (the frozen glass; a shelf of forty is forty bodies: set a row on the back bar sparingly), its shards when it breaks. Written by tools/props/saloon.py.",
+  "_doc": "Bar glass (#866; refs experiments/prop_lab/refs/saloon/): a heavy-bottomed whiskey glass of 2 oz, a shot of whiskey in it. A prop that shatters (GlassProp), as the whiskey bottle: a ball, a fall faster than 4.0 m/s (a heavy glass off the bar onto the boards: some do, some don't) or 50 kPa breaks it, and what's in it goes on the floor (`Events.liquid_spilled`). The glass the kit's `glass:flint` (see-through, its thick outline catching the lamps; no shadow of its own); what's in it baked the gun way (tools/blender/props/saloon_s1.py). One physics body standing (the frozen glass; a shelf of forty is forty bodies: set a row on the back bar sparingly), its shards when it breaks. Written by tools/props/saloon.py.",
   "id": "shot_glass",
   "kind": "shatters",
   "fixture": true,
@@ -7,7 +7,7 @@
   "replaces": "",
   "model": "glb:bar_glasses_shot_glass",
   "looks": {
-    "Glass": "glass:clear",
+    "Glass": "glass:flint",
     "Liquid": "pbr:bar_glasses_shot_glass"
   },
   "size": [

@@ -85,6 +85,11 @@ func _ready() -> void:
 		if a.begins_with("--aa="):
 			aa = "taa" if a.substr(5) == "taa" else "fsr2"
 	process_priority = 100  # after DayCycle and the light looks have set this frame's light
+	# Our own sky, its light, clouds and the valley's far land (#918), while the real look is on.
+	if RealSky.enabled:
+		var sky := RealSky.new()
+		sky.name = "RealSky"
+		add_child(sky)
 	# At once when the switch moves (a preset's later values, view.* say, then go over it).
 	Settings.changed.connect(_sync)
 	_sync.call_deferred()
@@ -337,7 +342,9 @@ func _hung_lamps() -> void:
 		var near := cam != null and cam.global_position.distance_to(light.global_position) < HUNG_SHADOW_REACH
 		if light.shadow_enabled != near:
 			light.shadow_enabled = near
-		light.omni_range = lamp.light_range * float(dials.hung_reach)
+		var reach := lamp.light_range * float(dials.hung_reach)
+		if light.omni_range != reach:  # (on change only: a range write redraws its shadow, review B4)
+			light.omni_range = reach
 		# OilLamp sets energy x flicker (not every frame under the render thread): what it set is
 		# read back only when it isn't what this wrote last.
 		var e := light.light_energy
