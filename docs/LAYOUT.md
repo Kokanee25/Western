@@ -1656,25 +1656,39 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   bucket down where he is; calm, he picks them up wherever they are and finishes. TownLife gives
   him both chores (`[mopping, wipe]`).
 - **`ValleyFolk`** (`src/people/valley_folk.gd`, #756; data `config/valley_folk.json`;
-  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). Each man in the data has
-  a model, `hours` [from, to] (past midnight when to < from), a `from` place (his way in and out) and
-  a `post`: `behind`/`at_bar` the set's bar (`along` it, + north) or a `chair` of the card table (n, e,
-  s, w). A CivilianBrain at his post (`go_to` gives him a new one and drops his old route), finding
-  his way by the folk's own `places` (ValleyTown.add_ways onto a new Waypoints, ~560 places, plus the
-  data's `nolaw_*`; a route ~6 ms); the card players held in their chairs by **`SitChore`**
+  `tests/test_valley_folk.gd`): the valley's townsfolk (no TownLife there). **The day and the book**
+  (townsfolk step 2, #870; `docs/briefs/townsfolk.md` §3): each man has a model, a `home` (a place: a
+  building's lot id, its door, or a way out of town such as `back@0`) and a `day`: blocks by the hour
+  (`from`, the last running round to the first), each `at` a named spot (`spots`: `behind`/`at_bar`
+  the set's bar, a card table `chair`, or `lot` + `at` facing `faces`; the place's, not the man's) or
+  `in` a place (**on the book**, `TownBook`: a row, no body, no cost), and `do` (`stand`, `drink`...;
+  on the book `sleep`, `home`, `work`, `breakfast`, `supper`, `away`). One list, or one a **day kind**
+  (`ordinary` the default; `calendar.kinds`: `sunday` by `week_day`, `payday` `every` 14 from day 13,
+  an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
+  past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
+  (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
+  to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
+  (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
+  (ValleyTown.add_ways onto a new Waypoints, ~560, plus the data's `nolaw_*`); a jump past and he's
+  there at once (`_place`). **Nothing in view**: he comes out of a door only when you can't see it
+  and goes in only once you can't see him (`seen`: the camera's frustum, nearer than the book's
+  `seen_m` 120 m, no WORLD between; waiting `_due` behind it, or at the door; `GONE_ANYWAY` 240 s only
+  out of sight); `view_log` logs every body in or out with whether it was seen (the test's probe).
+  **BookLights** (`src/people/book_lights.gd`, a greybox stand-in for art's fronts): each building in
+  anyone's day gets a window beside its door lit after dark (`book.dark`) while someone's in at a
+  `lamp` doing, and chimney smoke while someone's at a `smoke` doing (`book.doings`). A CivilianBrain
+  at his spot (`go_to` a new one), the card players held in their chairs by **`SitChore`**
   (`src/people/sit_chore.gd`: within 2 m of a free chair, free, wanted: Seating.sit_step; trouble or
-  sent off: up out of it). The clock read every 0.5 s: run into a man's hours (within `walk_in_h`,
-  0.5 h) and he walks in from `from`; jumped past (7, a bridge `time`, a load at night) he's at his
-  post; past his hours he walks back out to `from` and is freed (`GONE_AT` 1.6 m; `GONE_ANYWAY` 240
-  s), or at once on a jump. Built while the valley loads and kept out of the tree (TownLife's riders,
-  #488): ~4.3 s the first time a process builds these five models, ~12 ms a man after. Tonight: the
-  barkeep 17-3 (from the saloon's door), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the
-  rancher 19.3-1 (Back Street), Earl 19.5-2 (the yard's back); the north and south chairs free (the
-  seated player's, the next step). `report()` (state, where, seated); Prof `valley_folk`;
-  valley_bench spot `saloon_yard`.
+  sent off: up out of it). Built while the valley loads and kept out of the tree (TownLife's riders,
+  #488): ~4.3 s the first time a process builds these models, ~12 ms a man after. Tonight: the barkeep
+  17-3 (the saloon), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the rancher 19.3-1 (Back
+  Street), Earl 19.5-2 (the yard's back); by day the townsman, the loudmouth and the undertaker on their
+  walks. `report()` (state, block, book, where, seated; `_day`: number, kind, the windows and smoke);
+  Prof `valley_folk`; valley_bench spot `saloon_yard`.
   A man with `act` (No Law's Cody and the stranger, #773) has no hours: prebuilt with the rest, the
   act `take`s him (no brain) and `release`s him. A dead man stays (state `dead`); `send_off(id)` walks
-  a man out for the rest of his hours (`kept_out`). It starts No Law's murder (`_maybe_murder`,
+  a man home for the rest of his block (`kept_out`). It starts No Law's murder (`_maybe_murder`,
   `start_murder`; src/moments). **CivilianBrain**'s lines: a man's no closer than `SAY_GAP` 2.5 s
   (but fire, thanks, his chair), a shot's cry `CRY_SPREAD` after it, kept back if another just cried,
   never another man's line of the last 4 s; `hush(s)` (an act's quiet); a gun drawn within `GUN_SEEN`

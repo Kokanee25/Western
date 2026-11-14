@@ -1,5 +1,5 @@
 {
-  "_doc": "The valley town's people (#756, No Law step 1; docs/missions/BUILD_ORDER.md 0.3): who's in town when, where they stand or sit, and the few props they need, read by ValleyFolk (src/people/valley_folk.gd). A point is `lot` + `at` [a, b]: a metres east of the lot's west side (its x0), b metres back from the street front (north lots: -z, south lots: +z); y the ground's (plus `up`). `hours` [from, to] the clock's hours they're in town (to < from: past midnight). Come in while you watch (the clock running into `from`) and a man walks in from his `from` place by the town's ways (ValleyTown.add_ways plus this file's `places`); the clock set past it (a jump, a load at night) and he's at his post already. Past `to` he walks back out to his `from` and is gone. Sean's B on #755 (unanswered: B by default): the saloon stays a grey block, so the bar, the card table and the drinking are in the saloon's yard (saloon_annex, Sean #700) for now; when the spec saloon goes onto its lot (A, or #695's week) the set moves inside and the people with it.",
+  "_doc": "The valley town's people (#756, No Law step 1; docs/missions/BUILD_ORDER.md 0.3): who's in town when, where they stand or sit, and the few props they need, read by ValleyFolk (src/people/valley_folk.gd). A point is `lot` + `at` [a, b]: a metres east of the lot's west side (its x0), b metres back from the street front (north lots: -z, south lots: +z); y the ground's (plus `up`). Each townsman's `day` (townsfolk step 2, #870; docs/briefs/townsfolk.md \u00a73): blocks by the hour, each `from` an hour to the next block's (the last runs round to the first), `at` a named spot (`spots`) or `in` a place (on the book: indoors, asleep, out of town), `do` what he does there; a `home` (where he's built and goes when nothing says otherwise). A new person is one entry here. With the clock running into a block (within `walk_in_h`) he walks there by the town's ways (ValleyTown.add_ways plus this file's `places`): out of the last block's door, along, in at the next one's; the clock set past it (a jump, a load at night) and he's there already. Nobody comes out of a door or goes in at one while you can see it (the book's `seen_m`). Sean's B on #755 (unanswered: B by default): the saloon stays a grey block, so the bar, the card table and the drinking are in the saloon's yard (saloon_annex, Sean #700) for now; when the spec saloon goes onto its lot (A, or #695's week) the set moves inside and the people with it.",
   "status": "PROPOSED (#756): who and where are this session's stand-ins; No Law's card (docs/missions/no-law.md) names the barman, the card player and the red shirt.",
   "walk_in_h": 0.5,
   "set": {
@@ -18,54 +18,120 @@
     "nolaw_yard_mid": {"at": [4.9, 8.0], "links": ["nolaw_yard_front"], "nearest": true},
     "nolaw_bar_north": {"at": [1.0, 7.2], "links": ["nolaw_yard_mid"]}
   },
+  "spots": {
+    "_doc": "Named spots (townsfolk brief \u00a73 \"Spots\"): where a man stands or sits and what he faces, belonging to the place, not the man, so anyone sent there fits. A spot is one of: `behind` a bar (`along` it, + north), `at_bar` (its customers' side), `chair` (the set's card table's, by compass: sat in it by a SitChore), or `lot` + `at` [a, b] (lot_point's) facing `faces` [a, b] (else the street). A day's block names one with `at` (or gives one inline).",
+    "bar_back": {"behind": "bar", "along": 0.0},
+    "bar_south": {"at_bar": "bar", "along": -0.6},
+    "bar_north": {"at_bar": "bar", "along": 0.7},
+    "card_w": {"chair": "w"},
+    "card_e": {"chair": "e"},
+    "hotel_walk": {"lot": "hotel", "at": [4.0, -1.0], "faces": [9.0, -6.0]},
+    "saloon_walk": {"lot": "saloon", "at": [3.0, -1.0], "faces": [3.0, -8.0]},
+    "undertaker_walk": {"lot": "undertaker", "at": [5.0, -1.2], "faces": [5.0, -8.0]}
+  },
+  "book": {
+    "_doc": "The book (townsfolk brief \u00a73 \"Three ways of being present\"): a man indoors or asleep behind a front is a row here, not a body: no cost. A day's block with `in` (a place: a building's door, its lot id, or a way out of town such as `back@0`) puts him on it, doing `do`; he goes in and comes out at that place's door, never while you can see the last step (`seen_m`: past this far off nothing's seen). `doings`: what each shows from the street: `lamp` a lit window while it's `dark` [from, to] by the clock, `smoke` chimney smoke. A building shows them only while someone's in it doing one (BookLights; only buildings, not ways out).",
+    "seen_m": 120.0,
+    "dark": [18.0, 6.0],
+    "doings": {"sleep": {}, "away": {}, "home": {"lamp": true}, "work": {"lamp": true}, "breakfast": {"lamp": true, "smoke": true}, "dinner": {"lamp": true, "smoke": true}, "supper": {"lamp": true, "smoke": true}}
+  },
+  "calendar": {
+    "_doc": "The town's day kinds (townsfolk brief \u00a73 \"The data\"): a person's `day` is a list of blocks (every kind) or one list a kind (`ordinary` the default for any kind he hasn't). The town's day runs from `starts_h` to the next (a night's blocks past midnight belong to the day before). Each kind: `week_day` (the town's day number mod 7; day 1 a Monday) or `every` days from `first`, and an optional `if` (StoryState facts, as `talk`'s), the first that holds wins. PROPOSED: Sunday and a fortnight's payday on the Saturday; the story's kinds (mourning, uneasy) go here as `if` entries when the funeral and the news are built.",
+    "starts_h": 5.0,
+    "kinds": [{"id": "sunday", "week_day": 0}, {"id": "payday", "every": 14, "first": 13}]
+  },
   "people": [
-    {"id": "barkeep", "name": "Barkeep", "model": "barkeep_s2_talking", "seed": 761, "shirt": [0.85, 0.84, 0.8], "vest": [0.15, 0.14, 0.13],
-     "hours": [17.0, 3.0], "from": "saloon", "post": {"behind": "bar", "along": 0.0},
+    {"id": "barkeep", "name": "Barkeep", "model": "barkeep_s2_talking", "seed": 761, "shirt": [0.85, 0.84, 0.8], "vest": [0.15, 0.14, 0.13], "home": "saloon",
+     "day": [
+       {"from": 3.0, "in": "saloon", "do": "sleep"},
+       {"from": 10.0, "in": "saloon", "do": "work"},
+       {"from": 17.0, "at": "bar_back", "do": "counter"}],
      "_doc": "The barman behind the bar (No Law: \"Jesus, Cody, my chair!\"). Comes out of the saloon's door."},
-    {"id": "miner", "name": "Miner", "model": "miner_s4_talking", "seed": 762, "shirt": [0.3, 0.42, 0.6], "vest": [0, 0, 0, 0],
-     "hours": [19.0, 1.5], "from": "hotel", "post": {"at_bar": "bar", "along": -0.6},
+    {"id": "miner", "name": "Miner", "model": "miner_s4_talking", "seed": 762, "shirt": [0.3, 0.42, 0.6], "vest": [0, 0, 0, 0], "home": "hotel",
+     "day": {
+       "ordinary": [
+         {"from": 1.5, "in": "hotel", "do": "sleep"},
+         {"from": 6.0, "in": "hotel", "do": "breakfast"},
+         {"from": 7.0, "in": "hotel", "do": "home"},
+         {"from": 18.0, "in": "hotel", "do": "supper"},
+         {"from": 19.0, "at": "bar_south", "do": "drink"}],
+       "payday": [
+         {"from": 3.0, "in": "hotel", "do": "sleep"},
+         {"from": 8.0, "in": "hotel", "do": "breakfast"},
+         {"from": 9.0, "in": "hotel", "do": "home"},
+         {"from": 18.0, "at": "bar_south", "do": "drink"}]},
      "_doc": "A drinker at the bar, in from the hotel."},
-    {"id": "rancher", "name": "Rancher", "model": "mexican_rancher_s1_talking", "seed": 763, "shirt": [0.88, 0.82, 0.7], "vest": [0.45, 0.3, 0.2],
-     "hours": [19.3, 1.0], "from": "back@0", "post": {"at_bar": "bar", "along": 0.7},
+    {"id": "rancher", "name": "Rancher", "model": "mexican_rancher_s1_talking", "seed": 763, "shirt": [0.88, 0.82, 0.7], "vest": [0.45, 0.3, 0.2], "home": "back@0",
+     "day": [
+       {"from": 1.0, "in": "back@0", "do": "away"},
+       {"from": 19.3, "at": "bar_north", "do": "drink"}],
      "_doc": "A drinker at the bar, in from Back Street by the North-South Street."},
-    {"id": "earl", "name": "Earl", "model": "old_rancher_s3_talking", "seed": 764, "shirt": [0.6, 0.55, 0.45], "vest": [0.25, 0.2, 0.15],
-     "hours": [19.5, 2.0], "from": "saloon_annex_back", "post": {"chair": "w"},
+    {"id": "earl", "name": "Earl", "model": "old_rancher_s3_talking", "seed": 764, "shirt": [0.6, 0.55, 0.45], "vest": [0.25, 0.2, 0.15], "home": "saloon_annex_back",
+     "day": [
+       {"from": 2.0, "in": "saloon_annex_back", "do": "away"},
+       {"from": 19.5, "at": "card_w", "do": "play"}],
      "_doc": "At the card table (the card cheat's Earl: No Law's card player). In from Back Street through the yard."},
-    {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0],
-     "hours": [19.6, 2.0], "from": "hotel", "post": {"chair": "e"},
+    {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0], "home": "hotel",
+     "day": [
+       {"from": 2.0, "in": "hotel", "do": "sleep"},
+       {"from": 9.0, "in": "hotel", "do": "breakfast"},
+       {"from": 10.0, "in": "hotel", "do": "home"},
+       {"from": 19.6, "at": "card_e", "do": "play"}],
      "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
-    {"id": "cody", "name": "Cody", "model": "blacksmith_s1_talking", "seed": 773, "gun": true, "shirt": [0.42, 0.45, 0.5], "vest": [0, 0, 0, 0],
-     "act": "no_law_murder", "from": "saloon_annex",
+    {"id": "cody", "name": "Cody", "model": "blacksmith_s1_talking", "seed": 773, "gun": true, "shirt": [0.42, 0.45, 0.5], "vest": [0, 0, 0, 0], "act": "no_law_murder", "from": "saloon_annex",
      "_doc": "Cody, who kills Earl (No Law beat 3, #773): one of the Baron's hired guns, a rough man. Not the red shirt (Sean on #796, 2026-11-11: the red shirt, who shot the sheriff, is another man and isn't in the saloon), so no red shirt on him. No hours: built with the rest and kept out till the act (NoLawMurder) takes him. A stand-in: the blacksmith's model (grey-blue work shirt) till the characters lane makes Cody."},
-    {"id": "stranger", "name": "Stranger", "model": "bold_cowboy_s3_talking", "seed": 774, "shirt": [0.7, 0.66, 0.58], "vest": [0.2, 0.17, 0.14],
-     "act": "no_law_murder", "from": "saloon_annex",
+    {"id": "stranger", "name": "Stranger", "model": "bold_cowboy_s3_talking", "seed": 774, "shirt": [0.7, 0.66, 0.58], "vest": [0.2, 0.17, 0.14], "act": "no_law_murder", "from": "saloon_annex",
      "_doc": "The stranger who sits in the free chair and tells you not to move (No Law beat 3, #773). A stand-in man."},
-    {"id": "townsman", "name": "Townsman", "model": "storekeeper_s1_talking", "seed": 781, "shirt": [0.5, 0.56, 0.62], "vest": [0.2, 0.18, 0.16],
-     "hours": [7.0, 19.0], "from": "hotel", "post": {"lot": "hotel", "at": [4.0, -1.0], "faces": [9.0, -6.0]},
-     "says": "townsman",
+    {"id": "townsman", "name": "Townsman", "model": "storekeeper_s1_talking", "seed": 781, "shirt": [0.5, 0.56, 0.62], "vest": [0.2, 0.18, 0.16], "home": "hotel", "says": "townsman",
+     "day": {
+       "ordinary": [
+         {"from": 6.0, "in": "hotel", "do": "breakfast"},
+         {"from": 7.0, "at": "hotel_walk", "do": "stand"},
+         {"from": 19.0, "in": "hotel", "do": "supper"},
+         {"from": 20.0, "in": "hotel", "do": "home"},
+         {"from": 22.0, "in": "hotel", "do": "sleep"}],
+       "sunday": [
+         {"from": 8.0, "in": "hotel", "do": "breakfast"},
+         {"from": 10.0, "at": "hotel_walk", "do": "stand"},
+         {"from": 17.0, "in": "hotel", "do": "supper"},
+         {"from": 19.0, "in": "hotel", "do": "home"},
+         {"from": 22.0, "in": "hotel", "do": "sleep"}]},
      "_doc": "By day on the hotel's walk (No Law's scripts, docs/scripts/no_law.json: the townsman). Tells you the town's news: the sheriff shot (once he's brought in), and the morning after, Earl's murder as the town has it, or that you were sat at the table."},
-    {"id": "loudmouth", "name": "Loudmouth", "model": "heavy_factory", "seed": 782, "shirt": [0.62, 0.55, 0.42], "vest": [0.3, 0.22, 0.16],
-     "hours": [8.0, 19.5], "from": "saloon", "post": {"lot": "saloon", "at": [3.0, -1.0], "faces": [3.0, -8.0]},
-     "says": "loudmouth",
+    {"id": "loudmouth", "name": "Loudmouth", "model": "heavy_factory", "seed": 782, "shirt": [0.62, 0.55, 0.42], "vest": [0.3, 0.22, 0.16], "home": "saloon", "says": "loudmouth",
+     "day": {
+       "ordinary": [
+         {"from": 8.0, "at": "saloon_walk", "do": "stand"},
+         {"from": 19.5, "in": "saloon", "do": "home"},
+         {"from": 23.0, "in": "saloon", "do": "sleep"}],
+       "sunday": [
+         {"from": 12.0, "at": "saloon_walk", "do": "stand"},
+         {"from": 19.5, "in": "saloon", "do": "home"},
+         {"from": 23.0, "in": "saloon", "do": "sleep"}]},
      "_doc": "By day on the saloon's walk (the scripts' loudmouth): last night's bravado gone sour the morning after."},
-    {"id": "undertaker", "name": "Undertaker", "model": "oldtimer_factory", "seed": 783, "shirt": [0.82, 0.8, 0.76], "vest": [0.1, 0.1, 0.11],
-     "hours": [7.0, 18.0], "from": "undertaker", "post": {"lot": "undertaker", "at": [5.0, -1.2], "faces": [5.0, -8.0]},
-     "says": "undertaker",
+    {"id": "undertaker", "name": "Undertaker", "model": "oldtimer_factory", "seed": 783, "shirt": [0.82, 0.8, 0.76], "vest": [0.1, 0.1, 0.11], "home": "undertaker", "says": "undertaker",
+     "day": {
+       "ordinary": [
+         {"from": 6.0, "in": "undertaker", "do": "breakfast"},
+         {"from": 7.0, "at": "undertaker_walk", "do": "stand"},
+         {"from": 18.0, "in": "undertaker", "do": "supper"},
+         {"from": 19.0, "in": "undertaker", "do": "home"},
+         {"from": 22.0, "in": "undertaker", "do": "sleep"}],
+       "sunday": [
+         {"from": 8.0, "in": "undertaker", "do": "breakfast"},
+         {"from": 9.0, "in": "undertaker", "do": "home"},
+         {"from": 18.0, "in": "undertaker", "do": "supper"},
+         {"from": 19.0, "in": "undertaker", "do": "home"},
+         {"from": 22.0, "in": "undertaker", "do": "sleep"}]},
      "_doc": "On his walk by day. The morning after, Earl's laid out with him (ValleyFolk's morning: the body taken from the yard, a recorded death)."},
-    {"id": "runner", "name": "Townsman", "model": "young_factory", "seed": 791, "shirt": [0.7, 0.62, 0.5], "vest": [0, 0, 0, 0],
-     "act": "sheriff_dies", "from": "doctor",
+    {"id": "runner", "name": "Townsman", "model": "young_factory", "seed": 791, "shirt": [0.7, 0.62, 0.5], "vest": [0, 0, 0, 0], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The young man the doctor sends to find you on day 2 (SheriffDies: \"Harlan! Doc's asking for you.\")."},
-    {"id": "dying_sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "shirt": [0.72, 0.68, 0.6], "vest": [0.22, 0.18, 0.14],
-     "act": "sheriff_dies", "from": "doctor",
+    {"id": "dying_sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "shirt": [0.72, 0.68, 0.6], "vest": [0.22, 0.18, 0.14], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The sheriff on the doctor's cot, day 2 (SheriffDies): the road's man (the_sheriff.json's model), built with the folk (a Studio man built in play is a long frame)."},
-    {"id": "doc", "name": "Doc", "model": "doctor_s2_talking", "seed": 747, "shirt": [0.85, 0.84, 0.8], "vest": [0.12, 0.12, 0.13],
-     "act": "sheriff_dies", "from": "doctor",
+    {"id": "doc", "name": "Doc", "model": "doctor_s2_talking", "seed": 747, "shirt": [0.85, 0.84, 0.8], "vest": [0.12, 0.12, 0.13], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The doctor (the_sheriff.json's), day 2: at his door for you, then in the sick room."},
-    {"id": "wife", "name": "Mrs.", "model": "widow_s6_talking", "seed": 796, "shirt": [0.3, 0.27, 0.3], "vest": [0, 0, 0, 0],
-     "act": "sheriff_dies", "from": "doctor",
+    {"id": "wife", "name": "Mrs.", "model": "widow_s6_talking", "seed": 796, "shirt": [0.3, 0.27, 0.3], "vest": [0, 0, 0, 0], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The sheriff's wife at his bedside, day 2. A stand-in: the widow's model (the characters lane's), only used here."},
-    {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1],
-     "act": "no_justice", "from": "doctor",
+    {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1], "act": "no_justice", "from": "doctor",
      "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."}
   ],
   "talk": {
@@ -74,32 +140,107 @@
     "gap_s": 20.0,
     "sets": {
       "townsman": [
-        {"id": "after.deputy", "if": {"nolaw.sheriff": "dead", "nolaw.deputy": true}, "_doc": "PROPOSED (#796): not in the scripts yet.",
-         "words": ["Sheriff's gone, then. And Doc's pinned his star on you. Well. Somebody had to.", "Deputy, is it? You'll want to keep out of Cody's way."]},
-        {"id": "morning.you_were_there", "if": {"nolaw.morning": true, "nolaw.seen_from": "table"}, "once": true,
-         "words": ["You were sat right there at the table, they say. And you never moved."]},
-        {"id": "morning.versions", "if": {"nolaw.morning": true},
-         "words": ["Cody shot Earl dead over the cards. Said there's no law left to save him. Bold as brass.", "Earl drew first, I heard. Or reached, anyhow.", "Three shots, they say. Or two. Nobody counted."]},
-        {"id": "town.worried", "if": {"sheriff.care": "*", "!nolaw.murder": true},
-         "words": ["Sheriff's shot, they say. Laid up at the doc's.", "Who's to keep the peace now? Not me.", "I'm putting the bar on my door tonight."]}
+        {
+          "id": "after.deputy",
+          "if": {
+            "nolaw.sheriff": "dead",
+            "nolaw.deputy": true
+          },
+          "_doc": "PROPOSED (#796): not in the scripts yet.",
+          "words": [
+            "Sheriff's gone, then. And Doc's pinned his star on you. Well. Somebody had to.",
+            "Deputy, is it? You'll want to keep out of Cody's way."
+          ]
+        },
+        {
+          "id": "morning.you_were_there",
+          "if": {
+            "nolaw.morning": true,
+            "nolaw.seen_from": "table"
+          },
+          "once": true,
+          "words": [
+            "You were sat right there at the table, they say. And you never moved."
+          ]
+        },
+        {
+          "id": "morning.versions",
+          "if": {
+            "nolaw.morning": true
+          },
+          "words": [
+            "Cody shot Earl dead over the cards. Said there's no law left to save him. Bold as brass.",
+            "Earl drew first, I heard. Or reached, anyhow.",
+            "Three shots, they say. Or two. Nobody counted."
+          ]
+        },
+        {
+          "id": "town.worried",
+          "if": {
+            "sheriff.care": "*",
+            "!nolaw.murder": true
+          },
+          "words": [
+            "Sheriff's shot, they say. Laid up at the doc's.",
+            "Who's to keep the peace now? Not me.",
+            "I'm putting the bar on my door tonight."
+          ]
+        }
       ],
       "loudmouth": [
-        {"id": "after.deputy", "if": {"nolaw.sheriff": "dead", "nolaw.deputy": true}, "_doc": "PROPOSED (#796): not in the scripts yet.",
-         "words": ["Him? Deputy? Cody'll eat him for breakfast.", "Sheriff's dead and they give the star to a drifter. God help us."]},
-        {"id": "morning.nobody", "if": {"nolaw.morning": true, "!nolaw.deputy": true},
-         "words": ["And who's to take Cody in? The sheriff's dying.", "He'll be back, you watch. Nobody to stop him."]}
+        {
+          "id": "after.deputy",
+          "if": {
+            "nolaw.sheriff": "dead",
+            "nolaw.deputy": true
+          },
+          "_doc": "PROPOSED (#796): not in the scripts yet.",
+          "words": [
+            "Him? Deputy? Cody'll eat him for breakfast.",
+            "Sheriff's dead and they give the star to a drifter. God help us."
+          ]
+        },
+        {
+          "id": "morning.nobody",
+          "if": {
+            "nolaw.morning": true,
+            "!nolaw.deputy": true
+          },
+          "words": [
+            "And who's to take Cody in? The sheriff's dying.",
+            "He'll be back, you watch. Nobody to stop him."
+          ]
+        }
       ],
       "undertaker": [
-        {"id": "after.sheriff", "if": {"nolaw.sheriff": "dead"}, "_doc": "PROPOSED (#796): not in the scripts yet.",
-         "words": ["Two in two days. The sheriff gets the good box; the county's paying for that one."]},
-        {"id": "morning.undertaker", "if": {"nolaw.earl": "undertaker"},
-         "words": ["Earl. Shot through the head, before witnesses, by the man Cody. Pine box. Nobody's paying for a stone."]}
+        {
+          "id": "after.sheriff",
+          "if": {
+            "nolaw.sheriff": "dead"
+          },
+          "_doc": "PROPOSED (#796): not in the scripts yet.",
+          "words": [
+            "Two in two days. The sheriff gets the good box; the county's paying for that one."
+          ]
+        },
+        {
+          "id": "morning.undertaker",
+          "if": {
+            "nolaw.earl": "undertaker"
+          },
+          "words": [
+            "Earl. Shot through the head, before witnesses, by the man Cody. Pine box. Nobody's paying for a stone."
+          ]
+        }
       ]
     }
   },
   "morning": {
     "_doc": "No Law's morning after (#796): once the murder's done (nolaw.murder done) and the clock's in `hours` (it can only get there through the night), nolaw.morning is set. Earl's body, if he's dead, is taken to the undertaker's once you're `unseen_m` off it or it's out of your view: gone from the yard for good, StoryState nolaw.earl = undertaker and death.earl his record. From `sheriff_from` (the clock) the dying sheriff's scene (SheriffDies, config/moments/sheriff_dies.json) starts, once.",
-    "hours": [5.0, 19.5],
+    "hours": [
+      5.0,
+      19.5
+    ],
     "unseen_m": 30.0,
     "sheriff_from": 7.5,
     "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Laid out at the undertaker's."
