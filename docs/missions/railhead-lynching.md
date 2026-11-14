@@ -1,5 +1,7 @@
 # The Lynching at the Railhead (`railhead-lynching`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: DESIGN.md §5 story mission 3 (Sean, 2026-10-06), "History, handled with care"; #467;
 `config/valley.json`; #552.
 

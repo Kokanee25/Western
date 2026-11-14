@@ -1,5 +1,7 @@
 # The Bounty (`the-bounty`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Other names: "A wanted man holed up" (#736 C). Sources: ROADMAP 3.6; DESIGN.md §5 "Reasons to fight"
 (Sean, 2026-10-01); #736 (Sean, 2026-11-09).
 

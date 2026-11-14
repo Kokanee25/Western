@@ -1,5 +1,7 @@
 # Hell on Wheels (`hell-on-wheels`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the wreck is only one of the Baron's two barrels, the sawn dance floor that night is the other, so saving the pay changes nothing for him (D, Sean 2026-11-11, #830, C1 a), and a lost pay or wreck makes Payday Night a hungry, angry night with the floor still falling (C2 b); Rourke is posted nearby from the start rather than brought in by this train (C8 a, P until Sean nods).
+
 Other names: "the runaway" (#542 step 7), "Runaway Payroll Train" (`config/valley.json`
 `runaway_payroll`). Sources: #542 body and comments (Sean, 2026-11-01; name 2026-11-09);
 `docs/briefs/valley-plan.md` §4; #546 P9 (Sean, 2026-11-07); #276 (2026-11-07); PR #621 `valley.md`.

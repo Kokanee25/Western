@@ -1,5 +1,7 @@
 # The Vaquero's Horses (`vaqueros-horses`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: DESIGN.md §5 story mission 4 (Sean, 2026-10-06); `config/valley.json` `vaqueros_horses`;
 #430 (the Mexican rancher, characters).
 

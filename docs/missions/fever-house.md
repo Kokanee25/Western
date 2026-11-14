@@ -1,5 +1,7 @@
 # The Fever House (`fever-house`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: DESIGN.md §5 story mission 7 (Sean, 2026-10-06).
 
 - PROPOSED (DESIGN.md §5, "**proposed**, Sean 2026-10-06; features are frozen").

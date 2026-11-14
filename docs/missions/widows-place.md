@@ -1,5 +1,7 @@
 # The Widow's Place (`widows-place`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Other names: "the peaceful visit" (the farmhouse lock, PR #621 step A6). The name is this session's
 (PROPOSED); Sean called it "the quiet mission". Sean's picks, 2026-11-09: why he goes (the horse and the
 rifle, and the stakes), the question about the end, and what happens while he's there. Sources: Sean in chat, 2026-11-09; the farmhouse lock

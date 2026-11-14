@@ -1,5 +1,7 @@
 # Decisions: what each choice sets, and who reads it
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this file:** the `cody.fate`, `payroll.fate` and `payday.floor` rows are out of date (OUTLINE.md, "Cards now out of date"): Payday Night is an event and the floor always falls.
+
 Sean, 2026-11-09: "some sort of decision tree, which kind of points at, if you make this decision, this
 will happen, or if you make that decision, this will happen, just so it all kind of flows, and we can
 kind of always come back to it to see that it all kind of lines up". This is it.

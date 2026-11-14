@@ -1,5 +1,7 @@
 # The Stage Held Up (`stage-held-up`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Other names: "the stage robbed on the road" (DESIGN.md "Reasons to fight"), "a payroll worth robbing
 on the road" (#276), "Dead Man's Crossing" (`docs/briefs/three-gunmen.md`, possibly related).
 Sources: DESIGN.md §5 "Reasons to fight" (Sean, 2026-10-01), §11 backlog 6 (Sean, 2026-10-06), §11

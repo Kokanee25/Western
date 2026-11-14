@@ -1,5 +1,7 @@
 # The Bridge Is Out (`the-bridge-is-out`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the men aboard are always the Baron's hired men, as many and as armed as the captain's wire made them, with Rourke and a few bought men the only uniforms, and Rourke dies on the trestle (D, Sean 2026-11-11, #830, C11 a), so "soldiers under orders" and turning the soldiers with evidence (P4) are out; Harlan's past with Rourke is planted early (C15 a) and there is no trial after (OUTLINE.md).
+
 Other names: "the trestle finale" (`config/valley.json` `trestle_finale`), "the train of hired guns
 and the trestle (the last act)" (#466), "the near end game with the army train" (#623). Sources:
 #466 and comments; #623; #638; #658 and comments; #542; #546; `docs/briefs/trestle.md`;

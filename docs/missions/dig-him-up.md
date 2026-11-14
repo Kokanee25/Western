@@ -1,5 +1,7 @@
 # Dig Him Up (`dig-him-up`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the red shirt did not shoot the sheriff (D, Sean 2026-11-13, #830, C16), so the card's proposed reason that the red shirt searched his pockets on the road and missed the boot is out, evidence is now a real system so whether this find counts is open (s9), and what is in the boot is still open.
+
 Sources: Sean's inventory (2026-11-09, Part 2, "16. Dig Him Up") and his answer the same day; the story
 judge (`judged/2026-11-09_story.md`); `payday-inquest` (where it began).
 

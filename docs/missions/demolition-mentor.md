@@ -1,5 +1,7 @@
 # The Demolition Mentor (`demolition-mentor`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Other names: "Explosives Training" (inventory). Sources: Sean's inventory (2026-11-09); #546 comment
 (Sean, 2026-11-04); #542; #647, #648 (bundles and the plunger box).
 

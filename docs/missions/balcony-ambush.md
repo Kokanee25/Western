@@ -1,5 +1,7 @@
 # The Balcony Ambush (`balcony-ambush`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** its placement and reason are settled: after Payday Night and after dynamite, with the men who sawed the girder drinking on the hotel's gallery the night after (D, Sean 2026-11-11, #830, C9 a), not Act I; how Harlan knows which men and where his dynamite stands that night are still open (s22).
+
 Other names: "Men on the balcony, and dynamite takes out the timbers" (`docs/briefs/showcase-moments.md`,
 Sean's favourites, 2026-10-21). Sources: Sean's inventory (2026-11-09,
 `sources/inventory_2026-11-09.md`); the showcase moments brief.

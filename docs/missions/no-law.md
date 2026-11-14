@@ -1,5 +1,7 @@
 # No Law (`no-law`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the stranger at the table is the Baron's foreman (D, C10 b) and by Sean's lean (C16 a, P, #905) the man who shot the sheriff, known by the sorrel at the rail and "Don't move, friend"; the red shirt (Kett) is only the camp raider and is not in the saloon, the raid is the Baron's provocation for a Ute "outbreak" (C4 a), and Cody is arrested back in the saloon after the funeral (C6 b, D), so "among the six at the cabin" is open (s24).
+
 Other names: "the saloon table" (this card's old name; DESIGN.md §5 "Story shape" prologue), "the
 card cheat" (showcase moments), "A Quiet Drink" (Sean's brief 2026-10-17, provisional; OPEN whether
 the same). Sources: **Sean's draft of 2026-11-09** (word for word in `sources/no-law_draft_2026-11-09.md`)

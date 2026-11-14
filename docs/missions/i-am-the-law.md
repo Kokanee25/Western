@@ -1,5 +1,7 @@
 # I Am the Law (`i-am-the-law`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the men on the last train are always the Baron's hired men on a quiet or a violent day (the captain's wire changes how many, how they're armed and what the paper calls them), with Rourke and a few bought men the only uniforms, so "soldiers under orders" is out (D, Sean 2026-11-11, #830, C11 a), and the camp raid was the Baron's first try at a Ute "outbreak" (C4 a); who is goaded when Joe is dead is still open (s7).
+
 - DECIDED (Sean, 2026-11-09): the name: "the last mission you proposed has to be called \"I am the law\"" (read as this one; it was first called "Nothing to Report").
 
 A new mission, proposed by the planning session (`proposals/i-am-the-law.md`: the full proposal,

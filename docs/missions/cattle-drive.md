@@ -1,5 +1,7 @@
 # A Cattle Drive Hits Town (`cattle-drive`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: DESIGN.md §11 backlog set piece 3 (Sean, 2026-10-06); #276; #463; #700; #728.
 
 - PROPOSED (DESIGN.md backlog, "**proposed**, Sean 2026-10-06; features are frozen").

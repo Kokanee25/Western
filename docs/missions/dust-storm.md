@@ -1,5 +1,7 @@
 # The Dust Storm (`dust-storm`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: DESIGN.md §5 story mission 8 (Sean, 2026-10-06), §11 backlog set piece 8, §11 weather.
 
 - PROPOSED (DESIGN.md §5, "**proposed**, Sean 2026-10-06; features are frozen").

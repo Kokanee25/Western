@@ -1,5 +1,7 @@
 # The Night Meeting That's a Trap (`night-meeting-trap`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: `docs/briefs/showcase-moments.md` "Sean's favourites" (Sean, 2026-10-21).
 
 - PROPOSED (showcase, Sean 2026-10-21): "**Fits:** a mission once time windows and messages exist

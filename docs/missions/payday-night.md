@@ -1,5 +1,7 @@
 # Payday Night (`payday-night`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** Payday Night is an event, not a mission to prevent: the dance floor's girder (not joists) has been sawn and the floor comes down whatever Harlan did on the train (two barrels, C1 a), a lost pay or wreck makes it a hungry night with the floor still falling (C2 b), and if he finds out he can only be ready because nobody believes the deputy on payday (C3 b), so the card's nine ways that prevent the collapse and "if the floor holds, they leave town" are out; Rourke's post is near from the start (C8 a, P).
+
 The middle's turning point. Designed by the planning session (`proposals/payday-night_v6.md`: versions 2–6,
 each judged; version 6 scored 30 and 28/35 by two judges) and adopted by Sean with all the judges' ideas.
 

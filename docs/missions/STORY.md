@@ -1,5 +1,7 @@
 # Salt Creek in one page (for the mission judge)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this file:** the sheriff's shooter is not the red shirt, Silas Kett (D, Sean 2026-11-13, #830, C16) but by Sean's lean (C16 a, P, #905) the Baron's foreman, the stranger at the No Law table on a bald-faced sorrel who says "friend"; the last train carries only the Baron's hired men with Rourke dying on the trestle (C11 a); evidence is a real system and there is no trial (the paper and the town's talk tell the Baron's fate); Payday Night's floor always falls (C1 a, C2 b, C3 b).
+
 The judge reads this, the rubric (`JUDGE.md`), the scored reference shelf (`references.md`) and one
 mission card. Nothing else. Kept to a page on purpose; the cards and `DESIGN.md` hold the rest.
 

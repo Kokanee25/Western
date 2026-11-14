@@ -1,5 +1,7 @@
 # The Fire Night (`fire-night`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Other names: "the bucket line" (showcase moments), "burning someone out" (DESIGN.md §5). Sources:
 DESIGN.md §11 backlog set piece 1 (Sean, 2026-10-06); `docs/briefs/showcase-moments.md`; #458.
 

@@ -1,5 +1,7 @@
 # Joe on the Rope (`joe-on-the-rope`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** Joe is hauled up choking rather than dropped, so the player gets three or four chances at the rope from distance, or can close in and cut him down (D, Sean 2026-11-11, OUTLINE.md Act I), and the killer released in the arrest ending is Kett, a Ute woman's killer only, since he did not shoot the sheriff (C16).
+
 Other names: "the Joe hanging", "the rope shot" (#734, #738). Sources: #546 comments (Sean,
 2026-11-04); #733 (Sean, 2026-11-09); #734 (2026-11-09); #738 and comments (2026-11-09);
 `docs/briefs/valley-plan.md` §10.

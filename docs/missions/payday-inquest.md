@@ -1,5 +1,7 @@
 # Payday Night and the Inquest (`payday-inquest`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** Payday Night is now an event whose floor falls whatever happened on the train (C1 a, C2 b, C3 b), any inquest on the sheriff is the doctor's as coroner and acting sheriff (C12 a, s19), there is no courtroom or trial in the ending (OUTLINE.md), and "Rourke's arrival" is Rourke posted nearby from the start (C8 a, s15, P until Sean nods).
+
 **Payday Night now has its own card: `payday-night.md`** (Sean, 2026-11-09). This card keeps the
 Inquest and the Wrong Ball (Dig Him Up has its own card too).
 

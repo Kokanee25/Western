@@ -1,5 +1,7 @@
 # The Farmhouse Rescue (`farmhouse-rescue`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the open question of who holds the farm is settled: the Colters, hired by the Baron because the cabin finished Kett's crew, with the Kid on the porch (D, Sean 2026-11-11, #830, C5 b), and the Baron's foreman on the lane is the stranger from the No Law table (C10 b), whom a player who sat with him knows.
+
 Other names: "the farmhouse hostage rescue" (#520), "the widow's farmhouse" (PR #621), "Farmhouse
 hostage rescue (Phase A house, Phase B yard to the boys)" (`config/valley.json`). Sources: #520,
 #537, #565, #573, #622, #689, #728, #540, #731; PR #621 (`docs/briefs/widow-farmhouse.md`, not

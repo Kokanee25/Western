@@ -1,5 +1,7 @@
 # Small Fights Out in the Valley (`small-fights`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 A family of small, repeatable encounters, carded together. Other names: "fights that have nothing to
 do with the story" (#736), "fight sites out in the valley" (#463). Sources: #736 (Sean, 2026-11-09);
 #463 comment (Sean, 2026-10-28); DESIGN.md §5 "Reasons to fight" (Sean, 2026-10-01).

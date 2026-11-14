@@ -1,5 +1,7 @@
 # The Raid on the Baron's House (`barons-house`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** there is no courtroom after the arrest: the Baron is taken alive and his fate is told by the newspaper and the town's talk, following the evidence Harlan kept (the papers, Cody the witness, what people saw), and evidence is a real system, not "a maybe" (D, Sean 2026-11-11, OUTLINE.md "All the endings").
+
 Other names: "the finale" (`docs/briefs/masonry-lab.md`), "the raid on the Baron's house" (#546).
 Sources: #546 comment (Sean, 2026-11-04); `docs/briefs/masonry-lab.md` (Sean's brief, 2026-11-04,
 and his answers on #666); #663; #467 comment (2026-11-07); `config/valley.json`.

@@ -1,5 +1,7 @@
 # Dry Creek (`dry-creek`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: Sean's inventory (2026-11-09): Part 2 "20. Dry Creek" and the "other proposed set pieces";
 Part 3 "Stolen Creek"; #736 A.3; DESIGN.md §5.
 

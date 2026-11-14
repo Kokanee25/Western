@@ -1,5 +1,7 @@
 # The Bank Robbery (`bank-robbery`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Other names: "the robbery of the land money" (DESIGN.md §5 story flow), "the land money hit in town"
 (DESIGN.md "Reasons to fight"). Sources: DESIGN.md §5 (Sean, 2026-10-01), §6, §8, §11 backlog 2
 (Sean, 2026-10-06); `docs/briefs/three-gunmen.md` §10 ("Blood on Main Street", possibly related).

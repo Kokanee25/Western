@@ -1,5 +1,7 @@
 # The Store Robbery (`store-robbery`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: ROADMAP 3.6; `docs/prompts/12_Store_Robbery_Vertical_Slice.md`;
 `docs/prompts/18_Emergent_Missions.md` (scenario 1).
 

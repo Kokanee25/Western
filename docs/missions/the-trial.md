@@ -1,5 +1,7 @@
 # The Trial, the Hanging and the Inquest (`the-trial`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** there is no courtroom: the Baron's fate after the arrest is told by the newspaper and the town's talk, following the evidence Harlan kept, and the trial survives only as a "maybe elsewhere" (D, Sean 2026-11-11, OUTLINE.md "All the endings", "Beside the main line").
+
 Other names: "the reckoning" (DESIGN.md "Story shape", day 9), "a real trial" (signature 3), "the
 hanging" (backlog set piece 4), "the Inquest" (#546 P5). Sources: DESIGN.md §5, §10, §11 (signature
 3, backlog 4, period details); #546 P1, P5; Prompt 16.

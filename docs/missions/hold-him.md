@@ -1,5 +1,7 @@
 # Hold Him Till the Marshal Comes (`hold-him`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the prisoner is Cody, the Baron's man, arrested in the saloon after the funeral (C6 b), and the jail night is the Water Tower with one side: the Baron's men mean to drop the tank on the depot's freight room and the player cannot tell whether that frees or crushes him (D, Sean 2026-11-11, #830, C7 c), with the county seat down the line as the train's destination (C12 a), so a Colter in the cell and two groups with opposite aims are out.
+
 Other names: "the jail night" (DESIGN.md §5 story mission 2), "the jailbreak" (DESIGN.md backlog
 set piece 5; `config/valley.json` `jailbreak`), "the jail break" (#678). Sources: DESIGN.md §5
 (Sean, 2026-10-06), §8 rope, §11 backlog; `config/valley.json`; #663; #676 (Sean, 2026-11-05); #678;

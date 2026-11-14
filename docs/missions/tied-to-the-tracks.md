@@ -1,5 +1,7 @@
 # Tied to the Tracks (`tied-to-the-tracks`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Sources: #542 body (Sean, 2026-11-01); `config/valley.json` `tied_to_tracks`.
 
 - DECIDED as #542 records it: "**A mission: someone tied to the tracks** (Sean, 2026-11-01). The train

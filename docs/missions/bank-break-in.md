@@ -1,5 +1,7 @@
 # The Bank Break-in (`bank-break-in`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** evidence is now a real system and the Baron's fate follows it without a trial (the-trial is only a "maybe elsewhere", D 2026-11-11), so this stays a second road to the papers (P, only if they were lost) and "the-trial" is no longer where they land.
+
 Other names: "the bank job" (`config/valley.json` `bank_job`), "the safe break-in" (#467). Sources:
 #546 comment (2026-11-04); #663; `docs/briefs/masonry-lab.md`; `config/valley.json`; #467.
 

@@ -1,5 +1,7 @@
 # No Justice (`no-justice`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the red shirt (Silas Kett) raided the camp and did not shoot the sheriff (D, Sean 2026-11-13, #830, C16), the raid was the Baron's provocation and Joe's cowboy costume stays (C4 a), the cabin finishes Kett's crew (C5 b), Kett is not in the saloon (Cody is), and the release is Rourke's officer taking him on the platform as a federal matter (C8 a, P until Sean nods).
+
 Other names: "The camp" (DESIGN.md §5 story mission 1, which this replaces). Sources: **Sean's mission
 card of 2026-11-09** (kept word for word in `sources/no-justice_sean_2026-11-09.md`); #738 and its
 comments (2026-11-09); `config/valley.json`.

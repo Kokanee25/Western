@@ -1,5 +1,7 @@
 # Buried Alive (`buried-alive`)
 
+> **Checked against the story bible (docs/story/, 2026-11-14): nothing here has changed.**
+
 Other names: "The cave-in" (DESIGN.md §5 story mission 6), "the mine rescue" (#546 threads).
 Sources: DESIGN.md §5 (Sean, 2026-10-06); `config/valley.json` `buried_alive`; #546; #552; #542;
 `docs/briefs/valley-plan.md` §8, §10.

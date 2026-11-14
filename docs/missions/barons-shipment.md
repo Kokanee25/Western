@@ -1,5 +1,7 @@
 # The Baron's Shipment (`barons-shipment`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the log is a ram on two ropes swung into the coach, with no driver way in (D, Sean 2026-11-11; built, #814), and evidence is a real system whose first kind is these papers (D, 2026-11-11) so it is no longer "a maybe", with the Baron's fate told by the newspaper and the town's talk rather than a trial (OUTLINE.md).
+
 Other names: "the Baron's iron coach heist", "the armoured wagon heist" (#736), "the iron coach and
 the log trap" (#546), "the planning doc's mission 9" (#546; that doc is Sean's, not in the repo).
 Sources: #736 comment (Sean, 2026-11-09); #546 comment (Sean, 2026-11-04); #738 (2026-11-09);

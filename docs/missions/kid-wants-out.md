@@ -1,5 +1,7 @@
 # The Kid Wants Out (`kid-wants-out`)
 
+> **Since 2026-11-11 the story bible (docs/story/) wins over this card:** the Kid is one of the Colters the Baron hires for the widow's farm and is on the porch (D, Sean 2026-11-11, #830, C5 b), the Baron's outrage is two barrels, the wreck and the sawn floor, not only the payroll attack (C1 a), and Rourke is posted nearby from the start (C8 a, P); the Kid drinking under the cut on Payday Night is D (OUTLINE.md Act III).
+
 Sources: DESIGN.md §5 story mission 5 (Sean, 2026-10-06), signature feature 8; the gunfight lab's
 Kid (`docs/briefs/three-gunmen.md`).
 
