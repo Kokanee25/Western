@@ -26,14 +26,20 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
   `hideout` box canyon, 4 the cabin, the knife and the nod). **Steps 1-2 done.** Joe (`CompanionBrain`;
   `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y, `--joe-tune=k:v+k:v`) helps since #859: he may shoot the
-  man you fire at, minds the men on you, draws their eyes (`experiments/gunfight_lab/results/2026-11-13_joe_helps/`:
-  hits you take -1/3; survival can't be measured under a few hundred fights a side). Open: he's in your line
-  ~0.7 s a fight; his cover should keep off the line between you and your man. Step 2: `NoJusticeCamp`
+  man you fire at, minds the men on you, draws their eyes (`experiments/gunfight_lab/results/2026-11-13_joe_helps/`).
+  Open: he's in your line ~0.7 s a fight. Step 2: `NoJusticeCamp`
   (`config/moments/no_justice_camp.json`; `-- --world=valley --mission=no_justice`, bridge
   `moment no_justice_camp set_up=1`; valley_bench `ute_camp`). Open: Joe's hat (the stand-in "whole" model drops
   it; characters lane), no survivors shown (till the Studio has them), no line for a shake then following him
   out, the valley's marker posts; playtest `docs/playtests/2026-11-13-camp.md`. Riding waits on #478.
-  **Next: step 3, the hideout fight.**
+  **Step 3 (#934): the hideout fight** (`NoJusticeHideout`, `config/moments/no_justice_hideout.json`;
+  `-- --world=valley --mission=no_justice_hideout [--arrive]`, bridge `moment no_justice_hideout set_up=1 arrive=1`,
+  started by the camp's end; valley_bench `hideout`). Ends with `nojustice.kett` = holed_up (barred in the shack:
+  `FalseFrontBuilding.shut_door`) / dead_outside / down_outside / dead_inside; also hideout, started, crew, seen, joe.
+  Open (playtest `docs/playtests/2026-11-14-hideout.md`): Joe shot a man who'd given up; the drawn ground may hide
+  the pad from the slope (the bake says it's in view); several men say one line at once; creep and open fire play
+  the same; no woodpile in the kit; no canyon walls.
+  **Next: step 4, the cabin, the knife and the nod (#NEXT).**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's

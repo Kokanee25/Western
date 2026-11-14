@@ -447,6 +447,34 @@ func _build_door() -> void:
 		add_member("front/door" if i == 0 else "front/door%d" % i, &"door", &"painted_rust", leaf, center, basis)
 
 
+## Shut its door (a man inside putting it to, No Justice's line shack, #934), and with `barred` a
+## bar dropped across it inside, over the jambs' studs: the open leaves taken out and a shut leaf
+## and its bar made in their place, members like the rest (a kick or a ball breaks them). Drawn on
+## their own (two draws), not batched. Already shut, nothing.
+func shut_door(barred := true) -> void:
+	if get_member(StringName("%s/front/door_shut" % structure_id)) != null:
+		return
+	wait_analysis()
+	for id: String in ["front/door", "front/door1"]:
+		var m := get_member(StringName("%s/%s" % [structure_id, id]))
+		if m != null and not m.broken and m.get_parent() == self:
+			unbatch(m)
+			remove_built(m)
+	var leaf := Vector3(door_rect.size.x - 0.02, door_rect.size.y - 0.02, 0.04)
+	add_member("front/door_shut", &"door", &"weathered_pine", leaf,
+			Vector3(door_rect.get_center().x, floor_top + leaf.y * 0.5, STUD_D - 0.025))
+	if barred:
+		var bar := Vector3(door_rect.size.x + 0.3, 0.09, 0.07)
+		add_member("front/door_bar", &"bar", &"framing", bar,
+				Vector3(door_rect.get_center().x, floor_top + 1.05, STUD_D + 0.035))
+	infer_supports()
+	door_shut = true
+
+
+## Shut (`shut_door`).
+var door_shut := false
+
+
 ## Batwings: two slatted leaves meeting in the middle of the doorway, chest high.
 func _build_batwings() -> void:
 	# Each hangs on its king stud.
