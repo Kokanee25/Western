@@ -26,8 +26,12 @@ func player() -> Player:
 	return _player
 
 
+## The day's clock: the street's own, else the game's (the valley under Main has it beside it).
 func clock() -> DayCycle:
-	return street.find_child("DayCycle", true, false) as DayCycle if street else null
+	var c := street.find_child("DayCycle", true, false) as DayCycle if street else null
+	if c == null and is_inside_tree():
+		c = get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	return c
 
 
 ## A man's band by his body: out (not conscious), else by blood lost (`bands`).

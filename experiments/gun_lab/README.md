@@ -41,6 +41,16 @@ xvfb-run -a -s "-screen 0 960x540x24" godot --path . --rendering-driver vulkan -
     -s res://experiments/gun_lab/views.gd -- --out=build/gun_lab/v --gun=revolver [--only=rest,detail_right] [--fit=1]
 ```
 
+`--gun=winchester` (#890) gives the rifle's views (rest, aim, lever thrown, at the gate, the details).
+`--fit=1` fits its hands too: the right's fingers onto the lever and its index's reach to the trigger,
+and the left's place under the forend searched (up, across, its palm's roll; the forend an elliptic
+cylinder) with its fingers closed onto the wood. It found today's left hand's knuckles 2-4 cm under
+the forend (the little finger never reaches it); its search puts the palm on the wood 0.75" to the gun's
+left, rolled 30°, fingers 25/60/58 (2026-11-13; not baked into `Winchester73Viewmodel`). In the real game: `python3 tools/bridge.py
+"gun_arms out=DIR hour=16"` (and `hour=21.5 here` where you stand, for lamplight: `goto saloon_porch`
+first): both guns idle, aimed, cocked or the lever thrown, reloading, ~25 min under lavapipe (the game
+takes ~8 GB: not beside the test suite); `arms_sheet.py DAY NIGHT OUT` lays them out a gun a sheet.
+
 The detail views also print `GAP`: each finger bone's skin against the wood or trigger it holds (mm,
 negative = into it). `--fit=1` closes every finger on what it holds as a finger closes, its three
 joints together (`HeldHand.grasp`: 0.75 : 1 : 0.55, a cylinder grasp's) until it comes within
