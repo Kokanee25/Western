@@ -78,10 +78,18 @@ Night floor lab (#745).
   for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
 
 ## Open problems
-- **The card game's chair tests** (#834) fixed: crawling, light rubble is let through and shoved aside
-  (`Player._wade`); a man knocked down mid-rise is let through the pieces in him (`HumanBody._spare_ragdoll`).
-  Two traps left: the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions`
-  on one errors: test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
+- **The valley's people tests** (#925, after #834): three causes found and fixed, none of them chance.
+  `HumanBody._spare_rubble` let through only what its 64-shape query gave, and a building's standing members
+  filled it (Earl's chair broke his thigh as he rose); Cody's ball stopped in whatever lay short of Earl's head
+  (`NoLawMurder._clear_to_head`); a dragged man's chest rested at the edge of the smear's reach
+  (`WoundSigns.SMEAR_GAP`). Each has a fixed test (`test_seated_falls` by a wall, `test_no_law_murder`'s chair
+  leg, `test_wound_signs`' twelve landings). To sample a people test's odds: its scene many times in one process
+  (identical set-ups differ run to run, by the engine's body order), not the suite again.
+  Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
+  differently from a workspace's (the same commit fails there and passes here: read the test's own timeline);
+  the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
+  test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
+  `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
 - **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
   valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
   `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
