@@ -48,8 +48,9 @@ func _build() -> void:
 	# The arm bends at the elbow from your right shoulder (HeldHand.shoulder).
 	held.shoulder = ShotgunViewmodel.SHOULDER_R
 	held.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R
-	for f: String in GRIP:
-		held.grasp(f, GRIP[f])
+	var grip: Dictionary = HeldHand.hold("colt.grip", GRIP)
+	for f: String in grip:
+		held.grasp(f, grip[f])
 	for f: String in held.fingers:
 		var bones: Array[Node3D] = []
 		bones.assign(held.fingers[f])
@@ -64,12 +65,13 @@ func _build() -> void:
 func set_trigger(amount: float) -> void:
 	_trigger = amount
 	if held:
-		held.grasp("index", lerpf(TRIGGER_REST, TRIGGER_PULL, amount))
+		held.grasp("index", lerpf(HeldHand.hold("colt.trigger_rest", TRIGGER_REST), HeldHand.hold("colt.trigger_pull", TRIGGER_PULL), amount))
 
 
 ## 0 = thumb resting on the frame, 1 = thumb on the hammer spur, pulling.
 func set_thumb(amount: float) -> void:
 	_thumb_reach = amount
 	if held:
-		held.thumb_pose((THUMB_REST[0] as Vector3).lerp(THUMB_COCK[0], amount),
-				lerpf(THUMB_REST[1], THUMB_COCK[1], amount), lerpf(THUMB_REST[2], THUMB_COCK[2], amount))
+		var r: Array = HeldHand.hold("colt.thumb_rest", THUMB_REST)
+		var c: Array = HeldHand.hold("colt.thumb_cock", THUMB_COCK)
+		held.thumb_pose((r[0] as Vector3).lerp(c[0], amount), lerpf(r[1], c[1], amount), lerpf(r[2], c[2], amount))

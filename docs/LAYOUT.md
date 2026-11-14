@@ -2008,7 +2008,17 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
   The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
-  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  (`HeldHand.source`, cached) with his finger bones as pivots. **Harlan's first-person hands** (#914,
+  option 2 of #896): where the private `assets/people/private/harlan_fp.glb` is (git-ignored, #692;
+  built by `tools/characters/fetch_fp_hands.sh` from the Studio's MetaHuman with `tools/blender/fp_arms.py`:
+  hands cut at the wrist and decimated to 4k triangles, a linen cuff and a wool coat sleeve with
+  grime in vertex colours), `source()` cuts those instead (`PRIVATE_ARMS`; `--painted-arms` or
+  `use_private = false` for the old), his finger frames made the painted men's (`_canonical_fingers`,
+  his rest curl taken off), no upper arm: the forearm runs to `FP_ELBOW_DROP` below the shoulder, out
+  of view. His holds and poses are data, `config/fp_holds.json`, read by `HeldHand.hold(key, painted)`
+  (the Colt's grip, trigger, thumbs, `colt.hip`/`aim`/`loading`; the rifle's left hand, `eye_relief`).
+  CI's export job builds the file into the Windows and Linux builds (not the web's) when the
+  `STUDIO_TOKEN` secret is set. The poses are fitted by the lab's
   `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
   (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`); the arms drawn in `held_arm_skin.png`
   (`blender/arm_blender.py`). The guns' shapes are code's; where `assets/weapons/<gun>.glb` is (the
