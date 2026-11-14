@@ -427,7 +427,7 @@ def sheet(rows, path):
         r = raw.copy()
         r.thumbnail((th * 3, th))
         t = Image.fromarray(rgb)
-        if kind not in ("sign", "lettering"):
+        if kind not in ("sign", "lettering", "painting"):
             big = Image.new("RGB", (t.width * 2, t.height * 2))
             for x in (0, t.width):
                 for y in (0, t.height):
