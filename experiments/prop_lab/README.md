@@ -183,3 +183,23 @@ grainless, no mouldings or plinth; the ledgers blank slabs, the inkstand unreada
 
 S3 as listed: two racks 20, a few real lying kegs ~36, four beds 56, the desk 13: ~125 bodies (S1 and S2 ~355
 now the S2 rack's 20 are this one's): ~480 for the three batches.
+
+## Saloon B, the stage and dressing room (#903)
+
+Made and judged on the lab's stand, **not placed**: the room is built by #902 (the stage, the wing and
+room_6 as the dressing room), and the placing waits on it and on #865 and #862 as S1's does.
+`tools/props/saloon_stage.py` (kit files), `tools/blender/props/saloon_stage.py` (models),
+`saloon/stage_sheet.py` (the stand, as S1's), references `refs/saloon_stage/`. Results
+`results/2026-11-13_saloon_stage/`. #902's spec coordinates: building x 0 the yard wall, z 0 Main
+Street's front; the stage x 2.5 to 7.4, z 10.9 to 13.36, 0.76 m high; the wing x 0.1 to 2.5, z 10.9 to
+13.36; room_6 x 0.1 to 2.85, z 15.29 to 21.85, its door on `rooms_front` at x 1.58.
+
+| Prop | Bodies standing | Broken | Where in saloon B (room, count) |
+| --- | --- | --- | --- |
+| `dressing_mirror` | 13 | its members; the glass breaks as a window | dressing room (room_6), against its yard (east) wall, the room toward the window: 1 (its back at z -0.29 of its own space to the wall's face) |
+| `costume_pegs` | 10 | its members; a peg gone drops what hangs on it | dressing room, on the wall across from the mirror, its rail at ~1.7 m: 1 |
+| `travelling_trunk` | 7 | its members (the costumes burn) | dressing room at the foot of the pegs, shut: 1; the wing, open (`open_hinge("lid")`), the night's costumes: 1 |
+| `dressing_screen` | 15 | its members (the cloth burns) | dressing room, across its corner by the door: 1; the wing, for a quick change: 1 (if the wing's 2.4 m allows it beside the steps) |
+| `footlight` | 1 | up to 10 shards + the tin; a lit one's oil burns | the stage's front edge (building z ~10.95, on the stage's boards at y 0.76), the hood (+z of its own space) toward the dance floor, the building's -z (turned 180): 5, ~0.9 m apart, x 3.0 to 6.9, each with its OilLamp at `light_height` |
+
+~65 bodies for the set as listed (the valley had ~5,100 to spare at #865's count, before #902's stage).

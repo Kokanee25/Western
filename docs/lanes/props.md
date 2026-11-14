@@ -26,6 +26,12 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   DIFFERENT (a steamer trunk), both seen by the owner's desk; CLOSE notes in the README (kegs and rack near-black
   at noon, the bed too clean, the desk grainless, the ledgers blank slabs). S2's CLOSE notes still open (the
   wheel's dice, the fiddle's f-holes, the saw's teeth and grip, the scales' size, the faro's chips).
+- **Saloon B's stage and dressing room props are made and judged, not placed** (#903): `dressing_mirror`,
+  `costume_pegs` (the doctor's coat pegs extended), `travelling_trunk` (lid on the kit's hinges),
+  `dressing_screen`, `footlight`. `tools/props/saloon_stage.py`, `tools/blender/props/saloon_stage.py`, stand
+  `experiments/prop_lab/saloon/stage_sheet.py`, results `results/2026-11-13_saloon_stage/` (r2: screen SAME,
+  mirror/pegs/trunk CLOSE, footlight DIFFERENT: reads as tin boxes). Where each goes: README "Saloon B, the
+  stage and dressing room". Placing waits for #902 (the room). No period refs saved (Commons came back thin).
 - **Next:** the placing session once #865's body fix and #862's route land; or S4 (the chair and strongbox, the
   CLOSE notes; Blender needs `bpy`, which needs pypi: this session's sandbox had none).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
@@ -67,5 +73,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
 - The dev bridge already has `stand` (the player): the lab's stand is `prop_stand`. The old factory sheet's
   spot before the saloon has a tied horse in view; the S1 stand is on the road east (40, 0, -5.4).
 - A repeated member's mesh draw isn't renumbered: lay meshed members out one by one.
+- The stand puts props in the wall's shadow at noon: everything reads blue-black there (both critics said so);
+  `prop:mirror` paints a lamplit room, so outdoors it reads as a dark window. Judge in the room once placed.
 - Saloon B's bars, chairs and walks are in the valley: any member added there (even to `bar`) shifts Jolt's
   contact order and tips CI's card-game chair tests (#834). Add props as their own kits, placed later.
