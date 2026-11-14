@@ -130,6 +130,9 @@ of it is in the game yet:
   and that the samples aren't sold as they are). The solo violin's sustains (`Arco Vib`) and short
   strokes (`spic`), fetched into `build/` by `experiments/sound_lab/fiddle/fetch.sh`; render A and
   the hybrid C are made from them.
+  For the travelling band's cornet and drums (#822): its trumpet (`Brass/Trumpet/sus`, `stac`), bass
+  drum (`BDrumNewhit`) and snare (`Snare2-*`), the same way; `band_samples.py`'s render A, the
+  listening set's real instruments (nothing of them ships).
 - **"Sallie Gooden"** played by A. C. "Eck" Robertson, recorded for Victor in 1922 (Victor 18956),
   public domain in the US (a sound recording published before 1923: its federal protection under
   the Music Modernization Act ended on 1 January 2022; the tune is traditional). From the Internet
