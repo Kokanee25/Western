@@ -35,6 +35,8 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   chairs (the kit chair in library oak broke test_perf's 1800 meshes and the texel-grid tests: needs a library chair
   for the new buildings), the brass foot rail, the card tables' initials. **Next: #964** (FL1's hazy worn path, FN1's
   laminate oak). Quick look at a wood: `tools/wood_probe.gd` (~1 min).
+- **Saloon B's gallery view over budget on main:** render CPU 5.9 ms at Sean's (lavapipe) since step 2's look (was
+  3.8-4.0 before it); #901 adds nothing. Someone should find what step 2 added there.
 - **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
   from one change; re-approving them needs each view's diff looked at, not a blanket approve.
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
