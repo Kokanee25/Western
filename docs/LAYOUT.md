@@ -1729,6 +1729,14 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
   past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
   (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
+  `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
+  only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
+  Act men (`doc`, `preacher`, `wife`, `cowboy`...) have no hours, so the doctor and the preacher have a
+  second id for their day (`doctor` on the book except 14-15; `churchman` on the street 8-9, off by the
+  funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
+  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
+  new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
