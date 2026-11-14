@@ -21,6 +21,10 @@ signal fell_from(fall: Dictionary)
 const POSES := {
 	&"stand": {&"upper_arm_r": Vector3(0, 0, 7), &"upper_arm_l": Vector3(0, 0, -7),
 			&"forearm_r": Vector3(12, 0, 0), &"forearm_l": Vector3(12, 0, 0)},
+	# Stood at a graveside (Funeral, #868): his head bowed, his hands together before him.
+	&"mourn": {&"upper_arm_r": Vector3(6, 0, -6), &"upper_arm_l": Vector3(6, 0, 6),
+			&"forearm_r": Vector3(26, 38, 0), &"forearm_l": Vector3(26, -38, 0),
+			&"chest": Vector3(-4, 0, 0), &"head": Vector3(-18, 0, 0)},
 	&"aim": {&"upper_arm_r": Vector3(84, 10, 0), &"forearm_r": Vector3(4, 0, 0),
 			&"upper_arm_l": Vector3(0, 0, -7), &"forearm_l": Vector3(12, 0, 0), &"chest": Vector3(0, 8, 0)},
 	# Giving up (#694, Sean): upper arms out at shoulder height a little forward of his sides,
@@ -916,6 +920,7 @@ func _build_skin() -> void:
 	var baked: Dictionary = data.get("textures", {}) if use_paint else {}
 	var paint: Dictionary = data.get("paint", {}) if use_paint else {}
 	var talking := PeopleBodies.report(body_model).has("facerig")
+	var cuts: Dictionary = PeopleBodies.report(body_model).get("alpha_cut", {})
 	for shape: String in data.shapes:
 		var base: StandardMaterial3D = mats.get(shape, skin_mat)
 		if baked.has(shape):
@@ -931,7 +936,7 @@ func _build_skin() -> void:
 			_rigid_meshes[mi] = pieces[b][1]
 			# A talking head (tools/faces/talking_face.py) is drawn from both sides: its new face's
 			# stitch has slivers that turn edge-on as his head turns (FaceLife), and would show gaps.
-			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or (shape == "head" and talking))
+			mi.material_override = _piece_material(base, DOUBLE_SIDED.has(shape) or cuts.has(shape) or (shape == "head" and talking))
 			if baked.has(shape):
 				# His own painted texture (the Studio's Rodin men) carries its own shading: the light
 				# smooth on it, not cut into the old look's four flat steps, which carved their faces
@@ -949,6 +954,8 @@ func _build_skin() -> void:
 						(mi.material_override as ShaderMaterial).set_shader_parameter(k, own_look[k])
 			if shape == "head" and sid == &"head":
 				_wet_eyes(mi.material_override as ShaderMaterial)
+			if cuts.has(shape):  # a groom's cards (a MetaHuman's, #889): its coverage cut
+				(mi.material_override as ShaderMaterial).set_shader_parameter(&"alpha_cut", float(cuts[shape]))
 			mi.layers = Layers.VIS_BODY
 			mi.custom_aabb = _cull_box
 			skeleton.add_child(mi)
@@ -1923,6 +1930,9 @@ func _rise_step(delta: float) -> void:
 ## body: his animated parts are put where the ragdoll lay, among or in them, and the engine flung
 ## them out at him (5 kJ: Structure._on_rubble_hit broke his shin as he got up).
 const SPARE_RADIUS := 2.5
+## Shapes a look of the space gives, and how many looks at most (4,096 shapes within 2.5 m of him).
+const SPARE_A_LOOK := 128
+const SPARE_LOOKS := 32
 ## The pieces let through him (`_spare_rubble`). Knocked down again as he rises, the ragdoll that
 ## takes the rig's place is let through them too (`_spare_ragdoll`): its parts are put where the
 ## rig's were, in among them, and the engine shoved the pieces out at him (eight blows of 8 to 36 J
@@ -1943,15 +1953,27 @@ func _spare_rubble(at: Vector3) -> void:
 	q.collision_mask = Layers.WORLD
 	Prof.count(&"q_body")
 	_spared.clear()
-	for hit: Dictionary in World.space(self).intersect_shape(q, 64):
-		var rb := hit.collider as RigidBody3D
-		if rb == null:
-			continue
-		for part: Variant in parts.values():
-			rb.add_collision_exception_with(part as Node)
-		rb.add_collision_exception_with(_blocker)
-		if not _spared.has(rb):
+	# Every loose piece in reach, however much that stands is in reach too: the query gives 64 shapes
+	# at most, and a building's standing members filled it before the chair's pieces were counted
+	# (the saloon's wall by the yard's card table: Earl's own chair broke his thigh, 3.8 kJ, as he
+	# got up, #925). What isn't a loose piece is left out of the next look till a look comes back short.
+	var space := World.space(self)
+	var seen: Array[RID] = []
+	for look in SPARE_LOOKS:
+		q.exclude = seen
+		var hits := space.intersect_shape(q, SPARE_A_LOOK)
+		for hit: Dictionary in hits:
+			if not seen.has(hit.rid):
+				seen.append(hit.rid)
+			var rb := hit.collider as RigidBody3D
+			if rb == null or _spared.has(rb):
+				continue
+			for part: Variant in parts.values():
+				rb.add_collision_exception_with(part as Node)
+			rb.add_collision_exception_with(_blocker)
 			_spared.append(rb)
+		if hits.size() < SPARE_A_LOOK:
+			break
 
 
 ## Gone limp: the pieces let through the rig he had (`_spare_rubble`) and in him now let through the
@@ -2015,7 +2037,7 @@ func _in_him(rb: RigidBody3D, space: PhysicsDirectSpaceState3D) -> bool:
 		Prof.count(&"q_body")
 		for hit: Dictionary in space.intersect_shape(q, 16):
 			var c := hit.collider as Node
-			if c != null and c.get_meta(&"human_body", null) == self:
+			if c != null and c.has_meta(&"human_body") and c.get_meta(&"human_body") == self:  # (a null default still errors when it's missing)
 				return true
 	return false
 
@@ -2796,6 +2818,10 @@ func _clip_strikes(delta: float) -> void:
 			if pairs.size() >= 2:
 				at = pairs[1]
 			var result: StringName = s.call(&"take_blow", m, at, v * CLIP_BLOW_MASS, CLIP_BLOW_MASS)
+			if result == &"broke":
+				# The piece his boot broke goes off at his boot's speed, against his own leg: not a
+				# blow on him (Structure._on_rubble_hit spares the man who broke it, a moment).
+				s.set_meta(&"broken_by", [self, Engine.get_physics_frames()])
 			clip_struck.emit(m, result, v.length())
 			# The boot's energy went into what it met, and the clip's follow-through is off: a part
 			# moved by script would plough on through the chair and the man in it, throwing him as

@@ -65,3 +65,23 @@ of another wood. The same six checks and grades, read for:
 | **at the yardstick** | As convincing as the AAA references' wood. |
 
 Then, per swatch: the one change that would move it up most, and which of its ages is best.
+
+## Stone and lime (#860, #857)
+
+A stone swatch (codes S...) is a 2 m stretch of a building's stone wall out in the desert: coursed
+rubble with dressed quoins at its corner and a dressed coping; a lime swatch (codes PL...) is a stone
+wall's inside face in a room, lime-plastered and whitewashed (PL1) or bare rubble whitewashed (PL2),
+a worn floor before it. The same six checks and grades, read for:
+
+1. **Real stuff:** local stone laid by a mason (hammer-squared stones of uneven size in thick lime
+   joints), not a brick or block texture, a stone wallpaper or a painting of stone; lime plaster and
+   whitewash as a soft coat on a wall, not paint on drywall or a flat colour.
+2. **Age reads:** new is clean-cut stone in pale fresh pointing; with the years the joints erode back
+   and grey, the stone takes a patina and a dark crust, damp and dirt rise at the foot and streaks run
+   under the coping. Inside: the wash thins and flakes, a grimy band where men lean, scuffs low.
+3. **No tile tells:** no repeat, no two stones the same, no rows ruled level the length of the wall.
+4. **Stone to stone:** stones differ the way real ones do (size, shape, tone, how they sit), without
+   reading as random noise.
+5. **Edges and joints:** joints read as recessed mortar in shadow, arrises as knocked and worn edges,
+   not lines drawn on or rounded loaves.
+6. **Holds at distance:** at 5 m it reads as a stone wall, not a pattern or a flat card.

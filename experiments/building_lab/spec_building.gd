@@ -35,6 +35,8 @@ var band := 0
 var ramps: Array = []
 var lamps: Array[OilLamp] = []
 var kit_props: Array[KitProp] = []
+## The spec's `dressing` as placed (#844): batch -> {entry id -> its node} (PropDressing).
+var dressed := {}
 ## What the lived-in pass marked (Marks.place: by cause, by kind, what it couldn't place).
 var marks := {}
 ## Where things are: the walls (id -> {wall dict, finish faces}), the levels' heights.
@@ -206,6 +208,7 @@ func build() -> void:
 	ramps.clear()
 	lamps.clear()
 	kit_props.clear()
+	dressed.clear()
 	walls.clear()
 	# What the last build made that isn't a member (Structure.rebuild frees only those).
 	for c in get_children():
@@ -226,6 +229,7 @@ func build() -> void:
 		_add_interior_ambient()
 		marks = Marks.place(self, spec)
 		_library_finishes()
+		_stone_finish()
 		return
 	band = 0
 	_foundation()
@@ -285,10 +289,12 @@ func build() -> void:
 	_outbuildings()
 	_lamps()
 	_kit()
+	_dressing()
 	_use_points()
 	_add_interior_ambient()
 	marks = Marks.place(self, spec)
 	_library_finishes()
+	_stone_finish()
 
 
 # --- the room's light (#824) -------------------------------------------------------------------------
@@ -1932,6 +1938,27 @@ func _kit() -> void:
 				_lamp(at + Vector3(0.1, top, -0.1))
 
 
+## The spec's furniture and props laid into its rooms (#844, `dressing`: PropDressing), every batch;
+## the labs that judge them read `dressed`, never a placement of their own.
+func _dressing() -> void:
+	if "--no-dressing" in OS.get_cmdline_user_args():
+		return  # (the bench's before: the rooms bare)
+	var d: Dictionary = spec.get("dressing", {})
+	for b: String in d.get("batches", {}):
+		var placed := PropDressing.place(_furnish, d.batches[b], floor_top, String(structure_id))
+		dressed[b] = placed
+		for n: Node3D in placed.values():
+			if n is KitProp:
+				kit_props.append(n)
+	if not dressed.is_empty():
+		# Its glass props' fixed parts (corks, labels, contents: ~750 meshes in the doctor's) drawn
+		# as the town's are (StaticBatch: one draw a kind; a shot or a fall hands a prop back). The
+		# valley has no StaticBatch of its own; its kit props join PropBatch by themselves.
+		var batch := StaticBatch.new()
+		batch.name = "DressingBatch"
+		_furnish.add_child(batch)
+
+
 func _spawn(id: StringName, at: Vector3, yaw: float) -> KitProp:
 	var p := PropKit.spawn(id, StringName("%s_%s_%d" % [structure_id, id, kit_props.size()]))
 	p.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(yaw)), at)
@@ -1953,6 +1980,9 @@ func _use_points() -> void:
 		m.rotation.y = deg_to_rad(float(u.get("facing", 0.0)))
 		m.set_meta(&"use", u.use)
 		m.set_meta(&"who", u.who)
+		if u.has("prop"):
+			# The dressing entry he sits or lies on (#844): the fit check leaves it out.
+			m.set_meta(&"prop", StringName("%s_dress_%s" % [structure_id, u.prop]))
 		root.add_child(m)
 
 
@@ -2522,8 +2552,12 @@ func _summer_beams() -> void:
 		var z1 := float(sb.z[1])
 		var yb := y1 - float(sec[1])
 		for k in (sb.posts as Array).size():
-			var pz := float(sb.posts[k])
-			add_member("summer/%s/post_%d" % [sb.id, k], &"post", &"framing", Vector3(sec[0], yb - floor_top, sec[0]), Vector3(x, (floor_top + yb) * 0.5, pz))
+			# A post is its z, or [z, depth]: one let into a wall is the wall's depth (#844: the
+			# doctor's front ones stood 0.15 m proud beside the street door, read as a metal post).
+			var pe: Variant = sb.posts[k]
+			var pz := float(pe[0]) if pe is Array else float(pe)
+			var pd := float(pe[1]) if pe is Array else float(sec[0])
+			add_member("summer/%s/post_%d" % [sb.id, k], &"post", &"framing", Vector3(sec[0], yb - floor_top, pd), Vector3(x, (floor_top + yb) * 0.5, pz))
 		var m := add_member("summer/%s/beam" % sb.id, &"beam", &"framing", Vector3(sec[0], sec[1], z1 - z0), Vector3(x, (yb + y1) * 0.5, (z0 + z1) * 0.5))
 		if spec.materials.has("timber"):
 			PropKit.dress_member(m, {}, String(spec.materials.timber))
@@ -2647,7 +2681,12 @@ func _library_finishes() -> void:
 		# room's floor, not the street's ground (#821, the review's cause 7: the doctor's floor is
 		# 0.95 m up, so his hand band fell at the floor line and the scuffs under it).
 		var ground := gy + (_floor_under(m) if INSIDE_FINISHES.has(fname) else 0.0)
-		if strip > 0.0:
+		if m.has_meta(&"draw"):
+			# Run to a profile (a railing's handrail, #873): the library's wood along the same shape,
+			# trued as joinery is (a third of a board's warp).
+			mi.mesh = PropKit.lib_profile_mesh(m.get_meta(&"draw"), m.size, Transform3D(Basis(ex, ey, ez), -ex * length * 0.5),
+					float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp * 0.3, ground)
+		elif strip > 0.0:
 			mi.mesh = strips_mesh(length, s[order[1]], s[order[2]], strip, rng, warp, nails, ground)
 		else:
 			mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground)
@@ -2960,3 +2999,62 @@ func _corner_entrance() -> void:
 		add_member(pre + "/rail", &"trim", trim, Vector3(lw, st, 0.045), mid + Vector3.UP * (foot + 0.01 + lh - st * 0.5), lb)
 		add_member(pre + "/glass", &"glass", &"glass", Vector3(lw - st * 2.0, lh - panel - st, 0.008), mid + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
 	band = 1
+
+
+# --- the stone in the library's stone and lime (#860, #857; StoneFinish) ---------------------------
+
+var stone_material: ShaderMaterial
+
+## Every stone member drawn in the library's stone (spec.materials.stone `want`, once the materials
+## judge has passed it at that age; else the game's `stone` as before): one material for the
+## building, each piece its own mesh with the arrises that show chamfered, dressed stone (lintels,
+## sills, the coping, quoins, steps and flags) flagged for the shader; inside, the plaster or
+## whitewash of the region a face looks into (spec.inside_finish.regions).
+func _stone_finish() -> void:
+	var st: Dictionary = spec.materials.get("stone", {}) if spec.materials.get("stone") is Dictionary else {}
+	if st.is_empty():
+		return
+	var want: Dictionary = st.get("want", {})
+	var e := MaterialLibrary.entry(String(want.get("entry", "")))
+	var age := String(want.get("age", "few"))
+	if e.is_empty() or not ((e.get("approved", []) as Array).has(age) or bool(st.get("trial", false))):
+		return
+	var ms: Array[StructureMember] = []
+	var boxes := []
+	for m: StructureMember in get_members():
+		if m.wood != &"stone" or m.drawn_node() == null:
+			continue
+		ms.append(m)
+		boxes.append(m.transform * AABB(-m.size * 0.5, m.size))
+	if ms.is_empty():
+		return
+	stone_material = StoneFinish.material(e, float(LIB_AGES.get(age, 0.5)), float(LIB_AGES.get(String(st.get("inside_age", "few")), 0.5)))
+	var faces := StoneFinish.exposed(boxes)
+	var sid := String(structure_id) + "/"
+	var all_dressed := bool(st.get("dressed", false))
+	for i in ms.size():
+		var m := ms[i]
+		var id := String(m.member_id).trim_prefix(sid)
+		var dressed := all_dressed or bool(m.get_meta(&"dressed", false)) or id.contains("/lintel") or id.contains("/sill") \
+				or id.begins_with("stair/") or id.contains("/flag_")
+		var rng := hash(m.member_id)
+		var seed := float(rng % 100000) / 100000.0
+		var c := (0.012 + 0.008 * seed) if dressed else (0.02 + 0.025 * seed)
+		if id.contains("/flag_") or id.contains("/fill_") or id.begins_with("pier/"):
+			c = 0.008
+		var mi := m.drawn_node()
+		mi.mesh = StoneFinish.piece_mesh(m.size, faces[i] if m.transform.basis.is_equal_approx(Basis()) else 0, c, seed, dressed)
+		mi.transform = Transform3D()
+		mi.material_override = stone_material
+	refresh_stone_space()
+
+
+## The stone's building space (world -> here, the ground, the rooms, the corners, the drips): again
+## if the building moves.
+func refresh_stone_space() -> void:
+	if stone_material == null:
+		return
+	var gt := global_transform if is_inside_tree() else transform
+	var regions: Array = (spec.get("inside_finish", {}) as Dictionary).get("regions", [])
+	var plane: Array = (spec.lot.get("ground", {}) as Dictionary).get("plane", [-1000.0, 0.0, 0.0])
+	StoneFinish.set_space(stone_material, gt.affine_inverse(), plane, regions, get_meta(&"stone_corners", []), get_meta(&"stone_drips", []))

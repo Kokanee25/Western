@@ -122,11 +122,19 @@ func _ready() -> void:
 	_grit_rect.visible = false
 	layer.add_child(_grit_rect)
 	layer.move_child(_grit_rect, 0)  # under the wounds' red and the black
+	# Across the middle 80% of the screen at the bottom, wrapped (a long line, the doctor's in No
+	# Justice, ran off both edges, #859's playtest), growing upward from where one line sits.
 	_message = Label.new()
-	_message.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_message.position.y -= 60
+	_message.anchor_left = 0.1
+	_message.anchor_right = 0.9
+	_message.anchor_top = 1.0
+	_message.anchor_bottom = 1.0
+	_message.offset_top = -60.0
+	_message.offset_bottom = -36.0
+	_message.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_message.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_message.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	_message.add_theme_color_override(&"font_color", Color(0.95, 0.9, 0.8))
 	_message.add_theme_color_override(&"font_outline_color", Color.BLACK)
 	_message.add_theme_constant_override(&"outline_size", 4)

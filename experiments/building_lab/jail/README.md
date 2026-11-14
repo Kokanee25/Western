@@ -189,3 +189,22 @@ sets each beside its target (the sheet's `lane`, `cells`, `cage` are the renders
 What's left is the stone and the spec's form, Sean's: the plaster and whitewash inside and the rubble
 outside (a library entry; the masonry lab), the parapet (flat, or the sheet's stepped one), the yard
 wall's height from the lane. The rooms wait on the prop lab's furniture.
+
+## Step 6: the stone and the form (#860, Sean's #857 picks)
+
+- **2a, the stepped parapet:** the front and back parapets step up over the door (5.75 m) with piers at
+  the corners; the cell wing's parapet (`levels.ell_coping` 4.2) sits about a metre under the office's.
+  `stone.gd`'s `_lay` cuts the step edges and keeps them from the sliver-merge.
+- **3b, the yard wall 7 ft** (2.13 m over the lane), its gate leaf to match.
+- **Proud dressing:** sills by `sill.proj`, lintels by `dress.lintel`, coping by `coping.proj` with uneven
+  lengths and a little jitter; drips under sills and coping (`stone_drips`), quoins at the six convex
+  corners (`stone_corners`).
+- **1a, plaster and whitewash inside, the rubble outside:** built as library entries (S1, PL1, PL2) and
+  `inside_finish.regions` (the office plastered, the cell wing whitewashed on the rubble), but **not
+  approved**: two rounds of the materials judge (`docs/screenshots/judge/2026-11-13_stone_r1`, `_r2`)
+  failed them on drawn outlines round every stone (the procedural height field through `real_bump`).
+  So the jail still draws the game's stone; `"trial": true` under `materials.stone` shows the new one
+  (see `docs/screenshots/judge/2026-11-13_stone_r2/jail_trial_sheet.jpg`). The method is Sean's pick.
+- **The walk** stops at the building again (`config/valley.json`: span [7.6, 18.57], door 13.085).
+- **Render CPU** with the trial stone at Sean's: front 1.5, corner 1.1, yard 3.2, rear 3.5, corridor 3.1 ms
+  (budget 4).
