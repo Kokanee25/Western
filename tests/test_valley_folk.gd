@@ -179,7 +179,7 @@ func test_and_out_at_the_end_of_their_hours() -> void:
 	check(not f.people.has(&"earl"), "and gone from the world")
 	# The clock jumped well past (a night slept through): the rest gone at once.
 	await _at(9.0)
-	check_eq(_night_in().size(), 0, "none of the night's folk left in the morning")
+	check_eq(_night_in().size(), 0, "none of the night's folk left in the morning (%s)" % _folk().report())
 
 
 func test_hours_past_midnight() -> void:
@@ -218,3 +218,170 @@ func test_the_bench_s_load_parts_and_townsfolk() -> void:
 	for man: HumanBody in made:
 		man.queue_free()
 	await physics_frames(2)
+
+
+# --- The day and the book (townsfolk step 2, #870) ----------------------------------------------
+
+## Every day man where his day says at `h` (placed: the walk's window shut for the check): at his
+## spot in the world, or on the book in his block's place doing its doing. Returns what was wrong.
+func _where_wrong(h: float) -> Array:
+	var f := _folk()
+	var wrong := []
+	for p: Dictionary in f.data.people:
+		if not p.has("day"):
+			continue
+		var id := StringName(p.id)
+		var b := f.block_now(p, h)
+		if b.has("at"):
+			if f.state.get(id) != &"in" or _off_post(id) > 0.6:
+				wrong.append("%.2f %s: %s (%s), %.1f m off his spot" % [h, id, f.state.get(id), ValleyFolk.block_key(b), _off_post(id)])
+		else:
+			var r := f.book.row(id)
+			if f.people.has(id) or r.is_empty() or String(r.in) != String(b.in) or String(r.do) != String(b.do):
+				wrong.append("%.2f %s: in the world %s, book %s, wants %s" % [h, id, f.people.has(id), r, ValleyFolk.block_key(b)])
+	return wrong
+
+
+func test_the_day_every_hour_bands_on_and_off() -> void:
+	await _empty()
+	var f := _folk()
+	var walk_h: Variant = f.data.walk_in_h
+	f.data.walk_in_h = 0.0  # every hour a jump: placed, not walking
+	var bands := Settings.people_bands
+	for on in [true, false]:
+		Settings.people_bands = on
+		var wrong := []
+		var most := 0
+		for i in 24:
+			var h := float(i) + 0.01
+			await _at(h)
+			await physics_frames(3)
+			wrong.append_array(_where_wrong(h))
+			most = maxi(most, f.people.size())
+			# The book and the street agree: a window lit where someone's in at a lamp's doing after
+			# dark, smoke where someone's cooking.
+			for place: StringName in f.lights.shows:
+				var shows: Dictionary = f.lights.report()[String(place)]
+				if shows.lit != f.book.lit(place, h) or shows.smoke != f.book.smoke(place):
+					wrong.append("%.2f %s shows %s, the book %s" % [h, place, shows, f.book.inside(place)])
+		check(wrong.is_empty(), "bands %s: everyone where his day says, every hour (%s)" % [on, wrong.slice(0, 6)])
+		check(most <= 24, "never more than 24 bodies in the world (%d)" % most)
+	Settings.people_bands = bands
+	f.data.walk_in_h = walk_h
+
+
+func test_the_book_shows_lit_windows_and_smoke() -> void:
+	await _empty()
+	var f := _folk()
+	var shows := func() -> Dictionary: return f.report()["_day"]["shows"]
+	check(f.lights.shows.has(&"hotel") and f.lights.shows.has(&"saloon") and f.lights.shows.has(&"undertaker"),
+			"a window and a chimney for each building the day takes them into (%s)" % [f.lights.shows.keys()])
+	check(not f.lights.shows.has(&"back@0"), "none for a way out of town")
+	# Nine at night: the townsman at home in the hotel, the undertaker over his shop, the loudmouth in
+	# the saloon's back: lamps lit; nobody cooking.
+	await _at(21.0)
+	var s: Dictionary = shows.call()
+	check(s.hotel.lit and s.undertaker.lit and s.saloon.lit, "lit windows at nine (%s)" % [s])
+	check(not s.hotel.smoke and not s.undertaker.smoke, "no smoke at nine (%s)" % [s])
+	check(f.book.inside(&"hotel").has(&"townsman") and not f.people.has(&"townsman"), "the townsman on the book, in the hotel")
+	# Half past eleven: all abed but the saloon's (out in the yard): dark.
+	await _at(23.5)
+	s = shows.call()
+	check(not s.hotel.lit and not s.undertaker.lit and not s.saloon.lit, "dark at half past eleven (%s; %s)" % [s, f.book.report()])
+	# Breakfast: smoke from the hotel's and the undertaker's chimneys, daylight (no lamp).
+	await _at(6.5)
+	s = shows.call()
+	check(s.hotel.smoke and s.undertaker.smoke, "breakfast smoke (%s)" % [s])
+	check(not s.hotel.lit, "no lamp by day")
+	# Supper, after dark: the undertaker's lit and smoking; the hotel's smoke (the miner at supper).
+	await _at(18.5)
+	s = shows.call()
+	check(s.undertaker.lit and s.undertaker.smoke and s.hotel.smoke, "supper (%s)" % [s])
+	await _at(12.0)
+	s = shows.call()
+	check(not s.hotel.smoke and not s.undertaker.smoke, "nothing cooking at noon (%s)" % [s])
+
+
+## The player stood across Main Street from the hotel's door, looking at it (or away).
+func _watch_hotel(looking: bool) -> void:
+	var f := _folk()
+	var player := valley.get_node(^"Player") as Player
+	var door: Vector3 = f.places.at(&"hotel")
+	var at := Vector3(door.x, f.ground(door.x, 6.0) + 0.1, 6.0)
+	player.velocity = Vector3.ZERO
+	player.global_position = at
+	var to := door - at
+	player.rotation.y = atan2(-to.x, -to.z) + (0.0 if looking else PI)
+	await physics_frames(2)
+
+
+## The clock run on by `step` hours a look from `from` to `to` (as it runs while you watch).
+func _run_clock(from: float, to: float, step := 0.02) -> void:
+	var h := from
+	while ValleyFolk.since(to, h) > 0.0001 and ValleyFolk.since(to, h) < 12.0:
+		h = fposmod(h + step, 24.0)
+		await _at(h)
+
+
+func test_nobody_appears_or_vanishes_in_view() -> void:
+	await _empty()
+	var f := _folk()
+	await _at(18.9)
+	await _watch_hotel(true)
+	var door: Vector3 = f.places.at(&"hotel")
+	check(f.seen_man_at(door), "you can see the hotel's door from across the street")
+	var log_from := f.view_log.size()
+	# The miner's to come out of the hotel at seven: with you watching its door he waits behind it.
+	await _run_clock(18.9, 19.1)
+	check_eq(String(f.state[&"miner"]), "out", "the miner not out while you watch the door (%s)" % f.report().get("miner"))
+	check(f.book.inside(&"hotel").has(&"miner"), "still on the book, in the hotel")
+	# Look away and he comes out.
+	await _watch_hotel(false)
+	await _at(19.12)
+	check_eq(String(f.state[&"miner"]), "coming", "out and walking once you look away (%s)" % f.report().get("miner"))
+	var arrived := await wait_until(func() -> bool: return _off_post(&"miner") < 0.6, 60 * 70)
+	check(arrived, "at the bar")
+	# Half past one he goes back: you watch the hotel's door, he waits at it, in once you look away.
+	await _at(1.4)
+	await _watch_hotel(true)
+	await _run_clock(1.4, 1.52)
+	check_eq(String(f.state[&"miner"]), "going", "the miner on his way in")
+	var at_door := await wait_until(func() -> bool:
+		var m := _man(&"miner")
+		return m != null and Vector2(m.global_position.x - door.x, m.global_position.z - door.z).length() < ValleyFolk.GONE_AT, 60 * 70)
+	check(at_door, "at the hotel's door (%s)" % f.report().get("miner"))
+	await physics_frames(60)
+	check_eq(String(f.state[&"miner"]), "going", "not gone in while you watch (%s)" % f.report().get("miner"))
+	await _watch_hotel(false)
+	await physics_frames(10)
+	check_eq(String(f.state[&"miner"]), "out", "in once you look away")
+	check(f.book.inside(&"hotel").has(&"miner"), "on the book in the hotel")
+	var seen := f.view_log.slice(log_from).filter(func(e: Array) -> bool: return e[3] and not e[4])
+	check(seen.is_empty(), "nobody came or went in view (%s)" % [seen])
+	check(f.view_log.size() - log_from >= 2, "the probe logged the miner's coming and going (%s)" % [f.view_log.slice(log_from)])
+
+
+func test_day_kinds_sunday_and_payday() -> void:
+	await _empty()
+	var f := _folk()
+	var c := _clock()
+	check_eq(String(f.day_kind(1)), "ordinary", "day 1 a working day")
+	check_eq(String(f.day_kind(7)), "sunday", "day 7 a Sunday")
+	check_eq(String(f.day_kind(13)), "payday", "day 13 a payday (the second Saturday)")
+	c.day = 7
+	await _at(4.0)  # (the day set while the clock's jumped: a cut, not a day kind changing as you watch)
+	await _at(12.0)
+	check(f.book.row(&"undertaker").get("in") == &"undertaker" and not f.people.has(&"undertaker"),
+			"the undertaker's shut on a Sunday (%s)" % f.report().get("undertaker"))
+	check(f.book.row(&"townsman").is_empty() and f.people.has(&"townsman"), "the townsman out on the hotel's walk")
+	await _at(8.7)
+	check_eq(String(f.book.row(&"townsman").get("do", "")), "breakfast", "a Sunday's late breakfast")
+	# A night past midnight is still Sunday's.
+	c.day = 8
+	await _at(3.0)
+	check_eq(String(f.report()["_day"]["kind"]), "sunday", "three in the morning still Sunday's night")
+	c.day = 13
+	await _at(18.5)
+	check(f.people.has(&"miner"), "payday: the miner at the bar early (%s)" % f.report().get("miner"))
+	c.day = 1
+	await _empty()

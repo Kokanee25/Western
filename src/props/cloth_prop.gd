@@ -88,6 +88,11 @@ func _ready() -> void:
 	var pts: Array = definition.get("points", [8, 6])
 	cols = int(pts[0])
 	rows = int(pts[1])
+	var own := own_mesh(definition)
+	if not own.is_empty():
+		# Its own points and triangles (#917: a garment), not a grid: a point a column, one row.
+		cols = (own[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+		rows = 1
 	_build()
 	# Held, its points are pinned to his hand: what falls passes through it (PinnedSoft).
 	PinnedSoft.keep_clear(soft, self)
@@ -116,8 +121,12 @@ func _build() -> void:
 
 
 ## Laid flat, its length along X and its breadth along Z, about the node's origin; UVs in metres
-## (as the game's textures are laid).
+## (as the game's textures are laid). Or, with a kit field `mesh`, its own points and triangles
+## where they are in the node's frame (`own_mesh`).
 func _grid_mesh() -> ArrayMesh:
+	var own := own_mesh(definition)
+	if not own.is_empty():
+		return _own_mesh(own)
 	var verts := PackedVector3Array()
 	_rest = PackedVector3Array()
 	var normals := PackedVector3Array()
@@ -144,6 +153,61 @@ func _grid_mesh() -> ArrayMesh:
 	var m := ArrayMesh.new()
 	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	return m
+
+
+## The kit's `mesh` (#917): a Mesh (or its res:// path) whose first surface is the cloth, or a
+## dictionary {"vertices", "indices", "uvs"} of packed arrays. Its arrays (empty if it has none).
+static func own_mesh(def: Dictionary) -> Array:
+	var m: Variant = def.get("mesh")
+	if m is String and m != "":
+		m = load(m)
+	if m is Mesh and (m as Mesh).get_surface_count() > 0:
+		return (m as Mesh).surface_get_arrays(0)
+	if m is Dictionary and (m as Dictionary).has("vertices"):
+		var a := []
+		a.resize(Mesh.ARRAY_MAX)
+		a[Mesh.ARRAY_VERTEX] = PackedVector3Array(m.vertices)
+		a[Mesh.ARRAY_INDEX] = PackedInt32Array(m.get("indices", []))
+		if m.has("uvs"):
+			a[Mesh.ARRAY_TEX_UV] = PackedVector2Array(m.uvs)
+		return a
+	return []
+
+
+## Its own points and triangles, with normals: a soft body writes position and normal into the
+## drawn mesh's buffer by the layout of one with both, and without them it's drawn scrambled (a bar
+## a metre long while its physics points are right; the garment lab, #895).
+func _own_mesh(own: Array) -> ArrayMesh:
+	var verts: PackedVector3Array = own[Mesh.ARRAY_VERTEX]
+	var idx: PackedInt32Array = own[Mesh.ARRAY_INDEX] if own[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+	_rest = verts.duplicate()
+	_uv = own[Mesh.ARRAY_TEX_UV] if own[Mesh.ARRAY_TEX_UV] != null else PackedVector2Array()
+	if _uv.size() != verts.size():
+		_uv = PackedVector2Array()
+		for v in verts:
+			_uv.append(Vector2(v.x, v.z))
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals_of(verts, idx)
+	arrays[Mesh.ARRAY_TEX_UV] = _uv
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var m := ArrayMesh.new()
+	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return m
+
+
+## Smooth normals of `pts` by its triangles (UP where a point has none).
+static func normals_of(pts: PackedVector3Array, tris: PackedInt32Array) -> PackedVector3Array:
+	var acc := PackedVector3Array()
+	acc.resize(pts.size())
+	for t in range(0, tris.size(), 3):
+		var n := (pts[tris[t + 1]] - pts[tris[t]]).cross(pts[tris[t + 2]] - pts[tris[t]])
+		for k in 3:
+			acc[tris[t + k]] += n
+	for i in acc.size():
+		acc[i] = acc[i].normalized() if acc[i].length_squared() > 0.0 else Vector3.UP
+	return acc
 
 
 func _material() -> StandardMaterial3D:
