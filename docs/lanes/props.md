@@ -14,25 +14,26 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   judged blind in its room (`experiments/prop_lab/doctor/dress.gd`).
 
 ## Open
-- **Saloon B's batches S1 and S2 are made and judged, not placed** (#866, #879). S1: hanging lamps (plain and
+- **Saloon B's batches S1, S2 and S3 are made and judged, not placed** (#866, #879, #892). S1: hanging lamps (plain and
   shaded), shot glass, schooner, decanter, work board, box stove, faro table and lookout's high chair, piano
   stool, wheel of fortune (the Evans dice wheel), gold scales, till, slat mat, deck and chips, the bar's arm rail.
-  S2: wall bench, handsaw, fiddle and bow, beer keg (full) and keg rack, cookstove. `tools/props/saloon.py`,
-  `saloon_s2.py`; `tools/blender/props/saloon_s1.py`, `saloon_s2.py`; the stand `experiments/prop_lab/saloon/
-  s1_sheet.py` (both batches' groups). Where each goes and its bodies: `experiments/prop_lab/README.md`
-  "Saloon B, batch S1" and "batch S2" (~365 bodies as listed).
-- **Open from S2's critic:** the keg rack is DIFFERENT (kegs lie on their sides in a rack: a kit prop is held
-  only under its own bottom, so a lying keg needs its own kit file, staves laid out round a horizontal axis);
-  CLOSE notes in the README (the wheel's dice, the fiddle's f-holes, the saw's teeth and grip, the scales'
-  size, the faro's chips, the kegs' colour).
+  S2: wall bench, handsaw, fiddle and bow, beer keg (upright), cookstove. S3: `beer_keg_side` (the keg lying,
+  staves laid out one by one), `keg_rack` (redone as a stillage, `slots` in its kit file), `plank_bed`,
+  `owner_desk`. `tools/props/saloon.py`, `saloon_s2.py`, `saloon_s3.py`; `tools/blender/props/saloon_s1.py`,
+  `saloon_s2.py`; the stand `experiments/prop_lab/saloon/s1_sheet.py` (all batches' groups). Where each goes and
+  its bodies: `experiments/prop_lab/README.md` "Saloon B, batch S1", "S2", "S3" (~480 bodies as listed).
+- **Open from S3's critic:** the kit's `bentwood_chair` DIFFERENT (a black tubular bistro chair) and `strongbox`
+  DIFFERENT (a steamer trunk), both seen by the owner's desk; CLOSE notes in the README (kegs and rack near-black
+  at noon, the bed too clean, the desk grainless, the ledgers blank slabs). S2's CLOSE notes still open (the
+  wheel's dice, the fiddle's f-holes, the saw's teeth and grip, the scales' size, the faro's chips).
 - **Saloon B's stage and dressing room props are made and judged, not placed** (#903): `dressing_mirror`,
   `costume_pegs` (the doctor's coat pegs extended), `travelling_trunk` (lid on the kit's hinges),
   `dressing_screen`, `footlight`. `tools/props/saloon_stage.py`, `tools/blender/props/saloon_stage.py`, stand
   `experiments/prop_lab/saloon/stage_sheet.py`, results `results/2026-11-13_saloon_stage/` (r2: screen SAME,
   mirror/pegs/trunk CLOSE, footlight DIFFERENT: reads as tin boxes). Where each goes: README "Saloon B, the
   stage and dressing room". Placing waits for #902 (the room). No period refs saved (Commons came back thin).
-- **Next:** S3 (#892): the lying keg and its rack, the beds and the owner's desk; then the
-  placing session once #865's body fix and #862's route land.
+- **Next:** the placing session once #865's body fix and #862's route land; or S4 (the chair and strongbox, the
+  CLOSE notes; Blender needs `bpy`, which needs pypi: this session's sandbox had none).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
   (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
   `folded_blankets`, and `doctors_bag` (Rodin, Sean's A on #823). All his wooden kits are now
@@ -64,7 +65,9 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
 - `model_paint` refuses a StandardMaterial3D; Rodin props need mipmapped paints.
 - Every kit member is a physics body standing: put small things on a prop as its `dress`, give hollow
   members `"solid"` (the share that's material) or their weight is the box's.
-- A kit prop is held only by what's under its own bottom (its local -y): turned on its side it goes loose.
+- A kit prop is held only by what's under its own bottom (its local -y): turned on its side it goes loose. A
+  lying thing is built lying (`beer_keg_side`): members by tier up its sides, feet whose four lowest corners
+  are level and whose middles are over what it stands on (KitProp._set_down's ray is under each foot's middle).
 - The lab bridge's `prop_light HEIGHT` takes the kit's `light_height` (the flame); the lamp goes 0.16 under it,
   as the game places it. A chimney whose flame isn't the table lamp's: `prop:chimney_glass@<y>`.
 - The dev bridge already has `stand` (the player): the lab's stand is `prop_stand`. The old factory sheet's
