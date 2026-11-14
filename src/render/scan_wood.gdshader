@@ -784,7 +784,8 @@ void fragment() {
 		if (dings > 0.0 && dy_arris < 0.02 && px < 0.008) {
 			float kc = floor(v_m.x / 0.25);
 			float key = sign(v_m.y) + 3.0 * v_side;
-			float kp = dings * yrs * (0.2 + 0.5 * use_wear);
+			// (A thin rail or a drawer's divider less: on it a knock reads as a dash drawn along it.)
+			float kp = dings * yrs * (0.2 + 0.5 * use_wear) * smoothstep(0.03, 0.09, v_width);
 			if (wu_hash2(seed, vec2(kc, key), 1.0) < kp) {
 				float x0 = (kc + 0.25 + 0.5 * wu_hash2(seed, vec2(kc, key), 2.0)) * 0.25;
 				float hl = 0.008 + 0.025 * wu_hash2(seed, vec2(kc, key), 3.0);
@@ -795,9 +796,9 @@ void fragment() {
 				float inside = prof * (1.0 - smoothstep(kd * 0.6, kd, dy_arris));
 				knock_r = max(knock_r, 1.0 + 3.0 * prof);
 				// Bruised fibre: dirty when old, a torn pale when fresh.
-				bool fresh = wu_hash2(seed, vec2(kc, key), 5.0) > 0.7;
+				bool fresh = wu_hash2(seed, vec2(kc, key), 5.0) > 0.85;
 				ucut = max(ucut, fresh ? 0.0 : inside * 0.7);
-				upale = max(upale, fresh ? inside * 0.8 : 0.0);
+				upale = max(upale, fresh ? inside * 0.4 : 0.0);
 				urub = max(urub, inside);
 			}
 		}
@@ -809,6 +810,12 @@ void fragment() {
 			vec2 cc = floor(m0 / cell);
 			float hp = wu_hash2(seed, cc, 11.0);
 			float dens = dings * yrs * mix(0.1, 0.42, up) * (0.5 + use_wear) * (role > 5.5 && role < 6.5 ? 2.5 : 1.0);
+			// Where the use is: a floor's dents and spur cuts on its ways (the traffic map's feet), few by the
+			// walls; a thin rail or divider hardly any (one row of cells along it reads as a dashed line).
+			if (traffic > 0.0 && up > 0.5) {
+				dens *= 0.15 + 2.2 * clamp(tr / max(traffic, 0.01), 0.0, 1.0);
+			}
+			dens *= smoothstep(0.03, 0.09, v_width);
 			if (hp < dens) {
 				vec2 ctr = (cc + 0.5 + 0.42 * (vec2(wu_hash2(seed, cc, 12.0), wu_hash2(seed, cc, 13.0)) - 0.5)) * cell;
 				float kind = wu_hash2(seed, cc, 14.0);
@@ -843,7 +850,7 @@ void fragment() {
 						use_tilt += vec2(nd.x, nd.y * v_side) * g;
 						bool fresh = wu_hash2(seed, cc, 19.0) > 0.65;
 						ucut = max(ucut, fresh ? 0.0 : g * 0.95);
-						upale = max(upale, fresh ? g : 0.0);
+						upale = max(upale, fresh ? g * 0.45 : 0.0);
 						urub = max(urub, g);
 					}
 				}
