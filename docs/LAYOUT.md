@@ -1509,6 +1509,21 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `answer` (HeadGesture; none = shake), the badge, the revolver (`Player.give`), death by his gut's clock
   (Physiology). Facts nolaw.sheriff, accepted, deputy, revolver, acting, held_him, death.sheriff.
   `-- --world=valley --mission=sheriff_dies [--care=..]` or `moment sheriff_dies set_up=1 care=..`.
+- **The funeral** (#868, No Law beat 6; `src/missions/funeral.gd`, `Funeral`, an `Act`; data
+  `config/moments/funeral.json`; `tests/test_funeral.gd`): started by `ValleyFolk._funeral_step` the day after
+  nolaw.sheriff = dead (`days_after`, `hours`; before it nolaw.funeral_due = tomorrow / today, which the
+  townsman's `talk` lines say; the clock past it unseen: started `over`, missed, the grave filled). Every mourner
+  is a CivilianBrain at a post by the grave (`spot`s are [east, south] of `grave`), `rest_pose` `mourn`
+  (HumanBody's pose: head bowed, hands together), his hat hidden: the day folk sent up (`day`: walking if you'd
+  see them go, with "It's time."), the night's men borrowed out of `_waiting` (`ValleyFolk.borrow`), the act's
+  own (`take`; the wife and the doctor carried on from SheriffDies by its `hand_over`). All go back with
+  `ValleyFolk.give_back` (out of the tree into `_waiting`, the act's Brain and Senses freed: never built in
+  play). Beats on game seconds whether you're there or not; a line is spoken only within `hear_m` of its
+  speaker (`prayer_m` the prayer). Facts: nolaw.funeral (attended: `attend_s` within `attend_m`; distance:
+  within `seen_m` with the ground not between, `_in_sight`; missed), nolaw.offer_heard, baron.met,
+  nolaw.funeral_broken (a shot within `break_m`). The box, the hole, the earth and the headboards are plain
+  blocks (`_block`: stand-ins). Church Lane's points go into the folk's places (`funeral_lane_N`).
+  `-- --world=valley --mission=funeral` or `moment funeral set_up=1 [pace=0.3]`; the bench's `funeral` spot.
 - **No Justice's doctor's and camp** (#859, step 2 of #843's plan; `src/missions/no_justice_camp.gd`,
   `NoJusticeCamp`, an `Act`; data `config/moments/no_justice_camp.json`, lines from `docs/scripts/no_justice.json`;
   `tests/test_no_justice_camp.gd`): Joe (`CompanionBrain.make_joe`, `held`: the scene walks him while it's quiet),
@@ -1751,6 +1766,21 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   --manifest=experiments/sound_lab/blast_recordings.json` into `assets/audio/blast/s1/` (crack,
   boom, sub, roll; no debris, glass or groan yet). Your ears hold clear `BlastTuning.ear_hold_s`
   after a blast reaches you, then dull over `ear_ease_s` (the crack comes through first).
+- `src/audio/band.gd` — `Band` (#799): the band from one tune's note data. `tools/band/render_band.py
+  TUNE` renders each part once by the sound lab's own models (`experiments/sound_lab/fiddle/`: fiddle
+  B, banjo, piano, harmonica, bones, tambourine; ~3 min, the banjo most of it) into
+  `assets/audio/band/<tune>/<part>.ogg` (all from the tune's t = 0, levels baked) and `notes.json`
+  (bars, phrases every 4 bars, the fiddle's strokes, the piano's keys). `config/band.json`: the lot,
+  hours, tunes, players (a `man` plays it in person; without, placed sound only). Every part an
+  AudioStreamPlayer3D on one clock, re-placed by `GameAudio.replace_loop` every 0.25 s (Room,
+  Muffled, the air; no distance delay). A part stops any time (`stop_s`, the bow lifted), comes in
+  only at a phrase's top; a shot within `shot_m` stops all and they start `quiet_s` after the last
+  at the top of the phrase they stopped in; a killing within `death_m` ends their night; out of hours
+  they finish the tune. The clock follows the parts (a slow frame); with no audio device (Dummy: tests, a movie) the parts
+  follow the clock. Built by `ValleyFolk` when the band's lot is the set's (`-- --no-band`: not).
+  `PlayChore` (src/people): a folk man with `plays` at his instrument (the pianist in his chair's
+  SitChore), his hands by `reach_to` from `Band.bow_at` / `hand_at`; the fiddle and bow drawn from
+  the prop lab's `fiddle.glb`, held. Bridge: `band [hush]`. Tests `tests/test_band.gd`.
 
 ## src/creatures (the horse)
 
@@ -2253,6 +2283,15 @@ the layers on one at a time, 99 all; `--bisect-from=N`, `--bisect-only=a,b`), `t
 cuts a review run's crops and writes the judge's prompt; with `--before` a blind A/B (sets P and Q, the
 key under `build/`). scan_wood's later dials: `contact`/`arris` (joints as shadowed gaps; a board's covered
 edges in UV2, SamplePanel), `age_split`/`checks`/`end_rot` (few against old), `varnish_dark`.
+**Eased edges** (#873): every library board's edges drawn rounded by the normal alone (scan_wood's
+`edge_round`, radius new/old in m by age, `edge_round_end` the crosscut ends' share;
+`MaterialLibrary.EDGE_ROUND` per class or an entry's own `edge_round`): each face takes its half of a
+quarter round toward each of its edges (the board's box in CUSTOM1, the face's own side `v_side`), the
+scan's detail laid over it by reoriented normal mapping; under a pixel it fades, so it never sparkles.
+No geometry (a bevelled board mesh, `tools/edge_round_bench.gd` on saloon B's 7,287 boards: x2.25 vertices,
+x3.6 triangles, x2.2 build time, +1.4 s);
+silhouettes and collision stay square. A shaped board (role + 10: `PropKit.lib_cut_mesh`, `lib_profile_mesh`)
+keeps its own normals and isn't eased.
 **Paint** (#721's paint round, 2026-11-11): entries of family `paint` (codes P1-P6) lie `over` a wood
 (`MaterialLibrary.resolved`: the wood's fields under the paint's; `panel_class` the panel's gaps;
 `wood_class` the resolved class SamplePanel uses); `--panels=paint`; an `inside` entry adds the 1 m night
@@ -2405,11 +2444,17 @@ screen-space bump's drawn outlines (`docs/screenshots/judge/2026-11-13_stone_r*`
 **Library woods, baked metal and the factory's doctor's batch** (#788, `docs/briefs/prop-factory.md`
 "The recipe brought up to date"): kit looks `lib:<entry>/<age>[/top]` (`PropKit.dress_lib`, a member
 drawn as a material library board by `PropKit.board_mesh`, the building lab's board mesh shared;
+a member run to a profile in a library wood by `PropKit.lib_profile_mesh`, #873: the sides one long face
+whose across runs round the outline, so the scan wraps it; a member's meta `draw` keeps its profile when
+a library finish is laid over it later, as `Railing`'s rail does;
 `lib_material` one a wood and age, indoors) and `pbr:<model>` (`PropModels.pbr`: a model's baked
 `_albedo.png` and `_orm.png`, from `tools/blender/props/metal.py`'s finishes, the guns' recipes).
 `tools/props/doctor.py` writes the doctor's kit files, `tools/blender/props/doctor_d1.py` their
-models (`cushion`, `soft_box`, `drape`); `experiments/prop_lab/doctor/dress.gd` + `dress.json` lay a
-batch into his rooms on his valley lot and render the views (the doors' leaves set aside). A kit
+models (`cushion`, `soft_box`, `drape`). A building's props are its spec's `dressing`, placed by its
+build (`SpecBuilding._dressing` -> `PropDressing.place`, `src/props/prop_dressing.gd`; #844), in play and
+in every lab alike, its glass props' fixed parts drawn by a `StaticBatch` under it (`-- --no-dressing`:
+the rooms bare, the bench's before); `experiments/prop_lab/doctor/dress.gd` renders a batch's views from
+`building.dressed` (the doors' leaves set aside). A kit
 lamp's chimney is its light's (`GlassProp._take_hitbox` hands it to the OilLamp). Cloth wipes
 (`ClothProp.wipe_at`, a kit file's `wipe_rate`) and hangs over a rail (`hang_over`).
 

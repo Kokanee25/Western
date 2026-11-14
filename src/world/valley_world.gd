@@ -44,6 +44,9 @@ const SHERIFF_ARG := "--mission=sheriff"
 ## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
 ## SheriffDies, the morning after set up, you on Main Street).
 const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
+## `-- --mission=funeral`: No Law's funeral alone (#868: Funeral, the sheriff dead yesterday, you on
+## Church Lane below the church).
+const FUNERAL_ARG := "--mission=funeral"
 ## `-- --mission=no_justice [--followed]`: No Justice step 2 alone (#859: NoJusticeCamp, the day the
 ## sheriff died set up, you on Main Street by the doctor's; --followed: you'd followed Cody out, S10).
 const NO_JUSTICE_ARG := "--mission=no_justice"
@@ -94,6 +97,8 @@ func _ready() -> void:
 		_start_sheriff.call_deferred()
 	if SHERIFF_DIES_ARG in OS.get_cmdline_user_args():
 		_start_sheriff_dies.call_deferred()
+	if FUNERAL_ARG in OS.get_cmdline_user_args():
+		_start_funeral.call_deferred()
 	if NO_JUSTICE_ARG in OS.get_cmdline_user_args():
 		_start_no_justice.call_deferred()
 	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
@@ -120,6 +125,14 @@ func _start_sheriff_dies() -> void:
 			care = a.get_slice("=", 1)
 	if folk:
 		folk.start_sheriff_dies({"set_up": true, "care": care})
+
+
+## No Law's funeral alone (#868), once the folk are built.
+func _start_funeral() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	if folk:
+		folk.start_funeral({"set_up": true})
 
 
 ## No Justice's doctor's and camp (#859), once the folk are built.

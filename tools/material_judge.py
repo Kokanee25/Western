@@ -28,7 +28,7 @@ SHOTS = {
     "noon_near": ("near", (420, 0, 1820, 780)),
     "golden_far": ("far", (750, 240, 1310, 600)),
     "saloon_near": ("saloon_night", (420, 0, 1820, 780)),
-    "noon_rail": ("noon_rail", (0, 600, 1920, 1080)),
+    "noon_rail": ("noon_rail", (0, 420, 1920, 1080)),  # the rail itself from its top (#873)
 }
 # The six references the first round (2026-11-10_material_r3e) was judged against.
 REFS = ["games/rdr2/street_noon_1.jpg", "games/rdr2/street_golden_1.jpg", "games/rdr2/saloon_night_1.jpg",

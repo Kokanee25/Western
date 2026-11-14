@@ -2131,6 +2131,11 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		# Timber coming down on someone: once per piece per person.
 		var person: Object = other.get_meta(&"human_body")
 		var hurt: Array = rb.get_meta(&"hurt", [])
+		# A man getting up: what he's lying among is shoved aside by his own body as it's stood up (a
+		# rig moved by hand, at any speed), not falling on him. Earl among his chair's pieces took its
+		# 9 kg seat as a 3,900 J blow to the belly each time he rose, and never got up (#834, #875).
+		if person.get(&"rising") == true:
+			return
 		# The man whose boot just broke it: the piece leaves at his boot's speed, against his own leg
 		# (No Law's kicked chair: Cody went down to his own kick's spindle, #887). Spared a moment.
 		var by: Array = get_meta(&"broken_by", [])

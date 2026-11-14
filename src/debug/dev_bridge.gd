@@ -47,6 +47,7 @@ const HELP := {
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
 	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
 	"story": "story [clear] -> the story's facts so far (StoryState: sheriff.care ...); clear forgets them",
+	"band": "band [hush] -> the band (#799, Band): its state, tune, clock and each part's gain, bus, place and man; hush stops it as a shot would",
 	"sit": "sit [n|e|s|w] -> E by a free kit chair, as the key does (sits you in it); with a compass letter, put by that chair of the valley's card table first (#766)",
 	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
 	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
@@ -739,6 +740,15 @@ func _cmd_moment(a: Array) -> Dictionary:
 	_moment.finished.connect(func(m: Moment) -> void: _log("moment", "%s: %s" % [m.moment_name, m.state]))
 	await _physics_frames(3)
 	return _moment.result()
+
+
+func _cmd_band(a: Array) -> Dictionary:
+	var b := get_tree().get_first_node_in_group(&"band") as Band
+	if b == null:
+		return {"ok": false, "error": "no band here (the valley's, config/band.json; -- --no-band leaves it out)"}
+	if a.size() > 0 and a[0] == "hush":
+		b.hush(&"bridge")
+	return b.report()
 
 
 func _cmd_story(a: Array) -> Dictionary:
