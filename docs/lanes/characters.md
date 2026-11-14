@@ -29,8 +29,12 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   the Winchester). **Sean picked it (#913): next its promotion into the game, #914.** Its glb is private
   (git-ignored); rebuild it from the Studio's frozen `sean_metahuman_s3` before the lab runs.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
-  (`Sean_blendshapes.zip` in the private `sean-metahuman` release). Then his first-person arms holding the
-  guns (#693), week 3.
+  (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
+- **#890's full MetaHuman arms: not taken** (Sean picked option 2 on #913). PR #919 closed unmerged; its
+  Studio tool (`tools/fp_arms.py`, branch `claude/studio-harlan-arms`, rolled sleeves lofted, tan) kept there
+  for reference. What #914 can use, on main: the gun lab's `--gun=winchester` views and fit, bridge `gun_arms`,
+  `arms_sheet.py` (`experiments/gun_lab/README.md`). A MetaHuman's finger bones point +Y to the tip with the
+  hinge flipped (rest hand ~20° closed): reframe them before curling (#919's `_canonical_fingers`).
 - Talking face: four men's jaws go back more than down (#247).
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
