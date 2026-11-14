@@ -149,7 +149,8 @@ band plays there. The spec's `stage` (FORMAT.md "Saloon B's stage"):
   `SpecBuilding.open_curtain` / `close_curtain`; `to_dict` / `from_dict`). It hangs shut.
 - **The backdrop:** a `PaintedDrop` (`src/art/`) 4.6 x 2.3 m (15 x 7.5 ft: the room is 2.59 m from
   the stage to the trusses' ties, so no 9 ft drop) under a batten on the back wall, **plain canvas**
-  until Sean OKs the Baron's painting (#960: the brief and the cost; `backdrop.art` takes it).
+  painted: Salt Creek as the Baron promises it (Sean's yes on #960; `tools/textures/materials.json`
+  `drop_baron`, the factory's new `painting` kind, FLUX.2 [max], $0.10 on People run 133).
 - **The wing:** the corner x 0.1 to 2.45, z 10.9 to 13.36, boarded off from the dance floor (the
   `wing` partition), three steps up onto the stage's end, a lamp; its door through `dance_back` at
   1.58, straight across the upper hall from room_6's, its leaf hung on the far jamb (`hinge: "end"`)
@@ -170,7 +171,17 @@ band plays there. The spec's `stage` (FORMAT.md "Saloon B's stage"):
   across the stage behind the curtain and down its steps to the dance floor (Waypoints' own test, a
   step at a time).
 - **Cost:** COST_LINE
-- **Judged:** JUDGED_LINE
+- **Judged, one round** (`docs/screenshots/judge/2026-11-14_saloon_b_stage_r1`; renders in
+  `results/2026-11-14_stage/`): the cheap judge called the stage shut, the stage open on the drop and the
+  dance hall **cheap indie**, all three (open the best, then shut, then the hall). Tells: the hall empty
+  (nothing on the floor, nobody there); the five footlights read as tin buckets, two lit throwing hot
+  cones up the curtain (the critic: 8 to 12 small lamps in a hooded trough, all lit, one soft wash);
+  the proscenium a bare dark box (no swag valance, painted frame, pilasters or lettered apron); the
+  curtain's pleats too even and too orange under the footlights, its fringe blocky; the drop lit flat,
+  short of the header, more a framed lithograph than a scene drop with wings; the public door's open
+  leaf by the dance view's camera a slab of big walnut grain; a light by the side steps' foot with no
+  lamp to it (a footlight's chimney seen past the step, most likely; not chased). Shared with the rest
+  of the building: the speckled board paint, no haze, blank windows.
 
 ## No Law
 
