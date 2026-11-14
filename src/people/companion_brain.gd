@@ -48,6 +48,7 @@ var _spared_seen := 0
 var _spared_set := false
 var _yours_hit := {}  # man -> when you last hit him
 var _yours_shot := {}  # man -> when you last shot at him
+var _you_fired := -INF  # when you last fired
 var _line_fails := 0  # steps aside that left him still in your line
 var _tend_t := 0.0  # this bout of tending his wound (s)
 var _tend_end := -99.0
@@ -58,6 +59,11 @@ var _said_up := true  # (set false when he goes down)
 var _stuck_t := 0.0
 var _go_last := Vector3.INF
 var _way: Array[Vector3] = []
+## Held by a scene (No Justice's camp, `NoJusticeCamp`): while it's quiet the scene walks him and
+## turns him, not his following; in a fight he's his own man again.
+var held := false
+## In the cowboy's hat and neckerchief (S12, No Justice step 2; his look is the Studio's).
+var costume := false
 
 
 static var _shared := {}
@@ -69,7 +75,8 @@ static func load_data() -> Dictionary:
 
 func _init() -> void:
 	data = load_data()
-	tune = data.tuning
+	tune = (data.tuning as Dictionary).duplicate()
+	_lab_tune(tune)
 	variant = Variant.D
 	nerve = float(tune.nerve)
 	temper = float(tune.temper)
@@ -123,6 +130,14 @@ static func _start_when_ready(main_node: Node) -> void:
 
 ## Joe brought in beside you (2.2 m to your right, a pace back), following you. Returns him.
 static func spawn_beside(p: Player, model := STAND_IN) -> HumanBody:
+	var town := p.get_parent().get_node_or_null(^"TownLife") as TownLife
+	var at := p.global_position + p.global_transform.basis * Vector3(2.2, 0.0, 0.8)
+	return make_joe(p.get_parent(), at, p.rotation.y, p, town.places if town else null, model)
+
+
+## Joe into `parent` at `at` facing `yaw`, following `leader` (a scene's: `held` to hold him there).
+static func make_joe(parent: Node, at: Vector3, yaw: float, leader: Node3D, ways: Waypoints = null,
+		model := STAND_IN, hold_him := false) -> HumanBody:
 	var man := HumanBody.new()
 	man.name = "Joe"
 	man.person_id = &"joe"
@@ -130,14 +145,24 @@ static func spawn_beside(p: Player, model := STAND_IN) -> HumanBody:
 	man.shirt_color = Color(0.55, 0.5, 0.4)
 	var b := CompanionBrain.new()
 	b.name = "Brain"
-	b.follow_man(p)
-	var town := p.get_parent().get_node_or_null(^"TownLife") as TownLife
-	if town != null:
-		b.places = town.places
+	b.follow_man(leader)
+	b.held = hold_him
+	if ways != null:
+		b.places = ways
 	man.add_child(b)
-	var at := p.global_position + p.global_transform.basis * Vector3(2.2, 0.0, 0.8)
-	man.enter(p.get_parent(), at, p.rotation.y)
+	man.enter(parent, at, yaw)
 	return man
+
+
+## The gunfight lab's trials (#859): `-- --joe-tune=key:value+key:value` sets his tuning's numbers
+## for this game (a fight's run: `run.py --game-args=--joe-tune=yours_after_shot:3`).
+static func _lab_tune(into: Dictionary) -> void:
+	for a: String in OS.get_cmdline_user_args():
+		if not a.begins_with("--joe-tune="):
+			continue
+		for kv: String in a.get_slice("=", 1).split("+", false):
+			if kv.contains(":"):
+				into[kv.get_slice(":", 0)] = float(kv.get_slice(":", 1))
 
 
 # --- Who's with whom --------------------------------------------------------------------------
@@ -191,7 +216,7 @@ static func in_view(player: Player, reach := -1.0, deg := -1.0) -> CompanionBrai
 
 ## A word from you (the shout key with him in view): wait here, or come on. Returns what you said.
 func told(by: Node3D) -> String:
-	if by != leader:
+	if by != leader or held:
 		return ""
 	if wait_at == Vector3.INF:
 		wait_at = body.global_position
@@ -212,6 +237,8 @@ func _provoked(by: Node) -> void:
 
 func _on_deed(actor: Node, kind: StringName, deed_target: Node, at: Vector3) -> void:
 	if actor == leader:
+		if kind == &"shoot_at":
+			_you_fired = _now
 		if kind == &"shoot_at" and deed_target is Node and deed_target != body:
 			_yours_shot[deed_target] = _now
 		if kind in [&"shoot_at", &"hit", &"kill"] and deed_target is HumanBody and deed_target != body \
@@ -294,7 +321,7 @@ const TEND_FAST := 3.0
 func _wants_to_tend() -> bool:
 	if _now - _tend_end < TEND_AGAIN:
 		return false
-	if _fight_on and body.physiology.total_bleed_rate() < TEND_FAST:
+	if _fight_on and body.physiology.total_bleed_rate() < float(tune.get("tend_fast", TEND_FAST)):
 		return false
 	return super._wants_to_tend()
 
@@ -349,7 +376,8 @@ func _pick_fight(delta: float) -> void:
 		if not _armed_man(who) and not _on_me(who):
 			continue  # (a man with no gun and no fight in him isn't his to shoot)
 		var p: float = relations.entries[who].pressure + (1.0 if senses.sees(who) else 0.0) + (1.0 if who == t else 0.0) \
-				+ (1.5 if _on_me(who) else 0.0) - (3.0 if yours(who) and not _on_me(who) else 1.0 if in_your_sights(who) else 0.0)
+				+ (1.5 if _on_me(who) else 0.0) - (3.0 if yours(who) and not _on_me(who) else 1.0 if in_your_sights(who) else 0.0) \
+				+ (float(tune.get("on_you_pick", 0.0)) if _on_you(who) else 0.0)
 		if p > best_p:
 			best = who
 			best_p = p
@@ -368,13 +396,13 @@ func _fire_at(point: Vector3, t: Node3D) -> void:
 	var b := Crew.brain_of(t)
 	if b != null and not b is CompanionBrain:
 		var e := b.relations.entry(body)
-		e.pressure = minf(float(e.pressure) + DRAW_EYE, DRAW_EYE_MAX)
+		e.pressure = minf(float(e.pressure) + float(tune.get("draw_eye", DRAW_EYE)), float(tune.get("draw_eye_max", DRAW_EYE_MAX)))
 
 
 ## How much more a man minds Joe for each shot Joe puts at him, and at most (Relations' pressure: a
 ## fight is 1.0 up; the man who shot at him first stands at 1.5).
-const DRAW_EYE := 0.5
-const DRAW_EYE_MAX := 3.0
+const DRAW_EYE := 1.5
+const DRAW_EYE_MAX := 4.0
 
 
 func _can_shoot_at(t: Node3D) -> bool:
@@ -407,6 +435,12 @@ func in_your_sights(who: Node) -> bool:
 	var cam := p.camera
 	var to := (who as Node3D).global_position + Vector3.UP * 1.2 - cam.global_position
 	return rad_to_deg((-cam.global_transform.basis.z).angle_to(to)) < float(tune.yours_aim_deg)
+
+
+## That man's on you: his fight is with you (Joe covers you: he takes on the men shooting at you).
+func _on_you(who: Node) -> bool:
+	var b := Crew.brain_of(who)
+	return b != null and leader != null and b.target == leader
 
 
 func _on_me(who: Node) -> bool:
@@ -576,14 +610,18 @@ func _watch_line(delta: float) -> void:
 	if in_your_line():
 		_line_t += delta
 		stats.line_s += delta
-		if _line_t > float(tune.line_grace) and _line_step <= 0.0 and not body.prone:
+		# While you're shooting he doesn't wait to see if your gun moves on: out at once.
+		var grace := float(tune.line_grace)
+		if _now - _you_fired < float(tune.get("firing_s", 3.0)):
+			grace = float(tune.get("line_grace_firing", grace))
+		if _line_t > grace and _line_step <= 0.0 and not body.prone:
 			# Out of it, sideways, the way he's already off it.
 			var p := leader as Player
 			var right := p.camera.global_transform.basis.x
 			right.y = 0.0
 			var o := line_offset()
 			var side := signf(o) if absf(o) > 0.05 else _side
-			if _line_fails >= 1:
+			if _line_fails >= 1 and float(tune.get("line_run", 1.0)) > 0.0:
 				# Stepping aside didn't do it (a wall, or you keep turning his way): to your side,
 				# where your gun never points.
 				_line_to = p.global_position + right.normalized() * side * 2.0 + p.global_transform.basis.z * 0.5
@@ -623,6 +661,8 @@ func _social(delta: float) -> void:
 	if who != null and who != leader and relations.stance(who) >= Relations.Stance.WARY:
 		super._social(delta)
 		return
+	if held:
+		return  # the scene has him
 	_reload_quietly(delta)
 	if _fight_seen and _calm_t > float(tune.after_fight):
 		_fight_seen = false
