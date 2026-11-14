@@ -1926,6 +1926,9 @@ func _rise_step(delta: float) -> void:
 ## body: his animated parts are put where the ragdoll lay, among or in them, and the engine flung
 ## them out at him (5 kJ: Structure._on_rubble_hit broke his shin as he got up).
 const SPARE_RADIUS := 2.5
+## Shapes a look of the space gives, and how many looks at most (4,096 shapes within 2.5 m of him).
+const SPARE_A_LOOK := 128
+const SPARE_LOOKS := 32
 ## The pieces let through him (`_spare_rubble`). Knocked down again as he rises, the ragdoll that
 ## takes the rig's place is let through them too (`_spare_ragdoll`): its parts are put where the
 ## rig's were, in among them, and the engine shoved the pieces out at him (eight blows of 8 to 36 J
@@ -1946,15 +1949,27 @@ func _spare_rubble(at: Vector3) -> void:
 	q.collision_mask = Layers.WORLD
 	Prof.count(&"q_body")
 	_spared.clear()
-	for hit: Dictionary in World.space(self).intersect_shape(q, 64):
-		var rb := hit.collider as RigidBody3D
-		if rb == null:
-			continue
-		for part: Variant in parts.values():
-			rb.add_collision_exception_with(part as Node)
-		rb.add_collision_exception_with(_blocker)
-		if not _spared.has(rb):
+	# Every loose piece in reach, however much that stands is in reach too: the query gives 64 shapes
+	# at most, and a building's standing members filled it before the chair's pieces were counted
+	# (the saloon's wall by the yard's card table: Earl's own chair broke his thigh, 3.8 kJ, as he
+	# got up, #925). What isn't a loose piece is left out of the next look till a look comes back short.
+	var space := World.space(self)
+	var seen: Array[RID] = []
+	for look in SPARE_LOOKS:
+		q.exclude = seen
+		var hits := space.intersect_shape(q, SPARE_A_LOOK)
+		for hit: Dictionary in hits:
+			if not seen.has(hit.rid):
+				seen.append(hit.rid)
+			var rb := hit.collider as RigidBody3D
+			if rb == null or _spared.has(rb):
+				continue
+			for part: Variant in parts.values():
+				rb.add_collision_exception_with(part as Node)
+			rb.add_collision_exception_with(_blocker)
 			_spared.append(rb)
+		if hits.size() < SPARE_A_LOOK:
+			break
 
 
 ## Gone limp: the pieces let through the rig he had (`_spare_rubble`) and in him now let through the
