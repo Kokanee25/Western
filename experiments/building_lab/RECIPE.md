@@ -217,6 +217,18 @@ The doctor's office is the test room; the jail, the store and saloon B follow it
   hide the valley's place labels (Label3D) in renders.
 - **Until the library has plaster and rubble,** a stone building's walls are the game's `stone`
   inside and out: both judges name its blotched blocks first (the critic leaves it out by brief).
+  The spec already names them (`materials.stone` `want` `rubble_stone`, `inside_finish.regions`):
+  `_stone_finish` draws them by StoneFinish the moment the library passes an age (#860).
+- **Procedural rubble by a height field doesn't pass** (#860, two rounds, `docs/screenshots/judge/
+  2026-11-13_stone_r*`): stones drawn as a height field and lit by the screen-space bump
+  (`real_bump`) get a dark line on their low edges and a pale one on their high (the judge's "navy and
+  cream outlines", "cartoon at 5 m"), steep or soft; plaster as noise reads as a flat card. Don't tune
+  it a third time: Sean's pick (#857 follow-up) is the method.
+- **A parapet that steps** (#857 2a): a wall's `parapet_steps` [[s0, s1, top]] raise it over a run
+  (the door's centre, the corner piers); every row from the base coping up is cut at the steps' edges,
+  the base coping under a step an ordinary piece. **Dressed stones proud** (`stone_wall.dress`): sills
+  by `sill.proj`, the coping by `coping.proj` (past a free end too), lintels by `dress.lintel`; the
+  coping's stones `coping_len` long, `coping_jitter` off level.
 - **Merging the building's branch:** `git checkout --ours FILE` on a conflict keeps all of one side's
   file, not only the conflicted hunk (the jail's stone checks went); resolve with `git merge-file` or
   by hand.

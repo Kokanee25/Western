@@ -46,3 +46,7 @@ __pycache__/
 
 # The material library's 4K scans (lab only; pulled from the pool branch, #721)
 /assets/textures/scans4k/
+
+# Private people (#889): MetaHumans the Character Studio lays in (its tools/metahuman_to_game.sh).
+# Never committed: MetaHuman files stay out of this public repo (#692, the licence).
+/assets/people/private/

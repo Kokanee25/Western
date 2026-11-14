@@ -226,6 +226,7 @@ func build() -> void:
 		_add_interior_ambient()
 		marks = Marks.place(self, spec)
 		_library_finishes()
+		_stone_finish()
 		return
 	band = 0
 	_foundation()
@@ -289,6 +290,7 @@ func build() -> void:
 	_add_interior_ambient()
 	marks = Marks.place(self, spec)
 	_library_finishes()
+	_stone_finish()
 
 
 # --- the room's light (#824) -------------------------------------------------------------------------
@@ -2965,3 +2967,62 @@ func _corner_entrance() -> void:
 		add_member(pre + "/rail", &"trim", trim, Vector3(lw, st, 0.045), mid + Vector3.UP * (foot + 0.01 + lh - st * 0.5), lb)
 		add_member(pre + "/glass", &"glass", &"glass", Vector3(lw - st * 2.0, lh - panel - st, 0.008), mid + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
 	band = 1
+
+
+# --- the stone in the library's stone and lime (#860, #857; StoneFinish) ---------------------------
+
+var stone_material: ShaderMaterial
+
+## Every stone member drawn in the library's stone (spec.materials.stone `want`, once the materials
+## judge has passed it at that age; else the game's `stone` as before): one material for the
+## building, each piece its own mesh with the arrises that show chamfered, dressed stone (lintels,
+## sills, the coping, quoins, steps and flags) flagged for the shader; inside, the plaster or
+## whitewash of the region a face looks into (spec.inside_finish.regions).
+func _stone_finish() -> void:
+	var st: Dictionary = spec.materials.get("stone", {}) if spec.materials.get("stone") is Dictionary else {}
+	if st.is_empty():
+		return
+	var want: Dictionary = st.get("want", {})
+	var e := MaterialLibrary.entry(String(want.get("entry", "")))
+	var age := String(want.get("age", "few"))
+	if e.is_empty() or not ((e.get("approved", []) as Array).has(age) or bool(st.get("trial", false))):
+		return
+	var ms: Array[StructureMember] = []
+	var boxes := []
+	for m: StructureMember in get_members():
+		if m.wood != &"stone" or m.drawn_node() == null:
+			continue
+		ms.append(m)
+		boxes.append(m.transform * AABB(-m.size * 0.5, m.size))
+	if ms.is_empty():
+		return
+	stone_material = StoneFinish.material(e, float(LIB_AGES.get(age, 0.5)), float(LIB_AGES.get(String(st.get("inside_age", "few")), 0.5)))
+	var faces := StoneFinish.exposed(boxes)
+	var sid := String(structure_id) + "/"
+	var all_dressed := bool(st.get("dressed", false))
+	for i in ms.size():
+		var m := ms[i]
+		var id := String(m.member_id).trim_prefix(sid)
+		var dressed := all_dressed or bool(m.get_meta(&"dressed", false)) or id.contains("/lintel") or id.contains("/sill") \
+				or id.begins_with("stair/") or id.contains("/flag_")
+		var rng := hash(m.member_id)
+		var seed := float(rng % 100000) / 100000.0
+		var c := (0.012 + 0.008 * seed) if dressed else (0.02 + 0.025 * seed)
+		if id.contains("/flag_") or id.contains("/fill_") or id.begins_with("pier/"):
+			c = 0.008
+		var mi := m.drawn_node()
+		mi.mesh = StoneFinish.piece_mesh(m.size, faces[i] if m.transform.basis.is_equal_approx(Basis()) else 0, c, seed, dressed)
+		mi.transform = Transform3D()
+		mi.material_override = stone_material
+	refresh_stone_space()
+
+
+## The stone's building space (world -> here, the ground, the rooms, the corners, the drips): again
+## if the building moves.
+func refresh_stone_space() -> void:
+	if stone_material == null:
+		return
+	var gt := global_transform if is_inside_tree() else transform
+	var regions: Array = (spec.get("inside_finish", {}) as Dictionary).get("regions", [])
+	var plane: Array = (spec.lot.get("ground", {}) as Dictionary).get("plane", [-1000.0, 0.0, 0.0])
+	StoneFinish.set_space(stone_material, gt.affine_inverse(), plane, regions, get_meta(&"stone_corners", []), get_meta(&"stone_drips", []))
