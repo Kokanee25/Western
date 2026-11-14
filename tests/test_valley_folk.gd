@@ -43,11 +43,14 @@ func _at(h: float) -> void:
 	await physics_frames(2)
 
 
-## The night's folk in the world (the saloon yard's; the day folk on the walks, #796, aside).
+## The night's five (the saloon yard's set; the day folk on the walks, #796, the band's players,
+## test_band, and the roster's street folk, #936, are others).
+const NIGHT := [&"barkeep", &"miner", &"rancher", &"earl", &"drifter"]
+
+
+## Who of the night's five is in the world.
 func _night_in() -> Array:
-	# (the band's players, `plays`, have their own tests: test_band)
-	return _folk().people.keys().filter(func(id: StringName) -> bool:
-		return not _folk()._person(id).has("says") and not _folk()._person(id).has("plays"))
+	return _folk().people.keys().filter(func(id: StringName) -> bool: return id in NIGHT)
 
 
 func _man(id: StringName) -> HumanBody:
@@ -284,10 +287,11 @@ func test_the_book_shows_lit_windows_and_smoke() -> void:
 	check(s.hotel.lit and s.undertaker.lit and s.saloon.lit, "lit windows at nine (%s)" % [s])
 	check(not s.hotel.smoke and not s.undertaker.smoke, "no smoke at nine (%s)" % [s])
 	check(f.book.inside(&"hotel").has(&"townsman") and not f.people.has(&"townsman"), "the townsman on the book, in the hotel")
-	# Half past eleven: all abed but the saloon's (out in the yard): dark.
+	# Half past eleven: all abed but the saloon's (its room: the saloon woman at work): the rest dark.
 	await _at(23.5)
 	s = shows.call()
-	check(not s.hotel.lit and not s.undertaker.lit and not s.saloon.lit, "dark at half past eleven (%s; %s)" % [s, f.book.report()])
+	check(not s.hotel.lit and not s.undertaker.lit and not s.general_store.lit and not s.doctor.lit, "dark at half past eleven (%s; %s)" % [s, f.book.report()])
+	check(s.saloon.lit, "the saloon's lit, the room still working (%s)" % [s])
 	# Breakfast: smoke from the hotel's and the undertaker's chimneys, daylight (no lamp).
 	await _at(6.5)
 	s = shows.call()
@@ -297,9 +301,12 @@ func test_the_book_shows_lit_windows_and_smoke() -> void:
 	await _at(18.5)
 	s = shows.call()
 	check(s.undertaker.lit and s.undertaker.smoke and s.hotel.smoke, "supper (%s)" % [s])
-	await _at(12.0)
+	await _at(12.5)
 	s = shows.call()
-	check(not s.hotel.smoke and not s.undertaker.smoke, "nothing cooking at noon (%s)" % [s])
+	check(s.hotel.smoke and s.general_store.smoke and s.blacksmith.smoke and not s.undertaker.smoke, "dinner at noon, but the undertaker's on his walk (%s)" % [s])
+	await _at(14.5)
+	s = shows.call()
+	check(not s.hotel.smoke and not s.general_store.smoke and not s.undertaker.smoke, "nothing cooking at half past two (%s)" % [s])
 
 
 ## The player stood across Main Street from the hotel's door, looking at it (or away).
@@ -385,3 +392,59 @@ func test_day_kinds_sunday_and_payday() -> void:
 	check(f.people.has(&"miner"), "payday: the miner at the bar early (%s)" % f.report().get("miner"))
 	c.day = 1
 	await _empty()
+
+
+# --- The roster (townsfolk step 3, #936) --------------------------------------------------------
+
+## The brief's sixteen (section 2): who they are by id, in the table's order.
+const ROSTER := [&"barkeep", &"doctor", &"storekeeper", &"store_wife", &"liveryman", &"smith", &"undertaker",
+		&"landlady", &"churchman", &"pianist", &"fiddler", &"miner", &"rancher", &"drifter", &"loudmouth", &"saloon_girl"]
+
+
+func test_the_roster_sixteen_with_homes_days_and_dials() -> void:
+	var f := _folk()
+	var seeds := {}
+	for p: Dictionary in f.data.people:
+		check(not seeds.has(int(p.seed)), "%s: a seed of his own" % p.id)
+		seeds[int(p.seed)] = true
+	for id: StringName in ROSTER:
+		var p := f._person(id)
+		check(not p.is_empty(), "%s is in the data" % id)
+		check(p.has("day") and not p.has("act"), "%s has a day, and is no act's man" % id)
+		check(String(p.get("home", "")) != "", "%s has a home" % id)
+		check(f.places.has(StringName(p.home)), "%s's home is a place (%s)" % [id, p.get("home")])
+		check(p.has("dials"), "%s has his dials" % id)
+		var d := ValleyFolk.dials_of(p)
+		for k in ["nerve", "nosy", "duty"]:
+			check(float(d[k]) >= 0.0 and float(d[k]) <= 1.0 and (p.dials as Dictionary).has(k), "%s's %s in 0-1 (%s)" % [id, k, d])
+		# Every block names a place or a spot that's there, and none is under half an hour (a day is 45 minutes).
+		for kind in (p.day as Dictionary if p.day is Dictionary else {"ordinary": p.day}):
+			var blocks: Array = ValleyFolk.blocks_of(p, StringName(kind))
+			for i in blocks.size():
+				var b: Dictionary = blocks[i]
+				if b.has("in"):
+					check(f.places.has(StringName(String(b["in"]))), "%s %s: a place %s" % [id, kind, b["in"]])
+				else:
+					check(not f.spot(b.at).is_empty(), "%s %s: a spot %s" % [id, kind, b.at])
+				var span := fposmod(float(blocks[(i + 1) % blocks.size()].from) - float(b.from), 24.0)
+				check(span >= 0.5 or blocks.size() == 1, "%s %s: the block at %s lasts %.1f h" % [id, kind, b.from, span])
+	check_eq(ROSTER.size(), 16, "sixteen townsfolk")
+	# The four who share a body with a principal or each other wear different clothes.
+	check(f._person(&"store_wife").shirt != f._person(&"landlady").shirt, "the two women in widow's model dressed apart")
+
+
+func test_the_town_s_spots_stand_on_their_walks() -> void:
+	var f := _folk()
+	var spots: Dictionary = f.data.spots
+	var count := 0
+	for k: String in spots:
+		# (the street's: on a walk, b under 0; the saloon yard's are the set's)
+		if k.begins_with("_") or not (spots[k] as Dictionary).has("lot") or float(spots[k].at[1]) >= 0.0:
+			continue
+		count += 1
+		var s: Dictionary = spots[k]
+		var lot := ValleyLayout.main().lot(String(s.lot))
+		var at: Vector3 = f.post_of({"post": s})[0]
+		check(not lot.is_empty() and at.x >= float(lot.x0) and at.x <= float(lot.x1), "%s: in its lot's width (%s)" % [k, at])
+		check(absf(at.z) > 8.0 and absf(at.z) < 12.0, "%s: on a walk by the street, not in it (%.1f)" % [k, at.z])
+	check(count >= 20, "the street's spots (%d)" % count)
