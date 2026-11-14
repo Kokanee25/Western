@@ -201,3 +201,50 @@ func test_knocked_down_as_he_rises_among_the_pieces_they_dont_break_him() -> voi
 	check(not man._spared.has(piece), "once it's clear of him, not let through any more")
 	var up := await wait_until(func() -> bool: return not man.limp and not man.rising, 60 * 12)
 	check(up, "and he gets up again")
+
+
+## Getting up beside a building (#925): the pieces let through his rising body are every loose one in
+## reach, however many standing members are in reach with them. The space's query gives so many
+## shapes and no more (64, then): by the saloon's wall the standing ones filled it, the chair's
+## pieces weren't let through, and the engine flung them out of him (3.8 kJ on Earl's thigh as he
+## rose: broken, he never stood again; beside 90 standing bodies 3 kicked men in 48 never rose and
+## 2 more were hurt, none of 480 with nothing by them).
+func test_getting_up_by_a_wall_every_piece_in_reach_is_let_through() -> void:
+	# A wall's worth of standing members a step from him: 240 posts within the reach.
+	for i in 240:
+		var post := StaticBody3D.new()
+		post.collision_layer = Layers.WORLD
+		var shape := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(0.04, 2.0, 0.04)
+		shape.shape = box
+		post.add_child(shape)
+		post.position = Vector3(-1.8 + (i % 60) * 0.06, 1.0, 1.2 + (i / 60) * 0.06)
+		world.add_child(post)
+	var man: HumanBody = await _seated_kicked_over(false)
+	check(man.limp, "he goes over with the chair")
+	await physics_frames(90)
+	var blows := []
+	var on_hit := func(info: Dictionary) -> void:
+		if info.get("person") == man and info.get("kind") == &"blow" and float(info.get("joules", 0.0)) > 60.0:
+			blows.append("%s %.0f J" % [info.segment, info.joules])
+	Events.body_hit.connect(on_hit)
+	var pelvis := (man.parts[&"pelvis"] as Node3D).global_position
+	man.get_up()
+	check(man.rising, "he's getting up")
+	var near := 0
+	var missed := []
+	for n: Node in get_tree().get_nodes_in_group(&"rubble"):
+		var rb := n as RigidBody3D
+		if rb == null or not world.is_ancestor_of(rb) or rb.global_position.distance_to(pelvis) > HumanBody.SPARE_RADIUS - 0.5:
+			continue
+		near += 1
+		if not man._spared.has(rb):
+			missed.append(rb.name)
+	check(near >= 3, "the chair's pieces lie about him (%d)" % near)
+	check(missed.is_empty(), "every loose piece in reach is let through his rising body (%d of %d not: %s)" % [missed.size(), near, missed.slice(0, 5)])
+	var up := await wait_until(func() -> bool: return not man.limp and not man.rising, 60 * 12)
+	Events.body_hit.disconnect(on_hit)
+	check(up, "he gets up")
+	check(blows.is_empty(), "nothing flung at him as he rose (%s)" % [blows])
+	check(man.physiology.can_stand(), "his legs his own (%s)" % man.physiology.describe())

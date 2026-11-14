@@ -267,5 +267,26 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	check(ch.seated == earl, "Earl in the west chair")
 	ch.go_loose(Vector3.ZERO, ch.global_basis.z * -80.0)
 	# Down with it, up again, and into the free north chair (the south one's broken above).
-	var sat := await wait_until(func() -> bool: return _chair("n").seated == earl, 60 * 90)
-	check(sat, "Earl sat in the free north chair within 90 s (at %s, limp %s)" % [earl.global_position, earl.limp])
+	var brain := earl.get_node(^"Brain") as CivilianBrain
+	var tl: Array = []
+	var on_hit := func(info: Dictionary) -> void:
+		tl.append("blow %s %.0fJ %s" % [info.get("segment", "?"), float(info.get("joules", 0.0)), info.get("harm", [])])
+	earl.hit.connect(on_hit)
+	var last := ""
+	var sat := false
+	for k in 60 * 90:
+		await physics_frames(1)
+		var st := "limp %s rising %s pose %s mood %d ok %s" % [earl.limp, earl.rising, earl.pose, brain.mood, earl.rise_ok]
+		if st != last:
+			last = st
+			tl.append("%d %s fear %.2f at %s" % [k, st, brain.fear, earl.global_position.snappedf(0.01)])
+		if _chair("n").seated == earl:
+			sat = true
+			break
+	earl.hit.disconnect(on_hit)
+	var chore_chair := ""
+	for c: RefCounted in brain.chores:
+		if c is SitChore:
+			chore_chair = "%s wanted %s" % [(c as SitChore).chair.name if (c as SitChore).chair and is_instance_valid((c as SitChore).chair) else "none", (c as SitChore).wanted]
+	check(sat, "Earl sat in the free north chair within 90 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
+			earl.physiology.describe(), earl.physiology.can_stand(), earl.physiology.is_conscious(), earl.physiology.shock(), earl._down_t, earl._still_t, _chair("n").seated, _chair("n").loose, chore_chair, p.global_position.snappedf(0.01), tl.slice(0, 60)])
