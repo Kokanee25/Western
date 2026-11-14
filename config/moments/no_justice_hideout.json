@@ -1,0 +1,71 @@
+{
+  "_doc": "No Justice, step 3 (#843's plan, #934): the hideout fight. The lines are docs/scripts/no_justice.json's scenes ride (trail, warn, watch) and fight (crew_alarm, crew_call, crew_hit, runs, crew_quit, joe_call, mine), said as written there (status new or bible, all PROPOSED); Joe's own fight lines (hit, down_leg, up, fled, over) are CompanionBrain's (config/companion_joe.json). From the camp's end (step 2: Joe has read the trail, nojustice.trail = hideout): you set off along it with Joe and the ride's a card (riding isn't built, #478) to the hideout, coming in the unseen way off the mesa (valley.json's mesa_back_trail) onto the slope west of the line shack, above it. Joe: 'Fresh. We are close.', then his warning (ride.warn). Up on the slope he counts them in a whisper and asks how you want it (ride.watch). You choose by doing: creep in, or open fire. The crew (the end of Kett's, C5 b: five men and Kett) are about their camp on the hideout's pad: OutlawBrains posted (`hold`), the alarm when one sees you or Joe, hears a shot, or is hit; the man who sees says the alarm (`Riders! On the hill!` with you up the slope, else `We got company!`); their calls, hits and the last man's quitting are the script's lines in their own mouths (OutlawBrain.own_lines). Kett (Silas Kett, the faded red shirt, S1: a stand-in shirt colour) has no gun on him and no fight in him: at the alarm he breaks for the shack, a man yells after him (fight.runs) and Joe calls it (joe_call); in, he shuts the door and bars it (FalseFrontBuilding.shut_door). Shot dead outside by you: 'That was mine to take.' (fight.mine). The act ends with the crew out of it (dead, down, given up or run off) and Kett barred in (nojustice.kett = holed_up; step 4 forces the door), or dead or down outside. Facts: nojustice.hideout, nojustice.kett, nojustice.started, nojustice.crew, nojustice.seen (a man got away), nojustice.joe. Started from the camp's end (NoJusticeCamp), by `-- --world=valley --mission=no_justice_hideout` (step 2 done, you and Joe at the camp's trail) or the bridge's `moment no_justice_hideout set_up=1 [arrive=1]`.",
+  "status": "PROPOSED (#934): the set, the posts, the timings and the stand-ins are this session's. Open: the hideout is open slope in the valley's ground (no canyon walls: #700's box canyon isn't in the terrain yet); no woodpile in the kit (the script's 'Behind the woodpile!' waits for one); the shack is the code's FalseFrontBuilding as a gable shack; the fire is a light and two logs.",
+  "script": "res://src/missions/no_justice_hideout.gd",
+  "place": "hideout",
+  "_frame": "Points are [east, south] metres off the place's `at` (valley.json hideout: [-450, 2020], its pad 30 x 20 at y 86), on the ground.",
+  "trail": {"_doc": "From the camp's end: walk this far on toward the hideout with Joe within `joe_m` and the ride's card comes up (or `wait_s`).", "go_m": 22.0, "joe_m": 14.0, "wait_s": 90.0},
+  "ride": {"_doc": "The card: the camp to the hideout by the mesa's back way, its length from the camp's trail end (straight to the back trail's top, then the trail) at a horse's walk; the clock goes on by it.", "back_trail": "mesa_back_trail", "from_m": 1200.0, "mps": 1.8},
+  "arrive": [-96.0, -34.0],
+  "joe_arrive": [-97.5, -36.0],
+  "watch": [-58.0, -14.0],
+  "watch_m": 7.0,
+  "close_s": 2.0,
+  "warn_s": 8.0,
+  "shack": {"_doc": "A line shack: FalseFrontBuilding as a gable shack, its front (and door) to the north; `at` its middle.", "at": [7.0, 5.0], "width": 4.2, "depth": 5.0, "wall_height": 2.3, "floor_top": 0.32, "door": [0.95, 1.95], "in": [0.0, 1.6]},
+  "fire": [-2.0, -1.0],
+  "props": [
+    {"id": "covered_wagon", "at": [-11.0, 4.0], "yaw": 80, "call": "By the wagon! Get him!"},
+    {"id": "water_barrel", "at": [-6.5, 6.5], "yaw": 0},
+    {"id": "barrel", "at": [3.0, -4.5], "yaw": 0},
+    {"id": "crate", "at": [10.5, -1.0], "yaw": 25},
+    {"id": "crate", "at": [-13.0, -3.0], "yaw": 70},
+    {"id": "hay_bale", "at": [13.0, 7.0], "yaw": 90},
+    {"id": "hay_bale", "at": [-4.0, 8.5], "yaw": 10},
+    {"id": "feed_sack", "at": [-9.0, -5.5], "yaw": 40},
+    {"id": "oil_barrel", "at": [11.0, 2.5], "yaw": 0},
+    {"id": "wagon_wheel", "at": [2.5, 7.5], "yaw": 30, "tipped": true}
+  ],
+  "horses": {"_doc": "Their horses on a picket line east of the shack, below the pad's edge, out of the line from the slope (#5: no shooting animals; a ball still hits them).", "line": [[19.0, 2.0], [19.0, 14.0]], "n": 6, "facing": [1.0, 0.0]},
+  "crew": [
+    {"id": "kett", "name": "Kett", "kett": true, "at": [-0.6, -2.4], "look": [-2.0, -1.0], "shirt": [0.62, 0.24, 0.2], "seed": 9341},
+    {"id": "crew_dutch", "name": "Dutch", "at": [-3.6, -0.3], "look": [-2.0, -1.0], "nerve": 0.75, "temper": 0.6, "leads": true, "seed": 9342},
+    {"id": "crew_boyd", "name": "Boyd", "at": [0.4, 0.6], "look": [-2.0, -1.0], "nerve": 0.6, "temper": 0.5, "seed": 9343},
+    {"id": "crew_pete", "name": "Pete", "at": [-9.0, 2.0], "look": [-14.0, 16.0], "nerve": 0.55, "temper": 0.4, "seed": 9344},
+    {"id": "crew_amos", "name": "Amos", "at": [5.6, 1.0], "look": [0.0, -6.0], "nerve": 0.65, "temper": 0.75, "seed": 9345},
+    {"id": "crew_lew", "name": "Lew", "at": [1.0, -10.0], "look": [4.0, -40.0], "nerve": 0.5, "temper": 0.4, "seed": 9346}
+  ],
+  "crew_shirts": [[0.42, 0.38, 0.32], [0.5, 0.47, 0.4], [0.33, 0.3, 0.28], [0.55, 0.5, 0.42], [0.36, 0.34, 0.3]],
+  "reach_m": 70.0,
+  "fled_m": 90.0,
+  "left_m": 260.0,
+  "kett_after_s": 0.8,
+  "kett_run": 4.2,
+  "kett_up_s": 3.0,
+  "hill_over_m": 2.5,
+  "end_after_s": 4.0,
+  "lines": {
+    "close": {"any": ["Fresh. We are close."]},
+    "warn": {"any": ["When I find him, you will not like what I do. Better you know it now."]},
+    "count": {"any": ["Five. Six. There. By the fire. The red shirt."]},
+    "how": {"any": ["How do you want it? Quiet, or now?"]},
+    "alarm_hill": {"any": ["Riders! On the hill!"]},
+    "alarm": {"any": ["We got company!"]},
+    "call_two": {"any": ["There's only two of 'em!"]},
+    "hit": {"any": ["I'm hit! God damn it!"]},
+    "leg": {"any": ["My leg! Jesus!"]},
+    "runs": {"any": ["Red! Where you going? Red, you yellow son of a bitch!"]},
+    "quit": {"any": ["I'm done! Don't shoot!"]},
+    "joe_runs": {"any": ["The red shirt. He runs."]},
+    "mine": {"any": ["That was mine to take."]}
+  },
+  "prompts": {
+    "trail": "Their trail goes on south-east, toward the rimrock: follow it with Joe.",
+    "up": "The hideout's over the brow below you. Go up quiet.",
+    "choose": "Creep in, or open fire.",
+    "barred": "The red shirt's barred himself in the shack."
+  },
+  "cards": {
+    "ride": "You ride on with Joe on their trail, the back way off the mesa. %d minutes."
+  }
+}
