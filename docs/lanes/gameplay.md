@@ -10,7 +10,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `HeadGesture`, `Act`. Waiting on Sean: #755.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md` "Step 4", "Step 5"). Cody isn't the red shirt (the red shirt, Silas
-  Kett, shot the sheriff; nobody names him yet). The morning after: Earl to the undertaker's, day folk's lines
+  Kett, raided Joe's camp; the stranger shot the sheriff, #905; nobody names either yet). The morning after: Earl to the undertaker's, day folk's lines
   by the story's facts (`talk`); the sheriff dies on the doctor's cot (`-- --mission=sheriff_dies`); the story's
   Harlan is unarmed till then. **The funeral** (#868, `-- --world=valley --mission=funeral`): the day after, at
   ten, at the cemetery; nolaw.funeral = attended / distance / missed, nolaw.offer_heard, baron.met; mourners

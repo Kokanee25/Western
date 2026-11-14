@@ -21,7 +21,7 @@ extends Node3D
 ## (BookLights: lit windows after dark, chimney smoke at meals). Built while the valley loads and kept
 ## out of the world till they're wanted (TownLife's riders, #488: a Studio man built in play is a long
 ## frame). A new person is one entry in the data.
-## A man with an `act` (No Law's red shirt and the stranger, #773) has no day: he's built with the
+## A man with an `act` (No Law's Cody and the stranger, #773) has no day: he's built with the
 ## rest and waits till that act `take`s him. A dead man stays where he lies (state &"dead"), and a
 ## man sent off by an act (`send_off`) stays home for the rest of his block.
 ##
