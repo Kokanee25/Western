@@ -1,0 +1,337 @@
+{
+  "_doc": "A touring company's travelling trunk (#903; refs experiments/prop_lab/refs/saloon_stage/): a flat-topped trunk of the 1870s-80s, 34 x 20 in and 24 in high, a pine box covered in painted canvas gone dull, bound with oak slats, tin corner clamps, a brass lock and hasp, leather end handles; its lid 5 in deep on two hinges at the back (the kit's hinges, the strongbox's: `open_hinge(\"lid\")`, it stands open on its stays at 102 degrees); costumes folded in it (a red satin, a spangled bodice, white muslin, a wig). Bought second-hand, the paint worn through at the edges. Boards `weathered_pine`, the costumes `canvas` (they burn). Its box, slats and fittings baked the gun way (tools/blender/props/saloon_stage.py). The back at -z. 7 physics bodies. ~21 kg with what's in it. Saloon B: one in the dressing room (room_6) at the foot of the wall, one in the wing beside the stage (open, the night's costumes). Written by tools/props/saloon_stage.py.",
+  "id": "travelling_trunk",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "hinges": {
+    "lid": {
+      "members": [
+        "lid"
+      ],
+      "axis": [
+        [
+          -0.43,
+          0.47,
+          -0.25
+        ],
+        [
+          0.43,
+          0.47,
+          -0.25
+        ]
+      ],
+      "open": -102.0,
+      "on": [
+        "back"
+      ]
+    }
+  },
+  "members": [
+    {
+      "id": "bottom",
+      "kind": "post",
+      "size": [
+        0.86,
+        0.02,
+        0.5
+      ],
+      "at": [
+        0.0,
+        0.01,
+        0.0
+      ],
+      "look": "pbr:travelling_trunk",
+      "draw": {
+        "shape": "mesh",
+        "model": "travelling_trunk",
+        "part": "Bottom"
+      },
+      "dress": [
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "Skids"
+          }
+        }
+      ]
+    },
+    {
+      "id": "front",
+      "kind": "board",
+      "size": [
+        0.86,
+        0.45,
+        0.014
+      ],
+      "at": [
+        0.0,
+        0.245,
+        0.243
+      ],
+      "look": "pbr:travelling_trunk",
+      "draw": {
+        "shape": "mesh",
+        "model": "travelling_trunk",
+        "part": "Front"
+      },
+      "dress": [
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "FrontSlats"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "FrontTin"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "Lock"
+          }
+        }
+      ]
+    },
+    {
+      "id": "back",
+      "kind": "board",
+      "size": [
+        0.86,
+        0.45,
+        0.014
+      ],
+      "at": [
+        0.0,
+        0.245,
+        -0.243
+      ],
+      "look": "pbr:travelling_trunk",
+      "draw": {
+        "shape": "mesh",
+        "model": "travelling_trunk",
+        "part": "Back"
+      },
+      "dress": [
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "BackSlats"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "BackTin"
+          }
+        }
+      ]
+    },
+    {
+      "id": "end_l",
+      "kind": "board",
+      "size": [
+        0.014,
+        0.45,
+        0.472
+      ],
+      "at": [
+        -0.423,
+        0.245,
+        0.0
+      ],
+      "look": "pbr:travelling_trunk",
+      "draw": {
+        "shape": "mesh",
+        "model": "travelling_trunk",
+        "part": "EndL"
+      },
+      "dress": [
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "EndLSlats"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "EndLTin"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "HandleL"
+          }
+        }
+      ]
+    },
+    {
+      "id": "end_r",
+      "kind": "board",
+      "size": [
+        0.014,
+        0.45,
+        0.472
+      ],
+      "at": [
+        0.423,
+        0.245,
+        0.0
+      ],
+      "look": "pbr:travelling_trunk",
+      "draw": {
+        "shape": "mesh",
+        "model": "travelling_trunk",
+        "part": "EndR"
+      },
+      "dress": [
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "EndRSlats"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "EndRTin"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "HandleR"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lid",
+      "kind": "trim",
+      "size": [
+        0.86,
+        0.13,
+        0.5
+      ],
+      "at": [
+        0.0,
+        0.535,
+        0.0
+      ],
+      "look": "pbr:travelling_trunk",
+      "draw": {
+        "shape": "mesh",
+        "model": "travelling_trunk",
+        "part": "Lid"
+      },
+      "solid": 0.17,
+      "dress": [
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "LidSlats"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "LidTin"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "Hasp"
+          }
+        }
+      ]
+    },
+    {
+      "id": "costumes",
+      "kind": "trim",
+      "size": [
+        0.8,
+        0.26,
+        0.44
+      ],
+      "at": [
+        0.0,
+        0.15,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "pbr:travelling_trunk",
+      "draw": {
+        "shape": "mesh",
+        "model": "travelling_trunk",
+        "part": "Costumes"
+      },
+      "solid": 0.5,
+      "dress": [
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "CostumesWhite"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "CostumesDark"
+          }
+        },
+        {
+          "look": "pbr:travelling_trunk",
+          "draw": {
+            "shape": "mesh",
+            "model": "travelling_trunk",
+            "part": "Spangles"
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/saloon_stage.py"
+}

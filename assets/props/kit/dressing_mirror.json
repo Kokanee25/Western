@@ -1,0 +1,333 @@
+{
+  "_doc": "A performer's dressing mirror (#903; Sean 2026-11-13, a backstage 'with mirrors and shit'; refs experiments/prop_lab/refs/saloon_stage/): a plain painted pine dressing table, 36 x 18 in and 29 in high, and behind it on two old oak standards from the floor a tall glass 30 x 40 in in a moulded frame, a narrow shelf at its foot for the paint (greasepaint sticks and tins, a powder box, a rouge pot, a hare's foot); on the table a tin candlestick, a comb and a hand glass. Second-hand, worn. The glass by the back bar's route (a member of kind `glass`, the painted mirror `prop:mirror`): a ball or a blast breaks it as a window; it stands on the shelf and comes down with it. The table, standards and rails from the material library (painted pine a few years; oak old); the frame, finials and the things on it baked the gun way (tools/blender/props/saloon_stage.py). The wall behind at z = -0.29, the room toward +z. 13 physics bodies (its members). ~25 kg. Saloon B's dressing room (room_6), against its wall. Written by tools/props/saloon_stage.py.",
+  "id": "dressing_mirror",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "weathered_pine",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.715,
+        0.045
+      ],
+      "at": [
+        -0.42,
+        0.3575,
+        0.19
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.715,
+        0.045
+      ],
+      "at": [
+        0.42,
+        0.3575,
+        0.19
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.715,
+        0.045
+      ],
+      "at": [
+        -0.42,
+        0.3575,
+        -0.19
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.715,
+        0.045
+      ],
+      "at": [
+        0.42,
+        0.3575,
+        -0.19
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "apron_f",
+      "kind": "furniture_frame",
+      "size": [
+        0.795,
+        0.1,
+        0.02
+      ],
+      "at": [
+        0.0,
+        0.665,
+        0.2025
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "apron_b",
+      "kind": "furniture_frame",
+      "size": [
+        0.795,
+        0.1,
+        0.02
+      ],
+      "at": [
+        0.0,
+        0.665,
+        -0.2025
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        0.92,
+        0.025,
+        0.46
+      ],
+      "at": [
+        0.0,
+        0.7275,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top",
+      "dress": [
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "TopThings"
+          }
+        },
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "Candle"
+          }
+        },
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "HandGlass"
+          }
+        }
+      ]
+    },
+    {
+      "id": "standard_l",
+      "kind": "post",
+      "size": [
+        0.05,
+        1.9,
+        0.04
+      ],
+      "at": [
+        -0.42,
+        0.95,
+        -0.255
+      ],
+      "look": "lib:furniture_oak/old",
+      "dress": [
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "Frame"
+          }
+        }
+      ]
+    },
+    {
+      "id": "standard_r",
+      "kind": "post",
+      "size": [
+        0.05,
+        1.9,
+        0.04
+      ],
+      "at": [
+        0.42,
+        0.95,
+        -0.255
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "rail",
+      "kind": "furniture_frame",
+      "size": [
+        0.79,
+        0.08,
+        0.035
+      ],
+      "at": [
+        0.0,
+        0.8,
+        -0.255
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "shelf",
+      "kind": "board",
+      "size": [
+        0.79,
+        0.018,
+        0.12
+      ],
+      "at": [
+        0.0,
+        0.849,
+        -0.215
+      ],
+      "look": "lib:furniture_oak/old/top",
+      "dress": [
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "Tins"
+          }
+        },
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "Sticks"
+          }
+        },
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "Rouge"
+          }
+        },
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "Powder"
+          }
+        },
+        {
+          "look": "pbr:dressing_mirror",
+          "draw": {
+            "shape": "mesh",
+            "model": "dressing_mirror",
+            "part": "HareFoot"
+          }
+        }
+      ]
+    },
+    {
+      "id": "glass",
+      "kind": "glass",
+      "size": [
+        0.75,
+        1.0,
+        0.006
+      ],
+      "at": [
+        0.0,
+        1.358,
+        -0.268
+      ],
+      "wood": "glass",
+      "look": "prop:mirror",
+      "draw": {
+        "shape": "cut",
+        "plane": "xy",
+        "outline": [
+          [
+            -0.375,
+            -0.5
+          ],
+          [
+            0.375,
+            -0.5
+          ],
+          [
+            0.375,
+            0.44
+          ],
+          [
+            0.367,
+            0.47
+          ],
+          [
+            0.345,
+            0.492
+          ],
+          [
+            0.315,
+            0.5
+          ],
+          [
+            -0.315,
+            0.5
+          ],
+          [
+            -0.345,
+            0.492
+          ],
+          [
+            -0.367,
+            0.47
+          ],
+          [
+            -0.375,
+            0.44
+          ]
+        ]
+      }
+    },
+    {
+      "id": "head",
+      "kind": "furniture_frame",
+      "size": [
+        0.79,
+        0.04,
+        0.035
+      ],
+      "at": [
+        0.0,
+        1.88,
+        -0.255
+      ],
+      "look": "lib:furniture_oak/old"
+    }
+  ],
+  "factory": "tools/props/saloon_stage.py"
+}
