@@ -1,0 +1,14 @@
+{
+ "id": "Rock030",
+ "source": "ambientcg",
+ "licence": "CC0 1.0",
+ "page": "https://ambientcg.com/view?id=Rock030",
+ "metres": null,
+ "maps": [
+  "albedo",
+  "normal",
+  "rough"
+ ],
+ "fetched": "2026-11-13",
+ "lossless": 2
+}

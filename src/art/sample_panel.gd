@@ -66,6 +66,9 @@ func build() -> void:
 			_floor_room(MaterialLibrary.entry(ROOM_FLOOR), CLASSES[&"common"], ai, CLASSES[&"common"]["warp"][ai])
 			_chest(cls, warp)
 			return
+		"stone", "plaster":
+			_stone_wall(ai)
+			return
 	var wall := _part(&"wall")
 	var layout := String(entry.get("layout", "lap"))
 	var bw: float = float(entry.get("board_w", 0.15))
@@ -398,3 +401,74 @@ static func board_mesh(length: float, width: float, thick: float, seed: float, w
 	# The warp moves a few millimetres: room for it in the culling box.
 	mesh.custom_aabb = AABB(Vector3(-0.02, -hw - 0.02, -ht - 0.02), Vector3(length + 0.04, width + 0.04, thick + 0.04))
 	return mesh
+
+
+# --- stone and lime (#860, #857) ---------------------------------------------------------------------
+
+## A stone panel's wall: 2.2 m of the builder's pieces (rows 0.6 m, pieces up to 1 m, staggered) on a
+## foot 0.3 m in the ground, its face at z 0 toward -Z, 0.56 thick, a dressed coping on top proud of
+## the face and past the wall's free end at x 2 (its corner: quoins), all drawn by StoneFinish as a
+## building's stone. A plaster entry's panel is the same wall seen from a room (its face the region's),
+## with a worn fir floor before it.
+const STONE_TOP := 2.2
+const STONE_T := 0.56
+
+func _stone_wall(ai: int) -> void:
+	var wall := _part(&"wall")
+	var plaster := String(entry.get("family", "")) == "plaster"
+	var boxes := []
+	var dressed := []
+	var rows := [-0.3, 0.3, 0.9, 1.5, STONE_TOP - 0.1, STONE_TOP]
+	for r in rows.size() - 1:
+		var y0: float = rows[r]
+		var y1: float = rows[r + 1]
+		var coping := r == rows.size() - 2
+		var cuts := [0.0]
+		var x := 0.35 if r % 2 == 1 else 0.0
+		while true:
+			x += _rng.randf_range(0.55, 1.0) if coping else 1.0
+			if x >= wall_size.x - 0.2:
+				break
+			cuts.append(x)
+		cuts.append(wall_size.x)
+		for k in cuts.size() - 1:
+			var a: float = cuts[k]
+			var e: float = cuts[k + 1]
+			var z0 := 0.0
+			var top := y1
+			if coping:
+				z0 = -0.04
+				top += _rng.randf_range(-0.005, 0.005)
+				if k == cuts.size() - 2:
+					e += 0.04
+			boxes.append(AABB(Vector3(a, y0, z0), Vector3(e - a, top - y0, STONE_T - z0)))
+			dressed.append(coping)
+	var faces := StoneFinish.exposed(boxes)
+	var mat := StoneFinish.material(MaterialLibrary.entry("rubble_stone") if plaster else entry, AGES[age_name], AGES[age_name])
+	var inv := global_transform.affine_inverse() if is_inside_tree() else Transform3D()
+	var regions := []
+	if plaster:
+		regions = [{"rect": [-1.0, -3.0, 3.0, -0.02], "y": [0.0, 2.6], "finish": String(entry.get("id", "plaster_whitewash"))}]
+	var drips := [] if plaster else [[Vector2(0.0, 0.0), Vector2(wall_size.x + 0.04, 0.0), STONE_TOP, Vector2(0.0, -1.0), 2.5]]
+	StoneFinish.set_space(mat, inv, [0.0, 0.0, 0.0], regions, [] if plaster else [Vector2(wall_size.x, 0.0)], drips)
+	for i in boxes.size():
+		var b: AABB = boxes[i]
+		var mi := MeshInstance3D.new()
+		var seed := _rng.randf()
+		mi.mesh = StoneFinish.piece_mesh(b.size, faces[i], (0.015 if dressed[i] else 0.02 + 0.025 * seed), seed, dressed[i])
+		mi.material_override = mat
+		mi.position = b.get_center()
+		wall.add_child(mi)
+		boards += 1
+	if plaster:
+		# A worn fir floor before the wall (FL1, the floors' entry).
+		var fe := MaterialLibrary.resolved(MaterialLibrary.entry(ROOM_FLOOR))
+		var fl := _part(&"floor")
+		var cls: Dictionary = CLASSES[&"common"]
+		var basis := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
+		var z := -0.01
+		while z > -FLOOR_D * 2.0:
+			var w := float(fe.get("board_w", 0.14))
+			_board(fl, Transform3D(basis, Vector3(-0.3, FLOOR_Y + 0.015, z - w * 0.5)), wall_size.x + 0.6, w, 0.03, float(cls["warp"][ai]), Vector2(2, 0.6), &"floor", 0.0, Vector2.ZERO, fe)
+			z -= w + 0.004
+

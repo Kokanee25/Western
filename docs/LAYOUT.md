@@ -550,6 +550,11 @@ real look RoomLight is on whatever `Settings.room_light` says.
 - `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
   clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
   lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
+  **The story (#864):** a reload (`reset`, `reload_scene`: Backspace, the look's I/M, the bridge's
+  `world`) is a fresh start and wipes StoryState (`clear_statics` = `clear_world` + `StoryState.wipe`);
+  a mission's retry (`GameReset.retry`: the coach's and the farmhouse's Enter) reloads with the story
+  at the mission's checkpoint (`StoryState.mark_checkpoint()` as each mission begins;
+  `clear_for_retry`). A save's load (after the slice) will be the retry's shape, never a wipe.
 - `GameQuit` (`game_quit.gd`, #435): every way out (the window's close, the smoke test, the soak,
   the bridge's `quit`) goes `GameQuit.quit(tree, code)`: `quitting` up; if a task of ours runs
   (`in_flight`: shadow merges, analyses, the fire's check, the sound warm-up, smoke steps) the tree
@@ -615,6 +620,12 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/world
 
+- `WorldPlaces` (`world_places.gd`, #864): where things are in whichever world is loaded. `wake_spots`
+  (knocked out: the valley's doctor's `bedside`, else the general store's walk, ValleyWorld.wake_spots;
+  the old town's `DoctorInside`/`StoreInside`; none: where you fell) and `street_spot` (the outlaws'
+  call-out spot on the loaded Main Street). ValleyWorld is in group `valley_world`; a Moment's
+  `places()` in the valley are the valley's. `ValleyLayout.place` errors on an unknown id (`has_place`
+  to ask). `tests/test_world_places.gd`.
 - `World` (`src/world/world.gd`): the determinism rules (docs/briefs/more-cores.md "The design" F).
   `World.space(node)` is the only way to the physics space; a debug build errors once a site when
   it's asked outside the physics frame (the test runner fails on it: fire a shot or a query from
@@ -1406,7 +1417,8 @@ Earl's chair; over him Cody aims and fires (a real ball at his head: Ballistics,
 `shot_fired`; again if he lives), "no law", holsters and walks out by `out`; 1.6 s on the barman's
 line (the hush down to `hush_s`). After (`after` state, also on `cody_down` and stalls): the stranger's
 word, you let go, he and Cody walk off and are taken out of the world once clear of the table and out
-of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun, earl, done),
+of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun once Cody's in, earl,
+done; over before he came in, `played` false: nothing written, and ValleyFolk tries again a minute on),
 `nolaw.seen_from` (table, yard, heard, away), `nolaw.witnessed`, `nolaw.earl`. Cody (#796: not the red shirt;
 the role `cody`, the blacksmith's model) shouts his accusation as he's taken in off the street; the stranger's
 warning `warn_after_s` after it.
@@ -2245,6 +2257,14 @@ pine, FN3 walnut) carry `furniture`: rubbed arrises, grease round pulls (role 2,
 `lib:<entry>/<age>/front`), dust on tops, duller varnish in patches; their scans mapped small.
 `panel_class` names the boards' class where `class` is the family. `--panels=floor` (SamplePanel's floor
 room: a painted wall, a doorway, a path) and `--panels=furniture` (a chest of drawers on the fir floor).
+**Stone and lime** (#860, #857 1a): family `stone` (S1 `rubble_stone`) and `plaster` (PL1 `plaster_whitewash`,
+PL2 `rubble_whitewash`) drawn by `src/render/rubble_stone.gdshader` (a procedural rubble height field in the
+building's space, the scans `face_scan`/`plaster_scan` under it; quoins at `corners`, `drips` streaks,
+inside `regions` by floor height and finish). `StoneFinish` (`src/art/stone_finish.gd`) makes the material,
+sets its space and gives each stone member a chamfered mesh (`piece_mesh`, `exposed`); `SpecBuilding._stone_finish`
+uses it only once the spec's `materials.stone.want` is approved (or `"trial": true`, lab only, never committed).
+`--panels=stone|plaster` (SamplePanel's `_stone_wall`). Not yet approved: two judge rounds failed on the
+screen-space bump's drawn outlines (`docs/screenshots/judge/2026-11-13_stone_r*`).
 
 ## src/props/prop_models.gd
 
@@ -2469,6 +2489,15 @@ the bridge's `stand` and `prop_light`).
 
 ## Characters by image-to-3D (tools/characters)
 
+- **Private people: MetaHumans** (#889): the Character Studio's `tools/metahuman_to_game.sh <build>`
+  lays a MetaHuman into the git-ignored `assets/people/private/` (never committed: the licence, #692);
+  his model is `private/<build>`, his lighter levels `private/<build>_lod1..3` (reports only:
+  `PeopleBodies.glb_of`, `simplified`, `thin_cards` cut them from his GLB at load). His report's
+  `alpha_cut` (the grooms' coverage, `body_skin`'s `alpha_cut`), `wears` (BodyMesh's hat on a whole
+  man) and `under_hat`. `tools/characters/private_people.gd` builds each level as the game does;
+  `tools/characters/metahuman_bench.py` is the valley bench with him as the townsfolk
+  (perf_bench `--folk-model=`, `--folk-far-model=`, `--folk-dress`). Report:
+  `docs/reviews/2026-11-metahumans-town.md`.
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` paints each man in `characters.json` full length
   in an A-pose, clean (Tripo wants a smooth picture; the squares are made last). **The fal

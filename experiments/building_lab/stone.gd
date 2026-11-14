@@ -33,6 +33,10 @@ var sw: Dictionary
 var plane: Array
 var floor_top: float
 var walls_by_id := {}
+## The drip lines (#860: streaks under them): [Vector2 a, Vector2 b, y, Vector2 out, length], in x, z.
+var drips := []
+## The footprints the corners are found from: [origin, along, out, length, d_lo, d_hi].
+var _prints := []
 
 
 func _init(building: Node) -> void:
@@ -77,6 +81,8 @@ func build() -> void:
 	b.band = 1
 	_yard_walls()
 	b.band = 0
+	b.set_meta(&"stone_corners", _corners())
+	b.set_meta(&"stone_drips", drips)
 
 
 # --- the walls ------------------------------------------------------------------------------------
@@ -124,20 +130,54 @@ func _stone_wall(w: Dictionary) -> void:
 		var r := Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), float(o.height))
 		holes.append({"r": r, "j": j, "sill": o.type == "window" and float(o.get("sill", 0.0)) > 0.4, "lintel": true, "o": o})
 		j += 1
-	_lay(wall, String(w.id), 0.0, float(wall.length), float(w.top), w.profile, w.get("ends", [null, null]), holes, [floor_top])
+	var steps: Array = w.get("parapet_steps", [])
+	_lay(wall, String(w.id), 0.0, float(wall.length), float(w.top), w.profile, w.get("ends", [null, null]), holes, [floor_top], steps)
 	_dress_openings(w, wall, holes)
+	if float((w.profile as Array)[0][2]) <= 0.0:
+		var band := band_at(w.profile, floor_top + 1.0)
+		_prints.append([wall.origin, wall.along, wall.out, float(wall.length), band.x, band.y])
+	# The sills' drips: down the face from each window's sill.
+	var o3: Vector3 = wall.origin
+	var al: Vector3 = wall.along
+	var ou: Vector3 = wall.out
+	for h: Dictionary in holes:
+		if h.sill:
+			var r: Rect2 = h.r
+			var pa := o3 + al * (r.position.x - 0.1)
+			var pb := o3 + al * (r.end.x + 0.1)
+			drips.append([Vector2(pa.x, pa.z), Vector2(pb.x, pb.z), r.position.y, Vector2(ou.x, ou.z), 1.8])
 
 
 ## Lay a wall's run from s_lo to s_hi up to `top` in rows of pieces (see the top).
-func _lay(wall: Dictionary, id: String, s_lo: float, s_hi: float, top: float, profile: Array, ends: Array, holes: Array, extra: Array) -> void:
+func _lay(wall: Dictionary, id: String, s_lo: float, s_hi: float, top: float, profile: Array, ends: Array, holes: Array, extra: Array, steps: Array = []) -> void:
 	var course := float(sw.course)
 	var piece := float(sw.piece)
 	var below := float(sw.footing_below)
 	var coping := float(sw.coping.height)
 	var lintel_h := float(sw.lintel.height)
 	var sill_h := float(sw.sill.height)
+	# #860: the dressed stones proud of the face (the spec's `dress`; without it, flush as before).
+	var dress: Dictionary = sw.get("dress", {})
+	var proud_sill := float(sw.sill.get("proj", 0.0)) if not dress.is_empty() else 0.0
+	var proud_lintel := float(dress.get("lintel", 0.0))
+	var proud_coping := float(sw.coping.get("proj", 0.0)) if not dress.is_empty() else 0.0
+	var coping_len: Array = dress.get("coping_len", [])
+	var coping_jit := float(dress.get("coping_jitter", 0.0))
+	# #857 pick 2a: the parapet stepped (the spec's `parapet_steps` [s0, s1, top]: higher over the
+	# door, piers at the corners); the wall's top at s is the highest step over it, else `top`.
+	var top_at := func(s: float) -> float:
+		var t := top
+		for st: Array in steps:
+			if s > float(st[0]) - 0.0001 and s < float(st[1]) + 0.0001:
+				t = maxf(t, float(st[2]))
+		return t
+	var max_top := top
+	for st: Array in steps:
+		max_top = maxf(max_top, float(st[2]))
 	# The levels every row breaks at, then the courses between them.
 	var special: Array[float] = [top, top - coping]
+	for st: Array in steps:
+		special.append_array([float(st[2]), float(st[2]) - coping])
 	for e: float in extra:
 		special.append(e)
 	for p: Array in profile:
@@ -156,10 +196,10 @@ func _lay(wall: Dictionary, id: String, s_lo: float, s_hi: float, top: float, pr
 		lowest = minf(lowest, _foot(wall, s, profile))
 	var levels: Array[float] = []
 	for y in special:
-		if y < top + 0.001:
+		if y < max_top + 0.001:
 			levels.append(y)
 	var y := floorf(lowest / course) * course
-	while y < top - coping - 0.05:
+	while y < max_top - coping - 0.05:
 		var near := false
 		for sp in special:
 			if absf(sp - y) < 0.25:
@@ -199,8 +239,29 @@ func _lay(wall: Dictionary, id: String, s_lo: float, s_hi: float, top: float, pr
 				cuts.append_array([r.position.x - 0.1, r.end.x + 0.1])
 				named[snappedf(r.position.x - 0.1, 0.001)] = "%s/opening%d/sill" % [id, h.j]
 				whole.append(Vector2(r.position.x - 0.1, r.end.x + 0.1))
+		# The steps' edges cut every row they rise through (from the base coping up).
+		for st: Array in steps:
+			if yb > top - coping + 0.001:
+				for se in [float(st[0]), float(st[1])]:
+					if se > s0 + 0.001 and se < s1 - 0.001:
+						cuts.append(se)
+						whole.append(Vector2(se, se))
+		# The coping's stones of uneven lengths (#860), from a seed of the wall's and the row's.
+		var is_coping_row := false
+		for tt in [top] + steps.map(func(st: Array) -> float: return float(st[2])):
+			if absf(yb - tt) < 0.002 and ya > tt - coping - 0.002:
+				is_coping_row = true
+		if is_coping_row and coping_len.size() == 2:
+			var rng := RandomNumberGenerator.new()
+			rng.seed = hash([id, row])
+			var cg := s0 + rng.randf_range(float(coping_len[0]), float(coping_len[1])) * 0.6
+			while cg < s1 - 0.2:
+				cuts.append(cg)
+				cg += rng.randf_range(float(coping_len[0]), float(coping_len[1]))
 		var off := piece * 0.5 if row % 2 == 1 else 0.0
 		var g := floorf((s0 - off) / piece) * piece + off
+		if is_coping_row and coping_len.size() == 2:
+			g = s1  # (the coping's own cuts, not the stagger)
 		while g < s1:
 			var inside := false
 			for wsp: Vector2 in whole:
@@ -221,6 +282,9 @@ func _lay(wall: Dictionary, id: String, s_lo: float, s_hi: float, top: float, pr
 		for k in keep.size():
 			var c := keep[k]
 			var is_grid := not (c in [s0, s1])
+			for st: Array in steps:
+				if absf(c - float(st[0])) < 0.0015 or absf(c - float(st[1])) < 0.0015:
+					is_grid = false
 			for h: Dictionary in holes:
 				var r: Rect2 = h.r
 				for e in [r.position.x, r.end.x, r.position.x - float(sw.lintel.bear), r.end.x + float(sw.lintel.bear), r.position.x - 0.1, r.end.x + 0.1]:
@@ -250,6 +314,10 @@ func _lay(wall: Dictionary, id: String, s_lo: float, s_hi: float, top: float, pr
 						hole = true
 			if hole or cap - bottom < 0.03:
 				continue
+			var t_here: float = top_at.call(m)
+			if ya >= t_here - 0.001:
+				continue
+			cap = minf(cap, t_here)
 			var foot := _foot(wall, m, profile)
 			if cap <= foot + 0.02:
 				continue
@@ -257,7 +325,31 @@ func _lay(wall: Dictionary, id: String, s_lo: float, s_hi: float, top: float, pr
 			var name: String = named.get(snappedf(a, 0.001), "")
 			if name == "":
 				name = "%s/r%02d/%02d" % [id, row, n]
-			b._wall_member(name, &"sill", STONE, wall, a, e, bottom, cap, d.x, d.y)
+			var coping_piece := absf(cap - t_here) < 0.002 and ya > t_here - coping - 0.002
+			var dlo := d.x
+			var dhi := d.y
+			var pa := a
+			var pe := e
+			var top_y := cap
+			if name.ends_with("/sill"):
+				dhi += proud_sill
+			elif name.ends_with("/lintel"):
+				dhi += proud_lintel
+			elif coping_piece and proud_coping > 0.0:
+				dhi += proud_coping
+				# Past a free end too, so the corner's coping stands proud both ways.
+				if absf(a - s0) < 0.001 and s_lo < 0.001 and (ends.size() < 1 or ends[0] == null):
+					pa -= proud_coping
+				if absf(e - s1) < 0.001 and s_hi > float(wall.length) - 0.001 and (ends.size() < 2 or ends[1] == null):
+					pe += proud_coping
+				var jr := RandomNumberGenerator.new()
+				jr.seed = hash(name)
+				top_y = cap + jr.randf_range(-coping_jit, coping_jit)
+			var mm: StructureMember = b._wall_member(name, &"sill", STONE, wall, pa, pe, bottom, top_y, dlo, dhi)
+			if coping_piece:
+				mm.set_meta(&"dressed", true)
+				if float(profile[0][2]) <= 0.0:
+					_coping_drip(wall, pa, pe, top_y, dhi)
 			n += 1
 		row += 1
 
@@ -297,6 +389,56 @@ func _dress_openings(w: Dictionary, wall: Dictionary, holes: Array) -> void:
 				b._glass(wall, light)
 				b._bars(wall, light)
 			b._leaf(wall, lr, String(o.get("leaf", "inward")) == "outward", -t)
+
+
+## A coping stone's drip: down the wall's outer face under it, merged with the stone before it when
+## they meet at one height.
+func _coping_drip(wall: Dictionary, a: float, e: float, y: float, d: float) -> void:
+	var o3: Vector3 = wall.origin
+	var al: Vector3 = wall.along
+	var ou: Vector3 = wall.out
+	var pa := o3 + al * a
+	var pb := o3 + al * e
+	var A := Vector2(pa.x, pa.z)
+	var B := Vector2(pb.x, pb.z)
+	var out2 := Vector2(ou.x, ou.z)
+	if not drips.is_empty():
+		var last: Array = drips.back()
+		if (last[1] as Vector2).distance_to(A) < 0.01 and absf(float(last[2]) - y) < 0.02 and (last[3] as Vector2).is_equal_approx(out2):
+			last[1] = B
+			return
+	drips.append([A, B, y, out2, 2.5])
+
+
+## The building's and the yard's convex corners (x, z): each free end of a wall's outer face where
+## the face turns a corner, not where it runs on into another wall's (the quoins go there).
+func _corners() -> Array:
+	var out := []
+	for p: Array in _prints:
+		var o: Vector3 = p[0]
+		var al: Vector3 = p[1]
+		var ou: Vector3 = p[2]
+		var L: float = p[3]
+		for k in 2:
+			var pt := o + al * (0.0 if k == 0 else L)
+			var e := al * (-1.0 if k == 0 else 1.0)
+			# Just past the end inside the wall's thickness, and on the face just short of the end.
+			if _inside_print(pt + e * 0.05 - ou * 0.05, p) or _inside_print(pt - e * 0.1 + ou * 0.05, p):
+				continue
+			out.append(Vector2(pt.x, pt.z))
+	return out
+
+
+func _inside_print(q: Vector3, skip: Array) -> bool:
+	for p: Array in _prints:
+		if p == skip:
+			continue
+		var rel: Vector3 = q - (p[0] as Vector3)
+		var s := rel.dot(p[1])
+		var d := rel.dot(p[2])
+		if s > -0.001 and s < float(p[3]) + 0.001 and d > float(p[4]) - 0.001 and d < float(p[5]) + 0.001:
+			return true
+	return false
 
 
 # --- floors, the cells' flags, the girders --------------------------------------------------------
@@ -561,6 +703,7 @@ func _yard_walls() -> void:
 	for w: Dictionary in yw.walls:
 		var wall := _wall_dict(w)
 		var L := float(wall.length)
+		_prints.append([wall.origin, wall.along, wall.out, L, -t, 0.0])
 		var holes := []
 		for g: Dictionary in w.get("gates", []):
 			var s := float(g.at)
@@ -574,7 +717,13 @@ func _yard_walls() -> void:
 			var m: Vector3 = (wall.origin as Vector3) + (wall.along as Vector3) * ((a + e) * 0.5)
 			var top := snappedf(ground(m.x, m.z) + hgt, 0.05)
 			var ends := [w.ends[0] if k == 0 else null, w.ends[1] if k == n - 1 else null]
+			var before := drips.size()
 			_lay(wall, "%s/%d" % [w.id, k], a, e, top, profile, ends, holes, [])
+			# Its inside face streaks too (the yard's side).
+			for di in range(before, drips.size()):
+				var dl: Array = drips[di]
+				var inn := -(dl[3] as Vector2)
+				drips.append([(dl[0] as Vector2) + inn * t, (dl[1] as Vector2) + inn * t, dl[2], inn, dl[4]])
 		# The gates' leaves, two to a gate, standing open into the yard against the wall.
 		for g: Dictionary in w.get("gates", []):
 			var s := float(g.at)
@@ -587,6 +736,8 @@ func _yard_walls() -> void:
 				var hinge := s + (gw * 0.5 + 0.02) * (-1 if e == 0 else 1)
 				var lw := gw * 0.5 - 0.04
 				var c: Vector3 = (wall.origin as Vector3) + (wall.along as Vector3) * hinge + into * (t + lw * 0.5)
-				c.y = gy + 1.2
-				var size: Vector3 = into.abs() * lw + Vector3.UP * 2.4 + (wall.along as Vector3).abs() * 0.05
+				# A leaf the wall's height less a hand (#857 pick 3b: a 7 ft wall, a 7 ft gate), at most 8 ft.
+				var lh := minf(2.4, hgt - 0.1)
+				c.y = gy + lh * 0.5
+				var size: Vector3 = into.abs() * lw + Vector3.UP * lh + (wall.along as Vector3).abs() * 0.05
 				b.add_member("gate/%s_%d_%d" % [w.id, int(s * 10), e], &"door", &"painted_rust", size, c)

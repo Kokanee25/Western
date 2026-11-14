@@ -97,9 +97,13 @@ func _finish(final_state: StringName) -> void:
 	finished.emit(self)
 
 
-## The places by name (the town's, else the test street's).
+## The places by name: the town's, the valley's in the valley (#864), else the test street's.
 func places() -> Waypoints:
-	return town.places if town != null else Waypoints.test_street()
+	if town != null:
+		return town.places
+	if street is ValleyWorld:
+		return (street as ValleyWorld).places()
+	return Waypoints.test_street()
 
 
 ## A point from the data: a place's name, else [x, y, z].
