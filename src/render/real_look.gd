@@ -85,6 +85,11 @@ func _ready() -> void:
 		if a.begins_with("--aa="):
 			aa = "taa" if a.substr(5) == "taa" else "fsr2"
 	process_priority = 100  # after DayCycle and the light looks have set this frame's light
+	# Our own sky, its light, clouds and the valley's far land (#918), while the real look is on.
+	if RealSky.enabled:
+		var sky := RealSky.new()
+		sky.name = "RealSky"
+		add_child(sky)
 	# At once when the switch moves (a preset's later values, view.* say, then go over it).
 	Settings.changed.connect(_sync)
 	_sync.call_deferred()

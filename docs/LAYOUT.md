@@ -510,6 +510,36 @@ taken once at noon) taken again when the room's light changes. By day nothing ye
 empty: R1's haze and shade read as washed noon to the cheap judge, round 2).
 Trials: `screenshots.gd --variants=` files that set `settings.real_look` first, then the dials.
 
+**The real sky** (#918; `RealSky`, RealLook's child; dials `config/looks/real_sky.json`; `tests/test_real_sky.gd`).
+Under the real look it swaps our own sky in for the painted one on the world's Sky (`-- --painted-sky`:
+the before) and lights the world from it each frame after DayCycle (process priority 101): `SkyModel`
+(`src/render/sky_model.gd`: Hillaire 2020 / Bruneton 2017 air, dust and ozone, a 128x32 transmittance
+table, CPU single scattering for the fog and clouds, the moon's phase, Allen's phase law, the stars'
+frame) gives the sun's colour and energy (what the air leaves of it), the moon's (phase by date: day 1
+full, so every shot keeps its moon; it rides `(phase - 0.5) * 24.8` h behind DayCycle's full-moon
+path), the fog's colour (the horizon's radiance; density x `light.fog`, x `fog_far` with far land), the
+ambient (the sky's own radiance, contribution 1). `src/render/real_sky.gdshader` draws it: the
+scattering at quarter size (Rayleigh, Mie, ozone, multiple scattering as a share), sun disk and glare,
+the moon lit from its phase, airglow, stars on a cube grid (PCG hash) and the Milky Way turning round
+the pole (opposite the noon sun, `sun_tilt_degrees` up). Its uniforms are named apart from the painted
+sky's (DayCycle keeps sending `sun_dir`/`moon_dir`/`star_strength` to whatever sky is in place); it
+reads no `POSITION` (a sky that does is re-lit whenever the camera moves: `eye_height` in 25 m steps).
+`sky.<uniform>` addresses reach it while it's on; `sky.coverage` is the clouds' coverage.
+**The clouds** (`src/render/cloud_layer.gdshader`): a dome kept on the camera, drawn at the back of the
+depth range (behind everything, over the sky), a flat sheet `height` m up, two scales of a tiling noise
+and a broad one bunching them, Beer and powder along the light (Schneider 2015), lit by the sun at a
+third of their height, then the moon; `coverage` (RealSky.set_coverage(to, seconds), for weather)
+dims the sun (`overcast_sun`), fades its shadows and greys the sky. **The far land** (`FarLand`, the valley
+only; `-- --no-far-land`): the bake every 32 m (its quads re-sorted back to front from the camera every
+150 m, ~8 ms) and the ranges round the valley to 45 km (a ring mesh, outer rings first), in the
+transparent pass at depth 0 so only the sky's pixels take it, unshaded: lit and hazed in its shader
+from RealSky's light (`FarLand.set_light`, `set_haze`). Traps: Godot keeps a 24-bit depth where the card
+has it (one step behind the far plane: no far-plane depth tricks); the scene's fog reads a fragment's
+depth (the far land is fog_disabled and hazes itself); a 45 km far plane drew the whole valley from the
+trestle (22.7 M primitives); LightFinish's quad (sorting -1000) lays the pre-transparent screen over the
+frame, so the clouds and far land sort after it (`RealSky.SORT_*`), and anything transparent sorted
+before it is wiped.
+
 **Indoor light that knows the building** (issue #608 part 1, `RoomLight`, `src/render/room_light.gd`;
 dials `config/room_light.tres` `RoomLightTuning`, look addresses `room.<dial>`; lab
 `experiments/light_lab/`). **Off** (`Settings.room_light`; `-- --room-light=on`, `settings.room_light`);
