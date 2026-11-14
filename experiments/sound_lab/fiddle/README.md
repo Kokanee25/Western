@@ -137,6 +137,36 @@ changes; results in `../results/2026-11-10_fiddle/`.
   each string of a note its own stiffness (+-6%: each overtone beats its own way), the off-beat
   chord's voicing turned and sometimes rolled, the left hand drifting ~10 ms, phrases swelling +-10%.
 
+## The travelling band's cornet and drums (#822)
+
+- `march.py` -> `yankee_doodle.json`: the march, Yankee Doodle as a quickstep (traditional), verse and
+  chorus twice in F, 2/4 at a quarter = 116, with its beats (two a bar) and a two-bar drum roll-off first.
+- `cornet.py`: a B-flat cornet, **our own lip-reed model**. The lips an outward-striking valve (one mass
+  on a spring, tuned by the player near the note), the flow through them by Bernoulli; the bore its
+  input impedance as resonances (the partials on each valve combination; 1+3 and 1+2+3 sharp as on a
+  real horn; peaks highest near the cup's ~850 Hz, gone above the bell's ~1.3 kHz cutoff); the
+  pressure and flow solved together each sample in closed form. The bell's high-pass, and the forte
+  "blare" as the bore's wave steepening (each period's time warped by its pressure). A tongued note
+  starts with the tongue's puff (a burst of flow at the resonance: without it a note grows from rest
+  over ~150 ms) and the lips a little slack; slurs keep the breath. **`cornet_tuning.json`** (from
+  `calibrate()`; delete it after changing the model): each note's lip tuning and how far its
+  resonance sits under it (the lips sound above the bore's resonance, so a real horn's resonances sit
+  a little under its notes); the player lips half the soft/loud pitch drift away. `cornet_check.py`:
+  each note of a render's pitch, onset and brightness. Runs without numba (~1 s an audio second).
+- `drums.py`: **our own modal drums**, calfskin and rope-tensioned: a 28-inch bass drum (lambswool
+  beater) and a 16-inch side drum (hickory sticks). Membrane modes at Bessel zeros, the air's pull on
+  the low ones, each mode by the stroke's place and the contact's spectrum, a hard stroke's pitch
+  glide; the gut snares slap the snare head whenever its swing outruns them (noise bursts by the
+  excess), so the rattle thickens in a roll and fades with the head. The part: Bruce & Emmett's
+  rudiments (flams, five- and seven-stroke rolls, the roll-off), the bass drum on every beat.
+- `band_samples.py`: A, the same parts from VSCO 2 CE's real trumpet, bass drum and snare (CC0;
+  `fetch.sh`). The listening set's real instruments.
+- `travelling_band.py`: our cornet and drums added to the game's band parts
+  (`assets/audio/band/payday_night/`).
+- Results: `../results/2026-11-14_cornet_drums/` (the clips, the key, `measures.md`, `spectrum.png`).
+  No pre-1925 cornet record yet: archive.org and loc.gov were outside the network (#822's listening
+  issue asks).
+
 ## Commands
 
 ```sh
@@ -152,6 +182,13 @@ python3 experiments/sound_lab/fiddle/render.py [--dry|--game]   # ~1 min dry, ~8
 python3 experiments/sound_lab/fiddle/compare.py             # measures.md/.json, spectrum.png
 python3 experiments/sound_lab/fiddle/blind.py               # listen/1-8.mp3, key/KEY.md (a new shuffle)
 python3 experiments/sound_lab/fiddle/check.py build/sound_lab/fiddle/dry/A.wav
+python3 experiments/sound_lab/fiddle/march.py                # yankee_doodle.json (in the repo)
+python3 experiments/sound_lab/fiddle/cornet.py yankee_doodle.json [--note=70 --vel=0.5]   # ~40 s
+python3 experiments/sound_lab/fiddle/cornet_check.py yankee_doodle.json
+python3 experiments/sound_lab/fiddle/drums.py yankee_doodle.json [--only=snare] [--hit=snare]
+python3 experiments/sound_lab/fiddle/band_samples.py yankee_doodle.json   # A: VSCO's (fetch.sh first)
+python3 experiments/sound_lab/fiddle/travelling_band.py payday_night       # with the game's band
+python3 -c "import cornet; cornet.calibrate()"               # (in fiddle/) cornet_tuning.json, ~3 min
 ```
 
 Needs numpy, scipy, numba, matplotlib (`pip install numba matplotlib`), ffmpeg; the game runs need
