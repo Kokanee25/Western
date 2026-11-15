@@ -1,0 +1,83 @@
+{
+ "about": "Harlan's first-person hands (option 2, #914): MetaHuman Sean's hands cut at the wrist with a cuff and sleeve, fitted per gun. HeldHand.hold(key, painted) reads these where his hands are in (assets/people/private/harlan_fp.glb), else each viewmodel keeps its own constant. Fingers: degrees of grasp (the middle joint; HeldHand.GRASP couples the three). Thumbs: [[root x, y, z], bend 1, bend 2]. Places: design inches (the rifle) or metres and degrees under the camera ([at, rot]: the Colt's poses).",
+ "colt.grip": {
+  "middle": 75.0,
+  "ring": 59.0,
+  "little": 52.0
+ },
+ "colt.trigger_rest": 36.0,
+ "colt.trigger_pull": 44.0,
+ "colt.thumb_rest": [
+  [
+   24.0,
+   60.0,
+   -24.0
+  ],
+  30.0,
+  25.0
+ ],
+ "colt.thumb_cock": [
+  [
+   36.0,
+   48.0,
+   24.0
+  ],
+  45.0,
+  40.0
+ ],
+ "win73.l_hand_ful": [
+  8.2,
+  -2.05,
+  -0.25
+ ],
+ "win73.l_roll": 30.0,
+ "win73.l_grip": {
+  "index": 20.0,
+  "middle": 30.0,
+  "ring": 60.0,
+  "little": 70.0
+ },
+ "win73.l_thumb": [
+  [
+   -20.0,
+   0.0,
+   -10.0
+  ],
+  10.0,
+  5.0
+ ],
+ "colt.hip": [
+  [
+   0.15,
+   -0.19,
+   -0.4
+  ],
+  [
+   4.0,
+   9.0,
+   -10.0
+  ]
+ ],
+ "colt.aim": [
+  [
+   0.0,
+   -0.085,
+   -0.42
+  ],
+  [
+   4.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "win73.eye_relief": 0.72,
+ "win73.r_thumb": [
+  [
+   24.0,
+   60.0,
+   -24.0
+  ],
+  35.0,
+  30.0
+ ]
+}
