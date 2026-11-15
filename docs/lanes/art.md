@@ -62,7 +62,7 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   dressing room (mirror, pegs, trunk, screen are the prop lab's to place); `DrawCurtain` and `PaintedDrop` (src/art,
   PARTS); the Baron's drop `drop_baron`. Band use points in the README for gameplay. Judged once (`2026-11-14_saloon_b_stage_r1`):
   cheap indie (empty hall, bare proscenium box, tin-bucket footlights, even pleats). Render CPU 3.48 shut / 3.71 open.
-  Open with Sean: the roof, porch lamps (#885); the sign (#886). Not done: the cellar in the valley (#695), No Law's set.
+  Open with Sean: the roof. Step 3 (#886) merged: THE NEW OCCIDENTAL on a walnut board, four walk lamps; reads by day, weakly at dusk, not at night. Wants: a dressed-timber entry, a matt floor. Not done: the cellar in the valley (#695), No Law's set.
   Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after a frame change; name every surface (`-`
   keeps a dressed member's shape); a stage member's band sits over what it rests on; `reduce.py` rewrites the vram
   signs' `.import` files short: restore them from git.

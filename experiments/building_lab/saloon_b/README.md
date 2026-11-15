@@ -189,6 +189,38 @@ band plays there. The spec's `stage` (FORMAT.md "Saloon B's stage"):
   lamp to it (a footlight's chimney seen past the step, most likely; not chased). Shared with the rest
   of the building: the speckled board paint, no haze, blank windows.
 
+## Step 3: the sign and the walks' lamps (#886)
+
+- **THE NEW OCCIDENTAL** (Sean's "pay", #885; his name for it, #886, 2026-11-13: "the new" for an
+  old Occidental that burned or fell): the texture factory's `letters_the_new_occidental` (kind
+  `lettering`: gold-ochre sign-writer's paint on white, the white keyed out; one call, $0.10, People
+  run 132; THE SALT CREEK, run 131, $0.10, replaced). The painter put it on two lines, a small THE NEW
+  over a big OCCIDENTAL (asked for one line; kept, it's period and reads). The spec builder lays a
+  front's painted letters (`SignArt.letters`) on its own board, cut to them, as the jail's are on its
+  boards (`FacadeArt._paint_letters`); the board is a plain trim board in the walnut (`front/sign` ->
+  `oak`). `front.sign_from` 7.9 (one line's was 8.45): a 1.6 m board over the upper doors' heads,
+  the letters 1.14 m tall and 4.9 m across, held to that by `front.sign_width` (new). Why not the
+  factory's `sign` kind: it takes the board's width from the picture, at most 21:9, a 2.3 m board.
+- **Lamps on the walks** (Sean's "add lamps", #885): four reflector lamps under the balcony on the
+  siding outside (`lamps.kit` `side: "out"`, new), two on Main Street's wall (at 5.4 and 10.6) and two
+  on the side street's (6.1 and 12.8), 1.85 m over the walk, lit 17 to 4, energy 1.4, reach 6.5; only
+  the one at 10.6 casts shadows.
+- **THE NEW OCCIDENTAL judged, one round** (`docs/screenshots/judge/2026-11-14_saloon_b_occidental`;
+  renders in `results/2026-11-14_occidental/`, with a new view `street_dusk`: down Main Street from the
+  east at 18.0, ~25 m off): the cheap judge has all three cheap indie (the corner at 19.4 now near
+  black under main's new sky, #918's crushed night: not this step's). The sign reads "THE NEW /
+  OCCIDENTAL" by day on a close look and just reads at dusk down the street (THE NEW blurring); it holds
+  the eye weakly, dark gold on a dark board on a dark red wall, and is lost at night. Open: the board's
+  contrast or a light on it. Render CPU at Sean's: the front 2.27, the corner 3.69 (2.98 before main's
+  sky; inside 4). Valley bodies 31,395 of Jolt's 32,768.
+- **Judged, one round** (`docs/screenshots/judge/2026-11-13_saloon_b_sign`; renders in
+  `results/2026-11-13_sign/`): the cheap judge has **the corner at dusk good indie** (step 2: cheap
+  indie; the sconces, lit windows and pools of light lift it) and the front by day still cheap indie
+  (grey neighbours, flat light, the empty street: not this step's). The blind critic: the lamps are
+  placed right with visible flames but each throws a tight smear that doesn't reach the walk; the
+  sign only just reads by day (grey on grey in the front's shade) and is lost at dusk. Open: the
+  lamps' reach and colour, the board's darkness against the letters, the sign's light at night.
+
 ## No Law
 
 The issue asked for the yard set swapped into the building where the spec allows, behind a switch

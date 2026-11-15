@@ -35,7 +35,7 @@
     "with_him": {"any": ["Were you with him?"]},
     "obliged": {"good": ["He said it was you that brought him. I'm obliged to you, Mr. Harlan."], "poor": ["He said it was you that brought him. I'm obliged to you, Mr. Harlan."]},
     "freighter": {"left": ["A freighter brought him, they tell me."]},
-    "red_shirt": {"clear": ["Faded red shirt. I'd know him again. You find him, Harlan."], "fading": ["...red shirt... rode up easy..."]},
+    "shot_by": {"clear": ["Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan."], "fading": ["...sorrel... said friend..."]},
     "ditch": {"clear": ["He's wanted my ditch since the day I cut it. Now he'll go at her. Look to them."], "fading": ["...the ditch... look to them..."]},
     "where": {"poor": ["Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it."], "left": ["Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it."]},
     "oath": {"clear": ["Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then."], "fading": ["Badge... Doc. Pin it on him."]},
@@ -55,5 +55,5 @@
     "badge": "Doc pins the sheriff's badge on your coat.",
     "pistol": "The sheriff's revolver is yours. H: draw it."
   },
-  "sheriff_death": "The sheriff, gut-shot on the East Road by a man in a faded red shirt; died at the doctor's the next morning, his wife with him. He gave Harlan his badge and his revolver."
+  "sheriff_death": "The sheriff, gut-shot on the East Road by a stranger on a bald-faced sorrel; died at the doctor's the next morning, his wife with him. He gave Harlan his badge and his revolver."
 }

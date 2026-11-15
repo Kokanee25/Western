@@ -23,6 +23,8 @@ const VIEWS := {
 	# The corner from the crossroads at dusk, the lamps lit (the sheet's); `corner_day` in the afternoon.
 	"corner": [Vector3(26.5, 1.9, -9.5), Vector3(13.6, 4.5, 3.4), 54.0, 19.4],
 	"corner_day": [Vector3(26.5, 1.9, -9.5), Vector3(13.6, 4.5, 3.4), 54.0, 15.5],
+	# Down Main Street from the east at dusk, ~25 m off: does the sign read (#886, THE NEW OCCIDENTAL)?
+	"street_dusk": [Vector3(-14.0, 1.7, -12.0), Vector3(8.2, 7.6, 0.0), 54.0, 18.0],
 	# The back and the yard from the north-east: the outside stair up the yard wall.
 	"rear": [Vector3(-13.5, 4.2, 33.0), Vector3(4.5, 4.4, 15.0), 58.0, 10.0],
 	# Inside from the corner doors: the bar on the right, the posts and girders, the well.

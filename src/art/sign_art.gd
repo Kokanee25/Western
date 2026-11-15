@@ -99,6 +99,13 @@ static func _material(id: StringName, size: Vector2) -> ShaderMaterial:
 	return m
 
 
+## A sign-writer's letters for `text` painted by the factory (kind `lettering`, `letters_<text>`:
+## the ink alone, alpha where there's none), or null where none are painted.
+static func letters(text: String) -> Texture2D:
+	var path := PixelArt.FACTORY_PATH % ("letters_" + text.to_lower().replace(" ", "_"))
+	return load(path) as Texture2D if ResourceLoader.exists(path) else null
+
+
 ## Hang the painted board for `text` on a false front's sign member (FalseFrontBuilding calls it):
 ## as big as fits the front above the porch roof, kept to the board's shape, a hand's width
 ## proud of the boards. False if there's no painted board for that text (the lettered label stays).

@@ -209,11 +209,11 @@ func test_a_shot_stops_the_game_and_it_deals_again() -> void:
 	await physics_frames(30)
 	check_eq(g.state, &"stopped", "and it stays stopped a while")
 	# An act's hold keeps it stopped however calm it gets.
-	g.interrupt(&"red_shirt", true)
+	g.interrupt(&"cody", true)
 	g._calm = 999.0
 	await physics_frames(5)
 	check_eq(g.state, &"stopped", "held by an act")
-	g.let_go(&"red_shirt")
+	g.let_go(&"cody")
 	# The shot had the men up out of their chairs (townsfolk: trouble); calm, they sit back down
 	# and the cards go round again.
 	var again := await wait_until(func() -> bool: return g.state != &"stopped", 60 * 120)

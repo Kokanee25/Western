@@ -10,7 +10,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `HeadGesture`, `Act`. Waiting on Sean: #755.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md` "Step 4", "Step 5"). Cody isn't the red shirt (the red shirt, Silas
-  Kett, shot the sheriff; nobody names him yet). The morning after: Earl to the undertaker's, day folk's lines
+  Kett, raided Joe's camp; the stranger shot the sheriff, #905; nobody names either yet). The morning after: Earl to the undertaker's, day folk's lines
   by the story's facts (`talk`); the sheriff dies on the doctor's cot (`-- --mission=sheriff_dies`); the story's
   Harlan is unarmed till then. **The funeral** (#868, `-- --world=valley --mission=funeral`): the day after, at
   ten, at the cemetery; nolaw.funeral = attended / distance / missed, nolaw.offer_heard, baron.met; mourners
@@ -39,7 +39,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Open (playtest `docs/playtests/2026-11-14-hideout.md`): Joe shot a man who'd given up; the drawn ground may hide
   the pad from the slope (the bake says it's in view); several men say one line at once; creep and open fire play
   the same; no woodpile in the kit; no canyon walls.
-  **Next: step 4, the cabin, the knife and the nod (#NEXT).**
+  **Next: step 4, the cabin, the knife and the nod (#966).**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's

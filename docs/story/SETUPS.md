@@ -24,8 +24,8 @@ A setup's status is the status of its weakest end: a decided plant with a propos
 **S1. The faded red shirt** · T2 · D (the camp's only, since 2026-11-13)
 - **Moved off the sheriff** (D, Sean 2026-11-13, #830): "it can't be the same man as he would never
   be released for the murder of joes wife if he also shot the sheriff". The shirt is Kett's, and Kett
-  didn't shoot the sheriff. The sheriff's clue is now S40. The built road line and the day-2 line
-  still say "red shirt" until they change (`CONTRADICTIONS.md` C16's table).
+  didn't shoot the sheriff. The sheriff's clue is now S40. The road line and the day-2 line
+  were re-worded to it on 2026-11-14 (#908).
 - Planted: Joe's camp, where the survivors name the killer "by one thing: a faded red shirt" (D,
   Sean's own No Justice card).
 - Before it (P·bible): a player who follows Cody out of the saloon on night one sees him join riders
@@ -62,7 +62,7 @@ A setup's status is the status of its weakest end: a decided plant with a propos
   chair!", D).
 - Pays off: he's the man the law **can** hold; alive and safe after the jail night he may talk, and
   his word is the second kind of evidence (D, 2026-11-11). He knows who shot the sheriff (D); by
-  C16 a (P, Sean's lean) that's the Baron's own foreman, so his word reaches the Baron in one step.
+  C16 a (D, Sean 2026-11-13) that's the Baron's own foreman, so his word reaches the Baron in one step.
 - Arrested (D, Sean 2026-11-11, #830, C6 b): after the funeral he walks back into the saloon, bold
   as before, and Harlan, with the sheriff's revolver now, arrests him there. Same room, same barman:
   the answer to night one. The cabin no longer decides whether there's a witness. Whether Cody is
@@ -273,10 +273,10 @@ C10 b); the places P·bible. One face for three jobs:
 - Pays off: the farmhouse, where he walks up the widow's lane with the deed (D, v2) and a player who
   sat with him knows him; Gang B's man naming the foreman who paid for the rail (K7); the raid. His
   voice is O (s21).
-- By C16 a (P, Sean's lean 2026-11-13): he also shot the sheriff that morning, so the face is the
+- By C16 a (D, Sean 2026-11-13): he also shot the sheriff that morning, so the face is the
   sheriff's killer's too (S40).
 
-**S40. "Friend", and a bald-faced sorrel** · T1 · P (Sean's lean, 2026-11-13, #905, C16 a); the
+**S40. "Friend", and a bald-faced sorrel** · T1 · D (Sean, 2026-11-13, #906, C16 a); the
 marks and places P·bible. What the dying sheriff saw of the man who shot him: a stranger, soft-spoken,
 who **called him "friend"**, on a **bald-faced sorrel** (a red-brown horse with a white face). A
 line and an object (rule 3).
