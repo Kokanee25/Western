@@ -1,0 +1,23 @@
+# #973's film (tools/lab_film.py on a runner, .github/workflows/lab_film.yml). In a row, left to right:
+# our sheet, the Jolt rag, our glove (the long glove's own mesh from sean_s3_talking's skin), Jolt's
+# glove; behind, our sheet hung by two corners. One frame a tick (60 a second).
+@start --size=960x540 --fps=60 --game-args=--real
+time 16.2
+clock off
+goto -3 0 6 180
+cc_set -3 0 -3
+cc_cam front
+cc_film build/cc/front 7
+cc_set -3 0 -3
+cc_cam low
+cc_film build/cc/low 7
+@stop
+@encode build/cc/front experiments/cloth_core/film/out/front.mp4 60
+@encode build/cc/low experiments/cloth_core/film/out/low_half_speed.mp4 30
+@still build/cc/front 20 experiments/cloth_core/film/out/front_start.jpg
+@still build/cc/front 400 experiments/cloth_core/film/out/front_end.jpg
+@still build/cc/low 400 experiments/cloth_core/film/out/low_end.jpg
+# The cost a tick, each dropped alone (headless: no drawing in the physics frame's time).
+@start --headless --fps=60
+cc_cost -3 0 -3 180
+@stop
