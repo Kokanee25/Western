@@ -184,6 +184,22 @@ grainless, no mouldings or plinth; the ledgers blank slabs, the inkstand unreada
 S3 as listed: two racks 20, a few real lying kegs ~36, four beds 56, the desk 13: ~125 bodies (S1 and S2 ~355
 now the S2 rack's 20 are this one's): ~480 for the three batches.
 
+## Saloon B, S1 to S3 placed (#950)
+
+In the game since #950: saloon B's spec's `dressing` (batches S1, S2, S3), written by
+`tools/props/saloon_b_dress.py` (edit the placements there and re-run; it also moves what they move). Decided
+in the placing (Sean asleep, by the brief): **the bar 0.5 m off the back bar** (x 1.75 -> 2.25: the 0.56 m work
+board left the bartender 0.24 m; now 0.72), the drinkers, the bar's lamps and the barmen with it; **the piano**
+(the kit's `upright_piano`, not placed before) on the back wall at x 12.4, between the arch and the stair hall's
+door (its use point was in that door); **faro** by the arch west of it (7.0, 12.2) and in the gaming room
+(10.0, 17.4), a chair in each dealer's cut (`faro_bank`'s `prop`); **the wheel** on the store room's wall at
+z 18.4 (its use point faced the kitchen's lunch hatch); the office desk's back to Main Street's wall; beds'
+heads to the back wall (two `plank_bed`, room 5 an `iron_cot`; room_6 left to #902); the fiddle and bow on
+a chair at the back of #902's stage, behind where the fiddler stands (4.3, 12.6). Hanging lamps hook 1 cm under a joist
+(the dance floor's from z 0.157, the hall's 13.417, the rooms' 15.297, every 0.305) or the truss ties (8.26);
+their lights cast no shadow (`shadows`, PropDressing). Kegs: the racks' lower tier real (4 each), two on the
+cellar floor; the upper tiers empty. ~106 entries, ~600 bodies (the lab's tree 9,267).
+
 ## Saloon B, the stage and dressing room (#903)
 
 Made and judged on the lab's stand, **not placed**: the room is built by #902 (the stage, the wing and

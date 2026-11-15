@@ -845,7 +845,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   Street under its balcony (`ValleyWorld._side_walk`). Its cellar isn't dug in the valley yet (#695).
   Its look (#867): finishes by name, a wainscoted bar room, brackets under both streets' cornices, and
   `FloorDust` (`src/art/floor_dust.gd`): dust in the air under the dance floor, a fall under anyone moving
-  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor.
+  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor. Its stage (#902, the
+  spec's `stage`, `SpecBuilding._stage`): a platform of members in the dance hall, the wing, the
+  `DrawCurtain` (`src/art/draw_curtain.gd`: `building.open_curtain()` / `close_curtain()`, `to_dict`)
+  and the `PaintedDrop` (`src/art/painted_drop.gd`, the backdrop; `art` its painting).
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -1463,6 +1466,22 @@ Traps: a SoftBody3D mesh needs normals; reach_to must be renewed every tick or t
 worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a hand apart on the
 floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
 his own). `tests/test_garment_handoff.gd`.
+
+**Our own cloth** (#973, `docs/briefs/garment-cloth.md`; step 1, the core): `ClothCore` in the native
+plugin (`cloth.rs`, pure Rust with its own `cargo test`; `cloth_core.rs` Godot's handle): XPBD in
+`substeps` (12) of one pass: edges' stretch (`stretch_compliance`), bending (`bend_mode` 0 FLAT:
+isometric, lies flat; 1 SHAPED: the points across each inner edge kept apart as made, keeps a
+garment's shape; `bend_stiffness`), the strain limit (`max_strain`, `min_strain`) and the floor in
+turn (`limit_passes`, friction on the first only), a floor plane (`floor_on`, `floor_y`, `thickness`, `friction_static/kinetic`), `damping`, pins moved by
+the caller evenly over the substeps, `jitter(seed, m)`. Its face **`SolverCloth`** (src/bodies) has
+GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
+`came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
+the plugin (keep GarmentCloth there). Not yet: his skin, itself, the world's props (steps 2-4); nothing
+uses it in play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
+clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
+convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20
+substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). The glove's mesh for probes in
+plain Rust: `experiments/cloth_core/glove_sean_s3.json` (bridge `cc_dump`). `tests/test_cloth_core.gd`; the lab `experiments/cloth_core/`.
 
 ## src/moments
 
@@ -2958,6 +2977,7 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire"),
   `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast"),
   `crash_guard.rs` (`CrashGuard`: crash handlers, minidumps, the freeze watchdog: "Bug reports"),
+  `cloth.rs` + `cloth_core.rs` (`ClothCore`, our own cloth: "src/bodies"),
   `watchdog.rs` (`QuitWatchdog`, the quit's last layer).
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
@@ -2998,3 +3018,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   run.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it
   writes them ("Import files committed"): run `godot --headless --import` and commit them.
+- **A lab's film on a runner** (`lab_film.yml`, `tools/lab_film.py`; #973): a `claude/` branch push whose
+  last commit changes `experiments/<lab>/film/request.txt` (dev bridge commands, plus `@start`, `@stop`,
+  `@encode`, `@still`, `@godot`) builds the native plugin, renders under software Vulkan and commits
+  `film/out/` (mp4s, stills, `replies.jsonl`; a `.gdignore` keeps Godot off it) back to the branch, ~15
+  min plus the film (~4 min a 7 s angle at 960x540). For workspaces that can't build the plugin (crates.io
+  blocked) or fetch CI's artifacts (their host blocked). Its push builds nothing; pull before pushing again.
