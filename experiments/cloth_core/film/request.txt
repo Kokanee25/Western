@@ -1,7 +1,7 @@
 # #973's film (tools/lab_film.py on a runner, .github/workflows/lab_film.yml). In a row in the middle
 # of Main Street, left to right: our sheet, the Jolt rag, our glove (the long glove's own mesh from
 # sean_s3_talking's skin), Jolt's glove; behind, our sheet hung by two corners. One frame a tick.
-# Run 3: the cloth lit on its front (Godot winds front faces clockwise), the bench's BENCH line.
+# Run 3: the cloth lit on its front (Godot winds front faces clockwise), the bench's BENCH line. (Its change must be in the push's last commit: the workflow films what HEAD~1..HEAD changed.)
 @start --size=960x540 --fps=60 --game-args=--real
 time 16.2
 clock off
