@@ -362,7 +362,7 @@ keeping it under ~10 KB: where things stand, what's open, the traps. No history 
 `docs/status/` and the PR. The roadmap (`docs/ROADMAP.md`) decides what each lane does next.
 
 - `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (the jail done, #811; next its stone as rubble, #860, then the general store).
-- `docs/lanes/gameplay.md`: the slice's missions (No Justice step 3, #934), the townsfolk, the valley, weapons.
+- `docs/lanes/gameplay.md`: the slice's missions (No Justice built to its four endings, #966), the townsfolk, the valley, weapons.
 - `docs/lanes/characters.md`: the Studio and recipe, Harlan (#692, #693), faces and motion.
 - `docs/lanes/props.md`: the kit and factory (saloon B's S1 and S2 made, not placed; next S3, #892).
 - `docs/lanes/sound.md`: GameAudio, the fiddler (#799), voiced lines (#807).

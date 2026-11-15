@@ -57,7 +57,7 @@ func _start(opts := {}) -> NoJusticeHideout:
 	valley = load("res://scenes/valley.tscn").instantiate()
 	holder.add_child(valley)
 	await physics_frames(5)
-	var o := {"set_up": true, "pace": 0.25}
+	var o := {"set_up": true, "pace": 0.25, "no_next": true}
 	o.merge(opts, true)
 	var m := Moment.start_named(&"no_justice_hideout", valley, null, o) as NoJusticeHideout
 	check(m != null and not m.done, "it starts (%s)" % (m.result() if m else {}))

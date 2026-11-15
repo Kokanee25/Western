@@ -17,23 +17,18 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Open: playtests `docs/playtests/2026-11-13-funeral.md` and step 4's (the funeral's cues, grave, mourners'
   looks, stand-in models; the badge on the dying sheriff, the wife's hands). **Next: the whole mission played end to end on the real clock and its
   seams mended (#876).**
-- **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
-  `hideout` box canyon, 4 the cabin, the knife and the nod). **Steps 1-2 done.** Joe (`CompanionBrain`;
-  `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y, `--joe-tune=k:v+k:v`) helps since #859: he may shoot the
-  man you fire at, minds the men on you, draws their eyes (`experiments/gunfight_lab/results/2026-11-13_joe_helps/`).
-  Open: he's in your line ~0.7 s a fight. Step 2: `NoJusticeCamp`
-  (`config/moments/no_justice_camp.json`; `-- --world=valley --mission=no_justice`, bridge
-  `moment no_justice_camp set_up=1`; valley_bench `ute_camp`). Open: Joe's hat (the stand-in "whole" model drops
-  it; characters lane), no survivors shown (till the Studio has them), no line for a shake then following him
-  out, the valley's marker posts; playtest `docs/playtests/2026-11-13-camp.md`. Riding waits on #478.
-  **Step 3 (#934): the hideout fight** (`NoJusticeHideout`, `config/moments/no_justice_hideout.json`;
-  `-- --world=valley --mission=no_justice_hideout [--arrive]`, bridge `moment no_justice_hideout set_up=1 arrive=1`,
-  started by the camp's end; valley_bench `hideout`). Ends with `nojustice.kett` = holed_up (barred in the shack:
-  `FalseFrontBuilding.shut_door`) / dead_outside / down_outside / dead_inside; also hideout, started, crew, seen, joe.
-  Open (playtest `docs/playtests/2026-11-14-hideout.md`): Joe shot a man who'd given up; the drawn ground may hide
-  the pad from the slope (the bake says it's in view); several men say one line at once; creep and open fire play
-  the same; no woodpile in the kit; no canyon walls.
-  **Next: step 4, the cabin, the knife and the nod (#966).**
+- **No Justice: steps 1-4 done** (#843's plan; each `-- --world=valley --mission=<m>`, bridge `moment <m> set_up=1`).
+  Joe is `CompanionBrain` (`--joe`, the lab's `joe=1`, `--joe-tune`); `held`, a scene walks him and he doesn't step out
+  of your line. 2: `NoJusticeCamp` (`no_justice`). 3: `NoJusticeHideout` (`no_justice_hideout [--arrive]`), ends
+  `nojustice.kett` = holed_up / dead_outside / down_outside / dead_inside, then starts 4: `NoJusticeCabin` (#966,
+  `no_justice_cabin [--down]`): kicks add up against the bar; Kett gives up (an OutlawBrain, silent) in the corner;
+  Joe's knife and ask; nod / between / gun on either / a shove at Joe / binding Kett = arrest (a card, then Kett bound
+  to the jail's door); shake / walking out / silence = revenge (`take_knife`); your ball in him = murder. Facts
+  nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail. Playtests `docs/playtests/2026-11-1[345]-*.md`.
+  Open: the drawn ground hides the shack's floor and men near it; the knife is two boxes and Joe's stab the aim
+  pose; a kick at 0.9 m can miss; Joe hops the broken door's pieces (walk_to stops at debris); the jail's cells
+  and the ride back are cards; no line when Kett's jailed (release.* is C8 a, Sean's); no survivors, Joe's hat,
+  no canyon walls, no woodpile. Riding waits on #478.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: step 2 the day and the
   book (#870), step 3 the roster as data (#936), **step 4 spots (#957, `SpotChore`)**: a block's `do` at a spot is

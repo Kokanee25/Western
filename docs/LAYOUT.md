@@ -1625,7 +1625,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   the shack at the alarm and bars him in). The alarm: a man sees you or Joe, hears a shot, or is hit
   (`started`: opened by your or Joe's shot, `Events.shot_fired`). Ends `after` the crew are out and Kett's
   settled. Facts nojustice.hideout, started, kett (holed_up / dead_outside / down_outside / dead_inside), crew,
-  seen, joe. valley_bench spot `hideout` (`--no-hideout-act`).
+  seen, joe. valley_bench spot `hideout` (`--no-hideout-act`). Its end starts the cabin (`next_act`).
+- **No Justice's cabin** (#966, step 4; `src/missions/no_justice_cabin.gd`, `NoJusticeCabin`, an `Act`; data
+  `config/moments/no_justice_cabin.json`, lines from the script's cabin, back and fight.mine;
+  `tests/test_no_justice_cabin.gd`): takes the hideout's act (`opts.hideout`: its shack, Kett, Joe, bodies), or
+  `-- --world=valley --mission=no_justice_cabin [--down]` / `moment no_justice_cabin set_up=1 [kett=down_outside]`
+  (the hideout set up and over). The door: `PlayerShove.landed` kicks on `front/door_shut` add up (`bar_j` barred,
+  `door_j` not) and break bar and leaf; in by the doorway or any hole. Kett's run by the act (hands up to `corner`)
+  till the nod, then gets an `OutlawBrain` that's SURRENDERED (lines silenced) so G arrests him. Joe `held`,
+  walked through the doorway by waypoints (walk_to finds no doors); the knife a stand-in in his hand. The answer:
+  `HeadGesture` plain (nod/shake) and loose (`loose`: "Is that a yes?"), or doing (between, gun on either: a nod;
+  walked out, silence: a shake). Revenge: `take_knife` stabs and a neck slash till he's down. Murder: your
+  `hit` deed on him after he gave up. Arrest: a card to town, Kett bound behind you to the jail's door (the cells
+  a card). Facts nojustice.ending (arrest / revenge / murder / outside), answer, joe_trust, camp_trust, joe_saw,
+  bodies, jail.
 - **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
   out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
   `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.
