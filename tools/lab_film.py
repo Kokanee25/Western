@@ -10,7 +10,7 @@ The request is the dev bridge's commands, one a line (# comments), and these of 
     @stop                          tools/bridge.py stop
     @encode FRAMES_DIR OUT [FPS=60] [SKIP=0]   FRAMES_DIR/0000.png... to OUT (H.264 mp4)
     @still FRAMES_DIR N OUT        frame N of FRAMES_DIR as a JPEG, 960 wide
-    @godot ARGS...                 godot ARGS (headless scripts: benches); its last 20 lines as the answer
+    @godot ARGS...                 godot ARGS (headless scripts: benches); its lines starting BENCH or RESULT (else its last 20) as the answer
 
 Every command's answer goes to film/out/replies.jsonl beside the request; OUT paths are relative to
 the repository (put them under the request's film/out/). Exits 1 if a command answers ok: false.
@@ -26,6 +26,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def main(req: str) -> int:
     out_dir = os.path.join(os.path.dirname(os.path.abspath(req)), "out")
     os.makedirs(out_dir, exist_ok=True)
+    # (Godot mustn't import the stills: their .import files would be new to every checkout.)
+    open(os.path.join(out_dir, ".gdignore"), "w").close()
     replies = open(os.path.join(out_dir, "replies.jsonl"), "w")
     bridge = [sys.executable, os.path.join(ROOT, "tools", "bridge.py")]
     failed = 0
@@ -57,7 +59,10 @@ def main(req: str) -> int:
             text = json.dumps({"still": w[3], "ok": r.returncode == 0})
         elif w[0] == "@godot":
             r = subprocess.run([os.environ.get("GODOT", "godot")] + w[1:], cwd=ROOT, capture_output=True, text=True)
-            text = "\n".join((r.stdout + r.stderr).strip().splitlines()[-20:])
+            # Its BENCH/RESULT lines if it prints any, else its last 20 lines.
+            lines = (r.stdout + r.stderr).strip().splitlines()
+            keep = [l for l in lines if l.startswith(("BENCH", "RESULT"))]
+            text = "\n".join(keep or lines[-20:])
             if r.returncode != 0:
                 text += '\n{"ok": false}'
         else:

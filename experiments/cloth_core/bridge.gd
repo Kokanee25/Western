@@ -271,9 +271,9 @@ func _sheet(at: Vector3, tilt := TILT) -> Array:
 		for c in n - 1:
 			var i := r * n + c
 			if (r + c) % 2 == 0:
-				tris.append_array([i, i + n, i + 1, i + 1, i + n, i + n + 1])
+				tris.append_array([i, i + 1, i + n, i + 1, i + n + 1, i + n])
 			else:
-				tris.append_array([i, i + n, i + n + 1, i, i + n + 1, i + 1])
+				tris.append_array([i, i + n + 1, i + n, i, i + 1, i + n + 1])
 	return [pts, tris, uv]
 
 

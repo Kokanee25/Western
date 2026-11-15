@@ -494,12 +494,13 @@ impl Cloth {
         self.v.iter().map(|v| len(*v)).sum::<f32>() / self.v.len() as f32
     }
 
-    /// Per point, the normal of the triangles round it (area weighted).
+    /// Per point, the normal of the triangles round it (area weighted), on the side Godot draws as
+    /// the front: its triangles are clockwise seen from the front, so (c−a)×(b−a).
     pub fn normals(&self) -> Vec<V3> {
         let mut n = vec![[0.0f32; 3]; self.x.len()];
         for t in &self.tris {
             let (a, b, c) = (self.x[t[0] as usize], self.x[t[1] as usize], self.x[t[2] as usize]);
-            let f = cross(sub(b, a), sub(c, a));
+            let f = cross(sub(c, a), sub(b, a));
             for &i in t {
                 n[i as usize] = add(n[i as usize], f);
             }
@@ -526,7 +527,7 @@ impl Cloth {
 }
 
 /// A sheet `cols`×`rows` points, `w`×`d` m, lying flat at height `y` (x across, z along), its
-/// triangles' diagonals alternating. For the tests and the film.
+/// triangles' diagonals alternating, its front up (Godot's winding). For the tests.
 pub fn sheet(cols: usize, rows: usize, w: f32, d: f32, y: f32) -> (Vec<V3>, Vec<u32>) {
     let mut pts = Vec::with_capacity(cols * rows);
     for r in 0..rows {
@@ -544,9 +545,9 @@ pub fn sheet(cols: usize, rows: usize, w: f32, d: f32, y: f32) -> (Vec<V3>, Vec<
             let i = (r * cols + c) as u32;
             let (a, b, cc, dd) = (i, i + 1, i + cols as u32, i + cols as u32 + 1);
             if (r + c) % 2 == 0 {
-                tris.extend_from_slice(&[a, cc, b, b, cc, dd]);
+                tris.extend_from_slice(&[a, b, cc, b, dd, cc]);
             } else {
-                tris.extend_from_slice(&[a, cc, dd, a, dd, b]);
+                tris.extend_from_slice(&[a, dd, cc, a, b, dd]);
             }
         }
     }
@@ -679,6 +680,13 @@ mod tests {
         assert!(least >= 0.002 - 1e-6, "lowest {least}");
         assert!(c.mean_speed() < 0.05, "it lies: {}", c.mean_speed());
         assert!(c.max_strain_now() < 1.09, "{}", c.max_strain_now());
+    }
+
+    #[test]
+    fn a_sheets_front_is_up() {
+        let (p, tr) = sheet(4, 4, 0.3, 0.3, 0.0);
+        let c = Cloth::build(&p, &tr, 0.2, Tuning::default()).unwrap();
+        assert!(c.normals().iter().all(|n| n[1] > 0.99), "{:?}", c.normals()[0]);
     }
 
     #[test]

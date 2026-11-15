@@ -37,9 +37,9 @@ func _sheet(cols: int, rows: int, w: float, d: float, y: float) -> Array:
 		for c in cols - 1:
 			var i := r * cols + c
 			if (r + c) % 2 == 0:
-				tris.append_array([i, i + cols, i + 1, i + 1, i + cols, i + cols + 1])
+				tris.append_array([i, i + 1, i + cols, i + 1, i + cols + 1, i + cols])
 			else:
-				tris.append_array([i, i + cols, i + cols + 1, i, i + cols + 1, i + 1])
+				tris.append_array([i, i + cols + 1, i + cols, i, i + 1, i + cols + 1])
 	return [pts, tris]
 
 

@@ -134,7 +134,7 @@ func _sheet(at: Vector3) -> Array:
 		for c in 15:
 			var i := r * 16 + c
 			if (r + c) % 2 == 0:
-				tris.append_array([i, i + 16, i + 1, i + 1, i + 16, i + 17])
+				tris.append_array([i, i + 1, i + 16, i + 1, i + 17, i + 16])
 			else:
-				tris.append_array([i, i + 16, i + 17, i, i + 17, i + 1])
+				tris.append_array([i, i + 17, i + 16, i, i + 1, i + 17])
 	return [pts, tris]
