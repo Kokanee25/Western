@@ -161,6 +161,14 @@ func step_chore(delta: float, free: bool) -> bool:
 		stop()
 		return false
 	if kind == &"sit":
+		# Only from beside the seat and level with it: from the street below a raised walk SitChore's
+		# straight walk would take him under its boards (the playtest's loudmouth); his brain's route
+		# brings him up first.
+		var to := man.global_position - post
+		var sat := sit != null and sit.busy()
+		if not sat and (Vector2(to.x, to.z).length() > 0.9 or absf(to.y) > 0.4):
+			_on = false
+			return false
 		if sit == null or not sit.step_chore(delta, true):
 			_on = false
 			return false
