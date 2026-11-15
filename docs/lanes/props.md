@@ -16,9 +16,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
 ## Open
 - **Saloon B's S1, S2 and S3 are placed** (#950): its spec's `dressing`, written by `tools/props/saloon_b_dress.py`
   (edit there, re-run; it also moves the bar to x 2.25 and the use points it touches). What was decided: README
-  "Saloon B, S1 to S3 placed". Kit files `tools/props/saloon.py`, `saloon_s2.py`, `saloon_s3.py`. **Not judged in
-  the room yet:** the 7 GB sandbox of #950 couldn't render (lavapipe OOM in the town and the valley alike); the
-  views are ready in `experiments/prop_lab/saloon/place_views.gd` (bar, aisle, well, gaming room; night and day).
+  "Saloon B, S1 to S3 placed". Kit files `tools/props/saloon.py`, `saloon_s2.py`, `saloon_s3.py`. **Judged by lamplight** (#987, `results/2026-11-15_saloon_b_placed/`): placement and lamps stand; kit faults in the README's "Judged by lamplight", for S4.
 - **Open from S3's critic:** the kit's `bentwood_chair` DIFFERENT (a black tubular bistro chair) and `strongbox`
   DIFFERENT (a steamer trunk), both seen by the owner's desk; CLOSE notes in the README (kegs and rack near-black
   at noon, the bed too clean, the desk grainless, the ledgers blank slabs). S2's CLOSE notes still open (the
@@ -32,7 +30,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   no trough along the row, flame white; two rounds spent: next is placing it in the room and judging it there by
   lamplight, a continuous trough for the row is the cheap fix). Where each goes: README "Saloon B, the
   stage and dressing room". Placing waits for #902 (the room; not merged on 2026-11-14). No period refs saved (Commons came back thin).
-- **Next:** #987, the room judged by lamplight (`place_views.gd`, two rounds) on a machine with ~10 GB; then S4 (the chair
+- **Next:** S4 (the chair
   and strongbox, the CLOSE notes; Blender needs `bpy`, which needs pypi).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
   (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
