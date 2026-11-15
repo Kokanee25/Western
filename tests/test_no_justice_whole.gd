@@ -220,8 +220,11 @@ func _open_fire(h: NoJusticeHideout) -> void:
 	var p := _player()
 	await _walk_to(h.spot(h.data.watch))
 	await wait_until(func() -> bool: return _lines_of("joe").has("How do you want it? Quiet, or now?") or h.alarm_t >= 0.0, _frames(40))
-	await _walk_to(h.spot([-26.0, -6.0]))
-	await _shoot(p.global_position + Vector3.UP * 1.5, h.spot([-4.0, -3.0]))
+	# Down toward their fire to open it, unless they've seen you first (then straight back: CI's run
+	# walked on into five guns and went down before a shot).
+	await _walk_to(h.spot([-26.0, -6.0]), 0.4, 60.0, func() -> bool: return h.alarm_t >= 0.0)
+	if h.alarm_t < 0.0:
+		await _shoot(p.global_position + Vector3.UP * 1.5, h.spot([-4.0, -3.0]))
 	var on := await wait_until(func() -> bool: return h.alarm_t >= 0.0, 60 * 3)
 	check(on, "the alarm (%s)" % h.result())
 	_mark("alarm")
