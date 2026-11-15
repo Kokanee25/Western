@@ -1,0 +1,3 @@
+a front experiments/building_lab/saloon_b/results/2026-11-14_occidental/front.png
+b corner experiments/building_lab/saloon_b/results/2026-11-14_occidental/corner.png
+c street_dusk experiments/building_lab/saloon_b/results/2026-11-14_occidental/street_dusk.png
