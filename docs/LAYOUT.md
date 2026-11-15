@@ -1768,6 +1768,18 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
   street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
   new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
+  **Spots** (townsfolk step 4, #957; `SpotChore`, `src/people/spot_chore.gd`, `tests/test_spot_chore.gd`):
+  a block `at` a spot gets its `do` as the man's chore (`_chores_for`: a card chair stays SitChore, a
+  band player PlayChore): `stand`, `lean` (back to the wall a ray finds behind him, a boot up; none, a
+  hip-shot stand), `sit` (a SitChore on the spot's `seat`, a kit chair `_build_seats` stands there),
+  `counter`, `sweep` (`tool: rug` shakes a rug), `carry` (three sacks from the spot to its `to`),
+  `talk` (faces the others talking within 3.5 m, his FaceSpeech's mouth, no line heard), `drink`,
+  `work` (`tool` `anvil` or `bench`). Each a main doing and three breaks picked by seed (`KINDS`; never
+  15 s at one: `SpotChore.plan`); its hands by `reach_to`, leans by `pose_offsets`; the broom, rug,
+  sacks, glass, anvil and bench are drawn stand-ins (no bodies) for the prop lab's. It lets him go on
+  trouble (the broom and sack set down), when sent off (`leave`) or when his brain's post moves (an
+  act's: the funeral); the same spot with a new `do` swaps the chore (`_new_doing`). Hands busy, he
+  doesn't slow (`lets_slow`).
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
