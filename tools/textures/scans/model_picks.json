@@ -51,7 +51,10 @@
   },
   {
    "id": "grass_medium_01",
-   "why": "a second grass clump, for variety (#962)"
+   "why": "a second grass clump, for variety (#962)",
+   "extra": [
+    "dry_diff"
+   ]
   }
  ]
 }
