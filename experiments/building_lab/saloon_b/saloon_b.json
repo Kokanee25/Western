@@ -3069,6 +3069,7 @@
 		"day_fill": 0.32
 	},
 	"materials": {
+		"wear": {"use": 1.0, "dings": 0.0, "_why": "#901 (dents off until the judges like them, Sean 2026-11-14): a saloon open from morning to the small hours, a dance hall over it: the most used wood in town"},
 		"_doc": "Step 2 (#867): finishes by name from the material library, the passing entries only. Outside: ox-blood board and batten (painted_oxblood_batten, passed at a few years and old: drawn at 'few', the nearest passed age to a paint a year in this sun), buff trim (the cornice and its brackets on both streets, corner boards, casings, sashes, the balcony's posts, beams and rails). Inside: the bar room's street walls and its back wall wainscoted in oak to 0.9 m with a picture rail, pale beaded boards over; pale boards in the other rooms; the posts, girders, brackets and the open joists over the bar brown rough-sawn pine (R1: the library has no dressed timber yet); the worn fir floor with the building's ways; the hall stair, the well's rail, the inside doors and the corner's doors oak.",
 		"floor": "wood:int_floor",
 		"wall_boards": "int_boards",
