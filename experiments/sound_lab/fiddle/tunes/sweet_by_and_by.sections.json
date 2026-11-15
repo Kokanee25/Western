@@ -1,0 +1,9 @@
+{"note": "Who plays in which bars (from 0, end not included), for sections.py.",
+ "sections": [
+  {"name": "intro", "bars": [0, 2], "players": ["guitar", "bass", "drums"]},
+  {"name": "verse", "bars": [2, 10], "players": ["fiddle", "guitar", "bass", "drums"]},
+  {"name": "chorus", "bars": [10, 18], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]},
+  {"name": "verse 2", "bars": [18, 26], "players": ["fiddle", "guitar", "bass", "drums"]},
+  {"name": "chorus 2", "bars": [26, 34], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]},
+  {"name": "last chorus", "bars": [34, 43], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]}
+ ]}

@@ -1,0 +1,23 @@
+X:1
+T:In the Sweet By and By
+B:Joseph P. Webster (music) and S. Fillmore Bennett (words), Lyon & Healy, Chicago, 1868; public domain. Written out from memory for Salt Creek's band (no printed score was reachable): the hymn's shape, some notes may differ from a hymnal
+M:4/4
+L:1/8
+K:G
+% intro: the band
+"G"z8 | "G"z6DE |
+% verse
+"G"G3G B2AG | "C"E2G2 G2DE | "G"G3G B2dc | "D"A6DE |
+"G"G3G B2AG | "C"E2G2 G2BA | "D"G2G2 B2A2 | "G"G6z2 |
+% chorus: the call, the band answering in the rests
+"G"B3B B4 | "C"c3c c4 | "G"d2dd d2cB | "D"A6z2 |
+"G"B3B B4 | "C"c3c c4 | "D"d2BA G2A2 | "G"G6DE |
+% verse
+"G"G3G B2AG | "C"E2G2 G2DE | "G"G3G B2dc | "D"A6DE |
+"G"G3G B2AG | "C"E2G2 G2BA | "D"G2G2 B2A2 | "G"G6z2 |
+% chorus
+"G"B3B B4 | "C"c3c c4 | "G"d2dd d2cB | "D"A6z2 |
+"G"B3B B4 | "C"c3c c4 | "D"d2BA G2A2 | "G"G6z2 |
+% the last chorus
+"G"B3B B4 | "C"c3c c4 | "G"d2dd d2cB | "D"A6z2 |
+"G"B3B B4 | "C"c3c c4 | "D"d2BA G2A2 | "G"G8 |
