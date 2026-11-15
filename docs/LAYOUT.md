@@ -1459,6 +1459,22 @@ worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a
 floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
 his own). `tests/test_garment_handoff.gd`.
 
+**Our own cloth** (#973, `docs/briefs/garment-cloth.md`; step 1, the core): `ClothCore` in the native
+plugin (`cloth.rs`, pure Rust with its own `cargo test`; `cloth_core.rs` Godot's handle): XPBD in
+`substeps` (12) of one pass: edges' stretch (`stretch_compliance`), bending (`bend_mode` 0 FLAT:
+isometric, lies flat; 1 SHAPED: the points across each inner edge kept apart as made, keeps a
+garment's shape; `bend_stiffness`), the strain limit (`max_strain`, `min_strain`) and the floor in
+turn (`limit_passes`, friction on the first only), a floor plane (`floor_on`, `floor_y`, `thickness`, `friction_static/kinetic`), `damping`, pins moved by
+the caller evenly over the substeps, `jitter(seed, m)`. Its face **`SolverCloth`** (src/bodies) has
+GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
+`came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
+the plugin (keep GarmentCloth there). Not yet: his skin, itself, the world's props (steps 2-4); nothing
+uses it in play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
+clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
+convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20
+substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). The glove's mesh for probes in
+plain Rust: `experiments/cloth_core/glove_sean_s3.json` (bridge `cc_dump`). `tests/test_cloth_core.gd`; the lab `experiments/cloth_core/`.
+
 ## src/moments
 
 **Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
@@ -2953,6 +2969,7 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire"),
   `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast"),
   `crash_guard.rs` (`CrashGuard`: crash handlers, minidumps, the freeze watchdog: "Bug reports"),
+  `cloth.rs` + `cloth_core.rs` (`ClothCore`, our own cloth: "src/bodies"),
   `watchdog.rs` (`QuitWatchdog`, the quit's last layer).
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
@@ -2993,3 +3010,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   run.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it
   writes them ("Import files committed"): run `godot --headless --import` and commit them.
+- **A lab's film on a runner** (`lab_film.yml`, `tools/lab_film.py`; #973): a `claude/` branch push whose
+  last commit changes `experiments/<lab>/film/request.txt` (dev bridge commands, plus `@start`, `@stop`,
+  `@encode`, `@still`, `@godot`) builds the native plugin, renders under software Vulkan and commits
+  `film/out/` (mp4s, stills, `replies.jsonl`; a `.gdignore` keeps Godot off it) back to the branch, ~15
+  min plus the film (~4 min a 7 s angle at 960x540). For workspaces that can't build the plugin (crates.io
+  blocked) or fetch CI's artifacts (their host blocked). Its push builds nothing; pull before pushing again.
