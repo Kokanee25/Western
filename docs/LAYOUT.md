@@ -837,7 +837,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   Street under its balcony (`ValleyWorld._side_walk`). Its cellar isn't dug in the valley yet (#695).
   Its look (#867): finishes by name, a wainscoted bar room, brackets under both streets' cornices, and
   `FloorDust` (`src/art/floor_dust.gd`): dust in the air under the dance floor, a fall under anyone moving
-  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor.
+  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor. Its stage (#902, the
+  spec's `stage`, `SpecBuilding._stage`): a platform of members in the dance hall, the wing, the
+  `DrawCurtain` (`src/art/draw_curtain.gd`: `building.open_curtain()` / `close_curtain()`, `to_dict`)
+  and the `PaintedDrop` (`src/art/painted_drop.gd`, the backdrop; `art` its painting).
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,

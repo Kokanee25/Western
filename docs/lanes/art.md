@@ -51,29 +51,24 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   height still cheap (the sky's flat bands, greybox fronts, backlit near-black bushes, cloned trees, one grass).
   Render CPU at Sean's: street 2.37 -> 2.80, road 0.58 -> 0.90. Next: its issue (sky, trees, bushes, grass kinds).
 - **The doctor's room review** (#818): its rules approved and in `RECIPE.md`; the jail built on them.
-- **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #884): spec, frame and look on the corner lot
-  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, ten tests): 7,763 members,
-  27,908 valley bodies of Jolt's 32,768. Red board and batten, buff trim, a bracketed cornice on both streets, buff
-  boards over a dark wainscot, walnut posts, rail and doors, dust through the dance floor (`FloorDust`). Judged
-  twice (`docs/screenshots/judge/2026-11-13_saloon_b_r2`): **the bar room good indie, the corner cheap indie**
-  (its tells in the README: no town or sky round it, blank sign, no porch lamps, one even red; inside, one glossy
-  red-brown wood, nothing dressed). **Next: the prop lab furnishes it; then the general store.** Open with Sean:
-  the hip or the plain roof, porch lamps (#885). Step 3 (#886) merged: THE NEW OCCIDENTAL on a walnut board (two lines, 4.9 m, `front.sign_width`) and four walk lamps; the sign reads by day, weakly at dusk, not at night (board contrast or a light on it open). Valley bodies 31,395 of 32,768. Wants from the
-  material library: a dressed-timber entry and a matt floor. Not done: the cellar dug in the valley (#695), No
-  Law's set (still in the yard: gameplay's to move).
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; name every
-  surface, and `-` keeps a dressed member's shape; judge a bar room by lamplight (RECIPE "A big room's look").
+- **Saloon B, the corner saloon** (#772; #848, #884, the stage #902): `experiments/building_lab/saloon_b/` README,
+  `tests/test_building_saloon_b.gd`. 7,775 members; 31,688 valley bodies, **1,080 left** of Jolt's 32,768 (the prop
+  lab's sets, ~550, fit once; the jail and store need the guard raised or members put to rest). Look judged good indie
+  (bar room) / cheap indie (corner). **The stage**: 30 in, of members, clear of the sawn panel; the wing; room_6 the
+  dressing room (mirror, pegs, trunk, screen are the prop lab's to place); `DrawCurtain` and `PaintedDrop` (src/art,
+  PARTS); the Baron's drop `drop_baron`. Band use points in the README for gameplay. Judged once (`2026-11-14_saloon_b_stage_r1`):
+  cheap indie (empty hall, bare proscenium box, tin-bucket footlights, even pleats). Render CPU 3.48 shut / 3.71 open.
+  Open with Sean: the roof. Step 3 (#886) merged: THE NEW OCCIDENTAL on a walnut board, four walk lamps; reads by day, weakly at dusk, not at night. Wants: a dressed-timber entry, a matt floor. Not done: the cellar in the valley (#695), No Law's set.
+  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after a frame change; name every surface (`-`
+  keeps a dressed member's shape); a stage member's band sits over what it rests on; `reduce.py` rewrites the vram
+  signs' `.import` files short: restore them from git.
 - **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
   floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
   the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
-- **The doctor's walls and windows** (#826): every window a `SashWindow` (src/structures, a part: lined reveal,
-  two sashes by the spec's `lights`, a glass member a pane that breaks alone, dusty glass), the inside boards
-  drawn at their paint's judged 9 cm (`inside_finish.boards: "judged"`, `strips_mesh`), a skirting, casings
-  and sashes in the trim's green (reads near black indoors: the approved chrome green). Rules in
-  `experiments/building_lab/RECIPE.md` "Walls and windows". +38 draws (panes); render CPU <= 2.3 ms at Sean's.
-  Cheap judge still cheap indie for the walk's floating porch posts, grey neighbours, empty rooms.
+- **The doctor's walls and windows** (#826): `SashWindow` (src/structures), inside boards at 9 cm, skirting and
+  casings in the trim green; rules in `experiments/building_lab/RECIPE.md` "Walls and windows".
 - **The doctor lit as a room** (#824) **and by day** (#829): his spec names a lamp a room (`lamps.kit`), `light`
   (`fill` to the outer walls, near neutral; `day_fill` 0.1, DayCycle reads the probe's `day_ambient`;
   `window_day` 7). RoomLight's daylight rooms (`RoomLightTuning` "Daylight"): windows aimed at the floor 0.6
