@@ -1443,12 +1443,16 @@ off it); while it's drawn off, `uncover(ids)` shows the covered skin (a small me
 its index buffer new on a reveal) under the points the cloth has left. Its look (`kid_leather`) is
 drawn 4 mm proud of its points (`grow`), its inside a dark brown `lining` (back faces).
 `GarmentHandoff` (`glove_on(man, parent, side)`, `take(hand)`, `let_go_of_arm()`, `let_go(v)`;
-signals `taken`, `came_to_rest`) swaps it for a `GarmentCloth` (a ClothProp of the garment's mesh:
+signals `taken`, `came_to_rest`) swaps it for **our own cloth** (`SolverCloth`, below; `solver_tune`:
+SHAPED, 5% give, 20 substeps, his skin met 0.7 mm off on its front, every substep, a 1 cm band;
+`ours()`) where the plugin is, else (`tune.solver` false, the web) a `GarmentCloth` (a ClothProp of the garment's mesh:
 `pin_to`, `hold_on`, `move_held` (the held points carried every 2nd tick to where his skin carries
 the worn garment, not rigid on a bone), `release`; at rest baked, its soft body freed) and runs
 the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every,
 uncover_at, free_damping: damped harder once let go, as Godot's soft body has no bending stiffness).
-`SkinCollider`: a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
+`SkinCollider` (`inset(g)`: the garment's points pulled in to 0.7 mm over his skin; with our cloth it
+hands them to the solver, `set_body` at `on` and `move_body` each rebuild, no Jolt shape; with Jolt's)
+a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
 `skin_every` ticks from the triangles near the free cloth (Jolt pays ~1.5 µs a triangle to rebuild
 one in the world; `COLLIDER_TRIS` > 0 makes it from a denser copy of his skin, off: -30% points
 under for +0.25 ms). **`GloveAct`** (`put_on(man, parent, side)`, `begin()`, `toss_to`, signal
@@ -1465,14 +1469,29 @@ plugin (`cloth.rs`, pure Rust with its own `cargo test`; `cloth_core.rs` Godot's
 isometric, lies flat; 1 SHAPED: the points across each inner edge kept apart as made, keeps a
 garment's shape; `bend_stiffness`), the strain limit (`max_strain`, `min_strain`) and the floor in
 turn (`limit_passes`, friction on the first only), a floor plane (`floor_on`, `floor_y`, `thickness`, `friction_static/kinetic`), `damping`, pins moved by
-the caller evenly over the substeps, `jitter(seed, m)`. Its face **`SolverCloth`** (src/bodies) has
+the caller evenly over the substeps, `jitter(seed, m)`. **His body** (step 2, #986): `set_body(points,
+tris)`, `move_body(points)` once a tick (moved evenly over the substeps), `clear_body`: per tick his
+triangles near the free cloth hashed into cells (Teschner et al. 2003) and each free point's near ones
+listed; per substep, last: a crossing of a moving triangle since the last check put back where it met
+him with the rest of its move kept along his skin (capped at `body_band`; without the slide a point
+pulled at a slant sticks on one triangle's edge), else the nearest kept `body_thickness` off on its
+side (`body_front_only` for skin: always his front; else tracked per point), friction on the move
+relative to his skin, no bounce (its normal speed made his skin's). A **pinch** (two of his faces facing
+each other within 3 mm, fingers pressed together, and it's behind one) is left to the cloth. Past an
+open end of his mesh only the distance counts. Measures `body_contacts`, `body_crossings`,
+`body_pinches`, `sides`, `body_last` (what each point's last check did). `body_every` > 1 (fewer
+checks) and a band under 1 cm both let the glove stick on his fingers: keep 1 and 1 cm. Its face **`SolverCloth`** (src/bodies) has
 GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
 `came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
-the plugin (keep GarmentCloth there). Not yet: his skin, itself, the world's props (steps 2-4); nothing
-uses it in play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
+the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `tune(name, v)`.
+GarmentHandoff uses it. Not yet: itself, the world's props (steps 3-4); nothing takes a glove off in
+play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
 clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
 convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20
-substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). The glove's mesh for probes in
+substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). With his skin the glove costs ~1.3 ms a tick
+at Sean's while it's drawn off (~2 here; the solver alone was 0.38): the cost is step 4's. Build here:
+`NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, copy
+the .so to bin/. The glove's mesh for probes in
 plain Rust: `experiments/cloth_core/glove_sean_s3.json` (bridge `cc_dump`). `tests/test_cloth_core.gd`; the lab `experiments/cloth_core/`.
 
 ## src/moments

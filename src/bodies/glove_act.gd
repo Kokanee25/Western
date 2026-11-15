@@ -23,7 +23,8 @@ var tune := {
 var man: HumanBody
 var part: GarmentHandoff
 var glove: WornGarment
-var cloth: GarmentCloth
+## SolverCloth (ours) or GarmentCloth (Jolt's).
+var cloth: Node3D
 ## The gloved arm ("l" or "r"); the other hand takes it off.
 var side := "l"
 ## Where to flick it toward (world): its direction and roughly how hard, not aimed (it lands where

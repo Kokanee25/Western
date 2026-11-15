@@ -2,6 +2,7 @@ extends TestCase
 ## The garment handoff as a game part (#917; the lab #895, experiments/garment_handoff/): a long glove
 ## made from a man's own skin, worn as part of his skinned mesh, taken by his other hand's fingers,
 ## drawn off as real cloth over his skin (SkinCollider), let go, and lying where it lands at no cost.
+## The cloth is our own (SolverCloth, #986) where the native plugin is, else Jolt's (GarmentCloth).
 ## On a Studio man in the repo (the lab's MetaHuman can't be in CI, #692). ClothProp's kit field
 ## `mesh` (its own points and triangles) is tested here too.
 
@@ -41,7 +42,7 @@ func _ease(x: float) -> float:
 ## Handoffs as the lab's choreography does them (shorter), one a man at each of `xs` (m along X),
 ## side by side at once: his left hand out, his right to its fingertips, the take, a draw along his
 ## fingers, let go. `measure`: the first's cloth under his skin every 4th tick.
-func _handoffs(xs: Array, measure: bool) -> Array:
+func _handoffs(xs: Array, measure: bool, ours := true) -> Array:
 	var men: Array[HumanBody] = []
 	for x: float in xs:
 		var into := world
@@ -72,6 +73,7 @@ func _handoffs(xs: Array, measure: bool) -> Array:
 		var part := GarmentHandoff.glove_on(man, man.get_parent(), "l")
 		if part == null:
 			return [{"part": null}]
+		part.tune.solver = ours
 		parts.append(part)
 		outs.append({"part": part, "worn_ticking": part.is_physics_processing(),
 				"worn_hides_skin": part.garment.skin_covered()})
@@ -137,6 +139,8 @@ func _handoffs(xs: Array, measure: bool) -> Array:
 	outs[0].stretch = stretch
 	for k in men.size():
 		outs[k].pop_mm = parts[k].pop_mm
+		outs[k].ours = parts[k].ours()
+		outs[k].crossings = (parts[k].cloth as SolverCloth).body_crossings() if parts[k].ours() else -1
 		outs[k].on_arm = parts[k].on_arm()
 		outs[k].shown_tris = parts[k].garment.shown_tris()
 		parts[k].let_go(Vector3(0.4, 1.2, -0.6))
@@ -156,7 +160,7 @@ func _handoffs(xs: Array, measure: bool) -> Array:
 		outs[k].final = part.points_now()
 		outs[k].rest_ticking = part.is_physics_processing() or part.cloth.is_physics_processing()
 		outs[k].collider_on = part.collider.active
-		outs[k].soft_gone = part.cloth.soft == null
+		outs[k].soft_gone = part.ours() or part.cloth.soft == null
 	return outs
 
 
@@ -183,9 +187,20 @@ func test_the_glove_comes_off_and_lies_still() -> void:
 	# 1 cm. A Studio man's sleeves have their folds modelled, so his skin stands above the cloth's own
 	# points in places: on him 15-20 since #949 carried the held points by his skinning (23-29 before),
 	# 1-3 deeper than 1 cm. His skin there is hidden until the cloth has left it, so it doesn't show.)
-	check(int(a.under) <= 20, "at most 20 points more than 2 mm under his skin (%d)" % a.under)
-	check(int(a.deep) <= 3, "at most 3 deeper than 1 cm (%d)" % a.deep)
-	check(float(a.stretch) < 1.12, "the cloth's edges under 1.12 of their worn length (%.3f)" % a.stretch)
+	print("  glove: ours %s, under %d, deep %d, stretch %.3f, pop %.2f mm, crossings caught %d" % [a.ours, a.under,
+			a.deep, a.stretch, a.pop_mm, a.crossings])
+	if a.ours:
+		# Our cloth (#986) meets his skin itself, on its front: the points "under" are where his
+		# sleeve's modelled folds stand above the skin it meets (his collider is the glove's own
+		# points pulled in, not those folds).
+		check(int(a.under) <= 8, "at most 8 points more than 2 mm under his skin (%d)" % a.under)
+		check(int(a.deep) <= 2, "at most 2 deeper than 1 cm (%d)" % a.deep)
+		check(float(a.stretch) < 1.06, "the cloth's edges under 1.06 of their worn length (%.3f)" % a.stretch)
+		check(int(a.crossings) > 0, "pulls into his skin caught and put back (%d)" % a.crossings)
+	else:
+		check(int(a.under) <= 20, "at most 20 points more than 2 mm under his skin (%d)" % a.under)
+		check(int(a.deep) <= 3, "at most 3 deeper than 1 cm (%d)" % a.deep)
+		check(float(a.stretch) < 1.12, "the cloth's edges under 1.12 of their worn length (%.3f)" % a.stretch)
 	check_eq(int(a.on_arm), 0, "by the draw's end the pull has let all of it go of his arm")
 	check(a.rested, "it comes to rest")
 	check(not a.rest_ticking, "at rest nothing runs a tick")
@@ -202,6 +217,19 @@ func test_the_glove_comes_off_and_lies_still() -> void:
 	for i in mini(fa.size(), fb.size()):
 		worst = maxf(worst, fa[i].distance_to(fb[i]))
 	check(worst < 0.002, "the same start, the same result (worst %.4f m)" % worst)
+
+
+## Without the plugin (the web build), or told not to: Jolt's cloth (GarmentCloth, his skin a Jolt
+## shape) still takes it off, as it did before our own cloth (#917's numbers).
+func test_jolts_cloth_is_the_fallback() -> void:
+	var outs: Array = await _handoffs([0.0], true, false)
+	var a: Dictionary = outs[0]
+	if not check(a.part != null, "a glove"):
+		return
+	check(not a.ours and a.part.cloth is GarmentCloth, "Jolt's cloth")
+	check(int(a.under) <= 20, "at most 20 points more than 2 mm under his skin (%d)" % a.under)
+	check_eq(int(a.on_arm), 0, "all of it off his arm")
+	check(a.rested and a.soft_gone, "at rest, the soft body out")
 
 
 ## ClothProp with a kit `mesh` (its own points and triangles, normals made) drapes as the grid does.
@@ -257,7 +285,7 @@ func test_the_act_takes_it_off_and_flicks_it_away() -> void:
 	check(off_at > 4.0 and off_at < 6.0, "out of his hand after the draw and the flick (%.2f s)" % off_at)
 	check(act.part.state == GarmentHandoff.State.REST, "it lies at rest")
 	check(not act.glove.skin_covered(), "his skin all drawn again")
-	var c := act.cloth.centre()
+	var c: Vector3 = act.cloth.centre()
 	var flat := Vector2(c.x, c.z).length()
 	check(c.is_finite() and c.y < 0.2 and flat > 0.3 and flat < 3.0,
 			"flicked away from him, lying near (%.2f m off, %.2f m up)" % [flat, c.y])

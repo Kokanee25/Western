@@ -43,6 +43,13 @@ impl ClothCore {
             "friction_static" => t.friction_static = v,
             "friction_kinetic" => t.friction_kinetic = v,
             "substeps" => t.substeps = value.max(1.0) as u32,
+            "limit_passes" => t.limit_passes = value.max(1.0) as u32,
+            "body_thickness" => t.body_thickness = v,
+            "body_band" => t.body_band = v,
+            "body_friction_static" => t.body_friction_static = v,
+            "body_friction_kinetic" => t.body_friction_kinetic = v,
+            "body_front_only" => t.body_front_only = value != 0.0,
+            "body_every" => t.body_every = value.max(1.0) as u32,
             _ => return false,
         }
         if let Some(c) = self.c.as_mut() {
@@ -101,6 +108,72 @@ impl ClothCore {
     #[func]
     fn is_pinned(&self, i: i64) -> bool {
         self.c.as_ref().is_some_and(|c| i >= 0 && (i as usize) < c.len() && c.pinned[i as usize])
+    }
+
+    /// His body as the collider (docs/briefs/garment-cloth.md step 2): `points` (world, now) and
+    /// `triangles`, his skin near the cloth. False if an index is out of range (and no body).
+    #[func]
+    fn set_body(&mut self, points: PackedVector3Array, triangles: PackedInt32Array) -> bool {
+        let Some(c) = self.c.as_mut() else { return false };
+        if triangles.as_slice().iter().any(|&i| i < 0) {
+            c.clear_body();
+            return false;
+        }
+        let pts: Vec<V3> = points.as_slice().iter().map(|p| v3(*p)).collect();
+        let tris: Vec<u32> = triangles.as_slice().iter().map(|&i| i as u32).collect();
+        c.set_body(&pts, &tris)
+    }
+
+    /// His body's points (as many as `set_body` had) where they'll be at the end of the next step.
+    #[func]
+    fn move_body(&mut self, points: PackedVector3Array) {
+        if let Some(c) = self.c.as_mut() {
+            let pts: Vec<V3> = points.as_slice().iter().map(|p| v3(*p)).collect();
+            c.move_body(&pts);
+        }
+    }
+
+    #[func]
+    fn clear_body(&mut self) {
+        if let Some(c) = self.c.as_mut() {
+            c.clear_body();
+        }
+    }
+
+    #[func]
+    fn has_body(&self) -> bool {
+        self.c.as_ref().is_some_and(|c| !c.body.tris.is_empty())
+    }
+
+    /// Points touching his body at the last step's end.
+    #[func]
+    fn body_contacts(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.body.contacts as i64)
+    }
+
+    /// Crossings caught since his body was set: points that would have gone through him in one
+    /// substep, put back on their side.
+    #[func]
+    fn body_crossings(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.body.crossings as i64)
+    }
+
+    /// Points left in a pinch (between two of his faces that face each other) since it was set.
+    #[func]
+    fn body_pinches(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.body.pinches as i64)
+    }
+
+    /// What the last substep did with each point against his body (cloth.rs Body::last).
+    #[func]
+    fn body_last(&self) -> PackedInt32Array {
+        self.c.as_ref().map_or_else(PackedInt32Array::new, |c| c.body.last.iter().map(|&s| s as i32).collect())
+    }
+
+    /// Each point's side of his body (+1 his skin's front, −1 its back, 0 not near him).
+    #[func]
+    fn sides(&self) -> PackedInt32Array {
+        self.c.as_ref().map_or_else(PackedInt32Array::new, |c| c.side.iter().map(|&s| s as i32).collect())
     }
 
     /// Every free point's velocity raised by `dv` (a throw).
