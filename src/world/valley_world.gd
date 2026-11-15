@@ -60,6 +60,9 @@ const NO_JUSTICE_ARG := "--mission=no_justice"
 ## and 2 done, you and Joe at the Ute camp where he read the trail; --arrive: straight to the slope
 ## above the hideout, the ride done).
 const NO_JUSTICE_HIDEOUT_ARG := "--mission=no_justice_hideout"
+## `-- --mission=no_justice_cabin [--down]`: No Justice step 4 alone (#966: NoJusticeCabin, the hideout
+## fought and over, Kett barred in the shack; --down: alive in the dirt by it).
+const NO_JUSTICE_CABIN_ARG := "--mission=no_justice_cabin"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
 ## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
@@ -115,6 +118,8 @@ func _ready() -> void:
 		_start_no_justice.call_deferred()
 	if NO_JUSTICE_HIDEOUT_ARG in OS.get_cmdline_user_args():
 		_start_no_justice_hideout.call_deferred()
+	if NO_JUSTICE_CABIN_ARG in OS.get_cmdline_user_args():
+		_start_no_justice_cabin.call_deferred()
 	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
 		CoachCut.start_on_load = false
 		_start_coach_cut.call_deferred()
@@ -165,6 +170,13 @@ func _start_no_justice_hideout() -> void:
 	for i in 5:
 		await get_tree().physics_frame
 	Moment.start_named(&"no_justice_hideout", self, null, {"set_up": true, "arrive": "--arrive" in OS.get_cmdline_user_args()})
+
+
+## No Justice's cabin (#966), once the folk are built.
+func _start_no_justice_cabin() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	Moment.start_named(&"no_justice_cabin", self, null, {"set_up": true})
 
 
 func _unarmed() -> void:

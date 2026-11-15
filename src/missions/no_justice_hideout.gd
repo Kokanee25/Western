@@ -736,7 +736,7 @@ func crew_out() -> int:
 	return crew.filter(func(g: Dictionary) -> bool: return is_out(g)).size()
 
 
-## The fight's over: the facts, and the act ends (step 4 is the cabin's).
+## The fight's over: the facts, and the act ends (step 4, the cabin, starts from it).
 func _after_step(_p: Player) -> void:
 	if done:
 		return
@@ -761,6 +761,18 @@ func _after_step(_p: Player) -> void:
 	var how := {HOLED_UP: "over_holed_up", DEAD_OUTSIDE: "over_dead", DEAD_INSIDE: "over_dead", DOWN_OUTSIDE: "over_down"}
 	prompt(String(_prompts().get(how.get(kett_state, "over_holed_up"), "")), 8.0)
 	_finish(StringName(kett_state if kett_state != "" else "over"))
+	_next_act()
+
+
+## Step 4 from here (#966, NoJusticeCabin): the shack, Kett, Joe and the bodies stay this act's (the
+## cabin's `hideout`). Not with `no_next` (the tests of this step alone, the cabin's own set-up).
+var next_act: Moment
+
+
+func _next_act() -> void:
+	if opts.get("no_next", false):
+		return
+	next_act = Moment.start_named(&"no_justice_cabin", street, null, {"hideout": self, "pace": _pace()})
 
 
 func _say_once(man: HumanBody, beat: String) -> void:
