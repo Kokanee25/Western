@@ -128,6 +128,7 @@ func _ready() -> void:
 	build_ms["places"] = (Time.get_ticks_usec() - u) / 1000.0
 	u = Time.get_ticks_usec()
 	_build_set()
+	_build_seats()
 	build_ms["set"] = (Time.get_ticks_usec() - u) / 1000.0
 	_build_band()
 	cards.hand_done.connect(func(_w: String, _p: int, _h: String) -> void:
@@ -329,6 +330,9 @@ func spot_point(post: Dictionary) -> Array:
 	if post.has("chair"):
 		var chair := props.get("chair_" + String(post.chair)) as KitProp
 		return [Seating.spot(chair), Seating.faces(chair)]
+	if post.get("_seat") is KitProp and is_instance_valid(post._seat):
+		var seat: KitProp = post._seat
+		return [Seating.spot(seat), Seating.faces(seat)]
 	if post.has("lot"):
 		# Stood on a lot's walk or ground ([a, b] as lot_point's), facing `faces` (else the street).
 		var at_a: Array = post.at
@@ -497,14 +501,73 @@ func _bring(p: Dictionary, walk: bool, from_place := &"") -> HumanBody:
 	return man
 
 
-## What he does at a spot: sat in its chair (SitChore), and a player in the band (#799) at his
-## instrument, his part sounding, his hands following it (PlayChore).
-func _chores_for(man: HumanBody, p: Dictionary, sp: Dictionary) -> Array:
+## What he does at a spot: sat in its chair (SitChore), a player in the band (#799) at his
+## instrument, his part sounding, his hands following it (PlayChore); else his block's `do` there
+## (SpotChore's kinds: lean, sit, counter, sweep, carry, talk, drink, work; `stand` and anything
+## else, a stand with its breaks), townsfolk step 4 (#957).
+func _chores_for(man: HumanBody, p: Dictionary, sp: Dictionary, doing := &"") -> Array:
 	var chair: KitProp = props.get("chair_" + String(sp.get("chair", "")))
 	var sit: SitChore = SitChore.new(man, chair) if chair != null else null
 	if p.has("plays") and band != null:
 		return [PlayChore.new(man, band, StringName(p.plays), sit, props.get(String(p.get("instrument", ""))))]
-	return [sit] if sit != null else []
+	if sit != null:
+		return [sit]
+	if sp.is_empty():
+		return []
+	if doing == &"":
+		doing = _doing_now(p)
+	var pf := spot_point(sp)
+	var extra := spot_extras(sp)
+	var c := SpotChore.new(man, doing if SpotChore.KINDS.has(doing) else &"stand", pf[0], pf[1], extra)
+	if c.kind == &"sit":
+		var seat: KitProp = sp.get("_seat")
+		if seat == null or not is_instance_valid(seat):
+			c = SpotChore.new(man, &"stand", pf[0], pf[1], extra)
+		else:
+			c.sit = SitChore.new(man, seat)
+	return [c]
+
+
+## His block's `do` now, at a spot (else `stand`).
+func _doing_now(p: Dictionary) -> StringName:
+	if p.has("post"):
+		return StringName(String(p.get("do", "stand")))
+	var b := block_now(p, hour())
+	return StringName(String(b.get("do", "stand"))) if b.has("at") else &"stand"
+
+
+## A spot's data for its chore, with its points worked out: `top` (the bar's top before a man behind
+## it or at it), `to_at` (where a carry's pile goes: `to` [a, b] on the spot's lot).
+func spot_extras(sp: Dictionary) -> Dictionary:
+	var out := sp.duplicate()
+	out.erase("_seat")
+	if (sp.has("behind") or sp.has("at_bar")) and props.has(String(sp.get("behind", sp.get("at_bar", "bar")))):
+		out["top"] = top_point(String(sp.get("behind", sp.get("at_bar", "bar"))), float(sp.get("along", 0.0)), [0.0, 0.0])
+	if sp.has("lot") and sp.has("to"):
+		var to: Array = sp.to
+		out["to_at"] = lot_point(String(sp.lot), float(to[0]), float(to[1]), 0.05)
+	return out
+
+
+## The seats the street's `sit` spots name (`seat`: a kit prop, the chair), stood on the spot
+## facing its `faces` (townsfolk step 4). Kept on the spot (`_seat`) for its sitter.
+func _build_seats() -> void:
+	for k: String in data.get("spots", {}):
+		if not data.spots[k] is Dictionary:
+			continue
+		var sp: Dictionary = data.spots[k]
+		if not sp.has("seat") or not sp.has("lot") or not PropKit.has(StringName(String(sp.seat))):
+			continue
+		var at_a: Array = sp.at
+		var at := lot_point(String(sp.lot), float(at_a[0]), float(at_a[1]))
+		var fa: Array = sp.get("faces", [float(at_a[0]), float(at_a[1]) - 6.0])
+		var f := lot_point(String(sp.lot), float(fa[0]), float(fa[1])) - at
+		var seat := PropKit.make(StringName(String(sp.seat)))
+		seat.name = "FolkSeat_%s" % k
+		seat.transform = Transform3D(Basis(Vector3.UP, atan2(f.x, f.z)), at)
+		add_child(seat)
+		props["seat_" + k] = seat
+		sp["_seat"] = seat
 
 
 ## Out of town or indoors: up from his chair and off to his door (`walk`), or gone at once (onto the
@@ -531,10 +594,25 @@ func _send_off(id: StringName, walk: bool) -> void:
 	_going_for[id] = 0.0
 
 
+## The same spot, another block: if it does something else there (stand, then lean), the new chore.
+func _new_doing(man: HumanBody, brain: CivilianBrain, p: Dictionary, b: Dictionary) -> void:
+	var doing := StringName(String(b.get("do", "stand")))
+	for c: RefCounted in brain.chores:
+		if c is SpotChore and (c as SpotChore).kind == (doing if SpotChore.KINDS.has(doing) else &"stand"):
+			return
+		if not c is SpotChore:
+			return  # (a chair's or a player's: as it was)
+	_stand_up(brain)
+	brain.chores = _chores_for(man, p, spot_of(p), doing)
+	brain.chore = null
+
+
 func _stand_up(brain: CivilianBrain) -> void:
 	for c: RefCounted in brain.chores:
 		if c is SitChore:
 			(c as SitChore).wanted = false
+		elif c is SpotChore:
+			(c as SpotChore).leave()
 
 
 ## What he does in at `place` by his day: the next block there's, else home.
@@ -566,6 +644,11 @@ func _gone(id: StringName, cut := false) -> void:
 			for c: RefCounted in brain.chores:
 				if c is SitChore and (c as SitChore).chair and is_instance_valid((c as SitChore).chair):
 					Seating.stand_up(man, (c as SitChore).chair)
+				elif c is SpotChore:
+					(c as SpotChore).leave()
+					var sc: SitChore = (c as SpotChore).sit
+					if sc and sc.chair and is_instance_valid(sc.chair):
+						Seating.stand_up(man, sc.chair)
 		man.queue_free()
 
 
@@ -782,6 +865,8 @@ func _place(p: Dictionary, b: Dictionary) -> void:
 		if brain != null and brain.post.distance_to(pf[0]) > 0.3:
 			_gone(id, true)  # another spot: there at once
 			_bring(p, false)
+		elif brain != null:
+			_new_doing(man, brain, p, b)
 
 
 ## On to his block by walking (the clock ran into it while you watched): out of a door, to a spot or
@@ -821,10 +906,14 @@ func _move(p: Dictionary, b: Dictionary) -> bool:
 		if brain and brain.post.distance_to(pf[0]) > 0.3:
 			_stand_up(brain)
 			brain.go_to(pf[0], pf[1])
-			brain.chores = _chores_for(man, p, spot_of(p))
+			brain.chores = _chores_for(man, p, spot_of(p), StringName(String(b.get("do", "stand"))))
+			brain.chore = null  # (else the old one, still set, joins the new list)
 			state[id] = &"coming"
-		elif st == &"going":
-			state[id] = &"coming"
+		else:
+			if st == &"going":
+				state[id] = &"coming"
+			if brain:
+				_new_doing(man, brain, p, b)
 		return true
 	var from := _book_place(p)
 	if seen_man_at(door(from, p)):
