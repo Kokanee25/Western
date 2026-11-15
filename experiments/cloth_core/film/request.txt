@@ -1,0 +1,23 @@
+# #973's film (tools/lab_film.py on a runner, .github/workflows/lab_film.yml). In a row in the middle
+# of Main Street, left to right: our sheet, the Jolt rag, our glove (the long glove's own mesh from
+# sean_s3_talking's skin), Jolt's glove; behind, our sheet hung by two corners. One frame a tick.
+# Run 3: the cloth lit on its front (Godot winds front faces clockwise), the bench's BENCH line. (Its change must be in the push's last commit: the workflow films what HEAD~1..HEAD changed.)
+@start --size=960x540 --fps=60 --game-args=--real
+time 16.2
+clock off
+goto -3 0 0 180
+cc_set -3 0 -9
+cc_cam front
+cc_film build/cc/front 7
+cc_set -3 0 -9
+cc_cam low
+cc_film build/cc/low 7
+@stop
+@encode build/cc/front experiments/cloth_core/film/out/front.mp4 60
+@encode build/cc/low experiments/cloth_core/film/out/low_half_speed.mp4 30
+@still build/cc/front 20 experiments/cloth_core/film/out/front_start.jpg
+@still build/cc/front 75 experiments/cloth_core/film/out/front_landing.jpg
+@still build/cc/front 400 experiments/cloth_core/film/out/front_end.jpg
+@still build/cc/low 400 experiments/cloth_core/film/out/low_end.jpg
+# The cost a tick, ten of a kind in a bare world (experiments/cloth_core/bench.gd).
+@godot --headless --fixed-fps 60 -s res://experiments/cloth_core/bench.gd

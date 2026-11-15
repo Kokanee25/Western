@@ -592,3 +592,56 @@ static func _to_root(n: Node3D) -> Transform3D:
 		t = (p as Node3D).transform * t
 		p = p.get_parent()
 	return t
+
+
+# --- Private men cast in the valley (#933) ------------------------------------------------------
+
+const CAST_PATH := "res://config/private_cast.json"
+static var _cast: Variant = null
+
+
+static func _cast_data() -> Dictionary:
+	if _cast == null:
+		_cast = {}
+		var f := FileAccess.open(CAST_PATH, FileAccess.READ)
+		if f != null:
+			var d: Variant = JSON.parse_string(f.get_as_text())
+			_cast = d if d is Dictionary else {}
+	return _cast
+
+
+## The model a person is played by: the private man's level config/private_cast.json gives him,
+## when the cast is `on` and that level is laid in (tools/characters/fetch_private.sh), else his own
+## `model`.
+static func cast_model(person: StringName, model: StringName) -> StringName:
+	var c := _cast_data()
+	var who: Variant = (c.get("people", {}) as Dictionary).get(String(person))
+	if not who is Dictionary or String(c.get("build", "")) == "" or not bool(c.get("on", true)):
+		return model
+	var level := String(who.get("level", c.get("near", "lod1")))
+	var m := StringName("private/%s_%s" % [c.build, level] if level != "" else "private/%s" % c.build)
+	return m if has_model(m) else model
+
+
+## Re-dress a man cast by cast_model (his `hat` colour now; his vest's `tint` once he's built):
+## nothing for a man playing his own model.
+static func cast_dress(man: Node3D, person: StringName) -> void:
+	if not String(man.get(&"body_model")).begins_with("private/"):
+		return
+	var who: Variant = (_cast_data().get("people", {}) as Dictionary).get(String(person))
+	if not who is Dictionary:
+		return
+	if who.has("hat"):
+		man.set(&"hat_color", _rgba(who.hat))
+	if who.has("vest"):
+		var tint := _rgba(who.vest)
+		man.ready.connect(func() -> void:
+			var meshes: Dictionary = man.get(&"skin_meshes")
+			for key: String in meshes:
+				var mat = (meshes[key] as MeshInstance3D).material_override
+				if key.begins_with("vest/") and mat is ShaderMaterial:
+					(mat as ShaderMaterial).set_shader_parameter(&"tint", tint), CONNECT_ONE_SHOT)
+
+
+static func _rgba(a: Array) -> Color:
+	return Color(float(a[0]), float(a[1]), float(a[2]), float(a[3]) if a.size() > 3 else 1.0)

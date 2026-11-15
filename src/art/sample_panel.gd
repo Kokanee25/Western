@@ -192,7 +192,8 @@ func _rail(r: Node3D, cls: Dictionary, warp: float) -> void:
 		_board(r, Transform3D(up, Vector3(px, 0.0, -FLOOR_D + 0.05)), h - rail.y, post.x, post.y, warp * 0.5, Vector2.ZERO, &"rail")
 	# The rail flat on the posts: along X, its face up.
 	var flat := Basis(Vector3.RIGHT, Vector3.BACK * -1.0, Vector3.UP)
-	# (its role 1: a bar's rail top, where varnished: glass rings and elbows)
+	# (its role 7: a bar's top, #901: glass rings and elbows where it's varnished; under an entry's
+	# `use_wear` its front rubbed, burns, initials; with none, as role 1's)
 	var at := Transform3D(flat, Vector3(0.0, h - rail.y * 0.5, -FLOOR_D + 0.05))
 	if rd.has("profile"):
 		# Run to its profile, as the game's Railing draws a handrail (#873): the board's frame is the rail's.
@@ -200,13 +201,13 @@ func _rail(r: Node3D, cls: Dictionary, warp: float) -> void:
 		var L := wall_size.x
 		mi.mesh = PropKit.lib_profile_mesh({"shape": "profile", "profile": rd["profile"], "along": "x", "across": "y", "up": "z"},
 				Vector3(L, rail.x, rail.y), Transform3D(Basis(), Vector3(-L * 0.5, 0.0, 0.0)), _rng.randf(), Vector3(L, rail.x, rail.y),
-				warp * 0.3, global_position.y if is_inside_tree() else 0.0, 1.0)
+				warp * 0.3, global_position.y if is_inside_tree() else 0.0, 7.0)
 		mi.material_override = _material(&"rail")
 		mi.transform = at
 		r.add_child(mi)
 		boards += 1
 	else:
-		_board(r, at, wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail", 1.0)
+		_board(r, at, wall_size.x, rail.x, rail.y, warp * 0.6, Vector2.ZERO, &"rail", 7.0)
 
 
 func _board(parent: Node3D, xf: Transform3D, length: float, width: float, thick: float, warp: float, nails: Vector2, role: StringName, kind := 0.0, cover := Vector2.ZERO, e := {}) -> void:

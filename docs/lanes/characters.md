@@ -21,7 +21,9 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   `assets/people/private/` (model `private/<build>`; never committed, #692's licence) with three lighter
   levels cut at load (`<build>_lod1..3`, `PeopleBodies.glb_of/simplified/thin_cards`), the grooms' alpha cut,
   his hair under a hat. Costs: `docs/reviews/2026-11-metahumans-town.md` (~18 with levels, like today's men;
-  ~150 MB textures a distinct man). Not cast yet: the game can't fetch private files on Sean's PC or CI.
+  ~150 MB textures a distinct man). Fetched by `tools/characters/fetch_private.sh` (CI's export, with
+  `STUDIO_TOKEN`); cast by `config/private_cast.json` (townsman, loudmouth; lod1; hat and vest re-dressed)
+  but **off**: his export wears only a vest and drawers. Sean picks how to dress him (#933's waiting issue).
 
 ## Open
 - **First-person hands, option 2: in the game** (#914). `HeldHand` cuts MetaHuman Sean's hands, cuff and coat

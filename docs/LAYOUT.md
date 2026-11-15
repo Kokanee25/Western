@@ -777,6 +777,14 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   Poly Haven scans (`assets/props/scans/`, fetched by `scans.yml` from `tools/textures/scans/model_picks.json`)
   to `<piece>_near.res`/`_far.res`; the trees are `ValleyTrees` (code). Views:
   `tools/textures/valley_ground_shots.sh OUT [game args] [only]` (`valley_ground_views.txt`).
+  Second pass (#962): the ruts are a `road_profile(xz, across)` the shader steps the eye's ray into
+  (parallax along the road's across, two steps) and shades by the sun along it (`sun_dir`, kept the
+  DayCycle's by ValleyScatter; dials `rut_depth`, `berm_h`, `berm_light`, `rut_shadow`); the open land a
+  tufted grassland tint (`grassland_*`, `grass_cover`). Scatter species may take `blend` (near and far
+  pieces handed over per pixel), `appear` (a far-only layer: `grassfar`), `on_road` (`pebbles`, `clods`
+  in the streets), `squash`, `cluster` [n, m, least], `cluster_scale`; a plant's `albedo` (the scans'
+  `dry_diff`, fetched as `extra` in model_picks.json), `translucency`, `bend`, `foot_dark`. Trees: five
+  shapes a kind and a `snag`; `scatter_meshes.gd -- --trees-only` / `--only=ID` re-bake part.
 - **The valley's railway** (G3, #716; train step 6, #542): `ValleyRailway` (`src/world/valley_railway.gd`,
   ValleyWorld's child `Railway`; `-- --no-railway` leaves it out) lays `railway.route` with the train's
   own code: `make_line` gives the route `"height": 0` (its origin is the rail top, as valley_plan.py
@@ -1459,6 +1467,22 @@ worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a
 floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
 his own). `tests/test_garment_handoff.gd`.
 
+**Our own cloth** (#973, `docs/briefs/garment-cloth.md`; step 1, the core): `ClothCore` in the native
+plugin (`cloth.rs`, pure Rust with its own `cargo test`; `cloth_core.rs` Godot's handle): XPBD in
+`substeps` (12) of one pass: edges' stretch (`stretch_compliance`), bending (`bend_mode` 0 FLAT:
+isometric, lies flat; 1 SHAPED: the points across each inner edge kept apart as made, keeps a
+garment's shape; `bend_stiffness`), the strain limit (`max_strain`, `min_strain`) and the floor in
+turn (`limit_passes`, friction on the first only), a floor plane (`floor_on`, `floor_y`, `thickness`, `friction_static/kinetic`), `damping`, pins moved by
+the caller evenly over the substeps, `jitter(seed, m)`. Its face **`SolverCloth`** (src/bodies) has
+GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
+`came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
+the plugin (keep GarmentCloth there). Not yet: his skin, itself, the world's props (steps 2-4); nothing
+uses it in play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
+clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
+convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20
+substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). The glove's mesh for probes in
+plain Rust: `experiments/cloth_core/glove_sean_s3.json` (bridge `cc_dump`). `tests/test_cloth_core.gd`; the lab `experiments/cloth_core/`.
+
 ## src/moments
 
 **Showcase moments** (`src/moments/moment.gd`, `Moment`; docs/briefs/showcase-moments.md): a
@@ -1921,6 +1945,15 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `PlayChore` (src/people): a folk man with `plays` at his instrument (the pianist in his chair's
   SitChore), his hands by `reach_to` from `Band.bow_at` / `hand_at`; the fiddle and bow drawn from
   the prop lab's `fiddle.glb`, held. Bridge: `band [hush]`. Tests `tests/test_band.gd`.
+  #938: `nights` by the town's day kind: Payday Night all six on saloon B's stage (`hall` saloon:
+  its spec's use points or `local` points; the curtain drawn open), the stage's own upright
+  (valley_folk.json `set.stage_piano`); other nights the fiddle and piano in the yard set. Folk
+  places, spots and props can be in a spec building (`hall` + `local`/`use`, `ValleyFolk.halls`
+  = ValleyWorld.buildings; `stair_to` marks a stair link): `saloonb_*` up the outside stair, the
+  upper hall, the wing and its steps. Two tunes (Payday Night, Turkey in the Straw), each with a
+  hurried render (`render_band.py --faster=1.15` into `<tune>_fast/`): a `fight.kinds` deed near
+  (shove, kick) and they go over to it at the next phrase's top, back `fight_s` after the last
+  blow; a gun drawn or aimed near stops them. No numba here: `PYTHONPATH=tools/band/nonumba`.
 
 ## src/creatures (the horse)
 
@@ -2451,6 +2484,14 @@ No geometry (a bevelled board mesh, `tools/edge_round_bench.gd` on saloon B's 7,
 x3.6 triangles, x2.2 build time, +1.4 s);
 silhouettes and collision stay square. A shaped board (role + 10: `PropKit.lib_cut_mesh`, `lib_profile_mesh`)
 keeps its own normals and isn't eased.
+**Wear by use and knocks** (#901): scan_wood's `use_wear` and `dings` (a building's spec
+`materials.wear`, `SpecBuilding.WEAR_DEFAULT`; kit props `PropKit.LIB_USE`; entries may set them as
+dials), drawn by the use pass before the varnish (helpers in `src/render/wood_use.gdshaderinc`): the
+arrises worn uneven and knocked (`knock_r` grows `edge_round` there), one dent or V-groove cut in a
+14 cm cell at most, faded under a pixel; and by the board's use role (CUSTOM2.w mod 10; the look's
+`/<role>`, `PropKit.LIB_ROLES`; a building member's meta `use_role`): 3 door leaf (latch at +Y, meta
+`latch`), 4 tread, 5 walk, 6 kick, 7 bar top, 8 seat, 9 grip. They feed the varnish's `wear` (`urub`)
+and draw pale, polish, grime, cuts and burns after it; their relief joins the eased edge's tilt.
 **Paint** (#721's paint round, 2026-11-11): entries of family `paint` (codes P1-P6) lie `over` a wood
 (`MaterialLibrary.resolved`: the wood's fields under the paint's; `panel_class` the panel's gaps;
 `wood_class` the resolved class SamplePanel uses); `--panels=paint`; an `inside` entry adds the 1 m night
@@ -2714,7 +2755,11 @@ the bridge's `stand` and `prop_light`).
   man) and `under_hat`. `tools/characters/private_people.gd` builds each level as the game does;
   `tools/characters/metahuman_bench.py` is the valley bench with him as the townsfolk
   (perf_bench `--folk-model=`, `--folk-far-model=`, `--folk-dress`). Report:
-  `docs/reviews/2026-11-metahumans-town.md`.
+  `docs/reviews/2026-11-metahumans-town.md`. **The fetch** (#933): `tools/characters/fetch_private.sh
+  [build]` runs the Studio's own lay step from `../saltcreek-characters` or a sparse clone with
+  `STUDIO_TOKEN` (CI's export job, beside Harlan's hands; nothing without it). **The cast**:
+  `config/private_cast.json` (who, his level, hat and vest tint; `on`), asked by `ValleyFolk._make`
+  through `PeopleBodies.cast_model`/`cast_dress`; a man not laid in keeps his Studio man.
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` paints each man in `characters.json` full length
   in an A-pose, clean (Tripo wants a smooth picture; the squares are made last). **The fal
@@ -2953,6 +2998,7 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   (`SightWorld`, the sight service: below), `fire.rs` (`FireCore`, the fire's member tick: "src/fire"),
   `blast.rs` (`BlastCore`, `Blast.face_impulse`'s sum and `torn_stretch`'s search: "src/blast"),
   `crash_guard.rs` (`CrashGuard`: crash handlers, minidumps, the freeze watchdog: "Bug reports"),
+  `cloth.rs` + `cloth_core.rs` (`ClothCore`, our own cloth: "src/bodies"),
   `watchdog.rs` (`QuitWatchdog`, the quit's last layer).
 
 - **The sight service** (`src/people/sight.gd`, `Sight`; more-cores step 3): every body on the
@@ -2993,3 +3039,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   run.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it
   writes them ("Import files committed"): run `godot --headless --import` and commit them.
+- **A lab's film on a runner** (`lab_film.yml`, `tools/lab_film.py`; #973): a `claude/` branch push whose
+  last commit changes `experiments/<lab>/film/request.txt` (dev bridge commands, plus `@start`, `@stop`,
+  `@encode`, `@still`, `@godot`) builds the native plugin, renders under software Vulkan and commits
+  `film/out/` (mp4s, stills, `replies.jsonl`; a `.gdignore` keeps Godot off it) back to the branch, ~15
+  min plus the film (~4 min a 7 s angle at 960x540). For workspaces that can't build the plugin (crates.io
+  blocked) or fetch CI's artifacts (their host blocked). Its push builds nothing; pull before pushing again.

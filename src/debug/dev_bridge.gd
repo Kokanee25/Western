@@ -1143,6 +1143,7 @@ func _frame() -> Dictionary:
 		"physics_ms": snappedf(float(sec.get("physics_ms", 0.0)), 0.01),
 		"ticks": snappedf(float(sec.get("ticks", 0.0)), 0.01),
 		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+		"render_cpu_ms": snappedf(float(sec.get("render_cpu_ms", 0.0)), 0.01),
 		"nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
 		"clock": _clock().get_clock_text() if _clock() else ""}
 

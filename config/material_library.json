@@ -137,7 +137,7 @@
    "value_jitter": 0.04, "hue_jitter": 0.015, "floor": {"paint": 0.0}
   },
   {
-   "id": "floor_fir_worn", "code": "FL1", "family": "floor", "class": "floor", "panel_class": "common", "approved": ["new", "few", "old"], "inside": true,
+   "id": "floor_fir_worn", "use_wear": 0.8, "dings": 0.0, "code": "FL1", "family": "floor", "class": "floor", "panel_class": "common", "approved": ["new", "few", "old"], "inside": true,
    "name": "Fir and pine floor boards, oiled, worn where feet go (a common building's floor)",
    "layout": "horizontal", "board_w": 0.13, "board_t": 0.022, "nails": 0, "arris": 0.0,
    "scans": {"a": {"id": "Wood058", "grain": "v", "metres": [1.2, 1.2]}, "a2": {"id": "Wood014", "grain": "u", "metres": [1.4, 1.4]}},
@@ -147,7 +147,7 @@
    "value_jitter": 0.13, "hue_jitter": 0.05, "normal_strength": 0.75
   },
   {
-   "id": "furniture_oak", "code": "FN1", "family": "furniture", "class": "furniture", "panel_class": "fine", "approved": ["new", "few", "old"], "inside": true,
+   "id": "furniture_oak", "use_wear": 0.7, "dings": 0.0, "code": "FN1", "family": "furniture", "class": "furniture", "panel_class": "fine", "approved": ["new", "few", "old"], "inside": true,
    "name": "Oak, straight-grained stock, varnished: office furniture (desks, chests, cases)",
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0, "arris": 0.4,
    "scans": {"a": {"id": "red_oak_veneer", "grain": "u", "metres": [0.55, 0.55]}},
@@ -156,7 +156,7 @@
    "grime": 0.0, "sun_fade": 0.0, "streaks": 0.0, "joint_dirt": 0.3, "value_jitter": 0.06, "hue_jitter": 0.03, "normal_strength": 0.7
   },
   {
-   "id": "furniture_painted_pine", "code": "FN2", "family": "furniture", "class": "furniture", "panel_class": "fine", "over": "common_pine_lap", "approved": ["new", "few"], "inside": true,
+   "id": "furniture_painted_pine", "use_wear": 0.6, "dings": 0.0, "code": "FN2", "family": "furniture", "class": "furniture", "panel_class": "fine", "over": "common_pine_lap", "approved": ["new", "few"], "inside": true,
    "name": "Painted pine (a slate grey-green oil paint): shelving, counters, plain pieces",
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0, "arris": 0.4, "checks": 0.0, "end_rot": 0.0, "contact": 0.0, "age_split": 0.0,
    "scans": {"a": {"id": "Wood048", "grain": "u", "metres": [0.9, 0.9]}, "a2": {"id": "Wood050", "grain": "u", "metres": [0.9, 0.9]}},
@@ -168,7 +168,7 @@
    "value_jitter": 0.03, "hue_jitter": 0.01
   },
   {
-   "id": "furniture_walnut", "code": "FN3", "family": "furniture", "class": "furniture", "panel_class": "fine", "approved": [], "inside": true,
+   "id": "furniture_walnut", "use_wear": 0.5, "dings": 0.0, "code": "FN3", "family": "furniture", "class": "furniture", "panel_class": "fine", "approved": [], "inside": true,
    "name": "Black walnut, varnished: one good piece a room (a fine room's desk or case)",
    "layout": "vertical", "board_w": 0.083, "board_t": 0.019, "nails": 0, "arris": 0.4,
    "scans": {"a": {"id": "black_walnut_veneer_02", "grain": "u", "metres": [0.6, 0.6]}, "a2": {"id": "Wood051", "grain": "u", "metres": [0.6, 0.6]}},
