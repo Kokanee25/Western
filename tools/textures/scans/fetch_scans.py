@@ -171,6 +171,8 @@ def models(picks_path: str, out: str) -> None:
         d = os.path.join(out, aid)
         if os.path.exists(os.path.join(d, "meta.json")):
             print("have", aid, flush=True)
+            for k in p.get("extra", []):
+                _extra(aid, d, k, p.get("res", "1k"))
             continue
         print("model", aid, flush=True)
         try:
@@ -208,6 +210,34 @@ def models(picks_path: str, out: str) -> None:
         with open(os.path.join(d, "meta.json"), "w") as f:
             json.dump(meta, f, indent=1)
         print("  ok", sorted(os.listdir(d)), flush=True)
+
+
+def _extra(aid: str, d: str, key: str, res: str) -> None:
+    """Another map of a model kept beside its own (#962: grass_medium_02's `dry_diff`, the same blades
+    dried): textures/<aid>_<key>_<res>_alpha.png, the model's Alpha baked in as _alpha() does."""
+    from PIL import Image
+    dst = os.path.join(d, "textures", f"{aid}_{key}_{res}_alpha.png")
+    if os.path.exists(dst):
+        print("  have", key, flush=True)
+        return
+    try:
+        files = get_json(f"{PH_API}/files/{aid}")
+        r = files[key].get(res) or next(iter(files[key].values()))
+        fmt = r.get("png") or r.get("jpg")
+        rgb = Image.open(io.BytesIO(get(fmt["url"]))).convert("RGB")
+        a = None
+        if "Alpha" in files:
+            ra = files["Alpha"].get(res) or next(iter(files["Alpha"].values()))
+            fa = ra.get("png") or ra.get("jpg")
+            a = Image.open(io.BytesIO(get(fa["url"]))).convert("L").resize(rgb.size, Image.LANCZOS)
+        out = rgb.copy()
+        if a is not None:
+            out.putalpha(a)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        out.save(dst, optimize=True)
+        print("  extra", key, "->", os.path.basename(dst), flush=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"  FAILED extra {key} of {aid}: {e}", flush=True)
 
 
 def _alpha(aid: str, d: str, gl: dict, files: dict, res: str) -> None:
