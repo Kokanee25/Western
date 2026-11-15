@@ -192,7 +192,8 @@ leading in, the log's last lines; `perf_report.py` and `replay.gd` read a crash 
 (`debug/settings/gdscript/always_track_call_stacks`), so Godot's crash handler prints the GDScript
 backtrace there too; the official release templates have no symbols, so Godot's own frames are
 addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread|abort|panic|script]`
-(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`.
+(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`, `-- --crash-box=DIR` (a
+black box of its own, for games run side by side).
 `tests/test_crash_reports.gd`.
 
 ## The soak
@@ -1611,6 +1612,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   nojustice.met, camp, knew_the_way, costume, trail. `-- --world=valley --mission=no_justice [--followed]`,
   `moment no_justice_camp set_up=1 [at_camp=1 met=..]`; valley_bench spot `ute_camp`. Playtest brief
   `experiments/no_justice/PLAYTEST_CAMP.md`. Joe's lab dials: `--joe-tune=key:value+...` (CompanionBrain).
+- **No Justice's hideout fight** (#934, step 3 of #843's plan; `src/missions/no_justice_hideout.gd`,
+  `NoJusticeHideout`, an `Act`; data `config/moments/no_justice_hideout.json`, lines from the script's ride and
+  fight; `tests/test_no_justice_hideout.gd`): started by the camp's end (`NoJusticeCamp.next_act`, Joe handed on;
+  `no_next` stops it), `-- --world=valley --mission=no_justice_hideout [--arrive]` or `moment no_justice_hideout
+  set_up=1 [arrive=1]`. Trail (walk on with Joe) -> the ride's card (to the top of `mesa_back_trail`, then down it)
+  -> on the slope west of `hideout`, Joe's close/warn, the count and ask at `watch`. The set in the place's frame
+  ([east, south] off its `at`): the shack (`FalseFrontBuilding` as a gable shack; `shut_door(barred)`: the open
+  leaf out, a shut leaf and a bar in), a fire (a light), kit props (a `call` names the crew's spotted line by it),
+  six tied horses, five OutlawBrains `hold`ing about their camp (`own_lines`: the script's hit/leg lines, the
+  spotted call by place, the last man's quit set as he gives up) and Kett (no gun, no brain: the act runs him to
+  the shack at the alarm and bars him in). The alarm: a man sees you or Joe, hears a shot, or is hit
+  (`started`: opened by your or Joe's shot, `Events.shot_fired`). Ends `after` the crew are out and Kett's
+  settled. Facts nojustice.hideout, started, kett (holed_up / dead_outside / down_outside / dead_inside), crew,
+  seen, joe. valley_bench spot `hideout` (`--no-hideout-act`).
 - **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
   out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
   `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.
@@ -2080,6 +2095,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 
 ## src/blast
 
+- **The first instant** (#596 step 3): `BlastCloud._flash` (one OmniLight, no shadows, white-hot to
+  orange and out in `flash_s`, 0.1 s; `flash_sprites`, unlit glows that go with it, their clock the
+  frame's), `_ring`/`ring_at` (dust kicked out flat along the ground or floor under the charge, its
+  speed and reach setting the drag; none past `ring_height` up) and `_spray` (loose dirt or splinters
+  thrown up out of the vent as streaks, falling back; `speed_cap` keeps it and the chunks under a
+  ceiling). Dials in BlastTuning's "The first instant" (proposed). The ring and dirt start on the
+  tick after the blast with the dust; all three warmed at load (`warm_up`). GPU particles only.
+  Films: the sound lab's `instant_*` scenarios with `--picture` (`--crash-watch=600,0` and a crash box
+  each: no notices over a drawn film); tests `test_blast_first_instant.gd`.
 - **Men thrown through the air** (#596 step 3b): `BlastTuning.blast_lift` (0 the real push alone,
   the game's until Sean picks; proposed 0.8 / 1.1) adds a lift to `HumanBody.take_blast`'s push,
   `Blast.lift_share` (steep: ~all of it a metre off, a quarter at 3 m, none at 6), up by `lift_angle`

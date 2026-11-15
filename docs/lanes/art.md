@@ -62,7 +62,7 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   twice (`docs/screenshots/judge/2026-11-13_saloon_b_r2`): **the bar room good indie, the corner cheap indie**
   (its tells in the README: no town or sky round it, blank sign, no porch lamps, one even red; inside, one glossy
   red-brown wood, nothing dressed). **Next: the prop lab furnishes it; then the general store.** Open with Sean:
-  the hip or the plain roof, porch lamps (#885). Step 3 (#886): the sign, on `claude/art-saloon-b-sign`. Wants from the
+  the hip or the plain roof, porch lamps (#885). Step 3 (#886) merged: THE NEW OCCIDENTAL on a walnut board (two lines, 4.9 m, `front.sign_width`) and four walk lamps; the sign reads by day, weakly at dusk, not at night (board contrast or a light on it open). Valley bodies 31,395 of 32,768. Wants from the
   material library: a dressed-timber entry and a matt floor. Not done: the cellar dug in the valley (#695), No
   Law's set (still in the yard: gameplay's to move).
   Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; name every

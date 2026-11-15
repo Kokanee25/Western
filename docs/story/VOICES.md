@@ -65,16 +65,16 @@ fact, not the beat.
   As he loses blood the sentences shorten to a word (D: signature feature 1; three bands built).
 - **Calls Harlan:** "Harlan" (built). "Son", once.
 - **Knows:** B0, his killer's horse, voice and manner, not his name: a stranger he took for a
-  traveller and let ride up. Not Kett (D, Sean 2026-11-13, #830); by C16 a (P, Sean's lean) the
+  traveller and let ride up. Not Kett (D, Sean 2026-11-13, #830); by C16 a (D, Sean 2026-11-13) the
   Baron's new foreman, whom he'd never seen: a bald-faced sorrel, and he called him "friend". That the Baron has wanted his ditch for years (P·bible), so he can guess why. B1, whether
   Harlan helped. He does **not** know about Earl or the camp unless someone tells him at B3.
 - **Lines:**
   1. "Man in a faded red shirt. Rode up easy, like he wanted directions. Then he shot me." (built;
-     reads wrong since 2026-11-13. By C16 a, P: "Stranger on a bald-faced sorrel. Rode up easy, like
+     reads wrong since 2026-11-13. By C16 a, D: "Stranger on a bald-faced sorrel. Rode up easy, like
      he wanted directions. Called me friend. Then he shot me.")
   2. "Well? Nod or don't, but don't just stand there." (built)
   3. "That's not the way this works, son." (Sean's beat, 2026-11-09; this wording is #796's)
-  3a. Day 2, clear (by C16 a, P): "Bald-faced sorrel. Called me friend. I'd know him again. You find
+  3a. Day 2, clear (by C16 a, D): "Bald-faced sorrel. Called me friend. I'd know him again. You find
      him, Harlan." (the built "Faded red shirt..." reads wrong since 2026-11-13)
   4. Day 2, clear: "He's wanted my ditch since the day I cut it. Now he'll go at her. Look to them."
   5. Day 2, fading: "...boot." (P, not picked: S33)
@@ -169,7 +169,7 @@ fact, not the beat.
 - **Who:** the man who pays, and the stranger who sits down at Harlan's table at B2 and holds him in
   his chair: one man (D, Sean 2026-11-11, #830, C10 b). He knew Cody would kill that night. He walks
   up the widow's lane with the deed (D, v2) and paid the two who pulled the rail (D, v2). One face
-  for three jobs (`SETUPS.md` S39). **By Sean's lean (C16 a, P, 2026-11-13): he shot the sheriff at
+  for three jobs (`SETUPS.md` S39). **By Sean's pick (C16 a, D, 2026-11-13): he shot the sheriff at
   B0**, and is new to the valley this season (P·bible), which is why the sheriff didn't know him and
   why the Baron sent him. At the table he wants to know what the sheriff told Harlan.
 - **His built lines are fixed** (`config/moments/no_law_murder.json`), and this sheet must fit them:
@@ -183,7 +183,7 @@ fact, not the beat.
   one man, is Sean's or the script's call. Until then, write him to the built lines: calm, few
   words, friendly the way a man is who can afford it.
 - **Calls Harlan:** "friend" (built); "Deputy" once he has the badge, with a smile.
-- **Knows:** every payment and every errand; by C16 a (P), B0 from his own hand; from before B2,
+- **Knows:** every payment and every errand; by C16 a (D), B0 from his own hand; from before B2,
   that Cody would kill Earl that night;
   the raid's purpose (C4 a); the rail and the girder (C1 a). Not what the ledger says: that's the
   bookkeeper's (P).
@@ -194,7 +194,7 @@ fact, not the beat.
   4. "I pay on the first. What a man does with it is his own lookout."
   5. "We've met, Deputy. You sat very still." (the lane, to a player who was at the table; "You
      should have sat still", to one who went for him: C16 a, P·bible)
-  6. "Morning, Sheriff. Am I right for the ford, friend?" (B0, by C16 a, P; nobody alive hears it but
+  6. "Morning, Sheriff. Am I right for the ford, friend?" (B0, by C16 a, D; nobody alive hears it but
      him. Was Kett's)
   7. "Heard it was you brought the sheriff in. He say who it was?" (B2, at the table, P·bible:
      Harlan can nod or shake, and lie to him)
@@ -241,7 +241,7 @@ fact, not the beat.
   3. "They're coming tonight. Thing is, I can't tell you what for."
   4. "You're the law, ain't you? Then it's on you to keep me breathing."
   5. "I'll say who shot the sheriff, and who paid him. Not here. Not where he can reach." (was "who
-     paid for the sheriff"; by C16 a, P, "he" is the foreman and the Baron both)
+     paid for the sheriff"; by C16 a, D, "he" is the foreman and the Baron both)
 - **Threads:** T1, T7, the ending.
 
 ### The stranger
@@ -379,7 +379,7 @@ A line that gives one of these away before its beat is wrong.
 
 | # | The secret | Know it from the start | Harlan (the player) learns it | The town learns it |
 |---|---|---|---|---|
-| K1 | A stranger shot the sheriff (by C16 a, P: soft-spoken, "friend", a bald-faced sorrel) | The sheriff; Kett, Cody, the foreman, the Baron | B1 on the road, or B3 at the doctor's | Loosely, after B3: "some stranger on a sorrel" |
+| K1 | A stranger shot the sheriff (by C16 a, D: soft-spoken, "friend", a bald-faced sorrel) | The sheriff; Kett, Cody, the foreman, the Baron | B1 on the road, or B3 at the doctor's | Loosely, after B3: "some stranger on a sorrel" |
 | K2 | A man in a faded red shirt killed Joe's wife: **not** the man who shot the sheriff (D, Sean 2026-11-13, #830) | Kett's crew; the camp (the shirt) | B5, at the camp | Never, unless Harlan's arrest or Cody's talk makes it known |
 | K3 | His name is Silas Kett | The crew, the foreman, the Baron, Rourke (P) | When someone names him (D; who: O) | The same |
 | K4 | The Baron's men did both, on his pay | The Baron, the foreman, the crew | From Cody (after B8), Gang B's man (B11), the Kid (B12 on), or the papers (B14) | The paper, B17, if the case is strong |
@@ -392,4 +392,4 @@ A line that gives one of these away before its beat is wrong.
 | K11 | The stranger at the table is the Baron's foreman (C10 b) | The foreman, the Baron, Cody; the barkeep (O) | B10, when he walks up the widow's lane (if Harlan sat with him at B2), or when Gang B's man names him (B11) | When Harlan's case or the paper says so |
 | K12 | The raid on the camp was provocation: the Baron wants a Ute "outbreak" (C4 a) | The Baron, the foreman, Rourke; Kett and Cody (what they were told: the script's) | From Cody after B8, the papers (B14), or by putting the wire (S26) beside the saddle at B13 | The paper, B17, if the case is strong |
 | K13 | Harlan served under Rourke (C15 a) | Harlan, Rourke | The player pieces it from S38's plants; Rourke says it at B12 or the trestle (P) | Never, unless Harlan or Rourke says it |
-| K14 | The stranger at the table shot the sheriff (C16 a, P, Sean's lean) | The foreman, the Baron, Cody; Kett (the script's) | B2, if he heard the sheriff and knows the sorrel and "friend" at the table; B10 on the widow's lane; or from Cody (after B8) | When Harlan's case or the paper says so |
+| K14 | The stranger at the table shot the sheriff (C16 a, D, Sean 2026-11-13) | The foreman, the Baron, Cody; Kett (the script's) | B2, if he heard the sheriff and knows the sorrel and "friend" at the table; B10 on the widow's lane; or from Cody (after B8) | When Harlan's case or the paper says so |
