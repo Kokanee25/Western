@@ -52,3 +52,31 @@ func test_a_man_without_levels_is_drawn_from_his_own_glb() -> void:
 	check_eq(PeopleBodies.glb_of(&"doctor_s2_talking"), &"doctor_s2_talking", "no lod in his report: his own")
 	check(PeopleBodies.has_model(&"doctor_s2_talking"), "the doctor still found")
 	check(not PeopleBodies.has_model(&"private/nobody"), "a private man not laid in: none (the game falls back)")
+
+
+func test_a_cast_man_is_the_private_level_only_when_laid_in() -> void:
+	# config/private_cast.json (#933): the townsman is played by the private man's lod1 once
+	# tools/characters/fetch_private.sh laid him in; without the files (CI's tests, a fork) he keeps
+	# his own Studio man. Someone not in the cast always keeps his own.
+	var c := PeopleBodies._cast_data()
+	check(c.get("people", {}).has("townsman"), "the townsman is cast")
+	var was_on: bool = c.get("on", true)
+	c["on"] = false
+	check_eq(PeopleBodies.cast_model(&"townsman", &"storekeeper_s1_talking"), &"storekeeper_s1_talking",
+			"the cast off: his own man, laid in or not")
+	c["on"] = true
+	var level := StringName("private/%s_%s" % [c.build, c.near])
+	var want := level if PeopleBodies.has_model(level) else &"storekeeper_s1_talking"
+	check_eq(PeopleBodies.cast_model(&"townsman", &"storekeeper_s1_talking"), want,
+			"laid in: his level; not: his own man")
+	check_eq(PeopleBodies.cast_model(&"barkeep", &"barkeep_s2_talking"), &"barkeep_s2_talking", "not cast: his own")
+	var man := HumanBody.new()
+	man.body_model = &"storekeeper_s1_talking"
+	man.hat_color = Color(0, 0, 0, 0)
+	PeopleBodies.cast_dress(man, &"townsman")
+	check_eq(man.hat_color.a, 0.0, "a man playing his own model isn't re-dressed")
+	man.body_model = level
+	PeopleBodies.cast_dress(man, &"townsman")
+	check(man.hat_color.a > 0.0, "a private man gets his cast hat")
+	man.free()
+	c["on"] = was_on
