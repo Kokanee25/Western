@@ -32,7 +32,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   no trough along the row, flame white; two rounds spent: next is placing it in the room and judging it there by
   lamplight, a continuous trough for the row is the cheap fix). Where each goes: README "Saloon B, the
   stage and dressing room". Placing waits for #902 (the room; not merged on 2026-11-14). No period refs saved (Commons came back thin).
-- **Next:** the room judged by lamplight (`place_views.gd`, two rounds) on a machine with ~10 GB; then S4 (the chair
+- **Next:** #987, the room judged by lamplight (`place_views.gd`, two rounds) on a machine with ~10 GB; then S4 (the chair
   and strongbox, the CLOSE notes; Blender needs `bpy`, which needs pypi).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
   (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
