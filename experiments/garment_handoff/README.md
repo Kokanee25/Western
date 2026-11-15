@@ -22,8 +22,11 @@ met him with its slide along him kept, pinches between his pressed fingers left 
   out bare. Nothing of the glove through his hand to the eye at 960×540. For a few frames as it leaves,
   specks of his forearm's skin aren't drawn yet (`uncover`, a third of the points a tick: the vest shows
   through), gone within 0.2 s. Flung 0, below the floor 0, pop 1.4 mm, worst stretch 1.09, at rest 7.1 s.
-- **On sean_s3_talking** (`tests/test_garment_handoff.gd`): 7 points >2 mm under his skin (Jolt's 15-20),
-  2 deeper than 1 cm, stretch 1.05.
+- **By the count** (`under_skin`, worst in the draw, six seeds of his idle): on the MetaHuman 13-14 points
+  >2 mm under his skin and 1-3 deeper than 1 cm every seed (Jolt's glove counted 8 and 1, yet went
+  through his hand to the eye); on sean_s3_talking chaotic, 11-50 and 3-16 (his sleeve's modelled folds;
+  his denser real skin as the collider, `under_tris` 3000, no better). Where the 13-14 are is the next
+  question (step 3).
 - **The cost:** ~2 ms a tick on this workspace while it's drawn off (~1.3 at Sean's), the solver with his
   skin; over the brief's 0.5. Checking his skin every 2nd substep, or a band under 1 cm, made points stick
   on his fingers.
