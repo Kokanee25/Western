@@ -23,9 +23,12 @@ extends Resource
 
 @export_group("Streets and roads")
 @export var packed_dark := 0.8
-@export var rut_dark := 0.84
-@export var rut_depth := 0.07
-@export var rut_half := 0.13
+@export var rut_dark := 0.9
+@export var rut_depth := 0.11
+@export var rut_half := 0.12
+@export var berm_h := 0.55
+@export var berm_light := 0.1
+@export var rut_shadow := 0.4
 @export var gauge := 1.55
 @export var street_lane := 2.4
 @export var lane_wander := 0.45
@@ -36,8 +39,16 @@ extends Resource
 @export var straw_density := 12.0
 @export var puddle_cover := 0.18
 @export var detail_far := 40.0
+@export_group("Grassland")
+@export var grassland_a := Vector3(0.34, 0.29, 0.16)
+@export var grassland_b := Vector3(0.68, 0.56, 0.32)
+@export var grassland_near := 0.8
+@export var grassland_far := 0.9
+@export var grassland_tufts := 0.8
+@export var grass_cover := 0.75
 
 ## The dials the shader takes, by name.
 const DIALS := ["rock_from", "rock_full", "water_near", "grade", "grade_sat", "street_tint", "trail_tint", "packed_dark", "rut_dark",
 	"rut_depth", "rut_half", "gauge", "street_lane", "lane_wander", "walk_edge", "hoof_density",
-	"hoof_depth", "manure_density", "straw_density", "puddle_cover", "detail_far"]
+	"hoof_depth", "manure_density", "straw_density", "puddle_cover", "detail_far",
+	"berm_h", "berm_light", "rut_shadow", "grassland_a", "grassland_b", "grassland_near", "grassland_far", "grassland_tufts", "grass_cover"]

@@ -1,0 +1,16 @@
+{
+ "id": "grass_medium_01",
+ "source": "polyhaven",
+ "licence": "CC0 1.0",
+ "page": "https://polyhaven.com/a/grass_medium_01",
+ "name": "Grass Medium 01",
+ "authors": [
+  "Rico Cilliers",
+  "Rob Tuytel"
+ ],
+ "polycount": 1606633,
+ "triangles": 24730,
+ "res": "1k",
+ "why": "a second grass clump, for variety (#962)",
+ "fetched": "2026-11-15"
+}

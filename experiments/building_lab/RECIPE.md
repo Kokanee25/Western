@@ -135,6 +135,24 @@ a file); the X-ray's and plan's images go in a `.gdignore`d folder (Godot import
   judges them (`experiments/prop_lab/doctor/dress.gd`) reads `building.dressed`, never a placement of
   its own. The jail (#811) and the store take theirs this way from their first prop.
 
+## Wear by use (#901, Sean 2026-11-13: "wear and dents to the wood ... basically everywhere")
+
+- **Every building is worn by its own use, from its data, never painted per room.** The spec's
+  `materials.wear` says how hard the place is used and knocked about: `use` (a saloon 1.0, the jail
+  0.65, the doctor's careful office 0.45) and `dings` (dents, gouges, crushed arrises: 0.9, 0.75,
+  0.4); without it a middling 0.5 each (`SpecBuilding.WEAR_DEFAULT`). Its library wood draws them
+  (`scan_wood.gdshader`'s use pass, `src/render/wood_use.gdshaderinc`), every mark from the board's
+  own seed, growing with the finish's age.
+- **The members say how they're used** (meta `use_role`, set where the member is made): a door's leaf
+  (3; its latch edge, away from the hinge, turned to the board's +Y: grease at the push, boots at its
+  foot), a stair's tread (4: dished in the middle, its nosing rounder), a walk's middle boards (5: the
+  deck's middle 40 % across, worn along), a door's jamb (9: polished and grimy at the hand's height).
+  The floor's feet are the traffic map's (above). A new kind of member that's used gets a role, not a
+  painted patch.
+- **The props are worn by their kit looks** (`lib:<entry>/<age>/<role>`, `docs/briefs/prop-factory.md`
+  point 1): the bar's top `bar` (its front rubbed and dark, burns along the edge, rings, initials),
+  its plinth and low rail `kick` (boots' scuffs).
+
 ## Light (#824, Sean's pick 1 on #821: rooms get real light)
 
 The doctor's office is the test room; the jail, the store and saloon B follow it.

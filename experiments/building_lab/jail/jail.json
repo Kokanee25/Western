@@ -1622,6 +1622,7 @@
  "furniture": [],
  "fixtures": [],
  "materials": {
+  "wear": {"use": 0.65, "dings": 0.0, "_why": "#901 (dents off until the judges like them, Sean 2026-11-14): the county's: drunks, deputies' boots, men thrown about"},
   "_doc": "Step 4 (#811; the library by name, passing entries only): the stone is the game's (`stone`) until the masonry lab's rubble look; the doors and gates the library's oxblood paint (passed few and old); the floor the library's worn fir (#825, worn on the jail's ways); the sashes, casings and skirting the bottle-green trim (reads near black indoors, as the sheet's dark sash); the guard room's partition the pale beaded boards; the roof's joists and boards, seen from the rooms, and rough timber the batten.",
   "finishes": {
    "doors": {

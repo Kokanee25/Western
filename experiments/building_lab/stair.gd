@@ -63,6 +63,7 @@ static func build(s: Structure, id: String, head: Vector3, up: Vector3, across: 
 		c.y = top - TREAD_T * 0.5
 		var size := up.abs() * depth + Vector3.UP * TREAD_T + side.abs() * width
 		var t := s.add_member("%s/tread/%02d" % [id, i], &"furniture_top", wood, size, c)
+		t.set_meta(&"use_role", 4.0)  # dished where feet land (#901; scan_wood's use roles)
 		out.append(t)
 		var rc := front + up * (RISER_T * 0.5) + side * (width * 0.5)
 		rc.y = top - TREAD_T - (rise - TREAD_T) * 0.5

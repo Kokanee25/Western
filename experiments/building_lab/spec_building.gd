@@ -1238,6 +1238,8 @@ func _finish(face: Dictionary, id: String, s0: float, s1: float, y0: float, y1: 
 		for side in 2:
 			var cx0 := o.position.x - cw if side == 0 else o.end.x
 			var m := _on_face(face, "%s/jamb%d" % [cid, side], &"trim", &"oak", cx0, cx0 + cw, o.position.y - (0.04 if o.position.y > y0 + 0.3 else 0.0), o.end.y, t, t + 0.022)
+			if m and o.position.y <= y0 + 0.3:
+				m.set_meta(&"use_role", 9.0)  # a door's jamb: hands at the latch's height (#901)
 			PropKit.dress_member(m, {"shape": "profile", "profile": "beaded", "along": "y", "up": n_axis, "across": along_axis, "args": [0.006]}, oak)
 		var hd := _on_face(face, "%s/head" % cid, &"trim", &"oak", o.position.x - cw - 0.03, o.end.x + cw + 0.03, o.end.y, o.end.y + 0.13, t, t + 0.03)
 		PropKit.dress_member(hd, {"shape": "profile", "profile": "ogee", "along": along_axis, "up": n_axis, "across": "y"}, oak)
@@ -1370,7 +1372,11 @@ func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float, at_end := false)
 	var c := hinge + into * (lw * 0.5 + 0.03) + along * (0.025 * k)
 	c.y = o.position.y + 0.01 + lh * 0.5
 	var size := into.abs() * lw + Vector3.UP * lh + along.abs() * 0.04
-	add_member("%s/door_%d" % [wall.name, int(o.position.x * 100)], &"door", &"painted_rust", size, c)
+	var leaf := add_member("%s/door_%d" % [wall.name, int(o.position.x * 100)], &"door", &"painted_rust", size, c)
+	# Its use (#901): hands at the latch, the edge away from the hinge.
+	if leaf:
+		leaf.set_meta(&"use_role", 3.0)
+		leaf.set_meta(&"latch", into)
 
 
 func _partitions(level: String, b: int) -> void:
@@ -2482,14 +2488,19 @@ func _deck(id: String, r: Array, top: float, against: String, posts: Array) -> v
 		var x := x0
 		while x < x1 - 0.02:
 			var xb := minf(x + 0.14, x1)
-			add_member("%s/board_%d" % [id, i], &"floor_board", StringName(spec.materials.get("deck", "weathered_pine")), Vector3(xb - x - 0.004, bt, z1 - z0), Vector3((x + xb) * 0.5, top - bt * 0.5, (z0 + z1) * 0.5))
+			var wb := add_member("%s/board_%d" % [id, i], &"floor_board", StringName(spec.materials.get("deck", "weathered_pine")), Vector3(xb - x - 0.004, bt, z1 - z0), Vector3((x + xb) * 0.5, top - bt * 0.5, (z0 + z1) * 0.5))
+			# The walk's middle boards worn along it (#901): its middle 40 %% across.
+			if absf((x + xb) * 0.5 - (x0 + x1) * 0.5) < (x1 - x0) * 0.2:
+				wb.set_meta(&"use_role", 5.0)
 			x = xb
 			i += 1
 	else:
 		var z := z0
 		while z < z1 - 0.02:
 			var zb := minf(z + 0.14, z1)
-			add_member("%s/board_%d" % [id, i], &"floor_board", StringName(spec.materials.get("deck", "weathered_pine")), Vector3(x1 - x0, bt, zb - z - 0.004), Vector3((x0 + x1) * 0.5, top - bt * 0.5, (z + zb) * 0.5))
+			var wb := add_member("%s/board_%d" % [id, i], &"floor_board", StringName(spec.materials.get("deck", "weathered_pine")), Vector3(x1 - x0, bt, zb - z - 0.004), Vector3((x0 + x1) * 0.5, top - bt * 0.5, (z + zb) * 0.5))
+			if absf((z + zb) * 0.5 - (z0 + z1) * 0.5) < (z1 - z0) * 0.2:
+				wb.set_meta(&"use_role", 5.0)
 			z = zb
 			i += 1
 
@@ -2791,18 +2802,29 @@ func _library_finishes() -> void:
 		# Inside, the paint's wear (the hand band, scuffs, dust at the skirting) is measured from the
 		# room's floor, not the street's ground (#821, the review's cause 7: the doctor's floor is
 		# 0.95 m up, so his hand band fell at the floor line and the scuffs under it).
-		var ground := gy + (_floor_under(m) if INSIDE_FINISHES.has(fname) else 0.0)
+		# Its use (#901, scan_wood's role: PropKit.LIB_ROLES), set where the member is made (`use_role`): a
+		# door's leaf, a tread, a walk's board, a door's jamb. A leaf's latch edge is turned to the board's +Y.
+		var role := float(m.get_meta(&"use_role", 0.0))
+		if m.has_meta(&"latch") and (m.get_meta(&"latch") as Vector3).dot(ey) < 0.0:
+			ey = -ey
+			ez = -ez
+		var ground := gy + (_floor_under(m) if INSIDE_FINISHES.has(fname) or role in [3.0, 9.0] else 0.0)
 		if m.has_meta(&"draw"):
 			# Run to a profile (a railing's handrail, #873): the library's wood along the same shape,
 			# trued as joinery is (a third of a board's warp).
 			mi.mesh = PropKit.lib_profile_mesh(m.get_meta(&"draw"), m.size, Transform3D(Basis(ex, ey, ez), -ex * length * 0.5),
-					float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp * 0.3, ground)
+					float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp * 0.3, ground, role)
 		elif strip > 0.0:
 			mi.mesh = strips_mesh(length, s[order[1]], s[order[2]], strip, rng, warp, nails, ground)
 		else:
-			mi.mesh = _board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground)
+			mi.mesh = PropKit.board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground, role)
 		mi.transform = Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
 		mi.material_override = _lib_material(f, gy)
+
+
+## A building's use and knocks where its spec has no `materials.wear` (#901).
+## (Dents and cuts off, `dings` 0, until the judges like them: Sean 2026-11-14, #901.)
+const WEAR_DEFAULT := {"use": 0.5, "dings": 0.0}
 
 
 ## The finishes inside the rooms, whose wear is measured from their floor (`_floor_under`).
@@ -2830,6 +2852,11 @@ func _lib_material(f: Dictionary, gy: float) -> ShaderMaterial:
 	MaterialLibrary.apply(mat, MaterialLibrary.entry(String(f.entry)), float(LIB_AGES.get(String(f.get("age", "few")), 0.5)), StringName(f.get("role", "wall")))
 	# Its walls' height (shelter under the eaves: the shader's `wall_top` over the ground).
 	mat.set_shader_parameter(&"wall_top", wall_height)
+	# How hard the place is used and knocked about (#901): the spec's `materials.wear`, else a middling
+	# building's. A saloon's 1, a doctor's office a half.
+	var wr: Dictionary = spec.materials.get("wear", {})
+	mat.set_shader_parameter(&"use_wear", float(wr.get("use", WEAR_DEFAULT.use)))
+	mat.set_shader_parameter(&"dings", float(wr.get("dings", WEAR_DEFAULT.dings)))
 	# A floor wood with feet's wear takes this building's ways (#825).
 	if String(f.get("role", "")) == "floor" and float(MaterialLibrary.resolved(MaterialLibrary.entry(String(f.entry))).get("traffic", 0.0)) > 0.0:
 		var tw := traffic_ways()
