@@ -161,7 +161,7 @@ band plays there. The spec's `stage` (FORMAT.md "Saloon B's stage"):
   placed): the dressing mirror over the table, the costume pegs across from it, the travelling trunk
   (one shut here, one open in the wing), the dressing screen across the corner by the door, as
   `experiments/prop_lab/README.md` "Saloon B, the stage and dressing room" says. The five footlights
-  are placed (its places, z 11.02), two of them lit.
+  are placed (its places, z 11.02), all five lit softly with no shadows (two shadowed lamps had cost ~1,600 draws).
 - **For gameplay (Payday Night):** the band's places are use points on the stage, behind the
   curtain's line: `fiddler` (4.3, 12.6), `band_2` (5.5, 12.7), `band_3` (6.5, 12.4), the act out
   front `stage_act` (4.9, 11.7), all at the stage's top (y 5.67); `wing_wait` in the wing; `dressing`

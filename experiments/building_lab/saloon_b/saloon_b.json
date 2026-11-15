@@ -3400,7 +3400,7 @@
 		}
 	},
 	"dressing": {
-		"_doc": "#844's placement (PropDressing): each entry a kit prop at [x, y over the ground floor (the upper floor 3.96, the stage 4.72), z]. #902: the stage's footlights (the prop lab's #903, its README's places; two of the five lit) and the dressing room's table, chair and lamp. The rest of the stage's props are the prop lab's to place.",
+		"_doc": "#844's placement (PropDressing): each entry a kit prop at [x, y over the ground floor (the upper floor 3.96, the stage 4.72), z]. #902: the stage's footlights (the prop lab's #903, its README's places; all five lit, softly and without shadows (two shadowed lamps cost ~1,600 draws)) and the dressing room's table, chair and lamp. The rest of the stage's props are the prop lab's to place.",
 		"batches": {
 			"stage": [
 				{
@@ -3411,7 +3411,11 @@
 						4.72,
 						11.02
 					],
-					"facing": 180
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
 				},
 				{
 					"id": "foot_1",
@@ -3422,7 +3426,10 @@
 						11.02
 					],
 					"facing": 180,
-					"light": 0.1
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
 				},
 				{
 					"id": "foot_2",
@@ -3432,7 +3439,11 @@
 						4.72,
 						11.02
 					],
-					"facing": 180
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
 				},
 				{
 					"id": "foot_3",
@@ -3443,7 +3454,10 @@
 						11.02
 					],
 					"facing": 180,
-					"light": 0.1
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
 				},
 				{
 					"id": "foot_4",
@@ -3453,7 +3467,11 @@
 						4.72,
 						11.02
 					],
-					"facing": 180
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
 				},
 				{
 					"id": "dress_table",
