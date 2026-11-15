@@ -1,0 +1,7 @@
+time 16.2
+clock off
+goto -3 0 -1 180
+gh_man -3 0 -6 0 sean_metahuman_s3
+gh_dress
+gh_cam hands
+gh_film build/mh_films/hands 10.5

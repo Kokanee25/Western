@@ -1,5 +1,10 @@
 # The viewmodel rig lab: Harlan's first-person hands, option 2 (#896)
 
+**Promoted (#914, 2026-11-14):** Sean picked option 2 (#913). The hands are in the game through
+`HeldHand` (it cuts them from `assets/people/private/harlan_fp.glb` where that's built; holds in
+`config/fp_holds.json`): LAYOUT "src/weapons". This lab's `fp_arms.gd`/`fp_rig.gd` stay for posing
+by eye on the gun lab's own guns; the game's poses live with the viewmodels.
+
 Sean, 2026-11-13, on the arms' fallback (#890's comment, option 2): "I like 2 - can we start an
 experiment doing that". The usual first-person way: the MetaHuman's **hands cut at the wrist**, with
 **modelled sleeves** (his shirt's cuff and his coat's sleeve), on a **first-person rig of their own,

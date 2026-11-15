@@ -2,8 +2,7 @@
 
 Branch `claude/gameplay-…`. Everything that isn't art, characters or props: missions, people, weapons,
 structures, blast, the valley, performance, CI. Replace your lines here at the end of a session; no history
-(that goes in `docs/status/` and the PR). Keep under ~10 KB. Full history to 2026-11-11:
-`docs/status/current-state-2026-11-11.md` "Gameplay", "The masonry lab", "The horse".
+(that goes in `docs/status/` and the PR). Keep under 10 KB (a test fails the build over it). History: `docs/status/`.
 
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746, build 3698): `-- --world=valley --mission=sheriff`; `StoryState`,
@@ -15,13 +14,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Harlan is unarmed till then. **The funeral** (#868, `-- --world=valley --mission=funeral`): the day after, at
   ten, at the cemetery; nolaw.funeral = attended / distance / missed, nolaw.offer_heard, baron.met; mourners
   are the folk's own men (`borrow`/`give_back`: never built in play). No Law's script still isn't OK'd (#835).
-  Open at the funeral (playtest `docs/playtests/2026-11-13-funeral.md`): nothing but the townsman's word says
-  it's on (a bell is sound's); the grave's filled unseen, never if you stay (no sexton); the mourners don't
-  turn to who's speaking; plain blocks for the box, grave and headboards (the prop lab's to make); the widow's
-  model reads as a man at 6 m and the preacher has nothing clerical (characters'); the Baron and foreman are
-  stand-in models; no children; the townsman walks up at 1.2 m/s (4 min from the hotel).
-  Open from step 4: the badge stays drawn on the dying sheriff's chest; the wife's `sit_back` hands float; Earl isn't seen laid out; the wife's "Were you with him?" doesn't
-  wait; nobody minds a drawn gun by day. **Next: the whole mission played end to end on the real clock and its
+  Open: playtests `docs/playtests/2026-11-13-funeral.md` and step 4's (the funeral's cues, grave, mourners'
+  looks, stand-in models; the badge on the dying sheriff, the wife's hands). **Next: the whole mission played end to end on the real clock and its
   seams mended (#876).**
 - **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
   `hideout` box canyon, 4 the cabin, the knife and the nod). **Steps 1-2 done.** Joe (`CompanionBrain`;
@@ -40,7 +34,6 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   the pad from the slope (the bake says it's in view); several men say one line at once; creep and open fire play
   the same; no woodpile in the kit; no canyon walls.
   **Next: step 4, the cabin, the knife and the nod (#966).**
-  Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
   picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
@@ -66,31 +59,23 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).
-- **The coach heist** (#794, #815, PR #839; `experiments/coach_heist/` README "After the hit"): `SwingingRam`,
-  `Dents`/`DentWatch`, `CoachDrive`, `CoachCut` (`-- --world=valley --mission=coach`), and `CoachFight`: the
-  guards dazed, up inside the wreck, one in the door on top, the rest out to the lee; the strongbox hauled out,
-  padlock shot, papers taken or the box shouldered; won up the rimrock trail, Enter again; StoryState `coach.*`.
-  8 scripted runs (`fight_runs.py`): won 5, lost 2, one standoff; worst frame ~32 ms at Sean's. Open: the throw
-  breaks most of the guards' bones (BodyImpacts inside the coach), so most give up without firing; the playtest
-  (`docs/playtests/2026-11-12-coach.md`): no horses, the rescue loop. Next: #840.
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
-  --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881,
-  the review's "After the cuts")**: far men ~0.3 of a near man (`PeopleTickTuning.seen_nearer_far`,
-  `aim_needs_sights`), calm men look at calm men every 2nd look (`calm_look_every`, `HumanBody.tick_calm`),
-  fingers posed on change; day with 25 ≈ 3.5 on #865's scale (4.9 on the slower workspace that measured it):
-  **the brief's 24 fit**. The valley's spec buildings warm their first analysis on a worker
+  --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881; the review's "After the cuts"): the brief's 24 townsfolk fit.** The valley's spec buildings warm their first analysis on a worker
   (`Structure.warm_analysis`; the valley has no FireSystem, so a settle is whole on one frame). `max_bodies`
   65,536. Train past 400 m `Train.distant`. Open: every scene's else is over (~1 ms untimed engine share, the
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
-- **The garment handoff** (#917; LAYOUT "src/bodies"): `GarmentHandoff` in the game (a glove; take, the pull's
-  release, his skin the collider, baked at rest); +0.40 ms while it simulates. Next: polish (inside of the glove,
-  wrist dips, the toss), then a bridge command or scene to trigger it; then stocking, coat, torn-shirt bandage.
+- **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` (a glove; take, the pull's release,
+  his skin hidden under it until the cloth leaves it, baked at rest) and `GloveAct` (bridge `glove MAN [toss_to X
+  Y Z]`). **The glove still goes through his hand as it's drawn off** (Jolt's cloth can't stretch over it). Sean
+  2026-11-15: our own cloth solver (`docs/briefs/garment-cloth.md`, 6 steps, native), for leggings and jackets
+  too; only the MetaHuman (copied in, never committed; the lab defaults to him; CI tests on sean_s3_talking).
+  Next: the solver's step 1 (needs crates.io reachable from the cloud workspace).
 
 ## Parked until after the slice
-train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
+coach heist (#840; `experiments/coach_heist/` README) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
 dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 3 (#667) · horse (#341,
 riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · perf step 9 (#401) · Payday
 Night floor lab (#745).
@@ -98,17 +83,12 @@ Night floor lab (#745).
 - **Resets and places** (#864, the review's R3): a reload wipes the story (`GameReset`; No Law plays again after
   Backspace); a mission's retry starts from the story at its start (`GameReset.retry`, `StoryState.mark_checkpoint`).
   `WorldPlaces`: knocked out in the valley you wake at its doctor's (`bedside`), else the store's walk; the outlaws'
-  street spot is the loaded world's. Open from R3: no shared "player down" rule (the sheriff and No Law don't watch
-  for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
+  street spot is the loaded world's.
 
 ## Open problems
-- **The valley's people tests** (#925, after #834): three causes found and fixed, none of them chance.
-  `HumanBody._spare_rubble` let through only what its 64-shape query gave, and a building's standing members
-  filled it (Earl's chair broke his thigh as he rose); Cody's ball stopped in whatever lay short of Earl's head
-  (`NoLawMurder._clear_to_head`); a dragged man's chest rested at the edge of the smear's reach
-  (`WoundSigns.SMEAR_GAP`). Each has a fixed test (`test_seated_falls` by a wall, `test_no_law_murder`'s chair
-  leg, `test_wound_signs`' twelve landings). To sample a people test's odds: its scene many times in one process
-  (identical set-ups differ run to run, by the engine's body order), not the suite again.
+- **The valley's people tests** (#925, PR #939): three real causes fixed (`HumanBody._spare_rubble`,
+  `NoLawMurder._clear_to_head`, `WoundSigns.SMEAR_GAP`), each with a test. Sample a people test's odds by running
+  its scene many times in one process, not the suite again.
   Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
   differently from a workspace's (the same commit fails there and passes here: read the test's own timeline);
   the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
@@ -118,7 +98,6 @@ Night floor lab (#745).
   valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
   `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
   goldens and the tour (art's views); the bench is by hand (`perf_bench --world=valley`, below). Rubble growth is by design (DESIGN §8).
-- White patches (#670): not reproduced, waiting on Sean's F12.
 
 ## Traps
 - A `-s` script can't build a structure (autoloads); probe through a test or the bridge. A `-s` tool must
