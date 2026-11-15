@@ -54,7 +54,7 @@ func _cmd_cc_set(a: Array) -> Dictionary:
 	origin = vec(a, 0)
 	origin.y = _ground_y(origin)
 	var model := StringName(a[3]) if a.size() >= 4 else &"sean_s3_talking"
-	var glove := await _glove_points(model)
+	var glove: Array = await _glove_points(model)
 	if glove.is_empty():
 		return {"ok": false, "error": "no glove from %s" % model}
 	var floor_y := origin.y
@@ -176,7 +176,7 @@ func _cmd_cc_cost(a: Array) -> Dictionary:
 	origin = vec(a, 0)
 	origin.y = _ground_y(origin)
 	var frames := int(a[3]) if a.size() >= 4 else 180
-	var glove := await _glove_points(StringName(a[4]) if a.size() >= 5 else &"sean_s3_talking")
+	var glove: Array = await _glove_points(StringName(a[4]) if a.size() >= 5 else &"sean_s3_talking")
 	var at := origin + Vector3(0, DROP, 0)
 	var out := {}
 	for kind in ["none", "jolt_rag", "our_sheet", "jolt_glove", "our_glove", "none_again"]:
@@ -184,9 +184,10 @@ func _cmd_cc_cost(a: Array) -> Dictionary:
 		var s := _sheet(at)
 		match kind:
 			"jolt_rag":
-				c = ClothProp.new()
-				c.kit_id = &"cc_rag"
-				c.definition = {"size": [SHEET, SHEET], "points": [SHEET_PTS, SHEET_PTS], "mass": SHEET_KG,
+				var r := ClothProp.new()
+				r.kit_id = &"cc_rag"
+				c = r
+				r.definition = {"size": [SHEET, SHEET], "points": [SHEET_PTS, SHEET_PTS], "mass": SHEET_KG,
 						"stiffness": 1.0, "precision": 12, "damping": 0.06, "grip_radius": 0.03,
 						"catch_seconds": 2.0, "burn_seconds": 30.0, "holds_ml": 60.0, "soaks": 0.5}
 			"our_sheet":
@@ -224,9 +225,9 @@ func _cmd_cc_cost(a: Array) -> Dictionary:
 
 ## Every point of a Jolt cloth (a ClothProp) pinned where it is, or let go.
 func _pin_soft(c: Node3D, on: bool) -> void:
-	var soft: SoftBody3D = c.soft
-	for i in c.point_count():
-		soft.set_point_pinned(i, on)
+	var cp := c as ClothProp
+	for i in cp.point_count():
+		cp.soft.set_point_pinned(i, on)
 
 
 func _add(n: Node3D) -> void:
@@ -237,7 +238,7 @@ func _add(n: Node3D) -> void:
 ## The ground's height under `at` (a ray down).
 func _ground_y(at: Vector3) -> float:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 20.0, at + Vector3.DOWN * 20.0, Layers.WORLD)
-	var hit := street.get_world_3d().direct_space_state.intersect_ray(q)
+	var hit: Dictionary = street.get_world_3d().direct_space_state.intersect_ray(q)
 	return (hit.position as Vector3).y if hit else at.y
 
 
