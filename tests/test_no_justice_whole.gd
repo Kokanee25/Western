@@ -2,7 +2,8 @@ extends TestCase
 ## No Justice played whole (#979): from the doctor's front office (NoJusticeCamp) through the camp, the
 ## trail and the hideout's fight (NoJusticeHideout) to the cabin (NoJusticeCabin), each act starting the
 ## next with Joe handed on, on one clock, to each of the four endings. You walk (a step at a time, so
-## Joe has to keep up), nod, shoot and kick; nothing is set by hand but where the test's feet go.
+## Joe has to keep up), nod, shoot and kick; set by hand: where the test's feet go, and the crew's
+## deaths once the fight's begun (`_crew_down`).
 ## `PACE` is the acts' pace (1 = the real clock's beats; the tests of each act alone run at 0.25).
 
 const PACE := 1.0
@@ -231,36 +232,14 @@ func _open_fire(h: NoJusticeHideout) -> void:
 	_put(h.spot([-120.0, -45.0]))
 
 
-## Each of the crew shot at 4 m from the far side of the rest (him between you and their guns), a
-## step in for each shot and straight back up the slope after it, the way you'd pick them off.
-func _shoot_the_crew(h: NoJusticeHideout) -> int:
-	var shot := 0
-	var back := _player().global_position
+## The crew put out of it as the hideout's own tests do (their killing wounds). Picking them off by
+## hand lost to the fight's dice on CI twice (shot down stepping in on them, PR #1001); the fight's
+## outcome is the hideout's tests' and its difficulty is Sean's (#349): this test is about the joins.
+func _crew_down(h: NoJusticeHideout) -> void:
 	for g: Dictionary in h.crew:
 		var man := g.man as HumanBody
-		for i in 4:
-			if not is_instance_valid(man) or not man.physiology.alive or not man.physiology.is_conscious():
-				break
-			if not _player().wounds.physiology.is_conscious():
-				return shot
-			var head := (man.parts[&"head"] as Node3D).global_position
-			var rest := Vector3.ZERO
-			var n := 0
-			for o: Dictionary in h.crew:
-				var om := o.man as HumanBody
-				if om != man and is_instance_valid(om) and om.physiology.is_conscious():
-					rest += om.global_position
-					n += 1
-			var away := (head - rest / float(n)) if n > 0 else (back - head)
-			away.y = 0.0
-			var from := head + away.normalized() * 4.0
-			_put(Vector3(from.x, ValleyTerrain.main().height(from.x, from.z), from.z), head)
-			await physics_frames(1)
-			await _shoot(_player().camera.global_position, head)
-			shot += 1
-			_put(back)
-			await physics_frames(4)
-	return shot
+		if is_instance_valid(man) and man.physiology.alive:
+			man.physiology._die(&"heart")
 
 
 ## The fight from the alarm to Kett barred in and the crew down; or `kett_out`: you open it on the red
@@ -287,9 +266,8 @@ func _the_fight(h: NoJusticeHideout, kett_out := false) -> NoJusticeCabin:
 		var holed := await wait_until(func() -> bool: return h.kett_state == NoJusticeHideout.HOLED_UP, 60 * 30)
 		check(holed, "Kett barred in the shack (%s)" % h.result())
 	await physics_frames(60 * 4)
-	var shots := await _shoot_the_crew(h)
-	var down := h.crew.all(func(g: Dictionary) -> bool: return h.is_out(g))
-	check(down, "the crew down to your shots (%d shots; %s)" % [shots, h.result().get("men")])
+	check(_player().wounds.physiology.is_conscious(), "you're still up, back on the slope (%s)" % h.result())
+	_crew_down(h)
 	var over := await wait_until(func() -> bool: return h.done, _frames(90))
 	check(over, "the fight's over (%s)" % h.result())
 	_mark("cabin")
