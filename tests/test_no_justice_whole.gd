@@ -228,7 +228,8 @@ func _open_fire(h: NoJusticeHideout) -> void:
 	_put(h.spot([-120.0, -45.0]))
 
 
-## Each of the crew shot at 4 m (a step in, the shot, a step back out of it), the way you'd go round them.
+## Each of the crew shot at 4 m from the far side of the rest (him between you and their guns), a
+## step in for each shot and straight back up the slope after it, the way you'd pick them off.
 func _shoot_the_crew(h: NoJusticeHideout) -> int:
 	var shot := 0
 	var back := _player().global_position
@@ -237,15 +238,25 @@ func _shoot_the_crew(h: NoJusticeHideout) -> int:
 		for i in 4:
 			if not is_instance_valid(man) or not man.physiology.alive or not man.physiology.is_conscious():
 				break
+			if not _player().wounds.physiology.is_conscious():
+				return shot
 			var head := (man.parts[&"head"] as Node3D).global_position
-			var from := head + (back - head).normalized() * 4.0
-			from.y = head.y
+			var rest := Vector3.ZERO
+			var n := 0
+			for o: Dictionary in h.crew:
+				var om := o.man as HumanBody
+				if om != man and is_instance_valid(om) and om.physiology.is_conscious():
+					rest += om.global_position
+					n += 1
+			var away := (head - rest / float(n)) if n > 0 else (back - head)
+			away.y = 0.0
+			var from := head + away.normalized() * 4.0
 			_put(Vector3(from.x, ValleyTerrain.main().height(from.x, from.z), from.z), head)
 			await physics_frames(1)
-			await _shoot(from, head)
+			await _shoot(_player().camera.global_position, head)
 			shot += 1
-		_put(back)
-		await physics_frames(10)
+			_put(back)
+			await physics_frames(4)
 	return shot
 
 
