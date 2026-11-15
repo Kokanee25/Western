@@ -191,7 +191,8 @@ leading in, the log's last lines; `perf_report.py` and `replay.gd` read a crash 
 (`debug/settings/gdscript/always_track_call_stacks`), so Godot's crash handler prints the GDScript
 backtrace there too; the official release templates have no symbols, so Godot's own frames are
 addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread|abort|panic|script]`
-(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`.
+(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`, `-- --crash-box=DIR` (a
+black box of its own, for games run side by side).
 `tests/test_crash_reports.gd`.
 
 ## The soak
@@ -2043,7 +2044,17 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
   The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
-  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  (`HeldHand.source`, cached) with his finger bones as pivots. **Harlan's first-person hands** (#914,
+  option 2 of #896): where the private `assets/people/private/harlan_fp.glb` is (git-ignored, #692;
+  built by `tools/characters/fetch_fp_hands.sh` from the Studio's MetaHuman with `tools/blender/fp_arms.py`:
+  hands cut at the wrist and decimated to 4k triangles, a linen cuff and a wool coat sleeve with
+  grime in vertex colours), `source()` cuts those instead (`PRIVATE_ARMS`; `--painted-arms` or
+  `use_private = false` for the old), his finger frames made the painted men's (`_canonical_fingers`,
+  his rest curl taken off), no upper arm: the forearm runs to `FP_ELBOW_DROP` below the shoulder, out
+  of view. His holds and poses are data, `config/fp_holds.json`, read by `HeldHand.hold(key, painted)`
+  (the Colt's grip, trigger, thumbs, `colt.hip`/`aim`/`loading`; the rifle's left hand, `eye_relief`).
+  CI's export job builds the file into the Windows and Linux builds (not the web's) when the
+  `STUDIO_TOKEN` secret is set. The poses are fitted by the lab's
   `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
   (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`); the arms drawn in `held_arm_skin.png`
   (`blender/arm_blender.py`). The guns' shapes are code's; where `assets/weapons/<gun>.glb` is (the
@@ -2083,6 +2094,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 
 ## src/blast
 
+- **The first instant** (#596 step 3): `BlastCloud._flash` (one OmniLight, no shadows, white-hot to
+  orange and out in `flash_s`, 0.1 s; `flash_sprites`, unlit glows that go with it, their clock the
+  frame's), `_ring`/`ring_at` (dust kicked out flat along the ground or floor under the charge, its
+  speed and reach setting the drag; none past `ring_height` up) and `_spray` (loose dirt or splinters
+  thrown up out of the vent as streaks, falling back; `speed_cap` keeps it and the chunks under a
+  ceiling). Dials in BlastTuning's "The first instant" (proposed). The ring and dirt start on the
+  tick after the blast with the dust; all three warmed at load (`warm_up`). GPU particles only.
+  Films: the sound lab's `instant_*` scenarios with `--picture` (`--crash-watch=600,0` and a crash box
+  each: no notices over a drawn film); tests `test_blast_first_instant.gd`.
 - **Men thrown through the air** (#596 step 3b): `BlastTuning.blast_lift` (0 the real push alone,
   the game's until Sean picks; proposed 0.8 / 1.1) adds a lift to `HumanBody.take_blast`'s push,
   `Blast.lift_share` (steep: ~all of it a metre off, a quarter at 3 m, none at 6), up by `lift_angle`
