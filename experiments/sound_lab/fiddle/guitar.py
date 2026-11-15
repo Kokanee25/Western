@@ -36,7 +36,7 @@ TUNING = [40, 45, 50, 55, 59, 64]           # E2 A2 D3 G3 B3 E4, low to high
 SHAPES = {                                   # frets low E to high E; None not played
     "G": [3, 2, 0, 0, 3, 3], "C": [None, 3, 2, 0, 3, 3], "D": [None, None, 0, 2, 3, 2],
     "Em": [0, 2, 2, 0, 3, 3], "Am": [None, 0, 2, 2, 1, 0], "A": [None, 0, 2, 2, 2, 0],
-    "E": [0, 2, 2, 1, 0, 0], "Bm": [None, 2, 4, 4, 3, 2], "F": [1, 3, 3, 2, 1, 1], "Dm": [None, None, 0, 2, 3, 1],
+    "E": [0, 2, 2, 1, 0, 0], "Bm": [None, 2, 4, 4, 3, 2], "F": [1, 3, 3, 2, 1, 1], "Dm": [None, None, 0, 2, 3, 1], "F#m": [2, 4, 4, 2, 2, 2],
 }
 # strums, as (eighth of a 4/4 bar, direction, how hard): "folk" the down, down-up, up-down-up; "drive"
 # every eighth, down-up, leaning on beats two and four (the bounce of an up-tempo folk song)

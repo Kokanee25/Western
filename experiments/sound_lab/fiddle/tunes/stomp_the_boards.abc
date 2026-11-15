@@ -1,0 +1,31 @@
+X:1
+T:Stomp the Boards
+B:Written for Salt Creek (2026): a stomp-clap foot-stomper, not of the period: the fiddle's hook over four on the floor
+M:4/4
+L:1/8
+K:A
+% intro: the hook over the stomp
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2df a2fd | "E"e2Bc d2cB |
+% verse
+"A"z2cB A2Bc | "D"d2cB A4 | "F#m"z2cB A2Bc | "E"B6 z2 |
+"A"z2cB A2Bc | "D"d2fe d2cB | "E"e2ed cBA2 | "E"B4 z2Bc |
+% chorus: the hook
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2df a2fd | "E"e2Bc d2cB |
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2fa "E"g2e2 | "A"a4 a2z2 |
+% verse
+"A"z2cB A2Bc | "D"d2cB A4 | "F#m"z2cB A2Bc | "E"B6 z2 |
+"A"z2cB A2Bc | "D"d2fe d2cB | "E"e2ed cBA2 | "E"B4 z2Bc |
+% chorus
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2df a2fd | "E"e2Bc d2cB |
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2fa "E"g2e2 | "A"a4 a2z2 |
+% breakdown: the stomp, the claps, the fiddle held
+"F#m"f8 | "D"f8 | "A"e8 | "E"e4 z4 |
+% the build
+"F#m"cdef cdef | "D"defg defg | "A"efga efga | "E"b2b2 b2z2 |
+% the last chorus, twice
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2df a2fd | "E"e2Bc d2cB |
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2fa "E"g2e2 | "A"a4 a2z2 |
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2df a2fd | "E"e2Bc d2cB |
+"A"A2Ac e2ea | "A"g2ag e2c2 | "D"d2fa "E"g2e2 | "A"a4 a2z2 |
+% the hit
+"A"a8 |

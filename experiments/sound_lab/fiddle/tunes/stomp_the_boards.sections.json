@@ -1,0 +1,12 @@
+{"note": "Who plays in which bars (bars from 0, end not included): sections.py mixes the band's parts by these.",
+ "sections": [
+  {"name": "intro", "bars": [0, 4], "players": ["fiddle", "drums"]},
+  {"name": "verse", "bars": [4, 12], "players": ["fiddle", "guitar", "bass", "drums"]},
+  {"name": "chorus", "bars": [12, 20], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]},
+  {"name": "verse 2", "bars": [20, 28], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]},
+  {"name": "chorus 2", "bars": [28, 36], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]},
+  {"name": "breakdown", "bars": [36, 40], "players": ["fiddle", "drums"]},
+  {"name": "build", "bars": [40, 44], "players": ["fiddle", "bass", "drums"]},
+  {"name": "last chorus", "bars": [44, 60], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]},
+  {"name": "the hit", "bars": [60, 61], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]}
+ ]}

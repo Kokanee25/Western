@@ -48,7 +48,7 @@ CHORDS_A = ["D", "D", "D", "D", "A", "D", "D", "D", "D"]  # pickup counts as bar
 CHORD_TONES = {"D": {62, 66, 69}, "A": {69, 73, 64}, "G": {67, 71, 62}, "E": {64, 68, 71}, "C": {60, 64, 67}}
 # the minor chords a song writes over its notes (abc_tune reads them from the ABC's chord symbols)
 CHORD_TONES.update({"Em": {64, 67, 71}, "Am": {69, 72, 64}, "Bm": {71, 74, 66}, "Dm": {62, 65, 69}, "F": {65, 69, 60},
-                    "Gm": {67, 70, 62}, "Bb": {70, 62, 65}})
+                    "Gm": {67, 70, 62}, "Bb": {70, 62, 65}, "F#m": {66, 69, 61}})
 
 STRINGS = {"G": 55, "D": 62, "A": 69, "E": 76}
 ORDER = ["G", "D", "A", "E"]

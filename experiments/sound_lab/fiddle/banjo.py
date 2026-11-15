@@ -241,6 +241,8 @@ def arrange_rolls(sc, seed=1949):
     when, beats, last, unit = rhythm.grid(sc)
     ends = [mel[i + 1]["unit"] if i + 1 < len(mel) else n["unit"] + 4 for i, n in enumerate(mel)]
     bar1 = next((n["unit"] for n in mel if n["bar"] >= 1), 0.0)
+    if sc.get("bar_units") and len(sc["bar_units"]) > 1 and sc["bar_units"][1] - sc["bar_units"][0] >= 8 - 1e-6:
+        bar1 = sc["bar_units"][0]  # the bars as written (a song that starts on rests: the roll on the downbeat)
     chords = sc.get("chords") or [key] * (mel[-1]["bar"] + 1)
     events, hand, prev, pfinger = [], 0, None, None
 

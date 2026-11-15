@@ -31,6 +31,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 BESSEL = [1.0, 1.594, 2.136, 2.296, 2.653, 2.918]
 STYLE = "stomp"
 SNARE = 0.45     # the snare's level against the kick
+CLAP = False     # the backbeat as hand claps (a stomp-clap band) instead of the snare
 
 
 def arrange(sc, seed=1959):
@@ -51,7 +52,7 @@ def arrange(sc, seed=1959):
                 hits.append({"t": round(float(t + rng.normal(0, 0.004)), 4), "drum": "kick",
                              "amp": round(float((1.0 if q == 0 else 0.9) * np.exp(rng.normal(0, 0.06))), 3)})
             if q in (1, 3) and not final:
-                hits.append({"t": round(float(t + rng.normal(0, 0.005)), 4), "drum": "snare",
+                hits.append({"t": round(float(t + rng.normal(0, 0.005)), 4), "drum": "clap" if CLAP else "snare",
                              "amp": round(float(np.exp(rng.normal(0, 0.1))), 3)})
     hits.sort(key=lambda h: h["t"])
     return {"tune": sc["tune"], "instrument": "kick and snare", "style": STYLE, "seed": seed,
@@ -75,6 +76,27 @@ def _kick(sr, rng, amp):
     return amp * y / np.max(np.abs(y))
 
 
+CLAP_LEVEL = 0.7
+
+
+def _clap(sr, rng, amp):
+    """Hands clapped, several people's: each clap a burst of air out from between two palms (noise in a
+    band round 1-2.5 kHz, the cupped hands' resonance; Repp's clap measurements), a few hands a few ms
+    apart, and a short room tail."""
+    n = int(0.25 * sr)
+    y = np.zeros(n)
+    for k in range(rng.integers(4, 7)):
+        d = int(rng.uniform(0, 0.018) * sr)
+        L = int(rng.uniform(0.006, 0.012) * sr)
+        burst = rng.standard_normal(L) * np.exp(-np.arange(L) / (rng.uniform(0.0015, 0.003) * sr))
+        fc = rng.uniform(1000, 2200)
+        burst = lfilter(*butter(2, [fc * 0.6 / (sr / 2), fc * 1.6 / (sr / 2)], "band"), burst)
+        y[d:d + L] += rng.uniform(0.6, 1.0) * burst[:len(y) - d]
+    tail = rng.standard_normal(n) * np.exp(-np.arange(n) / (0.05 * sr))
+    y += 0.08 * np.max(np.abs(y)) * lfilter(*butter(2, [800 / (sr / 2), 4000 / (sr / 2)], "band"), tail)
+    return amp * y / (np.max(np.abs(y)) + 1e-12)
+
+
 def _snare(sr, rng, amp):
     n = int(0.4 * sr)
     t = np.arange(n) / sr
@@ -96,7 +118,8 @@ def render(part, sr=common.SR, seed=1959):
         i = int(h["t"] * sr)
         if i >= n:
             continue
-        s = _kick(sr, rng, h["amp"]) if h["drum"] == "kick" else SNARE * _snare(sr, rng, h["amp"])
+        s = (_kick(sr, rng, h["amp"]) if h["drum"] == "kick" else SNARE * _snare(sr, rng, h["amp"])
+             if h["drum"] == "snare" else CLAP_LEVEL * _clap(sr, rng, h["amp"]))
         seg = y[i:i + len(s)]
         seg += s[:len(seg)]
     b, a = butter(2, 30 / (sr / 2), "high")
