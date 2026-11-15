@@ -484,6 +484,9 @@ func _make(p: Dictionary) -> HumanBody:
 	man.vest_color = _colour(p.get("vest", [0, 0, 0, 0]))
 	man.hat_color = Color(0, 0, 0, 0)
 	man.bandana_color = Color(0, 0, 0, 0)
+	# Played by a private man when he's laid in (#933, config/private_cast.json), re-dressed.
+	man.body_model = PeopleBodies.cast_model(man.person_id, man.body_model)
+	PeopleBodies.cast_dress(man, man.person_id)
 	return man
 
 

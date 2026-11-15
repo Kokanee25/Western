@@ -2755,7 +2755,11 @@ the bridge's `stand` and `prop_light`).
   man) and `under_hat`. `tools/characters/private_people.gd` builds each level as the game does;
   `tools/characters/metahuman_bench.py` is the valley bench with him as the townsfolk
   (perf_bench `--folk-model=`, `--folk-far-model=`, `--folk-dress`). Report:
-  `docs/reviews/2026-11-metahumans-town.md`.
+  `docs/reviews/2026-11-metahumans-town.md`. **The fetch** (#933): `tools/characters/fetch_private.sh
+  [build]` runs the Studio's own lay step from `../saltcreek-characters` or a sparse clone with
+  `STUDIO_TOKEN` (CI's export job, beside Harlan's hands; nothing without it). **The cast**:
+  `config/private_cast.json` (who, his level, hat and vest tint; `on`), asked by `ValleyFolk._make`
+  through `PeopleBodies.cast_model`/`cast_dress`; a man not laid in keeps his Studio man.
 - **Characters by image-to-3D** (`tools/characters/`, step 4 of the art plan; People workflow
   input `characters`): `paint_full_length.py` paints each man in `characters.json` full length
   in an A-pose, clean (Tripo wants a smooth picture; the squares are made last). **The fal
