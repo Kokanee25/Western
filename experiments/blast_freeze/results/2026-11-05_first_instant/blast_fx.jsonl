@@ -1,0 +1,12 @@
+{"run": "saloon_after1.json", "blast_fx_ms": 4.29, "first4_ms": [86, 106, 60, 59]}
+{"run": "saloon_after2.json", "blast_fx_ms": 4.34, "first4_ms": [93, 83, 55, 54]}
+{"run": "saloon_after3.json", "blast_fx_ms": 4.31, "first4_ms": [80, 80, 57, 61]}
+{"run": "saloon_before1.json", "blast_fx_ms": 4.95, "first4_ms": [78, 102, 63, 87]}
+{"run": "saloon_before2.json", "blast_fx_ms": 4.64, "first4_ms": [77, 101, 57, 71]}
+{"run": "saloon_before3.json", "blast_fx_ms": 4.64, "first4_ms": [73, 94, 54, 52]}
+{"run": "street_after1.json", "blast_fx_ms": 4.24, "first4_ms": [103, 83, 67, 66]}
+{"run": "street_after2.json", "blast_fx_ms": 4.88, "first4_ms": [116, 97, 91, 65]}
+{"run": "street_after3.json", "blast_fx_ms": 4.64, "first4_ms": [106, 79, 68, 85]}
+{"run": "street_before1.json", "blast_fx_ms": 4.64, "first4_ms": [143, 102, 82, 63]}
+{"run": "street_before2.json", "blast_fx_ms": 6.15, "first4_ms": [130, 110, 83, 65]}
+{"run": "street_before3.json", "blast_fx_ms": 5.11, "first4_ms": [107, 112, 71, 73]}
