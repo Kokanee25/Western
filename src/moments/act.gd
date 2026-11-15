@@ -108,6 +108,11 @@ func card(text: String, seconds := 4.0) -> void:
 	_card_layer.visible = true
 	_card_left = seconds
 	_note("card: " + text)
+	# Logged as the screen's lines are (the bridge's `events`): #979's blind playtest, drawn at a frame
+	# a second, never saw a ride's card and read each join as a jump.
+	var p := player()
+	if p and p.wounds:
+		p.wounds.shown.emit(text)
 
 
 func card_up() -> bool:
