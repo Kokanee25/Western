@@ -58,10 +58,13 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
-- **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` and `GloveAct` (bridge `glove MAN`)
-  still on Jolt's cloth, which can't stretch over his hand. **Our own cloth** (#973, `docs/briefs/garment-cloth.md`):
-  step 1 done, `ClothCore` (native) and `SolverCloth` (GarmentCloth's calls), lab `experiments/cloth_core/`. **Next:
-  step 2, his body as the collider and the glove off the MetaHuman on it (#986).** Crates.io: #985.
+- **The garment handoff** (#917, #949, #986; LAYOUT "src/bodies"): `GarmentHandoff` and `GloveAct` (bridge
+  `glove MAN`) on **our own cloth** (`SolverCloth`/`ClothCore`, #973, `docs/briefs/garment-cloth.md`): his skin
+  is its collider (step 2 done, #986: the MetaHuman film `experiments/garment_handoff/results/2026-11-15-ours/`);
+  Jolt's GarmentCloth the fallback. Open: ~1.3 ms a tick at Sean's while drawn off (budget 0.5, step 4); skin
+  specks for 0.2 s as it leaves (`uncover`). **Next: step 3, self-contacts and the cost (#997).** Build here:
+  `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, the .so to
+  bin/; `apt-get install -y mesa-vulkan-drivers` gives lavapipe for films (the --real bridge at 960x540 ran).
 
 ## Parked until after the slice
 coach heist (#840; `experiments/coach_heist/` README) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·

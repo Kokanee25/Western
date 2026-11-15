@@ -6,7 +6,9 @@ extends Node3D
 ## GarmentCloth stays the fallback where the plugin isn't loaded (`available()`; the web build).
 ##
 ## Step 1 (the core): stretch with a strain limit, bending, pins, damping and a floor plane at
-## `floor_y`. It doesn't meet his skin or the world's props yet (the brief's steps 2 and 4).
+## `floor_y`. Step 2: his skin as the collider (`set_body`, `move_body`: SkinCollider passes his posed
+## skin under the garment each tick), each point kept `body_thickness` off it on the side it came
+## from, with friction. It doesn't meet itself or the world's props yet (the brief's steps 3 and 4).
 ##
 ## Its points are world positions (this node sits at the origin unturned), drawn each tick as a plain
 ## mesh of its own triangles. At rest (`rest_after` s with its points' mean speed, a quarter second
@@ -146,6 +148,35 @@ func let_go(velocity := Vector3.ZERO) -> void:
 	if velocity != Vector3.ZERO:
 		core.add_velocity(velocity)
 	_wake()
+
+
+## His skin as the collider: `points` (world, now) and `triangles` (fixed from now on).
+func set_body(points: PackedVector3Array, triangles: PackedInt32Array) -> bool:
+	return core.set_body(points, triangles)
+
+
+## His skin's points (as many as `set_body` had) where they'll be at the end of the next tick.
+func move_body(points: PackedVector3Array) -> void:
+	core.move_body(points)
+
+
+func clear_body() -> void:
+	core.clear_body()
+
+
+## Points touching his skin at the last tick's end, and crossings caught since it was set.
+func body_contacts() -> int:
+	return core.body_contacts()
+
+
+func body_crossings() -> int:
+	return core.body_crossings()
+
+
+## One of ClothCore.tune's numbers, now (e.g. damping once it's out of his hand).
+func tune(name: String, value: float) -> void:
+	if not core.tune(name, value):
+		push_warning("SolverCloth: no number '%s'" % name)
 
 
 func points_now() -> PackedVector3Array:

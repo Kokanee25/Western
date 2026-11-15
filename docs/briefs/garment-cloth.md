@@ -70,7 +70,13 @@ jacket, and leggings"; and "we should only be using the metahuman model". Everyt
    its length, the same seed gives the same result). A sheet dropped on the floor beside the Jolt rag, filmed.
 2. **His body:** his posed skin as the collider, with thickness, side tracking and friction. The glove drawn
    off the MetaHuman (GarmentHandoff on the new cloth, the Jolt one the fallback). Judged by the film, the
-   hand above all.
+   hand above all. **Done (#986):** his skin met on its front (`body_front_only`; tracked sides for a
+   two-sided body), crossings within a substep put back with their slide along him, pinches between his
+   pressed fingers left to the cloth, no bounce. By the count, on the MetaHuman 13-14 points >2 mm under his
+   skin at worst (Jolt's 8, but Jolt's went through his hand to the eye), 1-3 deeper than 1 cm; on
+   sean_s3_talking chaotic (11-50). **Over budget:** ~1.3 ms a tick at Sean's while it's drawn off; checking
+   every 2nd substep or a band under 1 cm made points stick on his fingers. The film and its findings:
+   #986.
 3. **Itself:** self-contacts; the glove bunched in his hand and dropped, lying on itself.
 4. **The world and the cost:** floor and props; at rest baked; the cost table on the MetaHuman, ≤ 0.5 ms
    while it simulates. Merge.

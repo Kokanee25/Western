@@ -156,3 +156,37 @@ func test_without_the_plugin_the_face_gives_way_to_jolt() -> void:
 		return
 	var s := _sheet(4, 4, 0.1, 0.1, 0.0)
 	check(SolverCloth.make(s[0], s[1], PackedVector2Array(), null) == null, "null without the plugin")
+
+
+## His body as the collider (#986, the brief's step 2): a sheet dropped on a moving "arm" (a box of
+## triangles, front out) lies on it, never inside it, and rides it as it moves; cleared, it falls.
+func test_a_sheet_lies_on_his_body_and_never_goes_in() -> void:
+	if not _native():
+		return
+	var core := _core(10, 10, 0.3, 0.3, 0.2, {"floor_on": 0, "body_front_only": 1, "body_thickness": 0.001})
+	# A box 0.2 m across, its top at y = 0.1 (its triangles clockwise from outside: Godot's front).
+	var box := BoxMesh.new()
+	box.size = Vector3(0.2, 0.2, 0.2)
+	var arrays := box.get_mesh_arrays()
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	check(core.set_body(verts, idx), "his body set")
+	check(core.has_body(), "it has one")
+	var lowest_inside := INF
+	for t in 120:
+		var moved := PackedVector3Array()
+		for v in verts:
+			moved.append(v + Vector3(0.0005 * t, 0, 0))
+		core.move_body(moved)
+		core.step(1.0 / 60.0)
+		for p: Vector3 in core.points():
+			if absf(p.x - 0.0005 * t) < 0.099 and absf(p.z) < 0.099:
+				lowest_inside = minf(lowest_inside, p.y)
+	check(lowest_inside >= 0.1 + 0.001 - 1e-4, "on his top, never in him (lowest over him %.4f)" % lowest_inside)
+	check(core.body_contacts() > 0, "touching him (%d)" % core.body_contacts())
+	var mid: Vector3 = core.points()[55]
+	check(mid.x > 0.02, "carried along as he moves (%.3f)" % mid.x)
+	core.clear_body()
+	check(not core.has_body(), "cleared")
+	_run(core, 30)
+	check(core.lowest_y() < 0.0, "with no body it falls (%.3f)" % core.lowest_y())

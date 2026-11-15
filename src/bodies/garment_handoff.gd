@@ -1,8 +1,11 @@
 class_name GarmentHandoff
 extends Node3D
 ## The garment handoff (#917, promoted from the lab, #895, experiments/garment_handoff/): a garment
-## worn as part of a man's skinned mesh (WornGarment) becomes real cloth (GarmentCloth) as it's taken
-## off, and lies where it lands at no cost.
+## worn as part of a man's skinned mesh (WornGarment) becomes real cloth as it's taken off, and lies
+## where it lands at no cost. The cloth is our own (SolverCloth, the native plugin's ClothCore, #986:
+## it meets his posed skin itself, with a thickness, on the side each point came from, so the glove's
+## wrist stretches over his hand instead of going through it) where the plugin is, else Jolt's soft
+## body (GarmentCloth, his skin a Jolt shape: the web build's fallback).
 ##
 ## The part gives the steps; the choreography (where the hands go, when, the toss's aim) is the
 ## caller's (the lab's handoff.gd, a dancer's act):
@@ -31,13 +34,25 @@ const COLLIDER_TRIS := 0
 ## go (it's falling off him).
 var tune := {"release_lead": 0.035, "give": 1.05, "front_step": 0.01, "clear_after": 0.25,
 		"precision": 12, "skin_every": 2, "uncover_at": 0.018,
-		"free_damping": 0.5}
+		"free_damping": 0.5, "solver": true}
+
+## Our cloth's numbers for kid leather (ClothCore.tune's names): it keeps its made shape's folds
+## (SHAPED), gives 5% at most, 20 substeps (a landing stretches short edges past the limit with
+## fewer); his skin met 0.7 mm off (SkinCollider's pad: where the cloth starts), little friction
+## (the release rule is the hold; free leather slides on skin). `floor_y` is his feet's.
+## His skin is closed: every point belongs on its front (`body_front_only`).
+var solver_tune := {"bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5, "max_strain": 1.05,
+		"substeps": 20, "damping": 1.0, "body_thickness": SkinCollider.SKIN_PAD, "body_band": 0.01, "body_every": 1,
+		"body_friction_static": 0.15, "body_friction_kinetic": 0.1, "body_front_only": 1}
+## Once out of his hand (falling, lying): damped more, as `free_damping` is Jolt's.
+const SOLVER_FREE_DAMPING := 2.0
 
 var man: HumanBody
 var garment: WornGarment
 var look: Material
 var worn_mesh: MeshInstance3D
-var cloth: GarmentCloth
+## SolverCloth or GarmentCloth (the same calls).
+var cloth: Node3D
 var collider: SkinCollider
 var state := State.NONE
 ## The swap's worst move (mm): the cloth's points against where the worn garment would be drawn,
@@ -95,8 +110,17 @@ func take(hand_side := "r", points: Array[int] = []) -> void:
 	if points.is_empty():
 		points = garment.tips
 	var pts := garment.posed()
-	cloth = GarmentCloth.make(pts, garment.indices, garment.uvs, look, 0.035, int(tune.precision))
-	cloth.name = "GarmentCloth"
+	var ours: SolverCloth = null
+	if bool(tune.solver) and SolverCloth.available():
+		var t := solver_tune.duplicate()
+		t["floor_y"] = man.global_position.y
+		ours = SolverCloth.make(pts, garment.indices, garment.uvs, look, 0.035 / maxf(_area(pts), 1e-4), t)
+	if ours:
+		cloth = ours
+		cloth.name = "SolverCloth"
+	else:
+		cloth = GarmentCloth.make(pts, garment.indices, garment.uvs, look, 0.035, int(tune.precision))
+		cloth.name = "GarmentCloth"
 	add_child(cloth)
 	cloth.global_transform = Transform3D.IDENTITY
 	worn_mesh.visible = false
@@ -104,7 +128,7 @@ func take(hand_side := "r", points: Array[int] = []) -> void:
 	collider.name = "SkinCollider"
 	add_child(collider)
 	collider.global_transform = Transform3D.IDENTITY
-	collider.setup(garment.under if garment.under else garment)
+	collider.setup(garment.under if garment.under else garment, ours)
 	collider.every = int(tune.skin_every)
 	var is_tip := {}
 	for i in points:
@@ -176,12 +200,29 @@ func let_go(velocity := Vector3.ZERO) -> void:
 	# Falling and lying, damped harder: Godot's soft body has no bending stiffness, and an undamped
 	# glove crumples to a knot of fingers through each other (it doesn't meet itself); damped, it
 	# keeps its hand's shape as leather does.
-	cloth.soft.damping_coefficient = float(tune.free_damping)
+	if cloth is SolverCloth:
+		(cloth as SolverCloth).tune("damping", SOLVER_FREE_DAMPING)
+	else:
+		cloth.soft.damping_coefficient = float(tune.free_damping)
 	garment.cover_skin(false)  # out of his hand: all his skin drawn again
 	state = State.FREE
 	_clear_t = float(tune.clear_after)
 	if not cloth.came_to_rest.is_connected(_on_rest):
 		cloth.came_to_rest.connect(_on_rest)
+
+
+## Whether it's our own cloth (SolverCloth) rather than Jolt's.
+func ours() -> bool:
+	return cloth is SolverCloth
+
+
+## Its triangles' area (m²): our cloth is given a density, Jolt's a mass.
+func _area(pts: PackedVector3Array) -> float:
+	var a := 0.0
+	var idx := garment.indices
+	for k in range(0, idx.size(), 3):
+		a += 0.5 * (pts[idx[k + 1]] - pts[idx[k]]).cross(pts[idx[k + 2]] - pts[idx[k]]).length()
+	return a
 
 
 ## Points still held on him.
