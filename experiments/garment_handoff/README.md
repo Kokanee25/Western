@@ -9,6 +9,25 @@ this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on
 "glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
 `GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
 
+## On our own cloth (#986, `results/2026-11-15-ours/`)
+
+The part now takes the glove off on our own cloth (`SolverCloth`, the native plugin's `ClothCore`), which
+meets his posed skin itself: each point kept 0.7 mm off his skin's front, a pull into him put back where it
+met him with its slide along him kept, pinches between his pressed fingers left to the cloth.
+
+- **The film, on the MetaHuman** (made in the workspace under lavapipe, `films_metahuman.txt`):
+  [`metahuman_hands.mp4`](results/2026-11-15-ours/metahuman_hands.mp4) (real time) and
+  [`metahuman_draw_half_speed.mp4`](results/2026-11-15-ours/metahuman_draw_half_speed.mp4) (the draw).
+  His right hand takes the fingertips and the glove slides off over his hand into it; his left hand comes
+  out bare. Nothing of the glove through his hand to the eye at 960×540. For a few frames as it leaves,
+  specks of his forearm's skin aren't drawn yet (`uncover`, a third of the points a tick: the vest shows
+  through), gone within 0.2 s. Flung 0, below the floor 0, pop 1.4 mm, worst stretch 1.09, at rest 7.1 s.
+- **On sean_s3_talking** (`tests/test_garment_handoff.gd`): 7 points >2 mm under his skin (Jolt's 15-20),
+  2 deeper than 1 cm, stretch 1.05.
+- **The cost:** ~2 ms a tick on this workspace while it's drawn off (~1.3 at Sean's), the solver with his
+  skin; over the brief's 0.5. Checking his skin every 2nd substep, or a band under 1 cm, made points stick
+  on his fingers.
+
 ## The clipping fixed (#949, `results/2026-11-14b/`)
 
 Sean, 2026-11-14, on #917's film: "The gloves still need a lot of work, lots of clipping".
