@@ -1937,6 +1937,15 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `PlayChore` (src/people): a folk man with `plays` at his instrument (the pianist in his chair's
   SitChore), his hands by `reach_to` from `Band.bow_at` / `hand_at`; the fiddle and bow drawn from
   the prop lab's `fiddle.glb`, held. Bridge: `band [hush]`. Tests `tests/test_band.gd`.
+  #938: `nights` by the town's day kind: Payday Night all six on saloon B's stage (`hall` saloon:
+  its spec's use points or `local` points; the curtain drawn open), the stage's own upright
+  (valley_folk.json `set.stage_piano`); other nights the fiddle and piano in the yard set. Folk
+  places, spots and props can be in a spec building (`hall` + `local`/`use`, `ValleyFolk.halls`
+  = ValleyWorld.buildings; `stair_to` marks a stair link): `saloonb_*` up the outside stair, the
+  upper hall, the wing and its steps. Two tunes (Payday Night, Turkey in the Straw), each with a
+  hurried render (`render_band.py --faster=1.15` into `<tune>_fast/`): a `fight.kinds` deed near
+  (shove, kick) and they go over to it at the next phrase's top, back `fight_s` after the last
+  blow; a gun drawn or aimed near stops them. No numba here: `PYTHONPATH=tools/band/nonumba`.
 
 ## src/creatures (the horse)
 
