@@ -11,6 +11,10 @@ their fire, and the man Joe wants (in a faded red shirt) is somewhere near. Noth
 to do except what people say (subtitles: `events` shows them as words) and a line on screen now
 and then. Riding isn't built yet: a ride is a black card with a line of text.
 
+Known and not this scene's: this machine's renderer may draw the ground as a flat brown sheet over
+the shack's floor and the men's legs near it; say if it stops you seeing what's going on, but don't
+spend a run on it.
+
 You play through a command line (the "dev bridge"); every command answers with one line of JSON.
 The game is drawn slowly here (about one frame a second).
 
