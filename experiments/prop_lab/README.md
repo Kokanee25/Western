@@ -195,7 +195,7 @@ door (its use point was in that door); **faro** by the arch west of it (7.0, 12.
 (10.0, 17.4), a chair in each dealer's cut (`faro_bank`'s `prop`); **the wheel** on the store room's wall at
 z 18.4 (its use point faced the kitchen's lunch hatch); the office desk's back to Main Street's wall; beds'
 heads to the back wall (two `plank_bed`, room 5 an `iron_cot`; room_6 left to #902); the fiddle and bow on
-a chair beside the fiddler's (on his own they stood in his place). Hanging lamps hook 1 cm under a joist
+a chair at the back of #902's stage, behind where the fiddler stands (4.3, 12.6). Hanging lamps hook 1 cm under a joist
 (the dance floor's from z 0.157, the hall's 13.417, the rooms' 15.297, every 0.305) or the truss ties (8.26);
 their lights cast no shadow (`shadows`, PropDressing). Kegs: the racks' lower tier real (4 each), two on the
 cellar floor; the upper tiers empty. ~106 entries, ~600 bodies (the lab's tree 9,267).

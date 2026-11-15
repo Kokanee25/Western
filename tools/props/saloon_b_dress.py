@@ -17,6 +17,7 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SPEC = os.path.join(ROOT, "experiments/building_lab/saloon_b/saloon_b.json")
 
+STAGE = 4.72     # #902's stage's boards over the ground floor
 UP = 3.96        # the upper floor over the ground floor (4.91 - 0.95)
 CELLAR = -2.87   # the cellar's flags (-1.92) over the ground floor
 JOIST_UNDER = 3.635   # the dance floor's and rooms' joists' underside over the ground floor (4.585)
@@ -116,11 +117,11 @@ def s2():
     for i, z in enumerate([1.7, 6.4]):
         out.append(e("bench_yard_%d" % i, "wall_bench", [0.29, UP, z], 90))
     out.append(e("bench_balcony", "wall_bench", [5.2, UP, -0.25], 180, use="the balcony over Main Street (Balcony Ambush's men)"))
-    out.append(e("fiddler_chair", "chair", [1.2, UP, 12.3], 225, use="fiddler"))
-    # His fiddle and bow laid on the chair beside his (on his own, they'd stand in his place).
-    out.append(e("fiddle_rest", "chair", [1.9, UP, 12.55], 200))
-    out.append(e("fiddle", "fiddle", [1.95, 0.0, 12.55], 110, on="fiddle_rest"))
-    out.append(e("fiddle_bow", "fiddle_bow", [1.95, 0.0, 12.55], 105, on="fiddle_rest", lift=0.09))
+    # The fiddler plays standing on #902's stage (his use point 4.3, 12.6): his fiddle and bow laid on a
+    # chair at the stage's back, behind him (on the floor at his place they'd stand in it).
+    out.append(e("fiddle_rest", "chair", [3.4, STAGE, 13.05], 180))
+    out.append(e("fiddle", "fiddle", [3.45, 0.0, 13.05], 110, on="fiddle_rest"))
+    out.append(e("fiddle_bow", "fiddle_bow", [3.45, 0.0, 13.05], 105, on="fiddle_rest", lift=0.09))
     out.append(e("handsaw", "handsaw", [3.6, 0.02, 20.9], 15, use="Payday Night's saw, in the store room till it's carried up the outside stair"))
     out.append(e("cookstove", "cookstove", [7.5, 0.0, 21.38], 180, use="the kitchen's range, its back to the back wall"))
     for i, (x, z) in enumerate([(4.6, 17.0), (5.0, 17.4), (4.6, 17.8)]):
@@ -183,7 +184,6 @@ USE = {
     "wheel": {"at": [7.0, 0.95, 18.4], "facing": -90},
     "stores": {"at": [1.6, 0.95, 17.5], "facing": -90},
     "cellar_kegs": {"at": [1.9, -1.92, 10.2], "facing": -90},
-    "fiddler": {"prop": "fiddler_chair"},
     "owner_desk": {"at": [13.9, 4.91, 1.2], "facing": 180, "prop": "owner_chair"},
     "room_3_bed": {"at": [12.0, 4.91, 20.82], "prop": "bed_3"},
     "room_4_bed": {"at": [7.7, 4.91, 20.82], "prop": "bed_4"},
@@ -199,13 +199,18 @@ def main():
     spec["lamps"]["on_bar"] = [[BAR_X + 0.05, 3.5], [BAR_X + 0.05, 9.6]]
     for u in spec["use_points"]:
         u.update(USE.get(u["id"], {}))
+    dressing = spec.get("dressing", {})
+    batches = dressing.get("batches", {})
+    batches.update({"S1": s1(), "S2": s2(), "S3": s3()})
     spec["dressing"] = {
-        "_doc": "#950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build "
+        "_doc": "#902: the stage's footlights and the dressing room's table, chair and lamp (`stage`). "
+                "#950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build "
                 "(SpecBuilding._dressing, PropDressing: the valley and every lab read this one placement). "
                 "Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at "
                 "[x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, "
-                "`row`: PropDressing's doc. The stage's (#903) wait for #902's room.",
-        "batches": {"S1": s1(), "S2": s2(), "S3": s3()},
+                "`row`: PropDressing's doc. The upper floor is 3.96 over the ground floor, #902's stage 4.72. "
+                "The rest of the stage's props (#903) are the prop lab's to place.",
+        "batches": batches,
     }
     open(SPEC, "w").write(json.dumps(spec, indent="\t", ensure_ascii=False))
     n = sum(len(v) for v in spec["dressing"]["batches"].values())

@@ -1306,7 +1306,7 @@
 			"openings": []
 		},
 		{
-			"_doc": "the dance hall's back wall: two doors to the upper hall",
+			"_doc": "the dance hall's back wall: the public door to the upper hall (x 8.43) and the wing's door (at 1.58, straight across the hall from the dressing room's at 1.58 on rooms_front); the stage stands against it (#902: the door at 3.56 went, it would be behind the stage)",
 			"id": "dance_back",
 			"line": [
 				[
@@ -1334,9 +1334,11 @@
 			"openings": [
 				{
 					"type": "door",
-					"at": 3.56,
-					"width": 1.22,
-					"height": 2.13
+					"at": 1.58,
+					"width": 0.86,
+					"height": 2.03,
+					"_doc": "#902: the wing's door, straight across the upper hall from the dressing room's (room_6's, x 1.58)",
+					"hinge": "end"
 				},
 				{
 					"type": "door",
@@ -1345,6 +1347,34 @@
 					"height": 2.13
 				}
 			]
+		},
+		{
+			"_doc": "#902: the wing, boarded off from the dance floor: the stage's backstage corner by the yard wall, three steps up onto the stage's end",
+			"id": "wing",
+			"line": [
+				[
+					0.1,
+					10.9
+				],
+				[
+					2.45,
+					10.9
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
 		},
 		{
 			"_doc": "the rented rooms' doors off the upper hall, opening into the rooms",
@@ -2096,7 +2126,7 @@
 				10.97,
 				13.36
 			],
-			"use": "dancing on payday night; the fiddler's platform in its back corner; open to the well along its west side"
+			"use": "dancing on payday night, the band on the stage against its back wall (#902); open to the well along its west side"
 		},
 		{
 			"id": "office",
@@ -2173,7 +2203,18 @@
 				2.85,
 				21.85
 			],
-			"use": "let by the night"
+			"use": "the dressing room (#902): the acts' and the band's, across the hall from the wing's door; three rooms let"
+		},
+		{
+			"id": "wing",
+			"level": "upper",
+			"rect": [
+				0.1,
+				10.95,
+				2.45,
+				13.36
+			],
+			"use": "the stage's wing: the acts waiting to go on, a quick change"
 		}
 	],
 	"use_points": [
@@ -2355,12 +2396,57 @@
 			"use": "play",
 			"who": "fiddler",
 			"at": [
-				1.2,
-				4.91,
-				12.3
+				4.3,
+				5.67,
+				12.6
 			],
-			"facing": -135,
-			"prop": "fiddler_chair"
+			"facing": 180,
+			"_doc": "#902: the band on the stage, behind the curtain's line (z 11.24)"
+		},
+		{
+			"id": "band_2",
+			"use": "play",
+			"who": "anyone",
+			"at": [
+				5.5,
+				5.67,
+				12.7
+			],
+			"facing": 180
+		},
+		{
+			"id": "band_3",
+			"use": "play",
+			"who": "anyone",
+			"at": [
+				6.5,
+				5.67,
+				12.4
+			],
+			"facing": 200
+		},
+		{
+			"id": "stage_act",
+			"use": "perform",
+			"who": "anyone",
+			"at": [
+				4.9,
+				5.67,
+				11.7
+			],
+			"facing": 180,
+			"_doc": "the act out front, in the footlights"
+		},
+		{
+			"id": "wing_wait",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				0.75,
+				4.91,
+				12.2
+			],
+			"facing": 90
 		},
 		{
 			"id": "dancer_1",
@@ -2492,14 +2578,16 @@
 			"prop": "bed_5"
 		},
 		{
-			"id": "room_6_bed",
-			"use": "sleep",
-			"who": "lodger",
+			"id": "dressing",
+			"use": "dress",
+			"who": "anyone",
 			"at": [
-				1.5,
+				1.7,
 				4.91,
-				19.5
-			]
+				18.1
+			],
+			"facing": -90,
+			"_doc": "#902: at the dressing table"
 		},
 		{
 			"id": "balcony_fiddler",
@@ -2773,13 +2861,14 @@
 				"kit": "reflector_lamp",
 				"wall": "dance_back",
 				"level": "upper",
-				"at": 6.0,
+				"at": 9.85,
 				"height": 1.7,
 				"lit": [
 					17,
 					4
 				],
-				"energy": 1.4
+				"energy": 1.4,
+				"_doc": "#902: moved off the stage's back wall, past the public door"
 			},
 			{
 				"room": "office",
@@ -2886,6 +2975,21 @@
 					23
 				],
 				"energy": 0.9
+			},
+			{
+				"room": "wing",
+				"kit": "reflector_lamp",
+				"wall": "wing",
+				"side": "+",
+				"level": "upper",
+				"at": 0.6,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 0.8,
+				"reach": 4.0
 			},
 			{
 				"room": "walks",
@@ -3145,6 +3249,38 @@
 				"floor"
 			],
 			[
+				"stage/board",
+				"floor"
+			],
+			[
+				"stage/skirt",
+				"oak"
+			],
+			[
+				"stage/proscenium/rod",
+				"-"
+			],
+			[
+				"stage/proscenium",
+				"oak"
+			],
+			[
+				"stage/backdrop",
+				"trim"
+			],
+			[
+				"stair/stage",
+				"oak"
+			],
+			[
+				"stair/wing",
+				"rough"
+			],
+			[
+				"stage/",
+				"timber"
+			],
+			[
 				"floor/dance/board",
 				"floor"
 			],
@@ -3264,9 +3400,195 @@
 		"rest": 0.2,
 		"motes": 70
 	},
+	"stage": {
+		"_doc": "#902 (Sean, 2026-11-13: 'put it where it fits best; 16 x 8 ft for now'; Payday Night's band plays there): the dance hall's stage against its back partition, 16 x 8 ft, 30 in high, built as a floor (legs, bearers, 2x8 joists at 16 in, the dance floor's boards), a boarded skirt on its front and open side, three steps down to the dance floor at the open side and three up from the wing at its other end. Clear of the sawn girder's panel (z 6.7 to 10.06). A proscenium of two posts and a header at its front, a red draw curtain on an iron rod between them (DrawCurtain: open_curtain / close_curtain), and the Baron's painted drop on the back wall (PaintedDrop: plain canvas till Sean OKs the painting).",
+		"level": "upper",
+		"rect": [
+			2.5,
+			10.9,
+			7.4,
+			13.3
+		],
+		"height": 0.76,
+		"leg": 0.1,
+		"bearer": [
+			0.1,
+			0.2
+		],
+		"joist": [
+			0.05,
+			0.2
+		],
+		"spacing": 0.406,
+		"legs_every": 1.25,
+		"bearers": 3,
+		"skirt": [
+			"front",
+			"+x"
+		],
+		"steps": [
+			{
+				"_doc": "down to the dance floor at the open side, clear of the panel and of the door at 8.33",
+				"id": "stage",
+				"head": [
+					7.422,
+					11.25
+				],
+				"dir": "-x",
+				"width": 1.0,
+				"risers": 4,
+				"going": 0.28
+			},
+			{
+				"_doc": "up from the wing onto the stage's end",
+				"id": "wing",
+				"head": [
+					2.5,
+					11.4
+				],
+				"dir": "+x",
+				"width": 1.0,
+				"risers": 4,
+				"going": 0.25
+			}
+		],
+		"proscenium": {
+			"post": 0.12,
+			"depth": 0.45,
+			"opening": 2.2,
+			"header": 0.25,
+			"rod": 0.34
+		},
+		"curtain": {
+			"open": false,
+			"color": [
+				0.36,
+				0.035,
+				0.05
+			]
+		},
+		"backdrop": {
+			"_doc": "15 x 7.5 ft: the room's height (2.59 m over the stage to the trusses' ties) leaves no 9 ft drop. `art`: Salt Creek as the Baron promises it (tools/textures/materials.json drop_baron; Sean's yes on #960, painted for $0.10, People run 133)",
+			"width": 4.6,
+			"height": 2.3,
+			"lift": 0.08,
+			"wall": 13.335,
+			"art": "res://assets/textures/drop_baron.png"
+		}
+	},
 	"dressing": {
-		"_doc": "#950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build (SpecBuilding._dressing, PropDressing: the valley and every lab read this one placement). Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at [x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, `row`: PropDressing's doc. The stage's (#903) wait for #902's room.",
+		"_doc": "#902: the stage's footlights and the dressing room's table, chair and lamp (`stage`). #950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build (SpecBuilding._dressing, PropDressing: the valley and every lab read this one placement). Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at [x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, `row`: PropDressing's doc. The upper floor is 3.96 over the ground floor, #902's stage 4.72. The rest of the stage's props (#903) are the prop lab's to place.",
 		"batches": {
+			"stage": [
+				{
+					"id": "foot_0",
+					"kit": "footlight",
+					"at": [
+						3.0,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_1",
+					"kit": "footlight",
+					"at": [
+						3.975,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_2",
+					"kit": "footlight",
+					"at": [
+						4.95,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_3",
+					"kit": "footlight",
+					"at": [
+						5.925,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_4",
+					"kit": "footlight",
+					"at": [
+						6.9,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "dress_table",
+					"kit": "table",
+					"fit": [
+						1.0,
+						0.76,
+						0.55
+					],
+					"at": [
+						0.43,
+						3.96,
+						17.2
+					],
+					"facing": 90,
+					"use": "the dressing table against the yard wall, between the door and the window (the mirror over it is the prop lab's)"
+				},
+				{
+					"id": "dress_chair",
+					"kit": "chair",
+					"at": [
+						1.08,
+						3.96,
+						17.2
+					],
+					"facing": -90
+				},
+				{
+					"id": "dress_lamp",
+					"kit": "oil_lamp",
+					"on": "dress_table",
+					"at": [
+						0.35,
+						0.0,
+						17.55
+					],
+					"facing": 0,
+					"light": 0.25
+				}
+			],
 			"S1": [
 				{
 					"id": "arm_rail_0",
@@ -4055,33 +4377,22 @@
 					"use": "the balcony over Main Street (Balcony Ambush's men)"
 				},
 				{
-					"id": "fiddler_chair",
-					"kit": "chair",
-					"at": [
-						1.2,
-						3.96,
-						12.3
-					],
-					"facing": 225,
-					"use": "fiddler"
-				},
-				{
 					"id": "fiddle_rest",
 					"kit": "chair",
 					"at": [
-						1.9,
-						3.96,
-						12.55
+						3.4,
+						4.72,
+						13.05
 					],
-					"facing": 200
+					"facing": 180
 				},
 				{
 					"id": "fiddle",
 					"kit": "fiddle",
 					"at": [
-						1.95,
+						3.45,
 						0.0,
-						12.55
+						13.05
 					],
 					"facing": 110,
 					"on": "fiddle_rest"
@@ -4090,9 +4401,9 @@
 					"id": "fiddle_bow",
 					"kit": "fiddle_bow",
 					"at": [
-						1.95,
+						3.45,
 						0.0,
-						12.55
+						13.05
 					],
 					"facing": 105,
 					"on": "fiddle_rest",
