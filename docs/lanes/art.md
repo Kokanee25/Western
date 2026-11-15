@@ -56,7 +56,7 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
   `RECIPE.md` (#824-#826, #829); the jail built on them.
 - **Saloon B, the corner saloon** (#772; #848, #884, the stage #902): `experiments/building_lab/saloon_b/` README,
-  `tests/test_building_saloon_b.gd`. 7,775 members; 31,680 valley bodies, **1,088 left** of Jolt's 32,768 (the prop
+  `tests/test_building_saloon_b.gd`. 7,775 members; 31,688 valley bodies, **1,080 left** of Jolt's 32,768 (the prop
   lab's sets, ~550, fit once; the jail and store need the guard raised or members put to rest). Look judged good indie
   (bar room) / cheap indie (corner). **The stage**: 30 in, of members, clear of the sawn panel; the wing; room_6 the
   dressing room (mirror, pegs, trunk, screen are the prop lab's to place); `DrawCurtain` and `PaintedDrop` (src/art,

@@ -174,8 +174,8 @@ band plays there. The spec's `stage` (FORMAT.md "Saloon B's stage"):
   draws), open on the drop **3.71 ms** (4,003), both under 4; main's spec without the stage, same view:
   3.34 (3,583). The `dance` view **5.10 ms** (6,102 draws) against main's 5.19 without the stage: the hall
   view was over 4 on main already (the valley's buildings behind it), the stage adds nothing to it.
-  Bodies: **31,680** in the valley (+175 on main's 31,505; **1,088 left** of Jolt's 32,768); 7,775
-  members (+141), 35 lamps (+7: the proscenium has none, five footlights, the wing's and the table's).
+  Bodies: **31,688** in the valley (+175 on main's 31,513 with #886; **1,080 left** of Jolt's 32,768); 7,775
+  members (+141), 39 lamps (+7: the proscenium has none, five footlights, the wing's and the table's).
 - **Judged, one round** (`docs/screenshots/judge/2026-11-14_saloon_b_stage_r1`; renders in
   `results/2026-11-14_stage/`): the cheap judge called the stage shut, the stage open on the drop and the
   dance hall **cheap indie**, all three (open the best, then shut, then the hall). Tells: the hall empty
