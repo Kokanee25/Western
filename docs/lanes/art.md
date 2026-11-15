@@ -25,13 +25,9 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
   meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
   Saloon B's gallery rail takes the framing finish (`gallery/` not in its surfaces): its step 2's to name.
-- **Wear by use** (#901, PR #963; RECIPE.md "Wear by use", LAYOUT "Wear by use and knocks"): scan_wood's use pass,
-  `use_wear` from a spec's `materials.wear` (saloon B 1.0, jail 0.65, doctor 0.45) and the members' `use_role` (door
-  leaf, tread, walk, jamb) or a kit look's `/<role>` (the bar's top `bar`, plinth and low rail `kick`). **Dents and
-  cuts (`dings`) built but 0** (Sean 2026-11-14: two judge rounds, no grade moved, slightly less liked). Not done:
-  chairs (the kit chair in library oak broke test_perf's 1800 meshes and the texel-grid tests: needs a library chair
-  for the new buildings), the brass foot rail, the card tables' initials. **Next: #964** (FL1's hazy worn path, FN1's
-  laminate oak). Quick look at a wood: `tools/wood_probe.gd` (~1 min).
+- **Wear by use** (#901, PR #963; RECIPE.md "Wear by use"): scan_wood's use pass from a spec's `materials.wear` and
+  members' `use_role` or a kit look's `/<role>` (the bar's top `bar`, plinth `kick`). Dents (`dings`) built, set 0
+  (Sean). Not done: chairs (test_perf's 1800 meshes), the brass rail. Quick look: `tools/wood_probe.gd`.
 - **Saloon B's gallery view over budget on main:** render CPU 5.9 ms at Sean's (lavapipe) since step 2's look (was
   3.8-4.0 before it); #901 adds nothing. Someone should find what step 2 added there.
 - **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
@@ -70,9 +66,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after a frame change; name every surface (`-`
   keeps a dressed member's shape); a stage member's band sits over what it rests on; `reduce.py` rewrites the vram
   signs' `.import` files short: restore them from git.
-- **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
-  floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
-  the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
+- **Floors and furniture, still open:** FL1's path a milky haze, FN1 laminate-looking (no pores, ray fleck): #964 (slice, week 3).
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
 - **The doctor's walls and windows** (#826): `SashWindow` (src/structures), inside boards at 9 cm, skirting and
