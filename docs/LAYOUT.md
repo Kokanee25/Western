@@ -777,6 +777,14 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   Poly Haven scans (`assets/props/scans/`, fetched by `scans.yml` from `tools/textures/scans/model_picks.json`)
   to `<piece>_near.res`/`_far.res`; the trees are `ValleyTrees` (code). Views:
   `tools/textures/valley_ground_shots.sh OUT [game args] [only]` (`valley_ground_views.txt`).
+  Second pass (#962): the ruts are a `road_profile(xz, across)` the shader steps the eye's ray into
+  (parallax along the road's across, two steps) and shades by the sun along it (`sun_dir`, kept the
+  DayCycle's by ValleyScatter; dials `rut_depth`, `berm_h`, `berm_light`, `rut_shadow`); the open land a
+  tufted grassland tint (`grassland_*`, `grass_cover`). Scatter species may take `blend` (near and far
+  pieces handed over per pixel), `appear` (a far-only layer: `grassfar`), `on_road` (`pebbles`, `clods`
+  in the streets), `squash`, `cluster` [n, m, least], `cluster_scale`; a plant's `albedo` (the scans'
+  `dry_diff`, fetched as `extra` in model_picks.json), `translucency`, `bend`, `foot_dark`. Trees: five
+  shapes a kind and a `snag`; `scatter_meshes.gd -- --trees-only` / `--only=ID` re-bake part.
 - **The valley's railway** (G3, #716; train step 6, #542): `ValleyRailway` (`src/world/valley_railway.gd`,
   ValleyWorld's child `Railway`; `-- --no-railway` leaves it out) lays `railway.route` with the train's
   own code: `make_line` gives the route `"height": 0` (its origin is the rail top, as valley_plan.py
