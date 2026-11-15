@@ -55,6 +55,8 @@ static func make(parent: Node, at: Vector3, velocity := Vector3.ZERO, fuse := -1
 func _ready() -> void:
 	name = "Dynamite"
 	add_to_group(&"dynamite")
+	# The blast's look made ready now, seconds before it goes off, not on its tick (#596 step 3).
+	BlastCloud.ready_once.call_deferred(self)
 	mass = 0.23 * sticks
 	collision_layer = Layers.DEBRIS
 	collision_mask = Layers.DEBRIS_MASK

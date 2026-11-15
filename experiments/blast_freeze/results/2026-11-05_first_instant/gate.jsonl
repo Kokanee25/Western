@@ -1,0 +1,12 @@
+{"run": "saloon_after1.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 106, "worst_sean": 69, "over100_sean": 0, "over50_sean": 2, "back_50fps_s": 8.13, "mean5_sean": 20.7, "broken": 632}
+{"run": "saloon_after2.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 93, "worst_sean": 60, "over100_sean": 0, "over50_sean": 2, "back_50fps_s": 7.72, "mean5_sean": 18.9, "broken": 632}
+{"run": "saloon_after3.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 83, "worst_sean": 54, "over100_sean": 0, "over50_sean": 3, "back_50fps_s": 8.47, "mean5_sean": 20.5, "broken": 632}
+{"run": "saloon_before1.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 102, "worst_sean": 66, "over100_sean": 0, "over50_sean": 4, "back_50fps_s": 7.98, "mean5_sean": 20.6, "broken": 632}
+{"run": "saloon_before2.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 101, "worst_sean": 65, "over100_sean": 0, "over50_sean": 3, "back_50fps_s": 8.25, "mean5_sean": 20.7, "broken": 632}
+{"run": "saloon_before3.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 94, "worst_sean": 61, "over100_sean": 0, "over50_sean": 1, "back_50fps_s": 7.83, "mean5_sean": 19.5, "broken": 632}
+{"run": "street_after1.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 103, "worst_sean": 67, "over100_sean": 0, "over50_sean": 2, "back_50fps_s": 2.26, "mean5_sean": 20.2, "broken": 358}
+{"run": "street_after2.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 116, "worst_sean": 76, "over100_sean": 0, "over50_sean": 3, "back_50fps_s": 3.15, "mean5_sean": 19.9, "broken": 360}
+{"run": "street_after3.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 106, "worst_sean": 69, "over100_sean": 0, "over50_sean": 3, "back_50fps_s": 1.94, "mean5_sean": 19.1, "broken": 360}
+{"run": "street_before1.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 143, "worst_sean": 93, "over100_sean": 0, "over50_sean": 4, "back_50fps_s": 3.18, "mean5_sean": 20.0, "broken": 358}
+{"run": "street_before2.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 130, "worst_sean": 85, "over100_sean": 0, "over50_sean": 4, "back_50fps_s": 2.02, "mean5_sean": 19.2, "broken": 358}
+{"run": "street_before3.json", "lift": 0.0, "men": 0, "thrown_m": [], "worst": 112, "worst_sean": 73, "over100_sean": 0, "over50_sean": 2, "back_50fps_s": 1.86, "mean5_sean": 18.7, "broken": 358}

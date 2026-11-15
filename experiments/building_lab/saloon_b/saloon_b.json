@@ -1306,7 +1306,7 @@
 			"openings": []
 		},
 		{
-			"_doc": "the dance hall's back wall: two doors to the upper hall",
+			"_doc": "the dance hall's back wall: the public door to the upper hall (x 8.43) and the wing's door (at 1.58, straight across the hall from the dressing room's at 1.58 on rooms_front); the stage stands against it (#902: the door at 3.56 went, it would be behind the stage)",
 			"id": "dance_back",
 			"line": [
 				[
@@ -1334,9 +1334,11 @@
 			"openings": [
 				{
 					"type": "door",
-					"at": 3.56,
-					"width": 1.22,
-					"height": 2.13
+					"at": 1.58,
+					"width": 0.86,
+					"height": 2.03,
+					"_doc": "#902: the wing's door, straight across the upper hall from the dressing room's (room_6's, x 1.58)",
+					"hinge": "end"
 				},
 				{
 					"type": "door",
@@ -1345,6 +1347,34 @@
 					"height": 2.13
 				}
 			]
+		},
+		{
+			"_doc": "#902: the wing, boarded off from the dance floor: the stage's backstage corner by the yard wall, three steps up onto the stage's end",
+			"id": "wing",
+			"line": [
+				[
+					0.1,
+					10.9
+				],
+				[
+					2.45,
+					10.9
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
 		},
 		{
 			"_doc": "the rented rooms' doors off the upper hall, opening into the rooms",
@@ -2096,7 +2126,7 @@
 				10.97,
 				13.36
 			],
-			"use": "dancing on payday night; the fiddler's platform in its back corner; open to the well along its west side"
+			"use": "dancing on payday night, the band on the stage against its back wall (#902); open to the well along its west side"
 		},
 		{
 			"id": "office",
@@ -2173,7 +2203,18 @@
 				2.85,
 				21.85
 			],
-			"use": "let by the night"
+			"use": "the dressing room (#902): the acts' and the band's, across the hall from the wing's door; three rooms let"
+		},
+		{
+			"id": "wing",
+			"level": "upper",
+			"rect": [
+				0.1,
+				10.95,
+				2.45,
+				13.36
+			],
+			"use": "the stage's wing: the acts waiting to go on, a quick change"
 		}
 	],
 	"use_points": [
@@ -2182,7 +2223,7 @@
 			"use": "serve",
 			"who": "barman",
 			"at": [
-				0.99,
+				1.03,
 				0.95,
 				4.0
 			],
@@ -2193,7 +2234,7 @@
 			"use": "serve",
 			"who": "barman",
 			"at": [
-				0.99,
+				1.03,
 				0.95,
 				8.5
 			],
@@ -2204,7 +2245,7 @@
 			"use": "drink",
 			"who": "anyone",
 			"at": [
-				2.69,
+				3.19,
 				0.95,
 				3.4
 			],
@@ -2215,7 +2256,7 @@
 			"use": "drink",
 			"who": "anyone",
 			"at": [
-				2.69,
+				3.19,
 				0.95,
 				5.2
 			],
@@ -2226,7 +2267,7 @@
 			"use": "drink",
 			"who": "anyone",
 			"at": [
-				2.69,
+				3.19,
 				0.95,
 				7.4
 			],
@@ -2237,7 +2278,7 @@
 			"use": "drink",
 			"who": "anyone",
 			"at": [
-				2.69,
+				3.19,
 				0.95,
 				9.0
 			],
@@ -2248,7 +2289,7 @@
 			"use": "drink",
 			"who": "anyone",
 			"at": [
-				2.69,
+				3.19,
 				0.95,
 				10.6
 			],
@@ -2265,22 +2306,24 @@
 			"use": "play",
 			"who": "pianist",
 			"at": [
-				14.6,
+				12.4,
 				0.95,
 				12.3
 			],
-			"facing": 180
+			"facing": 0,
+			"prop": "piano_stool"
 		},
 		{
 			"id": "faro_bank",
 			"use": "deal",
 			"who": "gambler",
 			"at": [
-				8.0,
+				7.0,
 				0.95,
-				11.6
+				11.5
 			],
-			"facing": 0
+			"facing": 0,
+			"prop": "faro_bar_chair"
 		},
 		{
 			"id": "stair_foot",
@@ -2298,11 +2341,11 @@
 			"use": "deal",
 			"who": "gambler",
 			"at": [
-				9.0,
+				7.0,
 				0.95,
-				17.0
+				18.4
 			],
-			"facing": 0
+			"facing": -90
 		},
 		{
 			"id": "gaming_watch",
@@ -2335,7 +2378,7 @@
 				0.95,
 				17.5
 			],
-			"facing": 90
+			"facing": -90
 		},
 		{
 			"id": "cellar_kegs",
@@ -2346,18 +2389,64 @@
 				-1.92,
 				10.2
 			],
-			"facing": 0
+			"facing": -90
 		},
 		{
 			"id": "fiddler",
 			"use": "play",
 			"who": "fiddler",
 			"at": [
-				1.2,
-				4.91,
-				12.3
+				4.3,
+				5.67,
+				12.6
 			],
-			"facing": -135
+			"facing": 180,
+			"_doc": "#902: the band on the stage, behind the curtain's line (z 11.24)"
+		},
+		{
+			"id": "band_2",
+			"use": "play",
+			"who": "anyone",
+			"at": [
+				5.5,
+				5.67,
+				12.7
+			],
+			"facing": 180
+		},
+		{
+			"id": "band_3",
+			"use": "play",
+			"who": "anyone",
+			"at": [
+				6.5,
+				5.67,
+				12.4
+			],
+			"facing": 200
+		},
+		{
+			"id": "stage_act",
+			"use": "perform",
+			"who": "anyone",
+			"at": [
+				4.9,
+				5.67,
+				11.7
+			],
+			"facing": 180,
+			"_doc": "the act out front, in the footlights"
+		},
+		{
+			"id": "wing_wait",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				0.75,
+				4.91,
+				12.2
+			],
+			"facing": 90
 		},
 		{
 			"id": "dancer_1",
@@ -2404,11 +2493,12 @@
 			"use": "work",
 			"who": "owner",
 			"at": [
-				13.6,
+				13.9,
 				4.91,
-				2.8
+				1.2
 			],
-			"facing": 180
+			"facing": 180,
+			"prop": "owner_chair"
 		},
 		{
 			"id": "rail_watch_a",
@@ -2459,40 +2549,45 @@
 			"use": "sleep",
 			"who": "lodger",
 			"at": [
-				13.2,
+				12.0,
 				4.91,
-				19.5
-			]
+				20.82
+			],
+			"prop": "bed_3"
 		},
 		{
 			"id": "room_4_bed",
 			"use": "sleep",
 			"who": "lodger",
 			"at": [
-				9.1,
+				7.7,
 				4.91,
-				19.5
-			]
+				20.82
+			],
+			"prop": "bed_4"
 		},
 		{
 			"id": "room_5_bed",
 			"use": "sleep",
 			"who": "lodger",
 			"at": [
-				5.0,
+				6.3,
 				4.91,
-				19.5
-			]
+				20.87
+			],
+			"prop": "bed_5"
 		},
 		{
-			"id": "room_6_bed",
-			"use": "sleep",
-			"who": "lodger",
+			"id": "dressing",
+			"use": "dress",
+			"who": "anyone",
 			"at": [
-				1.5,
+				1.7,
 				4.91,
-				19.5
-			]
+				18.1
+			],
+			"facing": -90,
+			"_doc": "#902: at the dressing table"
 		},
 		{
 			"id": "balcony_fiddler",
@@ -2524,7 +2619,7 @@
 			"_doc": "The bar down the yard wall (the concept's 34 ft: three 3 m kit sections), the customers to the west; the back bar against the wall, four 2.5 m sections. UNDER THE SAWN GIRDER'S PANEL.",
 			"kit": "bar",
 			"at": [
-				1.75,
+				2.25,
 				3.9
 			],
 			"facing": 90,
@@ -2592,11 +2687,11 @@
 		"_doc": "#824's rules: a building names its lamps, a room each, not an even row of sconces. The bar room: two lamps standing on the bar, a wheel of six over the card tables hung in the well from a truss (it lights the tables and the gallery), a reflector lamp by the card tables' windows, one by the piano, one at the bar's back door. Only the lamps where a player stands cast shadows. Outside (#886): four reflector lamps on the walks under the balcony, two on each street's wall (`side: \"out\"`), lit from dusk; only the one by the corner casts shadows.",
 		"on_bar": [
 			[
-				1.75,
+				2.3,
 				3.5
 			],
 			[
-				1.75,
+				2.3,
 				9.6
 			]
 		],
@@ -2766,13 +2861,14 @@
 				"kit": "reflector_lamp",
 				"wall": "dance_back",
 				"level": "upper",
-				"at": 6.0,
+				"at": 9.85,
 				"height": 1.7,
 				"lit": [
 					17,
 					4
 				],
-				"energy": 1.4
+				"energy": 1.4,
+				"_doc": "#902: moved off the stage's back wall, past the public door"
 			},
 			{
 				"room": "office",
@@ -2879,6 +2975,21 @@
 					23
 				],
 				"energy": 0.9
+			},
+			{
+				"room": "wing",
+				"kit": "reflector_lamp",
+				"wall": "wing",
+				"side": "+",
+				"level": "upper",
+				"at": 0.6,
+				"height": 1.7,
+				"lit": [
+					17,
+					4
+				],
+				"energy": 0.8,
+				"reach": 4.0
 			},
 			{
 				"room": "walks",
@@ -3139,6 +3250,38 @@
 				"floor"
 			],
 			[
+				"stage/board",
+				"floor"
+			],
+			[
+				"stage/skirt",
+				"oak"
+			],
+			[
+				"stage/proscenium/rod",
+				"-"
+			],
+			[
+				"stage/proscenium",
+				"oak"
+			],
+			[
+				"stage/backdrop",
+				"trim"
+			],
+			[
+				"stair/stage",
+				"oak"
+			],
+			[
+				"stair/wing",
+				"rough"
+			],
+			[
+				"stage/",
+				"timber"
+			],
+			[
 				"floor/dance/board",
 				"floor"
 			],
@@ -3257,5 +3400,1406 @@
 		"floor": "dance",
 		"rest": 0.2,
 		"motes": 70
+	},
+	"stage": {
+		"_doc": "#902 (Sean, 2026-11-13: 'put it where it fits best; 16 x 8 ft for now'; Payday Night's band plays there): the dance hall's stage against its back partition, 16 x 8 ft, 30 in high, built as a floor (legs, bearers, 2x8 joists at 16 in, the dance floor's boards), a boarded skirt on its front and open side, three steps down to the dance floor at the open side and three up from the wing at its other end. Clear of the sawn girder's panel (z 6.7 to 10.06). A proscenium of two posts and a header at its front, a red draw curtain on an iron rod between them (DrawCurtain: open_curtain / close_curtain), and the Baron's painted drop on the back wall (PaintedDrop: plain canvas till Sean OKs the painting).",
+		"level": "upper",
+		"rect": [
+			2.5,
+			10.9,
+			7.4,
+			13.3
+		],
+		"height": 0.76,
+		"leg": 0.1,
+		"bearer": [
+			0.1,
+			0.2
+		],
+		"joist": [
+			0.05,
+			0.2
+		],
+		"spacing": 0.406,
+		"legs_every": 1.25,
+		"bearers": 3,
+		"skirt": [
+			"front",
+			"+x"
+		],
+		"steps": [
+			{
+				"_doc": "down to the dance floor at the open side, clear of the panel and of the door at 8.33",
+				"id": "stage",
+				"head": [
+					7.422,
+					11.25
+				],
+				"dir": "-x",
+				"width": 1.0,
+				"risers": 4,
+				"going": 0.28
+			},
+			{
+				"_doc": "up from the wing onto the stage's end",
+				"id": "wing",
+				"head": [
+					2.5,
+					11.4
+				],
+				"dir": "+x",
+				"width": 1.0,
+				"risers": 4,
+				"going": 0.25
+			}
+		],
+		"proscenium": {
+			"post": 0.12,
+			"depth": 0.45,
+			"opening": 2.2,
+			"header": 0.25,
+			"rod": 0.34
+		},
+		"curtain": {
+			"open": false,
+			"color": [
+				0.36,
+				0.035,
+				0.05
+			]
+		},
+		"backdrop": {
+			"_doc": "15 x 7.5 ft: the room's height (2.59 m over the stage to the trusses' ties) leaves no 9 ft drop. `art`: Salt Creek as the Baron promises it (tools/textures/materials.json drop_baron; Sean's yes on #960, painted for $0.10, People run 133)",
+			"width": 4.6,
+			"height": 2.3,
+			"lift": 0.08,
+			"wall": 13.335,
+			"art": "res://assets/textures/drop_baron.png"
+		}
+	},
+	"dressing": {
+		"_doc": "#902: the stage's footlights and the dressing room's table, chair and lamp (`stage`). #950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build (SpecBuilding._dressing, PropDressing: the valley and every lab read this one placement). Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at [x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, `row`: PropDressing's doc. The upper floor is 3.96 over the ground floor, #902's stage 4.72. The rest of the stage's props (#903) are the prop lab's to place.",
+		"batches": {
+			"stage": [
+				{
+					"id": "foot_0",
+					"kit": "footlight",
+					"at": [
+						3.0,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_1",
+					"kit": "footlight",
+					"at": [
+						3.975,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_2",
+					"kit": "footlight",
+					"at": [
+						4.95,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_3",
+					"kit": "footlight",
+					"at": [
+						5.925,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "foot_4",
+					"kit": "footlight",
+					"at": [
+						6.9,
+						4.72,
+						11.02
+					],
+					"facing": 180,
+					"light": 0.1,
+					"energy": 0.55,
+					"reach": 4.0,
+					"shadows": false
+				},
+				{
+					"id": "dress_table",
+					"kit": "table",
+					"fit": [
+						1.0,
+						0.76,
+						0.55
+					],
+					"at": [
+						0.43,
+						3.96,
+						17.2
+					],
+					"facing": 90,
+					"use": "the dressing table against the yard wall, between the door and the window (the mirror over it is the prop lab's)"
+				},
+				{
+					"id": "dress_chair",
+					"kit": "chair",
+					"at": [
+						1.08,
+						3.96,
+						17.2
+					],
+					"facing": -90
+				},
+				{
+					"id": "dress_lamp",
+					"kit": "oil_lamp",
+					"on": "dress_table",
+					"at": [
+						0.35,
+						0.0,
+						17.55
+					],
+					"facing": 0,
+					"light": 0.25
+				}
+			],
+			"S1": [
+				{
+					"id": "arm_rail_0",
+					"kit": "bar_arm_rail",
+					"at": [
+						2.705,
+						1.095,
+						3.9
+					],
+					"facing": 90,
+					"use": "on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"
+				},
+				{
+					"id": "work_board_0",
+					"kit": "work_board",
+					"at": [
+						1.665,
+						0.0,
+						3.9
+					],
+					"facing": 270,
+					"use": "the bartender's work board, its back on the bar's back boards (x 1.96)"
+				},
+				{
+					"id": "arm_rail_1",
+					"kit": "bar_arm_rail",
+					"at": [
+						2.705,
+						1.095,
+						6.9
+					],
+					"facing": 90,
+					"use": "on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"
+				},
+				{
+					"id": "work_board_1",
+					"kit": "work_board",
+					"at": [
+						1.665,
+						0.0,
+						6.9
+					],
+					"facing": 270,
+					"use": "the bartender's work board, its back on the bar's back boards (x 1.96)"
+				},
+				{
+					"id": "arm_rail_2",
+					"kit": "bar_arm_rail",
+					"at": [
+						2.705,
+						1.095,
+						9.9
+					],
+					"facing": 90,
+					"use": "on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"
+				},
+				{
+					"id": "work_board_2",
+					"kit": "work_board",
+					"at": [
+						1.665,
+						0.0,
+						9.9
+					],
+					"facing": 270,
+					"use": "the bartender's work board, its back on the bar's back boards (x 1.96)"
+				},
+				{
+					"id": "slat_mat_0",
+					"kit": "slat_mat",
+					"at": [
+						1.03,
+						0.0,
+						2.95
+					],
+					"facing": 90
+				},
+				{
+					"id": "slat_mat_1",
+					"kit": "slat_mat",
+					"at": [
+						1.03,
+						0.0,
+						4.85
+					],
+					"facing": 90
+				},
+				{
+					"id": "slat_mat_2",
+					"kit": "slat_mat",
+					"at": [
+						1.03,
+						0.0,
+						6.75
+					],
+					"facing": 90
+				},
+				{
+					"id": "slat_mat_3",
+					"kit": "slat_mat",
+					"at": [
+						1.03,
+						0.0,
+						8.65
+					],
+					"facing": 90
+				},
+				{
+					"id": "slat_mat_4",
+					"kit": "slat_mat",
+					"at": [
+						1.03,
+						0.0,
+						10.55
+					],
+					"facing": 90
+				},
+				{
+					"id": "till",
+					"kit": "till_drawer",
+					"at": [
+						0.47,
+						0.99,
+						6.2
+					],
+					"facing": 90,
+					"use": "the till on the back bar (no cash register in 1882 Colorado)"
+				},
+				{
+					"id": "gold_scales",
+					"kit": "gold_scales",
+					"at": [
+						0.5,
+						0.99,
+						7.4
+					],
+					"facing": 90
+				},
+				{
+					"id": "decanter_0",
+					"kit": "decanter",
+					"at": [
+						0.52,
+						0.99,
+						4.6
+					],
+					"facing": 0
+				},
+				{
+					"id": "decanter_1",
+					"kit": "decanter",
+					"at": [
+						0.52,
+						0.99,
+						9.9
+					],
+					"facing": 0
+				},
+				{
+					"id": "shots_back",
+					"row": {
+						"kits": [
+							"shot_glass"
+						],
+						"count": 6,
+						"step": [
+							0,
+							0,
+							0.09
+						],
+						"jitter": [
+							0.008,
+							0.008,
+							0
+						]
+					},
+					"at": [
+						0.55,
+						0.99,
+						7.85
+					],
+					"facing": 0
+				},
+				{
+					"id": "schooners_back",
+					"row": {
+						"kits": [
+							"schooner"
+						],
+						"count": 6,
+						"step": [
+							0,
+							0,
+							0.11
+						],
+						"jitter": [
+							0.008,
+							0.008,
+							0
+						]
+					},
+					"at": [
+						0.55,
+						0.99,
+						10.2
+					],
+					"facing": 0
+				},
+				{
+					"id": "bottles_0",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 5,
+						"step": [
+							0,
+							0,
+							0.17
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						2.2
+					],
+					"facing": 90
+				},
+				{
+					"id": "bottles_1",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 5,
+						"step": [
+							0,
+							0,
+							0.17
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						4.7
+					],
+					"facing": 90
+				},
+				{
+					"id": "bottles_2",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 5,
+						"step": [
+							0,
+							0,
+							0.17
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						7.2
+					],
+					"facing": 90
+				},
+				{
+					"id": "bottles_3",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 5,
+						"step": [
+							0,
+							0,
+							0.17
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						9.700000000000001
+					],
+					"facing": 90
+				},
+				{
+					"id": "bar_glass_0",
+					"kit": "shot_glass",
+					"at": [
+						2.5,
+						1.095,
+						3.4
+					],
+					"facing": 0
+				},
+				{
+					"id": "bar_glass_1",
+					"kit": "schooner",
+					"at": [
+						2.5,
+						1.095,
+						5.0
+					],
+					"facing": 0
+				},
+				{
+					"id": "bar_glass_2",
+					"kit": "schooner",
+					"at": [
+						2.5,
+						1.095,
+						7.4
+					],
+					"facing": 0
+				},
+				{
+					"id": "bar_glass_3",
+					"kit": "shot_glass",
+					"at": [
+						2.5,
+						1.095,
+						9.0
+					],
+					"facing": 0
+				},
+				{
+					"id": "bar_glass_4",
+					"kit": "shot_glass",
+					"at": [
+						2.5,
+						1.095,
+						10.6
+					],
+					"facing": 0
+				},
+				{
+					"id": "bar_bottle",
+					"kit": "whiskey_bottle",
+					"at": [
+						2.4,
+						1.095,
+						9.15
+					],
+					"facing": 0
+				},
+				{
+					"id": "hanging_lamp_0",
+					"kit": "hanging_lamp",
+					"at": [
+						3.4,
+						2.625,
+						3.512
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "hanging_lamp_1",
+					"kit": "hanging_lamp",
+					"at": [
+						3.4,
+						2.625,
+						6.867
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "hanging_lamp_2",
+					"kit": "hanging_lamp",
+					"at": [
+						3.4,
+						2.625,
+						10.222
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "hanging_lamp_3",
+					"kit": "hanging_lamp",
+					"at": [
+						8.2,
+						2.625,
+						2.902
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "hanging_lamp_4",
+					"kit": "hanging_lamp",
+					"at": [
+						8.2,
+						2.625,
+						5.647
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "hanging_lamp_5",
+					"kit": "hanging_lamp",
+					"at": [
+						8.2,
+						2.625,
+						8.697
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "dance_lamp_0",
+					"kit": "hanging_lamp",
+					"at": [
+						3.0,
+						6.3,
+						6.1
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "dance_lamp_1",
+					"kit": "hanging_lamp",
+					"at": [
+						8.0,
+						6.3,
+						6.1
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.0
+				},
+				{
+					"id": "box_stove",
+					"kit": "box_stove",
+					"at": [
+						6.6,
+						0.0,
+						5.9
+					],
+					"facing": 0,
+					"use": "mid-room, its door toward the card tables, its pipe short of the joists"
+				},
+				{
+					"id": "faro_bar",
+					"kit": "faro_table",
+					"at": [
+						7.0,
+						0.0,
+						12.2
+					],
+					"facing": 0,
+					"use": "faro_bank: the bank by the arch"
+				},
+				{
+					"id": "faro_bar_chair",
+					"kit": "chair",
+					"at": [
+						7.0,
+						0.0,
+						11.5
+					],
+					"facing": 0
+				},
+				{
+					"id": "lookout_bar",
+					"kit": "lookout_stool",
+					"at": [
+						7.75,
+						0.0,
+						11.45
+					],
+					"facing": 330
+				},
+				{
+					"id": "faro_gaming",
+					"kit": "faro_table",
+					"at": [
+						10.0,
+						0.0,
+						17.4
+					],
+					"facing": 0,
+					"use": "the gaming room's faro bank"
+				},
+				{
+					"id": "faro_gaming_chair",
+					"kit": "chair",
+					"at": [
+						10.0,
+						0.0,
+						16.7
+					],
+					"facing": 0
+				},
+				{
+					"id": "lookout_gaming",
+					"kit": "lookout_stool",
+					"at": [
+						10.8,
+						0.0,
+						16.65
+					],
+					"facing": 330
+				},
+				{
+					"id": "wheel",
+					"kit": "wheel_of_fortune",
+					"at": [
+						6.165,
+						1.9,
+						18.4
+					],
+					"facing": 90,
+					"use": "wheel: on the store room's wall, its middle at 1.9 m"
+				},
+				{
+					"id": "shaded_lamp_0",
+					"kit": "hanging_lamp_shaded",
+					"at": [
+						10.0,
+						2.625,
+						17.432
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.2
+				},
+				{
+					"id": "shaded_lamp_1",
+					"kit": "hanging_lamp_shaded",
+					"at": [
+						7.6,
+						2.625,
+						17.127
+					],
+					"facing": 0,
+					"light": 0.33,
+					"shadows": false,
+					"energy": 1.2
+				},
+				{
+					"id": "piano",
+					"kit": "upright_piano",
+					"at": [
+						12.4,
+						0.0,
+						12.98
+					],
+					"facing": 180,
+					"use": "the bar room's upright, its back to the back wall"
+				},
+				{
+					"id": "piano_stool",
+					"kit": "piano_stool",
+					"at": [
+						12.4,
+						0.0,
+						12.3
+					],
+					"facing": 0,
+					"use": "piano"
+				},
+				{
+					"id": "deck_0",
+					"kit": "card_deck",
+					"at": [
+						12.98,
+						0.77,
+						7.2
+					],
+					"facing": 20
+				},
+				{
+					"id": "chips_0",
+					"kit": "chip_stacks",
+					"at": [
+						13.28,
+						0.77,
+						7.44
+					],
+					"facing": 0
+				},
+				{
+					"id": "deck_1",
+					"kit": "card_deck",
+					"at": [
+						13.08,
+						0.77,
+						10.4
+					],
+					"facing": 55
+				},
+				{
+					"id": "chips_1",
+					"kit": "chip_stacks",
+					"at": [
+						13.38,
+						0.77,
+						10.64
+					],
+					"facing": 10
+				},
+				{
+					"id": "deck_2",
+					"kit": "card_deck",
+					"at": [
+						8.11,
+						0.77,
+						2.7
+					],
+					"facing": 90
+				},
+				{
+					"id": "chips_2",
+					"kit": "chip_stacks",
+					"at": [
+						8.41,
+						0.77,
+						2.94
+					],
+					"facing": 20
+				},
+				{
+					"id": "deck_3",
+					"kit": "card_deck",
+					"at": [
+						8.11,
+						0.77,
+						8.5
+					],
+					"facing": 125
+				},
+				{
+					"id": "chips_3",
+					"kit": "chip_stacks",
+					"at": [
+						8.41,
+						0.77,
+						8.74
+					],
+					"facing": 30
+				},
+				{
+					"id": "no_law_glass_0",
+					"kit": "shot_glass",
+					"at": [
+						12.82,
+						0.77,
+						7.5
+					],
+					"facing": 0
+				},
+				{
+					"id": "no_law_glass_1",
+					"kit": "shot_glass",
+					"at": [
+						13.38,
+						0.77,
+						7.05
+					],
+					"facing": 0
+				},
+				{
+					"id": "no_law_bottle",
+					"kit": "whiskey_bottle",
+					"at": [
+						13.12,
+						0.77,
+						7.38
+					],
+					"facing": 0
+				}
+			],
+			"S2": [
+				{
+					"id": "bench_front_0",
+					"kit": "wall_bench",
+					"at": [
+						1.15,
+						3.96,
+						0.29
+					],
+					"facing": 0
+				},
+				{
+					"id": "bench_front_1",
+					"kit": "wall_bench",
+					"at": [
+						4.4,
+						3.96,
+						0.29
+					],
+					"facing": 0
+				},
+				{
+					"id": "bench_front_2",
+					"kit": "wall_bench",
+					"at": [
+						6.4,
+						3.96,
+						0.29
+					],
+					"facing": 0
+				},
+				{
+					"id": "bench_front_3",
+					"kit": "wall_bench",
+					"at": [
+						10.0,
+						3.96,
+						0.29
+					],
+					"facing": 0
+				},
+				{
+					"id": "bench_yard_0",
+					"kit": "wall_bench",
+					"at": [
+						0.29,
+						3.96,
+						1.7
+					],
+					"facing": 90
+				},
+				{
+					"id": "bench_yard_1",
+					"kit": "wall_bench",
+					"at": [
+						0.29,
+						3.96,
+						6.4
+					],
+					"facing": 90
+				},
+				{
+					"id": "bench_balcony",
+					"kit": "wall_bench",
+					"at": [
+						5.2,
+						3.96,
+						-0.25
+					],
+					"facing": 180,
+					"use": "the balcony over Main Street (Balcony Ambush's men)"
+				},
+				{
+					"id": "fiddle_rest",
+					"kit": "chair",
+					"at": [
+						3.4,
+						4.72,
+						13.05
+					],
+					"facing": 180
+				},
+				{
+					"id": "fiddle",
+					"kit": "fiddle",
+					"at": [
+						3.45,
+						0.0,
+						13.05
+					],
+					"facing": 110,
+					"on": "fiddle_rest"
+				},
+				{
+					"id": "fiddle_bow",
+					"kit": "fiddle_bow",
+					"at": [
+						3.45,
+						0.0,
+						13.05
+					],
+					"facing": 105,
+					"on": "fiddle_rest",
+					"lift": 0.09
+				},
+				{
+					"id": "handsaw",
+					"kit": "handsaw",
+					"at": [
+						3.6,
+						0.02,
+						20.9
+					],
+					"facing": 15,
+					"use": "Payday Night's saw, in the store room till it's carried up the outside stair"
+				},
+				{
+					"id": "cookstove",
+					"kit": "cookstove",
+					"at": [
+						7.5,
+						0.0,
+						21.38
+					],
+					"facing": 180,
+					"use": "the kitchen's range, its back to the back wall"
+				},
+				{
+					"id": "keg_0",
+					"kit": "beer_keg",
+					"at": [
+						4.6,
+						0.0,
+						17.0
+					],
+					"facing": 0,
+					"use": "full kegs up from the cellar"
+				},
+				{
+					"id": "keg_1",
+					"kit": "beer_keg",
+					"at": [
+						5.0,
+						0.0,
+						17.4
+					],
+					"facing": 20
+				},
+				{
+					"id": "keg_2",
+					"kit": "beer_keg",
+					"at": [
+						4.6,
+						0.0,
+						17.8
+					],
+					"facing": 40
+				}
+			],
+			"S3": [
+				{
+					"id": "rack_store",
+					"kit": "keg_rack",
+					"at": [
+						0.4,
+						0.0,
+						17.5
+					],
+					"facing": 90,
+					"use": "against the yard wall, tap ends out (+x)"
+				},
+				{
+					"id": "rack_store_keg_0",
+					"kit": "beer_keg_side",
+					"at": [
+						0.4,
+						0.16,
+						18.365
+					],
+					"facing": 90
+				},
+				{
+					"id": "rack_store_keg_1",
+					"kit": "beer_keg_side",
+					"at": [
+						0.4,
+						0.16,
+						17.825
+					],
+					"facing": 90
+				},
+				{
+					"id": "rack_store_keg_2",
+					"kit": "beer_keg_side",
+					"at": [
+						0.4,
+						0.16,
+						17.175
+					],
+					"facing": 90
+				},
+				{
+					"id": "rack_store_keg_3",
+					"kit": "beer_keg_side",
+					"at": [
+						0.4,
+						0.16,
+						16.635
+					],
+					"facing": 90
+				},
+				{
+					"id": "rack_cellar",
+					"kit": "keg_rack",
+					"at": [
+						0.76,
+						-2.87,
+						10.2
+					],
+					"facing": 90,
+					"use": "against the yard wall, tap ends out (+x)"
+				},
+				{
+					"id": "rack_cellar_keg_0",
+					"kit": "beer_keg_side",
+					"at": [
+						0.76,
+						-2.71,
+						11.065
+					],
+					"facing": 90
+				},
+				{
+					"id": "rack_cellar_keg_1",
+					"kit": "beer_keg_side",
+					"at": [
+						0.76,
+						-2.71,
+						10.525
+					],
+					"facing": 90
+				},
+				{
+					"id": "rack_cellar_keg_2",
+					"kit": "beer_keg_side",
+					"at": [
+						0.76,
+						-2.71,
+						9.875
+					],
+					"facing": 90
+				},
+				{
+					"id": "rack_cellar_keg_3",
+					"kit": "beer_keg_side",
+					"at": [
+						0.76,
+						-2.71,
+						9.335
+					],
+					"facing": 90
+				},
+				{
+					"id": "keg_floor_0",
+					"kit": "beer_keg_side",
+					"at": [
+						1.0,
+						-2.87,
+						13.0
+					],
+					"facing": 85
+				},
+				{
+					"id": "keg_floor_1",
+					"kit": "beer_keg_side",
+					"at": [
+						1.0,
+						-2.87,
+						13.7
+					],
+					"facing": 95
+				},
+				{
+					"id": "bed_3",
+					"kit": "plank_bed",
+					"at": [
+						12.0,
+						3.96,
+						20.82
+					],
+					"facing": 180,
+					"use": "room_3_bed"
+				},
+				{
+					"id": "pot_3",
+					"kit": "chamber_pot",
+					"at": [
+						12.75,
+						3.96,
+						21.4
+					],
+					"facing": 0
+				},
+				{
+					"id": "bed_4",
+					"kit": "plank_bed",
+					"at": [
+						7.7,
+						3.96,
+						20.82
+					],
+					"facing": 180,
+					"use": "room_4_bed"
+				},
+				{
+					"id": "pot_4",
+					"kit": "chamber_pot",
+					"at": [
+						8.45,
+						3.96,
+						21.4
+					],
+					"facing": 30
+				},
+				{
+					"id": "bed_5",
+					"kit": "iron_cot",
+					"at": [
+						6.3,
+						3.96,
+						20.87
+					],
+					"facing": 180,
+					"use": "room_5_bed"
+				},
+				{
+					"id": "pot_5",
+					"kit": "chamber_pot",
+					"at": [
+						7.05,
+						3.96,
+						21.4
+					],
+					"facing": 60
+				},
+				{
+					"id": "wash_room_3",
+					"kit": "washstand",
+					"at": [
+						11.4,
+						3.96,
+						17.5
+					],
+					"facing": 90,
+					"use": "room 3's washstand on its east wall"
+				},
+				{
+					"id": "basin_room_3",
+					"kit": "wash_basin",
+					"at": [
+						11.42,
+						0.0,
+						17.5
+					],
+					"facing": 0,
+					"on": "wash_room_3"
+				},
+				{
+					"id": "pitcher_room_3",
+					"kit": "wash_pitcher",
+					"at": [
+						11.42,
+						0.0,
+						17.5
+					],
+					"facing": 200,
+					"on": "basin_room_3",
+					"lift": 0.014
+				},
+				{
+					"id": "owner_desk",
+					"kit": "owner_desk",
+					"at": [
+						13.9,
+						3.96,
+						0.46
+					],
+					"facing": 0,
+					"use": "owner_desk: his flat-top, its back to the front wall"
+				},
+				{
+					"id": "owner_chair",
+					"kit": "chair",
+					"at": [
+						13.9,
+						3.96,
+						1.2
+					],
+					"facing": 180
+				},
+				{
+					"id": "strongbox",
+					"kit": "strongbox",
+					"at": [
+						11.3,
+						3.96,
+						2.0
+					],
+					"facing": 90
+				},
+				{
+					"id": "wash_office",
+					"kit": "washstand",
+					"at": [
+						11.4,
+						3.96,
+						4.3
+					],
+					"facing": 90
+				},
+				{
+					"id": "basin_office",
+					"kit": "wash_basin",
+					"at": [
+						11.42,
+						0.0,
+						4.3
+					],
+					"facing": 0,
+					"on": "wash_office"
+				},
+				{
+					"id": "pitcher_office",
+					"kit": "wash_pitcher",
+					"at": [
+						11.42,
+						0.0,
+						4.3
+					],
+					"facing": 160,
+					"on": "basin_office",
+					"lift": 0.014
+				},
+				{
+					"id": "whiskey_barrel_0",
+					"kit": "whiskey_barrel",
+					"at": [
+						5.5,
+						0.0,
+						14.2
+					],
+					"facing": 0
+				},
+				{
+					"id": "whiskey_barrel_1",
+					"kit": "whiskey_barrel",
+					"at": [
+						5.5,
+						0.0,
+						14.9
+					],
+					"facing": 40
+				},
+				{
+					"id": "water_barrel",
+					"kit": "water_barrel",
+					"at": [
+						5.5,
+						0.0,
+						21.2
+					],
+					"facing": 0
+				},
+				{
+					"id": "crate_0",
+					"kit": "crate",
+					"at": [
+						1.0,
+						0.0,
+						20.9
+					],
+					"facing": 5
+				},
+				{
+					"id": "crate_1",
+					"kit": "crate",
+					"at": [
+						1.0,
+						0.6,
+						20.9
+					],
+					"facing": 80,
+					"on": "crate_0"
+				}
+			]
+		}
 	}
 }

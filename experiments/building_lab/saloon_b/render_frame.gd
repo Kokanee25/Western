@@ -31,8 +31,13 @@ const VIEWS := {
 	"door": [Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 15.5],
 	# From behind the bar's far end, back toward the corner doors and the card tables under the well.
 	"bar": [Vector3(1.2, 2.65, 12.3), Vector3(12.0, 2.4, 3.5), 72.0, 19.0],
-	# The dance hall from its back corner by the yard: the front's doors to the balcony, the well's rail.
-	"dance": [Vector3(0.9, 6.6, 12.6), Vector3(8.5, 6.2, 3.0), 72.0, 19.0],
+	# The dance hall from its back corner by the well (#902: the yard's corner is the stage's wing now):
+	# the front's doors to the balcony, the yard's windows.
+	"dance": [Vector3(10.3, 6.6, 12.9), Vector3(2.0, 6.2, 3.0), 72.0, 19.0],
+	# The stage (#902) from the dance floor at the hall's middle, by lamplight: the curtain shut, and
+	# drawn open on the drop (a view's fifth: the curtain open).
+	"stage": [Vector3(5.0, 6.55, 4.5), Vector3(5.0, 6.45, 12.5), 60.0, 19.0, false],
+	"stage_open": [Vector3(5.0, 6.55, 4.5), Vector3(5.0, 6.45, 12.5), 60.0, 19.0, true],
 	# From the gallery's back corner over the rail: the well, the card tables, the bar under the girders.
 	"gallery": [Vector3(15.9, 6.55, 12.9), Vector3(9.0, 1.6, 6.0), 72.0, 19.0],
 	# Not on the sheet: the side street, the yard, the bar room by lamp light (the two on the bar,
@@ -143,6 +148,9 @@ func _run() -> void:
 			cam.global_position = building.to_global(view[0])
 			cam.look_at(building.to_global(view[1]), Vector3.UP)
 			cam.fov = float(view[2])
+			var drawn = building.get(&"curtain")
+			if drawn:
+				drawn.set_open(view.size() > 4 and bool(view[4]), true)
 			# (the look re-blends after a clock jump: a frame is ~15 s under lavapipe here, so a few do)
 			for i in 14:
 				await process_frame

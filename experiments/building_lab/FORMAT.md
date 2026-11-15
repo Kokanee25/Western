@@ -105,6 +105,19 @@ cornice, and on each wall in `sides` the eave given the same band, crown and bra
 the finish `-` leaves a member as it is drawn (a dressed bracket keeps its cove); `levels.roof_tight`
 butts the roof's boards (no gaps of sky from inside a big room).
 
+**Saloon B's stage** (#902; optional, the other specs build as before): `stage` {level, rect,
+height, leg, bearer, joist, spacing, legs_every, bearers, skirt, steps, proscenium, curtain,
+backdrop}: a platform built as a floor on that level's boards (legs under bearers along x, joists
+across them front to back, boards along x), a boarded skirt on the sides `skirt` names (`front` the
+-z edge, `+x`, `-x`), `steps` [{id, head, dir, width, risers, going}] the lab's Stair (no rail) from
+the floor up to its top, `proscenium` {post, depth, opening, header, rod} a post at each front
+corner, a header over them and an iron rod between them `rod` back from the front, `curtain` {open,
+color} a DrawCurtain on the rod (`SpecBuilding.open_curtain` / `close_curtain`), `backdrop` {width,
+height, lift, wall, art} a PaintedDrop under a batten nailed to the wall behind (its boards' face at
+`wall`; `art` the painting's texture, plain canvas without). Ids `stage/...`, `stair/<id>/...`; bands
+4 (legs, bearers, skirt), 5 (joists, boards, steps), 6 (the proscenium). A door's `hinge: "end"`
+hangs its leaf on the opening's far jamb.
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers

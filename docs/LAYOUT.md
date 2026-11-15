@@ -67,7 +67,8 @@ it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
 Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `world [town|valley]` (which world; with a name it answers and the scene reloads in
 that world, and `bridge.py` waits for the new bridge and goes on), `story [clear]` (the story's facts,
-StoryState), `nod`/`shake` (your head, by the view: HeadGesture), `quit`. Facing is degrees
+StoryState), `nod`/`shake` (your head, by the view: HeadGesture), `glove MAN [toss_to X Y Z]` (a Studio man
+takes off a long glove: GloveAct; again while he's at it: its phase), `quit`. Facing is degrees
 from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
@@ -191,7 +192,8 @@ leading in, the log's last lines; `perf_report.py` and `replay.gd` read a crash 
 (`debug/settings/gdscript/always_track_call_stacks`), so Godot's crash handler prints the GDScript
 backtrace there too; the official release templates have no symbols, so Godot's own frames are
 addresses only. Try it (hidden): `-- --hang-at=S`, `-- --crash-at=S[:segv|thread|abort|panic|script]`
-(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`.
+(seconds after the first frame), `-- --crash-watch=FREEZE,END`, `-- --crash-dir=DIR`, `-- --crash-box=DIR` (a
+black box of its own, for games run side by side).
 `tests/test_crash_reports.gd`.
 
 ## The soak
@@ -835,7 +837,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   Street under its balcony (`ValleyWorld._side_walk`). Its cellar isn't dug in the valley yet (#695).
   Its look (#867): finishes by name, a wainscoted bar room, brackets under both streets' cornices, and
   `FloorDust` (`src/art/floor_dust.gd`): dust in the air under the dance floor, a fall under anyone moving
-  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor.
+  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor. Its stage (#902, the
+  spec's `stage`, `SpecBuilding._stage`): a platform of members in the dance hall, the wing, the
+  `DrawCurtain` (`src/art/draw_curtain.gd`: `building.open_curtain()` / `close_curtain()`, `to_dict`)
+  and the `PaintedDrop` (`src/art/painted_drop.gd`, the backdrop; `art` its painting).
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -1427,18 +1432,28 @@ as you move round; Senses' eye is then his leading eye, `PostPose.eye_now`). Not
 entering it, stepping out to shoot a man in the open, recoil. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
 `sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
 
-**The garment handoff** (#917, from the lab #895): `WornGarment` makes a garment from his own
-Skin_whole (the triangles under it by bone weight, welded, simplified with
+**The garment handoff** (#917, from the lab #895; its clipping #949): `WornGarment` makes a garment
+from his own Skin_whole (the triangles under it by bone weight, welded, simplified with
 `SurfaceTool.generate_lod`, pushed out; his weights kept; `relief`: how far his skin stands above
 each point between them) and wears it (`wear`: a MeshInstance3D under his Skeleton3D with his skin
 and his `custom_aabb`); `posed()` skins it on the CPU as the GPU does (only the binds it uses).
+**His skin under it isn't drawn** (`cover_skin`: his Skin_whole's mesh swapped for a copy without the
+covered triangles; the Studio men's sleeve folds stand 3-10 mm above the skin, through a glove 2-4 mm
+off it); while it's drawn off, `uncover(ids)` shows the covered skin (a small mesh of its own, only
+its index buffer new on a reveal) under the points the cloth has left. Its look (`kid_leather`) is
+drawn 4 mm proud of its points (`grow`), its inside a dark brown `lining` (back faces).
 `GarmentHandoff` (`glove_on(man, parent, side)`, `take(hand)`, `let_go_of_arm()`, `let_go(v)`;
 signals `taken`, `came_to_rest`) swaps it for a `GarmentCloth` (a ClothProp of the garment's mesh:
-`pin_to`, `hold_on` carriers at his bones, `release`; at rest baked, its soft body freed) and runs
-the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every).
+`pin_to`, `hold_on`, `move_held` (the held points carried every 2nd tick to where his skin carries
+the worn garment, not rigid on a bone), `release`; at rest baked, its soft body freed) and runs
+the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every,
+uncover_at, free_damping: damped harder once let go, as Godot's soft body has no bending stiffness).
 `SkinCollider`: a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
 `skin_every` ticks from the triangles near the free cloth (Jolt pays ~1.5 µs a triangle to rebuild
-one in the world). Choreography stays the caller's (`experiments/garment_handoff/handoff.gd`).
+one in the world; `COLLIDER_TRIS` > 0 makes it from a denser copy of his skin, off: -30% points
+under for +0.25 ms). **`GloveAct`** (`put_on(man, parent, side)`, `begin()`, `toss_to`, signal
+`finished`) is the choreography: present, reach, take, draw, the flick from the wrist (not aimed),
+lie, rest; the lab's `handoff.gd` extends it with its measures; the bridge's `glove`.
 Traps: a SoftBody3D mesh needs normals; reach_to must be renewed every tick or the arm drops (the
 worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a hand apart on the
 floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
@@ -1613,7 +1628,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   the shack at the alarm and bars him in). The alarm: a man sees you or Joe, hears a shot, or is hit
   (`started`: opened by your or Joe's shot, `Events.shot_fired`). Ends `after` the crew are out and Kett's
   settled. Facts nojustice.hideout, started, kett (holed_up / dead_outside / down_outside / dead_inside), crew,
-  seen, joe. valley_bench spot `hideout` (`--no-hideout-act`).
+  seen, joe. valley_bench spot `hideout` (`--no-hideout-act`). Its end starts the cabin (`next_act`).
+- **No Justice's cabin** (#966, step 4; `src/missions/no_justice_cabin.gd`, `NoJusticeCabin`, an `Act`; data
+  `config/moments/no_justice_cabin.json`, lines from the script's cabin, back and fight.mine;
+  `tests/test_no_justice_cabin.gd`): takes the hideout's act (`opts.hideout`: its shack, Kett, Joe, bodies), or
+  `-- --world=valley --mission=no_justice_cabin [--down]` / `moment no_justice_cabin set_up=1 [kett=down_outside]`
+  (the hideout set up and over). The door: `PlayerShove.landed` kicks on `front/door_shut` add up (`bar_j` barred,
+  `door_j` not) and break bar and leaf; in by the doorway or any hole. Kett's run by the act (hands up to `corner`)
+  till the nod, then gets an `OutlawBrain` that's SURRENDERED (lines silenced) so G arrests him. Joe `held`,
+  walked through the doorway by waypoints (walk_to finds no doors); the knife a stand-in in his hand. The answer:
+  `HeadGesture` plain (nod/shake) and loose (`loose`: "Is that a yes?"), or doing (between, gun on either: a nod;
+  walked out, silence: a shake). Revenge: `take_knife` stabs and a neck slash till he's down. Murder: your
+  `hit` deed on him after he gave up. Arrest: a card to town, Kett bound behind you to the jail's door (the cells
+  a card). Facts nojustice.ending (arrest / revenge / murder / outside), answer, joe_trust, camp_trust, joe_saw,
+  bodies, jail.
 - **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
   out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
   `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.
@@ -1767,6 +1795,18 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
   street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
   new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
+  **Spots** (townsfolk step 4, #957; `SpotChore`, `src/people/spot_chore.gd`, `tests/test_spot_chore.gd`):
+  a block `at` a spot gets its `do` as the man's chore (`_chores_for`: a card chair stays SitChore, a
+  band player PlayChore): `stand`, `lean` (back to the wall a ray finds behind him, a boot up; none, a
+  hip-shot stand), `sit` (a SitChore on the spot's `seat`, a kit chair `_build_seats` stands there),
+  `counter`, `sweep` (`tool: rug` shakes a rug), `carry` (three sacks from the spot to its `to`),
+  `talk` (faces the others talking within 3.5 m, his FaceSpeech's mouth, no line heard), `drink`,
+  `work` (`tool` `anvil` or `bench`). Each a main doing and three breaks picked by seed (`KINDS`; never
+  15 s at one: `SpotChore.plan`); its hands by `reach_to`, leans by `pose_offsets`; the broom, rug,
+  sacks, glass, anvil and bench are drawn stand-ins (no bodies) for the prop lab's. It lets him go on
+  trouble (the broom and sack set down), when sent off (`leave`) or when his brain's post moves (an
+  act's: the funeral); the same spot with a new `do` swaps the chore (`_new_doing`). Hands busy, he
+  doesn't slow (`lets_slow`).
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
@@ -2043,7 +2083,17 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
   The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
-  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  (`HeldHand.source`, cached) with his finger bones as pivots. **Harlan's first-person hands** (#914,
+  option 2 of #896): where the private `assets/people/private/harlan_fp.glb` is (git-ignored, #692;
+  built by `tools/characters/fetch_fp_hands.sh` from the Studio's MetaHuman with `tools/blender/fp_arms.py`:
+  hands cut at the wrist and decimated to 4k triangles, a linen cuff and a wool coat sleeve with
+  grime in vertex colours), `source()` cuts those instead (`PRIVATE_ARMS`; `--painted-arms` or
+  `use_private = false` for the old), his finger frames made the painted men's (`_canonical_fingers`,
+  his rest curl taken off), no upper arm: the forearm runs to `FP_ELBOW_DROP` below the shoulder, out
+  of view. His holds and poses are data, `config/fp_holds.json`, read by `HeldHand.hold(key, painted)`
+  (the Colt's grip, trigger, thumbs, `colt.hip`/`aim`/`loading`; the rifle's left hand, `eye_relief`).
+  CI's export job builds the file into the Windows and Linux builds (not the web's) when the
+  `STUDIO_TOKEN` secret is set. The poses are fitted by the lab's
   `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
   (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`); the arms drawn in `held_arm_skin.png`
   (`blender/arm_blender.py`). The guns' shapes are code's; where `assets/weapons/<gun>.glb` is (the
@@ -2083,6 +2133,15 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 
 ## src/blast
 
+- **The first instant** (#596 step 3): `BlastCloud._flash` (one OmniLight, no shadows, white-hot to
+  orange and out in `flash_s`, 0.1 s; `flash_sprites`, unlit glows that go with it, their clock the
+  frame's), `_ring`/`ring_at` (dust kicked out flat along the ground or floor under the charge, its
+  speed and reach setting the drag; none past `ring_height` up) and `_spray` (loose dirt or splinters
+  thrown up out of the vent as streaks, falling back; `speed_cap` keeps it and the chunks under a
+  ceiling). Dials in BlastTuning's "The first instant" (proposed). The ring and dirt start on the
+  tick after the blast with the dust; all three warmed at load (`warm_up`). GPU particles only.
+  Films: the sound lab's `instant_*` scenarios with `--picture` (`--crash-watch=600,0` and a crash box
+  each: no notices over a drawn film); tests `test_blast_first_instant.gd`.
 - **Men thrown through the air** (#596 step 3b): `BlastTuning.blast_lift` (0 the real push alone,
   the game's until Sean picks; proposed 0.8 / 1.1) adds a lift to `HumanBody.take_blast`'s push,
   `Blast.lift_share` (steep: ~all of it a metre off, a quarter at 3 m, none at 6), up by `lift_angle`

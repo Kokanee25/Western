@@ -21,7 +21,7 @@
     "livery": {"lot": "livery", "at": [13.0, -1.0], "nearest": true, "_doc": "The livery's door (townsfolk step 3): its lot has no walk, so no door place of its own (ValleyTown); on the dirt before its barn doors."}
   },
   "spots": {
-    "_doc": "Named spots (townsfolk brief \u00a73 \"Spots\"): where a man stands or sits and what he faces, belonging to the place, not the man, so anyone sent there fits. A spot is one of: `behind` a bar (`along` it, + north), `at_bar` (its customers' side), `chair` (the set's card table's, by compass: sat in it by a SitChore), or `lot` + `at` [a, b] (lot_point's) facing `faces` [a, b] (else the street). A day's block names one with `at` (or gives one inline).",
+    "_doc": "Named spots (townsfolk brief \u00a73 \"Spots\"): where a man stands or sits and what he faces, belonging to the place, not the man, so anyone sent there fits. A spot is one of: `behind` a bar (`along` it, + north), `at_bar` (its customers' side), `chair` (the set's card table's, by compass: sat in it by a SitChore), or `lot` + `at` [a, b] (lot_point's) facing `faces` [a, b] (else the street). A day's block names one with `at` (or gives one inline) and says with `do` what he does there (SpotChore, townsfolk step 4, #957): stand, lean, sit, counter, sweep, carry, talk, drink, work, each a loop with its breaks; a spot may give `seat` (a kit prop stood there for `sit`), `tool` (`rug` for sweep: shaken, not swept; `anvil`, `bench` for work), `to` [a, b] (where carry takes the pile), `reach` (how far along sweep goes, m).",
     "bar_back": {"behind": "bar", "along": 0.0},
     "bar_south": {"at_bar": "bar", "along": -0.6},
     "bar_north": {"at_bar": "bar", "along": 0.7},
@@ -29,15 +29,19 @@
     "card_e": {"chair": "e"},
     "hotel_walk": {"lot": "hotel", "at": [4.0, -1.0], "faces": [9.0, -6.0]},
     "saloon_walk": {"lot": "saloon", "at": [3.0, -1.0], "faces": [3.0, -8.0]},
-    "undertaker_walk": {"lot": "undertaker", "at": [5.0, -1.2], "faces": [5.0, -8.0]},
+    "undertaker_walk": {"lot": "undertaker", "at": [5.0, -1.2], "faces": [5.0, -8.0], "tool": "bench"},
     "band_fiddle": {"lot": "saloon_annex", "at": [3.4, 10.8], "faces": [5.0, 5.0]},
     "piano_chair": {"chair": "piano"},
-    "store_walk": {"lot": "general_store", "at": [8.5, -1.0]},
-    "store_bench": {"lot": "general_store", "at": [3.0, -1.0]},
+    "store_walk": {"lot": "general_store", "at": [8.5, -1.0], "reach": 1.6},
+    "store_bench": {"lot": "general_store", "at": [2.6, -1.5], "seat": "chair"},
+    "store_bench2": {"lot": "general_store", "at": [3.4, -1.5], "seat": "chair"},
+    "store_freight": {"lot": "general_store", "at": [10.2, -1.2], "to": [6.4, -1.2]},
     "livery_door": {"lot": "livery", "at": [12.0, -1.2]},
-    "smith_door": {"lot": "blacksmith", "at": [12.4, -1.0]},
-    "hotel_rug": {"lot": "hotel", "at": [18.0, -1.0]},
-    "hotel_porch2": {"lot": "hotel", "at": [20.5, -1.0]},
+    "livery_lean": {"lot": "livery", "at": [11.0, -0.45]},
+    "smith_door": {"lot": "blacksmith", "at": [12.4, -1.0], "tool": "anvil"},
+    "hotel_rug": {"lot": "hotel", "at": [18.0, -1.0], "tool": "rug"},
+    "hotel_porch2": {"lot": "hotel", "at": [20.5, -1.0], "faces": [21.6, -1.0]},
+    "hotel_porch3": {"lot": "hotel", "at": [21.6, -1.0], "faces": [20.5, -1.0]},
     "doctor_walk": {"lot": "doctor", "at": [3.8, -1.0]},
     "main_corner": {"lot": "jail", "at": [4.0, -1.0]},
     "saloon_porch": {"lot": "saloon", "at": [6.0, -1.0]},
@@ -125,7 +129,7 @@
      "day": {
        "ordinary": [
          {"from": 5.0, "in": "general_store", "do": "breakfast"},
-         {"from": 6.0, "at": "store_walk", "do": "stand"},
+         {"from": 6.0, "at": "store_walk", "do": "sweep"},
          {"from": 7.0, "in": "general_store", "do": "work"},
          {"from": 12.0, "in": "general_store", "do": "dinner"},
          {"from": 13.0, "in": "general_store", "do": "work"},
@@ -147,7 +151,7 @@
        "ordinary": [
          {"from": 6.0, "in": "general_store", "do": "breakfast"},
          {"from": 7.0, "in": "general_store", "do": "work"},
-         {"from": 10.0, "at": "store_bench", "do": "stand"},
+         {"from": 10.0, "at": "store_bench", "do": "sit"},
          {"from": 12.0, "in": "general_store", "do": "dinner"},
          {"from": 13.0, "in": "general_store", "do": "work"},
          {"from": 18.0, "in": "general_store", "do": "supper"},
@@ -164,12 +168,12 @@
     {"id": "liveryman", "name": "Livery man", "model": "colter_rider_s2_talking", "seed": 904, "dials": {"nerve": 0.6, "nosy": 0.5, "duty": 0.6}, "shirt": [0.55, 0.5, 0.4], "vest": [0.3, 0.22, 0.15], "home": "livery",
      "day": {
        "ordinary": [
-         {"from": 5.0, "at": "livery_door", "do": "stand"},
+         {"from": 5.0, "at": "livery_lean", "do": "lean"},
          {"from": 7.0, "in": "livery", "do": "work"},
          {"from": 9.0, "at": "livery_door", "do": "stand"},
          {"from": 12.0, "in": "livery", "do": "dinner"},
          {"from": 13.0, "in": "livery", "do": "work"},
-         {"from": 17.0, "at": "livery_door", "do": "stand"},
+         {"from": 17.0, "at": "livery_lean", "do": "lean"},
          {"from": 18.0, "in": "livery", "do": "supper"},
          {"from": 19.0, "in": "saloon", "do": "drink"},
          {"from": 22.0, "in": "livery", "do": "sleep"}]},
@@ -177,9 +181,9 @@
     {"id": "smith", "name": "Blacksmith", "model": "blacksmith_s1_talking", "seed": 905, "dials": {"nerve": 0.8, "nosy": 0.2, "duty": 0.5}, "shirt": [0.55, 0.55, 0.5], "vest": [0.2, 0.15, 0.1], "home": "blacksmith",
      "day": {
        "ordinary": [
-         {"from": 5.0, "at": "smith_door", "do": "stand"},
+         {"from": 5.0, "at": "smith_door", "do": "work"},
          {"from": 12.0, "in": "blacksmith", "do": "dinner"},
-         {"from": 13.0, "at": "smith_door", "do": "stand"},
+         {"from": 13.0, "at": "smith_door", "do": "work"},
          {"from": 18.0, "in": "blacksmith", "do": "supper"},
          {"from": 19.0, "in": "blacksmith", "do": "home"},
          {"from": 22.0, "in": "blacksmith", "do": "sleep"}],
@@ -192,12 +196,12 @@
      "day": {
        "ordinary": [
          {"from": 5.5, "in": "hotel", "do": "breakfast"},
-         {"from": 6.0, "at": "hotel_rug", "do": "stand"},
+         {"from": 6.0, "at": "hotel_rug", "do": "sweep"},
          {"from": 7.0, "in": "hotel", "do": "work"},
          {"from": 12.0, "in": "hotel", "do": "dinner"},
          {"from": 13.0, "in": "hotel", "do": "work"},
          {"from": 18.0, "in": "hotel", "do": "supper"},
-         {"from": 19.0, "at": "hotel_porch2", "do": "stand"},
+         {"from": 19.0, "at": "hotel_porch2", "do": "talk"},
          {"from": 20.0, "in": "hotel", "do": "home"},
          {"from": 22.0, "in": "hotel", "do": "sleep"}]},
      "_doc": "Roster 8: shakes a rug off the porch rail at six; on the porch for an hour at dusk. A stand-in: the widow's model re-dressed, as the store's wife (same body: kept apart, one at each end of the street)."},
@@ -213,7 +217,7 @@
        "ordinary": [
          {"from": 3.0, "in": "saloon", "do": "sleep"},
          {"from": 12.0, "in": "saloon", "do": "home"},
-         {"from": 17.0, "at": "saloon_porch", "do": "stand"},
+         {"from": 17.0, "at": "saloon_porch", "do": "lean"},
          {"from": 19.0, "in": "saloon", "do": "work"}]},
      "_doc": "Roster 16: asleep over the saloon till noon, on its porch for the lamps' hour, then in the room (on the book: the saloon's room is step 10's, and the yard's is No Law's). Her own face (working_girl_s3)."},
     {"id": "cody", "name": "Cody", "model": "blacksmith_s1_talking", "seed": 773, "gun": true, "shirt": [0.42, 0.45, 0.5], "vest": [0, 0, 0, 0], "act": "no_law_murder", "from": "saloon_annex",
@@ -225,7 +229,9 @@
        "ordinary": [
          {"from": 6.0, "in": "hotel", "do": "breakfast"},
          {"from": 7.0, "at": "hotel_walk", "do": "stand"},
-         {"from": 19.0, "in": "hotel", "do": "supper"},
+         {"from": 12.0, "at": "hotel_walk", "do": "lean"},
+         {"from": 18.0, "in": "hotel", "do": "supper"},
+         {"from": 19.0, "at": "hotel_porch3", "do": "talk"},
          {"from": 20.0, "in": "hotel", "do": "home"},
          {"from": 22.0, "in": "hotel", "do": "sleep"}],
        "sunday": [
@@ -238,7 +244,10 @@
     {"id": "loudmouth", "name": "Loudmouth", "model": "heavy_factory", "seed": 782, "dials": {"nerve": 0.5, "nosy": 0.8, "duty": 0.1}, "shirt": [0.62, 0.55, 0.42], "vest": [0.3, 0.22, 0.16], "home": "saloon", "says": "loudmouth",
      "day": {
        "ordinary": [
-         {"from": 8.0, "at": "saloon_walk", "do": "stand"},
+         {"from": 8.0, "at": "store_freight", "do": "carry"},
+         {"from": 10.0, "at": "store_bench2", "do": "sit"},
+         {"from": 12.0, "at": "saloon_walk", "do": "lean"},
+         {"from": 13.0, "at": "saloon_walk", "do": "stand"},
          {"from": 19.5, "in": "saloon", "do": "home"},
          {"from": 23.0, "in": "saloon", "do": "sleep"}],
        "sunday": [
@@ -250,7 +259,7 @@
      "day": {
        "ordinary": [
          {"from": 6.0, "in": "undertaker", "do": "breakfast"},
-         {"from": 7.0, "at": "undertaker_walk", "do": "stand"},
+         {"from": 7.0, "at": "undertaker_walk", "do": "work"},
          {"from": 18.0, "in": "undertaker", "do": "supper"},
          {"from": 19.0, "in": "undertaker", "do": "home"},
          {"from": 22.0, "in": "undertaker", "do": "sleep"}],
