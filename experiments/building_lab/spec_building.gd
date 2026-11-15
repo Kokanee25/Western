@@ -251,6 +251,7 @@ func build() -> void:
 	band = 4
 	_partitions("upper", 4)
 	_outside_stair()
+	_stage()
 	band = 2 if _fr.get("stacked", false) else 1
 	if _has_false_front():
 		_false_front()
@@ -1358,13 +1359,15 @@ func _judged_board_w(id: String) -> float:
 
 
 ## A door's leaf standing open at right angles to its wall, into the room (or out of it).
-func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float) -> void:
+func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float, at_end := false) -> void:
 	var lw := o.size.x - 0.05
 	var lh := o.size.y - 0.05
 	var into := (wall.out as Vector3) * (1.0 if outward else -1.0)
 	var along: Vector3 = wall.along
-	var hinge: Vector3 = wall.origin + along * (o.position.x + 0.03) + (wall.out as Vector3) * (0.0 if outward else d)
-	var c := hinge + into * (lw * 0.5 + 0.03) + along * 0.025
+	# Hung on the opening's start jamb, or its end's (`hinge: "end"`, #902: the wing's leaf clear of its steps).
+	var k := -1.0 if at_end else 1.0
+	var hinge: Vector3 = wall.origin + along * ((o.end.x - 0.03) if at_end else (o.position.x + 0.03)) + (wall.out as Vector3) * (0.0 if outward else d)
+	var c := hinge + into * (lw * 0.5 + 0.03) + along * (0.025 * k)
 	c.y = o.position.y + 0.01 + lh * 0.5
 	var size := into.abs() * lw + Vector3.UP * lh + along.abs() * 0.04
 	add_member("%s/door_%d" % [wall.name, int(o.position.x * 100)], &"door", &"painted_rust", size, c)
@@ -1400,7 +1403,7 @@ func _partitions(level: String, b: int) -> void:
 			# Into the room it serves: a partition's leaf swings to its -out side unless its spec
 			# says "outward" (the back rooms' doors open into the rooms, not across the gallery).
 			if String((o[1] as Dictionary).type) == "door":  # (an arch and a hatch have no leaf)
-				_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5)
+				_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5, String((o[1] as Dictionary).get("hinge", "start")) == "end")
 
 
 # --- stairs, balconies, rails ---------------------------------------------------------------------
@@ -3003,6 +3006,169 @@ func _diag(c: Dictionary, id: String, kind: StringName, wood: StringName, s0: fl
 ## Payday Night's sabotage (`sabotage`, saloon B: the girder the Baron's men saw): the kerf cut
 ## through it (`cut`: metres along it from its middle), as Structure.cut_member; what it carried
 ## comes down when the structure next settles. Returns the two halves left on their posts.
+## A stage on a floor (#902, saloon B's dance hall; FORMAT.md "Saloon B's stage"): `stage` {level,
+## rect, height, leg, bearer, joist, spacing, legs_every, bearers, skirt, steps, proscenium,
+## curtain, backdrop}. A platform built as a floor is: legs on the floor's boards under bearers
+## along x, joists across them front to back, boards along x; a boarded skirt on the sides `skirt`
+## names (`front` its -z edge, `+x`, `-x`); `steps` flights of the lab's Stair (no rail) from the
+## floor to its top; `proscenium` two posts at its front corners and a header over them, an iron
+## rod between the posts; `curtain` a DrawCurtain on the rod; `backdrop` a PaintedDrop on a batten
+## nailed to the wall behind (its `art` the painting, else plain canvas). Bands: legs, bearers and
+## skirt in 4, joists, boards and the steps in 5, the proscenium in 6 (each rests on the band below).
+var curtain: DrawCurtain
+var backdrop: PaintedDrop
+
+
+func _stage() -> void:
+	curtain = null
+	backdrop = null
+	var st: Dictionary = spec.get("stage", {})
+	if st.is_empty():
+		return
+	var r: Array = st.rect
+	var x0 := float(r[0])
+	var z0 := float(r[1])
+	var x1 := float(r[2])
+	var z1 := float(r[3])
+	var foot := _lv[String(st.get("level", "upper"))] as float
+	var top := foot + float(st.height)
+	var bt := float(_fr.floor_board.thick)
+	var js: Array = st.get("joist", [0.05, 0.2])
+	var bs: Array = st.get("bearer", [0.1, 0.2])
+	var leg := float(st.get("leg", 0.1))
+	var jt := top - bt
+	var jb := jt - float(js[1])
+	var bb := jb - float(bs[1])
+	# The bearers along x, front, back and between, each on a row of legs.
+	var nb := maxi(2, int(st.get("bearers", 3)))
+	var bz: Array[float] = []
+	for k in nb:
+		bz.append(lerpf(z0 + float(bs[0]) * 0.5, z1 - float(bs[0]) * 0.5, float(k) / (nb - 1)))
+	var nl := maxi(2, ceili((x1 - x0) / float(st.get("legs_every", 1.25))) + 1)
+	band = 4
+	for k in nb:
+		for i in nl:
+			var lx := lerpf(x0 + leg * 0.5, x1 - leg * 0.5, float(i) / (nl - 1))
+			add_member("stage/leg/%d_%d" % [k, i], &"post", &"framing", Vector3(leg, bb - foot, leg), Vector3(lx, (foot + bb) * 0.5, bz[k]))
+		_pieces("stage/bearer/%d" % k, Vector3(x0, (bb + jb) * 0.5, bz[k]), Vector3.RIGHT, x1 - x0, Vector2(bs[1], bs[0]), &"beam", &"framing")
+	# The skirt: boards laid along each boarded side, from the floor to under the boards' nosing.
+	var sk: Array = st.get("skirt", [])
+	var t := 0.022
+	var bx0 := x0 - (t if sk.has("-x") else 0.0)
+	var bx1 := x1 + (t if sk.has("+x") else 0.0)
+	var bz0 := z0 - (t if sk.has("front") else 0.0)
+	var h := jt - foot
+	var courses := maxi(1, roundi(h / 0.15))
+	for k in courses:
+		var y0 := foot + h * k / courses
+		var hy := h / courses - 0.003
+		if sk.has("front"):
+			_pieces("stage/skirt/front_%d" % k, Vector3(bx0, y0 + hy * 0.5, z0 - t * 0.5), Vector3.RIGHT, bx1 - bx0, Vector2(hy, t), &"board", &"framing")
+		for s: String in ["-x", "+x"]:
+			if sk.has(s):
+				var sx := (x0 - t * 0.5) if s == "-x" else (x1 + t * 0.5)
+				_pieces("stage/skirt/%s_%d" % [s.trim_prefix("+").trim_prefix("-") + ("m" if s == "-x" else "p"), k], Vector3(sx, y0 + hy * 0.5, z0), Vector3.BACK, z1 - z0, Vector2(hy, t), &"board", &"framing")
+	# The joists front to back across the bearers, and the boards along x on them.
+	band = 5
+	var lines: Array[float] = []
+	var p := x0 + float(js[0]) * 0.5
+	while p < x1 - float(js[0]) * 0.5 - 0.15:
+		lines.append(p)
+		p += float(st.get("spacing", 0.406))
+	lines.append(x1 - float(js[0]) * 0.5)
+	for i in lines.size():
+		add_member("stage/joist/%02d" % i, &"joist", &"framing", Vector3(js[0], js[1], z1 - z0 - 0.004), Vector3(lines[i], (jt + jb) * 0.5, (z0 + z1) * 0.5))
+	var bw := float(_fr.floor_board.width)
+	var row := 0
+	var b := bz0
+	while b < z1 - 0.02:
+		var b1 := minf(b + bw, z1)
+		var length := bx1 - bx0
+		var cuts := maxi(1, ceili(length / 4.9))
+		var joints: Array[float] = [bx0]
+		for k in range(1, cuts):
+			# Each joint on a joist, staggered row to row.
+			var want := bx0 + length * k / cuts + (0.4 if row % 2 == 1 else 0.0)
+			var best := lines[0]
+			for q in lines:
+				if absf(q - want) < absf(best - want):
+					best = q
+			joints.append(best)
+		joints.append(bx1)
+		for k in cuts:
+			add_member("stage/board/%02d_%d" % [row, k], &"floor_board", &"floor", Vector3(joints[k + 1] - joints[k] - 0.003, bt, b1 - b - 0.004),
+					Vector3((joints[k] + joints[k + 1]) * 0.5, top - bt * 0.5, (b + b1) * 0.5))
+		b = b1
+		row += 1
+	# Its steps: the lab's stair, from the floor to the stage's top, no rail; in the boards' band, so
+	# a stringer's head rests on the stage's boards and its foot on the floor's.
+	for s: Dictionary in st.get("steps", []):
+		var up := _axis(String(s.dir))
+		var made := Stair.build(self, "stair/" + String(s.id), Vector3(s.head[0], top, s.head[1]), up, Vector3(absf(up.z), 0, absf(up.x)), float(s.width),
+				int(s.risers), (top - foot) / int(s.risers), float(s.going), {"rail": 0, "wood": &"framing"})
+		ramps.append([made.ramp, made.stringers])
+	# The proscenium: a post at each front corner, a header across, the rod between the posts.
+	var pr: Dictionary = st.get("proscenium", {})
+	var rod_y := top + 2.0
+	var rod_z := z0 + 0.15
+	var inner := Vector2(x0, x1)
+	if not pr.is_empty():
+		band = 6
+		var pw := float(pr.get("post", 0.12))
+		var pd := float(pr.get("depth", 0.3))
+		var oh := float(pr.get("opening", 2.2))
+		var hh := float(pr.get("header", 0.25))
+		for side in 2:
+			var px := (x0 + pw * 0.5) if side == 0 else (x1 - pw * 0.5)
+			add_member("stage/proscenium/post_%d" % side, &"post", &"framing", Vector3(pw, oh, pd), Vector3(px, top + oh * 0.5, z0 + pd * 0.5))
+		add_member("stage/proscenium/header", &"beam", &"framing", Vector3(x1 - x0, hh, 0.05), Vector3((x0 + x1) * 0.5, top + oh + hh * 0.5, z0 + 0.025))
+		inner = Vector2(x0 + pw, x1 - pw)
+		rod_y = top + oh - 0.07
+		rod_z = z0 + float(pr.get("rod", pd * 0.55))  # back from the stage's front edge
+		var rod := add_member("stage/proscenium/rod", &"trim", &"iron", Vector3(inner.y - inner.x, 0.025, 0.025), Vector3((inner.x + inner.y) * 0.5, rod_y, rod_z))
+		PropKit.dress_member(rod, {}, "prop:iron")
+	var cu: Dictionary = st.get("curtain", {})
+	if not cu.is_empty():
+		curtain = DrawCurtain.new()
+		curtain.name = "Curtain"
+		curtain.width = inner.y - inner.x
+		curtain.height = rod_y - 0.03 - (top + 0.02)
+		if cu.has("color"):
+			curtain.color = Color(cu.color[0], cu.color[1], cu.color[2])
+		# Its front (+z of its own) to the house, the -z of the building.
+		curtain.transform = Transform3D(Basis(Vector3.UP, PI), Vector3((inner.x + inner.y) * 0.5, rod_y - 0.03, rod_z))
+		_furnish.add_child(curtain)
+		curtain.set_open(bool(cu.get("open", false)), true)
+	var bd: Dictionary = st.get("backdrop", {})
+	if not bd.is_empty():
+		# A batten nailed to the wall behind the stage (its boards' face at `wall`), the drop under it.
+		band = 5
+		var wz := float(bd.get("wall", z1 + 0.035))
+		var dw := float(bd.get("width", 4.6))
+		var dh := float(bd.get("height", 2.3))
+		var dy := top + float(bd.get("lift", 0.08)) + dh
+		var cx := (x0 + x1) * 0.5
+		add_member("stage/backdrop/batten", &"ledger", &"framing", Vector3(dw + 0.1, 0.06, 0.05), Vector3(cx, dy + 0.03, wz - 0.025))
+		backdrop = PaintedDrop.new()
+		backdrop.name = "Backdrop"
+		backdrop.width = dw
+		backdrop.height = dh
+		backdrop.art = String(bd.get("art", ""))
+		backdrop.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(cx, dy, wz - 0.06))
+		_furnish.add_child(backdrop)
+
+
+## The stage's curtain drawn open or shut (`stage.curtain`; DrawCurtain): Payday Night's acts.
+func open_curtain() -> void:
+	if curtain:
+		curtain.open_curtain()
+
+
+func close_curtain() -> void:
+	if curtain:
+		curtain.close_curtain()
+
+
 func saw_girder() -> Array[StructureMember]:
 	var sb: Dictionary = spec.get("sabotage", {})
 	var g := get_member(StringName("%s/%s" % [structure_id, sb.get("girder", "")]))
