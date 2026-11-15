@@ -24,6 +24,18 @@ extends Node3D
 ## `hush.quiet_s` they start again from the top of the phrase they stopped in. A man killed within
 ## `hush.death_m` and they're done for the night. Out of their hours they finish the tune and stop.
 ## Between tunes a pause of `between_s`.
+##
+## Where they play by the night (#938, Sean's decision on #938): `nights` by the town's day kind
+## (ValleyFolk.day_kind): Payday Night the full band on saloon B's stage (`hall` saloon, each part at
+## a use point of its spec or a `local` point, the curtain drawn open while they play); a night
+## with no entry plays as the data's own `players` and `lot` (the yard set). A night's `players`
+## names who plays it: a part it leaves out is silent that night.
+##
+## A fist fight near them (`fight`: a deed of `kinds` within `fight_m`) and they play on faster: at
+## the next phrase's top every part goes over to the tune's hurried render (<tune>_fast, the same
+## score played `faster` times as fast: tools/band/render_band.py --faster) at the same phrase, and
+## back at a phrase's top once it's been `fight_s` since the last blow. A gun drawn or aimed within
+## `fight.draw_m` stops them as a shot does.
 
 const DATA := "res://config/band.json"
 const PARTS := "res://assets/audio/band/"
@@ -60,6 +72,13 @@ var _replace := 0.0
 var _streams := {}
 var _sync := 0.0
 var rng := RandomNumberGenerator.new()
+## The night they're playing (a day kind: &"payday", &"ordinary"), chosen as they start the evening.
+var night: StringName = &"ordinary"
+## Playing the hurried render (a fight on), and how long the fight's still on for (s).
+var fast := false
+var _fight_left := 0.0
+## Tests: the night to play (else the folk's day kind).
+var night_override: StringName = &""
 ## Heard through a real audio device: the tune's clock is kept to the parts (a long frame and the
 ## hands would fall behind the sound). Without one (the Dummy driver: the tests, headless, a movie's
 ## recording, where the game's clock isn't the wall's), the parts are kept to the tune's clock.
@@ -97,6 +116,7 @@ func _ready() -> void:
 	Events.shot_fired.connect(_on_shot)
 	Events.exploded.connect(_on_blast)
 	Events.person_died.connect(_on_death)
+	Events.deed.connect(_on_deed)
 	_load_tune(0)
 	# Where they are now; their buses from the first physics frame (no physics queries outside it).
 	_place_all(false)
@@ -111,14 +131,49 @@ func _load_tune(i: int) -> void:
 		return
 	_tune_i = i % tunes.size()
 	tune_id = String(tunes[_tune_i])
-	notes = load_notes(tune_id)
+	fast = fast and has_fast(tune_id)
+	_set_streams()
+
+
+## The render playing now: the tune's own, or (a fight on) its hurried one.
+func render_id() -> String:
+	return tune_id + ("_fast" if fast else "")
+
+
+## The tune has a hurried render (assets/audio/band/<tune>_fast/).
+static func has_fast(tune: String) -> bool:
+	return FileAccess.file_exists(PARTS + tune + "_fast/notes.json")
+
+
+func _set_streams() -> void:
+	notes = load_notes(render_id())
 	for id: StringName in players:
 		var part := String(players[id].spec.get("part", id))
 		var p: AudioStreamPlayer3D = players[id].sound
 		p.stop()
-		p.stream = part_stream(tune_id, part)
+		p.stream = part_stream(render_id(), part)
 	_plan_bow()
 	_plan_keys()
+
+
+## Over to the hurried render (or back) at the top of the phrase `clock` is at: the same phrase in
+## the other, every part playing on from there at its level.
+func _change_tempo(to_fast: bool) -> void:
+	var phrases: Array = notes.get("phrases", [0.0])
+	var i := maxi(phrases.find(phrase_start(clock)), 0)
+	var into := clock - phrase_start(clock)
+	var was := float(notes.get("faster", 1.0))
+	fast = to_fast
+	_set_streams()
+	var now := float(notes.get("faster", 1.0))
+	var ph: Array = notes.get("phrases", [0.0])
+	clock = float(ph[mini(i, ph.size() - 1)]) + into * was / now
+	log.append([&"faster" if fast else &"steady", clock, tune_id])
+	_sync = 0.6
+	for id: StringName in players:
+		var p: AudioStreamPlayer3D = players[id].sound
+		if p.stream and p.is_inside_tree() and (float(players[id].gain) > 0.0 or bool(players[id].joining)):
+			p.play(clock)
 
 
 static func load_notes(tune: String) -> Dictionary:
@@ -253,6 +308,21 @@ func spot_of(id: StringName) -> Vector3:
 ## The data's point for a spec: [a, b] on the band's lot and `up` over its ground (with folk), or
 ## `pos` [x, y, z] in the world.
 func point_of(spec: Dictionary) -> Vector3:
+	var nt := tonight()
+	var over: Dictionary = (nt.get("players", {}) as Dictionary).get(String(spec.get("id", "")), {})
+	if folk != null and not over.is_empty():
+		var up := float(over.get("up", spec.get("up", 1.0)))
+		if nt.has("hall"):
+			var hall := String(nt.hall)
+			if over.has("use"):
+				var u := folk.hall_use(hall, String(over.use))
+				if not u.is_empty():
+					return (u[0] as Vector3) + Vector3.UP * up
+			if over.has("local"):
+				return folk.hall_point(hall, over.local, up)
+		if over.has("at"):
+			var a: Array = over.at
+			return folk.lot_point(String(nt.get("lot", data.lot)), float(a[0]), float(a[1]), up)
 	if spec.has("pos") or folk == null:
 		var p: Array = spec.get("pos", [0, 0, 0])
 		return Vector3(float(p[0]), float(p[1]), float(p[2]))
@@ -263,9 +333,51 @@ func point_of(spec: Dictionary) -> Vector3:
 ## The middle of the band (the hush's distances are from here).
 func centre() -> Vector3:
 	var c := Vector3.ZERO
+	var n := 0
 	for id: StringName in players:
-		c += point_of(players[id].spec)
-	return c / maxf(players.size(), 1.0)
+		if plays_tonight(id):
+			c += point_of(players[id].spec)
+			n += 1
+	return c / maxf(n, 1.0)
+
+
+## Tonight's entry in `nights` ({} : the data's own players and lot).
+func tonight() -> Dictionary:
+	var nights: Dictionary = data.get("nights", {})
+	var e: Variant = nights.get(String(night), {})
+	return e if e is Dictionary else {}
+
+
+## The night by the town's day kind (or the test's), where `nights` has one, else &"ordinary".
+func _pick_night() -> void:
+	var k := night_override
+	if k == &"" and folk != null:
+		k = folk.day_kind(folk.town_day())
+	night = k if (data.get("nights", {}) as Dictionary).has(String(k)) else &"ordinary"
+	_curtain(true)
+
+
+## Saloon B's curtain drawn open while they play on its stage (a night with `curtain`), shut after.
+func _curtain(open: bool) -> void:
+	var nt := tonight()
+	if folk == null or not nt.has("hall") or String(nt.get("curtain", "")) != "open":
+		return
+	var b: Node3D = folk.halls.get(String(nt.hall))
+	if b == null or not is_instance_valid(b) or not b.has_method(&"open_curtain"):
+		return
+	var c: Variant = b.get(&"curtain")
+	if c == null or not is_instance_valid(c):
+		return
+	if open and not c.is_open():
+		b.open_curtain()
+	elif not open and c.is_open():
+		b.close_curtain()
+
+
+## Whether a part's in tonight's band (a night's `players` names them; else every part).
+func plays_tonight(id: StringName) -> bool:
+	var nt := tonight()
+	return not nt.has("players") or (nt.players as Dictionary).has(String(id))
 
 
 func _place_all(buses := true) -> void:
@@ -284,6 +396,8 @@ func seat(id: StringName, chore: PlayChore) -> void:
 
 ## Whether a part can sound now: no man to it, or its man at his instrument and free.
 func can_play(id: StringName) -> bool:
+	if not plays_tonight(id):
+		return false
 	var pl: Dictionary = players[id]
 	if not String(pl.spec.get("man", "")).is_empty():
 		var ch: PlayChore = pl.chore
@@ -315,8 +429,10 @@ func _physics_process(delta: float) -> void:
 func step(delta: float) -> void:
 	match state:
 		&"off":
-			if in_hours() and _anyone():
-				_start(0.0)
+			if in_hours():
+				_pick_night()
+				if _anyone():
+					_start(0.0)
 		&"done":
 			_fade(delta)
 			if not in_hours():
@@ -347,6 +463,11 @@ func step(delta: float) -> void:
 ## Out of their hours (or the night over): every part stopped, the next night from the top.
 func _off() -> void:
 	state = &"off"
+	_curtain(false)
+	_fight_left = 0.0
+	if fast:
+		fast = false
+		_set_streams()
 	for id: StringName in players:
 		players[id].gain = 0.0
 		players[id].joining = false
@@ -387,6 +508,10 @@ func _play_step(delta: float) -> void:
 		_wait = rng.randf_range(float(b[0]), float(b[1]))
 		return
 	var crossed := phrase_start(clock) > clock - delta - 1e-4 and phrase_start(clock) <= clock
+	_fight_left = maxf(_fight_left - delta, 0.0)
+	var want_fast := _fight_left > 0.0 and has_fast(tune_id)
+	if crossed and want_fast != fast:
+		_change_tempo(want_fast)
 	for id: StringName in players:
 		var pl: Dictionary = players[id]
 		var can := can_play(id)
@@ -482,6 +607,21 @@ func _on_blast(at: Vector3, _kg: float) -> void:
 		hush(&"blast")
 
 
+## A fist fight's blow near them: they play on, faster (from the next phrase); a gun drawn or aimed
+## near them: stopped as a shot stops them.
+func _on_deed(_actor: Node, kind: StringName, _target: Node, at: Vector3) -> void:
+	var f: Dictionary = data.get("fight", {})
+	if f.is_empty() or state == &"done" or state == &"off":
+		return
+	if String(kind) in (f.get("draws", ["draw", "aim_at"]) as Array):
+		if _near(at, float(f.get("draw_m", 25.0))):
+			hush(&"gun")
+	elif String(kind) in (f.get("kinds", []) as Array) and _near(at, float(f.get("fight_m", 25.0))):
+		_fight_left = float(f.get("fight_s", 20.0))
+		if state == &"playing" and not fast and has_fast(tune_id) and _fight_left > 0.0 and clock < 0.05:
+			_change_tempo(true)  # a blow as they start: in at the hurried tempo
+
+
 func _on_death(person: Node, _cause: StringName) -> void:
 	if not (person is Node3D) or not _near((person as Node3D).global_position, float(data.get("hush", {}).get("death_m", 30.0))):
 		return
@@ -499,5 +639,5 @@ func report() -> Dictionary:
 		parts[String(id)] = {"gain": snappedf(float(pl.gain), 0.01), "playing": p.playing, "bus": String(p.bus),
 				"at": [snappedf(p.global_position.x, 0.01), snappedf(p.global_position.y, 0.01), snappedf(p.global_position.z, 0.01)],
 				"man": String(pl.spec.get("man", "")), "can": can_play(id)}
-	return {"state": String(state), "tune": tune_id, "clock": snappedf(clock, 0.01), "why": String(why),
-			"resume_at": resume_at, "parts": parts}
+	return {"state": String(state), "tune": tune_id, "fast": fast, "night": String(night), "clock": snappedf(clock, 0.01),
+			"why": String(why), "resume_at": resume_at, "parts": parts}

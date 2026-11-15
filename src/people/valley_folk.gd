@@ -59,6 +59,9 @@ const GONE_ANYWAY := 240.0
 
 var layout: ValleyLayout
 var town: ValleyTown
+## The valley's spec buildings by lot id (ValleyWorld.buildings): a place, a spot or a prop can be
+## in one (`hall` + `local` [x, y, z] in its own space, or `use`: its spec's use point), #938.
+var halls := {}
 var data: Dictionary
 ## The folk's own places: the town's ways and the set's (nolaw_*).
 var places: Waypoints
@@ -201,7 +204,16 @@ func _add_set_places() -> void:
 			continue
 		var d: Dictionary = own[n]
 		# A place in another lot (`lot`: a lot with no walk has no door of its own), else in the set's.
-		var at := lot_point(String(d.lot), float(d.at[0]), float(d.at[1]), 0.05) if d.has("lot") else _set_point(d.at, 0.05)
+		var at: Vector3
+		if d.has("hall"):
+			# In a spec building (#938: saloon B's stair, hall, wing and stage): none, no place.
+			if not halls.has(String(d.hall)):
+				continue
+			at = hall_point(String(d.hall), d.local, 0.05)
+		elif d.has("lot"):
+			at = lot_point(String(d.lot), float(d.at[0]), float(d.at[1]), 0.05)
+		else:
+			at = _set_point(d.at, 0.05)
 		var links: Array = []
 		for l: String in d.get("links", []):
 			if places.has(StringName(l)):
@@ -217,6 +229,38 @@ func _add_set_places() -> void:
 			if best != &"" and not links.has(best):
 				links.append(best)
 		places.add(StringName(n), at, links)
+		# Up a stair to these (its ramp carries him; a level sweep would meet its treads).
+		for l: String in d.get("stair_to", []):
+			if places.has(StringName(l)):
+				places.link(StringName(n), StringName(l))
+				places.mark_stair(StringName(n), StringName(l))
+
+
+## A point in a spec building's own space (`local` [x, y, z]: x, the floor's height y, z as its
+## spec's), `up` over it; a `local` y under 0.05 is the ground's there (outside, in its yard).
+func hall_point(lot_id: String, local: Array, up := 0.0) -> Vector3:
+	var b: Node3D = halls.get(lot_id)
+	if b == null or not is_instance_valid(b):
+		return Vector3.INF
+	var p := b.global_transform * Vector3(float(local[0]), float(local[1]), float(local[2]))
+	if float(local[1]) < 0.05:
+		p.y = ground(p.x, p.z)
+	return p + Vector3.UP * up
+
+
+## A spec building's use point (its spec's `use_points` by id): [where, the point it faces (2 m
+## along its `facing`, +Z at 0 as a chair's), its local spot]; [] if there's none.
+func hall_use(lot_id: String, id: String) -> Array:
+	var b: Node3D = halls.get(lot_id)
+	if b == null or not is_instance_valid(b):
+		return []
+	for u: Dictionary in (b.get(&"spec") as Dictionary).get("use_points", []):
+		if String(u.get("id", "")) == id and u.has("at"):
+			var f := deg_to_rad(float(u.get("facing", 0.0)))
+			var at: Array = u.at
+			var ahead := [float(at[0]) + sin(f) * 2.0, float(at[1]), float(at[2]) + cos(f) * 2.0]
+			return [hall_point(lot_id, at), hall_point(lot_id, ahead), at]
+	return []
 
 
 # --- The set: the bar, the card table, the lamps -----------------------------------------------
@@ -254,23 +298,10 @@ func _build_set() -> void:
 	add_child(cards)
 	# The band's piano (#799; config/band.json): the kit's upright against the saloon's east wall,
 	# its keys to the yard, a chair before it for the pianist ("chair_piano").
-	var pd: Dictionary = s.get("piano", {})
-	if not pd.is_empty() and PropKit.has(&"upright_piano"):
-		var piano := PropKit.make(&"upright_piano")
-		piano.name = "FolkPiano"
-		var pc := _set_point(pd.at)
-		var pb := Basis(Vector3.UP, deg_to_rad(float(pd.get("yaw", 90.0))))
-		piano.transform = Transform3D(pb, pc)
-		add_child(piano)
-		props["piano"] = piano
-		var d := pb.z
-		var at := pc + d * float(pd.get("chair_out", 0.75))
-		at.y = ground(at.x, at.z)
-		var stool := PropKit.make(&"chair")
-		stool.name = "FolkChair_piano"
-		stool.transform = Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.z)), at)
-		add_child(stool)
-		props["chair_piano"] = stool
+	# Payday Night's second upright on saloon B's stage (#938, Sean on #938: the dance hall keeps its
+	# own piano), `hall` + `local` in the building's space, `yaw` its own.
+	for key: String in ["piano", "stage_piano"]:
+		_build_piano(key, s.get(key, {}))
 	var i := 0
 	for l: Dictionary in s.get("lamps", []):
 		var lamp := OilLamp.new()
@@ -291,6 +322,38 @@ func _build_set() -> void:
 		add_child(cup)
 		props["cup_%d" % i] = cup
 		i += 1
+
+
+## A piano (the kit's upright) and its player's chair `chair_out` before its keys: on the set's lot
+## (`at` [a, b], `yaw` in the world) or in a spec building (`hall`, `local`, `yaw` in its space).
+## props `key` and "chair_" + key.
+func _build_piano(key: String, pd: Dictionary) -> void:
+	if pd.is_empty() or not PropKit.has(&"upright_piano"):
+		return
+	var pc: Vector3
+	var pb := Basis(Vector3.UP, deg_to_rad(float(pd.get("yaw", 90.0))))
+	if pd.has("hall"):
+		var b: Node3D = halls.get(String(pd.hall))
+		if b == null or not is_instance_valid(b):
+			return
+		pc = hall_point(String(pd.hall), pd.local)
+		pb = b.global_basis.orthonormalized() * pb
+	else:
+		pc = _set_point(pd.at)
+	var piano := PropKit.make(&"upright_piano")
+	piano.name = "Folk_" + key
+	piano.transform = Transform3D(pb, pc)
+	add_child(piano)
+	props[key] = piano
+	var d := pb.z
+	var at := pc + d * float(pd.get("chair_out", 0.75))
+	if not pd.has("hall"):
+		at.y = ground(at.x, at.z)
+	var stool := PropKit.make(&"chair")
+	stool.name = "FolkChair_" + key
+	stool.transform = Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.z)), at)
+	add_child(stool)
+	props["chair_" + key] = stool
 
 
 ## The band (#799, config/band.json) when it plays on this set's lot: its players' men are folk
@@ -327,6 +390,21 @@ func top_point(on: String, along: float, off: Array) -> Vector3:
 ## Where a man stands or sits at a spot (`spots` in the data, or one given inline), and the point
 ## he faces there.
 func spot_point(post: Dictionary) -> Array:
+	if post.has("hall"):
+		# In a spec building (#938): its use point (`use`), or `local` facing `faces` (local [x, z]).
+		var lot_id := String(post.hall)
+		if post.has("use"):
+			var u := hall_use(lot_id, String(post.use))
+			if not u.is_empty():
+				# `shift` [x, z] in its space off the use point (a way round what's been put by it).
+				var sh: Array = post.get("shift", [0.0, 0.0])
+				var b: Node3D = halls[lot_id]
+				var d := b.global_basis * Vector3(float(sh[0]), 0.0, float(sh[1]))
+				return [(u[0] as Vector3) + d + Vector3.UP * 0.05, (u[1] as Vector3) + d + Vector3.UP * 1.5]
+		var l: Array = post.get("local", [0.0, 0.0, 0.0])
+		var fa: Array = post.get("faces", [float(l[0]), float(l[2]) - 2.0])
+		var at := hall_point(lot_id, l, 0.05)
+		return [at, hall_point(lot_id, [fa[0], l[1], fa[1]], 1.5)]
 	if post.has("chair"):
 		var chair := props.get("chair_" + String(post.chair)) as KitProp
 		return [Seating.spot(chair), Seating.faces(chair)]
@@ -509,7 +587,9 @@ func _chores_for(man: HumanBody, p: Dictionary, sp: Dictionary, doing := &"") ->
 	var chair: KitProp = props.get("chair_" + String(sp.get("chair", "")))
 	var sit: SitChore = SitChore.new(man, chair) if chair != null else null
 	if p.has("plays") and band != null:
-		return [PlayChore.new(man, band, StringName(p.plays), sit, props.get(String(p.get("instrument", ""))))]
+		# The instrument the spot names (#938: the stage's piano on Payday), else his own.
+		var inst := String(sp.get("instrument", p.get("instrument", "")))
+		return [PlayChore.new(man, band, StringName(p.plays), sit, props.get(inst))]
 	if sit != null:
 		return [sit]
 	if sp.is_empty():

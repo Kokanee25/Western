@@ -103,6 +103,7 @@ func _ready() -> void:
 			folk = ValleyFolk.new()
 			folk.layout = layout
 			folk.town = markers.town
+			folk.halls = buildings
 			add_child(folk)
 			u = _took(&"folk", u)
 	var player := get_node_or_null(^"Player") as Node3D
