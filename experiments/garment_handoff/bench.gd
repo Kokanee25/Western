@@ -12,9 +12,9 @@ extends SceneTree
 ##
 ## Writes DIR/summary.json (and s_<tick>.png for --shots).
 
-## The man: a Studio man in the repo by default (`--model=`; the lab used `sean_metahuman_s3`, his
-## files copied in for a run and never committed).
-var MODEL := &"barkeep_s2_talking"
+## The man: the MetaHuman, `sean_metahuman_s3` (Sean, 2026-11-15: only him), his files copied into
+## assets/people/ for a run and never committed (#692); `--model=` for another.
+var MODEL := &"sean_metahuman_s3"  # (Sean, 2026-11-15: only the MetaHuman; his files copied in, never committed, #692)
 var Handoff: GDScript
 const CAMS := {
 	"front": [Vector3(0.9, 1.45, -2.1), Vector3(0.25, 1.05, 0.0), 40.0],

@@ -86,10 +86,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   walk casts); the gunfight's people are over (its men at full rate by design).
 
 - **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` (a glove; take, the pull's release,
-  his skin the collider, his skin under it hidden until the cloth leaves it, baked at rest) and `GloveAct` (the
-  choreography; bridge `glove MAN [toss_to X Y Z]`). Cost as #917 (~+0.4 ms while it simulates at Sean's). Open: his
-  fingers through the glove where it gathers over his hand at the draw's end (the reveal rule looks only two edges
-  round). Next: the stocking, then the coat and the torn-shirt bandage.
+  his skin hidden under it until the cloth leaves it, baked at rest) and `GloveAct` (bridge `glove MAN [toss_to X
+  Y Z]`). **The glove still goes through his hand as it's drawn off** (Jolt's cloth can't stretch over it). Sean
+  2026-11-15: our own cloth solver (`docs/briefs/garment-cloth.md`, 6 steps, native), for leggings and jackets
+  too; only the MetaHuman (copied in, never committed; the lab defaults to him; CI tests on sean_s3_talking).
+  Next: the solver's step 1 (needs crates.io reachable from the cloud workspace).
 
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·

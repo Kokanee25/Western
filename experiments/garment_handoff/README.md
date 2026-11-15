@@ -40,6 +40,12 @@ Sean, 2026-11-14, on #917's film: "The gloves still need a lot of work, lots of 
 - **The toss is a flick from the wrist** (GloveAct, now in `src/bodies/`): a wind-up back, out and
   up, let go with a little more than his hand's speed toward the chair; it lands where it lands
   (on the seat, over its back or on the floor).
+- **On the MetaHuman, the clipping Sean saw is still there** ([`metahuman_hands.mp4`](results/2026-11-14b/metahuman_hands.mp4),
+  `metahuman_draw.jpg`, `films_metahuman.txt`): as it's drawn off, the glove's wrist and forearm go
+  straight through his hand. The glove's wrist is narrower than his hand and Jolt's cloth can't stretch
+  over it, so the collision gives. Sean, 2026-11-15: "it's still clipping as much as before", "we should
+  only be using the metahuman model", and our own cloth solver for this, jackets and leggings:
+  `docs/briefs/garment-cloth.md`. The bench and the bridge now default to the MetaHuman.
 - **Still seen:** at the draw's end, where the glove has gathered over his hand, his fingers show
   through it in places (the cloth over them came from further up his arm, which the reveal rule
   doesn't look for); a brief patch on the forearm as the cloth first slides.
