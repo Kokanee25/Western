@@ -67,7 +67,8 @@ it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
 Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `world [town|valley]` (which world; with a name it answers and the scene reloads in
 that world, and `bridge.py` waits for the new bridge and goes on), `story [clear]` (the story's facts,
-StoryState), `nod`/`shake` (your head, by the view: HeadGesture), `quit`. Facing is degrees
+StoryState), `nod`/`shake` (your head, by the view: HeadGesture), `glove MAN [toss_to X Y Z]` (a Studio man
+takes off a long glove: GloveAct; again while he's at it: its phase), `quit`. Facing is degrees
 from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
@@ -1428,18 +1429,28 @@ as you move round; Senses' eye is then his leading eye, `PostPose.eye_now`). Not
 entering it, stepping out to shoot a man in the open, recoil. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
 `sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
 
-**The garment handoff** (#917, from the lab #895): `WornGarment` makes a garment from his own
-Skin_whole (the triangles under it by bone weight, welded, simplified with
+**The garment handoff** (#917, from the lab #895; its clipping #949): `WornGarment` makes a garment
+from his own Skin_whole (the triangles under it by bone weight, welded, simplified with
 `SurfaceTool.generate_lod`, pushed out; his weights kept; `relief`: how far his skin stands above
 each point between them) and wears it (`wear`: a MeshInstance3D under his Skeleton3D with his skin
 and his `custom_aabb`); `posed()` skins it on the CPU as the GPU does (only the binds it uses).
+**His skin under it isn't drawn** (`cover_skin`: his Skin_whole's mesh swapped for a copy without the
+covered triangles; the Studio men's sleeve folds stand 3-10 mm above the skin, through a glove 2-4 mm
+off it); while it's drawn off, `uncover(ids)` shows the covered skin (a small mesh of its own, only
+its index buffer new on a reveal) under the points the cloth has left. Its look (`kid_leather`) is
+drawn 4 mm proud of its points (`grow`), its inside a dark brown `lining` (back faces).
 `GarmentHandoff` (`glove_on(man, parent, side)`, `take(hand)`, `let_go_of_arm()`, `let_go(v)`;
 signals `taken`, `came_to_rest`) swaps it for a `GarmentCloth` (a ClothProp of the garment's mesh:
-`pin_to`, `hold_on` carriers at his bones, `release`; at rest baked, its soft body freed) and runs
-the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every).
+`pin_to`, `hold_on`, `move_held` (the held points carried every 2nd tick to where his skin carries
+the worn garment, not rigid on a bone), `release`; at rest baked, its soft body freed) and runs
+the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every,
+uncover_at, free_damping: damped harder once let go, as Godot's soft body has no bending stiffness).
 `SkinCollider`: a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
 `skin_every` ticks from the triangles near the free cloth (Jolt pays ~1.5 µs a triangle to rebuild
-one in the world). Choreography stays the caller's (`experiments/garment_handoff/handoff.gd`).
+one in the world; `COLLIDER_TRIS` > 0 makes it from a denser copy of his skin, off: -30% points
+under for +0.25 ms). **`GloveAct`** (`put_on(man, parent, side)`, `begin()`, `toss_to`, signal
+`finished`) is the choreography: present, reach, take, draw, the flick from the wrist (not aimed),
+lie, rest; the lab's `handoff.gd` extends it with its measures; the bridge's `glove`.
 Traps: a SoftBody3D mesh needs normals; reach_to must be renewed every tick or the arm drops (the
 worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a hand apart on the
 floor), so a determinism check needs bit-identical starts (the test's second man is in a world of

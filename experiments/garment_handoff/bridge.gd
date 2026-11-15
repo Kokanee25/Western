@@ -10,7 +10,7 @@ extends BridgeLab
 ##   gh_film DIR [SECONDS=11]   the handoff from its cue, every frame drawn to DIR; its measures back
 ##   gh_clear               him, the chair, the glove gone
 
-var MODEL := &"barkeep_s2_talking"  # (the lab's was sean_metahuman_s3, never committed; gh_man's 5th word)
+var MODEL := &"sean_metahuman_s3"  # (Sean, 2026-11-15: only the MetaHuman; his files copied in, never committed, #692; gh_man's 5th word)
 const HELP := {
 	"gh_man": "gh_man X Y Z [YAW] [MODEL] -> MetaHuman Sean there (no brain, his own materials), a chair by him (#895)",
 	"gh_dress": "gh_dress -> the long glove on his left arm, worn (the game's GarmentHandoff)",
