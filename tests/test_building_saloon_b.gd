@@ -187,6 +187,12 @@ func test_the_sawn_girder_drops_the_dance_floor_over_the_bar() -> void:
 	print("  %d pieces of the girder and its joists; %d fell a metre or more, %d of them on the bar's side" % [n, fell, over_bar])
 	check(fell >= n * 0.6, "the girder's halves and its joists fall (%d of %d)" % [fell, n])
 	check(over_bar >= 6, "and come down on the bar's side of the room (%d)" % over_bar)
+	# The hanging lamps on the panel's joists come down with them (#950: its dressing); the rest hang on.
+	var lamps: Dictionary = b.dressed.get("S1", {})
+	for id: String in ["hanging_lamp_1", "hanging_lamp_5"]:
+		check(lamps.has(id) and lamps[id].loose, "%s, hung from the panel's joists, falls with them" % id)
+	for id: String in ["hanging_lamp_0", "hanging_lamp_3"]:
+		check(lamps.has(id) and not lamps[id].loose, "%s, off the panel, still hangs" % id)
 
 
 ## The open well (Sean's answer 1): a 36 in rail round it. A man leaning on it is held; a man
