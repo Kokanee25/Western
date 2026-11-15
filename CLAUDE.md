@@ -215,8 +215,8 @@ paid on every turn of every session.
 - **Only slice work gets a follow-up** (Sean, 2026-11-14): the slice list is #953. Open a next-step issue only for
   `slice` or `stretch` work (stretch has a fixed session budget there); anything else you find gets an `after slice`
   issue nobody runs now, or a line in your README.
-- **Size limits, enforced by `tests/test_docs_size.gd`:** CLAUDE.md under 30 KB, each lane file under 10 KB. Over
-  them, the build fails: trim your own stale lines (finished work, old traps) before merging.
+- **Size limits:** keep CLAUDE.md under 30 KB and each lane file under 10 KB: before merging, trim your own stale
+  lines (finished work, old traps) if you're over. `tests/test_docs_size.gd` fails the build at 32 KB and 12 KB.
 - **One task per session.** Start a fresh session (or `/clear`) for each piece of work; hand off
   through the status file and your lane's file, not through a long-running session.
 - **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends

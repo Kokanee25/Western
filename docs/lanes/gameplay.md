@@ -30,18 +30,14 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   and the ride back are cards; no line when Kett's jailed (release.* is C8 a, Sean's); no survivors, Joe's hat,
   no canyon walls, no woodpile. Riding waits on #478.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
-- **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
-  picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
-  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Step 3 done (#936):**
-  the roster as data: the 16 in `config/valley_folk.json` (home, ordinary day, `sunday` for the store and smithy,
-  `dials` via `ValleyFolk.dials_of`, data only), the street's `<lot>_walk` spots, a `lot` on a `places` entry (the
-  livery's door). The doctor and preacher have day ids (`doctor`, `churchman`) beside their act men (`doc`,
-  `preacher`: no hours). The new men at night are on the book inside the saloon, not in the yard (No Law's).
-  **Next: step 4, spots** (lean, sit, counter, sweep, carry, talk, drink; Opus). Step 1's perception leaks still
-  wait. Open: BookLights' panes are greybox (art's fronts); the doctor's crossing is 14-15 (the brief's 7-12 waits
-  for the sheriff-dies act to borrow him); two women share the widow's body (store wife, landlady), the townsman
-  is the storekeeper's copy; spot-to-spot moves are built but no one has two spots yet; the men's build at load
-  is ~20 s headless (25 men).
+- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: step 2 the day and the
+  book (#870), step 3 the roster as data (#936), **step 4 spots (#957, `SpotChore`)**: a block's `do` at a spot is
+  the man's chore (stand, lean, sit, counter, sweep/rug, carry, talk, drink, work), breaks by seed, none held 15 s;
+  the broom, rug, sacks, glass, anvil and bench are drawn stand-ins (the prop lab's to make). **Next: step 5,
+  reactions in stages.** Open: nobody has seen the chores drawn (the valley's picture under the bridge was broken
+  for the playtest, `docs/playtests/2026-11-15-spots.md`; `goto X Z` puts you under its ground); no talk sound; the
+  doctor's crossing is 14-15 (the brief's 7-12 waits for the sheriff-dies act); two women share the widow's body;
+  step 1's perception leaks wait; the men's build at load ~20 s headless.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
@@ -62,12 +58,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
-- **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` (a glove; take, the pull's release,
-  his skin hidden under it until the cloth leaves it, baked at rest) and `GloveAct` (bridge `glove MAN [toss_to X
-  Y Z]`). **The glove still goes through his hand as it's drawn off** (Jolt's cloth can't stretch over it). Sean
-  2026-11-15: our own cloth solver (`docs/briefs/garment-cloth.md`, 6 steps, native), for leggings and jackets
-  too; only the MetaHuman (copied in, never committed; the lab defaults to him; CI tests on sean_s3_talking).
-  Next: the solver's step 1 (needs crates.io reachable from the cloud workspace).
+- **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` (a glove, his skin hidden under it
+  until the cloth leaves it) and `GloveAct` (bridge `glove MAN`). The glove still passes through his hand (Jolt's
+  cloth can't stretch); our own solver replaces it (#973, `docs/briefs/garment-cloth.md`). MetaHuman only.
 
 ## Parked until after the slice
 coach heist (#840; `experiments/coach_heist/` README) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
