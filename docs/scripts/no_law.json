@@ -16,8 +16,7 @@
     "Harlan doesn't speak: he's sat, unarmed, held (Sean: 'he can't do anything at all').",
     "The sheriff's last day (Beat 5) is No Law's in the game (#796) but its lines are in the sheriff's script (scene 5, day2.*), so his voice is in one place.",
     "The card game's talk at the table (config/card_game.json: 'Ante.', 'Call.', Earl's 'Lady's been kind tonight') is built and belongs on a town-life page later, not here.",
-    "Nobody names the red shirt (Kett) or says the stranger works for the Baron (K3, K11). The foreman's voice is open (s21): written to his built lines, calm and low.",
-    "The built _doc in no_law_murder.json still calls Cody 'the red shirt, the man who shot the sheriff': out of date since #796's comments (gameplay's file, untouched)."
+    "Nobody names the red shirt (Kett), says the stranger works for the Baron (K3, K11) or that he shot the sheriff (K14). The foreman's voice is open (s21): written to his built lines, calm and low."
   ],
   "words_to_check": [
     {"words": "nester", "lines": ["after.cody_door"], "worry": "WORDS.md: to check (a cattleman's word for a homesteader)."}
@@ -29,6 +28,7 @@
     {"id": "S10", "what": "Which way he rode", "here": ["after.cody_door"]},
     {"id": "S32", "what": "Graves: Earl's a recorded death; the sheriff's grave", "here": ["morning.undertaker", "funeral.preacher"]},
     {"id": "S34", "what": "The chair", "here": ["murder.chair"]},
+    {"id": "S40", "what": "\"Friend\", and the bald-faced sorrel (the sheriff's marks; a thing at the rail, not a line)", "here": ["table.asks", "table.warn", "after.aimed"], "status": "D (Sean 2026-11-13, #906); the sorrel needs a horse coat (art)"},
     {"id": "S39", "what": "The foreman's face", "here": ["table.sit", "after.word", "funeral.offer"], "status": "the funeral's part P·bible: he stands behind the Baron, silent"}
   ],
   "cast": [
@@ -108,9 +108,12 @@
       {"id": "table.sit", "speaker": "stranger", "trigger": "He sits in the free chair beside you (a minute before Cody)", "when": "any", "condition": "calm, friendly",
        "delivery": "Pleasant, unhurried, a man settling in for the evening.",
        "words": [{"text": "Evening. Mind if I sit in a while?", "status": "built"}], "setups": ["S39"], "takes": []},
+      {"id": "table.asks", "speaker": "stranger", "trigger": "After table.sit, to a player who brought the sheriff in", "when": "you brought the sheriff in", "condition": "calm, friendly, a little too interested",
+       "delivery": "Easy, a man making conversation; he watches your face, not your mouth.",
+       "words": [{"text": "Heard it was you brought the sheriff in. He say who it was?", "status": "new", "note": "nod or shake: Harlan can lie to him (proposed, #905)"}], "setups": ["S40"], "takes": []},
       {"id": "table.warn", "speaker": "stranger", "trigger": "Cody comes into the yard; the stranger's hand on your arm", "when": "any", "condition": "calm, a warning",
        "delivery": "Low, close, not looking at you; the friendliness gone flat.",
-       "words": [{"text": "Don't move, friend. Whatever happens next, you sit still.", "status": "built"}], "takes": []}
+       "words": [{"text": "Don't move, friend. Whatever happens next, you sit still.", "status": "built"}], "setups": ["S40"], "takes": []}
      ]},
 
     {"id": "murder", "title": "The murder", "when": "Night 1, the card table", "built": true,
@@ -141,7 +144,7 @@
        "words": [{"text": "You didn't see a thing tonight. Nobody did. Remember that.", "status": "built"}], "setups": ["S39"], "takes": []},
       {"id": "after.aimed", "speaker": "stranger", "trigger": "You point a gun at him", "when": "any", "condition": "calm",
        "delivery": "Unbothered; he's had guns pointed at him before.",
-       "words": [{"text": "Easy, friend. I ain't the one you want.", "status": "built"}, {"text": "Put it up. You'll only get yourself killed.", "status": "built"}, {"text": "Walk away. That's my advice.", "status": "built"}], "takes": []},
+       "words": [{"text": "Easy, friend. I ain't the one you want.", "status": "built"}, {"text": "Put it up. You'll only get yourself killed.", "status": "built"}, {"text": "Walk away. That's my advice.", "status": "built"}], "setups": ["S40"], "takes": []},
       {"id": "after.drifter", "speaker": "drifter", "trigger": "He gets up to leave (~5 s after Cody's out)", "when": "any", "condition": "shaken, wants out",
        "delivery": "Picking up his hat, to nobody.",
        "words": [{"text": "I never saw nothing. I was never here.", "status": "new"}], "takes": []},

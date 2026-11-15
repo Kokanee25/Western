@@ -56,8 +56,11 @@ caps it; an upper floor's `breaks` cut its joists over a bearing wall; `outbuild
 `lean_to` {wall, rect, high, low}: its own footing and sills, its floor, a ledger on the house's
 studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over the floor, z];
 `lamps.kit` (#824) kit lamps hung on a wall's boards (on a stone wall, its face at the lamp's
-height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side, lit
-[from, until], energy, reach, shadows};
+height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side (a
+partition's `-`/`+`; `out` on an outer wall's siding outside, #886), lit [from, until], energy, reach,
+shadows}; a front's painted sign letters (`letters_<sign>`, the factory's `lettering`) are laid on its
+board, cut to them, which takes a finish (`front/sign`), the letters at most `front.sign_width` m
+across (shorter where the name is long), #886;
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
 
@@ -92,6 +95,15 @@ mission saws and where (`SpecBuilding.saw_girder`); `galleries.height` the rail'
 stretch of finish at a level (its ids under `in_<level>/s1`); stairs' `stoop` against the back
 wall; `lot.side_walk` {at, turn, length, depth, steps} a boardwalk down a side street, built by
 whoever places the building (ValleyWorld, the lab).
+
+**Saloon B's look** (#867, step 2): an inside stretch's `finish: "wainscot"` with `inside_finish`
+(panelled oak to 0.9 m, the boards over it drawn as judged, a picture rail over the openings' heads;
+a window whose sill is under the cap stops the wainscot, a plain apron under its stool);
+`front.brackets` {spacing, drop, reach, width, sides: [wall ids]}: brackets under the false front's
+cornice, and on each wall in `sides` the eave given the same band, crown and brackets (ids
+`<wall>/cornice...`); `dust` {floor, rest, motes}: FloorDust under that upper floor. In `materials.surfaces`
+the finish `-` leaves a member as it is drawn (a dressed bracket keeps its cove); `levels.roof_tight`
+butts the roof's boards (no gaps of sky from inside a big room).
 
 ## Bands: a second storey on the support ladder
 

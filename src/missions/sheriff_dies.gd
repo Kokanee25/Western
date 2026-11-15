@@ -333,7 +333,7 @@ func _lead_step(p: Player, delta: float) -> void:
 func _beat_list() -> Array:
 	var b: Array = [["wife", "with_him", "any"]]
 	b.append(["wife", "obliged", care] if care != LEFT else ["wife", "freighter", care])
-	b.append(["sheriff", "red_shirt", voice])
+	b.append(["sheriff", "shot_by", voice])
 	b.append(["sheriff", "ditch", voice])
 	if care != GOOD:
 		b.append(["doctor", "where", care])

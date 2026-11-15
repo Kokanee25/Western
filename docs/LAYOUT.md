@@ -762,6 +762,19 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   by slope and height (vertex colours). Prof `valley_ground` (else). `tools/valley/valley_bench.gd`
   (render CPU at the crossroads, corners, overlook; `--ride`: the streaming at a gallop); the soak's
   `--world=valley` tours it with sticks and digs.
+- **The valley's ground drawn real and its scatter** (#891, art's; `-- --greybox-ground` and `-- --no-scatter`
+  give the old): `ValleyGroundArt` (`src/art/valley_ground_art.gd`) makes the material ValleyGround's
+  blocks and the dug tiles wear (`src/art/valley_ground.gdshader`: six CC0 scans, `config/valley_ground_art.tres`)
+  and answers the ground map (`assets/textures/valley/ground_map_a.res`, `_b.res`, baked from valley.json by
+  `godot --headless -s res://tools/textures/valley_ground_map.gd`; re-bake when valley.json changes:
+  `tests/test_valley_ground_art.gd` fails until it is): `road_at`, `off_road`, `water_at`, `flags_at`,
+  `kept_clear`. `ValleyScatter` (ValleyWorld's `Scatter`; `config/valley_scatter.tres`, a species a dict):
+  cells a species round the camera, a MultiMesh a piece (near, far by visibility range; sage hands over
+  per pixel), seeded by cell; boulders and trunks one StaticBody3D a cell; Prof `scatter`.
+  `make_all_round(at)` builds at once (tools, tests). Meshes: `tools/textures/scatter_meshes.gd` cuts the
+  Poly Haven scans (`assets/props/scans/`, fetched by `scans.yml` from `tools/textures/scans/model_picks.json`)
+  to `<piece>_near.res`/`_far.res`; the trees are `ValleyTrees` (code). Views:
+  `tools/textures/valley_ground_shots.sh OUT [game args] [only]` (`valley_ground_views.txt`).
 - **The valley's railway** (G3, #716; train step 6, #542): `ValleyRailway` (`src/world/valley_railway.gd`,
   ValleyWorld's child `Railway`; `-- --no-railway` leaves it out) lays `railway.route` with the train's
   own code: `make_line` gives the route `"height": 0` (its origin is the rail top, as valley_plan.py
@@ -820,6 +833,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   **Saloon B** (#848, `experiments/building_lab/saloon_b/`) stands on the corner lot: its walk's `span`
   runs on west past the corner, and its spec's `lot.side_walk` is a Boardwalk down the North-South
   Street under its balcony (`ValleyWorld._side_walk`). Its cellar isn't dug in the valley yet (#695).
+  Its look (#867): finishes by name, a wainscoted bar room, brackets under both streets' cornices, and
+  `FloorDust` (`src/art/floor_dust.gd`): dust in the air under the dance floor, a fall under anyone moving
+  on it (`stir(at)` for a saw or a dropped keg); the spec's `dust` names the floor.
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -1584,6 +1600,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   nojustice.met, camp, knew_the_way, costume, trail. `-- --world=valley --mission=no_justice [--followed]`,
   `moment no_justice_camp set_up=1 [at_camp=1 met=..]`; valley_bench spot `ute_camp`. Playtest brief
   `experiments/no_justice/PLAYTEST_CAMP.md`. Joe's lab dials: `--joe-tune=key:value+...` (CompanionBrain).
+- **No Justice's hideout fight** (#934, step 3 of #843's plan; `src/missions/no_justice_hideout.gd`,
+  `NoJusticeHideout`, an `Act`; data `config/moments/no_justice_hideout.json`, lines from the script's ride and
+  fight; `tests/test_no_justice_hideout.gd`): started by the camp's end (`NoJusticeCamp.next_act`, Joe handed on;
+  `no_next` stops it), `-- --world=valley --mission=no_justice_hideout [--arrive]` or `moment no_justice_hideout
+  set_up=1 [arrive=1]`. Trail (walk on with Joe) -> the ride's card (to the top of `mesa_back_trail`, then down it)
+  -> on the slope west of `hideout`, Joe's close/warn, the count and ask at `watch`. The set in the place's frame
+  ([east, south] off its `at`): the shack (`FalseFrontBuilding` as a gable shack; `shut_door(barred)`: the open
+  leaf out, a shut leaf and a bar in), a fire (a light), kit props (a `call` names the crew's spotted line by it),
+  six tied horses, five OutlawBrains `hold`ing about their camp (`own_lines`: the script's hit/leg lines, the
+  spotted call by place, the last man's quit set as he gives up) and Kett (no gun, no brain: the act runs him to
+  the shack at the alarm and bars him in). The alarm: a man sees you or Joe, hears a shot, or is hit
+  (`started`: opened by your or Joe's shot, `Events.shot_fired`). Ends `after` the crew are out and Kett's
+  settled. Facts nojustice.hideout, started, kett (holed_up / dead_outside / down_outside / dead_inside), crew,
+  seen, joe. valley_bench spot `hideout` (`--no-hideout-act`).
 - **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
   out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
   `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.
@@ -1729,6 +1759,14 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
   past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
   (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
+  `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
+  only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
+  Act men (`doc`, `preacher`, `wife`, `cowboy`...) have no hours, so the doctor and the preacher have a
+  second id for their day (`doctor` on the book except 14-15; `churchman` on the street 8-9, off by the
+  funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
+  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
+  new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`

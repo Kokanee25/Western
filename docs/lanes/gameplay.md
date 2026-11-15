@@ -2,40 +2,52 @@
 
 Branch `claude/gameplay-…`. Everything that isn't art, characters or props: missions, people, weapons,
 structures, blast, the valley, performance, CI. Replace your lines here at the end of a session; no history
-(that goes in `docs/status/` and the PR). Keep under ~10 KB. History: `docs/status/`.
+(that goes in `docs/status/` and the PR). Keep under 10 KB (a test fails the build over it). History: `docs/status/`.
 
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746, build 3698): `-- --world=valley --mission=sheriff`; `StoryState`,
   `HeadGesture`, `Act`. Waiting on Sean: #755.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
-  `experiments/valley_folk/README.md` "Step 4", "Step 5"). Cody isn't the red shirt. **The sheriff's shooter is the stranger at
-  the card table, the Baron's foreman** (Sean, #906; lines changing in #908); Kett killed Joe's wife. The morning after: Earl to the undertaker's, day folk's lines
+  `experiments/valley_folk/README.md` "Step 4", "Step 5"). Cody isn't the red shirt (the red shirt, Silas
+  Kett, raided Joe's camp; the stranger shot the sheriff, #905; nobody names either yet). The morning after: Earl to the undertaker's, day folk's lines
   by the story's facts (`talk`); the sheriff dies on the doctor's cot (`-- --mission=sheriff_dies`); the story's
   Harlan is unarmed till then. **The funeral** (#868, `-- --world=valley --mission=funeral`): the day after, at
   ten, at the cemetery; nolaw.funeral = attended / distance / missed, nolaw.offer_heard, baron.met; mourners
   are the folk's own men (`borrow`/`give_back`: never built in play). No Law's script still isn't OK'd (#835).
-  Open (playtests `docs/playtests/2026-11-13-funeral.md` and step 4's): the funeral's cues, the grave, the mourners'
-  looks, stand-in models; the dying sheriff's badge and the wife's hands. **Next: the whole mission played end to end on the real clock and its
+  Open: playtests `docs/playtests/2026-11-13-funeral.md` and step 4's (the funeral's cues, grave, mourners'
+  looks, stand-in models; the badge on the dying sheriff, the wife's hands). **Next: the whole mission played end to end on the real clock and its
   seams mended (#876).**
 - **No Justice** (plan on #843: 1 Joe, 2 the doctor's and the camp, 3 the hideout fight at the valley's
   `hideout` box canyon, 4 the cabin, the knife and the nod). **Steps 1-2 done.** Joe (`CompanionBrain`;
   `-- --joe`, bridge `joe`, the lab's `joe=1`/Shift+Y, `--joe-tune=k:v+k:v`) helps since #859: he may shoot the
-  man you fire at, minds the men on you, draws their eyes (`experiments/gunfight_lab/results/2026-11-13_joe_helps/`:
-  hits you take -1/3; survival can't be measured under a few hundred fights a side). Open: he's in your line
-  ~0.7 s a fight; his cover should keep off the line between you and your man. Step 2: `NoJusticeCamp`
+  man you fire at, minds the men on you, draws their eyes (`experiments/gunfight_lab/results/2026-11-13_joe_helps/`).
+  Open: he's in your line ~0.7 s a fight. Step 2: `NoJusticeCamp`
   (`config/moments/no_justice_camp.json`; `-- --world=valley --mission=no_justice`, bridge
   `moment no_justice_camp set_up=1`; valley_bench `ute_camp`). Open: Joe's hat (the stand-in "whole" model drops
   it; characters lane), no survivors shown (till the Studio has them), no line for a shake then following him
   out, the valley's marker posts; playtest `docs/playtests/2026-11-13-camp.md`. Riding waits on #478.
-  **Next: step 3, the hideout fight.**
+  **Step 3 (#934): the hideout fight** (`NoJusticeHideout`, `config/moments/no_justice_hideout.json`;
+  `-- --world=valley --mission=no_justice_hideout [--arrive]`, bridge `moment no_justice_hideout set_up=1 arrive=1`,
+  started by the camp's end; valley_bench `hideout`). Ends with `nojustice.kett` = holed_up (barred in the shack:
+  `FalseFrontBuilding.shut_door`) / dead_outside / down_outside / dead_inside; also hideout, started, crew, seen, joe.
+  Open (playtest `docs/playtests/2026-11-14-hideout.md`): Joe shot a man who'd given up; the drawn ground may hide
+  the pad from the slope (the bake says it's in view); several men say one line at once; creep and open fire play
+  the same; no woodpile in the kit; no canyon walls.
+  **Next: step 4, the cabin, the knife and the nod (#966).**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
   picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
-  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Next: step 3, the
-  roster as data** (the 16 people's days, homes, dials; the street's and buildings' spots). Step 1's perception
-  leaks still wait. Open: BookLights' panes are greybox (art's fronts); a man the player follows into a real
-  interior still goes onto the book at its door; spot-to-spot moves are built but no one has two spots yet.
+  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Step 3 done (#936):**
+  the roster as data: the 16 in `config/valley_folk.json` (home, ordinary day, `sunday` for the store and smithy,
+  `dials` via `ValleyFolk.dials_of`, data only), the street's `<lot>_walk` spots, a `lot` on a `places` entry (the
+  livery's door). The doctor and preacher have day ids (`doctor`, `churchman`) beside their act men (`doc`,
+  `preacher`: no hours). The new men at night are on the book inside the saloon, not in the yard (No Law's).
+  **Next: step 4, spots** (lean, sit, counter, sweep, carry, talk, drink; Opus). Step 1's perception leaks still
+  wait. Open: BookLights' panes are greybox (art's fronts); the doctor's crossing is 14-15 (the brief's 7-12 waits
+  for the sheriff-dies act to borrow him); two women share the widow's body (store wife, landlady), the townsman
+  is the storekeeper's copy; spot-to-spot moves are built but no one has two spots yet; the men's build at load
+  is ~20 s headless (25 men).
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
@@ -50,11 +62,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
-  --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881,
-  the review's "After the cuts")**: far men ~0.3 of a near man (`PeopleTickTuning.seen_nearer_far`,
-  `aim_needs_sights`), calm men look at calm men every 2nd look (`calm_look_every`, `HumanBody.tick_calm`),
-  fingers posed on change; day with 25 ≈ 3.5 on #865's scale (4.9 on the slower workspace that measured it):
-  **the brief's 24 fit**. The valley's spec buildings warm their first analysis on a worker
+  --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881; the review's "After the cuts"): the brief's 24 townsfolk fit.** The valley's spec buildings warm their first analysis on a worker
   (`Structure.warm_analysis`; the valley has no FireSystem, so a settle is whole on one frame). `max_bodies`
   65,536. Train past 400 m `Train.distant`. Open: every scene's else is over (~1 ms untimed engine share, the
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
@@ -77,13 +85,9 @@ Night floor lab (#745).
   for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
 
 ## Open problems
-- **The valley's people tests** (#925, after #834): three causes found and fixed, none of them chance.
-  `HumanBody._spare_rubble` let through only what its 64-shape query gave, and a building's standing members
-  filled it (Earl's chair broke his thigh as he rose); Cody's ball stopped in whatever lay short of Earl's head
-  (`NoLawMurder._clear_to_head`); a dragged man's chest rested at the edge of the smear's reach
-  (`WoundSigns.SMEAR_GAP`). Each has a fixed test (`test_seated_falls` by a wall, `test_no_law_murder`'s chair
-  leg, `test_wound_signs`' twelve landings). To sample a people test's odds: its scene many times in one process
-  (identical set-ups differ run to run, by the engine's body order), not the suite again.
+- **The valley's people tests** (#925, PR #939): three real causes fixed (`HumanBody._spare_rubble`,
+  `NoLawMurder._clear_to_head`, `WoundSigns.SMEAR_GAP`), each with a test. Sample a people test's odds by running
+  its scene many times in one process, not the suite again.
   Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
   differently from a workspace's (the same commit fails there and passes here: read the test's own timeline);
   the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:

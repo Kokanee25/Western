@@ -1,8 +1,7 @@
 # Art lane: current state
 
 Branch `claude/art-…`. Files: see CLAUDE.md "How we work". Replace your lines here at the end of a
-session (no history: that goes in `docs/status/` and the PR). Keep this file under ~10 KB.
-Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
+session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (a test fails the build over it). History: `docs/status/`.
 
 ## Where the look stands
 - **Realistic, toward Red Dead** (Sean 2026-11-04; DESIGN.md §4, `docs/briefs/red-dead.md`). The real
@@ -19,10 +18,8 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   and the Milky Way), lights the world from it (sun colour and energy, ambient, fog), draws one sheet of
   drifting cloud (`coverage`; `RealSky.set_coverage` for weather) and in the valley the far land (the
   bake past 800 m and the ranges to 45 km, over the sky only). Dials `config/looks/real_sky.json`.
-  Judged twice (`docs/screenshots/judge/2026-11-14_sky_r*`): all cheap indie, decided by the grey-box;
-  day and overcast skies and the Milky Way read real; left: midday clouds flat (no bulk), golden hour
-  not golden enough at 17.6, the night street crushed, the moon a plain disk. **Next: weather** (storm
-  cells pushed across the valley over the coverage).
+  Judged twice (`docs/screenshots/judge/2026-11-14_sky_r*`); left: flat midday clouds, a weak golden hour,
+  the night street crushed, a plain moon. Weather (#947) is after the slice.
 - **Eased edges** (#873): every library board's arrises and ends rounded in `scan_wood.gdshader`'s normal
   (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
   normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
@@ -47,20 +44,25 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   Drawn only once `materials.stone.want` is approved; `"trial": true` in the lab (never committed). The quoins,
   drips, damp, whitewash and age dials are reusable under a scanned wall (#928's (a)).
   The rooms wait on the prop lab's furniture.
-- **The doctor's room review** (#818, `docs/reviews/2026-11-doctor-room.md`): its rules all approved (#821) and in
-  `RECIPE.md` (#824-#826, #829); the jail built on them.
-- **Saloon B, the corner saloon** (#772): step 1 merged (#848: spec and frame on the corner lot,
-  `experiments/building_lab/saloon_b/` README, `tests/test_building_saloon_b.gd`). **Step 2 (the look) is PR #884,
-  held** on three red people tests in its CI (Earl's chair, No Law's murder, the wound smear; the card game is
-  played beside the saloon): Sean's pick, merge red or hold, is #923. **Step 3 (#886), on branch
-  `claude/art-saloon-b-sign` (built on #884)**: THE SALT CREEK painted ($0.10) on a walnut board cut to it,
-  four lamps on the walks (`lamps.kit` `side: "out"`), the corner at dusk judged good indie (was cheap); the
-  critic: the lamps' light doesn't reach the walk, the sign grey on grey by day and lost at dusk. It merges
-  after #884. The girder test (#922) allows only what the falling floor hits. The valley's collision bodies
-  30,993 of Jolt's 32,768 with main today (step 2 measured 27,908): little headroom.
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; a factory
-  entry goes under `materials` in materials.json; a People texture run rewrites every painted sign's
-  `.import` bare: restore all but the new one.
+- **The valley's ground and scatter** (#891; LAYOUT "src/world/town_layout.gd", PARTS "Materials and look"): the
+  valley's ground drawn real from six CC0 scans by a ground map baked from valley.json (re-bake
+  `tools/textures/valley_ground_map.gd` when it changes); rutted streets; the scatter (grass, stones, sage, rocks,
+  boulders, logs, pines, cottonwoods) by rules. Cheap judge: the roads good indie (from cheap), streets and the
+  height still cheap (the sky's flat bands, greybox fronts, backlit near-black bushes, cloned trees, one grass).
+  Render CPU at Sean's: street 2.37 -> 2.80, road 0.58 -> 0.90. Next: its issue (sky, trees, bushes, grass kinds).
+- **The doctor's room review** (#818): its rules approved and in `RECIPE.md`; the jail built on them.
+- **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #884): spec, frame and look on the corner lot
+  (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, ten tests): 7,763 members,
+  27,908 valley bodies of Jolt's 32,768. Red board and batten, buff trim, a bracketed cornice on both streets, buff
+  boards over a dark wainscot, walnut posts, rail and doors, dust through the dance floor (`FloorDust`). Judged
+  twice (`docs/screenshots/judge/2026-11-13_saloon_b_r2`): **the bar room good indie, the corner cheap indie**
+  (its tells in the README: no town or sky round it, blank sign, no porch lamps, one even red; inside, one glossy
+  red-brown wood, nothing dressed). **Next: the prop lab furnishes it; then the general store.** Open with Sean:
+  the hip or the plain roof, porch lamps (#885). Step 3 (#886) merged: THE NEW OCCIDENTAL on a walnut board (two lines, 4.9 m, `front.sign_width`) and four walk lamps; the sign reads by day, weakly at dusk, not at night (board contrast or a light on it open). Valley bodies 31,395 of 32,768. Wants from the
+  material library: a dressed-timber entry and a matt floor. Not done: the cellar dug in the valley (#695), No
+  Law's set (still in the yard: gameplay's to move).
+  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after any frame change; name every
+  surface, and `-` keeps a dressed member's shape; judge a bar room by lamplight (RECIPE "A big room's look").
 - **Floors and furniture, still open** (#825's judge, `docs/screenshots/judge/2026-11-12_floor_furniture_r2`): the
   floor's path reads as a milky haze, not abraded wood; the oak has no pores or ray fleck (no quartersawn scan in
   the library: fetch one by `scans.yml`); walnut parked; painted pine old's cloudy top.
@@ -76,9 +78,7 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
   (`fill` to the outer walls, near neutral; `day_fill` 0.1, DayCycle reads the probe's `day_ambient`;
   `window_day` 7). RoomLight's daylight rooms (`RoomLightTuning` "Daylight"): windows aimed at the floor 0.6
   across, reaching twice the far wall, falling off, shadowed by day; a soft light off each sunlit patch.
-  Cheap judge round 2 (`docs/screenshots/judge/2026-11-12_doctor_daylight_r2/`): tell 1 passes on desk and
-  window, fails on the dispensary (judged before #826's sashes; with them, `results/2026-11-12_daylight/with_826.jpg`,
-  the light holds, not re-judged). Render CPU at Sean's <= 2.83 ms.
+  Render CPU at Sean's <= 2.83 ms.
   Rule in `experiments/building_lab/RECIPE.md` "Light". Next: contact shadows with #711.
 - Room light (#608): on under the real look; its painted-look switch still waiting on Sean.
 - Waiting on Sean: #615 (yardstick), #641 follow-ups.
@@ -100,4 +100,7 @@ Full history to 2026-11-11: `docs/status/current-state-2026-11-11.md` "Art".
 - A per-board hashed value must be a flat varying (the weave). Check a scan's grain with the test, not by eye.
 - A data texture with alpha needs `process/fix_alpha_border=false`. After a local import the Studio men's
   `.import` stubs fill in: keep them out of commits but filled locally, or the men draw white.
-- Render only what changed; a review round is ~2.5 h here.
+- The valley's views: `tools/textures/valley_ground_shots.sh OUT` (~10 min, one game). A drawn perf_bench
+  run's first load compiles every shader under lavapipe (the scatter's "4 s" load is that; headless 0.2 s).
+- Poly Haven's scanned trees are millions of triangles (the fetch's `max_tris` skips them); its plants' glTF
+  diffuse is a JPEG without alpha (the fetch bakes their `Alpha` map in). Never LOD-cut card foliage.

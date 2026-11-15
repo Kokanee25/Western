@@ -84,18 +84,84 @@ Not checked here: the frame's deflection (the format's item 12), fire and blast 
 
 ## Not in step 1 (for step 2 or its owner)
 
-- **The hip and the side street's cornice.** The roof is a plain 2/12 on trusses, its gables to the
-  yard and the side street behind boards; the bracketed cornice is on Main Street only.
+- **The hip.** The roof is a plain 2/12 on trusses, its gables to the yard and the side street
+  behind boards (the bracketed cornice is on both streets since step 2). Sean's to pick.
 - **The cellar's bulkhead to the yard** (the concept's 5) and the cellar dug in the valley: the
   valley's ground isn't opened under the building yet (#695), so on its lot the cellar's members
   stand in the ground. In the lab the pit is open and the trap's stair reaches it.
 - **No Law's set stays in the yard.** See "No Law" below.
-- **Finishes, paint, the sign's lettering, the look of the posts and stair**: step 2. The spec
-  names passing library entries so the frame draws (oxblood board and batten, buff trim, pale
-  boards inside, the worn fir floor).
+- **The sign's lettering** (THE SALT CREEK): a paid paint job, Sean's to OK. The rest of the
+  look is step 2, below.
 - **Props**: the bar and back bar are the kit's sections and four card tables with chairs; the
   rest is the prop lab's (`docs/briefs/saloon-design.md` "The props B needs").
 - **Working doors**: every leaf stands open (the format's item 13).
+
+## Step 2: the look (#867)
+
+- **Finishes by name** (`materials.finishes`, `surfaces`): dark red board and batten
+  (`painted_oxblood_batten` at "few", the age it passed) with buff trim, casings, sashes, skirting
+  and the walks' posts and rails; inside, buff painted boards over a dark wainscot with a picture
+  rail on the bar room's street walls; the worn fir floor; the posts, girders, open joists, the
+  well's rail, the hall stair and the doors in the library's walnut (`oak` and `timber`: the
+  library's oak drew a flat fresh orange, its rough pine read as bark, its planed pine as
+  driftwood; there is no dressed-timber entry yet). The brackets keep their coves (finish `-`).
+- **A bracketed cornice on both streets** (`front.brackets`, its `sides`), and the roof's boards
+  butted (`levels.roof_tight`: the 3 mm gaps drew as specks of sky from the dance hall).
+- **Light** (`light`): fill 0.62/0.6/0.57, `day_fill` 0.32, `window_day` 14, for a room 54 ft wide
+  and 13 ft high (the doctor's 0.1 and 7 left the far half near black: `results/2026-11-13_look/
+  light_a_b.jpg`).
+- **Dust through the dance floor** (`dust`, `FloorDust` in `src/art/`): a few motes hang under the
+  boards, and more fall under anyone moving on the floor above (`stir` for anything else).
+- **Judged, two rounds** (`docs/screenshots/judge/2026-11-13_saloon_b_r1`, `_r2`; renders in
+  `results/2026-11-13_look/`, `pairs_r2.jpg` beside the sheet). The cheap judge: **the bar room
+  good indie** from the corner doors (both rounds) and from behind the bar by lamplight (round 2);
+  **the corner cheap indie**, as are the front, the back, the dance hall and the gallery. The
+  tells still open, most outside this step:
+  - outside: no town, ground or sky around it (grey lots, a posterised dusk sky), the blank sign,
+    nothing lit on the walks at night (the building has no porch lamps), one even red with no
+    corner boards or belt course, the walks' deck on bare posts with no skirt;
+  - inside: nothing dressed and nobody there, all the woodwork one varnished red-brown with bold
+    grain and a glossy floor (a dressed-timber and a matt floor entry are the material library's
+    next), pale flecks and dark dashes on the buff boards (the paint's wear, drawn large), an open
+    door leaf near the dance hall's camera that reads as a black slab, lamp light through the
+    balusters' feet and on the ceiling over the bar's lamps.
+- **Cost:** render CPU at Sean's (x0.65 of this VM's), budget 4 ms: Main Street 2.1, the corner at
+  dusk 2.6, the bar room from the doors 3.0, from behind the bar by lamplight 3.2, the gallery over
+  the well by lamplight 3.4 (step 1: 1.1 to 1.9 by day; the dance hall's view not measured). Members 7,763 (step 1: 7,560); the valley's collision bodies 27,908 of
+  Jolt's 32,768.
+- **Goldens:** none change (the golden views are the old town's, not the valley's).
+
+## Step 3: the sign and the walks' lamps (#886)
+
+- **THE NEW OCCIDENTAL** (Sean's "pay", #885; his name for it, #886, 2026-11-13: "the new" for an
+  old Occidental that burned or fell): the texture factory's `letters_the_new_occidental` (kind
+  `lettering`: gold-ochre sign-writer's paint on white, the white keyed out; one call, $0.10, People
+  run 132; THE SALT CREEK, run 131, $0.10, replaced). The painter put it on two lines, a small THE NEW
+  over a big OCCIDENTAL (asked for one line; kept, it's period and reads). The spec builder lays a
+  front's painted letters (`SignArt.letters`) on its own board, cut to them, as the jail's are on its
+  boards (`FacadeArt._paint_letters`); the board is a plain trim board in the walnut (`front/sign` ->
+  `oak`). `front.sign_from` 7.9 (one line's was 8.45): a 1.6 m board over the upper doors' heads,
+  the letters 1.14 m tall and 4.9 m across, held to that by `front.sign_width` (new). Why not the
+  factory's `sign` kind: it takes the board's width from the picture, at most 21:9, a 2.3 m board.
+- **Lamps on the walks** (Sean's "add lamps", #885): four reflector lamps under the balcony on the
+  siding outside (`lamps.kit` `side: "out"`, new), two on Main Street's wall (at 5.4 and 10.6) and two
+  on the side street's (6.1 and 12.8), 1.85 m over the walk, lit 17 to 4, energy 1.4, reach 6.5; only
+  the one at 10.6 casts shadows.
+- **THE NEW OCCIDENTAL judged, one round** (`docs/screenshots/judge/2026-11-14_saloon_b_occidental`;
+  renders in `results/2026-11-14_occidental/`, with a new view `street_dusk`: down Main Street from the
+  east at 18.0, ~25 m off): the cheap judge has all three cheap indie (the corner at 19.4 now near
+  black under main's new sky, #918's crushed night: not this step's). The sign reads "THE NEW /
+  OCCIDENTAL" by day on a close look and just reads at dusk down the street (THE NEW blurring); it holds
+  the eye weakly, dark gold on a dark board on a dark red wall, and is lost at night. Open: the board's
+  contrast or a light on it. Render CPU at Sean's: the front 2.27, the corner 3.69 (2.98 before main's
+  sky; inside 4). Valley bodies 31,395 of Jolt's 32,768.
+- **Judged, one round** (`docs/screenshots/judge/2026-11-13_saloon_b_sign`; renders in
+  `results/2026-11-13_sign/`): the cheap judge has **the corner at dusk good indie** (step 2: cheap
+  indie; the sconces, lit windows and pools of light lift it) and the front by day still cheap indie
+  (grey neighbours, flat light, the empty street: not this step's). The blind critic: the lamps are
+  placed right with visible flames but each throws a tight smear that doesn't reach the walk; the
+  sign only just reads by day (grey on grey in the front's shade) and is lost at dusk. Open: the
+  lamps' reach and colour, the board's darkness against the letters, the sign's light at night.
 
 ## No Law
 
