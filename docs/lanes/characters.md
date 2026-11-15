@@ -24,17 +24,16 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   ~150 MB textures a distinct man). Not cast yet: the game can't fetch private files on Sean's PC or CI.
 
 ## Open
-- **First-person hands, option 2** (#896, a lab: `experiments/viewmodel_rig/`, `tools/blender/fp_arms.py`): the
-  MetaHuman's hands cut at the wrist, modelled cuff and coat sleeve, a rig posed per gun from data (the Colt,
-  the Winchester). **Sean picked it (#913): next its promotion into the game, #914.** Its glb is private
-  (git-ignored); rebuild it from the Studio's frozen `sean_metahuman_s3` before the lab runs.
+- **First-person hands, option 2: in the game** (#914). `HeldHand` cuts MetaHuman Sean's hands, cuff and coat
+  sleeve from `assets/people/private/harlan_fp.glb` (git-ignored; `tools/characters/fetch_fp_hands.sh` builds it
+  from the Studio's frozen `sean_metahuman_s3`); else the painted arms. Holds and poses: `config/fp_holds.json`.
+  CI's export builds it into Windows/Linux (not web) **only once the `STUDIO_TOKEN` secret is set** (Sean, see
+  the waiting-on-Sean issue). Judge r2: 4/7 good indie; left: the aimed views' sleeve fills the view, the rifle's
+  fingers sink into the stock, the skin smooth ("mannequin"). The guns' blue steel is the guns', not the hands'.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
-- **#890's full MetaHuman arms: not taken** (Sean picked option 2 on #913). PR #919 closed unmerged; its
-  Studio tool (`tools/fp_arms.py`, branch `claude/studio-harlan-arms`, rolled sleeves lofted, tan) kept there
-  for reference. What #914 can use, on main: the gun lab's `--gun=winchester` views and fit, bridge `gun_arms`,
-  `arms_sheet.py` (`experiments/gun_lab/README.md`). A MetaHuman's finger bones point +Y to the tip with the
-  hinge flipped (rest hand ~20° closed): reframe them before curling (#919's `_canonical_fingers`).
+- A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
+  `HeldHand._canonical_fingers` reframes them (from #919, closed unmerged; its Studio branch kept).
 - Talking face: four men's jaws go back more than down (#247).
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).

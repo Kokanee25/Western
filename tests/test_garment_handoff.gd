@@ -73,7 +73,8 @@ func _handoffs(xs: Array, measure: bool) -> Array:
 		if part == null:
 			return [{"part": null}]
 		parts.append(part)
-		outs.append({"part": part, "worn_ticking": part.is_physics_processing()})
+		outs.append({"part": part, "worn_ticking": part.is_physics_processing(),
+				"worn_hides_skin": part.garment.skin_covered()})
 		var sh := (man.pivots[&"upper_arm_l"] as Node3D).global_position
 		l_at.append(sh - man.global_basis.z * 0.40 + man.global_basis.x * 0.16 + Vector3.DOWN * 0.20)
 	for f in 60:  # present
@@ -102,6 +103,7 @@ func _handoffs(xs: Array, measure: bool) -> Array:
 	for k in men.size():
 		parts[k].take("r")
 		outs[k].held_ticking = parts[k].is_physics_processing()
+		outs[k].held_hides_skin = parts[k].garment.skin_covered()
 		var sk := men[k].skeleton
 		var wr := sk.global_transform * sk.get_bone_global_pose(sk.find_bone("hand_l")).origin
 		var tip := sk.global_transform * sk.get_bone_global_pose(sk.find_bone("finger_middle_l_2")).origin
@@ -136,7 +138,9 @@ func _handoffs(xs: Array, measure: bool) -> Array:
 	for k in men.size():
 		outs[k].pop_mm = parts[k].pop_mm
 		outs[k].on_arm = parts[k].on_arm()
+		outs[k].shown_tris = parts[k].garment.shown_tris()
 		parts[k].let_go(Vector3(0.4, 1.2, -0.6))
+		outs[k].free_hides_skin = parts[k].garment.skin_covered()
 		men[k].curl_hand("r", 0.1)
 	for f in 900:
 		var all_rest := true
@@ -168,12 +172,18 @@ func test_the_glove_comes_off_and_lies_still() -> void:
 	check(g.verts.size() > 200 and g.verts.size() < 500, "a few hundred points (%d)" % g.verts.size())
 	check(g.tips.size() >= 4, "the fingertips found (%d)" % g.tips.size())
 	check(not a.worn_ticking, "worn, it does nothing a tick (the GPU draws it with his skin)")
+	check(a.worn_hides_skin and int(g.report.get("skin_tris_hidden", 0)) > 1000,
+			"worn, his skin under it isn't drawn (%d triangles)" % int(g.report.get("skin_tris_hidden", 0)))
+	check(a.held_hides_skin, "taken, his skin stays hidden where the cloth still lies as worn")
+	check(int(a.shown_tris) > 0, "drawn off, his skin is shown where the cloth has left it (%d triangles)" % a.shown_tris)
+	check(not a.free_hides_skin, "out of his hand, all his skin is drawn again")
 	check(a.held_ticking, "taken, it runs")
 	check(float(a.pop_mm) >= 0.0 and float(a.pop_mm) < 3.0, "no pop at the take: under 3 mm (%.2f mm)" % a.pop_mm)
 	# (The lab's MetaHuman: at most 8 of 371 points more than 2 mm under his bare skin, 1 deeper than
-	# 1 cm. A Studio man's sleeves have their folds modelled, so his skin stands above the glove's
-	# own points in places: on him it's ~23, 1-2 deeper than 1 cm. Held to those here.)
-	check(int(a.under) <= 30, "at most 30 points more than 2 mm under his skin (%d)" % a.under)
+	# 1 cm. A Studio man's sleeves have their folds modelled, so his skin stands above the cloth's own
+	# points in places: on him 15-20 since #949 carried the held points by his skinning (23-29 before),
+	# 1-3 deeper than 1 cm. His skin there is hidden until the cloth has left it, so it doesn't show.)
+	check(int(a.under) <= 20, "at most 20 points more than 2 mm under his skin (%d)" % a.under)
 	check(int(a.deep) <= 3, "at most 3 deeper than 1 cm (%d)" % a.deep)
 	check(float(a.stretch) < 1.12, "the cloth's edges under 1.12 of their worn length (%.3f)" % a.stretch)
 	check_eq(int(a.on_arm), 0, "by the draw's end the pull has let all of it go of his arm")
@@ -218,3 +228,36 @@ func test_cloth_takes_its_own_mesh() -> void:
 	var lo := cloth.height_range()
 	check(lo.x > -0.01 and lo.y < 0.1, "it fell and lies on the floor (%.3f..%.3f)" % [lo.x, lo.y])
 	cloth.queue_free()
+
+
+## The act (GloveAct, the bridge's `glove`): put on, the whole choreography from its cue, the glove
+## off his arm, flicked away and lying still at no cost; his skin all drawn again; his arms down.
+func test_the_act_takes_it_off_and_flicks_it_away() -> void:
+	var man := HumanBody.new()
+	man.body_model = MODEL
+	man.person_id = &"glove_act"
+	man.has_gun = false
+	world.add_child(man)
+	man.global_position = Vector3.ZERO
+	man.face(Vector3(0, 1.4, -3.0))
+	await physics_frames(20)
+	var act := GloveAct.put_on(man, world, "l")
+	if not check(act != null, "the act and its glove made from his skin"):
+		return
+	await physics_frames(2)
+	act.begin()
+	var off_at := -1.0
+	for f in 900:
+		await physics_frames(1)
+		if off_at < 0.0 and act.part.state == GarmentHandoff.State.FREE:
+			off_at = act.t
+		if act.done:
+			break
+	check(act.done, "the act ends (%s at %.1f s)" % [act.phase, act.t])
+	check(off_at > 4.0 and off_at < 6.0, "out of his hand after the draw and the flick (%.2f s)" % off_at)
+	check(act.part.state == GarmentHandoff.State.REST, "it lies at rest")
+	check(not act.glove.skin_covered(), "his skin all drawn again")
+	var c := act.cloth.centre()
+	var flat := Vector2(c.x, c.z).length()
+	check(c.is_finite() and c.y < 0.2 and flat > 0.3 and flat < 3.0,
+			"flicked away from him, lying near (%.2f m off, %.2f m up)" % [flat, c.y])

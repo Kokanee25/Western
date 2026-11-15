@@ -80,21 +80,28 @@ func pin_to(points: Array[int], to: Node3D, by: HumanBody, hand_side: String) ->
 	side = hand_side
 
 
-## Held where they are as worn (friction, until a pull reaches them): each pinned to its carrier.
-func hold_on(points: Array[int], carrier_of: Callable) -> void:
+## Held where they are as worn (friction, until a pull reaches them): pinned, and carried each tick
+## by `move_held` to where his skin carries the worn garment (not each by one bone: the skin's
+## blend of bones puts a point 7 mm off its main bone's at the elbow and wrist, into his skin).
+func hold_on(points: Array[int]) -> void:
 	for i in points:
-		var to: Node3D = carrier_of.call(i)
 		soft.set_point_pinned(i, true)
-		_pins.append([i, to, to.global_transform.affine_inverse() * _start[i]])
+
+
+## Held points `points` to `at` (world; one an index of `points`).
+func move_held(points: PackedInt32Array, at: PackedVector3Array) -> void:
+	var rid := soft.get_physics_rid()
+	for k in points.size():
+		PhysicsServer3D.soft_body_move_point(rid, points[k], at[points[k]])
 
 
 ## These let go (the pull has reached them): free cloth from now on.
 func release(points: Dictionary) -> void:
+	for i: int in points:
+		soft.set_point_pinned(i, false)
 	var keep: Array = []
 	for p: Array in _pins:
-		if points.has(int(p[0])):
-			soft.set_point_pinned(int(p[0]), false)
-		else:
+		if not points.has(int(p[0])):
 			keep.append(p)
 	_pins = keep
 

@@ -67,7 +67,8 @@ it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 FILE`, `spawn outlaw|townsman X Y Z`, `gang`, `fight [NAME]`, `dynamite X Y Z [FUSE]`, `ignite [X Y
 Z]`, `read frame|player|people|look|places|counts|all` (people: `arrested` following|waiting), `events [N]`, `world [town|valley]` (which world; with a name it answers and the scene reloads in
 that world, and `bridge.py` waits for the new bridge and goes on), `story [clear]` (the story's facts,
-StoryState), `nod`/`shake` (your head, by the view: HeadGesture), `quit`. Facing is degrees
+StoryState), `nod`/`shake` (your head, by the view: HeadGesture), `glove MAN [toss_to X Y Z]` (a Studio man
+takes off a long glove: GloveAct; again while he's at it: its phase), `quit`. Facing is degrees
 from north (−Z, the livery's side of the street; the saloon's is +Z), east +X. Example:
 
 ```sh
@@ -1428,18 +1429,28 @@ as you move round; Senses' eye is then his leading eye, `PostPose.eye_now`). Not
 entering it, stepping out to shoot a man in the open, recoil. Lab `experiments/post_pose/` (`post_views.gd` four views and the checks,
 `sheet.py`, `summary.py`); `tests/test_post_pose.gd`.
 
-**The garment handoff** (#917, from the lab #895): `WornGarment` makes a garment from his own
-Skin_whole (the triangles under it by bone weight, welded, simplified with
+**The garment handoff** (#917, from the lab #895; its clipping #949): `WornGarment` makes a garment
+from his own Skin_whole (the triangles under it by bone weight, welded, simplified with
 `SurfaceTool.generate_lod`, pushed out; his weights kept; `relief`: how far his skin stands above
 each point between them) and wears it (`wear`: a MeshInstance3D under his Skeleton3D with his skin
 and his `custom_aabb`); `posed()` skins it on the CPU as the GPU does (only the binds it uses).
+**His skin under it isn't drawn** (`cover_skin`: his Skin_whole's mesh swapped for a copy without the
+covered triangles; the Studio men's sleeve folds stand 3-10 mm above the skin, through a glove 2-4 mm
+off it); while it's drawn off, `uncover(ids)` shows the covered skin (a small mesh of its own, only
+its index buffer new on a reveal) under the points the cloth has left. Its look (`kid_leather`) is
+drawn 4 mm proud of its points (`grow`), its inside a dark brown `lining` (back faces).
 `GarmentHandoff` (`glove_on(man, parent, side)`, `take(hand)`, `let_go_of_arm()`, `let_go(v)`;
 signals `taken`, `came_to_rest`) swaps it for a `GarmentCloth` (a ClothProp of the garment's mesh:
-`pin_to`, `hold_on` carriers at his bones, `release`; at rest baked, its soft body freed) and runs
-the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every).
+`pin_to`, `hold_on`, `move_held` (the held points carried every 2nd tick to where his skin carries
+the worn garment, not rigid on a bone), `release`; at rest baked, its soft body freed) and runs
+the release by the free cloth's stretch (`tune`: give, front_step, release_lead, skin_every,
+uncover_at, free_damping: damped harder once let go, as Godot's soft body has no bending stiffness).
 `SkinCollider`: a ConcavePolygonShape3D on bit 1<<12 (only garment cloth looks), rebuilt every
 `skin_every` ticks from the triangles near the free cloth (Jolt pays ~1.5 µs a triangle to rebuild
-one in the world). Choreography stays the caller's (`experiments/garment_handoff/handoff.gd`).
+one in the world; `COLLIDER_TRIS` > 0 makes it from a denser copy of his skin, off: -30% points
+under for +0.25 ms). **`GloveAct`** (`put_on(man, parent, side)`, `begin()`, `toss_to`, signal
+`finished`) is the choreography: present, reach, take, draw, the flick from the wrist (not aimed),
+lie, rest; the lab's `handoff.gd` extends it with its measures; the bridge's `glove`.
 Traps: a SoftBody3D mesh needs normals; reach_to must be renewed every tick or the arm drops (the
 worn garment jumps 20 cm); the cloth is chaotic (a micron apart at the take is a hand apart on the
 floor), so a determinism check needs bit-identical starts (the test's second man is in a world of
@@ -2057,7 +2068,17 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
   The hands holding them are `HeldHand`s: Sean's skinned, painted arm cut from his Studio model
-  (`HeldHand.source`, cached) with his finger bones as pivots; the poses are fitted by the lab's
+  (`HeldHand.source`, cached) with his finger bones as pivots. **Harlan's first-person hands** (#914,
+  option 2 of #896): where the private `assets/people/private/harlan_fp.glb` is (git-ignored, #692;
+  built by `tools/characters/fetch_fp_hands.sh` from the Studio's MetaHuman with `tools/blender/fp_arms.py`:
+  hands cut at the wrist and decimated to 4k triangles, a linen cuff and a wool coat sleeve with
+  grime in vertex colours), `source()` cuts those instead (`PRIVATE_ARMS`; `--painted-arms` or
+  `use_private = false` for the old), his finger frames made the painted men's (`_canonical_fingers`,
+  his rest curl taken off), no upper arm: the forearm runs to `FP_ELBOW_DROP` below the shoulder, out
+  of view. His holds and poses are data, `config/fp_holds.json`, read by `HeldHand.hold(key, painted)`
+  (the Colt's grip, trigger, thumbs, `colt.hip`/`aim`/`loading`; the rifle's left hand, `eye_relief`).
+  CI's export job builds the file into the Windows and Linux builds (not the web's) when the
+  `STUDIO_TOKEN` secret is set. The poses are fitted by the lab's
   `views.gd --fit` (each joint closed until its finger touches the wood) and baked as constants
   (`HandModel`, `ShotgunViewmodel.R_*`/`L_*`); the arms drawn in `held_arm_skin.png`
   (`blender/arm_blender.py`). The guns' shapes are code's; where `assets/weapons/<gun>.glb` is (the
