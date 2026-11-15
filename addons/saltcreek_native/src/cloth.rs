@@ -15,7 +15,7 @@
 //!     keeper of the rest shape's folds, for a garment that should still look like itself);
 //! - **the strain limit** (Provot 1995, "Deformation constraints in a mass-spring model to describe
 //!   rigid cloth behavior"): every edge pushed back within [min_strain, max_strain] of its rest
-//!   length, two passes, whatever the compliance;
+//!   length, `limit_passes` passes, whatever the compliance, each followed by:
 //! - **the floor**: a plane, points kept `thickness` above it, with Coulomb friction on the move
 //!   along it (static then kinetic, as in Müller et al. 2007, "Position based dynamics").
 //! Pins are points with no inverse mass, carried by the caller: their targets are set once a tick
@@ -85,6 +85,8 @@ pub struct Tuning {
     pub friction_static: f32,
     pub friction_kinetic: f32,
     pub substeps: u32,
+    /// Passes of the strain limit and the floor a substep.
+    pub limit_passes: u32,
 }
 
 impl Default for Tuning {
@@ -103,6 +105,7 @@ impl Default for Tuning {
             friction_static: 0.6,
             friction_kinetic: 0.4,
             substeps: 12,
+            limit_passes: 3,
         }
     }
 }
@@ -306,9 +309,18 @@ impl Cloth {
             }
             self.solve_stretch(h);
             self.solve_bend(h);
-            self.limit_strain();
-            self.limit_strain();
-            self.floor(&prev);
+            // The strain limit and the floor in turn (the floor last): a landing's push off the floor
+            // stretches edges a few millimetres long by a third unless the limit sees it.
+            // Friction only on the first pass: it takes the substep's whole move along the floor, and on
+            // later passes it would take back the strain limit's own corrections (a stuck point never
+            // let its edges in).
+            for pass in 0..self.t.limit_passes.max(1) {
+                let moved = self.limit_strain();
+                self.floor(&prev, pass == 0);
+                if moved == 0 {
+                    break;
+                }
+            }
             for i in 0..n {
                 if !self.pinned[i] {
                     self.v[i] = scale(sub(self.x[i], prev[i]), 1.0 / h);
@@ -395,8 +407,10 @@ impl Cloth {
         }
     }
 
-    fn limit_strain(&mut self) {
+    /// How many edges it moved.
+    fn limit_strain(&mut self) -> usize {
         let (hi, lo) = (self.t.max_strain, self.t.min_strain);
+        let mut moved = 0;
         for e in 0..self.edges.len() {
             let [a, b] = self.edges[e];
             let (a, b) = (a as usize, b as usize);
@@ -421,10 +435,12 @@ impl Cloth {
             let n = scale(d, 1.0 / l);
             self.x[a] = sub(self.x[a], scale(n, corr * self.w[a]));
             self.x[b] = add(self.x[b], scale(n, corr * self.w[b]));
+            moved += 1;
         }
+        moved
     }
 
-    fn floor(&mut self, prev: &[V3]) {
+    fn floor(&mut self, prev: &[V3], friction: bool) {
         if !self.t.floor_on {
             return;
         }
@@ -435,6 +451,9 @@ impl Cloth {
             }
             let depth = top - self.x[i][1];
             self.x[i][1] = top;
+            if !friction {
+                continue;
+            }
             // Friction on the move along the floor this substep.
             let mv = [self.x[i][0] - prev[i][0], 0.0, self.x[i][2] - prev[i][2]];
             let m = len(mv);

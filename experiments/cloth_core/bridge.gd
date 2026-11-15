@@ -18,6 +18,7 @@ const HELP := {
 	"cc_cam": "cc_cam front|low|top -> the free camera in the row's frame",
 	"cc_film": "cc_film DIR [SECONDS=6] -> drop them, each frame to DIR/0000.png...; measures back",
 	"cc_clear": "cc_clear -> the row gone",
+	"cc_dump": "cc_dump PATH [MODEL] -> the glove's points and triangles as JSON (for the plugin's own probes)",
 	"cc_cost": "cc_cost X Y Z [FRAMES=180] [MODEL] -> each cloth dropped alone there: the physics frame's ms against none, ours' own ms",
 }
 ## Cameras in the row's frame (the row along +X from the origin, 0.8 m apart): [at, looking at, fov].
@@ -80,7 +81,7 @@ func _cmd_cc_set(a: Array) -> Dictionary:
 	var leather := _look(Color(0.30, 0.20, 0.12))
 	var ours_glove := SolverCloth.make(_moved(g_pts, origin + Vector3(2 * SPACING, DROP, 0)), tris, uv, leather,
 			0.035 / maxf(area, 1e-4), {"floor_y": floor_y, "bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5,
-			"max_strain": 1.05})
+			"max_strain": 1.05, "substeps": 20})
 	_add(ours_glove)
 	ours.append(ours_glove)
 	var jg := GarmentCloth.make(_moved(g_pts, origin + Vector3(3 * SPACING, DROP, 0)), tris, uv, leather, 0.035, 12)
@@ -169,6 +170,18 @@ func _cmd_cc_clear(_a: Array) -> Dictionary:
 	return {"cleared": true}
 
 
+func _cmd_cc_dump(a: Array) -> Dictionary:
+	var g: Array = await _glove_points(StringName(a[1]) if a.size() >= 2 else &"sean_s3_talking")
+	if g.is_empty():
+		return {"ok": false, "error": "no glove"}
+	var pts := []
+	for p: Vector3 in g[0]:
+		pts.append([p.x, p.y, p.z])
+	var f := FileAccess.open(a[0] if a.size() > 0 else "build/glove.json", FileAccess.WRITE)
+	f.store_string(JSON.stringify({"points": pts, "triangles": Array(g[1])}))
+	return {"points": pts.size(), "triangles": (g[1] as PackedInt32Array).size() / 3}
+
+
 func _cmd_cc_cost(a: Array) -> Dictionary:
 	if a.size() < 3:
 		return {"ok": false, "error": "cc_cost X Y Z [FRAMES] [MODEL]"}
@@ -198,7 +211,7 @@ func _cmd_cc_cost(a: Array) -> Dictionary:
 			"our_glove":
 				c = SolverCloth.make(_moved(glove[0], at), glove[1], glove[2], null,
 						0.035 / maxf(_area(glove[0], glove[1]), 1e-4),
-						{"floor_y": origin.y, "bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5, "max_strain": 1.05})
+						{"floor_y": origin.y, "bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5, "max_strain": 1.05, "substeps": 20})
 		if c:
 			_add(c)
 			if c is ClothProp:

@@ -10,6 +10,7 @@ The request is the dev bridge's commands, one a line (# comments), and these of 
     @stop                          tools/bridge.py stop
     @encode FRAMES_DIR OUT [FPS=60] [SKIP=0]   FRAMES_DIR/0000.png... to OUT (H.264 mp4)
     @still FRAMES_DIR N OUT        frame N of FRAMES_DIR as a JPEG, 960 wide
+    @godot ARGS...                 godot ARGS (headless scripts: benches); its last 20 lines as the answer
 
 Every command's answer goes to film/out/replies.jsonl beside the request; OUT paths are relative to
 the repository (put them under the request's film/out/). Exits 1 if a command answers ok: false.
@@ -54,6 +55,11 @@ def main(req: str) -> int:
                                 os.path.join(ROOT, w[1], "%04d.png" % int(w[2])), "-vf", "scale=960:-2",
                                 "-q:v", "3", os.path.join(ROOT, w[3])], capture_output=True, text=True)
             text = json.dumps({"still": w[3], "ok": r.returncode == 0})
+        elif w[0] == "@godot":
+            r = subprocess.run([os.environ.get("GODOT", "godot")] + w[1:], cwd=ROOT, capture_output=True, text=True)
+            text = "\n".join((r.stdout + r.stderr).strip().splitlines()[-20:])
+            if r.returncode != 0:
+                text += '\n{"ok": false}'
         else:
             r = subprocess.run(bridge + ["--timeout=2400", line], cwd=ROOT, capture_output=True, text=True)
             text = r.stdout.strip() or json.dumps({"ok": False, "error": r.stderr.strip()[-300:]})
