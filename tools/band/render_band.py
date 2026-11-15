@@ -13,9 +13,14 @@ People budget is 4 ms, the whole frame 14). A stop is the bow lifted: the game f
 `stop_s` (the strings ring on that long when the bow's force goes to zero) and starts again at a
 phrase's start, so a part needs no cut.
 
-    python3 tools/band/render_band.py payday_night [--only=fiddle,piano] [--q=4]
+    python3 tools/band/render_band.py payday_night [--only=fiddle,piano] [--q=4] [--faster=1.15]
 
 Writes assets/audio/band/<tune>/<player>.ogg and notes.json. Needs numpy, scipy, numba, ffmpeg.
+`--faster=k`: the same score played k times as fast (every note's time and length, the bow's strokes,
+the tempo; #938: a fist fight and the band plays on faster), into assets/audio/band/<tune>_fast/; the
+seeds are the tune's, so it's the same playing hurried. Without numba (PyPI refused here, 2026-11-15)
+a stand-in `numba.py` whose `njit` returns the function runs the models in plain Python, ~4 s an
+audio second for the fiddle.
 """
 import json
 import os
@@ -90,9 +95,27 @@ def notes_for_game(sc, piano_part, length_s):
                 "strokes: the fiddle's bow [t0, t1, 1 down | -1 up, string]; keys: the piano's [t, dur, midi, "
                 "0 left | 1 right hand]; players: each part's file and its peak." % (sc.get("_file", ""), PHRASE_BARS),
         "tune": sc["tune"], "source": sc.get("source", ""), "tempo_half_bpm": sc["tempo_half_bpm"],
+        "faster": sc.get("faster", 1.0),
         "length_s": round(length_s, 3), "end_s": round(float(max(n["t"] + n["dur"] for n in sc["notes"])), 3),
         "bars": bars, "phrases": phrases, "strokes": strokes, "keys": keys, "players": {},
     }
+
+
+def hurried(sc, k):
+    """The score `k` times as fast: its times divided by k, its tempo times k."""
+    out = json.loads(json.dumps(sc))
+    for n in out["notes"]:
+        n["t"] = round(float(n["t"]) / k, 4)
+        n["dur"] = round(float(n["dur"]) / k, 4)
+        if n.get("slide_s"):
+            n["slide_s"] = round(float(n["slide_s"]) / k, 4)
+    for st in out.get("strokes", []):
+        st["t0"] = round(float(st["t0"]) / k, 4)
+        st["t1"] = round(float(st["t1"]) / k, 4)
+    out["tempo_half_bpm"] = float(sc["tempo_half_bpm"]) * k
+    out["length_s"] = round(float(sc.get("length_s", 0.0)) / k, 3)
+    out["faster"] = k
+    return out
 
 
 def write_ogg(path, x, q):
@@ -111,9 +134,14 @@ def main():
     src = os.path.join(LAB, name + ".json")
     sc = json.load(open(src))
     sc["_file"] = name + ".json"
+    out_name = name
+    if "faster" in opt:
+        sc = hurried(sc, float(opt["faster"]))
+        sc["_file"] = name + ".json (x%s)" % opt["faster"]
+        out_name = name + "_fast"
     banjo.strings("gut")
     only = [w for w in opt.get("only", ",".join(PLAYERS)).split(",") if w]
-    out_dir = os.path.join(ROOT, "assets", "audio", "band", name)
+    out_dir = os.path.join(ROOT, "assets", "audio", "band", out_name)
     os.makedirs(out_dir, exist_ok=True)
     notes_path = os.path.join(out_dir, "notes.json")
     old = json.load(open(notes_path)) if os.path.exists(notes_path) else {}

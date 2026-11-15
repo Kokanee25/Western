@@ -58,9 +58,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
-- **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` (a glove, his skin hidden under it
-  until the cloth leaves it) and `GloveAct` (bridge `glove MAN`). The glove still passes through his hand (Jolt's
-  cloth can't stretch); our own solver replaces it (#973, `docs/briefs/garment-cloth.md`). MetaHuman only.
+- **The garment handoff** (#917, #949; LAYOUT "src/bodies"): `GarmentHandoff` and `GloveAct` (bridge `glove MAN`)
+  still on Jolt's cloth, which can't stretch over his hand. **Our own cloth** (#973, `docs/briefs/garment-cloth.md`):
+  step 1 done, `ClothCore` (native) and `SolverCloth` (GarmentCloth's calls), lab `experiments/cloth_core/`. **Next:
+  step 2, his body as the collider and the glove off the MetaHuman on it (#986).** Crates.io: #985.
 
 ## Parked until after the slice
 coach heist (#840; `experiments/coach_heist/` README) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
@@ -98,7 +99,8 @@ Night floor lab (#745).
   gang off (use the rope range).
 - lavapipe draws ~1 frame a second: a bridge `wait` under a second misses short poses.
 - Sight takes a new structure in at its first look (look once at the build).
-- The native plugin builds here (`cargo build --release`, ~3 min; copy the `.so` into `bin/`).
+- The native plugin doesn't build in the cloud workspace while crates.io is blocked (#985): test pure-Rust
+  modules with `rustc --test FILE.rs`; Godot tests and films on a runner (LAYOUT "CI", `lab_film.yml`).
 - The valley bench: the drawn runs take ~6 min each (80 s of shader compiles). Workspaces' cores differ (one
   read 38% slower at 25): compare against a baseline from the same workspace; the noise is ±0.35.
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.

@@ -13,7 +13,7 @@ or all at once (start, the script, stop), the way a session collects screenshots
 
     python3 tools/bridge.py run script.txt [--size=...] [--timeout=S]
 
---timeout: the seconds (wall) one command may take before the game counts as lost (600; a film's
+--timeout (with run, or before plain commands): the seconds (wall) one command may take before the game counts as lost (600; a film's
 long command under the movie writer at lavapipe's pace needs more).
 
 --movie records every frame drawn, with the game's sound, to an AVI (Godot's Movie Maker; it
@@ -220,8 +220,8 @@ def main(argv):
         return 0
     if argv[0] == "-f":
         return 0 if send(open(argv[1]).read().splitlines(), port) is not None else 1
-    cmds = [a for a in argv if not a.startswith("--port=")]
-    return 0 if send(cmds, port) is not None else 1
+    cmds = [a for a in argv if not a.startswith("--port=") and not a.startswith("--timeout=")]
+    return 0 if send(cmds, port, int(_opt(argv, "timeout", 600))) is not None else 1
 
 
 if __name__ == "__main__":

@@ -201,3 +201,163 @@ func test_the_valley_s_fiddler_and_pianist_play_their_parts() -> void:
 	check_eq(band.state, &"hushed", "a shot in the yard: the band stops dead")
 	check(float(band.players[&"fiddle"].gain) <= 0.0, "the fiddle quiet")
 	ValleyFolk.murder_auto = true
+
+
+# --- #938: Payday Night on saloon B's stage, a second tune, faster through a fight ---------------
+
+func test_a_second_tune_and_each_tune_s_hurried_render() -> void:
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Band.DATA))
+	var tunes: Array = d.get("tunes", [])
+	check(tunes.size() >= 2, "two tunes in the set (%s)" % [tunes])
+	for t: String in tunes:
+		var n := Band.load_notes(t)
+		check(not n.is_empty(), "%s's note data" % t)
+		check(Band.has_fast(t), "%s has its hurried render" % t)
+		var f := Band.load_notes(t + "_fast")
+		var k := float(f.get("faster", 1.0))
+		check(k > 1.1 and k < 1.2, "%s's hurried render ~1.15x (%.2f)" % [t, k])
+		check_eq((f.get("phrases", []) as Array).size(), (n.get("phrases", []) as Array).size(), "%s: the same phrases hurried" % t)
+		check_near(float(f.get("length_s", 0.0)) * k, float(n.get("length_s", 0.0)), 1.5, "%s: the same tune, shorter by its tempo" % t)
+		for p: String in PARTS:
+			check(ResourceLoader.exists("res://assets/audio/band/%s_fast/%s.ogg" % [t, p]), "%s's hurried %s" % [t, p])
+
+
+func test_a_fist_fight_near_and_they_play_on_faster() -> void:
+	_band({"fight": {"kinds": ["shove", "kick"], "fight_m": 25.0, "fight_s": 3.0, "draws": ["draw"], "draw_m": 25.0},
+			"hush": {"shot_m": 80.0, "blast_m": 200.0, "death_m": 0.0, "quiet_s": 2.0}})
+	await physics_frames(int(2.0 * 60))
+	check(not band.fast, "steady to start")
+	var next := band.next_phrase(band.clock)
+	var i := (band.notes.phrases as Array).find(next)
+	Events.deed.emit(null, &"shove", null, Vector3(1, 0, -7))
+	await physics_frames(3)
+	check_eq(band.state, &"playing", "a shove by them: they play on")
+	check(not band.fast, "not hurried till the phrase's top")
+	await physics_frames(int((next - band.clock) * 60) + 4)
+	check(band.fast, "hurried from the top of the next phrase (%s)" % [band.log])
+	check_eq(band.render_id(), TUNE + "_fast", "the hurried render's parts")
+	var ph: Array = band.notes.phrases
+	check(band.clock >= float(ph[i]) - 1e-3 and band.clock < float(ph[i]) + 0.2, "at the same phrase in it (%d: %.2f, clock %.2f)" % [i, float(ph[i]), band.clock])
+	for p: String in PARTS:
+		var s: AudioStreamPlayer3D = band.players[StringName(p)].sound
+		check(s.playing and float(band.players[StringName(p)].gain) > 0.5, "%s plays on, hurried" % p)
+	var hurried_at := band.clock
+	# Three seconds since the last blow: back to the tune's own at a phrase's top.
+	var back := await wait_until(func() -> bool: return not band.fast, 60 * 20)
+	check(back and band.clock > 0.0, "the fight over, back to the tune's own tempo (%s)" % [band.log])
+	check(band.phrase_start(band.clock) <= band.clock and band.clock - band.phrase_start(band.clock) < 0.2, "at a phrase's top")
+	check(hurried_at > 0.0, "(hurried a while)")
+	Events.deed.emit(null, &"shove", null, Vector3(0, 0, -200))
+	await physics_frames(5)
+	check(band._fight_left <= 0.0, "a fight 200 m off: nothing to them")
+	Events.deed.emit(null, &"draw", null, Vector3(1, 0, -8))
+	check_eq(band.state, &"hushed", "a gun drawn by them: stopped dead")
+	check_eq(band.why, &"gun", "for the gun")
+
+
+func test_ordinary_nights_the_fiddle_and_piano_only() -> void:
+	_band({"nights": {"ordinary": {"players": {"fiddle": {}, "piano": {}}}}})
+	await physics_frames(10)
+	check(band.can_play(&"fiddle") and band.can_play(&"piano"), "the fiddle and the piano play an ordinary night")
+	check(not band.can_play(&"banjo") and float(band.players[&"banjo"].gain) <= 0.0, "the banjo doesn't")
+	band.night_override = &"payday"
+	band.data["nights"]["payday"] = {"players": {"banjo": {}}}
+	band._pick_night()
+	check(band.can_play(&"banjo") and not band.can_play(&"fiddle"), "a night's players are its band")
+
+
+## Payday Night (day 13): the fiddler and the piano player walk to saloon B's stage (#902) and play
+## there, the stage's own upright; the other parts placed on the stage; the curtain drawn open; heard
+## from the bar room under it through the floor, and from the street.
+func test_payday_night_the_band_on_saloon_b_s_stage() -> void:
+	ValleyFolk.murder_auto = false
+	holder = Node3D.new()
+	holder.name = "Main"
+	add_child(holder)
+	var valley: ValleyWorld = load("res://scenes/valley.tscn").instantiate()
+	holder.add_child(valley)
+	await physics_frames(5)
+	var folk: ValleyFolk = valley.folk
+	band = folk.band
+	var hall: Node3D = valley.buildings.get("saloon")
+	check(band != null and hall != null, "the valley's band and saloon B")
+	if band == null or hall == null:
+		ValleyFolk.murder_auto = true
+		return
+	check(folk.props.has("stage_piano") and folk.props.has("chair_stage_piano"), "the stage's upright and its chair")
+	var sp: Vector3 = hall.to_local(folk.props.stage_piano.global_position)
+	check(sp.x > 2.5 and sp.x < 7.4 and sp.z > 10.9 and sp.z < 13.4 and absf(sp.y - 5.67) < 0.05, "the upright on the stage (%s)" % sp)
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 13
+	clock.set_time(21.0)
+	await physics_frames(1)
+	folk._look = 0.0
+	var in_ := await wait_until(func() -> bool: return band.can_play(&"fiddle") and band.can_play(&"piano"), 60 * 20)
+	check(in_, "Payday Night: the fiddler and the pianist on the stage, ready (%s)" % [band.report()])
+	check_eq(band.night, &"payday", "the town's payday")
+	for id: String in PARTS:
+		var at: Vector3 = hall.to_local(band.spot_of(StringName(id)))
+		check(at.x > 2.4 and at.x < 7.5 and at.z > 10.9 and at.z < 13.4 and at.y > 5.67, "%s's sound on the stage (%s)" % [id, at.snappedf(0.01)])
+		check(band.can_play(StringName(id)), "%s plays Payday Night" % id)
+	var fiddler: HumanBody = folk.people.get(&"fiddler")
+	if fiddler:
+		var u: Vector3 = hall.to_local(fiddler.global_position)
+		check(Vector2(u.x, u.z).distance_to(Vector2(4.3, 12.6)) < 0.4 and absf(u.y - 5.67) < 0.15, "the fiddler at the stage's use point (%s)" % u.snappedf(0.01))
+	var pianist: HumanBody = folk.people.get(&"pianist")
+	if pianist:
+		check(pianist.palm("l").distance_to(band.spot_of(&"piano")) < 1.0, "the pianist's hand at the stage's keys")
+	var c: DrawCurtain = hall.get(&"curtain")
+	check(c != null and c.is_open(), "the curtain drawn open for them")
+	var on := await wait_until(func() -> bool: return float(band.players[&"fiddle"].gain) > 0.9, 60 * 8)
+	check(on, "the fiddle sounds")
+	# Heard from below (the bar room under the stage) and from the street.
+	var cam := Camera3D.new()
+	holder.add_child(cam)
+	cam.make_current()
+	cam.global_position = hall.to_global(Vector3(5.0, 1.7, 11.5))
+	await physics_frames(30)
+	var below := String((band.players[&"fiddle"].sound as AudioStreamPlayer3D).bus)
+	check(below != "Master", "from the bar room under the stage, through its floor: not heard in the open (%s)" % below)
+	cam.global_position = hall.to_global(Vector3(8.0, 1.7, -6.0))
+	await physics_frames(30)
+	var street := String((band.players[&"fiddle"].sound as AudioStreamPlayer3D).bus)
+	check(street in ["Muffled", "RoomMuffled"], "from Main Street, through the saloon's walls: muffled (%s)" % street)
+	print("  band buses: below %s, street %s" % [below, street])
+	clock.day = 1
+	ValleyFolk.murder_auto = true
+
+
+## Payday Night, the clock running into it: the fiddler comes out of the saloon and walks to the
+## stage by the folk's ways (the yard, the outside stair, the upper hall, the wing, its steps).
+func test_payday_night_the_fiddler_walks_up_to_the_stage() -> void:
+	ValleyFolk.murder_auto = false
+	holder = Node3D.new()
+	holder.name = "Main"
+	add_child(holder)
+	var valley: ValleyWorld = load("res://scenes/valley.tscn").instantiate()
+	holder.add_child(valley)
+	await physics_frames(5)
+	var folk: ValleyFolk = valley.folk
+	band = folk.band
+	var hall: Node3D = valley.buildings.get("saloon")
+	check(folk.places.has(&"saloonb_stage") and folk.places.is_stair(&"saloonb_stair_foot", &"saloonb_landing"), "saloon B's ways to the stage, up its outside stair")
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 13
+	clock.set_time(18.95)
+	await physics_frames(1)
+	folk._look = 0.0
+	await physics_frames(2)
+	clock.set_time(19.02)
+	await physics_frames(1)
+	folk._look = 0.0
+	var out := await wait_until(func() -> bool: return folk.people.has(&"fiddler"), 60 * 5)
+	check_eq(String(folk.state.get(&"fiddler", "")), "coming", "walking in")
+	check(out, "he comes out to go to the stage (%s)" % folk.report().get("fiddler"))
+	var fiddler: HumanBody = folk.people.get(&"fiddler")
+	var route: Array = (fiddler.get_node(^"Brain") as CivilianBrain).places.route(fiddler.get_world_3d().direct_space_state, fiddler.global_position, &"saloonb_stage") if fiddler else []
+	check(not route.is_empty(), "a way from the saloon's door to the stage (%d points)" % route.size())
+	var up := await wait_until(func() -> bool: return band.can_play(&"fiddle") and band.can_play(&"piano"), 60 * 240)
+	var at: Vector3 = hall.to_local(fiddler.global_position) if is_instance_valid(fiddler) else Vector3.ZERO
+	check(up, "he's walked up to the stage and plays, the pianist at the stage's upright (%s, at %s; %s)" % [folk.report().get("fiddler"), at.snappedf(0.01), folk.report().get("pianist")])
+	clock.day = 1
+	ValleyFolk.murder_auto = true

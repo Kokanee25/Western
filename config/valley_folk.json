@@ -11,13 +11,25 @@
     "chairs": ["n", "e", "s", "w"],
     "lamps": [{"on": "bar", "along": -0.9}, {"on": "table"}, {"on": "piano", "off": [0.55, -0.12]}],
     "cups": [{"on": "bar", "along": 0.2}, {"on": "bar", "along": 0.9}, {"on": "table", "off": [0.25, 0.15]}, {"on": "table", "off": [-0.2, -0.2]}],
-    "piano": {"at": [0.6, 10.4], "yaw": 90.0, "chair_out": 0.75, "_doc": "The band's piano (#799, config/band.json): the kit's upright, its back to the saloon's east wall (yaw 90: its keys to +x, the yard), a kit chair `chair_out` before its middle for the pianist (props chair_piano)."}
+    "piano": {"at": [0.6, 10.4], "yaw": 90.0, "chair_out": 0.75, "_doc": "The band's piano (#799, config/band.json): the kit's upright, its back to the saloon's east wall (yaw 90: its keys to +x, the yard), a kit chair `chair_out` before its middle for the pianist (props chair_piano)."},
+    "stage_piano": {"hall": "saloon", "local": [3.25, 5.67, 12.95], "yaw": 180.0, "chair_out": 0.72, "_doc": "#938 (Sean on #938): Payday Night's second upright on saloon B's stage (the kit's upright_piano; the dance hall keeps its own, nobody hauls one up): in the building's space, its back to the stage's back partition at the west end, its keys to the curtain (yaw 180 in its space), clear of the wing's steps; the pianist's chair before it (props stage_piano, chair_stage_piano)."}
   },
   "places": {
     "_doc": "The set's own places, added to the town's ways for the folk: each [a, b] in the set's lot (or in `lot`'s) and what it links to (another of these, or the nearest of the town's places with `nearest`).",
     "nolaw_yard_front": {"at": [5.2, 1.6], "links": ["saloon_annex"], "nearest": true},
     "nolaw_yard_mid": {"at": [4.9, 8.0], "links": ["nolaw_yard_front"], "nearest": true},
     "nolaw_bar_north": {"at": [1.0, 7.2], "links": ["nolaw_yard_mid"]},
+    "saloonb_yard_back": {"hall": "saloon", "local": [-2.6, 0.0, 22.6], "links": ["nolaw_yard_mid"], "_doc": "#938: up saloon B's outside stair to the upper hall, through the wing onto the stage (Payday Night's band; the walk saloon B's test walks). `hall` + `local` [x, y, z] in the building's space (y under 0.05: the ground there); `stair_to` a link up a stair. Round the stair's foot by the yard's back."},
+    "saloonb_stair_foot": {"hall": "saloon", "local": [-0.65, 0.0, 23.0], "links": ["saloonb_yard_back"]},
+    "saloonb_landing": {"hall": "saloon", "local": [-0.6, 4.91, 14.43], "stair_to": ["saloonb_stair_foot"]},
+    "saloonb_yard_door": {"hall": "saloon", "local": [0.6, 4.91, 14.43], "links": ["saloonb_landing"]},
+    "saloonb_hall": {"hall": "saloon", "local": [1.68, 4.91, 14.45], "links": ["saloonb_yard_door"]},
+    "saloonb_wing_door": {"hall": "saloon", "local": [1.68, 4.91, 12.75], "links": ["saloonb_hall"]},
+    "saloonb_wing_back": {"hall": "saloon", "local": [1.0, 4.91, 12.45], "links": ["saloonb_wing_door"]},
+    "saloonb_wing": {"hall": "saloon", "local": [1.0, 4.91, 11.9], "links": ["saloonb_wing_back"]},
+    "saloonb_wing_steps": {"hall": "saloon", "local": [1.3, 4.91, 11.9], "links": ["saloonb_wing"]},
+    "saloonb_stage": {"hall": "saloon", "local": [2.9, 5.67, 11.7], "stair_to": ["saloonb_wing_steps"], "_doc": "up the wing's three steps (their ramp); along the stage clear of its upright's chair"},
+    "saloonb_stage_mid": {"hall": "saloon", "local": [4.0, 5.67, 11.6], "links": ["saloonb_stage"]},
     "livery": {"lot": "livery", "at": [13.0, -1.0], "nearest": true, "_doc": "The livery's door (townsfolk step 3): its lot has no walk, so no door place of its own (ValleyTown); on the dirt before its barn doors."}
   },
   "spots": {
@@ -32,6 +44,8 @@
     "undertaker_walk": {"lot": "undertaker", "at": [5.0, -1.2], "faces": [5.0, -8.0], "tool": "bench"},
     "band_fiddle": {"lot": "saloon_annex", "at": [3.4, 10.8], "faces": [5.0, 5.0]},
     "piano_chair": {"chair": "piano"},
+    "stage_fiddle": {"hall": "saloon", "use": "fiddler", "shift": [0.15, -0.05], "_doc": "#938: Payday Night on saloon B's stage, the fiddler at its use point (#902), a hand off it clear of the stage's upright (a man's way to it is swept 0.3 m wide: at the point itself the upright's corner is 0.26 m off); the pianist at the stage's own upright."},
+    "stage_piano_chair": {"chair": "stage_piano", "instrument": "stage_piano"},
     "store_walk": {"lot": "general_store", "at": [8.5, -1.0], "reach": 1.6},
     "store_bench": {"lot": "general_store", "at": [2.6, -1.5], "seat": "chair"},
     "store_bench2": {"lot": "general_store", "at": [3.4, -1.5], "seat": "chair"},
@@ -105,15 +119,23 @@
        {"from": 19.6, "at": "card_e", "do": "play"}],
      "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
     {"id": "fiddler", "name": "Fiddler", "model": "oldtimer_factory", "seed": 799, "dials": {"nerve": 0.4, "nosy": 0.5, "duty": 0.2}, "shirt": [0.72, 0.66, 0.52], "vest": [0.32, 0.22, 0.16], "home": "saloon", "plays": "fiddle",
-     "day": [
-       {"from": 1.5, "in": "saloon", "do": "sleep"},
-       {"from": 19.0, "at": "band_fiddle", "do": "play"}],
-     "_doc": "PROPOSED (#799): the band's fiddler (config/band.json), stood at the back of the yard; a stand-in body till the Studio makes him. His part sounds while he's at his post and calm (PlayChore)."},
+     "day": {
+       "ordinary": [
+         {"from": 1.5, "in": "saloon", "do": "sleep"},
+         {"from": 19.0, "at": "band_fiddle", "do": "play"}],
+       "payday": [
+         {"from": 1.5, "in": "saloon", "do": "sleep"},
+         {"from": 19.0, "at": "stage_fiddle", "do": "play"}]},
+     "_doc": "PROPOSED (#799, #938): the band's fiddler (config/band.json), stood at the back of the yard; Payday Night on saloon B's stage; a stand-in body till the Studio makes him. His part sounds while he's at his post and calm (PlayChore)."},
     {"id": "pianist", "name": "Piano player", "model": "heavy_factory", "seed": 800, "dials": {"nerve": 0.2, "nosy": 0.5, "duty": 0.2}, "shirt": [0.82, 0.8, 0.74], "vest": [0.12, 0.12, 0.14], "home": "saloon", "plays": "piano", "instrument": "piano",
-     "day": [
-       {"from": 1.5, "in": "saloon", "do": "sleep"},
-       {"from": 19.0, "at": "piano_chair", "do": "play"}],
-     "_doc": "PROPOSED (#799): the band's piano player, sat at the set's piano; a stand-in body."},
+     "day": {
+       "ordinary": [
+         {"from": 1.5, "in": "saloon", "do": "sleep"},
+         {"from": 19.0, "at": "piano_chair", "do": "play"}],
+       "payday": [
+         {"from": 1.5, "in": "saloon", "do": "sleep"},
+         {"from": 19.0, "at": "stage_piano_chair", "do": "play"}]},
+     "_doc": "PROPOSED (#799, #938): the band's piano player, sat at the set's piano; Payday Night at the stage's upright; a stand-in body."},
     {"id": "doctor", "name": "Doctor", "model": "doctor_s2_talking", "seed": 901, "dials": {"nerve": 0.9, "nosy": 0.3, "duty": 1}, "shirt": [0.8, 0.8, 0.76], "vest": [0.18, 0.17, 0.17], "home": "doctor",
      "day": {
        "ordinary": [
