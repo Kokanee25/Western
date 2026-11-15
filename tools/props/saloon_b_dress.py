@@ -77,11 +77,11 @@ def s1():
     # reflector lamps cast them).
     for i, (x, z) in enumerate([(3.4, 3.6), (3.4, 6.9), (3.4, 10.2), (8.2, 2.8), (8.2, 5.7), (8.2, 8.6)]):
         out.append(e("hanging_lamp_%d" % i, "hanging_lamp", [x, JOIST_UNDER - LAMP_FOOT, joist_z(z)], 0,
-                     light=0.33, shadows=False, energy=1.0))
+                     light=0.33, shadows=False, energy=1.5))
     # The dance hall's two, hung from a truss's tie (z 6.1) over the dancers.
     for i, x in enumerate([3.0, 8.0]):
         out.append(e("dance_lamp_%d" % i, "hanging_lamp", [x, TIE_UNDER - LAMP_FOOT, 6.1], 0,
-                     light=0.33, shadows=False, energy=1.0))
+                     light=0.33, shadows=False, energy=1.5))
     out.append(e("box_stove", "box_stove", [6.6, 0.0, 5.9], 0, use="mid-room, its door toward the card tables, its pipe short of the joists"))
     # Faro by the arch (west of it, clear of the way through) and in the gaming room; the dealer sits
     # into the cut (-z), the lookout high at his elbow.
@@ -94,7 +94,7 @@ def s1():
     out.append(e("wheel", "wheel_of_fortune", [6.165, 1.9, 18.4], 90, use="wheel: on the store room's wall, its middle at 1.9 m"))
     for i, (x, z) in enumerate([(10.0, 17.4), (7.6, 17.1)]):
         out.append(e("shaded_lamp_%d" % i, "hanging_lamp_shaded", [x, JOIST_UNDER - LAMP_FOOT, joist_z(z)], 0,
-                     light=0.33, shadows=False, energy=1.2))
+                     light=0.33, shadows=False, energy=1.7))
     # The piano on the back wall between the arch and the stair hall's door, its stool before it.
     out.append(e("piano", "upright_piano", [12.4, 0.0, 12.98], 180, use="the bar room's upright, its back to the back wall"))
     out.append(e("piano_stool", "piano_stool", [12.4, 0.0, 12.3], 0, use="piano"))

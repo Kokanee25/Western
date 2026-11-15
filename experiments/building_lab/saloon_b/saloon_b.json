@@ -3968,7 +3968,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "hanging_lamp_1",
@@ -3981,7 +3981,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "hanging_lamp_2",
@@ -3994,7 +3994,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "hanging_lamp_3",
@@ -4007,7 +4007,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "hanging_lamp_4",
@@ -4020,7 +4020,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "hanging_lamp_5",
@@ -4033,7 +4033,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "dance_lamp_0",
@@ -4046,7 +4046,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "dance_lamp_1",
@@ -4059,7 +4059,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.0
+					"energy": 1.5
 				},
 				{
 					"id": "box_stove",
@@ -4156,7 +4156,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.2
+					"energy": 1.7
 				},
 				{
 					"id": "shaded_lamp_1",
@@ -4169,7 +4169,7 @@
 					"facing": 0,
 					"light": 0.33,
 					"shadows": false,
-					"energy": 1.2
+					"energy": 1.7
 				},
 				{
 					"id": "piano",
