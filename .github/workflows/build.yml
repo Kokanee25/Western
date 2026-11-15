@@ -204,7 +204,11 @@ jobs:
           repository: Kokanee25/saltcreek-characters
           token: ${{ env.STUDIO_TOKEN }}
           path: studio
-          sparse-checkout: frozen/sean_metahuman_s3
+          # (studio/ and config/: the Studio's own lay step for the MetaHuman townsfolk, #933)
+          sparse-checkout: |
+            frozen/sean_metahuman_s3
+            studio
+            config
       - name: Python for Blender (the hands)
         if: env.STUDIO_TOKEN != ''
         uses: actions/setup-python@v5
@@ -215,14 +219,18 @@ jobs:
       - name: Build Harlan's first-person hands
         if: env.STUDIO_TOKEN != ''
         run: |
-          pip install -q "bpy==5.0.1" numpy pillow
+          pip install -q "bpy==5.0.1" numpy pillow pyyaml
           mkdir -p assets/people/private
+          # The valley's MetaHuman townsfolk (#933, config/private_cast.json): his levels laid in
+          # by the Studio's own step; without them the cast keeps its Studio men.
+          STUDIO=studio tools/characters/fetch_private.sh sean_metahuman_s3 --no-import
           python tools/blender/fp_arms.py --src=studio/frozen/sean_metahuman_s3/sean_metahuman_s3.glb \
               --out=assets/people/private > fp_hands.log 2>&1 || { tail -30 fp_hands.log; exit 1; }
           tail -1 fp_hands.log
           rm -rf studio
           ~/godot/godot --headless --import || true
           test -s assets/people/private/harlan_fp.glb
+          test -s assets/people/private/sean_metahuman_s3_lod1.json
 
       - name: Export
         run: |
