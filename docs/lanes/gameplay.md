@@ -39,7 +39,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Open (playtest `docs/playtests/2026-11-14-hideout.md`): Joe shot a man who'd given up; the drawn ground may hide
   the pad from the slope (the bake says it's in view); several men say one line at once; creep and open fire play
   the same; no woodpile in the kit; no canyon walls.
-  **Next: step 4, the cabin, the knife and the nod (#NEXT).**
+  **Next: step 4, the cabin, the knife and the nod (#966).**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
