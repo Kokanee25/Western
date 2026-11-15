@@ -1,0 +1,2 @@
+a front experiments/building_lab/saloon_b/results/2026-11-13_sign/front.png
+b corner experiments/building_lab/saloon_b/results/2026-11-13_sign/corner.png
