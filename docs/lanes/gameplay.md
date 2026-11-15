@@ -41,7 +41,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   the same; no woodpile in the kit; no canyon walls.
   **Next: step 4, the cabin, the knife and the nod (#NEXT).**
   Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
-- Story decisions: #744's latest comments and STORY.md; the story bible is #809.
+- Story decisions: #744's latest comments and STORY.md; the story bible is #809. The mission cards are `docs/missions/` (index
+  `README.md`, order `BUILD_ORDER.md`); each card's first line says what the bible changed.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
   picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
   `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Step 3 done (#936):**
@@ -91,7 +92,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 
 ## Parked until after the slice
 train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
-dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 3 (#667) · horse (#341,
+dynamite (#596; #656 waiting; first instant #683 merged, step 4 debris next; bundles #647, #682) · masonry step 3 (#667) · horse (#341,
 riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · perf step 9 (#401) · Payday
 Night floor lab (#745).
 
