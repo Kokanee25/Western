@@ -34,7 +34,6 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   the pad from the slope (the bake says it's in view); several men say one line at once; creep and open fire play
   the same; no woodpile in the kit; no canyon walls.
   **Next: step 4, the cabin, the knife and the nod (#966).**
-  Joe on the rope later: 3-4 shots or close in (#744); the rope turns `spared` off.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
   picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
@@ -81,8 +80,7 @@ Night floor lab (#745).
 - **Resets and places** (#864, the review's R3): a reload wipes the story (`GameReset`; No Law plays again after
   Backspace); a mission's retry starts from the story at its start (`GameReset.retry`, `StoryState.mark_checkpoint`).
   `WorldPlaces`: knocked out in the valley you wake at its doctor's (`bedside`), else the store's walk; the outlaws'
-  street spot is the loaded world's. Open from R3: no shared "player down" rule (the sheriff and No Law don't watch
-  for it); the farmhouse's points still carried from the old town (C2); Moment `point()` falls back to coordinates.
+  street spot is the loaded world's.
 
 ## Open problems
 - **The valley's people tests** (#925, PR #939): three real causes fixed (`HumanBody._spare_rubble`,
