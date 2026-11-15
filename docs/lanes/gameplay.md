@@ -35,18 +35,14 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   the same; no woodpile in the kit; no canyon walls.
   **Next: step 4, the cabin, the knife and the nod (#966).**
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
-- **Townsfolk behaving realistically** (Sean 2026-11-12, #850; `docs/briefs/townsfolk.md`, 11 steps; #851's
-  picks all answered). **Step 2 done (#870):** the day and the book (`ValleyFolk` `day`/`spots`/`book`/`calendar`,
-  `TownBook`, `BookLights`; a new person is one entry; nobody in or out at a door in view). **Step 3 done (#936):**
-  the roster as data: the 16 in `config/valley_folk.json` (home, ordinary day, `sunday` for the store and smithy,
-  `dials` via `ValleyFolk.dials_of`, data only), the street's `<lot>_walk` spots, a `lot` on a `places` entry (the
-  livery's door). The doctor and preacher have day ids (`doctor`, `churchman`) beside their act men (`doc`,
-  `preacher`: no hours). The new men at night are on the book inside the saloon, not in the yard (No Law's).
-  **Next: step 4, spots** (lean, sit, counter, sweep, carry, talk, drink; Opus). Step 1's perception leaks still
-  wait. Open: BookLights' panes are greybox (art's fronts); the doctor's crossing is 14-15 (the brief's 7-12 waits
-  for the sheriff-dies act to borrow him); two women share the widow's body (store wife, landlady), the townsman
-  is the storekeeper's copy; spot-to-spot moves are built but no one has two spots yet; the men's build at load
-  is ~20 s headless (25 men).
+- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: step 2 the day and the
+  book (#870), step 3 the roster as data (#936), **step 4 spots (#957, `SpotChore`)**: a block's `do` at a spot is
+  the man's chore (stand, lean, sit, counter, sweep/rug, carry, talk, drink, work), breaks by seed, none held 15 s;
+  the broom, rug, sacks, glass, anvil and bench are drawn stand-ins (the prop lab's to make). **Next: step 5,
+  reactions in stages.** Open: nobody has seen the chores drawn (the valley's picture under the bridge was broken
+  for the playtest, `docs/playtests/2026-11-15-spots.md`; `goto X Z` puts you under its ground); no talk sound; the
+  doctor's crossing is 14-15 (the brief's 7-12 waits for the sheriff-dies act); two women share the widow's body;
+  step 1's perception leaks wait; the men's build at load ~20 s headless.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
