@@ -44,12 +44,13 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   Drawn only once `materials.stone.want` is approved; `"trial": true` in the lab (never committed). The quoins,
   drips, damp, whitewash and age dials are reusable under a scanned wall (#928's (a)).
   The rooms wait on the prop lab's furniture.
-- **The valley's ground and scatter** (#891; LAYOUT "src/world/town_layout.gd", PARTS "Materials and look"): the
-  valley's ground drawn real from six CC0 scans by a ground map baked from valley.json (re-bake
-  `tools/textures/valley_ground_map.gd` when it changes); rutted streets; the scatter (grass, stones, sage, rocks,
-  boulders, logs, pines, cottonwoods) by rules. Cheap judge: the roads good indie (from cheap), streets and the
-  height still cheap (the sky's flat bands, greybox fronts, backlit near-black bushes, cloned trees, one grass).
-  Render CPU at Sean's: street 2.37 -> 2.80, road 0.58 -> 0.90. Next: its issue (sky, trees, bushes, grass kinds).
+- **The valley's ground and scatter** (#891, #962; LAYOUT "src/world/town_layout.gd"): scanned ground by a map baked
+  from valley.json (re-bake `tools/textures/valley_ground_map.gd` when it changes); ruts with parallax depth, berms and
+  the sun's shadow in them; a tufted grassland; dry bunch grass (two scans' `dry_diff`) to 105 m, sage lit through,
+  stones and clods in the streets, clumped pines (five shapes, open crowns), cottonwoods, snags. Cheap judge
+  (`2026-11-15_valley_land2_r2_cheap`): roads good indie, streets cheap (stone wall, greybox, empty). Left: tree clumps
+  read as dark bonsai pads at camp, the shrubs evenly sprinkled, the far ground still pale, a faint zip on low-sun
+  ruts. The drawn perf bench can't finish on an 8 GB box: draws +2.5% street, +17% road (est. 2.9 and 1.05 ms).
 - **The doctor's room review** (#818): its rules approved and in `RECIPE.md`; the jail built on them.
 - **Saloon B, the corner saloon** (#772; steps 1 and 2 done, #848, #884): spec, frame and look on the corner lot
   (`experiments/building_lab/saloon_b/` README; `tests/test_building_saloon_b.gd`, ten tests): 7,763 members,

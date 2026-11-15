@@ -353,6 +353,9 @@ void fragment() {
 		across_dir = dot(gr, gr) > 1e-4 ? normalize(gr) : vec2(0.0);
 	}
 	float rut_scale = 0.7 + vnoise(xz * 0.6) * 0.6;
+	// How many pixels across a rut is here: under a few, its walls' slope (a height read by the
+	// screen's 2x2 derivatives) and the parallax alias into a zip along it (#962's judge), so both fade.
+	float rut_fine = smoothstep(3.0, 9.0, rut_half / max(fwidth(across), 1e-4));
 	float pad = mb.r;
 	float lot = mb.g;
 	float rail = mb.b;
@@ -392,7 +395,7 @@ void fragment() {
 			float cr;
 			for (int k = 0; k < 2; k++) {
 				float depth = -rut_h * rut_depth * rut_scale;
-				shift = per_m * depth * near;
+				shift = per_m * depth * near * rut_fine;
 				rut_h = road_profile(xz + shift, across + dot(across_dir, shift), cls, half_w, lm, tr, cr) * on_road;
 			}
 			txz = xz + shift;
@@ -506,7 +509,7 @@ void fragment() {
 	float town_road = cls > 0.5 && cls < 1.5 ? 1.0 : 0.35;
 	col *= mix(1.0, packed_dark, travel * 0.8 * town_road);
 	rough = mix(rough, rough * 0.85, travel);
-	h += rut_h * rut_depth * rut_scale;
+	h += rut_h * rut_depth * rut_scale * rut_fine;
 	col *= mix(1.0, rut_dark, clamp(-rut_h, 0.0, 1.0) * mix(0.3, 1.0, town_road));
 	// The trench's side away from the sun in its own shadow; a berm's top catching it, lighter and drier.
 	col *= 1.0 - rut_shade * rut_shadow;
