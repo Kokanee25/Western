@@ -189,6 +189,36 @@ func _build_shack() -> void:
 	shack.position = Vector3(mid.x - shack.width * 0.5, lo, mid.z - shack.depth * 0.5)
 	street.add_child(shack)
 	_made.append(shack)
+	_build_doorstep(sd)
+
+
+## A flat stone before the door, half the floor's height (#966's playtest: you can step 0.3 m, and
+## the shack's floor stands higher than that off the ground; Joe and Kett walk up more).
+func _build_doorstep(sd: Dictionary) -> void:
+	var ds: Array = sd.get("doorstep", [1.1, 0.5])
+	var h := shack.floor_top * 0.5
+	var at := _shack_door(float(ds[1]) * 0.5)
+	var body := StaticBody3D.new()
+	body.name = "HideoutDoorstep"
+	body.collision_layer = Layers.WORLD
+	body.collision_mask = 0
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(float(ds[0]), h, float(ds[1]))
+	cs.shape = box
+	body.add_child(cs)
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = box.size
+	mi.mesh = bm
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.46, 0.42, 0.36)
+	mat.roughness = 1.0
+	mi.material_override = mat
+	body.add_child(mi)
+	street.add_child(body)
+	body.global_transform = Transform3D(shack.global_basis, Vector3(at.x, shack.global_position.y + h * 0.5, at.z))
+	_made.append(body)
 
 
 func _build_fire() -> void:

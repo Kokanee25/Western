@@ -604,6 +604,12 @@ func in_your_line() -> bool:
 
 
 func _watch_line(delta: float) -> void:
+	# Held by a scene, he stays where it puts him: a gun on him there is a thing you're saying to him
+	# (No Justice's cabin, #966: drawing on him with the knife out), not a line of fire to leave.
+	if held and not _fight_on:
+		_line_t = 0.0
+		_line_step = 0.0
+		return
 	if not body.physiology.is_conscious() or body.limp:
 		_line_t = 0.0
 		return

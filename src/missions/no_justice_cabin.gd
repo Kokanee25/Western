@@ -202,6 +202,14 @@ func _physics_process(delta: float) -> void:
 		&"jail":
 			_jail_step(p)
 		&"after":
+			# The revenge's end once he's gone (he bleeds out from it: #966's playtest had "it's over"
+			# up while he lived).
+			if ending == REVENGE and kett.physiology.alive and state_t < float(data.get("dies_within_s", 120.0)):
+				return
+			if ending == REVENGE and not _spoken.has("over"):
+				_spoken["over"] = t
+				prompt(String(_prompts().get(REVENGE, "")), 6.0)
+				state_t = 0.0
 			if state_t > float(data.get("after_s", 8.0)) * _pace():
 				_release_joe()
 				_finish(StringName(ending))
@@ -222,7 +230,14 @@ func _barred_step(p: Player) -> void:
 ## A kick lands: on the door, it adds up against the bar (a barred door takes `bar_j`, an unbarred
 ## one `door_j`) and gives all at once, bar and leaf inward; his second bluff at the first.
 func _on_kick(info: Dictionary) -> void:
-	if done or state != &"barred" or String(info.get("move", "")) != "kick":
+	if done:
+		return
+	# Hands (or a boot) on Joe while he has the knife: you're stopping him.
+	if String(info.get("what", "")) == "man" and StringName(info.get("who", &"")) == joe.person_id and answer == "" \
+			and state in [&"in", &"knife", &"ask"]:
+		_answered("shoved_joe")
+		return
+	if state != &"barred" or String(info.get("move", "")) != "kick":
 		return
 	# On the door, or anything in its doorway (its jamb, its trim, a broken piece lying against it: the
 	# bridge's playtest kicked the jamb, then the loose trim, and never the leaf).
@@ -252,6 +267,7 @@ func _on_kick(info: Dictionary) -> void:
 		if m != null:
 			shack.break_member(m, inward * float(data.get("door_falls_mps", 0.8)))  # (falls in: the bridge's run had it flying into both men's legs)
 	forced_by = "kick"
+	prompt(String(_prompts().get("gives", "")), 3.0)  # (over the kick's own "it holds")
 	GameAudio.play(p, &"timber_crack", hideout._shack_door(0.0) + Vector3.UP * 1.0, {"volume_db": 0.0})
 	Events.noise.emit(hideout._shack_door(0.0), 30.0, &"crash", p)
 	_note("the door gives")
@@ -267,6 +283,7 @@ func _surrender() -> void:
 	joe_brain.held = true
 	if joe.held_gun != null and not joe.gun_holstered:
 		joe.holster_gun()
+	_give_up_kett()  # (given up from now: G by him binds him, and that answers Joe too: #966's playtest)
 	gesture = HeadGesture.new()
 	_go(&"in")
 
@@ -278,13 +295,7 @@ func _scene_step(p: Player, delta: float) -> void:
 	match state:
 		&"in":
 			var at := _joe_in_spot()
-			# By the doorway (walk_to finds no doors): out front of it, through it, then to his spot.
-			if _joe_way.is_empty() and forced_by != "down" and not hideout.in_shack(joe.global_position):
-				_joe_way = [hideout._shack_door(1.2), hideout._shack_door(-0.5)]
-			while not _joe_way.is_empty() and _flat(joe.global_position, _joe_way[0]) < 0.35:
-				_joe_way.pop_front()
-			var next := at if _joe_way.is_empty() else _joe_way[0]
-			if _walk(joe, next, float(data.get("joe_walk", 1.1)) * 1.3, delta) and _joe_way.is_empty() \
+			if _joe_go(at, float(data.get("joe_walk", 1.1)) * 1.3, delta) \
 					or _flat(joe.global_position, at) < 0.6 or _joe_stuck(at, delta):
 				joe.face(kett.global_position + Vector3.UP * 1.3)
 				if t >= _next_t and not _spoken.has("not_only"):
@@ -297,7 +308,7 @@ func _scene_step(p: Player, delta: float) -> void:
 					_go(&"knife")
 		&"knife":
 			var to := _joe_at_kett()
-			_walk(joe, to, float(data.get("joe_walk", 1.1)), delta)
+			_joe_go(to, float(data.get("joe_walk", 1.1)), delta)
 			joe.face(kett.global_position + Vector3.UP * 1.3)
 			if t >= _next_t and not _spoken.has("bargain"):
 				_say_once(kett, "bargain")
@@ -367,16 +378,24 @@ func _read_doing(p: Player, delta: float) -> void:
 			return
 	else:
 		_between_t = 0.0
-	# Your gun on one of them.
+	# Kett bound (G by him): you're taking him.
+	if kett_brain != null and kett_brain.arrested_by == p:
+		_answered("tied")
+		return
+	# Your gun on one of them (anywhere on him, from his hips to his head: a man a metre off is a
+	# big target, #966's playtest drew on Joe close and it didn't count).
 	var on := ""
 	if CompanionBrain._gun_out(p):
+		# The nearer of them in your sights (Kett stands behind Joe: it's Joe you're pointing at).
+		var near := INF
 		for who: HumanBody in [joe, kett]:
-			var to := who.global_position + Vector3.UP * 1.2 - p.camera.global_position
-			if rad_to_deg((-p.camera.global_transform.basis.z).angle_to(to)) < float(data.get("drawn_deg", 7.0)):
+			var d := who.global_position.distance_to(p.global_position)
+			if d < near and _sights_on(p, who):
+				near = d
 				on = "drew_on_joe" if who == joe else "drew_on_kett"
 	if on != "" and on == _drawn_on:
 		_drawn_t += delta
-		if _drawn_t > float(data.get("drawn_s", 0.6)) and state != &"in":
+		if _drawn_t > float(data.get("drawn_s", 0.6)):
 			_answered(on)
 			return
 	else:
@@ -389,6 +408,27 @@ func _read_doing(p: Player, delta: float) -> void:
 		_answered("walked_out")
 
 
+## Your look's line passes within `drawn_m` of him between his hips and his head (and he's near).
+func _sights_on(p: Player, who: HumanBody) -> bool:
+	var from := p.camera.global_position
+	var dir := -p.camera.global_transform.basis.z
+	var a := who.global_position + Vector3.UP * 0.6
+	var b := who.global_position + Vector3.UP * 1.8
+	if who.limp or who.prone:
+		a = who.global_position + Vector3.UP * 0.1
+		b = a + Vector3.UP * 0.4
+	if from.distance_to(a) > 15.0:
+		return false
+	var best := INF
+	for i in 9:
+		var q := a.lerp(b, i / 8.0)
+		var along := (q - from).dot(dir)
+		if along <= 0.0:
+			continue
+		best = minf(best, (from + dir * along).distance_to(q))
+	return best < float(data.get("drawn_m", 0.3))
+
+
 ## Your answer: a nod (or stopping him) the arrest's way; a shake (walking out, saying nothing) the
 ## revenge's.
 func _answered(how: String) -> void:
@@ -397,7 +437,7 @@ func _answered(how: String) -> void:
 	answer = how
 	_note("answer: " + how)
 	fact("nojustice.answer", how)
-	if how in ["nod", "between", "drew_on_joe", "drew_on_kett"]:
+	if how in ["nod", "between", "drew_on_joe", "drew_on_kett", "shoved_joe", "tied"]:
 		_say_once(joe, "nod")
 		_next_t = t + _gap(line_preview("nod"))
 		_put_knife_away()
@@ -409,15 +449,15 @@ func _answered(how: String) -> void:
 
 ## Stopped: he steps back to the door with the knife put away; Kett's relief; then you take him (G).
 func _stop_step(p: Player, delta: float) -> void:
-	_walk(joe, _local(data.get("joe_back", [2.9, 0.8])), float(data.get("joe_walk", 1.1)), delta)
-	if kett_brain == null:
-		_kett_cornered(p, delta)
+	if forced_by != "down":
+		_walk(joe, _local(data.get("joe_back", [2.9, 0.8])), float(data.get("joe_walk", 1.1)), delta)
+	_kett_cornered(p, delta)
 	if not _spoken.has("thanks") and t >= _next_t:
 		_say_once(kett, "thanks")
 		_next_t = t + _gap(line_preview("thanks"))
-		_give_up_kett()
-		prompt(String(_prompts().get("take", "")), 8.0)
-	if kett_brain != null and kett_brain.arrested_by == p:
+		if kett_brain == null or kett_brain.arrested_by != p:
+			prompt(String(_prompts().get("take", "")), 8.0)
+	if kett_brain != null and kett_brain.arrested_by == p and _spoken.has("thanks") and t >= _next_t:
 		_end(ARREST)
 		_ride_back()
 
@@ -455,7 +495,7 @@ func _revenge_step(p: Player, delta: float) -> void:
 			_end(REVENGE)
 		return
 	var to := _joe_at_kett(0.6)
-	_walk(joe, to, float(data.get("joe_walk", 1.1)) * 1.2, delta)
+	_joe_go(to, float(data.get("joe_walk", 1.1)) * 1.2, delta)
 	joe.face(kett.global_position + Vector3.UP * 1.2)
 	if _flat(joe.global_position, kett.global_position) > 0.95:
 		return
@@ -501,6 +541,8 @@ func _cut(sd: Dictionary) -> void:
 ## Kett till he's given up to the law: hands up, backing into the corner, facing you (on the floor
 ## where he lay, if he lay outside).
 func _kett_cornered(p: Player, delta: float) -> void:
+	if kett_brain != null and kett_brain.arrested_by != null:
+		return  # (bound: he goes where he's taken)
 	if forced_by == "down" or kett.rising or kett.prone or not kett.physiology.can_stand():
 		return
 	if kett.limp:
@@ -551,6 +593,44 @@ func _joe_at_kett(off_m := -1.0) -> Vector3:
 	from.y = 0.0
 	from = from.normalized() if from.length() > 0.05 else -kett.global_basis.z
 	return kett.global_position + from * off
+
+
+## Joe toward `to`, by the doorway while he's outside and Kett's in (walk_to finds no doors): out
+## front of it, through it, then on. True there.
+func _joe_go(to: Vector3, speed: float, delta: float) -> bool:
+	if forced_by != "down" and not hideout.in_shack(joe.global_position) and _joe_way.is_empty():
+		_joe_way = [hideout._shack_door(1.2), hideout._shack_door(-0.5)]
+	while not _joe_way.is_empty() and (_flat(joe.global_position, _joe_way[0]) < 0.35 \
+			or _joe_way.size() == 2 and hideout.in_shack(joe.global_position)):
+		_joe_way.pop_front()
+	if not _joe_way.is_empty():
+		_walk(joe, _joe_way[0], speed, delta)
+		_over_the_wreck(delta)
+		return false
+	return _walk(joe, to, speed, delta)
+
+
+## The broken door lies in the doorway in pieces, and a man's walk_to stops short of them (you push
+## through; he won't): held up on the sill `wreck_s`, he steps over it.
+func _over_the_wreck(delta: float) -> void:
+	var l := shack.global_transform.affine_inverse() * joe.global_position
+	var on_sill := absf(l.z) < 0.6 and absf(l.x - shack.width * 0.5) < 0.8
+	var moved := joe.global_position.distance_to(_sill_at)
+	if not on_sill or moved > 0.08:
+		_sill_at = joe.global_position
+		_sill_t = 0.0
+		return
+	_sill_t += delta
+	if _sill_t > float(data.get("wreck_s", 1.5)):
+		_sill_t = 0.0
+		var over := shack.global_transform * Vector3(shack.width * 0.5, shack.floor_top + 0.05, 0.7)
+		joe.global_position = over
+		_joe_way.clear()
+		_note("Joe over the broken door")
+
+
+var _sill_at := Vector3.INF
+var _sill_t := 0.0
 
 
 ## Walk a man toward `to` (true there).
@@ -639,7 +719,8 @@ func _end(how: String, yours := false) -> void:
 		fact("nojustice.bodies", "left")
 	if how == OUTSIDE and yours and joe.physiology.is_conscious() and not hideout._spoken.has("mine"):
 		_say_once(joe, "mine")
-	prompt(String(_prompts().get(how, "")), 6.0)
+	if how != REVENGE:
+		prompt(String(_prompts().get(how, "")), 6.0)
 	if how != ARREST:
 		if state in [&"barred", &"down", &"setup"] and how == OUTSIDE:
 			_release_joe()
@@ -667,7 +748,7 @@ func _ride_back() -> void:
 		return
 	var metres := _flat(shack.global_position, _jail.global_position)
 	_ride_s = metres / float(jd.get("mps", 1.8))
-	card(String((data.get("cards", {}) as Dictionary).get("back", "You ride back to Salt Creek.")).replace("%d", str(roundi(_ride_s / 60.0))), 5.0 * _pace())
+	card(String((data.get("cards", {}) as Dictionary).get("back", "You ride back to Salt Creek.")).replace("%d", str(roundi(_ride_s / 60.0))), float(data.get("card_s", 8.0)) * _pace())
 	var c := clock()
 	if c:
 		c.set_time(c.time_of_day + _ride_s / 3600.0)
@@ -715,6 +796,7 @@ func _jail_step(p: Player) -> void:
 	if _flat(p.global_position, door) < near and kett_there:
 		card(String((data.get("cards", {}) as Dictionary).get("jailed", "You lock Kett in a cell.")), 4.0 * _pace())
 		fact("nojustice.jail", "in")
+		prompt(String(_prompts().get("jailed", "")), 8.0)
 		kett.visible = false  # (in his cell: the stand-in)
 		kett.global_position = _jail_local([8.9, 16.0]) + Vector3.UP * 0.7
 		_go(&"after")

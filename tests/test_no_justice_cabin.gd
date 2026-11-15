@@ -162,9 +162,9 @@ func test_the_nod_and_the_arrest_to_the_jail() -> void:
 	check_eq(m.answer, "nod", "you nodded (%s)" % m.result())
 	check(_lines_of("joe").has("Then take him. Take him to your law. We will see what it does."), "Joe's bitter word")
 	check(m.knife == null, "the knife put away")
-	var thanks := await wait_until(func() -> bool: return m.kett_brain != null and m.kett_brain.mood == OutlawBrain.Mood.SURRENDERED, 60 * 10)
-	check(thanks, "Kett's given up to the law (%s)" % m.result())
-	check(_lines_of("kett").has("Bless you, Deputy. You're a fair man. I'll come quiet."), "his relief")
+	check(m.kett_brain != null and m.kett_brain.mood == OutlawBrain.Mood.SURRENDERED, "Kett's given up to the law (%s)" % m.result())
+	var thanks := await wait_until(func() -> bool: return _lines_of("kett").has("Bless you, Deputy. You're a fair man. I'll come quiet."), 60 * 10)
+	check(thanks, "his relief (%s)" % m.result())
 	# G by him.
 	_put(m.kett.global_position + (m.joe.global_position - m.kett.global_position).normalized() * 0.9, m.kett.global_position + Vector3.UP * 1.0)
 	p.wounds._arrest(m.kett)
@@ -211,8 +211,10 @@ func test_the_shake_and_the_revenge() -> void:
 	check_eq(StoryState.get_fact("nojustice.bodies"), "left", "the bodies left")
 	check_eq(StoryState.get_fact("nojustice.joe_trust"), "kept", "Joe's trust")
 	check(p.camera.global_position.distance_to(cam_was) < 0.3, "your view never moved in")
-	var over := await wait_until(func() -> bool: return m.done, 60 * 8)
-	check(over, "it ends (%s)" % m.result())
+	check(not m.done or not m.kett.physiology.alive, "not over while he still lives")
+	var over := await wait_until(func() -> bool: return m.done, 60 * 140)
+	check(over, "it ends once he's gone (%s)" % m.result())
+	check(not m.kett.physiology.alive, "dead of it")
 	check(not m.joe_brain.held, "Joe his own man again")
 
 
@@ -308,3 +310,72 @@ func test_the_hideout_hands_over_to_the_cabin() -> void:
 	check(h.next_act is NoJusticeCabin and not h.next_act.done, "the cabin starts from it (%s)" % (h.next_act.result() if h.next_act else {}))
 	if h.next_act is NoJusticeCabin:
 		check_eq((h.next_act as NoJusticeCabin).state, &"barred", "at the barred door")
+
+
+func test_your_gun_on_joe_stops_him() -> void:
+	var m := await _start()
+	if m == null or not await _to_the_ask(m):
+		return
+	var p := _player()
+	p.give(&"revolver")
+	var w := p.revolver()
+	p.select_weapon(w)
+	await wait_until(func() -> bool: return p.weapon == w and w.drawn, 60 * 4)
+	await physics_frames(30)
+	var to := m.joe.global_position + Vector3.UP * 1.0 - p.camera.global_position
+	p.rotation.y = atan2(-to.x, -to.z)
+	p.add_look(Vector2(0.0, rad_to_deg(asin(to.normalized().y)) - p.get_pitch_degrees()))
+	check(CompanionBrain._gun_out(p), "your gun out (%s)" % [w])
+	check(m._sights_on(p, m.joe), "on Joe")
+	var stopped := await wait_until(func() -> bool: return m.answer != "", 60 * 3)
+	check(stopped, "an answer (%s)" % m.result())
+	check_eq(m.answer, "drew_on_joe", "your gun on Joe")
+	check(_lines_of("joe").has("Then take him. Take him to your law. We will see what it does."), "the nod's way")
+
+
+func test_binding_him_before_the_ask_answers_it() -> void:
+	var m := await _start()
+	if m == null:
+		return
+	await _kick_in(m)
+	_put(m._local([2.1, 1.2]), m.kett.global_position)
+	await physics_frames(10)
+	_put(m._local([3.5, 2.4]), m.kett.global_position)
+	var knife := await wait_until(func() -> bool: return m.state in [&"knife", &"ask"], 60 * 40)
+	check(knife, "the knife's out (%s)" % m.result())
+	var p := _player()
+	_put(m.kett.global_position + (p.global_position - m.kett.global_position).normalized() * 0.9, m.kett.global_position + Vector3.UP * 1.0)
+	var given := p.wounds._given_up_in_reach()
+	check(given == m.kett, "G by him finds a man who's given up, not a duel (%s)" % [given])
+	if given:
+		p.wounds._arrest(given)
+	var answered := await wait_until(func() -> bool: return m.answer != "", 60 * 2)
+	check(answered and m.answer == "tied", "binding him answers Joe (%s)" % m.result())
+	var arrested := await wait_until(func() -> bool: return m.ending == "arrest", 60 * 20)
+	check(arrested, "the arrest (%s)" % m.result())
+
+
+## Standing, walked in by the keys: up the doorstep and through the doorway (#966's playtest stopped
+## dead on the threshold: the shack's floor stood higher than a step).
+func test_you_walk_in_through_the_door_standing() -> void:
+	var m := await _start()
+	if m == null:
+		return
+	await _kick_in(m)
+	check(m.door_open(), "the door's in")
+	await physics_frames(30)
+	var p := _player()
+	_put(m.hideout._shack_door(2.0), m.hideout._shack_door(-3.0) + Vector3.UP * 1.6)
+	p.add_look(Vector2(0.0, -p.get_pitch_degrees()))
+	var ev := InputEventAction.new()
+	ev.action = &"move_forward"
+	ev.pressed = true
+	ev.strength = 1.0
+	Input.parse_input_event(ev)
+	var inside := await wait_until(func() -> bool: return m.hideout.in_shack(p.global_position), 60 * 6)
+	var up := InputEventAction.new()
+	up.action = &"move_forward"
+	up.pressed = false
+	Input.parse_input_event(up)
+	check(inside, "in, standing (%s)" % [m.shack.global_transform.affine_inverse() * p.global_position])
+	check(not p.is_crouching, "not crouched")
