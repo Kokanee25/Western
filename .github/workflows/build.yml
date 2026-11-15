@@ -137,6 +137,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      # Read access to the private Character Studio, for Harlan's hands (#914); empty skips them.
+      STUDIO_TOKEN: ${{ secrets.STUDIO_TOKEN }}
     outputs:
       tag: ${{ steps.package.outputs.tag }}
       name: ${{ steps.package.outputs.name }}
@@ -183,12 +186,49 @@ jobs:
           printf '{"number": "%s", "commit": "%s"}\n' "${{ github.run_number }}" "$(git rev-parse --short HEAD)" > build_info.json
           cat build_info.json
 
+      # The web build (public, on Pages) first: Harlan's first-person hands never go in it.
+      - name: Export the web build
+        run: |
+          mkdir -p build/web
+          ~/godot/godot --headless --export-release "Web" build/web/index.html
+
+      # Harlan's first-person hands (#914, Sean's 3A on #920): MetaHuman Sean's hands, cut and
+      # dressed by tools/blender/fp_arms.py from the private Character Studio's frozen model, into
+      # the git-ignored assets/people/private/ for the Windows and Linux exports only; never
+      # committed (#692). Needs the STUDIO_TOKEN secret (read access to the Studio); without it
+      # (or on a fork's PR) the builds keep the painted arms, as before.
+      - name: Check out the Studio's MetaHuman (for the hands)
+        if: env.STUDIO_TOKEN != ''
+        uses: actions/checkout@v4
+        with:
+          repository: Kokanee25/saltcreek-characters
+          token: ${{ env.STUDIO_TOKEN }}
+          path: studio
+          sparse-checkout: frozen/sean_metahuman_s3
+      - name: Python for Blender (the hands)
+        if: env.STUDIO_TOKEN != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: .github/workflows/build.yml
+      - name: Build Harlan's first-person hands
+        if: env.STUDIO_TOKEN != ''
+        run: |
+          pip install -q "bpy==5.0.1" numpy pillow
+          mkdir -p assets/people/private
+          python tools/blender/fp_arms.py --src=studio/frozen/sean_metahuman_s3/sean_metahuman_s3.glb \
+              --out=assets/people/private > fp_hands.log 2>&1 || { tail -30 fp_hands.log; exit 1; }
+          tail -1 fp_hands.log
+          rm -rf studio
+          ~/godot/godot --headless --import || true
+          test -s assets/people/private/harlan_fp.glb
+
       - name: Export
         run: |
-          mkdir -p build/windows build/linux build/web
+          mkdir -p build/windows build/linux
           ~/godot/godot --headless --export-release "Windows" build/windows/SaltCreek.exe
           ~/godot/godot --headless --export-release "Linux" build/linux/SaltCreek.x86_64
-          ~/godot/godot --headless --export-release "Web" build/web/index.html
           test -s build/windows/SaltCreek.exe
           test -s build/linux/SaltCreek.x86_64
           # The native plugin goes beside the game (Windows, Linux): an

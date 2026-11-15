@@ -36,6 +36,9 @@ var _trigger := 0.0
 var _thumb := 0.0
 var _ejector := 0.0
 var _reload_held := 0.0
+## The poses for the hands you have: `POSES`, or Harlan's first-person hands' own (HeldHand.hold:
+## `colt.hip`, `colt.aim`, `colt.loading` in config/fp_holds.json).
+var _poses := POSES
 
 
 func _ready() -> void:
@@ -50,8 +53,10 @@ func _ready() -> void:
 	hand = HandModel.new()
 	hand.name = "Hand"
 	add_child(hand)
-	_pose_pos = POSES[Pose.HIP][0]
-	_pose_rot = POSES[Pose.HIP][1]
+	_poses = {Pose.HIP: HeldHand.hold("colt.hip", POSES[Pose.HIP]), Pose.AIM: HeldHand.hold("colt.aim", POSES[Pose.AIM]),
+			Pose.LOADING: HeldHand.hold("colt.loading", POSES[Pose.LOADING])}
+	_pose_pos = _poses[Pose.HIP][0]
+	_pose_rot = _poses[Pose.HIP][1]
 	_setup_common()
 	for id in [&"gunshot", &"cock", &"dry_fire", &"ratchet", &"gate", &"insert", &"eject"]:
 		_add_sound(id, id == &"gunshot")
@@ -214,8 +219,8 @@ func _animate(delta: float) -> void:
 	visible = _draw > 0.02
 	var pose := Pose.LOADING if state.gate_open else (Pose.AIM if aiming else Pose.HIP)
 	var k := 1.0 - exp(-delta * 12.0)
-	_pose_pos = _pose_pos.lerp(POSES[pose][0], k)
-	_pose_rot = _pose_rot.lerp(POSES[pose][1], k)
+	_pose_pos = _pose_pos.lerp(_poses[pose][0], k)
+	_pose_rot = _pose_rot.lerp(_poses[pose][1], k)
 	kick.step(delta)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * (18.0 if _tuck_target > tuck else 9.0)))
 	_update_sway(delta)

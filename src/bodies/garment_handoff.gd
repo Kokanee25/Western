@@ -22,11 +22,16 @@ signal came_to_rest
 
 enum State { NONE, WORN, HELD, FREE, REST }
 
+## His skin under the glove as SkinCollider has it: simplified to about this many triangles (0: the
+## glove's own points).
+const COLLIDER_TRIS := 0
+
 ## The release rule's numbers (m, the edges' length ratio). `release_lead`: the finger ends this
 ## far from the tips let go at the take; `clear_after`: his skin shape stays this long after he lets
 ## go (it's falling off him).
 var tune := {"release_lead": 0.035, "give": 1.05, "front_step": 0.01, "clear_after": 0.25,
-		"precision": 12, "skin_every": 2}
+		"precision": 12, "skin_every": 2, "uncover_at": 0.018,
+		"free_damping": 0.5}
 
 var man: HumanBody
 var garment: WornGarment
@@ -48,7 +53,10 @@ var _on_arm := {}
 var _free_edges := PackedInt32Array()   # pairs, both points free
 var _free_rest := 0.0
 var _nbr: Array = []                    # point -> [other, rest length] ...
-var _carriers := {}                     # bone -> Node3D
+var _held_mask := PackedByteArray()     # 1 a point still held on him
+var _moved := PackedByteArray()         # 1 a point whose spot the cloth has left (his skin shown)
+var _uncover_turn := 0
+var _ring2: Array = []                  # each point's neighbours two edges out (PackedInt32Array)
 var _clear_t := 0.0
 var _pop_ticks := 0
 var _t := 0.0
@@ -60,14 +68,16 @@ func wear(who: HumanBody, g: WornGarment, material: Material = null) -> MeshInst
 	garment = g
 	look = material if material else WornGarment.kid_leather()
 	worn_mesh = g.wear(look)
+	g.cover_skin(true)  # (his skin under it not drawn: his sleeve's folds would show through)
 	state = State.WORN
 	set_physics_process(false)  # worn, nothing to do: the GPU draws it with his skin
 	return worn_mesh
 
 
 ## A long glove on `who`'s arm on `side`, worn (null if he has no skin to make it from).
-static func glove_on(who: HumanBody, parent: Node, side := "l", material: Material = null, tris := 700) -> GarmentHandoff:
-	var g := WornGarment.glove(who, side, 0.42, tris)
+static func glove_on(who: HumanBody, parent: Node, side := "l", material: Material = null, tris := 700,
+		under_tris := COLLIDER_TRIS) -> GarmentHandoff:
+	var g := WornGarment.glove(who, side, 0.42, tris, under_tris)
 	if g == null:
 		return null
 	var h := GarmentHandoff.new()
@@ -94,7 +104,7 @@ func take(hand_side := "r", points: Array[int] = []) -> void:
 	collider.name = "SkinCollider"
 	add_child(collider)
 	collider.global_transform = Transform3D.IDENTITY
-	collider.setup(garment)
+	collider.setup(garment.under if garment.under else garment)
 	collider.every = int(tune.skin_every)
 	var is_tip := {}
 	for i in points:
@@ -104,11 +114,13 @@ func take(hand_side := "r", points: Array[int] = []) -> void:
 	for i in pts.size():
 		if not is_tip.has(i):
 			rest.append(i)
-	_follow()
-	cloth.hold_on(rest, _carrier)
+	cloth.hold_on(rest)
 	_on_arm = {}
+	_held_mask = PackedByteArray()
+	_held_mask.resize(pts.size())
 	for i in rest:
 		_on_arm[i] = true
+		_held_mask[i] = 1
 	_nbr.resize(pts.size())
 	for i in _nbr.size():
 		_nbr[i] = []
@@ -126,6 +138,18 @@ func take(hand_side := "r", points: Array[int] = []) -> void:
 	for i in points:
 		_freed(i)
 	_release_along(float(tune.release_lead))
+	_moved = PackedByteArray()
+	_moved.resize(pts.size())
+	_ring2 = []
+	_ring2.resize(pts.size())
+	for i in pts.size():
+		var r := {}
+		for nb: Array in _nbr[i]:
+			r[nb[0]] = true
+			for nb2: Array in _nbr[int(nb[0])]:
+				r[nb2[0]] = true
+		r.erase(i)
+		_ring2[i] = PackedInt32Array(r.keys())
 	collider.free_box = _free_box(pts)
 	collider.on()
 	state = State.HELD
@@ -149,6 +173,11 @@ func let_go(velocity := Vector3.ZERO) -> void:
 		return
 	let_go_of_arm()
 	cloth.let_go(velocity)
+	# Falling and lying, damped harder: Godot's soft body has no bending stiffness, and an undamped
+	# glove crumples to a knot of fingers through each other (it doesn't meet itself); damped, it
+	# keeps its hand's shape as leather does.
+	cloth.soft.damping_coefficient = float(tune.free_damping)
+	garment.cover_skin(false)  # out of his hand: all his skin drawn again
 	state = State.FREE
 	_clear_t = float(tune.clear_after)
 	if not cloth.came_to_rest.is_connected(_on_rest):
@@ -185,17 +214,25 @@ func _physics_process(delta: float) -> void:
 func _step(delta: float) -> void:
 	if cloth == null or cloth.resting:
 		return
-	_follow()
+	# Where the worn garment would be drawn now (once a tick, while it's on him): the held points go
+	# there, and his skin is shown where the cloth has left it.
+	var drawn := PackedVector3Array()
+	if state == State.HELD and (_pop_ticks > 0 or Engine.get_physics_frames() % 2 == 0):
+		drawn = garment.posed()
+		if not _on_arm.is_empty():
+			cloth.move_held(PackedInt32Array(_on_arm.keys()), drawn)
 	var pts := PackedVector3Array()
 	if state == State.HELD or _pop_ticks > 0:
 		pts = cloth.points_now()
 	if _pop_ticks > 0:
 		_pop_ticks -= 1
-		var drawn := garment.posed()
+		if drawn.is_empty():
+			drawn = garment.posed()
 		for i in pts.size():
 			pop_mm = maxf(pop_mm, pts[i].distance_to(drawn[i]) * 1000.0)
 	if state == State.HELD:
 		_by_the_pull(pts)
+		_uncover(pts, drawn)
 		collider.free_box = _free_box(pts)
 	elif state == State.FREE and collider.active:
 		_clear_t -= delta
@@ -226,6 +263,34 @@ func _by_the_pull(pts: PackedVector3Array) -> void:
 	_release_along(front + float(tune.front_step))
 
 
+## His skin shown under each point the cloth has left: the cloth there has moved off where the
+## worn garment was (`tune.uncover_at`, m) and none of the cloth near it (its neighbours two edges
+## out: the cloth slides along him, so the cloth that covers a spot next comes from beside it) lies
+## within `uncover_at` of that spot. Until then his skin there stays hidden: his sleeve's modelled
+## folds stand above the cloth's few hundred points. Every 2nd tick, a third of the points.
+func _uncover(pts: PackedVector3Array, drawn: PackedVector3Array) -> void:
+	if not garment.skin_covered() or drawn.is_empty():
+		return
+	var far := float(tune.uncover_at) * float(tune.uncover_at)
+	var ids: Array[int] = []
+	_uncover_turn = (_uncover_turn + 1) % 3
+	for i in range(_uncover_turn, pts.size(), 3):  # (a third of them each time: shown within 0.1 s)
+		if _moved[i] == 1 or _held_mask[i] == 1:
+			continue
+		var w := drawn[i]
+		if pts[i].distance_squared_to(w) <= far:
+			continue
+		var covered := false
+		for j: int in _ring2[i]:
+			if pts[j].distance_squared_to(w) <= far:
+				covered = true
+				break
+		if not covered:
+			_moved[i] = 1
+			ids.append(i)
+	garment.uncover(ids)
+
+
 ## Those still on him up to `reach` along him from the tips let go.
 func _release_along(reach: float) -> void:
 	var go := {}
@@ -240,6 +305,7 @@ func _release(go: Dictionary) -> void:
 		return
 	for i: int in go:
 		_on_arm.erase(i)
+		_held_mask[i] = 0
 	for i: int in go:
 		_freed(i)
 	cloth.release(go)
@@ -278,33 +344,10 @@ func _free_box(pts: PackedVector3Array) -> AABB:
 	return box
 
 
-## A node that goes where his bone `bi` goes (made the first time it's asked for).
-func _carrier(i: int) -> Node3D:
-	var bi := garment.main_bone[i]
-	if not _carriers.has(bi):
-		var n := Node3D.new()
-		n.name = "On_" + garment.skeleton.get_bone_name(bi)
-		add_child(n)
-		n.global_transform = garment.skeleton.global_transform * garment.skeleton.get_bone_global_pose(bi)
-		_carriers[bi] = n
-	return _carriers[bi]
-
-
-## The carriers to where his bones are now.
-func _follow() -> void:
-	if _carriers.is_empty() or state == State.FREE:
-		return
-	var sx := garment.skeleton.global_transform
-	for bi: int in _carriers:
-		(_carriers[bi] as Node3D).global_transform = sx * garment.skeleton.get_bone_global_pose(bi)
-
-
 func _on_rest() -> void:
 	state = State.REST
+	garment.cover_skin(false)
 	if collider:
 		collider.off()
-	for bi: int in _carriers:
-		(_carriers[bi] as Node3D).queue_free()
-	_carriers.clear()
 	set_physics_process(false)
 	came_to_rest.emit()
