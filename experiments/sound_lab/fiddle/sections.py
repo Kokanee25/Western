@@ -61,7 +61,8 @@ def crowd_clap(sr, rng, people=28):
     for _ in range(people):
         c = drums._clap(sr, rng, rng.uniform(0.4, 1.0))
         d = int(np.clip(rng.normal(0.03, 0.022), 0, 0.08) * sr)
-        y[d:d + len(c)] += c[:n - d]
+        seg = y[d:d + len(c)]
+        seg += c[:len(seg)]
     return y / (np.max(np.abs(y)) + 1e-12)
 
 
@@ -86,7 +87,8 @@ def applause(sr, rng, seconds=5.0):
         t += rng.exponential(1 / rate)
         c = drums._clap(sr, rng, rng.uniform(0.3, 1.0) * np.exp(-t / 2.5))
         i = int(t * sr)
-        y[i:i + len(c)] += c[:n - i]
+        seg = y[i:i + len(c)]
+        seg += c[:len(seg)]
     return y / (np.max(np.abs(y)) + 1e-12)
 
 
@@ -124,8 +126,13 @@ def glue_and_limit(x, sr, target):
         cur = a_att * cur + (1 - a_att) * v if v < cur else a_rel * cur + (1 - a_rel) * v
         g[i] = cur
     y = x * g[:, None]
-    y *= 10 ** ((target - common.loudness(y.mean(axis=1), sr)) / 20)
+    # then saturation, as a desk and its tape do when pushed: the peaks rounded off (tanh), so the
+    # whole can sit louder; the drive set until the loudness reaches the target
+    for _ in range(4):
+        y *= 10 ** ((target - common.loudness(y.mean(axis=1), sr)) / 20)
+        y = np.tanh(1.1 * y) / 1.1
     ceil = 10 ** (-1 / 20)
+    y *= min(10 ** ((target - common.loudness(y.mean(axis=1), sr)) / 20), ceil / np.max(np.abs(y)))
     peak = np.max(np.abs(y), axis=1)
     need = np.minimum(1.0, ceil / (peak + 1e-12))
     la = int(0.005 * sr)
@@ -191,9 +198,6 @@ def main():
     print(f"{out}: {sc['tune']}, {len(plan)} sections, {', '.join(players)}, {n / sr:.1f} s, peak {np.max(np.abs(y)):.2f}")
 
 
-if __name__ == "__main__":
-    main()
-
 
 def live(sc, planf, parts, when, starts, name, opt, sr, n):
     """The live show: each player gated by its sections as in the plain mix, placed left to right, the
@@ -235,7 +239,8 @@ def live(sc, planf, parts, when, starts, name, opt, sr, n):
                 for ch in (cl_l, cl_r):
                     c = claps[rng.integers(len(claps))]
                     i = int((t + rng.normal(0, 0.006)) * sr)
-                    ch[i:i + len(c)] += join * c[:N - i]
+                    seg = ch[i:i + len(c)]
+                    seg += join * c[:len(seg)]
     g = 0.45 * band_rms / (np.std(cl_l[cl_l != 0]) + 1e-12) if np.any(cl_l) else 0
     L += g * cl_l
     R += g * cl_r
@@ -267,3 +272,7 @@ def live(sc, planf, parts, when, starts, name, opt, sr, n):
     wavfile.write(out, sr, (np.clip(y, -1, 1) * 32767).astype(np.int16))
     print(f"{out}: {sc['tune']}, live: {N / sr:.1f} s stereo, {common.loudness(y.mean(axis=1), sr):.1f} LUFS, "
           f"peak {20 * np.log10(np.max(np.abs(y))):.1f} dBFS")
+
+
+if __name__ == "__main__":
+    main()
