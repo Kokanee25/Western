@@ -30,8 +30,10 @@ enum State { NONE, WORN, HELD, FREE, REST }
 const COLLIDER_TRIS := 0
 ## His skin finer than the glove, its hand's vertices kept under our cloth's triangles (#1008: his
 ## fingers showed through the glove between its ~5 points round each as it was drawn off): about
-## this many triangles over the glove's cut (0: none). Our cloth only (`body_verts`).
-const FINE_TRIS := 3000
+## this many triangles over the glove's cut (0: none). Our cloth only (`body_verts`). OFF for now:
+## at 3000 his fingers stay in the glove (the lab's `--fine-tris=3000`), but it pops the glove 5 mm
+## at the take, stretches it to 1.13 and costs ~6 ms a tick more at Sean's while it's drawn (#1008).
+const FINE_TRIS := 0
 
 ## The release rule's numbers (m, the edges' length ratio). `release_lead`: the finger ends this
 ## far from the tips let go at the take; `clear_after`: his skin shape stays this long after he lets
@@ -45,7 +47,8 @@ var tune := {"release_lead": 0.035, "give": 1.05, "front_step": 0.01, "clear_aft
 ## fewer); his skin met 0.7 mm off (SkinCollider's pad: where the cloth starts), little friction
 ## (the release rule is the hold; free leather slides on skin). `floor_y` is his feet's.
 ## His skin is closed: every point belongs on its front (`body_front_only`).
-## Itself off (`self_thickness` 0): on (2 mm) it lies on itself, but costs ~5.5 ms a tick more at Sean's
+## His hand's own skin kept 0.5 mm behind its triangles (`body_verts`, #1008) when he has a finer
+## skin (FINE_TRIS). Itself off (`self_thickness` 0): on (2 mm) it lies on itself, but costs ~5.5 ms a tick more at Sean's
 ## and one start in seven of the MetaHuman's never came to rest (#997; the lab's `--solver=`).
 var solver_tune := {"bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5, "max_strain": 1.05,
 		"substeps": 20, "damping": 1.0, "body_thickness": SkinCollider.SKIN_PAD, "body_band": 0.01, "body_every": 1,

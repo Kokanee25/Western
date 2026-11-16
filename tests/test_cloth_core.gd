@@ -237,3 +237,30 @@ func test_a_folded_sheet_thrown_down_lies_on_itself() -> void:
 	check(with_self > floor_at + 0.001, "its top layer lies on its bottom one: %.4f" % with_self)
 	var without := _folded(0.0)
 	check(without < floor_at + 0.001, "without self-contacts it goes through to the floor: %.4f" % without)
+
+
+## His finer skin's vertices kept under the cloth (#1008): a sheet lying on his coarse body (a flat
+## floor of two triangles), a knuckle of his finer skin 4 mm up through its middle. Every cloth point
+## is on the body's front, yet the knuckle is through the cloth until his skin's vertices push it out.
+func test_his_finer_skin_lifts_the_cloth_over_a_knuckle() -> void:
+	if not _native():
+		return
+	var tops := []
+	for verts in [0.0, 0.0005]:
+		var core := _core(9, 9, 0.08, 0.08, 0.002, {"floor_on": 0, "body_front_only": 1, "body_thickness": 0.001,
+				"body_verts": verts, "max_strain": 1.2})
+		var body := _sheet(2, 2, 0.3, 0.3, 0.0)
+		check(core.set_body(body[0], body[1]), "his body")
+		var skin := _sheet(21, 21, 0.08, 0.08, 0.0)
+		var sp: PackedVector3Array = skin[0]
+		for i in sp.size():
+			sp[i].y = 0.004 * maxf(0.0, 1.0 - Vector2(sp[i].x, sp[i].z).length() / 0.01)
+		check(core.set_skin(sp, skin[1]), "his finer skin")
+		_run(core, 30)
+		var top := -1.0
+		for p: Vector3 in core.points():
+			if Vector2(p.x, p.z).length() < 0.006:
+				top = maxf(top, p.y)
+		tops.append(top)
+	check(tops[0] < 0.003, "without it the knuckle's through the cloth (its middle at %.4f)" % tops[0])
+	check(tops[1] > 0.0035, "with it the cloth is over the knuckle (its middle at %.4f)" % tops[1])

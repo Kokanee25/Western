@@ -60,15 +60,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
-- **The garment handoff** (#917, #949, #986, #997; LAYOUT "src/bodies"): `GarmentHandoff` and `GloveAct` (bridge
-  `glove MAN`) on **our own cloth** (`SolverCloth`/`ClothCore`, #973, `docs/briefs/garment-cloth.md`): his skin
-  is its collider (step 2, #986) and **it can meet itself** (step 3, #997: `self_thickness` 2 mm, off in the
-  handoff: MetaHuman `--seed=2` never rests; film `experiments/garment_handoff/results/2026-11-16-self/`);
-  Jolt fallback. Open: that rest, **the cost**, ~7.2 ms a tick at Sean's drawn off (skin 1.6; itself: its lists), ~6.8
-  tossed, ~4.2 settling, budget 0.5 (step 4); skin specks 0.2 s as it leaves (`uncover`); the lab's under-skin
-  count is mostly his upper arm under the cuff. Build here:
-  `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, the .so to
-  bin/; `apt-get install -y mesa-vulkan-drivers` for films (--real at 960x540).
+- **The garment handoff** (#917, #949, #986, #997, #1008; LAYOUT "src/bodies"): `GarmentHandoff` and `GloveAct`
+  (bridge `glove MAN`) on **our own cloth** (`SolverCloth`/`ClothCore`, #973, `docs/briefs/garment-cloth.md`): his
+  skin is its collider (#986), it can meet itself (#997, `self_thickness`, off: MetaHuman `--seed=2` never rests),
+  and **his hand's own skin vertices can be kept under it** (#1008, `body_verts` + `set_skin`; off,
+  `GarmentHandoff.FINE_TRIS` 0: fixes his fingers through the glove, crops `results/2026-11-16-fingers/`, but pops
+  the take 8 mm, stretch 1.10, ~6-10 ms a tick more at Sean's drawn, 25 ms tossed on sean_s3_talking). Open: those,
+  then the rest with itself, **the cost** (~1.6 ms skin, ~7.2 with itself, budget 0.5). Measure `skin_out` (bench).
+  Build: `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, .so to
+  bin/. Films: the bridge's real look is OOM-killed in an 8 GB workspace (its memory climbs past 6 GB); use the
+  bench's stills (`xvfb-run ... bench.gd -- --shots=2.6,2.7,... --cam=hands`, ~2 min, 2.4 GB).
 
 ## Parked until after the slice
 coach heist (#840; `experiments/coach_heist/` README) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
