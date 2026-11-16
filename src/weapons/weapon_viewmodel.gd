@@ -75,6 +75,13 @@ var _kick_rng := RandomNumberGenerator.new()
 var _climb_left := 0.0
 const CLIMB_TIME := 0.12
 var _cam_base := Vector3.ZERO
+## The viewmodel's own field of view (vertical degrees; 0: the world camera's). Shooters draw the
+## gun in hand with a narrower one than the world's, so it's big without being pulled into the lens
+## and stretched. Here the world's camera draws it, scaled across the view about the eye (x and y
+## by tan(world/2) / tan(own/2), depth kept): that projects every point of it exactly where a
+## camera of `view_fov` would, with no second pass, and keeps its line through the screen's centre
+## (the sights stay on it). Set by each gun (#1014).
+var view_fov := 0.0
 
 
 func _init() -> void:
@@ -125,6 +132,24 @@ func _update_fill() -> void:
 	var day := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
 	var daylight := day.get_daylight() if day else 1.0
 	_fill.light_energy = FILL_ENERGY * (0.15 + 0.85 * daylight)
+
+
+## How much the gun is scaled across the view for `view_fov` (1: drawn as the world is).
+func view_scale() -> float:
+	var cam := get_parent() as Camera3D
+	if view_fov <= 0.0 or cam == null:
+		return 1.0
+	return tan(deg_to_rad(cam.fov) * 0.5) / tan(deg_to_rad(view_fov) * 0.5)
+
+
+## Sets the gun's place under the camera (camera space: metres, degrees as `rotation_degrees`),
+## drawn at `view_fov`.
+func _set_view(pos: Vector3, rot_deg: Vector3) -> void:
+	var t := Transform3D(Basis.from_euler(rot_deg * (PI / 180.0)), pos)
+	var k := view_scale()
+	if not is_equal_approx(k, 1.0):
+		t = Transform3D(Basis.from_scale(Vector3(k, k, 1.0)), Vector3.ZERO) * t
+	transform = t
 
 
 func _find_player() -> Player:

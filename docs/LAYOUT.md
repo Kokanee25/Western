@@ -2161,7 +2161,7 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 
 - `src/weapons/` — `WeaponViewmodel` (what every gun in hand shares: tuck, shot line, camera;
   its wander is `Sway`, shared with the gang's `GunHand`),
-  `RevolverViewmodel` + `RevolverState`/`RevolverModel`, `ShotgunViewmodel` + `ShotgunState`/
+  `RevolverViewmodel` + `RevolverState`/`ColtModel`, `ShotgunViewmodel` + `ShotgunState`/
   `ShotgunModel` (`config/shotgun.tres`). `Player.weapons`/`weapon`/`select_weapon()` switch them.
   The gun lab (`experiments/gun_lab/`, its README) draws and measures them: first person, in each
   Studio man's hands, the handling numbers; its baseline's list of what's wrong is what it fixes from.
@@ -2183,6 +2183,18 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   lab's `blender/guns_blender.py`: bevelled, the side painting baked) each part takes its Blender mesh
   (`GunParts.blender_meshes`), else factory paintings (`GunParts._painted`). Next: a rig posed by eye
   (`docs/briefs/viewmodel-rig.md`) in place of the fitted hold.
+  **The Colt in your hand** (#1014) is `ColtModel`: the gun lab's approved SAA (`assets/weapons/colt_saa.glb`,
+  `colt_saa_rig.json`, its baked albedo/ORM), each moving part on its pivot (`hammer(deg)` with the bolt and
+  trigger following, `cylinder`, `gate_turn`, `gate`, `ejector`, `show_chambers`), the fixed parts joined into
+  one mesh at load; its origin shifted to RevolverModel's (`OFFSET`). The men in town keep `RevolverModel`
+  (5.7k triangles; the Colt is 96k). The aimed pose comes from its sight markers (`_aim_pose`,
+  `AIM_RELIEF`); the trigger finger lies along the frame until you aim or fire (`HandModel.set_trigger`'s
+  `off`, hold `colt.index_off`); the hand's place on it is `colt.hand`. **The viewmodel's own field of view**
+  (`WeaponViewmodel.view_fov`, the Colt and the Winchester 54°): the world's camera draws the gun scaled
+  across the view about the eye (`view_scale`, `_set_view`), exactly as a 54° camera would, with no second
+  pass. A cut-off forearm's elbow point is per hand (`HeldHand.elbow_drop`; the rifle's left, aimed,
+  `win73.l_elbow_aim`). Posing by eye: `experiments/viewmodel_rig/game_views.gd` (the game's viewmodels on a
+  plain stage, a pose in seconds, `--variants` for holds side by side).
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
