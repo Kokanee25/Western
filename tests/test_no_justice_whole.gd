@@ -251,14 +251,16 @@ func _the_fight(h: NoJusticeHideout, kett_out := false) -> NoJusticeCabin:
 		await wait_until(func() -> bool: return _lines_of("joe").has("How do you want it? Quiet, or now?") or h.alarm_t >= 0.0, _frames(40))
 		# Down toward their fire till they see you, then at him as he breaks for the shack.
 		await _walk_to(h.spot([-22.0, -5.0]), 0.4, 60.0, func() -> bool: return h.alarm_t >= 0.0)
-		for i in 16:
+		# (Down outside, still alive: shot again where he lies, as you would; 16 shots left him down but
+		# alive on some runs, #1012.)
+		for i in 32:
 			if not h.kett.physiology.alive or h.kett_state == NoJusticeHideout.HOLED_UP:
 				break
 			var chest := (h.kett.parts[&"chest"] as Node3D).global_position
 			await _shoot(p.camera.global_position, chest)
 			await physics_frames(8)
 		_mark("alarm")
-		var dead := await wait_until(func() -> bool: return h.kett_state == NoJusticeHideout.DEAD_OUTSIDE, 60 * 3)
+		var dead := await wait_until(func() -> bool: return h.kett_state == NoJusticeHideout.DEAD_OUTSIDE, 60 * 10)
 		check(dead, "the red shirt dead outside (%s)" % h.result())
 		_put(h.spot([-120.0, -45.0]))
 	else:
