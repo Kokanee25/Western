@@ -19,8 +19,9 @@ the floor: a board floor's mass (~10 kg/m2) lets the lows through and stops the 
 the joists, loud. Both then fill the bar room (54 x 44 x 13 ft, wood, men: ~0.8 s) and a murmur of the
 men at the bar.
 **Outside, across Main Street** (~12 m off the front): the walls (clapboard on studs, plaster inside) pass
-the bass and kick and little above ~200 Hz; the open doors and the upper windows let out the hall's
-sound, faint and dulled; the false front across the street sends a slap back (~55 ms); the feet only as
+the bass, the kick and the lower half of the band, little above ~400 Hz; the doors and the upper windows
+let out only a trace of the hall's sound, round the corner of the stair and through the panes, dulled
+(Sean, 2026-11-16: the first take let too much out, it sounded like the live mix with crickets); the false front across the street sends a slap back (~55 ms); the feet only as
 a low thud. Around it the night: a little wind, crickets.
 """
 import numpy as np
@@ -143,11 +144,11 @@ def hear(place, L, R, beats, sr, rng, room_ir):
         ol, orr = room_ir(sr, rng, rt60=0.5)
         cl, cr = crickets(n, sr, rng)
         for H, o, g, c in ((HL, ol, 1.0, cl), (HR, orr, 0.78, cr)):  # the saloon a little to the left
-            walls = _lp(_lp(H, 180, sr, 2), 400, sr, 1) * _db(-12)
-            openings = _delay(_lp(H, 3500, sr, 1), 0.035, sr) * _db(-13)
+            walls = _lp(_lp(H, 320, sr, 2), 600, sr, 1) * _db(-8)
+            openings = _delay(_lp(_lp(H, 900, sr, 2), 2500, sr, 1), 0.035, sr) * _db(-24)
             step = _lp(stomp, 140, sr, 2) * _db(-21)
             src = g * (walls + openings + step)
-            slap = _delay(_lp(src, 2000, sr), 0.055, sr) * _db(-9)
+            slap = _delay(_lp(src, 1200, sr), 0.055, sr) * _db(-10)
             x = src + slap + _db(-16) * fftconvolve(src, o)[:n]
             out.append(x + _db(-38) * rms * wind(n, sr, rng) + _db(-34) * rms * c / (np.std(c) + 1e-12))
         target = -17.0

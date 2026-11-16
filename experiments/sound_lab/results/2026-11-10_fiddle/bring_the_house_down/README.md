@@ -31,3 +31,8 @@ drums' first bar to the end).
 
 Both are measured, not yet heard: next to the live mix, the 0.8-3 kHz band sits ~6-7 dB further down
 against the lows (the fiddle dulled, the floor's boom up).
+
+**Outside, take 2** (Sean: "the outside one just added crickets and not the muffled sound"): the doors
+and windows let out far less (-24 dB, dulled above ~900 Hz), the walls pass more of the band's lower
+half (to ~400 Hz). Against 200-800 Hz, the 0.8-3 kHz band is now -20 dB (take 1: -1.4; the live mix:
++1.5; downstairs: -2.2); what's above it is the crickets.
