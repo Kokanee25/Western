@@ -41,7 +41,10 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
   `HeldHand._canonical_fingers` reframes them (from #919, closed unmerged; its Studio branch kept).
 - Talking face: four men's jaws go back more than down (#247).
-- Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
+- **Sewn clothes on MetaHuman Sean** (#1013, Studio branch `claude/issue-1013-gde687`): trousers (Belfast 1871) and a
+  shirt (Workwoman's Guide 1838) drafted, sewn and draped by Blender's cloth in the Studio (`sew_*.py`); build
+  `sean_metahuman_w4`. The seat is clean; the shirt breaks up at the armpits with his arms up, and his skin shows at
+  the shoulder (round 3). Waiting on Sean's word. Studio only (MetaHuman licence): nothing in this repo.
 - The run's planting foot drifts (foot IK).
 - **The garment handoff** (#895, a lab): `experiments/garment_handoff/`, a worn skinned glove becoming cloth
   as it's drawn off (the core for #874's acts, coats hung up, a torn-shirt bandage). Into the game is
