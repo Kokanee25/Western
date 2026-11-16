@@ -23,7 +23,11 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   his hair under a hat. Costs: `docs/reviews/2026-11-metahumans-town.md` (~18 with levels, like today's men;
   ~150 MB textures a distinct man). Fetched by `tools/characters/fetch_private.sh` (CI's export, with
   `STUDIO_TOKEN`); cast by `config/private_cast.json` (townsman, loudmouth; lod1; hat and vest re-dressed)
-  but **off**: his export wears only a vest and drawers. Sean picks how to dress him (#933's waiting issue).
+  but **off** until Sean approves his clothes (#1009).
+- **The wardrobe** (#1009, Studio `docs/METAHUMAN.md` "The wardrobe"): Sean's Tripo garments (release `clothing`)
+  fitted by the Studio's own `dress` step, no METATAILOR; build `sean_metahuman_w2` = historical shirt, trousers,
+  vest over them (sheet `docs/sheets/metahuman/sean_metahuman_w2/wardrobe.jpg` in the Studio). Waiting on Sean's
+  word; then cast on and an outfit per townsman. Not yet fitted: striped shirt, miner's trousers, overalls, blouse.
 
 ## Open
 - **First-person hands, option 2: in the game** (#914). `HeldHand` cuts MetaHuman Sean's hands, cuff and coat
@@ -37,7 +41,6 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
   `HeldHand._canonical_fingers` reframes them (from #919, closed unmerged; its Studio branch kept).
 - Talking face: four men's jaws go back more than down (#247).
-- Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
 - **The garment handoff** (#895, a lab): `experiments/garment_handoff/`, a worn skinned glove becoming cloth
   as it's drawn off (the core for #874's acts, coats hung up, a torn-shirt bandage). Into the game is
