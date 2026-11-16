@@ -949,7 +949,7 @@ func _come_round() -> void:
 	var spots := WorldPlaces.wake_spots(get_tree())
 	if not spots.is_empty():
 		where = String(spots[0].where)
-		player.global_position = spots[0].at
+		player.global_position = player.clear_spot_near(spots[0].at)
 		player.velocity = Vector3.ZERO
 	var clock := ""
 	var day := get_tree().get_first_node_in_group(&"day_cycle")

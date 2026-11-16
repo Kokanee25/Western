@@ -48,6 +48,13 @@ var _call_t := 0.0
 var _rng := RandomNumberGenerator.new()
 
 
+## Enter after you went down here (`retry`): the valley starts this act again on its next load, on
+## the slope above the hideout, the story as it was when the act began (#979's playtest: going down
+## was a dead end, you came round at the doctor's and nothing went on).
+static var retry_on_load := false
+var _down_t := -1.0
+
+
 func begin() -> void:
 	_rng.seed = 934
 	Events.shot_fired.connect(_on_shot)
@@ -60,6 +67,7 @@ func begin() -> void:
 	centre = Vector3(at2.x, _ground(at2.x, at2.y), at2.y)
 	if opts.get("set_up", false):
 		_set_up()
+	StoryState.mark_checkpoint()  # a retry starts from the story as it is now (#864)
 	var p := player()
 	if p == null:
 		_finish(&"no_player")
@@ -468,6 +476,8 @@ func _physics_process(delta: float) -> void:
 	state_t += delta
 	card_step(delta)
 	if done:
+		if state == &"you_down":
+			_down_step()
 		return
 	var p := player()
 	if p == null or joe == null or not is_instance_valid(joe):
@@ -703,6 +713,7 @@ func _fight_step(p: Player, _delta: float) -> void:
 		_crew_calls(p)
 	if p.wounds and not p.wounds.physiology.is_conscious():
 		fact("nojustice.hideout", "you_down")
+		_down_t = t
 		_finish(&"you_down")
 		return
 	if _flat(p.global_position, centre) > float(data.get("left_m", 260.0)):
@@ -792,6 +803,23 @@ func _after_step(_p: Player) -> void:
 	prompt(String(_prompts().get(how.get(kett_state, "over_holed_up"), "")), 8.0)
 	_finish(StringName(kett_state if kett_state != "" else "over"))
 	_next_act()
+
+
+## Down in the fight: once you've come round (wherever they carried you), the way to try it again.
+func _down_step() -> void:
+	var p := player()
+	if p == null or p.wounds == null or not p.wounds.physiology.is_conscious():
+		return
+	if not _spoken.has("retry") and t - _down_t > float(data.get("retry_after_s", 16.0)):
+		_spoken["retry"] = t
+		prompt(String(_prompts().get("retry", "")), 12.0, true)
+	if _spoken.has("retry") and Input.is_action_just_pressed(&"mission_retry"):
+		retry()
+
+
+func retry() -> void:
+	retry_on_load = true
+	GameReset.retry(street.get_tree() if street else Engine.get_main_loop() as SceneTree, "No Justice's hideout, again")
 
 
 ## Step 4 from here (#966, NoJusticeCabin): the shack, Kett, Joe and the bodies stay this act's (the
