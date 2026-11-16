@@ -25,6 +25,8 @@ var sun: DirectionalLight3D
 var env: Environment
 var lamp: OmniLight3D
 var close := false
+## --world-layer: the gun's meshes on the world's layer, not VIS_HELD (a test of the held layer's light).
+var world_layer := false
 ## --variants=FILE: a JSON list of {"name": .., "set": {hold key: value}} (config/fp_holds.json's
 ## keys), each rendered in turn with its holds changed: for trying settings side by side.
 var variants := [{"name": "", "set": {}}]
@@ -46,6 +48,8 @@ func _run() -> void:
 			lights = ["day", "lamp"] if a.substr(8) == "both" else [a.substr(8)]
 		elif a.begins_with("--variants="):
 			variants = JSON.parse_string(FileAccess.get_file_as_string(a.substr(11)))
+		elif a == "--world-layer":
+			world_layer = true
 		elif a == "--close":
 			close = true
 		elif a.begins_with("--fov="):
@@ -68,6 +72,9 @@ func _run() -> void:
 					var vm := _gun(g)
 					await _frames(2)
 					_pose(vm, g, p)
+					if world_layer:
+						for mi in vm.find_children("*", "MeshInstance3D", true, false):
+							(mi as MeshInstance3D).layers = 1
 					await _frames(4)
 					var path := out.path_join("%s_%s_%s%s.png" % [g, p, light, tag])
 					root.get_texture().get_image().save_png(path)

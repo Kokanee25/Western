@@ -21,7 +21,7 @@ enum Pose { HIP, AIM, LOADING }
 const HIP_ROT := Vector3(-6.0, 7.0, -8.0)
 const HIP_AT := Vector3(0.15, -0.145, -0.36)
 const LOADING_ROT := Vector3(8.0, 62.0, 10.0)
-const LOADING_AT := Vector3(0.02, -0.12, -0.36)
+const LOADING_AT := Vector3(0.04, -0.12, -0.44)
 ## Shouldered: on the line from the rear notch to the blade's top. The cheek on the comb puts a real
 ## eye ~15" (38 cm) behind the notch, the thumb a few inches in front of it; held there in first
 ## person the right wrist and forearm run back past the camera and fill the view (the lab's fp views,
@@ -72,6 +72,9 @@ const ELBOW_POLE_L_AIM := Vector3(-0.15, -1.0, 0.1)
 ## out to the lower left under the rifle, so the sleeve leaves the view's corner, not its middle.
 const L_ELBOW_AIM := Vector3(-0.25, -0.3, -0.2)
 var _l_elbow_aim := L_ELBOW_AIM
+## The right forearm aimed: the elbow out to the right, so its sleeve leaves by the view's right edge.
+const R_ELBOW_AIM := Vector3(0.3, -0.15, 0.0)
+var _r_elbow_aim := R_ELBOW_AIM
 
 @export var tuning: Winchester73Tuning
 
@@ -114,11 +117,13 @@ func _ready() -> void:
 	state = Winchester73State.new(tuning, hash(get_path()) + 73)
 	_rng.seed = 73
 	model = Winchester73Model.new()
+	model.held = true
 	model.name = "Winchester"
 	add_child(model)
 	_poses()
 	_build_hands()
 	_l_elbow_aim = HeldHand.hold("win73.l_elbow_aim", L_ELBOW_AIM)
+	_r_elbow_aim = HeldHand.hold("win73.r_elbow_aim", R_ELBOW_AIM)
 	_pose_pos = _hip_pos
 	_pose_rot = HIP_ROT
 	_setup_common()
@@ -498,6 +503,7 @@ func _animate_hands(delta: float, loading: bool) -> void:
 	var s := smoothstep(0.0, 1.0, shoulder)
 	hand.shoulder = ShotgunViewmodel.SHOULDER_R.lerp(SHOULDER_R_AIM, s)
 	hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R.lerp(ELBOW_POLE_R_AIM, s)
+	hand.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_r_elbow_aim, s)
 	left_hand.shoulder = ShotgunViewmodel.SHOULDER_L.lerp(SHOULDER_L_AIM, s)
 	left_hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_L.lerp(ELBOW_POLE_L_AIM, s)
 	left_hand.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_l_elbow_aim, s)

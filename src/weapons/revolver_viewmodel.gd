@@ -13,11 +13,16 @@ enum Pose { HIP, AIM, LOADING }
 ## Where the gun hangs under the camera ([metres, degrees]): at the hip, low in the right of the view
 ## with its line into the screen's centre; turned up to the gate to load. Aimed is `_aim_pose()`.
 const POSES := {
-	Pose.HIP: [Vector3(0.12, -0.13, -0.38), Vector3(3.0, 3.0, -8.0)],
-	Pose.LOADING: [Vector3(0.05, -0.11, -0.36), Vector3(20.0, 24.0, 58.0)],
+	Pose.HIP: [Vector3(0.12, -0.12, -0.38), Vector3(3.0, 3.0, -8.0)],
+	Pose.LOADING: [Vector3(0.06, -0.11, -0.43), Vector3(20.0, 16.0, 58.0)],
 }
 ## How far ahead of the eye the rear sight sits, aimed (metres).
 const AIM_RELIEF := 0.55
+## The aimed gun's cant about the line of sight (degrees; positive tops it to the left).
+const AIM_CANT := 0.0
+## Harlan's cut-off forearm aimed (HeldHand.elbow_drop, from the shoulder in the camera's space): the
+## arm out, so the sleeve drops steeply out of the view's bottom instead of running back into the lens.
+const AIM_ELBOW := Vector3(0.0, -0.35, -0.3)
 const HOLSTER_POS := Vector3(0.22, -0.55, -0.12)
 ## Up close to a wall (or a person) the gun comes back to the chest, muzzle up, instead of
 ## pushing through: a compressed high ready.
@@ -43,6 +48,8 @@ var _thumb := 0.0
 var _ejector := 0.0
 var _reload_held := 0.0
 var _finger_off := 1.0
+var _aim_k := 0.0
+var _aim_elbow := AIM_ELBOW
 ## The poses for the hands you have: `POSES`, or Harlan's first-person hands' own (HeldHand.hold:
 ## `colt.hip`, `colt.aim`, `colt.loading` in config/fp_holds.json).
 var _poses := POSES
@@ -56,6 +63,7 @@ func _ready() -> void:
 	_rng.seed = 45
 	view_fov = VIEW_FOV
 	model = ColtModel.new()
+	model.held = true
 	model.name = "Revolver"
 	add_child(model)
 	hand = HandModel.new()
@@ -63,6 +71,7 @@ func _ready() -> void:
 	add_child(hand)
 	_poses = {Pose.HIP: HeldHand.hold("colt.hip", POSES[Pose.HIP]), Pose.AIM: _aim_pose(),
 			Pose.LOADING: HeldHand.hold("colt.loading", POSES[Pose.LOADING])}
+	_aim_elbow = HeldHand.hold("colt.elbow_aim", AIM_ELBOW)
 	_pose_pos = _poses[Pose.HIP][0]
 	_pose_rot = _poses[Pose.HIP][1]
 	_setup_common()
@@ -89,7 +98,10 @@ func _aim_pose() -> Array:
 	var front := model.marker("SightFront")
 	var b := Basis.looking_at((front - rear).normalized(), Vector3.UP).inverse()
 	var relief: float = HeldHand.hold("colt.eye_relief", AIM_RELIEF)
-	return [-(b * rear) + Vector3(0.0, 0.0, -relief), b.get_euler() * (180.0 / PI)]
+	# Canted a little about the line of sight (the sights stay on it): the cylinder's side to the eye.
+	var cant := Basis(Vector3.BACK, deg_to_rad(float(HeldHand.hold("colt.aim_cant", AIM_CANT))))
+	var pos := cant * (-(b * rear) + Vector3(0.0, 0.0, -relief))
+	return [pos, (cant * b).get_euler() * (180.0 / PI)]
 
 
 func _warm_up() -> void:
@@ -259,6 +271,8 @@ func _animate(delta: float) -> void:
 	# The trigger finger lies along the frame until you aim or fire (#1014).
 	_finger_off = move_toward(_finger_off, 0.0 if aiming or _trigger > 0.0 else 1.0, delta * 6.0)
 	hand.set_trigger(_trigger, _finger_off)
+	_aim_k = move_toward(_aim_k, 1.0 if pose == Pose.AIM else 0.0, delta * 6.0)
+	hand.held.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_aim_elbow, smoothstep(0.0, 1.0, _aim_k))
 	_thumb = move_toward(_thumb, 0.0, delta * 3.5)
 	hand.set_thumb(_thumb)
 	_ejector = move_toward(_ejector, 0.0, delta * 3.0)

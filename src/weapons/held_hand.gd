@@ -315,6 +315,8 @@ const PRIVATE_ARMS := "res://assets/people/private/harlan_fp.glb"
 const UPPER_ARM := 0.3
 ## His skin's albedo multiplied by this (less red: a weathered hand, not a pink one).
 const SKIN_TINT := Color(0.9, 0.86, 0.84)
+## The shirt's cuff's linen multiplied by this (unbleached and a day worn, not white).
+const CUFF_TINT := Color(0.7, 0.66, 0.58)
 ## Where a cut-off forearm (option 2's hands) runs back to: this far from the shoulder in the camera's
 ## space (down and a little back), so the sleeve leaves the view's bottom edge (#914).
 const FP_ELBOW_DROP := Vector3(0.0, -0.45, 0.1)
@@ -631,6 +633,9 @@ static func _own_material(mi: MeshInstance3D, skin: bool, surf := 0) -> Material
 		# The grime in the vertex colours multiplies the weave (dust, sweat at the cuff's edge).
 		std.vertex_color_use_as_albedo = mi.mesh.get_surface_count() > surf \
 				and (mi.mesh.surface_get_format(surf) & Mesh.ARRAY_FORMAT_COLOR) != 0
+		# The linen cuff a day worn: it was the brightest thing in a lamplit view (judge, #1014).
+		if String(mi.name).to_lower().begins_with("fp_cuffs"):
+			std.albedo_color = CUFF_TINT
 	return std
 
 

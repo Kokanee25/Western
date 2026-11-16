@@ -28,6 +28,9 @@ var muzzle: Marker3D
 var gate_point: Marker3D
 var spur: Node3D
 var hammer_deg := 0.0
+## In your hand: the in-hand albedo (GunParts.held_albedo). Set before it enters the tree.
+var held := false
+const HELD_ALBEDO := {"res://assets/weapons/colt_saa_saa_albedo.jpg": "res://assets/weapons/colt_saa_held_albedo.jpg"}
 
 var _gun: Node3D
 var _cases: Array[Node3D] = []
@@ -61,6 +64,8 @@ func _build() -> void:
 	gate_point = markers["GatePoint"]
 	spur = _gun.find_child("HammerSpur", true, false) as Node3D
 	_join_static()
+	if held:
+		GunParts.held_albedo(_gun, HELD_ALBEDO)
 	hammer(0.0)
 
 

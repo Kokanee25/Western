@@ -131,12 +131,15 @@ func arms(here := false, guns: Array = ["revolver", "winchester"]) -> Array:
 					w.call(&"_kick_shot", w.get(&"tuning"))
 					await lab.seconds(0.05)
 				"cocked":
+					# Stepped by hand in game seconds (lavapipe draws ~1 frame a second, which ran past
+					# the thumb on the hammer: judge r1, #1014), then held for the shot.
+					w.set_process(false)
 					if w is Winchester73Viewmodel:
 						(w as Winchester73Viewmodel).lever_open()   # thrown and held
-						await lab.seconds(0.4)
 					else:
 						w.call(&"cock_press")
-						await _frames(8)
+					for i in (24 if w is Winchester73Viewmodel else 5):
+						w.call(&"_process", 1.0 / 60.0)
 				"reloading":
 					if w is RevolverViewmodel:
 						var r := (w as RevolverViewmodel).state
@@ -157,6 +160,7 @@ func arms(here := false, guns: Array = ["revolver", "winchester"]) -> Array:
 						await lab.seconds(0.5)
 			var path := out_dir.path_join("arms_%s_%s.png" % [which, st])
 			await _shot(path)
+			w.set_process(true)
 			shots.append(path.get_file())
 			_act(false, &"aim")
 			if w is Winchester73Viewmodel and (w as Winchester73Viewmodel).state.lever_open:

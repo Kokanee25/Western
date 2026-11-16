@@ -9,7 +9,7 @@
  "colt.trigger_pull": 44.0,
  "colt.thumb_rest": [
   [
-   24.0,
+   10.0,
    60.0,
    -24.0
   ],
@@ -76,5 +76,11 @@
   ],
   5.0,
   0.0
+ ],
+ "colt.eye_relief": 0.48,
+ "colt.elbow_aim": [
+  0.12,
+  -0.45,
+  -0.05
  ]
 }
