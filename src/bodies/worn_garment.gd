@@ -32,6 +32,11 @@ var target_tris := 700
 var collider_tris := 0
 ## That skin (a WornGarment of the same cut, `collider_tris` triangles), or null.
 var under: WornGarment
+## His skin finer than the garment (about this many triangles over the cut; 0: none), whose hand's
+## vertices our cloth keeps under its triangles (#1008: his fingers poke out between the garment's
+## few points round each). `fine`: that skin, or null.
+var fine_tris := 0
+var fine: WornGarment
 
 # Out:
 var verts := PackedVector3Array()   # in his skin's mesh space (bind), pushed out
@@ -68,11 +73,13 @@ var _w := PackedFloat32Array()          # 4 a point
 
 
 ## A long glove on `man`'s arm on `on_side` (his Skin_whole), or null if he has none.
-static func glove(man: HumanBody, on_side := "l", cuff := 0.42, tris := 700, under_tris := 0) -> WornGarment:
+static func glove(man: HumanBody, on_side := "l", cuff := 0.42, tris := 700, under_tris := 0,
+		fine_skin_tris := 0) -> WornGarment:
 	var g := WornGarment.new()
 	g.cuff_t = cuff
 	g.target_tris = tris
 	g.collider_tris = under_tris
+	g.fine_tris = fine_skin_tris
 	return g if g.build(man, on_side) else null
 
 
@@ -205,6 +212,16 @@ func build(man: Node, on_side := "l") -> bool:
 			report.collider_tris = under.indices.size() / 3
 		else:
 			under = null
+	if fine_tris > target_tris:
+		fine = WornGarment.new()
+		fine.cuff_t = cuff_t
+		fine.target_tris = fine_tris
+		fine.gap_fingers = gap_fingers
+		fine.gap_arm = gap_arm
+		if fine.build(man, side):
+			report.fine_tris = fine.indices.size() / 3
+		else:
+			fine = null
 	report.points = verts.size()
 	report.tris = indices.size() / 3
 	report.tips = tips.size()
@@ -718,6 +735,11 @@ var _sw := PackedFloat32Array()
 var _per := 4
 ## The points of the last count more than `depth` under his skin, and how deep each was (m).
 var last_under: Array[int] = []
+## His hand's skin vertices through the cloth at the last `skin_out` (places in _arm_skin).
+var last_out: Array[int] = []
+var last_out_h: Array[float] = []
+var _hand_k := PackedInt32Array()    # his hand's covered skin vertices (places in _arm_skin)
+var _ptris: Array = []               # each garment point's triangles
 var last_depths: Array[float] = []
 
 
@@ -768,29 +790,12 @@ func under_skin(pts: PackedVector3Array, depth := 0.002) -> int:
 	last_depths.clear()
 	if _arm_skin.is_empty():
 		_skin_setup()
-	var bind_bone := _bind_bones()
-	var mats: Array[Transform3D] = []
-	for b in skin.get_bind_count():
-		mats.append(skeleton.get_bone_global_pose(bind_bone[b]) * skin.get_bind_pose(b))
-	var to_world := skeleton.global_transform * skin_mi.transform
 	var cell := 0.015
 	var grid := {}
 	var wp := PackedVector3Array()
 	var wn := PackedVector3Array()
-	wp.resize(_arm_skin.size())
-	wn.resize(_arm_skin.size())
+	_pose_arm(wp, wn)
 	for k in _arm_skin.size():
-		var i := _arm_skin[k]
-		var p := Vector3.ZERO
-		var n := Vector3.ZERO
-		for j in _per:
-			var w := _sw[i * _per + j]
-			if w > 0.0:
-				var m := mats[_sb[i * _per + j]]
-				p += (m * _sv[i]) * w
-				n += (m.basis * _sn[i]) * w
-		wp[k] = to_world * p
-		wn[k] = (to_world.basis * n).normalized()
 		var key := Vector3i((wp[k] / cell).floor())
 		(grid.get_or_add(key, []) as Array).append(k)
 	var count := 0
@@ -820,6 +825,106 @@ func under_skin(pts: PackedVector3Array, depth := 0.002) -> int:
 			count += 1
 			last_under.append(qi)
 			last_depths.append(-h)
+	return count
+
+
+## His arm's skin vertices as drawn now (world), and their normals, by place in _arm_skin.
+func _pose_arm(wp: PackedVector3Array, wn: PackedVector3Array) -> void:
+	var bind_bone := _bind_bones()
+	var mats: Array[Transform3D] = []
+	for b in skin.get_bind_count():
+		mats.append(skeleton.get_bone_global_pose(bind_bone[b]) * skin.get_bind_pose(b))
+	var to_world := skeleton.global_transform * skin_mi.transform
+	wp.resize(_arm_skin.size())
+	wn.resize(_arm_skin.size())
+	for k in _arm_skin.size():
+		var i := _arm_skin[k]
+		var p := Vector3.ZERO
+		var n := Vector3.ZERO
+		for j in _per:
+			var w := _sw[i * _per + j]
+			if w > 0.0:
+				var m := mats[_sb[i * _per + j]]
+				p += (m * _sv[i]) * w
+				n += (m.basis * _sn[i]) * w
+		wp[k] = to_world * p
+		wn[k] = (to_world.basis * n).normalized()
+
+
+## How many of his hand's skin vertices (hand and fingers, the ones it covers as worn) are through
+## the cloth now (#1008): more than `depth` (m) in front of the nearest of the cloth's triangles
+## (`pts` world, the garment's own `indices`) within 15 mm, his skin there facing the same way as
+## that triangle (a bare finger lying on the cloth faces it: not counted). The cloth's points can
+## all be on his skin's front while his finer fingers poke out between them: this counts what the
+## eye sees. (A measure, ~5 ms; the bench, never the game.)
+func skin_out(pts: PackedVector3Array, depth := 0.001) -> int:
+	if _arm_skin.is_empty():
+		_skin_setup()
+	if _hand_k.is_empty():
+		var bind_bone := _bind_bones()
+		for k in _arm_skin.size():
+			var i := _arm_skin[k]
+			if covered.size() > i and covered[i] == 0:
+				continue
+			var best := 0.0
+			var bb := -1
+			for j in _per:
+				if _sw[i * _per + j] > best:
+					best = _sw[i * _per + j]
+					bb = bind_bone[_sb[i * _per + j]]
+			var bn := skeleton.get_bone_name(bb) if bb >= 0 else ""
+			if bn.begins_with("hand_" + side) or (bn.begins_with("finger_") and bn.contains("_%s_" % side)):
+				_hand_k.append(k)
+		var lists: Array = []
+		lists.resize(verts.size())
+		for i in lists.size():
+			lists[i] = PackedInt32Array()
+		for t in indices.size() / 3:
+			for e in 3:
+				var l: PackedInt32Array = lists[indices[t * 3 + e]]
+				l.append(t)
+				lists[indices[t * 3 + e]] = l
+		_ptris = lists
+	var wp := PackedVector3Array()
+	var wn := PackedVector3Array()
+	_pose_arm(wp, wn)
+	var cell := 0.015
+	var grid := {}
+	for i in pts.size():
+		(grid.get_or_add(Vector3i((pts[i] / cell).floor()), []) as Array).append(i)
+	last_out.clear()
+	last_out_h.clear()
+	var count := 0
+	for k in _hand_k:
+		var v := wp[k]
+		var c := Vector3i((v / cell).floor())
+		var seen := {}
+		var best := 0.015 * 0.015
+		var h := 0.0
+		var facing := 0.0
+		for dx in range(-1, 2):
+			for dy in range(-1, 2):
+				for dz in range(-1, 2):
+					for i: int in grid.get(c + Vector3i(dx, dy, dz), []):
+						for t: int in _ptris[i]:
+							if seen.has(t):
+								continue
+							seen[t] = true
+							var a := pts[indices[t * 3]]
+							var b := pts[indices[t * 3 + 1]]
+							var cc := pts[indices[t * 3 + 2]]
+							var bc := _closest_on_tri(v, a, b, cc)
+							var q := a * bc.x + b * bc.y + cc * bc.z
+							var d := v.distance_squared_to(q)
+							if d < best:
+								var n := (cc - a).cross(b - a).normalized()  # (Godot: a front face is clockwise)
+								best = d
+								h = (v - q).dot(n)
+								facing = n.dot(wn[k])
+		if h > depth and facing > 0.3:
+			count += 1
+			last_out.append(k)
+			last_out_h.append(h)
 	return count
 
 

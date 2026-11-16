@@ -99,6 +99,7 @@ func _run() -> void:
 			handoff.tune.end_after_rest = 2.0
 		handoff.tris = int(opts.get("tris", "700"))
 		handoff.under_tris = int(opts.get("under-tris", "-1"))
+		handoff.fine_tris = int(opts.get("fine-tris", "-1"))
 		handoff.part_tune = {}
 		for k in ["precision", "skin_every", "give"]:
 			if opts.has(k):
