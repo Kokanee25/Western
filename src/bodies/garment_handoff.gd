@@ -30,10 +30,10 @@ enum State { NONE, WORN, HELD, FREE, REST }
 const COLLIDER_TRIS := 0
 ## His skin finer than the glove, its hand's vertices kept under our cloth's triangles (#1008: his
 ## fingers showed through the glove between its ~5 points round each as it was drawn off): about
-## this many triangles over the glove's cut (0: none). Our cloth only (`body_verts`). OFF for now:
-## at 3000 his fingers stay in the glove (the lab's `--fine-tris=3000`), but it pops the glove 5 mm
-## at the take, stretches it to 1.13 and costs ~6 ms a tick more at Sean's while it's drawn (#1008).
-const FINE_TRIS := 0
+## this many triangles over the glove's cut (0: none). Our cloth only (`body_verts`); his hand and
+## forearm (SkinCollider.FINE_FOREARM). On since #1008's second part: pop ~1.8 mm, stretch ~1.08, and
+## ~2.3 ms a tick more at Sean's while it's drawn (0 worn, ~0.2 tossed, 0 at rest).
+const FINE_TRIS := 3000
 
 ## The release rule's numbers (m, the edges' length ratio). `release_lead`: the finger ends this
 ## far from the tips let go at the take; `clear_after`: his skin shape stays this long after he lets
@@ -217,6 +217,8 @@ func let_go(velocity := Vector3.ZERO) -> void:
 	else:
 		cloth.soft.damping_coefficient = float(tune.free_damping)
 	garment.cover_skin(false)  # out of his hand: all his skin drawn again
+	if cloth is SolverCloth:
+		(cloth as SolverCloth).skin_out()  # his hand's no longer in it (#1008: 25 ms a tick tossed)
 	state = State.FREE
 	_clear_t = float(tune.clear_after)
 	if not cloth.came_to_rest.is_connected(_on_rest):
