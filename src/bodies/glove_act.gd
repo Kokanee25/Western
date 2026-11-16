@@ -41,6 +41,8 @@ var tris := 700
 var under_tris := -1
 ## Over the part's own tune.
 var part_tune := {}
+## Over the part's `solver_tune` (our cloth's numbers).
+var solver_tune := {}
 ## (Debug: present and reach only, the glove left worn.)
 var no_take := false
 
@@ -80,6 +82,7 @@ func wear_on(who: HumanBody) -> Dictionary:
 		return {"ok": false, "error": "no Skin_whole on " + String(man.body_model)}
 	glove = part.garment
 	part.tune.merge(part_tune, true)
+	part.solver_tune.merge(solver_tune, true)
 	return {"ok": true, "glove": glove.report.duplicate()}
 
 

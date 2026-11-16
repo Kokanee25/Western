@@ -190,3 +190,50 @@ func test_a_sheet_lies_on_his_body_and_never_goes_in() -> void:
 	check(not core.has_body(), "cleared")
 	_run(core, 30)
 	check(core.lowest_y() < 0.0, "with no body it falls (%.3f)" % core.lowest_y())
+
+
+## A sheet made folded over on itself (its top layer 6 mm over its bottom, round a 3 mm fold: SHAPED
+## keeps that rest shape), thrown down at the floor: the bottom layer lands and the top one lies on
+## it, not through it to the floor; without self-contacts it goes through (#997).
+func _folded(self_th: float) -> float:
+	var s := _sheet(31, 7, 0.3, 0.06, 0.0)
+	var pts: PackedVector3Array = s[0]
+	var rad := 0.003
+	var arc := PI * rad
+	var top := []
+	for i in pts.size():
+		var x := pts[i].x
+		if x <= 0.0:
+			pts[i] = Vector3(x, 0.05, pts[i].z)
+		elif x < arc:
+			pts[i] = Vector3(rad * sin(x / rad), 0.05 + rad - rad * cos(x / rad), pts[i].z)
+		else:
+			pts[i] = Vector3(-(x - arc), 0.05 + 2.0 * rad, pts[i].z)
+			if x > 0.04 and x < 0.13:
+				top.append(i)
+	var core: RefCounted = ClassDB.instantiate(&"ClothCore")
+	# (The glove's 20 substeps: a layer is caught within two thicknesses of another, so 3 m/s at 12
+	# substeps, 4.2 mm a substep, goes through 2 mm ones.)
+	var tune := {"bend_mode": 1, "bend_stiffness": 0.5, "max_strain": 1.05, "substeps": 20, "self_thickness": self_th}
+	for k: String in tune:
+		check(core.tune(k, float(tune[k])), "a number: %s" % k)
+	check(core.build(pts, s[1], 0.2), "built")
+	core.add_velocity(Vector3(0.0, -3.0, 0.0))
+	_run(core, 60)
+	var now: PackedVector3Array = core.points()
+	var low := INF
+	for i: int in top:
+		low = minf(low, now[i].y)
+	if self_th > 0.0:
+		check(core.self_contacts_total() > 0, "it met itself")
+	return low
+
+
+func test_a_folded_sheet_thrown_down_lies_on_itself() -> void:
+	if not _native():
+		return
+	var floor_at := 0.002   # the floor's thickness
+	var with_self := _folded(0.002)
+	check(with_self > floor_at + 0.001, "its top layer lies on its bottom one: %.4f" % with_self)
+	var without := _folded(0.0)
+	check(without < floor_at + 0.001, "without self-contacts it goes through to the floor: %.4f" % without)

@@ -77,9 +77,22 @@ jacket, and leggings"; and "we should only be using the metahuman model". Everyt
    sean_s3_talking chaotic (11-50). **Over budget:** ~1.3 ms a tick at Sean's while it's drawn off; checking
    every 2nd substep or a band under 1 cm made points stick on his fingers. The film and its findings:
    #986.
-3. **Itself:** self-contacts; the glove bunched in his hand and dropped, lying on itself.
+3. **Itself:** self-contacts; the glove bunched in his hand and dropped, lying on itself. **Done (#997):**
+   point-triangle by a hash of its own triangles listed every few substeps (reach: each point's move
+   against the cloth's mean), a thickness (the glove 2 mm), the side at the substep's start, no bounce,
+   friction, sticking under 2 cm/s; a folded sheet and a squashed tube stay two layers (cargo tests).
+   **Off in GarmentHandoff for now:** one MetaHuman start in seven (`--seed=2`) never came to rest
+   (4.9 cm/s after 16 s; sean_s3_talking's four all rest). On the MetaHuman it lies
+   on itself (6-9 cm high where it lands, 4.4 without), fewer points under his skin at the draw's worst
+   (63 to 49-56; most on his upper arm under the cuff). **The cost:** ~7.2 ms a tick at Sean's while drawn
+   (skin 1.6 of it, down from 1.7 by cheaper floors), ~6.8 tossed, ~4.2 settling: the lists (a
+   bunched glove is dense: 100-200 triangles near each point's cell, ~19 lists a tick). Tried, not
+   kept: meeting itself every 4th substep (a pile tangled), a fixed 5-substep list (missed contacts),
+   a wider catch for crossings (fast points yanked: the glove flew). Fixed on the way: a pile that
+   buzzed forever (sticking), a tossed glove yanked through him (a crossing only if it was near then).
 4. **The world and the cost:** floor and props; at rest baked; the cost table on the MetaHuman, ≤ 0.5 ms
-   while it simulates. Merge.
+   while it simulates (with itself, from ~7.2: a hierarchy over its own triangles with normal cones,
+   Provot 1997, so flat patches aren't looked into; the points over the worker threads). Merge.
 5. **Leggings / a stocking:** `WornGarment` for the leg's bones; rolled or drawn down over the foot.
 6. **A jacket:** two sleeves and the shoulders, put on and taken off; layered over a shirt (two garments
    meeting each other).

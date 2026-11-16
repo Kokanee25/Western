@@ -1492,16 +1492,30 @@ relative to his skin, no bounce (its normal speed made his skin's). A **pinch** 
 each other within 3 mm, fingers pressed together, and it's behind one) is left to the cloth. Past an
 open end of his mesh only the distance counts. Measures `body_contacts`, `body_crossings`,
 `body_pinches`, `sides`, `body_last` (what each point's last check did). `body_every` > 1 (fewer
-checks) and a band under 1 cm both let the glove stick on his fingers: keep 1 and 1 cm. Its face **`SolverCloth`** (src/bodies) has
+checks) and a band under 1 cm both let the glove stick on his fingers: keep 1 and 1 cm. (Cheap
+floors pass most of his faces over: its plane, then its bounding sphere; a point whose clearance,
+less its and his skin's moves since, is past the band isn't looked at again that tick.) **Itself**
+(step 3, #997): `self_thickness` (0 off; 2 mm for the glove, off in GarmentHandoff for now),
+`self_friction`, `self_stick`: each point kept off its own triangles (never one of its own) on the
+side it was on at the substep's start, before his body (through one only if it was near its inside
+then too); no bounce, friction on the slide, slower than `self_stick` (2 cm/s) the layers stick (else a
+pile's squeezed points buzz and it never rests). Its triangles hashed and each point's near ones listed every few
+substeps (reach: its move against the cloth's mean, so the list's interval keeps it about a
+thickness), each list in triangle order (cell size and interval only cost). Measures `self_contacts`,
+`self_contacts_total`, `self_pairs`, `self_lists`. A layer is only caught within two thicknesses of
+another: faster than 2 × thickness a substep (2 mm at 20 substeps: 4.8 m/s apart) goes through; met
+every 4th substep a pile tangled through itself, a fixed 5-substep list missed contacts. Its face **`SolverCloth`** (src/bodies) has
 GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
 `came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
 the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `tune(name, v)`.
-GarmentHandoff uses it. Not yet: itself, the world's props (steps 3-4); nothing takes a glove off in
+GarmentHandoff uses it (itself off: one MetaHuman start in seven still never rested, #997). Not yet: the world's props (step 4); nothing takes a glove off in
 play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
 clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
 convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20
-substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). With his skin the glove costs ~1.3 ms a tick
-at Sean's while it's drawn off (~2 here; the solver alone was 0.38): the cost is step 4's. Build here:
+substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). The glove at Sean's: with his skin
+~1.5 ms a tick while it's drawn off, with itself too ~7.2 drawn, ~6.8 tossed, ~4.2 settling (the
+solver alone 0.38; #997's cost table): itself is mostly its lists (a bunched glove has 100-200 of its
+triangles near each point's cell, ~19 lists a tick while it's drawn fast). Build here:
 `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, copy
 the .so to bin/. The glove's mesh for probes in
 plain Rust: `experiments/cloth_core/glove_sean_s3.json` (bridge `cc_dump`). `tests/test_cloth_core.gd`; the lab `experiments/cloth_core/`.

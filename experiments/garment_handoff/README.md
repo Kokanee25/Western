@@ -9,6 +9,41 @@ this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on
 "glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
 `GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
 
+## Itself (#997, `results/2026-11-16-self/`)
+
+Our cloth can meet itself (`self_thickness`; ClothCore, LAYOUT "src/bodies"), and the glove was filmed
+with it on (`films_metahuman.txt`: `gh_dress self_thickness:0.002`). **Off in GarmentHandoff for now**
+(see below); the lab turns it on with `--solver=self_thickness:0.002` (bench) or `gh_dress NAME:VALUE`.
+
+- **The film, on the MetaHuman** (lavapipe, `--real`, 960x540):
+  [`metahuman_hands.mp4`](results/2026-11-16-self/metahuman_hands.mp4),
+  [`metahuman_draw_half_speed.mp4`](results/2026-11-16-self/metahuman_draw_half_speed.mp4) (the bunch
+  in his hand) and [`metahuman_wide.mp4`](results/2026-11-16-self/metahuman_wide.mp4) (the landing). The
+  glove gathers in his right hand as it comes off and lies crumpled by the chair, 8.7 cm high (4.4 without
+  itself: flat through itself). Flung 0, stretch 1.09, at rest 8.1 s.
+- **Where the under-skin points are** (the bench's count, `through_worst`): at the draw's worst (2.97 s)
+  most are on his **upper arm, under the cuff** (25 of 48-63, 2-28 mm deep), then his forearm's twist
+  (6-9) and hand (5-8). The worn glove alone counts 11 (the count's floor). With itself on: 63 -> 49-56,
+  over 5 mm 43 -> 26-37.
+- **The cost** (`bench.gd`, ms a tick, this workspace / Sean's at ×0.65; the solver's own step):
+
+  | Phase | main (#986), skin | now, skin | now, skin + itself |
+  |---|---|---|---|
+  | drawn off | 2.61 / 1.70 | 2.40 / 1.56 | 11.15 / 7.2 |
+  | tossed | 0.61 / 0.40 | 0.72 / 0.47 | 10.46 / 6.8 |
+  | settling | 0.58 / 0.38 | 0.61 / 0.39 | 6.53 / 4.2 |
+
+  Skin: cheaper floors (a face's plane, then its sphere; a far point skipped till it could be near) cut
+  his skin's exact tests 5× (the sleeve bench: 3.8 -> 2.8 ms). Itself: its lists. A bunched glove is
+  dense (100-200 of its triangles near each point's cell), its points move fast against each other while
+  it's drawn and tumbling, so it's listed ~19 times a tick (~15-24k pairs). Not tried: a hierarchy with
+  normal cones (Provot 1997), threads.
+- **Why off:** across starts (`--seed`), sean_s3_talking's four all rest (7.3-7.6 s, nothing flung), the
+  MetaHuman's seeds 1 and 3 rest, **seed 2 never does** (4.9 cm/s after 16 s). Fixed on the way: a pile
+  buzzing forever (layers slower than 2 cm/s against each other now stick) and a tossed glove yanked
+  through him (a point counts as through its own triangle only if it was near its inside a substep
+  before). Two fixes for that fault: the third is the next session's.
+
 ## On our own cloth (#986, `results/2026-11-15-ours/`)
 
 The part now takes the glove off on our own cloth (`SolverCloth`, the native plugin's `ClothCore`), which

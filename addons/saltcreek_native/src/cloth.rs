@@ -31,6 +31,13 @@
 //!   detection of deformable objects": the triangles hashed into cells by their boxes each tick, the
 //!   cloth's points looked up in them), as positions in XPBD's way. It comes last in a substep, so
 //!   nothing ends a substep inside him.
+//! - **itself** (step 3), before his body: each point kept `self_thickness` off its own triangles
+//!   (never one of its own) on the side of each it was on at the substep's start, the push shared
+//!   by their inverse masses; after the substep's speeds, the push isn't kept as speed apart (no
+//!   bounce) and friction takes from their slide. Its triangles are hashed by their boxes (Teschner
+//!   et al. 2003) and each point's near ones listed, again every few substeps, its reach its move
+//!   against the cloth's mean (Bridson et al. 2002's thickness and side, as XPBD position
+//!   constraints, Müller et al. 2007's point-triangle one). A sheet folded flat stays two layers.
 //! Pins are points with no inverse mass, carried by the caller: their targets are set once a tick
 //! and they move there in even steps over the substeps.
 //!
@@ -120,6 +127,14 @@ pub struct Tuning {
     /// His body is met every this many substeps (and always on a tick's last), each time over the
     /// whole move since the last (the crossing test spans them, so nothing slips through between).
     pub body_every: u32,
+    /// m: the cloth kept this far off itself (a point off its own triangles); 0: it doesn't meet
+    /// itself.
+    pub self_thickness: f32,
+    /// Friction where it lies on itself (the share of the push taken off the layers' slide).
+    pub self_friction: f32,
+    /// m/s: layers touching that move against each other slower than this stick (static friction:
+    /// without it a pile's points squeezed between two layers buzz and it never rests).
+    pub self_stick: f32,
 }
 
 impl Default for Tuning {
@@ -145,6 +160,9 @@ impl Default for Tuning {
             body_friction_kinetic: 0.2,
             body_front_only: false,
             body_every: 1,
+            self_thickness: 0.0,
+            self_friction: 0.3,
+            self_stick: 0.02,
         }
     }
 }
@@ -183,6 +201,35 @@ pub struct Cloth {
     /// back, 0 not near it).
     pub body: Body,
     pub side: Vec<i8>,
+    /// Itself (step 3): each free point's own triangles near it this tick, and the contacts made.
+    pub own: Own,
+}
+
+/// The cloth against itself: a spatial hash of its own triangles once a tick (Teschner et al. 2003),
+/// each point's near ones listed (never its own), and each substep's contacts (for the no-bounce).
+#[derive(Clone, Debug, Default)]
+pub struct Own {
+    cand_at: Vec<u32>,
+    cand: Vec<u32>,
+    start: Vec<u32>,
+    entries: Vec<u32>,
+    reach: Vec<f32>,
+    stamp: Vec<u32>,
+    stamp_now: u32,
+    /// This substep's contacts: the point, the triangle, the weights of its nearest point, the
+    /// normal (from the point's side), and the push's size.
+    hits: Vec<(u32, u32, V3, V3, f32)>,
+    /// Where the points were at its last meeting (the substep's start), and its triangles' bounding
+    /// spheres now (centre, radius).
+    since: Vec<V3>,
+    sph: Vec<[f32; 4]>,
+    /// Measures: contacts at the last substep, and since built; points listed against, last tick.
+    pub contacts: u32,
+    pub total: u64,
+    pub listed: u32,
+    /// This tick: the pairs listed, summed over its lists, and how many lists.
+    pub listed_pairs: u32,
+    pub rebuilds: u32,
 }
 
 /// The wearer's skin as the cloth's collider: triangles of points the caller moves each tick.
@@ -202,6 +249,10 @@ pub struct Body {
     /// too far from a point costs two loads and a dot product.
     p_before: Vec<[f32; 4]>,
     p_now: Vec<[f32; 4]>,
+    /// Its near triangles' bounding spheres now (centre, radius): with the plane, a second cheap
+    /// floor under a point's distance to one (his skin's neighbours are nearly in one plane, so the
+    /// plane alone passes most of them over to the exact test).
+    s_now: Vec<[f32; 4]>,
     /// The triangles near the free cloth this tick, and their points (the rest aren't posed or
     /// looked at).
     keep: Vec<bool>,
@@ -232,6 +283,16 @@ pub struct Body {
     /// Each point's nearest triangle at its last check (u32::MAX none): looked at first, so the rest
     /// are mostly passed over by their planes.
     near_tri: Vec<u32>,
+    /// Per point, a floor under its distance to every one of its triangles at its last full check
+    /// (0: near him), where it was then and the tick's fraction then; and the farthest any of his
+    /// points moves this tick. A point that can't have come within the band since (its clearance
+    /// less its move and his skin's) isn't looked at again this tick.
+    clear: Vec<f32>,
+    clear_at: Vec<V3>,
+    clear_f: Vec<f32>,
+    max_move: f32,
+    /// Points passed over so (since it was set; a measure).
+    pub skipped: u64,
 }
 
 impl Cloth {
@@ -397,9 +458,30 @@ impl Cloth {
             self.body.since.clear();
             self.body.since.extend_from_slice(&self.x);
         }
+        let self_on = self.t.self_thickness > 0.0;
+        // Its own near triangles listed again every `group` substeps, as few as keep each list's reach
+        // (its points' moves relative to the cloth's mean over the group, twice over) about one
+        // thickness: a bunched glove's layers sliding fast are listed often, a still one once a tick.
+        let mut group = n_sub;
+        self.own.listed_pairs = 0;
+        self.own.rebuilds = 0;
+        if self_on {
+            self.own.since.clear();
+            self.own.since.extend_from_slice(&self.x);
+            let m = self.relative_move(dt);
+            let per_sub = 2.0 * m / n_sub as f32;
+            if per_sub > 1e-9 {
+                group = ((self.t.self_thickness / per_sub) as u32).clamp(1, n_sub);
+            }
+            // (A fixed 5 substeps a list, the reach from the speeds then, missed contacts a pile of
+            // sheet makes as its speeds change within them.)
+        }
         let mut last_meet = 0u32;
         for s in 0..n_sub {
             let f = (s + 1) as f32 / n_sub as f32;
+            if self_on && s % group == 0 {
+                self.own_candidates(h * group.min(n_sub - s) as f32, group.min(n_sub - s) as f32 / n_sub as f32);
+            }
             for i in 0..n {
                 prev[i] = self.x[i];
                 if self.pinned[i] {
@@ -423,13 +505,22 @@ impl Cloth {
                     break;
                 }
             }
+            // (Every substep: met every 4th over the whole move since, a pile of sheet tangled
+            // through itself.)
+            let self_meet = self_on;
+            if self_meet {
+                self.collide_self();
+            }
             if body_on && ((s + 1) % every == 0 || s + 1 == n_sub) {
                 let at = self.body.at_f;
                 self.body.pose(at, f, at == 0.0);
-                self.collide_body(&mut prev, s + 1 - last_meet, s + 1 == n_sub);
+                self.collide_body(&mut prev, s + 1 - last_meet, s + 1 == n_sub, f);
                 last_meet = s + 1;
                 self.body.at_f = f;
                 self.body.since.copy_from_slice(&self.x);
+            }
+            if self_meet {
+                self.own.since.copy_from_slice(&self.x);
             }
             for i in 0..n {
                 if !self.pinned[i] {
@@ -437,6 +528,9 @@ impl Cloth {
                 } else {
                     self.v[i] = [0.0; 3];
                 }
+            }
+            if self_meet {
+                self.self_no_bounce(h);
             }
         }
         for i in 0..n {
@@ -683,6 +777,10 @@ impl Cloth {
                 chi[k] = chi[k].max(self.x[i][k] + r);
             }
         }
+        b.clear.clear();
+        b.clear.resize(n, 0.0);
+        b.clear_at.resize(n, [0.0; 3]);
+        b.clear_f.resize(n, 0.0);
         b.cand_at.clear();
         b.cand.clear();
         b.cand_at.push(0);
@@ -717,6 +815,16 @@ impl Cloth {
                 for_cells(lo, hi, cell, |key| count[hash(key, size)] += 1);
             }
         }
+        let mut mm = 0.0f32;
+        for t in 0..nt {
+            if keep[t] {
+                for &v in &b.tris[t] {
+                    let d = sub(b.to[v as usize], b.from[v as usize]);
+                    mm = mm.max(dot(d, d));
+                }
+            }
+        }
+        b.max_move = mm.sqrt();
         // Counting sort into buckets (fixed order: the same input, the same lists).
         b.start.clear();
         b.start.resize(size + 1, 0);
@@ -778,7 +886,7 @@ impl Cloth {
     /// Each free point against his body, at the substep's end: kept `body_thickness` off the nearest
     /// triangle on its own side, a crossing within the substep put back, friction on its move along
     /// him relative to his skin's move.
-    fn collide_body(&mut self, prev: &mut [V3], subs: u32, count: bool) {
+    fn collide_body(&mut self, prev: &mut [V3], subs: u32, count: bool, f_now: f32) {
         let th = self.t.body_thickness;
         let band = self.t.body_band.max(th);
         let (mu_s, mu_k) = (self.t.body_friction_static, self.t.body_friction_kinetic);
@@ -798,10 +906,22 @@ impl Cloth {
                 continue;
             }
             let x = self.x[i];
+            if b.clear[i] > 0.0 {
+                let room = b.clear[i] - len(sub(x, b.clear_at[i])) - b.max_move * (f_now - b.clear_f[i]);
+                if room > band {
+                    self.side[i] = 0;
+                    b.skipped += 1;
+                    continue;
+                }
+            }
+            // Its clearance this check (a floor under its distance to every triangle; 0 once one is
+            // within the band).
+            let mut clear = f32::MAX;
             // Its move since his body was last met (`subs` substeps).
             let p = b.since[i];
             // The nearest triangle now, and the earliest crossing of one within the substep.
             let mut best = f32::MAX;
+            let mut sbest = f32::MAX;
             let mut bt = usize::MAX;
             let mut bq = [0.0f32; 3];
             let mut bbc = [0.0f32; 3];
@@ -824,8 +944,6 @@ impl Cloth {
             }
             for k in s0..s1 {
                 let t = b.cand[k] as usize;
-                let tr = b.tris[t];
-                let (a, bb, c) = (b.now[tr[0] as usize], b.now[tr[1] as usize], b.now[tr[2] as usize]);
                 let pl = b.p_now[t];
                 let n1 = [pl[0], pl[1], pl[2]];
                 let sx = dot(x, n1) - pl[3];
@@ -837,6 +955,8 @@ impl Cloth {
                 if (sp > 0.0 && sx < 0.0) || (sp < 0.0 && sx > 0.0) {
                     let u = sp / (sp - sx);
                     if u < cross_t {
+                        let tr = b.tris[t];
+                        let (a, bb, c) = (b.now[tr[0] as usize], b.now[tr[1] as usize], b.now[tr[2] as usize]);
                         let (a0, b0, c0) = (b.before[tr[0] as usize], b.before[tr[1] as usize], b.before[tr[2] as usize]);
                         let y = add(p, scale(sub(x, p), u));
                         let (ya, yb, yc) = (lerp(a0, a, u), lerp(b0, bb, u), lerp(c0, c, u));
@@ -851,7 +971,14 @@ impl Cloth {
                     }
                 }
                 if sx.abs() > band {
+                    clear = clear.min(sx.abs());
                     continue;
+                }
+                if clear > 0.0 {
+                    let sph = b.s_now[t];
+                    let dm = sub(x, [sph[0], sph[1], sph[2]]);
+                    let lb = dot(dm, dm).sqrt() - sph[3];
+                    clear = if lb > band { clear.min(lb) } else { 0.0 };
                 }
                 // (For a pinch: every face within the band of it, by its plane: where it would meet it.)
                 if near < 6 {
@@ -865,17 +992,33 @@ impl Cloth {
                 if sx * sx >= best {
                     continue;
                 }
+                // Nor nearer than its sphere's surface: farther than the nearest yet by that, no look.
+                let sph = b.s_now[t];
+                let dm = sub(x, [sph[0], sph[1], sph[2]]);
+                let reach = sbest + sph[3];
+                if best < f32::MAX && dot(dm, dm) > reach * reach {
+                    continue;
+                }
+                let tr = b.tris[t];
+                let (a, bb, c) = (b.now[tr[0] as usize], b.now[tr[1] as usize], b.now[tr[2] as usize]);
                 let bc = closest_on_tri(x, a, bb, c);
                 let q = bary(a, bb, c, bc);
                 let d = dot(sub(x, q), sub(x, q));
                 if d < best {
                     best = d;
+                    sbest = d.sqrt();
                     bt = t;
                     bq = q;
                     bbc = bc;
                 }
             }
             b.near_tri[i] = if bt == usize::MAX { u32::MAX } else { bt as u32 };
+            if cross_tri != usize::MAX || clear == f32::MAX {
+                clear = 0.0;
+            }
+            b.clear[i] = clear;
+            b.clear_at[i] = x;
+            b.clear_f[i] = f_now;
             if bt == usize::MAX && cross_tri == usize::MAX {
                 self.side[i] = 0;
                 continue;
@@ -999,6 +1142,308 @@ impl Cloth {
         }
     }
 
+    /// Each point's move over `span` s at its speed now (a pin: `frac` of its move this tick), and
+    /// the mean of them all.
+    fn moves(&self, span: f32, frac: f32) -> (Vec<V3>, V3) {
+        let n = self.x.len();
+        let mut mean = [0.0f32; 3];
+        let mut d = Vec::with_capacity(n);
+        for i in 0..n {
+            let m = if self.pinned[i] { scale(sub(self.pin_to[i], self.pin_from[i]), frac) } else { scale(self.v[i], span) };
+            mean = add(mean, m);
+            d.push(m);
+        }
+        (d, scale(mean, 1.0 / n.max(1) as f32))
+    }
+
+    /// The farthest any point moves this tick against the cloth's mean move (m).
+    fn relative_move(&self, dt: f32) -> f32 {
+        let (d, mean) = self.moves(dt, 1.0);
+        d.iter().fold(0.0f32, |m, x| m.max(len(sub(*x, mean))))
+    }
+
+    /// Every few substeps: its own triangles hashed by their boxes (grown by their points' reach over
+    /// the next `span` s), and each point's near ones listed: within its reach and theirs, never one of
+    /// its own. The reach is against the cloth's mean move (only the layers' moves relative to each
+    /// other bring them together: a glove falling as one lists nothing new).
+    fn own_candidates(&mut self, span: f32, frac: f32) {
+        let n = self.x.len();
+        let th = self.t.self_thickness;
+        let (d, mean) = self.moves(span, frac);
+        let o = &mut self.own;
+        o.reach.clear();
+        for i in 0..n {
+            o.reach.push(th + (2.0 * len(sub(d[i], mean)) + 0.0005).min(REACH));
+        }
+        let nt = self.tris.len();
+        let mut sum = 0.0f32;
+        for e in &self.rest {
+            sum += *e;
+        }
+        let edge = if self.rest.is_empty() { 0.01 } else { sum / self.rest.len() as f32 };
+        let cell = edge.max(4.0 * th).max(1e-3);
+        let size_at = 0usize; // (set below, once the boxes are known)
+        let mut lo = vec![[0.0f32; 3]; nt];
+        let mut hi = vec![[0.0f32; 3]; nt];
+        let mut rt = vec![0.0f32; nt];
+        for t in 0..nt {
+            let tr = self.tris[t];
+            let r = o.reach[tr[0] as usize].max(o.reach[tr[1] as usize]).max(o.reach[tr[2] as usize]);
+            let mut l = [f32::MAX; 3];
+            let mut h = [f32::MIN; 3];
+            for &v in &tr {
+                for k in 0..3 {
+                    l[k] = l[k].min(self.x[v as usize][k]);
+                    h[k] = h[k].max(self.x[v as usize][k]);
+                }
+            }
+            lo[t] = l;
+            hi[t] = h;
+            rt[t] = r;
+        }
+        // Twice as many buckets as entries: a bunched glove's cells crowd, and a shared bucket is
+        // every point in either visiting both cells' triangles.
+        let mut cells = 0usize;
+        for t in 0..nt {
+            let r = rt[t];
+            let a = sub(lo[t], [r; 3]);
+            let z = add(hi[t], [r; 3]);
+            let mut k = 1usize;
+            for d in 0..3 {
+                k *= ((z[d] / cell).floor() - (a[d] / cell).floor()) as usize + 1;
+            }
+            cells += k.min(1 << 20);
+        }
+        let _ = size_at;
+        let size = (2 * cells).next_power_of_two().max(64);
+        let mut count = vec![0u32; size + 1];
+        for t in 0..nt {
+            let r = rt[t];
+            for_cells(sub(lo[t], [r; 3]), add(hi[t], [r; 3]), cell, |key| count[hash(key, size)] += 1);
+        }
+        o.start.clear();
+        o.start.resize(size + 1, 0);
+        let mut acc = 0u32;
+        for k in 0..size {
+            o.start[k] = acc;
+            acc += count[k];
+        }
+        o.start[size] = acc;
+        o.entries.clear();
+        o.entries.resize(acc as usize, 0);
+        let mut fill: Vec<u32> = o.start[..size].to_vec();
+        for t in 0..nt {
+            let r = rt[t];
+            let entries = &mut o.entries;
+            for_cells(sub(lo[t], [r; 3]), add(hi[t], [r; 3]), cell, |key| {
+                let h = hash(key, size);
+                entries[fill[h] as usize] = t as u32;
+                fill[h] += 1;
+            });
+        }
+        o.cand_at.clear();
+        o.cand.clear();
+        o.cand_at.push(0);
+        o.stamp.resize(nt, 0);
+        let mut listed = 0u32;
+        for i in 0..n {
+            let p = self.x[i];
+            // Looked up in the cells its own reach covers; the triangles' boxes are grown by theirs.
+            let r = o.reach[i];
+            o.stamp_now = o.stamp_now.wrapping_add(1);
+            if o.stamp_now == 0 {
+                o.stamp.iter_mut().for_each(|s| *s = 0);
+                o.stamp_now = 1;
+            }
+            let now = o.stamp_now;
+            let (start, entries, stamp, cand) = (&o.start, &o.entries, &mut o.stamp, &mut o.cand);
+            let before = cand.len();
+            let (x, tris) = (&self.x, &self.tris);
+            for_cells(sub(p, [r; 3]), add(p, [r; 3]), cell, |key| {
+                let hh = hash(key, size);
+                for e in start[hh]..start[hh + 1] {
+                    let t = entries[e as usize] as usize;
+                    if stamp[t] == now {
+                        continue;
+                    }
+                    stamp[t] = now;
+                    let tr = tris[t];
+                    if tr[0] as usize == i || tr[1] as usize == i || tr[2] as usize == i {
+                        continue;
+                    }
+                    let reach = r + rt[t];
+                    if (0..3).any(|k| p[k] < lo[t][k] - reach || p[k] > hi[t][k] + reach) {
+                        continue;
+                    }
+                    let (a, b, c) = (x[tr[0] as usize], x[tr[1] as usize], x[tr[2] as usize]);
+                    let q = bary(a, b, c, closest_on_tri(p, a, b, c));
+                    if dot(sub(p, q), sub(p, q)) < reach * reach {
+                        cand.push(t as u32);
+                    }
+                }
+            });
+            // In triangle order: what it meets, and in what order, doesn't hang on the cells or how
+            // often it's listed (they're only the cost).
+            cand[before..].sort_unstable();
+            if cand.len() > before {
+                listed += 1;
+            }
+            o.cand_at.push(cand.len() as u32);
+        }
+        o.listed = listed;
+        o.listed_pairs += o.cand.len() as u32;
+        o.rebuilds += 1;
+    }
+
+    /// Each point off its own near triangles by `self_thickness`, on the side of each it was on at
+    /// the last meeting (so a fold pressed flat stays two layers, never resolved through), the
+    /// push shared by their inverse masses (Bridson et al. 2002's thickness and side, as XPBD
+    /// position constraints; Müller et al. 2007's point-triangle constraint).
+    fn collide_self(&mut self) {
+        let th = self.t.self_thickness;
+        let o = &mut self.own;
+        o.hits.clear();
+        let since = std::mem::take(&mut o.since);
+        let prev = &since;
+        o.sph.clear();
+        for tr in &self.tris {
+            let (a, b, c) = (self.x[tr[0] as usize], self.x[tr[1] as usize], self.x[tr[2] as usize]);
+            let m = scale(add(add(a, b), c), 1.0 / 3.0);
+            let r2 = dot(sub(a, m), sub(a, m)).max(dot(sub(b, m), sub(b, m))).max(dot(sub(c, m), sub(c, m)));
+            o.sph.push([m[0], m[1], m[2], r2.sqrt()]);
+        }
+        for i in 0..self.x.len() {
+            let (s0, s1) = (o.cand_at[i] as usize, o.cand_at[i + 1] as usize);
+            for k in s0..s1 {
+                let t = o.cand[k] as usize;
+                let tr = self.tris[t];
+                let (ia, ib, ic) = (tr[0] as usize, tr[1] as usize, tr[2] as usize);
+                let x = self.x[i];
+                // Near enough to matter: within two thicknesses (its sphere first, then the triangle
+                // itself). (Within their moves since past it, to catch deeper crossings, a fast
+                // point beside a triangle was taken as through it and yanked back: the glove flew.)
+                let lim = 2.0 * th;
+                let sp = o.sph[t];
+                let dm = sub(x, [sp[0], sp[1], sp[2]]);
+                let rr = sp[3] + lim;
+                if dot(dm, dm) > rr * rr {
+                    continue;
+                }
+                let (a, b, c) = (self.x[ia], self.x[ib], self.x[ic]);
+                let bc = closest_on_tri(x, a, b, c);
+                let d = sub(x, bary(a, b, c, bc));
+                let dd = dot(d, d);
+                if dd > lim * lim {
+                    continue;
+                }
+                let n = face_normal(a, b, c);
+                // Its side: where it was at the last meeting against the triangle then, by its nearest
+                // point on it then. Through it only if it was near it then too (within two thicknesses,
+                // over its inside): a fast point that was beside it, or far, hasn't crossed it, it's
+                // only come near (taken as through, such points were yanked back: a tossed glove flew).
+                let (pa, pb, pc) = (prev[ia], prev[ib], prev[ic]);
+                let pbc = closest_on_tri(prev[i], pa, pb, pc);
+                let poff = sub(prev[i], bary(pa, pb, pc, pbc));
+                let s_then = dot(poff, face_normal(pa, pb, pc));
+                let was_near = dot(poff, poff) <= lim * lim && pbc[0] > 1e-6 && pbc[1] > 1e-6 && pbc[2] > 1e-6;
+                let s_now = dot(d, n);
+                let sg = if s_then.abs() > 1e-7 { s_then.signum() } else if s_now >= 0.0 { 1.0 } else { -1.0 };
+                let h = s_now * sg;
+                let dist = dd.sqrt();
+                let inside = was_near && bc[0] > 1e-6 && bc[1] > 1e-6 && bc[2] > 1e-6;
+                // On its side: out along the way from the triangle (round an edge too); through it (over
+                // its inside): back out of its face on the side it came from. Beside an edge, in its
+                // plane, it hasn't crossed: only the distance.
+                let (dir, cval) = if h > 0.0 || !inside {
+                    if dist < 1e-9 {
+                        continue;
+                    }
+                    (scale(d, 1.0 / dist), dist - th)
+                } else {
+                    (scale(n, sg), h - th)
+                };
+                if cval >= 0.0 {
+                    continue;
+                }
+                let wi = self.w[i];
+                let wsum = wi + bc[0] * bc[0] * self.w[ia] + bc[1] * bc[1] * self.w[ib] + bc[2] * bc[2] * self.w[ic];
+                if wsum < 1e-12 {
+                    continue;
+                }
+                let lam = -cval / wsum;
+                self.x[i] = add(self.x[i], scale(dir, wi * lam));
+                self.x[ia] = sub(self.x[ia], scale(dir, self.w[ia] * bc[0] * lam));
+                self.x[ib] = sub(self.x[ib], scale(dir, self.w[ib] * bc[1] * lam));
+                self.x[ic] = sub(self.x[ic], scale(dir, self.w[ic] * bc[2] * lam));
+                o.hits.push((i as u32, t as u32, bc, dir, -cval));
+            }
+        }
+        o.contacts = o.hits.len() as u32;
+        o.total += o.hits.len() as u64;
+        o.since = since;
+    }
+
+    /// After a substep's speeds: each contact's push isn't kept as speed apart (no bounce: the layers
+    /// part only as fast as they were parting), friction takes up to `self_friction` × the push off
+    /// their slide over each other, and under `self_stick` they move together.
+    fn self_no_bounce(&mut self, h: f32) {
+        let mu = self.t.self_friction;
+        let stick = self.t.self_stick;
+        let o = &self.own;
+        for &(i, t, bc, n, depth) in &o.hits {
+            let i = i as usize;
+            let tr = self.tris[t as usize];
+            let (ia, ib, ic) = (tr[0] as usize, tr[1] as usize, tr[2] as usize);
+            let w = [self.w[i], self.w[ia], self.w[ib], self.w[ic]];
+            let wsum = w[0] + bc[0] * bc[0] * w[1] + bc[1] * bc[1] * w[2] + bc[2] * bc[2] * w[3];
+            if wsum < 1e-12 {
+                continue;
+            }
+            let vt = bary(self.v[ia], self.v[ib], self.v[ic], bc);
+            let rel = sub(self.v[i], vt);
+            let vn = dot(rel, n);
+            let push = depth / h;
+            let mut dv = [0.0f32; 3];
+            if vn > 0.0 {
+                dv = scale(n, -vn.min(push));
+            }
+            if mu > 0.0 {
+                let tang = sub(rel, scale(n, vn));
+                let m = len(tang);
+                if m > 1e-9 {
+                    dv = sub(dv, scale(tang, (mu * push / m).min(1.0)));
+                }
+            }
+            // Slow enough, they stick: all of what's left between them goes.
+            let left = add(rel, dv);
+            if dot(left, left) < stick * stick {
+                dv = scale(rel, -1.0);
+            }
+            // A relative change dv: the point takes w_i/wsum of it, the triangle's points the rest.
+            let f = 1.0 / wsum;
+            self.v[i] = add(self.v[i], scale(dv, w[0] * f));
+            self.v[ia] = sub(self.v[ia], scale(dv, w[1] * bc[0] * f));
+            self.v[ib] = sub(self.v[ib], scale(dv, w[2] * bc[1] * f));
+            self.v[ic] = sub(self.v[ic], scale(dv, w[3] * bc[2] * f));
+        }
+    }
+
+    /// The least distance from any point to a triangle not its own (m; for the tests: O(n²)).
+    pub fn self_least_gap(&self) -> f32 {
+        let mut m = f32::MAX;
+        for i in 0..self.x.len() {
+            for tr in &self.tris {
+                if tr.contains(&(i as u32)) {
+                    continue;
+                }
+                let (a, b, c) = (self.x[tr[0] as usize], self.x[tr[1] as usize], self.x[tr[2] as usize]);
+                let q = bary(a, b, c, closest_on_tri(self.x[i], a, b, c));
+                m = m.min(len(sub(self.x[i], q)));
+            }
+        }
+        m
+    }
+
     // --- Measures (for the tests, the face and the film) ---
 
     /// The largest edge length over its rest length now.
@@ -1062,6 +1507,7 @@ impl Body {
         let nt = self.tris.len();
         self.p_before.resize(nt, [0.0, 1.0, 0.0, 0.0]);
         self.p_now.resize(nt, [0.0, 1.0, 0.0, 0.0]);
+        self.s_now.resize(nt, [0.0; 4]);
         if first {
             self.place(f0);
         }
@@ -1079,9 +1525,12 @@ impl Body {
         for t in 0..self.tris.len() {
             if self.keep[t] {
                 let tr = self.tris[t];
-                let a = self.now[tr[0] as usize];
-                let n = face_normal(a, self.now[tr[1] as usize], self.now[tr[2] as usize]);
+                let (a, b, c) = (self.now[tr[0] as usize], self.now[tr[1] as usize], self.now[tr[2] as usize]);
+                let n = face_normal(a, b, c);
                 self.p_now[t] = [n[0], n[1], n[2], dot(n, a)];
+                let m = scale(add(add(a, b), c), 1.0 / 3.0);
+                let r2 = dot(sub(a, m), sub(a, m)).max(dot(sub(b, m), sub(b, m))).max(dot(sub(c, m), sub(c, m)));
+                self.s_now[t] = [m[0], m[1], m[2], r2.sqrt()];
             }
         }
     }
@@ -1590,6 +2039,31 @@ mod tests {
         eprintln!("{} points, {} body tris: {ms:.3} ms a tick, {:.1} candidates a point", c.len(), bt.len() / 3, cands as f64 / 120.0 / c.len() as f64);
     }
 
+    /// The cost of a glove-sized sheet (19×19 points, 0.25 m) bunching on itself: one corner held and
+    /// swung down to the floor and round, the rest falling on itself
+    /// (`cargo test --release -- --ignored --nocapture cost_of_a_sheet`; `SELF=` its thickness).
+    #[test]
+    #[ignore]
+    fn cost_of_a_sheet_bunching_on_itself() {
+        let env = |k: &str, d: f32| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+        let (p, tr) = sheet(19, 19, 0.25, 0.25, 0.4);
+        let t = Tuning { self_thickness: env("SELF", 0.003), bend_mode: SHAPED, bend_stiffness: 0.5, max_strain: 1.05, substeps: 20, ..Default::default() };
+        let mut c = Cloth::build(&p, &tr, 0.3, t).unwrap();
+        c.pin(0, true);
+        let t0 = std::time::Instant::now();
+        let (mut pairs, mut lists, mut contacts) = (0u64, 0u64, 0u64);
+        for k in 1..=240 {
+            let a = k as f32 * 0.05;
+            c.move_pin(0, [0.08 * a.cos(), (0.4 - 0.004 * k as f32).max(0.05), 0.08 * a.sin()]);
+            c.step(1.0 / 60.0);
+            pairs += c.own.listed_pairs as u64;
+            lists += c.own.rebuilds as u64;
+            contacts += c.own.contacts as u64;
+        }
+ let ms = t0.elapsed().as_secs_f64() * 1000.0 / 240.0;
+        eprintln!("{} points: {ms:.3} ms a tick; {:.0} pairs, {:.1} lists, {:.0} contacts a tick; least gap {:.4}", c.len(), pairs as f64 / 240.0, lists as f64 / 240.0, contacts as f64 / 240.0, c.self_least_gap());
+    }
+
     #[test]
     fn with_his_body_the_same_start_gives_the_same_bits() {
         let go = || {
@@ -1602,6 +2076,106 @@ mod tests {
             for k in 0..120 {
                 let moved: Vec<V3> = bp.iter().map(|q| [q[0] + 0.001 * k as f32, q[1], q[2]]).collect();
                 c.move_body(&moved);
+                c.step(1.0 / 60.0);
+            }
+            c.x
+        };
+        assert_eq!(go(), go());
+    }
+
+    /// A sheet 41×9 points folded over at x = 0 onto itself (the top layer 6 mm above the bottom, a
+    /// half-round fold), lying on the floor, then the top layer thrown down at 2 m/s for 10 ticks.
+    /// The top layer's lowest point over the bottom one and the least gap to a triangle not a point's own.
+    fn fold_and_press(self_th: f32) -> (f32, f32) {
+        let (p, tr) = sheet(41, 9, 0.4, 0.08, 0.0);
+        let t = Tuning { self_thickness: self_th, max_strain: 1.05, ..Default::default() };
+        let mut c = Cloth::build(&p, &tr, 0.2, t).unwrap();
+        let gap = 0.006;
+        let rad = gap / 2.0;
+        let arc = std::f32::consts::PI * rad;
+        for i in 0..c.len() {
+            let x = p[i][0];
+            // The fold: x > 0 laid back over x < 0 round a half circle of radius 3 mm at x = 0.
+            let (nx, ny) = if x <= 0.0 {
+                (x, 0.002)
+            } else if x < arc {
+                let a = x / rad;
+                (rad * a.sin(), 0.002 + rad - rad * a.cos())
+            } else {
+                (-(x - arc), 0.002 + gap)
+            };
+            c.x[i] = [nx, ny, p[i][2]];
+        }
+        for k in 0..60 {
+            if k < 10 {
+                for i in 0..c.len() {
+                    if p[i][0] > 0.05 {
+                        c.v[i] = [0.0, -2.0, 0.0];
+                    }
+                }
+            }
+            c.step(1.0 / 60.0);
+        }
+        // (Over the bottom layer: its free end may slide off the bottom's end onto the floor.)
+        let top = (0..c.len()).filter(|&i| p[i][0] > 0.05 && c.x[i][0] > -0.18).map(|i| c.x[i][1]).fold(f32::MAX, f32::min);
+        (top, c.self_least_gap())
+    }
+
+    #[test]
+    fn a_folded_sheet_pressed_flat_stays_two_layers() {
+        let th = 0.003;
+        let floor = 0.002;
+        let (top, gap) = fold_and_press(th);
+        assert!(top > floor + 0.5 * th, "the top layer stays over the bottom: {top}");
+        assert!(gap > 0.5 * th, "nowhere through itself: {gap}");
+        let (top0, gap0) = fold_and_press(0.0);
+        assert!(top0 < floor + 0.5 * th && gap0 < 0.5 * th, "without it the layers meet (the test means something): {top0} {gap0}");
+    }
+
+    /// A tube (16 round, radius 2 cm, 0.2 m long) lying on the floor, its upper half thrown down at
+    /// 2 m/s for 10 ticks (stamped flat). Its upper half's lowest point and the least gap.
+    fn squash_tube(self_th: f32) -> (f32, f32) {
+        let ys: Vec<f32> = (0..=10).map(|k| 0.02 * k as f32).collect();
+        let (pts, tr) = tube(16, &ys, |_| 0.02);
+        // Lying along z on the floor: (x, y, z) = (x, z + r + 2 mm, y).
+        let p: Vec<V3> = pts.iter().map(|q| [q[0], q[2] + 0.022, q[1] - 0.1]).collect();
+        // SHAPED, as the garments: FLAT bending takes a flat rest, and a round one rolls it along.
+        let t = Tuning { self_thickness: self_th, max_strain: 1.05, bend_mode: SHAPED, bend_stiffness: 0.5, ..Default::default() };
+        let mut c = Cloth::build(&p, &tr, 0.2, t).unwrap();
+        for k in 0..60 {
+            if k < 10 {
+                for i in 0..c.len() {
+                    if p[i][1] > 0.03 {
+                        c.v[i] = [0.0, -2.0, 0.0];
+                    }
+                }
+            }
+            c.step(1.0 / 60.0);
+        }
+        let top = (0..c.len()).filter(|&i| p[i][1] > 0.03).map(|i| c.x[i][1]).fold(f32::MAX, f32::min);
+        (top, c.self_least_gap())
+    }
+
+    #[test]
+    fn a_tube_squashed_flat_keeps_its_sides_apart() {
+        let th = 0.003;
+        let floor = 0.002;
+        let (top, gap) = squash_tube(th);
+        assert!(top > floor + 0.5 * th, "its top stays over its bottom: {top}");
+        assert!(gap > 0.5 * th, "nowhere through itself: {gap}");
+        let (top0, gap0) = squash_tube(0.0);
+        assert!(top0 < floor + 0.5 * th && gap0 < 0.5 * th, "without it the sides meet (the test means something): {top0} {gap0}");
+    }
+
+    #[test]
+    fn with_itself_the_same_start_gives_the_same_bits() {
+        let go = || {
+            let (p, tr) = sheet(12, 12, 0.3, 0.3, 0.2);
+            let t = Tuning { self_thickness: 0.003, ..Default::default() };
+            let mut c = Cloth::build(&p, &tr, 0.2, t).unwrap();
+            c.pin(0, true);
+            c.jitter(5, 2e-3);
+            for _ in 0..90 {
                 c.step(1.0 / 60.0);
             }
             c.x

@@ -44,6 +44,17 @@ func _physics_process(delta: float) -> void:
 		e[1] += part.collider.rebuild_us if part.collider.active else 0
 		e[2] += part.collider.last_tris if part.collider.active else 0
 		e[3] += 1
+		if part.ours():
+			# Our cloth's own step (ms, summed) and its contacts with itself (the most at once).
+			var core = (part.cloth as SolverCloth).core
+			var sm: Dictionary = rec.get_or_add("solver_ms", {})
+			sm[phase] = float(sm.get(phase, 0.0)) + core.millis()
+			if core.has_method("self_contacts"):
+				rec.self_max = maxi(int(rec.get("self_max", 0)), core.self_contacts())
+				var sp: Dictionary = rec.get_or_add("self_pairs", {})
+				sp[phase] = int(sp.get(phase, 0)) + core.self_pairs()
+				var sl: Dictionary = rec.get_or_add("self_lists", {})
+				sl[phase] = int(sl.get(phase, 0)) + core.self_lists()
 	var us := Time.get_ticks_usec() - t0
 	rec.us[phase] = float(rec.us.get(phase, 0.0)) + us
 
