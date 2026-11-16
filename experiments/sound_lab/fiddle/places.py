@@ -22,12 +22,14 @@ men at the bar.
 the bass, the kick and the lower half of the band, little above ~400 Hz; the doors and the upper windows
 let out only a trace of the hall's sound, round the corner of the stair and through the panes, dulled
 (Sean, 2026-11-16: the first take let too much out, it sounded like the live mix with crickets); the false front across the street sends a slap back (~55 ms); the feet only as
-a low thud. Around it the night: a little wind, crickets.
+a low thud. Around it the night: a little wind (the crickets taken out, Sean: CRICKETS off).
 """
 import numpy as np
 from scipy.signal import butter, fftconvolve, lfilter
 
 import common
+
+CRICKETS = False  # Sean, 2026-11-16: no crickets
 
 
 def _db(x):
@@ -142,7 +144,7 @@ def hear(place, L, R, beats, sr, rng, room_ir):
         target = -12.0
     elif place == "outside":
         ol, orr = room_ir(sr, rng, rt60=0.5)
-        cl, cr = crickets(n, sr, rng)
+        cl, cr = crickets(n, sr, rng) if CRICKETS else (np.zeros(n), np.zeros(n))
         for H, o, g, c in ((HL, ol, 1.0, cl), (HR, orr, 0.78, cr)):  # the saloon a little to the left
             walls = _lp(_lp(H, 320, sr, 2), 600, sr, 1) * _db(-8)
             openings = _delay(_lp(_lp(H, 900, sr, 2), 2500, sr, 1), 0.035, sr) * _db(-24)
@@ -150,7 +152,10 @@ def hear(place, L, R, beats, sr, rng, room_ir):
             src = g * (walls + openings + step)
             slap = _delay(_lp(src, 1200, sr), 0.055, sr) * _db(-10)
             x = src + slap + _db(-16) * fftconvolve(src, o)[:n]
-            out.append(x + _db(-38) * rms * wind(n, sr, rng) + _db(-34) * rms * c / (np.std(c) + 1e-12))
+            x = x + _db(-38) * rms * wind(n, sr, rng)
+            if CRICKETS:
+                x = x + _db(-34) * rms * c / (np.std(c) + 1e-12)
+            out.append(x)
         target = -17.0
     else:
         raise ValueError(place)

@@ -36,3 +36,5 @@ against the lows (the fiddle dulled, the floor's boom up).
 and windows let out far less (-24 dB, dulled above ~900 Hz), the walls pass more of the band's lower
 half (to ~400 Hz). Against 200-800 Hz, the 0.8-3 kHz band is now -20 dB (take 1: -1.4; the live mix:
 +1.5; downstairs: -2.2); what's above it is the crickets.
+
+**Outside, take 3:** no crickets (Sean: "there's still the sound of crickets"); `places.CRICKETS` off.
