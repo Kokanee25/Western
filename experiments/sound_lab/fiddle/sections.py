@@ -30,6 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 LEVELS = {"fiddle": 0.0, "guitar": -3.0, "banjo": -4.0, "bass": -2.0, "drums": -2.0}
 EDGE = 0.02   # s: each section's fade on the bar line
 DRUM_CLAPS = True
+DRUM_STYLE = "four"   # the plan's drum_style: "four" the kick on every beat, "stomp" boom-chick (1 and 3)
 # --live: where each player stands (-1 left, +1 right), the crowd, the room, the mix pushed up loud
 PAN = {"fiddle": -0.1, "guitar": -0.55, "banjo": 0.55, "bass": 0.0, "drums": 0.05}
 LIVE_LUFS = -10.0
@@ -48,7 +49,7 @@ def part(name, sc):
         bass.STYLE = "drive"
         return bass.render(bass.arrange(sc))
     if name == "drums":
-        drums.STYLE, drums.CLAP = "four", DRUM_CLAPS
+        drums.STYLE, drums.CLAP = DRUM_STYLE, DRUM_CLAPS
         return drums.render(drums.arrange(sc))
     raise ValueError(name)
 
@@ -154,8 +155,9 @@ def main():
     sc = json.load(open(src))
     planf = json.load(open(args[1] if os.path.isabs(args[1]) else os.path.join(HERE, args[1])))
     plan = planf["sections"]
-    global DRUM_CLAPS
+    global DRUM_CLAPS, DRUM_STYLE
     DRUM_CLAPS = planf.get("drum_claps", True)
+    DRUM_STYLE = planf.get("drum_style", "four")
     for kv in filter(None, opt.get("levels", "").split(",")):
         k, v = kv.split(":")
         LEVELS[k] = float(v)
@@ -254,14 +256,19 @@ def live(sc, planf, parts, when, starts, name, opt, sr, n):
             i = int((t - 2.0) * sr)
             seg = ch[i:i + len(r)]
             seg += 0.25 * band_rms * (r * env)[:len(seg)] / (np.std(r) + 1e-12)
+    # (the crowd's clapping, along or at the end, is off unless the plan asks: Sean, 2026-11-16, "the
+    # clap sounds horrible"; the cheer carries the end)
     end = n / sr - 2.0
     for ch in (L, R):
-        a = applause(sr, rng, tail + 1.0)
         r = roar(sr, rng, tail + 1.0)
         env = np.interp(np.arange(len(r)) / sr, [0, 0.3, 2.5, tail + 1.0], [0, 1, 0.6, 0])
         i = int(end * sr)
-        seg = ch[i:i + len(a)]
-        seg += (0.5 * band_rms * a / (np.std(a) + 1e-12) + 0.3 * band_rms * r * env / (np.std(r) + 1e-12))[:len(seg)]
+        seg = ch[i:i + len(r)]
+        x = 0.45 * band_rms * r * env / (np.std(r) + 1e-12)
+        if planf.get("applause"):
+            a = applause(sr, rng, tail + 1.0)
+            x = x + 0.5 * band_rms * a / (np.std(a) + 1e-12)
+        seg += x[:len(seg)]
     # the hall
     irl, irr = room_ir(sr, rng)
     wet = 10 ** (-13 / 20)

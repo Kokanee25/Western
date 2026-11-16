@@ -14,8 +14,8 @@ as the G the two imply (380 cents low, the same on every one), not the fiddle ou
 `live.mp3`: Sean asked "how do we make it loud and full of energy, like a live high-energy show".
 `tunes/sweet_by_and_by_live.abc` (132 bpm; verse, chorus, verse, chorus, a 4-bar stop-time break,
 a fill bar, the last chorus up a step in A) with `sweet_by_and_by_live.sections.json`, rendered by
-`sections.py --live`: players panned across the stage (constant power), the crowd clapping on two and
-four where the plan says `crowd`, a cheer at the key change, applause at the end, a synthetic hall
+`sections.py --live`: players panned across the stage (constant power), a cheer at the key change and
+at the end (the crowd's clapping, along and at the end, taken out: Sean, "the clap sounds horrible"), a synthetic hall
 (RT60 1.4 s), a bus compressor (3:1), tanh saturation and a peak ceiling; -10.0 LUFS, peak -3.3 dBFS.
 The compressor flattens the arc (every 6 s window sits between -9.5 and -10.9 LUFS), as a loud live
 mix does; the energy comes from the arrangement, not the level.

@@ -1,0 +1,121 @@
+{
+ "note": "The breakdown for the full floor (Sean, 2026-11-16): who plays in which bars (from 0, end not included); sections.py --live.",
+ "drum_claps": false,
+ "drum_style": "stomp",
+ "cheer_bar": 49,
+ "sections": [
+  {
+   "name": "kick-off, the banjo alone",
+   "bars": [
+    0,
+    2
+   ],
+   "players": [
+    "banjo"
+   ]
+  },
+  {
+   "name": "the band crashes in",
+   "bars": [
+    2,
+    4
+   ],
+   "players": [
+    "fiddle",
+    "guitar",
+    "banjo",
+    "bass",
+    "drums"
+   ]
+  },
+  {
+   "name": "A",
+   "bars": [
+    4,
+    20
+   ],
+   "players": [
+    "fiddle",
+    "guitar",
+    "banjo",
+    "bass",
+    "drums"
+   ]
+  },
+  {
+   "name": "B",
+   "bars": [
+    20,
+    36
+   ],
+   "players": [
+    "fiddle",
+    "guitar",
+    "banjo",
+    "bass",
+    "drums"
+   ]
+  },
+  {
+   "name": "the banjo's break",
+   "bars": [
+    36,
+    44
+   ],
+   "players": [
+    "guitar",
+    "banjo",
+    "bass",
+    "drums"
+   ]
+  },
+  {
+   "name": "stop-time, the fiddle alone",
+   "bars": [
+    44,
+    48
+   ],
+   "players": [
+    "fiddle"
+   ]
+  },
+  {
+   "name": "the roll",
+   "bars": [
+    48,
+    49
+   ],
+   "players": [
+    "drums"
+   ]
+  },
+  {
+   "name": "up a step: A, B, A",
+   "bars": [
+    49,
+    73
+   ],
+   "players": [
+    "fiddle",
+    "guitar",
+    "banjo",
+    "bass",
+    "drums"
+   ]
+  },
+  {
+   "name": "the tag",
+   "bars": [
+    73,
+    78
+   ],
+   "players": [
+    "fiddle",
+    "guitar",
+    "banjo",
+    "bass",
+    "drums"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,34 @@
+X:1
+T:Bring the House Down
+B:Written for Salt Creek (2026): the breakdown the band plays when the floor's full, and the floor gives way; a hoedown at a run, boom-chick under it, up a step for the last time through
+M:4/4
+L:1/8
+K:G
+% the kick-off: the banjo alone, then the band crashes in; the fiddle's pickup
+"G"z8 | "G"z8 | "D"z8 | "D"z6 Bc |
+% A: the hook, punched out
+"G"d2 Bd g2 dB | "G"G2 Bd g2 fg | "C"e2 ge c2 ec | "D"d2 BA GABc |
+"G"d2 Bd g2 dB | "G"G2 Bd g2 fg | "C"e2 ge "D"d2 cA | "G"G2 GG G2 Bc |
+"G"d2 Bd g2 dB | "G"G2 Bd g2 fg | "C"e2 ge c2 ec | "D"d2 BA GABc |
+"G"d2 Bd g2 dB | "G"G2 Bd g2 fg | "C"e2 ge "D"d2 cA | "G"G2 GG G2 Bd |
+% B: up the neck and hanging on it
+"C"e2 ef g2 ge | "G"d2 dB G2 Bd | "Em"e2 ef g2 ab | "D"a2 af d2 fa |
+"C"g2 ge c2 ec | "G"d2 dB G2 Bd | "D"a2 gf ed cA | "G"G2 GG G2 Bd |
+"C"e2 ef g2 ge | "G"d2 dB G2 Bd | "Em"e2 ef g2 ab | "D"a2 af d2 fa |
+"C"g2 ge c2 ec | "G"d2 dB G2 Bd | "D"a2 gf ed cA | "G"G2 GG G2 Bc |
+% the banjo's break: the fiddle sits out, the banjo rolls the A part
+"G"d2 Bd g2 dB | "G"G2 Bd g2 fg | "C"e2 ge c2 ec | "D"d2 BA GABc |
+"G"d2 Bd g2 dB | "G"G2 Bd g2 fg | "C"e2 ge "D"d2 cA | "G"G2 GG G2 Bd |
+% stop-time: the fiddle alone, running
+"G"g2 gf gfed | "C"e2 ec G2 ce | "G"dBGB "D"AFDF | "G"G2 G2 G2 z2 |
+% the drummer's roll, and up a step
+"E"z8 |
+K:A
+"A"e2 ce a2 ec | "A"A2 ce a2 ga | "D"f2 af d2 fd | "E"e2 cB ABcd |
+"A"e2 ce a2 ec | "A"A2 ce a2 ga | "D"f2 af "E"e2 dB | "A"A2 AA A2 ce |
+"D"f2 fg a2 af | "A"e2 ec A2 ce | "F#m"f2 fg a2 ba | "E"b2 bg e2 gb |
+"D"a2 af d2 fd | "A"e2 ec A2 ce | "E"b2 ag fe dB | "A"A2 AA A2 ce |
+"A"e2 ce a2 ec | "A"A2 ce a2 ga | "D"f2 af d2 fd | "E"e2 cB ABcd |
+"A"e2 ce a2 ec | "A"A2 ce a2 ga | "D"f2 af "E"e2 dB | "A"A2 AA A2 ce |
+% the tag, three times, and out
+"D"f2 af "E"e2 dB | "D"f2 af "E"e2 dB | "D"f2 af "E"e2 dB | "A"a2 e2 A2 z2 |
