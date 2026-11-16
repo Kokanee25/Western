@@ -29,9 +29,13 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - **First-person hands, option 2: in the game** (#914). `HeldHand` cuts MetaHuman Sean's hands, cuff and coat
   sleeve from `assets/people/private/harlan_fp.glb` (git-ignored; `tools/characters/fetch_fp_hands.sh` builds it
   from the Studio's frozen `sean_metahuman_s3`); else the painted arms. Holds and poses: `config/fp_holds.json`.
-  CI's export builds it into Windows/Linux (not web) **only once the `STUDIO_TOKEN` secret is set** (Sean, see
-  the waiting-on-Sean issue). Judge r2: 4/7 good indie; left: the aimed views' sleeve fills the view, the rifle's
-  fingers sink into the stock, the skin smooth ("mannequin"). The guns' blue steel is the guns', not the hands'.
+  CI's export builds it into Windows/Linux (not web) **only once the `STUDIO_TOKEN` secret is set**.
+- **The Colt in hand** (#1014, branch `claude/characters-viewmodel-colt-ps2nlf`): `ColtModel` (the approved SAA,
+  joined to 26 draws) in `RevolverViewmodel`; the viewmodels' own field of view (`view_fov` 54, a shear, no
+  second pass); per-pose elbows; the in-hand albedo grade (`held_albedo`); poses on a plain stage in seconds:
+  `experiments/viewmodel_rig/game_views.gd`. Blind judge r1 and r2: cheap indie (all 20), r2's top three: the
+  hand clamps the frame (not the grip), the rifle's steel black and its hands float, the hands and sleeve
+  toy-like; the town bench's cocking and firing frames show no change. Waiting on Sean (the issue linked in #1014).
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
@@ -44,6 +48,7 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   gameplay's, on Sean's word (README: the part, a native skin shape).
 
 ## Traps
+- The town's gun_arms bench under lavapipe: ~45 min; move `crash_reports/` aside first (a notice draws over frame 1).
 - Bench: `tools/characters/metahuman_bench.py` (~4 h, one game at a time); its `pgrep -f` waits match themselves, use `ps`.
 - After a build, `godot --headless --import` first; lab renders via `tools/characters/lab_run.sh`.
 - `talking_face.py --pin=no` for loose hair or a short head mesh (the edge pin slashes the chin).

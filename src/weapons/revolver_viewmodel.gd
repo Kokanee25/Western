@@ -10,23 +10,34 @@ extends WeaponViewmodel
 
 enum Pose { HIP, AIM, LOADING }
 
+## Where the gun hangs under the camera ([metres, degrees]): at the hip, low in the right of the view
+## with its line into the screen's centre; turned up to the gate to load. Aimed is `_aim_pose()`.
 const POSES := {
-	Pose.HIP: [Vector3(0.14, -0.16, -0.34), Vector3(1.5, 4.0, 0.0)],
-	Pose.AIM: [Vector3(0.0, -0.073, -0.3), Vector3(4.0, 0.0, 0.0)],
-	Pose.LOADING: [Vector3(0.03, -0.12, -0.29), Vector3(20.0, 24.0, 58.0)],
+	Pose.HIP: [Vector3(0.12, -0.12, -0.38), Vector3(3.0, 3.0, -8.0)],
+	Pose.LOADING: [Vector3(0.06, -0.11, -0.43), Vector3(20.0, 16.0, 58.0)],
 }
+## How far ahead of the eye the rear sight sits, aimed (metres).
+const AIM_RELIEF := 0.55
+## The aimed gun's cant about the line of sight (degrees; positive tops it to the left).
+const AIM_CANT := 0.0
+## Harlan's cut-off forearm aimed (HeldHand.elbow_drop, from the shoulder in the camera's space): the
+## arm out, so the sleeve drops steeply out of the view's bottom instead of running back into the lens.
+const AIM_ELBOW := Vector3(0.0, -0.35, -0.3)
 const HOLSTER_POS := Vector3(0.22, -0.55, -0.12)
 ## Up close to a wall (or a person) the gun comes back to the chest, muzzle up, instead of
 ## pushing through: a compressed high ready.
 const TUCK_POS := Vector3(0.15, -0.26, -0.14)
 const TUCK_ROT := Vector3(55.0, 22.0, -25.0)
-const HAMMER_ANGLES := {RevolverState.Hammer.DOWN: 0.0, RevolverState.Hammer.HALF_COCK: 22.0, RevolverState.Hammer.FULL_COCK: 44.0}
+## The viewmodel's own field of view (WeaponViewmodel.view_fov): the gun drawn as a 54 degree camera
+## would draw it, bigger and with less stretch than the world's 75.
+const VIEW_FOV := 54.0
 
 @export var tuning: RevolverTuning
 
 var state: RevolverState
 
-var model: RevolverModel
+## The approved Colt (#693, #1014): the gun lab's script-built SAA (ColtModel).
+var model: ColtModel
 var hand: HandModel
 
 var _hammer := 0.0
@@ -36,6 +47,9 @@ var _trigger := 0.0
 var _thumb := 0.0
 var _ejector := 0.0
 var _reload_held := 0.0
+var _finger_off := 1.0
+var _aim_k := 0.0
+var _aim_elbow := AIM_ELBOW
 ## The poses for the hands you have: `POSES`, or Harlan's first-person hands' own (HeldHand.hold:
 ## `colt.hip`, `colt.aim`, `colt.loading` in config/fp_holds.json).
 var _poses := POSES
@@ -47,14 +61,17 @@ func _ready() -> void:
 		tuning = load("res://config/revolver.tres")
 	state = RevolverState.new(tuning, hash(get_path()))
 	_rng.seed = 45
-	model = RevolverModel.new()
+	view_fov = VIEW_FOV
+	model = ColtModel.new()
+	model.held = true
 	model.name = "Revolver"
 	add_child(model)
 	hand = HandModel.new()
 	hand.name = "Hand"
 	add_child(hand)
-	_poses = {Pose.HIP: HeldHand.hold("colt.hip", POSES[Pose.HIP]), Pose.AIM: HeldHand.hold("colt.aim", POSES[Pose.AIM]),
+	_poses = {Pose.HIP: HeldHand.hold("colt.hip", POSES[Pose.HIP]), Pose.AIM: _aim_pose(),
 			Pose.LOADING: HeldHand.hold("colt.loading", POSES[Pose.LOADING])}
+	_aim_elbow = HeldHand.hold("colt.elbow_aim", AIM_ELBOW)
 	_pose_pos = _poses[Pose.HIP][0]
 	_pose_rot = _poses[Pose.HIP][1]
 	_setup_common()
@@ -71,6 +88,20 @@ func _ready() -> void:
 	_apply_pose(1.0)
 	_muzzle_local = model.transform * model.to_local(model.muzzle.global_position) if model.is_inside_tree() else Vector3(0, 0.02, -0.3)
 	_warm_up.call_deferred()
+
+
+## Down the sights, from the Colt's own markers (as the Winchester's): the rear notch and the front
+## blade on your line of sight, the notch `AIM_RELIEF` ahead of the eye (an arm out, the elbow a
+## little bent: one-handed, the gun is held well out).
+func _aim_pose() -> Array:
+	var rear := model.marker("SightRear")
+	var front := model.marker("SightFront")
+	var b := Basis.looking_at((front - rear).normalized(), Vector3.UP).inverse()
+	var relief: float = HeldHand.hold("colt.eye_relief", AIM_RELIEF)
+	# Canted a little about the line of sight (the sights stay on it): the cylinder's side to the eye.
+	var cant := Basis(Vector3.BACK, deg_to_rad(float(HeldHand.hold("colt.aim_cant", AIM_CANT))))
+	var pos := cant * (-(b * rear) + Vector3(0.0, 0.0, -relief))
+	return [pos, (cant * b).get_euler() * (180.0 / PI)]
 
 
 func _warm_up() -> void:
@@ -226,24 +257,38 @@ func _animate(delta: float) -> void:
 	_update_sway(delta)
 	_apply_pose(_draw)
 
-	var hammer_target: float = HAMMER_ANGLES[state.hammer]
-	_hammer = hammer_target if hammer_target < _hammer else move_toward(_hammer, hammer_target, delta * 44.0 / maxf(tuning.cock_time, 0.01))
-	model.hammer.rotation_degrees.x = _hammer
-	var cyl_target := state.under_hammer * 60.0 - (60.0 if state.gate_open else 0.0)
-	_cyl = rad_to_deg(lerp_angle(deg_to_rad(_cyl), deg_to_rad(cyl_target), 1.0 - exp(-delta * 18.0)))
-	model.cylinder.rotation_degrees.z = _cyl
-	_gate = move_toward(_gate, -80.0 if state.gate_open else 0.0, delta * 400.0)
-	model.gate.rotation_degrees.z = _gate
+	var hammer_target: float = _hammer_angle(state.hammer)
+	_hammer = hammer_target if hammer_target < _hammer else move_toward(_hammer, hammer_target, delta * model.notch("full") / maxf(tuning.cock_time, 0.01))
 	_trigger = move_toward(_trigger, 0.0, delta * 5.0)
-	model.trigger.rotation_degrees.x = -18.0 * _trigger
-	hand.set_trigger(_trigger)
+	model.hammer(_hammer, _trigger)
+	# Chamber k under the hammer is the cylinder turned -60k; with the gate open, the chamber worked
+	# on sits behind the gate instead.
+	var cyl_target := model.gate_turn(state.under_hammer) if state.gate_open else -60.0 * state.under_hammer
+	_cyl = rad_to_deg(lerp_angle(deg_to_rad(_cyl), deg_to_rad(cyl_target), 1.0 - exp(-delta * 18.0)))
+	model.cylinder(_cyl)
+	_gate = move_toward(_gate, 1.0 if state.gate_open else 0.0, delta * 5.0)
+	model.gate(_gate)
+	# The trigger finger lies along the frame until you aim or fire (#1014).
+	_finger_off = move_toward(_finger_off, 0.0 if aiming or _trigger > 0.0 else 1.0, delta * 6.0)
+	hand.set_trigger(_trigger, _finger_off)
+	_aim_k = move_toward(_aim_k, 1.0 if pose == Pose.AIM else 0.0, delta * 6.0)
+	hand.held.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_aim_elbow, smoothstep(0.0, 1.0, _aim_k))
 	_thumb = move_toward(_thumb, 0.0, delta * 3.5)
 	hand.set_thumb(_thumb)
 	_ejector = move_toward(_ejector, 0.0, delta * 3.0)
-	model.ejector.position.z = -0.21 + 0.035 * _ejector
+	model.ejector(_ejector)
 	model.show_chambers(state.chambers)
 
 	_animate_camera(delta, tuning.aim_fov)
+
+
+func _hammer_angle(h: int) -> float:
+	match h:
+		RevolverState.Hammer.HALF_COCK:
+			return model.notch("half")
+		RevolverState.Hammer.FULL_COCK:
+			return model.notch("full")
+	return 0.0
 
 
 func _apply_pose(drawn_amount: float) -> void:
@@ -252,5 +297,4 @@ func _apply_pose(drawn_amount: float) -> void:
 			+ _body_pos() * drawn_amount
 	var rot := _pose_rot.lerp(TUCK_ROT, t) + Vector3(kick.pitch, -kick.yaw, -kick.roll) * (1.0 - t) \
 			+ _sway_rotation() * (1.0 - t) * (0.0 if state.gate_open else 1.0)
-	position = pos
-	rotation_degrees = rot
+	_set_view(pos, rot)

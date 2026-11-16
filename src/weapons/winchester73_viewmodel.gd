@@ -18,10 +18,10 @@ enum Pose { HIP, AIM, LOADING }
 ## The low ready (the gun lab's fp view, `win73_views.gd --only=fp`): the wrist low on the right out
 ## front, the muzzle down and in toward the middle of the view. Turned for the gate: the action up
 ## and round so its right side faces you.
-const HIP_ROT := Vector3(-7.0, 14.0, -8.0)
-const HIP_AT := Vector3(0.17, -0.17, -0.33)
+const HIP_ROT := Vector3(-6.0, 7.0, -8.0)
+const HIP_AT := Vector3(0.15, -0.145, -0.36)
 const LOADING_ROT := Vector3(8.0, 62.0, 10.0)
-const LOADING_AT := Vector3(0.02, -0.12, -0.36)
+const LOADING_AT := Vector3(0.04, -0.12, -0.44)
 ## Shouldered: on the line from the rear notch to the blade's top. The cheek on the comb puts a real
 ## eye ~15" (38 cm) behind the notch, the thumb a few inches in front of it; held there in first
 ## person the right wrist and forearm run back past the camera and fill the view (the lab's fp views,
@@ -68,6 +68,13 @@ const SHOULDER_R_AIM := Vector3(0.14, -0.2, 0.12)
 const SHOULDER_L_AIM := Vector3(-0.14, -0.22, -0.05)
 const ELBOW_POLE_R_AIM := Vector3(1.0, -0.35, 0.1)
 const ELBOW_POLE_L_AIM := Vector3(-0.15, -1.0, 0.1)
+## Harlan's cut-off left forearm aimed (HeldHand.elbow_drop, from the shoulder in the camera's space):
+## out to the lower left under the rifle, so the sleeve leaves the view's corner, not its middle.
+const L_ELBOW_AIM := Vector3(-0.25, -0.3, -0.2)
+var _l_elbow_aim := L_ELBOW_AIM
+## The right forearm aimed: the elbow out to the right, so its sleeve leaves by the view's right edge.
+const R_ELBOW_AIM := Vector3(0.3, -0.15, 0.0)
+var _r_elbow_aim := R_ELBOW_AIM
 
 @export var tuning: Winchester73Tuning
 
@@ -106,13 +113,17 @@ func _ready() -> void:
 	if tuning == null:
 		tuning = load("res://config/winchester73.tres")
 	sway_factor = tuning.sway_hip
+	view_fov = RevolverViewmodel.VIEW_FOV
 	state = Winchester73State.new(tuning, hash(get_path()) + 73)
 	_rng.seed = 73
 	model = Winchester73Model.new()
+	model.held = true
 	model.name = "Winchester"
 	add_child(model)
 	_poses()
 	_build_hands()
+	_l_elbow_aim = HeldHand.hold("win73.l_elbow_aim", L_ELBOW_AIM)
+	_r_elbow_aim = HeldHand.hold("win73.r_elbow_aim", R_ELBOW_AIM)
 	_pose_pos = _hip_pos
 	_pose_rot = HIP_ROT
 	_setup_common()
@@ -492,8 +503,10 @@ func _animate_hands(delta: float, loading: bool) -> void:
 	var s := smoothstep(0.0, 1.0, shoulder)
 	hand.shoulder = ShotgunViewmodel.SHOULDER_R.lerp(SHOULDER_R_AIM, s)
 	hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R.lerp(ELBOW_POLE_R_AIM, s)
+	hand.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_r_elbow_aim, s)
 	left_hand.shoulder = ShotgunViewmodel.SHOULDER_L.lerp(SHOULDER_L_AIM, s)
 	left_hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_L.lerp(ELBOW_POLE_L_AIM, s)
+	left_hand.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_l_elbow_aim, s)
 
 
 func _apply_pose(drawn_amount: float) -> void:
@@ -503,5 +516,4 @@ func _apply_pose(drawn_amount: float) -> void:
 			+ _body_pos() * drawn_amount
 	var rot := PUT_AWAY_ROT.lerp(_pose_rot.lerp(TUCK_ROT, t), away) + Vector3(kick.pitch, -kick.yaw, -kick.roll) * (1.0 - t) \
 			+ _sway_rotation() * (1.0 - t) * (0.3 if _loading() else 1.0)
-	position = pos
-	rotation_degrees = rot
+	_set_view(pos, rot)
