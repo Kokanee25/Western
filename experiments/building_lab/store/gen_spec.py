@@ -237,8 +237,8 @@ lamps = {"kit": [
     {"room": "storeroom", "kit": "reflector_lamp", "wall": "hardware", "level": "ground", "at": 14.0, "height": 1.6, "energy": 1.2, "reach": 6.0, "lit": LIT},
     {"room": "loft", "kit": "reflector_lamp", "wall": "hardware", "level": "upper", "at": 5.0, "height": 1.6, "energy": 1.2, "reach": 6.0, "lit": LIT},
     {"room": "hall", "kit": "reflector_lamp", "wall": "loft_back", "level": "upper", "at": 8.4, "side": "+", "height": 1.6, "energy": 1.0, "reach": 5.0, "lit": LIT},
-    {"room": "room_1", "kit": "reflector_lamp", "wall": "room_1_2", "level": "upper", "at": 14.5, "side": "-", "height": 1.5, "energy": 1.0, "reach": 5.0, "lit": LIT},
-    {"room": "room_2", "kit": "reflector_lamp", "wall": "room_2_3", "level": "upper", "at": 14.5, "side": "-", "height": 1.5, "energy": 1.0, "reach": 5.0, "lit": LIT},
+    {"room": "room_1", "kit": "reflector_lamp", "wall": "room_1_2", "level": "upper", "at": 2.4, "side": "-", "height": 1.5, "energy": 1.0, "reach": 5.0, "lit": LIT},
+    {"room": "room_2", "kit": "reflector_lamp", "wall": "room_2_3", "level": "upper", "at": 2.4, "side": "-", "height": 1.5, "energy": 1.0, "reach": 5.0, "lit": LIT},
     {"room": "room_3", "kit": "reflector_lamp", "wall": "hardware", "level": "upper", "at": 14.5, "height": 1.5, "energy": 1.0, "reach": 5.0, "lit": LIT},
 ]}
 surfaces = [
