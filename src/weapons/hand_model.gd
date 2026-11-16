@@ -23,6 +23,9 @@ const TRIGGER_PULL := 38.0
 ## the cylinder, and on top of the hammer's spur to cock it (`views.gd --fit`, clear of the steel).
 const THUMB_REST := [Vector3(-24.0, -36.0, 24.0), 45.0, 40.0]
 const THUMB_COCK := [Vector3(48.0, 36.0, 60.0), 45.0, 40.0]
+## The trigger finger off the trigger, laid straight along the frame's right side above the guard
+## (its root's turn, then its two bends, as the thumb's): where it sits until you aim or fire.
+const INDEX_OFF := [Vector3(0.0, 0.0, 0.0), 0.0, 0.0]
 
 var held: HeldHand
 var index: Array[Node3D] = []
@@ -30,6 +33,7 @@ var thumb: Array[Node3D] = []
 var fingers := {}  # name -> Array[Node3D] segments
 
 var _trigger := 0.0
+var _off := 0.0
 var _thumb_reach := 0.0
 
 
@@ -40,8 +44,9 @@ func _ready() -> void:
 func _build() -> void:
 	held = HeldHand.new(true)
 	held.name = "Held"
-	held.position = HAND_POS
-	held.rotation_degrees = HAND_ROT
+	var place: Array = HeldHand.hold("colt.hand", [HAND_POS, HAND_ROT])
+	held.position = place[0]
+	held.rotation_degrees = place[1]
 	add_child(held)
 	held.build()
 	held.aim_forearm(FOREARM)
@@ -61,11 +66,22 @@ func _build() -> void:
 	set_thumb(0.0)
 
 
-## 0 = finger resting on the trigger, 1 = squeezed.
-func set_trigger(amount: float) -> void:
+## 0 = finger resting on the trigger, 1 = squeezed. `off` 1 lays it along the frame instead.
+func set_trigger(amount: float, off := 0.0) -> void:
 	_trigger = amount
-	if held:
-		held.grasp("index", lerpf(HeldHand.hold("colt.trigger_rest", TRIGGER_REST), HeldHand.hold("colt.trigger_pull", TRIGGER_PULL), amount))
+	_off = off
+	if held == null:
+		return
+	var on := lerpf(HeldHand.hold("colt.trigger_rest", TRIGGER_REST), HeldHand.hold("colt.trigger_pull", TRIGGER_PULL), amount)
+	if off <= 0.0:
+		held.grasp("index", on)
+		return
+	# Off the trigger: the knuckle's turn and the bends blended from the trigger's curl (a grasp's
+	# bends, HeldHand.GRASP) to the finger laid along the frame.
+	var o: Array = HeldHand.hold("colt.index_off", INDEX_OFF)
+	var g: Array = HeldHand.GRASP
+	held.pose_finger("index", (o[0] as Vector3) * off + Vector3(0.0, 0.0, -on * float(g[0])) * (1.0 - off),
+			lerpf(on * float(g[1]), float(o[1]), off), lerpf(on * float(g[2]), float(o[2]), off))
 
 
 ## 0 = thumb resting on the frame, 1 = thumb on the hammer spur, pulling.

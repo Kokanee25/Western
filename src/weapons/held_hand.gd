@@ -274,7 +274,7 @@ func _arm_to_shoulder(inv: Transform3D, side: String, rests: Dictionary, w: Vect
 	# arms are posed (the lab's `aim_elbow`), not to where the elbow really is.
 	var has_up := rests.has("upper_arm_" + side)
 	if not has_up:
-		var below := inv * (cxf * (shoulder + FP_ELBOW_DROP))
+		var below := inv * (cxf * (shoulder + elbow_drop))
 		var i_fa := _skeleton.find_bone("forearm_" + side)
 		if i_fa >= 0:
 			var q := Quaternion((r_fo.origin - r_ha.origin).normalized(), (below - w).normalized())
@@ -318,6 +318,8 @@ const SKIN_TINT := Color(0.9, 0.86, 0.84)
 ## Where a cut-off forearm (option 2's hands) runs back to: this far from the shoulder in the camera's
 ## space (down and a little back), so the sleeve leaves the view's bottom edge (#914).
 const FP_ELBOW_DROP := Vector3(0.0, -0.45, 0.1)
+## This hand's: a viewmodel moves it (the rifle's left forearm aimed runs out to the lower left, #1014).
+var elbow_drop := FP_ELBOW_DROP
 ## Off, the painted arms even where the private file is (the labs' "before"; tests; the game started
 ## with `-- --painted-arms`).
 static var use_private := not OS.get_cmdline_user_args().has("--painted-arms")

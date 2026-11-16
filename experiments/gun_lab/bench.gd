@@ -117,11 +117,19 @@ func arms(here := false, guns: Array = ["revolver", "winchester"]) -> Array:
 	for which: String in guns:
 		var w := await _gun(which)
 		await _frames(30)
-		for st: String in ["idle", "aimed", "cocked", "reloading"]:
+		for st: String in ["idle", "aimed", "cocked", "firing", "reloading"]:
 			match st:
 				"aimed":
 					_act(true, &"aim")
 					await _frames(50)
+				"firing":
+					# The shot's kick (the procedural GunKick on the gun and the view), 50 ms in: no
+					# ball flies (the town is quiet; a shot would set it off).
+					_act(true, &"aim")
+					await _frames(50)
+					w.set(&"_trigger", 1.0)
+					w.call(&"_kick_shot", w.get(&"tuning"))
+					await lab.seconds(0.05)
 				"cocked":
 					if w is Winchester73Viewmodel:
 						(w as Winchester73Viewmodel).lever_open()   # thrown and held
