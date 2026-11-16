@@ -1,5 +1,5 @@
 extends TestCase
-## The farmhouse out east (issue #520; experiments/building_lab/farmhouse.json, src/missions/
+## The farmhouse out east (issue #520; config/buildings/farmhouse.json, src/missions/
 ## farmhouse.gd), built from its spec by the building lab's builder: it stands under its own weight
 ## and with a crowd on its floors, people fit its doors, stairs and places, everything in it is a
 ## member, a kit prop or a fitting (destructible through and through), and its marks have causes.
@@ -56,7 +56,7 @@ func test_people_fit() -> void:
 
 
 func test_its_marks_have_causes() -> void:
-	const Marks := preload("res://experiments/building_lab/marks.gd")
+	const Marks := preload("res://src/structures/marks.gd")
 	var m: Dictionary = house.building.marks
 	check((m.unresolved as Array).is_empty(), "every past mark finds its member: %s" % [m.unresolved])
 	for ev: Dictionary in house.building.spec.past:

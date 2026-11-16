@@ -211,6 +211,7 @@ func test_the_valley_specs_ship_in_the_export() -> void:
 			n += 1
 			check(path.begins_with("res://"), "%s's spec is a res:// path (%s)" % [l.id, path])
 			check(FileAccess.file_exists(path), "%s's spec exists" % l.id)
+			check(path.begins_with("res://config/buildings/"), "%s's spec is in config/buildings (R1, #975): %s" % [l.id, path])
 			var dir := path.get_base_dir()
 			while dir.length() > "res://".length():
 				check(not FileAccess.file_exists(dir.path_join(".gdignore")),

@@ -5,7 +5,7 @@ extends TestCase
 ## reaches the boards: the roles, the latch side, the building's use.
 
 const Lab := preload("res://experiments/building_lab/lab.gd")
-const SPEC := "res://experiments/building_lab/doctor/doctor.json"
+const SPEC := "res://config/buildings/doctor.json"
 
 
 func _role_of(mi: MeshInstance3D) -> float:

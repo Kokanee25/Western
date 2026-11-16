@@ -1,5 +1,12 @@
 # The building lab: the saloon from its spec
 
+> **Moved (R1, #975, 2026-11-16): the builder is in the game.** `spec_building.gd`, `stair.gd`,
+> `marks.gd` and `stone.gd` are in `src/structures/`; the specs (`saloon.json`, `farmhouse.json`,
+> `doctor.json`, `jail.json`, `saloon_b.json`) are in `config/buildings/`. This folder keeps the lab
+> (`lab.gd`, `checks.gd`, `play.gd`, `render.gd`, wear, the sheets and results). Old paths named below
+> or on other branches: read them at the new places. Moved with `git mv`, so history follows.
+
+
 Gameplay (structures) with art for the look; branch `claude/gameplay-building-spec`; brief
 `docs/briefs/building-pipeline.md` (steps 2 to 5). The spec format is `FORMAT.md`; the saloon's
 spec is `saloon.json`. **The game's saloon is unchanged**: the builder, the stair part and the

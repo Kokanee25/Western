@@ -384,11 +384,12 @@ func _cmd_gf_map(a: Array) -> Dictionary:
 func _cmd_gf_ways(a: Array) -> Dictionary:
 	var prefix := String(a[0]) if a.size() > 0 and not String(a[0]).begins_with("dress=") else "spec_"
 	var places := (street.get_node_or_null(^"TownLife") as TownLife).places
+	var extra: Array = []
 	for w: String in a:
 		if w.begins_with("dress="):
 			var dressing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/gunfight_lab/dressing.json"))
-			Fight.SpecBuildingScript.extra_furniture = dressing.get(w.substr(6), [])
-	SpecSaloon.ensure(street, places)
+			extra = dressing.get(w.substr(6), [])
+	SpecSaloon.ensure(street, places, extra)
 	await physics_frames(10)
 	var done := {}
 	var ok := []

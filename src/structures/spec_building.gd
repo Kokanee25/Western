@@ -18,17 +18,18 @@ extends FalseFrontBuilding
 ##   has ~6000); this one tries the pairs that share a 2 m cell, with the same rules and order.
 ## - **Ramps that go with their stair** (a stair's walking ramp is freed once its stringers break).
 
-const Stair := preload("res://experiments/building_lab/stair.gd")
-const Marks := preload("res://experiments/building_lab/marks.gd")
-const StoneBuilder := preload("res://experiments/building_lab/stone.gd")
+const Stair := preload("res://src/structures/stair.gd")
+const Marks := preload("res://src/structures/marks.gd")
+const StoneBuilder := preload("res://src/structures/stone.gd")
 const CELL := 2.0
-const SPEC := "res://experiments/building_lab/saloon.json"
+const SPEC := "res://config/buildings/saloon.json"
 
 var spec_path := SPEC
 var spec: Dictionary
-## Furniture laid in on top of the spec's for the next building built (the gunfight lab's `dress`:
-## more to hide behind in the hall, an experiment; the spec's own file is unchanged).
-static var extra_furniture: Array = []
+## Furniture laid in on top of the spec's, for this building only (the gunfight lab's `dress`: more
+## to hide behind in the hall, an experiment; the spec's own file is unchanged). Set before it is
+## added to the tree. An option on the one building, never shared between buildings.
+var extra_furniture: Array = []
 ## The band members added now go in (see the top).
 var band := 0
 ## [StaticBody3D ramp, [stringers]] for each stair.
@@ -2107,9 +2108,11 @@ func _physics_process(delta: float) -> void:
 	if _ramp_t < 0.5:
 		return
 	_ramp_t = 0.0
-	for r: Array in ramps:
-		var ramp: StaticBody3D = r[0]
+	for i in range(ramps.size() - 1, -1, -1):
+		var r: Array = ramps[i]
+		var ramp = r[0]  # (untyped: a ramp freed since; typed, each look was an error)
 		if not is_instance_valid(ramp):
+			ramps.remove_at(i)  # a freed ramp is taken out, not looked at every half second
 			continue
 		var standing := false
 		for m: Variant in r[1]:  # (untyped: a member freed since; typed, each look was an error, #863)
@@ -2117,6 +2120,7 @@ func _physics_process(delta: float) -> void:
 				standing = true
 		if not standing:
 			ramp.queue_free()
+			ramps.remove_at(i)
 
 
 # --- a small gable-fronted building (the doctor's, #765): what the saloon and farmhouse don't have ---

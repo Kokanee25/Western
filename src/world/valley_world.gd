@@ -262,7 +262,7 @@ func _make_buildings() -> void:
 		for l: Dictionary in layout.lots(side):
 			if not l.has("spec"):
 				continue
-			var b: Node3D = load("res://experiments/building_lab/spec_building.gd").new()
+			var b: Node3D = load("res://src/structures/spec_building.gd").new()
 			var sp: Dictionary = b.load_spec(String(l.spec))
 			if not sp.has("lot") or not sp.has("levels"):
 				# #1003: a spec left out of the export read as {} and the build crashed on start.

@@ -264,7 +264,7 @@ func begin(place_player := false) -> void:
 	add_child(defence)
 	var in_house: Array[OutlawBrain] = []
 	in_house.assign(brains.filter(func(b: OutlawBrain) -> bool: return not b in rovers))
-	defence.setup(load("res://experiments/building_lab/spec_building.gd").load_spec(Farmhouse.SPEC), in_house, guard, player())
+	defence.setup(load("res://src/structures/spec_building.gd").load_spec(Farmhouse.SPEC), in_house, guard, player())
 	defence.eyes = rovers.duplicate()
 	if place_player:
 		var p := player()

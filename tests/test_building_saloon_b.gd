@@ -1,13 +1,13 @@
 extends TestCase
 ## Saloon B, the corner saloon (#848 step 1: the spec and the frame): built from its spec
-## (experiments/building_lab/saloon_b/saloon_b.json) it is destructible through and through, stands,
+## (config/buildings/saloon_b.json) it is destructible through and through, stands,
 ## is built right, fits a man at every door, stair and use point, and every room has its people's
 ## places and its own lamp. It writes every member to build/saloon_b_members.json for the X-ray
 ## sheet (tools/buildings/xray.py).
 
 const Lab := preload("res://experiments/building_lab/lab.gd")
 const Checks := preload("res://experiments/building_lab/checks.gd")
-const SPEC := "res://experiments/building_lab/saloon_b/saloon_b.json"
+const SPEC := "res://config/buildings/saloon_b.json"
 
 var lab: Node3D
 

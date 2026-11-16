@@ -7,7 +7,7 @@ across the building; the ground floor's framing from above (sills, girders, pier
 the loft's. Every opening's clear area is outlined in red. Orthographic, to scale, north up on the
 plans; the street (south) at the bottom.
 
-    python3 tools/buildings/xray.py experiments/building_lab/doctor/doctor.json build/doctor_members.json OUT.png
+    python3 tools/buildings/xray.py config/buildings/doctor.json build/doctor_members.json OUT.png
 """
 import json
 import math

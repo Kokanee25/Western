@@ -21,10 +21,10 @@ static func at(local: Vector3) -> Vector3:
 
 
 ## The building (built and its places added the first time; F5's stop builds the same one).
-static func ensure(street: Node3D, places: Waypoints) -> Node3D:
+static func ensure(street: Node3D, places: Waypoints, extra_furniture: Array = []) -> Node3D:
 	var b := street.get_node_or_null(^"SpecSaloon") as Node3D
 	if b == null:
-		b = Play.build(street)
+		b = Play.build(street, extra_furniture)
 	if places != null and not places.has(&"spec_door"):
 		add_places(places)
 	return b
