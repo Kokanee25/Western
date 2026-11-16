@@ -39,6 +39,8 @@ var with_glove := true
 ## The glove's triangles (simplified to about) and its skin shape's (-1: the part's default).
 var tris := 700
 var under_tris := -1
+## His finer skin's (the hand's vertices kept under the cloth, #1008; -1: the part's default).
+var fine_tris := -1
 ## Over the part's own tune.
 var part_tune := {}
 ## Over the part's `solver_tune` (our cloth's numbers).
@@ -77,7 +79,8 @@ func wear_on(who: HumanBody) -> Dictionary:
 	if not with_glove:
 		return {"ok": true, "glove": "none"}
 	part = GarmentHandoff.glove_on(man, get_parent(), side, null, tris,
-			under_tris if under_tris >= 0 else GarmentHandoff.COLLIDER_TRIS)
+			under_tris if under_tris >= 0 else GarmentHandoff.COLLIDER_TRIS,
+			fine_tris if fine_tris >= 0 else GarmentHandoff.FINE_TRIS)
 	if part == null:
 		return {"ok": false, "error": "no Skin_whole on " + String(man.body_model)}
 	glove = part.garment

@@ -86,6 +86,13 @@ fn cot(a: V3, b: V3) -> f32 {
 const PINCH_OVERLAP: f32 = 0.003;
 /// m: a point's reach for his body in a tick, past the band, at most.
 const REACH: f32 = 0.03;
+/// His vertices against the cloth's triangles (#1008): over the triangle within this of its plane's foot (m; past its edges: the neighbours'); a point
+/// moved at most this far (m) by one vertex in a substep.
+const VERT_SIDE: f32 = 0.0005;
+const VERT_MOST: f32 = 0.005;
+/// A vertex of his still in the garment (it began under it and has had some of it near since) is
+/// pushed back under a triangle it's this far (m) in front of: a bare finger beside it is out of it.
+const VERT_INSIDE: f32 = 0.015;
 
 pub const FLAT: i32 = 0;
 pub const SHAPED: i32 = 1;
@@ -135,6 +142,13 @@ pub struct Tuning {
     /// m/s: layers touching that move against each other slower than this stick (static friction:
     /// without it a pile's points squeezed between two layers buzz and it never rests).
     pub self_stick: f32,
+    /// m: his skin's own vertices kept this far behind the cloth's triangles (#1008: his finer skin
+    /// poking out between the cloth's points, which alone are kept off his triangles); 0: off.
+    pub body_verts: f32,
+    /// m: one of his vertices this far past two `body_verts` in front of a triangle is still pushed
+    /// back under it (deeper, only if it was behind it at the substep's start: a bare finger over the
+    /// cloth can't be told from one deep through it).
+    pub body_verts_deep: f32,
 }
 
 impl Default for Tuning {
@@ -163,6 +177,8 @@ impl Default for Tuning {
             self_thickness: 0.0,
             self_friction: 0.3,
             self_stick: 0.02,
+            body_verts: 0.0,
+            body_verts_deep: 0.002,
         }
     }
 }
@@ -293,6 +309,42 @@ pub struct Body {
     max_move: f32,
     /// Points passed over so (since it was set; a measure).
     pub skipped: u64,
+    /// His finer skin (#1008, `set_skin`): its triangles (for its normals) and its points at the tick's
+    /// start and end, and at the last meeting and this one (only those listed are placed).
+    sk_tris: Vec<[u32; 3]>,
+    sk_from: Vec<V3>,
+    sk_to: Vec<V3>,
+    sk_before: Vec<V3>,
+    sk_now: Vec<V3>,
+    /// Its vertices against the cloth's triangles (`body_verts`): those near the free cloth this tick,
+    /// each one's normal (at the tick's end), and the cloth's triangles near enough to meet it
+    /// (`vcand[vcand_at[j]..vcand_at[j+1]]`), from a hash of the cloth's triangles once a tick.
+    vlist: Vec<u32>,
+    /// Per listed vertex, how far in front of a triangle it's still pushed back (`body_verts_deep`, or
+    /// VERT_INSIDE while it's in the garment); per vertex, whether it is (all at `set_skin`).
+    vdeep: Vec<f32>,
+    sk_inside: Vec<bool>,
+    /// Per listed vertex: how far its pairs can close in a substep (its move and its triangles'), and
+    /// how much room it has left before one could act (it isn't looked at again until that's used).
+    vstep: Vec<f32>,
+    vroom: Vec<f32>,
+    vnorm: Vec<V3>,
+    vcand_at: Vec<u32>,
+    vcand: Vec<u32>,
+    vstart: Vec<u32>,
+    ventries: Vec<u32>,
+    vstamp: Vec<u32>,
+    /// The cloth's triangles' planes at a substep's start (unit normal, offset), for the cheap look.
+    vplane: Vec<[f32; 4]>,
+    /// Measures: his vertices that pushed the cloth out at the last substep, and since it was set.
+    pub vert_contacts: u32,
+    pub vert_pushes: u64,
+    /// His vertices listed this tick and their (vertex, triangle) pairs.
+    pub vert_listed: u32,
+    pub vert_pairs: u32,
+    /// The last tick's time (µs) listing them, and meeting them over its substeps (a measure).
+    pub vert_list_us: f32,
+    pub vert_meet_us: f32,
 }
 
 impl Cloth {
@@ -515,6 +567,17 @@ impl Cloth {
                 let at = self.body.at_f;
                 self.body.pose(at, f, at == 0.0);
                 self.collide_body(&mut prev, s + 1 - last_meet, s + 1 == n_sub, f);
+                if self.t.body_verts > 0.0 && !self.body.sk_tris.is_empty() {
+                    let b = &mut self.body;
+                    for &k in &b.vlist {
+                        let k = k as usize;
+                        b.sk_before[k] = if at == 0.0 { b.sk_from[k] } else { b.sk_now[k] };
+                        b.sk_now[k] = lerp(b.sk_from[k], b.sk_to[k], f);
+                    }
+                    let t0 = std::time::Instant::now();
+                    self.collide_verts(&mut prev, s + 1 - last_meet, s + 1 == n_sub);
+                    self.body.vert_meet_us += t0.elapsed().as_secs_f32() * 1e6;
+                }
                 last_meet = s + 1;
                 self.body.at_f = f;
                 self.body.since.copy_from_slice(&self.x);
@@ -542,6 +605,7 @@ impl Cloth {
         if body_on {
             let b = &mut self.body;
             b.from.copy_from_slice(&b.to);
+            b.sk_from.copy_from_slice(&b.sk_to);
         }
         self.steps += 1;
     }
@@ -730,6 +794,79 @@ impl Cloth {
         true
     }
 
+    /// His finer skin where his body is too coarse to keep the cloth over it (#1008: his fingers, the
+    /// collider being the glove's own points): its vertices are kept `body_verts` behind the cloth's
+    /// triangles. Set after `set_body` (which clears it). False (and none) if an index is out of range.
+    pub fn set_skin(&mut self, points: &[V3], tris: &[u32]) -> bool {
+        let b = &mut self.body;
+        b.sk_tris.clear();
+        b.vlist.clear();
+        if tris.len() % 3 != 0 || tris.iter().any(|&i| i as usize >= points.len()) {
+            b.sk_from.clear();
+            b.sk_to.clear();
+            return false;
+        }
+        b.sk_tris = tris.chunks(3).map(|t| [t[0], t[1], t[2]]).collect();
+        b.sk_from = points.to_vec();
+        b.sk_to = points.to_vec();
+        b.sk_before = points.to_vec();
+        b.sk_now = points.to_vec();
+        // In the garment: each vertex no farther in front of the cloth as it is now (as worn) than it
+        // acts within anyway. One already farther out (the garment's simplified shape cuts across his
+        // skin there: between his fingers) isn't pushed from deep, or the cloth would jump at the start.
+        let th = self.t.body_verts;
+        let lim = 2.0 * th + self.t.body_verts_deep;
+        let mut vn = vec![[0.0f32; 3]; points.len()];
+        for tr in &b.sk_tris {
+            let (a, bb, c) = (points[tr[0] as usize], points[tr[1] as usize], points[tr[2] as usize]);
+            let n = cross(sub(c, a), sub(bb, a));
+            for &v in tr {
+                vn[v as usize] = add(vn[v as usize], n);
+            }
+        }
+        let boxes: Vec<(V3, V3)> = self
+            .tris
+            .iter()
+            .map(|tr| {
+                let mut l = [f32::MAX; 3];
+                let mut h = [f32::MIN; 3];
+                for &i in tr {
+                    for k in 0..3 {
+                        l[k] = l[k].min(self.x[i as usize][k] - VERT_INSIDE);
+                        h[k] = h[k].max(self.x[i as usize][k] + VERT_INSIDE);
+                    }
+                }
+                (l, h)
+            })
+            .collect();
+        b.sk_inside = (0..points.len())
+            .map(|k| {
+                let p = points[k];
+                !self.tris.iter().zip(&boxes).any(|(tr, (l, h))| {
+                    if (0..3).any(|j| p[j] < l[j] || p[j] > h[j]) {
+                        return false;
+                    }
+                    let (a, bb, c) = (self.x[tr[0] as usize], self.x[tr[1] as usize], self.x[tr[2] as usize]);
+                    let n = face_normal(a, bb, c);
+                    if dot(n, vn[k]) <= 0.0 {
+                        return false;
+                    }
+                    let off = sub(p, bary(a, bb, c, closest_on_tri(p, a, bb, c)));
+                    let d = dot(off, n);
+                    d > lim && dot(off, off) - d * d <= VERT_SIDE * VERT_SIDE
+                })
+            })
+            .collect();
+        true
+    }
+
+    /// His finer skin's points at the end of the next step (ignored if the count isn't its).
+    pub fn move_skin(&mut self, points: &[V3]) {
+        if points.len() == self.body.sk_to.len() {
+            self.body.sk_to.copy_from_slice(points);
+        }
+    }
+
     /// His body's points at the end of the next step (as the pins: it moves there evenly). Ignored if
     /// the count isn't his body's.
     pub fn move_body(&mut self, points: &[V3]) {
@@ -880,6 +1017,283 @@ impl Cloth {
                 });
             }
             b.cand_at.push(b.cand.len() as u32);
+        }
+        if self.t.body_verts > 0.0 && !self.body.sk_tris.is_empty() {
+            // Its points' moves this tick: twice at their speed now, and a millimetre; a pin's own.
+            for i in 0..n {
+                reach[i] = if self.pinned[i] {
+                    len(sub(self.pin_to[i], self.pin_from[i]))
+                } else {
+                    (2.0 * len(self.v[i]) * dt + 0.001).min(REACH)
+                };
+            }
+            let t0 = std::time::Instant::now();
+            self.vert_candidates(&reach);
+            self.body.vert_list_us = t0.elapsed().as_secs_f32() * 1e6;
+            self.body.vert_meet_us = 0.0;
+        }
+    }
+
+    /// Once a tick (#1008): the cloth's triangles with a free point, hashed by their boxes over the
+    /// tick (each point's reach), and his vertices near the free cloth each given the ones near them.
+    /// His vertices' normals from his triangles near the cloth, at the tick's end.
+    fn vert_candidates(&mut self, reach: &[f32]) {
+        let th = self.t.body_verts;
+        let deep = self.t.body_verts_deep;
+        let b = &mut self.body;
+        let nt = self.tris.len();
+        let mut lo = vec![[0.0f32; 3]; nt];
+        let mut hi = vec![[0.0f32; 3]; nt];
+        // The most any of a triangle's points can move this tick.
+        let mut move_t = vec![0.0f32; nt];
+        let cell = b.cell.max(1e-3);
+        let size = (2 * nt).next_power_of_two().max(64);
+        let mut count = vec![0u32; size + 1];
+        let mut sph = vec![[0.0f32; 4]; nt];
+        // Every triangle (held ones too: a vertex near one is still in the garment), boxed by its
+        // points' moves this tick.
+        let mut clo = [f32::MAX; 3];
+        let mut chi = [f32::MIN; 3];
+        for (t, tr) in self.tris.iter().enumerate() {
+            move_t[t] = tr.iter().map(|&i| reach[i as usize]).fold(0.0, f32::max);
+            let mut l = [f32::MAX; 3];
+            let mut h = [f32::MIN; 3];
+            for &i in tr {
+                let (p, r) = (self.x[i as usize], reach[i as usize]);
+                for k in 0..3 {
+                    l[k] = l[k].min(p[k] - r);
+                    h[k] = h[k].max(p[k] + r);
+                }
+            }
+            for k in 0..3 {
+                clo[k] = clo[k].min(l[k]);
+                chi[k] = chi[k].max(h[k]);
+            }
+            lo[t] = l;
+            hi[t] = h;
+            let (a, bb, c) = (self.x[tr[0] as usize], self.x[tr[1] as usize], self.x[tr[2] as usize]);
+            let m = scale(add(add(a, bb), c), 1.0 / 3.0);
+            let r2 = dot(sub(a, m), sub(a, m)).max(dot(sub(bb, m), sub(bb, m))).max(dot(sub(c, m), sub(c, m)));
+            sph[t] = [m[0], m[1], m[2], r2.sqrt()];
+            for_cells(l, h, cell, |key| count[hash(key, size)] += 1);
+        }
+        let n_sub = self.t.substeps.max(1) as f32;
+        b.vstart.clear();
+        b.vstart.resize(size + 1, 0);
+        let mut acc = 0u32;
+        for k in 0..size {
+            b.vstart[k] = acc;
+            acc += count[k];
+        }
+        b.vstart[size] = acc;
+        b.ventries.clear();
+        b.ventries.resize(acc as usize, 0);
+        let mut fill: Vec<u32> = b.vstart[..size].to_vec();
+        for t in 0..nt {
+            let entries = &mut b.ventries;
+            for_cells(lo[t], hi[t], cell, |key| {
+                let h = hash(key, size);
+                entries[fill[h] as usize] = t as u32;
+                fill[h] += 1;
+            });
+        }
+        // His vertices' normals (area-weighted, at the tick's end; Godot's fronts are clockwise).
+        let nv = b.sk_to.len();
+        b.vnorm.clear();
+        b.vnorm.resize(nv, [0.0; 3]);
+        for tr in &b.sk_tris {
+            let (a, bb, c) = (b.sk_to[tr[0] as usize], b.sk_to[tr[1] as usize], b.sk_to[tr[2] as usize]);
+            let n = cross(sub(c, a), sub(bb, a));
+            for &v in tr {
+                b.vnorm[v as usize] = add(b.vnorm[v as usize], n);
+            }
+        }
+        b.vlist.clear();
+        b.vdeep.clear();
+        b.vstep.clear();
+        b.vroom.clear();
+        b.vcand_at.clear();
+        b.vcand.clear();
+        b.vcand_at.push(0);
+        b.vstamp.clear();
+        b.vstamp.resize(nt, 0);
+        let mut now = 0u32;
+        for k in 0..nv {
+            let (p0, p1) = (b.sk_from[k], b.sk_to[k]);
+            // Still in the garment (it began in it, and the cloth hasn't left it): pushed back under it
+            // from deeper.
+            let dk = if b.sk_inside[k] { VERT_INSIDE } else { deep };
+            let r0 = 2.0 * th + dk;
+            if (0..3).any(|j| p0[j].min(p1[j]) - r0 > chi[j] || p0[j].max(p1[j]) + r0 < clo[j]) {
+                b.sk_inside[k] = false;
+                continue;
+            }
+            let mut l = [0.0f32; 3];
+            let mut h = [0.0f32; 3];
+            for j in 0..3 {
+                l[j] = p0[j].min(p1[j]) - r0;
+                h[j] = p0[j].max(p1[j]) + r0;
+            }
+            now += 1;
+            let at = b.vcand.len();
+            let vm = len(sub(p1, p0));
+            let mut near_any = false;
+            let mut most = 0.0f32;
+            let (start, entries, stamp, cand) = (&b.vstart, &b.ventries, &mut b.vstamp, &mut b.vcand);
+            let (x, tris, mv, w, sph) = (&self.x, &self.tris, &move_t, &self.w, &sph);
+            let nk = b.vnorm[k];
+            for_cells(l, h, cell, |key| {
+                let hh = hash(key, size);
+                for e in start[hh]..start[hh + 1] {
+                    let t = entries[e as usize] as usize;
+                    if stamp[t] == now {
+                        continue;
+                    }
+                    stamp[t] = now;
+                    if (0..3).all(|j| lo[t][j] <= h[j] && hi[t][j] >= l[j]) {
+                        // Only if it can come within reach this tick: its distance now less both moves.
+                        let r = r0 + vm + mv[t];
+                        let sp = sph[t];
+                        let dm = sub(p0, [sp[0], sp[1], sp[2]]);
+                        let rr = r + sp[3];
+                        if dot(dm, dm) > rr * rr {
+                            continue;
+                        }
+                        let tr = tris[t];
+                        let (a, bb, c) = (x[tr[0] as usize], x[tr[1] as usize], x[tr[2] as usize]);
+                        let q = bary(a, bb, c, closest_on_tri(p0, a, bb, c));
+                        if dot(sub(p0, q), sub(p0, q)) > r * r {
+                            continue;
+                        }
+                        near_any = true;
+                        // (Held, or facing away from his skin there, a finger's far side: it can't
+                        // turn round within a tick.)
+                        if tr.iter().all(|&i| w[i as usize] == 0.0) || dot(face_normal(a, bb, c), nk) < 0.0 {
+                            continue;
+                        }
+                        most = most.max(mv[t]);
+                        cand.push(t as u32);
+                    }
+                }
+            });
+            if !near_any {
+                b.sk_inside[k] = false;
+            }
+            if b.vcand.len() > at {
+                let n = b.vnorm[k];
+                let m = len(n);
+                b.vnorm[k] = if m > 1e-12 { scale(n, 1.0 / m) } else { [0.0; 3] };
+                b.vlist.push(k as u32);
+                b.vdeep.push(dk);
+                b.vstep.push((vm + most) / n_sub);
+                b.vroom.push(0.0);
+                b.vcand_at.push(b.vcand.len() as u32);
+            }
+        }
+        b.vert_listed = b.vlist.len() as u32;
+        b.vert_pairs = b.vcand.len() as u32;
+    }
+
+    /// His vertices against the cloth's triangles, after its points have met his (#1008; Bridson et
+    /// al. 2002 test point-triangle both ways): a vertex of his within `body_verts` of a cloth
+    /// triangle's back, or in front of it, where his skin faces the way the triangle does (it's under
+    /// it), pushes the triangle's points out by their weights there (Bridson's sharing: the point of
+    /// the triangle nearest him moves just enough) and keeps none of the push as speed (no bounce). Only
+    /// a vertex that was behind it at the substep's start or is within two thicknesses (one deep
+    /// through can't be told from a bare finger over the cloth).
+    fn collide_verts(&mut self, prev: &mut [V3], subs: u32, count: bool) {
+        let th = self.t.body_verts;
+        let b = &mut self.body;
+        let mut contacts = 0u32;
+        // Its triangles' planes now (a push moves a few; their neighbours' planes are then a little
+        // stale for the cheap look, the exact test uses where they are).
+        b.vplane.resize(self.tris.len(), [0.0; 4]);
+        for (t, tr) in self.tris.iter().enumerate() {
+            let a = self.x[tr[0] as usize];
+            let n = face_normal(a, self.x[tr[1] as usize], self.x[tr[2] as usize]);
+            b.vplane[t] = [n[0], n[1], n[2], dot(n, a)];
+        }
+        for j in 0..b.vlist.len() {
+            let lim = 2.0 * th + b.vdeep[j];
+            let k = b.vlist[j] as usize;
+            // Clear of all its triangles by more than they and it can close since: passed over.
+            b.vroom[j] -= b.vstep[j] * subs as f32;
+            if b.vroom[j] > 0.0 {
+                continue;
+            }
+            let (v1, v0, nv) = (b.sk_now[k], b.sk_before[k], b.vnorm[k]);
+            let vmove = scale(sub(v1, v0), 1.0 / subs.max(1) as f32);
+            let mut hit = false;
+            let mut room = f32::MAX;
+            for e in b.vcand_at[j] as usize..b.vcand_at[j + 1] as usize {
+                let t = b.vcand[e] as usize;
+                // Its plane first: most are passed over by it (facing away, or far from it).
+                let pl = b.vplane[t];
+                let pn = [pl[0], pl[1], pl[2]];
+                let dp = dot(v1, pn) - pl[3];
+                if dp <= -th || dp > lim {
+                    room = room.min(if dp <= -th { -th - dp } else { dp - lim });
+                    continue;
+                }
+                let tr = self.tris[t];
+                let (ia, ib, ic) = (tr[0] as usize, tr[1] as usize, tr[2] as usize);
+                let (a, bb, c) = (self.x[ia], self.x[ib], self.x[ic]);
+                let n = face_normal(a, bb, c);
+                let bc = closest_on_tri(v1, a, bb, c);
+                let q = bary(a, bb, c, bc);
+                let off = sub(v1, q);
+                let d = dot(off, n);
+                if d <= -th || d > lim {
+                    room = room.min(if d <= -th { -th - d } else { d - lim });
+                    continue;
+                }
+                // Over the triangle itself (its edges and corners are its neighbours').
+                let side2 = dot(off, off) - d * d;
+                if side2 > VERT_SIDE * VERT_SIDE {
+                    room = room.min(side2.sqrt() - VERT_SIDE);
+                    continue;
+                }
+                room = 0.0;
+                if dot(n, nv) < 0.3 {
+                    continue;
+                }
+                // Out of the garment, past two thicknesses in front: only if it was behind at the
+                // substep's start (a bare finger over the cloth can't be told from one through it).
+                if d > 2.0 * th && b.vdeep[j] < VERT_INSIDE {
+                    let (a0, b0, c0) = (b.since[ia], b.since[ib], b.since[ic]);
+                    let d0 = dot(sub(v0, bary(a0, b0, c0, bc)), face_normal(a0, b0, c0));
+                    if d0 > 0.0 {
+                        continue;
+                    }
+                }
+                let ws = [self.w[ia], self.w[ib], self.w[ic]];
+                let sum = ws[0] * bc[0] * bc[0] + ws[1] * bc[1] * bc[1] + ws[2] * bc[2] * bc[2];
+                // Mostly at its held corners: they go with his skin (a free corner pushed for them would
+                // be flung many times the depth).
+                let free: f32 = (0..3).filter(|&m| ws[m] > 0.0).map(|m| bc[m]).sum();
+                if sum < 1e-12 || free < 0.5 {
+                    continue;
+                }
+                let s = d + th;
+                for (m, &i) in [ia, ib, ic].iter().enumerate() {
+                    let dx = (s * ws[m] * bc[m] / sum).min(VERT_MOST);
+                    if dx <= 0.0 {
+                        continue;
+                    }
+                    self.x[i] = add(self.x[i], scale(n, dx));
+                    let extra = dot(sub(self.x[i], prev[i]), n) - dot(vmove, n);
+                    prev[i] = add(prev[i], scale(n, extra));
+                }
+                hit = true;
+            }
+            b.vroom[j] = if room == f32::MAX { 0.0 } else { room };
+            if hit {
+                contacts += 1;
+            }
+        }
+        b.vert_pushes += contacts as u64;
+        if count {
+            b.vert_contacts = contacts;
         }
     }
 
@@ -1987,6 +2401,62 @@ mod tests {
         assert!(c.side.iter().all(|&s| s == 1), "{:?}", c.side);
     }
 
+    /// His vertices well inside the cloth's ends more than `depth` in front of the cloth's nearest triangle over
+    /// them, where his skin faces the triangle's way (his finger out through the cloth).
+    fn verts_out(c: &Cloth, depth: f32) -> usize {
+        let b = &c.body;
+        let mut out = 0;
+        for &v in &b.now {
+            let nv = [v[0], 0.0, v[2]];
+            let mut best = f32::MAX;
+            let mut h = 0.0;
+            for tr in &c.tris {
+                let (a, bb, cc) = (c.x[tr[0] as usize], c.x[tr[1] as usize], c.x[tr[2] as usize]);
+                let q = bary(a, bb, cc, closest_on_tri(v, a, bb, cc));
+                let d = dot(sub(v, q), sub(v, q));
+                let n = face_normal(a, bb, cc);
+                if d < best && dot(n, nv) > 0.0 {
+                    best = d;
+                    h = dot(sub(v, q), n);
+                }
+            }
+            if h > depth && v[1] > 0.015 && v[1] < 0.065 {
+                out += 1;
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn his_finer_skin_stays_under_a_coarse_cloth() {
+        // A finger (24 round) in a glove's finger of 6 points round (#1008): every cloth point is out
+        // of his skin, yet its flat faces cut through him between them. His vertices push them out.
+        let ys: Vec<f32> = (0..9).map(|j| j as f32 * 0.01).collect();
+        let (bp, bt) = tube(24, &ys, |_| 0.009);
+        let cys: Vec<f32> = (0..5).map(|j| 0.01 + j as f32 * 0.015).collect();
+        let (p, tr) = tube(6, &cys, |_| 0.0100);
+        let go = |verts: f32| {
+            let t = Tuning { floor_on: false, gravity: [0.0; 3], body_front_only: true, max_strain: 1.15,
+                    body_thickness: 0.0007, body_verts: verts, ..Default::default() };
+            let mut c = Cloth::build(&p, &tr, 0.2, t).unwrap();
+            c.set_body(&bp, &bt);
+            c.set_skin(&bp, &bt);
+            for _ in 0..60 {
+                c.step(1.0 / 60.0);
+            }
+            // (Calm: none of it thrown in through him or off him by the pushes.)
+            let rs = c.x.iter().map(|p| (p[0] * p[0] + p[2] * p[2]).sqrt());
+            let (rmin, rmax) = rs.fold((1.0f32, 0.0f32), |(a, b), r| (a.min(r), b.max(r)));
+            assert!(rmin > 0.0095 && rmax < 0.013, "{rmin} {rmax}");
+            (verts_out(&c, 0.0002), c.body.vert_pushes)
+        };
+        let (off, _) = go(0.0);
+        let (on, pushes) = go(0.0005);
+        assert!(off > 30, "off {off}, on {on}");
+        assert!(on * 10 < off, "on {on}, off {off}, pushes {pushes}");
+        assert!(pushes > 0);
+    }
+
     #[test]
     fn a_point_pinched_between_two_of_his_faces_is_left_to_the_cloth() {
         // Two faces 1 mm apart facing each other (fingers pressed together): no room on either's
@@ -2010,33 +2480,46 @@ mod tests {
     #[test]
     #[ignore]
     fn cost_of_a_sleeve_on_his_arm() {
-        let ys: Vec<f32> = (0..=40).map(|k| 0.05 + 0.01 * k as f32).collect();
-        let (bp, bt) = tube(24, &ys, |_| 0.025);
+        let env = |k: &str, d: f32| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+        // (FINE=k: his skin k times finer each way, as his real hand's against the glove's points.)
+        let fine = env("FINE", 1.0) as usize;
+        let ys: Vec<f32> = (0..=40 * fine).map(|k| 0.05 + 0.01 / fine as f32 * k as f32).collect();
+        let (bp, bt) = tube(24 * fine, &ys, |_| 0.025);
         let sy: Vec<f32> = (0..=20).map(|k| 0.02 + 0.015 * k as f32).collect();
         let (sp, st) = tube(18, &sy, |_| 0.0265);
-        let env = |k: &str, d: f32| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
         let t = Tuning {
             floor_on: false, max_strain: 1.05, substeps: 20, body_thickness: 0.0007, body_front_only: true,
-            body_band: env("BAND", 0.004), body_every: env("EVERY", 2.0) as u32, ..Default::default()
+            body_band: env("BAND", 0.004), body_every: env("EVERY", 2.0) as u32, body_verts: env("VERTS", 0.0),
+            ..Default::default()
         };
         let mut c = Cloth::build(&sp, &st, 0.3, t).unwrap();
         if std::env::var("NO_BODY").is_err() {
             c.set_body(&bp, &bt);
+            if std::env::var("COARSE").is_ok() {
+                // (His body as coarse as at FINE=1, his finer skin only for its vertices.)
+                let ys: Vec<f32> = (0..=40).map(|k| 0.05 + 0.01 * k as f32).collect();
+                let (cp, ct) = tube(24, &ys, |_| 0.025);
+                c.set_body(&cp, &ct);
+            }
+            c.set_skin(&bp, &bt);
         }
         for i in 0..18 {
             c.pin(i, true);
         }
         let t0 = std::time::Instant::now();
         let mut cands = 0usize;
+        let mut vc = 0usize;
         for k in 1..=120 {
             for i in 0..18 {
                 c.move_pin(i, [sp[i][0], sp[i][1] - 0.002 * k as f32, sp[i][2]]);
             }
             c.step(1.0 / 60.0);
             cands += c.body.cand.len();
+            vc += c.body.vcand.len();
         }
         let ms = t0.elapsed().as_secs_f64() * 1000.0 / 120.0;
-        eprintln!("{} points, {} body tris: {ms:.3} ms a tick, {:.1} candidates a point", c.len(), bt.len() / 3, cands as f64 / 120.0 / c.len() as f64);
+        eprintln!("{} points, {} body tris: {ms:.3} ms a tick, {:.1} candidates a point; his vertices {} with {:.1} of its triangles each, {} pushes",
+                c.len(), bt.len() / 3, cands as f64 / 120.0 / c.len() as f64, c.body.vlist.len(), vc as f64 / 120.0 / c.body.vlist.len().max(1) as f64, c.body.vert_pushes);
     }
 
     /// The cost of a glove-sized sheet (19×19 points, 0.25 m) bunching on itself: one corner held and

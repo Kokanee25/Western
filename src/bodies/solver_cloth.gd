@@ -164,6 +164,16 @@ func clear_body() -> void:
 	core.clear_body()
 
 
+## His finer skin (his hand's, #1008: `body_verts`): its vertices kept behind the cloth's triangles,
+## where his body (the garment's own points) is too coarse to keep his fingers in. After `set_body`.
+func set_skin(points: PackedVector3Array, triangles: PackedInt32Array) -> bool:
+	return core.set_skin(points, triangles)
+
+
+func move_skin(points: PackedVector3Array) -> void:
+	core.move_skin(points)
+
+
 ## Points touching his skin at the last tick's end, and crossings caught since it was set.
 func body_contacts() -> int:
 	return core.body_contacts()

@@ -53,6 +53,8 @@ impl ClothCore {
             "self_thickness" => t.self_thickness = v.max(0.0),
             "self_friction" => t.self_friction = v,
             "self_stick" => t.self_stick = v.max(0.0),
+            "body_verts" => t.body_verts = v.max(0.0),
+            "body_verts_deep" => t.body_verts_deep = v.max(0.0),
             _ => return false,
         }
         if let Some(c) = self.c.as_mut() {
@@ -165,6 +167,57 @@ impl ClothCore {
     #[func]
     fn body_pinches(&self) -> i64 {
         self.c.as_ref().map_or(0, |c| c.body.pinches as i64)
+    }
+
+    /// His finer skin (his hand's, #1008): its vertices kept `body_verts` behind the cloth's
+    /// triangles. After `set_body` (which clears it). False if an index is out of range.
+    #[func]
+    fn set_skin(&mut self, points: PackedVector3Array, triangles: PackedInt32Array) -> bool {
+        let Some(c) = self.c.as_mut() else { return false };
+        if triangles.as_slice().iter().any(|&i| i < 0) {
+            return false;
+        }
+        let pts: Vec<V3> = points.as_slice().iter().map(|p| v3(*p)).collect();
+        let tris: Vec<u32> = triangles.as_slice().iter().map(|&i| i as u32).collect();
+        c.set_skin(&pts, &tris)
+    }
+
+    /// His finer skin's points at the end of the next step.
+    #[func]
+    fn move_skin(&mut self, points: PackedVector3Array) {
+        if let Some(c) = self.c.as_mut() {
+            let pts: Vec<V3> = points.as_slice().iter().map(|p| v3(*p)).collect();
+            c.move_skin(&pts);
+        }
+    }
+
+    /// His vertices that pushed the cloth out at the last substep (#1008, `body_verts`), and since his
+    /// body was set.
+    #[func]
+    fn body_vert_contacts(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.body.vert_contacts as i64)
+    }
+
+    /// His vertices listed against it this tick, and their (vertex, triangle) pairs.
+    #[func]
+    fn body_vert_listed(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.body.vert_listed as i64)
+    }
+
+    /// The last step's time (µs) listing his vertices and meeting them.
+    #[func]
+    fn body_vert_us(&self) -> Vector2 {
+        self.c.as_ref().map_or(Vector2::ZERO, |c| Vector2::new(c.body.vert_list_us, c.body.vert_meet_us))
+    }
+
+    #[func]
+    fn body_vert_pairs(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.body.vert_pairs as i64)
+    }
+
+    #[func]
+    fn body_vert_pushes(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.body.vert_pushes as i64)
     }
 
     /// Where it lay on itself at the last substep (contacts), and since it was built.

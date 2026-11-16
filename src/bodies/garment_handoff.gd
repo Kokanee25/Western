@@ -28,6 +28,10 @@ enum State { NONE, WORN, HELD, FREE, REST }
 ## His skin under the glove as SkinCollider has it: simplified to about this many triangles (0: the
 ## glove's own points).
 const COLLIDER_TRIS := 0
+## His skin finer than the glove, its hand's vertices kept under our cloth's triangles (#1008: his
+## fingers showed through the glove between its ~5 points round each as it was drawn off): about
+## this many triangles over the glove's cut (0: none). Our cloth only (`body_verts`).
+const FINE_TRIS := 3000
 
 ## The release rule's numbers (m, the edges' length ratio). `release_lead`: the finger ends this
 ## far from the tips let go at the take; `clear_after`: his skin shape stays this long after he lets
@@ -46,7 +50,7 @@ var tune := {"release_lead": 0.035, "give": 1.05, "front_step": 0.01, "clear_aft
 var solver_tune := {"bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5, "max_strain": 1.05,
 		"substeps": 20, "damping": 1.0, "body_thickness": SkinCollider.SKIN_PAD, "body_band": 0.01, "body_every": 1,
 		"body_friction_static": 0.15, "body_friction_kinetic": 0.1, "body_front_only": 1,
-		"self_thickness": 0.0}
+		"self_thickness": 0.0, "body_verts": 0.0005}
 ## Once out of his hand (falling, lying): damped more, as `free_damping` is Jolt's.
 const SOLVER_FREE_DAMPING := 2.0
 
@@ -94,8 +98,8 @@ func wear(who: HumanBody, g: WornGarment, material: Material = null) -> MeshInst
 
 ## A long glove on `who`'s arm on `side`, worn (null if he has no skin to make it from).
 static func glove_on(who: HumanBody, parent: Node, side := "l", material: Material = null, tris := 700,
-		under_tris := COLLIDER_TRIS) -> GarmentHandoff:
-	var g := WornGarment.glove(who, side, 0.42, tris, under_tris)
+		under_tris := COLLIDER_TRIS, fine_tris := FINE_TRIS) -> GarmentHandoff:
+	var g := WornGarment.glove(who, side, 0.42, tris, under_tris, fine_tris)
 	if g == null:
 		return null
 	var h := GarmentHandoff.new()
@@ -132,6 +136,8 @@ func take(hand_side := "r", points: Array[int] = []) -> void:
 	add_child(collider)
 	collider.global_transform = Transform3D.IDENTITY
 	collider.setup(garment.under if garment.under else garment, ours)
+	if ours and garment.fine and float(solver_tune.get("body_verts", 0.0)) > 0.0:
+		collider.fine = garment.fine
 	collider.every = int(tune.skin_every)
 	var is_tip := {}
 	for i in points:
