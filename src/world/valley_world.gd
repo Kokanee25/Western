@@ -259,6 +259,11 @@ func _make_buildings() -> void:
 				continue
 			var b: Node3D = load("res://experiments/building_lab/spec_building.gd").new()
 			var sp: Dictionary = b.load_spec(String(l.spec))
+			if not sp.has("lot") or not sp.has("levels"):
+				# #1003: a spec left out of the export read as {} and the build crashed on start.
+				push_error("ValleyWorld: %s's spec %s didn't load; the lot is left empty" % [l.id, l.spec])
+				b.free()
+				continue
 			b.set(&"spec_path", String(l.spec))
 			b.set(&"structure_id", StringName("valley_" + String(l.id)))
 			b.name = "Building_" + String(l.id)

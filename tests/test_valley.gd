@@ -195,3 +195,25 @@ func test_main_loads_one_world() -> void:
 		main.queue_free()
 		await process_frames(3)
 	Settings.set_world(&"town")
+
+
+## #1003: a folder with a .gdignore is left out of the exported pack, though the editor still reads
+## its files from disk, so a spec the valley builds from must not sit under one (saloon B's did, and
+## the exported valley crashed on start).
+func test_the_valley_specs_ship_in_the_export() -> void:
+	var v := _valley()
+	var n := 0
+	for side: String in ["north", "south"]:
+		for l: Dictionary in v.lots(side):
+			if not l.has("spec"):
+				continue
+			var path := String(l.spec)
+			n += 1
+			check(path.begins_with("res://"), "%s's spec is a res:// path (%s)" % [l.id, path])
+			check(FileAccess.file_exists(path), "%s's spec exists" % l.id)
+			var dir := path.get_base_dir()
+			while dir.length() > "res://".length():
+				check(not FileAccess.file_exists(dir.path_join(".gdignore")),
+						"%s's spec isn't under a .gdignore (%s)" % [l.id, dir])
+				dir = dir.get_base_dir()
+	check(n >= 3, "the valley's spec buildings (%d)" % n)

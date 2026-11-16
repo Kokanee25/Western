@@ -251,7 +251,7 @@ the sheriff on the road, No Law's sheriff's last day, the coach heist (~1 min ea
 screen, and each event waits for a few frames after the last; on the desktop it fails if the native
 plugin isn't loaded. In `build.yml` the export job no longer releases:
 `smoke` runs each export on its own runner (Linux headless and drawn under lavapipe at 640x360,
-Windows headless), and only then `release` (the GitHub Release) and `pages`. No macOS build since
+Windows headless), each in the old town and then the valley (#1003), and only then `release` (the GitHub Release) and `pages`. No macOS build since
 2026-11-03 (Sean tests only on Windows; a macOS runner bills 10x): the `native-build` action and
 the export preset still know it.
 

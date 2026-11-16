@@ -88,7 +88,8 @@ Night floor lab (#745).
   `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
 - **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
   valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
-  `nightly red` issue. The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
+  `nightly red` issue. Each export's smoke runs the town and the valley (#1003). Trap: a `.gdignore`
+  drops its folder from the pack (the editor still reads it). The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
   goldens and the tour (art's views); the bench is by hand (`perf_bench --world=valley`, below). Rubble growth is by design (DESIGN §8).
 
 ## Traps
