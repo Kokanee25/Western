@@ -9,6 +9,41 @@ this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on
 "glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
 `GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
 
+## His fingers in the glove (#1008, `results/2026-11-16-fingers/`)
+
+Sean (2026-11-16, #997's film): "the left hand is clipping through the glove as it's pulled off". Our
+cloth only kept the glove's POINTS off his skin, and his skin as the collider was the glove's own points
+pulled back (~5 round a finger): his finer, rounder fingers poked out between the points through the
+~1 cm triangles, and once the glove slid, his uncovered skin showed through it (the worn glove already
+cuts his finer skin in 285 hand vertices; hidden while worn).
+
+- **The fix, in ClothCore (`body_verts`):** his hand's own skin vertices (a 3000-triangle cut of his
+  Skin_whole, `WornGarment.fine`; 1091 on the MetaHuman's hand) kept 0.5 mm behind the cloth's
+  triangles (Bridson et al. 2002's point-triangle the other way), pushed out by their weights, no
+  bounce. A vertex still in the glove (it began in it and some of it has stayed near) is pushed back from
+  up to 15 mm out; one out of it only from 2 mm (a bare finger over the glove can't be told from one
+  through it) or when it crossed in the substep. Its skin is posed by SkinCollider with the rest.
+- **Before and after** (`bench.gd --shots`, the hands camera, seed 1; top main, bottom
+  `--fine-tris=3000`): [`draw_before_after.jpg`](results/2026-11-16-fingers/draw_before_after.jpg)
+  (3.0-4.0 s: his fingers through the glove's back before, none after but two wrist specks at 3.4 s),
+  [`late_before_after.jpg`](results/2026-11-16-fingers/late_before_after.jpg) (4.2-5.4 s: it clings to
+  his hand ~0.2 s longer, then comes off cleanly).
+- **The count** (`skin_out`: his hand's covered skin vertices >1 mm in front of the nearest cloth
+  triangle facing his skin's way, within 15 mm; the worn glove's floor 285), worst in the draw / summed:
+
+  | MetaHuman | main | `--fine-tris=3000` |
+  |---|---|---|
+  | seed 1 | 1478 / 97k | 389 / 13.8k |
+  | seed 2 | 1596 / 84k | 581 / 32.8k |
+  | seed 3 | 1473 / 86k | 613 / 33.4k |
+
+  All rest, flung 0. **Why it's off in the game (`GarmentHandoff.FINE_TRIS` 0):** the pop at the take
+  1.3 -> 8.1 mm (test limit 3: hand vertices out of the worn glove's shape pushed at once), stretch 1.06 ->
+  1.10 (the pushes come after the strain limit), and its cost here: listing 3.4-5.3 ms and meeting
+  5.6-11 ms a tick while drawn (~6-10 ms at Sean's), on sean_s3_talking 25 ms more as it's tossed (a
+  vertex "still in the glove" while the tossed glove passes his hand). An attempt to let each vertex be
+  as far out as it was worn (no pop) doubled the pushes and the pop: reverted, cause unknown.
+
 ## Itself (#997, `results/2026-11-16-self/`)
 
 Our cloth can meet itself (`self_thickness`; ClothCore, LAYOUT "src/bodies"), and the glove was filmed
@@ -54,7 +89,8 @@ met him with its slide along him kept, pinches between his pressed fingers left 
   [`metahuman_hands.mp4`](results/2026-11-15-ours/metahuman_hands.mp4) (real time) and
   [`metahuman_draw_half_speed.mp4`](results/2026-11-15-ours/metahuman_draw_half_speed.mp4) (the draw).
   His right hand takes the fingertips and the glove slides off over his hand into it; his left hand comes
-  out bare. Nothing of the glove through his hand to the eye at 960×540. For a few frames as it leaves,
+  out bare. (Wrong, #1008: his left fingers show through the glove's back for ~half a second as it's
+  drawn, the same in #997's film; see "His fingers in the glove".) For a few frames as it leaves,
   specks of his forearm's skin aren't drawn yet (`uncover`, a third of the points a tick: the vest shows
   through), gone within 0.2 s. Flung 0, below the floor 0, pop 1.4 mm, worst stretch 1.09, at rest 7.1 s.
 - **By the count** (`under_skin`, worst in the draw, six seeds of his idle): on the MetaHuman 13-14 points

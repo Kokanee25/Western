@@ -90,7 +90,13 @@ jacket, and leggings"; and "we should only be using the metahuman model". Everyt
    kept: meeting itself every 4th substep (a pile tangled), a fixed 5-substep list (missed contacts),
    a wider catch for crossings (fast points yanked: the glove flew). Fixed on the way: a pile that
    buzzed forever (sticking), a tossed glove yanked through him (a crossing only if it was near then).
-4. **The world and the cost:** floor and props; at rest baked; the cost table on the MetaHuman, ≤ 0.5 ms
+4. **His fingers, the rest and the cost.** **His fingers (#1008, part 1, off in the game):** his hand's own
+   skin vertices (a 3000-triangle cut, 1091 on the MetaHuman's hand) kept behind the glove's triangles
+   (`body_verts`); his fingers no longer show through as it's drawn (crops on #1008), the count 1478 ->
+   389-613 at worst; but the take pops 8 mm, stretch 1.10, and it costs ~6-10 ms a tick more at Sean's
+   while drawn (25 ms tossed on sean_s3_talking): `GarmentHandoff.FINE_TRIS` 0 until those are fixed.
+   Then the rest with itself on and the cost below.
+   **The world and the cost:** floor and props; at rest baked; the cost table on the MetaHuman, ≤ 0.5 ms
    while it simulates (with itself, from ~7.2: a hierarchy over its own triangles with normal cones,
    Provot 1997, so flat patches aren't looked into; the points over the worker threads). Merge.
 5. **Leggings / a stocking:** `WornGarment` for the leg's bones; rolled or drawn down over the foot.

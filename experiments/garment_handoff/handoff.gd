@@ -49,6 +49,17 @@ func _physics_process(delta: float) -> void:
 			var core = (part.cloth as SolverCloth).core
 			var sm: Dictionary = rec.get_or_add("solver_ms", {})
 			sm[phase] = float(sm.get(phase, 0.0)) + core.millis()
+			if core.has_method("body_vert_pushes"):
+				rec.vert_pushes = maxi(int(rec.get("vert_pushes", 0)), core.body_vert_pushes())
+				var vl: Dictionary = rec.get_or_add("vert_listed", {})
+				vl[phase] = int(vl.get(phase, 0)) + core.body_vert_listed()
+				var vu: Dictionary = rec.get_or_add("vert_us", {})
+				var u: Vector2 = core.body_vert_us()
+				var e2: Array = vu.get_or_add(phase, [0.0, 0.0])
+				e2[0] += u.x
+				e2[1] += u.y
+				var vp: Dictionary = rec.get_or_add("vert_pairs", {})
+				vp[phase] = int(vp.get(phase, 0)) + core.body_vert_pairs()
 			if core.has_method("self_contacts"):
 				rec.self_max = maxi(int(rec.get("self_max", 0)), core.self_contacts())
 				var sp: Dictionary = rec.get_or_add("self_pairs", {})
@@ -75,6 +86,7 @@ func _measure() -> void:
 	rec.pop_mm = part.pop_mm
 	rec.skin_us_max = maxi(int(rec.get("skin_us_max", 0)), part.collider.rebuild_us)
 	rec.skin_tris_max = maxi(int(rec.get("skin_tris_max", 0)), part.collider.last_tris)
+	rec.fine_points = part.collider.fine_count()
 	if part.released_all_at >= 0.0:
 		rec.released_all_at = snappedf(part.released_all_at, 0.001)
 	var sx: float = cloth.stretch(pts)
@@ -92,6 +104,22 @@ func _measure() -> void:
 		var base: int = glove.under_skin(glove.posed())
 		rec.worn_under_max = maxi(int(rec.get("worn_under_max", 0)), base)
 	var n: int = glove.under_skin(pts) if measure_skin else 0
+	# His hand's skin through the glove (#1008): what the eye sees of his fingers through it.
+	if measure_skin and part.collider and part.collider.active:
+		if not rec.has("worn_out_max"):
+			rec.worn_out_max = glove.skin_out(glove.posed())
+		var so: int = glove.skin_out(pts)
+		var bo: Dictionary = rec.get_or_add("skin_out_by_phase", {})
+		bo[phase] = maxi(int(bo.get(phase, 0)), so)
+		if so > int(rec.get("skin_out_max", -1)):
+			rec.skin_out_max = so
+			rec.skin_out_at = snappedf(t, 0.01)
+		rec.skin_out_total = int(rec.get("skin_out_total", 0)) + so
+		if int(rec.ticks.get(phase, 0)) % 6 == 0:
+			var hist := [0, 0, 0, 0]
+			for h: float in glove.last_out_h:
+				hist[0 if h < 0.003 else (1 if h < 0.006 else (2 if h < 0.01 else 3))] += 1
+			(rec.get_or_add("skin_out_series", []) as Array).append([snappedf(t, 0.01), so, hist])
 
 	var deep5 := 0
 	var deep10 := 0

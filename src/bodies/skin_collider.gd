@@ -11,6 +11,11 @@ extends Node3D
 ##
 ## With our own cloth (`solver`, a SolverCloth: #986) there's no Jolt shape: the same posed skin is
 ## handed to the solver (`set_body` at `on`, `move_body` each rebuild), which meets it itself.
+##
+## His hand's finer skin (`fine`, #1008): the glove's own points are ~5 round a finger and his
+## fingers poked out between them as it was drawn off. Our cloth also keeps his hand's own skin
+## vertices (from a finer cut of his skin, `WornGarment.fine`) behind its triangles: posed with the
+## rest and handed to it (`set_skin`, `move_skin`).
 
 ## The physics bit garment cloth and this shape share (nothing else in the game uses it).
 const LAYER := 1 << 12
@@ -35,6 +40,8 @@ var near := true
 var every := 1
 ## The free cloth's box (world); empty: all of them.
 var free_box := AABB()
+## His finer skin (our cloth only; set before `on`): its hand's vertices kept under the cloth.
+var fine: WornGarment
 ## The last rebuild's time (µs) and triangles.
 var rebuild_us := 0
 var last_tris := 0
@@ -98,6 +105,9 @@ func on() -> void:
 	if solver:
 		_last = garment.posed_points(_inset)
 		solver.set_body(_last, garment.indices)
+		if fine:
+			_fine_setup()
+			solver.set_skin(_fine_posed(), _fine_tris)
 		return
 	body.collision_layer = LAYER
 	step()
@@ -133,6 +143,8 @@ func step() -> void:
 		_last = pts
 		if solver:
 			solver.move_body(pts)
+			if fine:
+				solver.move_skin(_fine_posed())
 			last_tris = idx.size() / 3
 			rebuild_us = Time.get_ticks_usec() - t0
 			return
@@ -171,6 +183,8 @@ func step() -> void:
 			# (The solver keeps the whole skin: the far points where they were last posed, and it only
 			# looks at the triangles near the free cloth.)
 			solver.move_body(last)
+			if fine:
+				solver.move_skin(_fine_posed())
 			last_tris = n
 			rebuild_us = Time.get_ticks_usec() - t0
 			return
@@ -186,6 +200,47 @@ func step() -> void:
 	rebuild_us = Time.get_ticks_usec() - t0
 
 
+## His hand's vertices of `fine` (its points on his hand and fingers) and its triangles among them
+## (by place in _fine_ids), pulled back as the garment's are (`inset`).
+func _fine_setup() -> void:
+	_fine_inset = inset(fine)
+	_fine_mask = PackedByteArray()
+	_fine_mask.resize(fine.verts.size())
+	var at := PackedInt32Array()
+	at.resize(fine.verts.size())
+	_fine_ids = PackedInt32Array()
+	for i in fine.verts.size():
+		at[i] = -1
+		if fine.finger_of[i] != "" or fine.skeleton.get_bone_name(fine.main_bone[i]).begins_with("hand"):
+			at[i] = _fine_ids.size()
+			_fine_ids.append(i)
+			_fine_mask[i] = 1
+	_fine_tris = PackedInt32Array()
+	var idx := fine.indices
+	for t in range(0, idx.size(), 3):
+		if at[idx[t]] >= 0 and at[idx[t + 1]] >= 0 and at[idx[t + 2]] >= 0:
+			_fine_tris.append_array([at[idx[t]], at[idx[t + 1]], at[idx[t + 2]]])
+
+
+## His hand's fine vertices where they're drawn now (world).
+func _fine_posed() -> PackedVector3Array:
+	var all := fine.posed_points(_fine_inset, _fine_mask)
+	var out := PackedVector3Array()
+	out.resize(_fine_ids.size())
+	for k in _fine_ids.size():
+		out[k] = all[_fine_ids[k]]
+	return out
+
+
+## How many of his hand's fine vertices the cloth meets (0 without `fine`).
+func fine_count() -> int:
+	return _fine_ids.size()
+
+
+var _fine_inset := PackedVector3Array()
+var _fine_mask := PackedByteArray()
+var _fine_ids := PackedInt32Array()
+var _fine_tris := PackedInt32Array()
 var _last := PackedVector3Array()
 var _tick := 0
 var _tri_of := PackedInt32Array()   # each point's triangles, by _tri_at

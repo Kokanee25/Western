@@ -1504,10 +1504,18 @@ substeps (reach: its move against the cloth's mean, so the list's interval keeps
 thickness), each list in triangle order (cell size and interval only cost). Measures `self_contacts`,
 `self_contacts_total`, `self_pairs`, `self_lists`. A layer is only caught within two thicknesses of
 another: faster than 2 × thickness a substep (2 mm at 20 substeps: 4.8 m/s apart) goes through; met
-every 4th substep a pile tangled through itself, a fixed 5-substep list missed contacts. Its face **`SolverCloth`** (src/bodies) has
+every 4th substep a pile tangled through itself, a fixed 5-substep list missed contacts. **His finer
+skin** (step 4, #1008): `set_skin(points, tris)` after `set_body`, `move_skin` each tick, `body_verts`
+(0 off; 0.5 mm): his skin's own vertices kept behind the cloth's triangles (facing his skin's way, over
+the triangle), pushed out by their weights, no bounce; one still in the garment (`VERT_INSIDE`, from
+15 mm out; it began in it and some cloth has stayed near) else from `body_verts_deep` (2 mm) or a
+crossing. Listed once a tick from a hash of all its triangles. Measures `body_vert_contacts`,
+`body_vert_pushes`, `body_vert_listed`, `body_vert_pairs`, `body_vert_us`. SkinCollider's `fine` (a
+`WornGarment.fine`, `fine_tris`) feeds it his hand; off in GarmentHandoff (`FINE_TRIS` 0: pop, stretch,
+cost; experiments/garment_handoff/README.md). Its face **`SolverCloth`** (src/bodies) has
 GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
 `came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
-the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `tune(name, v)`.
+the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `set_skin`, `move_skin`, `tune(name, v)`.
 GarmentHandoff uses it (itself off: one MetaHuman start in seven still never rested, #997). Not yet: the world's props (step 4); nothing takes a glove off in
 play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
 clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
