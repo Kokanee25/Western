@@ -42,8 +42,9 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
   **The jail's stone and form** (#860, PR #927): the stepped parapet with corner piers, the cell wing a metre lower,
-  the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **Next: the general store
-  (#858)**; saloon B is Fable's (#848: step 1 done, below).
+  the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **The general store (#858): steps 1-2 done**
+  (`experiments/building_lab/store/` README: sheet approved, spec on its lot, the frame's checks pass; step 3's tests, X-ray and merge next);
+  saloon B is Fable's (#848: step 1 done, below).
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
