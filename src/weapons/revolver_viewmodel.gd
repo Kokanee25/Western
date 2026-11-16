@@ -55,6 +55,10 @@ var _aim_elbow := AIM_ELBOW
 var _poses := POSES
 
 
+## The flash at the muzzle as you see it (#1019).
+var flash: MuzzleFlash
+
+
 func _ready() -> void:
 	add_to_group(&"revolver")
 	if tuning == null:
@@ -66,6 +70,8 @@ func _ready() -> void:
 	model.held = true
 	model.name = "Revolver"
 	add_child(model)
+	flash = MuzzleFlash.new(1.0)
+	model.muzzle.add_child(flash)
 	hand = HandModel.new()
 	hand.name = "Hand"
 	add_child(hand)
@@ -220,6 +226,7 @@ func _fire() -> void:
 	var world := ballistics.get_parent()
 	GunSmoke.spawn(world, origin, dir)
 	ImpactEffects.muzzle_flash(world, origin)
+	flash.fire()
 	if GameAudio.enabled():
 		GameAudio.gunshot(self, origin)
 	else:
@@ -253,6 +260,7 @@ func _animate(delta: float) -> void:
 	_pose_pos = _pose_pos.lerp(_poses[pose][0], k)
 	_pose_rot = _pose_rot.lerp(_poses[pose][1], k)
 	kick.step(delta)
+	flash.step(delta)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * (18.0 if _tuck_target > tuck else 9.0)))
 	_update_sway(delta)
 	_apply_pose(_draw)

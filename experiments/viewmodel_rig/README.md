@@ -10,7 +10,10 @@ viewmodels (RevolverViewmodel with the approved Colt, Winchester73Viewmodel) on 
 stepped in game seconds: idle, aimed, cocking, firing (the kick 50 ms in), reloading; `--close` adds the hand
 from the gun's right, left and above; `--variants=FILE` renders hold settings side by side (fp_holds keys);
 `--fov=0` the old field of view; `--world-layer` the gun off the held layer. ~40 s for two poses.
-`held_grade.py` makes the guns' in-hand albedo (the metal darker, less blue: seen from above a held gun
+The firing pose fires for real (#1019: the gun's own `_fire`, smoke, both flashes, the light) and is
+caught `--shot-at=` game seconds in (0.05) with time stood still; the view's kick is applied; each pose
+starts on a clean stage. `held_grade.py` makes the guns' in-hand albedo (the Colt `--dark=0.5 --grey=0.4`,
+the Winchester's two `--dark=0.6 --grey=0.75`, #1019) (the metal darker, less blue: seen from above a held gun
 mirrors the open sky). Judge rounds: `docs/screenshots/judge/2026-11-16_fp_colt_r1/`, `_r2/`.
 
 ```sh

@@ -30,6 +30,8 @@ var world_layer := false
 ## --variants=FILE: a JSON list of {"name": .., "set": {hold key: value}} (config/fp_holds.json's
 ## keys), each rendered in turn with its holds changed: for trying settings side by side.
 var variants := [{"name": "", "set": {}}]
+## The stage's own nodes (all else in the world is a shot's leavings).
+var stage_nodes: Array[Node] = []
 
 
 func _initialize() -> void:
@@ -50,6 +52,8 @@ func _run() -> void:
 			variants = JSON.parse_string(FileAccess.get_file_as_string(a.substr(11)))
 		elif a == "--world-layer":
 			world_layer = true
+		elif a.begins_with("--shot-at="):
+			shot_at = float(a.substr(10))
 		elif a == "--close":
 			close = true
 		elif a.begins_with("--fov="):
@@ -57,6 +61,7 @@ func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(out)
 	root.size = Vector2i(1280, 720)
 	_stage()
+	stage_nodes = world.get_children()
 	var holds: Dictionary = load("res://src/weapons/held_hand.gd").call(&"holds")
 	var base := holds.duplicate(true)
 	for v: Dictionary in variants:
@@ -78,10 +83,15 @@ func _run() -> void:
 					await _frames(4)
 					var path := out.path_join("%s_%s_%s%s.png" % [g, p, light, tag])
 					root.get_texture().get_image().save_png(path)
+					Engine.time_scale = 1.0
 					print("shot ", path)
 					if close:
 						await _close(vm, path.get_basename())
 					vm.queue_free()
+					# What the shot left in the world (smoke, flash, brass) goes too: each pose clean.
+					for n in world.get_children():
+						if not n in stage_nodes:
+							n.queue_free()
 					await _frames(1)
 	quit()
 
@@ -133,8 +143,25 @@ func _gun(g: String) -> Node3D:
 
 func _step(vm: Node3D, seconds: float) -> void:
 	var n := int(round(seconds * 60.0))
+	var vk: Object = vm.get(&"view_kick")
 	for i in n:
 		vm.call(&"_process", 1.0 / 60.0)
+		# The view's kick (the gun's _animate_camera only moves a selected gun's camera).
+		vk.call(&"step", 1.0 / 60.0)
+		cam.rotation = Vector3(deg_to_rad(vk.get(&"pitch")), deg_to_rad(-vk.get(&"yaw")), 0.0)
+
+
+## A real shot (#1019): the gun's own _fire (the ball, smoke, the world's flash and light, the held
+## flash, the kick), caught `shot_at` game seconds in. The world's flash and light run on timers, so
+## time stands still (time_scale 0) until the frame is saved; `_frames` puts it back.
+var shot_at := 0.05
+
+
+func _shoot(vm: Node3D) -> void:
+	vm.set(&"_trigger", 1.0)
+	vm.call(&"_fire")
+	Engine.time_scale = 0.0
+	_step(vm, shot_at)
 
 
 func _pose(vm: Node3D, g: String, p: String) -> void:
@@ -153,9 +180,7 @@ func _pose(vm: Node3D, g: String, p: String) -> void:
 				st.call(&"cock")
 				vm.set(&"aiming", true)
 				_step(vm, 1.0)
-				vm.set(&"_trigger", 1.0)
-				vm.call(&"_kick_shot", vm.get(&"tuning"))
-				_step(vm, 0.05)
+				_shoot(vm)
 			"reloading":
 				st.set(&"hammer", 1)
 				var ch: Array = st.get(&"chambers")
@@ -176,8 +201,7 @@ func _pose(vm: Node3D, g: String, p: String) -> void:
 			"firing":
 				vm.set(&"aiming", true)
 				_step(vm, 1.2)
-				vm.call(&"_kick_shot", vm.get(&"tuning"))
-				_step(vm, 0.05)
+				_shoot(vm)
 			"reloading":
 				st.set(&"tube", 0)
 				vm.call(&"reload_press")
@@ -242,6 +266,7 @@ func _stage() -> void:
 	lamp.shadow_enabled = true
 	lamp.position = Vector3(0.9, 1.9, -0.6)
 	world.add_child(lamp)
+	world.add_child(load("res://src/ballistics/ballistics.gd").new())  # the real shot needs one
 	var head := Node3D.new()
 	head.position = Vector3(0, 1.62, 0)
 	world.add_child(head)

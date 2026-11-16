@@ -45,6 +45,8 @@ const R_GRIP := {"middle": 72.0, "ring": 66.0, "little": 60.0}
 const R_INDEX_SPREAD := 28.0
 const R_INDEX_REST := 12.0
 const R_INDEX_PULL := 24.0
+## The index finger's rest, pull and spread (R_INDEX_*, or Harlan's hands' own `win73.r_index`).
+var _r_index := Vector3(R_INDEX_REST, R_INDEX_PULL, R_INDEX_SPREAD)
 ## The thumb over the top of the wrist (the coach gun's), laid low so it stays under the sights.
 const R_THUMB := [Vector3(-24.0, -36.0, 24.0), 55.0, 45.0]
 const HAND_RIDES := 0.8
@@ -86,6 +88,8 @@ var left_hand: HeldHand
 var shoulder := 0.0
 
 var _hip_pos := Vector3.ZERO
+## The hip pose's turn (HIP_ROT, or Harlan's hands' own `win73.hip`).
+var _hip_rot := HIP_ROT
 var _aim_pos := Vector3.ZERO
 var _aim_rot := Vector3.ZERO
 var _loading_pos := Vector3.ZERO
@@ -108,6 +112,10 @@ var _fire_until := 0.0
 const TRIGGER_BUFFER := 0.2
 
 
+## The flash at the muzzle as you see it (#1019).
+var flash: MuzzleFlash
+
+
 func _ready() -> void:
 	add_to_group(&"rifle")
 	if tuning == null:
@@ -120,12 +128,14 @@ func _ready() -> void:
 	model.held = true
 	model.name = "Winchester"
 	add_child(model)
+	flash = MuzzleFlash.new(1.35, 1866)
+	model.muzzle.add_child(flash)
 	_poses()
 	_build_hands()
 	_l_elbow_aim = HeldHand.hold("win73.l_elbow_aim", L_ELBOW_AIM)
 	_r_elbow_aim = HeldHand.hold("win73.r_elbow_aim", R_ELBOW_AIM)
 	_pose_pos = _hip_pos
-	_pose_rot = HIP_ROT
+	_pose_rot = _hip_rot
 	_setup_common()
 	for id in [&"rifle", &"cock", &"dry_fire", &"break_open", &"close", &"insert", &"eject", &"gate"]:
 		_add_sound(id, id == &"rifle")
@@ -159,15 +169,20 @@ func _pose_local(p: Vector3) -> Vector3:
 ## The poses from the model's markers (the lab's first-person holds).
 func _poses() -> void:
 	var d := func(v: Vector3) -> Vector3: return Winchester73Model.design(v.x, v.y, v.z)
-	var bl := Basis.from_euler(HIP_ROT * (PI / 180.0))
-	_hip_pos = HIP_AT - bl * d.call(Vector3(-4.6, -1.8, 0.0))
+	var hip: Array = HeldHand.hold("win73.hip", [HIP_AT, HIP_ROT])
+	_hip_rot = hip[1]
+	var bl := Basis.from_euler(_hip_rot * (PI / 180.0))
+	_hip_pos = hip[0] - bl * d.call(Vector3(-4.6, -1.8, 0.0))
 	var bi := Basis.from_euler(LOADING_ROT * (PI / 180.0))
 	_loading_pos = LOADING_AT - bi * d.call(Vector3(-1.2, -0.9, 0.0))
 	var rear := model.marker("SightRear")
 	var front := model.marker("SightFront")
 	var b := Basis.looking_at((front - rear).normalized(), Vector3.UP).inverse()
-	_aim_rot = b.get_euler() * (180.0 / PI)
-	_aim_pos = -(b * rear) + Vector3(0.0, 0.0, -float(HeldHand.hold("win73.eye_relief", EYE_RELIEF)))
+	# Canted a little about the line of sight (the sights stay on it, #1019): the stock comes in
+	# from the lower right instead of running up the screen's middle, the receiver's side shows.
+	var cant := Basis(Vector3.BACK, deg_to_rad(float(HeldHand.hold("win73.aim_cant", 0.0))))
+	_aim_rot = (cant * b).get_euler() * (180.0 / PI)
+	_aim_pos = cant * (-(b * rear) + Vector3(0.0, 0.0, -float(HeldHand.hold("win73.eye_relief", EYE_RELIEF))))
 
 
 func _build_hands() -> void:
@@ -180,7 +195,8 @@ func _build_hands() -> void:
 	hand = _held(true, _hand_pivot, d.call(R_HAND_FUL) - _hand_pivot.position, R_WRIST_DIR, R_PALM_DIR, R_FOREARM)
 	for f: String in R_GRIP:
 		hand.grasp(f, R_GRIP[f])
-	hand.grasp("index", R_INDEX_REST, R_INDEX_SPREAD)
+	_r_index = HeldHand.hold("win73.r_index", Vector3(R_INDEX_REST, R_INDEX_PULL, R_INDEX_SPREAD))
+	hand.grasp("index", _r_index.x, _r_index.z)
 	var r_thumb: Array = HeldHand.hold("win73.r_thumb", R_THUMB)
 	hand.thumb_pose(r_thumb[0], r_thumb[1], r_thumb[2])
 	left_hand = _held(false, model, d.call(HeldHand.hold("win73.l_hand_ful", L_HAND_FUL)), L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
@@ -392,6 +408,7 @@ func _fire() -> void:
 	var world := ballistics.get_parent()
 	GunSmoke.spawn(world, origin, dir, 1.2)
 	ImpactEffects.muzzle_flash(world, origin)
+	flash.fire()
 	if GameAudio.enabled():
 		GameAudio.gunshot(self, origin, false, &"report_rifle", &"rolling_rifle")
 	else:
@@ -426,7 +443,7 @@ func _animate(delta: float) -> void:
 	var loading := _loading()
 	var pose := Pose.LOADING if loading else (Pose.AIM if aiming else Pose.HIP)
 	var target_pos: Vector3 = [_hip_pos, _aim_pos, _loading_pos][pose]
-	var target_rot: Vector3 = [HIP_ROT, _aim_rot, LOADING_ROT][pose]
+	var target_rot: Vector3 = [_hip_rot, _aim_rot, LOADING_ROT][pose]
 	var k := 1.0 - exp(-delta * 3.0 / maxf(tuning.shoulder_time, 0.05))
 	_pose_pos = _pose_pos.lerp(target_pos, k)
 	_pose_rot = _pose_rot.lerp(target_rot, k)
@@ -438,6 +455,7 @@ func _animate(delta: float) -> void:
 	sway_factor = lerpf(tuning.sway_hip, tuning.sway_aimed, shoulder)
 	shake_factor = lerpf(1.0, tuning.shake_aimed, shoulder)
 	kick.step(delta)
+	flash.step(delta)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * (16.0 if _tuck_target > tuck else 8.0)))
 	_update_sway(delta)
 	_apply_pose(_draw)
@@ -499,7 +517,7 @@ func _animate_hands(delta: float, loading: bool) -> void:
 	hand.aim_forearm(R_FOREARM)
 	for f: String in R_GRIP:
 		hand.grasp(f, lerpf(R_GRIP[f], 20.0, a))
-	hand.grasp("index", lerpf(lerpf(R_INDEX_REST, R_INDEX_PULL, _trigger), 25.0, a), R_INDEX_SPREAD * (1.0 - a))
+	hand.grasp("index", lerpf(lerpf(_r_index.x, _r_index.y, _trigger), 25.0, a), _r_index.z * (1.0 - a))
 	var s := smoothstep(0.0, 1.0, shoulder)
 	hand.shoulder = ShotgunViewmodel.SHOULDER_R.lerp(SHOULDER_R_AIM, s)
 	hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R.lerp(ELBOW_POLE_R_AIM, s)

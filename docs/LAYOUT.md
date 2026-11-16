@@ -2195,6 +2195,11 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   pass. A cut-off forearm's elbow point is per hand (`HeldHand.elbow_drop`; the rifle's left, aimed,
   `win73.l_elbow_aim`). Posing by eye: `experiments/viewmodel_rig/game_views.gd` (the game's viewmodels on a
   plain stage, a pose in seconds, `--variants` for holds side by side).
+  `MuzzleFlash` (#1019) is the flash you see at the held gun's muzzle (a child of its Muzzle marker, on
+  the held layer: a star facing you, two crossed flames, a warm light), stepped in game time by the
+  viewmodel; the world's own flash and light (`ImpactEffects.muzzle_flash`) still go off beside it.
+  The Colt's hip pose (`colt.hip`, turned to show its side), aimed cant (`colt.aim_cant`) and the
+  rifle's (`win73.hip`, `win73.aim_cant`) are holds too.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
   dips and settles), one on the gun and one on your view (`WeaponViewmodel._kick_shot`), its dials
   in each gun's tuning; what's left of it when you fire again turns the shot. `tests/test_gun_feel.gd`
