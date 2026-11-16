@@ -1,0 +1,13 @@
+{"note": "The live show: who plays in which bars (from 0, end not included), and where the crowd claps along; sections.py --live.",
+ "drum_claps": false,
+ "cheer_bar": 39,
+ "sections": [
+  {"name": "intro", "bars": [0, 2], "players": ["guitar", "bass", "drums"]},
+  {"name": "verse", "bars": [2, 10], "players": ["fiddle", "guitar", "bass", "drums"]},
+  {"name": "chorus", "bars": [10, 18], "players": ["fiddle", "guitar", "banjo", "bass", "drums"], "crowd": true},
+  {"name": "verse 2", "bars": [18, 26], "players": ["fiddle", "guitar", "banjo", "bass", "drums"]},
+  {"name": "chorus 2", "bars": [26, 34], "players": ["fiddle", "guitar", "banjo", "bass", "drums"], "crowd": true},
+  {"name": "the break", "bars": [34, 38], "players": ["fiddle"], "crowd": true},
+  {"name": "the fill", "bars": [38, 39], "players": ["drums", "bass"]},
+  {"name": "last chorus, up a step", "bars": [39, 56], "players": ["fiddle", "guitar", "banjo", "bass", "drums"], "crowd": true}
+ ]}

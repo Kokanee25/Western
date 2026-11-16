@@ -1,0 +1,30 @@
+X:1
+T:In the Sweet By and By (live)
+B:Joseph P. Webster, 1868; public domain. Written out from memory for Salt Creek's band; the live show's arrangement: a stop-time break, a fill, the last chorus a step up
+M:4/4
+L:1/8
+K:G
+% intro: the band
+"G"z8 | "G"z6DE |
+% verse
+"G"G3G B2AG | "C"E2G2 G2DE | "G"G3G B2dc | "D"A6DE |
+"G"G3G B2AG | "C"E2G2 G2BA | "D"G2G2 B2A2 | "G"G6z2 |
+% chorus
+"G"B3B B4 | "C"c3c c4 | "G"d2dd d2cB | "D"A6z2 |
+"G"B3B B4 | "C"c3c c4 | "D"d2BA G2A2 | "G"G6DE |
+% verse
+"G"G3G B2AG | "C"E2G2 G2DE | "G"G3G B2dc | "D"A6DE |
+"G"G3G B2AG | "C"E2G2 G2BA | "D"G2G2 B2A2 | "G"G6z2 |
+% chorus
+"G"B3B B4 | "C"c3c c4 | "G"d2dd d2cB | "D"A6z2 |
+"G"B3B B4 | "C"c3c c4 | "D"d2BA G2A2 | "G"G6z2 |
+% the break: the band stops, the fiddle and the crowd's hands
+"G"B3B B4 | "C"c3c c4 | "G"d2dd d2cB | "D"A6z2 |
+% the fill
+"D"z8 |
+% the last chorus, a step up, twice
+K:A
+"A"c3c c4 | "D"d3d d4 | "A"e2ee e2dc | "E"B6z2 |
+"A"c3c c4 | "D"d3d d4 | "E"e2cB A2B2 | "A"A6z2 |
+"A"c3c c4 | "D"d3d d4 | "A"e2ee e2dc | "E"B6z2 |
+"A"c3c c4 | "D"d3d d4 | "E"e2cB A2B2 | "A"A8 |

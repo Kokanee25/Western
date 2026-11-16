@@ -13,6 +13,7 @@ stretches the skin, so the pitch starts high and falls in a few tens of ms (tens
 which rattle against the bottom head while it moves: a burst of noise (2-9 kHz) a moment after the hit,
 dying in ~0.15 s; played soft here, the folk band's light backbeat.
 
+A bar listed in the note data's "fills" is a fill: the kick on one, the snare in sixteenths, building.
 **How he plays:** "stomp": the kick on one and three, the snare on two and four; "four": the kick on
 every beat (the up-tempo stomp), the snare on two and four. The last bar one kick and let it ring.
 """
@@ -40,8 +41,15 @@ def arrange(sc, seed=1959):
     starts = sc.get("bar_units") or []
     hits = []
     first = rhythm.LEAD - 1e-6
+    fills = set(sc.get("fills", []))
     for b, u in enumerate(starts):
         final = b == len(starts) - 1
+        if b in fills:  # a fill: the kick on one, the snare in sixteenths, building through the bar
+            hits.append({"t": round(float(when(u) + rng.normal(0, 0.004)), 4), "drum": "kick", "amp": 1.0})
+            for j in range(16):
+                hits.append({"t": round(float(when(u + j / 2) + rng.normal(0, 0.003)), 4), "drum": "snare",
+                             "amp": round(float(0.35 + 0.65 * j / 15), 3)})
+            continue
         for q in range(4):
             t = when(u + 2 * q)
             if t < first:
