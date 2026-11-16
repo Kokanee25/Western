@@ -103,6 +103,10 @@ func _run() -> void:
 		for k in ["precision", "skin_every", "give"]:
 			if opts.has(k):
 				handoff.part_tune[k] = float(opts[k])
+		# --solver=name:value,... over our cloth's numbers (GarmentHandoff.solver_tune).
+		for kv in String(opts.get("solver", "")).split(",", false):
+			var pair := kv.split(":")
+			handoff.solver_tune[pair[0]] = float(pair[1])
 		world.add_child(handoff)
 		info = handoff.dress(man, chair)
 		if opts.has("hide-glove") and handoff.part:

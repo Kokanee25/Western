@@ -41,9 +41,12 @@ var tune := {"release_lead": 0.035, "give": 1.05, "front_step": 0.01, "clear_aft
 ## fewer); his skin met 0.7 mm off (SkinCollider's pad: where the cloth starts), little friction
 ## (the release rule is the hold; free leather slides on skin). `floor_y` is his feet's.
 ## His skin is closed: every point belongs on its front (`body_front_only`).
+## Itself off (`self_thickness` 0): on (2 mm) it lies on itself, but costs ~5.5 ms a tick more at Sean's
+## and one start in seven of the MetaHuman's never came to rest (#997; the lab's `--solver=`).
 var solver_tune := {"bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5, "max_strain": 1.05,
 		"substeps": 20, "damping": 1.0, "body_thickness": SkinCollider.SKIN_PAD, "body_band": 0.01, "body_every": 1,
-		"body_friction_static": 0.15, "body_friction_kinetic": 0.1, "body_front_only": 1}
+		"body_friction_static": 0.15, "body_friction_kinetic": 0.1, "body_front_only": 1,
+		"self_thickness": 0.0}
 ## Once out of his hand (falling, lying): damped more, as `free_damping` is Jolt's.
 const SOLVER_FREE_DAMPING := 2.0
 

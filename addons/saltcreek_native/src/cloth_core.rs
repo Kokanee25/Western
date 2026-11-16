@@ -50,6 +50,9 @@ impl ClothCore {
             "body_friction_kinetic" => t.body_friction_kinetic = v,
             "body_front_only" => t.body_front_only = value != 0.0,
             "body_every" => t.body_every = value.max(1.0) as u32,
+            "self_thickness" => t.self_thickness = v.max(0.0),
+            "self_friction" => t.self_friction = v,
+            "self_stick" => t.self_stick = v.max(0.0),
             _ => return false,
         }
         if let Some(c) = self.c.as_mut() {
@@ -162,6 +165,29 @@ impl ClothCore {
     #[func]
     fn body_pinches(&self) -> i64 {
         self.c.as_ref().map_or(0, |c| c.body.pinches as i64)
+    }
+
+    /// Where it lay on itself at the last substep (contacts), and since it was built.
+    #[func]
+    fn self_contacts(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.own.contacts as i64)
+    }
+
+    #[func]
+    fn self_contacts_total(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.own.total as i64)
+    }
+
+    /// Point-triangle pairs listed to meet this tick, summed over its lists (the self-contacts' cost
+    /// goes with it), and how many times they were listed.
+    #[func]
+    fn self_pairs(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.own.listed_pairs as i64)
+    }
+
+    #[func]
+    fn self_lists(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.own.rebuilds as i64)
     }
 
     /// What the last substep did with each point against his body (cloth.rs Body::last).
