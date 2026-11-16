@@ -269,6 +269,17 @@ def live(sc, planf, parts, when, starts, name, opt, sr, n):
             a = applause(sr, rng, tail + 1.0)
             x = x + 0.5 * band_rms * a / (np.std(a) + 1e-12)
         seg += x[:len(seg)]
+    place = opt.get("place")
+    if place:  # heard from elsewhere in the saloon (places.py): the dancers' feet on every beat they dance
+        import places
+        d0, d1 = planf.get("dance_bars", [next(s["bars"][0] for s in plan if "drums" in s["players"]), len(starts)])
+        beats = [float(when(starts[b] + 2 * q)) for b in range(d0, min(d1, len(starts))) for q in range(4)]
+        y, target = places.hear(place, L, R, beats, sr, rng, room_ir)
+        y = places.level_and_limit(y, sr, target)
+        out = opt.get("out", os.path.join(common.BUILD, "dry", f"{name}_{place}.wav"))
+        wavfile.write(out, sr, (np.clip(y, -1, 1) * 32767).astype(np.int16))
+        print(f"{out}: {sc['tune']}, {place}: {N / sr:.1f} s stereo, {common.loudness(y.mean(axis=1), sr):.1f} LUFS")
+        return
     # the hall
     irl, irr = room_ir(sr, rng)
     wet = 10 ** (-13 / 20)
