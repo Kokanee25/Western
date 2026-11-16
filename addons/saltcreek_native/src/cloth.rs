@@ -92,7 +92,13 @@ const VERT_SIDE: f32 = 0.0005;
 const VERT_MOST: f32 = 0.005;
 /// A vertex of his still in the garment (it began under it and has had some of it near since) is
 /// pushed back under a triangle it's this far (m) in front of: a bare finger beside it is out of it.
-const VERT_INSIDE: f32 = 0.015;
+const VERT_INSIDE: f32 = 0.006;
+/// m/s: a vertex of his already in front of the worn garment's triangles (its simplified shape cuts
+/// his finer skin: between his fingers, over his knuckles) is left where it was worn and let in this
+/// fast after (#1008: pushed back at once, the glove jumped 8 mm at the take).
+const VERT_EASE: f32 = 0.015;
+/// m: a vertex's slack at `set_skin` from triangles it's this near beside, not only over.
+const VERT_SLACK_SIDE: f32 = 0.002;
 
 pub const FLAT: i32 = 0;
 pub const SHAPED: i32 = 1;
@@ -324,6 +330,9 @@ pub struct Body {
     /// VERT_INSIDE while it's in the garment); per vertex, whether it is (all at `set_skin`).
     vdeep: Vec<f32>,
     sk_inside: Vec<bool>,
+    /// Per vertex, how far in front of the cloth it's let be (m; as far as it was worn, easing to 0 at
+    /// VERT_EASE).
+    sk_slack: Vec<f32>,
     /// Per listed vertex: how far its pairs can close in a substep (its move and its triangles'), and
     /// how much room it has left before one could act (it isn't looked at again until that's used).
     vstep: Vec<f32>,
@@ -839,25 +848,45 @@ impl Cloth {
                 (l, h)
             })
             .collect();
-        b.sk_inside = (0..points.len())
-            .map(|k| {
-                let p = points[k];
-                !self.tris.iter().zip(&boxes).any(|(tr, (l, h))| {
-                    if (0..3).any(|j| p[j] < l[j] || p[j] > h[j]) {
-                        return false;
-                    }
-                    let (a, bb, c) = (self.x[tr[0] as usize], self.x[tr[1] as usize], self.x[tr[2] as usize]);
-                    let n = face_normal(a, bb, c);
-                    if dot(n, vn[k]) <= 0.0 {
-                        return false;
-                    }
-                    let off = sub(p, bary(a, bb, c, closest_on_tri(p, a, bb, c)));
-                    let d = dot(off, n);
-                    d > lim && dot(off, off) - d * d <= VERT_SIDE * VERT_SIDE
-                })
-            })
-            .collect();
+        b.sk_inside = vec![true; points.len()];
+        b.sk_slack = vec![0.0; points.len()];
+        for k in 0..points.len() {
+            let p = points[k];
+            for (tr, (l, h)) in self.tris.iter().zip(&boxes) {
+                if (0..3).any(|j| p[j] < l[j] || p[j] > h[j]) {
+                    continue;
+                }
+                let (a, bb, c) = (self.x[tr[0] as usize], self.x[tr[1] as usize], self.x[tr[2] as usize]);
+                let n = face_normal(a, bb, c);
+                if dot(n, vn[k]) <= 0.0 {
+                    continue;
+                }
+                let off = sub(p, bary(a, bb, c, closest_on_tri(p, a, bb, c)));
+                let d = dot(off, n);
+                let side2 = dot(off, off) - d * d;
+                // (Its slack from those it's beside too: as the cloth slides it comes over them.)
+                if side2 <= VERT_SLACK_SIDE * VERT_SLACK_SIDE && d <= lim && d + th > b.sk_slack[k] {
+                    b.sk_slack[k] = d + th;
+                }
+                if side2 > VERT_SIDE * VERT_SIDE {
+                    continue;
+                }
+                if d > lim {
+                    b.sk_inside[k] = false;
+                }
+            }
+            if !b.sk_inside[k] {
+                b.sk_slack[k] = 0.0;
+            }
+        }
         true
+    }
+
+    /// His finer skin out of the garment (it's left his hand): every vertex only from `body_verts_deep`.
+    pub fn skin_out(&mut self) {
+        let b = &mut self.body;
+        b.sk_inside.iter_mut().for_each(|v| *v = false);
+        b.sk_slack.iter_mut().for_each(|v| *v = 0.0);
     }
 
     /// His finer skin's points at the end of the next step (ignored if the count isn't its).
@@ -1028,7 +1057,7 @@ impl Cloth {
                 };
             }
             let t0 = std::time::Instant::now();
-            self.vert_candidates(&reach);
+            self.vert_candidates(&reach, dt);
             self.body.vert_list_us = t0.elapsed().as_secs_f32() * 1e6;
             self.body.vert_meet_us = 0.0;
         }
@@ -1037,7 +1066,7 @@ impl Cloth {
     /// Once a tick (#1008): the cloth's triangles with a free point, hashed by their boxes over the
     /// tick (each point's reach), and his vertices near the free cloth each given the ones near them.
     /// His vertices' normals from his triangles near the cloth, at the tick's end.
-    fn vert_candidates(&mut self, reach: &[f32]) {
+    fn vert_candidates(&mut self, reach: &[f32], dt: f32) {
         let th = self.t.body_verts;
         let deep = self.t.body_verts_deep;
         let b = &mut self.body;
@@ -1050,10 +1079,13 @@ impl Cloth {
         let size = (2 * nt).next_power_of_two().max(64);
         let mut count = vec![0u32; size + 1];
         let mut sph = vec![[0.0f32; 4]; nt];
-        // Every triangle (held ones too: a vertex near one is still in the garment), boxed by its
-        // points' moves this tick.
+        // The free triangles, boxed by their points' moves this tick, hashed; the held ones only
+        // mark the cells they're in (a vertex near one is still in the garment, but none is met).
         let mut clo = [f32::MAX; 3];
         let mut chi = [f32::MIN; 3];
+        let mut hlo = [f32::MAX; 3];
+        let mut hhi = [f32::MIN; 3];
+        let mut occ = vec![false; size];
         for (t, tr) in self.tris.iter().enumerate() {
             move_t[t] = tr.iter().map(|&i| reach[i as usize]).fold(0.0, f32::max);
             let mut l = [f32::MAX; 3];
@@ -1065,12 +1097,20 @@ impl Cloth {
                     h[k] = h[k].max(p[k] + r);
                 }
             }
+            lo[t] = l;
+            hi[t] = h;
+            if tr.iter().all(|&i| self.w[i as usize] == 0.0) {
+                for k in 0..3 {
+                    hlo[k] = hlo[k].min(l[k]);
+                    hhi[k] = hhi[k].max(h[k]);
+                }
+                for_cells(l, h, cell, |key| occ[hash(key, size)] = true);
+                continue;
+            }
             for k in 0..3 {
                 clo[k] = clo[k].min(l[k]);
                 chi[k] = chi[k].max(h[k]);
             }
-            lo[t] = l;
-            hi[t] = h;
             let (a, bb, c) = (self.x[tr[0] as usize], self.x[tr[1] as usize], self.x[tr[2] as usize]);
             let m = scale(add(add(a, bb), c), 1.0 / 3.0);
             let r2 = dot(sub(a, m), sub(a, m)).max(dot(sub(bb, m), sub(bb, m))).max(dot(sub(c, m), sub(c, m)));
@@ -1090,6 +1130,9 @@ impl Cloth {
         b.ventries.resize(acc as usize, 0);
         let mut fill: Vec<u32> = b.vstart[..size].to_vec();
         for t in 0..nt {
+            if self.tris[t].iter().all(|&i| self.w[i as usize] == 0.0) {
+                continue;
+            }
             let entries = &mut b.ventries;
             for_cells(lo[t], hi[t], cell, |key| {
                 let h = hash(key, size);
@@ -1118,29 +1161,38 @@ impl Cloth {
         b.vstamp.clear();
         b.vstamp.resize(nt, 0);
         let mut now = 0u32;
+        for sl in b.sk_slack.iter_mut() {
+            *sl = (*sl - VERT_EASE * dt).max(0.0);
+        }
         for k in 0..nv {
             let (p0, p1) = (b.sk_from[k], b.sk_to[k]);
             // Still in the garment (it began in it, and the cloth hasn't left it): pushed back under it
             // from deeper.
             let dk = if b.sk_inside[k] { VERT_INSIDE } else { deep };
             let r0 = 2.0 * th + dk;
-            if (0..3).any(|j| p0[j].min(p1[j]) - r0 > chi[j] || p0[j].max(p1[j]) + r0 < clo[j]) {
-                b.sk_inside[k] = false;
-                continue;
-            }
             let mut l = [0.0f32; 3];
             let mut h = [0.0f32; 3];
             for j in 0..3 {
                 l[j] = p0[j].min(p1[j]) - r0;
                 h[j] = p0[j].max(p1[j]) + r0;
             }
+            let off_free = (0..3).any(|j| l[j] > chi[j] || h[j] < clo[j]);
+            // Near the held cloth (by its cells): still in the garment.
+            let mut near_held = false;
+            if b.sk_inside[k] && !(0..3).any(|j| l[j] > hhi[j] || h[j] < hlo[j]) {
+                for_cells(l, h, cell, |key| near_held |= occ[hash(key, size)]);
+            }
+            if off_free {
+                b.sk_inside[k] = near_held;
+                continue;
+            }
             now += 1;
             let at = b.vcand.len();
             let vm = len(sub(p1, p0));
-            let mut near_any = false;
+            let mut near_any = near_held;
             let mut most = 0.0f32;
             let (start, entries, stamp, cand) = (&b.vstart, &b.ventries, &mut b.vstamp, &mut b.vcand);
-            let (x, tris, mv, w, sph) = (&self.x, &self.tris, &move_t, &self.w, &sph);
+            let (x, tris, mv, sph) = (&self.x, &self.tris, &move_t, &sph);
             let nk = b.vnorm[k];
             for_cells(l, h, cell, |key| {
                 let hh = hash(key, size);
@@ -1161,14 +1213,15 @@ impl Cloth {
                         }
                         let tr = tris[t];
                         let (a, bb, c) = (x[tr[0] as usize], x[tr[1] as usize], x[tr[2] as usize]);
-                        let q = bary(a, bb, c, closest_on_tri(p0, a, bb, c));
-                        if dot(sub(p0, q), sub(p0, q)) > r * r {
+                        // (Facing away from his skin there, a finger's far side: it can't turn round
+                        // within a tick. Near by its sphere is near enough to keep the vertex in the
+                        // garment.)
+                        near_any = true;
+                        if dot(face_normal(a, bb, c), nk) < 0.0 {
                             continue;
                         }
-                        near_any = true;
-                        // (Held, or facing away from his skin there, a finger's far side: it can't
-                        // turn round within a tick.)
-                        if tr.iter().all(|&i| w[i as usize] == 0.0) || dot(face_normal(a, bb, c), nk) < 0.0 {
+                        let q = bary(a, bb, c, closest_on_tri(p0, a, bb, c));
+                        if dot(sub(p0, q), sub(p0, q)) > r * r {
                             continue;
                         }
                         most = most.max(mv[t]);
@@ -1274,7 +1327,10 @@ impl Cloth {
                 if sum < 1e-12 || free < 0.5 {
                     continue;
                 }
-                let s = d + th;
+                let s = d + th - b.sk_slack[k];
+                if s <= 0.0 {
+                    continue;
+                }
                 for (m, &i) in [ia, ib, ic].iter().enumerate() {
                     let dx = (s * ws[m] * bc[m] / sum).min(VERT_MOST);
                     if dx <= 0.0 {

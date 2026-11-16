@@ -9,6 +9,39 @@ this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on
 "glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
 `GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
 
+## His fingers in the glove, on (#1008 continued, `results/2026-11-16-fingers-on/`)
+
+On in the game (`GarmentHandoff.FINE_TRIS` 3000), his forearm too (Sean: "some clipping at the forearm").
+[`draw_before_after.jpg`](results/2026-11-16-fingers-on/draw_before_after.jpg): seed 1, the hands
+camera, 2.6-4.0 s, top main (his fingers through it from 3.0 s, his forearm 3.4-4.0), bottom on.
+
+- **The forearm:** SkinCollider's finer skin takes `forearm*` bones too (`FINE_FOREARM`; 1091 -> 1459
+  vertices on the MetaHuman). Its count (`arm_out`, new): 119-121 -> 65-67 at worst.
+- **The pop (8.1 -> 1.8 mm):** each vertex is let be as far in front of the cloth as it was worn
+  (`sk_slack`), easing to 0 at 15 mm/s. The slack must come from the triangles *beside* it too (2 mm):
+  over only, a vertex at a ridge between two triangles had none, and was pushed full depth the moment
+  the cloth slid over it (why #1012's attempt failed).
+- **The stretch (1.10 -> 1.08):** the 6 mm "still in the glove" reach (was 15) fixed it. Running the
+  strain limit again after the pushes fixed the stretch too, but pulled the cloth into his arm (deep
+  points 1 -> 15-40) and flung 31 points on sean_s3_talking; capping each push by its edges let his
+  skin out. Both dropped.
+- **Tossed (+15-25 ms -> +0.2):** `skin_out()` at `let_go`: nothing "still in the glove" once it's left
+  his hand.
+- **The cost:** listing from a hash of the free triangles only (held ones mark cells), and the 6 mm
+  reach. Meeting every 2nd substep saved ~0.4 ms and let more out: not kept.
+
+| bench, `--fine-tris` | pop mm | stretch | skin out worst / summed | forearm out | deep >1 cm | solver ms drawn (here) |
+|---|---|---|---|---|---|---|
+| MetaHuman s1-3, main (0) | 1.31 | 1.058 | 1473-1596 / 84-97k | 119-121 | 17-18 | 2.35 |
+| MetaHuman s1-3, #1012 (3000) | 8.06 | 1.10-1.12 | 389-647 / 14-36k | 134-143 | 18-23 | ~10 |
+| MetaHuman s1-3, now (3000) | 1.83 | 1.08 | 576-634 / 15-16k | 65-67 | 10-14 | 6.0-6.4 |
+| sean_s3_talking s1-2, main | 1.53 | 1.087 | 1580-2161 / 123-144k | 123-126 | 7-16 | 1.8-1.9 |
+| sean_s3_talking s1-2, now | 1.53 | 1.05 | 1669-1723 / 59-67k | 72-74 | 0-1 | 5.1-6.9 |
+
+Flung 0, all rest. The finer skin's own share while drawn: ~3.5 ms here (list ~1.2, meet ~2.3), ~2.3
+at Sean's (x0.65): the glove ~3.9 ms there while drawn, over Sean's ~2-3 ms. Tossed ~0.6 ms there, 0
+worn and at rest. test_garment_handoff: under 6, deep 1, stretch 1.062, pop 1.92 (main 10, 1, 1.104, 1.35).
+
 ## His fingers in the glove (#1008, `results/2026-11-16-fingers/`)
 
 Sean (2026-11-16, #997's film): "the left hand is clipping through the glove as it's pulled off". Our

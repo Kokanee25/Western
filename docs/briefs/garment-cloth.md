@@ -90,7 +90,10 @@ jacket, and leggings"; and "we should only be using the metahuman model". Everyt
    kept: meeting itself every 4th substep (a pile tangled), a fixed 5-substep list (missed contacts),
    a wider catch for crossings (fast points yanked: the glove flew). Fixed on the way: a pile that
    buzzed forever (sticking), a tossed glove yanked through him (a crossing only if it was near then).
-4. **His fingers, the rest and the cost.** **His fingers (#1008, part 1, off in the game):** his hand's own
+4. **His fingers, the rest and the cost.** **His fingers ON (#1008, part 1b):** his forearm too, the
+   pop 1.8 mm (each vertex let be where it was worn, easing in), stretch 1.08, tossed ~0.6 ms; ~2.3 ms a
+   tick at Sean's while drawn (the glove ~3.9 there); experiments/garment_handoff/README.md
+   "His fingers in the glove, on". **Before it (part 1, off then):** his hand's own
    skin vertices (a 3000-triangle cut, 1091 on the MetaHuman's hand) kept behind the glove's triangles
    (`body_verts`); his fingers no longer show through as it's drawn (crops on #1008), the count 1478 ->
    389-613 at worst; but the take pops 8 mm, stretch 1.10, and it costs ~6-10 ms a tick more at Sean's
