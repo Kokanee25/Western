@@ -25,10 +25,12 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Joe's knife and ask; nod / between / gun on either / a shove at Joe / binding Kett = arrest (a card, then Kett bound
   to the jail's door); shake / walking out / silence = revenge (`take_knife`); your ball in him = murder. Facts
   nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail. Playtests `docs/playtests/2026-11-1[345]-*.md`.
-  Open: the drawn ground hides the shack's floor and men near it; the knife is two boxes and Joe's stab the aim
-  pose; a kick at 0.9 m can miss; Joe hops the broken door's pieces (walk_to stops at debris); the jail's cells
-  and the ride back are cards; no line when Kett's jailed (release.* is C8 a, Sean's); no survivors, Joe's hat,
-  no canyon walls, no woodpile. Riding waits on #478.
+  **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
+  balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
+  Open: the hideout fight's hard (spotted ~30 m, five guns; difficulty #349 is Sean's); silence at the doctor's
+  is a no; the clock's held (only cards move it); the drawn ground hides the shack's floor; the knife is two
+  boxes; a kick at 0.9 m can miss; the jail and rides are cards; no line when Kett's jailed (C8 a, Sean's).
+  Riding waits on #478. Playtest `docs/playtests/2026-11-15-nojustice-whole.md`.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: step 2 the day and the
   book (#870), step 3 the roster as data (#936), **step 4 spots (#957, `SpotChore`)**: a block's `do` at a spot is

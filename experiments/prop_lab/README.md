@@ -200,6 +200,14 @@ a chair at the back of #902's stage, behind where the fiddler stands (4.3, 12.6)
 their lights cast no shadow (`shadows`, PropDressing). Kegs: the racks' lower tier real (4 each), two on the
 cellar floor; the upper tiers empty. ~106 entries, ~600 bodies (the lab's tree 9,267).
 
+**Judged by lamplight (#987, 2026-11-15)**, results `results/2026-11-15_saloon_b_placed/` (five views, `critic.md`).
+Placement stands; lamps (energy 1.0) are not too dim (1.5 changed nothing visible). For S4 / the kit: the
+aisle's `work_board` grate is oversized with orange panels like floating tiles; the back bar's bottles ~40 cm
+tall are out of scale; the `slat_mat` reads as a ladder (darken, texture); the stove's hearth plate is too bright;
+no mirrors in the back bar's niches, no spittoons or foot rail on the counter; the `lookout_stool` is right but
+looks wrong from the player's side (it stands in front of the dealer's cut). Renders: a view's PNG appears in
+~6-9 min, then Godot may hang on exit (kill it); a 30 min background limit kills a loop, so one view per command.
+
 ## Saloon B, the stage and dressing room (#903)
 
 Made and judged on the lab's stand, **not placed**: the room is built by #902 (the stage, the wing and

@@ -115,11 +115,16 @@ func _ready() -> void:
 		_start_sheriff_dies.call_deferred()
 	if FUNERAL_ARG in OS.get_cmdline_user_args():
 		_start_funeral.call_deferred()
-	if NO_JUSTICE_ARG in OS.get_cmdline_user_args():
+	if NoJusticeHideout.retry_on_load:
+		# Its retry (Enter after you went down there): the act again on the slope above it, whatever
+		# mission the game was started on.
+		NoJusticeHideout.retry_on_load = false
+		_start_no_justice_hideout.call_deferred(true)
+	elif NO_JUSTICE_ARG in OS.get_cmdline_user_args():
 		_start_no_justice.call_deferred()
-	if NO_JUSTICE_HIDEOUT_ARG in OS.get_cmdline_user_args():
+	elif NO_JUSTICE_HIDEOUT_ARG in OS.get_cmdline_user_args():
 		_start_no_justice_hideout.call_deferred()
-	if NO_JUSTICE_CABIN_ARG in OS.get_cmdline_user_args():
+	elif NO_JUSTICE_CABIN_ARG in OS.get_cmdline_user_args():
 		_start_no_justice_cabin.call_deferred()
 	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
 		CoachCut.start_on_load = false
@@ -167,10 +172,10 @@ func _start_no_justice() -> void:
 
 
 ## No Justice's hideout fight (#934), once the folk are built.
-func _start_no_justice_hideout() -> void:
+func _start_no_justice_hideout(arrive := false) -> void:
 	for i in 5:
 		await get_tree().physics_frame
-	Moment.start_named(&"no_justice_hideout", self, null, {"set_up": true, "arrive": "--arrive" in OS.get_cmdline_user_args()})
+	Moment.start_named(&"no_justice_hideout", self, null, {"set_up": true, "arrive": arrive or "--arrive" in OS.get_cmdline_user_args()})
 
 
 ## No Justice's cabin (#966), once the folk are built.

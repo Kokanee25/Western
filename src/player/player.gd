@@ -703,6 +703,57 @@ func dumped_from_seat() -> void:
 	add_look(Vector2(0.0, 8.0), false)
 
 
+## Where you can stand nearest `at` (within `most_m`): on the lowest floor round it (not up on a cot,
+## a chair's seat or a table), with room for you standing. `at` itself if nowhere is. #979's playtest
+## came round on the doctor's bedside chair, boxed in by its legs, the wall and the cot, and couldn't
+## walk off. `most_m`: how far round it to look.
+func clear_spot_near(at: Vector3, most_m := 3.0) -> Vector3:
+	var space := World.space(self)
+	# Room to step off, not just to stand: a stride's width clear all round (a bare fit, the playtest's
+	# second spot, was a pocket between the chair, the cot and the wall).
+	var shape := CapsuleShape3D.new()
+	shape.radius = tuning.radius + 0.3
+	shape.height = maxf(tuning.stand_height - 0.3, shape.radius * 2.0)
+	var params := PhysicsShapeQueryParameters3D.new()
+	params.shape = shape
+	params.collision_mask = collision_mask
+	params.exclude = [get_rid()]
+	var best := at
+	var best_score := INF
+	var rings: Array[float] = [0.0, 0.35, 0.6, 0.9, 1.25, 1.6, 2.0, 2.5, 3.0]
+	for r: float in rings:
+		if r > most_m:
+			break
+		var n := 1 if r == 0.0 else 12
+		for i in n:
+			var a := TAU * float(i) / float(n)
+			var c := at + Vector3(cos(a), 0.0, sin(a)) * r
+			var ray := PhysicsRayQueryParameters3D.create(Vector3(c.x, at.y + 1.2, c.z), Vector3(c.x, at.y - 1.5, c.z), collision_mask)
+			ray.exclude = [get_rid()]
+			var hit := space.intersect_ray(ray)
+			if hit.is_empty():
+				continue
+			var floor_y := (hit.position as Vector3).y
+			if floor_y < at.y - 0.7:
+				continue  # (past a wall, down on the ground outside)
+			if r > 0.0:
+				# In the same room: nothing between it and `at` at chest height (a wall, a partition).
+				var y := floor_y + 1.3
+				var see := PhysicsRayQueryParameters3D.create(Vector3(at.x, y, at.z), Vector3(c.x, y, c.z), collision_mask)
+				see.exclude = [get_rid()]
+				if not space.intersect_ray(see).is_empty():
+					continue
+			params.transform = Transform3D(Basis(), Vector3(c.x, floor_y + shape.height * 0.5 + 0.12, c.z))
+			if not space.intersect_shape(params, 1).is_empty():
+				continue
+			# The lowest floor first (a tenth of a metre counts), then the nearest.
+			var score := snappedf(floor_y, 0.1) * 100.0 + r
+			if score < best_score:
+				best_score = score
+				best = Vector3(c.x, floor_y + 0.05, c.z)
+	return best
+
+
 ## True when there is headroom to stand up from a crouch (or to come up to `height`).
 func can_stand(height := -1.0) -> bool:
 	if height < 0.0:

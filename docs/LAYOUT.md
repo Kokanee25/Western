@@ -1699,6 +1699,11 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `hit` deed on him after he gave up. Arrest: a card to town, Kett bound behind you to the jail's door (the cells
   a card). Facts nojustice.ending (arrest / revenge / murder / outside), answer, joe_trust, camp_trust, joe_saw,
   bodies, jail.
+- **No Justice whole** (#979; `tests/test_no_justice_whole.gd`): `-- --world=valley --mission=no_justice` to each
+  ending, the acts chained by `next_act` at pace 1 (~3 min each headless). The test walks by the keys (forward
+  held, steered; `stalls` notes where it couldn't) and fights by your balls (the crew's deaths set, as the hideout's tests do: the fight's dice aren't its subject); it logs the
+  clock at each join (`hours`). The clock is held (`hold_clock`): only the ride cards move it (10.5 at the
+  doctor's, ~11.1 at the hideout, ~11.4 at the jail). Playtest brief `experiments/no_justice/PLAYTEST_WHOLE.md`.
 - **What Harlan carries** (`Player.lacks`, `lack(kind)`, `give(kind)`, `carries(w)`): a gun you lack won't come
   out (PlayerWounds: "you haven't got one") or come up on weapon_next. The story's start (`--mission=sheriff`,
   `--mission=sheriff_dies`) takes the revolver; the dying sheriff gives it.

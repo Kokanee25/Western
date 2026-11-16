@@ -68,7 +68,8 @@
     "barred": "The red shirt's barred himself in the shack.",
     "over_holed_up": "It's quiet out here. The red shirt's barred in the shack.",
     "over_dead": "It's quiet. The red shirt's dead.",
-    "over_down": "It's quiet. The red shirt's down in the dirt, alive."
+    "over_down": "It's quiet. The red shirt's down in the dirt, alive.",
+    "retry": "You went down at the hideout. Enter: ride back out with Joe and try it again."
   },
   "cards": {
     "ride": "You ride on with Joe on their trail, the back way off the mesa. %d minutes."
