@@ -184,8 +184,8 @@ func test_a_traffic_map_wears_the_ways_and_keeps_the_walls_dark() -> void:
 
 ## The doctor's ground floor's ways (#825): from the street door to his desk, through the hall.
 func test_the_doctors_floor_has_his_ways() -> void:
-	var b = load("res://experiments/building_lab/spec_building.gd").new()
-	b.spec = b.load_spec("res://experiments/building_lab/doctor/doctor.json")
+	var b = load("res://src/structures/spec_building.gd").new()
+	b.spec = b.load_spec("res://config/buildings/doctor.json")
 	b._lv = {"ground": float(b.spec.levels.ground.top)}
 	var tw: Dictionary = b.traffic_ways()
 	check((tw.rooms as Array).size() == 8, "his eight ground-floor rooms")
@@ -221,7 +221,7 @@ func test_floors_and_furniture_keep_apart() -> void:
 	check_eq(PropKit.lib_parts("lib:fine_walnut_tg/few/top"), ["fine_walnut_tg", "few", 1.0], "a worked top")
 	# The doctor: the floor his spec draws (its `want` once passed, else its `use`) isn't any of the
 	# woods his rooms' furniture is drawn in.
-	var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/building_lab/doctor/doctor.json"))
+	var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://config/buildings/doctor.json"))
 	var f: Dictionary = spec.materials.finishes.floor
 	var floor_id := String(f.use.entry)
 	if f.has("want") and (MaterialLibrary.entry(String(f.want.entry)).get("approved", []) as Array).has(String(f.want.age)):

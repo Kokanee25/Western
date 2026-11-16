@@ -59,9 +59,9 @@ func _run() -> void:
 	player.input_enabled = false
 	for w in player.weapons:
 		w.visible = false
-	var building = load("res://experiments/building_lab/spec_building.gd").new()
+	var building = load("res://src/structures/spec_building.gd").new()
 	building.name = "SaloonB"
-	building.spec_path = "res://experiments/building_lab/saloon_b/saloon_b.json"
+	building.spec_path = "res://config/buildings/saloon_b.json"
 	building.position = load("res://experiments/building_lab/play.gd").ORIGIN
 	street.add_child(building)
 	var cam := Camera3D.new()

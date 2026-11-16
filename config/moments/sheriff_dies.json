@@ -6,7 +6,7 @@
   "building": "doctor",
   "cot": "cot_1",
   "bedside": "bedside",
-  "_local": "Points in the doctor's building's own space [x, z] (experiments/building_lab/doctor/doctor.json: x across from its east side, z back from its front; the floor at y 0.95): his door out on the walk, his way in through the front office, the hall and the sick room's door, his place by the cot's foot, yours by its side.",
+  "_local": "Points in the doctor's building's own space [x, z] (config/buildings/doctor.json: x across from its east side, z back from its front; the floor at y 0.95): his door out on the walk, his way in through the front office, the hall and the sick room's door, his place by the cot's foot, yours by its side.",
   "door_out": [4.71, -1.2],
   "lead": [[4.71, 0.6], [4.62, 3.2], [4.7, 4.5], [4.7, 9.5], [3.5, 9.5]],
   "doctor_spot": [3.3, 10.9],

@@ -7,7 +7,7 @@ mirrored so east is on the right; for a lot facing 0 (the south side) the street
 building (#780, the jail): its walls drawn at their thickness (the line their outer face), the
 footprint's wings (`lot.footprint`), the yard's walls and gates, the cells' cages.
 
-    python3 tools/buildings/plan_sheet.py experiments/building_lab/doctor/doctor.json OUT.png
+    python3 tools/buildings/plan_sheet.py config/buildings/doctor.json OUT.png
 """
 import json
 import math

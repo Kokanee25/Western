@@ -131,7 +131,7 @@ func _cmd_farm_hide(a: Array) -> Dictionary:
 
 ## Every opening's eyes (the spec's walls with a way out): [{id, eyes: Array[Vector3]}] in the world.
 func _opening_eyes(doorway := false) -> Array:
-	var spec: Dictionary = load("res://experiments/building_lab/spec_building.gd").load_spec(Farmhouse.SPEC)
+	var spec: Dictionary = load("res://src/structures/spec_building.gd").load_spec(Farmhouse.SPEC)
 	var outs := {"-z": Vector3(0, 0, -1), "+z": Vector3(0, 0, 1), "-x": Vector3(-1, 0, 0), "+x": Vector3(1, 0, 0)}
 	var levels := {"ground": Farmhouse.FLOOR, "upper": 3.11}
 	var res: Array = []

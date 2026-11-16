@@ -951,6 +951,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),
   `SashWindow` (#826: a lined double-hung sash, a glass member a light, dusty glass in
   `window_glass.gdshader`; the spec builder makes one for a window with `lights`),
+  **`SpecBuilding`** (`spec_building.gd`, with `stair.gd`, `marks.gd`, `stone.gd`; R1, #975: the one
+  builder of every spec building, in the game, not a lab's; its specs are `config/buildings/*.json`,
+  which the export ships by `*.json` and which must never sit under a `.gdignore`, #1003; the
+  gunfight lab's `extra_furniture` is a var on the one building, set before it enters the tree),
   `Boardwalk`, `HitchingRail`, `WaterTrough`, `Well` and the windpump's tank (group
   `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
   members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on
@@ -963,7 +967,7 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   instance uniforms, carried over when it's unbatched or snaps (`_own_fire_look`); both share
   `char.gdshaderinc`. A KitProp leaves its PropBatch when it heats.
   **Library boards** (#765): a member drawn by the material library's `scan_wood.gdshader` (its mesh's
-  meta `board_frame`, made by the building lab's `spec_building.gd`) batches only with its material's
+  meta `board_frame`, made by `src/structures/spec_building.gd`) batches only with its material's
   boards facing the same way, merged and drawn in that frame (`_batch_axes`) with their CUSTOM0-2
   channels (the shader reads a board's axes from its node); no fire places on those batches.
   **Members at rest** (`rest_batched`, on; `-- --no-member-rest` off; docs/briefs/props-scale.md): a
@@ -1569,8 +1573,8 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
 - `src/missions/farmhouse.gd` — **the farmhouse** (issue #520): `Farmhouse`, a node in the street
   (`scenes/test_street.tscn`) at `config/town.json`'s `Farmhouse` (out east on its knoll in the
   hills, facing the road; its y the ground under its low corner, held to `TownLayout.footing` by
-  `test_town_layout`). It builds the house from its spec `experiments/building_lab/farmhouse.json`
-  with the building lab's builder (`spec_building.gd`; FORMAT.md: the lean-to, the porch, a gable
+  `test_town_layout`). It builds the house from its spec `config/buildings/farmhouse.json`
+  with the spec builder (`src/structures/spec_building.gd`; FORMAT.md: the lean-to, the porch, a gable
   front, a loft, the bed/dresser/stove furniture) and its porch deck (a `Boardwalk`), and gives its
   places to `Waypoints.test_street()` (`road_east`, `road_farm`, `farm_*`). `Farmhouse.at(local)`,
   `on_ground(x, z)`, `use_point(id)` (the spec's use points: [where, what it looks at]). Built in

@@ -9,7 +9,6 @@ extends Node
 const Bot := preload("res://experiments/gunfight_lab/player_bot.gd")
 const SCENARIOS := "res://experiments/gunfight_lab/scenarios.json"
 const SpecSaloon := preload("res://experiments/gunfight_lab/spec_saloon.gd")
-const SpecBuildingScript := preload("res://experiments/building_lab/spec_building.gd")
 const FallLog := preload("res://experiments/gunfight_lab/fall_log.gd")
 ## A ball of his that lands this soon after he was last stepped out from a post (s) came from out there.
 const OUT_LATE := 0.25
@@ -159,8 +158,7 @@ func setup() -> String:
 		# The hall dressed for cover (`dress=cover`: dressing.json), an experiment; "" as the spec has it.
 		var dress := String(opts.get("dress", ""))
 		var dressing: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/gunfight_lab/dressing.json")) if dress != "" else {}
-		SpecBuildingScript.extra_furniture = dressing.get(dress, [])
-		SpecSaloon.ensure(street, town.places)
+		SpecSaloon.ensure(street, town.places, dressing.get(dress, []))
 		_origin = SpecSaloon.Play.ORIGIN
 		_posts = _spec_posts()
 		_floor_y = SpecSaloon.at(Vector3(0.0, 0.78, 0.0)).y
@@ -1456,7 +1454,7 @@ func _end_stay(m: Dictionary, why: String) -> void:
 ## The spec saloon's posts a man might stand behind: the galleries' in the hall, the hall stair's,
 ## the street balcony's along the boardwalk (saloon.json), at their feet in the world.
 func _spec_posts() -> Array[Vector3]:
-	var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/building_lab/saloon.json"))
+	var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://config/buildings/saloon.json"))
 	var out: Array[Vector3] = []
 	for l: Array in [spec.posts.free, spec.stairs[0].posts, spec.balconies[0].posts]:
 		for p: Array in l:

@@ -1,5 +1,5 @@
 """Saloon B's props placed (#950): batches S1, S2 and S3 (#866, #879, #892) written into saloon B's spec
-as its `dressing` (experiments/building_lab/saloon_b/saloon_b.json), the route the doctor's office uses
+as its `dressing` (config/buildings/saloon_b.json), the route the doctor's office uses
 (#844: SpecBuilding._dressing -> PropDressing, so the valley and every lab read one placement). Where each
 goes: experiments/prop_lab/README.md "Saloon B, batch S1", "S2", "S3"; docs/briefs/saloon-design.md "The
 props B needs". The stage's props (#903) are #941's, room_6 (the dressing room) and the stage #902's.
@@ -15,7 +15,7 @@ import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-SPEC = os.path.join(ROOT, "experiments/building_lab/saloon_b/saloon_b.json")
+SPEC = os.path.join(ROOT, "config/buildings/saloon_b.json")
 
 STAGE = 4.72     # #902's stage's boards over the ground floor
 UP = 3.96        # the upper floor over the ground floor (4.91 - 0.95)

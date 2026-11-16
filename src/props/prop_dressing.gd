@@ -1,7 +1,7 @@
 class_name PropDressing
 extends RefCounted
 ## A building's furniture and props laid into its rooms (#844): its spec's `dressing` (the doctor's,
-## experiments/building_lab/doctor/doctor.json), placed by the building's own build
+## config/buildings/doctor.json), placed by the building's own build
 ## (SpecBuilding._dressing), so the game and the labs that judge them read one placement and can't
 ## drift. Each entry is a kit prop at [x, y over the floor, z] in the building's space, turned
 ## `facing` degrees about Y (a prop faces +Z):

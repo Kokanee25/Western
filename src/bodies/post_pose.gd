@@ -35,7 +35,7 @@ extends RefCounted
 const POINT_SPREAD := 2.5
 const POINT_SPREAD_ADD := 1.5
 const POINT_ARC := 25.0
-## The gallery's posts (experiments/building_lab/saloon.json "post": 8x8 in).
+## The gallery's posts (config/buildings/saloon.json "post": 8x8 in).
 const POST_WIDTH := 0.2
 ## Half the revolver's width about the middle of his hand (m): what has to clear the post's edge.
 const GUN_HALF := 0.035

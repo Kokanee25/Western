@@ -37,6 +37,8 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   (`critic.py cheap`, `--refs=<Studio>/references`) for whole views. Judges vary about a grade run to run.
 
 ## Open
+- **The builder is in the game** (R1, #975): `src/structures/spec_building.gd` (+ stair, marks, stone), specs in
+  `config/buildings/`; the lab (`experiments/building_lab/`) loads them from there. New buildings: add a spec there.
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
   **The jail's stone and form** (#860, PR #927): the stepped parapet with corner piers, the cell wing a metre lower,

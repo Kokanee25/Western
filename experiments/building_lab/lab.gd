@@ -6,7 +6,7 @@ extends Node3D
 ## The ground is boxes round the cellar's pit (the game's ground is one plane: a cellar needs a hole
 ## in it, FORMAT.md "What using it for real needs").
 
-const SpecBuilding := preload("res://experiments/building_lab/spec_building.gd")
+const SpecBuilding := preload("res://src/structures/spec_building.gd")
 
 var building: FalseFrontBuilding
 var spec: Dictionary

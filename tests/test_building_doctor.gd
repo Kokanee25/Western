@@ -1,6 +1,6 @@
 extends TestCase
 ## The doctor's office (#765, the building lab's first practice building): built from its spec
-## (experiments/building_lab/doctor/doctor.json) it is destructible through and through, stands,
+## (config/buildings/doctor.json) it is destructible through and through, stands,
 ## is built right (#695: nothing across a door or window, every opening framed and glazed, the
 ## outside agreeing with the inside), fits a man at every door and use point, and every room has
 ## its people's places. It writes every member to build/doctor_members.json for the X-ray sheet
@@ -8,7 +8,7 @@ extends TestCase
 
 const Lab := preload("res://experiments/building_lab/lab.gd")
 const Checks := preload("res://experiments/building_lab/checks.gd")
-const SPEC := "res://experiments/building_lab/doctor/doctor.json"
+const SPEC := "res://config/buildings/doctor.json"
 
 var lab: Node3D
 
