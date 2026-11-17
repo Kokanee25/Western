@@ -148,7 +148,9 @@ static func burst(parent: Node, at: Vector3, normal: Vector3, color: Color, coun
 
 
 ## The flash at the muzzle: a burst of hot light for a few frames and a bright blob.
-static func muzzle_flash(parent: Node, at: Vector3) -> void:
+## `billboard` false: the light only (#1031: the gun in your own hands draws its own flash,
+## MuzzleFlash; the world's square puff in front of it read as "a square mosaic blob").
+static func muzzle_flash(parent: Node, at: Vector3, billboard := true) -> void:
 	var light := OmniLight3D.new()
 	light.light_color = Color(1.0, 0.72, 0.4)
 	light.light_energy = 7.0
@@ -156,13 +158,15 @@ static func muzzle_flash(parent: Node, at: Vector3) -> void:
 	light.shadow_enabled = false
 	parent.add_child(light)
 	light.global_position = at
+	var tree := parent.get_tree()
+	tree.create_timer(0.07).timeout.connect(light.queue_free)
+	if not billboard:
+		return
 	var flash := flash_mesh()
 	flash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(flash)
 	flash.global_position = at
-	var tree := parent.get_tree()
 	tree.create_timer(0.05).timeout.connect(flash.queue_free)
-	tree.create_timer(0.07).timeout.connect(light.queue_free)
 
 
 static var _flash_material: StandardMaterial3D
