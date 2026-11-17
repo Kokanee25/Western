@@ -1518,11 +1518,11 @@ SkinCollider's `fine` (a `WornGarment.fine`, `fine_tris`) feeds it his hand and 
 (`FINE_FOREARM`); on in GarmentHandoff (`FINE_TRIS` 3000; experiments/garment_handoff/README.md). Dead
 ends (#1008): the strain limit again after the pushes (pulled the cloth into his arm, flung it on
 sean_s3_talking), capping each push by its edges (more of his skin out), meeting every 2nd substep
-(~0.4 ms saved, more out). Its face **`SolverCloth`** (src/bodies) has
+(~0.4 ms saved, more out). **Cost** (#1023): the meet keeps a room per candidate pair (`proom`, like the per-vertex `vroom`: passed over till it could close), tests a pair's triangle edges before its closest point, and the listing skips pairs sideways of the triangle by more than the two can close in a tick and finds each vertex's candidates over worker threads (chunks of 32, joined in order: the same lists as one thread, ~1.4x on 4 cores). Drawn off: list 1.64 -> ~1.1-1.4, meet 3.5 -> ~1.9 ms here. Its face **`SolverCloth`** (src/bodies) has
 GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
 `came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
 the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `set_skin`, `move_skin`, `tune(name, v)`.
-GarmentHandoff uses it (itself off: one MetaHuman start in seven still never rested, #997). Not yet: the world's props (step 4); nothing takes a glove off in
+GarmentHandoff uses it (itself off: with the finer skin all five starts rest with it on, #1023, but it costs ~+6 ms drawn, ~7 tossed, ~4 settling at Sean's). Not yet: the world's props (step 4); nothing takes a glove off in
 play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
 clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
 convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20

@@ -9,6 +9,27 @@ this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on
 "glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
 `GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
 
+## The cost of the finer skin, and itself again (#1023, 2026-11-17)
+
+- **Cost** (ClothCore `collide_verts`, `vert_candidates`; MetaHuman seeds 1-3, sean_s3_talking 1-2, all rest, flung 0,
+  pop 1.83/1.53-1.78 mm, stretch 1.08/1.05, skin out worst 598-739 / 1334-1371 vs 576-634 / 1669-1723, forearm 65-74):
+  the finer skin's list+meet while drawn 5.1 -> 2.9-3.2 ms a tick here (list 1.64 -> 1.1-1.5, meet 3.5 -> 1.9-2.1),
+  the solver 8.8 -> 5.8-6.6 (talking seed 2 8.9) on today's slower workspace (x0.65 for Sean's: ~3.7-4.3 -> ~2.6-3).
+  What did it: a room per candidate pair (most of a vertex's ~19 pairs are far and were retested each substep: meet
+  3.5 -> 1.8), a pair's edges before its closest point (small), the listing's workers (list 1.5 -> 1.1; the vertices are
+  few and clustered, so chunks of 32 taken in turn). Pairs sideways of the triangle by more than the two can close
+  in a tick weren't pruned (a fast glove's reach is cm). Not tried: a coarser forearm cut.
+- **Itself, `--solver=self_thickness:0.002`:** every start now rests (7.1-7.6 s, last speed <= 2 mm/s, nothing flung,
+  pop 1.8 mm, stretch 1.08/1.05), **MetaHuman seed 2 too** (it never rested before the finer skin; cause not found,
+  it just stopped). So the rule for turning it on holds; the cost doesn't: ms a tick here drawn/lying/tossed
+  14.7-16.3 / 6.5-7.3 / 10.5-11.1 (without itself ~5.8-6.6 / ~1 / ~1), ~+6 ms drawn at Sean's. Off.
+- **Where itself's cost is:** ~19.6 lists a tick, each 0.4 ms (hash build 0.11, the lookup of 371 points 0.3: reach
+  up to 3 cm when fast, 6400 cells, ~1000 pairs); the meet each substep is small. Listing every 3rd/6th as long
+  (`group` x3, x6): 15.4 -> 14.0 -> 12.9 drawn, still rests, flung 0: not enough alone. Tried and dropped: a bounding-
+  sphere test before the closest point (no change), the lookup over workers (slower: 20 spawns a tick for 0.3 ms).
+  Next for it: per-point lists (only the fast points relisted often: one fast point sets the interval for all 371),
+  a pair room like the skin's, then Provot 1997's cones.
+
 ## His fingers in the glove, on (#1008 continued, `results/2026-11-16-fingers-on/`)
 
 On in the game (`GarmentHandoff.FINE_TRIS` 3000), his forearm too (Sean: "some clipping at the forearm").
