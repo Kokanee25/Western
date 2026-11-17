@@ -1888,6 +1888,18 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   trouble (the broom and sack set down), when sent off (`leave`) or when his brain's post moves (an
   act's: the funeral); the same spot with a new `do` swaps the chore (`_new_doing`). Hands busy, he
   doesn't slow (`lets_slow`).
+  **Reactions in stages** (townsfolk step 5, #982; `Reaction`, `src/people/reaction.gd`,
+  `tests/test_reactions.gd`): CivilianBrain hands it what Senses heard (`heard`: the guess, the maker
+  only if seen; never Events.noise's own place), a shot at him, a gun drawn in sight (9 m), a man
+  fallen in sight (20 m). Start (`start_after`: 0.15 + 0.15 x nerve + 0.2 by distance, after the
+  sound's travel; each start claims a frame of its own, `_claim`), look (0.5-2 s, `wary`, faces the
+  guess), decide by `dials` (ValleyFolk.dials_of) against the stimulus's fear (`STIMULI`): flee to a
+  `refuges` door not by way of it (ValleyFolk.refuges_of: his home, the store, the saloon, the hotel),
+  hide (cower), gawk (toward it but at most 14 m nearer; the ring 5-8 m round a man down), watch,
+  help (`tend` beside the man down), back away (a gun), carry on (a breath). Back after a calm time
+  (20-90 s, by nerve), a look round, then his spot and chore; shaken an hour of the clock (starts
+  sooner, more afraid). Moods ALARMED, WATCHING, RUNNING. `go_to` drops it (an act's errand) and for
+  60 s after, unarrived, it won't walk him off to look. The hat shot and a gun on him stay immediate.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`

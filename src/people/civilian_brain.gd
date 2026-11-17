@@ -12,9 +12,15 @@ extends Node
 ## unless it's grown past saving.
 ## All quiet, he may have a chore to see to (`chore`: the barkeep wipes his bar, WipeBar): it has
 ## him while he's free, and stops the moment he isn't.
+## Trouble that isn't on him (a shot heard or seen, a blast, a gun drawn near him, a man down) he
+## takes in stages, by his dials (`Reaction`, townsfolk step 5): a start a beat after it reaches
+## him, a look toward where he thinks it was, then flee, hide, gawk, watch, help or carry on, and
+## back to his spot after a calm while, shaken.
 ## Child of a HumanBody (with no gun).
 
-enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING }
+## (ALARMED, WATCHING, RUNNING: a Reaction's stages: starting and looking; watching, gawking or
+## helping; running for a door.)
+enum Mood { CALM, SHAKEN, HANDS_UP, COWERING, DOWN, DEAD, FLEEING, ALARMED, WATCHING, RUNNING }
 ## "...They gone?" only after this long without a shot heard (s).
 const RELIEF_QUIET := 8.0
 
@@ -32,14 +38,13 @@ const LINES := {
 	&"thanks": ["Obliged to you, mister. Truly.", "Thank God you came along.", "I owe you one, friend."],
 	&"gun_out": ["Whoa, now. Easy with that iron.", "Put that away, mister.", "Hey now. There's no call for that."],
 	&"chair": ["What the hell?!", "Who kicked my damn chair?", "Son of a...!"],
+	&"help": ["Somebody get the doc!", "Easy, friend. Easy. Lie still.", "He's hit! Get the doctor!"],
+	&"gawk": ["Lord. Is he dead?", "What in the hell was that?", "Who's shooting?", "Stand back, give him air."],
 }
 ## A man's lines come no closer than this (s) (#773, the cards playtest: the drifter's hiding and
 ## pleading lines two a second for 20 s), but for these, which come once and matter.
 const SAY_GAP := 2.5
 const SAY_ALWAYS := [&"fire", &"thanks", &"chair"]
-## A shot near: each man's cry comes this long after it (s, at random), not all on the same tick
-## (the playtest: all five "Lord almighty!" in the same instant).
-const CRY_SPREAD := Vector2(0.15, 1.1)
 ## Another man's cower line this recently (ms): he's likelier to keep quiet, and never says the same.
 const CROWD_MS := 900
 const SAME_LINE_MS := 4000
@@ -58,6 +63,23 @@ var chores: Array = []
 var chore: RefCounted
 var mood := Mood.CALM
 var fear := 0.0
+## His dials, each 0 to 1 (ValleyFolk.dials_of): nerve, nosy, duty; the middle if nobody set them.
+var dials := {"nerve": 0.5, "nosy": 0.5, "duty": 0.5}
+## Doors he'd run to from trouble (his own, the store, the saloon: ValleyFolk's); none, he hides
+## where he is.
+var refuges: Array[Vector3] = []
+## His reaction to trouble that isn't on him, in stages (townsfolk step 5).
+var reaction: Reaction
+## The physics frame he was last sent somewhere (`go_to`): on an errand (an act's), a reaction
+## doesn't walk him off it (Reaction.ERRAND).
+var sent_frame := -100000
+## Coming back from where a reaction took him (a door, the gawk ring): to his post first, by the
+## town's places, before any chore has him (a card chair's straight walk would go through the table).
+var returning := false
+const RETURNED := 0.8
+var _home_stuck := 0.0
+var _home_detours := 0
+var _home_detour := Vector3.INF
 var senses: Senses
 var body: HumanBody
 ## Men who've troubled him today.
@@ -69,10 +91,6 @@ var thanked := false
 var _aimed := 0.0
 var _aimed_by: Node3D
 var _cower := 0.0
-## A cry still to come (s): a blast's (`_scared_by_shooting`).
-var _cry_in := 0.0
-## A man's start at a blast before he cries out (s), the sound's travel to him on top.
-const CRY_AFTER := 0.2
 var _flinch := 0.0
 var _say_again := 0.0
 var _calm_for := 0.0
@@ -137,8 +155,13 @@ func _ready() -> void:
 	senses = Senses.new()
 	senses.name = "Senses"
 	body.add_child.call_deferred(senses)
+	reaction = Reaction.new(self)
+	# What he hears is Senses' (its guess at where, muffled through walls, the maker only if seen),
+	# never the noise's own place.
+	senses.heard.connect(_on_heard)
 	Events.deed.connect(_on_deed)
-	Events.noise.connect(_on_noise)
+	Events.person_fell.connect(func(p: Node, _c: bool) -> void: _on_down(p))
+	Events.person_died.connect(func(p: Node, _c: StringName) -> void: _on_down(p))
 	Events.hat_shot.connect(_on_hat_shot)
 	Events.hours_passed.connect(_on_hours_passed)
 	Events.scorched.connect(func(who: Node, amount: float) -> void:
@@ -154,6 +177,9 @@ func go_to(point: Vector3, facing := Vector3.INF) -> void:
 	post = point
 	faces = facing
 	_home_route.clear()
+	sent_frame = Engine.get_physics_frames()
+	if reaction != null:
+		reaction.drop()  # sent: off he goes (an act's, his day's), shaken if it had got that far
 
 
 func say(kind: StringName) -> void:
@@ -184,7 +210,12 @@ func say(kind: StringName) -> void:
 ## #773): he does as he would, but says nothing; a cry still to come is dropped.
 func hush(seconds: float) -> void:
 	_hush = seconds
-	_cry_in = 0.0
+
+
+## "...They gone?", once it's gone quiet (#607: not with shots still flying).
+func say_relief() -> void:
+	if not _still_over_me() and senses.last_sound([&"gunshot"], RELIEF_QUIET).is_empty():
+		say(&"relief")
 
 
 func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void:
@@ -205,9 +236,7 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 	if actor is Player and troubled_by.has(target) and kind in [&"hit", &"kill"] and senses.sees(actor):
 		helped_by = actor
 	if not to_me:
-		if loud and actor is Node3D and (actor as Node3D).global_position.distance_to(body.global_position) < 25.0:
-			_scared_by_shooting()
-		elif kind in ASSAULTS and actor is Node3D and senses.sees(actor) \
+		if kind in ASSAULTS and actor is Node3D and senses.sees(actor) \
 				and (actor as Node3D).global_position.distance_to(body.global_position) < ASSAULT_SEEN:
 			# A man kicked in front of him: it's turned ugly.
 			fear += 0.1 if kind == &"kick" else 0.2
@@ -220,6 +249,7 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 			_gun_seen = actor
 			_gun_watch = 6.0
 			say(&"gun_out")
+			reaction.sense(&"gun", (actor as Node3D).global_position, actor as Node3D)
 		elif kind == &"holster" and actor == _gun_seen:
 			_gun_watch = 0.0
 		return
@@ -245,7 +275,14 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 			fear += 0.1
 			_troubled(actor)
 		&"shoot_at", &"hit":
-			_scared_by_shooting()
+			# At him: it's on him (as near as it gets), the shooter's place his guess unless seen.
+			# (The shot's own sound came first: unseen, his guess at it is where it came from.)
+			var by := actor as Node3D if actor is Node3D and senses.sees(actor) else null
+			var guess := senses.last_known(actor) if actor != null else Vector3.INF
+			if guess == Vector3.INF:
+				guess = senses.last_sound([&"gunshot"], 1.0).get("at", Vector3.INF)
+			reaction.sense(&"at_me", by.global_position if by else (guess if guess != Vector3.INF else body.global_position), by)
+			fear += 0.3
 			_troubled(actor)
 
 
@@ -267,11 +304,28 @@ func _troubled(who: Node) -> void:
 		thanked = false
 
 
-func _scared_by_shooting(cry_in := 0.0) -> void:
-	if _cower <= 0.0 and _hush <= 0.0:
-		_cry_in = cry_in if cry_in > 0.0 else _rng.randf_range(CRY_SPREAD.x, CRY_SPREAD.y)
-	_cower = maxf(_cower, 7.0)
-	fear += 0.3
+## A shot or a blast he heard (Senses: `at` is his guess; `maker` only if he saw him make it).
+func _on_heard(at: Vector3, kind: StringName, maker: Node) -> void:
+	if not body.physiology.is_conscious():
+		return
+	if kind == &"gunshot":
+		reaction.sense(&"shot_seen" if maker != null else &"shot", at, maker as Node3D)
+		fear += 0.3 * clampf(1.0 - body.global_position.distance_to(at) / 40.0, 0.0, 1.0)
+	elif kind == &"blast":
+		reaction.sense(&"blast", at)
+		fear += 0.3
+
+
+## A man fallen or dead: a man down, if he saw it.
+func _on_down(p: Node) -> void:
+	if p == body or not p is HumanBody or senses == null or not body.physiology.is_conscious():
+		return
+	var man := p as HumanBody
+	var reach: float = Reaction.STIMULI[&"down"].reach
+	if man.global_position.distance_to(body.global_position) > reach:
+		return
+	if senses.sees(man) or senses._in_view(man, senses.eye()):
+		reaction.sense(&"down", man.global_position, man)
 
 
 ## His hat shot off his head: down on the boards, and he says so.
@@ -289,8 +343,9 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 	fear = 0.0
 	_aimed = 0.0
 	_cower = 0.0
-	_cry_in = 0.0
 	_flinch = 0.0
+	if reaction:
+		reaction.forget()
 	_gun_watch = 0.0
 	troubled_by.clear()
 	if mood in [Mood.HANDS_UP, Mood.COWERING, Mood.SHAKEN]:
@@ -492,8 +547,8 @@ func _flee(from: Vector3) -> void:
 	_fire_at = from
 	_fire_out = 0.0
 	_cower = 0.0
-	_cry_in = 0.0
 	_aimed = 0.0
+	reaction.drop()
 	_flinch = 0.0
 	_route = FireFlight.way_out(_fire, _places(), body, FIRE_CLEAR)
 
@@ -504,15 +559,6 @@ func _places() -> Waypoints:
 		if town:
 			places = town.get(&"places")
 	return places
-
-
-func _on_noise(at: Vector3, _loudness: float, kind: StringName, _source: Node) -> void:
-	if kind in [&"gunshot", &"blast"] and at.distance_to(body.global_position) < (25.0 if kind == &"gunshot" else 60.0):
-		if body.physiology.is_conscious():
-			# A blast's cry comes as its sound reaches him and he takes it in, not on its own tick
-			# (#538, round 5: the whole street's cries on the stick's frame, each heard by all the
-			# rest, a ray apiece, were ~14 ms of it).
-			_scared_by_shooting(CRY_AFTER + at.distance_to(body.global_position) / GameAudio.SPEED_OF_SOUND if kind == &"blast" else 0.0)
 
 
 func _player() -> Player:
@@ -549,14 +595,17 @@ func can_slow() -> bool:
 	return slow_reason() == &""
 
 
-const MOOD_NAMES: Array[StringName] = [&"calm", &"shaken", &"hands_up", &"cowering", &"down", &"dead", &"fleeing"]
+const MOOD_NAMES: Array[StringName] = [&"calm", &"shaken", &"hands_up", &"cowering", &"down", &"dead", &"fleeing",
+		&"alarmed", &"watching", &"running"]
 
 
 ## Why he can't slow (the first of `can_slow`'s rules he fails; &"" when he can): for PeopleTick's
 ## counts (#495).
 func slow_reason() -> StringName:
-	if mood not in [Mood.CALM, Mood.SHAKEN, Mood.COWERING]:
+	if mood not in [Mood.CALM, Mood.SHAKEN, Mood.COWERING, Mood.WATCHING]:
 		return MOOD_NAMES[mood]
+	if reaction != null and reaction.moving():
+		return &"route"
 	if _aimed > 0.0:
 		return &"aimed"
 	if _flinch > 0.0:
@@ -592,10 +641,6 @@ func _physics_step(delta: float) -> void:
 		mood = Mood.SHAKEN
 	_since_said += delta
 	_hush = maxf(_hush - delta, 0.0)
-	if _cry_in > 0.0:
-		_cry_in -= delta
-		if _cry_in <= 0.0:
-			say(&"cower")
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his
 	if _mind_fire(delta):
@@ -625,6 +670,10 @@ func _physics_step(delta: float) -> void:
 		_calm_for = 0.0
 		body.set_pose(&"cower")
 		return
+	if reaction.step(delta):
+		_chore(delta, false)
+		_calm_for = 0.0
+		return
 	if _flinch > 0.0:
 		_chore(delta, false)
 		body.set_pose(&"hands_up" if _flinch > 0.5 else &"stand")
@@ -634,18 +683,26 @@ func _physics_step(delta: float) -> void:
 		_gun_seen = null
 	if mood in [Mood.HANDS_UP, Mood.COWERING]:
 		mood = Mood.SHAKEN
-		if not _still_over_me() and senses.last_sound([&"gunshot"], RELIEF_QUIET).is_empty():
-			say(&"relief")  # (only once it's gone quiet: #607, "...They gone?" with shots still flying)
+		say_relief()
+	elif mood in [Mood.ALARMED, Mood.WATCHING, Mood.RUNNING]:
+		mood = Mood.SHAKEN
 	_calm_for += delta
 	if mood == Mood.SHAKEN and _calm_for > 6.0 and fear < 0.2:
 		mood = Mood.CALM
-	if _chore(delta, mood == Mood.CALM and fear < 0.05 and not (helped_by and not thanked)):
+	# (Near enough his chore's own last steps take him: a chair's post is in the chair itself.)
+	if returning and (post == Vector3.INF or body.global_position.distance_to(post) < RETURNED):
+		returning = false
+	if _chore(delta, mood == Mood.CALM and fear < 0.05 and not (helped_by and not thanked) and not returning):
 		return
 	if post != Vector3.INF and body.global_position.distance_to(post) > 0.3:
 		body.set_pose(&"stand")
 		# Far off (a chore, a fright took him across the room): back by the town's places, round
 		# whatever's between (a bar); near, straight there.
-		if body.global_position.distance_to(post) > 1.5 and _places() != null:
+		var was := body.global_position
+		if _home_detour != Vector3.INF:
+			if body.walk_to(_home_detour, 1.2, delta):
+				_home_detour = Vector3.INF
+		elif body.global_position.distance_to(post) > 1.5 and _places() != null:
 			if _home_route.is_empty():
 				_home_route = FireFlight.route(_places(), body, post)
 			if body.walk_to(_home_route[0], 1.2, delta) and _home_route.size() > 1:
@@ -653,7 +710,30 @@ func _physics_step(delta: float) -> void:
 		else:
 			_home_route.clear()
 			body.walk_to(post, 1.2, delta)
+		# Caught on something (a table's corner, a rail, a porch's edge): a sidestep round it, one
+		# way then the other (as running from a fire); then on past that point of the way, or, the
+		# last of it, as near as he'll get (his chore takes him from there).
+		# (Only coming back from a reaction: his day's own walks are as they were.)
+		_home_stuck = _home_stuck + delta if returning and body.global_position.distance_to(was) < 0.2 * delta else 0.0
+		if _home_stuck > 1.0:
+			_home_stuck = 0.0
+			var goal := _home_route[0] if not _home_route.is_empty() and body.global_position.distance_to(post) > 1.5 else post
+			var to := goal - body.global_position
+			to.y = 0.0
+			if _home_detour != Vector3.INF:
+				_home_detour = Vector3.INF
+			elif _home_detours < 4 and to.length() > 0.05:
+				var side := Vector3(-to.z, 0.0, to.x).normalized() * (1.0 if _home_detours % 2 == 0 else -1.0)
+				_home_detour = body.global_position + side * 1.2 * (1.0 + floorf(_home_detours / 2.0)) + to.normalized() * 0.3
+				_home_detours += 1
+			elif _home_route.size() > 1:
+				_home_route.pop_front()
+			else:
+				returning = false
 		return
+	_home_stuck = 0.0
+	_home_detours = 0
+	_home_detour = Vector3.INF
 	_home_route.clear()
 	body.set_pose(rest_pose)
 	_thank(delta)
@@ -709,4 +789,6 @@ func _still_over_me() -> bool:
 
 func describe() -> String:
 	var how: String = String(Mood.keys()[mood]).to_lower()
-	return "%s: %s, fear %.2f. %s" % [String(body.person_id).capitalize(), how, fear, body.physiology.describe()]
+	var r: String = reaction.describe() if reaction else ""
+	return "%s: %s%s, fear %.2f. %s" % [String(body.person_id).capitalize(), how, (" (" + r + ")") if r != "" else "",
+			fear, body.physiology.describe()]

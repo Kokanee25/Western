@@ -1189,6 +1189,8 @@ func _people() -> Array:
 				e["toward_you"] = Relations.Stance.keys()[brain.relations.stance(player)].to_lower()
 		elif brain is CivilianBrain:
 			e["mood"] = CivilianBrain.Mood.keys()[brain.mood].to_lower()
+			if brain.reaction != null and brain.reaction.describe() != "":
+				e["reaction"] = brain.reaction.describe()
 		out.append(e)
 	out.sort_custom(func(x, y) -> bool: return x.distance_m < y.distance_m)
 	return out
