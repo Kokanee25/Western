@@ -204,6 +204,7 @@ func _pose(vm: Node3D, g: String, p: String) -> void:
 				_shoot(vm)
 			"reloading":
 				st.set(&"tube", 0)
+				st.set(&"own_belt", 20)  # a round to load (#1031: with none the reload never started)
 				vm.call(&"reload_press")
 				_step(vm, 0.5)
 

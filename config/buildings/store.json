@@ -1,0 +1,1883 @@
+{
+ "_doc": "The general store and grocer (#858; the building lab's step 2). Format 1 (../FORMAT.md). valley.json town.north 'general_store' (x -54.3..-37.4, 55 x 56 ft): a two-storey false front on queen-post trusses over a goods cellar, the shop across the ground floor, a storeroom behind it, the stock loft over the shop and the family's rooms over the storeroom. Frame from saloon B's (#848), rules from the doctor's (#824-#826). Written by experiments/building_lab/store/gen_spec.py.",
+ "format": 1,
+ "id": "store",
+ "identity": {
+  "owner": "the storekeeper, a merchant who freighted his stock in from the railhead, with his wife and two children",
+  "trade": "a general store and grocer: dry goods, groceries, hardware, patent medicines, a post office pigeonhole counter; credit on the book",
+  "means": "the best-stocked building on the street: sawn lumber in 1880, painted buff with green trim, a loading dock at wagon height",
+  "age_and_repair": "two years: the paint fresh, the dock's boards already worn along the wagons' line, the cellar doors' hinges rust-stained",
+  "clues": [
+   "the day-book open on the counter",
+   "a rolling ladder on the shelves",
+   "barrels of crackers and pickles by the stove",
+   "the scale on the post office counter"
+  ],
+  "class": "common",
+  "built": 1880,
+  "now": 1882
+ },
+ "lot": {
+  "_doc": "valley.json town.north 'general_store' (x -54.3..-37.4, depth 20): its origin the EAST front corner 3 cm off the store alley's line (x -37.4: the siding's face is the lot's line, the alley 1.2 m), west to the hardware store 14 cm off its wall. The dock and its steps are the valley's walk (h 1.1, awning 3.0, the east end dropping into the alley).",
+  "valley_lot": "general_store",
+  "side": "north",
+  "at": [
+   -37.43,
+   0.52,
+   -10.05
+  ],
+  "facing": 180,
+  "width": 16.76,
+  "depth": 17.07,
+  "yard": [
+   0.0,
+   17.07,
+   16.76,
+   20.0
+  ],
+  "pad": {
+   "_doc": "valley.json's pad: the lot dug level at the walk's street edge's ground (world 0.52, the building's y 0); the ground rises 0.63 m to the back of the lot"
+  },
+  "footprint_with_stair": [
+   -0.3,
+   -0.3,
+   17.060000000000002,
+   18.47
+  ],
+  "walk_h": 1.1,
+  "yard_name": "BACK YARD"
+ },
+ "levels": {
+  "_doc": "The floor at the loading dock's top, 1.10 m (wagon-bed height); 12 ft storeys (stock to the ceiling, a rolling ladder), 9 ft 6 in upstairs; the roof a low 2/12 on queen-post trusses (the saloon's), its ridge hidden behind the false front.",
+  "cellar": {
+   "floor": -1.4
+  },
+  "ground": {
+   "top": 1.1
+  },
+  "upper": {
+   "top": 5.0
+  },
+  "plate": 7.9,
+  "false_front": 10.4,
+  "roof_pitch": 9.46,
+  "roof_tight": true
+ },
+ "frame": {
+  "stacked": true,
+  "foundation": {
+   "wood": "stone",
+   "thick": 0.45,
+   "bottom": -0.3,
+   "top": 0.625,
+   "piece": 1.5
+  },
+  "sill": {
+   "section": [
+    0.2,
+    0.2
+   ],
+   "wood": "framing"
+  },
+  "pier": {
+   "size": 0.45,
+   "wood": "stone"
+  },
+  "girder": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing",
+   "pier_every": 1.9
+  },
+  "joist": {
+   "section": [
+    0.05,
+    0.25
+   ],
+   "spacing": 0.406,
+   "wood": "framing"
+  },
+  "dance_joist": {
+   "section": [
+    0.075,
+    0.3
+   ],
+   "spacing": 0.305,
+   "wood": "framing"
+  },
+  "long_joist": {
+   "section": [
+    0.075,
+    0.3
+   ],
+   "spacing": 0.305,
+   "wood": "framing"
+  },
+  "floor_board": {
+   "width": 0.15,
+   "thick": 0.025,
+   "wood": "floor"
+  },
+  "stud": {
+   "section": [
+    0.05,
+    0.1
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "tall": {
+    "section": [
+     0.1,
+     0.1
+    ],
+    "walls": [
+     "front",
+     "back",
+     "alley",
+     "hardware"
+    ]
+   }
+  },
+  "plate": {
+   "height": 0.1
+  },
+  "ribbon": {
+   "section": [
+    0.025,
+    0.15
+   ]
+  },
+  "header": {
+   "height": 0.15
+  },
+  "post": {
+   "section": [
+    0.2,
+    0.2
+   ],
+   "wood": "framing",
+   "look": "wood:int_timber",
+   "chamfer": 0.035
+  },
+  "beam": {
+   "section": [
+    0.25,
+    0.3
+   ],
+   "wood": "framing",
+   "look": "wood:int_timber",
+   "chamfer": 0.03
+  },
+  "bracket": {
+   "reach": 0.55,
+   "thick": 0.1,
+   "look": "wood:int_timber"
+  },
+  "wall_post": {
+   "section": [
+    0.15,
+    0.1
+   ]
+  },
+  "truss": {
+   "tie": [
+    0.15,
+    0.25
+   ],
+   "principal": [
+    0.15,
+    0.2
+   ],
+   "queen": [
+    0.15,
+    0.15
+   ],
+   "purlin": [
+    0.1,
+    0.15
+   ],
+   "rafter": [
+    0.05,
+    0.15
+   ],
+   "rafter_spacing": 0.61,
+   "at": [
+    0.25,
+    3.05,
+    6.1,
+    9.14,
+    12.19,
+    15.24,
+    16.77
+   ],
+   "purlins": [
+    0.3,
+    3.0,
+    5.7,
+    8.4
+   ]
+  }
+ },
+ "girders": {
+  "z": [
+   2.9,
+   5.85,
+   8.8,
+   11.9,
+   14.9
+  ],
+  "_doc": "Lines under the ground floor's joists, a joist span 3 m; in the cellar on its posts every 1.9 m, outside it on piers."
+ },
+ "cellar": {
+  "_doc": "Under the front half, 13 x 9.5 m (the valley's 13 x 9): rubble-stone walls, 2.5 m under the floor. The trap by the east counter, its stair down the east wall; the doors under the dock at the street are the valley's (bulkhead: #695).",
+  "rect": [
+   0.0,
+   0.0,
+   16.76,
+   9.5
+  ],
+  "posts": [
+   [
+    1.9,
+    2.9
+   ],
+   [
+    3.8,
+    2.9
+   ],
+   [
+    5.7,
+    2.9
+   ],
+   [
+    7.6,
+    2.9
+   ],
+   [
+    9.5,
+    2.9
+   ],
+   [
+    11.4,
+    2.9
+   ],
+   [
+    13.3,
+    2.9
+   ],
+   [
+    15.2,
+    2.9
+   ],
+   [
+    1.9,
+    5.85
+   ],
+   [
+    3.8,
+    5.85
+   ],
+   [
+    5.7,
+    5.85
+   ],
+   [
+    7.6,
+    5.85
+   ],
+   [
+    9.5,
+    5.85
+   ],
+   [
+    11.4,
+    5.85
+   ],
+   [
+    13.3,
+    5.85
+   ],
+   [
+    15.2,
+    5.85
+   ],
+   [
+    1.9,
+    8.8
+   ],
+   [
+    3.8,
+    8.8
+   ],
+   [
+    5.7,
+    8.8
+   ],
+   [
+    7.6,
+    8.8
+   ],
+   [
+    9.5,
+    8.8
+   ],
+   [
+    11.4,
+    8.8
+   ],
+   [
+    13.3,
+    8.8
+   ],
+   [
+    15.2,
+    8.8
+   ]
+  ],
+  "flag": 1.2,
+  "trap": {
+   "rect": [
+    0.5,
+    5.95,
+    1.5,
+    8.7
+   ]
+  },
+  "stair": {
+   "head": [
+    0.55,
+    5.95
+   ],
+   "dir": "-z",
+   "width": 0.9,
+   "risers": 13,
+   "going": 0.2
+  }
+ },
+ "posts": {
+  "free": [
+   [
+    5.587,
+    3.4
+   ],
+   [
+    5.587,
+    6.4
+   ],
+   [
+    5.587,
+    10.5
+   ],
+   [
+    5.587,
+    11.1
+   ],
+   [
+    5.587,
+    14.0
+   ],
+   [
+    11.173,
+    3.4
+   ],
+   [
+    11.173,
+    6.4
+   ],
+   [
+    11.173,
+    10.5
+   ],
+   [
+    11.173,
+    11.1
+   ],
+   [
+    11.173,
+    14.0
+   ],
+   [
+    1.3,
+    11.0
+   ],
+   [
+    1.3,
+    14.0
+   ]
+  ],
+  "wall": [
+   [
+    5.587,
+    0.05
+   ],
+   [
+    11.173,
+    0.05
+   ],
+   [
+    5.587,
+    17.02
+   ],
+   [
+    11.173,
+    17.02
+   ],
+   [
+    1.3,
+    17.02
+   ]
+  ]
+ },
+ "beams": [
+  {
+   "id": "front_0",
+   "from": [
+    5.587,
+    0.1
+   ],
+   "to": [
+    5.587,
+    10.75
+   ],
+   "_doc": "carries the loft's joists both sides, butted to the shop's back wall"
+  },
+  {
+   "id": "back_0",
+   "from": [
+    5.587,
+    10.850000000000001
+   ],
+   "to": [
+    5.587,
+    16.97
+   ]
+  },
+  {
+   "id": "front_1",
+   "from": [
+    11.173,
+    0.1
+   ],
+   "to": [
+    11.173,
+    10.75
+   ]
+  },
+  {
+   "id": "back_1",
+   "from": [
+    11.173,
+    10.850000000000001
+   ],
+   "to": [
+    11.173,
+    16.97
+   ]
+  },
+  {
+   "id": "stair",
+   "from": [
+    1.3,
+    10.93
+   ],
+   "to": [
+    1.3,
+    16.97
+   ],
+   "_doc": "the stair's well: the upper hall's edge beside the stair"
+  }
+ ],
+ "floors": [
+  {
+   "id": "ground",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    16.97
+   ],
+   "joists": "z",
+   "look": "wood:int_floor",
+   "openings": [
+    {
+     "id": "trap",
+     "rect": [
+      0.5,
+      5.95,
+      1.5,
+      8.7
+     ],
+     "hatch": 2
+    }
+   ]
+  },
+  {
+   "id": "loft",
+   "level": "upper",
+   "joist": "dance_joist",
+   "end_gap": 0.012,
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    10.75
+   ],
+   "joists": "x",
+   "breaks": [
+    5.587,
+    11.173
+   ],
+   "look": "wood:int_floor",
+   "_doc": "the stock loft over the shop, 3x12 at 12 in across the building, broken over the two beams; the stair arrives at its back edge"
+  },
+  {
+   "id": "family",
+   "level": "upper",
+   "joist": "long_joist",
+   "rect": [
+    1.3,
+    10.75,
+    16.66,
+    16.97
+   ],
+   "joists": "x",
+   "breaks": [
+    5.587,
+    11.173
+   ],
+   "look": "wood:int_floor",
+   "_doc": "the hall and the family's rooms over the storeroom, to the stair's beam"
+  }
+ ],
+ "walls": [
+  {
+   "id": "front",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     16.76,
+     0
+    ]
+   ],
+   "out": "-z",
+   "top": 10.4,
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 8.38,
+     "width": 1.22,
+     "height": 2.4,
+     "glazed": true,
+     "transom": 0.45,
+     "_doc": "the shop door, 4 ft wide, glazed, a transom over it: the sheet's double doors as one wide leaf (the builder has no pair)"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 3.9,
+     "width": 2.0,
+     "height": 2.0,
+     "sill": 0.5,
+     "lights": 4,
+     "_doc": "the east show window, its display shelf behind"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 12.86,
+     "width": 2.0,
+     "height": 2.0,
+     "sill": 0.5,
+     "lights": 4,
+     "_doc": "the west show window"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 3.9,
+     "width": 1.0,
+     "height": 1.7,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "the stock loft's, over the show window, centred"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 8.38,
+     "width": 1.0,
+     "height": 1.7,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "over the door"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 12.86,
+     "width": 1.0,
+     "height": 1.7,
+     "sill": 0.6,
+     "lights": 4
+    }
+   ]
+  },
+  {
+   "id": "alley",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     17.07
+    ]
+   ],
+   "out": "-x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.3,
+     "width": 1.0,
+     "height": 1.5,
+     "sill": 0.9,
+     "lights": 4,
+     "_doc": "the shop, by the east counter"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.2,
+     "width": 1.0,
+     "height": 1.5,
+     "sill": 0.9,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 13.9,
+     "width": 1.0,
+     "height": 1.4,
+     "sill": 1.0,
+     "lights": 4,
+     "_doc": "the storeroom"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 2.3,
+     "width": 0.9,
+     "height": 1.5,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "the loft"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 5.4,
+     "width": 0.9,
+     "height": 1.5,
+     "sill": 0.6,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 8.5,
+     "width": 0.9,
+     "height": 1.5,
+     "sill": 0.6,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 14.5,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "the family's first room"
+    }
+   ]
+  },
+  {
+   "id": "hardware",
+   "line": [
+    [
+     16.76,
+     0
+    ],
+    [
+     16.76,
+     17.07
+    ]
+   ],
+   "out": "+x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    }
+   ],
+   "openings": [],
+   "_doc": "against the hardware store (valley.json gap_n3, 0.3 m): a blank wall, no window or door"
+  },
+  {
+   "id": "back",
+   "line": [
+    [
+     0,
+     17.07
+    ],
+    [
+     16.76,
+     17.07
+    ]
+   ],
+   "out": "+z",
+   "top": "gable",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 9.35,
+     "width": 1.07,
+     "height": 2.13,
+     "glazed": false,
+     "leaf": "outward",
+     "_doc": "the storeroom's back door onto the yard, 5 steps down"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.1,
+     "width": 0.9,
+     "height": 1.3,
+     "sill": 1.0,
+     "lights": 4,
+     "_doc": "the storeroom"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 14.2,
+     "width": 0.9,
+     "height": 1.3,
+     "sill": 1.0,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 4.1,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "room 1"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 9.35,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "room 2, over the door"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 14.2,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "room 3"
+    }
+   ]
+  },
+  {
+   "id": "shop_back",
+   "line": [
+    [
+     0.1,
+     10.8
+    ],
+    [
+     16.66,
+     10.8
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": true,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 8.280000000000001,
+     "width": 1.1,
+     "height": 2.1
+    }
+   ],
+   "_doc": "the shop's back wall; the two bearing lines' beams butt it"
+  },
+  {
+   "id": "loft_back",
+   "line": [
+    [
+     1.45,
+     10.8
+    ],
+    [
+     16.66,
+     10.8
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 1.55,
+     "width": 0.86,
+     "height": 2.03
+    }
+   ],
+   "_doc": "the loft's back wall from the stair's corner east: the stair lands in the loft's north-east corner, the door to the hall is at x 3.0"
+  },
+  {
+   "id": "rooms_front",
+   "line": [
+    [
+     1.45,
+     12.1
+    ],
+    [
+     16.66,
+     12.1
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 2.55,
+     "width": 0.81,
+     "height": 2.03
+    },
+    {
+     "type": "door",
+     "at": 7.8999999999999995,
+     "width": 0.81,
+     "height": 2.03
+    },
+    {
+     "type": "door",
+     "at": 12.75,
+     "width": 0.81,
+     "height": 2.03
+    }
+   ]
+  },
+  {
+   "id": "room_1_2",
+   "line": [
+    [
+     6.9,
+     12.15
+    ],
+    [
+     6.9,
+     16.97
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": []
+  },
+  {
+   "id": "room_2_3",
+   "line": [
+    [
+     11.8,
+     12.15
+    ],
+    [
+     11.8,
+     16.97
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": []
+  }
+ ],
+ "inside_finish": {
+  "boards": "judged",
+  "skirting": 0.2
+ },
+ "stairs": [
+  {
+   "id": "main",
+   "head": [
+    0.15,
+    10.75
+   ],
+   "dir": "-z",
+   "width": 1.0,
+   "from": "ground",
+   "to": "upper",
+   "risers": 22,
+   "going": 0.25,
+   "rail": "+x",
+   "look": "wood:int_oak",
+   "stringer_look": "wood:int_timber",
+   "posts": [
+    [
+     0.2,
+     13.5
+    ],
+    [
+     1.05,
+     13.5
+    ]
+   ],
+   "_doc": "the storeroom's stair up the alley wall to the upper hall: 22 risers of 7 in, 10 in treads (Hodgson 1884)"
+  },
+  {
+   "id": "back_store",
+   "head": [
+    8.75,
+    18.07
+   ],
+   "dir": "-z",
+   "width": 1.2,
+   "from": 0.0,
+   "to": "ground",
+   "risers": 6,
+   "going": 0.28,
+   "wood": "weathered_pine",
+   "stoop": [
+    8.75,
+    17.07,
+    9.95,
+    18.07
+   ],
+   "_doc": "the storeroom's back door: six steps to the yard"
+  }
+ ],
+ "front": {
+  "sign": "GENERAL STORE",
+  "sign_from": 7.4,
+  "sign_width": 6.0,
+  "cornice": "dark_trim",
+  "brackets": {
+   "spacing": 0.9,
+   "drop": 0.34,
+   "reach": 0.16,
+   "width": 0.09,
+   "sides": []
+  }
+ },
+ "rooms": [
+  {
+   "id": "shop",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    10.75
+   ],
+   "use": "the long shop: a counter along each side, shelving to the ceiling, the stove, the scale, the post office pigeonholes; customers browse and queue, the storekeeper serves and writes his day-book"
+  },
+  {
+   "id": "storeroom",
+   "level": "ground",
+   "rect": [
+    0.1,
+    10.850000000000001,
+    16.66,
+    16.97
+   ],
+   "use": "stock and the back door; the stair up to the family's rooms"
+  },
+  {
+   "id": "cellar",
+   "level": "cellar",
+   "rect": [
+    0.5,
+    0.5,
+    16.26,
+    9.0
+   ],
+   "use": "the goods cellar: flour, salt pork, pickles, a keg of powder; its stair behind the east counter, its doors under the dock"
+  },
+  {
+   "id": "loft",
+   "level": "upper",
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    10.75
+   ],
+   "use": "stock loft over the shop: cloth, boots, hardware; windows over Main Street"
+  },
+  {
+   "id": "hall",
+   "level": "upper",
+   "rect": [
+    1.5,
+    10.850000000000001,
+    16.66,
+    12.049999999999999
+   ],
+   "use": "the upper hall at the stair's head"
+  },
+  {
+   "id": "room_1",
+   "level": "upper",
+   "rect": [
+    1.4,
+    12.15,
+    6.85,
+    16.97
+   ],
+   "use": "the storekeeper's and his wife's bedroom"
+  },
+  {
+   "id": "room_2",
+   "level": "upper",
+   "rect": [
+    6.95,
+    12.15,
+    11.75,
+    16.97
+   ],
+   "use": "the family's sitting room and table"
+  },
+  {
+   "id": "room_3",
+   "level": "upper",
+   "rect": [
+    11.85,
+    12.15,
+    16.66,
+    16.97
+   ],
+   "use": "the children's room, or a lodger's"
+  }
+ ],
+ "use_points": [
+  {
+   "id": "serve_east",
+   "use": "serve",
+   "who": "storekeeper",
+   "at": [
+    3.0,
+    1.1,
+    5.0
+   ],
+   "look": [
+    1.2,
+    5.0
+   ],
+   "_doc": "behind the east counter (the dressing's: counter x 0.3-1.1... settled with the prop lab)"
+  },
+  {
+   "id": "ledger",
+   "use": "work",
+   "who": "storekeeper",
+   "at": [
+    13.6,
+    1.1,
+    9.2
+   ],
+   "look": [
+    13.6,
+    8.0
+   ],
+   "_doc": "the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"
+  },
+  {
+   "id": "post_office",
+   "use": "work",
+   "who": "storekeeper",
+   "at": [
+    15.4,
+    1.1,
+    8.0
+   ],
+   "look": [
+    16.0,
+    8.0
+   ]
+  },
+  {
+   "id": "buy_1",
+   "use": "buy",
+   "who": "anyone",
+   "at": [
+    4.2,
+    1.1,
+    3.2
+   ],
+   "look": [
+    1.2,
+    3.2
+   ]
+  },
+  {
+   "id": "buy_2",
+   "use": "buy",
+   "who": "anyone",
+   "at": [
+    12.5,
+    1.1,
+    3.2
+   ],
+   "look": [
+    15.4,
+    3.2
+   ]
+  },
+  {
+   "id": "browse_1",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    8.4,
+    1.1,
+    2.6
+   ],
+   "look": [
+    8.4,
+    6.0
+   ]
+  },
+  {
+   "id": "browse_2",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    8.4,
+    1.1,
+    7.4
+   ],
+   "look": [
+    8.4,
+    9.5
+   ]
+  },
+  {
+   "id": "wait_1",
+   "use": "wait",
+   "who": "anyone",
+   "at": [
+    6.6,
+    1.1,
+    4.4
+   ],
+   "look": [
+    6.6,
+    6.0
+   ]
+  },
+  {
+   "id": "stove",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    10.2,
+    1.1,
+    7.6
+   ],
+   "look": [
+    10.2,
+    9.6
+   ]
+  },
+  {
+   "id": "watch_street",
+   "use": "watch",
+   "who": "anyone",
+   "at": [
+    6.7,
+    1.1,
+    1.0
+   ],
+   "look": [
+    6.7,
+    -3.0
+   ]
+  },
+  {
+   "id": "store_1",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    4.2,
+    1.1,
+    14.2
+   ],
+   "look": [
+    4.2,
+    15.8
+   ]
+  },
+  {
+   "id": "store_2",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    12.6,
+    1.1,
+    14.2
+   ],
+   "look": [
+    12.6,
+    15.8
+   ]
+  },
+  {
+   "id": "cellar_1",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    4.5,
+    -1.3199999999999998,
+    4.4
+   ],
+   "look": [
+    4.5,
+    6.0
+   ]
+  },
+  {
+   "id": "cellar_2",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    11.0,
+    -1.3199999999999998,
+    4.4
+   ],
+   "look": [
+    11.0,
+    6.0
+   ]
+  },
+  {
+   "id": "loft_1",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    4.2,
+    5.0,
+    3.0
+   ],
+   "look": [
+    4.2,
+    0.2
+   ]
+  },
+  {
+   "id": "loft_2",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    12.4,
+    5.0,
+    4.4
+   ],
+   "look": [
+    12.4,
+    6.5
+   ]
+  },
+  {
+   "id": "loft_window",
+   "use": "shoot",
+   "who": "anyone",
+   "at": [
+    8.4,
+    5.0,
+    1.0
+   ],
+   "look": [
+    8.4,
+    -3.0
+   ],
+   "_doc": "the middle front window over Main Street"
+  },
+  {
+   "id": "hall_stand",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    8.4,
+    5.0,
+    11.45
+   ],
+   "look": [
+    8.4,
+    10.9
+   ]
+  },
+  {
+   "id": "room1_sleep",
+   "use": "sleep",
+   "who": "storekeeper",
+   "at": [
+    3.6,
+    5.0,
+    15.4
+   ],
+   "look": [
+    3.6,
+    13.0
+   ]
+  },
+  {
+   "id": "room2_eat",
+   "use": "eat",
+   "who": "storekeeper",
+   "at": [
+    9.35,
+    5.0,
+    14.8
+   ],
+   "look": [
+    9.35,
+    13.0
+   ]
+  },
+  {
+   "id": "room3_sleep",
+   "use": "sleep",
+   "who": "anyone",
+   "at": [
+    14.2,
+    5.0,
+    15.4
+   ],
+   "look": [
+    14.2,
+    13.0
+   ]
+  }
+ ],
+ "fixtures": [],
+ "furniture": [],
+ "lamps": {
+  "kit": [
+   {
+    "room": "shop",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "ground",
+    "at": 3.4,
+    "height": 1.7,
+    "energy": 1.5,
+    "reach": 7.0,
+    "shadows": true,
+    "lit": [
+     17,
+     23
+    ],
+    "_doc": "by the front counter"
+   },
+   {
+    "room": "shop",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "ground",
+    "at": 8.0,
+    "height": 1.7,
+    "energy": 1.5,
+    "reach": 7.0,
+    "shadows": true,
+    "lit": [
+     17,
+     23
+    ],
+    "_doc": "by the day-book"
+   },
+   {
+    "room": "shop",
+    "kit": "reflector_lamp",
+    "wall": "alley",
+    "level": "ground",
+    "at": 7.0,
+    "height": 1.7,
+    "energy": 1.3,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "storeroom",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "ground",
+    "at": 14.0,
+    "height": 1.6,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "loft",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "upper",
+    "at": 5.0,
+    "height": 1.6,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "hall",
+    "kit": "reflector_lamp",
+    "wall": "loft_back",
+    "level": "upper",
+    "at": 8.4,
+    "side": "+",
+    "height": 1.6,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "room_1",
+    "kit": "reflector_lamp",
+    "wall": "room_1_2",
+    "level": "upper",
+    "at": 2.4,
+    "side": "-",
+    "height": 1.5,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "room_2",
+    "kit": "reflector_lamp",
+    "wall": "room_2_3",
+    "level": "upper",
+    "at": 2.4,
+    "side": "-",
+    "height": 1.5,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "room_3",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "upper",
+    "at": 14.5,
+    "height": 1.5,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   }
+  ]
+ },
+ "light": {
+  "_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall",
+  "fill": [
+   0.62,
+   0.6,
+   0.57
+  ],
+  "window_day": 9.0,
+  "day_fill": 0.18
+ },
+ "materials": {
+  "wear": {
+   "use": 0.8,
+   "dings": 0.0,
+   "_why": "#901: a busy store, a wagon's freight rolled in daily; dents off with the doctor's (Sean 2026-11-14)"
+  },
+  "floor": "wood:int_floor",
+  "wall_boards": "int_boards",
+  "woodwork": "wood:int_oak",
+  "timber": "wood:int_timber",
+  "trim_outside": "painted_green",
+  "roof": "weathered_pine",
+  "rough": "framing",
+  "finishes": {
+   "exterior": {
+    "want": {
+     "entry": "painted_buff_drop",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "Sean 2026-11-16: painted pale buff clapboard, the sheet; the merchant's pride, two years old"
+   },
+   "trim": {
+    "want": {
+     "entry": "painted_green_trim",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    }
+   },
+   "inside": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "floor": {
+    "want": {
+     "entry": "floor_fir_worn",
+     "age": "few",
+     "role": "floor"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "floor"
+    },
+    "_why": "oiled fir, worn on his ways (door to counter, counter to shelf), never a wall's or the trim's (#825)"
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "oak": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "timber": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   }
+  },
+  "surfaces": [
+   [
+    "front/sign",
+    "trim"
+   ],
+   [
+    "/casing",
+    "trim"
+   ],
+   [
+    "/skirt",
+    "trim"
+   ],
+   [
+    "/window_",
+    "trim"
+   ],
+   [
+    "/siding/",
+    "exterior"
+   ],
+   [
+    "/corner_",
+    "trim"
+   ],
+   [
+    "/trim_",
+    "trim"
+   ],
+   [
+    "/transom_bar",
+    "trim"
+   ],
+   [
+    "/cornice",
+    "trim"
+   ],
+   [
+    "front/cap",
+    "trim"
+   ],
+   [
+    "roof/ridge_cap",
+    "trim"
+   ],
+   [
+    "front/door_",
+    "trim"
+   ],
+   [
+    "back/door_",
+    "trim"
+   ],
+   [
+    "/door_",
+    "inside"
+   ],
+   [
+    "/in_ground/",
+    "inside"
+   ],
+   [
+    "/in_upper/",
+    "inside"
+   ],
+   [
+    "/m/board/",
+    "inside"
+   ],
+   [
+    "/p/board/",
+    "inside"
+   ],
+   [
+    "floor/ground/board",
+    "floor"
+   ],
+   [
+    "floor/loft/board",
+    "floor"
+   ],
+   [
+    "floor/family/board",
+    "floor"
+   ],
+   [
+    "floor/loft/joist",
+    "timber"
+   ],
+   [
+    "floor/family/joist",
+    "timber"
+   ],
+   [
+    "beam/",
+    "timber"
+   ],
+   [
+    "bracket/",
+    "-"
+   ],
+   [
+    "wall_post/",
+    "timber"
+   ],
+   [
+    "stair/main",
+    "oak"
+   ],
+   [
+    "roof/board",
+    "rough"
+   ],
+   [
+    "stoop/",
+    "rough"
+   ],
+   [
+    "stair/back",
+    "rough"
+   ],
+   [
+    "post/",
+    "timber"
+   ]
+  ]
+ },
+ "sources": [
+  "Saloon B's frame (#848): queen-post trusses, 3x12 joists broken over girders on posts, the stacked-opening rules.",
+  "William E. Bell, Carpentry Made Easy (1858), and George Woodward, Woodward's Country Homes (1865): the balloon frame, the false front's bracing.",
+  "Hodgson, Steel Square and its Uses (1884): the stair's rise and going."
+ ]
+}

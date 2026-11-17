@@ -1,0 +1,112 @@
+{
+ "_doc": "The general store target sheet (#858, the building lab's step 1). tools/buildings/target_sheet.py paints each view on GitHub (building_sheet.yml). Sean's calls (2026-11-16): two-storey false front, painted pale buff clapboard with green trim, late-afternoon light (from the south-west for the front, which faces south), $2.50 cap. The spec (step 2) settles every size.",
+ "sheet_title": "Salt Creek, 1882: the general store (target sheet, #858)",
+ "cap": 2.5,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light, real worn materials (rough sandstone, lime mortar, iron, planks, tin, dust), period-accurate in every object. No people unless the view asks for them. No modern objects. No text other than the signs named. No border, no frame, no watermark, no captions.",
+ "building": "The town's general store and grocer, built in 1880 of sawn lumber in a two-year-old Colorado mining-and-ranching boom town, now 1882: the biggest and best-stocked wooden building on the north side of the dirt Main Street, a merchant's pride. It stands on the north side of the street, so its FRONT faces SOUTH onto Main Street; the hardware store (lower, plain, built first) stands shoulder to shoulder against its WEST side wall with no gap, and a narrow dirt alley (the store alley, one wagon wide) runs along its EAST side, with the bakery beyond. IN PLAN IT IS A PLAIN RECTANGLE, no wing or ell: about 50 ft wide across the front and 60 ft deep, with a small fenced back yard behind. TWO STOREYS under a low pitched gable roof (ridge running front to back) HIDDEN from the street by a tall square FALSE FRONT of painted clapboard (about 26 ft to the top of its cornice, a bracketed cornice with a flat sign board above the upper windows); the side walls are plain clapboard, lower, and the roof is wood shingles. Painted clapboard (lap siding) in a pale buff/cream with white corner boards and window casings, a darker green trim on the cornice, door and sash, as a merchant keeps it, a little weathered at the bottom. A LOADING DOCK: a plank deck 3.6 ft (1.1 m) above the street, the full width of the front, level with a freight wagon's bed, carried on posts, with a plank awning (a shed roof on posts, 10 ft above the deck) over it; a wide flight of plank steps up from the street at the middle, and at the dock's EAST end the deck simply stops and drops 3.6 ft into the alley (no rail there). Barrels, crates, a keg of nails, sacks and a stack of tinware sit on the dock. Under the dock, between its posts, two slanted cellar doors in a plank frame give onto the goods cellar beneath the front half of the store. The front: a pair of glazed double doors in the middle, centred, with a transom over them, flanked by two big shop windows (plate-glass-sized panes in a wooden frame, a shallow display shelf behind each with tins and a coffee mill), and a small plain door at the east end of the dock for the storeroom; above the awning, on the upper storey, three tall two-over-two sash windows under the sign board, which is left blank (the game paints its own lettering). Inside: the ground floor is one long shop room with a counter on each side, shelving to the ceiling, a rolling ladder, a stove, a pair of oil lamps hung from the joists, a post office pigeonhole corner and a scale; a storeroom behind it; a stair behind the counter down to the cellar; a stair up to the loft over the back; the upper storey front is the storekeeper's stock loft (bolts of cloth, boots, hardware) with the family's rooms at the back.",
+ "views": [
+  {
+   "id": "front",
+   "title": "Front (south), from Main Street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The front of the building seen straight on from the middle of the dirt Main Street at eye level, a clear summer late afternoon, the low golden sun from the south-west (the west, down the street) raking across the front so the clapboard's texture shows, long shadows on the dirt, the awning's shadow across the dock. The whole front up to the false front's cornice in frame, the dock, its steps and the stock on it, the doors, both shop windows, the upper windows and the blank sign board; the hardware store's lower plain front on the left, the alley and the bakery's corner on the right. Nearly orthographic: a long lens, little perspective."
+  },
+  {
+   "id": "plan",
+   "title": "Floor plan",
+   "aspect": "2:3",
+   "size": "2K",
+   "view": "A clean architect's floor plan of the ground floor drawn from above, black ink lines on off-white paper, Main Street (south) at the BOTTOM, the hardware store's wall on the LEFT (west), the store alley on the RIGHT (east): thin wooden walls, every door with its swing arc, every window, the dock along the front with its steps and the dropped east end, the shop room's two counters, shelving along both walls, stove, scale, the storeroom behind, the stair down to the cellar behind the counter, the stair up to the loft, the back door and the fenced back yard. A plain rectangle: no wing or ell. Each room labelled in small lettering."
+  },
+  {
+   "id": "side",
+   "title": "The east side, from the store alley",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Standing in the dirt store alley looking WEST at the building's east side wall: plain painted clapboard, three tall sash windows on each floor, a side door with a few plank steps, the end of the loading dock at the near (south) corner where the deck simply stops and drops to the alley, the false front seen edge-on as a flat painted board with its brace posts behind it, the low shingled gable roof behind it. Clear afternoon light, the sun from the south-west."
+  },
+  {
+   "id": "dock",
+   "title": "The loading dock and the cellar doors",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "From the dirt street, low and close, looking at the underside of the loading dock between its posts: the two slanted plank cellar doors in their frame, one propped open on a prop-stick showing steps going down into the dark, barrels on a skid, dust, a wagon wheel at the edge of frame; above, the plank deck's edge and the awning's post."
+  },
+  {
+   "id": "rear",
+   "title": "The back, from the back lane",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "From behind the building looking south over its small fenced back yard in late afternoon: the plain rear wall of clapboard, a back door with a stoop, a loading hatch in the upper storey with a hoist beam over it, a chimney, the back of the false front rising above the shingled roof as a plain braced frame of boards, a privy, a woodpile and stacked barrels and crates in the yard."
+  },
+  {
+   "id": "cutaway",
+   "title": "Cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "An architectural cutaway, a bird's-eye three-quarter view from the south-east with the east wall and the roof cut away, showing the timber frame (studs, floor joists, the girders, the roof rafters and the braced false front), the dock, the cellar under the front half with its stair and its doors under the dock, the shop furnished as the plan has it, the stock loft and the family rooms above, in daylight."
+  },
+  {
+   "id": "shop",
+   "title": "The shop",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the shop at eye level, standing just inside the double doors looking back into the building, warm afternoon light through the shop windows: the long counters either side with a brass scale, a coffee mill and glass jars of candy, shelves to the ceiling of tins, bolts of cloth, boots and tools, the rolling ladder, barrels of crackers and pickles, the pot-bellied stove and its pipe, oil lamps hung from the joists, painted pale tongue-and-groove walls with green wainscot, worn fir floorboards; no people."
+  },
+  {
+   "id": "counter",
+   "title": "Behind the counter",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "shop",
+    "plan"
+   ],
+   "view": "From behind the back counter looking toward the front windows: the storekeeper's side of the counter with a big open ledger day-book, a pen and inkwell and a cash drawer, the pigeonholes of the post office corner, the open stair going down into the cellar at the side, the storeroom door; the shop window behind with the street's evening light. No people."
+  },
+  {
+   "id": "loft",
+   "title": "The stock loft",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "The upper storey's front loft at eye level: a long low room under the false front, the three tall front windows letting light in, shelves and crates of stock, bolts of cloth hung on a pole, a rack of boots, a dressmaker's dummy, the plain painted board walls, a ladder down, the open joists of the roof beyond. No people."
+  },
+  {
+   "id": "cellar",
+   "title": "The goods cellar",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the goods cellar at eye level, standing at the foot of the stair behind the counter looking toward the street doors: a low plank-ceilinged earth-floored room 8 ft high, stout posts carrying a girder under the dock's joists, barrels of flour, salt pork and pickles, hams hung from hooks, a keg of powder, shafts of daylight cut by the slanted doors, a hurricane lantern on a hook. Cool, dim, dusty."
+  }
+ ]
+}

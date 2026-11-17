@@ -1,0 +1,115 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.1397,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794859942.6225362
+  },
+  {
+   "what": "plan",
+   "cost": 0.1397,
+   "ok": true,
+   "size": [
+    1696,
+    2528
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794859964.3091912
+  },
+  {
+   "what": "side",
+   "cost": 0.1433,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794859998.0858333
+  },
+  {
+   "what": "dock",
+   "cost": 0.1397,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794860027.860137
+  },
+  {
+   "what": "rear",
+   "cost": 0.1423,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794860059.966606
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.14,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794860091.1102753
+  },
+  {
+   "what": "shop",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794860121.6722476
+  },
+  {
+   "what": "counter",
+   "cost": 0.14,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794860153.7408133
+  },
+  {
+   "what": "loft",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794860183.796582
+  },
+  {
+   "what": "cellar",
+   "cost": 0.1394,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1794860214.0607746
+  }
+ ],
+ "total": 1.405
+}
