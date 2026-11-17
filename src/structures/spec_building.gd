@@ -509,7 +509,12 @@ func _posts_and_beams() -> void:
 		return
 	for k in (spec.posts.free as Array).size():
 		var p: Array = spec.posts.free[k]
-		add_member("pier/post_%02d" % k, &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(p[0], (top - 0.3) * 0.5, p[1]))
+		# Over the cellar (the general store's beam posts) the pier goes down to the cellar's floor.
+		var cr: Array = (spec.get("cellar", {}) as Dictionary).get("rect", [])
+		var base := -0.3
+		if cr.size() == 4 and float(p[0]) > float(cr[0]) and float(p[0]) < float(cr[2]) and float(p[1]) > float(cr[1]) and float(p[1]) < float(cr[3]):
+			base = float(_lv.cellar) + 0.08
+		add_member("pier/post_%02d" % k, &"sill", &"stone", Vector3(pier, top - base, pier), Vector3(p[0], (top + base) * 0.5, p[1]))
 		var m := add_member("post/%02d" % k, &"post", &"framing", Vector3(ps[0], beam_bottom - top, ps[1]), Vector3(p[0], (beam_bottom + top) * 0.5, p[1]))
 		PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "y", "up": "z", "args": [float(_fr.post.chamfer)]}, String(_fr.post.look))
 	var wp: Array = _fr.wall_post.section
