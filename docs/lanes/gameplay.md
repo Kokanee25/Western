@@ -66,7 +66,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   and **his hand's and forearm's own skin is kept under it** (#1008, `body_verts` + `set_skin`, ON: `FINE_TRIS` 3000,
   crops `results/2026-11-16-fingers-on/`; pop 1.8 mm, stretch 1.08; ~2.6-3 ms a tick at Sean's while drawn after #1023's cost cuts). Itself (#1029: lists by how far each point goes) costs ~+4.5 ms drawn at
   Sean's on the MetaHuman, ~+5.5 on the talking man, and sean_s3_talking seed 2 no longer rests with it: still off,
-  #1029's report (README "Itself's lists by how far they go"). Waiting on Sean whether to go on. Measure `skin_out`/`arm_out` (bench).
+  left off for now (Sean, #1034); a later session: #1038 (`after slice`). Measure `skin_out`/`arm_out` (bench).
   Build: `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, .so to
   bin/. Films: the bridge's real look is OOM-killed in an 8 GB workspace (its memory climbs past 6 GB); use the
   bench's stills (`xvfb-run ... bench.gd -- --shots=2.6,2.7,... --cam=hands`, ~2 min, 2.4 GB).
