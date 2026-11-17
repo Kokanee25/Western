@@ -314,7 +314,7 @@ the later rows are for the cards that aren't scripted yet. Facts marked **(add)*
 | Left him on the road | `sheriff.care = left` | The freighter ("a name. Harlan, or near it"); the doctor ("three hours, by the blood"; at his door that night, `carry.this_one`: "This one you carried."); the widow (`day2.freighter`; at the grave, only "Mr. Harlan."); a townsman who doesn't know it was him (`town.you_left`); the stranger (`table.asks_left`); Joe (`ride.left`: "Don't walk off from me.") | The widow's place: she has the freighter's story by then, and asks about the road |
 | Shook his head on the road, then helped | `sheriff.shook` **(add)** | The sheriff at the oath (`day2.shake.twice`) | – |
 | Shook his head at the oath | `nolaw.accepted = shake` | The widow at the grave (`funeral.you_came_shake`) | The widow, when he tries to refuse the rifle (S15); Rourke, when he won't sign the letter |
-| Sat at Earl's table | `nolaw.seen_from = table` | The doctor at the door ("The sheriff's not been told about Earl."); the doctor after (`day2.not_enough`); a townsman (`morning.you_were_there`); the bold cowboy (`doctor.cowboy_table`); Kett, selling it (`cabin.bargain_table`); the foreman at the grave (`funeral.foreman`: "Good morning to you, Deputy.") | The widow's lane: "We've met, Deputy. You sat very still."; the barkeep at Cody's arrest |
+| Sat with the stranger (Sean, 2026-11-17: he asks you to his table, buys a drink, and calls the sheriff "a good man" who "didn't deserve that") | `nolaw.seen_from = table` | The doctor at the door ("The sheriff's not been told about Earl."); the doctor after (`day2.not_enough`); a townsman (`morning.you_were_there`); the bold cowboy (`doctor.cowboy_table`); Kett, selling it (`cabin.bargain_table`); the foreman at the grave (`funeral.foreman`: "Good morning to you, Deputy.") | The widow's lane: "We've met, Deputy. You sat very still."; the barkeep at Cody's arrest |
 | Told the stranger the sheriff talked, or lied | `nolaw.told_stranger` **(add)** | The stranger's answer at the table (`table.asks_nod`, `_shake`, `_none`) | The lane: a foreman who was told "yes" has watched him since; told "no", he's easy, and wrong |
 | Pointed a gun at the stranger | `nolaw.drew_on_stranger` **(add)** | The doctor (`day2.not_enough`) | The lane: "You should have sat still." |
 | Carried Earl to the doctor's (Sean, 2026-11-17: D) | `nolaw.carried_earl` **(add, #1057)** | The barkeep to his back (`after.lifted`: "He owes me four dollars."); a woman in a doorway; the doctor at the door, who counts it (`carry.two`, `carry.this_one`); next morning the doctor ("Button your coat."), the sheriff if he sees the blood, a townsman, a woman who tells him cold water, the bold cowboy (`doctor.cowboy_carried`) | The barkeep's word for him at Cody's arrest and on the captain's day; the coat, until he washes it: S50 |
@@ -347,8 +347,8 @@ office (`doctor.badge`). Payoff: the cabin, if Harlan stops him: "Take him. Go o
 does." (`cabin.nod`); the platform, where it does nothing; the mission called I Am the Law.
 
 **S46. The stranger asks leave** · T1, T4 · P·bible. His habit: he asks permission for what he means to
-do anyway. Plant: "Rode up easy, like he wanted directions" (the sheriff); "Mind if I sit in a
-while?" (built); "Might I stand you a drink?" (`town.send_stranger`). Payoff: the widow's lane, with
+do anyway. Plant: "Rode up easy, like he wanted directions" (the sheriff); "Sit with me a
+while, if you've no objection." (`table.sit`; Sean, 2026-11-17: he asks Harlan to his table and buys the drink). Payoff: the widow's lane, with
 the deed in his hand, asking if he might come up to the house.
 
 **S47. The hat comes off** · T2 · P·bible. Grows S12. Plant: Joe's hat, won at monte (`ride.nobody`).

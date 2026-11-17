@@ -38,7 +38,8 @@ with their tests (several tests check a line's words).
 | `config/moments/no_justice_hideout.json` | `lines.joe_runs.any.0` | no_justice.json `fight.joe_call` | The red shirt. He runs. | Left. By the wagon. / Two. Behind the logs. / Red shirt's running! The shack! |
 | `config/moments/no_justice_hideout.json` | `lines.quit.any.0` | no_justice.json `fight.crew_quit` | I'm done! Don't shoot! | I quit! Don't shoot! |
 | `config/moments/no_justice_hideout.json` | `lines.warn.any.0` | no_justice.json `ride.warn` | When I find him, you will not like what I do. Better you know it now. | When we have him, don't watch. |
-| `config/moments/sheriff_dies.json` | `lines.acting.any.0` | sheriff_road.json `day2.acting` | I'm the coroner, Harlan, so until the county sends a man I'm what law there is. And you're my deputy. Keep the badge on. | I'm the coroner, Harlan. By the statute that makes me sheriff until the county sends a man. Keep the badge on. |
+| `config/moments/no_law_murder.json` | `lines.stranger_sit.0` | no_law.json `table.sit` | Evening. Mind if I sit in a while? | Evening. Harlan, isn't it? Sit with me a while, if you've no objection. |
+| `config/moments/sheriff_dies.json` | `lines.acting.any.0` | sheriff_road.json `day2.acting` | I'm the coroner, Harlan, so until the county sends a man I'm what law there is. And you're my deputy. Keep the badge on. | He had it right. I'm the coroner, so I'm sheriff until the commissioners name one. Keep the badge on. |
 | `config/moments/sheriff_dies.json` | `lines.ditch.clear.0` | sheriff_road.json `day2.ditch.clear` | He's wanted my ditch since the day I cut it. Now he'll go at her. Look to them. | The Baron's wanted that ditch since the day I cut it. He'll go at my wife for it now. Look to her and the boys. |
 | `config/moments/sheriff_dies.json` | `lines.door.good.0` | sheriff_road.json `day2.door.good` | He's asking for you. He's clear this morning. It won't last. | He's asking for you. He's clear this morning. |
 | `config/moments/sheriff_dies.json` | `lines.door.left.0` | sheriff_road.json `day2.door.left` | He's been asking for you since the freighter brought him. I couldn't tell you why. | He's been asking for you since the freighter brought him. |
@@ -74,9 +75,15 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | sheriff_road.json `day2.blood` | sheriff | clear, and nolaw.carried_earl = yes | Whose blood is that on you? ... That ain't mine. |
 | sheriff_road.json `day2.blood_doc` | doctor | clear, and nolaw.carried_earl = yes | A man cut himself at the saloon. Lie back. |
 | sheriff_road.json `day2.shake.twice` | sheriff | clear, and sheriff.shook (you shook your head at him on the road, then helped him anyway) | Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him. |
+| sheriff_road.json `day2.for_now.clear` | sheriff | clear | It's only for now. The county commissioners name the next man. Till they do, Doc's coroner, so he's sheriff, and you're his deputy. |
+| sheriff_road.json `day2.for_now.fading` | sheriff | fading | Only till the county... names a man. Doc... tell him. |
 | sheriff_road.json `day2.not_enough` | doctor | nolaw.seen_from = table (you sat with the stranger), or nolaw.drew_on_stranger | A sorrel horse and one word. I can't hang a man on that, Harlan. |
 | no_law.json `town.you_packed` | townsman | sheriff.care = good (you packed the wound) | Doc says that wound was packed proper. Says you done it. |
-| no_law.json `table.asks_left` | stranger | sheriff.care = left | You're from up the creek, I believe. You'd have come down that road this morning. ... See anything of it? |
+| no_law.json `table.drink` | stranger | any | What'll you take? ... No, put your money up. I asked you. |
+| no_law.json `table.talk` | stranger | sheriff.care = good or poor (you brought the sheriff in) | They tell me it was you brought the sheriff in. That's a hard thing to come on, a man lying in the road. |
+| no_law.json `table.talk_left` | stranger | sheriff.care = left | You'll have heard about the sheriff. Shot on the East Road this morning, not four miles from where we sit. |
+| no_law.json `table.good_man` | stranger | any | I only met him the once. He seemed a good man. He didn't deserve that. |
+| no_law.json `table.asks_left` | stranger | sheriff.care = left | You'd have come down that road yourself this morning. ... See anything of it? |
 | no_law.json `table.asks_nod` | stranger | nolaw.told_stranger = yes | Did he. |
 | no_law.json `table.asks_shake` | stranger | nolaw.told_stranger = no | No. I'd not think he could. |
 | no_law.json `table.asks_none` | stranger | nolaw.told_stranger = none | No matter. |
@@ -114,7 +121,7 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | `nolaw.carried_earl` | yes / no | gameplay to add with #1057 (carrying a man) | day2.door.table, day2.door.coat, day2.blood, day2.blood_doc |
 | `nolaw.told_stranger` | yes / no / none: your nod or shake when he asks if the sheriff could talk | gameplay to add, with the question (table.asks is not built) | table.asks_nod, table.asks_shake, table.asks_none |
 | `nolaw.drew_on_stranger` | true if you pointed a gun at him | gameplay to add (the aimed lines are built; nothing is recorded) | sheriff_road day2.not_enough; the widow's lane, later |
-| `nolaw.sent_by` | doctor / stranger / nobody | gameplay to add (s26) | town.send_doc, town.send_stranger |
+| `nolaw.sent_by` | doctor / nobody | gameplay to add (s26) | town.send_doc |
 | `nojustice.kett_saw_joe` | true: Joe took the hat off at the cabin and Kett lived | gameplay to add, with the hat coming off at cabin.knife | street.kett; whether the kin go to the camp (S12) |
 
 Every other fact the scripts' `when` fields name is set by the game now (`sheriff.care`, `nolaw.seen_from`, `nolaw.followed`,

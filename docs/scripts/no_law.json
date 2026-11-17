@@ -20,10 +20,10 @@
     "Nobody names the red shirt (Kett), says the stranger works for the Baron (K3, K11) or that he shot the sheriff (K14). The foreman's voice is open (s21): written to his built lines, calm and low.",
     "Rewritten 2026-11-17 (#1056). The stranger's, Cody's, Earl's and the barkeep's lines at the table are Sean's or built, and stay word for word.",
     "The stranger's voice (s21), settled for the script: soft-spoken and mannerly, a man who asks leave for what he means to do anyway ('Mind if I sit in a while?'). That courtesy is how the sheriff let him ride up. He says 'ain't' when it suits him.",
-    "Who sends Harlan to the saloon (s26), settled for the script: the doctor, if you brought the sheriff in; the stranger finds you at the table either way, because he wants to know what the sheriff said. If you haven't gone in by full dark, or you left the sheriff, he walks you there himself.",
     "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, sat at the table, went after Cody, knelt by Earl, what you told the stranger, whether you shook your head at the oath).",
     "The town gets the night wrong in the morning, on purpose: a player who sat at the table knows it.",
-    "Sean, 2026-11-17 (decided, #1056): Harlan carries Earl to the doctor's and bangs on the door; the doctor, up with the sheriff, says the man wants burying; Earl lies in the front room till morning. Scenes 'after', 'carry' and 'morning' are written to it. This changes the built murder: Earl is shot and down, not shot dead (gameplay, #1057)."
+    "Sean, 2026-11-17 (decided, #1056): Harlan carries Earl to the doctor's and bangs on the door; the doctor, up with the sheriff, says the man wants burying; Earl lies in the front room till morning. Scenes 'after', 'carry' and 'morning' are written to it. This changes the built murder: Earl is shot and down, not shot dead (gameplay, #1057).",
+    "Sean's review, 2026-11-17: the stranger asks Harlan to his own table, buys him a drink, and they talk a minute about the sheriff before Cody comes in. So s26 is simpler: the doctor may say 'Go and get a drink', and whoever walks into the saloon's yard is asked to sit. The oath and 'deputy for now, until the county names a man' are the sheriff's own words: his page, scene 5 (day2.oath, day2.for_now)."
   ],
   "words_to_check": [],
   "setups": [
@@ -389,18 +389,26 @@
             }
           ],
           "takes": []
-        },
+        }
+      ]
+    },
+    {
+      "id": "table",
+      "title": "The stranger's table",
+      "when": "Night 1, the saloon's yard: the stranger's table, beside the card game",
+      "built": true,
+      "setting": "Sean's review, 2026-11-17: the stranger is sat alone with a bottle; he asks Harlan to sit with him and talk, and buys him a drink. They talk for a minute at most, about the sheriff: about Harlan bringing him in, if he did. The stranger calls the sheriff a good man who didn't deserve it. He is the man who shot him. Then Cody comes in, and the stranger's hand is on Harlan's arm. Harlan is unarmed. (The card game's own talk at Earl's table is built and goes on a town-life page.)",
+      "lines": [
         {
-          "id": "town.send_stranger",
+          "id": "table.sit",
           "speaker": "stranger",
-          "trigger": "He falls in beside you on Main Street, evening of day 1",
-          "when": "you haven't gone into the saloon by full dark, or sheriff.care = left",
-          "note": "s26: the fallback. He wants what the sheriff said, so he comes to find you. Sets nolaw.sent_by = stranger.",
+          "trigger": "You come into the saloon's yard; he is alone at a table by the card game, and looks up",
+          "when": "any",
           "condition": "calm, friendly",
-          "delivery": "Easy, courteous, already turning you toward the saloon. He asks leave for a thing he means to do anyway.",
+          "delivery": "Pleasant, unhurried. He already knows your name. He asks leave, as he always does, and pushes the other chair out with his boot.",
           "words": [
             {
-              "text": "Evening. You'll be Harlan. Might I stand you a drink? I'd count it a favor.",
+              "text": "Evening. Harlan, isn't it? Sit with me a while, if you've no objection.",
               "status": "new"
             }
           ],
@@ -409,46 +417,95 @@
           ],
           "takes": [],
           "was": [
-            "Evening. You look like a man who could stand a drink. I'm buying."
-          ]
-        }
-      ]
-    },
-    {
-      "id": "table",
-      "title": "The table",
-      "when": "Night 1, the saloon's yard, the card table",
-      "built": true,
-      "setting": "Harlan is sat at the card table, unarmed. A minute before Cody comes, the stranger takes the free chair and puts his hand on Harlan's arm. (The table's own talk is built and goes on a town-life page.)",
-      "lines": [
+            "Evening. Mind if I sit in a while?"
+          ],
+          "note": "Sean's review, 2026-11-17: 'he'll ask you to sit with him and talk'. The game has him join you ('Evening. Mind if I sit in a while?'): a change for gameplay."
+        },
         {
-          "id": "table.sit",
+          "id": "table.drink",
           "speaker": "stranger",
-          "trigger": "He sits in the free chair beside you (a minute before Cody)",
+          "trigger": "You sit",
           "when": "any",
           "condition": "calm, friendly",
-          "delivery": "Pleasant, unhurried, a man settling in for the evening.",
+          "delivery": "To the barkeep, two fingers up; then to you, a hand flat on the table when you reach for your pocket.",
           "words": [
             {
-              "text": "Evening. Mind if I sit in a while?",
-              "status": "built"
+              "text": "What'll you take? ... No, put your money up. I asked you.",
+              "status": "new"
+            }
+          ],
+          "note": "Sean's review, 2026-11-17: 'he buys you a drink'.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "table.talk",
+          "speaker": "stranger",
+          "trigger": "The drinks come",
+          "when": "sheriff.care = good or poor (you brought the sheriff in)",
+          "condition": "calm, friendly",
+          "delivery": "A man making talk. He is looking at your hands.",
+          "words": [
+            {
+              "text": "They tell me it was you brought the sheriff in. That's a hard thing to come on, a man lying in the road.",
+              "status": "new"
             }
           ],
           "setups": [
-            "S39"
+            "S40"
           ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "table.talk_left",
+          "speaker": "stranger",
+          "trigger": "The drinks come, in place of table.talk",
+          "when": "sheriff.care = left",
+          "condition": "calm, friendly",
+          "delivery": "The same easy talk. He doesn't know yet whether you were on that road.",
+          "words": [
+            {
+              "text": "You'll have heard about the sheriff. Shot on the East Road this morning, not four miles from where we sit.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "table.good_man",
+          "speaker": "stranger",
+          "trigger": "A swallow later",
+          "when": "any",
+          "condition": "calm, grave",
+          "delivery": "Said with his eyes down, turning his glass. Every word of it is true.",
+          "words": [
+            {
+              "text": "I only met him the once. He seemed a good man. He didn't deserve that.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "note": "Sean's review, 2026-11-17: 'calls the sheriff a good man and didn't deserve it'. 'The once' was this morning, on the road.",
+          "added": "2026-11-17 (#1056)",
           "takes": []
         },
         {
           "id": "table.asks",
           "speaker": "stranger",
-          "trigger": "After table.sit, a hand or two later; he waits for your nod or shake",
+          "trigger": "After table.good_man; he waits for your nod or shake",
           "when": "sheriff.care = good or poor",
           "condition": "calm, friendly, a little too interested",
-          "delivery": "A man making talk over cards. He never asks who did it; he asks whether the sheriff could talk. He watches your face, not your cards.",
+          "delivery": "Idle. It is the only thing he came to find out. He watches your face.",
           "words": [
             {
-              "text": "They tell me it was you brought the sheriff in. Hard thing to come on. ... He able to talk any?",
+              "text": "He able to talk any, when you got him in?",
               "status": "new"
             }
           ],
@@ -456,21 +513,18 @@
             "S40"
           ],
           "takes": [],
-          "was": [
-            "Heard it was you brought the sheriff in. He say who it was?"
-          ],
           "note": "Nod or shake: Harlan can lie to him. Sets nolaw.told_stranger. Not built."
         },
         {
           "id": "table.asks_left",
           "speaker": "stranger",
-          "trigger": "After table.sit, a hand or two later",
+          "trigger": "After table.good_man; he waits for your nod or shake",
           "when": "sheriff.care = left",
           "condition": "calm, friendly",
           "delivery": "The same easy talk. He is finding out whether you were on that road.",
           "words": [
             {
-              "text": "You're from up the creek, I believe. You'd have come down that road this morning. ... See anything of it?",
+              "text": "You'd have come down that road yourself this morning. ... See anything of it?",
               "status": "new"
             }
           ],
@@ -1502,12 +1556,11 @@
     },
     {
       "fact": "nolaw.sent_by",
-      "values": "doctor / stranger / nobody",
+      "values": "doctor / nobody",
       "exists": false,
       "set_by": "gameplay to add (s26)",
       "used": [
-        "town.send_doc",
-        "town.send_stranger"
+        "town.send_doc"
       ]
     },
     {

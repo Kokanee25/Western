@@ -20,7 +20,8 @@
     "Scenes 3 to 5 aren't built yet: their triggers say what they'll need. The built mission ends at the doctor's lot (scene 2) or the freighter's card (scene 3).",
     "Rewritten 2026-11-17 (#1056). The road's built lines Sean picked a take for are left alone; the ones he marked Redo are re-worded so the words carry the acting, and each says what was done.",
     "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, shook your head at him, sat at Earl's table). The sheriff never learns about Earl: the doctor keeps it from him.",
-    "Sean, 2026-11-17: Harlan carries Earl to the doctor's on night one, and the body is in the doctor's front room on day 2 (No Law's script, scenes carry and morning). So day 2 here has the coat: the doctor has him button it, and the sheriff, if he sees the blood, is lied to."
+    "Sean, 2026-11-17: Harlan carries Earl to the doctor's on night one, and the body is in the doctor's front room on day 2 (No Law's script, scenes carry and morning). So day 2 here has the coat: the doctor has him button it, and the sheriff, if he sees the blood, is lied to.",
+    "Sean's review, 2026-11-17: the sheriff himself tells Harlan he's deputy only for now, until the county names a man (day2.for_now); the doctor confirms it after."
   ],
   "words_to_check": [
     {
@@ -1415,6 +1416,39 @@
           "takes": []
         },
         {
+          "id": "day2.for_now.clear",
+          "speaker": "sheriff",
+          "trigger": "After your nod or shake, the badge pinned on",
+          "when": "clear",
+          "condition": "dying, an order",
+          "delivery": "Plain, getting it straight while he can. He has buried a sheriff himself and knows how it goes.",
+          "words": [
+            {
+              "text": "It's only for now. The county commissioners name the next man. Till they do, Doc's coroner, so he's sheriff, and you're his deputy.",
+              "status": "new"
+            }
+          ],
+          "note": "Sean's review, 2026-11-17: the sheriff says it himself. How it was done: a sheriff appointed his own deputies; when a Colorado sheriff died the coroner acted as sheriff (the 1877 law, WORDS.md) until the county commissioners filled the office (C12 a).",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.for_now.fading",
+          "speaker": "sheriff",
+          "trigger": "After your nod or shake, the badge pinned on",
+          "when": "fading",
+          "condition": "dying, fading",
+          "delivery": "A word at a time; he looks at the doctor to finish it.",
+          "words": [
+            {
+              "text": "Only till the county... names a man. Doc... tell him.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
           "id": "day2.pistol.clear",
           "speaker": "sheriff",
           "trigger": "He gives you his revolver",
@@ -1530,10 +1564,10 @@
           "trigger": "After, outside the room",
           "when": "any",
           "condition": "tired, plain",
-          "delivery": "Not pleased about any of it; stating how things stand.",
+          "delivery": "Outside the room, after. Not pleased about any of it; confirming what the dying man said.",
           "words": [
             {
-              "text": "I'm the coroner, Harlan. By the statute that makes me sheriff until the county sends a man. Keep the badge on.",
+              "text": "He had it right. I'm the coroner, so I'm sheriff until the commissioners name one. Keep the badge on.",
               "status": "new"
             }
           ],
