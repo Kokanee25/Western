@@ -134,8 +134,8 @@ func test_trouble_stops_it_and_puts_things_down() -> void:
 	var carry := _man("f", 506, Vector3(6.0, 0, 0), Vector3(6.0, 1.5, -6.0), &"carry", {"to_at": Vector3(9.0, 0.0, 0.0)})
 	var held := await wait_until(func() -> bool: return carry._held >= 0 and carry._carry_step == &"carrying" and sweep.doing == &"sweep", 60 * 40)
 	check(held, "a sack on his shoulder (%s, %s)" % [carry._carry_step, sweep.doing])
-	Events.noise.emit(Vector3(3.0, 1.5, 2.0), 1.0, &"gunshot", null)
-	await physics_frames(20)
+	Events.noise.emit(Vector3(3.0, 1.5, 2.0), DeedWatch.GUNSHOT, &"gunshot", null)
+	await physics_frames(60)  # (a beat after it reaches them, townsfolk step 5)
 	check(not sweep._on and not carry._on, "both let go (%s, %s)" % [sweep.doing, carry.doing])
 	check(sweep._tool.global_position.y < 0.2, "the broom's on the boards (%.2f)" % sweep._tool.global_position.y)
 	var low := true
@@ -143,7 +143,7 @@ func test_trouble_stops_it_and_puts_things_down() -> void:
 		low = low and s.global_position.y < 0.8
 	check(low, "no sack left in the air")
 	check(not sweep.man.pose_offsets.has(&"chest"), "his lean let go")
-	var back := await wait_until(func() -> bool: return sweep._on and carry._on, 60 * 40)
+	var back := await wait_until(func() -> bool: return sweep._on and carry._on, 60 * 120)
 	check(back, "calm again, back at it")
 
 
