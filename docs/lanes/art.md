@@ -46,7 +46,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   (`experiments/building_lab/store/` README: sheet approved, spec on its lot, the frame's checks pass; tests, X-ray, bodies 38,185 of 65,536; steps 4-6 done #1035: library finishes, light 0.55/26, valley render CPU 1.5-2.4 ms (cellar 5.4, over), critic 2 CLOSE/6 DIFFERENT, all props/#695/neighbours; the sign's place and the rear's gabled wing are Sean's form calls);
   saloon B is Fable's (#848: step 1 done, below).
 - **Interiors read dark** (#1044 review, `docs/reviews/2026-11-17_store_light/`): one day exposure for street and room, no daylight bounce,
-  RoomLight caps a window at 2.5 m² (bigger glass adds nothing); the store's walnut joists and fir ceiling. Fixes wait on Sean, #1052.
+  RoomLight caps a window at 2.5 m² (bigger glass adds nothing); the store's walnut joists and fir ceiling. Sean picked A, B and C (#1052): next #1053, after #1043 merges.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
