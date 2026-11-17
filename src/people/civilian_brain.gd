@@ -68,6 +68,11 @@ var dials := {"nerve": 0.5, "nosy": 0.5, "duty": 0.5}
 ## Doors he'd run to from trouble (his own, the store, the saloon: ValleyFolk's); none, he hides
 ## where he is.
 var refuges: Array[Vector3] = []
+## Running for help (FetchHelp, townsfolk step 6): who to run to for a man down; null, nobody runs.
+var fetch: FetchHelp
+## His pace walking back to his post (m/s): the doctor called to a man down walks fast.
+const WALK := 1.2
+var walk_speed := WALK
 ## His reaction to trouble that isn't on him, in stages (townsfolk step 5).
 var reaction: Reaction
 ## The physics frame he was last sent somewhere (`go_to`): on an errand (an act's), a reaction
@@ -156,6 +161,7 @@ func _ready() -> void:
 	senses.name = "Senses"
 	body.add_child.call_deferred(senses)
 	reaction = Reaction.new(self)
+	add_to_group(&"civilians")
 	# What he hears is Senses' (its guess at where, muffled through walls, the maker only if seen),
 	# never the noise's own place.
 	senses.heard.connect(_on_heard)
@@ -204,6 +210,14 @@ func say(kind: StringName) -> void:
 	_said_at[pick] = now
 	_since_said = 0.0
 	Events.spoke.emit(body, pick)
+
+
+## A line of his own (a runner's news, FetchHelp: made from what he sensed), said now if he can speak.
+func say_line(text: String) -> void:
+	if text == "" or not body.physiology.is_conscious() or not body.physiology.can_speak() or _hush > 0.0:
+		return
+	_since_said = 0.0
+	Events.spoke.emit(body, text)
 
 
 ## Quiet for `seconds` from now (0: not; an act's beat: No Law's room going quiet after the shot,
@@ -322,7 +336,13 @@ func _on_down(p: Node) -> void:
 		return
 	var man := p as HumanBody
 	var reach: float = Reaction.STIMULI[&"down"].reach
-	if man.global_position.distance_to(body.global_position) > reach:
+	var d := man.global_position.distance_to(body.global_position)
+	if d > Reaction.DOWN_FAR:
+		return
+	if d > reach:
+		# Further off: seen hit and fall, he knows a man's down (for running for help), no more.
+		if senses.sees(man):
+			reaction.far_down = man
 		return
 	if senses.sees(man) or senses._in_view(man, senses.eye()):
 		reaction.sense(&"down", man.global_position, man)
@@ -700,16 +720,16 @@ func _physics_step(delta: float) -> void:
 		# whatever's between (a bar); near, straight there.
 		var was := body.global_position
 		if _home_detour != Vector3.INF:
-			if body.walk_to(_home_detour, 1.2, delta):
+			if body.walk_to(_home_detour, walk_speed, delta):
 				_home_detour = Vector3.INF
 		elif body.global_position.distance_to(post) > 1.5 and _places() != null:
 			if _home_route.is_empty():
 				_home_route = FireFlight.route(_places(), body, post)
-			if body.walk_to(_home_route[0], 1.2, delta) and _home_route.size() > 1:
+			if body.walk_to(_home_route[0], walk_speed, delta) and _home_route.size() > 1:
 				_home_route.pop_front()
 		else:
 			_home_route.clear()
-			body.walk_to(post, 1.2, delta)
+			body.walk_to(post, walk_speed, delta)
 		# Caught on something (a table's corner, a rail, a porch's edge): a sidestep round it, one
 		# way then the other (as running from a fire); then on past that point of the way, or, the
 		# last of it, as near as he'll get (his chore takes him from there).

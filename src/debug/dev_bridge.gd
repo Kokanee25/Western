@@ -42,7 +42,7 @@ const HELP := {
 	"plunge": "plunge [SPREAD] -> the plunger pushed home: every wired bundle goes (SPREAD physics ticks apart; default the dial)",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
-	"read": "read frame|player|people|look|places|counts|all -> what's going on",
+	"read": "read frame|player|people|look|places|counts|fetch|all -> what's going on (fetch: the valley's runners for help, the doctor's calls)",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
 	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
@@ -1019,8 +1019,11 @@ func _cmd_read(a: Array) -> Dictionary:
 		out["places"] = ps
 	if what in ["counts", "all"]:
 		out["counts"] = _counts()
+	if what == "fetch":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["fetch"] = vf.fetch.report() if vf != null and vf.fetch != null else {}
 	if out.is_empty():
-		return {"ok": false, "error": "read frame|player|people|look|places|counts|all"}
+		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|all"}
 	return out
 
 
