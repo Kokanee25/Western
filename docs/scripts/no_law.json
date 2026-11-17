@@ -15,7 +15,6 @@
   ],
   "notes": [
     "Harlan doesn't speak: he's sat, unarmed, held (Sean: 'he can't do anything at all').",
-    "The sheriff's last day (Beat 5) is No Law's in the game (#796) but its lines are in the sheriff's script (scene 5, day2.*), so his voice is in one place.",
     "The card game's talk at the table (config/card_game.json: 'Ante.', 'Call.', Earl's 'Lady's been kind tonight') is built and belongs on a town-life page later, not here.",
     "Nobody names the red shirt (Kett), says the stranger works for the Baron (K3, K11) or that he shot the sheriff (K14). The foreman's voice is open (s21): written to his built lines, calm and low.",
     "Rewritten 2026-11-17 (#1056). The stranger's, Cody's, Earl's and the barkeep's lines at the table are Sean's or built, and stay word for word.",
@@ -23,7 +22,8 @@
     "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, sat at the table, went after Cody, knelt by Earl, what you told the stranger, whether you shook your head at the oath).",
     "The town gets the night wrong in the morning, on purpose: a player who sat at the table knows it.",
     "Sean, 2026-11-17 (decided, #1056): Harlan carries Earl to the doctor's and bangs on the door; the doctor, up with the sheriff, says the man wants burying; Earl lies in the front room till morning. Scenes 'after', 'carry' and 'morning' are written to it. This changes the built murder: Earl is shot and down, not shot dead (gameplay, #1057).",
-    "Sean's review, 2026-11-17: the stranger asks Harlan to his own table, buys him a drink, and they talk a minute about the sheriff before Cody comes in. So s26 is simpler: the doctor may say 'Go and get a drink', and whoever walks into the saloon's yard is asked to sit. The oath and 'deputy for now, until the county names a man' are the sheriff's own words: his page, scene 5 (day2.oath, day2.for_now)."
+    "Sean's review, 2026-11-17: the stranger asks Harlan to his own table, buys him a drink, and they talk a minute about the sheriff before Cody comes in. So s26 is simpler: the doctor may say 'Go and get a drink', and whoever walks into the saloon's yard is asked to sit. The oath and 'deputy for now, until the county names a man' are the sheriff's own words: his page, scene 5 (day2.oath, day2.for_now).",
+    "The sheriff's last day (Beat 5) is shown here as a copy of the sheriff's script's scene 5 (day2.*), so the oath reads with the rest of No Law: he asks if you'll take the badge, you nod or shake, and a shake gets 'That's not the way this works, son.' The lines are kept in sheriff_road.json, so his voice is in one place."
   ],
   "words_to_check": [],
   "setups": [
@@ -242,6 +242,14 @@
       "called": "Doc",
       "bible": "VOICES.md, The doctor (the same voice as in the sheriff's script)",
       "brief": "Late forties, an educated Easterner; brisk, quiet, dry.",
+      "voice": null
+    },
+    {
+      "id": "sheriff",
+      "name": "The sheriff",
+      "called": "Sheriff",
+      "bible": "VOICES.md, The sheriff",
+      "brief": "Early fifties (Sean's note on the page, 2026-11-12), still strong. A plains man (Missouri or Kansas, not stage Texas), fourteen years on a Colorado claim. Low and dry, gravel from pain; gives orders even on his back; when he's weak he is short of breath, not quiet. Never a whisper until the very end.",
       "voice": null
     }
   ],
@@ -1214,6 +1222,613 @@
             }
           ],
           "note": "Then the sheriff's last day: the sheriff's script, scene 5 (day2.*)",
+          "takes": []
+        }
+      ]
+    },
+    {
+      "id": "day2",
+      "title": "Day 2: the doctor's",
+      "when": "Day 2, morning",
+      "built": false,
+      "setting": "A COPY of the sheriff's page, scene 5, so the whole of No Law reads in one place (change a line in sheriff_road.json, never here; build this scene again from it). He dies at the doctor's, his wife there. His last words follow day 1's care: clear if you packed it (care good), fading if not (poor or left). He swears Harlan in and gives him his revolver; a shake gets 'That's not the way this works, son.' He's the county sheriff; the doctor is the coroner, so the acting sheriff, and keeps Harlan on until the county names a man (C12 a).",
+      "lines": [
+        {
+          "id": "day2.door.good",
+          "speaker": "doctor",
+          "trigger": "You come to the doctor's on day 2",
+          "when": "sheriff.care good",
+          "condition": "quiet, urgent",
+          "delivery": "At the door, low so the room won't hear.",
+          "words": [
+            {
+              "text": "He's asking for you. He's clear this morning.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "He's asking for you. He's clear this morning. It won't last."
+          ]
+        },
+        {
+          "id": "day2.door.poor",
+          "speaker": "doctor",
+          "trigger": "You come to the doctor's on day 2",
+          "when": "sheriff.care poor",
+          "condition": "quiet, urgent",
+          "delivery": "At the door, low.",
+          "words": [
+            {
+              "text": "He's asking for you. He comes and goes. Be quick.",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.door.left",
+          "speaker": "doctor",
+          "trigger": "You come to the doctor's on day 2",
+          "when": "sheriff.care left",
+          "condition": "quiet, puzzled",
+          "delivery": "Looking at you a moment too long. He doesn't say what he thinks.",
+          "words": [
+            {
+              "text": "He's been asking for you since the freighter brought him.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "He's been asking for you since the freighter brought him. I couldn't tell you why."
+          ]
+        },
+        {
+          "id": "day2.door.table",
+          "speaker": "doctor",
+          "trigger": "At the door, after his first words, before you go in",
+          "when": "nolaw.seen_from = table or yard, and you didn't carry Earl here (nolaw.carried_earl = no)",
+          "condition": "quiet, firm",
+          "delivery": "Lower still, a hand on the inner door. Earl is under a sheet six feet away.",
+          "words": [
+            {
+              "text": "The sheriff's not been told about Earl. Don't you tell him.",
+              "status": "new"
+            }
+          ],
+          "note": "A callback: the sheriff dies not knowing what his town did the night he lay there.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.door.coat",
+          "speaker": "doctor",
+          "trigger": "At the inner door, in place of day2.door.table",
+          "when": "nolaw.carried_earl = yes (Earl's blood is on your coat)",
+          "condition": "quiet, firm",
+          "delivery": "Lower still, a look at your coat. Earl is under a sheet six feet away.",
+          "words": [
+            {
+              "text": "The sheriff's not been told about Earl. Button your coat.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "note": "Sean, 2026-11-17 (#1056, decided): 'the blood on Harlan's coat in the morning'. The dying man never learns what his town did that night.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.heard",
+          "speaker": "sheriff",
+          "trigger": "From the bed, over the doctor's whispering",
+          "when": "clear (care good)",
+          "condition": "dying, clear, dry",
+          "delivery": "Carries through the door. An order, with what's left of a joke in it.",
+          "words": [
+            {
+              "text": "I can hear you, Doc. Send him in.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.blood",
+          "speaker": "sheriff",
+          "trigger": "You come to the bed with your coat open, or he sees it anyway",
+          "when": "clear, and nolaw.carried_earl = yes",
+          "condition": "dying, sharp",
+          "delivery": "A lawman's eye, still working. The doctor answers before you could.",
+          "words": [
+            {
+              "text": "Whose blood is that on you? ... That ain't mine.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.blood_doc",
+          "speaker": "doctor",
+          "trigger": "At once, over him",
+          "when": "clear, and nolaw.carried_earl = yes",
+          "condition": "brisk",
+          "delivery": "Too quick. The only lie he tells in the game.",
+          "words": [
+            {
+              "text": "A man cut himself at the saloon. Lie back.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.with_him",
+          "speaker": "widow",
+          "trigger": "You come into the room",
+          "when": "any",
+          "condition": "grief held down",
+          "delivery": "From the chair by the bed, without getting up; level, not soft.",
+          "words": [
+            {
+              "text": "Were you with him?",
+              "status": "built",
+              "note": "Sean's beat, 2026-11-09"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.obliged",
+          "speaker": "widow",
+          "trigger": "After 'Were you with him?'",
+          "when": "sheriff.care good or poor",
+          "condition": "grief held down",
+          "delivery": "Plain thanks; she won't cry in front of you.",
+          "words": [
+            {
+              "text": "He said it was you that brought him. I'm obliged to you, Mr. Harlan.",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.freighter",
+          "speaker": "widow",
+          "trigger": "After 'Were you with him?'",
+          "when": "sheriff.care left",
+          "condition": "cold",
+          "delivery": "Flat; she's heard the town's story and is watching your face.",
+          "words": [
+            {
+              "text": "A freighter brought him, they tell me.",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.shot_by.clear",
+          "speaker": "sheriff",
+          "trigger": "You come to the bed",
+          "when": "clear (care good)",
+          "condition": "dying, clear",
+          "delivery": "Quiet and exact, spending his breath on what's useful.",
+          "words": [
+            {
+              "text": "Bald-faced sorrel. Soft-spoken man. Called me friend.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "takes": [],
+          "was": [
+            "Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan."
+          ],
+          "note": "For a player who sat at the table last night this lands hard: he has heard that word. Nobody says so."
+        },
+        {
+          "id": "day2.shot_by.fading",
+          "speaker": "sheriff",
+          "trigger": "You come to the bed",
+          "when": "fading (care poor or left)",
+          "condition": "dying, fading",
+          "delivery": "Clutching your sleeve. Voiced. The word won't leave him.",
+          "words": [
+            {
+              "text": "Sorrel... white face. Said friend. He said friend.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "takes": [],
+          "was": [
+            "...sorrel... said friend..."
+          ]
+        },
+        {
+          "id": "day2.ditch.clear",
+          "speaker": "sheriff",
+          "trigger": "After the shooter",
+          "when": "clear",
+          "condition": "dying, clear",
+          "delivery": "Said to Harlan so she won't have to answer it. The one time anybody in this script names him.",
+          "words": [
+            {
+              "text": "The Baron's wanted that ditch since the day I cut it. He'll go at my wife for it now. Look to her and the boys.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S3"
+          ],
+          "takes": [],
+          "was": [
+            "He's wanted my ditch since the day I cut it. Now he'll go at her. Look to them."
+          ]
+        },
+        {
+          "id": "day2.ditch.fading",
+          "speaker": "sheriff",
+          "trigger": "After the shooter",
+          "when": "fading",
+          "condition": "dying, fading",
+          "delivery": "A word at a time.",
+          "words": [
+            {
+              "text": "...the ditch... look to them...",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S3"
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.oath.clear",
+          "speaker": "sheriff",
+          "trigger": "Then: the badge. He asks, and waits for your nod or your shake",
+          "when": "clear",
+          "condition": "dying, an order",
+          "delivery": "The sheriff once more, flat, a man who has sworn deputies before and can't be troubled with all of it now. Then a real question, and he waits.",
+          "words": [
+            {
+              "text": "Doc. My badge. ... Harlan. I want this on you. Keep the peace of this county and serve its papers. There's more to the oath. I disremember it. Will you take it?",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then."
+          ],
+          "check": "disremember",
+          "note": "Sean's review, 2026-11-17: 'the whole head nod yes or no if we're taking the badge when he asks'. A nod: day2.nod. A shake, or no answer: day2.shake, 'That's not the way this works, son.', and the badge is pinned on anyway."
+        },
+        {
+          "id": "day2.oath.fading",
+          "speaker": "sheriff",
+          "trigger": "Then: the badge. He asks, and waits for your nod or your shake",
+          "when": "fading",
+          "condition": "dying, fading",
+          "delivery": "Pressing it at you; the question is all the breath he has.",
+          "words": [
+            {
+              "text": "Badge... Harlan. Take it. ... Will you?",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "Badge... Doc. Pin it on him."
+          ]
+        },
+        {
+          "id": "day2.nod.clear",
+          "speaker": "sheriff",
+          "trigger": "You nod: you take the badge",
+          "when": "clear",
+          "condition": "dying, satisfied",
+          "delivery": "Brief, settled; a weight off. 'Saw', since Harlan said nothing.",
+          "words": [
+            {
+              "text": "Doc, you saw that. He's sworn.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "Good. You're my deputy. Doc, you heard him."
+          ]
+        },
+        {
+          "id": "day2.nod.fading",
+          "speaker": "sheriff",
+          "trigger": "You nod: you take the badge",
+          "when": "fading",
+          "condition": "dying",
+          "delivery": "A breath with the word in it.",
+          "words": [
+            {
+              "text": "...good.",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.shake.clear",
+          "speaker": "sheriff",
+          "trigger": "You shake your head, or don't answer: you won't take it",
+          "when": "clear",
+          "condition": "dying, almost amused",
+          "delivery": "Not angry: patient, nearly a smile. Then the order.",
+          "words": [
+            {
+              "text": "That's not the way this works, son. ... Doc. Pin it on him.",
+              "status": "built",
+              "note": "Sean's beat 2026-11-09; this wording #796's"
+            }
+          ],
+          "setups": [
+            "S15"
+          ],
+          "takes": [],
+          "note": "Sean's beat 2026-11-09, his words (#796's wording): he won't take no, and the doctor pins it on."
+        },
+        {
+          "id": "day2.shake.twice",
+          "speaker": "sheriff",
+          "trigger": "You shake your head",
+          "when": "clear, and sheriff.shook (you shook your head at him on the road, then helped him anyway)",
+          "condition": "dying, amused",
+          "delivery": "He has seen this man say no before. Nearly a laugh, which hurts him. Then the order.",
+          "words": [
+            {
+              "text": "Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S15"
+          ],
+          "note": "Sean's line kept whole inside it. Needs the fact sheriff.shook (gameplay).",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.shake.fading",
+          "speaker": "sheriff",
+          "trigger": "You shake your head, or don't answer",
+          "when": "fading",
+          "condition": "dying, fading",
+          "delivery": "The same words with the breath run out.",
+          "words": [
+            {
+              "text": "...not how it works... son.",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S15"
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.for_now.clear",
+          "speaker": "sheriff",
+          "trigger": "After your nod or shake, the badge pinned on",
+          "when": "clear",
+          "condition": "dying, an order",
+          "delivery": "Plain, getting it straight while he can. He has buried a sheriff himself and knows how it goes.",
+          "words": [
+            {
+              "text": "It's only for now. The county commissioners name the next man. Till they do, Doc's coroner, so he's sheriff, and you're his deputy.",
+              "status": "new"
+            }
+          ],
+          "note": "Sean's review, 2026-11-17: the sheriff says it himself. How it was done: a sheriff appointed his own deputies; when a Colorado sheriff died the coroner acted as sheriff (the 1877 law, WORDS.md) until the county commissioners filled the office (C12 a).",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.for_now.fading",
+          "speaker": "sheriff",
+          "trigger": "After your nod or shake, the badge pinned on",
+          "when": "fading",
+          "condition": "dying, fading",
+          "delivery": "A word at a time; he looks at the doctor to finish it.",
+          "words": [
+            {
+              "text": "Only till the county... names a man. Doc... tell him.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.pistol.clear",
+          "speaker": "sheriff",
+          "trigger": "He gives you his revolver",
+          "when": "clear",
+          "condition": "dying, dry",
+          "delivery": "The last practical thing; dry to the end.",
+          "words": [
+            {
+              "text": "Take my pistol. She pulls a hair to the left.",
+              "status": "built"
+            }
+          ],
+          "takes": [],
+          "setups": [
+            "S41"
+          ]
+        },
+        {
+          "id": "day2.pistol.fading",
+          "speaker": "sheriff",
+          "trigger": "He gives you his revolver",
+          "when": "fading",
+          "condition": "dying",
+          "delivery": "Pushing it toward you.",
+          "words": [
+            {
+              "text": "...pistol... take it.",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "day2.last.clear",
+          "speaker": "sheriff",
+          "trigger": "His last words",
+          "when": "clear",
+          "condition": "dying, at peace",
+          "delivery": "To his wife, not to you. Plain. It is the last thing he says.",
+          "words": [
+            {
+              "text": "Go home to the boys.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "Sun's up. Ain't that something."
+          ],
+          "note": "Was the road's 'Sun's up. Ain't that something.' said again: both blind readers heard a film death line. Now he sends his wife home."
+        },
+        {
+          "id": "day2.boot",
+          "speaker": "sheriff",
+          "trigger": "His last word",
+          "when": "fading",
+          "condition": "dying",
+          "delivery": "A word that means something to him and nothing yet to you.",
+          "words": [
+            {
+              "text": "...boot.",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S33"
+          ],
+          "note": "S33 is P, not picked: keep or cut",
+          "takes": []
+        },
+        {
+          "id": "day2.where",
+          "speaker": "doctor",
+          "trigger": "He takes bad; the doctor has you hold him while he works",
+          "when": "sheriff.care poor or left (S38's plant for those who didn't pack it)",
+          "condition": "busy, then curious",
+          "delivery": "Working, short; then the question half asked, and dropped.",
+          "words": [
+            {
+              "text": "Hold him. No... yes, like that. You've held a man down before.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S38"
+          ],
+          "takes": [],
+          "was": [
+            "Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it."
+          ]
+        },
+        {
+          "id": "day2.gone",
+          "speaker": "doctor",
+          "trigger": "He dies",
+          "when": "any",
+          "condition": "quiet",
+          "delivery": "To the wife, not to you. Then he looks at his watch and writes the time down.",
+          "words": [
+            {
+              "text": "He's gone, ma'am.",
+              "status": "built"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "He's gone."
+          ]
+        },
+        {
+          "id": "day2.acting",
+          "speaker": "doctor",
+          "trigger": "After, outside the room",
+          "when": "any",
+          "condition": "tired, plain",
+          "delivery": "Outside the room, after. Not pleased about any of it; confirming what the dying man said.",
+          "words": [
+            {
+              "text": "He had it right. I'm the coroner, so I'm sheriff until the commissioners name one. Keep the badge on.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "I'm the coroner, Harlan, so until the county sends a man I'm what law there is. And you're my deputy. Keep the badge on."
+          ]
+        },
+        {
+          "id": "day2.not_enough",
+          "speaker": "doctor",
+          "trigger": "After day2.acting, if you stay by him",
+          "when": "nolaw.seen_from = table (you sat with the stranger), or nolaw.drew_on_stranger",
+          "condition": "low, careful",
+          "delivery": "He has seen your face in that room and guessed. He is a coroner telling a deputy what a case is.",
+          "words": [
+            {
+              "text": "A sorrel horse and one word. I can't hang a man on that, Harlan.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "note": "C16 a's line (P·bible): a mark is not a case. Only for a player who can have joined the two himself.",
+          "added": "2026-11-17 (#1056)",
+          "takes": [],
+          "was": [
+            "A sorrel horse and one word. That's not enough to hang a man on, Harlan. Not yet."
+          ]
+        },
+        {
+          "id": "day2.sit",
+          "speaker": "widow",
+          "trigger": "After he's gone",
+          "when": "any",
+          "condition": "grief as work",
+          "delivery": "Already folding the blanket back; dismissing you both.",
+          "words": [
+            {
+              "text": "I'll sit with him now. Go on, the both of you.",
+              "status": "built"
+            }
+          ],
           "takes": []
         }
       ]

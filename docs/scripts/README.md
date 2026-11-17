@@ -28,6 +28,9 @@ most). The three scripts were rewritten that way on 2026-11-17, as one story:
   `note` (the answer to Sean's note on the page, where he left one), and at the top `facts` and `kept`
   (lines the blind reader flagged that stay because they're Sean's own or fixed in the game, each
   with a period way to say it if he wants one).
+- **No Law's page shows the sheriff's last day** (scene `day2`) as a copy of `sheriff_road.json`'s, so Sean reads the
+  oath, the nod or shake and "That's not the way this works, son." with the rest of the mission. The lines live in
+  the sheriff's file: change them there and copy the scene across again.
 - **Script OK after a rewrite:** a script's `rewritten_at` (a UTC time) makes the page ignore an OK tapped before it,
   so Sean's old tap doesn't count for new words and his row isn't touched. Set it whenever the words change after an OK.
 - **The sheriff's page holds takes** made on an unmerged voices branch (#846), on the old wording. A

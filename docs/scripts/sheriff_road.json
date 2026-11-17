@@ -1294,13 +1294,13 @@
         {
           "id": "day2.oath.clear",
           "speaker": "sheriff",
-          "trigger": "Then: the badge",
+          "trigger": "Then: the badge. He asks, and waits for your nod or your shake",
           "when": "clear",
           "condition": "dying, an order",
-          "delivery": "The sheriff once more: an oath given flat by a man who has given it before and can't be troubled with all of it now. Waits for the nod.",
+          "delivery": "The sheriff once more, flat, a man who has sworn deputies before and can't be troubled with all of it now. Then a real question, and he waits.",
           "words": [
             {
-              "text": "Doc. My badge. ... Raise your hand, Harlan. You swear to keep the peace of this county and serve its papers. There's more to it. I disremember the rest. Nod.",
+              "text": "Doc. My badge. ... Harlan. I want this on you. Keep the peace of this county and serve its papers. There's more to the oath. I disremember it. Will you take it?",
               "status": "new"
             }
           ],
@@ -1308,27 +1308,31 @@
           "was": [
             "Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then."
           ],
-          "check": "disremember"
+          "check": "disremember",
+          "note": "Sean's review, 2026-11-17: 'the whole head nod yes or no if we're taking the badge when he asks'. A nod: day2.nod. A shake, or no answer: day2.shake, 'That's not the way this works, son.', and the badge is pinned on anyway."
         },
         {
           "id": "day2.oath.fading",
           "speaker": "sheriff",
-          "trigger": "Then: the badge",
+          "trigger": "Then: the badge. He asks, and waits for your nod or your shake",
           "when": "fading",
           "condition": "dying, fading",
-          "delivery": "Pressing the badge on you because he can't say more.",
+          "delivery": "Pressing it at you; the question is all the breath he has.",
           "words": [
             {
-              "text": "Badge... Doc. Pin it on him.",
-              "status": "built"
+              "text": "Badge... Harlan. Take it. ... Will you?",
+              "status": "new"
             }
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "Badge... Doc. Pin it on him."
+          ]
         },
         {
           "id": "day2.nod.clear",
           "speaker": "sheriff",
-          "trigger": "You nod",
+          "trigger": "You nod: you take the badge",
           "when": "clear",
           "condition": "dying, satisfied",
           "delivery": "Brief, settled; a weight off. 'Saw', since Harlan said nothing.",
@@ -1346,7 +1350,7 @@
         {
           "id": "day2.nod.fading",
           "speaker": "sheriff",
-          "trigger": "You nod",
+          "trigger": "You nod: you take the badge",
           "when": "fading",
           "condition": "dying",
           "delivery": "A breath with the word in it.",
@@ -1361,7 +1365,7 @@
         {
           "id": "day2.shake.clear",
           "speaker": "sheriff",
-          "trigger": "You shake your head",
+          "trigger": "You shake your head, or don't answer: you won't take it",
           "when": "clear",
           "condition": "dying, almost amused",
           "delivery": "Not angry: patient, nearly a smile. Then the order.",
@@ -1375,7 +1379,8 @@
           "setups": [
             "S15"
           ],
-          "takes": []
+          "takes": [],
+          "note": "Sean's beat 2026-11-09, his words (#796's wording): he won't take no, and the doctor pins it on."
         },
         {
           "id": "day2.shake.twice",
@@ -1400,7 +1405,7 @@
         {
           "id": "day2.shake.fading",
           "speaker": "sheriff",
-          "trigger": "You shake your head",
+          "trigger": "You shake your head, or don't answer",
           "when": "fading",
           "condition": "dying, fading",
           "delivery": "The same words with the breath run out.",
