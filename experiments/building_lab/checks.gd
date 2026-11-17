@@ -173,14 +173,18 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 		var e := Vector3(line[1][0], 0, line[1][1])
 		var along := (e - a).normalized()
 		for o: Dictionary in w.get("openings", []):
-			if not (o.type in ["door", "batwings"]):
+			if not (o.type in ["door", "batwings", "recess"]):
 				continue
 			var lvl: String = o.get("level", w.get("level", "ground"))
 			var y0 := float(lv[lvl].top)
-			if float(o.width) < 0.76 or float(o.height) < 1.98:
-				failures.append("%s door at %.2f: %.2f x %.2f m, less than 0.76 x 1.98" % [w.id, o.at, o.width, o.height])
+			# A storefront's recessed entry (#1053): its door, set back in the recess.
+			var dd: Dictionary = o.get("door", {}) if o.type == "recess" else o
+			if float(dd.width) < 0.76 or float(dd.height) < 1.98:
+				failures.append("%s door at %.2f: %.2f x %.2f m, less than 0.76 x 1.98" % [w.id, o.at, dd.width, dd.height])
 			var c := a + along * float(o.at)
-			var mid := Vector3(c.x, y0 + float(o.height) * 0.5 + 0.02, c.z)
+			if o.type == "recess":
+				c -= _axis(String(w.out)) * (float(o.get("depth", 1.2)) + 0.05)
+			var mid := Vector3(c.x, y0 + float(dd.height) * 0.5 + 0.02, c.z)
 			if not w.get("partition", false):
 				mid -= _axis(String(w.out)) * 0.05
 			doors.append({"at": mid, "wall": w.id, "lvl": lvl})
@@ -193,7 +197,7 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 			q.collision_mask = Layers.WORLD
 			for hit in space.intersect_shape(q, 8):
 				var m := hit.collider as StructureMember
-				if m and m.kind != &"door":
+				if m and m.kind != &"door" and not String(m.member_id).contains("_leaf/"):  # (a glazed leaf's pane, #1053)
 					failures.append("%s door at %.2f: %s in the way" % [w.id, o.at, String(m.member_id).trim_prefix("saloon_spec/")])
 			# And its way in either side (#844: the kitchen chimney stood in the kitchen side of the hall's
 			# door): 0.45 m beyond each face, 0.6 wide, from a tread over the floor; nothing but a leaf.
@@ -210,7 +214,7 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 					var m := hit.collider as StructureMember
 					# (a ladder up to a door is its way in: the doctor's loft door; a gate opens like a door:
 					# the jail's cell-corridor grille inside its back door)
-					if m and m.kind != &"door" and not String(m.member_id).contains("/ladder/") \
+					if m and m.kind != &"door" and not String(m.member_id).contains("/ladder/") and not String(m.member_id).contains("_leaf/") \
 							and not String(m.member_id).contains("/gate/"):
 						failures.append("%s door at %.2f: %s in its way in" % [w.id, o.at, String(m.member_id).trim_prefix("saloon_spec/")])
 	# Stairs: two metres over the nosings all the way up.
@@ -413,8 +417,9 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 			var clear := AABB(lo, hi - lo)
 			for id: String in by_id:
 				var m: StructureMember = by_id[id]
-				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_") or id.contains("/window_") or id.contains("/bars_"):
-					continue  # its glass, its leaf, a door's transom bar, its sash window and lining, its bars
+				if m.kind in [&"glass", &"door"] or id.contains("/transom_bar_") or id.contains("/window_") or id.contains("/bars_") \
+						or (o.type == "recess" and id.contains("/recess/")):
+					continue  # its glass, its leaf, a door's transom bar, its sash or show window and lining, its bars, a recess's own
 				if not m.structure_aabb().intersects(clear):
 					continue
 				if _crosses(m, clear):

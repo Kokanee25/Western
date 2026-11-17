@@ -283,6 +283,10 @@ func build() -> void:
 		_roof_cover()
 		band = 1
 		_stoops()
+		if spec.has("ceilings"):
+			# Boards nailed up under the joists (the store's shop, #1053), as the doctor's.
+			band = 4
+			_ceilings()
 	if (spec.get("lamps", {}) as Dictionary).has("chandelier"):
 		_chandelier()
 	band = 2
@@ -373,6 +377,12 @@ func light_openings() -> Array:
 		var side := "front" if o.z < -0.5 else ("back" if o.z > 0.5 else ("left" if o.x < -0.5 else "right"))
 		for op: Array in _openings(wl.spec):
 			if String(op[1].type) == "void":
+				continue
+			if String(op[1].type) == "recess":
+				# A storefront's recessed entry (#1053): its angled glass and its door, each in its own frame.
+				for ro: Dictionary in Storefront.light_openings(d, op[0], _recess_spec(op[1])):
+					ro["wall"] = side
+					out.append(ro)
 				continue
 			var kind := "door" if String(op[1].type) == "door" else "window"
 			out.append({"wall": side, "rect": op[0], "kind": kind,
@@ -837,6 +847,13 @@ func _outer_dict(w: Dictionary) -> Dictionary:
 	return _wall(String(w.id), a, along, out, length, sd, length - sd)
 
 
+## A recess's spec with what the builder knows filled in: its sill's top (under the threshold).
+func _recess_spec(so: Dictionary) -> Dictionary:
+	var r := so.duplicate()
+	r["sill_top"] = float(_fr.foundation.top) + float(_fr.sill.section[1])
+	return r
+
+
 static func _axis(n: String) -> Vector3:
 	var v := {"x": Vector3.RIGHT, "y": Vector3.UP, "z": Vector3.BACK}[n.trim_prefix("-").trim_prefix("+")] as Vector3
 	return -v if n.begins_with("-") else v
@@ -866,6 +883,8 @@ func _outer_walls() -> void:
 		var rects: Array[Rect2] = []
 		for o in ops:
 			rects.append(o[0])
+			if (o[1] as Dictionary).has("header"):
+				_header_h[o[0]] = float(o[1].header)
 		var top_at: Callable
 		var board_top: Callable
 		var top_kind: String = w.top if w.top is String else ("slope" if w.top is Array else "height")
@@ -946,8 +965,16 @@ func _outer_walls() -> void:
 			var window: bool = spec_o.type == "window"
 			if spec_o.type == "void":
 				continue  # a cut corner: open, the porch under the upper floor (`_corner_entrance`)
+			if spec_o.type == "recess":
+				# A storefront's recessed entry (#1053): its mouth cased, the recess built behind it.
+				_opening_trim(wall, o[0], false)
+				Storefront.recess(self, wall, o[0], _recess_spec(spec_o), StringName(spec.materials.get("trim_outside", "dark_trim")))
+				continue
 			_opening_trim(wall, o[0], window or spec_o.type == "hatch")
-			if window and spec_o.has("lights"):
+			if window and spec_o.get("show", false):
+				# A storefront's show window (#1053): plate glass, a transom row, a panelled bulkhead.
+				Storefront.show_window(self, wall, o[0], spec_o, StringName(spec.materials.get("trim_outside", "dark_trim")))
+			elif window and spec_o.has("lights"):
 				# A sash window (#826): lined, two sashes, a pane a light (SashWindow, the part).
 				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim"))})
 			elif window:
@@ -1084,13 +1111,13 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 					for sp: Array in spans:
 						if float(sp[0]) < o.position.y - PLATE_H:
 							nxt.append([sp[0], minf(sp[1], o.position.y - PLATE_H)])
-						if float(sp[1]) > o.end.y + HEADER_H:
-							nxt.append([maxf(sp[0], o.end.y + HEADER_H), sp[1]])
+						if float(sp[1]) > o.end.y + _hh(o):
+							nxt.append([maxf(sp[0], o.end.y + _hh(o)), sp[1]])
 					spans = nxt
 				elif _fr.get("stacked", false) and sx + sw * 0.5 > o.position.x - sw * 2.0 - 0.01 and sx - sw * 0.5 < o.end.x + sw * 2.0 + 0.01:
 					# Beside a narrower opening stacked on the one it's in (saloon B's upper windows
 					# over wider ones): that opening's king stands here, not a cripple through its edge.
-					spans = spans.filter(func(sp: Array) -> bool: return float(sp[1]) < o.position.y - PLATE_H or float(sp[0]) > o.end.y + HEADER_H)
+					spans = spans.filter(func(sp: Array) -> bool: return float(sp[1]) < o.position.y - PLATE_H or float(sp[0]) > o.end.y + _hh(o))
 			var k := 0
 			for sp: Array in spans:
 				if float(sp[1]) - float(sp[0]) > 0.05:
@@ -1098,7 +1125,7 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 					band = b0
 					for jj: int in lifted:
 						var lo := openings[jj]
-						if sx > lo.position.x and sx < lo.end.x and float(sp[0]) >= lo.end.y + HEADER_H - 0.001:
+						if sx > lo.position.x and sx < lo.end.x and float(sp[0]) >= lo.end.y + _hh(lo) - 0.001:
 							band = b0 + 1
 					_wall_member("%s/stud/%03d_%d" % [n, count, k], kind, &"framing", wall, sx - sw * 0.5, sx + sw * 0.5, sp[0], sp[1], d0, d1)
 					k += 1
@@ -1120,17 +1147,26 @@ func _studs(wall: Dictionary, foot: float, top_at: Callable, openings: Array[Rec
 				if q.position.y >= o.end.y - 0.001:
 					k1 = minf(k1, q.position.y - PLATE_H)
 				elif q.end.y <= o.position.y + 0.001:
-					k0 = maxf(k0, q.end.y + HEADER_H)
+					k0 = maxf(k0, q.end.y + _hh(q))
 			band = b0
 			if kx - sw < x_start - 0.001 or kx + sw > x_end + 0.001:
 				continue  # a void at the wall's end (saloon B's cut corner): its column stands there
 			_wall_member("%s/opening%d/king%d" % [n, j, side], &"stud" if k0 <= foot + 0.001 else &"cripple", &"framing", wall, kx - sw, kx + sw,
 					k0, k1, d0, d1)
 		band = b0 + (1 if lifted.has(j) else 0)
-		_wall_member("%s/opening%d/header" % [n, j], &"header", &"framing", wall, o.position.x, o.end.x, o.end.y, o.end.y + HEADER_H, d0, d1)
+		_wall_member("%s/opening%d/header" % [n, j], &"header", &"framing", wall, o.position.x, o.end.x, o.end.y, o.end.y + _hh(o), d0, d1)
 		if o.position.y > foot + 0.4:
 			_wall_member("%s/opening%d/sill" % [n, j], &"header", &"framing", wall, o.position.x, o.end.x, o.position.y - PLATE_H, o.position.y, d0, d1)
 	band = b0
+
+
+## An opening's header depth: the spec's `header` (a wide opening's deeper one: the store's recess,
+## #1053), else HEADER_H.
+var _header_h := {}
+
+
+func _hh(o: Rect2) -> float:
+	return float(_header_h.get(o, HEADER_H))
 
 
 ## A face of a wall to finish: its origin, the way along it, the way into the room (`normal`) and the
@@ -2387,7 +2423,9 @@ func _chimneys() -> void:
 func _ceilings() -> void:
 	var y1: float = _lv.upper_joist_bottom
 	var t := 0.016
-	var bw := 0.14
+	var cs: Dictionary = spec.ceilings if spec.ceilings is Dictionary else {}
+	# (a ceiling's boards may be nailed up wider, its beads drawn as strips: the store's, #1053)
+	var bw := float(cs.get("width", 0.14))
 	var strip := _judged_board_w("ceiling/")
 	if strip > 0.0:
 		bw = strip * maxi(1, roundi(bw / strip))
@@ -2398,9 +2436,18 @@ func _ceilings() -> void:
 	for sb: Dictionary in spec.get("summer_beams", []):
 		var hw := float(sb.section[0]) * 0.5
 		holes.append({"rect": [float(sb.x) - hw, float(sb.z[0]), float(sb.x) + hw, float(sb.z[1])]})
+	if cs.get("around_beams", false):
+		# Between the beams that hang under the joists (the store's shop, #1053): its boards butt them.
+		var bs: Array = _fr.beam.section
+		for bm: Dictionary in spec.get("beams", []):
+			var a := Vector2(bm.from[0], bm.from[1])
+			var e := Vector2(bm.to[0], bm.to[1])
+			var hb := float(bs[0]) * 0.5
+			holes.append({"rect": [minf(a.x, e.x) - hb, minf(a.y, e.y) - hb, maxf(a.x, e.x) + hb, maxf(a.y, e.y) + hb]})
 	var look := StringName(spec.materials.wall_boards)
+	var only: Array = cs.get("rooms", []) if cs.get("rooms") is Array else []
 	for rm: Dictionary in spec.rooms:
-		if rm.level != "ground":
+		if rm.level != "ground" or (not only.is_empty() and not only.has(rm.id)):
 			continue
 		var r: Array = rm.rect
 		var x := float(r[0])
