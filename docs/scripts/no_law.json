@@ -22,7 +22,8 @@
     "The stranger's voice (s21), settled for the script: soft-spoken and mannerly, a man who asks leave for what he means to do anyway ('Mind if I sit in a while?'). That courtesy is how the sheriff let him ride up. He says 'ain't' when it suits him.",
     "Who sends Harlan to the saloon (s26), settled for the script: the doctor, if you brought the sheriff in; the stranger finds you at the table either way, because he wants to know what the sheriff said. If you haven't gone in by full dark, or you left the sheriff, he walks you there himself.",
     "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, sat at the table, went after Cody, knelt by Earl, what you told the stranger, whether you shook your head at the oath).",
-    "The town gets the night wrong in the morning, on purpose: a player who sat at the table knows it."
+    "The town gets the night wrong in the morning, on purpose: a player who sat at the table knows it.",
+    "Sean, 2026-11-17 (decided, #1056): Harlan carries Earl to the doctor's and bangs on the door; the doctor, up with the sheriff, says the man wants burying; Earl lies in the front room till morning. Scenes 'after', 'carry' and 'morning' are written to it. This changes the built murder: Earl is shot and down, not shot dead (gameplay, #1057)."
   ],
   "words_to_check": [],
   "setups": [
@@ -114,6 +115,20 @@
         "funeral.baron_spring"
       ],
       "status": "P·bible (#1056)"
+    },
+    {
+      "id": "S50",
+      "what": "Earl carried to the doctor's door; his blood on Harlan's coat; the body in the front room (Sean, 2026-11-17)",
+      "here": [
+        "after.help",
+        "carry.door_wait",
+        "carry.door",
+        "carry.two",
+        "carry.this_one",
+        "morning.you_carried",
+        "morning.coat",
+        "morning.body"
+      ]
     }
   ],
   "cast": [
@@ -255,7 +270,7 @@
               "status": "new"
             },
             {
-              "text": "Somebody said road agents. Somebody said Utes.",
+              "text": "Road agents, somebody said, or Utes.",
               "status": "new"
             }
           ],
@@ -277,15 +292,11 @@
               "status": "new"
             },
             {
-              "text": "Somebody ought to ride out to her. It won't be any of these.",
+              "text": "Somebody ought to ride out to her. It won't be any of these men.",
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "That poor woman. Fourteen years on that claim, and now this.",
-            "Somebody ought to ride out and sit with the boys."
-          ]
+          "takes": []
         },
         {
           "id": "town.bold",
@@ -475,10 +486,10 @@
           "trigger": "You nod",
           "when": "nolaw.told_stranger = yes",
           "condition": "calm; something shuts behind his eyes",
-          "delivery": "A beat too long before the second part. Then he's pleasant again.",
+          "delivery": "A beat too long. Then he looks at his cards.",
           "words": [
             {
-              "text": "Did he. ... Well. A man'll say most anything with a ball in him.",
+              "text": "Did he.",
               "status": "new"
             }
           ],
@@ -516,7 +527,7 @@
           "delivery": "Lets it lie. He has all night.",
           "words": [
             {
-              "text": "No matter. Play your cards.",
+              "text": "No matter.",
               "status": "new"
             }
           ],
@@ -640,7 +651,7 @@
       "title": "After",
       "when": "Night 1, the saloon's yard and the street",
       "built": "partly",
-      "setting": "Cody walks out; the drifter and the miner leave; the stranger has his word and goes. Earl's body stays. Harlan can try to help Earl (shot through the head), and can follow Cody out and see which way he rides. Built: the stranger's lines. New: the rest.",
+      "setting": "Cody walks out; the drifter and the miner leave; the stranger has his word and goes. Earl is down and bleeding, not dead (Sean, 2026-11-17: his wound by the body system). The barkeep tells Harlan to get him to the doctor's. Harlan can follow Cody out instead and see which way he rides. Built: the stranger's lines. New: the rest; the carry is #1057.",
       "lines": [
         {
           "id": "after.word",
@@ -697,10 +708,6 @@
             {
               "text": "I'm out.",
               "status": "built"
-            },
-            {
-              "text": "I wasn't here. You none of you seen me.",
-              "status": "new"
             }
           ],
           "takes": []
@@ -711,40 +718,57 @@
           "trigger": "He gets up to leave (~9 s after Cody's out)",
           "when": "any",
           "condition": "heavy, sad",
-          "delivery": "Looking down at Earl a long moment. Fair to the dead man, and it makes it worse.",
+          "delivery": "Slow and heavy, looking down at Earl. Fair to him, which makes it worse.",
           "words": [
             {
-              "text": "He did cheat, mind. A dollar at a time. Never more.",
+              "text": "He were cheating, my son, a dollar at a time, same as ever he did.",
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "Was he cheating? ... Hell. What odds does it make now."
-          ]
+          "takes": []
         },
         {
           "id": "after.help",
           "speaker": "barkeep",
-          "trigger": "You kneel by Earl",
+          "trigger": "A few seconds after murder.fetch: there's nobody to fetch, so he turns to you",
           "when": "any",
           "condition": "rattled, gentler",
-          "delivery": "The first is nearly gentle. The second comes a while after, to himself, and he means it.",
+          "delivery": "He has just found there's no sheriff to send for. He picks the nearest man. Part mercy; part that it's his yard.",
           "words": [
             {
-              "text": "Let him be, Harlan. Doc couldn't mend that.",
+              "text": "He's breathing. Harlan. You. Get him up to Doc's.",
               "status": "new"
             },
             {
-              "text": "He owed me four dollars.",
+              "text": "Go on! He can't lie there.",
               "status": "new"
             }
           ],
           "takes": [],
           "setups": [
-            "S34"
+            "S50"
           ],
-          "note": "Sets nolaw.helped_earl. The four dollars comes back at the undertaker's."
+          "note": "Sean, 2026-11-17 (#1056, decided): 'who tells Harlan to take him to Doc's': the barkeep, straight after his built 'Ain't nobody left to fetch.'"
+        },
+        {
+          "id": "after.lifted",
+          "speaker": "barkeep",
+          "trigger": "You have Earl up and are going out with him",
+          "when": "nolaw.carried_earl = yes",
+          "condition": "aggrieved, low",
+          "delivery": "To your back, and to himself. He means it.",
+          "words": [
+            {
+              "text": "He owes me four dollars.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S34",
+            "S44"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
         },
         {
           "id": "after.cody_door",
@@ -771,11 +795,172 @@
       ]
     },
     {
+      "id": "carry",
+      "title": "Carrying Earl",
+      "when": "Night 1, Main Street, the saloon to the doctor's door (#1057, not built)",
+      "built": false,
+      "setting": "Sean, 2026-11-17 (decided): Harlan carries Earl up the street to the doctor's and bangs on the door. The doctor is up with the sheriff. Earl dies on the way by his wound's clock; however fast you are, he is past help. The doctor has him laid in the front room for the night. If you don't carry him (proposed, #1057), he dies where he lies and the saloon's men bring him up in the morning.",
+      "lines": [
+        {
+          "id": "carry.earl",
+          "speaker": "earl",
+          "trigger": "On the way, a while apart, while he can talk; then nothing",
+          "when": "nolaw.carried_earl = yes; while his blood loss lets him",
+          "condition": "dying, placating",
+          "delivery": "Small, close to your ear. Still trying to smooth it over. Each on its own; the last is a breath.",
+          "words": [
+            {
+              "text": "Mind my arm.",
+              "status": "new"
+            },
+            {
+              "text": "I left my hat.",
+              "status": "new"
+            },
+            {
+              "text": "Tell Cody I'll make it good. You tell him.",
+              "status": "new"
+            },
+            {
+              "text": "It was only a dollar.",
+              "status": "new"
+            },
+            {
+              "text": "...",
+              "status": "built"
+            }
+          ],
+          "note": "Sean, 2026-11-17 (#1056, decided): 'what Earl says on the way if he can talk'. He never says he's dying. The dollar is the miner's (after.miner).",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "carry.street",
+          "speaker": "townswoman",
+          "trigger": "She sees you pass with him",
+          "when": "nolaw.carried_earl = yes",
+          "condition": "shocked",
+          "delivery": "From a doorway. She doesn't come out.",
+          "words": [
+            {
+              "text": "Is that Earl? ... Lord. Doc's got his lamp lit. Go on.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "carry.door_wait",
+          "speaker": "doctor",
+          "trigger": "You bang on his door; from inside, before it opens",
+          "when": "any",
+          "condition": "short-tempered, tired",
+          "delivery": "Through the door, from the back of the house. He is a long time coming. Bang again and he says the second.",
+          "words": [
+            {
+              "text": "Who is it? I've a man dying in here.",
+              "status": "new"
+            },
+            {
+              "text": "I hear you! I've only the two hands.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "note": "Sean, 2026-11-17 (#1056, decided): the doctor is up with the sheriff, and slow to the door.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "carry.door",
+          "speaker": "doctor",
+          "trigger": "He opens the door, lamp in hand, and looks at Earl",
+          "when": "any",
+          "condition": "bleak, dry",
+          "delivery": "One look, a thumb to the man's eye. No drama. He has been losing a man all day.",
+          "words": [
+            {
+              "text": "This man wants burying, Harlan, not doctoring.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "note": "Sean, 2026-11-17 (#1056, decided): 'He needs a grave, not a doctor.' His sense, in the doctor's mouth ('wants' for needs).",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "carry.two",
+          "speaker": "doctor",
+          "trigger": "A beat after",
+          "when": "sheriff.care = good or poor (you brought the sheriff here this morning)",
+          "condition": "tired",
+          "delivery": "Counting, as he does.",
+          "words": [
+            {
+              "text": "That's two you've carried to this door today.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S5",
+            "S50"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "carry.this_one",
+          "speaker": "doctor",
+          "trigger": "A beat after, in place of carry.two",
+          "when": "sheriff.care = left (you left the sheriff on the road)",
+          "condition": "cold",
+          "delivery": "He knows a freighter brought the other. He looks at you, not at Earl.",
+          "words": [
+            {
+              "text": "This one you carried.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "carry.lay",
+          "speaker": "doctor",
+          "trigger": "Then",
+          "when": "any",
+          "condition": "tired, practical",
+          "delivery": "Already turning back to the stairs.",
+          "words": [
+            {
+              "text": "Lay him in the front room. On the table. There's a sheet on the chair.",
+              "status": "new"
+            },
+            {
+              "text": "Then go home. I've the sheriff to sit with.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        }
+      ]
+    },
+    {
       "id": "morning",
       "title": "The morning after",
-      "when": "Day 2, morning, Main Street (#796, not built)",
+      "when": "Day 2, morning, Main Street and the doctor's front room (#796; the body at the doctor's is #1057)",
       "built": false,
-      "setting": "The town wakes to the news. Earl goes to the undertaker's as a recorded death. Townsfolk tell the night differently, by what you saw of it (nolaw.seen_from: table / yard / heard / away). Nobody arrests Cody. Then someone sends for Harlan: the sheriff is dying.",
+      "setting": "The town wakes to the news and tells the night wrong. Earl lies under a sheet in the doctor's front room (Sean, 2026-11-17), where Harlan passes him on the way in to the sheriff; the undertaker comes for him there. Nobody arrests Cody. Then someone sends for Harlan: the sheriff is dying.",
       "lines": [
         {
           "id": "morning.versions",
@@ -786,7 +971,7 @@
           "delivery": "Each teller surer than the last, and each wrong a different way. Only the first is true.",
           "words": [
             {
-              "text": "Cody stood over him and said there's no law left to save him.",
+              "text": "Cody said there weren't no law to stop him, or some such.",
               "status": "new"
             },
             {
@@ -816,20 +1001,17 @@
           "delivery": "Disapproving of the whole saloon and everyone in it.",
           "words": [
             {
-              "text": "A dozen men sat and watched it done. They'll every one be in church Sunday.",
+              "text": "A dozen men sat and watched it done.",
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "A dozen men sat there and watched it. Not one of them stood up."
-          ]
+          "takes": []
         },
         {
           "id": "morning.you_were_there",
           "speaker": "townsman",
           "trigger": "He sees you on day 2",
-          "when": "nolaw.seen_from = table",
+          "when": "nolaw.seen_from = table and nolaw.carried_earl = no",
           "condition": "accusing, quietly",
           "delivery": "Not loud; he wants an answer and doesn't expect one.",
           "words": [
@@ -838,10 +1020,45 @@
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "You were sat right there at the table, they say. And you never moved."
-          ]
+          "takes": []
+        },
+        {
+          "id": "morning.you_carried",
+          "speaker": "townsman",
+          "trigger": "He sees you on day 2, in place of morning.you_were_there",
+          "when": "nolaw.carried_earl = yes",
+          "condition": "grudging",
+          "delivery": "Looking at your coat. He doesn't know what to make of you.",
+          "words": [
+            {
+              "text": "They say you carried him clear up the street. ... That his blood on you?",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "morning.coat",
+          "speaker": "townswoman",
+          "trigger": "She passes you on day 2",
+          "when": "nolaw.carried_earl = yes",
+          "condition": "practical",
+          "delivery": "Not unkind. It is the nearest anybody comes to thanking you.",
+          "words": [
+            {
+              "text": "Cold water, Mr. Harlan, not hot. Hot sets it.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
         },
         {
           "id": "morning.followed",
@@ -884,17 +1101,21 @@
         {
           "id": "morning.undertaker",
           "speaker": "undertaker",
-          "trigger": "At the undertaker's, Earl laid out",
+          "trigger": "In the doctor's front room, measuring Earl under the sheet (if you didn't carry him: at the saloon's yard)",
           "when": "any",
           "condition": "matter-of-fact",
           "delivery": "Writing in his book as he talks; reads the entry back. He is only being exact.",
           "words": [
             {
-              "text": "Earl. Nobody can give me his other name. Shot in the head by one Cody, before witnesses. Pine box, charged to the county.",
+              "text": "Earl. Nobody can give me his other name. Shot by one Cody, before witnesses. Pine box, charged to the county.",
               "status": "new"
             },
             {
-              "text": "The saloon wants four dollars and a chair set down against his estate. He had a deck of cards and one boot.",
+              "text": "He had on him a deck of cards, a pocket knife and sixty cents.",
+              "status": "new"
+            },
+            {
+              "text": "The saloon wants four dollars and a chair set down against that.",
               "status": "new"
             }
           ],
@@ -903,6 +1124,26 @@
             "S32",
             "S34"
           ],
+          "takes": []
+        },
+        {
+          "id": "morning.body",
+          "speaker": "doctor",
+          "trigger": "You stop by the sheet in his front room, on the way in to the sheriff",
+          "when": "nolaw.earl = doctor's (he lies here)",
+          "condition": "tired, plain",
+          "delivery": "In passing, rolling his sleeves down. He has been up all night with the other one.",
+          "words": [
+            {
+              "text": "He was dead when you knocked. I'd not have you think it was the door.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "note": "Sean, 2026-11-17 (#1056, decided): 'the doctor who didn't open, or opened too late'. He tells you it wasn't the wait, which is how you know he has thought about it.",
+          "added": "2026-11-17 (#1056)",
           "takes": []
         },
         {
@@ -958,8 +1199,8 @@
           "delivery": "Hat in his hands; a small true thing about the dead man.",
           "words": [
             {
-              "text": "Fined me twice. Fair, both times.",
-              "status": "built"
+              "text": "He fined me twice, and I'll own I had it coming both times.",
+              "status": "new"
             }
           ],
           "takes": [],
@@ -976,7 +1217,7 @@
           "delivery": "It still bothers him.",
           "words": [
             {
-              "text": "Never once took a drink on the house. I'd pour it. He'd leave the dime.",
+              "text": "Never once took a drink on the house. I'd pour it and he'd leave the dime.",
               "status": "new"
             }
           ],
@@ -989,18 +1230,21 @@
           "trigger": "At the graveside, after the service, to the widow; you're near enough to hear",
           "when": "any",
           "condition": "courteous",
-          "delivery": "Hat in hand, voice lowered, perfectly kind. Nothing in it you could object to.",
+          "delivery": "Hat in hand, voice lowered, perfectly kind, and long. Nothing in it you could object to.",
           "words": [
             {
-              "text": "A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure.",
-              "status": "built"
+              "text": "It is a hard day, ma'am, and I'd not trouble you on it, only to say that when that place grows too much for you, as it may, I hope you will come to me before another. You'll not find a fairer figure.",
+              "status": "new"
             }
           ],
           "setups": [
             "S3",
             "S39"
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure."
+          ]
         },
         {
           "id": "funeral.refuse",
@@ -1032,7 +1276,7 @@
           "delivery": "A small bow. Nothing in it but manners, and no doubt at all that the other day will come.",
           "words": [
             {
-              "text": "Forgive me, ma'am. It was ill-timed, and I am sorry for it. We will speak another day.",
+              "text": "Forgive me, ma'am; it was ill-timed of me, and we will speak of it another day.",
               "status": "new"
             }
           ],
@@ -1069,7 +1313,7 @@
           "delivery": "Praise, from the man who had it done. He lets you see he knows everything about that morning.",
           "words": [
             {
-              "text": "Mr. Harlan. They tell me he had a night with his wife on your account. That was well done.",
+              "text": "Mr. Harlan, they tell me he had a night with his wife that he'd not have had but for you, and I call that well done.",
               "status": "new"
             }
           ],
@@ -1105,7 +1349,7 @@
           "delivery": "Two fingers to his hat brim and the same easy smile as last night. One word.",
           "words": [
             {
-              "text": "Morning, Deputy.",
+              "text": "Good morning to you, Deputy.",
               "status": "new"
             }
           ],
@@ -1243,12 +1487,17 @@
       ]
     },
     {
-      "fact": "nolaw.helped_earl",
-      "values": "true if you knelt by Earl",
+      "fact": "nolaw.carried_earl",
+      "values": "yes / no: you carried Earl to the doctor's door",
       "exists": false,
-      "set_by": "gameplay to add (after.help is not built)",
+      "set_by": "gameplay to add with #1057 (carrying a man)",
       "used": [
-        "after.help; the barkeep's word for you later"
+        "after.lifted",
+        "carry.*",
+        "morning.you_carried",
+        "morning.coat",
+        "morning.you_were_there",
+        "sheriff_road day2.door.coat, day2.blood"
       ]
     },
     {
@@ -1259,6 +1508,16 @@
       "used": [
         "town.send_doc",
         "town.send_stranger"
+      ]
+    },
+    {
+      "fact": "nolaw.earl",
+      "values": "doctor's (laid in his front room) / saloon (he died where he lay); today the game sets 'undertaker'",
+      "exists": true,
+      "set_by": "#1057 changes its values",
+      "used": [
+        "morning.body",
+        "morning.undertaker"
       ]
     }
   ],
@@ -1277,6 +1536,11 @@
       "line": "murder.accuse",
       "words": "Earl, you cheating son of a bitch!",
       "why": "Sean's redo of 2026-11-12, as he worded it."
+    },
+    {
+      "line": "funeral.offer",
+      "words": "A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure.",
+      "why": "Not kept: re-worded as one long sentence, because both readers said the Baron spoke in short sentences against his brief. The old words are in the line's `was` if Sean prefers them."
     }
   ]
 }

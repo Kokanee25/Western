@@ -206,10 +206,10 @@
           "trigger": "You come into the doctor's office; Joe is there",
           "when": "any",
           "condition": "grave",
-          "delivery": "Quiet, to you, a glance at Joe. Short sentences for once. He won't tell another man's grief for him.",
+          "delivery": "Quiet, to you, a glance at Joe. He stops himself telling the rest.",
           "words": [
             {
-              "text": "Harlan. This is Joe. The night Earl was shot, riders came through his people's camp. The men were off hunting. His wife is dead. The rest is his to tell.",
+              "text": "Harlan. This is Joe. Riders came through his people's camp the night Earl was shot, with the men off hunting. His wife... she's dead.",
               "status": "new"
             }
           ],
@@ -227,11 +227,30 @@
           "delivery": "Doesn't look up from rolling his smoke. Says it to the room.",
           "words": [
             {
-              "text": "That's the one sat at Earl's table. Never spilled his drink.",
+              "text": "That's the one sat at Earl's table. Sat right there.",
               "status": "new"
             }
           ],
           "note": "A callback: the saloon followed him here. It makes Joe's question about the badge bite.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "doctor.cowboy_carried",
+          "speaker": "cowboy",
+          "trigger": "From the corner, when you come in, in place of doctor.cowboy_table",
+          "when": "nolaw.carried_earl = yes",
+          "condition": "blunt",
+          "delivery": "Doesn't look up. A fact about you, laid on the table for Joe.",
+          "words": [
+            {
+              "text": "He's the one carried Earl up here. Still got him on his coat.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
           "added": "2026-11-17 (#1056)",
           "takes": []
         },
@@ -389,10 +408,10 @@
           "trigger": "He comes back from the survivors",
           "when": "any",
           "condition": "flat, controlled",
-          "delivery": "A list. If he stops on any of it he won't go on. The second 'four days' is to himself.",
+          "delivery": "A list. If he stops on any of it he won't go on.",
           "words": [
             {
-              "text": "Six men. One says seven. They shot the dogs first. We were four days out, after elk. Four days.",
+              "text": "Six men. One says seven. They shot the dogs first. We were four days out, after elk.",
               "status": "new"
             }
           ],
@@ -449,10 +468,10 @@
           "trigger": "He sees you aren't surprised",
           "when": "nolaw.followed (you followed Cody out of the saloon)",
           "condition": "sharp",
-          "delivery": "He noticed; a question under it.",
+          "delivery": "He noticed you weren't surprised. Not a question.",
           "words": [
             {
-              "text": "You knew.",
+              "text": "You saw them ride out.",
               "status": "new"
             }
           ],
@@ -482,7 +501,7 @@
           "delivery": "Tying the neckerchief. Plain, as if it were obvious.",
           "words": [
             {
-              "text": "If a Ute did this, they'd burn the camp. So a cowboy did it.",
+              "text": "A Ute kills a white man, the whites burn the camp. So today I'm a cowboy.",
               "status": "new"
             }
           ],
@@ -503,7 +522,7 @@
           "delivery": "If you look at him a while in it. Dead level. It is the only joke he makes all day.",
           "words": [
             {
-              "text": "I won this hat at monte, from a man out of Texas. He said it was a good hat. He said the same of his cards.",
+              "text": "I won this hat at monte, from a Texas man. He said it was a good hat. He lied about the cards, too.",
               "status": "new"
             }
           ],
@@ -533,7 +552,7 @@
               "status": "new"
             },
             {
-              "text": "Fresh. Close now.",
+              "text": "These are fresh. An hour.",
               "status": "new"
             }
           ],
@@ -548,14 +567,11 @@
           "delivery": "Out of nowhere, looking ahead. 'Do', not 'did'. Then nothing more.",
           "words": [
             {
-              "text": "Eleven years. She shot better than I do. She told everybody.",
+              "text": "She shot better than I do. She told everybody.",
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "Eleven years. She could shoot better than me. She told everyone so."
-          ]
+          "takes": []
         },
         {
           "id": "ride.carried",
@@ -566,7 +582,7 @@
           "delivery": "A fact he has collected about you. Not a compliment.",
           "words": [
             {
-              "text": "The doctor says you know wounds. Good. One of us will want that.",
+              "text": "The doctor says you know wounds. One of us will want that.",
               "status": "new"
             }
           ],
@@ -585,7 +601,7 @@
           "delivery": "He has heard the freighter's story in town and worked out the name. Said once, looking at you.",
           "words": [
             {
-              "text": "They say the sheriff called a name from the road, and the man kept walking. ... Don't do that to me.",
+              "text": "They say the sheriff called a name from the road, and the man kept walking. ... Don't walk off from me.",
               "status": "new"
             }
           ],
@@ -602,7 +618,7 @@
           "delivery": "Plain. He is giving you the chance to turn back, without saying so.",
           "words": [
             {
-              "text": "When we have him, you may want to look somewhere else.",
+              "text": "When we have him, don't watch.",
               "status": "new"
             }
           ],
@@ -624,14 +640,17 @@
               "status": "built"
             },
             {
-              "text": "How do you want it? Quiet, or now?",
-              "status": "built"
+              "text": "How do you want it? Creep in, or shoot from here?",
+              "status": "new"
             }
           ],
           "setups": [
             "S1"
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "How do you want it? Quiet, or now?"
+          ]
         }
       ]
     },
@@ -733,11 +752,14 @@
           "delivery": "Throwing his gun down.",
           "words": [
             {
-              "text": "I'm done! Don't shoot!",
-              "status": "built"
+              "text": "I quit! Don't shoot!",
+              "status": "new"
             }
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "I'm done! Don't shoot!"
+          ]
         },
         {
           "id": "fight.joe_call",
@@ -795,11 +817,14 @@
           "delivery": "Shaking you off as soon as he's standing.",
           "words": [
             {
-              "text": "Enough. I can walk.",
-              "status": "built"
+              "text": "It's all right. I can walk.",
+              "status": "new"
             }
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "Enough. I can walk."
+          ]
         },
         {
           "id": "fight.mine",
@@ -1080,14 +1105,11 @@
           "delivery": "To the road ahead. What he doesn't say is the rest of the line.",
           "words": [
             {
-              "text": "Her mother will ask me is it finished. I will tell her yes.",
+              "text": "Her mother'll ask me is it finished. I'll tell her it is.",
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "It did not give her back. I knew it would not."
-          ]
+          "takes": []
         },
         {
           "id": "back.kett",
@@ -1181,17 +1203,14 @@
           "delivery": "Holding out the paper; courteous and immovable.",
           "words": [
             {
-              "text": "Deputy. I have an order for your prisoner. A crime on the reservation is a matter for the United States. Not the county.",
+              "text": "Deputy, I have an order for your prisoner: a crime on the reservation is a matter for the United States and not for the county.",
               "status": "new"
             }
           ],
           "setups": [
             "S6"
           ],
-          "takes": [],
-          "was": [
-            "Deputy. I have an order for your prisoner. A crime on the reservation is a matter for the United States, not the county."
-          ]
+          "takes": []
         },
         {
           "id": "release.loose",
@@ -1212,44 +1231,22 @@
           "takes": []
         },
         {
-          "id": "release.doctor",
-          "speaker": "doctor",
-          "trigger": "On the platform, or after, when you next see him",
-          "when": "nojustice.ending = arrest, after the release",
-          "condition": "tired, dry",
-          "delivery": "Counting, as he does. He doesn't say what he expected.",
-          "words": [
-            {
-              "text": "Two days they kept him.",
-              "status": "new"
-            }
-          ],
-          "setups": [
-            "S11"
-          ],
-          "added": "2026-11-17 (#1056)",
-          "takes": []
-        },
-        {
           "id": "release.joe",
           "speaker": "joe",
           "trigger": "Joe hears of it, or sees it",
           "when": "arrest",
           "condition": "cold, unsurprised",
-          "delivery": "No anger left to show. He isn't telling you he was right. He is telling you that you heard it.",
+          "delivery": "No anger left to show. He isn't saying he was right.",
           "words": [
             {
-              "text": "The doctor said it in his office. You were standing beside me.",
+              "text": "Doc told us. In his office.",
               "status": "new"
             }
           ],
           "setups": [
             "S11"
           ],
-          "takes": [],
-          "was": [
-            "Your doctor told you. The cowboy told you. Now you know."
-          ]
+          "takes": []
         },
         {
           "id": "street.kett",
@@ -1257,18 +1254,18 @@
           "trigger": "You meet him on Main Street after the release",
           "when": "arrest",
           "condition": "smug",
-          "delivery": "Tipping his hat. Enjoying it. The third is a threat: he saw Joe's face at the cabin.",
+          "delivery": "Tipping his hat. Enjoying it. The third only if he saw Joe's face at the cabin: it is a threat.",
           "words": [
             {
               "text": "Morning, Deputy. Fine day to be at liberty.",
               "status": "new"
             },
             {
-              "text": "Still here, Deputy? So am I.",
+              "text": "Still here, Deputy?",
               "status": "new"
             },
             {
-              "text": "Say good morning to your cowboy for me. Him with the knife.",
+              "text": "Say good morning to your Indian for me.",
               "status": "new"
             }
           ],
@@ -1335,6 +1332,15 @@
       "set_by": "gameplay to add, with the hat coming off at cabin.knife",
       "used": [
         "street.kett; whether the kin go to the camp (S12)"
+      ]
+    },
+    {
+      "fact": "nolaw.carried_earl",
+      "values": "yes / no",
+      "exists": false,
+      "set_by": "gameplay to add with #1057",
+      "used": [
+        "doctor.cowboy_carried"
       ]
     }
   ],

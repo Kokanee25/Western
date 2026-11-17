@@ -15,11 +15,12 @@
   ],
   "notes": [
     "Harlan doesn't speak in this mission: he answers by nod and shake and by what he does (VOICES.md).",
-    "Roles only (C14 c): Sheriff, Doc, ma'am, Harlan. Nobody names the Baron; the sheriff says 'he'.",
+    "Roles only (C14 c): Sheriff, Doc, ma'am, Harlan. The sheriff names the Baron once, on day 2 (the ditch), so the player knows who 'he' is before the funeral.",
     "The game says a beat's wordings in order and repeats the last (Act.line): once there are takes, the idle and ask-again lines should cycle instead (a gameplay change, later).",
     "Scenes 3 to 5 aren't built yet: their triggers say what they'll need. The built mission ends at the doctor's lot (scene 2) or the freighter's card (scene 3).",
     "Rewritten 2026-11-17 (#1056). The road's built lines Sean picked a take for are left alone; the ones he marked Redo are re-worded so the words carry the acting, and each says what was done.",
-    "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, shook your head at him, sat at Earl's table). The sheriff never learns about Earl: the doctor keeps it from him."
+    "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, shook your head at him, sat at Earl's table). The sheriff never learns about Earl: the doctor keeps it from him.",
+    "Sean, 2026-11-17: Harlan carries Earl to the doctor's on night one, and the body is in the doctor's front room on day 2 (No Law's script, scenes carry and morning). So day 2 here has the coat: the doctor has him button it, and the sheriff, if he sees the blood, is lied to."
   ],
   "words_to_check": [
     {
@@ -139,10 +140,18 @@
       "id": "S42",
       "what": "The bread rising (he was expected home)",
       "here": [
-        "road.idle.clear",
-        "day2.last.clear"
+        "road.idle.clear"
       ],
-      "status": "P·bible (#1056): also pays off at the widow's place"
+      "status": "P·bible (#1056): pays off at the widow's place"
+    },
+    {
+      "id": "S50",
+      "what": "Earl's blood on Harlan's coat (Sean, 2026-11-17)",
+      "here": [
+        "day2.door.coat",
+        "day2.blood",
+        "day2.blood_doc"
+      ]
     }
   ],
   "cast": [
@@ -417,7 +426,7 @@
           "delivery": "Telling it to keep his mind off the hole in him; angry at himself for being fooled.",
           "words": [
             {
-              "text": "Stranger on a bald-faced sorrel. Rode up easy, like a man asking his road. Called me friend. Then he shot me.",
+              "text": "Stranger on a bald-faced sorrel. Rode up easy. Called me friend and shot me.",
               "status": "new"
             }
           ],
@@ -648,7 +657,7 @@
               "status": "built"
             },
             {
-              "text": "Fourteen years on this road. I know every rut in it.",
+              "text": "I know every rut in this road.",
               "setups": [
                 "S18"
               ],
@@ -663,7 +672,7 @@
               "status": "new"
             },
             {
-              "text": "My wife's got bread rising. She'll think I stopped at the saloon.",
+              "text": "My wife's got bread rising.",
               "setups": [
                 "S42"
               ],
@@ -843,10 +852,10 @@
           "trigger": "A beat after doctor_after, looking at your hands",
           "when": "sheriff.care good",
           "condition": "curious, then letting it go",
-          "delivery": "The question half asked; he sees you won't answer and lets it go.",
+          "delivery": "The question half asked. You don't answer, and he lets it hang.",
           "words": [
             {
-              "text": "You've packed a wound before. Where? ... Well. It's your affair.",
+              "text": "You've packed a wound before. Where? ...",
               "status": "new"
             }
           ],
@@ -938,14 +947,11 @@
           "delivery": "Counting it up, and not asking where you were. The three hours are for you.",
           "words": [
             {
-              "text": "A freighter brought him in at ten. He'd lain out there three hours, by the blood. He's sinking.",
+              "text": "A freighter brought him in at ten. He'd lain out there three hours, by the blood. He's going.",
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "A freighter brought him in at ten, insensible in the back of the wagon. He's sinking."
-          ]
+          "takes": []
         }
       ]
     },
@@ -980,14 +986,11 @@
           "delivery": "Lower; the morphia is the only kindness left.",
           "words": [
             {
-              "text": "He's sinking. I've given him morphia. Tomorrow, I'd say. It won't be easy.",
+              "text": "He's sinking. I've given him morphia. Tomorrow, I'd say.",
               "status": "new"
             }
           ],
-          "takes": [],
-          "was": [
-            "He's sinking. I've given him morphia. Tomorrow, I think, and it won't be easy."
-          ]
+          "takes": []
         },
         {
           "id": "evening.doctor.go",
@@ -1026,11 +1029,14 @@
           "delivery": "At the door, low so the room won't hear.",
           "words": [
             {
-              "text": "He's asking for you. He's clear this morning. It won't last.",
-              "status": "built"
+              "text": "He's asking for you. He's clear this morning.",
+              "status": "new"
             }
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "He's asking for you. He's clear this morning. It won't last."
+          ]
         },
         {
           "id": "day2.door.poor",
@@ -1053,29 +1059,52 @@
           "trigger": "You come to the doctor's on day 2",
           "when": "sheriff.care left",
           "condition": "quiet, puzzled",
-          "delivery": "Looking at you a moment too long.",
+          "delivery": "Looking at you a moment too long. He doesn't say what he thinks.",
           "words": [
             {
-              "text": "He's been asking for you since the freighter brought him. I couldn't tell you why.",
-              "status": "built"
+              "text": "He's been asking for you since the freighter brought him.",
+              "status": "new"
             }
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "He's been asking for you since the freighter brought him. I couldn't tell you why."
+          ]
         },
         {
           "id": "day2.door.table",
           "speaker": "doctor",
           "trigger": "At the door, after his first words, before you go in",
-          "when": "nolaw.seen_from = table or yard (you saw Earl shot)",
+          "when": "nolaw.seen_from = table or yard, and you didn't carry Earl here (nolaw.carried_earl = no)",
           "condition": "quiet, firm",
-          "delivery": "Lower still, a hand on the door. He's protecting the man in the bed.",
+          "delivery": "Lower still, a hand on the inner door. Earl is under a sheet six feet away.",
           "words": [
             {
-              "text": "And Harlan. Last night, at the saloon. He's not been told.",
+              "text": "The sheriff's not been told about Earl. Don't you tell him.",
               "status": "new"
             }
           ],
           "note": "A callback: the sheriff dies not knowing what his town did the night he lay there.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.door.coat",
+          "speaker": "doctor",
+          "trigger": "At the inner door, in place of day2.door.table",
+          "when": "nolaw.carried_earl = yes (Earl's blood is on your coat)",
+          "condition": "quiet, firm",
+          "delivery": "Lower still, a look at your coat. Earl is under a sheet six feet away.",
+          "words": [
+            {
+              "text": "The sheriff's not been told about Earl. Button your coat.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "note": "Sean, 2026-11-17 (#1056, decided): 'the blood on Harlan's coat in the morning'. The dying man never learns what his town did that night.",
           "added": "2026-11-17 (#1056)",
           "takes": []
         },
@@ -1091,6 +1120,44 @@
               "text": "I can hear you, Doc. Send him in.",
               "status": "new"
             }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.blood",
+          "speaker": "sheriff",
+          "trigger": "You come to the bed with your coat open, or he sees it anyway",
+          "when": "clear, and nolaw.carried_earl = yes",
+          "condition": "dying, sharp",
+          "delivery": "A lawman's eye, still working. The doctor answers before you could.",
+          "words": [
+            {
+              "text": "Whose blood is that on you? ... That ain't mine.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "day2.blood_doc",
+          "speaker": "doctor",
+          "trigger": "At once, over him",
+          "when": "clear, and nolaw.carried_earl = yes",
+          "condition": "brisk",
+          "delivery": "Too quick. The only lie he tells in the game.",
+          "words": [
+            {
+              "text": "A man cut himself at the saloon. Lie back.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S50"
           ],
           "added": "2026-11-17 (#1056)",
           "takes": []
@@ -1150,7 +1217,7 @@
           "delivery": "Quiet and exact, spending his breath on what's useful.",
           "words": [
             {
-              "text": "Bald-faced sorrel. Soft-spoken man. Called me friend. ... You find him, Harlan.",
+              "text": "Bald-faced sorrel. Soft-spoken man. Called me friend.",
               "status": "new"
             }
           ],
@@ -1190,10 +1257,10 @@
           "trigger": "After the shooter",
           "when": "clear",
           "condition": "dying, clear",
-          "delivery": "Said to Harlan so she won't have to answer it. He doesn't say who 'he' is; she knows, and Harlan learns at the grave.",
+          "delivery": "Said to Harlan so she won't have to answer it. The one time anybody in this script names him.",
           "words": [
             {
-              "text": "That ditch. He's wanted it since the day I cut it. He'll go at my wife for it now. Look to her and the boys.",
+              "text": "The Baron's wanted that ditch since the day I cut it. He'll go at my wife for it now. Look to her and the boys.",
               "status": "new"
             }
           ],
@@ -1318,7 +1385,7 @@
           "delivery": "He has seen this man say no before. Nearly a laugh, which hurts him. Then the order.",
           "words": [
             {
-              "text": "You shook your head at me on the road, too. Then you packed it. ... That's not the way this works, son. Doc. Pin it on him.",
+              "text": "Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him.",
               "status": "new"
             }
           ],
@@ -1386,10 +1453,10 @@
           "trigger": "His last words",
           "when": "clear",
           "condition": "dying, at peace",
-          "delivery": "To his wife, not to you. A man fussing about home. It is the last thing he says.",
+          "delivery": "To his wife, not to you. Plain. It is the last thing he says.",
           "words": [
             {
-              "text": "You'll want to see to that bread.",
+              "text": "Go home to the boys.",
               "status": "new"
             }
           ],
@@ -1397,10 +1464,7 @@
           "was": [
             "Sun's up. Ain't that something."
           ],
-          "setups": [
-            "S42"
-          ],
-          "note": "Was the road's 'Sun's up. Ain't that something.' said again: a film death line. This one is the bread he told you about on the road, if you heard it; if you didn't, it is a dying man thinking of his kitchen."
+          "note": "Was the road's 'Sun's up. Ain't that something.' said again: both blind readers heard a film death line. Now he sends his wife home."
         },
         {
           "id": "day2.boot",
@@ -1430,7 +1494,7 @@
           "delivery": "Working, short; then the question half asked, and dropped.",
           "words": [
             {
-              "text": "Hold him. No... yes, like that. You've held a man down before. Where? ... Well. It's your affair.",
+              "text": "Hold him. No... yes, like that. You've held a man down before.",
               "status": "new"
             }
           ],
@@ -1469,7 +1533,7 @@
           "delivery": "Not pleased about any of it; stating how things stand.",
           "words": [
             {
-              "text": "I'm the coroner, Harlan. By the statute that makes me sheriff until the county sends a man. So you're my deputy now. Keep the badge on.",
+              "text": "I'm the coroner, Harlan. By the statute that makes me sheriff until the county sends a man. Keep the badge on.",
               "status": "new"
             }
           ],
@@ -1554,6 +1618,18 @@
       "used": [
         "day2.acting"
       ]
+    },
+    {
+      "fact": "nolaw.carried_earl",
+      "values": "yes / no",
+      "exists": false,
+      "set_by": "gameplay to add with #1057 (carrying a man)",
+      "used": [
+        "day2.door.table",
+        "day2.door.coat",
+        "day2.blood",
+        "day2.blood_doc"
+      ]
     }
   ],
   "kept": [
@@ -1571,6 +1647,11 @@
       "line": "road.ask_again.weak, road.shake.weak",
       "words": "Please. / Don't... don't leave me here.",
       "why": "Built, and Sean picked takes for them. The reader says a man who gives orders wouldn't plead; that he does, once he's weak, is the point of the three bands."
+    },
+    {
+      "line": "road.idle.clear, town.doctor_after.good",
+      "words": "Sun's coming up. Ain't that something. / Somebody packed that wound, and packed it right. That's bought him some hours.",
+      "why": "Built, and Sean picked takes of both. The second reader doubted 'Ain't that something' and 'bought him some hours' for 1882. Plainer, if Sean wants: 'Sun's coming up.' / 'That wound was packed right. It's given him some hours.'"
     }
   ]
 }

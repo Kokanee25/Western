@@ -25,7 +25,7 @@ voices (does anyone say what they couldn't know, or in a word from 1950?).
    the Baron's new foreman (C16, decided). Harlan finds the sheriff on the road, and the
    dying man swears him in.
 4. That first night another of the Baron's men, Cody, murders a card player in front of the whole
-   saloon, because there's no law left to stop him, while the foreman, the sheriff's killer, holds
+   saloon, because there's no law left to stop him (Harlan carries the man to the doctor's door, too late: Sean, 2026-11-17), while the foreman, the sheriff's killer, holds
    Harlan in his chair. The same night Kett's crew raids Joe's camp, to start an "outbreak" for the
    Baron's telegrams.
 5. Harlan and Joe hunt down Kett, the man in the faded red shirt. Joe asks: are you going to stop me? Arrest him and the law lets him
