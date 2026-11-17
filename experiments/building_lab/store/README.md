@@ -125,3 +125,6 @@ Grey cards (`light_review.gd`, `build/light/*/cards.txt`), noon: shop middle / b
   the beams. Dark posts and beams kept; the pale-beam variant is in the before/after sheet for Sean.
 - `day_fill` / `window_day` left at 0.55 / 26: the shop doesn't read flat with them (the beams and posts still shade).
 - Lamps by day: not needed, the back reads lit.
+- **Cheap judge** (`results/2026-11-17_light_cheap/cheap.md`, one round): the entry good indie, the rest cheap indie; tell 1 (flat
+  light) passed in all five. What it marks is the store's emptiness (props, #695), the grey neighbours and the blank outside the
+  windows, the stripe's moire at 800 px, and the grey cards it took for placeholders: none of it this step's light.
