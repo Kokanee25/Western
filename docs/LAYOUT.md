@@ -3112,6 +3112,12 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
 
 - `tests/` — tiny self-contained runner (no addon): `extends TestCase`, methods `test_*`, may `await`.
   A Logger turns any script error during a test into a failure.
+- `--shard=K/N` (#1015) runs the K-th of N shares of the files, split by `config/test_times.json`
+  (seconds per file; longest first, each to the lightest share; a missing file counts 30 s). The
+  runner prints `  time test_x.gd 12.3s` after each file; `python3 tools/test_times.py LOG...`
+  rebuilds the table from the shards' raw logs (`--check` shows the split). Every file runs in
+  exactly one shard (`test_test_shards.gd`). A test that fails only in its shard leans on one run
+  before it: a real fault, fixed in the test.
 
 ## CI
 
@@ -3127,6 +3133,13 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   the latest green build's video is already on the `tour` release). A skipped night shows green
   with "unchanged" in its summary; the last real result is the run before it. By hand they always
   run.
+  The tests are a matrix of six jobs, `test (K/6)` (#1015; ~100 min in one job before), each running
+  `--shard=K/6` (see "tests"); `export` needs all six. Refresh `config/test_times.json` with
+  `tools/test_times.py` when one shard's "Run tests" runs well over the others; change the matrix
+  list and `TEST_SHARDS` together. Each shard restores main's newest `.godot` import from the cache
+  (`godot-import-<version>-<sha>`, saved by main's shard 1; PRs only read it), so the import takes
+  seconds, not ~10 min; it builds the plugin itself (rust-cache) and skips the plugin's Rust tests,
+  which the `native` job's Linux leg runs.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it
   writes them ("Import files committed"): run `godot --headless --import` and commit them.
 - **A lab's film on a runner** (`lab_film.yml`, `tools/lab_film.py`; #973): a `claude/` branch push whose

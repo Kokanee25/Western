@@ -87,6 +87,12 @@ static func load_times() -> Dictionary:
 	return parsed if parsed is Dictionary else {}
 
 
+## GameReset.clear_statics, loaded once the autoloads are up: named here, the runner's own compile
+## would pull in scripts that use Events and Settings before they exist.
+func _clear_statics() -> void:
+	(load("res://src/main/game_reset.gd") as GDScript).call(&"clear_statics")
+
+
 func _run() -> void:
 	var only := ""
 	var shard := ""
@@ -123,6 +129,10 @@ func _run() -> void:
 	_catcher.take()
 	for file in files:
 		var file_started := Time.get_ticks_msec()
+		# Each file starts as the game does (#1015): the props' per-id counters (each prop's id,
+		# variant and seed), the lamp list, blood, smoke and the story cleared, so a file's world is
+		# the same whichever files ran before it, in the whole suite, alone or in its CI shard.
+		_clear_statics()
 		var path := "res://tests/%s" % file
 		var script := load(path) as GDScript
 		if script == null or not script.can_instantiate():
@@ -158,8 +168,25 @@ func _run() -> void:
 		# Read by tools/test_times.py to refresh config/test_times.json (#1015).
 		print("  time %s %.1fs" % [file, (Time.get_ticks_msec() - file_started) / 1000.0])
 
+	_clear_statics()  # (what the statics hold goes before the engine's own teardown)
+	await process_frame
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	print("\n%d passed, %d failed (%.1fs)" % [passed, failed.size(), seconds])
 	for f in failed:
 		print("  - %s" % f)
+	await _quit_as_the_game_does()
 	quit(1 if failed.size() > 0 else 0)
+
+
+## What GameQuit.quit does before the tree quits, but its watchdog (#435): our worker tasks waited
+## for (at most 2 s), the sound warm-up finished, and the black box closed. A test that builds the
+## main scene starts CrashReports (its logger and the native crash guard); left open, the exit
+## crashed after every test had passed (SIGABRT, #1015's shards 2, 4 and 6). The whole suite hid it:
+## test_crash_reports ran first and closed it for good.
+func _quit_as_the_game_does() -> void:
+	var game_quit := load("res://src/main/game_quit.gd") as GDScript
+	var t0 := Time.get_ticks_msec()
+	while not (game_quit.call(&"in_flight", self) as PackedStringArray).is_empty() and Time.get_ticks_msec() - t0 < 2000:
+		await process_frame
+	(load("res://src/audio/synth_sounds.gd") as GDScript).call(&"finish_warm")
+	(load("res://src/debug/crash_reports.gd") as GDScript).call(&"clean_quit")
