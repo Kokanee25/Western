@@ -2454,6 +2454,15 @@ func _ceilings() -> void:
 		var i := 0
 		while x < float(r[2]) - 0.02:
 			var x1 := minf(x + bw, float(r[2]))
+			# A board's column breaks at a hole's edges (a beam's: else a whole board's width either side
+			# of it is left open, #1053).
+			for o: Dictionary in holes:
+				var hx0 := float(o.rect[0])
+				var hx1 := float(o.rect[2])
+				if hx0 > x + 0.01 and hx0 < x1:
+					x1 = hx0
+				elif x >= hx0 - 0.01 and x < hx1 - 0.01 and hx1 < x1:
+					x1 = hx1
 			var spans: Array = [[float(r[1]), float(r[3])]]
 			for o: Dictionary in holes:
 				var orr: Array = o.rect

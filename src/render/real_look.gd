@@ -425,7 +425,7 @@ static func set_dial(tree: SceneTree, key: String, v: Variant) -> bool:
 	if node and node._applied:
 		node._globals(true)
 		if node._attributes:
-			node._attributes.exposure_multiplier = float(dials.exposure)
+			node._ease_exposure(0.0)  # (the indoor eye's, over the day's: #1053)
 	return true
 
 

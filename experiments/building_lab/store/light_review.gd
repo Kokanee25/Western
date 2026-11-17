@@ -151,7 +151,7 @@ func _run() -> void:
 			await create_timer(5.0).timeout
 			var rlk := root.get_tree().get_first_node_in_group(&"real_look")
 			if rlk and rlk.get(&"_attributes"):
-				print("exposure ", rlk.get(&"_attributes").exposure_multiplier)
+				print("exposure ", rlk.get(&"_attributes").exposure_multiplier, " indoors ", rlk.get(&"_indoors"), " adapted ", rlk.get(&"_adapted"))
 			for i in 8:
 				await process_frame
 			var draws := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
