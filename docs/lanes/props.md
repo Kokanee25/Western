@@ -28,7 +28,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   (the footlights were #902's). The nude's place is beside the back bar (`NUDE_PLACE`, yard wall z 0.1-1.9). Critic round 1
   `results/2026-11-17_saloon_b_walls/critic.md`: skull, dress rail, trunk SAME; clock, rifle, deer head, mirror, screen,
   bottles CLOSE; spittoons DIFFERENT (the old drawn one reads as rocks: S4). **Steps 7-8 wait for #1032** (pictures and ads);
-  pronghorn and elk heads wait on Sean (Rodin, paid).
+  the pronghorn is bought (up to $2, Sean #1042; no elk). No arm rail on the bar's top (Sean): the foot rail is the brass.
 - **Next:** S5's steps 7-8 once #1032 is in; then S4 (the chair and strongbox, the spittoon, the CLOSE notes).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
   (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
