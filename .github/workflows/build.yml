@@ -84,11 +84,14 @@ jobs:
       # The import (~10 min from nothing) starts from the newest one main saved: Godot reimports
       # only what changed since (it checks each source's hash), and writes .import files for new
       # assets as before, so the check below still sees them.
+      # Keyed by the .import files (a new or changed asset's import makes a new one; a source edited
+      # in place is just reimported from the last), so main saves one only when those change.
       - name: Restore the last import
+        id: import-cache
         uses: actions/cache/restore@v4
         with:
           path: .godot
-          key: godot-import-${{ env.GODOT_VERSION }}-${{ github.sha }}
+          key: godot-import-${{ env.GODOT_VERSION }}-${{ hashFiles('**/*.import') }}
           restore-keys: godot-import-${{ env.GODOT_VERSION }}-
 
       - name: Import project
@@ -108,13 +111,15 @@ jobs:
           fi
 
       # Main's import is kept for the next runs (PRs read main's caches; their own aren't saved,
-      # so the cache holds a few, not one per push). One shard saves it.
+      # so the cache holds a few, not one per push). One shard saves it, when its key is new.
       - name: Keep the import (main)
-        if: github.ref == 'refs/heads/main' && matrix.shard == 1
+        if: >-
+          github.ref == 'refs/heads/main' && matrix.shard == 1
+          && steps.import-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: .godot
-          key: godot-import-${{ env.GODOT_VERSION }}-${{ github.sha }}
+          key: godot-import-${{ env.GODOT_VERSION }}-${{ hashFiles('**/*.import') }}
 
       - name: Run tests
         run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- --shard=${{ matrix.shard }}/${{ env.TEST_SHARDS }}

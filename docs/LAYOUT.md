@@ -3118,6 +3118,13 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   rebuilds the table from the shards' raw logs (`--check` shows the split). Every file runs in
   exactly one shard (`test_test_shards.gd`). A test that fails only in its shard leans on one run
   before it: a real fault, fixed in the test.
+- Each file starts from `GameReset.clear_statics()` (#1015): the props' per-id counters (ids,
+  variants, seeds), lamps, blood, smoke and the story as at the game's start, so a file plays the
+  same alone, in its shard or in the whole suite (before, the props earlier files made changed its
+  world: the card game's and town_day's fights passed only after them). The runner quits as
+  GameQuit does, without the watchdog (in-flight tasks waited for, the sound warm-up finished):
+  without it three of the six shards crashed at exit (SIGABRT, a null mutex in the engine's
+  cleanup) after every test passed; the whole suite in one run didn't.
 
 ## CI
 
@@ -3137,7 +3144,8 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `--shard=K/6` (see "tests"); `export` needs all six. Refresh `config/test_times.json` with
   `tools/test_times.py` when one shard's "Run tests" runs well over the others; change the matrix
   list and `TEST_SHARDS` together. Each shard restores main's newest `.godot` import from the cache
-  (`godot-import-<version>-<sha>`, saved by main's shard 1; PRs only read it), so the import takes
+  (`godot-import-<version>-<hash of the .import files>`, saved by main's shard 1 when that's new;
+  PRs only read it; an asset edited in place is reimported from the last), so the import takes
   seconds, not ~10 min; it builds the plugin itself (rust-cache) and skips the plugin's Rust tests,
   which the `native` job's Linux leg runs.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it

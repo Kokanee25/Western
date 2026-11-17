@@ -179,10 +179,9 @@ func _run() -> void:
 
 
 ## What GameQuit.quit does before the tree quits, but its watchdog (#435): our worker tasks waited
-## for (at most 2 s), the sound warm-up finished, and the black box closed. A test that builds the
-## main scene starts CrashReports (its logger and the native crash guard); left open, the exit
-## crashed after every test had passed (SIGABRT, #1015's shards 2, 4 and 6). The whole suite hid it:
-## test_crash_reports ran first and closed it for good.
+## for (at most 2 s), the sound warm-up finished, and the black box closed (a no-op under -s).
+## Without it, #1015's shards 2, 4 and 6 crashed in the engine's cleanup after every test passed
+## (SIGABRT from a segfault on a null mutex); the whole suite in one run didn't.
 func _quit_as_the_game_does() -> void:
 	var game_quit := load("res://src/main/game_quit.gd") as GDScript
 	var t0 := Time.get_ticks_msec()

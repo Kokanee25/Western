@@ -376,7 +376,10 @@ func test_in_a_fight_they_work_together() -> void:
 	var from := player.camera.global_position
 	var bullet := bl.fire(from, (at - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
 	bullet.shooter = player
-	await physics_frames(60 * 30)
+	# Up to a minute for the second gun: from a fresh start (each test file's statics cleared, #1015)
+	# the first shots come late (the kid ~20 s, Lyle ~50 s, a drag each first), where the whole suite's
+	# props made before it had them both firing inside 30 s.
+	await wait_until(func() -> bool: return shots.size() >= 2, 60 * 60)
 	Events.callout.disconnect(hear)
 	var kinds := {}
 	for c in calls:
