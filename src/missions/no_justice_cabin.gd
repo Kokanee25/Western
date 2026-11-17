@@ -607,7 +607,11 @@ func _joe_go(to: Vector3, speed: float, delta: float) -> bool:
 		_walk(joe, _joe_way[0], speed, delta)
 		_over_the_wreck(delta)
 		return false
-	return _walk(joe, to, speed, delta)
+	# Already over the sill (in, by in_shack) but held on the wreck's pieces: the same step over.
+	var there := _walk(joe, to, speed, delta)
+	if not there:
+		_over_the_wreck(delta)
+	return there
 
 
 ## The broken door lies in the doorway in pieces, and a man's walk_to stops short of them (you push
