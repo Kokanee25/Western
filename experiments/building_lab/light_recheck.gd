@@ -12,8 +12,8 @@ extends SceneTree
 const VIEWS := {
 	"doctor_office": ["doctor", Vector3(7.9, 2.55, 0.7), Vector3(2.5, 2.0, 3.6), 72.0, 12.0],
 	"jail_office": ["jail", Vector3(10.05, 2.25, 6.6), Vector3(0.6, 1.5, 2.6), 70.0, 12.0],
-	"saloon_b_door": ["saloon_b", Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 12.0],
-	"saloon_b_bar": ["saloon_b", Vector3(1.2, 2.65, 12.3), Vector3(12.0, 2.4, 3.5), 72.0, 15.5],
+	"saloon_b_door": ["saloon", Vector3(14.4, 2.6, 2.6), Vector3(4.5, 2.6, 10.5), 72.0, 12.0],
+	"saloon_b_bar": ["saloon", Vector3(1.2, 2.65, 12.3), Vector3(12.0, 2.4, 3.5), 72.0, 15.5],
 }
 const VARIANTS := [["old", 2.5, 1.05], ["new", -1.0, -1.0]]
 
@@ -57,7 +57,7 @@ func _run() -> void:
 	for l in valley.find_children("*", "Label3D", true, false):
 		l.visible = false
 	# The doors' leaves out of the way inside (the buildings' own scripts do).
-	for key in ["doctor", "jail", "saloon_b"]:
+	for key in ["doctor", "jail", "saloon"]:
 		var b: Node3D = valley.get(&"buildings").get(key)
 		if b == null:
 			continue
@@ -90,6 +90,9 @@ func _run() -> void:
 				continue
 			var view: Array = VIEWS[v]
 			var b: Node3D = valley.get(&"buildings").get(view[0])
+			if b == null:
+				push_error("no building %s" % view[0])
+				continue
 			if clock:
 				clock.set_time(float(view[4]))
 			cam.global_position = b.to_global(view[1])
