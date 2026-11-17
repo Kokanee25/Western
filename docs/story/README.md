@@ -6,6 +6,7 @@ Docs only: no game code, no paid calls. The mission cards it points at (`docs/mi
 
 | File | What it is |
 |---|---|
+| [`MISSIONS.md`](MISSIONS.md) | **Every mission idea in one place** (2026-11-17): the whole game on one screen, a block per mission (what Harlan walks in with, the beats, the choices), what cuts across missions, Sean's newest decisions, six new proposals. The full record, with Sean's own words on each mission, is in [`missions/`](missions/). Start here for anything about a mission |
 | [`OUTLINE.md`](OUTLINE.md) | The whole story in play order, a page an act: what's fixed, what's open, what unlocks what, what each mission reveals, every ending |
 | [`SETUPS.md`](SETUPS.md) | 49 setups, and (part E) the callbacks: what the town remembers of what the player did; and where each pays off; 13 listed as missing an end, 3 of them since closed by Sean's picks |
 | [`VOICES.md`](VOICES.md) | A sheet for each speaking character: how they talk, what they call Harlan, what they know and from when, five lines |
