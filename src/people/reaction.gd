@@ -110,6 +110,7 @@ var _speed := WALK
 var _stuck := 0.0
 var _last := Vector3.INF
 var _arrived := false
+var _detours := 0
 var _wait := 0.0
 var _said := false
 var _day: Node
@@ -459,6 +460,7 @@ func _go(point: Vector3, speed: float) -> void:
 	else:
 		_route.append(point)
 	_stuck = 0.0
+	_detours = 0
 	_last = body.global_position
 	_arrived = false
 
@@ -487,9 +489,21 @@ func _act(delta: float) -> void:
 			else:
 				_stuck = maxf(_stuck - delta, 0.0)
 			_last = body.global_position
-			if there or _stuck > 2.0:
+			if not there and _stuck > 1.0 and _detours < 4:
+				# Caught on something (a rail, a trough, a porch's edge): a sidestep round it, one way
+				# then the other, as running from a fire (the playtest: men who ran 2-8 m and cowered
+				# in the open, caught on the way to their door).
+				var to := _route[0] - body.global_position
+				to.y = 0.0
+				var side := Vector3(-to.z, 0.0, to.x).normalized() * (1.0 if _detours % 2 == 0 else -1.0)
+				_route.push_front(body.global_position + side * 1.2 * (1.0 + floorf(_detours / 2.0)) + to.normalized() * 0.3)
+				_detours += 1
+				_stuck = 0.0
+			elif there or _stuck > 2.0:
 				_route.pop_front()
 				_stuck = 0.0
+				if there:
+					_detours = 0
 				if _route.is_empty():
 					_arrived = true
 			if choice == &"back_away":
