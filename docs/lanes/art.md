@@ -43,7 +43,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
   **The jail's stone and form** (#860, PR #927): the stepped parapet with corner piers, the cell wing a metre lower,
   the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **The general store (#858): steps 1-3 done**
-  (`experiments/building_lab/store/` README: sheet approved, spec on its lot, the frame's checks pass; tests, X-ray, bodies 38,185 of 65,536; steps 4-6, the look, judges and recipe, next);
+  (`experiments/building_lab/store/` README: sheet approved, spec on its lot, the frame's checks pass; tests, X-ray, bodies 38,185 of 65,536; steps 4-6 done #1035: library finishes, light 0.55/26, valley render CPU 1.5-2.4 ms (cellar 5.4, over), critic 2 CLOSE/6 DIFFERENT, all props/#695/neighbours; the sign's place and the rear's gabled wing are Sean's form calls);
   saloon B is Fable's (#848: step 1 done, below).
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")

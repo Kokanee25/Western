@@ -70,3 +70,26 @@ a pane a light, the front's east show window's pane shot alone while its sash st
   for three frames), so a rendered bench says nothing. The CI nightly or Sean's F3 give it; saloon B's 1.8 ms at
   ~2,000 draws is the guide (the store is a tenth of that).
 
+
+## Steps 4-6: the look, the judges, the recipe (#1035)
+
+`render_valley.gd` draws the store on its lot in the valley's real look from the sheet's views (`results/2026-11-17_look/`:
+each view as a jpg, `pairs.jpg` beside the targets, `cpu.txt`); `--variants=NAME:day_fill=a,window_day=b;...` tries light dials in one load.
+Rendered here under lavapipe (the cloud workspace had no Vulkan ICD until `apt-get update && apt-get install mesa-vulkan-drivers`:
+that closes step 3's gap), ~15 min a view, one run at a time.
+
+- **The look is the library's, by name** (nothing new): `painted_buff_drop` few for the siding, `painted_green_trim` for trim, sash
+  and sign, `painted_pale_tg` inside, `floor_fir_worn` on its traffic ways; every entry's `approved` list passes "few".
+- **The one change: the light.** The spec's step-2 numbers (`day_fill` 0.18, `window_day` 9) left a 16.8 m shop near black by day.
+  Tried 0.35/16 and 0.55/26 (shop and loft, one load): the second is lit to the back wall without flattening it. Now in `gen_spec.py`
+  and `store.json`. Tests 8/8 (the README's "9" counted one too many).
+- **Render CPU in the valley, measured at last** (x0.65 for Sean's core): 1.5-2.4 ms a view (front 2.4, shop 1.8, loft 2.1, night 1.5)
+  of 935-2,652 draws, under the 4 ms budget. **The cellar is 5.4 ms (7,788 draws): over budget.** A camera below the dug lot's
+  ground sees the whole valley through the pad's hole; a player on the cellar stair may too. Not fixed: gameplay's to cull.
+- **Round 1** (`docs/screenshots/judge/2026-11-17_store_r1/`, `_cheap/`): the blind critic 0 SAME / 2 CLOSE (front, loft) / 6 DIFFERENT;
+  its five: the bare interiors (dressing, the prop lab's), the cellar near black with no stair or door light (#695's doors and lantern),
+  the rear a flat box beside the sheet's gabled wing with a hoist (spec), the front dull olive in cool light with the sign at the
+  parapet where the sheet puts a lower sign band, the dock with no cellar flap (#695). The cheap judge: five cheap indie, the loft
+  good indie; its reasons: empty rooms, the grey placeholder neighbours, tiled post grain and floor, the night room's black crush.
+- **No round 2:** every fault above is another lane's (props, #695, the neighbours' lots) or a form call for Sean (the sign's place,
+  the rear's wing); a second round of renders (~2.5 h) would only find them again.

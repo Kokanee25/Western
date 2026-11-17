@@ -314,8 +314,8 @@ spec = {
     "use_points": use_points,
     "fixtures": [], "furniture": [],
     "lamps": lamps,
-    "light": {"_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall",
-              "fill": [0.62, 0.6, 0.57], "window_day": 9.0, "day_fill": 0.18},
+    "light": {"_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall; judged by day in #1035 (the doctor's 0.1 and 7 left the shop near black): 0.55 and 26",
+              "fill": [0.62, 0.6, 0.57], "window_day": 26.0, "day_fill": 0.55},
     "materials": materials,
     "sources": [
         "Saloon B's frame (#848): queen-post trusses, 3x12 joists broken over girders on posts, the stacked-opening rules.",
