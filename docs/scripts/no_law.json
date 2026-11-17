@@ -23,7 +23,8 @@
     "The town gets the night wrong in the morning, on purpose: a player who sat at the table knows it.",
     "Sean, 2026-11-17 (decided, #1056): Harlan carries Earl to the doctor's and bangs on the door; the doctor, up with the sheriff, says the man wants burying; Earl lies in the front room till morning. Scenes 'after', 'carry' and 'morning' are written to it. This changes the built murder: Earl is shot and down, not shot dead (gameplay, #1057).",
     "Sean's review, 2026-11-17: the stranger asks Harlan to his own table, buys him a drink, and they talk a minute about the sheriff before Cody comes in. So s26 is simpler: the doctor may say 'Go and get a drink', and whoever walks into the saloon's yard is asked to sit. The oath and 'deputy for now, until the county names a man' are the sheriff's own words: his page, scene 5 (day2.oath, day2.for_now).",
-    "The sheriff's last day (Beat 5) is shown here as a copy of the sheriff's script's scene 5 (day2.*), so the oath reads with the rest of No Law: he asks if you'll take the badge, you nod or shake, and a shake gets 'That's not the way this works, son.' The lines are kept in sheriff_road.json, so his voice is in one place."
+    "The sheriff's last day (Beat 5) is shown here as a copy of the sheriff's script's scene 5 (day2.*), so the oath reads with the rest of No Law: he asks if you'll take the badge, you nod or shake, and a shake gets 'That's not the way this works, son.' The lines are kept in sheriff_road.json, so his voice is in one place.",
+    "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. Written in: his manners are amused and condescending at the table; he doesn't flinch when a gun is pointed at him; the doctor's 'didn't get down to make sure' and the sheriff's 'never got down' (the sheriff's page) are the only hints."
   ],
   "words_to_check": [],
   "setups": [
@@ -137,7 +138,7 @@
       "name": "The stranger (the Baron's foreman)",
       "called": "nobody says",
       "bible": "VOICES.md, The Baron's foreman; s21 open",
-      "brief": "About fifty, Western, calm and low; friendly the way a man is who can afford it. Few words, never hurried, never raised. Educated or a cowman is Sean's call (s21): the built lines lean educated.",
+      "brief": "About fifty, Western, soft-spoken and low; never hurried, never raised. Cocky under the manners: he is amused by you, and asks leave for what he means to do anyway. (Sean, 2026-11-17: cocky, arrogant, and a coward; the coward is NOT heard on night one. Tonight he should sound like the most dangerous man in the room.)",
       "voice": null
     },
     {
@@ -413,7 +414,7 @@
           "trigger": "You come into the saloon's yard; he is alone at a table by the card game, and looks up",
           "when": "any",
           "condition": "calm, friendly",
-          "delivery": "Pleasant, unhurried. He already knows your name. He asks leave, as he always does, and pushes the other chair out with his boot.",
+          "delivery": "Pleasant, unhurried, a little amused. He already knows your name. He asks leave, as he always does, and pushes the other chair out with his boot.",
           "words": [
             {
               "text": "Evening. Harlan, isn't it? Sit with me a while, if you've no objection.",
@@ -452,10 +453,10 @@
           "trigger": "The drinks come",
           "when": "sheriff.care = good or poor (you brought the sheriff in)",
           "condition": "calm, friendly",
-          "delivery": "A man making talk. He is looking at your hands.",
+          "delivery": "A man making talk, with a smile in it. He can't see why anyone would.",
           "words": [
             {
-              "text": "They tell me it was you brought the sheriff in. That's a hard thing to come on, a man lying in the road.",
+              "text": "They tell me it was you brought the sheriff in. Carried him the best part of four miles. That's a deal of trouble to go to.",
               "status": "new"
             }
           ],
@@ -463,7 +464,8 @@
             "S40"
           ],
           "added": "2026-11-17 (#1056)",
-          "takes": []
+          "takes": [],
+          "note": "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. Only the cocky half shows tonight."
         },
         {
           "id": "table.talk_left",
@@ -490,7 +492,7 @@
           "trigger": "A swallow later",
           "when": "any",
           "condition": "calm, grave",
-          "delivery": "Said with his eyes down, turning his glass. Every word of it is true.",
+          "delivery": "Said with his eyes down, turning his glass, grave as a deacon and enjoying it. Every word of it is true.",
           "words": [
             {
               "text": "I only met him the once. He seemed a good man. He didn't deserve that.",
@@ -739,7 +741,7 @@
           "trigger": "You point a gun at him",
           "when": "any",
           "condition": "calm",
-          "delivery": "Unbothered; he's had guns pointed at him before.",
+          "delivery": "Unbothered, even amused. He does not flinch tonight: Cody's friends are in the street and he knows you won't. (What he is when nobody stands behind him is for later.)",
           "words": [
             {
               "text": "Easy, friend. I ain't the one you want.",
@@ -757,7 +759,8 @@
           "setups": [
             "S40"
           ],
-          "takes": []
+          "takes": [],
+          "note": "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. Don't let a gun make him flinch here: that would spend the reveal in the first hour."
         },
         {
           "id": "after.drifter",
@@ -1427,21 +1430,22 @@
           "trigger": "You come to the bed",
           "when": "clear (care good)",
           "condition": "dying, clear",
-          "delivery": "Quiet and exact, spending his breath on what's useful.",
+          "delivery": "Quiet and exact. The last part puzzles him still: a man who meant it would have got down.",
           "words": [
             {
-              "text": "Bald-faced sorrel. Soft-spoken man. Called me friend.",
+              "text": "Bald-faced sorrel. Soft-spoken man. Called me friend. Shot me from the saddle and never got down.",
               "status": "new"
             }
           ],
           "setups": [
-            "S40"
+            "S40",
+            "S51"
           ],
           "takes": [],
           "was": [
             "Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan."
           ],
-          "note": "For a player who sat at the table last night this lands hard: he has heard that word. Nobody says so."
+          "note": "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. The sheriff only says what the man did."
         },
         {
           "id": "day2.shot_by.fading",

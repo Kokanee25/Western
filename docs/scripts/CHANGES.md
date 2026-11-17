@@ -47,7 +47,7 @@ with their tests (several tests check a line's words).
 | `config/moments/sheriff_dies.json` | `lines.nod.clear.0` | sheriff_road.json `day2.nod.clear` | Good. You're my deputy. Doc, you heard him. | Doc, you saw that. He's sworn. |
 | `config/moments/sheriff_dies.json` | `lines.oath.clear.0` | sheriff_road.json `day2.oath.clear` | Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then. | Doc. My badge. ... Harlan. I want this on you. Keep the peace of this county and serve its papers. There's more to the oath. I disremember it. Will you take it? |
 | `config/moments/sheriff_dies.json` | `lines.oath.fading.0` | sheriff_road.json `day2.oath.fading` | Badge... Doc. Pin it on him. | Badge... Harlan. Take it. ... Will you? |
-| `config/moments/sheriff_dies.json` | `lines.shot_by.clear.0` | sheriff_road.json `day2.shot_by.clear` | Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan. | Bald-faced sorrel. Soft-spoken man. Called me friend. |
+| `config/moments/sheriff_dies.json` | `lines.shot_by.clear.0` | sheriff_road.json `day2.shot_by.clear` | Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan. | Bald-faced sorrel. Soft-spoken man. Called me friend. Shot me from the saddle and never got down. |
 | `config/moments/sheriff_dies.json` | `lines.shot_by.fading.0` | sheriff_road.json `day2.shot_by.fading` | ...sorrel... said friend... | Sorrel... white face. Said friend. He said friend. |
 | `config/moments/sheriff_dies.json` | `lines.where.left.0` | sheriff_road.json `day2.where` | Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it. | Hold him. No... yes, like that. You've held a man down before. |
 | `config/moments/sheriff_dies.json` | `lines.where.poor.0` | sheriff_road.json `day2.where` | Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it. | Hold him. No... yes, like that. You've held a man down before. |
@@ -70,6 +70,7 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 
 | Script line | Speaker | When | Words |
 |---|---|---|---|
+| sheriff_road.json `evening.doctor.ball` | doctor | any | One ball, and low. Fired from a horse, by the line of it. Whoever it was didn't get down to make sure. |
 | sheriff_road.json `day2.door.table` | doctor | nolaw.seen_from = table or yard, and you didn't carry Earl here (nolaw.carried_earl = no) | The sheriff's not been told about Earl. Don't you tell him. |
 | sheriff_road.json `day2.door.coat` | doctor | nolaw.carried_earl = yes (Earl's blood is on your coat) | The sheriff's not been told about Earl. Button your coat. |
 | sheriff_road.json `day2.heard` | sheriff | clear (care good) | I can hear you, Doc. Send him in. |
@@ -81,7 +82,7 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | sheriff_road.json `day2.not_enough` | doctor | nolaw.seen_from = table (you sat with the stranger), or nolaw.drew_on_stranger | A sorrel horse and one word. I can't hang a man on that, Harlan. |
 | no_law.json `town.you_packed` | townsman | sheriff.care = good (you packed the wound) | Doc says that wound was packed proper. Says you done it. |
 | no_law.json `table.drink` | stranger | any | What'll you take? ... No, put your money up. I asked you. |
-| no_law.json `table.talk` | stranger | sheriff.care = good or poor (you brought the sheriff in) | They tell me it was you brought the sheriff in. That's a hard thing to come on, a man lying in the road. |
+| no_law.json `table.talk` | stranger | sheriff.care = good or poor (you brought the sheriff in) | They tell me it was you brought the sheriff in. Carried him the best part of four miles. That's a deal of trouble to go to. |
 | no_law.json `table.talk_left` | stranger | sheriff.care = left | You'll have heard about the sheriff. Shot on the East Road this morning, not four miles from where we sit. |
 | no_law.json `table.good_man` | stranger | any | I only met him the once. He seemed a good man. He didn't deserve that. |
 | no_law.json `table.asks_left` | stranger | sheriff.care = left | You'd have come down that road yourself this morning. ... See anything of it? |

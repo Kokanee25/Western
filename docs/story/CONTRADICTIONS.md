@@ -494,6 +494,7 @@ on PR #743's branch was read against the bible. **No card was changed.** The fix
 | # | Was open | The scripts' reading |
 |---|---|---|
 | s21 | The stranger's voice: educated, or a cowman's | Soft-spoken and mannerly; a man who asks leave for what he means to do anyway ("Sit with me a while, if you've no objection."). It is how the sheriff let him ride up, and it is the mark the sheriff gives ("Soft-spoken man. Called me friend."). He says "ain't" when it suits him (built). `SETUPS.md` S46 |
+| s21 | (more, D) | **Sean, 2026-11-17:** he is cocky, arrogant and a coward, "that's why the sheriff was only shot in the gut and not finished off"; the reveal is held to mid-game. `VOICES.md`, the foreman; `SETUPS.md` S51 |
 | s24 | Is Cody at the cabin? | No. The built hideout has five men and Kett, none of them Cody. He rode on to the Baron's after the raid, which is why he's alive to walk back into the saloon |
 | s26 | Who sends Harlan to the saloon | The doctor may send him ("Go and get a drink, Harlan."). **Sean, 2026-11-17 (his review of No Law, D):** the stranger is sat in the saloon and asks Harlan to sit with him and talk; he buys the drink; they talk of the sheriff for a minute at most ("a good man", who "didn't deserve that") before Cody comes in. He wants to know whether the sheriff could talk |
 

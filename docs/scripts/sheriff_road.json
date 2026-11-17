@@ -153,6 +153,15 @@
         "day2.blood",
         "day2.blood_doc"
       ]
+    },
+    {
+      "id": "S51",
+      "what": "One ball, low, from the saddle: he didn't get down (the stranger is a coward; Sean, 2026-11-17)",
+      "here": [
+        "evening.doctor.ball",
+        "day2.shot_by.clear"
+      ],
+      "status": "D that he is; the plants P·bible; the reveal is mid-game"
     }
   ],
   "cast": [
@@ -994,6 +1003,26 @@
           "takes": []
         },
         {
+          "id": "evening.doctor.ball",
+          "speaker": "doctor",
+          "trigger": "After his first words that evening",
+          "when": "any",
+          "condition": "tired, exact",
+          "delivery": "The coroner already, counting: how many, where, from what height. He draws nothing from it aloud.",
+          "words": [
+            {
+              "text": "One ball, and low. Fired from a horse, by the line of it. Whoever it was didn't get down to make sure.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S51"
+          ],
+          "note": "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. The first crack, for a player who is listening: nobody says the word.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
           "id": "evening.doctor.go",
           "speaker": "doctor",
           "trigger": "After that, if you stay",
@@ -1215,21 +1244,22 @@
           "trigger": "You come to the bed",
           "when": "clear (care good)",
           "condition": "dying, clear",
-          "delivery": "Quiet and exact, spending his breath on what's useful.",
+          "delivery": "Quiet and exact. The last part puzzles him still: a man who meant it would have got down.",
           "words": [
             {
-              "text": "Bald-faced sorrel. Soft-spoken man. Called me friend.",
+              "text": "Bald-faced sorrel. Soft-spoken man. Called me friend. Shot me from the saddle and never got down.",
               "status": "new"
             }
           ],
           "setups": [
-            "S40"
+            "S40",
+            "S51"
           ],
           "takes": [],
           "was": [
             "Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan."
           ],
-          "note": "For a player who sat at the table last night this lands hard: he has heard that word. Nobody says so."
+          "note": "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. The sheriff only says what the man did."
         },
         {
           "id": "day2.shot_by.fading",

@@ -380,6 +380,17 @@ doctor"); the wordings P·bible. Three things, of three kinds (rule 3):
 - Later still (P·bible): this is the first man Harlan fails to save in front of the town; Payday
   Night's triage is the answer to it.
 
+**S51. He didn't get down** · T1 · D that the stranger is a coward and that it's held to a mid-game reveal (Sean,
+2026-11-17: "that's why the sheriff was only shot in the gut and not finished off"; "probably a mid game reveal
+although I'm sure people will be guessing it right away"); the plants and the payoff P·bible.
+- Planted, as things done, never the word: the doctor that evening, as coroner ("One ball, and low. Fired from a
+  horse, by the line of it. Whoever it was didn't get down to make sure."); the sheriff at the bedside ("Shot me
+  from the saddle and never got down."); the table, where he lets another man do the killing and holds an unarmed
+  one; "I ain't the one you want" (built) when a gun is on him, said without a flinch because he isn't alone.
+- Not on night one: drawing on him must not make him flinch (it would spend the reveal in the first hour).
+- Pays off mid-game: the first time nobody stands behind him. The widow's lane, walked in at gunpoint
+  (`CONTRADICTIONS.md` f6), is the likely place; the raid if not. And the Baron's contempt for a job half done.
+
 ## Missing
 
 **Payoffs with no setup:**

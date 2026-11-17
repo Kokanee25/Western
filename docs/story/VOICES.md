@@ -184,6 +184,17 @@ fact, not the beat.
   2. "Don't move, friend. Whatever happens next, you sit still." (built)
   3. "You didn't see a thing tonight. Nobody did. Remember that." (built)
   4. "Put it up. You'll only get yourself killed." (built)
+- **What he is (D, Sean 2026-11-17, #1056):** "cocky and arrogant … but also a coward - that's why the sheriff was only
+  shot in the gut and not finished off". **Held back: "probably a mid game reveal"** (Sean), though players will guess.
+  So: he fired once from the saddle and rode, which is why the sheriff lived a day and talked, which is why he has to
+  sit down with Harlan and find out what was said. His cowardice is the reason the table scene exists. On night one he
+  must still seem the most dangerous man in the room: amused, condescending, never flinching, because Cody's friends
+  are in the street. He only acts when it's safe: he lets Cody kill, he holds an unarmed man, he comes up the widow's
+  lane with the Colters' guns behind him. Not Kett's kind of coward: Kett begs aloud the moment he's cornered; this man
+  is smug until there is nobody standing behind him, and then there is nothing in him at all. Nobody ever says the word.
+  The Baron knows it, and despises him for the botched job (P·bible: one cold line from the Baron, later).
+  Hints only, before the reveal (`SETUPS.md` S51). Where it breaks (P·bible): alone with Harlan and the sheriff's own
+  revolver, on the widow's lane if he's walked in at gunpoint, or in the raid.
 - **How he talks, settled for the scripts (s21; P until Sean's Script OK, #1056):** soft-spoken and mannerly; he
   asks leave for what he means to do anyway ("Mind if I sit in a while?", "Might I stand you a drink?"), which
   is how the sheriff let him ride up (`SETUPS.md` S46). "Ain't" when it suits him. Before that:
