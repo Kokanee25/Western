@@ -739,6 +739,7 @@ var last_under: Array[int] = []
 var last_out: Array[int] = []
 var last_out_h: Array[float] = []
 var _hand_k := PackedInt32Array()    # his hand's covered skin vertices (places in _arm_skin)
+var _fore_k := PackedInt32Array()    # his forearm's (skin_out's `forearm`)
 var _ptris: Array = []               # each garment point's triangles
 var last_depths: Array[float] = []
 
@@ -857,7 +858,7 @@ func _pose_arm(wp: PackedVector3Array, wn: PackedVector3Array) -> void:
 ## that triangle (a bare finger lying on the cloth faces it: not counted). The cloth's points can
 ## all be on his skin's front while his finer fingers poke out between them: this counts what the
 ## eye sees. (A measure, ~5 ms; the bench, never the game.)
-func skin_out(pts: PackedVector3Array, depth := 0.001) -> int:
+func skin_out(pts: PackedVector3Array, depth := 0.001, forearm := false) -> int:
 	if _arm_skin.is_empty():
 		_skin_setup()
 	if _hand_k.is_empty():
@@ -875,6 +876,8 @@ func skin_out(pts: PackedVector3Array, depth := 0.001) -> int:
 			var bn := skeleton.get_bone_name(bb) if bb >= 0 else ""
 			if bn.begins_with("hand_" + side) or (bn.begins_with("finger_") and bn.contains("_%s_" % side)):
 				_hand_k.append(k)
+			elif bn.begins_with("forearm_" + side):
+				_fore_k.append(k)
 		var lists: Array = []
 		lists.resize(verts.size())
 		for i in lists.size():
@@ -895,7 +898,7 @@ func skin_out(pts: PackedVector3Array, depth := 0.001) -> int:
 	last_out.clear()
 	last_out_h.clear()
 	var count := 0
-	for k in _hand_k:
+	for k in (_fore_k if forearm else _hand_k):
 		var v := wp[k]
 		var c := Vector3i((v / cell).floor())
 		var seen := {}

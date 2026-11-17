@@ -115,6 +115,11 @@ func _measure() -> void:
 			rec.skin_out_max = so
 			rec.skin_out_at = snappedf(t, 0.01)
 		rec.skin_out_total = int(rec.get("skin_out_total", 0)) + so
+		# His forearm's (Sean's specks at 3.4 s); the count leaves last_out as the hand's below.
+		var fo: int = glove.skin_out(pts, 0.001, true)
+		rec.arm_out_max = maxi(int(rec.get("arm_out_max", 0)), fo)
+		rec.arm_out_total = int(rec.get("arm_out_total", 0)) + fo
+		so = glove.skin_out(pts)
 		if int(rec.ticks.get(phase, 0)) % 6 == 0:
 			var hist := [0, 0, 0, 0]
 			for h: float in glove.last_out_h:
@@ -158,6 +163,8 @@ func _measure() -> void:
 			rec.below_floor = int(rec.below_floor) + 1
 		if _last.size() == pts.size() and p.distance_to(_last[i]) * 60.0 > 20.0:
 			rec.flung = int(rec.flung) + 1
+			if not rec.has("flung_at"):
+				rec.flung_at = [snappedf(t, 0.01), phase, i]
 	_last = pts
 
 

@@ -24,6 +24,9 @@ const LAYER := 1 << 12
 const SKIN_PAD := 0.0007
 ## A triangle is rebuilt while one of its points is this near the free cloth's box (m).
 const NEAR := 0.04
+## His finer skin takes his forearm too (and its twist bones), not only his hand and fingers (#1008:
+## Sean saw specks of his forearm through the glove at 3.4 s with the hand alone).
+const FINE_FOREARM := true
 ## Every point re-posed this often (ticks), in case his arm has moved what was far.
 const FULL_EVERY := 12
 
@@ -200,8 +203,9 @@ func step() -> void:
 	rebuild_us = Time.get_ticks_usec() - t0
 
 
-## His hand's vertices of `fine` (its points on his hand and fingers) and its triangles among them
-## (by place in _fine_ids), pulled back as the garment's are (`inset`).
+## His hand's vertices of `fine` (its points on his hand and fingers, and with FINE_FOREARM his
+## forearm and its twists) and its triangles among them (by place in _fine_ids), pulled back as the
+## garment's are (`inset`).
 func _fine_setup() -> void:
 	_fine_inset = inset(fine)
 	_fine_mask = PackedByteArray()
@@ -211,7 +215,8 @@ func _fine_setup() -> void:
 	_fine_ids = PackedInt32Array()
 	for i in fine.verts.size():
 		at[i] = -1
-		if fine.finger_of[i] != "" or fine.skeleton.get_bone_name(fine.main_bone[i]).begins_with("hand"):
+		var bn := fine.skeleton.get_bone_name(fine.main_bone[i])
+		if fine.finger_of[i] != "" or bn.begins_with("hand") or (FINE_FOREARM and bn.begins_with("forearm")):
 			at[i] = _fine_ids.size()
 			_fine_ids.append(i)
 			_fine_mask[i] = 1

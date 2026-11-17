@@ -1508,11 +1508,17 @@ every 4th substep a pile tangled through itself, a fixed 5-substep list missed c
 skin** (step 4, #1008): `set_skin(points, tris)` after `set_body`, `move_skin` each tick, `body_verts`
 (0 off; 0.5 mm): his skin's own vertices kept behind the cloth's triangles (facing his skin's way, over
 the triangle), pushed out by their weights, no bounce; one still in the garment (`VERT_INSIDE`, from
-15 mm out; it began in it and some cloth has stayed near) else from `body_verts_deep` (2 mm) or a
-crossing. Listed once a tick from a hash of all its triangles. Measures `body_vert_contacts`,
-`body_vert_pushes`, `body_vert_listed`, `body_vert_pairs`, `body_vert_us`. SkinCollider's `fine` (a
-`WornGarment.fine`, `fine_tris`) feeds it his hand; off in GarmentHandoff (`FINE_TRIS` 0: pop, stretch,
-cost; experiments/garment_handoff/README.md). Its face **`SolverCloth`** (src/bodies) has
+6 mm out; it began in it and some cloth has stayed near) else from `body_verts_deep` (2 mm) or a
+crossing. Each vertex is let be as far in front as it was worn (`sk_slack`, from the triangles over or
+within 2 mm beside it), easing to 0 at 15 mm/s (no pop at the take); `skin_out()` once the garment's
+left his hand (GarmentHandoff.let_go). Listed once a tick from a hash of its free triangles (held ones
+only mark cells: near one, still in the garment); met after his body each substep. Measures
+`body_vert_contacts`, `body_vert_pushes`, `body_vert_listed`, `body_vert_pairs`, `body_vert_us`.
+SkinCollider's `fine` (a `WornGarment.fine`, `fine_tris`) feeds it his hand and forearm
+(`FINE_FOREARM`); on in GarmentHandoff (`FINE_TRIS` 3000; experiments/garment_handoff/README.md). Dead
+ends (#1008): the strain limit again after the pushes (pulled the cloth into his arm, flung it on
+sean_s3_talking), capping each push by its edges (more of his skin out), meeting every 2nd substep
+(~0.4 ms saved, more out). Its face **`SolverCloth`** (src/bodies) has
 GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
 `came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
 the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `set_skin`, `move_skin`, `tune(name, v)`.

@@ -170,6 +170,11 @@ func set_skin(points: PackedVector3Array, triangles: PackedInt32Array) -> bool:
 	return core.set_skin(points, triangles)
 
 
+## His finer skin's out of the garment (it's left his hand, #1008): pushed back only from shallow.
+func skin_out() -> void:
+	core.skin_out()
+
+
 func move_skin(points: PackedVector3Array) -> void:
 	core.move_skin(points)
 
