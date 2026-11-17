@@ -73,7 +73,19 @@ func pendulum_angle(t: float) -> float:
 	return float(p.get("swing_deg", 4.5)) * sin(TAU * t / float(p.get("period", 1.4)))
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
+	if stopped or not _near or not _on_screen:
+		return
+	_pendulum.rotation.z = deg_to_rad(pendulum_angle(_phase))
+	if _day:
+		var minute := int(floor(_day.time_of_day * 60.0))
+		if minute != _last_minute:
+			show_time(_day.time_of_day)
+
+
+## The beat and the distance check run in the physics frame: GameAudio places a sound with physics
+## queries (the room, the walls), which the engine allows only there.
+func _physics_process(delta: float) -> void:
 	if stopped:
 		return
 	_check_in -= delta
@@ -88,13 +100,6 @@ func _process(delta: float) -> void:
 	_phase += delta
 	if int(floor(_phase / half)) != int(floor(before / half)):
 		_tick_now()
-	if not _on_screen:
-		return
-	_pendulum.rotation.z = deg_to_rad(pendulum_angle(_phase))
-	if _day:
-		var minute := int(floor(_day.time_of_day * 60.0))
-		if minute != _last_minute:
-			show_time(_day.time_of_day)
 
 
 ## The escapement's tick (alternating tick and tock), quieter for the din round it: each person within
@@ -150,8 +155,14 @@ func _build_works() -> void:
 	var face := MeshInstance3D.new()
 	face.name = "Dial"
 	face.mesh = _disc(r, 40)
-	face.material_override = PixelArt.material(ImageTexture.create_from_image(dial_image(256)), Color.WHITE,
-			PixelArt.Mapping.UV, Vector3.ZERO, 0.35, 0.0, 0.5)
+	var img := dial_image(256)
+	img.generate_mipmaps()
+	var mat := PixelArt.material(ImageTexture.create_from_image(img), Color.WHITE, PixelArt.Mapping.UV, Vector3.ZERO, 0.35, 0.0, 0.5)
+	# The picture once across the dial (UVs in metres, as SignArt's boards): a texel a pixel, kept as painted.
+	mat.set_shader_parameter(&"texels_per_meter", 256.0 / (2.0 * r))
+	mat.set_shader_parameter(&"use_mipmaps", true)
+	mat.set_shader_parameter(&"fixed_squares", true)
+	face.material_override = mat
 	face.position = at
 	_works.add_child(face)
 	var hands: Dictionary = definition.get("hands", {})
@@ -257,7 +268,7 @@ static func _disc(r: float, segments: int) -> ArrayMesh:
 		var a1 := TAU * (i + 1) / segments
 		for p: Vector2 in [Vector2.ZERO, Vector2(cos(a0), sin(a0)), Vector2(cos(a1), sin(a1))]:
 			st.set_normal(Vector3.BACK)
-			st.set_uv(Vector2(0.5 + p.x * 0.5, 0.5 - p.y * 0.5))
+			st.set_uv(Vector2(r + p.x * r, r - p.y * r))
 			st.add_vertex(Vector3(p.x * r, p.y * r, 0.0))
 	return st.commit()
 

@@ -22,6 +22,14 @@ const VIEWS := {
 	# The well: No Law's table under the chandelier, the piano and the faro bank by the arch.
 	"well_night": [Vector3(12.4, 2.6, 2.6), Vector3(11.0, 1.2, 10.5), 66.0, 21.5],
 	# The gaming room: the faro table under its shaded lamp, the wheel on the wall.
+	# S5, the walls (#1030; y over the ground floor's 0.95 as above): the regulator clock and the steer skull on the front wall, the back bar's
+	# shelves and the foot rail, the stag and the pegs on the side wall, the dressing room upstairs.
+	"clock_day": [Vector3(5.7, 2.95, 2.1), Vector3(5.41, 2.95, 0.12), 42.0, 14.0],
+	"clock_night": [Vector3(5.7, 2.95, 2.1), Vector3(5.41, 2.95, 0.12), 42.0, 21.5],
+	"walls_front_day": [Vector3(13.4, 2.85, 4.4), Vector3(7, 2.95, 0.2), 70.0, 14.0],
+	"backbar_night": [Vector3(5.2, 2.85, 7), Vector3(0.4, 2.75, 6.4), 60.0, 21.5],
+	"side_wall_day": [Vector3(11, 2.85, 6), Vector3(16.3, 2.95, 5), 70.0, 14.0],
+	"dressing_day": [Vector3(1.6, 6.5, 16.2), Vector3(0.6, 5.9, 19), 66.0, 14.0],
 	"gaming_night": [Vector3(11.9, 2.5, 14.1), Vector3(7.5, 1.6, 18.0), 66.0, 21.5],
 }
 

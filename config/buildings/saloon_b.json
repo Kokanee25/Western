@@ -3069,7 +3069,11 @@
 		"day_fill": 0.32
 	},
 	"materials": {
-		"wear": {"use": 1.0, "dings": 0.0, "_why": "#901 (dents off until the judges like them, Sean 2026-11-14): a saloon open from morning to the small hours, a dance hall over it: the most used wood in town"},
+		"wear": {
+			"use": 1.0,
+			"dings": 0.0,
+			"_why": "#901 (dents off until the judges like them, Sean 2026-11-14): a saloon open from morning to the small hours, a dance hall over it: the most used wood in town"
+		},
 		"_doc": "Step 2 (#867): finishes by name from the material library, the passing entries only. Outside: ox-blood board and batten (painted_oxblood_batten, passed at a few years and old: drawn at 'few', the nearest passed age to a paint a year in this sun), buff trim (the cornice and its brackets on both streets, corner boards, casings, sashes, the balcony's posts, beams and rails). Inside: the bar room's street walls and its back wall wainscoted in oak to 0.9 m with a picture rail, pale beaded boards over; pale boards in the other rooms; the posts, girders, brackets and the open joists over the bar brown rough-sawn pine (R1: the library has no dressed timber yet); the worn fir floor with the building's ways; the hall stair, the well's rail, the inside doors and the corner's doors oak.",
 		"floor": "wood:int_floor",
 		"wall_boards": "int_boards",
@@ -3478,7 +3482,7 @@
 		}
 	},
 	"dressing": {
-		"_doc": "#902: the stage's footlights and the dressing room's table, chair and lamp (`stage`). #950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build (SpecBuilding._dressing, PropDressing: the valley and every lab read this one placement). Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at [x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, `row`: PropDressing's doc. The upper floor is 3.96 over the ground floor, #902's stage 4.72. The rest of the stage's props (#903) are the prop lab's to place.",
+		"_doc": "#902: the stage's footlights and the dressing room's table, chair and lamp (`stage`). #950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build (SpecBuilding._dressing, PropDressing: the valley and every lab read this one placement). Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at [x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, `row`: PropDressing's doc. The upper floor is 3.96 over the ground floor, #902's stage 4.72. #1030: batch S5, the walls (the regulator clock, trophies, sconces, pegs, rifle, foot rail, spittoons, the back bar's bottles) and the stage's props (#903), in the wing and the dressing room.",
 		"batches": {
 			"stage": [
 				{
@@ -3552,22 +3556,6 @@
 					"shadows": false
 				},
 				{
-					"id": "dress_table",
-					"kit": "table",
-					"fit": [
-						1.0,
-						0.76,
-						0.55
-					],
-					"at": [
-						0.43,
-						3.96,
-						17.2
-					],
-					"facing": 90,
-					"use": "the dressing table against the yard wall, between the door and the window (the mirror over it is the prop lab's)"
-				},
-				{
 					"id": "dress_chair",
 					"kit": "chair",
 					"at": [
@@ -3578,15 +3566,26 @@
 					"facing": -90
 				},
 				{
+					"id": "dress_mirror",
+					"kit": "dressing_mirror",
+					"at": [
+						0.39,
+						3.96,
+						17.2
+					],
+					"facing": 90,
+					"use": "the dressing table with its glass, against the yard wall between the door and the window"
+				},
+				{
 					"id": "dress_lamp",
 					"kit": "oil_lamp",
-					"on": "dress_table",
 					"at": [
-						0.35,
+						0.49,
 						0.0,
-						17.55
+						17.45
 					],
 					"facing": 0,
+					"on": "dress_mirror",
 					"light": 0.25
 				}
 			],
@@ -4798,6 +4797,539 @@
 					],
 					"facing": 80,
 					"on": "crate_0"
+				}
+			],
+			"S5": [
+				{
+					"id": "wall_clock",
+					"kit": "wall_clock",
+					"at": [
+						5.41,
+						1.4,
+						0.115
+					],
+					"facing": 0
+				},
+				{
+					"id": "steer_skull",
+					"kit": "steer_skull",
+					"at": [
+						10.6,
+						2.75,
+						0.12
+					],
+					"facing": 0
+				},
+				{
+					"id": "stag",
+					"kit": "deer_head",
+					"at": [
+						16.34,
+						2.5,
+						9.45
+					],
+					"facing": -90
+				},
+				{
+					"id": "door_pegs",
+					"kit": "coat_pegs",
+					"at": [
+						16.34,
+						1.75,
+						2.99
+					],
+					"facing": -90
+				},
+				{
+					"id": "rifle",
+					"kit": "rifle_pegs",
+					"at": [
+						0.115,
+						2.0,
+						12.62
+					],
+					"facing": 90
+				},
+				{
+					"id": "sconce_0",
+					"kit": "wall_sconce",
+					"at": [
+						4.35,
+						2.0,
+						0.115
+					],
+					"facing": 0,
+					"light": 0.1,
+					"light_forward": 0.12,
+					"energy": 0.8,
+					"reach": 4.5,
+					"shadows": false
+				},
+				{
+					"id": "sconce_1",
+					"kit": "wall_sconce",
+					"at": [
+						16.34,
+						2.0,
+						12.56
+					],
+					"facing": -90,
+					"light": 0.1,
+					"light_forward": 0.12,
+					"energy": 0.8,
+					"reach": 4.5,
+					"shadows": false
+				},
+				{
+					"id": "sconce_2",
+					"kit": "wall_sconce",
+					"at": [
+						13.65,
+						2.1,
+						0.115
+					],
+					"facing": 0,
+					"light": 0.1,
+					"light_forward": 0.12,
+					"energy": 0.8,
+					"reach": 4.5,
+					"shadows": false
+				},
+				{
+					"id": "foot_rail_0",
+					"kit": "foot_rail",
+					"at": [
+						2.825,
+						0.0,
+						3.9
+					],
+					"facing": 90
+				},
+				{
+					"id": "foot_rail_1",
+					"kit": "foot_rail",
+					"at": [
+						2.825,
+						0.0,
+						6.9
+					],
+					"facing": 90
+				},
+				{
+					"id": "foot_rail_2",
+					"kit": "foot_rail",
+					"at": [
+						2.825,
+						0.0,
+						9.9
+					],
+					"facing": 90
+				},
+				{
+					"id": "spittoon_0",
+					"kit": "spittoon",
+					"at": [
+						2.95,
+						0.0,
+						4.3
+					],
+					"facing": 0
+				},
+				{
+					"id": "spittoon_1",
+					"kit": "spittoon",
+					"at": [
+						3.03,
+						0.0,
+						6.3
+					],
+					"facing": 20
+				},
+				{
+					"id": "spittoon_2",
+					"kit": "spittoon",
+					"at": [
+						2.95,
+						0.0,
+						8.2
+					],
+					"facing": 40
+				},
+				{
+					"id": "spittoon_3",
+					"kit": "spittoon",
+					"at": [
+						3.03,
+						0.0,
+						9.8
+					],
+					"facing": 60
+				},
+				{
+					"id": "bottles_left_0",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 4,
+						"step": [
+							0,
+							0,
+							0.19
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						3.35
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_right_0",
+					"row": {
+						"kits": [
+							"decanter",
+							"whiskey_bottle",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						2.2
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_left_0",
+					"row": {
+						"kits": [
+							"whiskey_bottle",
+							"decanter",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						3.4
+					],
+					"facing": 90
+				},
+				{
+					"id": "bottles_left_1",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 4,
+						"step": [
+							0,
+							0,
+							0.19
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						5.8500000000000005
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_right_1",
+					"row": {
+						"kits": [
+							"decanter",
+							"whiskey_bottle",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						4.7
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_left_1",
+					"row": {
+						"kits": [
+							"whiskey_bottle",
+							"decanter",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						5.9
+					],
+					"facing": 90
+				},
+				{
+					"id": "bottles_left_2",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 4,
+						"step": [
+							0,
+							0,
+							0.19
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						8.35
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_right_2",
+					"row": {
+						"kits": [
+							"decanter",
+							"whiskey_bottle",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						7.2
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_left_2",
+					"row": {
+						"kits": [
+							"whiskey_bottle",
+							"decanter",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						8.4
+					],
+					"facing": 90
+				},
+				{
+					"id": "bottles_left_3",
+					"row": {
+						"kits": [
+							"whiskey_bottle"
+						],
+						"count": 4,
+						"step": [
+							0,
+							0,
+							0.19
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.465,
+						10.85
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_right_3",
+					"row": {
+						"kits": [
+							"decanter",
+							"whiskey_bottle",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						9.700000000000001
+					],
+					"facing": 90
+				},
+				{
+					"id": "upper_left_3",
+					"row": {
+						"kits": [
+							"whiskey_bottle",
+							"decanter",
+							"whiskey_bottle"
+						],
+						"count": 3,
+						"step": [
+							0,
+							0,
+							0.24
+						],
+						"jitter": [
+							0.01,
+							0.02,
+							30
+						]
+					},
+					"at": [
+						0.3,
+						1.965,
+						10.9
+					],
+					"facing": 90
+				},
+				{
+					"id": "wing_trunk",
+					"kit": "travelling_trunk",
+					"at": [
+						0.55,
+						4.72,
+						12.8
+					],
+					"facing": 180
+				},
+				{
+					"id": "wing_screen",
+					"kit": "dressing_screen",
+					"at": [
+						1.6,
+						4.72,
+						13.1
+					],
+					"facing": 180
+				},
+				{
+					"id": "room6_trunk",
+					"kit": "travelling_trunk",
+					"at": [
+						2.57,
+						3.96,
+						17.75
+					],
+					"facing": -90
+				},
+				{
+					"id": "room6_pegs",
+					"kit": "costume_pegs",
+					"at": [
+						2.845,
+						5.66,
+						19.0
+					],
+					"facing": -90
+				},
+				{
+					"id": "room6_screen",
+					"kit": "dressing_screen",
+					"at": [
+						2.55,
+						3.96,
+						16.45
+					],
+					"facing": 90
 				}
 			]
 		}

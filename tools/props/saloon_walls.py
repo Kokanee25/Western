@@ -36,7 +36,7 @@ def case():
         mem.append(m("trunk_stile_" + s, "post", [0.03, 0.66, 0.02], [x * 0.98, 0.40, 0.15]))
     mem.append(m("trunk_rail_top", "furniture_frame", [W, 0.04, 0.02], [0, 0.69, 0.15]))
     mem.append(m("trunk_rail_bottom", "furniture_frame", [W, 0.04, 0.02], [0, 0.09, 0.15]))
-    mem.append(m("trunk_glass", "glass", [0.24, 0.56, 0.004], [0, 0.39, 0.151], wood="glass"))
+    mem.append(m("trunk_glass", "glass", [0.24, 0.56, 0.004], [0, 0.39, 0.151], wood="glass", look="glass:clear"))
     # The hood: sides, top and bottom boards, the dial plate, the glazed door.
     HB, HT = 0.72, 1.10
     hc, hh = (HB + HT) / 2, HT - HB
@@ -48,7 +48,7 @@ def case():
     mem.append(m("hood_rail_top", "furniture_frame", [HW - 0.03, 0.035, 0.02], [0, HT - 0.0175, 0.15]))
     mem.append(m("hood_rail_bottom", "furniture_frame", [HW - 0.03, 0.035, 0.02], [0, HB + 0.0175, 0.15]))
     mem.append(m("dial_plate", "board", [0.31, hh - 0.04, 0.012], [0, hc, 0.105]))
-    mem.append(m("hood_glass", "glass", [0.30, hh - 0.075, 0.004], [0, hc, 0.151], wood="glass"))
+    mem.append(m("hood_glass", "glass", [0.30, hh - 0.075, 0.004], [0, hc, 0.151], wood="glass", look="glass:clear"))
     # The cornice: a flat cap on a cove, a finial-less top (the period's plain regulator).
     mem.append(m("cornice", "furniture_top", [0.40, 0.03, 0.18], [0, HT + 0.015, 0.09]))
     mem.append(m("cap", "furniture_top", [0.37, 0.025, 0.16], [0, HT + 0.0425, 0.085]))
@@ -87,8 +87,57 @@ def clock():
     }
 
 
+def foot_rail():
+    """The brass foot rail along the bar's front (#1030): a 2 in tube 2.9 m long (a bar section's), 0.21 m
+    off the floor on three brass stanchions. Its own kit prop, not a member of `bar` (saloon B's bars stand
+    in the valley: a member added there tips the card-game chair tests, #834). Ref: the Trinidad saloon's
+    arm rail (refs/saloon/), the same brass a foot lower."""
+    r = 0.025
+    tube = m("rail", "post", [2.9, 2 * r, 2 * r], [0, 0.21, 0], wood="iron", look="prop:brass", solid=0.07,
+             draw={"shape": "lathe", "profile": [[0, -1.45], [r, -1.45], [r, 1.45], [0, 1.45]], "segments": 12,
+                   "rot": [0, 0, 90], "at": [0, 0.21, 0]})
+    mem = [tube]
+    for i, x in enumerate((-1.35, 0.0, 1.35)):
+        mem.append(m("stanchion%d" % i, "post", [0.03, 0.185, 0.03], [x, 0.0925, 0], wood="iron", look="prop:brass", solid=0.2,
+                     draw={"shape": "lathe", "profile": [[0, 0], [0.04, 0.0], [0.04, 0.012], [0.014, 0.02], [0.014, 0.17], [0.022, 0.185], [0, 0.185]],
+                           "segments": 10, "at": [x, 0.0, 0], "rot": [0, 0, 0]}))
+    return {
+        "_doc": "The bar's brass foot rail (#1030, tools/props/saloon_walls.py): a 2 in brass tube 2.9 m long on three stanchions, "
+                "0.21 m off the floor, one per bar section, 0.12 m in front of the bar's front edge. Its own kit prop.",
+        "id": "foot_rail", "kind": "members", "fixture": True, "in_game": False, "wood": "iron",
+        "splits_below": 0.1, "blow_wood_share": 0.3, "members": mem,
+    }
+
+
+def rifle_pegs():
+    """A rifle on two pegs (#1030): a lever-action carbine of 1873's shape, ~1.0 m, laid on two oak pegs
+    on back plates, hung on two nails. Origin the rail's centre at the wall; the rifle lies along x."""
+    mem = []
+    for i, x in enumerate((-0.30, 0.12)):
+        mem.append(m("plate%d" % i, "furniture_frame", [0.07, 0.07, 0.014], [x, 0.0, 0.007], look="lib:furniture_oak/old"))
+        mem.append(m("peg%d" % i, "post", [0.022, 0.022, 0.095], [x, 0.0, 0.0615], look="lib:furniture_oak/old"))
+        mem.append(m("lip%d" % i, "cripple", [0.022, 0.03, 0.02], [x, 0.014, 0.0985], look="lib:furniture_oak/old"))
+    y, z = 0.0345, 0.052
+    b = 0.0125
+    mem.append(m("barrel", "furniture_top", [0.50, 2 * b, 2 * b], [-0.26, y, z], wood="iron", look="prop:iron", solid=0.4,
+                 draw={"shape": "lathe", "profile": [[0, -0.25], [b, -0.25], [b, 0.25], [0, 0.25]], "segments": 8,
+                       "rot": [0, 0, 90], "at": [-0.26, y, z]}))
+    mem.append(m("receiver", "furniture_frame", [0.16, 0.04, 0.032], [0.07, y + 0.004, z], wood="iron", look="prop:brass", solid=0.5))
+    mem.append(m("stock", "post", [0.36, 0.05, 0.032], [0.33, y - 0.002, z], look="prop:dark_wood"))
+    mem.append(m("butt", "trim", [0.012, 0.075, 0.034], [0.516, y - 0.006, z], wood="iron", look="prop:brass", solid=0.5))
+    return {
+        "_doc": "A lever-action rifle on pegs (#1030, tools/props/saloon_walls.py): two oak pegs on back plates, the carbine "
+                "(blued barrel, brass receiver, walnut stock) laid across them, hung over the bar's back or the door. Hung on two nails; "
+                "it falls when the board behind goes; the rifle goes where it's pushed.",
+        "id": "rifle_pegs", "kind": "members", "in_game": False, "wood": "oak", "look": "lib:furniture_oak/old",
+        "splits_below": 0.4, "blow_wood_share": 0.5,
+        "hangs": {"nails": [[-0.30, 0.0, 0.004], [0.12, 0.0, 0.004]]},
+        "members": mem,
+    }
+
+
 def main():
-    for d in (case(), clock()):
+    for d in (case(), clock(), foot_rail(), rifle_pegs()):
         with open(os.path.join(KIT, d["id"] + ".json"), "w") as f:
             json.dump(d, f, indent=1)
             f.write("\n")

@@ -1,0 +1,214 @@
+{
+ "_doc": "A lever-action rifle on pegs (#1030, tools/props/saloon_walls.py): two oak pegs on back plates, the carbine (blued barrel, brass receiver, walnut stock) laid across them, hung over the bar's back or the door. Hung on two nails; it falls when the board behind goes; the rifle goes where it's pushed.",
+ "id": "rifle_pegs",
+ "kind": "members",
+ "in_game": false,
+ "wood": "oak",
+ "look": "lib:furniture_oak/old",
+ "splits_below": 0.4,
+ "blow_wood_share": 0.5,
+ "hangs": {
+  "nails": [
+   [
+    -0.3,
+    0.0,
+    0.004
+   ],
+   [
+    0.12,
+    0.0,
+    0.004
+   ]
+  ]
+ },
+ "members": [
+  {
+   "id": "plate0",
+   "kind": "furniture_frame",
+   "size": [
+    0.07,
+    0.07,
+    0.014
+   ],
+   "at": [
+    -0.3,
+    0.0,
+    0.007
+   ],
+   "look": "lib:furniture_oak/old"
+  },
+  {
+   "id": "peg0",
+   "kind": "post",
+   "size": [
+    0.022,
+    0.022,
+    0.095
+   ],
+   "at": [
+    -0.3,
+    0.0,
+    0.0615
+   ],
+   "look": "lib:furniture_oak/old"
+  },
+  {
+   "id": "lip0",
+   "kind": "cripple",
+   "size": [
+    0.022,
+    0.03,
+    0.02
+   ],
+   "at": [
+    -0.3,
+    0.014,
+    0.0985
+   ],
+   "look": "lib:furniture_oak/old"
+  },
+  {
+   "id": "plate1",
+   "kind": "furniture_frame",
+   "size": [
+    0.07,
+    0.07,
+    0.014
+   ],
+   "at": [
+    0.12,
+    0.0,
+    0.007
+   ],
+   "look": "lib:furniture_oak/old"
+  },
+  {
+   "id": "peg1",
+   "kind": "post",
+   "size": [
+    0.022,
+    0.022,
+    0.095
+   ],
+   "at": [
+    0.12,
+    0.0,
+    0.0615
+   ],
+   "look": "lib:furniture_oak/old"
+  },
+  {
+   "id": "lip1",
+   "kind": "cripple",
+   "size": [
+    0.022,
+    0.03,
+    0.02
+   ],
+   "at": [
+    0.12,
+    0.014,
+    0.0985
+   ],
+   "look": "lib:furniture_oak/old"
+  },
+  {
+   "id": "barrel",
+   "kind": "furniture_top",
+   "size": [
+    0.5,
+    0.025,
+    0.025
+   ],
+   "at": [
+    -0.26,
+    0.0345,
+    0.052
+   ],
+   "wood": "iron",
+   "look": "prop:iron",
+   "solid": 0.4,
+   "draw": {
+    "shape": "lathe",
+    "profile": [
+     [
+      0,
+      -0.25
+     ],
+     [
+      0.0125,
+      -0.25
+     ],
+     [
+      0.0125,
+      0.25
+     ],
+     [
+      0,
+      0.25
+     ]
+    ],
+    "segments": 8,
+    "rot": [
+     0,
+     0,
+     90
+    ],
+    "at": [
+     -0.26,
+     0.0345,
+     0.052
+    ]
+   }
+  },
+  {
+   "id": "receiver",
+   "kind": "furniture_frame",
+   "size": [
+    0.16,
+    0.04,
+    0.032
+   ],
+   "at": [
+    0.07,
+    0.0385,
+    0.052
+   ],
+   "wood": "iron",
+   "look": "prop:brass",
+   "solid": 0.5
+  },
+  {
+   "id": "stock",
+   "kind": "post",
+   "size": [
+    0.36,
+    0.05,
+    0.032
+   ],
+   "at": [
+    0.33,
+    0.0325,
+    0.052
+   ],
+   "look": "prop:dark_wood"
+  },
+  {
+   "id": "butt",
+   "kind": "trim",
+   "size": [
+    0.012,
+    0.075,
+    0.034
+   ],
+   "at": [
+    0.516,
+    0.0285,
+    0.052
+   ],
+   "wood": "iron",
+   "look": "prop:brass",
+   "solid": 0.5
+  }
+ ]
+}

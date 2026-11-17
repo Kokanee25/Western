@@ -141,7 +141,8 @@
     0.39,
     0.151
    ],
-   "wood": "glass"
+   "wood": "glass",
+   "look": "glass:clear"
   },
   {
    "id": "hood_back",
@@ -282,7 +283,8 @@
     0.91,
     0.151
    ],
-   "wood": "glass"
+   "wood": "glass",
+   "look": "glass:clear"
   },
   {
    "id": "cornice",

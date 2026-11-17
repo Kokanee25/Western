@@ -227,3 +227,24 @@ Street's front; the stage x 2.5 to 7.4, z 10.9 to 13.36, 0.76 m high; the wing x
 | `footlight` | 1 | up to 10 shards + the tin; a lit one's oil burns | the stage's front edge (building z ~10.95, on the stage's boards at y 0.76), the reflector behind the chimney (its -z), open toward the dance floor: its +z toward the building's -z (still turned 180): 5, ~0.9 m apart, x 3.0 to 6.9, each with its OilLamp at `light_height` |
 
 ~65 bodies for the set as listed (the valley had ~5,100 to spare at #865's count, before #902's stage).
+
+## Saloon B, the walls (S5, #1030)
+
+`tools/props/saloon_b_dress.py` `s5()` (spec batch `S5`; edit there and re-run) and `tools/props/saloon_walls.py`
+(the new kit files). Views for the room judge: `saloon/place_views.gd` `clock_*`, `walls_front_day`,
+`backbar_night`, `side_wall_day`, `dressing_day`. Done: the **regulator wall clock** (`WallClock`, PARTS.md: hands
+by DayCycle, pendulum, placed tick), the **steer skull** (the Studio's, 2026-10-24) and **stag** (the Rodin
+`deer_head`), three **sconces** lit by the clock (`light_forward` in PropDressing puts the flame out in front of
+the plate), **hat and coat pegs** by the corner door, a **rifle on pegs** on the yard wall past the back bar, the
+brass **foot rail** (three sections) and four **spittoons**, **40 more bottles on the back bar** (its left bay's
+lower shelf and both bays' upper; the shelves and mirrors were already the back bar's, #950 judged), and #903's
+**stage props placed**: `dressing_mirror` replaces #902's plain table (its lamp on it), `costume_pegs`,
+`travelling_trunk` and `dressing_screen` in room 6, a trunk and screen in the wing.
+**The back bar** is 3.06 m of its 3.6 m room: there's no room *above* it for the bar-room nude. Beside it: the
+yard wall's z 0.1-1.9 (1.8 m between the front wall and the back bar's end) is kept free for it (step 8, with
+#1032's pictures, in a gilt frame built then); z 11.9-13.4 has the rifle.
+**Not done:** pronghorn antlers and an elk head (a CC0 scan or a Rodin call, $1-2 each, Sean's OK first); the
+ads, the calendar and the paintings (steps 7-8 wait for #1032's `assets/props/paintings/`); a bullet through the
+clock's works stopping it (not small: it needs the case's members to report a hit on the works; today the works
+go with the case when it falls, and the wall clock keeps time through a shot); the open trunk in the wing (PropDressing
+places a prop shut); hanging lamps were already S1's (6 + 2 + 2 + shaded).

@@ -9,7 +9,8 @@ extends RefCounted
 ##   `lift`       raises it a little more;
 ##   `fit`        a fixture fitted to a size [w, h, d] (PropKit.spawn_fitted);
 ##   `cloth_over` a cloth hung over that entry's `towel_bar` member (ClothProp.hang_over);
-##   `light`      an OilLamp at that height in it, lit by the clock (`energy`, `reach`, `shadows` its own);
+##   `light`      an OilLamp at that height in it, lit by the clock (`energy`, `reach`, `shadows` its own;
+##                `light_forward` puts it that far out on the prop's +Z: a sconce's flame in front of its plate);
 ##   `row`        {kits, count, step, skip, jitter}: a row along `step` from `at`, the kits in turn
 ##                (a shelf of bottles), `skip` leaving gaps, each set down a little off by its id.
 ## Member props (KitProp) get the building's structure id and the entry's (`<building>_dress_<id>`),
@@ -89,7 +90,7 @@ static func place(parent: Node3D, entries: Array, floor_y: float, structure_id :
 			# `shadows`: false for a row of small lights (#902, a stage's footlights: a shadowed lamp
 			# redraws the room into its cube, ~800 draws each in saloon B's dance hall).
 			lamp.casts_shadows = bool(e.get("shadows", true))
-			lamp.position = Vector3(0, float(e.light), 0)
+			lamp.position = Vector3(0, float(e.light), float(e.get("light_forward", 0.0)))
 			node.add_child(lamp)
 		placed[e.id] = node
 	return placed

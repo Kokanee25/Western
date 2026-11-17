@@ -1,0 +1,244 @@
+{
+ "_doc": "The bar's brass foot rail (#1030, tools/props/saloon_walls.py): a 2 in brass tube 2.9 m long on three stanchions, 0.21 m off the floor, one per bar section, 0.12 m in front of the bar's front edge. Its own kit prop.",
+ "id": "foot_rail",
+ "kind": "members",
+ "fixture": true,
+ "in_game": false,
+ "wood": "iron",
+ "splits_below": 0.1,
+ "blow_wood_share": 0.3,
+ "members": [
+  {
+   "id": "rail",
+   "kind": "post",
+   "size": [
+    2.9,
+    0.05,
+    0.05
+   ],
+   "at": [
+    0,
+    0.21,
+    0
+   ],
+   "wood": "iron",
+   "look": "prop:brass",
+   "solid": 0.07,
+   "draw": {
+    "shape": "lathe",
+    "profile": [
+     [
+      0,
+      -1.45
+     ],
+     [
+      0.025,
+      -1.45
+     ],
+     [
+      0.025,
+      1.45
+     ],
+     [
+      0,
+      1.45
+     ]
+    ],
+    "segments": 12,
+    "rot": [
+     0,
+     0,
+     90
+    ],
+    "at": [
+     0,
+     0.21,
+     0
+    ]
+   }
+  },
+  {
+   "id": "stanchion0",
+   "kind": "post",
+   "size": [
+    0.03,
+    0.185,
+    0.03
+   ],
+   "at": [
+    -1.35,
+    0.0925,
+    0
+   ],
+   "wood": "iron",
+   "look": "prop:brass",
+   "solid": 0.2,
+   "draw": {
+    "shape": "lathe",
+    "profile": [
+     [
+      0,
+      0
+     ],
+     [
+      0.04,
+      0.0
+     ],
+     [
+      0.04,
+      0.012
+     ],
+     [
+      0.014,
+      0.02
+     ],
+     [
+      0.014,
+      0.17
+     ],
+     [
+      0.022,
+      0.185
+     ],
+     [
+      0,
+      0.185
+     ]
+    ],
+    "segments": 10,
+    "at": [
+     -1.35,
+     0.0,
+     0
+    ],
+    "rot": [
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "stanchion1",
+   "kind": "post",
+   "size": [
+    0.03,
+    0.185,
+    0.03
+   ],
+   "at": [
+    0.0,
+    0.0925,
+    0
+   ],
+   "wood": "iron",
+   "look": "prop:brass",
+   "solid": 0.2,
+   "draw": {
+    "shape": "lathe",
+    "profile": [
+     [
+      0,
+      0
+     ],
+     [
+      0.04,
+      0.0
+     ],
+     [
+      0.04,
+      0.012
+     ],
+     [
+      0.014,
+      0.02
+     ],
+     [
+      0.014,
+      0.17
+     ],
+     [
+      0.022,
+      0.185
+     ],
+     [
+      0,
+      0.185
+     ]
+    ],
+    "segments": 10,
+    "at": [
+     0.0,
+     0.0,
+     0
+    ],
+    "rot": [
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "stanchion2",
+   "kind": "post",
+   "size": [
+    0.03,
+    0.185,
+    0.03
+   ],
+   "at": [
+    1.35,
+    0.0925,
+    0
+   ],
+   "wood": "iron",
+   "look": "prop:brass",
+   "solid": 0.2,
+   "draw": {
+    "shape": "lathe",
+    "profile": [
+     [
+      0,
+      0
+     ],
+     [
+      0.04,
+      0.0
+     ],
+     [
+      0.04,
+      0.012
+     ],
+     [
+      0.014,
+      0.02
+     ],
+     [
+      0.014,
+      0.17
+     ],
+     [
+      0.022,
+      0.185
+     ],
+     [
+      0,
+      0.185
+     ]
+    ],
+    "segments": 10,
+    "at": [
+     1.35,
+     0.0,
+     0
+    ],
+    "rot": [
+     0,
+     0,
+     0
+    ]
+   }
+  }
+ ]
+}

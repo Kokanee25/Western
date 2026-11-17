@@ -169,6 +169,56 @@ def s3():
     return out
 
 
+def s5():
+    """The walls (#1030): the regulator clock, the trophies, the sconces, the pegs, the rifle, the foot rail,
+    the spittoons, more bottles on the back bar, and the stage's props (#903) in the wings and the dressing
+    room. A hung prop's origin is its nail line (z the wall's face); `facing` turns its +Z off the wall."""
+    out = []
+    # The front wall (Main Street's, face z 0.1, facing +z): between the windows (x 3.96-6.86, 9.6-11.6).
+    out.append(e("wall_clock", "wall_clock", [5.41, 1.4, 0.115], 0))
+    out.append(e("steer_skull", "steer_skull", [10.6, 2.75, 0.12], 0))
+    # The side street's wall (face x 16.36, facing -x): the stag between the 2nd and 3rd windows.
+    out.append(e("stag", "deer_head", [16.34, 2.5, 9.45], -90))
+    # The pegs by the door: hats and coats on the side wall between the corner door and the first window.
+    out.append(e("door_pegs", "coat_pegs", [16.34, 1.75, 2.99], -90))
+    # The rifle on the yard wall past the back bar's end (the nude's wall, z 0.1-1.9, is kept free: step 8).
+    out.append(e("rifle", "rifle_pegs", [0.115, 2.0, 12.62], 90))
+    # Wall sconces, lit with the room's lamps (a small lamp in front of each).
+    for i, (x, y, z, f) in enumerate([(4.35, 2.0, 0.115, 0), (16.34, 2.0, 12.56, -90), (13.65, 2.1, 0.115, 0)]):
+        out.append(e("sconce_%d" % i, "wall_sconce", [x, y, z], f, light=0.1, light_forward=0.12, energy=0.8, reach=4.5, shadows=False))
+    # The brass foot rail along the bar's front, 0.12 m off the arm rail's edge, and spittoons by it.
+    for i, z in enumerate(BAR_Z):
+        out.append(e("foot_rail_%d" % i, "foot_rail", [BAR_X + 0.455 + 0.12, 0.0, z], 90))
+    for i, z in enumerate([4.3, 6.3, 8.2, 9.8]):
+        out.append(e("spittoon_%d" % i, "spittoon", [2.95 + 0.08 * (i % 2), 0.0, z], 20 * i))
+    # The back bar's shelves, filled: the left bay's lower shelf (the right bay's is S1's) and both bays' upper.
+    for i, c in enumerate(BACK_BAR_Z):
+        out.append({"id": "bottles_left_%d" % i, "row": {"kits": ["whiskey_bottle"], "count": 4, "step": [0, 0, 0.19], "jitter": [0.01, 0.02, 30]},
+                    "at": [0.3, SHELF0, c + 0.2], "facing": 90})
+        out.append({"id": "upper_right_%d" % i, "row": {"kits": ["decanter", "whiskey_bottle", "whiskey_bottle"], "count": 3, "step": [0, 0, 0.24], "jitter": [0.01, 0.02, 30]},
+                    "at": [0.3, SHELF0 + 0.5, c - 0.95], "facing": 90})
+        out.append({"id": "upper_left_%d" % i, "row": {"kits": ["whiskey_bottle", "decanter", "whiskey_bottle"], "count": 3, "step": [0, 0, 0.24], "jitter": [0.01, 0.02, 30]},
+                    "at": [0.3, SHELF0 + 0.5, c + 0.25], "facing": 90})
+    # The stage's wing (#903): a trunk and the screen for a quick change.
+    out.append(e("wing_trunk", "travelling_trunk", [0.55, STAGE, 12.8], 180))
+    out.append(e("wing_screen", "dressing_screen", [1.6, STAGE, 13.1], 180))
+    # The dressing room (room_6): the mirror's table against the yard wall, the pegs across, trunk, screen.
+    out.append(e("room6_trunk", "travelling_trunk", [2.57, UP, 17.75], -90))
+    out.append(e("room6_pegs", "costume_pegs", [2.845, UP + 1.7, 19.0], -90))
+    out.append(e("room6_screen", "dressing_screen", [2.55, UP, 16.45], 90))
+    return out
+
+
+def fix_stage(batch):
+    """#902's stage batch: the dressing table is the prop lab's `dressing_mirror` now (a table with the glass,
+    #903), the lamp stands on it."""
+    keep = [d for d in batch if d["id"] not in ("dress_table", "dress_mirror", "dress_lamp")]
+    keep.append(e("dress_mirror", "dressing_mirror", [0.39, UP, 17.2], 90,
+                  use="the dressing table with its glass, against the yard wall between the door and the window"))
+    keep.append(e("dress_lamp", "oil_lamp", [0.49, 0.0, 17.45], 0, on="dress_mirror", light=0.25))
+    return keep
+
+
 # Use points that now stand on a prop or by one that moved (Checks.people_fit leaves a use point's
 # `prop` out of its room).
 USE = {
@@ -201,7 +251,9 @@ def main():
         u.update(USE.get(u["id"], {}))
     dressing = spec.get("dressing", {})
     batches = dressing.get("batches", {})
-    batches.update({"S1": s1(), "S2": s2(), "S3": s3()})
+    batches.update({"S1": s1(), "S2": s2(), "S3": s3(), "S5": s5()})
+    if "stage" in batches:
+        batches["stage"] = fix_stage(batches["stage"])
     spec["dressing"] = {
         "_doc": "#902: the stage's footlights and the dressing room's table, chair and lamp (`stage`). "
                 "#950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build "
@@ -209,7 +261,8 @@ def main():
                 "Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at "
                 "[x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, "
                 "`row`: PropDressing's doc. The upper floor is 3.96 over the ground floor, #902's stage 4.72. "
-                "The rest of the stage's props (#903) are the prop lab's to place.",
+                "#1030: batch S5, the walls (the regulator clock, trophies, sconces, pegs, rifle, foot rail, spittoons, the back "
+                "bar's bottles) and the stage's props (#903), in the wing and the dressing room.",
         "batches": batches,
     }
     open(SPEC, "w").write(json.dumps(spec, indent="\t", ensure_ascii=False))
