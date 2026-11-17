@@ -385,7 +385,7 @@ stranger." What is his is D; the details worked out from it stay P·bible.
   - **If he does recognise him:** nothing he can do tonight, which is No Law's point. He's seated,
     unarmed, not yet a deputy, with the stranger's hand on his arm and Cody coming in. If he goes for
     him anyway, the stranger says his built "Put it up" lines and walks out; the world remembers
-    Harlan went for him (P·bible: a flag that turns the lane's line from "You sat very still" to "You
+    Harlan went for him (**dropped, Sean 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2, which is what stops a shoot-out in the saloon**. Was P·bible: a flag that turns the lane's line from "You sat very still" to "You
     should have sat still", and the foreman watches him from then on). Told to the doctor on day 2,
     it's a dead man's word about a horse: "Not enough to hang a man on, Harlan. Not yet."
     (P·bible). That is the evidence system's first lesson: a mark is not a case.
@@ -482,3 +482,51 @@ Sean says, or the script that meets it asks him. The options are only to show th
 | s25 | Rourke dies on the trestle with the train (C11 a). If the player stops the train another way (P, #546 P4: now no soldiers to turn) or blows it with Rourke off it, where is Rourke? | The trestle is the only way to stop it / Rourke dies wherever the train ends / he's taken with the Baron on that branch |
 | s26 | C10's second half: who sends Harlan to the saloon on night one. The pick named the stranger, not who sends him | The foreman's own invitation / the doctor's "Come back tonight" (built), and he isn't in when Harlan does |
 | s27 | The doctor keeps Harlan on "until the county names a man" (C12 a). Who the county names, when, and whether it happens inside the game is unsaid (option a's "whom the Baron will try to choose" is P·bible) | Never inside the game / the paper names him in the ending / the Baron's man, if the case is thin |
+
+## Part D: found reading every card as one story (2026-11-17, #1056)
+
+Sean, 2026-11-17: "it's a story to tell, not a bunch of disjointed missions." Every top-level card
+on PR #743's branch was read against the bible. **No card was changed.** The fixes are proposed
+(P·bible); they go onto the cards when #743/#959 is next touched.
+
+**Settled for the scripts** (so the three could be written; each stays P until Sean taps Script OK):
+
+| # | Was open | The scripts' reading |
+|---|---|---|
+| s21 | The stranger's voice: educated, or a cowman's | Soft-spoken and mannerly; a man who asks leave for what he means to do anyway ("Sit with me a while, if you've no objection."). It is how the sheriff let him ride up, and it is the mark the sheriff gives ("Soft-spoken man. Called me friend."). He says "ain't" when it suits him (built). `SETUPS.md` S46 |
+| s21 | (more, D) | **Sean, 2026-11-17:** he is cocky, arrogant and a coward, "that's why the sheriff was only shot in the gut and not finished off"; the reveal is held to mid-game. `VOICES.md`, the foreman; `SETUPS.md` S51 |
+| s24 | Is Cody at the cabin? | No. The built hideout has five men and Kett, none of them Cody. He rode on to the Baron's after the raid, which is why he's alive to walk back into the saloon |
+| s26 | Who sends Harlan to the saloon | The doctor may send him ("Go and get a drink, Harlan."). **Sean, 2026-11-17 (his review of No Law, D):** the stranger is sat in the saloon and asks Harlan to sit with him and talk; he buys the drink; they talk of the sheriff for a minute at most ("a good man", who "didn't deserve that") before Cody comes in. He wants to know whether the sheriff could talk |
+
+**Cards that break the through-line** (beyond `OUTLINE.md`'s "Cards that are now out of date"):
+
+| # | Card | Says | Why it breaks | Fix proposed |
+|---|---|---|---|---|
+| f1 | `joe-on-the-rope` | "if Harlan shook his head and the killer was released… if Harlan nodded and Joe killed him" | The nod is the wrong way round: at the cabin a nod stops Joe (D, and built) | Swap them |
+| f2 | `joe-on-the-rope` | The released killer "leads the lynching" | In the arrest ending Joe kills Kett on Main Street first (D); a dead man leads nothing | Strike it; the loudest man at the rope leads |
+| f3 | `widows-place` | "the Baron's man back twice since the funeral" | If that's the foreman on his sorrel, the widow, who heard her husband's last words, knows the horse before the farmhouse, and S40's payoff is spent | Another hand comes those two times; the sorrel is first at her gate with the deed |
+| f4 | `widows-place` | "Were you with him?", "Did he suffer?", with a lie possible | She asked "Were you with him?" at the bedside on day 2 and watched him die; the town knows who brought him in | She asks about the road: what he said, how long he lay there. If Harlan left him, the freighter's "a name, Harlan" has reached her |
+| f5 | `widows-place` | "the first time Harlan talks with her"; the boys met "for the first time" | She spoke to him at the bedside and at the grave | "The first time at her home" |
+| f6 | `farmhouse-rescue` | "stop the foreman on the lane; walk him in at gunpoint" | He is the sheriff's killer now, and the card gives him no fate. Dead or jailed here, he can't pay the men who pull the rail, stand behind the Baron, or be taken in the raid | A `foreman.fate` fact every later card reads; if he's taken or killed here, another man pays Gang B and Cody's word still names him |
+| f7 | `farmhouse-rescue`, `payday-night`, `kid-wants-out` | The farmhouse ends when "no captor stands"; then the Kid "drinks at the bar, under the cut" and can be sold "back to Brody" | The Kid and Brody may be dead | Both later cards read the Kid's and Brody's fate |
+| f8 | `railhead-lynching`, `vaqueros-horses` | "The baron's foreman is found dead"; "bring the baron's foreman to account" | The foreman has a spine of his own now (S39, S40) | A different Baron's man in both |
+| f9 | `payday-night` | Joe "on the outside stair" | This is the town that hanged him. He comes only if the rope's outcome lets him, and somebody should look at him | Gate it on the rope; one line from a man who held it |
+| f10 | `payday-night` | "The soldiers camp at the depot" | Only a surgeon, a steward and two privates come | "Rourke's detail" |
+| f11 | `i-am-the-law` | "Joe asks Harlan what it means for his people" | No line for when Joe is dead (s7 covers only the goading) | Someone from the camp asks, in town to trade |
+| f12 | `hell-on-wheels`, `i-am-the-law`, `DECISIONS.md` | Prisoners "fill the jail (`hold-him`)" | `hold-him` is Cody's night at the depot, not the jail | Point at the jail |
+| f13 | `DECISIONS.md` | `prisoner.fate`: "Freed: back on the street, as the arrest ending's released man" | That's Kett, not Cody | Two rows |
+| f14 | `DECISIONS.md` | Without Joe, the Shipment's way in is "the driver" | The driver is cut (2026-11-11) | The miner, or the place itself |
+| f15 | `hold-him`, `payday-night` | "The train comes through before dawn"; "the noon train" | One daily train | One hour for it, said once |
+| f16 | `barons-house` | The Sap needs "the miner from Buried Alive" | No way in if the miner died or Buried Alive wasn't played | Another miner; or Harlan props it himself, from what he saw there (S28) |
+| f17 | `the-sheriff` | He "knows who shot him"; "by day 3 the town has no law, the Colters are in town" | He knows a horse and a word, not a name; Harlan is deputy on day 2; the Colters are hired after the cabin | Strike both |
+| f18 | `dig-him-up` | Well cared for, he "can say it plainly" | His wife is in the room, and then the boot would come off before he's buried | The grave is only for the fading branch ("...boot.") |
+| f19 | `no-justice` | "if a bandit escapes" | The cabin finishes Kett's crew (C5 b) | A man who gets away is the one who tells the kin (the build's `nojustice.seen`): he ends the crew by leaving it |
+
+**In the bible itself:**
+
+| # | What doesn't fit | Reading |
+|---|---|---|
+| s28 | `WORDS.md` says keep "hello" out and offers "howdy". The four period books read for `DIALOGUE.md` (Twain, Harte, Adams, Siringo) have "Hello", "How're ye" and "How goes it?" as greetings, and "howdy" in none of them | "Howdy" is sparing; "Evening", "Morning" and a name carry it. "Hello" is allowed as a hail |
+| s29 | The scripts were "kept as built"; since #859, #934, #966 and #868 the game's lines are copies of the scripts' | The scripts lead. A changed line is listed for gameplay in `docs/scripts/CHANGES.md`, never changed in `config/moments/` by a story session |
+| s30 | The sheriff's page holds takes and a cast that aren't in the repo's `sheriff_road.json` (made on an unmerged voices branch, on the red-shirt wording) | The page is republished with the takes whose words still stand; the takes of re-worded lines are dropped from it. `docs/scripts/README.md` |
+
