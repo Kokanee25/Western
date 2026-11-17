@@ -184,9 +184,11 @@ path:
 **S24. The band** · T5 · P (Sean), the links P·bible. Plant: a travelling band gets down from the
 payroll's train with more instruments than the town has seen. They were in the coach Harlan saved
 (if the train is wrecked, C2 b, how they come is O: s23).
-Six men carry their piano up the saloon's stair that afternoon. Payoff: they play on that floor
-(D, 2026-11-11); the people he saved at noon fall at night; the piano is why a sawn girder that
-held the afternoon doesn't hold the dance. (The master chat's note that a troupe of strangers is
+**Corrected 2026-11-17:** this bible had six men carry the band's piano up the saloon's stair that afternoon, and
+made the piano the reason the girder gives. Sean's yes on #938 (2026-11-14) is the opposite: the full band plays
+on the dance hall's stage, "the dance hall keeps its own piano, nobody hauls one upstairs". So no piano is
+carried up. Payoff: they play on that floor (D, 2026-11-11); the people he saved at noon fall at night. Why a
+sawn girder that held the afternoon doesn't hold the dance is the crowd and the stamping reels (v6), not a piano. (The master chat's note that a troupe of strangers is
 cover for the Baron's guns is P, not placed here.)
 
 **S25. The captain's wire** · T5 · D. Plant: that evening he wires his report from the depot and Harlan
