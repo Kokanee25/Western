@@ -156,7 +156,8 @@ func _physics_process(delta: float) -> void:
 		return
 	_since_roof = 0.0
 	var cam := _camera()
-	var space := World.space(self)
+	# (the camera's world: the game's 3D is in its SubViewport, not this node's root viewport, #1053)
+	var space := World.space(cam) if cam else null
 	if cam == null or space == null:
 		return
 	var from := cam.global_position
