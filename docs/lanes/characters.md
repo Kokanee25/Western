@@ -30,12 +30,13 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   sleeve from `assets/people/private/harlan_fp.glb` (git-ignored; `tools/characters/fetch_fp_hands.sh` builds it
   from the Studio's frozen `sean_metahuman_s3`); else the painted arms. Holds and poses: `config/fp_holds.json`.
   CI's export builds it into Windows/Linux (not web) **only once the `STUDIO_TOKEN` secret is set**.
-- **The Colt in hand** (#1014, branch `claude/characters-viewmodel-colt-ps2nlf`): `ColtModel` (the approved SAA,
-  joined to 26 draws) in `RevolverViewmodel`; the viewmodels' own field of view (`view_fov` 54, a shear, no
-  second pass); per-pose elbows; the in-hand albedo grade (`held_albedo`); poses on a plain stage in seconds:
-  `experiments/viewmodel_rig/game_views.gd`. Blind judge r1 and r2: cheap indie (all 20), r2's top three: the
-  hand clamps the frame (not the grip), the rifle's steel black and its hands float, the hands and sleeve
-  toy-like; the town bench's cocking and firing frames show no change. Waiting on Sean (the issue linked in #1014).
+- **The guns in hand** (#1014 + #1019, one PR on `claude/characters-viewmodel-fps-bte2lo`, holding #1017): the
+  approved Colt (`ColtModel`, 26 draws), `view_fov` 54; holds and poses in `config/fp_holds.json` (`colt.hip`,
+  `colt.aim_cant`, `win73.hip`, `win73.aim_cant`, `win73.r_index`); `MuzzleFlash` at the held muzzle (game time).
+  Pose on `experiments/viewmodel_rig/game_views.gd` (it fires for real now). Judge (2026-11-16_fp_fps_r2): still
+  cheap indie; passes: the grip, the lever, a flash. Left: the aimed views end-on with the cuff a third of the
+  screen, the steel (plastic blue by day, black at night), no smoke at 50 ms, reloads that don't show a reload.
+  No Hunt pictures reachable from a session (Steam blocked): the judge works from its own memory of Hunt.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
