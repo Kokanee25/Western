@@ -6,7 +6,8 @@ extends SceneTree
 ## Untyped where it names game classes: -s scripts compile before autoloads.
 ##
 ##   xvfb-run -a godot --rendering-driver vulkan -s res://experiments/building_lab/light_recheck.gd -- \
-##       --out=DIR [--views=doctor_office,...] [--size=800x450]
+##       --out=DIR [--views=doctor_office,...] [--variants=old,new] [--size=800x450] (one variant a run: a redo in
+##       place stalled the second)
 
 ## name -> [valley building, camera, look at, fov, hour]
 const VIEWS := {
@@ -20,6 +21,7 @@ const VARIANTS := [["old", 2.5, 1.05], ["new", -1.0, -1.0]]
 var out_dir := "build/light/recheck"
 var only: PackedStringArray = []
 var size := Vector2i(800, 450)
+var variants: PackedStringArray = []
 
 
 func _initialize() -> void:
@@ -28,6 +30,8 @@ func _initialize() -> void:
 			out_dir = a.substr(6)
 		elif a.begins_with("--views="):
 			only = a.substr(8).split(",")
+		elif a.begins_with("--variants="):
+			variants = a.substr(11).split(",")
 		elif a.begins_with("--size="):
 			var p := a.substr(7).split("x")
 			size = Vector2i(int(p[0]), int(p[1]))
@@ -80,6 +84,8 @@ func _run() -> void:
 	var exp0: float = look.dials["exposure_indoor"]
 	var lines: PackedStringArray = []
 	for var_: Array in VARIANTS:
+		if not variants.is_empty() and not variants.has(var_[0]):
+			continue
 		rl_script.tune().opening_max_area = cap0 if float(var_[1]) < 0.0 else float(var_[1])
 		look.dials["exposure_indoor"] = exp0 if float(var_[2]) < 0.0 else float(var_[2])
 		var rl := root.get_tree().get_first_node_in_group(&"room_light")
@@ -123,5 +129,5 @@ func _run() -> void:
 			var line := "%s %s: mean %.3f, middle %.3f, exposure x%.2f" % [v, var_[0], all / n, mid / nm, ex]
 			print(line)
 			lines.append(line)
-	FileAccess.open(out_dir + "/recheck.txt", FileAccess.WRITE).store_string("\n".join(lines) + "\n")
+	FileAccess.open(out_dir + "/recheck_%s.txt" % ",".join(variants), FileAccess.WRITE).store_string("\n".join(lines) + "\n")
 	quit()
