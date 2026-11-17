@@ -3,6 +3,10 @@
 The story bible, part 3 of 5 (#809). Planning only. A sheet for every speaking character: background,
 how they talk, what they call Harlan, what they know and from when, five lines, their threads.
 
+**How anyone talks at all** (the period's own record, the craft, the banned AI tells) is in
+[`DIALOGUE.md`](DIALOGUE.md), since 2026-11-17 (#1056). The sample lines below were written before it: where
+one breaks it, `DIALOGUE.md` and the scripts (`docs/scripts/`) win.
+
 **Read this first.**
 - Lines marked **(built)** are in the game now (`config/moments/the_sheriff.json`,
   `no_law_murder.json`). Lines marked **(Sean)** are his words or his decided beat. **Every other
@@ -126,6 +130,9 @@ fact, not the beat.
 - **Who:** a Southern Ute man; his wife was raped, murdered and scalped in the raid at B2 while the
   men were hunting (D). Harlan's one full companion (D). Later "the man with plans" (P, #738). Why he
   knows timber and trains is O (#738).
+- **Not stately** (`DIALOGUE.md` tell 9, #1056): he uses the contractions he's heard a thousand times, talks
+  about things (dogs, a hat, the horses) and never about what they mean. "Good. Get your horse.", not "Then
+  we go now."
 - **How he talks:** English is his third language, after Ute and Spanish (`WORDS.md`). So it's
   exact and plain, with few contractions: not broken, not grand. Says a thing once. Long quiet. Dry
   humour. His questions are tests. With his own people he speaks Ute, and those lines aren't written
@@ -177,6 +184,9 @@ fact, not the beat.
   2. "Don't move, friend. Whatever happens next, you sit still." (built)
   3. "You didn't see a thing tonight. Nobody did. Remember that." (built)
   4. "Put it up. You'll only get yourself killed." (built)
+- **How he talks, settled for the scripts (s21; P until Sean's Script OK, #1056):** soft-spoken and mannerly; he
+  asks leave for what he means to do anyway ("Mind if I sit in a while?", "Might I stand you a drink?"), which
+  is how the sheriff let him ride up (`SETUPS.md` S46). "Ain't" when it suits him. Before that:
 - **How he talks: O (s21).** The built lines are calm, low and educated (Sean wanted the stranger's
   voice "more educated": from the master chat, not in the repo; to confirm). The foreman's sheet
   before the pick was a cowman's flat, friendly, practical talk. Which one he is, or how both are

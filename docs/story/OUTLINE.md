@@ -99,7 +99,7 @@ Alive, the Shipment and the last train is mostly O (see `SETUPS.md`, "Missing").
 |---|---|---|---|
 | [`widows-place`](../missions/widows-place.md) | The livery man: the sheriff's horse "eats his oats"; someone should take it home (D). Its place after No Justice is P (`BUILD_ORDER.md`). | The stakes at her ditch (the water is the motive). The boys and Blue. The ways into her house. She gives him the sheriff's **Winchester** (D), maybe the horse (P, Sean's maybe). | T4, T1 |
 | [`joe-on-the-rope`](../missions/joe-on-the-rope.md) | After No Justice **and** after the rifle (D, 2026-11-04). Arrest ending: Joe kills Kett on Main Street and the town strings him up. Revenge ending: the kin come for him. | Joe is hauled up choking, not dropped: 3–4 chances at the rope from distance, or close in and cut him down (D, 2026-11-11). Fail and he's dead for good. | T2, T7 |
-| Cody's arrest | After the funeral, Cody walks back into the saloon, bold as before; this time Harlan has the sheriff's revolver. Harlan's first arrest (D, Sean 2026-11-11, #830, C6 b). Whether he's also at the cabin: O, s24. | The answer to night one, in the same room. | T7, T1 |
+| Cody's arrest | After the funeral, Cody walks back into the saloon, bold as before; this time Harlan has the sheriff's revolver. Harlan's first arrest in town (D, Sean 2026-11-11, #830, C6 b; in No Justice's arrest ending Kett's comes before it). Whether he's also at the cabin: O, s24. | The answer to night one, in the same room. | T7, T1 |
 | The jail night ([`hold-him`](../missions/hold-him.md)) | Cody is in the cell for Earl's murder (D) | **The Water Tower, one side** (D, Sean 2026-11-11, #830, C7 c): Cody is held in the depot's freight room for the morning train to the county seat's court (the card's reason, P; the seat down the line is C12 a). The Baron's men mean to drop the tank on the room, and the player can't tell whether that frees him or crushes him (D, 2026-11-11). Alive and safe, Cody is the first man who can tie the Baron to the sheriff's murder and the raid. | T1, T7, T4 |
 | Law work: `store-robbery`, `the-bounty`, `small-fights`, `stage-held-up` | Any time (P) | The Colters met as a separate outfit (P). A deputy's ordinary days. | T6, T7 |
 
@@ -259,6 +259,24 @@ sneaking mission at the sheriff's grave; what's in his boot is O), `fever-house`
 - **T8 Harlan's past:** D (Sean, 2026-11-11, #830, C15 a): Rourke was his old commander, and it's
   planted early (where: `SETUPS.md` S38, P·bible). Rourke's first look at him → the letter he's
   asked to sign → the trestle. "Do your duty, Sergeant" and the dream stay P (#546 P2, P4) as lines.
+
+## What each of them knows and remembers, mission to mission (2026-11-17, #1056)
+
+So no scene forgets the one before it. P·bible until Sean's Script OK on the three pages; the facts
+are StoryState's, and the lines that use them are in `SETUPS.md` part E and `docs/scripts/`.
+
+| Who | After the road (day 1) | After No Law (night 1, day 2, the funeral) | After No Justice | Carries into the rest |
+|---|---|---|---|---|
+| **The doctor** | Whether the wound was packed, and by whom; that Harlan has done it before, and won't say where | That Harlan sat at Earl's table (he keeps it from the dying man); whether Harlan nodded at the oath; that he himself is the law now, and didn't ask for it | He warned them in his office; how many days the arrest lasted | Counts everything: the hours Harlan bought, the days Kett sat. He is the one man who heard the sheriff's marks and saw Harlan's face when he heard them |
+| **The widow** | Who brought her husband in: Harlan, or a freighter | His last words, at the bedside (the sorrel, "friend", the ditch); whether Harlan shook his head at him; the Baron's offer; whether Harlan stood at the grave | Nothing, unless the town tells her | The freighter's story reaches her ("a name. Harlan, or near it"). She knows the horse when it comes to her gate |
+| **The stranger (the foreman)** | He shot the sheriff. He doesn't know what the sheriff said | What Harlan told him at the table, true or not; whether Harlan sat still or drew on him; that Harlan is a deputy now ("Deputy.", at the grave) | That Kett's crew is gone, and the Baron needs new men (the Colters) | He watches Harlan from night one. What he does on the lane follows what Harlan did at the table |
+| **Cody** | That the sheriff was to be shot, and by whom | That nobody stopped him; who ran out after him | He isn't at the cabin (s24, settled for the script: he rode on to the Baron's) | Walks back into the saloon bold, because nothing happened to him, or to Kett |
+| **The barkeep** | – | Everything in his yard: who sat where, who knelt by Earl, who ran out. Earl owed him four dollars | Who came back with whom | He's the witness to Cody, and he sells what he saw |
+| **The town** | Who brought the sheriff in; "road agents, or Utes" | The murder, told wrong four ways; who sat at the table; who went after Cody on foot | Arrest: Kett on Main Street, tipping his hat. Revenge: bodies in the hills, and a white man who rode with a Ute | The same men stand at the grave, on the dance floor and at the rope |
+| **Joe** | – | What the town says of the deputy: carried the sheriff or walked past him; sat at the table | What Harlan's nod was worth. Arrest: "You were standing beside me." Revenge: it's finished, and he'll tell her mother so | Whether he trusts the badge. Whether Kett saw his face |
+| **Kett** | – | Who sat with Harlan at the table, and what that man's business is | Arrest: that the law let him walk, as he said it would; Joe's face | He can sell the foreman, and never gets to |
+| **The Baron** | What his foreman told him | What Harlan did on the road (he says so at the grave); that the widow won't sell; where Harlan's spring is | That the outbreak didn't come: it was "cowboys" | He is patient. "Another day." |
+| **The sheriff** | Who helped him, and how well | Never hears of Earl. Dies thinking his town is quiet | – | His pistol, his rifle, his horse, his ditch, and his joke about the pistol |
 
 ## Cards that are now out of date (no call needed; fix when #743 is next touched)
 

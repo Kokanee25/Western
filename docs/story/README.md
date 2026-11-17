@@ -7,8 +7,9 @@ Docs only: no game code, no paid calls. The mission cards it points at (`docs/mi
 | File | What it is |
 |---|---|
 | [`OUTLINE.md`](OUTLINE.md) | The whole story in play order, a page an act: what's fixed, what's open, what unlocks what, what each mission reveals, every ending |
-| [`SETUPS.md`](SETUPS.md) | 39 setups and where each pays off; 13 listed as missing an end, 3 of them since closed by Sean's picks |
+| [`SETUPS.md`](SETUPS.md) | 49 setups, and (part E) the callbacks: what the town remembers of what the player did; and where each pays off; 13 listed as missing an end, 3 of them since closed by Sean's picks |
 | [`VOICES.md`](VOICES.md) | A sheet for each speaking character: how they talk, what they call Harlan, what they know and from when, five lines |
+| [`DIALOGUE.md`](DIALOGUE.md) | **How people talk** (#1056): what the period's own record shows, the craft of a game line, the AI tells banned by name, the blind read-through. The one place for it |
 | [`WORDS.md`](WORDS.md) | 1880s speech: what to say, what to avoid, how each kind of person talks, with sources |
 | [`CONTRADICTIONS.md`](CONTRADICTIONS.md) | Everything that doesn't fit: #744's six, the 15 you picked on 2026-11-11 (#830), 27 small ones (7 new, opened by the picks) |
 

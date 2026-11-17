@@ -297,6 +297,73 @@ line and an object (rule 3).
   counts in "what people saw" (Harlan, the widow and the doctor heard it) and needs Cody or the
   papers beside it.
 
+## E. Callbacks: what the town remembers (2026-11-17, #1056)
+
+Sean, 2026-11-17: "I want call backs and remember what's going on: it's a story to tell, not a bunch
+of disjointed missions." A callback is a line that only plays when its fact is true (a script
+line's `when`, read from StoryState). Everything in this section is **P·bible** until Sean taps
+Script OK on the three pages; the slice's rows are written in `docs/scripts/` under the ids given,
+the later rows are for the cards that aren't scripted yet. Facts marked **(add)** aren't in the game:
+`docs/scripts/CHANGES.md` lists them for gameplay.
+
+### By what the player did
+
+| He did | Fact | Who remembers, in the slice (script line) | Who should, later |
+|---|---|---|---|
+| Packed the sheriff's wound | `sheriff.care = good` | The doctor that evening ("You bought him tonight."); a townsman (`town.you_packed`: "Where's a homesteader learn that?"); the Baron at the grave (`funeral.baron_you_care`); Joe on the trail (`ride.carried`) and when his leg is hit (`fight.joe_up_sheriff`: "I am not your sheriff.") | Joe's leg, dressed by the same hands (the rope's card: "the wound stays"); Payday Night's triage; Rourke's hospital steward looking at his work |
+| Left him on the road | `sheriff.care = left` | The freighter ("a name. Harlan, or near it"); the doctor ("three hours, by the blood"; "I couldn't tell you why"); the widow (`day2.freighter`; at the grave, only "Mr. Harlan."); a townsman who doesn't know it was him (`town.you_left`); the stranger (`table.asks_left`); Joe (`ride.left`: "Today you do not keep walking.") | The widow's place: she has the freighter's story by then, and asks about the road |
+| Shook his head on the road, then helped | `sheriff.shook` **(add)** | The sheriff at the oath (`day2.shake.twice`) | – |
+| Shook his head at the oath | `nolaw.accepted = shake` | The doctor ("I didn't ask for it either."); the widow at the grave (`funeral.you_came_shake`) | The widow, when he tries to refuse the rifle (S15); Rourke, when he won't sign the letter |
+| Sat at Earl's table | `nolaw.seen_from = table` | The doctor at the door ("He doesn't know. He needn't."); the doctor after (`day2.not_enough`); a townsman (`morning.you_were_there`); the bold cowboy (`doctor.cowboy_table`); Kett, selling it (`cabin.bargain_table`); the foreman at the grave (`funeral.foreman`: "Deputy.") | The widow's lane: "We've met, Deputy. You sat very still."; the barkeep at Cody's arrest |
+| Told the stranger the sheriff talked, or lied | `nolaw.told_stranger` **(add)** | The stranger's answer at the table (`table.asks_nod`, `_shake`, `_none`) | The lane: a foreman who was told "yes" has watched him since; told "no", he's easy, and wrong |
+| Pointed a gun at the stranger | `nolaw.drew_on_stranger` **(add)** | The doctor (`day2.not_enough`) | The lane: "You should have sat still." |
+| Knelt by Earl | `nolaw.helped_earl` **(add)** | The barkeep (`after.help`: "He owed me four dollars.") | The barkeep's word for him, at Cody's arrest and on the captain's day |
+| Went out after Cody | `nolaw.followed` | A townsman (`morning.followed`: "On foot. After a man on a horse."); Joe (`camp.you_knew`) | Cody at his arrest: he knows who ran after him |
+| Stood at the grave | `nolaw.funeral = attended` | The widow; the Baron, who admires his spring (`funeral.baron_spring`) | The same faces, hats on, at the rope |
+| Stopped Joe, or didn't | `nojustice.ending` | Joe (`cabin.nod`: "We will see what the badge does."; `back.revenge`); the doctor (`release.doctor`); Joe at the release (`release.joe`) | The rope's cause; the camp's trust; the captain's day ("hid him the way the law hid his wife's killer") |
+| Let Kett see Joe's face | `nojustice.kett_saw_joe` **(add)** | Kett on Main Street (`street.kett`: "My regards to your cowboy.") | Whether the kin come for Joe or go to the camp (S12) |
+
+### Lines and things that come back
+
+**S41. "She pulls a hair to the left."** · T1 · P·bible. Plant: the dying sheriff, giving Harlan his
+revolver (`day2.pistol.clear`). Payoff: the widow, at her place: it doesn't pull left; he did, and
+he told everybody it was the pistol. And at Cody's arrest, the first time Harlan draws it in that
+saloon.
+
+**S42. The bread rising** · T1 · P·bible. Plant: the sheriff on the road, passing time
+(`road.idle.clear`: "My wife's got bread rising. She'll think I stopped at the saloon."). Payoff:
+the widow's kitchen; what she thought that morning.
+
+**S43. "Ain't no sheriff tonight, boys!"** · T7 · P·bible. Plant: a drunk on Main Street on night one,
+as a joke (`town.bold`). Payoff: Cody says nearly the same over Earl's body an hour later (S2); the
+drunk, sober next morning: "I said who's going to fine me. Hell. I was joking." (`morning.nobody`).
+
+**S44. Four dollars and a chair** · T7 · P·bible. Grows S34. Plant: the barkeep over the body ("Jesus,
+Cody, my chair!", built), then "He owed me four dollars." (`after.help`). Payoff: the undertaker's
+book: "The saloon's put in for four dollars and a chair. I've told him to take it up with Earl."
+(`morning.undertaker`); the barkeep and his floor on Payday Night.
+
+**S45. "Does it do anything?"** · T7, T2 · P·bible. Plant: Joe, looking at the badge in the doctor's
+office (`doctor.badge`). Payoff: the cabin, if Harlan stops him: "Then take him. We will see what the
+badge does." (`cabin.nod`); the platform, where it does nothing; the mission called I Am the Law.
+
+**S46. The stranger asks leave** · T1, T4 · P·bible. His habit: he asks permission for what he means to
+do anyway. Plant: "Rode up easy, like he wanted directions" (the sheriff); "Mind if I sit in a
+while?" (built); "Might I stand you a drink?" (`town.send_stranger`). Payoff: the widow's lane, with
+the deed in his hand, asking if he might come up to the house.
+
+**S47. The hat comes off** · T2 · P·bible. Grows S12. Plant: Joe's hat, won at monte (`ride.nobody`).
+Payoff: he takes it off before he speaks to Kett (`cabin.knife`: "Look at me."). In the arrest
+ending Kett has seen his face, and says so on Main Street.
+
+**S48. Cañon City** · T7 · P·bible. Plant: Kett in Harlan's cell rates the supper against the state
+prison's (`jail.kett`). Payoff: Cody in the same cell, later: he knows they let Kett walk, and
+expects the same.
+
+**S49. The spring** · T4 · P·bible. Closes M6's plant. The Baron at the grave: "You have the spring
+above the creek, I believe. I have admired it." (`funeral.baron_spring`). Payoff: still needs a card
+(s14): the offer for it.
+
 ## Missing
 
 **Payoffs with no setup:**

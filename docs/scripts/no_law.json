@@ -1,212 +1,1282 @@
 {
-  "_doc": "No Law: the script for the voiced lines (#807). The same shape as sheriff_road.json (its _doc and docs/scripts/README.md say the fields). Built lines are copied from config/moments/no_law_murder.json unchanged. Nothing here is approved until Sean taps Script OK.",
+  "_doc": "No Law: the script for the voiced lines (#807). The same shape as sheriff_road.json (its _doc and docs/scripts/README.md say the fields). Built lines are copied from config/moments/no_law_murder.json unchanged. Nothing here is approved until Sean taps Script OK. Since 2026-11-17 (#1056): written to the house style, docs/story/DIALOGUE.md. `when` names the StoryState fact a line waits on (the top-level `facts` list says which exist and which gameplay has to add); `was` holds a line's wordings before the rewrite; `added` marks a new line. The murder's and the funeral's lines are in the game (config/moments/no_law_murder.json, funeral.json): a wording here that differs from the game's has status new and is listed for gameplay in docs/scripts/CHANGES.md.",
   "id": "no_law",
   "title": "No Law",
   "mission": "no-law (#773 built the murder; #796 is step 4, the morning after and the sheriff's last day)",
   "year": 1882,
-  "status": "draft: waiting on Sean's Script OK",
+  "status": "rewritten 2026-11-17 in the house style (#1056): waiting on Sean's Script OK",
   "written": "2026-11-12",
   "sources": [
     "config/moments/no_law_murder.json (the built lines, fixed); config/card_game.json (the table's talk, built)",
     "docs/missions/no-law.md (PR #743's branch), #796 and its comments (Cody kills Earl; the red shirt is Kett and isn't in the saloon)",
     "docs/story/OUTLINE.md Act I, VOICES.md (the foreman, Cody, the barkeep, the Baron, the widow, smaller voices), SETUPS.md, WORDS.md (PR #833)",
-    "#830: C10 b (the stranger is the Baron's foreman; nobody says so), C12 a, C14 c (roles only)"
+    "#830: C10 b (the stranger is the Baron's foreman; nobody says so), C12 a, C14 c (roles only)",
+    "docs/story/DIALOGUE.md (the house style, #1056); Sean's note on the page (murder.accuse), read 2026-11-17"
   ],
   "notes": [
     "Harlan doesn't speak: he's sat, unarmed, held (Sean: 'he can't do anything at all').",
     "The sheriff's last day (Beat 5) is No Law's in the game (#796) but its lines are in the sheriff's script (scene 5, day2.*), so his voice is in one place.",
     "The card game's talk at the table (config/card_game.json: 'Ante.', 'Call.', Earl's 'Lady's been kind tonight') is built and belongs on a town-life page later, not here.",
-    "Nobody names the red shirt (Kett), says the stranger works for the Baron (K3, K11) or that he shot the sheriff (K14). The foreman's voice is open (s21): written to his built lines, calm and low."
+    "Nobody names the red shirt (Kett), says the stranger works for the Baron (K3, K11) or that he shot the sheriff (K14). The foreman's voice is open (s21): written to his built lines, calm and low.",
+    "Rewritten 2026-11-17 (#1056). The stranger's, Cody's, Earl's and the barkeep's lines at the table are Sean's or built, and stay word for word.",
+    "The stranger's voice (s21), settled for the script: soft-spoken and mannerly, a man who asks leave for what he means to do anyway ('Mind if I sit in a while?'). That courtesy is how the sheriff let him ride up. He says 'ain't' when it suits him.",
+    "Who sends Harlan to the saloon (s26), settled for the script: the doctor, if you brought the sheriff in; the stranger finds you at the table either way, because he wants to know what the sheriff said. If you haven't gone in by full dark, or you left the sheriff, he walks you there himself.",
+    "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, sat at the table, went after Cody, knelt by Earl, what you told the stranger, whether you shook your head at the oath).",
+    "The town gets the night wrong in the morning, on purpose: a player who sat at the table knows it."
   ],
-  "words_to_check": [
-    {"words": "nester", "lines": ["after.cody_door"], "worry": "WORDS.md: to check (a cattleman's word for a homesteader)."}
-  ],
+  "words_to_check": [],
   "setups": [
-    {"id": "S2", "what": "\"Ain't no law left in this valley to save you now.\"", "here": ["murder.gloat", "morning.versions"]},
-    {"id": "S3", "what": "The Baron's offer", "here": ["funeral.offer", "funeral.refuse"]},
-    {"id": "S4", "what": "Cody, the witness (the barman knows him by name; a whole room saw)", "here": ["murder.chair", "morning.undertaker"]},
-    {"id": "S10", "what": "Which way he rode", "here": ["after.cody_door"]},
-    {"id": "S32", "what": "Graves: Earl's a recorded death; the sheriff's grave", "here": ["morning.undertaker", "funeral.preacher"]},
-    {"id": "S34", "what": "The chair", "here": ["murder.chair"]},
-    {"id": "S40", "what": "\"Friend\", and the bald-faced sorrel (the sheriff's marks; a thing at the rail, not a line)", "here": ["table.asks", "table.warn", "after.aimed"], "status": "D (Sean 2026-11-13, #906); the sorrel needs a horse coat (art)"},
-    {"id": "S39", "what": "The foreman's face", "here": ["table.sit", "after.word", "funeral.offer"], "status": "the funeral's part P·bible: he stands behind the Baron, silent"}
+    {
+      "id": "S2",
+      "what": "\"Ain't no law left in this valley to save you now.\"",
+      "here": [
+        "murder.gloat",
+        "morning.versions"
+      ]
+    },
+    {
+      "id": "S3",
+      "what": "The Baron's offer",
+      "here": [
+        "funeral.offer",
+        "funeral.refuse"
+      ]
+    },
+    {
+      "id": "S4",
+      "what": "Cody, the witness (the barman knows him by name; a whole room saw)",
+      "here": [
+        "murder.chair",
+        "morning.undertaker"
+      ]
+    },
+    {
+      "id": "S10",
+      "what": "Which way he rode",
+      "here": [
+        "after.cody_door"
+      ]
+    },
+    {
+      "id": "S32",
+      "what": "Graves: Earl's a recorded death; the sheriff's grave",
+      "here": [
+        "morning.undertaker",
+        "funeral.preacher"
+      ]
+    },
+    {
+      "id": "S34",
+      "what": "The chair",
+      "here": [
+        "murder.chair"
+      ]
+    },
+    {
+      "id": "S40",
+      "what": "\"Friend\", and the bald-faced sorrel (the sheriff's marks; a thing at the rail, not a line)",
+      "here": [
+        "table.asks",
+        "table.warn",
+        "after.aimed"
+      ],
+      "status": "D (Sean 2026-11-13, #906); the sorrel needs a horse coat (art)"
+    },
+    {
+      "id": "S39",
+      "what": "The foreman's face",
+      "here": [
+        "table.sit",
+        "after.word",
+        "funeral.offer"
+      ],
+      "status": "the funeral's part P·bible: he stands behind the Baron, silent"
+    },
+    {
+      "id": "S37",
+      "what": "The outbreak that wasn't (the town already saying 'Utes' on night one)",
+      "here": [
+        "town.worried"
+      ],
+      "status": "P·bible"
+    },
+    {
+      "id": "S15",
+      "what": "\"That's not the way this works, son.\" (the widow knows you shook your head)",
+      "here": [
+        "funeral.you_came_shake"
+      ]
+    },
+    {
+      "id": "M6",
+      "what": "Harlan's spring: the Baron admires it",
+      "here": [
+        "funeral.baron_spring"
+      ],
+      "status": "P·bible (#1056)"
+    }
   ],
   "cast": [
-    {"id": "stranger", "name": "The stranger (the Baron's foreman)", "called": "nobody says", "bible": "VOICES.md, The Baron's foreman; s21 open",
-     "brief": "About fifty, Western, calm and low; friendly the way a man is who can afford it. Few words, never hurried, never raised. Educated or a cowman is Sean's call (s21): the built lines lean educated.",
-     "voice": null},
-    {"id": "cody", "name": "Cody", "called": "Cody", "bible": "VOICES.md, Cody",
-     "brief": "Late twenties, a Texas cowhand gone bad. Loud and short, brave with drink and a crew behind him; a hard flat voice, a sneer in it.",
-     "voice": null},
-    {"id": "earl", "name": "Earl", "called": "Earl", "bible": "VOICES.md, Smaller voices",
-     "brief": "Sixties, a card player, thin and placating; quick to smile, quicker to apologise.",
-     "voice": null},
-    {"id": "barkeep", "name": "The barkeep", "called": "", "bible": "VOICES.md, The barkeep",
-     "brief": "Forties, aggrieved and quick, always counting what a thing costs him; a nasal Midwestern voice that rises when he's upset.",
-     "voice": null},
-    {"id": "drifter", "name": "The drifter", "called": "", "bible": "the card table's men (config/card_game.json)",
-     "brief": "Thirties, a hand between jobs; dry, low, wants no part of anything.",
-     "voice": null},
-    {"id": "miner", "name": "The miner at the table", "called": "", "bible": "the card table's men",
-     "brief": "Fifties, a hard-rock man, slow and heavy, a little Cornish (WORDS.md: 'my son' once is enough).",
-     "voice": null},
-    {"id": "townsman", "name": "A townsman", "called": "", "bible": "P·bible (No Law's Beat 1, the town without a sheriff)",
-     "brief": "Forties, a storekeeper type; worried, talks low, glances over his shoulder.",
-     "voice": null},
-    {"id": "townswoman", "name": "A townswoman", "called": "", "bible": "WORDS.md, The town's women",
-     "brief": "Thirties to forties, plain-spoken, good grammar; brisk, says what she thinks.",
-     "voice": null},
-    {"id": "loudmouth", "name": "A bold man in the street", "called": "", "bible": "No Law's Beat 1: 'others behave more boldly'",
-     "brief": "Thirties, a teamster or a hand in town; too loud, a little drunk, enjoying the sheriff's absence.",
-     "voice": null},
-    {"id": "undertaker", "name": "The undertaker", "called": "", "bible": "#259 (the undertaker); P·bible",
-     "brief": "Sixties, unhurried, precise, a dry gallows humour he doesn't know he has.",
-     "voice": null},
-    {"id": "preacher", "name": "The preacher", "called": "Reverend", "bible": "P·bible (the funeral)",
-     "brief": "Fifties, a Methodist circuit man; carrying voice, plain, unadorned; reads the old words without performing them.",
-     "voice": null},
-    {"id": "baron", "name": "The Baron", "called": "the Baron", "bible": "VOICES.md, The Baron; WORDS.md, The Baron",
-     "brief": "Sixty, educated, courteous and unhurried; long sentences, never a threat. Eastern or British money: his accent is Sean's call.",
-     "voice": null},
-    {"id": "widow", "name": "The sheriff's wife", "called": "ma'am, Mrs.", "bible": "VOICES.md, The widow (the same voice as in the sheriff's script)",
-     "brief": "About forty, a Midwestern farm wife with good schooling. Level and low, short; grief held under work.",
-     "voice": null},
-    {"id": "doctor", "name": "The doctor", "called": "Doc", "bible": "VOICES.md, The doctor (the same voice as in the sheriff's script)",
-     "brief": "Late forties, an educated Easterner; brisk, quiet, dry.",
-     "voice": null}
+    {
+      "id": "stranger",
+      "name": "The stranger (the Baron's foreman)",
+      "called": "nobody says",
+      "bible": "VOICES.md, The Baron's foreman; s21 open",
+      "brief": "About fifty, Western, calm and low; friendly the way a man is who can afford it. Few words, never hurried, never raised. Educated or a cowman is Sean's call (s21): the built lines lean educated.",
+      "voice": null
+    },
+    {
+      "id": "cody",
+      "name": "Cody",
+      "called": "Cody",
+      "bible": "VOICES.md, Cody",
+      "brief": "Late twenties, a Texas cowhand gone bad. Loud and short, brave with drink and a crew behind him; a hard flat voice, a sneer in it.",
+      "voice": null
+    },
+    {
+      "id": "earl",
+      "name": "Earl",
+      "called": "Earl",
+      "bible": "VOICES.md, Smaller voices",
+      "brief": "Sixties, a card player, thin and placating; quick to smile, quicker to apologise.",
+      "voice": null
+    },
+    {
+      "id": "barkeep",
+      "name": "The barkeep",
+      "called": "",
+      "bible": "VOICES.md, The barkeep",
+      "brief": "Forties, aggrieved and quick, always counting what a thing costs him; a nasal Midwestern voice that rises when he's upset.",
+      "voice": null
+    },
+    {
+      "id": "drifter",
+      "name": "The drifter",
+      "called": "",
+      "bible": "the card table's men (config/card_game.json)",
+      "brief": "Thirties, a hand between jobs; dry, low, wants no part of anything.",
+      "voice": null
+    },
+    {
+      "id": "miner",
+      "name": "The miner at the table",
+      "called": "",
+      "bible": "the card table's men",
+      "brief": "Fifties, a hard-rock man, slow and heavy, a little Cornish (WORDS.md: 'my son' once is enough).",
+      "voice": null
+    },
+    {
+      "id": "townsman",
+      "name": "A townsman",
+      "called": "",
+      "bible": "P·bible (No Law's Beat 1, the town without a sheriff)",
+      "brief": "Forties, a storekeeper type; worried, talks low, glances over his shoulder.",
+      "voice": null
+    },
+    {
+      "id": "townswoman",
+      "name": "A townswoman",
+      "called": "",
+      "bible": "WORDS.md, The town's women",
+      "brief": "Thirties to forties, plain-spoken, good grammar; brisk, says what she thinks.",
+      "voice": null
+    },
+    {
+      "id": "loudmouth",
+      "name": "A bold man in the street",
+      "called": "",
+      "bible": "No Law's Beat 1: 'others behave more boldly'",
+      "brief": "Thirties, a teamster or a hand in town; too loud, a little drunk, enjoying the sheriff's absence.",
+      "voice": null
+    },
+    {
+      "id": "undertaker",
+      "name": "The undertaker",
+      "called": "",
+      "bible": "#259 (the undertaker); P·bible",
+      "brief": "Sixties, unhurried, precise, a dry gallows humour he doesn't know he has.",
+      "voice": null
+    },
+    {
+      "id": "preacher",
+      "name": "The preacher",
+      "called": "Reverend",
+      "bible": "P·bible (the funeral)",
+      "brief": "Fifties, a Methodist circuit man; carrying voice, plain, unadorned; reads the old words without performing them.",
+      "voice": null
+    },
+    {
+      "id": "baron",
+      "name": "The Baron",
+      "called": "the Baron",
+      "bible": "VOICES.md, The Baron; WORDS.md, The Baron",
+      "brief": "Sixty, educated, courteous and unhurried; long sentences, never a threat. Eastern or British money: his accent is Sean's call.",
+      "voice": null
+    },
+    {
+      "id": "widow",
+      "name": "The sheriff's wife",
+      "called": "ma'am, Mrs.",
+      "bible": "VOICES.md, The widow (the same voice as in the sheriff's script)",
+      "brief": "About forty, a Midwestern farm wife with good schooling. Level and low, short; grief held under work.",
+      "voice": null
+    },
+    {
+      "id": "doctor",
+      "name": "The doctor",
+      "called": "Doc",
+      "bible": "VOICES.md, The doctor (the same voice as in the sheriff's script)",
+      "brief": "Late forties, an educated Easterner; brisk, quiet, dry.",
+      "voice": null
+    }
   ],
   "scenes": [
-    {"id": "town", "title": "Salt Creek without its sheriff", "when": "Day 1, evening, Main Street", "built": false,
-     "setting": "The sheriff is at the doctor's. Townsfolk at their evening posts talk about it; some are worried, some bolder for it. Who sends Harlan to the saloon is open (s26): Sean's two ways are written below, both proposed.",
-     "lines": [
-      {"id": "town.worried", "speaker": "townsman", "trigger": "You pass him on Main Street, evening of day 1", "when": "any", "condition": "worried",
-       "delivery": "Low, to his neighbour more than to you.",
-       "words": [{"text": "Sheriff's shot, they say. Laid up at the doc's.", "status": "new"}, {"text": "Who's to keep the peace now? Not me.", "status": "new"}, {"text": "I'm putting the bar on my door tonight.", "status": "new"}], "takes": []},
-      {"id": "town.woman", "speaker": "townswoman", "trigger": "You pass her on Main Street, evening of day 1", "when": "any", "condition": "sad, practical",
-       "delivery": "Shaking out a cloth; plain sympathy, no gossip in it.",
-       "words": [{"text": "That poor woman. Fourteen years on that claim, and now this.", "status": "new"}, {"text": "Somebody ought to ride out and sit with the boys.", "status": "new"}], "takes": []},
-      {"id": "town.bold", "speaker": "loudmouth", "trigger": "You pass him by the saloon, evening of day 1", "when": "any", "condition": "drunk, bold",
-       "delivery": "Too loud, pleased with himself; the street goes quiet around him.",
-       "words": [{"text": "No sheriff tonight, boys. Drink where you please.", "status": "new"}, {"text": "Who's going to fine me? The doc?", "status": "new"}], "takes": []},
-      {"id": "town.you", "speaker": "townsman", "trigger": "He sees you, evening of day 1", "when": "sheriff.care good or poor", "condition": "curious, wary",
-       "delivery": "Sizing you up; half thanks, half suspicion.",
-       "words": [{"text": "You're the one brought him in. From up the creek.", "status": "new"}], "takes": []},
-      {"id": "town.you_left", "speaker": "townsman", "trigger": "He sees you, evening of day 1", "when": "sheriff.care left", "condition": "idle",
-       "delivery": "Just passing on the news.",
-       "words": [{"text": "Freighter found him in the road, they say. Left there like a dead dog.", "status": "new"}], "takes": []},
-      {"id": "town.send_doc", "speaker": "doctor", "trigger": "Leaving the doctor's that evening (after evening.doctor.go in the sheriff's script)", "when": "any", "note": "s26, one of Sean's two ways: someone tells him to go", "condition": "tired, kind",
-       "delivery": "An afterthought at the door.",
-       "words": [{"text": "Get yourself a drink at the saloon, Harlan. You've earned one, and I can't prescribe you anything better.", "status": "new"}], "takes": []},
-      {"id": "town.send_stranger", "speaker": "stranger", "trigger": "He falls in beside you on Main Street, evening of day 1", "when": "any", "note": "s26, Sean's other way: the stranger brings him", "condition": "calm, friendly",
-       "delivery": "Easy, as if you'd known each other years; already walking you there.",
-       "words": [{"text": "Evening. You look like a man who could stand a drink. I'm buying.", "status": "new"}], "setups": ["S39"], "takes": []}
-     ]},
-
-    {"id": "table", "title": "The table", "when": "Night 1, the saloon's yard, the card table", "built": true,
-     "setting": "Harlan is sat at the card table, unarmed. A minute before Cody comes, the stranger takes the free chair and puts his hand on Harlan's arm. (The table's own talk is built and goes on a town-life page.)",
-     "lines": [
-      {"id": "table.sit", "speaker": "stranger", "trigger": "He sits in the free chair beside you (a minute before Cody)", "when": "any", "condition": "calm, friendly",
-       "delivery": "Pleasant, unhurried, a man settling in for the evening.",
-       "words": [{"text": "Evening. Mind if I sit in a while?", "status": "built"}], "setups": ["S39"], "takes": []},
-      {"id": "table.asks", "speaker": "stranger", "trigger": "After table.sit, to a player who brought the sheriff in", "when": "you brought the sheriff in", "condition": "calm, friendly, a little too interested",
-       "delivery": "Easy, a man making conversation; he watches your face, not your mouth.",
-       "words": [{"text": "Heard it was you brought the sheriff in. He say who it was?", "status": "new", "note": "nod or shake: Harlan can lie to him (proposed, #905)"}], "setups": ["S40"], "takes": []},
-      {"id": "table.warn", "speaker": "stranger", "trigger": "Cody comes into the yard; the stranger's hand on your arm", "when": "any", "condition": "calm, a warning",
-       "delivery": "Low, close, not looking at you; the friendliness gone flat.",
-       "words": [{"text": "Don't move, friend. Whatever happens next, you sit still.", "status": "built"}], "setups": ["S40"], "takes": []}
-     ]},
-
-    {"id": "murder", "title": "The murder", "when": "Night 1, the card table", "built": true,
-     "setting": "Cody walks up, accuses Earl, kicks his chair out from under him and shoots him in the head where he lies. Very quick; not a fair fight. The room goes quiet until the barman.",
-     "lines": [
-      {"id": "murder.accuse", "speaker": "cody", "trigger": "Cody comes into the yard: shouting at Earl from the moment he walks in, before he reaches the table", "when": "any", "condition": "furious",
-       "delivery": "Shouted across the yard as he comes, already worked up; the whole room turns. The no-law line comes after, quiet, with Earl on the floor.",
-       "words": [{"text": "Earl, you cheating son of a bitch!", "status": "new", "note": "Sean's redo, 2026-11-12 (was the built 'Earl. You been dealing off the bottom of that deck.')"}], "takes": []},
-      {"id": "murder.earl", "speaker": "earl", "trigger": "Right after the accusation", "when": "any", "condition": "afraid, placating",
-       "delivery": "A nervous smile in it; cut off by the kick.",
-       "words": [{"text": "Now, Cody, I never...", "status": "built"}], "takes": []},
-      {"id": "murder.gloat", "speaker": "cody", "trigger": "Over Earl on the ground, after the shot", "when": "any", "condition": "cold, boastful",
-       "delivery": "Not shouted: almost conversational, a man who knows nobody will stop him.",
-       "words": [{"text": "Ain't no law left in this valley to save you now, Earl.", "status": "built"}], "setups": ["S2"], "takes": []},
-      {"id": "murder.chair", "speaker": "barkeep", "trigger": "The hush after Cody turns away", "when": "any", "condition": "shocked, aggrieved",
-       "delivery": "Outraged about the wrong thing; the first sound in the room. Sean's punchline: play it straight.",
-       "words": [{"text": "Jesus, Cody, my chair!", "status": "built"}], "setups": ["S34", "S4"], "takes": []},
-      {"id": "murder.fetch", "speaker": "barkeep", "trigger": "At Earl's body, ~20 s later", "when": "any", "condition": "rattled",
-       "delivery": "Starts to give an order and finds there's nobody to give it to.",
-       "words": [{"text": "Somebody ought to fetch the... hell. Ain't nobody left to fetch.", "status": "built"}], "takes": []}
-     ]},
-
-    {"id": "after", "title": "After", "when": "Night 1, the saloon's yard and the street", "built": "partly",
-     "setting": "Cody walks out; the drifter and the miner leave; the stranger has his word and goes. Earl's body stays. Harlan can try to help Earl (shot through the head), and can follow Cody out and see which way he rides. Built: the stranger's lines. New: the rest.",
-     "lines": [
-      {"id": "after.word", "speaker": "stranger", "trigger": "Cody's out of the yard; the stranger stands to go", "when": "any", "condition": "calm, a warning",
-       "delivery": "Friendly again, which is worse; a hand on your shoulder as he passes.",
-       "words": [{"text": "You didn't see a thing tonight. Nobody did. Remember that.", "status": "built"}], "setups": ["S39"], "takes": []},
-      {"id": "after.aimed", "speaker": "stranger", "trigger": "You point a gun at him", "when": "any", "condition": "calm",
-       "delivery": "Unbothered; he's had guns pointed at him before.",
-       "words": [{"text": "Easy, friend. I ain't the one you want.", "status": "built"}, {"text": "Put it up. You'll only get yourself killed.", "status": "built"}, {"text": "Walk away. That's my advice.", "status": "built"}], "setups": ["S40"], "takes": []},
-      {"id": "after.drifter", "speaker": "drifter", "trigger": "He gets up to leave (~5 s after Cody's out)", "when": "any", "condition": "shaken, wants out",
-       "delivery": "Picking up his hat, to nobody.",
-       "words": [{"text": "I never saw nothing. I was never here.", "status": "new"}], "takes": []},
-      {"id": "after.miner", "speaker": "miner", "trigger": "He gets up to leave (~9 s after Cody's out)", "when": "any", "condition": "heavy, sad",
-       "delivery": "Looking down at Earl a long moment.",
-       "words": [{"text": "Was he cheating? ... Hell. What odds does it make now.", "status": "new"}], "takes": []},
-      {"id": "after.help", "speaker": "barkeep", "trigger": "You kneel by Earl", "when": "any", "condition": "rattled, gentler",
-       "delivery": "Telling you what you can already see.",
-       "words": [{"text": "Leave him, Harlan. He's past anybody's help.", "status": "new"}, {"text": "Through the head. There's nothing to be done.", "status": "new"}], "takes": []},
-      {"id": "after.cody_door", "speaker": "cody", "trigger": "You follow him out to the street; he's mounting", "when": "nolaw.followed (you followed him)", "condition": "contemptuous",
-       "delivery": "Doesn't even look round; then he rides for the foothills.",
-       "words": [{"text": "Go on back to your cards, nester.", "status": "new"}], "check": "nester", "setups": ["S10"], "takes": []}
-     ]},
-
-    {"id": "morning", "title": "The morning after", "when": "Day 2, morning, Main Street (#796, not built)", "built": false,
-     "setting": "The town wakes to the news. Earl goes to the undertaker's as a recorded death. Townsfolk tell the night differently, by what you saw of it (nolaw.seen_from: table / yard / heard / away). Nobody arrests Cody. Then someone sends for Harlan: the sheriff is dying.",
-     "lines": [
-      {"id": "morning.versions", "speaker": "townsman", "trigger": "You pass him on day 2", "when": "any", "condition": "gossiping",
-       "delivery": "Each telling a little surer of itself than the last.",
-       "words": [{"text": "Cody shot Earl dead over the cards. Said there's no law left to save him. Bold as brass.", "status": "new"}, {"text": "Earl drew first, I heard. Or reached, anyhow.", "status": "new"}, {"text": "Three shots, they say. Or two. Nobody counted.", "status": "new"}],
-       "setups": ["S2"], "takes": []},
-      {"id": "morning.stranger", "speaker": "townswoman", "trigger": "You pass her on day 2", "when": "any", "condition": "sharp",
-       "delivery": "Disapproving of the whole saloon and everyone in it.",
-       "words": [{"text": "A dozen men sat there and watched it. Not one of them stood up.", "status": "new"}], "takes": []},
-      {"id": "morning.you_were_there", "speaker": "townsman", "trigger": "He sees you on day 2", "when": "nolaw.seen_from table", "condition": "accusing, quietly",
-       "delivery": "Not loud; he wants an answer and doesn't expect one.",
-       "words": [{"text": "You were sat right there at the table, they say. And you never moved.", "status": "new"}], "takes": []},
-      {"id": "morning.nobody", "speaker": "loudmouth", "trigger": "You pass him on day 2", "when": "any", "condition": "bitter",
-       "delivery": "Last night's bravado gone sour.",
-       "words": [{"text": "And who's to take Cody in? The sheriff's dying.", "status": "new"}, {"text": "He'll be back, you watch. Nobody to stop him.", "status": "new"}], "takes": []},
-      {"id": "morning.undertaker", "speaker": "undertaker", "trigger": "At the undertaker's, Earl laid out", "when": "any", "condition": "matter-of-fact",
-       "delivery": "Writing in his book as he talks; reads the entry back to himself.",
-       "words": [{"text": "Earl. Shot through the head, before witnesses, by the man Cody. Pine box. Nobody's paying for a stone.", "status": "new"}],
-       "setups": ["S4", "S32"], "takes": []},
-      {"id": "morning.sent_for", "speaker": "townsman", "trigger": "He finds you on day 2 (the doctor sent him)", "when": "any", "condition": "urgent",
-       "delivery": "Out of breath from looking for you.",
-       "words": [{"text": "Harlan! Doc's asking for you. Says the sheriff's sinking.", "status": "new"}], "note": "Then the sheriff's last day: the sheriff's script, scene 5 (day2.*)", "takes": []}
-     ]},
-
-    {"id": "funeral", "title": "The funeral", "when": "Day 2 or 3, the cemetery on the hill (Beat 6, not built)", "built": false,
-     "setting": "Quiet, not a set piece. The town gathers; hats come off. The Baron offers the widow a price for her claim at the graveside, the foreman behind him saying nothing (S39). Harlan can attend, watch from a distance or miss it.",
-     "lines": [
-      {"id": "funeral.preacher", "speaker": "preacher", "trigger": "The service at the grave", "when": "any", "condition": "solemn",
-       "delivery": "The old burial words, read plainly into the wind; no performance.",
-       "words": [{"text": "Man that is born of a woman hath but a short time to live, and is full of misery. He cometh up, and is cut down, like a flower.", "status": "new", "note": "the Book of Common Prayer's burial service (1662), public domain"}],
-       "setups": ["S32"], "takes": []},
-      {"id": "funeral.town", "speaker": "townsman", "trigger": "Among the mourners, after", "when": "any", "condition": "quiet",
-       "delivery": "Hat in his hands; a small true thing about the dead man.",
-       "words": [{"text": "Fined me twice. Fair, both times.", "status": "new"}, {"text": "He'd come in Saturdays. One drink. Never two.", "status": "new"}], "takes": []},
-      {"id": "funeral.offer", "speaker": "baron", "trigger": "At the graveside, after the service, to the widow; you're near enough to hear", "when": "any", "condition": "courteous",
-       "delivery": "Hat in hand, voice lowered, perfectly kind. Nothing in it you could object to.",
-       "words": [{"text": "A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure.", "status": "bible"}],
-       "setups": ["S3", "S39"], "takes": []},
-      {"id": "funeral.refuse", "speaker": "widow", "trigger": "Her answer to the Baron", "when": "any", "condition": "cold",
-       "delivery": "Not raised. She doesn't look at him.",
-       "words": [{"text": "Not today. Not any day.", "status": "new"}], "setups": ["S3"], "takes": []},
-      {"id": "funeral.baron_you", "speaker": "baron", "trigger": "He passes you on his way out", "when": "you attended", "condition": "courteous",
-       "delivery": "Already knows your name; lets you see that he does.",
-       "words": [{"text": "Mr. Harlan. A sad day for the county.", "status": "new"}], "takes": []},
-      {"id": "funeral.you_came", "speaker": "widow", "trigger": "As the mourners go", "when": "you attended", "condition": "tired, grateful",
-       "delivery": "Brief; she has a hundred hands to shake.",
-       "words": [{"text": "You came, Mr. Harlan. He'd have noticed that.", "status": "new"}], "takes": []}
-     ]}
+    {
+      "id": "town",
+      "title": "Salt Creek without its sheriff",
+      "when": "Day 1, evening, Main Street",
+      "built": false,
+      "setting": "The sheriff is at the doctor's. Townsfolk at their evening posts talk about it; some are worried, some bolder for it. Who sends Harlan to the saloon is open (s26): Sean's two ways are written below, both proposed.",
+      "lines": [
+        {
+          "id": "town.worried",
+          "speaker": "townsman",
+          "trigger": "You pass him on Main Street, evening of day 1",
+          "when": "any",
+          "condition": "worried",
+          "delivery": "Low, to his neighbour more than to you. The last is how a rumour starts.",
+          "words": [
+            {
+              "text": "Sheriff's shot. He's at Doc's, and Doc ain't saying.",
+              "status": "new"
+            },
+            {
+              "text": "I'm barring my door tonight.",
+              "status": "new"
+            },
+            {
+              "text": "Somebody said road agents. Somebody said Utes.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "setups": [
+            "S37"
+          ]
+        },
+        {
+          "id": "town.woman",
+          "speaker": "townswoman",
+          "trigger": "You pass her on Main Street, evening of day 1",
+          "when": "any",
+          "condition": "sad, practical",
+          "delivery": "Shaking out a cloth. 'These' with a look at the saloon.",
+          "words": [
+            {
+              "text": "And her out there with two boys and the stock to see to.",
+              "status": "new"
+            },
+            {
+              "text": "Somebody ought to ride out to her. It won't be any of these.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "That poor woman. Fourteen years on that claim, and now this.",
+            "Somebody ought to ride out and sit with the boys."
+          ]
+        },
+        {
+          "id": "town.bold",
+          "speaker": "loudmouth",
+          "trigger": "You pass him by the saloon, evening of day 1",
+          "when": "any",
+          "condition": "drunk, bold",
+          "delivery": "Too loud, pleased with himself; the street goes quiet round him. A joke tonight. Cody says nearly the same thing over a body.",
+          "words": [
+            {
+              "text": "Ain't no sheriff tonight, boys!",
+              "status": "new"
+            },
+            {
+              "text": "Who's going to fine me? Doc?",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "No sheriff tonight, boys. Drink where you please.",
+            "Who's going to fine me? The doc?"
+          ],
+          "setups": [
+            "S2"
+          ]
+        },
+        {
+          "id": "town.you",
+          "speaker": "townsman",
+          "trigger": "He sees you, evening of day 1",
+          "when": "sheriff.care = good or poor",
+          "condition": "curious, wary",
+          "delivery": "Sizing you up; half thanks, half suspicion.",
+          "words": [
+            {
+              "text": "You're the one brought him in. From up the creek.",
+              "status": "new"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "town.you_packed",
+          "speaker": "townsman",
+          "trigger": "After town.you",
+          "when": "sheriff.care = good (you packed the wound)",
+          "condition": "curious",
+          "delivery": "Wary. He's looking at your hands.",
+          "words": [
+            {
+              "text": "Doc says that wound was packed proper. Says you done it.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S5",
+            "S38"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "town.you_left",
+          "speaker": "townsman",
+          "trigger": "He sees you, evening of day 1",
+          "when": "sheriff.care = left",
+          "condition": "idle",
+          "delivery": "Just passing on the news. He doesn't know it was you. You do.",
+          "words": [
+            {
+              "text": "Freighter found him in the road. Three hours he'd lain there. Somebody must've gone right by him.",
+              "status": "new"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "town.send_doc",
+          "speaker": "doctor",
+          "trigger": "Leaving the doctor's that evening (after evening.doctor.go in the sheriff's script)",
+          "when": "sheriff.care = good or poor",
+          "note": "s26: the doctor sends him, if he brought the sheriff in. Sets nolaw.sent_by = doctor.",
+          "condition": "tired, kind",
+          "delivery": "At the door, an afterthought. He means it.",
+          "words": [
+            {
+              "text": "Go and get a drink, Harlan. I would, if I could leave him.",
+              "status": "new"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "town.send_stranger",
+          "speaker": "stranger",
+          "trigger": "He falls in beside you on Main Street, evening of day 1",
+          "when": "you haven't gone into the saloon by full dark, or sheriff.care = left",
+          "note": "s26: the fallback. He wants what the sheriff said, so he comes to find you. Sets nolaw.sent_by = stranger.",
+          "condition": "calm, friendly",
+          "delivery": "Easy, courteous, already turning you toward the saloon. He asks leave for a thing he means to do anyway.",
+          "words": [
+            {
+              "text": "Evening. You'll be Harlan. Might I stand you a drink? I'd count it a favor.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S39"
+          ],
+          "takes": [],
+          "was": [
+            "Evening. You look like a man who could stand a drink. I'm buying."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "table",
+      "title": "The table",
+      "when": "Night 1, the saloon's yard, the card table",
+      "built": true,
+      "setting": "Harlan is sat at the card table, unarmed. A minute before Cody comes, the stranger takes the free chair and puts his hand on Harlan's arm. (The table's own talk is built and goes on a town-life page.)",
+      "lines": [
+        {
+          "id": "table.sit",
+          "speaker": "stranger",
+          "trigger": "He sits in the free chair beside you (a minute before Cody)",
+          "when": "any",
+          "condition": "calm, friendly",
+          "delivery": "Pleasant, unhurried, a man settling in for the evening.",
+          "words": [
+            {
+              "text": "Evening. Mind if I sit in a while?",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S39"
+          ],
+          "takes": []
+        },
+        {
+          "id": "table.asks",
+          "speaker": "stranger",
+          "trigger": "After table.sit, a hand or two later; he waits for your nod or shake",
+          "when": "sheriff.care = good or poor",
+          "condition": "calm, friendly, a little too interested",
+          "delivery": "A man making talk over cards. He never asks who did it; he asks whether the sheriff could talk. He watches your face, not your cards.",
+          "words": [
+            {
+              "text": "They tell me it was you brought the sheriff in. Hard thing to come on. ... He able to talk any?",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "takes": [],
+          "was": [
+            "Heard it was you brought the sheriff in. He say who it was?"
+          ],
+          "note": "Nod or shake: Harlan can lie to him. Sets nolaw.told_stranger. Not built."
+        },
+        {
+          "id": "table.asks_left",
+          "speaker": "stranger",
+          "trigger": "After table.sit, a hand or two later",
+          "when": "sheriff.care = left",
+          "condition": "calm, friendly",
+          "delivery": "The same easy talk. He is finding out whether you were on that road.",
+          "words": [
+            {
+              "text": "You're from up the creek, I believe. You'd have come down that road this morning. ... See anything of it?",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "table.asks_nod",
+          "speaker": "stranger",
+          "trigger": "You nod",
+          "when": "nolaw.told_stranger = yes",
+          "condition": "calm; something shuts behind his eyes",
+          "delivery": "A beat too long before the second part. Then he's pleasant again.",
+          "words": [
+            {
+              "text": "Did he. ... Well. A man'll say most anything with a ball in him.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "table.asks_shake",
+          "speaker": "stranger",
+          "trigger": "You shake your head",
+          "when": "nolaw.told_stranger = no",
+          "condition": "calm, satisfied",
+          "delivery": "Easy. He believes you, or lets you think so.",
+          "words": [
+            {
+              "text": "No. I'd not think he could.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "table.asks_none",
+          "speaker": "stranger",
+          "trigger": "You don't answer",
+          "when": "nolaw.told_stranger = none",
+          "condition": "calm",
+          "delivery": "Lets it lie. He has all night.",
+          "words": [
+            {
+              "text": "No matter. Play your cards.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "table.warn",
+          "speaker": "stranger",
+          "trigger": "Cody comes into the yard; the stranger's hand on your arm",
+          "when": "any",
+          "condition": "calm, a warning",
+          "delivery": "Low, close, not looking at you; the friendliness gone flat.",
+          "words": [
+            {
+              "text": "Don't move, friend. Whatever happens next, you sit still.",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "takes": []
+        }
+      ]
+    },
+    {
+      "id": "murder",
+      "title": "The murder",
+      "when": "Night 1, the card table",
+      "built": true,
+      "setting": "Cody walks up, accuses Earl, kicks his chair out from under him and shoots him in the head where he lies. Very quick; not a fair fight. The room goes quiet until the barman.",
+      "lines": [
+        {
+          "id": "murder.accuse",
+          "speaker": "cody",
+          "trigger": "Cody comes into the yard: shouting at Earl from the moment he walks in, before he reaches the table",
+          "when": "any",
+          "condition": "furious",
+          "delivery": "Shouted across the yard as he comes, already worked up; the whole room turns. The no-law line comes after, quiet, with Earl on the floor.",
+          "words": [
+            {
+              "text": "Earl, you cheating son of a bitch!",
+              "status": "built",
+              "note": "Sean's redo, 2026-11-12 (was the built 'Earl. You been dealing off the bottom of that deck.')"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "murder.earl",
+          "speaker": "earl",
+          "trigger": "Right after the accusation",
+          "when": "any",
+          "condition": "afraid, placating",
+          "delivery": "A nervous smile in it; cut off by the kick.",
+          "words": [
+            {
+              "text": "Now, Cody, I never...",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "murder.gloat",
+          "speaker": "cody",
+          "trigger": "Over Earl on the ground, after the shot",
+          "when": "any",
+          "condition": "cold, boastful",
+          "delivery": "Not shouted: almost conversational, a man who knows nobody will stop him.",
+          "words": [
+            {
+              "text": "Ain't no law left in this valley to save you now, Earl.",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S2"
+          ],
+          "takes": []
+        },
+        {
+          "id": "murder.chair",
+          "speaker": "barkeep",
+          "trigger": "The hush after Cody turns away",
+          "when": "any",
+          "condition": "shocked, aggrieved",
+          "delivery": "Outraged about the wrong thing; the first sound in the room. Sean's punchline: play it straight.",
+          "words": [
+            {
+              "text": "Jesus, Cody, my chair!",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S34",
+            "S4"
+          ],
+          "takes": []
+        },
+        {
+          "id": "murder.fetch",
+          "speaker": "barkeep",
+          "trigger": "At Earl's body, ~20 s later",
+          "when": "any",
+          "condition": "rattled",
+          "delivery": "Starts to give an order and finds there's nobody to give it to.",
+          "words": [
+            {
+              "text": "Somebody ought to fetch the... hell. Ain't nobody left to fetch.",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        }
+      ]
+    },
+    {
+      "id": "after",
+      "title": "After",
+      "when": "Night 1, the saloon's yard and the street",
+      "built": "partly",
+      "setting": "Cody walks out; the drifter and the miner leave; the stranger has his word and goes. Earl's body stays. Harlan can try to help Earl (shot through the head), and can follow Cody out and see which way he rides. Built: the stranger's lines. New: the rest.",
+      "lines": [
+        {
+          "id": "after.word",
+          "speaker": "stranger",
+          "trigger": "Cody's out of the yard; the stranger stands to go",
+          "when": "any",
+          "condition": "calm, a warning",
+          "delivery": "Friendly again, which is worse; a hand on your shoulder as he passes.",
+          "words": [
+            {
+              "text": "You didn't see a thing tonight. Nobody did. Remember that.",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S39"
+          ],
+          "takes": []
+        },
+        {
+          "id": "after.aimed",
+          "speaker": "stranger",
+          "trigger": "You point a gun at him",
+          "when": "any",
+          "condition": "calm",
+          "delivery": "Unbothered; he's had guns pointed at him before.",
+          "words": [
+            {
+              "text": "Easy, friend. I ain't the one you want.",
+              "status": "built"
+            },
+            {
+              "text": "Put it up. You'll only get yourself killed.",
+              "status": "built"
+            },
+            {
+              "text": "Walk away. That's my advice.",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S40"
+          ],
+          "takes": []
+        },
+        {
+          "id": "after.drifter",
+          "speaker": "drifter",
+          "trigger": "He gets up to leave (~5 s after Cody's out)",
+          "when": "any",
+          "condition": "shaken, wants out",
+          "delivery": "Picking up his hat and his money. To the table, not to you.",
+          "words": [
+            {
+              "text": "I'm out.",
+              "status": "built"
+            },
+            {
+              "text": "I wasn't here. You none of you seen me.",
+              "status": "new"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "after.miner",
+          "speaker": "miner",
+          "trigger": "He gets up to leave (~9 s after Cody's out)",
+          "when": "any",
+          "condition": "heavy, sad",
+          "delivery": "Looking down at Earl a long moment. Fair to the dead man, and it makes it worse.",
+          "words": [
+            {
+              "text": "He did cheat, mind. A dollar at a time. Never more.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "Was he cheating? ... Hell. What odds does it make now."
+          ]
+        },
+        {
+          "id": "after.help",
+          "speaker": "barkeep",
+          "trigger": "You kneel by Earl",
+          "when": "any",
+          "condition": "rattled, gentler",
+          "delivery": "The first is nearly gentle. The second comes a while after, to himself, and he means it.",
+          "words": [
+            {
+              "text": "Let him be, Harlan. Doc couldn't mend that.",
+              "status": "new"
+            },
+            {
+              "text": "He owed me four dollars.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "setups": [
+            "S34"
+          ],
+          "note": "Sets nolaw.helped_earl. The four dollars comes back at the undertaker's."
+        },
+        {
+          "id": "after.cody_door",
+          "speaker": "cody",
+          "trigger": "You follow him out to the street; he's mounting",
+          "when": "nolaw.followed (you followed him)",
+          "condition": "contemptuous",
+          "delivery": "Doesn't even look round; then he rides for the foothills.",
+          "words": [
+            {
+              "text": "Go on back to your cards, farmer.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S10"
+          ],
+          "takes": [],
+          "was": [
+            "Go on back to your cards, nester."
+          ],
+          "note": "Was 'nester': not in Bartlett (1877), De Vere (1872) or Farmer (1889). 'Farmer' is contempt enough from a cowhand."
+        }
+      ]
+    },
+    {
+      "id": "morning",
+      "title": "The morning after",
+      "when": "Day 2, morning, Main Street (#796, not built)",
+      "built": false,
+      "setting": "The town wakes to the news. Earl goes to the undertaker's as a recorded death. Townsfolk tell the night differently, by what you saw of it (nolaw.seen_from: table / yard / heard / away). Nobody arrests Cody. Then someone sends for Harlan: the sheriff is dying.",
+      "lines": [
+        {
+          "id": "morning.versions",
+          "speaker": "townsman",
+          "trigger": "You pass him on day 2",
+          "when": "any",
+          "condition": "gossiping",
+          "delivery": "Each teller surer than the last, and each wrong a different way. Only the first is true.",
+          "words": [
+            {
+              "text": "Cody stood over him and said there's no law left to save him.",
+              "status": "new"
+            },
+            {
+              "text": "Earl went for a knife, the way I heard it.",
+              "status": "new"
+            },
+            {
+              "text": "Two of them done it. One held him.",
+              "status": "new"
+            },
+            {
+              "text": "Cody give him a fair chance. That's what Cody's friends say.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S2"
+          ],
+          "takes": []
+        },
+        {
+          "id": "morning.stranger",
+          "speaker": "townswoman",
+          "trigger": "You pass her on day 2",
+          "when": "any",
+          "condition": "sharp",
+          "delivery": "Disapproving of the whole saloon and everyone in it.",
+          "words": [
+            {
+              "text": "A dozen men sat and watched it done. They'll every one be in church Sunday.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "A dozen men sat there and watched it. Not one of them stood up."
+          ]
+        },
+        {
+          "id": "morning.you_were_there",
+          "speaker": "townsman",
+          "trigger": "He sees you on day 2",
+          "when": "nolaw.seen_from = table",
+          "condition": "accusing, quietly",
+          "delivery": "Not loud; he wants an answer and doesn't expect one.",
+          "words": [
+            {
+              "text": "They say you sat at that very table. Sat right through it.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "You were sat right there at the table, they say. And you never moved."
+          ]
+        },
+        {
+          "id": "morning.followed",
+          "speaker": "townsman",
+          "trigger": "He sees you on day 2",
+          "when": "nolaw.followed (you went out after Cody)",
+          "condition": "dry",
+          "delivery": "Not unkind. He thinks it was a fool thing and half admires it.",
+          "words": [
+            {
+              "text": "Somebody saw you go out after him. On foot. After a man on a horse.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S10"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "morning.nobody",
+          "speaker": "loudmouth",
+          "trigger": "You pass him on day 2",
+          "when": "any",
+          "condition": "bitter",
+          "delivery": "Last night's man, sober. He heard his own joke come out of Cody's mouth.",
+          "words": [
+            {
+              "text": "I said who's going to fine me. Hell. I was only funning.",
+              "status": "new"
+            },
+            {
+              "text": "He'll be back. Why wouldn't he?",
+              "status": "new"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "morning.undertaker",
+          "speaker": "undertaker",
+          "trigger": "At the undertaker's, Earl laid out",
+          "when": "any",
+          "condition": "matter-of-fact",
+          "delivery": "Writing in his book as he talks; reads the entry back. He is only being exact.",
+          "words": [
+            {
+              "text": "Earl. Nobody can give me his other name. Shot in the head by one Cody, before witnesses. Pine box, charged to the county.",
+              "status": "new"
+            },
+            {
+              "text": "The saloon wants four dollars and a chair set down against his estate. He had a deck of cards and one boot.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S4",
+            "S32",
+            "S34"
+          ],
+          "takes": []
+        },
+        {
+          "id": "morning.sent_for",
+          "speaker": "townsman",
+          "trigger": "He finds you on day 2 (the doctor sent him)",
+          "when": "any",
+          "condition": "urgent",
+          "delivery": "Out of breath from looking for you.",
+          "words": [
+            {
+              "text": "Harlan! Doc's asking for you. Says the sheriff's sinking.",
+              "status": "built"
+            }
+          ],
+          "note": "Then the sheriff's last day: the sheriff's script, scene 5 (day2.*)",
+          "takes": []
+        }
+      ]
+    },
+    {
+      "id": "funeral",
+      "title": "The funeral",
+      "when": "Day 2 or 3, the cemetery on the hill (Beat 6, not built)",
+      "built": false,
+      "setting": "Quiet, not a set piece. The town gathers; hats come off. The Baron offers the widow a price for her claim at the graveside, the foreman behind him saying nothing (S39). Harlan can attend, watch from a distance or miss it.",
+      "lines": [
+        {
+          "id": "funeral.preacher",
+          "speaker": "preacher",
+          "trigger": "The service at the grave",
+          "when": "any",
+          "condition": "solemn",
+          "delivery": "The old burial words, read plainly into the wind; no performance.",
+          "words": [
+            {
+              "text": "Man that is born of a woman hath but a short time to live, and is full of misery. He cometh up, and is cut down, like a flower.",
+              "status": "built",
+              "note": "the Book of Common Prayer's burial service (1662), public domain"
+            }
+          ],
+          "setups": [
+            "S32"
+          ],
+          "takes": []
+        },
+        {
+          "id": "funeral.town",
+          "speaker": "townsman",
+          "trigger": "Among the mourners, after",
+          "when": "any",
+          "condition": "quiet",
+          "delivery": "Hat in his hands; a small true thing about the dead man.",
+          "words": [
+            {
+              "text": "Fined me twice. Fair, both times.",
+              "status": "built"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "He'd come in Saturdays. One drink. Never two."
+          ]
+        },
+        {
+          "id": "funeral.town_2",
+          "speaker": "barkeep",
+          "trigger": "Among the mourners, after (the game's town_2)",
+          "when": "any",
+          "condition": "quiet, puzzled",
+          "delivery": "It still bothers him.",
+          "words": [
+            {
+              "text": "Never once took a drink on the house. I'd pour it. He'd leave the dime.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "funeral.offer",
+          "speaker": "baron",
+          "trigger": "At the graveside, after the service, to the widow; you're near enough to hear",
+          "when": "any",
+          "condition": "courteous",
+          "delivery": "Hat in hand, voice lowered, perfectly kind. Nothing in it you could object to.",
+          "words": [
+            {
+              "text": "A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure.",
+              "status": "built"
+            }
+          ],
+          "setups": [
+            "S3",
+            "S39"
+          ],
+          "takes": []
+        },
+        {
+          "id": "funeral.refuse",
+          "speaker": "widow",
+          "trigger": "Her answer to the Baron",
+          "when": "any",
+          "condition": "cold",
+          "delivery": "Not raised. She doesn't look at him. It is all the answer he gets.",
+          "words": [
+            {
+              "text": "He's not covered over yet.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S3"
+          ],
+          "takes": [],
+          "was": [
+            "Not today. Not any day."
+          ]
+        },
+        {
+          "id": "funeral.baron_pardon",
+          "speaker": "baron",
+          "trigger": "After her answer",
+          "when": "any",
+          "condition": "courteous",
+          "delivery": "A small bow. Nothing in it but manners, and no doubt at all that the other day will come.",
+          "words": [
+            {
+              "text": "Forgive me, ma'am. It was ill-timed, and I am sorry for it. We will speak another day.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S3"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "funeral.baron_you",
+          "speaker": "baron",
+          "trigger": "He passes you on his way out",
+          "when": "nolaw.funeral = attended",
+          "condition": "courteous",
+          "delivery": "Already knows your name; lets you see that he does.",
+          "words": [
+            {
+              "text": "Mr. Harlan. A sad day for the county, and I'd not have chosen it to make your acquaintance.",
+              "status": "new"
+            }
+          ],
+          "takes": [],
+          "was": [
+            "Mr. Harlan. A sad day for the county."
+          ]
+        },
+        {
+          "id": "funeral.baron_you_care",
+          "speaker": "baron",
+          "trigger": "He passes you on his way out, in place of funeral.baron_you",
+          "when": "nolaw.funeral = attended and sheriff.care = good",
+          "condition": "courteous",
+          "delivery": "Praise, from the man who had it done. He lets you see he knows everything about that morning.",
+          "words": [
+            {
+              "text": "Mr. Harlan. They tell me he had a night with his wife on your account. That was well done.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "funeral.baron_spring",
+          "speaker": "baron",
+          "trigger": "A step later, half turned back",
+          "when": "nolaw.funeral = attended",
+          "condition": "courteous, idle",
+          "delivery": "An afterthought, the way a man admires a horse he hasn't bid on yet.",
+          "words": [
+            {
+              "text": "You have the spring above the creek, I'm told, and the only sweet water for some miles. I have admired it from the road.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S3"
+          ],
+          "note": "Plants the Baron's want where the player is the one wanted from (SETUPS M6: Harlan's spring).",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "funeral.foreman",
+          "speaker": "stranger",
+          "trigger": "He follows the Baron out, past you",
+          "when": "nolaw.seen_from = table and nolaw.deputy",
+          "condition": "pleasant",
+          "delivery": "Two fingers to his hat brim and the same easy smile as last night. One word.",
+          "words": [
+            {
+              "text": "Morning, Deputy.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S39",
+            "S40"
+          ],
+          "note": "The man from the table, behind the Baron. If the sorrel is at the Baron's buggy (art), the player has all three marks.",
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "funeral.you_came",
+          "speaker": "widow",
+          "trigger": "As the mourners go",
+          "when": "nolaw.funeral = attended and sheriff.care = good or poor",
+          "condition": "tired, grateful",
+          "delivery": "Brief; she has a hundred hands to shake.",
+          "words": [
+            {
+              "text": "You came, Mr. Harlan. He'd have noticed that.",
+              "status": "built"
+            }
+          ],
+          "takes": []
+        },
+        {
+          "id": "funeral.you_came_shake",
+          "speaker": "widow",
+          "trigger": "As the mourners go, in place of funeral.you_came",
+          "when": "nolaw.funeral = attended and nolaw.accepted = shake",
+          "condition": "tired, dry",
+          "delivery": "Dry. Not a smile. She leaves it there.",
+          "words": [
+            {
+              "text": "He told me you shook your head at him. It tickled him.",
+              "status": "new"
+            }
+          ],
+          "setups": [
+            "S15"
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        },
+        {
+          "id": "funeral.you_came_left",
+          "speaker": "widow",
+          "trigger": "As the mourners go, in place of funeral.you_came",
+          "when": "nolaw.funeral = attended and sheriff.care = left",
+          "condition": "cold",
+          "delivery": "She looks at you a moment and gives you your name. Nothing else.",
+          "words": [
+            {
+              "text": "Mr. Harlan.",
+              "status": "new"
+            }
+          ],
+          "added": "2026-11-17 (#1056)",
+          "takes": []
+        }
+      ]
+    }
+  ],
+  "rewritten": "2026-11-17",
+  "facts": [
+    {
+      "fact": "sheriff.care",
+      "values": "good / poor / left",
+      "exists": true,
+      "used": [
+        "town.you",
+        "town.you_packed",
+        "town.you_left",
+        "town.send_doc",
+        "table.asks",
+        "table.asks_left",
+        "funeral.baron_you_care",
+        "funeral.you_came_left"
+      ]
+    },
+    {
+      "fact": "nolaw.seen_from",
+      "values": "table / yard / heard / away",
+      "exists": true,
+      "used": [
+        "morning.you_were_there",
+        "funeral.foreman"
+      ]
+    },
+    {
+      "fact": "nolaw.followed",
+      "values": "true",
+      "exists": true,
+      "used": [
+        "after.cody_door",
+        "morning.followed"
+      ]
+    },
+    {
+      "fact": "nolaw.accepted",
+      "values": "nod / shake / none",
+      "exists": true,
+      "used": [
+        "funeral.you_came_shake"
+      ]
+    },
+    {
+      "fact": "nolaw.funeral",
+      "values": "attended / distance / missed",
+      "exists": true,
+      "used": [
+        "funeral.baron_you",
+        "funeral.you_came"
+      ]
+    },
+    {
+      "fact": "nolaw.told_stranger",
+      "values": "yes / no / none: your nod or shake when he asks if the sheriff could talk",
+      "exists": false,
+      "set_by": "gameplay to add, with the question (table.asks is not built)",
+      "used": [
+        "table.asks_nod",
+        "table.asks_shake",
+        "table.asks_none"
+      ]
+    },
+    {
+      "fact": "nolaw.drew_on_stranger",
+      "values": "true if you pointed a gun at him",
+      "exists": false,
+      "set_by": "gameplay to add (the aimed lines are built; nothing is recorded)",
+      "used": [
+        "sheriff_road day2.not_enough; the widow's lane, later"
+      ]
+    },
+    {
+      "fact": "nolaw.helped_earl",
+      "values": "true if you knelt by Earl",
+      "exists": false,
+      "set_by": "gameplay to add (after.help is not built)",
+      "used": [
+        "after.help; the barkeep's word for you later"
+      ]
+    },
+    {
+      "fact": "nolaw.sent_by",
+      "values": "doctor / stranger / nobody",
+      "exists": false,
+      "set_by": "gameplay to add (s26)",
+      "used": [
+        "town.send_doc",
+        "town.send_stranger"
+      ]
+    }
+  ],
+  "kept": [
+    {
+      "line": "murder.gloat",
+      "words": "Ain't no law left in this valley to save you now, Earl.",
+      "why": "Sean's beat, built, and S2's plant. The reader heard a killer speaking the title; that is what it is for."
+    },
+    {
+      "line": "table.warn, after.word, after.aimed, murder.fetch",
+      "words": "the stranger's and the barkeep's built lines",
+      "why": "Built and fixed (VOICES.md); 'Don't move, friend' is S40. The reader heard film stock in 'You didn't see a thing tonight' and 'I ain't the one you want'. For Sean: say if the stranger's lines should be re-made in his new voice."
+    },
+    {
+      "line": "murder.accuse",
+      "words": "Earl, you cheating son of a bitch!",
+      "why": "Sean's redo of 2026-11-12, as he worded it."
+    }
   ]
 }
