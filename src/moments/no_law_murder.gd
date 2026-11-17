@@ -19,6 +19,11 @@ extends CardCheat
 ## Not sat at the table it happens all the same (you hear the shot). Cody shot down before he's done
 ## (you, from the yard): it ends there (`cody_down`), everyone let go. Started by ValleyFolk (its
 ## `_maybe_murder`: the hour, or your hands played) or the bridge's `moment no_law_murder`.
+## Held (SceneHold, #1050): from the stranger's coming in, he and then Cody are the scene's, Earl's chair
+## and the stranger's and Cody's next mark are kept clear, and no armed man takes Cody on unless Cody
+## turns on him. Your shot, drawn gun or hit (or you on Cody's mark, in his way) breaks it: the beats
+## stop where they are (`broken`), Cody (a gun: an OutlawBrain) and the stranger (a townsman's brain)
+## are their own men from where they stand, and the systems play out the rest.
 ## The men, Cody and the stranger, are ValleyFolk's (`act` in config/valley_folk.json): built with
 ## the rest while the valley loads (a Studio man built in play is a long frame) and taken here.
 
@@ -68,6 +73,9 @@ var _str_said_at := -100.0
 ## The barkeep over by Earl: since he was sent (s; -1 not), and back at his bar.
 var _barkeep_go := -1.0
 var _barkeep_back := false
+## The scene's hold on its men (SceneHold, #1050) and why it broke (&"" if it didn't).
+var scene_hold: SceneHold
+var broken_by := &""
 
 
 func begin() -> void:
@@ -156,6 +164,28 @@ func _start_stranger() -> void:
 	_str_route = way
 	_str_state = &"walk"
 	_note("the stranger comes in")
+	_claim_hold()
+
+
+## The quiet zone round the table (`hold_m`), the stranger the first of its cast, Earl's chair and his.
+func _claim_hold() -> void:
+	scene_hold = SceneHold.claim(self, {"label": &"no_law_murder", "cast": [stranger],
+			"centre": game.centre() if game else chair.global_position, "radius": float(data.get("hold_m", 7.0)),
+			"chairs": [chair, stranger_chair] if stranger_chair else [chair]})
+	scene_hold.broken.connect(_on_hold_broken)
+
+
+## Broken by you: the beats stop where they are and the men are their own (their brains: SceneHold).
+func _on_hold_broken(why: StringName) -> void:
+	broken_by = why
+	_note("the hold's broken (%s): it's theirs now" % why)
+	if stranger != null and is_instance_valid(stranger) and _str_state not in [&"gone"]:
+		if stranger_chair != null and is_instance_valid(stranger_chair) and stranger_chair.seated == stranger:
+			Seating.stand_up(stranger, stranger_chair)
+		_str_state = &"free"
+	_cody_going = -1.0
+	if state != &"after" and not done:
+		_end(&"broken")
 
 
 func _stranger_step(delta: float) -> void:
@@ -172,6 +202,8 @@ func _stranger_step(delta: float) -> void:
 			if stranger_chair == null or not is_instance_valid(stranger_chair) or stranger_chair.loose \
 					or (stranger_chair.seated != null and stranger_chair.seated != stranger):
 				stranger_chair = _stranger_chair()
+				if scene_hold and stranger_chair:
+					scene_hold.add_chair(stranger_chair)
 			if stranger_chair != null and Seating.sit_step(stranger, stranger_chair, delta):
 				_str_state = &"sat"
 				_str_t = 0.0
@@ -349,6 +381,8 @@ func _physics_process(delta: float) -> void:
 			m.wake()  # full ticks while it plays, however far off you are (PeopleTick's bands)
 	_stranger_step(delta)
 	card_step(delta)
+	if scene_hold and scene_hold.on and victim != null and state in [&"come", &"turn", &"kick", &"after_kick", &"draw", &"approach"]:
+		scene_hold.set_marks([_target] if _target != Vector3.ZERO else [])  # Cody's next mark kept clear
 	if _stopped and not _warned and state != &"after" and t - _accuse_t > float(_cody.get("warn_after_s", 1.8)):
 		_warn()
 	if state == &"after":
@@ -413,6 +447,8 @@ func _cody_in() -> void:
 	way.pop_front()
 	_route = way
 	_watch_men()
+	if scene_hold and scene_hold.on:
+		scene_hold.add_cast(victim)
 	played = true
 	fact("nolaw.murder", "begun")
 	_note("Cody comes in")
@@ -592,6 +628,12 @@ func _leave(delta: float) -> void:
 func _end(s: StringName) -> void:
 	end_reason = s
 	_note("ends: %s" % s)
+	if scene_hold and scene_hold.on:
+		# The beat's over: its marks and chairs are anyone's; its men stay held till they're gone.
+		scene_hold.set_marks([])
+		scene_hold.chairs.clear()
+		if s != &"done" and s != &"broken":
+			scene_hold.release(s)
 	if s != &"done":
 		# Cut short (Cody shot down, a stall): nobody's held any longer.
 		_release_you()
@@ -632,7 +674,7 @@ func _release_you() -> void:
 ## After Cody's out: the stranger's word and his going, you let go, the drifter and miner off, the
 ## barkeep again; then it's done (the facts set).
 func _after_step(delta: float) -> void:
-	if victim != null and is_instance_valid(victim) and end_reason != &"done" and victim.physiology.alive and not victim.limp:
+	if victim != null and is_instance_valid(victim) and end_reason not in [&"done", &"broken"] and victim.physiology.alive and not victim.limp:
 		victim.set_pose(&"stand")
 	_cody_walks(delta)
 	if _barkeep_t >= 0.0 and t - _barkeep_t > float((data.get("after", {}) as Dictionary).get("to_body_s", 3.0)):
@@ -651,10 +693,18 @@ func _after_step(delta: float) -> void:
 				folk.send_off(StringName(id))
 				_note("%s leaves" % id)
 	var left_all := end_reason != &"done" or _sent.size() >= ((data.get("after", {}) as Dictionary).get("leave", {}) as Dictionary).size()
-	if _str_state in [&"leave", &"gone"] and left_all and (_barkeep_more or _barkeep_t < 0.0):
+	var str_off := _str_state in [&"leave", &"gone"] or (_str_state == &"free" and state_t > leave_s)
+	if str_off and left_all and (_barkeep_more or _barkeep_t < 0.0):
 		_release_you()
+		if scene_hold and scene_hold.on:
+			scene_hold.release()
 		if played:
-			fact("nolaw.murder", "done" if end_reason == &"done" else String(end_reason))
+			# Broken after Earl's shot, it was done all the same (the morning after follows).
+			var earl_dead := cheater != null and is_instance_valid(cheater) and not cheater.physiology.alive
+			var how := "done" if end_reason == &"done" or (end_reason == &"broken" and earl_dead) else String(end_reason)
+			fact("nolaw.murder", how)
+			if broken_by != &"":
+				fact("nolaw.hold_broken", String(broken_by))
 			fact("nolaw.earl", "dead" if cheater != null and is_instance_valid(cheater) and not cheater.physiology.alive else "alive")
 		_finish(end_reason)
 
@@ -663,7 +713,7 @@ func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
 			"end": String(end_reason), "shots": shots, "you_held": you_held, "seen_from": seen_from,
 			"stranger": String(_str_state), "stranger_chair": String(stranger_chair.name) if stranger_chair and is_instance_valid(stranger_chair) else "",
-			"played": played, "chair_loose": chair != null and is_instance_valid(chair) and chair.loose, "strikes": strikes.duplicate(),
+			"played": played, "broken": String(broken_by), "chair_loose": chair != null and is_instance_valid(chair) and chair.loose, "strikes": strikes.duplicate(),
 			"earl_fell": _fell_t >= 0.0, "earl_dead": cheater != null and is_instance_valid(cheater) and not cheater.physiology.alive,
 			"game": String(game.state) if game else "", "events": events.duplicate()}
 	if cheater != null and is_instance_valid(cheater):

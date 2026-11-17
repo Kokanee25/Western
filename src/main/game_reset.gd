@@ -54,6 +54,7 @@ static func clear_for_retry() -> void:
 ## The world's statics (not the story): what a fresh start, a retry and a load all clear.
 static func clear_world() -> void:
 	PropKit._made.clear()
+	SceneHold.live.clear()  # (a scene's hold goes with its scene; none carried over a reload)
 	PropLibrary._made.clear()
 	SightLight._lamps.clear()
 	SightLight._lamps_frame = -1

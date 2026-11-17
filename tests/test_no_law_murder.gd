@@ -341,3 +341,81 @@ func test_a_murder_over_before_it_played_writes_nothing_and_comes_again() -> voi
 	check(m != null and m.get_instance_id() != first_id and not m.done, "a new one at its hour (%s)" % _folk().report())
 	if m != null:
 		m.reset()
+
+
+# --- The hold (SceneHold, #1050) ---------------------------------------------------------------
+
+## An armed man by the table, spoiling for it: while the scene holds, he never takes Cody on (Sean's
+## No Law case on #1050: the shooter downed by a townsman before you'd done anything), and the murder
+## plays out.
+func test_an_armed_townsman_leaves_cody_be_while_its_held() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	var f := _folk()
+	var p := _player()
+	p.global_position = f.cards.centre() + Vector3(30.0, 0.0, 10.0)
+	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	var guard := HumanBody.new()
+	guard.person_id = &"guard"
+	guard.name = "Guard"
+	guard.rng_seed = 1050
+	guard.has_gun = true
+	var ob := OutlawBrain.new()
+	ob.name = "Brain"
+	ob.temper = 1.0
+	ob.nerve = 99.0
+	guard.add_child(ob)
+	var at := f.cards.centre() + Vector3(-3.0, 0.0, 1.5)
+	at.y = f.ground(at.x, at.z) + 0.05
+	valley.add_child(guard)
+	guard.global_position = at
+	await physics_frames(5)
+	var m := f.start_murder() as NoLawMurder
+	check(m != null and m.scene_hold != null and m.scene_hold.on, "started, held (%s)" % (m.scene_hold.report() if m and m.scene_hold else {}))
+	var on_cody := []
+	var watch := func(actor: Node, kind: StringName, target: Node, _w: Vector3) -> void:
+		if m.victim != null and target == m.victim and actor != m.victim and kind in [&"shoot_at", &"hit", &"kill"]:
+			on_cody.append([String(actor.name), String(kind)])
+	Events.deed.connect(watch)
+	var cody_in := await wait_until(func() -> bool: return m.victim != null, 60 * 90)
+	check(cody_in, "Cody comes in (%s)" % m.result())
+	if cody_in:
+		ob.relations.provoke(m.victim)  # he's for taking Cody on: the hold keeps him off it
+	var over := await wait_until(func() -> bool: return m.done, 60 * 120)
+	Events.deed.disconnect(watch)
+	var r := m.result()
+	check(over and r.end == "done", "it plays out (%s)" % r)
+	check(on_cody.is_empty(), "nobody shot at or hit Cody (%s)" % [on_cody])
+	check(r.broken == "", "nothing of yours broke it")
+	check(StoryState.get_fact("nolaw.murder") == "done" and r.earl_dead, "Earl murdered (%s)" % StoryState.get_fact("nolaw.murder"))
+	guard.queue_free()
+
+
+## Your shot as Cody stands over Earl: it lets go on that frame, the beats stop, Cody's his own man
+## (an outlaw's brain) and fights you.
+func test_your_shot_breaks_it_and_cody_fights_you() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	var f := _folk()
+	var p := _player()
+	p.global_position = f.cards.centre() + Vector3(6.0, 0.0, 4.0)
+	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	await physics_frames(5)
+	var m := f.start_murder() as NoLawMurder
+	check(m != null, "started")
+	var up := await wait_until(func() -> bool: return m.state in [&"kick", &"after_kick", &"draw", &"approach"], 60 * 120)
+	check(up, "Cody's at Earl (%s)" % m.result())
+	var hold := m.scene_hold
+	var f0 := Engine.get_physics_frames()
+	var from := p.global_position + Vector3.UP * 1.5
+	Events.noise.emit(from, 1.0, &"gunshot", p)
+	Events.shot_fired.emit(from, Vector3.UP, p)
+	check(not hold.on and hold.ended_frame == f0 and m.broken_by == &"shot", "let go on the shot's frame (%s)" % hold.report())
+	check(m.state == &"after" and m.end_reason == &"broken", "the beats stop (%s)" % m.result())
+	var cb := m.victim.get_node_or_null(^"Brain") as OutlawBrain if m.victim else null
+	check(cb != null, "Cody has a brain of his own")
+	if cb != null:
+		var fights := await wait_until(func() -> bool: return cb.mood == OutlawBrain.Mood.FIGHTING and cb.target == p, 60 * 4)
+		check(fights, "and fights you (mood %s, target %s)" % [cb.mood, cb.target])
+	check(not p.seat.held(), "you're nobody's")
+	m.reset()
