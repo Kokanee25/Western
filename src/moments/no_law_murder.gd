@@ -76,6 +76,7 @@ var _barkeep_back := false
 ## The scene's hold on its men (SceneHold, #1050) and why it broke (&"" if it didn't).
 var scene_hold: SceneHold
 var broken_by := &""
+var _calm_since_break := 0.0
 
 
 func begin() -> void:
@@ -647,7 +648,15 @@ func _end(s: StringName) -> void:
 
 ## Cody off down the street once he's out of the yard, till he's gone.
 func _cody_walks(delta: float) -> void:
+	_cody_after_break(delta)
 	if _cody_going < 0.0 or victim == null or not is_instance_valid(victim):
+		return
+	var b := victim.get_node_or_null(^"Brain") as OutlawBrain
+	if b != null and (b.mood != OutlawBrain.Mood.CALM or b.target != null):
+		# It's come to a fight (or he's running) on his way out: that's his brain's, not the walk's.
+		b.held = false
+		_cody_going = -1.0
+		_calm_since_break = 0.0
 		return
 	victim.wake()
 	_cody_going += delta
@@ -658,6 +667,29 @@ func _cody_walks(delta: float) -> void:
 		victim = null
 		_cody_going = -1.0
 		_note("Cody's gone")
+
+
+## The hold broken, Cody's his own man (an OutlawBrain), but a hired gun with nothing to fight just
+## stood over Earl (the playtest, 2026-11-17: "Help you?" and 40 s of nothing). Calm this long after
+## it, nobody to fight, he goes the way he came: his walk out, his brain `held` while he walks it
+## (a fight is still his: `_cody_walks` lets go of him the moment one starts).
+func _cody_after_break(delta: float) -> void:
+	if broken_by == &"" or _cody_going >= 0.0 or victim == null or not is_instance_valid(victim) \
+			or victim.limp or not victim.physiology.alive:
+		return
+	var b := victim.get_node_or_null(^"Brain") as OutlawBrain
+	if b == null or b.mood != OutlawBrain.Mood.CALM or b.target != null:
+		_calm_since_break = 0.0
+		return
+	_calm_since_break += delta
+	if _calm_since_break < float(_cody.get("calm_leave_s", 6.0)):
+		return
+	if not victim.gun_holstered:
+		victim.holster_gun()
+	b.held = true
+	_route = _way_out()
+	_cody_going = 0.0
+	_note("Cody, let be, walks out")
 
 
 func _release_you() -> void:

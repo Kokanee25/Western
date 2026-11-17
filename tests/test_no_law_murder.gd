@@ -419,3 +419,27 @@ func test_your_shot_breaks_it_and_cody_fights_you() -> void:
 		check(fights, "and fights you (mood %s, target %s)" % [cb.mood, cb.target])
 	check(not p.seat.held(), "you're nobody's")
 	m.reset()
+
+
+## Your gun drawn as Cody's at Earl (the playtest's 2026-11-17: he then stood over Earl 40 s doing
+## nothing): it lets go, and with nobody to fight he walks out the way he came.
+func test_your_drawn_gun_breaks_it_and_cody_walks_out() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	var f := _folk()
+	var p := _player()
+	p.global_position = f.cards.centre() + Vector3(6.0, 0.0, 4.0)
+	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	await physics_frames(5)
+	var m := f.start_murder() as NoLawMurder
+	var up := await wait_until(func() -> bool: return m.state in [&"kick", &"after_kick", &"draw", &"approach"], 60 * 120)
+	check(up, "Cody's at Earl (%s)" % m.result())
+	Events.deed.emit(p, &"draw", null, p.global_position)
+	check(m.broken_by == &"draw" and not m.scene_hold.on, "your gun let it go (%s)" % m.scene_hold.report())
+	var cody := m.victim
+	var from := cody.global_position
+	var went := await wait_until(func() -> bool: return m.events.any(func(e: Array) -> bool: return e[1] == "Cody, let be, walks out"), 60 * 20)
+	check(went, "he walks out (%s)" % [m.events.slice(-4)])
+	await physics_frames(60 * 6)
+	check(not is_instance_valid(cody) or cody.global_position.distance_to(from) > 4.0, "and gets on his way")
+	m.reset()
