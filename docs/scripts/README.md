@@ -28,6 +28,8 @@ most). The three scripts were rewritten that way on 2026-11-17, as one story:
   `note` (the answer to Sean's note on the page, where he left one), and at the top `facts` and `kept`
   (lines the blind reader flagged that stay because they're Sean's own or fixed in the game, each
   with a period way to say it if he wants one).
+- **Script OK after a rewrite:** a script's `rewritten_at` (a UTC time) makes the page ignore an OK tapped before it,
+  so Sean's old tap doesn't count for new words and his row isn't touched. Set it whenever the words change after an OK.
 - **The sheriff's page holds takes** made on an unmerged voices branch (#846), on the old wording. A
   republish keeps a line's takes only where its words still stand (the page's `script.json` is the
   repo's file with those takes and the cast's fixed voices carried over); a re-worded line's takes are
