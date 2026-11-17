@@ -30,13 +30,14 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   sleeve from `assets/people/private/harlan_fp.glb` (git-ignored; `tools/characters/fetch_fp_hands.sh` builds it
   from the Studio's frozen `sean_metahuman_s3`); else the painted arms. Holds and poses: `config/fp_holds.json`.
   CI's export builds it into Windows/Linux (not web) **only once the `STUDIO_TOKEN` secret is set**.
-- **The guns in hand** (#1014 + #1019, one PR on `claude/characters-viewmodel-fps-bte2lo`, holding #1017): the
-  approved Colt (`ColtModel`, 26 draws), `view_fov` 54; holds and poses in `config/fp_holds.json` (`colt.hip`,
-  `colt.aim_cant`, `win73.hip`, `win73.aim_cant`, `win73.r_index`); `MuzzleFlash` at the held muzzle (game time).
-  Pose on `experiments/viewmodel_rig/game_views.gd` (it fires for real now). Judge (2026-11-16_fp_fps_r2): still
-  cheap indie; passes: the grip, the lever, a flash. Left: the aimed views end-on with the cuff a third of the
-  screen, the steel (plastic blue by day, black at night), no smoke at 50 ms, reloads that don't show a reload.
-  No Hunt pictures reachable from a session (Steam blocked): the judge works from its own memory of Hunt.
+- **The guns in hand** (#1014, #1019, #1031): the approved Colt (`ColtModel`), `view_fov` 54; holds and poses
+  in `config/fp_holds.json` (aimed: `*.aim_turn` about the front sight, `*.aim_cant`; reloads: `colt.loading`,
+  `colt.l_load*` the left hand at the gate, `win73.loading`); `MuzzleFlash` at the held muzzle; the held steel
+  (`held_grade.py` albedo and `--orm`, `GunParts.HELD_METALLIC`, the glint in `WeaponViewmodel`). Pose on
+  `experiments/viewmodel_rig/game_views.gd`. Judge 2026-11-17_fp_fps2_r2: cheap indie; passes: the reloads, the
+  grip, the lever, the Colt's steel by day. Left (waiting on Sean, see the lane's open issue): the aimed framing
+  (two judges pulled opposite ways), the cream smoke blob at 50 ms (art's GunSmoke), the rifle's flat receiver.
+  No Hunt pictures reachable from a session: the judge works from memory.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):

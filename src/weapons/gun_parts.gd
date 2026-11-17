@@ -404,9 +404,18 @@ static func paint_gun(root: Node3D, gun: String) -> bool:
 
 
 ## A held gun's materials given their in-hand albedo (#1014): every material whose albedo texture is
-## `from` (a res:// path) is copied once with `to`'s texture, on every mesh under `root`. From the eye
+## `from` (a res:// path) is copied once with `to`'s texture (and its ORM maps, where `swaps` names them), on every mesh under `root`. From the eye
 ## a held gun is seen from above and mirrors the open sky; `experiments/viewmodel_rig/held_grade.py`
 ## darkens the metal's albedo (its reflectance) for that, wood and brass untouched.
+## Blued steel is an oxide on the metal, not a bare mirror (#1031): the held copy's metallic is scaled
+## by this, so the bluing takes a little diffuse light (a lamp's warmth on the cylinder at night, not
+## black) and mirrors less of the sky by day (judge r2: "royal-blue plastic by day, black at night").
+const HELD_METALLIC := 0.8
+## And its roughness: a little rougher, so a highlight spreads over the cylinder and the receiver's
+## flats rather than pinpoint glints (ORM roughness times this, clamped by the engine at 1).
+const HELD_ROUGHNESS := 1.5
+
+
 static func held_albedo(root: Node, swaps: Dictionary) -> void:
 	var made := {}
 	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
@@ -422,5 +431,11 @@ static func held_albedo(root: Node, swaps: Dictionary) -> void:
 			if not made.has(mat):
 				var copy := mat.duplicate() as StandardMaterial3D
 				copy.albedo_texture = load(swaps[path]) as Texture2D
+				copy.metallic *= HELD_METALLIC
+				# The ORM's three maps too, where a held ORM is given (`held_grade.py --orm`).
+				for slot: StringName in [&"roughness_texture", &"metallic_texture", &"ao_texture"]:
+					var tex := copy.get(slot) as Texture2D
+					if tex and swaps.has(tex.resource_path):
+						copy.set(slot, load(swaps[tex.resource_path]))
 				made[mat] = copy
 			mi.set_surface_override_material(s, made[mat])

@@ -2203,7 +2203,11 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   plain stage, a pose in seconds, `--variants` for holds side by side).
   `MuzzleFlash` (#1019) is the flash you see at the held gun's muzzle (a child of its Muzzle marker, on
   the held layer: a star facing you, two crossed flames, a warm light), stepped in game time by the
-  viewmodel; the world's own flash and light (`ImpactEffects.muzzle_flash`) still go off beside it.
+  viewmodel; the world's light still goes off (`ImpactEffects.muzzle_flash(..., false)`: your own gun
+  drops the world's puff, #1031). The steel in hand (#1031): the held albedo and ORM (`held_grade.py`,
+  `--orm`), `GunParts.HELD_METALLIC`, and `WeaponViewmodel`'s glint (a small light by the eye on the held
+  layer, its specular high). Aimed, each gun turns about its front sight (`colt.aim_turn`, `win73.aim_turn`);
+  the Colt's reload has a left hand (`RevolverViewmodel.left_hand`, a round at the gate, `colt.l_load*`).
   The Colt's hip pose (`colt.hip`, turned to show its side), aimed cant (`colt.aim_cant`) and the
   rifle's (`win73.hip`, `win73.aim_cant`) are holds too.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,
