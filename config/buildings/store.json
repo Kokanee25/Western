@@ -1109,7 +1109,8 @@
  ],
  "front": {
   "sign": "GENERAL STORE",
-  "sign_from": 7.4,
+  "sign_from": 4.4,
+  "sign_to": 5.45,
   "sign_width": 6.0,
   "cornice": "dark_trim",
   "brackets": {
