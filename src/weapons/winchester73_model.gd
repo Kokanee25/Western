@@ -26,7 +26,9 @@ var hammer_deg := 0.0
 ## In your hand: the in-hand albedo (GunParts.held_albedo). Set before it enters the tree.
 var held := false
 const HELD_ALBEDO := {"res://assets/weapons/winchester73_w73_action_albedo.jpg": "res://assets/weapons/winchester73_held_action_albedo.jpg",
-		"res://assets/weapons/winchester73_w73_long_albedo.jpg": "res://assets/weapons/winchester73_held_long_albedo.jpg"}
+		"res://assets/weapons/winchester73_w73_long_albedo.jpg": "res://assets/weapons/winchester73_held_long_albedo.jpg",
+		"res://assets/weapons/winchester73_w73_action_orm.jpg": "res://assets/weapons/winchester73_held_action_orm.jpg",
+		"res://assets/weapons/winchester73_w73_long_orm.jpg": "res://assets/weapons/winchester73_held_long_orm.jpg"}
 
 var _gun: Node3D
 

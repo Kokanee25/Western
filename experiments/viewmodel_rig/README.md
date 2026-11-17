@@ -15,6 +15,13 @@ caught `--shot-at=` game seconds in (0.05) with time stood still; the view's kic
 starts on a clean stage. `held_grade.py` makes the guns' in-hand albedo (the Colt `--dark=0.5 --grey=0.4`,
 the Winchester's two `--dark=0.6 --grey=0.75`, #1019) (the metal darker, less blue: seen from above a held gun
 mirrors the open sky). Judge rounds: `docs/screenshots/judge/2026-11-16_fp_colt_r1/`, `_r2/`.
+**#1031 (2026-11-17):** the aimed guns turned about the front sight (`colt.aim_turn`, `win73.aim_turn`:
+[yaw, pitch]); the held ORM (`held_grade.py --orm`: the metal's roughness lifted) and `GunParts.HELD_METALLIC`
+0.6; a glint light by the eye on the held layer (`WeaponViewmodel.GLINT_*`); the Colt's reload with a left
+hand pushing a round into the open gate (`colt.loading`, `colt.l_load*`); the rifle's turned to show its
+gate (`win73.loading`); the lab's rifle given rounds so its reload runs. Judge rounds `2026-11-17_fp_fps2_r1/`,
+`_r2/`: the reloads and the Colt's steel pass; the aimed framing, the flash (the cream blob at 50 ms is
+GunSmoke's puff in the shot's light) and the rifle's flat receiver don't.
 
 ```sh
 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver vulkan --resolution 1280x720 \

@@ -365,6 +365,8 @@ static func hold(key: String, painted: Variant) -> Variant:
 static func _shaped(v: Variant, like: Variant) -> Variant:
 	if like is Vector3 and v is Array:
 		return Vector3(float(v[0]), float(v[1]), float(v[2]))
+	if like is Vector2 and v is Array:
+		return Vector2(float(v[0]), float(v[1]))
 	if like is Array and v is Array:
 		var out := []
 		for i in (v as Array).size():
