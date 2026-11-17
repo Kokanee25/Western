@@ -110,6 +110,9 @@ var funeral: Moment
 var _funeral_data := {}
 ## What the day folk have said (`talk`): [id, line id, text], and when each last spoke.
 var heard: Array = []
+## Running for help (townsfolk step 6, FetchHelp): who runs for the doctor or the law, the doctor's
+## calls; every man brought gets it (`CivilianBrain.fetch`).
+var fetch: FetchHelp
 var _spoke_at := {}
 var _said_n := {}
 
@@ -120,6 +123,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	add_to_group(&"valley_folk")
+	fetch = FetchHelp.new(self)
 	if layout == null:
 		layout = ValleyLayout.main()
 	data = JSON.parse_string(FileAccess.get_file_as_string(DATA))
@@ -586,6 +590,7 @@ func _bring(p: Dictionary, walk: bool, from_place := &"") -> HumanBody:
 	brain.places = places
 	brain.dials = dials_of(p)
 	brain.refuges = refuges_of(p)
+	brain.fetch = fetch
 	brain.chores = _chores_for(man, p, sp)
 	man.add_child(brain)
 	man.move_child(brain, 0)
@@ -864,6 +869,8 @@ func _process(delta: float) -> void:
 
 func _step(delta: float) -> void:
 	_ran += delta
+	if fetch:
+		fetch.step(delta)
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -894,7 +901,7 @@ func _step(delta: float) -> void:
 		if b.is_empty():
 			continue
 		var here: HumanBody = people.get(id)
-		if here != null and is_instance_valid(here) and not here.physiology.alive and state.get(id) in [&"coming", &"in", &"going"]:
+		if here != null and is_instance_valid(here) and not here.physiology.alive and state.get(id) in [&"coming", &"in", &"going", &"called"]:
 			state[id] = &"dead"
 			_going_for.erase(id)
 			_going_to.erase(id)
@@ -904,6 +911,8 @@ func _step(delta: float) -> void:
 		if state.get(id) == &"act":
 			book.take(id)  # an act has him (the funeral's mourners): his day waits till it gives him back
 			continue
+		if state.get(id) == &"called":
+			continue  # called out (the doctor to a man down, FetchHelp): his day waits till he's done
 		var key := block_key(b)
 		if kept_out.has(id):
 			if kept_out[id] == key:
@@ -1118,6 +1127,51 @@ func send_off(id: StringName) -> void:
 		return
 	kept_out[id] = _key.get(id, "")
 	_send_off(id, true)
+
+
+## Where a runner finds the doctor (FetchHelp): his body if he's out in the world, else his door if
+## the book has him indoors in town; {} if there's no doctor to fetch (dead, gone, an act has him,
+## the dying sheriff's scene has the doctor's house).
+func doctor_where() -> Dictionary:
+	var id := FetchHelp.DOCTOR
+	var p := _person(id)
+	if p.is_empty() or gone_for_good.has(id) or state.get(id) in [&"dead", &"act"]:
+		return {}
+	if sheriff_scene != null and is_instance_valid(sheriff_scene) and not sheriff_scene.done:
+		return {}
+	var man := folk_man(id)
+	if man != null and man.physiology.alive:
+		return {"at": man.global_position, "man": man}
+	if man != null:
+		return {}
+	var r := book.row(id)
+	if r.is_empty() or not places.has(StringName(r.in)):
+		return {}
+	return {"at": door(StringName(r.in), p), "man": null}
+
+
+## Called out of his day (the doctor to a man down): out of his door if he's in (seen or not: he's
+## needed), his day held (`called`) till `call_over`. His body, or null.
+func call_out(id: StringName) -> HumanBody:
+	var p := _person(id)
+	if p.is_empty() or state.get(id) in [&"dead", &"act"] or gone_for_good.has(id):
+		return null
+	var man := folk_man(id)
+	if man == null:
+		man = _bring(p, true, _book_place(p))
+	_going_for.erase(id)
+	_going_to.erase(id)
+	kept_out.erase(id)
+	state[id] = &"called"
+	return man
+
+
+## Done with what he was called for: back to his day (to wherever its block has him, walking).
+func call_over(id: StringName) -> void:
+	if state.get(id) != &"called":
+		return
+	state[id] = &"in"
+	_key[id] = ""  # his block anew: he walks to it
 
 
 ## The folk man by id in the world, or null.
