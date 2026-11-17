@@ -252,6 +252,27 @@ impl ClothCore {
         self.c.as_ref().map_or(0, |c| c.own.rebuilds as i64)
     }
 
+    /// This tick: its points' own lookups, the time (us) listing and meeting itself, and the pairs met.
+    #[func]
+    fn self_lookups(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.own.lookups as i64)
+    }
+
+    #[func]
+    fn self_list_us(&self) -> f64 {
+        self.c.as_ref().map_or(0.0, |c| c.own.list_us as f64)
+    }
+
+    #[func]
+    fn self_meet_us(&self) -> f64 {
+        self.c.as_ref().map_or(0.0, |c| c.own.meet_us as f64)
+    }
+
+    #[func]
+    fn self_met(&self) -> i64 {
+        self.c.as_ref().map_or(0, |c| c.own.met as i64)
+    }
+
     /// What the last substep did with each point against his body (cloth.rs Body::last).
     #[func]
     fn body_last(&self) -> PackedInt32Array {

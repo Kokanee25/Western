@@ -9,6 +9,37 @@ this lab keeps the choreography (`handoff.gd`), the bench and the bridge, now on
 "glove.gd", "glove_cloth.gd" and "arm_colliders.gd" are the lab's first files, now `WornGarment`,
 `GarmentCloth` and `SkinCollider` (the fitted rigid shapes weren't promoted).
 
+## Itself's lists by how far they go (#1029, 2026-11-17)
+
+- **Now** (ClothCore `own_candidates`): neighbour lists with a skin per point (Verlet 1967's, as in molecular
+  dynamics). Each point may go an allowance against the cloth's mean (half again as far as it went in 3 substeps
+  last tick, + 0.5 mm, 1 mm-5 cm) before they're all listed again; a pair is listed if it could come within two
+  thicknesses with both at their allowance's end; checked where it meets, every substep. Lists only when needed,
+  and every pair that could meet is listed (the speed-based lists could miss one: a point's speed while drawn is
+  mostly his skin's pushes). Measures now `self_lookups`, `self_list_us`, `self_meet_us`, `self_met` (bench `self_us`).
+- **Cost with itself on** (ms a tick here, solver; old in the same hour): MetaHuman seed 1 drawn/tossed/lying/at rest
+  17.2 / 11.7 / 7.3 / 2.8 -> 12.9 / 6.3 / 4.7 / 2.1 (seeds 2-3: 13.1 / 7.6 / 5.5, 12.9 / 6.3 / 3.8), lists 19.6 -> ~10 a
+  tick drawn; sean_s3_talking seed 1 15.5 / 11.8 / 6.7 / 1.6 -> 14.4 / 12.2 / 5.8 / 4.0. Without itself drawn is ~6: itself
+  is ~+4.5 ms drawn at Sean's on the MetaHuman (was ~+7), ~+5.5 on the talking man. The Rust sheet bench 8.1 -> 4.75.
+  **Not there** (~2-3 wanted): still off.
+- **Quality:** MetaHuman 1-3 and talking 1 rest, flung 0, pop 1.83/1.78 mm, stretch 1.08/1.05. **sean_s3_talking seed 2
+  no longer rests** (still moving after 11 s, 3 lists a tick lying): with every pair listed the run differs from the
+  old lists' (bit-for-bit the same meets only if both list all within two thicknesses); the talking man's runs are
+  chaotic. A gate for turning it on.
+- **Why not further** (results `build/`-only, the numbers above): while drawn, 35-100 points at a time go past their
+  allowance, and they aren't jostled (their swing beyond their net travel is ~0) but travel, 5-30 mm a tick against
+  the mean: the cuff going with his hand, the rest on his arm. Each whole listing ~0.5 ms, ~10 a tick.
+- **Dead ends:** (1) per-point lists by speed (each point relisted when its speed says, its window the fastest
+  triangle near it; one hash a tick, boxes swept by speed): 16.5 -> 19 drawn, speeds are noise (his skin's pushes, 5 mm
+  a substep this way and that). (2) Allowances of a whole tick's travel: 3 lists a tick but 90 pairs a point (meet
+  5 ms). (3) Relisting only the points past their allowance (their own list, their triangles into everyone's: by
+  brute force with a sphere first, then by insert-only hashes of triangles and of points): with 35-100 at a time it
+  costs a whole listing or more, and allowances widened on the way swell every list (narrowed once a tick: 12.6
+  drawn, no better). (4) Each point's swing added to its allowance: no change (they travel).
+- **Next, if itself is still wanted:** frames per part of the glove (the cuff in his hand, the rest on his arm, each
+  its own mean: only the fold between them slides), or its whole listings over the worker pool (~0.5 ms each, ~10 a
+  tick drawn). And the talking seed 2 rest first.
+
 ## The cost of the finer skin, and itself again (#1023, 2026-11-17)
 
 - **Cost** (ClothCore `collide_verts`, `vert_candidates`; MetaHuman seeds 1-3, sean_s3_talking 1-2, all rest, flung 0,

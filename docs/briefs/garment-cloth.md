@@ -100,8 +100,8 @@ jacket, and leggings"; and "we should only be using the metahuman model". Everyt
    while drawn (25 ms tossed on sean_s3_talking): `GarmentHandoff.FINE_TRIS` 0 until those are fixed.
    Then the rest with itself on and the cost below.
    **The world and the cost:** floor and props; at rest baked; the cost table on the MetaHuman, ≤ 0.5 ms
-   while it simulates (with itself, from ~7.2: a hierarchy over its own triangles with normal cones,
-   Provot 1997, so flat patches aren't looked into; the points over the worker threads). Merge.
+   while it simulates (with itself, ~+4.5 at Sean's drawn after #1029's lists by how far each point goes, from ~7.2;
+   next: a frame per part of the glove, the whole listings over the worker pool, Provot 1997's cones). Merge.
 5. **Leggings / a stocking:** `WornGarment` for the leg's bones; rolled or drawn down over the foot.
 6. **A jacket:** two sleeves and the shoulders, put on and taken off; layered over a shirt (two garments
    meeting each other).

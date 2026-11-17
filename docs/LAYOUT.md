@@ -1499,10 +1499,11 @@ less its and his skin's moves since, is past the band isn't looked at again that
 `self_friction`, `self_stick`: each point kept off its own triangles (never one of its own) on the
 side it was on at the substep's start, before his body (through one only if it was near its inside
 then too); no bounce, friction on the slide, slower than `self_stick` (2 cm/s) the layers stick (else a
-pile's squeezed points buzz and it never rests). Its triangles hashed and each point's near ones listed every few
-substeps (reach: its move against the cloth's mean, so the list's interval keeps it about a
-thickness), each list in triangle order (cell size and interval only cost). Measures `self_contacts`,
-`self_contacts_total`, `self_pairs`, `self_lists`. A layer is only caught within two thicknesses of
+pile's squeezed points buzz and it never rests). Each point's near triangles listed (#1029) with an allowance per point
+(Verlet lists: half again as far as it went in 3 substeps last tick against the cloth's mean, 1 mm-5 cm,
+`SELF_SKIN_*`): all listed again only once one goes past it, checked where they meet; a pair listed if it
+could come within two thicknesses; each list in triangle order (cell size and interval only cost). Measures
+`self_contacts`, `self_contacts_total`, `self_pairs`, `self_lists`, `self_lookups`, `self_list_us`, `self_meet_us`, `self_met`. A layer is only caught within two thicknesses of
 another: faster than 2 × thickness a substep (2 mm at 20 substeps: 4.8 m/s apart) goes through; met
 every 4th substep a pile tangled through itself, a fixed 5-substep list missed contacts. **His finer
 skin** (step 4, #1008): `set_skin(points, tris)` after `set_body`, `move_skin` each tick, `body_verts`
@@ -1522,14 +1523,14 @@ sean_s3_talking), capping each push by its edges (more of his skin out), meeting
 GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
 `came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
 the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `set_skin`, `move_skin`, `tune(name, v)`.
-GarmentHandoff uses it (itself off: with the finer skin all five starts rest with it on, #1023, but it costs ~+6 ms drawn, ~7 tossed, ~4 settling at Sean's). Not yet: the world's props (step 4); nothing takes a glove off in
+GarmentHandoff uses it (itself off: ~+4.5 ms drawn at Sean's on the MetaHuman, ~+5.5 on sean_s3_talking, whose seed 2 no longer rests with it, #1029; README "Itself's lists by how far they go"). Not yet: the world's props (step 4); nothing takes a glove off in
 play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
 clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
 convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20
 substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). The glove at Sean's: with his skin
-~1.5 ms a tick while it's drawn off, with itself too ~7.2 drawn, ~6.8 tossed, ~4.2 settling (the
-solver alone 0.38; #997's cost table): itself is mostly its lists (a bunched glove has 100-200 of its
-triangles near each point's cell, ~19 lists a tick while it's drawn fast). Build here:
+~1.5 ms a tick while it's drawn off, itself ~+4.5 more drawn, ~+3.5 tossed, ~+2.5 settling (#1029; the
+solver alone 0.38): itself is mostly its lists (~10 whole listings a tick drawn: the cuff travels with his hand
+against the rest, 35-100 points past their allowance at a time). Build here:
 `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, copy
 the .so to bin/. The glove's mesh for probes in
 plain Rust: `experiments/cloth_core/glove_sean_s3.json` (bridge `cc_dump`). `tests/test_cloth_core.gd`; the lab `experiments/cloth_core/`.
