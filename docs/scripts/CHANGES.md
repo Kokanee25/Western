@@ -79,7 +79,7 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | sheriff_road.json `day2.shake.twice` | sheriff | clear, and sheriff.shook (you shook your head at him on the road, then helped him anyway) | Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him. |
 | sheriff_road.json `day2.for_now.clear` | sheriff | clear | It's only for now. The county commissioners name the next man. Till they do, Doc's coroner, so he's sheriff, and you're his deputy. |
 | sheriff_road.json `day2.for_now.fading` | sheriff | fading | Only till the county... names a man. Doc... tell him. |
-| sheriff_road.json `day2.not_enough` | doctor | nolaw.seen_from = table (you sat with the stranger), or nolaw.drew_on_stranger | A sorrel horse and one word. I can't hang a man on that, Harlan. |
+| sheriff_road.json `day2.not_enough` | doctor | nolaw.seen_from = table (you sat with the stranger) | A sorrel horse and one word. I can't hang a man on that, Harlan. |
 | no_law.json `town.you_packed` | townsman | sheriff.care = good (you packed the wound) | Doc says that wound was packed proper. Says you done it. |
 | no_law.json `table.drink` | stranger | any | What'll you take? ... No, put your money up. I asked you. |
 | no_law.json `table.talk` | stranger | sheriff.care = good or poor (you brought the sheriff in) | They tell me it was you brought the sheriff in. Carried him the best part of four miles. That's a deal of trouble to go to. |
@@ -122,7 +122,6 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | `sheriff.shook` | true if you ever shook your head at him on the road, whatever you did after | gameplay to add: sheriff.answer keeps only the last answer | day2.shake.twice |
 | `nolaw.carried_earl` | yes / no | gameplay to add with #1057 (carrying a man) | day2.door.table, day2.door.coat, day2.blood, day2.blood_doc |
 | `nolaw.told_stranger` | yes / no / none: your nod or shake when he asks if the sheriff could talk | gameplay to add, with the question (table.asks is not built) | table.asks_nod, table.asks_shake, table.asks_none |
-| `nolaw.drew_on_stranger` | true if you pointed a gun at him | gameplay to add (the aimed lines are built; nothing is recorded) | sheriff_road day2.not_enough; the widow's lane, later |
 | `nolaw.sent_by` | doctor / nobody | gameplay to add (s26) | town.send_doc |
 | `nojustice.kett_saw_joe` | true: Joe took the hat off at the cabin and Kett lived | gameplay to add, with the hat coming off at cabin.knife | street.kett; whether the kin go to the camp (S12) |
 
@@ -135,6 +134,7 @@ Every other fact the scripts' `when` fields name is set by the game now (`sherif
 - **The stranger's question** (`no_law.json` `table.asks`, `table.asks_left` and the three answers): a nod-or-shake wait at the table before Cody comes; sets `nolaw.told_stranger`.
 - **The funeral's second town line** is the barkeep's (`funeral.town_2`), as `funeral.json`'s `speakers` already has it.
 - **Earl is carried to the doctor's (Sean, 2026-11-17; #1057):** the murder leaves Earl down and bleeding, not dead; the barkeep sends Harlan (`after.help`); scene `carry` (Earl on the way, the doctor through the door, at the door, the front room); the body under a sheet in the doctor's front room on day 2 (`morning.body`, `morning.undertaker` there); `nolaw.carried_earl`, and `nolaw.earl` = doctor's or saloon in place of undertaker. The blood on Harlan's coat is read by `sheriff_road.json` `day2.door.coat`, `day2.blood`, `day2.blood_doc`.
+- **No gun on night one (Sean, 2026-11-17):** Harlan is unarmed until the sheriff gives him his revolver on day 2. `no_law_murder.json` `lines.stranger_aimed` (three lines for a gun pointed at the stranger) can't be reached that night: move them to the first armed meeting, or drop them. No fact for drawing on him.
 - **Still art's:** the stranger's bald-faced sorrel at the saloon's rail, the Baron's buggy and the widow's gate (#906); the rifle on the sheriff's saddle (S14).
 
 ## 5. Flagged by the blind reader and kept (Sean's lines, or fixed in the game)

@@ -24,7 +24,8 @@
     "Sean, 2026-11-17 (decided, #1056): Harlan carries Earl to the doctor's and bangs on the door; the doctor, up with the sheriff, says the man wants burying; Earl lies in the front room till morning. Scenes 'after', 'carry' and 'morning' are written to it. This changes the built murder: Earl is shot and down, not shot dead (gameplay, #1057).",
     "Sean's review, 2026-11-17: the stranger asks Harlan to his own table, buys him a drink, and they talk a minute about the sheriff before Cody comes in. So s26 is simpler: the doctor may say 'Go and get a drink', and whoever walks into the saloon's yard is asked to sit. The oath and 'deputy for now, until the county names a man' are the sheriff's own words: his page, scene 5 (day2.oath, day2.for_now).",
     "The sheriff's last day (Beat 5) is shown here as a copy of the sheriff's script's scene 5 (day2.*), so the oath reads with the rest of No Law: he asks if you'll take the badge, you nod or shake, and a shake gets 'That's not the way this works, son.' The lines are kept in sheriff_road.json, so his voice is in one place.",
-    "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. Written in: his manners are amused and condescending at the table; he doesn't flinch when a gun is pointed at him; the doctor's 'didn't get down to make sure' and the sheriff's 'never got down' (the sheriff's page) are the only hints."
+    "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. Written in: his manners are amused and condescending at the table; the doctor's 'didn't get down to make sure' and the sheriff's 'never got down' (the sheriff's page) are the only hints.",
+    "Sean, 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2. That is what stops a shoot-out in the saloon. So nothing on night one waits on a gun: the stranger's 'aimed' lines are marked for later, and no fact records drawing on him."
   ],
   "words_to_check": [],
   "setups": [
@@ -738,10 +739,10 @@
         {
           "id": "after.aimed",
           "speaker": "stranger",
-          "trigger": "You point a gun at him",
-          "when": "any",
+          "trigger": "Not on night one: you have no gun. Kept for the first time you meet him with the sheriff's revolver in your hand",
+          "when": "you are armed (never on night one)",
           "condition": "calm",
-          "delivery": "Unbothered, even amused. He does not flinch tonight: Cody's friends are in the street and he knows you won't. (What he is when nobody stands behind him is for later.)",
+          "delivery": "Unbothered, amused. He isn't alone when you meet him next, either.",
           "words": [
             {
               "text": "Easy, friend. I ain't the one you want.",
@@ -760,7 +761,7 @@
             "S40"
           ],
           "takes": [],
-          "note": "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. Don't let a gun make him flinch here: that would spend the reveal in the first hour."
+          "note": "Sean, 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2. That is what stops a shoot-out in the saloon. These three are in the game's night-one scene, where they can't be reached in the story: for gameplay to move or drop (CHANGES.md)."
         },
         {
           "id": "after.drifter",
@@ -1801,7 +1802,7 @@
           "id": "day2.not_enough",
           "speaker": "doctor",
           "trigger": "After day2.acting, if you stay by him",
-          "when": "nolaw.seen_from = table (you sat with the stranger), or nolaw.drew_on_stranger",
+          "when": "nolaw.seen_from = table (you sat with the stranger)",
           "condition": "low, careful",
           "delivery": "He has seen your face in that room and guessed. He is a coroner telling a deputy what a case is.",
           "words": [
@@ -2148,15 +2149,6 @@
         "table.asks_nod",
         "table.asks_shake",
         "table.asks_none"
-      ]
-    },
-    {
-      "fact": "nolaw.drew_on_stranger",
-      "values": "true if you pointed a gun at him",
-      "exists": false,
-      "set_by": "gameplay to add (the aimed lines are built; nothing is recorded)",
-      "used": [
-        "sheriff_road day2.not_enough; the widow's lane, later"
       ]
     },
     {

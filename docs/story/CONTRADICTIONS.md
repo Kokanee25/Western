@@ -385,7 +385,7 @@ stranger." What is his is D; the details worked out from it stay P·bible.
   - **If he does recognise him:** nothing he can do tonight, which is No Law's point. He's seated,
     unarmed, not yet a deputy, with the stranger's hand on his arm and Cody coming in. If he goes for
     him anyway, the stranger says his built "Put it up" lines and walks out; the world remembers
-    Harlan went for him (P·bible: a flag that turns the lane's line from "You sat very still" to "You
+    Harlan went for him (**dropped, Sean 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2, which is what stops a shoot-out in the saloon**. Was P·bible: a flag that turns the lane's line from "You sat very still" to "You
     should have sat still", and the foreman watches him from then on). Told to the doctor on day 2,
     it's a dead man's word about a horse: "Not enough to hang a man on, Harlan. Not yet."
     (P·bible). That is the evidence system's first lesson: a mark is not a case.

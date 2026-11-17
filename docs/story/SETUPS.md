@@ -286,7 +286,7 @@ line and an object (rule 3).
 - Again, night one: the sorrel at the saloon's rail as Harlan goes in, then the stranger's built
   "Don't move, friend." A player who listened joins them himself; nobody tells him. His built "Easy,
   friend. I ain't the one you want." is a lie with no word changed. Tonight he can do nothing about
-  it (No Law's point); going for the stranger anyway is remembered (C16 a).
+  it (No Law's point); he has no gun until the sheriff gives him his on day 2 (Sean, 2026-11-17), so there is nothing to go for him with.
 - Again: the sorrel at the Baron's buggy at the funeral, the foreman standing behind the Baron
   while he makes the widow his offer.
 - Pays off: the widow's lane, where the foreman walks up with the deed and the widow, who heard her
@@ -316,7 +316,6 @@ the later rows are for the cards that aren't scripted yet. Facts marked **(add)*
 | Shook his head at the oath | `nolaw.accepted = shake` | The widow at the grave (`funeral.you_came_shake`) | The widow, when he tries to refuse the rifle (S15); Rourke, when he won't sign the letter |
 | Sat with the stranger (Sean, 2026-11-17: he asks you to his table, buys a drink, and calls the sheriff "a good man" who "didn't deserve that") | `nolaw.seen_from = table` | The doctor at the door ("The sheriff's not been told about Earl."); the doctor after (`day2.not_enough`); a townsman (`morning.you_were_there`); the bold cowboy (`doctor.cowboy_table`); Kett, selling it (`cabin.bargain_table`); the foreman at the grave (`funeral.foreman`: "Good morning to you, Deputy.") | The widow's lane: "We've met, Deputy. You sat very still."; the barkeep at Cody's arrest |
 | Told the stranger the sheriff talked, or lied | `nolaw.told_stranger` **(add)** | The stranger's answer at the table (`table.asks_nod`, `_shake`, `_none`) | The lane: a foreman who was told "yes" has watched him since; told "no", he's easy, and wrong |
-| Pointed a gun at the stranger | `nolaw.drew_on_stranger` **(add)** | The doctor (`day2.not_enough`) | The lane: "You should have sat still." |
 | Carried Earl to the doctor's (Sean, 2026-11-17: D) | `nolaw.carried_earl` **(add, #1057)** | The barkeep to his back (`after.lifted`: "He owes me four dollars."); a woman in a doorway; the doctor at the door, who counts it (`carry.two`, `carry.this_one`); next morning the doctor ("Button your coat."), the sheriff if he sees the blood, a townsman, a woman who tells him cold water, the bold cowboy (`doctor.cowboy_carried`) | The barkeep's word for him at Cody's arrest and on the captain's day; the coat, until he washes it: S50 |
 | Went out after Cody | `nolaw.followed` | A townsman (`morning.followed`: "On foot. After a man on a horse."); Joe (`camp.you_knew`) | Cody at his arrest: he knows who ran after him |
 | Stood at the grave | `nolaw.funeral = attended` | The widow; the Baron, who admires his spring (`funeral.baron_spring`) | The same faces, hats on, at the rope |
@@ -386,8 +385,9 @@ although I'm sure people will be guessing it right away"); the plants and the pa
 - Planted, as things done, never the word: the doctor that evening, as coroner ("One ball, and low. Fired from a
   horse, by the line of it. Whoever it was didn't get down to make sure."); the sheriff at the bedside ("Shot me
   from the saddle and never got down."); the table, where he lets another man do the killing and holds an unarmed
-  one; "I ain't the one you want" (built) when a gun is on him, said without a flinch because he isn't alone.
-- Not on night one: drawing on him must not make him flinch (it would spend the reveal in the first hour).
+  one; and that he walks out of the yard before anyone else does.
+- Harlan has no gun on night one (Sean, 2026-11-17: he gets the sheriff's on day 2; it is what stops a shoot-out in
+  the saloon), so the stranger is never tested then. The first time Harlan faces him armed is where it can start to show.
 - Pays off mid-game: the first time nobody stands behind him. The widow's lane, walked in at gunpoint
   (`CONTRADICTIONS.md` f6), is the likely place; the raid if not. And the Baron's contempt for a job half done.
 

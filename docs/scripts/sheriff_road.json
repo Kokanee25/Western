@@ -1615,7 +1615,7 @@
           "id": "day2.not_enough",
           "speaker": "doctor",
           "trigger": "After day2.acting, if you stay by him",
-          "when": "nolaw.seen_from = table (you sat with the stranger), or nolaw.drew_on_stranger",
+          "when": "nolaw.seen_from = table (you sat with the stranger)",
           "condition": "low, careful",
           "delivery": "He has seen your face in that room and guessed. He is a coroner telling a deputy what a case is.",
           "words": [

@@ -188,7 +188,7 @@ fact, not the beat.
   shot in the gut and not finished off". **Held back: "probably a mid game reveal"** (Sean), though players will guess.
   So: he fired once from the saddle and rode, which is why the sheriff lived a day and talked, which is why he has to
   sit down with Harlan and find out what was said. His cowardice is the reason the table scene exists. On night one he
-  must still seem the most dangerous man in the room: amused, condescending, never flinching, because Cody's friends
+  must still seem the most dangerous man in the room: amused, condescending, and never tested (Harlan has no gun until day 2: Sean, 2026-11-17), with Cody's friends
   are in the street. He only acts when it's safe: he lets Cody kill, he holds an unarmed man, he comes up the widow's
   lane with the Colters' guns behind him. Not Kett's kind of coward: Kett begs aloud the moment he's cornered; this man
   is smug until there is nobody standing behind him, and then there is nothing in him at all. Nobody ever says the word.
@@ -214,7 +214,7 @@ fact, not the beat.
   3. "Two lengths and go home. Not a spike more." (to the men at the rail; overheard)
   4. "I pay on the first. What a man does with it is his own lookout."
   5. "We've met, Deputy. You sat very still." (the lane, to a player who was at the table; "You
-     should have sat still", to one who went for him: C16 a, P·bible)
+     should have sat still" is dropped: Harlan is unarmed on night one, Sean 2026-11-17)
   6. "Morning, Sheriff. Am I right for the ford, friend?" (B0, by C16 a, D; nobody alive hears it but
      him. Was Kett's)
   7. "Heard it was you brought the sheriff in. He say who it was?" (B2, at the table, P·bible:
