@@ -56,3 +56,6 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - A MetaHuman in a lab: copy the Studio's `frozen/<build>/` into `assets/people/` and list it in
   `.git/info/exclude` (never committed, #692). A skinned mesh added to a man needs his `custom_aabb`; a
   SoftBody3D's mesh needs normals (without them it's drawn scrambled).
+
+## Printable guns (#1027)
+- Studio `printing/guns/` (private; never in this repo). Colt done, untested by print: `colt/`, generator in `src/`. Winchester and coach gun next: same slice-the-game-model method (`src/lib.py`), halves with pockets, steel tube barrels.
