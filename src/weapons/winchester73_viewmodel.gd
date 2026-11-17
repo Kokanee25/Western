@@ -93,6 +93,8 @@ var _hip_rot := HIP_ROT
 var _aim_pos := Vector3.ZERO
 var _aim_rot := Vector3.ZERO
 var _loading_pos := Vector3.ZERO
+## The loading pose's turn (LOADING_ROT, or Harlan's hands' own `win73.loading`).
+var _loading_rot := LOADING_ROT
 var _lever := 0.0
 var _lever_closing := false
 var _lever_held := 0.0
@@ -173,16 +175,25 @@ func _poses() -> void:
 	_hip_rot = hip[1]
 	var bl := Basis.from_euler(_hip_rot * (PI / 180.0))
 	_hip_pos = hip[0] - bl * d.call(Vector3(-4.6, -1.8, 0.0))
-	var bi := Basis.from_euler(LOADING_ROT * (PI / 180.0))
-	_loading_pos = LOADING_AT - bi * d.call(Vector3(-1.2, -0.9, 0.0))
+	var ld: Array = HeldHand.hold("win73.loading", [LOADING_AT, LOADING_ROT])
+	_loading_rot = ld[1]
+	var bi := Basis.from_euler(_loading_rot * (PI / 180.0))
+	_loading_pos = (ld[0] as Vector3) - bi * d.call(Vector3(-1.2, -0.9, 0.0))
 	var rear := model.marker("SightRear")
 	var front := model.marker("SightFront")
 	var b := Basis.looking_at((front - rear).normalized(), Vector3.UP).inverse()
 	# Canted a little about the line of sight (the sights stay on it, #1019): the stock comes in
 	# from the lower right instead of running up the screen's middle, the receiver's side shows.
 	var cant := Basis(Vector3.BACK, deg_to_rad(float(HeldHand.hold("win73.aim_cant", 0.0))))
-	_aim_rot = (cant * b).get_euler() * (180.0 / PI)
-	_aim_pos = cant * (-(b * rear) + Vector3(0.0, 0.0, -float(HeldHand.hold("win73.eye_relief", EYE_RELIEF))))
+	var t := Transform3D(cant * b, cant * (-(b * rear) + Vector3(0.0, 0.0, -float(HeldHand.hold("win73.eye_relief", EYE_RELIEF)))))
+	# Turned and dropped about the front sight (#1031, as the Colt's `colt.aim_turn`): the blade stays
+	# centred, the receiver's top and side come into view and the right hand drops below the line.
+	var turn: Vector2 = HeldHand.hold("win73.aim_turn", Vector2.ZERO)
+	var f := t * front
+	var r := Basis.from_euler(Vector3(deg_to_rad(turn.y), deg_to_rad(turn.x), 0.0))
+	t = Transform3D(r, f - r * f) * t
+	_aim_rot = t.basis.get_euler() * (180.0 / PI)
+	_aim_pos = t.origin
 
 
 func _build_hands() -> void:
@@ -407,7 +418,9 @@ func _fire() -> void:
 	bullet.blast_reach = tuning.blast_reach
 	var world := ballistics.get_parent()
 	GunSmoke.spawn(world, origin, dir, 1.2)
-	ImpactEffects.muzzle_flash(world, origin)
+	# Your own gun: its light up and out from the muzzle (on it, it burned the barrel white) and no
+	# world puff over the held flash (#1031).
+	ImpactEffects.muzzle_flash(world, origin + dir * 0.15 + Vector3.UP * 0.1, false)
 	flash.fire()
 	if GameAudio.enabled():
 		GameAudio.gunshot(self, origin, false, &"report_rifle", &"rolling_rifle")
@@ -443,7 +456,7 @@ func _animate(delta: float) -> void:
 	var loading := _loading()
 	var pose := Pose.LOADING if loading else (Pose.AIM if aiming else Pose.HIP)
 	var target_pos: Vector3 = [_hip_pos, _aim_pos, _loading_pos][pose]
-	var target_rot: Vector3 = [_hip_rot, _aim_rot, LOADING_ROT][pose]
+	var target_rot: Vector3 = [_hip_rot, _aim_rot, _loading_rot][pose]
 	var k := 1.0 - exp(-delta * 3.0 / maxf(tuning.shoulder_time, 0.05))
 	_pose_pos = _pose_pos.lerp(target_pos, k)
 	_pose_rot = _pose_rot.lerp(target_rot, k)

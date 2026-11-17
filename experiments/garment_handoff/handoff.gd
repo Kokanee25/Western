@@ -66,6 +66,13 @@ func _physics_process(delta: float) -> void:
 				sp[phase] = int(sp.get(phase, 0)) + core.self_pairs()
 				var sl: Dictionary = rec.get_or_add("self_lists", {})
 				sl[phase] = int(sl.get(phase, 0)) + core.self_lists()
+				if core.has_method("self_lookups"):
+					var su: Dictionary = rec.get_or_add("self_us", {})
+					var e3: Array = su.get_or_add(phase, [0.0, 0.0, 0, 0])
+					e3[0] += core.self_list_us()
+					e3[1] += core.self_meet_us()
+					e3[2] += core.self_lookups()
+					e3[3] += core.self_met()
 	var us := Time.get_ticks_usec() - t0
 	rec.us[phase] = float(rec.us.get(phase, 0.0)) + us
 

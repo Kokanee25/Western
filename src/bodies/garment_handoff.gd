@@ -48,8 +48,8 @@ var tune := {"release_lead": 0.035, "give": 1.05, "front_step": 0.01, "clear_aft
 ## (the release rule is the hold; free leather slides on skin). `floor_y` is his feet's.
 ## His skin is closed: every point belongs on its front (`body_front_only`).
 ## His hand's own skin kept 0.5 mm behind its triangles (`body_verts`, #1008) when he has a finer
-## skin (FINE_TRIS). Itself off (`self_thickness` 0): on (2 mm) it lies on itself, but costs ~5.5 ms a tick more at Sean's
-## and one start in seven of the MetaHuman's never came to rest (#997; the lab's `--solver=`).
+## skin (FINE_TRIS). Itself off (`self_thickness` 0): on (2 mm) it lies on itself, but costs ~4.5 ms a tick more at Sean's
+## drawn and sean_s3_talking's seed 2 never comes to rest (#1029; the lab's `--solver=`).
 var solver_tune := {"bend_mode": SolverCloth.SHAPED, "bend_stiffness": 0.5, "max_strain": 1.05,
 		"substeps": 20, "damping": 1.0, "body_thickness": SkinCollider.SKIN_PAD, "body_band": 0.01, "body_every": 1,
 		"body_friction_static": 0.15, "body_friction_kinetic": 0.1, "body_front_only": 1,

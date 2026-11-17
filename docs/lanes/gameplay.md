@@ -32,14 +32,14 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   boxes; a kick at 0.9 m can miss; the jail and rides are cards; no line when Kett's jailed (C8 a, Sean's).
   Riding waits on #478. Playtest `docs/playtests/2026-11-15-nojustice-whole.md`.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
-- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: step 2 the day and the
-  book (#870), step 3 the roster as data (#936), **step 4 spots (#957, `SpotChore`)**: a block's `do` at a spot is
-  the man's chore (stand, lean, sit, counter, sweep/rug, carry, talk, drink, work), breaks by seed, none held 15 s;
-  the broom, rug, sacks, glass, anvil and bench are drawn stand-ins (the prop lab's to make). **Next: step 5,
-  reactions in stages.** Open: nobody has seen the chores drawn (the valley's picture under the bridge was broken
-  for the playtest, `docs/playtests/2026-11-15-spots.md`; `goto X Z` puts you under its ground); no talk sound; the
-  doctor's crossing is 14-15 (the brief's 7-12 waits for the sheriff-dies act); two women share the widow's body;
-  step 1's perception leaks wait; the men's build at load ~20 s headless.
+- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
+  book), 3 (roster as data), 4 (spots, `SpotChore`), **5 reactions in stages (#982, `Reaction`)**: start (after the
+  sound's travel, by nerve and distance, one man a frame), look (at his guess), decide by `dials` (flee to a
+  `refuges` door, hide, gawk, watch, help, back away, carry on), back after 20-90 s calm, shaken an hour.
+  `tests/test_reactions.gd` holds the reactions and leaks rows. **Next: step 6, the runner.** Open: shaken only
+  changes the next start (no glances); a fist fight and a body found later aren't stimuli; refuges are door
+  points (nobody goes in, no faces at windows); the chores' props are stand-ins; no talk sound; step 1's
+  perception leaks wait; the men's build at load ~20 s headless.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
@@ -64,8 +64,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (bridge `glove MAN`) on **our own cloth** (`SolverCloth`/`ClothCore`, #973, `docs/briefs/garment-cloth.md`): his
   skin is its collider (#986), it can meet itself (#997, `self_thickness`, off: MetaHuman `--seed=2` never rests),
   and **his hand's and forearm's own skin is kept under it** (#1008, `body_verts` + `set_skin`, ON: `FINE_TRIS` 3000,
-  crops `results/2026-11-16-fingers-on/`; pop 1.8 mm, stretch 1.08; ~2.6-3 ms a tick at Sean's while drawn after #1023's cost cuts). Itself on now rests on all five starts but costs ~+6 ms drawn at
-  Sean's: still off. Next: its cost (per-point lists, a pair room; README "The cost of the finer skin, and itself again"). Measure `skin_out`/`arm_out` (bench).
+  crops `results/2026-11-16-fingers-on/`; pop 1.8 mm, stretch 1.08; ~2.6-3 ms a tick at Sean's while drawn after #1023's cost cuts). Itself (#1029: lists by how far each point goes) costs ~+4.5 ms drawn at
+  Sean's on the MetaHuman, ~+5.5 on the talking man, and sean_s3_talking seed 2 no longer rests with it: still off,
+  left off for now (Sean, #1034); a later session: #1038 (`after slice`). Measure `skin_out`/`arm_out` (bench).
   Build: `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, .so to
   bin/. Films: the bridge's real look is OOM-killed in an 8 GB workspace (its memory climbs past 6 GB); use the
   bench's stills (`xvfb-run ... bench.gd -- --shots=2.6,2.7,... --cam=hands`, ~2 min, 2.4 GB).
@@ -76,10 +77,8 @@ dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 
 riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · perf step 9 (#401) · Payday
 Night floor lab (#745).
 
-- **Resets and places** (#864, the review's R3): a reload wipes the story (`GameReset`; No Law plays again after
-  Backspace); a mission's retry starts from the story at its start (`GameReset.retry`, `StoryState.mark_checkpoint`).
-  `WorldPlaces`: knocked out in the valley you wake at its doctor's (`bedside`), else the store's walk; the outlaws'
-  street spot is the loaded world's.
+- **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
+  `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
 ## Open problems
 - **The valley's people tests** (#925, PR #939): three real causes fixed (`HumanBody._spare_rubble`,
@@ -107,8 +106,8 @@ Night floor lab (#745).
   gang off (use the rope range).
 - lavapipe draws ~1 frame a second: a bridge `wait` under a second misses short poses.
 - Sight takes a new structure in at its first look (look once at the build).
-- The native plugin doesn't build in the cloud workspace while crates.io is blocked (#985): test pure-Rust
-  modules with `rustc --test FILE.rs`; Godot tests and films on a runner (LAYOUT "CI", `lab_film.yml`).
+- A fresh container has no native plugin (`bin/` is ignored): `cargo build --release` in the plugin (2 min,
+  crates.io reachable 2026-11-17), the .so to `bin/`, else most game tests fail to load.
 - The valley bench: the drawn runs take ~6 min each (80 s of shader compiles). Workspaces' cores differ (one
   read 38% slower at 25): compare against a baseline from the same workspace; the noise is ±0.35.
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.

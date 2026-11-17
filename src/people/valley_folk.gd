@@ -504,11 +504,26 @@ static func home_of(p: Dictionary) -> StringName:
 
 
 ## His dials, each 0 to 1 (townsfolk brief section 2): `nerve` (stays when frightened), `nosy` (comes to
-## look), `duty` (helps, fetches, tells). Data only for now: nothing reads them yet (CivilianBrain will,
-## townsfolk step 5); a man with none gets the middle.
+## look), `duty` (helps, fetches, tells): his CivilianBrain's Reaction decides by them (townsfolk step
+## 5); a man with none gets the middle.
 static func dials_of(p: Dictionary) -> Dictionary:
 	var d: Dictionary = p.get("dials", {})
 	return {"nerve": float(d.get("nerve", 0.5)), "nosy": float(d.get("nosy", 0.5)), "duty": float(d.get("duty", 0.5))}
+
+
+## Where he'd run from trouble (Reaction's flee): his own door, then the town's open doors, the
+## store, the saloon and the hotel (the brief §4, "Doors").
+const REFUGES: Array[StringName] = [&"general_store", &"saloon", &"hotel"]
+
+
+func refuges_of(p: Dictionary) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	for place: StringName in [home_of(p)] + REFUGES:
+		if places != null and places.has(place):
+			var d := places.at(place)
+			if not out.has(d):
+				out.append(d)
+	return out
 
 
 ## The door he's on his way in at (going), else his block's, else his home's.
@@ -569,6 +584,8 @@ func _bring(p: Dictionary, walk: bool, from_place := &"") -> HumanBody:
 	brain.post = pf[0]
 	brain.faces = pf[1]
 	brain.places = places
+	brain.dials = dials_of(p)
+	brain.refuges = refuges_of(p)
 	brain.chores = _chores_for(man, p, sp)
 	man.add_child(brain)
 	man.move_child(brain, 0)

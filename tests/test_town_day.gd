@@ -117,8 +117,9 @@ func test_folk_on_the_porches_and_in_the_street_take_their_ease_and_get_down_at_
 	var bench := dressing.get_node(^"BenchManA") as HumanBody
 	# A shot fired in the street in front of the saloon.
 	Events.noise.emit(bench.global_position + Vector3(0.5, 1.0, -5.5), 350.0, &"gunshot", player)
-	await physics_frames(20)
-	check_eq((bench.get_node(^"Brain") as CivilianBrain).mood, CivilianBrain.Mood.COWERING, "a shot close by: he gets down")
+	var bb := bench.get_node(^"Brain") as CivilianBrain
+	var down := await wait_until(func() -> bool: return bb.mood == CivilianBrain.Mood.COWERING, 60 * 4)
+	check(down, "a shot close by: he gets down (%s)" % bb.describe())
 
 
 ## The riders are built while the street loads and wait out of the world (#488: building them took
@@ -623,8 +624,8 @@ func test_far_off_the_street_cowers_from_a_blast_and_still_ticks_slowly() -> voi
 	_put_player(Vector3(130.0, 0.0, -8.4), -90.0)
 	player.set_physics_process(false)
 	await physics_frames(3)
-	Events.noise.emit(Vector3(0.0, 0.5, -5.0), 1.0, &"blast", null)
-	await physics_frames(30)
+	Events.noise.emit(Vector3(0.0, 0.5, -5.0), DeedWatch.BLAST, &"blast", null)
+	await physics_frames(150)  # (each takes it in a beat after it reaches him, then looks: townsfolk step 5)
 	var cowering: Array[HumanBody] = []
 	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.rancher, town.blacksmith]:
 		var b := p.get_node_or_null(^"Brain") as CivilianBrain

@@ -86,6 +86,12 @@ fn cot(a: V3, b: V3) -> f32 {
 const PINCH_OVERLAP: f32 = 0.003;
 /// m: a point's reach for his body in a tick, past the band, at most.
 const REACH: f32 = 0.03;
+/// Itself's lists (#1029): how far a point may go (against the cloth's mean) before they're made
+/// again: half again as far as it went in this many substeps last tick, and a half millimetre; at
+/// least the least (m, at a 2 mm thickness; in proportion to it), at most the most.
+const SELF_SKIN_SUBS: f32 = 3.0;
+const SELF_SKIN_MIN: f32 = 0.001;
+const SELF_SKIN_MAX: f32 = 0.05;
 /// His vertices against the cloth's triangles (#1008): over the triangle within this of its plane's foot (m; past its edges: the neighbours'); a point
 /// moved at most this far (m) by one vertex in a substep.
 const VERT_SIDE: f32 = 0.0005;
@@ -231,11 +237,21 @@ pub struct Cloth {
 /// each point's near ones listed (never its own), and each substep's contacts (for the no-bounce).
 #[derive(Clone, Debug, Default)]
 pub struct Own {
-    cand_at: Vec<u32>,
-    cand: Vec<u32>,
+    /// Each point's near triangles (in triangle order), as last listed.
+    lists: Vec<Vec<u32>>,
     start: Vec<u32>,
     entries: Vec<u32>,
-    reach: Vec<f32>,
+    /// At the lists: each point's place against the cloth's mean, how far (against the mean) it may
+    /// go before they're made again; each triangle's box grown so (and two thicknesses), and its
+    /// points' farthest allowance.
+    rel0: Vec<V3>,
+    budget: Vec<f32>,
+    lo: Vec<V3>,
+    hi: Vec<V3>,
+    tb: Vec<f32>,
+    /// Each point's place against the mean at the tick's start, and how far it went last tick.
+    tick_rel: Vec<V3>,
+    went: Vec<f32>,
     stamp: Vec<u32>,
     stamp_now: u32,
     /// This substep's contacts: the point, the triangle, the weights of its nearest point, the
@@ -245,13 +261,18 @@ pub struct Own {
     /// spheres now (centre, radius).
     since: Vec<V3>,
     sph: Vec<[f32; 4]>,
-    /// Measures: contacts at the last substep, and since built; points listed against, last tick.
+    /// Measures: contacts at the last substep, and since built; points with a list, at the last.
     pub contacts: u32,
     pub total: u64,
     pub listed: u32,
-    /// This tick: the pairs listed, summed over its lists, and how many lists.
+    /// This tick: the pairs listed (summed over its lists), how many lists, the points' lookups,
+    /// the time (us) listing and meeting itself, and the pairs met (summed over its substeps).
     pub listed_pairs: u32,
     pub rebuilds: u32,
+    pub lookups: u32,
+    pub list_us: f32,
+    pub meet_us: f32,
+    pub met: u32,
 }
 
 /// The wearer's skin as the cloth's collider: triangles of points the caller moves each tick.
@@ -521,29 +542,19 @@ impl Cloth {
             self.body.since.extend_from_slice(&self.x);
         }
         let self_on = self.t.self_thickness > 0.0;
-        // Its own near triangles listed again every `group` substeps, as few as keep each list's reach
-        // (its points' moves relative to the cloth's mean over the group, twice over) about one
-        // thickness: a bunched glove's layers sliding fast are listed often, a still one once a tick.
-        let mut group = n_sub;
         self.own.listed_pairs = 0;
         self.own.rebuilds = 0;
+        self.own.lookups = 0;
+        self.own.list_us = 0.0;
+        self.own.meet_us = 0.0;
+        self.own.met = 0;
         if self_on {
             self.own.since.clear();
             self.own.since.extend_from_slice(&self.x);
-            let m = self.relative_move(dt);
-            let per_sub = 2.0 * m / n_sub as f32;
-            if per_sub > 1e-9 {
-                group = ((self.t.self_thickness / per_sub) as u32).clamp(1, n_sub);
-            }
-            // (A fixed 5 substeps a list, the reach from the speeds then, missed contacts a pile of
-            // sheet makes as its speeds change within them.)
         }
         let mut last_meet = 0u32;
         for s in 0..n_sub {
             let f = (s + 1) as f32 / n_sub as f32;
-            if self_on && s % group == 0 {
-                self.own_candidates(h * group.min(n_sub - s) as f32, group.min(n_sub - s) as f32 / n_sub as f32);
-            }
             for i in 0..n {
                 prev[i] = self.x[i];
                 if self.pinned[i] {
@@ -571,7 +582,14 @@ impl Cloth {
             // through itself.)
             let self_meet = self_on;
             if self_meet {
+                // Listed again only if a point has gone past its allowance (here, where they meet:
+                // nothing goes past it unseen).
+                let t0 = std::time::Instant::now();
+                self.own_candidates(s, n_sub, h);
+                self.own.list_us += t0.elapsed().as_secs_f32() * 1e6;
+                let t0 = std::time::Instant::now();
                 self.collide_self();
+                self.own.meet_us += t0.elapsed().as_secs_f32() * 1e6;
             }
             if body_on && ((s + 1) % every == 0 || s + 1 == n_sub) {
                 let at = self.body.at_f;
@@ -1730,82 +1748,101 @@ impl Cloth {
 
     /// Each point's move over `span` s at its speed now (a pin: `frac` of its move this tick), and
     /// the mean of them all.
-    fn moves(&self, span: f32, frac: f32) -> (Vec<V3>, V3) {
+    /// Each substep: are its own near triangles' lists still good, and if not, listed again (#1029).
+    /// Neighbour lists with a skin, as in molecular dynamics (Verlet 1967), the skin per point: each
+    /// may go an allowance from where it was listed (against the cloth's mean: only the layers' moves
+    /// against each other bring them together, a glove falling as one lists nothing new), half again
+    /// as far as it went in `SELF_SKIN_SUBS` substeps last tick, at least `SELF_SKIN_MIN`; a pair is
+    /// listed if the two could come within two thicknesses with both at their allowance's end. When
+    /// any point goes past its allowance they're all listed again. (Only those that went past, and
+    /// their triangles in everyone else's lists, cost as much: while drawn, 35-100 points at a time
+    /// go past, the cuff travelling with his hand against the rest on his arm.) (By speed, as before: a point's speed while drawn is mostly
+    /// his skin's pushes, a few mm a substep this way and that, not travel, so the fastest point set
+    /// ~20 lists a tick for all of them.)
+    fn own_candidates(&mut self, s: u32, n_sub: u32, _h: f32) {
         let n = self.x.len();
-        let mut mean = [0.0f32; 3];
-        let mut d = Vec::with_capacity(n);
-        for i in 0..n {
-            let m = if self.pinned[i] { scale(sub(self.pin_to[i], self.pin_from[i]), frac) } else { scale(self.v[i], span) };
-            mean = add(mean, m);
-            d.push(m);
-        }
-        (d, scale(mean, 1.0 / n.max(1) as f32))
-    }
-
-    /// The farthest any point moves this tick against the cloth's mean move (m).
-    fn relative_move(&self, dt: f32) -> f32 {
-        let (d, mean) = self.moves(dt, 1.0);
-        d.iter().fold(0.0f32, |m, x| m.max(len(sub(*x, mean))))
-    }
-
-    /// Every few substeps: its own triangles hashed by their boxes (grown by their points' reach over
-    /// the next `span` s), and each point's near ones listed: within its reach and theirs, never one of
-    /// its own. The reach is against the cloth's mean move (only the layers' moves relative to each
-    /// other bring them together: a glove falling as one lists nothing new).
-    fn own_candidates(&mut self, span: f32, frac: f32) {
-        let n = self.x.len();
-        let th = self.t.self_thickness;
-        let (d, mean) = self.moves(span, frac);
-        let o = &mut self.own;
-        o.reach.clear();
-        for i in 0..n {
-            o.reach.push(th + (2.0 * len(sub(d[i], mean)) + 0.0005).min(REACH));
-        }
         let nt = self.tris.len();
+        let th = self.t.self_thickness;
+        let o = &mut self.own;
+        let mut c = [0.0f32; 3];
+        for i in 0..n {
+            c = add(c, self.x[i]);
+        }
+        c = scale(c, 1.0 / n.max(1) as f32);
+        // How far each went last tick (against the mean).
+        if s == 0 {
+            o.went.resize(n, 0.0);
+            if o.tick_rel.len() == n {
+                for i in 0..n {
+                    o.went[i] = len(sub(sub(self.x[i], c), o.tick_rel[i]));
+                }
+            } else {
+                o.went.iter_mut().for_each(|w| *w = 0.0);
+            }
+            o.tick_rel.clear();
+            o.tick_rel.extend(self.x.iter().map(|p| sub(*p, c)));
+        }
+        let mut stale = o.rel0.len() != n || o.lists.len() != n;
+        if !stale {
+            for i in 0..n {
+                let d = sub(sub(self.x[i], c), o.rel0[i]);
+                if dot(d, d) > o.budget[i] * o.budget[i] {
+                    stale = true;
+                    break;
+                }
+            }
+        }
+        if !stale {
+            return;
+        }
+        let skin_min = SELF_SKIN_MIN * th / 0.002;
+        o.rel0.clear();
+        o.budget.clear();
+        for i in 0..n {
+            o.rel0.push(sub(self.x[i], c));
+            let w = o.went[i] * SELF_SKIN_SUBS / n_sub as f32;
+            o.budget.push((1.5 * w + 0.0005).clamp(skin_min, SELF_SKIN_MAX));
+        }
         let mut sum = 0.0f32;
         for e in &self.rest {
             sum += *e;
         }
         let edge = if self.rest.is_empty() { 0.01 } else { sum / self.rest.len() as f32 };
         let cell = edge.max(4.0 * th).max(1e-3);
-        let size_at = 0usize; // (set below, once the boxes are known)
-        let mut lo = vec![[0.0f32; 3]; nt];
-        let mut hi = vec![[0.0f32; 3]; nt];
-        let mut rt = vec![0.0f32; nt];
+        // Its triangles' boxes now, grown by their points' allowances and two thicknesses.
+        o.lo.clear();
+        o.hi.clear();
+        o.tb.clear();
         for t in 0..nt {
             let tr = self.tris[t];
-            let r = o.reach[tr[0] as usize].max(o.reach[tr[1] as usize]).max(o.reach[tr[2] as usize]);
+            let r = o.budget[tr[0] as usize].max(o.budget[tr[1] as usize]).max(o.budget[tr[2] as usize]);
             let mut l = [f32::MAX; 3];
-            let mut h = [f32::MIN; 3];
+            let mut hh = [f32::MIN; 3];
             for &v in &tr {
                 for k in 0..3 {
                     l[k] = l[k].min(self.x[v as usize][k]);
-                    h[k] = h[k].max(self.x[v as usize][k]);
+                    hh[k] = hh[k].max(self.x[v as usize][k]);
                 }
             }
-            lo[t] = l;
-            hi[t] = h;
-            rt[t] = r;
+            let g = r + 2.0 * th;
+            o.lo.push(sub(l, [g; 3]));
+            o.hi.push(add(hh, [g; 3]));
+            o.tb.push(r);
         }
         // Twice as many buckets as entries: a bunched glove's cells crowd, and a shared bucket is
         // every point in either visiting both cells' triangles.
         let mut cells = 0usize;
         for t in 0..nt {
-            let r = rt[t];
-            let a = sub(lo[t], [r; 3]);
-            let z = add(hi[t], [r; 3]);
             let mut k = 1usize;
             for d in 0..3 {
-                k *= ((z[d] / cell).floor() - (a[d] / cell).floor()) as usize + 1;
+                k *= ((o.hi[t][d] / cell).floor() - (o.lo[t][d] / cell).floor()) as usize + 1;
             }
             cells += k.min(1 << 20);
         }
-        let _ = size_at;
         let size = (2 * cells).next_power_of_two().max(64);
         let mut count = vec![0u32; size + 1];
         for t in 0..nt {
-            let r = rt[t];
-            for_cells(sub(lo[t], [r; 3]), add(hi[t], [r; 3]), cell, |key| count[hash(key, size)] += 1);
+            for_cells(o.lo[t], o.hi[t], cell, |key| count[hash(key, size)] += 1);
         }
         o.start.clear();
         o.start.resize(size + 1, 0);
@@ -1819,33 +1856,35 @@ impl Cloth {
         o.entries.resize(acc as usize, 0);
         let mut fill: Vec<u32> = o.start[..size].to_vec();
         for t in 0..nt {
-            let r = rt[t];
             let entries = &mut o.entries;
-            for_cells(sub(lo[t], [r; 3]), add(hi[t], [r; 3]), cell, |key| {
-                let h = hash(key, size);
-                entries[fill[h] as usize] = t as u32;
-                fill[h] += 1;
+            for_cells(o.lo[t], o.hi[t], cell, |key| {
+                let hh = hash(key, size);
+                entries[fill[hh] as usize] = t as u32;
+                fill[hh] += 1;
             });
         }
-        o.cand_at.clear();
-        o.cand.clear();
-        o.cand_at.push(0);
+        o.rebuilds += 1;
+        o.lists.resize(n, Vec::new());
         o.stamp.resize(nt, 0);
         let mut listed = 0u32;
         for i in 0..n {
             let p = self.x[i];
-            // Looked up in the cells its own reach covers; the triangles' boxes are grown by theirs.
-            let r = o.reach[i];
+            let ri = o.budget[i];
             o.stamp_now = o.stamp_now.wrapping_add(1);
             if o.stamp_now == 0 {
                 o.stamp.iter_mut().for_each(|s| *s = 0);
                 o.stamp_now = 1;
             }
             let now = o.stamp_now;
-            let (start, entries, stamp, cand) = (&o.start, &o.entries, &mut o.stamp, &mut o.cand);
-            let before = cand.len();
+            let mut list = std::mem::take(&mut o.lists[i]);
+            list.clear();
+            let (start, entries, stamp) = (&o.start, &o.entries, &mut o.stamp);
+            let (lo, hi, tb) = (&o.lo, &o.hi, &o.tb);
             let (x, tris) = (&self.x, &self.tris);
-            for_cells(sub(p, [r; 3]), add(p, [r; 3]), cell, |key| {
+            // Its own cell: the triangles' boxes are grown by theirs, two thicknesses and its own.
+            let a = sub(p, [ri; 3]);
+            let z = add(p, [ri; 3]);
+            for_cells(a, z, cell, |key| {
                 let hh = hash(key, size);
                 for e in start[hh]..start[hh + 1] {
                     let t = entries[e as usize] as usize;
@@ -1857,28 +1896,28 @@ impl Cloth {
                     if tr[0] as usize == i || tr[1] as usize == i || tr[2] as usize == i {
                         continue;
                     }
-                    let reach = r + rt[t];
-                    if (0..3).any(|k| p[k] < lo[t][k] - reach || p[k] > hi[t][k] + reach) {
+                    if (0..3).any(|k| z[k] < lo[t][k] || a[k] > hi[t][k]) {
                         continue;
                     }
-                    let (a, b, c) = (x[tr[0] as usize], x[tr[1] as usize], x[tr[2] as usize]);
-                    let q = bary(a, b, c, closest_on_tri(p, a, b, c));
+                    let reach = 2.0 * th + ri + tb[t];
+                    let (ta, tb_, tc) = (x[tr[0] as usize], x[tr[1] as usize], x[tr[2] as usize]);
+                    let q = bary(ta, tb_, tc, closest_on_tri(p, ta, tb_, tc));
                     if dot(sub(p, q), sub(p, q)) < reach * reach {
-                        cand.push(t as u32);
+                        list.push(t as u32);
                     }
                 }
             });
             // In triangle order: what it meets, and in what order, doesn't hang on the cells or how
             // often it's listed (they're only the cost).
-            cand[before..].sort_unstable();
-            if cand.len() > before {
+            list.sort_unstable();
+            if !list.is_empty() {
                 listed += 1;
             }
-            o.cand_at.push(cand.len() as u32);
+            o.listed_pairs += list.len() as u32;
+            o.lookups += 1;
+            o.lists[i] = list;
         }
         o.listed = listed;
-        o.listed_pairs += o.cand.len() as u32;
-        o.rebuilds += 1;
     }
 
     /// Each point off its own near triangles by `self_thickness`, on the side of each it was on at
@@ -1899,9 +1938,9 @@ impl Cloth {
             o.sph.push([m[0], m[1], m[2], r2.sqrt()]);
         }
         for i in 0..self.x.len() {
-            let (s0, s1) = (o.cand_at[i] as usize, o.cand_at[i + 1] as usize);
-            for k in s0..s1 {
-                let t = o.cand[k] as usize;
+            o.met += o.lists[i].len() as u32;
+            for k in 0..o.lists[i].len() {
+                let t = o.lists[i][k] as usize;
                 let tr = self.tris[t];
                 let (ia, ib, ic) = (tr[0] as usize, tr[1] as usize, tr[2] as usize);
                 let x = self.x[i];

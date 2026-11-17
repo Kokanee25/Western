@@ -1499,10 +1499,11 @@ less its and his skin's moves since, is past the band isn't looked at again that
 `self_friction`, `self_stick`: each point kept off its own triangles (never one of its own) on the
 side it was on at the substep's start, before his body (through one only if it was near its inside
 then too); no bounce, friction on the slide, slower than `self_stick` (2 cm/s) the layers stick (else a
-pile's squeezed points buzz and it never rests). Its triangles hashed and each point's near ones listed every few
-substeps (reach: its move against the cloth's mean, so the list's interval keeps it about a
-thickness), each list in triangle order (cell size and interval only cost). Measures `self_contacts`,
-`self_contacts_total`, `self_pairs`, `self_lists`. A layer is only caught within two thicknesses of
+pile's squeezed points buzz and it never rests). Each point's near triangles listed (#1029) with an allowance per point
+(Verlet lists: half again as far as it went in 3 substeps last tick against the cloth's mean, 1 mm-5 cm,
+`SELF_SKIN_*`): all listed again only once one goes past it, checked where they meet; a pair listed if it
+could come within two thicknesses; each list in triangle order (cell size and interval only cost). Measures
+`self_contacts`, `self_contacts_total`, `self_pairs`, `self_lists`, `self_lookups`, `self_list_us`, `self_meet_us`, `self_met`. A layer is only caught within two thicknesses of
 another: faster than 2 × thickness a substep (2 mm at 20 substeps: 4.8 m/s apart) goes through; met
 every 4th substep a pile tangled through itself, a fixed 5-substep list missed contacts. **His finer
 skin** (step 4, #1008): `set_skin(points, tris)` after `set_body`, `move_skin` each tick, `body_verts`
@@ -1522,14 +1523,14 @@ sean_s3_talking), capping each push by its edges (more of his skin out), meeting
 GarmentCloth's calls (`pin_to`, `hold_on`, `move_held`, `release`, `let_go`, `points_now`, `stretch`,
 `came_to_rest`, `resting`), drawn as its own mesh each tick (Prof `cloth`); `make` gives null without
 the plugin (keep GarmentCloth there), plus `set_body`, `move_body`, `clear_body`, `set_skin`, `move_skin`, `tune(name, v)`.
-GarmentHandoff uses it (itself off: with the finer skin all five starts rest with it on, #1023, but it costs ~+6 ms drawn, ~7 tossed, ~4 settling at Sean's). Not yet: the world's props (step 4); nothing takes a glove off in
+GarmentHandoff uses it (itself off: ~+4.5 ms drawn at Sean's on the MetaHuman, ~+5.5 on sean_s3_talking, whose seed 2 no longer rests with it, #1029; README "Itself's lists by how far they go"). Not yet: the world's props (step 4); nothing takes a glove off in
 play yet. Traps: one pinned row is a hinge (a flat sheet turns about it at no bending cost:
 clamp with two); stiffness is limited by substeps × mesh size (a 12-row sheet at k ≥ 1e-2 is
 convergence-bound); a landing stretches short edges past the limit for a few ticks (the glove: 20
 substeps, 1.11); Godot's front faces are clockwise (`normals()` follows). The glove at Sean's: with his skin
-~1.5 ms a tick while it's drawn off, with itself too ~7.2 drawn, ~6.8 tossed, ~4.2 settling (the
-solver alone 0.38; #997's cost table): itself is mostly its lists (a bunched glove has 100-200 of its
-triangles near each point's cell, ~19 lists a tick while it's drawn fast). Build here:
+~1.5 ms a tick while it's drawn off, itself ~+4.5 more drawn, ~+3.5 tossed, ~+2.5 settling (#1029; the
+solver alone 0.38): itself is mostly its lists (~10 whole listings a tick drawn: the cuff travels with his hand
+against the rest, 35-100 points past their allowance at a time). Build here:
 `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, copy
 the .so to bin/. The glove's mesh for probes in
 plain Rust: `experiments/cloth_core/glove_sean_s3.json` (bridge `cc_dump`). `tests/test_cloth_core.gd`; the lab `experiments/cloth_core/`.
@@ -1887,6 +1888,18 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   trouble (the broom and sack set down), when sent off (`leave`) or when his brain's post moves (an
   act's: the funeral); the same spot with a new `do` swaps the chore (`_new_doing`). Hands busy, he
   doesn't slow (`lets_slow`).
+  **Reactions in stages** (townsfolk step 5, #982; `Reaction`, `src/people/reaction.gd`,
+  `tests/test_reactions.gd`): CivilianBrain hands it what Senses heard (`heard`: the guess, the maker
+  only if seen; never Events.noise's own place), a shot at him, a gun drawn in sight (9 m), a man
+  fallen in sight (20 m). Start (`start_after`: 0.15 + 0.15 x nerve + 0.2 by distance, after the
+  sound's travel; each start claims a frame of its own, `_claim`), look (0.5-2 s, `wary`, faces the
+  guess), decide by `dials` (ValleyFolk.dials_of) against the stimulus's fear (`STIMULI`): flee to a
+  `refuges` door not by way of it (ValleyFolk.refuges_of: his home, the store, the saloon, the hotel),
+  hide (cower), gawk (toward it but at most 14 m nearer; the ring 5-8 m round a man down), watch,
+  help (`tend` beside the man down), back away (a gun), carry on (a breath). Back after a calm time
+  (20-90 s, by nerve), a look round, then his spot and chore; shaken an hour of the clock (starts
+  sooner, more afraid). Moods ALARMED, WATCHING, RUNNING. `go_to` drops it (an act's errand) and for
+  60 s after, unarrived, it won't walk him off to look. The hat shot and a gun on him stay immediate.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
@@ -2203,7 +2216,11 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
   plain stage, a pose in seconds, `--variants` for holds side by side).
   `MuzzleFlash` (#1019) is the flash you see at the held gun's muzzle (a child of its Muzzle marker, on
   the held layer: a star facing you, two crossed flames, a warm light), stepped in game time by the
-  viewmodel; the world's own flash and light (`ImpactEffects.muzzle_flash`) still go off beside it.
+  viewmodel; the world's light still goes off (`ImpactEffects.muzzle_flash(..., false)`: your own gun
+  drops the world's puff, #1031). The steel in hand (#1031): the held albedo and ORM (`held_grade.py`,
+  `--orm`), `GunParts.HELD_METALLIC`, and `WeaponViewmodel`'s glint (a small light by the eye on the held
+  layer, its specular high). Aimed, each gun turns about its front sight (`colt.aim_turn`, `win73.aim_turn`);
+  the Colt's reload has a left hand (`RevolverViewmodel.left_hand`, a round at the gate, `colt.l_load*`).
   The Colt's hip pose (`colt.hip`, turned to show its side), aimed cant (`colt.aim_cant`) and the
   rifle's (`win73.hip`, `win73.aim_cant`) are holds too.
   `GunKick` is the kick: a damped spring shoved by each shot (it rises over `kick_rise`, comes back,

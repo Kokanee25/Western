@@ -30,7 +30,8 @@ var spur: Node3D
 var hammer_deg := 0.0
 ## In your hand: the in-hand albedo (GunParts.held_albedo). Set before it enters the tree.
 var held := false
-const HELD_ALBEDO := {"res://assets/weapons/colt_saa_saa_albedo.jpg": "res://assets/weapons/colt_saa_held_albedo.jpg"}
+const HELD_ALBEDO := {"res://assets/weapons/colt_saa_saa_albedo.jpg": "res://assets/weapons/colt_saa_held_albedo.jpg",
+		"res://assets/weapons/colt_saa_saa_orm.jpg": "res://assets/weapons/colt_saa_held_orm.jpg"}
 
 var _gun: Node3D
 var _cases: Array[Node3D] = []
