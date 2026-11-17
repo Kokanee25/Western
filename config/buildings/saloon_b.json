@@ -3596,17 +3596,6 @@
 			],
 			"S1": [
 				{
-					"id": "arm_rail_0",
-					"kit": "bar_arm_rail",
-					"at": [
-						2.705,
-						1.095,
-						3.9
-					],
-					"facing": 90,
-					"use": "on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"
-				},
-				{
 					"id": "work_board_0",
 					"kit": "work_board",
 					"at": [
@@ -3618,17 +3607,6 @@
 					"use": "the bartender's work board, its back on the bar's back boards (x 1.96)"
 				},
 				{
-					"id": "arm_rail_1",
-					"kit": "bar_arm_rail",
-					"at": [
-						2.705,
-						1.095,
-						6.9
-					],
-					"facing": 90,
-					"use": "on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"
-				},
-				{
 					"id": "work_board_1",
 					"kit": "work_board",
 					"at": [
@@ -3638,17 +3616,6 @@
 					],
 					"facing": 270,
 					"use": "the bartender's work board, its back on the bar's back boards (x 1.96)"
-				},
-				{
-					"id": "arm_rail_2",
-					"kit": "bar_arm_rail",
-					"at": [
-						2.705,
-						1.095,
-						9.9
-					],
-					"facing": 90,
-					"use": "on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"
 				},
 				{
 					"id": "work_board_2",

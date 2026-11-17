@@ -88,7 +88,7 @@ oldest freed) and its whole parts one each. The placing session counts the room'
 | `till_drawer` | 2 | its members | the back bar, 1 |
 | `card_deck` | 1 | 1 | each table in play (~5) |
 | `chip_stacks` | 1 | 1 | each table in play (~5) |
-| `bar_arm_rail` | 1 | 1 | on each bar section's top at its front edge (bar space x 0, y 1.095, z 0.455): 4. Its own prop, not a `bar` member: added to every bar in the valley it tipped the card-game chair tests (#834) |
+| `bar_arm_rail` | 1 | 1 | not placed since #1041 (Sean: the brass rail is for the feet; its tube draws `bar`'s foot rail, a draw change only). Was on each bar section's top (bar space x 0, y 1.095, z 0.455). Its own prop, not a `bar` member: added to every bar in the valley it tipped the card-game chair tests (#834) |
 
 ## Saloon B, batch S2 (#879)
 

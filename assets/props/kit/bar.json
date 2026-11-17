@@ -378,21 +378,20 @@
     0.16,
     0.5
    ],
-   "look": "prop:brass",
+   "look": "pbr:bar_rails",
    "draw": {
-    "shape": "profile",
-    "profile": "rounded",
-    "along": "x",
-    "across": "z",
-    "up": "y",
-    "args": [
-     0.024,
-     [
-      0,
-      1,
-      2,
-      3
-     ]
+    "shape": "mesh",
+    "model": "bar_rails",
+    "part": "ArmRail",
+    "rot": [
+     90,
+     0,
+     0
+    ],
+    "at": [
+     0.0,
+     0.16,
+     0.454
     ]
    }
   },

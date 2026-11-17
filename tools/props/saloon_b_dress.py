@@ -49,8 +49,8 @@ def e(id_, kit, at, facing=0, **kw):
 def s1():
     out = []
     for i, z in enumerate(BAR_Z):
-        out.append(e("arm_rail_%d" % i, "bar_arm_rail", [BAR_X + 0.455, BAR_TOP, z], 90,
-                     use="on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"))
+        # No arm rail on the bar's top (Sean, #1041: the brass rail is for the feet; the bar's own
+        # foot rail is drawn with the arm rail's tube).
         out.append(e("work_board_%d" % i, "work_board", [1.665, 0.0, z], 270,
                      use="the bartender's work board, its back on the bar's back boards (x 1.96)"))
     for i, z in enumerate([2.95, 4.85, 6.75, 8.65, 10.55]):
