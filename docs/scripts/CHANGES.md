@@ -39,29 +39,17 @@ with their tests (several tests check a line's words).
 | `config/moments/no_justice_hideout.json` | `lines.quit.any.0` | no_justice.json `fight.crew_quit` | I'm done! Don't shoot! | I quit! Don't shoot! |
 | `config/moments/no_justice_hideout.json` | `lines.warn.any.0` | no_justice.json `ride.warn` | When I find him, you will not like what I do. Better you know it now. | When we have him, don't watch. |
 | `config/moments/no_law_murder.json` | `lines.stranger_sit.0` | no_law.json `table.sit` | Evening. Mind if I sit in a while? | Evening. Harlan, isn't it? Sit with me a while, if you've no objection. |
-| `config/moments/sheriff_dies.json` | `lines.acting.any.0` | no_law.json `day2.acting` | I'm the coroner, Harlan, so until the county sends a man I'm what law there is. And you're my deputy. Keep the badge on. | He had it right. I'm the coroner, so I'm sheriff until the commissioners name one. Keep the badge on. |
 | `config/moments/sheriff_dies.json` | `lines.acting.any.0` | sheriff_road.json `day2.acting` | I'm the coroner, Harlan, so until the county sends a man I'm what law there is. And you're my deputy. Keep the badge on. | He had it right. I'm the coroner, so I'm sheriff until the commissioners name one. Keep the badge on. |
-| `config/moments/sheriff_dies.json` | `lines.ditch.clear.0` | no_law.json `day2.ditch.clear` | He's wanted my ditch since the day I cut it. Now he'll go at her. Look to them. | The Baron's wanted that ditch since the day I cut it. He'll go at my wife for it now. Look to her and the boys. |
 | `config/moments/sheriff_dies.json` | `lines.ditch.clear.0` | sheriff_road.json `day2.ditch.clear` | He's wanted my ditch since the day I cut it. Now he'll go at her. Look to them. | The Baron's wanted that ditch since the day I cut it. He'll go at my wife for it now. Look to her and the boys. |
-| `config/moments/sheriff_dies.json` | `lines.door.good.0` | no_law.json `day2.door.good` | He's asking for you. He's clear this morning. It won't last. | He's asking for you. He's clear this morning. |
 | `config/moments/sheriff_dies.json` | `lines.door.good.0` | sheriff_road.json `day2.door.good` | He's asking for you. He's clear this morning. It won't last. | He's asking for you. He's clear this morning. |
-| `config/moments/sheriff_dies.json` | `lines.door.left.0` | no_law.json `day2.door.left` | He's been asking for you since the freighter brought him. I couldn't tell you why. | He's been asking for you since the freighter brought him. |
 | `config/moments/sheriff_dies.json` | `lines.door.left.0` | sheriff_road.json `day2.door.left` | He's been asking for you since the freighter brought him. I couldn't tell you why. | He's been asking for you since the freighter brought him. |
-| `config/moments/sheriff_dies.json` | `lines.last.clear.0` | no_law.json `day2.last.clear` | Sun's up. Ain't that something. | Go home to the boys. |
 | `config/moments/sheriff_dies.json` | `lines.last.clear.0` | sheriff_road.json `day2.last.clear` | Sun's up. Ain't that something. | Go home to the boys. |
-| `config/moments/sheriff_dies.json` | `lines.nod.clear.0` | no_law.json `day2.nod.clear` | Good. You're my deputy. Doc, you heard him. | Doc, you saw that. He's sworn. |
 | `config/moments/sheriff_dies.json` | `lines.nod.clear.0` | sheriff_road.json `day2.nod.clear` | Good. You're my deputy. Doc, you heard him. | Doc, you saw that. He's sworn. |
-| `config/moments/sheriff_dies.json` | `lines.oath.clear.0` | no_law.json `day2.oath.clear` | Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then. | Doc. My badge. ... Harlan. I want this on you. Keep the peace of this county and serve its papers. There's more to the oath. I disremember it. Will you take it? |
 | `config/moments/sheriff_dies.json` | `lines.oath.clear.0` | sheriff_road.json `day2.oath.clear` | Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then. | Doc. My badge. ... Harlan. I want this on you. Keep the peace of this county and serve its papers. There's more to the oath. I disremember it. Will you take it? |
-| `config/moments/sheriff_dies.json` | `lines.oath.fading.0` | no_law.json `day2.oath.fading` | Badge... Doc. Pin it on him. | Badge... Harlan. Take it. ... Will you? |
 | `config/moments/sheriff_dies.json` | `lines.oath.fading.0` | sheriff_road.json `day2.oath.fading` | Badge... Doc. Pin it on him. | Badge... Harlan. Take it. ... Will you? |
-| `config/moments/sheriff_dies.json` | `lines.shot_by.clear.0` | no_law.json `day2.shot_by.clear` | Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan. | Bald-faced sorrel. Soft-spoken man. Called me friend. |
 | `config/moments/sheriff_dies.json` | `lines.shot_by.clear.0` | sheriff_road.json `day2.shot_by.clear` | Bald-faced sorrel. Called me friend. I'd know him again. You find him, Harlan. | Bald-faced sorrel. Soft-spoken man. Called me friend. |
-| `config/moments/sheriff_dies.json` | `lines.shot_by.fading.0` | no_law.json `day2.shot_by.fading` | ...sorrel... said friend... | Sorrel... white face. Said friend. He said friend. |
 | `config/moments/sheriff_dies.json` | `lines.shot_by.fading.0` | sheriff_road.json `day2.shot_by.fading` | ...sorrel... said friend... | Sorrel... white face. Said friend. He said friend. |
-| `config/moments/sheriff_dies.json` | `lines.where.left.0` | no_law.json `day2.where` | Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it. | Hold him. No... yes, like that. You've held a man down before. |
 | `config/moments/sheriff_dies.json` | `lines.where.left.0` | sheriff_road.json `day2.where` | Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it. | Hold him. No... yes, like that. You've held a man down before. |
-| `config/moments/sheriff_dies.json` | `lines.where.poor.0` | no_law.json `day2.where` | Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it. | Hold him. No... yes, like that. You've held a man down before. |
 | `config/moments/sheriff_dies.json` | `lines.where.poor.0` | sheriff_road.json `day2.where` | Hold him. No... yes, like that. You've done this before. Where? ... No. Keep it. | Hold him. No... yes, like that. You've held a man down before. |
 | `config/moments/the_sheriff.json` | `lines.ask_again.clear.0` | sheriff_road.json `road.ask_again.clear` | (add beside the built wording) | Yes or no, Harlan. / You deaf, man? Help me or get on. |
 | `config/moments/the_sheriff.json` | `lines.ask_again.weak.0` | sheriff_road.json `road.ask_again.weak` | (add beside the built wording) | Harlan... please. |
@@ -112,15 +100,6 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | no_law.json `morning.coat` | townswoman | nolaw.carried_earl = yes | Cold water, Mr. Harlan, not hot. Hot sets it. |
 | no_law.json `morning.followed` | townsman | nolaw.followed (you went out after Cody) | Somebody saw you go out after him. On foot. After a man on a horse. |
 | no_law.json `morning.body` | doctor | nolaw.earl = doctor's (he lies here) | He was dead when you knocked. I'd not have you think it was the door. |
-| no_law.json `day2.door.table` | doctor | nolaw.seen_from = table or yard, and you didn't carry Earl here (nolaw.carried_earl = no) | The sheriff's not been told about Earl. Don't you tell him. |
-| no_law.json `day2.door.coat` | doctor | nolaw.carried_earl = yes (Earl's blood is on your coat) | The sheriff's not been told about Earl. Button your coat. |
-| no_law.json `day2.heard` | sheriff | clear (care good) | I can hear you, Doc. Send him in. |
-| no_law.json `day2.blood` | sheriff | clear, and nolaw.carried_earl = yes | Whose blood is that on you? ... That ain't mine. |
-| no_law.json `day2.blood_doc` | doctor | clear, and nolaw.carried_earl = yes | A man cut himself at the saloon. Lie back. |
-| no_law.json `day2.shake.twice` | sheriff | clear, and sheriff.shook (you shook your head at him on the road, then helped him anyway) | Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him. |
-| no_law.json `day2.for_now.clear` | sheriff | clear | It's only for now. The county commissioners name the next man. Till they do, Doc's coroner, so he's sheriff, and you're his deputy. |
-| no_law.json `day2.for_now.fading` | sheriff | fading | Only till the county... names a man. Doc... tell him. |
-| no_law.json `day2.not_enough` | doctor | nolaw.seen_from = table (you sat with the stranger), or nolaw.drew_on_stranger | A sorrel horse and one word. I can't hang a man on that, Harlan. |
 | no_law.json `funeral.town_2` | barkeep | any | Never once took a drink on the house. I'd pour it and he'd leave the dime. |
 | no_law.json `funeral.baron_pardon` | baron | any | Forgive me, ma'am; it was ill-timed of me, and we will speak of it another day. |
 | no_law.json `funeral.baron_you_care` | baron | nolaw.funeral = attended and sheriff.care = good | Mr. Harlan, they tell me he had a night with his wife that he'd not have had but for you, and I call that well done. |
