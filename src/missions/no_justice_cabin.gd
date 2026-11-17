@@ -308,15 +308,19 @@ func _scene_step(p: Player, delta: float) -> void:
 					_draw_knife()
 					_say_once(joe, "knife")
 					_next_t = t + _gap(line_preview("knife"))
+					_joe_best = INF
+					_joe_still = 0.0
 					_go(&"knife")
 		&"knife":
 			var to := _joe_at_kett()
-			_joe_go(to, float(data.get("joe_walk", 1.1)), delta)
+			# Held up on his way (the door's wreck, a body: the tests' order put a piece in his way, #1050)
+			# he asks from where he stands, as walking in does: the scene never waits on him for good.
+			var there := _joe_go(to, float(data.get("joe_walk", 1.1)), delta) or _joe_stuck(to, delta)
 			joe.face(kett.global_position + Vector3.UP * 1.3)
 			if t >= _next_t and not _spoken.has("bargain"):
 				_say_once(kett, "bargain")
 				_next_t = t + _gap(line_preview("bargain"))
-			elif _spoken.has("bargain") and t >= _next_t and _flat(joe.global_position, to) < 0.5:
+			elif _spoken.has("bargain") and t >= _next_t and (_flat(joe.global_position, to) < 0.5 or there):
 				joe.face(p.camera.global_position)
 				_say_once(joe, "ask")
 				prompt(String(_prompts().get("answer", "")), 10.0)
@@ -743,7 +747,7 @@ func _hold_joe() -> void:
 	if hold != null and hold.on:
 		return
 	hold = SceneHold.claim(self, {"label": &"no_justice_cabin", "cast": [joe], "follow": shack,
-			"radius": float(data.get("hold_m", 6.0)), "breaks": []})
+			"radius": float(data.get("hold_m", 6.0)), "breaks": [], "make_way": false, "keep_armed": false})
 
 
 func _let_joe_go() -> void:

@@ -56,6 +56,9 @@ var radius := 8.0
 var breaks: Array[StringName] = BREAKS_ALL.duplicate()
 ## Armed men not in the cast stop at the zone's edge.
 var keep_armed := true
+## A townsman stood in a walking actor's way steps aside (off for a scene whose actors walk up to
+## other men: the cabin's Joe to Kett).
+var make_way := true
 ## Armed men let in all the same (the scene's own extras).
 var invited: Array[Node] = []
 ## A man the cast brought in without a brain gets one from this when it lets go (man -> Node or null);
@@ -82,6 +85,7 @@ static func claim(scene: Node, opts := {}) -> SceneHold:
 	h.label = StringName(opts.get("label", scene.name if scene else &"scene"))
 	h.radius = float(opts.get("radius", 8.0))
 	h.keep_armed = bool(opts.get("keep_armed", true))
+	h.make_way = bool(opts.get("make_way", true))
 	if opts.has("breaks"):
 		h.breaks.assign(opts.breaks)
 	if opts.has("centre"):
@@ -321,7 +325,8 @@ func _physics_process(delta: float) -> void:
 	var p := get_tree().get_first_node_in_group(&"player") as Player
 	if p != null and &"mark" in breaks and _you_on_mark(p):
 		return
-	_make_way(delta)
+	if make_way:
+		_make_way(delta)
 
 
 ## You walking onto a mark, into a held chair, or into a walking actor's way (sat in your own chair at
@@ -364,7 +369,8 @@ static func _in_way_of(man: HumanBody, at: Vector3, r: float) -> bool:
 
 
 ## A townsman stood in a walking actor's way steps aside (a man going about his chore doesn't walk,
-## so his own brain never would): sideways off the actor's line, at a walk.
+## so his own brain never would): sideways off the actor's line, at a walk. Townsfolk only (a
+## CivilianBrain): an outlaw, a companion or a scene's other men are the scene's to place.
 func _make_way(delta: float) -> void:
 	for man: HumanBody in cast:
 		if man.limp or man.move_speed < 0.3:
@@ -372,6 +378,8 @@ func _make_way(delta: float) -> void:
 		for other: Node in man.get_tree().get_nodes_in_group(&"people"):
 			var o := other as HumanBody
 			if o == null or o == man or o in cast or o.limp or not o.physiology.is_conscious():
+				continue
+			if not _brain(o) is CivilianBrain:
 				continue
 			if o.global_position.distance_to(man.global_position) > WAY_AHEAD + 0.5:
 				continue
