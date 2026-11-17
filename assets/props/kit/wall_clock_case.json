@@ -1,0 +1,316 @@
+{
+ "_doc": "A regulator wall clock's case (#1030, tools/props/saloon_walls.py): oak, a hood over a glazed trunk, hung on one nail through its back board. The works (dial, hands, pendulum, tick) are `wall_clock`'s; this is the case alone: it breaks, burns and falls as any hung prop.",
+ "id": "wall_clock_case",
+ "kind": "members",
+ "wood": "oak",
+ "look": "lib:furniture_oak/old",
+ "splits_below": 0.4,
+ "blow_wood_share": 0.5,
+ "hangs": {
+  "nails": [
+   [
+    0.0,
+    0.85,
+    0.006
+   ]
+  ]
+ },
+ "members": [
+  {
+   "id": "base",
+   "kind": "furniture_top",
+   "size": [
+    0.34,
+    0.07,
+    0.17
+   ],
+   "at": [
+    0,
+    0.035,
+    0.085
+   ]
+  },
+  {
+   "id": "trunk_back",
+   "kind": "board",
+   "size": [
+    0.3,
+    0.66,
+    0.012
+   ],
+   "at": [
+    0,
+    0.4,
+    0.006
+   ]
+  },
+  {
+   "id": "trunk_side_l",
+   "kind": "post",
+   "size": [
+    0.025,
+    0.66,
+    0.14
+   ],
+   "at": [
+    -0.1375,
+    0.4,
+    0.082
+   ]
+  },
+  {
+   "id": "trunk_stile_l",
+   "kind": "post",
+   "size": [
+    0.03,
+    0.66,
+    0.02
+   ],
+   "at": [
+    -0.1348,
+    0.4,
+    0.15
+   ]
+  },
+  {
+   "id": "trunk_side_r",
+   "kind": "post",
+   "size": [
+    0.025,
+    0.66,
+    0.14
+   ],
+   "at": [
+    0.1375,
+    0.4,
+    0.082
+   ]
+  },
+  {
+   "id": "trunk_stile_r",
+   "kind": "post",
+   "size": [
+    0.03,
+    0.66,
+    0.02
+   ],
+   "at": [
+    0.1348,
+    0.4,
+    0.15
+   ]
+  },
+  {
+   "id": "trunk_rail_top",
+   "kind": "furniture_frame",
+   "size": [
+    0.3,
+    0.04,
+    0.02
+   ],
+   "at": [
+    0,
+    0.69,
+    0.15
+   ]
+  },
+  {
+   "id": "trunk_rail_bottom",
+   "kind": "furniture_frame",
+   "size": [
+    0.3,
+    0.04,
+    0.02
+   ],
+   "at": [
+    0,
+    0.09,
+    0.15
+   ]
+  },
+  {
+   "id": "trunk_glass",
+   "kind": "glass",
+   "size": [
+    0.24,
+    0.56,
+    0.004
+   ],
+   "at": [
+    0,
+    0.39,
+    0.151
+   ],
+   "wood": "glass"
+  },
+  {
+   "id": "hood_back",
+   "kind": "board",
+   "size": [
+    0.36,
+    0.38,
+    0.012
+   ],
+   "at": [
+    0,
+    0.91,
+    0.006
+   ]
+  },
+  {
+   "id": "hood_side_l",
+   "kind": "post",
+   "size": [
+    0.025,
+    0.38,
+    0.14
+   ],
+   "at": [
+    -0.1675,
+    0.91,
+    0.082
+   ]
+  },
+  {
+   "id": "hood_stile_l",
+   "kind": "post",
+   "size": [
+    0.03,
+    0.38,
+    0.02
+   ],
+   "at": [
+    -0.165,
+    0.91,
+    0.15
+   ]
+  },
+  {
+   "id": "hood_side_r",
+   "kind": "post",
+   "size": [
+    0.025,
+    0.38,
+    0.14
+   ],
+   "at": [
+    0.1675,
+    0.91,
+    0.082
+   ]
+  },
+  {
+   "id": "hood_stile_r",
+   "kind": "post",
+   "size": [
+    0.03,
+    0.38,
+    0.02
+   ],
+   "at": [
+    0.165,
+    0.91,
+    0.15
+   ]
+  },
+  {
+   "id": "hood_floor",
+   "kind": "furniture_frame",
+   "size": [
+    0.36,
+    0.02,
+    0.14
+   ],
+   "at": [
+    0,
+    0.73,
+    0.082
+   ]
+  },
+  {
+   "id": "hood_rail_top",
+   "kind": "furniture_frame",
+   "size": [
+    0.33,
+    0.035,
+    0.02
+   ],
+   "at": [
+    0,
+    1.0825,
+    0.15
+   ]
+  },
+  {
+   "id": "hood_rail_bottom",
+   "kind": "furniture_frame",
+   "size": [
+    0.33,
+    0.035,
+    0.02
+   ],
+   "at": [
+    0,
+    0.7375,
+    0.15
+   ]
+  },
+  {
+   "id": "dial_plate",
+   "kind": "board",
+   "size": [
+    0.31,
+    0.34,
+    0.012
+   ],
+   "at": [
+    0,
+    0.91,
+    0.105
+   ]
+  },
+  {
+   "id": "hood_glass",
+   "kind": "glass",
+   "size": [
+    0.3,
+    0.305,
+    0.004
+   ],
+   "at": [
+    0,
+    0.91,
+    0.151
+   ],
+   "wood": "glass"
+  },
+  {
+   "id": "cornice",
+   "kind": "furniture_top",
+   "size": [
+    0.4,
+    0.03,
+    0.18
+   ],
+   "at": [
+    0,
+    1.115,
+    0.09
+   ]
+  },
+  {
+   "id": "cap",
+   "kind": "furniture_top",
+   "size": [
+    0.37,
+    0.025,
+    0.16
+   ],
+   "at": [
+    0,
+    1.1425,
+    0.085
+   ]
+  }
+ ]
+}

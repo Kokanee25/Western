@@ -171,7 +171,7 @@ static func fit(def: Dictionary, size: Vector3) -> Dictionary:
 ## A prop of any kind from its kit file, not yet in the tree: a KitProp ("members"), a GlassProp
 ## ("shatters"; its variant, the bottle's glass and label, counted per prop), a LooseProp ("loose":
 ## the spittoon, the tin cup), a ClothProp ("cloth":
-## the bar rag), a MopProp ("mop") or a MopBucket ("bucket").
+## the bar rag), a MopProp ("mop"), a MopBucket ("bucket") or a WallClock ("clock", #1030).
 static func make(id: StringName) -> Node3D:
 	var def := definition(id)
 	if String(def.get("kind", "members")) in ["shatters", "loose"]:
@@ -183,6 +183,14 @@ static func make(id: StringName) -> Node3D:
 		g.variant = n
 		g.name = "%s%d" % [String(id).to_pascal_case(), n]
 		return g
+	if String(def.get("kind", "members")) == "clock":
+		var clock := WallClock.new()
+		clock.kit_id = id
+		clock.definition = def
+		var cn: int = _made.get(id, 0)
+		_made[id] = cn + 1
+		clock.name = "%s%d" % [String(id).to_pascal_case(), cn]
+		return clock
 	if String(def.get("kind", "members")) == "mop":
 		var mop := MopProp.new()
 		mop.kit_id = id

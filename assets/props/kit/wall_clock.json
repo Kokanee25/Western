@@ -1,0 +1,42 @@
+{
+ "_doc": "The regulator wall clock (#1030; Sean 2026-11-16, #789: 'the clock needs to be a real clock'): `wall_clock_case` with a dial, two hands and a pendulum that show DayCycle's time (the town's local time) and swing, moved by maths each frame only while it's on screen and near, and a tick (GameAudio, placed: heard in a quiet room, lost under a busy night). WallClock, src/props/wall_clock.gd. The bank, depot, store and homes reuse it (`size`, `case` and `dial` are the only things a shelf clock changes).",
+ "id": "wall_clock",
+ "kind": "clock",
+ "in_game": true,
+ "case": "wall_clock_case",
+ "size": [
+  0.4,
+  1.16,
+  0.18
+ ],
+ "dial": {
+  "at": [
+   0.0,
+   0.91,
+   0.114
+  ],
+  "radius": 0.135
+ },
+ "hands": {
+  "hour": 0.075,
+  "minute": 0.11
+ },
+ "pendulum": {
+  "at": [
+   0.0,
+   0.665,
+   0.075
+  ],
+  "length": 0.46,
+  "bob": 0.042,
+  "swing_deg": 4.5,
+  "period": 1.4
+ },
+ "tick": {
+  "reach": 16.0,
+  "volume_db": -15.0,
+  "unit_size": 1.2,
+  "din_db": 2.0,
+  "din_reach": 9.0
+ }
+}

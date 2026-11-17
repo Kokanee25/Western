@@ -24,7 +24,7 @@ const ALL := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing"
 	&"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0",
 	&"step_dirt_1", &"step_dirt_2", &"step_dirt_3", &"impact_wood", &"impact_dirt", &"impact_metal",
 	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"thump", &"whoosh",
-	&"rifle", &"report_rifle", &"rolling_rifle"]
+	&"rifle", &"report_rifle", &"rolling_rifle", &"clock_tick", &"clock_tock"]
 
 
 ## Make every sound on a worker thread, so none is made mid-game. A sound asked for before its turn
@@ -114,6 +114,8 @@ static func _make(id: StringName) -> AudioStreamWAV:
 		&"gate": samples = _clicks(rng, [0.0], 1800.0, 0.35)
 		&"insert": samples = _clicks(rng, [0.0, 0.05], 1500.0, 0.3)
 		&"eject": samples = _tink(rng)
+		&"clock_tick": samples = _escapement(rng, 1850.0)
+		&"clock_tock": samples = _escapement(rng, 1500.0)
 		&"glass": samples = _glass(rng)
 		&"flesh": samples = _flesh(rng)
 		&"thump": samples = _thump(rng)
@@ -617,6 +619,23 @@ static func _clicks(rng: RandomNumberGenerator, times: Array, ring_hz: float, le
 			var t := float(i - s) / RATE
 			out[i] += (rng.randf_range(-1, 1) * exp(-t / 0.0015) + sin(TAU * ring_hz * t) * exp(-t / 0.008) * 0.6) * level
 	return out
+
+
+## A clock's escapement (#1030, the wall clock): the pallet dropping on a tooth, a dry tick in a wooden
+## case: a 3 ms click of noise and a short ring (`ring_hz`; the tock a little lower), nothing under 700 Hz
+## (a small mechanism: no thump), quiet by itself (the clock's player sets how far it carries).
+static func _escapement(rng: RandomNumberGenerator, ring_hz: float) -> PackedFloat32Array:
+	var n := int(RATE * 0.09)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var last := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var noise := rng.randf_range(-1.0, 1.0)
+		last = last * 0.55 + noise * 0.45  # a little low-passed: wood, not tin
+		out[i] = (last * exp(-t / 0.0012) * 0.8 + sin(TAU * ring_hz * t) * exp(-t / 0.011) * 0.5
+				+ sin(TAU * ring_hz * 1.52 * t) * exp(-t / 0.006) * 0.2)
+	return _normalise(out, 0.5)
 
 
 static func _tink(rng: RandomNumberGenerator) -> PackedFloat32Array:
