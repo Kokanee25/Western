@@ -182,6 +182,15 @@ impl ClothCore {
         c.set_skin(&pts, &tris)
     }
 
+    /// His finer skin is out of the garment from now (#1008: it's left his hand): none of its vertices
+    /// pushed back from deep, nor let be in front.
+    #[func]
+    fn skin_out(&mut self) {
+        if let Some(c) = self.c.as_mut() {
+            c.skin_out();
+        }
+    }
+
     /// His finer skin's points at the end of the next step.
     #[func]
     fn move_skin(&mut self, points: PackedVector3Array) {

@@ -63,10 +63,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The garment handoff** (#917, #949, #986, #997, #1008; LAYOUT "src/bodies"): `GarmentHandoff` and `GloveAct`
   (bridge `glove MAN`) on **our own cloth** (`SolverCloth`/`ClothCore`, #973, `docs/briefs/garment-cloth.md`): his
   skin is its collider (#986), it can meet itself (#997, `self_thickness`, off: MetaHuman `--seed=2` never rests),
-  and **his hand's own skin vertices can be kept under it** (#1008, `body_verts` + `set_skin`; off,
-  `GarmentHandoff.FINE_TRIS` 0: fixes his fingers through the glove, crops `results/2026-11-16-fingers/`, but pops
-  the take 8 mm, stretch 1.10, ~6-10 ms a tick more at Sean's drawn, 25 ms tossed on sean_s3_talking). Open: those,
-  then the rest with itself, **the cost** (~1.6 ms skin, ~7.2 with itself, budget 0.5). Measure `skin_out` (bench).
+  and **his hand's and forearm's own skin is kept under it** (#1008, `body_verts` + `set_skin`, ON: `FINE_TRIS` 3000,
+  crops `results/2026-11-16-fingers-on/`; pop 1.8 mm, stretch 1.08; ~3.9 ms a tick at Sean's while drawn, over his
+  ~2-3). Next: #1023, that cost, then the rest with itself (~7.2 ms with itself). Measure `skin_out`/`arm_out` (bench).
   Build: `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, .so to
   bin/. Films: the bridge's real look is OOM-killed in an 8 GB workspace (its memory climbs past 6 GB); use the
   bench's stills (`xvfb-run ... bench.gd -- --shots=2.6,2.7,... --cam=hands`, ~2 min, 2.4 GB).
