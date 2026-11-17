@@ -337,12 +337,13 @@ pub struct Body {
     /// how much room it has left before one could act (it isn't looked at again until that's used).
     vstep: Vec<f32>,
     vroom: Vec<f32>,
+    /// Per candidate pair, how far it is from being met (like `vroom`, per pair): passed over till it could close.
+    proom: Vec<f32>,
     vnorm: Vec<V3>,
     vcand_at: Vec<u32>,
     vcand: Vec<u32>,
     vstart: Vec<u32>,
     ventries: Vec<u32>,
-    vstamp: Vec<u32>,
     /// The cloth's triangles' planes at a substep's start (unit normal, offset), for the cheap look.
     vplane: Vec<[f32; 4]>,
     /// Measures: his vertices that pushed the cloth out at the last substep, and since it was set.
@@ -1158,91 +1159,174 @@ impl Cloth {
         b.vcand_at.clear();
         b.vcand.clear();
         b.vcand_at.push(0);
-        b.vstamp.clear();
-        b.vstamp.resize(nt, 0);
-        let mut now = 0u32;
         for sl in b.sk_slack.iter_mut() {
             *sl = (*sl - VERT_EASE * dt).max(0.0);
         }
-        for k in 0..nv {
-            let (p0, p1) = (b.sk_from[k], b.sk_to[k]);
-            // Still in the garment (it began in it, and the cloth hasn't left it): pushed back under it
-            // from deeper.
-            let dk = if b.sk_inside[k] { VERT_INSIDE } else { deep };
-            let r0 = 2.0 * th + dk;
-            let mut l = [0.0f32; 3];
-            let mut h = [0.0f32; 3];
-            for j in 0..3 {
-                l[j] = p0[j].min(p1[j]) - r0;
-                h[j] = p0[j].max(p1[j]) + r0;
-            }
-            let off_free = (0..3).any(|j| l[j] > chi[j] || h[j] < clo[j]);
-            // Near the held cloth (by its cells): still in the garment.
-            let mut near_held = false;
-            if b.sk_inside[k] && !(0..3).any(|j| l[j] > hhi[j] || h[j] < hlo[j]) {
-                for_cells(l, h, cell, |key| near_held |= occ[hash(key, size)]);
-            }
-            if off_free {
-                b.sk_inside[k] = near_held;
-                continue;
-            }
-            now += 1;
-            let at = b.vcand.len();
-            let vm = len(sub(p1, p0));
-            let mut near_any = near_held;
-            let mut most = 0.0f32;
-            let (start, entries, stamp, cand) = (&b.vstart, &b.ventries, &mut b.vstamp, &mut b.vcand);
-            let (x, tris, mv, sph) = (&self.x, &self.tris, &move_t, &sph);
-            let nk = b.vnorm[k];
-            for_cells(l, h, cell, |key| {
-                let hh = hash(key, size);
-                for e in start[hh]..start[hh + 1] {
-                    let t = entries[e as usize] as usize;
-                    if stamp[t] == now {
-                        continue;
-                    }
-                    stamp[t] = now;
-                    if (0..3).all(|j| lo[t][j] <= h[j] && hi[t][j] >= l[j]) {
-                        // Only if it can come within reach this tick: its distance now less both moves.
-                        let r = r0 + vm + mv[t];
-                        let sp = sph[t];
-                        let dm = sub(p0, [sp[0], sp[1], sp[2]]);
-                        let rr = r + sp[3];
-                        if dot(dm, dm) > rr * rr {
-                            continue;
-                        }
-                        let tr = tris[t];
-                        let (a, bb, c) = (x[tr[0] as usize], x[tr[1] as usize], x[tr[2] as usize]);
-                        // (Facing away from his skin there, a finger's far side: it can't turn round
-                        // within a tick. Near by its sphere is near enough to keep the vertex in the
-                        // garment.)
-                        near_any = true;
-                        if dot(face_normal(a, bb, c), nk) < 0.0 {
-                            continue;
-                        }
-                        let q = bary(a, bb, c, closest_on_tri(p0, a, bb, c));
-                        if dot(sub(p0, q), sub(p0, q)) > r * r {
-                            continue;
-                        }
-                        most = most.max(mv[t]);
-                        cand.push(t as u32);
-                    }
+        // Each vertex's candidates are found on their own (only reading), so they're split over worker
+        // threads in index ranges and joined in order: the same lists in the same order as one thread.
+        struct Part {
+            ks: Vec<u32>,
+            dks: Vec<f32>,
+            steps: Vec<f32>,
+            counts: Vec<u32>,
+            cand: Vec<u32>,
+            inside: Vec<(u32, bool)>,
+        }
+        let (sk_from, sk_to, sk_inside, vnorm0) = (&b.sk_from, &b.sk_to, &b.sk_inside, &b.vnorm);
+        let (start, entries) = (&b.vstart, &b.ventries);
+        let (x, tris, mv, sph, lo, hi, occ) = (&self.x, &self.tris, &move_t, &sph, &lo, &hi, &occ);
+        let work = |from: usize, to: usize| -> Part {
+            let mut part = Part { ks: vec![], dks: vec![], steps: vec![], counts: vec![], cand: vec![], inside: vec![] };
+            let mut stamp = vec![0u32; nt];
+            let mut now = 0u32;
+            for k in from..to {
+                let (p0, p1) = (sk_from[k], sk_to[k]);
+                let was_inside = sk_inside[k];
+                let mut inside = was_inside;
+                // Still in the garment (it began in it, and the cloth hasn't left it): pushed back under it
+                // from deeper.
+                let dk = if inside { VERT_INSIDE } else { deep };
+                let r0 = 2.0 * th + dk;
+                let mut l = [0.0f32; 3];
+                let mut h = [0.0f32; 3];
+                for j in 0..3 {
+                    l[j] = p0[j].min(p1[j]) - r0;
+                    h[j] = p0[j].max(p1[j]) + r0;
                 }
-            });
-            if !near_any {
-                b.sk_inside[k] = false;
+                let off_free = (0..3).any(|j| l[j] > chi[j] || h[j] < clo[j]);
+                // Near the held cloth (by its cells): still in the garment.
+                let mut near_held = false;
+                if inside && !(0..3).any(|j| l[j] > hhi[j] || h[j] < hlo[j]) {
+                    for_cells(l, h, cell, |key| near_held |= occ[hash(key, size)]);
+                }
+                if off_free {
+                    if near_held != was_inside {
+                        part.inside.push((k as u32, near_held));
+                    }
+                    continue;
+                }
+                now += 1;
+                let at = part.cand.len();
+                let vm = len(sub(p1, p0));
+                let mut near_any = near_held;
+                let mut most = 0.0f32;
+                let nk = vnorm0[k];
+                for_cells(l, h, cell, |key| {
+                    let hh = hash(key, size);
+                    for e in start[hh]..start[hh + 1] {
+                        let t = entries[e as usize] as usize;
+                        if stamp[t] == now {
+                            continue;
+                        }
+                        stamp[t] = now;
+                        if (0..3).all(|j| lo[t][j] <= h[j] && hi[t][j] >= l[j]) {
+                            // Only if it can come within reach this tick: its distance now less both moves.
+                            let r = r0 + vm + mv[t];
+                            let sp = sph[t];
+                            let dm = sub(p0, [sp[0], sp[1], sp[2]]);
+                            let rr = r + sp[3];
+                            if dot(dm, dm) > rr * rr {
+                                continue;
+                            }
+                            let tr = tris[t];
+                            let (a, bb, c) = (x[tr[0] as usize], x[tr[1] as usize], x[tr[2] as usize]);
+                            // (Facing away from his skin there, a finger's far side: it can't turn round
+                            // within a tick. Near by its sphere is near enough to keep the vertex in the
+                            // garment.)
+                            near_any = true;
+                            let nn = face_normal(a, bb, c);
+                            if dot(nn, nk) < 0.0 {
+                                continue;
+                            }
+                            // Its plane too far already: no need for the closest point.
+                            let dpl = dot(sub(p0, a), nn);
+                            if dpl.abs() > r {
+                                continue;
+                            }
+                            let q = bary(a, bb, c, closest_on_tri(p0, a, bb, c));
+                            let off = sub(p0, q);
+                            let o2 = dot(off, off);
+                            if o2 > r * r {
+                                continue;
+                            }
+                            // It's only met over the triangle itself (VERT_SIDE), so a pair sideways of it
+                            // by more than that and what the two can close in a tick (and a push's share,
+                            // VERT_MOST) can't meet this tick: not listed.
+                            let reach_side = VERT_SIDE + vm + mv[t] + VERT_MOST;
+                            if o2 - dpl * dpl > reach_side * reach_side {
+                                continue;
+                            }
+                            most = most.max(mv[t]);
+                            part.cand.push(t as u32);
+                        }
+                    }
+                });
+                if !near_any {
+                    inside = false;
+                }
+                if inside != was_inside {
+                    part.inside.push((k as u32, inside));
+                }
+                if part.cand.len() > at {
+                    part.ks.push(k as u32);
+                    part.dks.push(dk);
+                    part.steps.push((vm + most) / n_sub);
+                    part.counts.push((part.cand.len() - at) as u32);
+                }
             }
-            if b.vcand.len() > at {
-                let n = b.vnorm[k];
+            part
+        };
+        let threads = std::thread::available_parallelism().map_or(1, |n| n.get()).clamp(1, 4);
+        // (Chunks of 32 vertices taken in turn: his hand's vertices are all in a few ranges.)
+        const CHUNK: usize = 32;
+        let chunks = nv.div_ceil(CHUNK);
+        let parts: Vec<Part> = if threads < 2 || nv < 256 {
+            vec![work(0, nv)]
+        } else {
+            let next = std::sync::atomic::AtomicUsize::new(0);
+            let mut done: Vec<(usize, Part)> = std::thread::scope(|sc| {
+                let hs: Vec<_> = (0..threads)
+                    .map(|_| {
+                        let (w, next) = (&work, &next);
+                        sc.spawn(move || {
+                            let mut mine = Vec::new();
+                            loop {
+                                let c = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                                if c >= chunks {
+                                    break;
+                                }
+                                mine.push((c, w(c * CHUNK, ((c + 1) * CHUNK).min(nv))));
+                            }
+                            mine
+                        })
+                    })
+                    .collect();
+                hs.into_iter().flat_map(|h| h.join().expect("cloth list thread")).collect()
+            });
+            done.sort_by_key(|d| d.0);
+            done.into_iter().map(|d| d.1).collect()
+        };
+        for part in parts {
+            for &(k, v) in &part.inside {
+                b.sk_inside[k as usize] = v;
+            }
+            let mut at = 0usize;
+            for (i, &k) in part.ks.iter().enumerate() {
+                let n = b.vnorm[k as usize];
                 let m = len(n);
-                b.vnorm[k] = if m > 1e-12 { scale(n, 1.0 / m) } else { [0.0; 3] };
-                b.vlist.push(k as u32);
-                b.vdeep.push(dk);
-                b.vstep.push((vm + most) / n_sub);
+                b.vnorm[k as usize] = if m > 1e-12 { scale(n, 1.0 / m) } else { [0.0; 3] };
+                b.vlist.push(k);
+                b.vdeep.push(part.dks[i]);
+                b.vstep.push(part.steps[i]);
                 b.vroom.push(0.0);
+                let c = part.counts[i] as usize;
+                b.vcand.extend_from_slice(&part.cand[at..at + c]);
+                at += c;
                 b.vcand_at.push(b.vcand.len() as u32);
             }
         }
+        b.proom.clear();
+        b.proom.resize(b.vcand.len(), 0.0);
         b.vert_listed = b.vlist.len() as u32;
         b.vert_pairs = b.vcand.len() as u32;
     }
@@ -1278,35 +1362,67 @@ impl Cloth {
             let vmove = scale(sub(v1, v0), 1.0 / subs.max(1) as f32);
             let mut hit = false;
             let mut room = f32::MAX;
+            let step = b.vstep[j] * subs as f32;
             for e in b.vcand_at[j] as usize..b.vcand_at[j + 1] as usize {
+                let pr = b.proom[e] - step;
+                if pr > 0.0 {
+                    b.proom[e] = pr;
+                    room = room.min(pr);
+                    continue;
+                }
                 let t = b.vcand[e] as usize;
                 // Its plane first: most are passed over by it (facing away, or far from it).
                 let pl = b.vplane[t];
                 let pn = [pl[0], pl[1], pl[2]];
                 let dp = dot(v1, pn) - pl[3];
                 if dp <= -th || dp > lim {
-                    room = room.min(if dp <= -th { -th - dp } else { dp - lim });
+                    let r = if dp <= -th { -th - dp } else { dp - lim };
+                    b.proom[e] = r;
+                    room = room.min(r);
                     continue;
                 }
                 let tr = self.tris[t];
                 let (ia, ib, ic) = (tr[0] as usize, tr[1] as usize, tr[2] as usize);
                 let (a, bb, c) = (self.x[ia], self.x[ib], self.x[ic]);
                 let n = face_normal(a, bb, c);
+                // Over the triangle's edges first (its inside is the n-negative side of each edge's
+                // line: n is (c-a)x(b-a)): sideways of any edge's line by more than VERT_SIDE it can't be met,
+                // and the exact closest point (most of this loop's time) is not needed.
+                let da = dot(sub(v1, a), n);
+                if da > -th && da <= lim {
+                    let mut out = 0.0f32;
+                    for (p0, p1) in [(a, bb), (bb, c), (c, a)] {
+                        let e = sub(p1, p0);
+                        let sd = dot(cross(e, sub(v1, p0)), n);
+                        if sd > 0.0 {
+                            out = out.max(sd / len(e).max(1e-9));
+                        }
+                    }
+                    if out > VERT_SIDE {
+                        b.proom[e] = out - VERT_SIDE;
+                        room = room.min(out - VERT_SIDE);
+                        continue;
+                    }
+                }
                 let bc = closest_on_tri(v1, a, bb, c);
                 let q = bary(a, bb, c, bc);
                 let off = sub(v1, q);
                 let d = dot(off, n);
                 if d <= -th || d > lim {
-                    room = room.min(if d <= -th { -th - d } else { d - lim });
+                    let r = if d <= -th { -th - d } else { d - lim };
+                    b.proom[e] = r;
+                    room = room.min(r);
                     continue;
                 }
                 // Over the triangle itself (its edges and corners are its neighbours').
                 let side2 = dot(off, off) - d * d;
                 if side2 > VERT_SIDE * VERT_SIDE {
+                    b.proom[e] = side2.sqrt() - VERT_SIDE;
                     room = room.min(side2.sqrt() - VERT_SIDE);
                     continue;
                 }
                 room = 0.0;
+                b.proom[e] = 0.0;
                 if dot(n, nv) < 0.3 {
                     continue;
                 }

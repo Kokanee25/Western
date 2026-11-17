@@ -64,8 +64,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (bridge `glove MAN`) on **our own cloth** (`SolverCloth`/`ClothCore`, #973, `docs/briefs/garment-cloth.md`): his
   skin is its collider (#986), it can meet itself (#997, `self_thickness`, off: MetaHuman `--seed=2` never rests),
   and **his hand's and forearm's own skin is kept under it** (#1008, `body_verts` + `set_skin`, ON: `FINE_TRIS` 3000,
-  crops `results/2026-11-16-fingers-on/`; pop 1.8 mm, stretch 1.08; ~3.9 ms a tick at Sean's while drawn, over his
-  ~2-3). Next: #1023, that cost, then the rest with itself (~7.2 ms with itself). Measure `skin_out`/`arm_out` (bench).
+  crops `results/2026-11-16-fingers-on/`; pop 1.8 mm, stretch 1.08; ~2.6-3 ms a tick at Sean's while drawn after #1023's cost cuts). Itself on now rests on all five starts but costs ~+6 ms drawn at
+  Sean's: still off. Next: its cost (per-point lists, a pair room; README "The cost of the finer skin, and itself again"). Measure `skin_out`/`arm_out` (bench).
   Build: `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, .so to
   bin/. Films: the bridge's real look is OOM-killed in an 8 GB workspace (its memory climbs past 6 GB); use the
   bench's stills (`xvfb-run ... bench.gd -- --shots=2.6,2.7,... --cam=hands`, ~2 min, 2.4 GB).
