@@ -128,19 +128,28 @@ func pendulum_angle() -> float:
 	return float(spec.get("swing", 3.0)) * sin(TAU * swing_time / _period)
 
 
-func _process(delta: float) -> void:
+## The swing and the tick on the physics tick (GameAudio's placing asks the physics where the walls are).
+func _physics_process(delta: float) -> void:
 	if is_stopped:
-		set_process(false)
+		set_physics_process(false)
 		return
 	swing_time += delta
 	var beat := int(floor(swing_time / (_period * 0.5)))
-	var ticked := beat != _beat
-	_beat = beat
+	if beat != _beat:
+		_beat = beat
+		var ears := GameAudio.ears_of(self)
+		_tick(ears.global_position.distance_to(global_position) if ears else 0.0)
+
+
+## Drawn only on screen and near.
+func _process(_delta: float) -> void:
+	if is_stopped:
+		set_process(false)
+		return
+	if not _notifier.is_on_screen():
+		return
 	var ears := GameAudio.ears_of(self)
-	var d := ears.global_position.distance_to(global_position) if ears else 0.0
-	if ticked:
-		_tick(d)
-	if not _notifier.is_on_screen() or d > float(spec.get("near", 14.0)):
+	if ears and ears.global_position.distance_to(global_position) > float(spec.get("near", 14.0)):
 		return
 	update_now()
 

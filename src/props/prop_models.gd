@@ -642,8 +642,14 @@ static func pbr(model: String) -> StandardMaterial3D:
 	if not _materials.has(key):
 		var m := StandardMaterial3D.new()
 		var dir := "res://assets/props/models/%s_" % model
-		var albedo: Texture2D = load(dir + "albedo.png") if ResourceLoader.exists(dir + "albedo.png") else null
-		var orm: Texture2D = load(dir + "orm.png") if ResourceLoader.exists(dir + "orm.png") else null
+		var ext := "png"
+		if model.begins_with("@"):
+			# A weapon's own painted sheets ("@winchester73_w73_long": the rifle over the bar, #1030):
+			# assets/weapons/<name>_albedo.jpg and _orm.jpg, the gun lab's, not copied.
+			dir = "res://assets/weapons/%s_" % model.substr(1)
+			ext = "jpg"
+		var albedo: Texture2D = load(dir + "albedo." + ext) if ResourceLoader.exists(dir + "albedo." + ext) else null
+		var orm: Texture2D = load(dir + "orm." + ext) if ResourceLoader.exists(dir + "orm." + ext) else null
 		if albedo == null:
 			push_warning("PropModels: no baked albedo for %s" % model)
 		m.albedo_texture = albedo

@@ -10,6 +10,7 @@ extends RefCounted
 ##   `fit`        a fixture fitted to a size [w, h, d] (PropKit.spawn_fitted);
 ##   `cloth_over` a cloth hung over that entry's `towel_bar` member (ClothProp.hang_over);
 ##   `light`      an OilLamp at that height in it, lit by the clock (`energy`, `reach`, `shadows` its own);
+##   `open`       a hinge opened (KitProp.open_hinge: a trunk's "lid", #1030);
 ##   `row`        {kits, count, step, skip, jitter}: a row along `step` from `at`, the kits in turn
 ##                (a shelf of bottles), `skip` leaving gaps, each set down a little off by its id.
 ## Member props (KitProp) get the building's structure id and the entry's (`<building>_dress_<id>`),
@@ -76,6 +77,8 @@ static func place(parent: Node3D, entries: Array, floor_y: float, structure_id :
 			y = float(tops[e.on]) + float(e.get("lift", 0.0))
 		node.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(e.get("facing", 0.0)))), Vector3(e.at[0], y, e.at[2]))
 		parent.add_child(node)
+		if e.has("open") and node.has_method(&"open_hinge"):
+			node.call_deferred(&"open_hinge", String(e.open))
 		tops[e.id] = y + top_of(e, def)
 		if e.has("light"):
 			var lamp := OilLamp.new()

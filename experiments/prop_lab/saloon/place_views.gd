@@ -23,6 +23,16 @@ const VIEWS := {
 	"well_night": [Vector3(12.4, 2.6, 2.6), Vector3(11.0, 1.2, 10.5), 66.0, 21.5],
 	# The gaming room: the faro table under its shaded lamp, the wheel on the wall.
 	"gaming_night": [Vector3(11.9, 2.5, 14.1), Vector3(7.5, 1.6, 18.0), 66.0, 21.5],
+	# S5 (#1030), the walls: the bar room's back wall from the card tables (the clock by the bar's end,
+	# the deer head over the store room's door, the skull over the arch).
+	"back_wall_night": [Vector3(6.6, 2.5, 6.4), Vector3(4.6, 2.55, 13.36), 70.0, 21.5],
+	"back_wall_day": [Vector3(6.6, 2.5, 6.4), Vector3(4.6, 2.55, 13.36), 70.0, 14.0],
+	# The back bar stocked, the rifle over it, the nude's corner (its front end) beyond.
+	"back_bar_night": [Vector3(5.6, 2.35, 9.8), Vector3(0.3, 2.7, 4.0), 66.0, 21.5],
+	# The clock close, from the bar's end (a man reading the time).
+	"clock_night": [Vector3(3.3, 2.6, 11.6), Vector3(2.9, 2.75, 13.36), 50.0, 21.5],
+	# The dressing room (room 6, the upper floor at 4.91): the mirror, the pegs and trunk, the screen.
+	"dressing_night": [Vector3(1.55, 6.55, 15.75), Vector3(1.3, 5.6, 20.6), 72.0, 21.5],
 }
 
 var _out := "user://saloon_b_place"
@@ -35,7 +45,11 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var only: Array = []
+	var without := ""
 	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--without="):
+			# A dressing batch left out (#1030: S5's cost, its draw calls with and without).
+			without = arg.substr(10)
 		if arg.begins_with("--out="):
 			_out = arg.substr(6)
 		elif arg.begins_with("--views="):
@@ -62,6 +76,14 @@ func _run() -> void:
 	var building = load("res://src/structures/spec_building.gd").new()
 	building.name = "SaloonB"
 	building.spec_path = "res://config/buildings/saloon_b.json"
+	if without != "":
+		var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(building.spec_path))
+		for b in without.split(","):
+			(spec.dressing.batches as Dictionary).erase(b)
+		var f := FileAccess.open("user://saloon_b_without.json", FileAccess.WRITE)
+		f.store_string(JSON.stringify(spec))
+		f.close()
+		building.spec_path = "user://saloon_b_without.json"
 	building.position = load("res://experiments/building_lab/play.gd").ORIGIN
 	street.add_child(building)
 	var cam := Camera3D.new()
@@ -87,6 +109,10 @@ func _run() -> void:
 		cam.fov = view[2]
 		for i in 24:
 			await process_frame
+		print("%s: %d draw calls, %d objects, %d primitives" % [v,
+				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
+				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME),
+				RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)])
 		var path := "%s/%s.png" % [_out, v]
 		viewport.get_texture().get_image().save_png(path)
 		print("saved %s" % path)

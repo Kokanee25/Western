@@ -96,3 +96,13 @@ func test_off_the_wall_it_stops() -> void:
 	await physics_frames(3)
 	check(c.is_stopped, "fallen, it stops")
 	check_near(c.stopped_hour, 8.0, 0.01, "at the time it fell")
+
+
+func test_the_rifle_hangs_on_its_pegs() -> void:
+	var p := PropKit.spawn(&"rifle_pegs") as KitProp
+	p.position = Vector3(0, 1.6, 0)
+	world.add_child(p)
+	await physics_frames(KitProp.SETTLE_FRAMES + 4)
+	check(p.hung() and not p.loose, "the rifle hangs on its pegs")
+	check(p.member_count() == 3, "two pegs and the gun (%d)" % p.member_count())
+	check(p.settle().is_empty(), "nothing falls")
