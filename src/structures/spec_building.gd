@@ -1568,7 +1568,8 @@ func _false_front() -> void:
 	# face as the jail's are on its boards (FacadeArt); else the factory's painted board, else blank.
 	var ink := SignArt.letters(sign_text)
 	var y0 := sign_from + 0.2
-	var y1 := h - 0.8
+	# `front.sign_to`: the board's top, where it isn't the parapet's (the store's band over its porch, #1045).
+	var y1 := float(spec.get("front", {}).get("sign_to", h - 0.8))
 	var x0 := 1.5
 	var x1 := w - 1.5
 	var lh := (y1 - y0) / 1.4

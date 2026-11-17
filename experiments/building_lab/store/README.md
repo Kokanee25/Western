@@ -93,3 +93,10 @@ that closes step 3's gap), ~15 min a view, one run at a time.
   good indie; its reasons: empty rooms, the grey placeholder neighbours, tiled post grain and floor, the night room's black crush.
 - **No round 2:** every fault above is another lane's (props, #695, the neighbours' lots) or a form call for Sean (the sign's place,
   the rear's wing); a second round of renders (~2.5 h) would only find them again.
+
+## The sign band (Sean's answer on #1045, 2026-11-17)
+
+Sean: move the sign to the band over the porch. `front.sign_from` 4.4 / new `front.sign_to` 5.45 (the board's bottom and top; default
+the parapet's, so no other building changes): the board sits between the porch roof (~4.5 m at the wall) and the upper windows' sills
+(5.6 m), the letters 0.5 m tall. `results/2026-11-17_look/front_band.jpg`. `spec_building.gd` is the structure code (one line, art's
+lab); FORMAT.md says so. Tests 8/8. Not re-judged (a sign's place isn't a look the judges grade). The rear wing (#1045's second call) is still open.

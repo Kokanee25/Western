@@ -6,9 +6,11 @@ Docs only: no game code, no paid calls. The mission cards it points at (`docs/mi
 
 | File | What it is |
 |---|---|
+| [`MISSIONS.md`](MISSIONS.md) | **Every mission idea in one place** (2026-11-17): the whole game on one screen, a block per mission (what Harlan walks in with, the beats, the choices), what cuts across missions, Sean's newest decisions, six new proposals. The full record, with Sean's own words on each mission, is in [`missions/`](missions/). Start here for anything about a mission |
 | [`OUTLINE.md`](OUTLINE.md) | The whole story in play order, a page an act: what's fixed, what's open, what unlocks what, what each mission reveals, every ending |
-| [`SETUPS.md`](SETUPS.md) | 39 setups and where each pays off; 13 listed as missing an end, 3 of them since closed by Sean's picks |
+| [`SETUPS.md`](SETUPS.md) | 49 setups, and (part E) the callbacks: what the town remembers of what the player did; and where each pays off; 13 listed as missing an end, 3 of them since closed by Sean's picks |
 | [`VOICES.md`](VOICES.md) | A sheet for each speaking character: how they talk, what they call Harlan, what they know and from when, five lines |
+| [`DIALOGUE.md`](DIALOGUE.md) | **How people talk** (#1056): what the period's own record shows, the craft of a game line, the AI tells banned by name, the blind read-through. The one place for it |
 | [`WORDS.md`](WORDS.md) | 1880s speech: what to say, what to avoid, how each kind of person talks, with sources |
 | [`CONTRADICTIONS.md`](CONTRADICTIONS.md) | Everything that doesn't fit: #744's six, the 15 you picked on 2026-11-11 (#830), 27 small ones (7 new, opened by the picks) |
 
@@ -24,7 +26,7 @@ voices (does anyone say what they couldn't know, or in a word from 1950?).
    the Baron's new foreman (C16, decided). Harlan finds the sheriff on the road, and the
    dying man swears him in.
 4. That first night another of the Baron's men, Cody, murders a card player in front of the whole
-   saloon, because there's no law left to stop him, while the foreman, the sheriff's killer, holds
+   saloon, because there's no law left to stop him (Harlan carries the man to the doctor's door, too late: Sean, 2026-11-17), while the foreman, the sheriff's killer, holds
    Harlan in his chair. The same night Kett's crew raids Joe's camp, to start an "outbreak" for the
    Baron's telegrams.
 5. Harlan and Joe hunt down Kett, the man in the faded red shirt. Joe asks: are you going to stop me? Arrest him and the law lets him
