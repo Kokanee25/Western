@@ -30,6 +30,7 @@ class ErrorCatcher:
 
 
 var _catcher := ErrorCatcher.new()
+var _settings_at_start := {}
 
 
 func _initialize() -> void:
@@ -87,10 +88,22 @@ static func load_times() -> Dictionary:
 	return parsed if parsed is Dictionary else {}
 
 
-## GameReset.clear_statics, loaded once the autoloads are up: named here, the runner's own compile
-## would pull in scripts that use Events and Settings before they exist.
-func _clear_statics() -> void:
+## Each file starts as the game does (#1015): GameReset.clear_statics (the props' per-id counters,
+## so each prop's id, variant and seed; the lamp list, blood, smoke, the story), every setting as the
+## suite started (twenty test files set library_motion, real_look, people_threads and the like, not all
+## of them back) and the engine's physics catch-up as the project has it (the dev bridge raises it).
+## So a file's world is the same whichever files ran before it: alone, in its CI shard or in the
+## whole suite. GameReset is loaded once the autoloads are up: named here, the runner's own
+## compile would pull in scripts that use Events and Settings before they exist.
+func _fresh_start() -> void:
 	(load("res://src/main/game_reset.gd") as GDScript).call(&"clear_statics")
+	var settings := root.get_node_or_null(^"Settings")
+	if settings:
+		for key: String in _settings_at_start:
+			if settings.get(key) != _settings_at_start[key]:
+				settings.set(key, _settings_at_start[key])
+	Engine.max_physics_steps_per_frame = ProjectSettings.get_setting(
+			"physics/common/max_physics_steps_per_frame", 8)
 
 
 func _run() -> void:
@@ -105,6 +118,12 @@ func _run() -> void:
 	if settings:
 		settings.autosave = false
 		settings.reset_to_defaults()
+		# Every setting as the suite starts (reset_to_defaults leaves some, e.g. library_motion,
+		# people_threads, room_light, as they are), put back before each file.
+		for prop: Dictionary in settings.get_property_list():
+			if prop.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+				var v: Variant = settings.get(prop.name)
+				_settings_at_start[prop.name] = v.duplicate(true) if v is Array or v is Dictionary else v
 
 	var files := Array(DirAccess.get_files_at("res://tests")).filter(
 			func(f: String) -> bool: return f.begins_with("test_") and f.ends_with(".gd") and f != "test_case.gd")
@@ -129,10 +148,7 @@ func _run() -> void:
 	_catcher.take()
 	for file in files:
 		var file_started := Time.get_ticks_msec()
-		# Each file starts as the game does (#1015): the props' per-id counters (each prop's id,
-		# variant and seed), the lamp list, blood, smoke and the story cleared, so a file's world is
-		# the same whichever files ran before it, in the whole suite, alone or in its CI shard.
-		_clear_statics()
+		_fresh_start()
 		var path := "res://tests/%s" % file
 		var script := load(path) as GDScript
 		if script == null or not script.can_instantiate():
@@ -168,7 +184,7 @@ func _run() -> void:
 		# Read by tools/test_times.py to refresh config/test_times.json (#1015).
 		print("  time %s %.1fs" % [file, (Time.get_ticks_msec() - file_started) / 1000.0])
 
-	_clear_statics()  # (what the statics hold goes before the engine's own teardown)
+	_fresh_start()  # (what the statics hold goes before the engine's own teardown)
 	await process_frame
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	print("\n%d passed, %d failed (%.1fs)" % [passed, failed.size(), seconds])

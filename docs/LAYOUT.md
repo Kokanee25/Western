@@ -3118,7 +3118,7 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   rebuilds the table from the shards' raw logs (`--check` shows the split). Every file runs in
   exactly one shard (`test_test_shards.gd`). A test that fails only in its shard leans on one run
   before it: a real fault, fixed in the test.
-- Each file starts from `GameReset.clear_statics()` (#1015): the props' per-id counters (ids,
+- Each file starts from `GameReset.clear_statics()` and the settings as the suite began (#1015): the props' per-id counters (ids,
   variants, seeds), lamps, blood, smoke and the story as at the game's start, so a file plays the
   same alone, in its shard or in the whole suite (before, the props earlier files made changed its
   world: the card game's and town_day's fights passed only after them). The runner quits as
