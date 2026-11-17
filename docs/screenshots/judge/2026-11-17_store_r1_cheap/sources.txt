@@ -1,0 +1,6 @@
+a front build/sr4/front.png
+b rear build/sr4/rear.png
+c shop build/sr4/shop.png
+d counter build/sr4/counter.png
+e loft build/sr4/loft.png
+f shop_night build/sr4/shop_night.png

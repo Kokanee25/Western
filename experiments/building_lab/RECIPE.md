@@ -308,6 +308,19 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - A render is 10 to 14 minutes a view here: give a background render its whole time
   (`timeout`), and try a change on one or two views before a round.
 
+## A shop's look (the general store, #1035)
+
+- **Scale the light by the room before anything else.** The doctor's `day_fill` 0.1 / `window_day` 7 left the 16.8 x 10.7 m
+  shop near black; 0.55 / 26 lit it to the back wall (saloon B's 0.32 / 14 was a hall 22 m deep with a bar lamp). Try two
+  variants of the dials in one load (`render_valley.gd --variants=`) before any round: a render is ~15 min.
+- **A spec that names library entries needs no paint step**: check each `want` entry's `approved` list passes its age, then render.
+- **Cameras:** a side panel taken from a 1.2 m alley is a wall of the neighbour's grey box: pair it with a corner view instead.
+- **Before the judges: what they will mark that isn't yours.** Empty rooms (props), the cellar's doors and lantern (#695), grey
+  neighbours: tell the critic nothing, but expect 5-6 DIFFERENT and don't spend a second round of renders on them.
+- **Measure the valley's render CPU once per building** (`--cpu`): a camera under the dug lot (the cellar) draws everything, 5.4 ms.
+- **Cloud Vulkan:** `apt-get update && apt-get install -y mesa-vulkan-drivers libvulkan1` gives lavapipe's ICD; Godot 4.7.2 from
+  the release zip, `cargo build --release` in the native plugin, `--import` ~6 min.
+
 ## The valley
 
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests
