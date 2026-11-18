@@ -275,6 +275,14 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	var earl: HumanBody = valley.folk.people[&"earl"]
 	var ch := _chair("w")
 	check(ch.seated == earl, "Earl in the west chair")
+	_diag_people("start")
+	var on_ex := func(at: Vector3, kg: float) -> void:
+		print("DIAGX exploded at %s kg %.3f frame %d sticks %s" % [at, kg, Engine.get_physics_frames(), get_tree().get_nodes_in_group(&"dynamite").map(func(n): return str(n.get_path()))])
+		_diag_people("blast")
+	var on_shot := func(o: Vector3, d: Vector3, who: Node) -> void:
+		print("DIAGX shot from %s dir %s by %s" % [o, d, who.name if who else "null"])
+	Events.exploded.connect(on_ex)
+	Events.shot_fired.connect(on_shot)
 	_diag_near(earl, "before")
 	ch.go_loose(Vector3.ZERO, ch.global_basis.z * -80.0)
 	# Down with it, up again, and into a free chair near where he got up (SitChore.ANOTHER): the
@@ -302,6 +310,9 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 			tl.append("sat in %s" % now.name)
 			break
 	earl.hit.disconnect(on_hit)
+	Events.exploded.disconnect(on_ex)
+	Events.shot_fired.disconnect(on_shot)
+	_diag_people("end")
 	print("DBG1 earl idx ", earl.tick_index, " ticks ", PeopleTick._ticks, " n ", PeopleTick._people.size())
 	print("DBG ", tl.slice(0, 20), " player ", p.global_position)
 	var chore_chair := ""
@@ -336,3 +347,12 @@ func _diag_near(earl: HumanBody, tag: String) -> void:
 			names.append(path.get_slice("/", path.get_slice_count("/") - 1) + "<" + path.get_slice("/", maxi(0, path.get_slice_count("/") - 2)))
 		out.append("%s %s v%s %s" % [sid, rb.global_position.snappedf(0.01), rb.linear_velocity.snappedf(0.1), names])
 	print("DIAG %s %s" % [tag, out])
+
+
+func _diag_people(tag: String) -> void:
+	var out: Array = []
+	for m: HumanBody in PeopleTick._people:
+		if is_instance_valid(m):
+			var br := m.get_node_or_null(^"Brain")
+			out.append("%s@%s %s limp %s brain %s" % [m.name, m.global_position.snappedf(0.1), m.pose, m.limp, br.get_script().get_global_name() if br else "-"])
+	print("DIAGP %s %s" % [tag, out])
