@@ -28,6 +28,19 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var seat_reach := 1.3
 @export var seat_view_deg := 70.0
 @export var seat_fall_s := 1.4
+## A downed man taken by the collar and dragged (PlayerCarry, #1057): his collar this near (m, flat)
+## and within this much of your view (degrees) for E to take him; with him, a walk at this speed
+## (m/s, no run, no jump); your hands this far behind you and this high (m) holding him; caught on
+## something, he comes loose when his collar's this far from them (m).
+@export var carry_reach := 1.4
+@export var carry_view_deg := 60.0
+@export var carry_speed := 1.0
+@export var carry_hold_back := 0.45
+@export var carry_hold_up := 0.45
+@export var carry_tear_m := 2.6
+## A door's point (a place's way in) this near (m, flat) and in front of you for E to bang on it
+## (PlayerKnock, #1057).
+@export var knock_reach := 1.8
 ## On your belly, loose pieces this light or lighter (kg: a broken chair's, a plank or two) are
 ## yours to shove aside as you crawl (Player._wade), never a wall that holds you or a weight that
 ## carries you; and how fast (m/s) you push one out from under or beside you, on top of your own

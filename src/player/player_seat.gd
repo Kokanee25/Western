@@ -62,6 +62,9 @@ func held() -> bool:
 func chair_here() -> KitProp:
 	if player == null or not player.is_inside_tree() or player.is_crawling or player.ladder != null:
 		return null
+	# A man down by you, or one by the collar, has E first (PlayerCarry, #1057).
+	if player.carry != null and (player.carry.carrying() or player.carry.near_man() != null):
+		return null
 	var t := player.tuning
 	var c := Seating.free_chair_near(player.get_tree(), player.global_position + Vector3.UP * 0.47, t.seat_reach + 0.5)
 	if c == null:

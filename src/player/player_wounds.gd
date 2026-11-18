@@ -839,8 +839,11 @@ func _physics_step(delta: float) -> void:
 		var sat := player.seat != null and player.seat.seated()
 		# One you don't carry (No Law: the revolver till the sheriff gives it, Player.lacks).
 		var lacked := not player.carries(gun)
-		gun.hands_busy = tending > 0.0 or sat or lacked
-		gun.busy_why = "you haven't got one" if lacked else ("you're sat at the table" if sat and tending <= 0.0 else "")
+		# A man by the collar (PlayerCarry, #1057): your hands are his.
+		var hauling := player.carry != null and player.carry.carrying()
+		gun.hands_busy = tending > 0.0 or sat or lacked or hauling
+		gun.busy_why = "you haven't got one" if lacked else ("you're sat at the table" if sat and tending <= 0.0 \
+				else ("you've a man by the collar" if hauling and tending <= 0.0 else ""))
 		# The shotgun and the rifle take both hands; the revolver only the right.
 		gun.arm_disabled = not p.can_hold("r") or ((gun is ShotgunViewmodel or gun is Winchester73Viewmodel) and not p.can_hold("l"))
 		var steadiness := p.arm_steadiness("r") if gun is RevolverViewmodel else minf(p.arm_steadiness("r"), p.arm_steadiness("l"))

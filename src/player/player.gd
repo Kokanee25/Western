@@ -49,6 +49,9 @@ var deeds: PlayerDeeds
 var shove: PlayerShove
 ## Sitting in a kit chair (E by a free one; #766).
 var seat: PlayerSeat
+## A downed man by the collar (PlayerCarry, #1057) and a door banged on (PlayerKnock).
+var carry: PlayerCarry
+var knock: PlayerKnock
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -172,6 +175,14 @@ func _arm() -> void:
 	seat.name = "Seat"
 	seat.player = self
 	add_child(seat)
+	carry = PlayerCarry.new()
+	carry.name = "Carry"
+	carry.player = self
+	add_child(carry)
+	knock = PlayerKnock.new()
+	knock.name = "Knock"
+	knock.player = self
+	add_child(knock)
 
 
 func revolver() -> RevolverViewmodel:
@@ -375,6 +386,10 @@ func _physics_step(delta: float) -> void:
 		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump and not _jump_spent
 		_jump_spent = false
 	wants_run = wants_run and can_sprint
+	if carry and carry.carrying():
+		# A man by the collar behind you: a walk, no run, no jump (PlayerCarry).
+		wants_run = false
+		wants_jump = false
 	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())
 	var wants_crawl := force_crawl or (input_enabled and _crawl_toggled)
 
@@ -408,9 +423,9 @@ func _physics_step(delta: float) -> void:
 		# Blown from running, the run sags.
 		var blown := clampf((composure.winded - 0.5) * 2.0, 0.0, 1.0) if composure else 0.0
 		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
-	speed *= move_factor * burden * (shove.pace() if shove else 1.0)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
+	speed *= move_factor * burden * (shove.pace() if shove else 1.0) * (carry.pace(wish) if carry else 1.0)
 	var target := Vector2(wish.x, wish.z) * speed
 
 	var on_floor := is_on_floor()
