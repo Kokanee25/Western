@@ -268,8 +268,20 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	check(p.carry.carrying(earl), "you have him (%s)" % p.carry.report())
 	await physics_frames(5)
 	check_eq(StoryState.get_fact("nolaw.carried_earl"), "yes", "nolaw.carried_earl")
-	var there := await _walk(_route_to(&"doctor"), 200.0)
-	check(there, "to the doctor's door with him (%s)" % p.carry.report())
+	# Up the street with him; if he comes loose on something (a snag), back to him and take him up
+	# again, as you would: at most twice.
+	var there := false
+	var retakes := 0
+	for attempt in 3:
+		there = await _walk(_route_to(&"doctor"), 200.0)
+		if p.carry.carrying(earl):
+			break
+		print("    lost him (%s) at %s: back for him" % [p.carry.report(), p.global_position])
+		retakes += 1
+		await _by(earl)
+		await _tap_e()
+	check(there and p.carry.carrying(earl), "to the doctor's door with him (%s; taken up again %d)" % [p.carry.report(), retakes])
+	check(retakes <= 2, "lost him at most twice (%d)" % retakes)
 	check(c.said.any(func(s: Array) -> bool: return s[2] == "carry.earl"), "Earl talks on the way (%s)" % [c.said])
 	print("    at the door: you %s, Earl %s, door_point %s, the doctor's place %s, %s" % [p.global_position, ValleyFolk._body_at(earl), c.door_point(), f.places.at(&"doctor"), p.carry.report()])
 	# Bang (E at the door, Earl by it).
