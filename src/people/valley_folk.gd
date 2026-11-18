@@ -1438,6 +1438,8 @@ func report() -> Dictionary:
 
 ## Every place someone lives or goes in at (homes and their day's `in`), with a door point.
 func door_places() -> Array[StringName]:
+	if not _door_places.is_empty():
+		return _door_places
 	var out: Array[StringName] = []
 	for p: Dictionary in data.people:
 		var names: Array = [String(p.get("home", ""))]
@@ -1449,7 +1451,9 @@ func door_places() -> Array[StringName]:
 			var pn := StringName(n)
 			if n != "" and places.has(pn) and not out.has(pn):
 				out.append(pn)
+	_door_places = out
 	return out
+var _door_places: Array[StringName] = []
 
 
 ## The door you're at (PlayerKnock): the nearest door point within `reach` (flat, a storey's height)

@@ -20,6 +20,8 @@ var _cool := 0.0
 var _told_for := &""
 ## No oftener than this (s): one bang is three blows.
 const GAP := 0.9
+const LOOK_EVERY := 0.25
+var _look_t := 0.0
 
 
 func _ready() -> void:
@@ -50,13 +52,19 @@ func _physics_process(delta: float) -> void:
 	if player == null:
 		return
 	_cool = maxf(_cool - delta, 0.0)
+	var pressed := player.input_enabled and Input.is_action_just_pressed(&"shove")
+	# Looked for a few times a second (and on E), not every tick: the doors are a search.
+	_look_t -= delta
+	if _look_t > 0.0 and not pressed:
+		return
+	_look_t = LOOK_EVERY
 	var d := door_here()
 	var place: StringName = d.get("place", &"")
 	if place != _told_for:
 		_told_for = place
 		if place != &"" and player.wounds:
 			player.wounds.say("E: bang on the door", 1.5)
-	if not d.is_empty() and player.input_enabled and Input.is_action_just_pressed(&"shove"):
+	if not d.is_empty() and pressed:
 		bang(d)
 
 

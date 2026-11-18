@@ -37,6 +37,14 @@ var _told_for: HumanBody
 var _told_ago := INF
 var _wounds_n := 0
 const TOLD_GAP := 6.0
+const LOOK_EVERY := 0.25
+var _look_t := 0.0
+var _near: HumanBody
+
+
+## The man down by you as last looked for (a few times a second): for what asks every tick.
+func near_man() -> HumanBody:
+	return _near if _near != null and is_instance_valid(_near) else null
 
 
 func _ready() -> void:
@@ -119,8 +127,15 @@ func _physics_process(delta: float) -> void:
 		_drop(&"gone")
 	if player.input_enabled and Input.is_action_just_pressed(&"shove"):
 		use()
+		_look_t = 0.0
 		return
-	var here := null if carrying() else man_here()
+	# Looked for a few times a second, not every tick (it's a pass over everyone).
+	_look_t -= delta
+	if _look_t > 0.0:
+		return
+	_look_t = LOOK_EVERY
+	_near = null if carrying() else man_here()
+	var here := _near
 	if here != _told_for:
 		_told_for = here
 		if here != null and _told_ago > TOLD_GAP and player.wounds:
