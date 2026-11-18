@@ -697,6 +697,8 @@ func _send_off(id: StringName, walk: bool) -> void:
 	if not man.physiology.alive:
 		state[id] = &"dead"  # his body stays where it lies (No Law: Earl's, #773)
 		return
+	if man.dragged_by != null:
+		return  # carried or dragged (PlayerCarry, #1081): with whoever has him, not off home
 	var p := _person(id)
 	if not _going_to.has(id):
 		_going_to[id] = [_going_place(p), _doing_at(p, _going_place(p))]
@@ -966,6 +968,9 @@ func _step(delta: float) -> void:
 func _place(p: Dictionary, b: Dictionary) -> void:
 	var id := StringName(p.id)
 	var st: StringName = state.get(id, &"out")
+	var held: HumanBody = people.get(id)
+	if held != null and is_instance_valid(held) and held.dragged_by != null:
+		return  # carried or dragged (#1081): he stays with whoever has him
 	if b.has("in"):
 		var place := StringName(String(b.in))
 		if st in [&"coming", &"in", &"going"]:

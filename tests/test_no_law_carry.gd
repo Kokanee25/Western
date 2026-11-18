@@ -324,6 +324,12 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	print("    by Earl: you %s, Earl %s" % [p.global_position, ValleyFolk._body_at(earl)])
 	await _tap_e()
 	check(p.carry.carrying(earl), "you have him (%s)" % p.carry.report())
+	# Whatever takes his body out of the world while you have him says so (#1081: on CI he was freed
+	# off your shoulder).
+	earl.tree_exiting.connect(func() -> void:
+		if earl.dragged_by != null:
+			print("    Earl freed while carried (state %s):" % f.state.get(&"earl"))
+			print_stack())
 	await physics_frames(5)
 	check_eq(StoryState.get_fact("nolaw.carried_earl"), "yes", "nolaw.carried_earl")
 	# Up the street with him; if he comes loose on something (a snag), back to him and take him up
@@ -332,6 +338,9 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	var retakes := 0
 	for attempt in 3:
 		there = await _walk(_route_to(&"doctor"), 200.0)
+		if not is_instance_valid(earl):
+			check(false, "Earl's body taken out of the world on the way (state %s)" % f.state.get(&"earl"))
+			return
 		if p.carry.carrying(earl):
 			break
 		print("    lost him (%s) at %s: back for him" % [p.carry.report(), p.global_position])
