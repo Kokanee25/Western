@@ -22,6 +22,10 @@ hand pushing a round into the open gate (`colt.loading`, `colt.l_load*`); the ri
 gate (`win73.loading`); the lab's rifle given rounds so its reload runs. Judge rounds `2026-11-17_fp_fps2_r1/`,
 `_r2/`: the reloads and the Colt's steel pass; the aimed framing, the flash (the cream blob at 50 ms is
 GunSmoke's puff in the shot's light) and the rifle's flat receiver don't.
+**#1048 (2026-11-18):** the shot's smoke is stepped by hand with the gun (its own `_process` switched off
+while time stands still) and the world's flash light put out at 0.07 s, as the game's timer does; `--fog` adds
+the valley's volumetric haze. Your own shot's cloud waits out the flash (`GunSmoke.spawn(..., own=true)`).
+Judge rounds `docs/screenshots/judge/2026-11-18_own_smoke_r1/`, `_r2/`.
 
 ```sh
 xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver vulkan --resolution 1280x720 \

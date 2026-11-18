@@ -36,7 +36,12 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   (`held_grade.py` albedo and `--orm`, `GunParts.HELD_METALLIC`, the glint in `WeaponViewmodel`). Pose on
   `experiments/viewmodel_rig/game_views.gd`. Judge 2026-11-17_fp_fps2_r2: cheap indie; passes: the reloads, the
   grip, the lever, the Colt's steel by day. Left (waiting on Sean, see the lane's open issue): the aimed framing
-  (two judges pulled opposite ways), the cream smoke blob at 50 ms (art's GunSmoke), the rifle's flat receiver.
+  (two judges pulled opposite ways), the rifle's flat receiver (gun lab, #1049).
+- **Your own shot's smoke** (#1048): `GunSmoke.spawn(..., own=true)` from the three viewmodels waits out the
+  flash (`SmokeTuning.own_*`: 0.07 s, then all puffs at once, 25 cm out, dirty white). The 50 ms cream blob is
+  gone. Judge r2 (`2026-11-18_own_smoke_r2`): the flash is a small spark (MuzzleFlash, art's), night smoke by
+  the stage's lamp glows cream-yellow, the cloud is a disc round the muzzle. `game_views.gd` steps the smoke
+  by hand and puts the world's flash light out at 0.07 s; `--fog` for the valley's haze.
   No Hunt pictures reachable from a session: the judge works from memory.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
