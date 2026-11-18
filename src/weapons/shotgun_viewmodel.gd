@@ -254,7 +254,7 @@ func _fire(barrel: int) -> void:
 	for p in pellets:
 		p.shooter = _player
 	var world := ballistics.get_parent()
-	GunSmoke.spawn(world, origin, dir, 1.8)
+	GunSmoke.spawn(world, origin, dir, 1.8, true)  # your own shot (#1048)
 	ImpactEffects.muzzle_flash(world, origin)
 	if GameAudio.enabled():
 		GameAudio.gunshot(self, origin, true)

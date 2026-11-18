@@ -7,6 +7,7 @@ extends SceneTree
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver vulkan --resolution 1280x720 \
 ##       -s res://experiments/viewmodel_rig/game_views.gd -- --out=build/vmg [--guns=revolver,winchester] \
 ##       [--only=idle,aimed,cocking,firing,reloading] [--light=day|lamp|both] [--fov=DEG] [--painted-arms]
+##       [--shot-at=S] [--fog]
 ##
 ## --fov sets the viewmodel's own field of view (0: the world camera's, as before #1014).
 ## Writes OUT/<gun>_<pose>_<light>.png. Untyped where it touches game classes (a -s script compiles
@@ -52,6 +53,8 @@ func _run() -> void:
 			variants = JSON.parse_string(FileAccess.get_file_as_string(a.substr(11)))
 		elif a == "--world-layer":
 			world_layer = true
+		elif a == "--fog":
+			fog = true
 		elif a.begins_with("--shot-at="):
 			shot_at = float(a.substr(10))
 		elif a == "--close":
@@ -148,6 +151,13 @@ func _step(vm: Node3D, seconds: float) -> void:
 		vm.call(&"_process", 1.0 / 60.0)
 		# The view's kick (the gun's _animate_camera only moves a selected gun's camera).
 		vk.call(&"step", 1.0 / 60.0)
+		# Time stands still for a shot (`_shoot`): the smoke is stepped by hand with the gun (#1048).
+		# Its own _process still saw a frame's time now and then with time at 0 (0.03 s over the shot's
+		# four held frames), so it's switched off till the frame is saved.
+		if Engine.time_scale == 0.0:
+			for c in get_root().find_children("*", "GunSmoke", true, false):
+				c.set_process(false)
+				c.call(&"step", 1.0 / 60.0)
 		cam.rotation = Vector3(deg_to_rad(vk.get(&"pitch")), deg_to_rad(-vk.get(&"yaw")), 0.0)
 
 
@@ -155,13 +165,29 @@ func _step(vm: Node3D, seconds: float) -> void:
 ## flash, the kick), caught `shot_at` game seconds in. The world's flash and light run on timers, so
 ## time stands still (time_scale 0) until the frame is saved; `_frames` puts it back.
 var shot_at := 0.05
+## `--fog`: the valley's volumetric haze (scenes/valley.tscn), so the smoke's fog volume shows as in
+## the game (#1048: off, the stage drew only the cloud's particles).
+var fog := false
 
 
 func _shoot(vm: Node3D) -> void:
 	vm.set(&"_trigger", 1.0)
+	var lit := get_root().find_children("*", "OmniLight3D", true, false)
 	vm.call(&"_fire")
+	# The world's flash light (ImpactEffects) dies on a 0.07 s timer, which stands still here: past
+	# that it's put out by hand, so a later frame is lit as the game lights it (#1048).
+	var world_lights: Array[Node] = []
+	for l in get_root().find_children("*", "OmniLight3D", true, false):
+		if l not in lit and not vm.is_ancestor_of(l):
+			world_lights.append(l)
 	Engine.time_scale = 0.0
-	_step(vm, shot_at)
+	for i in int(round(shot_at * 60.0)):
+		_step(vm, 1.0 / 60.0)
+		if (i + 1) / 60.0 >= 0.07:
+			for l in world_lights:
+				if is_instance_valid(l):
+					l.queue_free()
+			world_lights.clear()
 
 
 func _pose(vm: Node3D, g: String, p: String) -> void:
@@ -233,6 +259,12 @@ func _stage() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	if fog:
+		env.volumetric_fog_enabled = true
+		env.volumetric_fog_density = 0.006
+		env.volumetric_fog_albedo = Color(0.8, 0.75, 0.68)
+		env.volumetric_fog_length = 48.0
+		env.volumetric_fog_ambient_inject = 0.15
 	we.environment = env
 	world.add_child(we)
 	sun = DirectionalLight3D.new()
