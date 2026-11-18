@@ -303,7 +303,7 @@ func _fire() -> void:
 	bullet.form = tuning.form_factor
 	bullet.shooter = _player
 	var world := ballistics.get_parent()
-	GunSmoke.spawn(world, origin, dir)
+	GunSmoke.spawn(world, origin, dir, 1.0, true)  # your own shot (#1048)
 	# Your own gun: its light up and out from the muzzle (on it, it burned the barrel white) and no
 	# world puff over the held flash (#1031).
 	ImpactEffects.muzzle_flash(world, origin + dir * 0.15 + Vector3.UP * 0.1, false)
