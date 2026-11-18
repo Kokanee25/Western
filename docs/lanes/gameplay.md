@@ -33,13 +33,12 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Riding waits on #478. Playtest `docs/playtests/2026-11-15-nojustice-whole.md`.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
-  book), 3 (roster as data), 4 (spots, `SpotChore`), **5 reactions in stages (#982, `Reaction`)**: start (after the
-  sound's travel, by nerve and distance, one man a frame), look (at his guess), decide by `dials` (flee to a
-  `refuges` door, hide, gawk, watch, help, back away, carry on), back after 20-90 s calm, shaken an hour.
-  `tests/test_reactions.gd` holds the reactions and leaks rows. **Next: step 6, the runner.** Open: shaken only
-  changes the next start (no glances); a fist fight and a body found later aren't stimuli; refuges are door
-  points (nobody goes in, no faces at windows); the chores' props are stand-ins; no talk sound; step 1's
-  perception leaks wait; the men's build at load ~20 s headless.
+  book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
+  `tests/test_reactions.gd`; LAYOUT "src/people"). **6 the runner (#1040, `FetchHelp`)**: one runner
+  a man down to the doctor (bag, fast walk, tend), the law from the badge (Harlan seen within the hour, else the
+  doctor), nobody on night 1; `tests/test_runner.gd`, bridge `read fetch`. **Next: step 7, the town's news.** Open:
+  the noon street is too thin for anyone to run (playtest 2026-11-17-runner: three men, low duty); a body found later
+  isn't a stimulus; shaken only changes the next start; refuges are door points; chores' props stand-ins; no talk sound.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,

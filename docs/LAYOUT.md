@@ -1900,6 +1900,18 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   (20-90 s, by nerve), a look round, then his spot and chore; shaken an hour of the clock (starts
   sooner, more afraid). Moods ALARMED, WATCHING, RUNNING. `go_to` drops it (an act's errand) and for
   60 s after, unarrived, it won't walk him off to look. The hat shot and a gun on him stay immediate.
+  **The runner** (townsfolk step 6, #1040; `FetchHelp`, `src/people/fetch_help.gd`, `tests/test_runner.gd`):
+  a man down in sight, a calm (fear under nerve) dutiful (0.6+) man who isn't the doctor decides `run`
+  if `FetchHelp.claim` gives him the event (one runner a man down; not if one of more duty is still
+  looking, or the doctor saw it); shots still going, he waits till they stop (`_run_later`); a second
+  who'd have gone helps. `errand_for`: alive, the doctor (`ValleyFolk.doctor_where`: himself if out,
+  his book door if in); dead, the law (`nolaw.deputy`: Harlan if any folk saw him within the clock
+  hour, `harlan_at`, else the doctor; no deputy, nobody). He runs (RUN), follows a moving man, tells it
+  at 2.2 m (`say_line`: shot only if he heard one, breathing if he was); the doctor's call: `BAG_BEAT`
+  2 s, `ValleyFolk.call_out` (state `called`: his day waits), out of his door at `DOC_WALK` 1.9 m/s
+  (`CivilianBrain.walk_speed`) with the bag model in hand, `tend` beside the man `TEND_FOR` 240 s, then
+  `call_over` (back to his block). The bridge's `read fetch`: the events (shot, ran, told, left frames,
+  the route's m) and the log.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`

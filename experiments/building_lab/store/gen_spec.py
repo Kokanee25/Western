@@ -308,7 +308,7 @@ spec = {
     "walls": walls,
     "inside_finish": {"boards": "judged", "skirting": 0.2},
     "stairs": stairs,
-    "front": {"sign": "GENERAL STORE", "sign_from": 7.4, "sign_width": 6.0, "cornice": "dark_trim",
+    "front": {"sign": "GENERAL STORE", "sign_from": 4.4, "sign_to": 5.45, "sign_width": 6.0, "cornice": "dark_trim",
               "brackets": {"spacing": 0.9, "drop": 0.34, "reach": 0.16, "width": 0.09, "sides": []}},
     "rooms": rooms,
     "use_points": use_points,
