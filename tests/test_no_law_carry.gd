@@ -191,6 +191,36 @@ func test_a_man_down_taken_by_the_collar_up_main_street_and_let_go() -> void:
 	check(not p.carry.carrying() and earl.dragged_by == null, "let go (%s)" % p.carry.report())
 
 
+## A man down beside a free chair: a tap of E takes him up, it doesn't sit you down, even before the
+## carry's look (a few times a second) has seen him (CI, #1081: by the card table, you sat with
+## Earl over your shoulder and never moved).
+func test_by_a_chair_e_takes_the_man_not_the_seat() -> void:
+	await _at(21.0)
+	var earl := await _downed(&"earl")
+	check(earl != null, "Earl down")
+	if earl == null:
+		return
+	var p := _player()
+	await _by(earl)
+	var chair := Seating.free_chair_near(get_tree(), Vector3(30.6, 0.3, -15.0), 20.0)
+	check(chair != null, "a free chair in the yard")
+	if chair == null:
+		return
+	# The chair at your elbow, in view, and the carry's look not yet round to him.
+	var fwd := p.get_forward()
+	fwd.y = 0.0
+	var side := fwd.normalized().cross(Vector3.UP) * 0.5
+	chair.global_position += (p.global_position + fwd.normalized() * 0.6 + side) - chair.seat_position() + Vector3.UP * (chair.global_position.y - chair.seat_position().y + 0.47)
+	await physics_frames(2)
+	check(p.seat.chair_here() != null or p.carry.near_man() != null, "by a chair you could sit in (%s)" % p.carry.report())
+	p.carry._near = null
+	p.carry._look_t = 99.0
+	await _tap_e()
+	await physics_frames(10)
+	check(p.carry.carrying(earl), "E took him up (%s)" % p.carry.report())
+	check(not p.seat.seated(), "and didn't sit you down")
+
+
 func test_his_wound_bleeds_while_hes_dragged() -> void:
 	await _at(21.0)
 	var earl := await _downed(&"earl")

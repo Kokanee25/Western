@@ -415,7 +415,9 @@ func _hands(p: Physiology, world: Node3D, dt: float) -> void:
 		if float(_bloody.get(side, 0.0)) <= 0.25 and not low:
 			_show_hand(side)
 			continue  # nothing to print, nothing to pick up
-		var hit := _touching(world, at, PRINT_REACH)
+		# Over someone's shoulder (PlayerCarry) his hands hang down your back: they touch you, not
+		# the world (no print on your coat's capsule or the street).
+		var hit := {} if body.carried else _touching(world, at, PRINT_REACH)
 		if not hit.is_empty():
 			var wet := Blood.wet_near(hit.position, PICK_REACH) if low else 0.0
 			if wet >= PICK_MIN:
