@@ -1686,7 +1686,11 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   his body. `care_for`: left him / good (packed and lost <= 0.30 at the doctor's) / poor. Facts
   (`StoryState`, `src/missions/story_state.gd`: static, in memory, bridge `story [clear]`):
   `sheriff.care`, `sheriff.blood_loss`, `sheriff.packed`, `sheriff.answer`. `tests/test_sheriff.gd`;
-  valley_bench spots `harlan_home`, `sheriff_site`.
+  valley_bench spots `harlan_home`, `sheriff_site`. Also (#1081): a slow nod (`slow_nod`: 4 degrees, 8 s;
+  nods only) answers; tapped E by him takes him by the collar (`PlayerCarry`), held by the wound lets go and
+  presses (no pressing by the collar); dragged to the doctor's and E at his door (`ValleyFolk.knocked`, him
+  within 4.5 m of it): in by the book, `door_wait` through the door, then ValleyFolk's doctor `call_out` to
+  him, `dragged_in`, the same lines and `end_dragged`; out by the book, `doctor_out` says where he is.
 - **The sheriff's last day** (#796, No Law beat 5; `src/missions/sheriff_dies.gd`, `SheriffDies`, an `Act`; data
   `config/moments/sheriff_dies.json`; `tests/test_sheriff_dies.gd`): ValleyFolk's act men (`act: sheriff_dies`:
   runner, dying_sheriff, doc, wife). The runner finds you in town, the doctor at his door (lines by
