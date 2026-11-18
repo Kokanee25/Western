@@ -64,7 +64,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   cloth (`SolverCloth`, `docs/briefs/garment-cloth.md`); his hand's own skin kept under it (ON); self-meeting off (#1034;
   later #1038, `after slice`). Build the plugin with `NO_PROXY=localhost,127.0.0.1 cargo build --release`, .so to bin/.
   The bridge's real look is OOM-killed in 8 GB: use the bench's stills (`bench.gd -- --shots=... --cam=hands`).
-- **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"; wound_signs' drag test sits on its threshold, #1068): `test (K/6)` by `config/test_times.json`; refresh
+- **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
 
