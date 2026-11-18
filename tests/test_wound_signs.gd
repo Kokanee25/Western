@@ -248,7 +248,6 @@ func test_a_drag_smears_however_he_landed() -> void:
 		await physics_frames(150)
 		m.signs._end_smear()
 		var before := _smears().size()
-		var c0 := (m.parts[&"chest"] as Node3D).global_position  # DIAG #1015
 		for k in 60:
 			for sid: StringName in [&"chest", &"abdomen", &"pelvis"]:
 				var rb := m.parts[sid] as RigidBody3D
@@ -258,10 +257,6 @@ func test_a_drag_smears_however_he_landed() -> void:
 		await wait_until(func() -> bool: return not is_instance_valid(m.signs._smear_tail), 180)
 		var n := _smears().size() - before
 		fewest = mini(fewest, n)
-		var lens: Array = []  # DIAG #1015
-		for d: Node in _smears().slice(before):
-			lens.append(snappedf((d as Decal).size.z, 0.01))
-		print("  DIAG drag %d: n=%d chest moved %.3f m, chest y0 %.3f, pieces %s" % [i, n, (m.parts[&"chest"] as Node3D).global_position.distance_to(c0), c0.y, lens])
 		check(n >= 2, "landing %d: smears along where he was dragged (%d)" % [i, n])
 		m.queue_free()
 		await physics_frames(2)
