@@ -9,8 +9,9 @@ extends CardCheat
 ## true)), the stranger tells you not to move, and sat at the table you're held there
 ## (PlayerSeat.hold: E says why). Earl's "Now, Cody, I never...", the kick of his chair out from under
 ## him from behind (the card cheat's walk, kick, draw and approach: CardCheat's beats on the valley's
-## own Earl and chair), stands over him and shoots him in the head where he lies (a second shot if
-## the first didn't kill him), says there's no law to save him now, holsters and walks out the way
+## own Earl and chair), stands over him and shoots him where he lies (the data's `aim`: since #1057,
+## Sean 2026-11-17, down through his collarbone, so he's down and bleeding, not dead; a second shot
+## only if the first missed him; `aim` "head" as it was), says there's no law to save him now, holsters and walks out the way
 ## he came. The room's quiet the while (the folk hushed: CivilianBrain.hush) till the barman: "Jesus,
 ## Cody, my chair!". After: the stranger has his word, you're let go, he goes; the drifter and the
 ## miner leave (ValleyFolk.send_off); Earl's body stays (ValleyFolk keeps the dead). StoryState:
@@ -416,7 +417,7 @@ func _physics_process(delta: float) -> void:
 		&"stand_over":
 			_stand_over()
 		&"shot":
-			if cheater.physiology.alive and shots < 3 and state_t > float(_cody.get("second_shot_s", 0.7)):
+			if _again() and state_t > float(_cody.get("second_shot_s", 0.7)):
 				_shoot_head()
 				state_t = 0.0
 			elif state_t > float(_cody.get("gloat_s", 0.9)):
@@ -532,15 +533,50 @@ func _stand_over() -> void:
 		_go(&"shot")
 
 
-## Cody's ball from his muzzle into Earl's head (a real shot: Ballistics, the sound, the smoke, the
-## flash, Events.shot_fired), as OutlawBrain fires his.
+## Another ball? Aimed at his head (the data's `aim` "head"): while he lives, up to three. Aimed
+## where it is now (Sean, 2026-11-17, #1057: Earl's down and bleeding, not shot dead), only if the
+## first didn't go into him at all: what it did is the body's.
+func _again() -> bool:
+	if cheater == null or not is_instance_valid(cheater) or not cheater.physiology.alive or shots >= 3:
+		return false
+	if _aim_id() == &"head":
+		return true
+	return cheater.wounds.is_empty()
+
+
+## Where Cody aims: the data's `aim` (an anatomy structure's id; "head" for the head's middle).
+func _aim_id() -> StringName:
+	return StringName(String(_cody.get("aim", "head")))
+
+
+## The world point he aims at: the structure's middle where Earl lies now (its segment's part).
+func _aim_point() -> Vector3:
+	var id := _aim_id()
+	var st := cheater.anatomy.structure(id) if id != &"head" else {}
+	if st.is_empty() or not st.has("a") or not st.has("b"):
+		return (cheater.parts[&"head"] as Node3D).global_position
+	var seg := StringName(String(st.segment))
+	var part := cheater.parts.get(seg) as Node3D
+	if part == null:
+		return (cheater.parts[&"head"] as Node3D).global_position
+	var mid := ((st.a as Vector3) + (st.b as Vector3)) * 0.5
+	return part.global_transform * (mid - cheater.anatomy.segment_center(seg))
+
+
+## The barkeep's said there's nobody to fetch (or there's no barkeep to say it): the carry may start.
+func fetch_said() -> bool:
+	return _barkeep_more
+
+
+## Cody's ball from his muzzle into Earl (a real shot: Ballistics, the sound, the smoke, the flash,
+## Events.shot_fired), as OutlawBrain fires his; at his head, or where `aim` says.
 func _shoot_head() -> void:
 	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
 	var gun := victim.held_gun as RevolverModel
 	if ballistics == null or gun == null:
 		_note("no gun or no ballistics")
 		return
-	var head := (cheater.parts[&"head"] as Node3D).global_position
+	var head := _aim_point()
 	var origin := gun.muzzle.global_position
 	var exclude: Array[RID] = []
 	for sid: StringName in victim.parts:
@@ -548,7 +584,7 @@ func _shoot_head() -> void:
 	if victim.hat_body != null:
 		exclude.append(victim.hat_body.get_rid())
 	var dir := (head - origin).normalized()
-	_clear_to_head(origin, head, exclude)
+	_clear_to_head(origin, head, exclude, _aim_part())
 	var t_rev: RevolverTuning = load("res://config/revolver.tres")
 	var bullet := ballistics.fire(origin, dir, t_rev.muzzle_velocity, t_rev.bullet_mass, t_rev.bullet_diameter, exclude)
 	bullet.form = t_rev.form_factor
@@ -562,7 +598,7 @@ func _shoot_head() -> void:
 	Events.deed.emit(victim, &"shoot_at", cheater, origin)
 	shots += 1
 	_shot_t = t
-	_note("Cody shoots Earl in the head (%d)" % shots)
+	_note("Cody shoots Earl (%s, %d)" % [_aim_id(), shots])
 
 
 ## What lies on the ball's line from his muzzle short of Earl's head is let through (`exclude`): the
@@ -572,11 +608,11 @@ func _shoot_head() -> void:
 ## (#925, 16 murders in fresh valleys): 2 left Earl alive after all three shots, one with every
 ## ball in a chair leg lying over his face, one with every ball in his neck. A wall or the table
 ## in the way isn't let through (it's left in, and the shot is what it is).
-func _clear_to_head(origin: Vector3, head: Vector3, exclude: Array[RID]) -> void:
+func _clear_to_head(origin: Vector3, head: Vector3, exclude: Array[RID], aimed: CollisionObject3D = null) -> void:
 	var space := World.space(cheater)
 	if space == null:
 		return
-	var head_part := cheater.parts[&"head"] as CollisionObject3D
+	var head_part := aimed if aimed != null else cheater.parts[&"head"] as CollisionObject3D
 	var own: Array = cheater.parts.values()
 	for i in 24:
 		var q := PhysicsRayQueryParameters3D.create(origin, head, Layers.BULLETS)
@@ -588,6 +624,13 @@ func _clear_to_head(origin: Vector3, head: Vector3, exclude: Array[RID]) -> void
 		if c == null or not (c is RigidBody3D or own.has(c)):
 			return  # (something standing: a loose piece at rest is still a RigidBody3D, frozen)
 		exclude.append(c.get_rid())
+
+
+## The part he aims into (its segment's).
+func _aim_part() -> CollisionObject3D:
+	var st := cheater.anatomy.structure(_aim_id()) if _aim_id() != &"head" else {}
+	var seg := StringName(String(st.get("segment", "head")))
+	return cheater.parts.get(seg, cheater.parts[&"head"]) as CollisionObject3D
 
 
 ## Where you were for it: sat at the table, in the yard with it in front of you, in earshot, away.

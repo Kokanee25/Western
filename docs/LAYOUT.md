@@ -639,6 +639,19 @@ real look RoomLight is on whatever `Settings.room_light` says.
   `went_loose` (kicked, broken, blown) drops you flat (the crawl) and still for `seat_fall_s`
   (`dumped`); `Player.fell` exists only so a kit chair can listen for it. Bridge `sit [n|e|s|w]`,
   `stand`; `read player`'s `seat`.
+- `PlayerCarry` (`player_carry.gd`, #1057; dials PlayerTuning `carry_*`): E by a man down (`is_down`: limp or
+  prone, not rising; his collar, `collar()`, within `carry_reach`, in `carry_view_deg` of your view) takes him by
+  the collar (`take`, `dragged_by`, a `carry` deed): each tick `HumanBody.drag_toward` your hands behind you
+  (`carry_hold_back`/`_up`), his legs after his hips and what of him is under your floor lifted to it (`_lift`:
+  steps, walks); his wounds go on bleeding and smearing (WoundSigns), his collar's blood on your hands
+  (`blood_on_you`). A walk at `carry_speed` x how far he lags (`pace()`: caught on something he holds you back,
+  `LAG_FREE`/`LAG_SPAN`), no run, jump or gun (PlayerWounds `busy_why`); E lets go (at a door PlayerKnock has
+  E), as do a hit, going down, a seat, a ladder, him up, or him snagged past `carry_tear_m` for `TEAR_S`
+  (`let_go(man, why)`). Seats yield E to it (`PlayerSeat.chair_here`). `read player`'s `carry`.
+- `PlayerKnock` (`player_knock.gd`, #1057; `knock_reach`): E at a door (a `knock_doors` node's `door_near`:
+  ValleyFolk's `door_places`, homes and day `in`s) bangs on it: three `thump`s there, a `knock` deed, the owner's
+  `knock(place, by, at)` (ValleyFolk: `knocked(place, inside, by, at)`, the book's rows inside, `knocks`).
+  Nobody answers on his own yet: an act does (NoLawCarry). `read player`'s `knock`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
@@ -1573,8 +1586,10 @@ Every moment is in the group `moment` (the bridge's `moment_result` finds one it
 act man) walks in and sits in the free chair you're not in; `after_s` on, Cody (a stand-in model) in by his `in` places; within `stop_m` of the table the game
 `interrupt(&"cody", true)`, you `PlayerSeat.hold`ed if sat there, the stranger's warning, every folk brain `hush`ed;
 the accusation, Earl's reply, then CardCheat's beats (turn, kick, after_kick, draw, approach) on
-Earl's chair; over him Cody aims and fires (a real ball at his head: Ballistics, smoke, flash, sound,
-`shot_fired`; again if he lives), "no law", holsters and walks out by `out`; 1.6 s on the barman's
+Earl's chair; over him Cody aims and fires (a real ball at the data's `aim`, since #1057 `subclavian_r`'s
+middle where Earl lies, `_aim_point`: Ballistics, smoke, flash, sound, `shot_fired`; again only if it missed
+him, or while he lives if `aim` is "head"; measured: lung, subclavian artery and vein, ~25 ml/s, dead ~146 s on),
+"no law", holsters and walks out by `out`; 1.6 s on the barman's
 line (the hush down to `hush_s`). After (`after` state, also on `cody_down` and stalls): the stranger's
 word, you let go, he and Cody walk off and are taken out of the world once clear of the table and out
 of your sight; the drifter and the miner `send_off`. StoryState `nolaw.murder` (begun once Cody's in, earl,
@@ -1583,9 +1598,22 @@ done; over before he came in, `played` false: nothing written, and ValleyFolk tr
 the role `cody`, the blacksmith's model) shouts his accusation as he's taken in off the street; the stranger's
 warning `warn_after_s` after it.
 
+**No Law's carry** (#1057; `src/missions/no_law_carry.gd`, `NoLawCarry`, an Act; `config/moments/no_law_carry.json`;
+`tests/test_no_law_carry.gd`): started by ValleyFolk (`_carry_step`) once the murder's shot is fired, Earl breathing
+and the barkeep's said there's nobody to fetch (`NoLawMurder.fetch_said`); bridge `moment no_law_carry`. ask (the
+barkeep's after.help twice; nobody else steps up; Earl dead uncarried: `left`) -> carry (PlayerCarry has him:
+`nolaw.carried_earl` yes, after.lifted, carry.earl while he can talk) -> knocked (ValleyFolk.knocked at `doctor`
+with Earl's body within `door_body_m`: carry.door_wait as a voice through the door) -> door (`answer_s` on,
+`call_out` the doctor, to Earl; carry.door, carry.two/this_one by `sheriff.care`, carry.lay x2) -> lay (Earl dead
+and let go in the `front_room` rect, or you `leave_m` off / `lay_timeout_s` and he's out of your sight: moved to
+`laid`, `ValleyFolk.lay_out`) -> `laid`: `nolaw.earl` doctor's. Also `nolaw.earl_died` (yard, street, door,
+front_room), `nolaw.knocked`, `nolaw.blood_on_you`; let go of on the way and left: `left_on_way`. Lines by the
+script's ids (docs/scripts/no_law.json). The body laid out: `ValleyFolk.laid`, the sheet a drawn stand-in.
+
 **No Law's morning after** (#796; ValleyFolk, `config/valley_folk.json` `morning` and `talk`): the murder done
 and the clock round to the day: `nolaw.morning`; Earl's body to the undertaker's once you're off it
-(`to_undertaker`: `gone_for_good`, `nolaw.earl` undertaker, `death.earl`); day folk at `post.lot` posts on the
+(`to_undertaker`: `gone_for_good`, `nolaw.earl` undertaker, `death.earl`; laid out at the doctor's, #1057, only
+once `nolaw.sheriff` is dead: SheriffDies' doctor says morning.body as you pass him, `_by_earl`); day folk at `post.lot` posts on the
 walks say lines by the story's facts (`says`, `ValleyFolk.story_holds`: a value, a list, "*", "!key");
 from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
 

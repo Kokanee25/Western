@@ -27,6 +27,7 @@
   "wound": {"_doc": "His body on the cot: the road's wound (the_sheriff.json's), stopped bleeding (the doctor's work), what he'd lost by care (`loss`), his gut's clock held till he goes (Physiology's gut death is what takes him).", "loss": {"good": 0.27, "poor": 0.36, "left": 0.38}, "pain": 0.7},
   "lines": {
     "sent_for": {"any": ["Harlan! Doc's asking for you. Says the sheriff's sinking."]},
+    "body": {"any": ["He was dead when you knocked. I'd not have you think it was the door."]},
     "door": {
       "good": ["He's asking for you. He's clear this morning. It won't last."],
       "poor": ["He's asking for you. He comes and goes. Be quick."],

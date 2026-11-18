@@ -374,6 +374,18 @@
           ]
         },
         {
+          "id": "morning.you_carried",
+          "if": {
+            "nolaw.morning": true,
+            "nolaw.carried_earl": "yes"
+          },
+          "once": true,
+          "_doc": "#1057: in place of morning.you_were_there when you carried Earl (No Law's script, #1056).",
+          "words": [
+            "They say you carried him clear up the street. ... That his blood on you?"
+          ]
+        },
+        {
           "id": "morning.you_were_there",
           "if": {
             "nolaw.morning": true,
@@ -464,6 +476,6 @@
     ],
     "unseen_m": 30.0,
     "sheriff_from": 7.5,
-    "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Laid out at the undertaker's."
+    "earl_death_doctor": "Earl, the card player. Shot by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Dead on the way to the doctor's; laid out in his front room overnight, then at the undertaker's.", "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Laid out at the undertaker's."
   }
 }

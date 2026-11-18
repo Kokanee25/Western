@@ -2,7 +2,7 @@ extends TestCase
 ## No Law, beat 3 (#773; NoLawMurder, config/moments/no_law_murder.json): at night at the saloon
 ## yard's card table, a stranger sits in the free chair, Cody walks in shouting at Earl, the game
 ## stops and you're held in your seat, the stranger tells you not to move, Cody kicks Earl's chair
-## out, shoots him in the head where he lies, says there's no law to save him and walks out; the
+## out, shoots him where he lies (down through his collarbone since #1057: down and bleeding), says there's no law to save him and walks out; the
 ## room quiet till the barman's "Jesus, Cody, my chair!". After: you're let go, Earl's body stays,
 ## the drifter and the miner leave, StoryState has what you saw. Not at the table, it happens all
 ## the same. And the townsfolk after a shot (the cards playtest): cries by turns, not all at once.
@@ -136,9 +136,12 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	check(shot, "Cody shoots (%s)" % m.result())
 	var r := m.result()
 	check(r.chair_loose and r.earl_fell, "Earl's chair kicked out from under him (%s)" % r)
-	var dead := await wait_until(func() -> bool: return not earl.physiology.alive, 60 * 3)
-	check(dead, "Earl dead of the head shot (%s)" % earl.physiology.describe())
-	check(m.shots <= 2, "one shot, two at most (%d)" % m.shots)
+	# Down and bleeding, not shot dead (Sean, 2026-11-17, #1057): the ball through his collarbone,
+	# what it does the body's.
+	await physics_frames(20)
+	check(not earl.wounds.is_empty() and (earl.physiology.total_bleed_rate() > 1.0 or not earl.physiology.alive),
+			"Earl shot and bleeding (%s)" % earl.physiology.describe())
+	check(m.shots == 1, "one shot (%d)" % m.shots)
 	check(p.seat.seated(), "you're still sat")
 	var over := await wait_until(func() -> bool: return m.done, 60 * 60)
 	r = m.result()
@@ -169,14 +172,15 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	# After: let go, Earl stays, the men leave, the facts.
 	check(not p.seat.held(), "let go")
 	check(f.folk_man(&"earl") == earl and earl.is_inside_tree(), "Earl's body stays")
-	check_eq(String(f.state[&"earl"]), "dead", "Earl's dead to the folk")
+	# Down and breathing when it's over (#1057): the carry's, and he dies by his own clock.
+	check(String(f.state[&"earl"]) == "dead" or earl.physiology.alive, "Earl breathing, or dead to the folk (%s)" % f.state[&"earl"])
 	var gone := await wait_until(func() -> bool: return not f.people.has(&"cody") and not f.people.has(&"stranger"), 60 * 90)
 	check(gone, "Cody and the stranger walk off down the street and are gone (%s)" % [m.result().events.slice(-3)])
 	check(String(f.state[&"drifter"]) in ["going", "out"] and f.kept_out.has(&"drifter"), "the drifter leaves (%s)" % f.state[&"drifter"])
 	check_eq(StoryState.get_fact("nolaw.murder"), "done", "nolaw.murder")
 	check_eq(StoryState.get_fact("nolaw.seen_from"), "table", "seen from the table")
 	check_eq(StoryState.get_fact("nolaw.witnessed"), true, "you witnessed it")
-	check_eq(StoryState.get_fact("nolaw.earl"), "dead", "nolaw.earl")
+	check(StoryState.get_fact("nolaw.earl") in ["alive", "dead"], "nolaw.earl (%s)" % StoryState.get_fact("nolaw.earl"))
 	p.seat.use()
 	await physics_frames(10)
 	check(not p.seat.seated(), "E stands you up now")
@@ -200,13 +204,13 @@ func test_away_from_the_table_it_happens_all_the_same() -> void:
 	var r := m.result()
 	check(over and r.end == "done", "it plays out (%s)" % r)
 	check(not m.you_held, "nobody held you")
-	check(r.earl_dead, "Earl dead (%s)" % r.get("earl", ""))
+	check(not m.cheater.wounds.is_empty(), "Earl shot (%s)" % r.get("earl", ""))
 	check_eq(StoryState.get_fact("nolaw.seen_from"), "heard", "heard it")
 	check_eq(StoryState.get_fact("nolaw.witnessed"), false, "not a witness")
 
 
-## What lies between Cody's muzzle and Earl's head doesn't save him (#925): a piece of his chair
-## held over his face as Cody stands over him. Before, the ball stopped in whatever lay on its line
+## What lies between Cody's muzzle and where he aims doesn't save Earl (#925; since #1057 his
+## collarbone, not his head): a piece of his chair held on the line as Cody stands over him. Before, the ball stopped in whatever lay on its line
 ## (a chair leg, Earl's own neck or arm): of 16 murders in fresh valleys 2 left him alive after all
 ## three shots, by how his ragdoll happened to lie.
 func test_a_chair_leg_over_his_face_doesnt_save_him() -> void:
@@ -237,16 +241,16 @@ func test_a_chair_leg_over_his_face_doesnt_save_him() -> void:
 	var gun := m.victim.held_gun as RevolverModel
 	var across := 0
 	while m.shots == 0 and not m.done and across < 60 * 10:
-		var head := (m.cheater.parts[&"head"] as Node3D).global_position
+		var head := m._aim_point()
 		var from := gun.muzzle.global_position if gun != null else m.victim.global_position + Vector3.UP * 1.2
 		var dir := (from - head).normalized()
 		leg.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP if absf(dir.y) < 0.95 else Vector3.RIGHT), head + dir * 0.22)
 		across += 1
 		await physics_frames(1)
 	check(m.shots > 0, "he fires (%s)" % m.result())
-	var dead := await wait_until(func() -> bool: return not m.cheater.physiology.alive, 60 * 3)
-	check(dead, "Earl dead of it, the leg in the way or not (%s; shots %d)" % [m.cheater.physiology.describe(), m.shots])
-	check(m.shots == 1, "of the first shot (%d)" % m.shots)
+	await physics_frames(10)
+	check(not m.cheater.wounds.is_empty(), "the ball's in Earl, the leg in the way or not (%s; shots %d)" % [m.cheater.physiology.describe(), m.shots])
+	check(m.shots == 1, "the first shot (%d)" % m.shots)
 	leg.queue_free()
 
 
@@ -387,7 +391,7 @@ func test_an_armed_townsman_leaves_cody_be_while_its_held() -> void:
 	check(over and r.end == "done", "it plays out (%s)" % r)
 	check(on_cody.is_empty(), "nobody shot at or hit Cody (%s)" % [on_cody])
 	check(r.broken == "", "nothing of yours broke it")
-	check(StoryState.get_fact("nolaw.murder") == "done" and r.earl_dead, "Earl murdered (%s)" % StoryState.get_fact("nolaw.murder"))
+	check(StoryState.get_fact("nolaw.murder") == "done" and not m.cheater.wounds.is_empty(), "Earl murdered (%s)" % StoryState.get_fact("nolaw.murder"))
 	guard.queue_free()
 
 
