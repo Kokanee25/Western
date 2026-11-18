@@ -98,3 +98,22 @@ on the road and No Law.
   on #830.
 - **s21–s27**, seven small ones the picks opened (`CONTRADICTIONS.md`, Part C). None needs an answer
   before No Law but s21 (the stranger's voice) and s26 (who sends Harlan to the saloon).
+
+## The mission board (Sean's page for going through the missions)
+
+**https://claude.ai/artifact/W9WEgdsjyofUXrLRdjdQDe**, pinned in Sean's claude.ai sidebar (2026-11-17: "a pinned board
+that you go into from the main side menu and from there you can select the missions ... and add notes"). It is
+`MISSIONS.md` and the full record as a page: the cross-mission lists first, then every mission by act; tap one to read
+it; every line has a note under it, and each mission has one for the whole of it.
+
+- **Reading his notes:** ArtifactData, the URL above, `list` collection `notes`. Each document is
+  `{note, about, where, at}`: `about` is the line's own words (so the line can be found if numbering has moved),
+  `where` the mission and section. The id says where it sits: `m.<mission>` (the whole mission),
+  `m.<mission>.<section>.<n>` (a line), `t.<list>.<n>` (a line of a cross-mission list). They are his: never
+  overwrite or delete one. When a note is acted on, write the answer into `MISSIONS.md` and the bible, not the page.
+- **Updating the page** after `MISSIONS.md` or `missions/` change: `python3 docs/story/board/build_board.py /tmp/missions.json`,
+  then publish `docs/story/board/missions_board.html` with `url` (read it first), `files`
+  `{"missions.json": "/tmp/missions.json"}`; `capabilities` carries forward (`db`). The JSON is built, not committed.
+  A line's note is keyed by its place in its section, so adding lines at the end of a section keeps his notes on
+  the right lines; inserting in the middle moves them (the note's `about` says what it was on).
+
