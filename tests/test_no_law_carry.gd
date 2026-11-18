@@ -34,7 +34,7 @@ func after_each() -> void:
 	ValleyFolk.murder_auto = true
 	if Events.spoke.is_connected(_on_spoke):
 		Events.spoke.disconnect(_on_spoke)
-	for a: StringName in [&"move_forward", &"move_right", &"shove"]:
+	for a: StringName in [&"move_forward", &"move_back", &"move_left", &"move_right", &"shove"]:
 		Input.action_release(a)
 
 
@@ -57,11 +57,20 @@ func _at(h: float) -> void:
 	await physics_frames(60)
 
 
-## You by `man`'s collar, looking at it.
+## You by `man`'s collar, looking at it: on a side of him where you can stand (not in the card
+## table he fell by: placed in its top you couldn't move, CI #1081).
 func _by(man: HumanBody) -> void:
 	var p := _player()
 	var c := PlayerCarry.collar(man)
 	var off := Vector3(0.9, 0.0, 0.0)
+	for k in 8:
+		var o := Vector3(0.9, 0.0, 0.0).rotated(Vector3.UP, TAU * k / 8.0)
+		var try := c + o
+		try.y = _folk().ground(try.x, try.z) + 0.05
+		p.global_position = try
+		if not p.test_move(p.global_transform, Vector3.UP * 0.01):
+			off = o
+			break
 	var at := c + off
 	at.y = _folk().ground(at.x, at.z) + 0.05
 	p.global_position = at
@@ -74,6 +83,7 @@ func _by(man: HumanBody) -> void:
 func _walk(way: Array[Vector3], max_s: float) -> bool:
 	var p := _player()
 	var frames := int(max_s * 60.0)
+	print("      walk: time_scale %.2f move_factor %.2f burden %.2f shove %.2f carry %.2f crouching %s winded %.2f" % [Engine.time_scale, p.move_factor, p.burden, p.shove.pace() if p.shove else 1.0, p.carry.pace(), p.is_crouching, p.composure.winded if p.composure else 0.0])
 	var stuck := 0
 	var last := p.global_position
 	for i in frames:
@@ -103,17 +113,25 @@ func _walk(way: Array[Vector3], max_s: float) -> bool:
 			print("      walk %d you %s collar %s d %.2f pelvis %s feet %s" % [i, p.global_position, PlayerCarry.collar(h), PlayerCarry.collar(h).distance_to(p.global_position + Vector3.UP * 0.45), ValleyFolk._body_at(h), (h.parts[&"foot_l"] as Node3D).global_position])
 		if i % 60 == 59:
 			stuck = stuck + 1 if p.global_position.distance_to(last) < 0.2 else 0
-			# Held by a man in the way (the barkeep by the table: where Earl fell decides whether the
-			# way out goes through him), you'd step round him: a step to the side, as a player would.
-			var by_man := false
-			for k in p.get_slide_collision_count():
-				var col := p.get_slide_collision(k).get_collider() as Node
-				by_man = by_man or (col != null and col.has_meta(&"human_body"))
-			if stuck >= 1 and by_man:
+			last = p.global_position
+			if stuck == 2:
+				var cols := []
+				for k in p.get_slide_collision_count():
+					var col := p.get_slide_collision(k).get_collider() as Node
+					cols.append(str(col.get_path()) if col else "?")
+				print("      held at %s: touching %s" % [p.global_position, cols])
+			# Held (the card table's edge where Earl fell, the barkeep by it: where he fell decides
+			# whether the way out goes through them), you'd step back and round it with him, as a player
+			# would.
+			if stuck >= 1 and p.carry.carrying():
 				Input.action_release(&"move_forward")
-				Input.action_press(&"move_right")
-				await physics_frames(40)
-				Input.action_release(&"move_right")
+				Input.action_press(&"move_back")
+				await physics_frames(20)
+				Input.action_release(&"move_back")
+				var right := posmod(stuck, 2) == 1
+				Input.action_press(&"move_right" if right else &"move_left")
+				await physics_frames(50)
+				Input.action_release(&"move_right" if right else &"move_left")
 			if stuck >= 10:
 				break
 	Input.action_release(&"move_forward")
