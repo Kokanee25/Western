@@ -43,10 +43,11 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
   `HeldHand._canonical_fingers` reframes them (from #919, closed unmerged; its Studio branch kept).
 - Talking face: four men's jaws go back more than down (#247).
-- **Sewn clothes on MetaHuman Sean** (#1013, Studio `sew_*.py`, builds `sean_metahuman_w3`-`w7`): Belfast 1871
-  trousers (Sean: fine for now), a Workwoman's Guide 1838 shirt with a fall collar. Round 5 (w7) waits on Sean: its
-  seams are one mesh and its folds smoothed (Studio DONT_REPEAT 22-23, `tools/sew_flaps.py`), but hands up the
-  armpits still read as torn (the cloth's inside turned to the eye) and the shirt crosses the vest's sides.
+- **Sewn clothes on MetaHuman Sean** (#1013, Studio `sew_*.py`, builds `sean_metahuman_w3`-`w8`): Belfast 1871
+  trousers (Sean: fine for now), a Workwoman's Guide 1838 shirt with a fall collar. Round 6 (w8) waits on Sean: the
+  torn armpits were the gussets wound inside out (Studio DONT_REPEAT 24, `orient_pieces`, `tools/sew_inside.py`),
+  and the vest now moves with the shirt under it (`follows_under`). Left: aiming, the shirt shows through the vest's
+  armhole; sleeves balloon hands up; the fall stands up at the back; the trousers' crotch 7.6 cm low.
 - The run's planting foot drifts (foot IK).
 - **The garment handoff** (#895, a lab): `experiments/garment_handoff/`, a worn skinned glove becoming cloth
   as it's drawn off (the core for #874's acts, coats hung up, a torn-shirt bandage). Into the game is
