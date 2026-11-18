@@ -59,6 +59,10 @@ var _hail_t := -9.0
 var _wounds_seen: Array = []  # his wounds as they were on the road (drawn again at the doctor's)
 var _end_t := -1.0
 var _knock_t := 0.0
+var _said_picked_up := false
+var _e_down := 0.0  # how long E's been held (past a tap, it's your hand on his wound)
+var _carried_next := 0.0
+var _talk_rng := RandomNumberGenerator.new()
 ## Cards and the doctor's beats this many times as long (opts `pace`: the tests run them quicker).
 var pace := 1.0
 
@@ -82,6 +86,7 @@ func begin() -> void:
 	var sg: Dictionary = data.get("slow_nod", {})
 	slow_gesture.swing_deg = float(sg.get("swing_deg", 4.0))
 	slow_gesture.window_s = float(sg.get("window_s", 8.0))
+	_talk_rng.seed = int((data.sheriff as Dictionary).get("seed", 746))
 	if valley and valley.folk and not valley.folk.knocked.is_connected(_on_knocked):
 		valley.folk.knocked.connect(_on_knocked)
 	_note("begin")
@@ -345,7 +350,9 @@ func _road_step(delta: float) -> void:
 		_say(line("walked_off", band))
 		_leave(false)
 		return
-	if found and dist < 10.0 and t - _say_t > float(data.get("say_gap_s", 14.0)) * 1.4 and band != "out":
+	if _have_him(p):
+		_carried_talk(band)
+	elif found and dist < 10.0 and t - _say_t > float(data.get("say_gap_s", 14.0)) * 1.4 and band != "out":
 		_say(line("idle", band))
 
 
@@ -397,7 +404,10 @@ func _press_step(p: Player, delta: float, band: String) -> void:
 	# Over your shoulder your hands are on him, not on his wound (#1081: held E at the doctor's door
 	# packed him as you knocked). A tap of E by him takes him up (PlayerCarry); held, it's the wound.
 	var have := _have_him(p)
-	var now := e and _by_wound(p) and not have
+	# Held past a tap (a tap's the carry's: PlayerCarry.carry_tap_s), your hand's on his wound.
+	_e_down = _e_down + delta if e else 0.0
+	var tap_s := p.tuning.carry_tap_s if p.tuning else 0.35
+	var now := e and _e_down > tap_s and _by_wound(p) and not have
 	if now != pressing:
 		pressing = now
 		if not phys.bleeds.is_empty():
@@ -564,6 +574,31 @@ func _lot_front(id: String) -> Vector3:
 
 
 # --- Carried in and knocked (#1081) ----------------------------------------------------------------
+
+## Over your shoulder (#1081, the master chat): his word once as you take him up ("Don't let me lie
+## here."), then only a groan or a short word now and then (`carried_gap_s`, more or less), not his
+## lying-there lines every 20 s.
+func _carried_talk(band: String) -> void:
+	var cd: Dictionary = data.get("carried", {})
+	if not _said_picked_up:
+		_said_picked_up = true
+		_carried_next = t + float(cd.get("gap_s", 40.0))
+		if band != "out":
+			_say(line("picked_up", band))
+		return
+	if t < _carried_next:
+		return
+	var gap := float(cd.get("gap_s", 40.0))
+	_carried_next = t + gap * (0.75 + 0.5 * _talk_rng.randf())
+	if band == "out":
+		return
+	var all: Variant = (data.get("lines", {}) as Dictionary).get("carried", {})
+	var pool: Variant = (all as Dictionary).get(band, (all as Dictionary).get("any", [])) if all is Dictionary else []
+	if pool is Array and not (pool as Array).is_empty():
+		var text := String((pool as Array)[_talk_rng.randi() % (pool as Array).size()])
+		if text != "...":
+			_say(text)
+
 
 ## You have him over your shoulder (PlayerCarry, #1057).
 func _have_him(p: Player) -> bool:

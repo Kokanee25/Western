@@ -35,6 +35,7 @@
   "ask_prompt": "Nod to help him (look down, up, down at him), shake your head to leave him (look left, right, left). Or kneel and hold E on his wound",
   "nod_prompt": "Hold E on his wound to press it. E by his horse to take him in, or tap E by him to carry him to the doctor's",
   "slow_nod": {"_doc": "A deliberate nod or shake, slower or smaller than HeadGesture's plain one (6 degrees, 1.4 s): read as well (#1081: the playtester's view moved down and up a second or two apart).", "swing_deg": 4.0, "window_s": 8.0},
+  "carried": {"_doc": "Over your shoulder (#1081): lines.picked_up once as you take him up, then a groan or a short word from lines.carried (picked at random) about every gap_s (0.75 to 1.25 of it), not his lying-there idle lines. PROPOSED lines, not in docs/scripts/sheriff_road.json yet.", "gap_s": 40.0},
   "door_body_m": 4.5,
   "answer_s": 4.0,
   "doctor_out": "Nobody answers. The doctor's out: at the %s.",
@@ -87,6 +88,16 @@
       "clear": ["That'll hold. My horse is yonder. Get me up on him."],
       "weak": ["My horse..."],
       "fading": ["..."]
+    },
+    "picked_up": {
+      "clear": ["Don't let me lie here."],
+      "weak": ["Don't let me lie here."],
+      "fading": ["..."]
+    },
+    "carried": {
+      "clear": ["Ngh.", "Easy...", "Christ.", "Mm.", "How far?"],
+      "weak": ["Ngh...", "Mm.", "Easy..."],
+      "fading": ["Mm...", "..."]
     },
     "idle": {
       "clear": ["Damn, it burns.", "Sun's coming up. Ain't that something.", "Don't you let me lie here."],

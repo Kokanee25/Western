@@ -356,7 +356,12 @@ func test_carried_off_the_ground_no_trail_and_the_clock_at_its_rate() -> void:
 	p.velocity = Vector3.ZERO
 	p.rotation.y = atan2(0.9, 0.0)  # facing back along -x: at his collar
 	await physics_frames(2)
-	await physics_frames(60)  # (his pool started where he lies)
+	await physics_frames(60 * 5)  # (his pool started where he lies; the nod's lines said)
+	var said: Array[String] = []
+	var heard := func(who: Node, text: String) -> void:
+		if who == m.sheriff:
+			said.append(text)
+	Events.spoke.connect(heard)
 	Input.action_press(&"shove")
 	await physics_frames(1)
 	Input.action_release(&"shove")
@@ -394,6 +399,9 @@ func test_carried_off_the_ground_no_trail_and_the_clock_at_its_rate() -> void:
 	var fwd := p.get_forward()
 	check(head.dot(fwd) < 0.0, "his head down your back (%.2f along your view)" % head.dot(fwd))
 	check(p.carry.blood_on_you > 0.0, "his blood on you (%s)" % p.carry.report())
+	Events.spoke.disconnect(heard)
+	check(said.count("Don't let me lie here.") == 1 and said.size() == 1,
+			"over your shoulder: his word once as you take him up, then quiet a while (%s)" % [said])
 	# Laid down: in front of you, on the ground; his blood pools there again.
 	Input.action_press(&"shove")
 	await physics_frames(1)
