@@ -13,7 +13,6 @@ func before_each() -> void:
 	ValleyFolk.murder_auto = false  # No Law's murder (#773) has its own tests
 	if holder != null:
 		return
-	print("DBG0 people ", PeopleTick._people.size(), " next ", PeopleTick._next_index, " ticks ", PeopleTick._ticks, " node ", PeopleTick._node, " ", PeopleTick._people.map(func(m): return str(m.name, "@", m.get_path() if m.is_inside_tree() else "out")))
 	holder = Node.new()
 	holder.name = "Main"
 	add_child(holder)
@@ -32,15 +31,6 @@ func _player() -> Player:
 
 func _chair(c: String) -> KitProp:
 	return valley.folk.props["chair_" + c] as KitProp
-
-
-## The chair he's sat in, any in the town (Seating's chairs are KitProps with a seat).
-func _seat_of(man: HumanBody) -> KitProp:
-	for s: Node in get_tree().get_nodes_in_group(&"structures"):
-		var kp := s as KitProp
-		if kp != null and kp.seated == man and not kp.loose:
-			return kp
-	return null
 
 
 ## Nine at night, everyone in, the game at four times its pace.
@@ -275,20 +265,8 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	var earl: HumanBody = valley.folk.people[&"earl"]
 	var ch := _chair("w")
 	check(ch.seated == earl, "Earl in the west chair")
-	_diag_people("start")
-	var on_ex := func(at: Vector3, kg: float) -> void:
-		print("DIAGX exploded at %s kg %.3f frame %d sticks %s" % [at, kg, Engine.get_physics_frames(), get_tree().get_nodes_in_group(&"dynamite").map(func(n): return str(n.get_path()))])
-		_diag_people("blast")
-	var on_shot := func(o: Vector3, d: Vector3, who: Node) -> void:
-		print("DIAGX shot from %s dir %s by %s" % [o, d, who.name if who else "null"])
-	Events.exploded.connect(on_ex)
-	Events.shot_fired.connect(on_shot)
-	_diag_near(earl, "before")
 	ch.go_loose(Vector3.ZERO, ch.global_basis.z * -80.0)
-	# Down with it, up again, and into a free chair near where he got up (SitChore.ANOTHER): the
-	# north one at the table (the south one's broken above), or the piano corner's when he lands
-	# nearer that. Which is nearer depends on how the chair throws him, and that differed with the
-	# tests run before this one (#1015's shards): any free chair but his broken one is right.
+	# Down with it, up again, and into the free north chair (the south one's broken above).
 	var brain := earl.get_node(^"Brain") as CivilianBrain
 	var tl: Array = []
 	var on_hit := func(info: Dictionary) -> void:
@@ -298,61 +276,17 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	var sat := false
 	for k in 60 * 90:
 		await physics_frames(1)
-		if k < 150 and k % 10 == 0:
-			_diag_near(earl, str(k))
 		var st := "limp %s rising %s pose %s mood %d ok %s" % [earl.limp, earl.rising, earl.pose, brain.mood, earl.rise_ok]
 		if st != last:
 			last = st
 			tl.append("%d %s fear %.2f at %s" % [k, st, brain.fear, earl.global_position.snappedf(0.01)])
-		var now := _seat_of(earl)
-		if now != null and now != ch:
+		if _chair("n").seated == earl:
 			sat = true
-			tl.append("sat in %s" % now.name)
 			break
 	earl.hit.disconnect(on_hit)
-	Events.exploded.disconnect(on_ex)
-	Events.shot_fired.disconnect(on_shot)
-	_diag_people("end")
-	print("DBG1 earl idx ", earl.tick_index, " ticks ", PeopleTick._ticks, " n ", PeopleTick._people.size())
-	print("DBG ", tl.slice(0, 20), " player ", p.global_position)
 	var chore_chair := ""
 	for c: RefCounted in brain.chores:
 		if c is SitChore:
 			chore_chair = "%s wanted %s" % [(c as SitChore).chair.name if (c as SitChore).chair and is_instance_valid((c as SitChore).chair) else "none", (c as SitChore).wanted]
-	check(sat, "Earl sat in a free chair within 90 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
+	check(sat, "Earl sat in the free north chair within 90 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
 			earl.physiology.describe(), earl.physiology.can_stand(), earl.physiology.is_conscious(), earl.physiology.shock(), earl._down_t, earl._still_t, _chair("n").seated, _chair("n").loose, chore_chair, p.global_position.snappedf(0.01), tl.slice(0, 60)])
-
-
-## DIAG (#1077, temporary): what's touching Earl's legs.
-func _diag_near(earl: HumanBody, tag: String) -> void:
-	var space := earl.get_world_3d().direct_space_state
-	var out: Array = []
-	for sid: StringName in [&"shin_l", &"thigh_l", &"shin_r", &"pelvis"]:
-		var rb := earl.parts.get(sid) as RigidBody3D
-		if rb == null:
-			continue
-		var q := PhysicsShapeQueryParameters3D.new()
-		var sh := SphereShape3D.new()
-		sh.radius = 0.12
-		q.shape = sh
-		q.transform = Transform3D(Basis(), rb.global_position)
-		q.exclude = [rb.get_rid()]
-		var hits := space.intersect_shape(q, 16)
-		var names: Array = []
-		for h: Dictionary in hits:
-			var c: Object = h.collider
-			var path: String = str((c as Node).get_path()) if c is Node and (c as Node).is_inside_tree() else str(c)
-			if path.contains("/Earl") or path.contains("earl"):
-				continue
-			names.append(path.get_slice("/", path.get_slice_count("/") - 1) + "<" + path.get_slice("/", maxi(0, path.get_slice_count("/") - 2)))
-		out.append("%s %s v%s %s" % [sid, rb.global_position.snappedf(0.01), rb.linear_velocity.snappedf(0.1), names])
-	print("DIAG %s %s" % [tag, out])
-
-
-func _diag_people(tag: String) -> void:
-	var out: Array = []
-	for m: HumanBody in PeopleTick._people:
-		if is_instance_valid(m):
-			var br := m.get_node_or_null(^"Brain")
-			out.append("%s@%s %s limp %s brain %s" % [m.name, m.global_position.snappedf(0.1), m.pose, m.limp, br.get_script().get_global_name() if br else "-"])
-	print("DIAGP %s %s" % [tag, out])
