@@ -114,7 +114,7 @@ func pace() -> float:
 	var base := clampf(player.tuning.carry_speed / maxf(player.tuning.walk_speed, 0.1), 0.05, 1.0)
 	# He's a load: caught (a chair over his legs, a step) and lagging, he holds you back; you don't
 	# walk away from him (#1057: the card table's broken chair lay on Earl's legs).
-	return base * clampf(1.0 - (_lag - LAG_FREE) / LAG_SPAN, 0.15, 1.0)
+	return base * clampf(1.0 - (_lag - LAG_FREE) / LAG_SPAN, 0.1, 1.0)
 
 
 func _physics_process(delta: float) -> void:
@@ -259,10 +259,10 @@ func _lift(delta: float) -> void:
 const LAG_FREE := 1.1
 const LAG_SPAN := 1.2
 var _lag := 0.0
-const LIFTED: Array[StringName] = [&"chest", &"abdomen", &"pelvis", &"thigh_l", &"thigh_r"]
+const LIFTED: Array[StringName] = [&"chest", &"abdomen", &"pelvis", &"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
 const LEGS: Array[StringName] = [&"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
 ## He comes loose only after he's been past carry_tear_m this long (s): a jolt on a step isn't it.
-const TEAR_S := 0.6
+const TEAR_S := 1.5
 var _tear_t := 0.0
 
 
