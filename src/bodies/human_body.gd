@@ -390,6 +390,9 @@ var gait := &""
 var prone := false
 ## Someone has him by the collar and is dragging him (a friend getting him out of the line of fire).
 var dragged_by: Node3D
+## Carried over someone's shoulder (PlayerCarry): off the ground, so he bleeds into the carrier's
+## coat, not onto it (no pool under him, no smear; the pool where he lay stays there).
+var carried := false
 var _gait_phase := 0.0
 ## Experiment (Sean, 2026-10-17: "let's just experiment with it"): walking and running by motion
 ## capture (experiments/mocap_walk/: a CMU walk and run retargeted onto this rig) in place of the
@@ -4777,6 +4780,11 @@ func mop_pool(share: float) -> void:
 
 
 func _update_pool() -> void:
+	if carried:
+		if _pool != null:
+			_pool = null  # left where he lay (top_level: it stays put); a new one where he's laid down
+			_pool_ml = 0.0
+		return
 	if not physiology.alive and physiology.total_bleed_rate() < 0.01:
 		return
 	var rate := physiology.total_bleed_rate()

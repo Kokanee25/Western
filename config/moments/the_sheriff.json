@@ -26,27 +26,26 @@
     "good_max_loss": 0.30,
     "pack_s": 6.0,
     "press_reach_m": 2.0,
-    "horse_reach_m": 3.0,
-    "hold_to_press_s": 0.35
+    "horse_reach_m": 3.0
   },
   "distances": {"hail_m": 25.0, "ask_m": 3.5, "found_m": 15.0, "leave_m": 45.0},
   "trip": {"_doc": "The stand-in for leading his horse into town (Sean's maybe, #746: no horse of Harlan's at the start): the road's length from the site to the doctor (ValleyRoads), walked at lead_mps, plus load_s getting him up across the saddle; the minutes run on his body and the clock.", "lead_mps": 1.3, "load_s": 60.0},
   "left": {"found_after_s": 1500.0},
   "say_gap_s": 14.0,
   "ask_prompt": "Nod to help him (look down, up, down at him), shake your head to leave him (look left, right, left). Or kneel and hold E on his wound",
-  "nod_prompt": "Hold E on his wound to press it. E by his horse to take him in, or tap E at his collar and drag him to the doctor's",
+  "nod_prompt": "Hold E on his wound to press it. E by his horse to take him in, or tap E by him to carry him to the doctor's",
   "slow_nod": {"_doc": "A deliberate nod or shake, slower or smaller than HeadGesture's plain one (6 degrees, 1.4 s): read as well (#1081: the playtester's view moved down and up a second or two apart).", "swing_deg": 4.0, "window_s": 8.0},
   "door_body_m": 4.5,
   "answer_s": 4.0,
   "doctor_out": "Nobody answers. The doctor's out: at the %s.",
-  "_door_doc": "Dragged to the doctor's by the collar (PlayerCarry) and E at his door (PlayerKnock, ValleyFolk.knocked; #1081): with the sheriff within door_body_m of it and the doctor in by the town's book, a voice through the door (lines.door_wait), answer_s on he comes out to him (the town's doctor, ValleyFolk.call_out) and the scene goes on as at the end of the card's walk in (lines.doctor, doctor_after). Out by the book: doctor_out says where he is.",
+  "_door_doc": "Carried to the doctor's over your shoulder (PlayerCarry) and E at his door (PlayerKnock, ValleyFolk.knocked; #1081): with the sheriff within door_body_m of it and the doctor in by the town's book, a voice through the door (lines.door_wait), answer_s on he comes out to him (the town's doctor, ValleyFolk.call_out) and the scene goes on as at the end of the card's walk in (lines.doctor, doctor_after). Out by the book: doctor_out says where he is.",
   "bands": {"clear": 0.22, "weak": 0.32, "fading": 0.5},
   "cards": {
     "trip": "You get him up across his saddle and lead his horse down the East Road into town.\nIt's %d minutes on foot.",
     "left": "You leave him on the road.\nLater that morning a freighter coming down the East Road finds him and hauls him into town in the back of his wagon.",
     "end": "The doctor takes him in. His horse is put up at the livery.\n\n(Enter: start again)",
     "end_left": "(Enter: start again)",
-    "end_dragged": "The doctor takes him in. His horse is still out on the East Road.\n\n(Enter: start again)"
+    "end_carried": "The doctor takes him in. His horse is still out on the East Road.\n\n(Enter: start again)"
   },
   "lines": {
     "hail": {

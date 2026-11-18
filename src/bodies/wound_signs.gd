@@ -558,6 +558,9 @@ func _show_hand(side: String) -> void:
 
 ## A bleeding man down and sliding (dragged, or slumping down a wall) smears his blood along it.
 func _smears(world: Node3D, dt: float) -> void:
+	if body.carried:
+		_end_smear()  # off the ground on a shoulder (PlayerCarry): nothing to smear on
+		return
 	var p := body.physiology
 	_smear_load = minf(SMEAR_LOAD_MAX, _smear_load + p.total_bleed_rate() * dt)
 	if not (body.limp or body.prone) or maxf(_smear_load, body._pool_ml * SMEAR_SOAK) < SMEAR_EMPTY:

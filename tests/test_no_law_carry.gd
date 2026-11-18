@@ -34,7 +34,7 @@ func after_each() -> void:
 	ValleyFolk.murder_auto = true
 	if Events.spoke.is_connected(_on_spoke):
 		Events.spoke.disconnect(_on_spoke)
-	for a: StringName in [&"move_forward", &"shove"]:
+	for a: StringName in [&"move_forward", &"move_right", &"shove"]:
 		Input.action_release(a)
 
 
@@ -103,7 +103,17 @@ func _walk(way: Array[Vector3], max_s: float) -> bool:
 			print("      walk %d you %s collar %s d %.2f pelvis %s feet %s" % [i, p.global_position, PlayerCarry.collar(h), PlayerCarry.collar(h).distance_to(p.global_position + Vector3.UP * 0.45), ValleyFolk._body_at(h), (h.parts[&"foot_l"] as Node3D).global_position])
 		if i % 60 == 59:
 			stuck = stuck + 1 if p.global_position.distance_to(last) < 0.2 else 0
-			last = p.global_position
+			# Held by a man in the way (the barkeep by the table: where Earl fell decides whether the
+			# way out goes through him), you'd step round him: a step to the side, as a player would.
+			var by_man := false
+			for k in p.get_slide_collision_count():
+				var col := p.get_slide_collision(k).get_collider() as Node
+				by_man = by_man or (col != null and col.has_meta(&"human_body"))
+			if stuck >= 1 and by_man:
+				Input.action_release(&"move_forward")
+				Input.action_press(&"move_right")
+				await physics_frames(40)
+				Input.action_release(&"move_right")
 			if stuck >= 10:
 				break
 	Input.action_release(&"move_forward")

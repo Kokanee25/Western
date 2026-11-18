@@ -6,13 +6,13 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746): `-- --world=valley --mission=sheriff`; `StoryState`, `HeadGesture`, `Act`.
-  #1081: dragged in by the collar, a knock brings the doctor by day; a slow nod answers. Waiting on Sean: #755, #1082
-  (the clock: dragging him in takes the morning at the day's rate). The drawn game under lavapipe hung there
-  (OOM; headless it doesn't); a 485 m drag lays ~1,900 smear decals (`after slice` if it costs on a GPU).
+  #1081: carried in over the shoulder (not dragged: Sean), a knock brings the doctor by day; a slow nod answers.
+  Waiting on Sean: #755, #1082 (the clock: carrying him in takes the morning at the day's rate). The drawn game
+  under lavapipe hung there (OOM; headless it doesn't). The carry's pose is unjudged on a real screen.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
   **The night's carry (#1057):** Cody's ball goes through Earl's collarbone (`aim` subclavian_r: down, ~25 ml/s,
-  dead ~146 s on); the barkeep sends you to Doc's; `PlayerCarry` (E: by the collar, dragged), `PlayerKnock` (E at
+  dead ~146 s on); the barkeep sends you to Doc's; `PlayerCarry` (E: over the shoulder, no trail), `PlayerKnock` (E at
   a door; `ValleyFolk.knocked`), `NoLawCarry` (the doctor out, his lines, Earl laid in the front room under a
   stand-in sheet, `ValleyFolk.lay_out`); in the morning SheriffDies' doctor says morning.body by him, the
   undertaker's after the sheriff's dead. `tests/test_no_law_carry.gd`. Open: the doctor in the doorway can block

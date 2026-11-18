@@ -44,10 +44,10 @@ var care := ""
 var loss_at_doctor := -1.0
 var trip_s := 0.0
 var trip_m := 0.0
-## Dragged to the doctor's by the collar (PlayerCarry) and knocked (PlayerKnock): the knocks there
-## with him by the door, and whether the doctor came out to him (not the card's way in).
+## Carried to the doctor's over your shoulder (PlayerCarry) and knocked (PlayerKnock): the knocks
+## there with him by the door, and whether the doctor came out to him (not the card's way in).
 var knocks := 0
-var dragged_in := false
+var carried_in := false
 
 var _wound_beat := -1.0  # when the nod's line was said (the red shirt follows)
 var _said_shot_by := false
@@ -59,8 +59,6 @@ var _hail_t := -9.0
 var _wounds_seen: Array = []  # his wounds as they were on the road (drawn again at the doctor's)
 var _end_t := -1.0
 var _knock_t := 0.0
-var _e_held := 0.0  # how long E's been held this press
-var _had_him := false  # whether you had him by the collar when this press began
 ## Cards and the doctor's beats this many times as long (opts `pace`: the tests run them quicker).
 var pace := 1.0
 
@@ -396,19 +394,9 @@ func _by_horse(p: Player) -> bool:
 
 func _press_step(p: Player, delta: float, band: String) -> void:
 	var e := Input.is_action_pressed(&"shove")
-	# By the collar your hands are on his coat, not his wound (#1081: held E at the doctor's door
-	# packed him as you knocked). E tapped by him takes him by the collar (PlayerCarry); held, it's
-	# for the wound: let go of the collar and press.
+	# Over your shoulder your hands are on him, not on his wound (#1081: held E at the doctor's door
+	# packed him as you knocked). A tap of E by him takes him up (PlayerCarry); held, it's the wound.
 	var have := _have_him(p)
-	if Input.is_action_just_pressed(&"shove") or not e:
-		_e_held = 0.0
-		_had_him = have
-	if e:
-		_e_held += delta
-		if have and not _had_him and _e_held >= float((data.get("care", {}) as Dictionary).get("hold_to_press_s", 0.35)) and _by_wound(p):
-			p.carry.drop()
-			have = false
-			_note("held E by his wound: let go of his collar to press it")
 	var now := e and _by_wound(p) and not have
 	if now != pressing:
 		pressing = now
@@ -546,10 +534,10 @@ func _doctor_step() -> void:
 			phys.treated.emit(&"pressure", &"abdomen")
 		sheriff.go_limp()
 		_doc_said = 1
-	elif _doc_said == 1 and dt > 1.5 and (not dragged_in or dt > 8.0 or doctor == null or not is_instance_valid(doctor) \
+	elif _doc_said == 1 and dt > 1.5 and (not carried_in or dt > 8.0 or doctor == null or not is_instance_valid(doctor) \
 			or _flat(doctor.global_position, _sheriff_at()) < 1.8):
 		_doc_said = 2
-		if dragged_in:
+		if carried_in:
 			_doc_t = t - 1.5 * pace  # (the rest timed from his first word, however long he took to come)
 		speak(doctor, line("doctor", _doc_band))
 		_note("doctor: " + _doc_band)
@@ -558,7 +546,7 @@ func _doctor_step() -> void:
 		speak(doctor, line("doctor_after", care))
 	elif _doc_said == 3 and dt > 12.0:
 		_doc_said = 4
-		var end := "end_dragged" if dragged_in else "end"
+		var end := "end_carried" if carried_in else "end"
 		card(String((data.get("cards", {}) as Dictionary).get(end, "%s")).replace("%s", care), 6.0 * pace)
 		_end(care)
 
@@ -575,9 +563,9 @@ func _lot_front(id: String) -> Vector3:
 	return _on_ground(Vector2.ZERO)
 
 
-# --- Dragged in and knocked (#1081) ----------------------------------------------------------------
+# --- Carried in and knocked (#1081) ----------------------------------------------------------------
 
-## You have him by the collar (PlayerCarry, #1057).
+## You have him over your shoulder (PlayerCarry, #1057).
 func _have_him(p: Player) -> bool:
 	return p != null and p.carry != null and sheriff != null and is_instance_valid(sheriff) and p.carry.carrying(sheriff)
 
@@ -589,7 +577,7 @@ func _slow_gesture() -> HeadGesture:
 	return g
 
 
-## A bang on a door (ValleyFolk.knocked): the doctor's, with the sheriff dragged to it, by day as by
+## A bang on a door (ValleyFolk.knocked): the doctor's, with the sheriff carried to it, by day as by
 ## night. The doctor in (the town's book): a voice through the door, and he comes out to him. Out:
 ## nobody answers, and you're told where he is.
 func _on_knocked(place: StringName, inside: Array, by: Node, at: Vector3) -> void:
@@ -628,11 +616,11 @@ func _knocked_step() -> void:
 		_doctor_out()
 
 
-## He opens: out of his door to the sheriff where you've dragged him (the town's doctor, ValleyFolk;
+## He opens: out of his door to the sheriff where you've laid him (the town's doctor, ValleyFolk;
 ## a stand-in at his door if the town has none). You let go; he's taken in.
 func _doctor_out() -> void:
 	taken = true
-	dragged_in = true
+	carried_in = true
 	pressing = false
 	if not phys.bleeds.is_empty():
 		phys.bleeds[0].hand = false
@@ -662,7 +650,7 @@ func _doctor_out() -> void:
 	_note("the doctor opens: %s" % care)
 	_doc_band = band_of(phys)
 	_doc_t = t
-	_doc_said = 1  # (his body's the one you dragged: nothing to lay down again)
+	_doc_said = 1  # (his body is the one you carried: nothing to lay down again)
 	state = &"doctor"
 
 
@@ -735,7 +723,7 @@ func result() -> Dictionary:
 	r["packed"] = packed
 	r["taken"] = taken
 	r["knocks"] = knocks
-	r["dragged_in"] = dragged_in
+	r["carried_in"] = carried_in
 	r["left"] = left_him
 	r["blood_loss"] = snappedf(phys.blood_loss(), 0.001) if phys else -1.0
 	r["band"] = band_of(phys) if phys else ""

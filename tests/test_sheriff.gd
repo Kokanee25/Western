@@ -260,10 +260,10 @@ func _door() -> Array:
 	return [door, front.normalized()]
 
 
-## Dragged by the collar to the doctor's at noon (the playtest's way in, not the horse's card) and a
-## knock: the doctor answers by day, comes out to him and takes him in. Your hands on his collar
-## don't pack his wound, and the horse's caption isn't shown once you've dragged him.
-func test_dragged_to_the_doctors_door_by_day_the_doctor_answers() -> void:
+## Carried to the doctor's at noon (the playtest's way in, not the horse's card) and a knock: the
+## doctor answers by day, comes out to him and takes him in. Your hands on him don't pack his wound,
+## and the horse's caption isn't shown once you've carried him.
+func test_carried_to_the_doctors_door_by_day_the_doctor_answers() -> void:
 	var m := await _start()
 	var p := m.player()
 	var shown: Array[String] = []
@@ -276,7 +276,7 @@ func test_dragged_to_the_doctors_door_by_day_the_doctor_answers() -> void:
 	valley.folk._look = 0.0
 	await physics_frames(60)
 	check(valley.folk.book.inside(&"doctor").has(&"doctor"), "noon: the doctor's in (%s)" % [valley.folk.book.inside(&"doctor")])
-	# Him dragged to the foot of the doctor's door (moved whole: the 480 m is No Law's carry test's).
+	# Him lying at the foot of the doctor's door (moved whole: the 480 m is No Law's carry test's).
 	var d := _door()
 	var door: Vector3 = d[0]
 	var out: Vector3 = -d[1]
@@ -295,8 +295,8 @@ func test_dragged_to_the_doctors_door_by_day_the_doctor_answers() -> void:
 	await physics_frames(1)
 	Input.action_release(&"shove")
 	await physics_frames(3)
-	check(p.carry.carrying(m.sheriff), "you have him by the collar (%s)" % p.carry.report())
-	# E held a while with him by the collar: your hands are on his coat, not his wound.
+	check(p.carry.carrying(m.sheriff), "you have him over your shoulder (%s)" % p.carry.report())
+	# E held a while with him over your shoulder: your hands are on him, not his wound.
 	p.rotation.y = atan2(out.x, out.z)  # facing the door
 	await physics_frames(3)
 	check(p.knock.door_here().get("place", &"") == &"doctor", "at the doctor's door (%s)" % p.knock.report())
@@ -305,19 +305,19 @@ func test_dragged_to_the_doctors_door_by_day_the_doctor_answers() -> void:
 	await physics_frames(60)
 	Input.action_release(&"shove")
 	await physics_frames(3)
-	check(m.pressed_s == pressed and not m.packed, "by the collar, E doesn't press his wound (%.2f s)" % m.pressed_s)
+	check(m.pressed_s == pressed and not m.packed, "carrying him, E doesn't press his wound (%.2f s)" % m.pressed_s)
 	check(m.knocks >= 1, "E at the door bangs on it (%s)" % p.knock.report())
 	check(m.state in [&"knocked", &"doctor"] or m.done, "the knock's the beat (%s)" % m.state)
 	check(shown.any(func(x: String) -> bool: return x.begins_with("Doctor, inside")), "a voice through the door (%s)" % [shown])
 	var over := await wait_until(func() -> bool: return m.done, 60 * 30)
 	check(over, "the doctor comes out and takes him (%s; %s)" % [m.state, m.timeline.slice(-6)])
-	check(m.dragged_in and m.taken, "taken in, dragged")
+	check(m.carried_in and m.taken, "taken in, carried")
 	check(m.doctor != null and is_instance_valid(m.doctor) and m.doctor == valley.folk.folk_man(&"doctor"), "the town's doctor, out of his door")
 	check(not p.carry.carrying(), "you've let go of him")
 	check_eq(m.care, "poor", "unpacked: care poor (lost %.3f)" % m.loss_at_doctor)
 	check_eq(StoryState.get_fact("sheriff.care"), "poor", "the story knows")
 	var after: Array = shown.slice(took)
-	check(not after.any(func(x: String) -> bool: return x.contains("E by his horse")), "no horse caption once you've dragged him (%s)" % [after])
+	check(not after.any(func(x: String) -> bool: return x.contains("E by his horse")), "no horse caption once you've carried him (%s)" % [after])
 
 
 ## Out on his rounds by the book: a knock gets nobody, and says where he is.
@@ -341,8 +341,9 @@ func test_the_doctor_out_says_where() -> void:
 	check(shown.any(func(x: String) -> bool: return x.begins_with("Nobody answers") and x.contains("general store")), "told where he is (%s)" % [shown])
 
 
-## The clock while you drag him: the game's own rate (a game hour every 112.5 s), nothing faster.
-func test_the_clock_at_its_rate_while_dragging_him() -> void:
+## Carried (Sean, 2026-11-18: not dragged): taken up over your shoulder, clear of the ground, no blood
+## left on it while you carry him; and the clock at the game's own rate (a game hour every 112.5 s).
+func test_carried_off_the_ground_no_trail_and_the_clock_at_its_rate() -> void:
 	var m := await _start()
 	var p := m.player()
 	_put(p, m._sheriff_at() + Vector3(1.0, 0, 0.6))
@@ -353,19 +354,55 @@ func test_the_clock_at_its_rate_while_dragging_him() -> void:
 	at.y = m._ground(at.x, at.z) + 0.05
 	p.global_position = at
 	p.velocity = Vector3.ZERO
-	p.rotation.y = atan2(0.9, 0.0)
+	p.rotation.y = atan2(0.9, 0.0)  # facing back along -x: at his collar
 	await physics_frames(2)
-	p.carry.take(m.sheriff)
-	check(p.carry.carrying(m.sheriff), "you have him")
+	await physics_frames(60)  # (his pool started where he lies)
+	Input.action_press(&"shove")
+	await physics_frames(1)
+	Input.action_release(&"shove")
+	await physics_frames(3)
+	check(p.carry.carrying(m.sheriff) and m.sheriff.carried, "a tap of E: you take him up (%s)" % p.carry.report())
+	await physics_frames(60)  # (lifted)
+	var marks := get_tree().get_nodes_in_group(&"blood_marks").size()
+	var bleed := m.phys.total_bleed_rate()
 	var h0 := m.clock().time_of_day
 	p.rotation.y = atan2(-1.0, 0.0)
 	Input.action_press(&"move_forward")
-	await physics_frames(60 * 10)
+	var low := INF
+	for i in 10:
+		await physics_frames(60)
+		var ground := m._ground(p.global_position.x, p.global_position.z)
+		for v: Variant in m.sheriff.parts.values():
+			low = minf(low, (v as Node3D).global_position.y - ground)
 	Input.action_release(&"move_forward")
 	var hours := m.clock().time_of_day - h0
 	var rate := 10.0 / m.phys.tuning.game_hour_seconds
-	check(absf(hours - rate) < rate * 0.1, "10 s dragging him: %.3f game hours (the day's rate %.3f)" % [hours, rate])
-	check(p.carry.dragged_m > 3.0, "dragged him (%.1f m)" % p.carry.dragged_m)
+	check(absf(hours - rate) < rate * 0.1, "10 s carrying him: %.3f game hours (the day's rate %.3f)" % [hours, rate])
+	check(p.carry.dragged_m > 6.0, "carried him (%.1f m)" % p.carry.dragged_m)
+	check(low > 0.15, "clear of the ground all the way (his lowest part %.2f m up)" % low)
+	check(bleed > 0.5 and get_tree().get_nodes_in_group(&"blood_marks").size() == marks,
+			"bleeding (%.2f ml/s) but no blood left on the ground (%d marks, %d before)" % [bleed, get_tree().get_nodes_in_group(&"blood_marks").size(), marks])
+	if OS.has_environment("CARRY_DEBUG"):
+		var f := p.get_forward()
+		f.y = 0.0
+		f = f.normalized()
+		var r := f.cross(Vector3.UP)
+		for sid: Variant in m.sheriff.parts:
+			var d := (m.sheriff.parts[sid] as Node3D).global_position - p.global_position
+			print("      %s fwd %.2f right %.2f up %.2f" % [sid, d.dot(f), d.dot(r), d.y])
+	var head := (m.sheriff.parts[&"head"] as Node3D).global_position - p.global_position
+	var fwd := p.get_forward()
+	check(head.dot(fwd) < 0.0, "his head down your back (%.2f along your view)" % head.dot(fwd))
+	check(p.carry.blood_on_you > 0.0, "his blood on you (%s)" % p.carry.report())
+	# Laid down: in front of you, on the ground; his blood pools there again.
+	Input.action_press(&"shove")
+	await physics_frames(1)
+	Input.action_release(&"shove")
+	await physics_frames(60)
+	check(not p.carry.carrying() and not m.sheriff.carried, "a tap again: laid down (%s)" % p.carry.report())
+	var laid := ValleyFolk._body_at(m.sheriff)
+	check(laid.y - m._ground(laid.x, laid.z) < 0.45, "on the ground (%.2f m up)" % (laid.y - m._ground(laid.x, laid.z)))
+	check((laid - p.global_position).dot(p.get_forward()) > 0.2, "in front of you")
 
 
 ## Enter after (or held): the scene starts again from dawn with the story as it stood when it
