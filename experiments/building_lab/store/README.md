@@ -100,3 +100,38 @@ Sean: move the sign to the band over the porch. `front.sign_from` 4.4 / new `fro
 the parapet's, so no other building changes): the board sits between the porch roof (~4.5 m at the wall) and the upper windows' sills
 (5.6 m), the letters 0.5 m tall. `results/2026-11-17_look/front_band.jpg`. `spec_building.gd` is the structure code (one line, art's
 lab); FORMAT.md says so. Tests 8/8. Not re-judged (a sign's place isn't a look the judges grade). The rear wing (#1045's second call) is still open.
+
+## Lighting the shop (#1053, from the #1052 review)
+
+Grey cards (`light_review.gd`, `build/light/*/cards.txt`), noon: shop middle / back / back wall; counter front / middle.
+
+| | shop mid | shop back | back wall | counter front | counter mid |
+|---|---|---|---|---|---|
+| before (sash windows, cap 2.5, x1.05) | 0.298 | 0.103 | 0.110 | 0.475 | 0.222 |
+| storefront + cap 12 + pale ceiling | 0.541 | 0.190 | 0.150 | – | – |
+| + indoor exposure 1.7 | 0.661 | 0.256 | 0.193 | 0.699 | 0.590 |
+
+4 pm: shop 0.676 / 0.262 / 0.190, counter 0.712 / 0.606.
+
+- **Storefront** (`src/structures/storefront.gd`, a part in PARTS.md; NPS Preservation Brief 11): two show windows 3.44 x 2.9 m on
+  a 0.5 m panelled bulkhead, 2 lights over 4 transom lights, glass to 3.4 m; a recessed entry 5.18 m wide and 1.2 m deep, the
+  door (1.22 x 2.4, glazed leaf) set back, angled glass sides on bulkheads, a transom over the door, a beaded recess ceiling and a
+  threshold. Spec: opening `type` `recess` (its `depth`, `door`, `bulkhead`, `transom`, `header`) and a window's `show` block. A
+  per-opening `header` depth (0.25 here) carries the wide openings.
+- **RoomLight's cap** `opening_max_area` 2.5 -> 12 m² (energy still by sqrt(area)), so a show window lights like the glass it is.
+- **Indoor exposure**: RealLook's `exposure_indoor` 1.7, eased over `indoor_ease` 1 s, blended by daylight, only under a roof and
+  inside a building's interior probe; the street stays x1.05.
+- **Ceiling**: beaded boards in `painted_pale_tg` across the shop (spec `ceilings`: `rooms`, `around_beams`, `width`), stopping at
+  the beams. Dark posts and beams kept; the pale-beam variant is in the before/after sheet for Sean.
+- `day_fill` / `window_day` left at 0.55 / 26: the shop doesn't read flat with them (the beams and posts still shade).
+- Lamps by day: not needed, the back reads lit.
+- **The other buildings re-checked** (`light_recheck.gd`, old = cap 2.5 and x1.05 / new; whole frame mean, middle): doctor's office
+  0.184/0.222 -> 0.269/0.314, jail office 0.079/0.086 -> 0.144/0.148, saloon B to the door 0.145/0.109 -> 0.250/0.193 (its bar view
+  under the new light didn't finish in an hour under lavapipe, twice). All read brighter, none blown; their looks have no goldens.
+- **Goldens**: `inside_store_afternoon_real` re-approved (the old town store by day, brighter by the indoor exposure, diff looked
+  at). The street's real views keep x1.05; their small fails (mean ~3.4) are the revolver hand's pose in the corner, from main, not
+  this change, left for the nightly run.
+- **Pale posts and beams**: the variant (`timber` in `painted_pale_tg`) was killed three times before a frame; not shown. Sean's call.
+- **Cheap judge** (`results/2026-11-17_light_cheap/cheap.md`, one round): the entry good indie, the rest cheap indie; tell 1 (flat
+  light) passed in all five. What it marks is the store's emptiness (props, #695), the grey neighbours and the blank outside the
+  windows, the stripe's moire at 800 px, and the grey cards it took for placeholders: none of it this step's light.

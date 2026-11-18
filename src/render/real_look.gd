@@ -50,10 +50,13 @@ const ROOF_REACH := 30.0
 ## The real look's own dials (look addresses `real.<dial>`): exposure (a multiplier on DayCycle's;
 ## LightLooks blends it by the sun from real_light.json, x1.05 by day to x1.4 at night, #641),
 ## relief / groove / specular (the shaders' globals, real_look.gdshaderinc), SDFGI's energy
-## outdoors and under a roof.
+## outdoors and under a roof. `exposure_indoor` (#1053, Sean's pick A on #1052): inside a building by
+## day the eye adapts, so the exposure eases from `exposure` toward it over `indoor_ease` seconds,
+## blended by daylight (night unchanged); the street keeps `exposure` (x1.05, Sean 2026-11-08).
 static var dials := {
 	"exposure": 1.05, "relief": 0.004, "groove": 0.003, "specular": 0.35,
 	"sdfgi_outdoor": 1.0, "sdfgi_indoor": 0.0, "hung_energy": 1.0, "hung_reach": 1.0,
+	"exposure_indoor": 1.7, "indoor_ease": 1.0,
 }
 ## The hung lamps' meshes that cast a shadow under the real look (the tin shade over the flame).
 const HUNG_CASTERS := [&"Shade", &"ShadeUnder"]
@@ -72,6 +75,10 @@ var _attributes: CameraAttributesPractical
 var _env_attributes_before: CameraAttributes
 var _since_roof := 1.0
 var _under_roof := false
+## Inside a building (under a roof and in its interior's box), and how far the eye has adapted to it.
+var _indoors := false
+var _adapted := 0.0
+var _checked_at := Vector3.INF
 var _sdfgi := 1.0
 var _pending: Array[Node] = []
 var _room_state := -1
@@ -136,6 +143,7 @@ func _process(delta: float) -> void:
 			if is_instance_valid(n):
 				_filters(n, true)
 	_ease_sdfgi(delta)
+	_ease_exposure(delta)
 	_retake_probes()
 	_hung_lamps()
 
@@ -148,12 +156,46 @@ func _physics_process(delta: float) -> void:
 		return
 	_since_roof = 0.0
 	var cam := _camera()
-	var space := World.space(self)
+	# (the camera's world: the game's 3D is in its SubViewport, not this node's root viewport, #1053)
+	var space := World.space(cam) if cam else null
 	if cam == null or space == null:
 		return
 	var from := cam.global_position
 	var q := PhysicsRayQueryParameters3D.create(from, from + Vector3.UP * ROOF_REACH, Layers.WORLD)
 	_under_roof = not space.intersect_ray(q).is_empty()
+	_indoors = _under_roof and inside_building(get_tree(), from)
+	# A cut (a teleport, a shot's camera): the eye there at once, not easing across the cut.
+	if from.distance_to(_checked_at) > 3.0:
+		_adapted = 1.0 if _indoors else 0.0
+	_checked_at = from
+
+
+## Whether a point is inside a building: in an interior's box (FalseFrontBuilding's InteriorAmbient
+## probe, the walls' inner faces and up to the ridge). A porch roof over the walk isn't one.
+static func inside_building(tree: SceneTree, at: Vector3) -> bool:
+	for probe: Node in tree.get_nodes_in_group(&"interior_ambient"):
+		var p := probe as ReflectionProbe
+		if p == null or not p.is_inside_tree():
+			continue
+		var d := (p.global_transform.affine_inverse() * at).abs() - p.size * 0.5
+		if d.x <= 0.0 and d.y <= 0.0 and d.z <= 0.0:
+			return true
+	return false
+
+
+## The eye adapting indoors by day (#1053): the exposure eased toward `exposure_indoor` over
+## `indoor_ease` seconds inside a building, scaled by daylight, so the night's is as it was.
+func _ease_exposure(delta: float) -> void:
+	if _attributes == null:
+		return
+	var ease := maxf(float(dials.indoor_ease), 0.01)
+	_adapted = move_toward(_adapted, 1.0 if _indoors else 0.0, delta / ease)
+	var clock := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
+	var day := clock.get_daylight() if clock else 0.0
+	var base := float(dials.exposure)
+	var want := lerpf(base, maxf(base, float(dials.exposure_indoor)), _adapted * clampf(day, 0.0, 1.0))
+	if not is_equal_approx(_attributes.exposure_multiplier, want):
+		_attributes.exposure_multiplier = want
 
 
 ## The game's 3D viewport (Main's GameViewport), or null.
@@ -384,7 +426,7 @@ static func set_dial(tree: SceneTree, key: String, v: Variant) -> bool:
 	if node and node._applied:
 		node._globals(true)
 		if node._attributes:
-			node._attributes.exposure_multiplier = float(dials.exposure)
+			node._ease_exposure(0.0)  # (the indoor eye's, over the day's: #1053)
 	return true
 
 

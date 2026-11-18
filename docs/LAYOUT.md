@@ -486,7 +486,10 @@ anisotropic (`RealLook.VIEW_REAL`, look addresses `view.*`; `view.scaling_3d_sca
 from `config/looks/real_dials.json` (AgX, SSIL, the fog taking GI; SDFGI off since #643, its cascades
 scrolling as you walk a long frame every ~0.8 m, N's switch turns it on), every one put back off;
 exposure a `CameraAttributesPractical` multiplier (`real.exposure`: DayCycle sets the tonemap's
-own); SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four times a second),
+own); inside a building by day (under a roof and in an `interior_ambient` probe's box, so not under a
+porch roof) the exposure eases to `real.exposure_indoor` (1.7) over `real.indoor_ease` s, scaled by
+daylight, snapping across a cut (#1053: the eye adapting; the street keeps `real.exposure`);
+SDFGI's energy eased to `real.sdfgi_indoor` under a roof (a ray up four times a second),
 `real.sdfgi_outdoor` in the open; StandardMaterial3Ds' and decals' nearest filtering made linear,
 what's added later too. Emitters that undo ACES (`aces.gdshaderinc`: fire, glass, backdrop) still
 assume ACES under AgX.
@@ -951,6 +954,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `interior`: store, telegraph, doctor, bank: each furnished in members, with its lamps),
   `SashWindow` (#826: a lined double-hung sash, a glass member a light, dusty glass in
   `window_glass.gdshader`; the spec builder makes one for a window with `lights`),
+  `Storefront` (#1053: a window's `show` is plate glass with a transom row over a panelled bulkhead; an
+  opening of type `recess` a recessed entry, its door set back with angled glass and a ceiling; an
+  opening's `header` its header's depth),
   **`SpecBuilding`** (`spec_building.gd`, with `stair.gd`, `marks.gd`, `stone.gd`; R1, #975: the one
   builder of every spec building, in the game, not a lab's; its specs are `config/buildings/*.json`,
   which the export ships by `*.json` and which must never sit under a `.gdignore`, #1003; the

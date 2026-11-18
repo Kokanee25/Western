@@ -318,6 +318,11 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - **Before the judges: what they will mark that isn't yours.** Empty rooms (props), the cellar's doors and lantern (#695), grey
   neighbours: tell the critic nothing, but expect 5-6 DIFFERENT and don't spend a second round of renders on them.
 - **Measure the valley's render CPU once per building** (`--cpu`): a camera under the dug lot (the cellar) draws everything, 5.4 ms.
+- **A shop is lit through its storefront, not by dials** (#1053): sash windows on a 17 m deep room leave the back near black
+  however the fill is turned. Give a shop a `recess` entry and `show` windows (`Storefront`), let RoomLight see their full area
+  (`opening_max_area` 12), and leave the indoor exposure (RealLook `exposure_indoor` 1.7) to do the rest: back wall 0.110 -> 0.193.
+  A pale beaded ceiling (`ceilings`, `around_beams`) bounces it; measure each with grey cards, not by eye.
+- **Wide openings need a deeper header** (an opening's `header`): a 5 m recess on the 0.15 m default bent 1.24 in the checks.
 - **Cloud Vulkan:** `apt-get update && apt-get install -y mesa-vulkan-drivers libvulkan1` gives lavapipe's ICD; Godot 4.7.2 from
   the release zip, `cargo build --release` in the native plugin, `--import` ~6 min.
 

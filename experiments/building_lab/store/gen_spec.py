@@ -73,17 +73,40 @@ def win(level, at, width, height, sill, lights=4, **kw):
 
 
 DOOR_X = round(W / 2, 3)
+# The storefront (#1053): its glass from the bulkhead (0.5 m) to SF_H over the floor, the transom row its top
+# SF_TRANSOM; the recess's mouth between the front's two posts (each 0.2 m, under the beams at BX), its
+# kings (0.1 m, the front's tall studs) clear of them, a 10 in header over its 5.2 m (a 6 in bent past its
+# limit under the false front); the show windows from 1.94 m in to the posts. The glass's head stays under the
+# ribbon the loft's joists sit on.
+SF_H = 3.4
+SF_TRANSOM = 0.5
+POST_HALF = 0.1
+RECESS_W = round(BX[1] - BX[0] - 2 * (POST_HALF + 0.1 + 0.005), 3)
+SHOW_W = 3.44
+SHOW_X = round(BX[0] - POST_HALF - 0.1 - 0.005 - SHOW_W / 2, 3)
+
+
+def show(at, **kw):
+    d = {"type": "window", "show": True, "level": "ground", "at": at, "width": SHOW_W, "height": round(SF_H - 0.5, 3),
+         "sill": 0.5, "transom": SF_TRANSOM, "cols": 2, "transom_lights": 4}
+    d.update(kw)
+    return d
 front = {
     "id": "front", "line": [[0, 0], [W, 0]], "out": "-z", "top": FRONT_TOP, "outside": outside(),
     "inside": inside(W),
     "openings": [
-        {"type": "door", "level": "ground", "at": DOOR_X, "width": 1.22, "height": 2.4, "glazed": True, "transom": 0.45,
-         "_doc": "the shop door, 4 ft wide, glazed, a transom over it: the sheet's double doors as one wide leaf (the builder has no pair)"},
-        win("ground", 3.9, 2.0, 2.0, 0.5, _doc="the east show window, its display shelf behind"),
-        win("ground", round(W - 3.9, 3), 2.0, 2.0, 0.5, _doc="the west show window"),
-        win("upper", 3.9, 1.0, 1.7, 0.6, _doc="the stock loft's, over the show window, centred"),
+        # The storefront (#1053, Sean 2026-11-17: "a real store front", the recessed entry definite): NPS
+        # Preservation Brief 11's display windows on a low bulkhead, transoms over them and the door, the
+        # entry recessed with the show glass angling in to it. The glass between the front's two posts
+        # (x 5.49-5.69 and 11.07-11.27, under the beams) and out to 1.9 m from each corner: 70% of the width.
+        {"type": "recess", "level": "ground", "at": DOOR_X, "width": RECESS_W, "height": SF_H, "depth": 1.2, "header": 0.25,
+         "door": {"width": 1.22, "height": 2.4}, "bulkhead": 0.5, "transom": SF_TRANSOM,
+         "_doc": "the recessed entry: the door 1.2 m in, glazed, a transom light over it; the show glass angling in from the posts to its jambs over a panelled bulkhead; a boarded ceiling at the head"},
+        show(SHOW_X, _doc="the east show window, its display shelf behind"),
+        show(round(W - SHOW_X, 3), _doc="the west show window"),
+        win("upper", SHOW_X, 1.0, 1.7, 0.6, _doc="the stock loft's, over the show window, centred"),
         win("upper", DOOR_X, 1.0, 1.7, 0.6, _doc="over the door"),
-        win("upper", round(W - 3.9, 3), 1.0, 1.7, 0.6),
+        win("upper", round(W - SHOW_X, 3), 1.0, 1.7, 0.6),
     ],
 }
 alley = {
@@ -242,7 +265,7 @@ lamps = {"kit": [
     {"room": "room_3", "kit": "reflector_lamp", "wall": "hardware", "level": "upper", "at": 14.5, "height": 1.5, "energy": 1.0, "reach": 5.0, "lit": LIT},
 ]}
 surfaces = [
-    ["front/sign", "trim"], ["/casing", "trim"], ["/skirt", "trim"], ["/window_", "trim"], ["/siding/", "exterior"],
+    ["/recess/ceiling", "ceiling"], ["/recess/", "trim"], ["ceiling/", "ceiling"], ["front/sign", "trim"], ["/casing", "trim"], ["/skirt", "trim"], ["/window_", "trim"], ["/siding/", "exterior"],
     ["/corner_", "trim"], ["/trim_", "trim"], ["/transom_bar", "trim"], ["/cornice", "trim"], ["front/cap", "trim"],
     ["roof/ridge_cap", "trim"], ["front/door_", "trim"], ["back/door_", "trim"], ["/door_", "inside"],
     ["/in_ground/", "inside"], ["/in_upper/", "inside"], ["/m/board/", "inside"], ["/p/board/", "inside"],
@@ -260,6 +283,8 @@ materials = {
                      "_why": "Sean 2026-11-16: painted pale buff clapboard, the sheet; the merchant's pride, two years old"},
         "trim": {"want": {"entry": "painted_green_trim", "age": "few"}, "use": {"entry": "common_pine_lap", "age": "old", "role": "wall"}},
         "inside": {"want": {"entry": "painted_pale_tg", "age": "few"}, "use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"}},
+        "ceiling": {"want": {"entry": "painted_pale_tg", "age": "few"}, "use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"},
+                    "_why": "#1053: beaded boards painted pale under the loft's joists, the doctor's ceiling; the shop read black overhead (#1052)"},
         "floor": {"want": {"entry": "floor_fir_worn", "age": "few", "role": "floor"}, "use": {"entry": "fine_walnut_tg", "age": "few", "role": "floor"},
                   "_why": "oiled fir, worn on his ways (door to counter, counter to shelf), never a wall's or the trim's (#825)"},
         "framing": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
@@ -313,6 +338,7 @@ spec = {
     "rooms": rooms,
     "use_points": use_points,
     "fixtures": [], "furniture": [],
+    "ceilings": {"_doc": "#1053 (Sean's pick B on #1052): beaded boards nailed up under the loft's joists over the shop (the storeroom open to its joists: its stair goes up through them), painted pale (materials.finishes.ceiling), butted to the beams that hang under them; four beads a board", "finish": "beaded", "rooms": ["shop"], "around_beams": True, "width": 0.42},
     "lamps": lamps,
     "light": {"_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall; judged by day in #1035 (the doctor's 0.1 and 7 left the shop near black): 0.55 and 26",
               "fill": [0.62, 0.6, 0.57], "window_day": 26.0, "day_fill": 0.55},

@@ -588,39 +588,51 @@
    ],
    "openings": [
     {
-     "type": "door",
+     "type": "recess",
      "level": "ground",
      "at": 8.38,
-     "width": 1.22,
-     "height": 2.4,
-     "glazed": true,
-     "transom": 0.45,
-     "_doc": "the shop door, 4 ft wide, glazed, a transom over it: the sheet's double doors as one wide leaf (the builder has no pair)"
+     "width": 5.176,
+     "height": 3.4,
+     "depth": 1.2,
+     "header": 0.25,
+     "door": {
+      "width": 1.22,
+      "height": 2.4
+     },
+     "bulkhead": 0.5,
+     "transom": 0.5,
+     "_doc": "the recessed entry: the door 1.2 m in, glazed, a transom light over it; the show glass angling in from the posts to its jambs over a panelled bulkhead; a boarded ceiling at the head"
     },
     {
      "type": "window",
+     "show": true,
      "level": "ground",
-     "at": 3.9,
-     "width": 2.0,
-     "height": 2.0,
+     "at": 3.662,
+     "width": 3.44,
+     "height": 2.9,
      "sill": 0.5,
-     "lights": 4,
+     "transom": 0.5,
+     "cols": 2,
+     "transom_lights": 4,
      "_doc": "the east show window, its display shelf behind"
     },
     {
      "type": "window",
+     "show": true,
      "level": "ground",
-     "at": 12.86,
-     "width": 2.0,
-     "height": 2.0,
+     "at": 13.098,
+     "width": 3.44,
+     "height": 2.9,
      "sill": 0.5,
-     "lights": 4,
+     "transom": 0.5,
+     "cols": 2,
+     "transom_lights": 4,
      "_doc": "the west show window"
     },
     {
      "type": "window",
      "level": "upper",
-     "at": 3.9,
+     "at": 3.662,
      "width": 1.0,
      "height": 1.7,
      "sill": 0.6,
@@ -640,7 +652,7 @@
     {
      "type": "window",
      "level": "upper",
-     "at": 12.86,
+     "at": 13.098,
      "width": 1.0,
      "height": 1.7,
      "sill": 0.6,
@@ -1512,6 +1524,15 @@
  ],
  "fixtures": [],
  "furniture": [],
+ "ceilings": {
+  "_doc": "#1053 (Sean's pick B on #1052): beaded boards nailed up under the loft's joists over the shop (the storeroom open to its joists: its stair goes up through them), painted pale (materials.finishes.ceiling), butted to the beams that hang under them; four beads a board",
+  "finish": "beaded",
+  "rooms": [
+   "shop"
+  ],
+  "around_beams": true,
+  "width": 0.42
+ },
  "lamps": {
   "kit": [
    {
@@ -1707,6 +1728,18 @@
      "role": "wall"
     }
    },
+   "ceiling": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "#1053: beaded boards painted pale under the loft's joists, the doctor's ceiling; the shop read black overhead (#1052)"
+   },
    "floor": {
     "want": {
      "entry": "floor_fir_worn",
@@ -1750,6 +1783,18 @@
    }
   },
   "surfaces": [
+   [
+    "/recess/ceiling",
+    "ceiling"
+   ],
+   [
+    "/recess/",
+    "trim"
+   ],
+   [
+    "ceiling/",
+    "ceiling"
+   ],
    [
     "front/sign",
     "trim"
