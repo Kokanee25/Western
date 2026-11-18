@@ -108,13 +108,19 @@ func claims_use(p: Player) -> bool:
 
 
 ## How fast you go with him, a share of your walk (1 without him).
-func pace() -> float:
+func pace(wish := Vector3.ZERO) -> float:
 	if not carrying() or player == null:
 		return 1.0
 	var base := clampf(player.tuning.carry_speed / maxf(player.tuning.walk_speed, 0.1), 0.05, 1.0)
-	# He's a load: caught (a chair over his legs, a step) and lagging, he holds you back; you don't
-	# walk away from him (#1057: the card table's broken chair lay on Earl's legs).
-	return base * clampf(1.0 - (_lag - LAG_FREE) / LAG_SPAN, 0.1, 1.0)
+	# He's a load: caught (a chair over his legs, a step's edge) and lagging, he holds you; you don't
+	# walk away from him, you stand and haul till he comes (#1057: the card table's broken chair on
+	# Earl's legs; CI's run caught him on the walk's steps and tore him loose). Toward him you go free.
+	var to := collar(him) - player.global_position
+	to.y = 0.0
+	var away := wish.length() < 0.01 or to.length() < 0.01 or wish.normalized().dot(to.normalized()) < 0.2
+	if not away:
+		return base
+	return base * clampf(1.0 - (_lag - LAG_FREE) / LAG_SPAN, 0.0, 1.0)
 
 
 func _physics_process(delta: float) -> void:
@@ -262,7 +268,7 @@ var _lag := 0.0
 const LIFTED: Array[StringName] = [&"chest", &"abdomen", &"pelvis", &"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
 const LEGS: Array[StringName] = [&"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
 ## He comes loose only after he's been past carry_tear_m this long (s): a jolt on a step isn't it.
-const TEAR_S := 1.5
+const TEAR_S := 6.0
 var _tear_t := 0.0
 
 

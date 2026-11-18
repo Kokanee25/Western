@@ -423,9 +423,9 @@ func _physics_step(delta: float) -> void:
 		# Blown from running, the run sags.
 		var blown := clampf((composure.winded - 0.5) * 2.0, 0.0, 1.0) if composure else 0.0
 		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
-	speed *= move_factor * burden * (shove.pace() if shove else 1.0) * (carry.pace() if carry else 1.0)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
+	speed *= move_factor * burden * (shove.pace() if shove else 1.0) * (carry.pace(wish) if carry else 1.0)
 	var target := Vector2(wish.x, wish.z) * speed
 
 	var on_floor := is_on_floor()
