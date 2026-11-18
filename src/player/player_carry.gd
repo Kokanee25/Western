@@ -174,6 +174,7 @@ func take(m: HumanBody) -> bool:
 	him.dragged_by = player
 	_tear_t = 0.0
 	_lag = 0.0
+	_stuck_t = 0.0
 	dragged_m = 0.0
 	_from = player.global_position
 	_wounds_n = _wound_count()
@@ -220,6 +221,7 @@ func _hold(delta: float) -> void:
 	him.drag_toward(hands, delta)
 	_lift(delta)
 	_lag = collar(him).distance_to(hands)
+	_heave_step(hands, delta)
 	var step := Vector2(player.global_position.x - _from.x, player.global_position.z - _from.z).length()
 	dragged_m += step
 	dragged_total_m += step
@@ -265,6 +267,41 @@ func _lift(delta: float) -> void:
 const LAG_FREE := 1.1
 const LAG_SPAN := 1.2
 var _lag := 0.0
+## Caught and holding you (lagging past LAG_FREE + HEAVE_LAG for HEAVE_AFTER s): a heave, as you'd
+## put your back into it: his trunk and hips lifted and drawn toward your hands at once, every
+## HEAVE_EVERY s till he comes (#1057: on CI's machines Earl stuck on the steps up to the doctor's
+## walk where locally he came up them).
+const HEAVE_LAG := 0.4
+const HEAVE_AFTER := 0.8
+const HEAVE_EVERY := 0.9
+const HEAVE_UP := 1.4
+const HEAVE_PULL := 1.2
+var _stuck_t := 0.0
+var _heave_t := 0.0
+var heaves := 0
+
+
+func _heave_step(hands: Vector3, delta: float) -> void:
+	if not him.limp or _lag < LAG_FREE + HEAVE_LAG:
+		_stuck_t = 0.0
+		return
+	_stuck_t += delta
+	_heave_t -= delta
+	if _stuck_t < HEAVE_AFTER or _heave_t > 0.0:
+		return
+	_heave_t = HEAVE_EVERY
+	heaves += 1
+	var to := hands - collar(him)
+	to.y = 0.0
+	var pull := to.normalized() * HEAVE_PULL if to.length() > 0.01 else Vector3.ZERO
+	for sid: StringName in [&"chest", &"abdomen", &"pelvis", &"thigh_l", &"thigh_r", &"neck", &"head"]:
+		var rb := him.parts.get(sid) as RigidBody3D
+		if rb == null:
+			continue
+		rb.linear_velocity += pull + Vector3.UP * HEAVE_UP
+		rb.sleeping = false
+
+
 const LIFTED: Array[StringName] = [&"chest", &"abdomen", &"pelvis", &"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
 const LEGS: Array[StringName] = [&"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
 ## He comes loose only after he's been past carry_tear_m this long (s): a jolt on a step isn't it.
@@ -305,5 +342,5 @@ func _wound_count() -> int:
 func report() -> Dictionary:
 	var here := man_here()
 	return {"carrying": String(him.person_id) if carrying() else "", "dragged_m": snappedf(dragged_m, 0.1),
-			"blood_on_you": snappedf(blood_on_you, 0.01), "last": String(last), "why": String(last_why),
+			"blood_on_you": snappedf(blood_on_you, 0.01), "heaves": heaves, "last": String(last), "why": String(last_why),
 			"by_man": String(here.person_id) if here else ""}

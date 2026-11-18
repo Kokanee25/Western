@@ -104,7 +104,7 @@ func _walk(way: Array[Vector3], max_s: float) -> bool:
 		if i % 60 == 59:
 			stuck = stuck + 1 if p.global_position.distance_to(last) < 0.2 else 0
 			last = p.global_position
-			if stuck >= 4:
+			if stuck >= 10:
 				break
 	Input.action_release(&"move_forward")
 	return false
