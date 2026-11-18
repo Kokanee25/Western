@@ -69,7 +69,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Build: `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, .so to
   bin/. Films: the bridge's real look is OOM-killed in an 8 GB workspace (its memory climbs past 6 GB); use the
   bench's stills (`xvfb-run ... bench.gd -- --shots=2.6,2.7,... --cam=hands`, ~2 min, 2.4 GB).
-- **CI's tests in six shards** (#1015, PR #1046 open: one CI-only failure left, wound_signs' drag; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
+- **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"; wound_signs' drag test sits on its threshold, #1068): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
 
