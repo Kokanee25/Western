@@ -368,7 +368,7 @@ under "The Baron's foreman".
 | **Earl**, the card player | Caught out, placating | "Now, Cody, I never..." (built) |
 | **The boys** (two, young; names Sean's) | Loud, in the middle of a game | "Hands up, mister! This is a hold-up!" · "That's Pa's horse." |
 | **The livery man** | Grumbling to hide that he minds | "That horse is eating my oats, and the man that owned him's in the ground. Somebody ought to take him home to her." |
-| **The storekeeper** | Careful; everything's written down | "One handsaw, to a man I never saw before. It's in the book. Everything's in the book." |
+| **The storekeeper**, A. P. Hollis (his name gilded on the windows: Sean, #1067) | Careful; everything's written down | "One handsaw, to a man I never saw before. It's in the book. Everything's in the book." |
 | **The depot agent** | Railroad time, railroad words | "She's four minutes down by my clock. The town's clock don't signify." · "He's sent another wire east, Deputy." |
 | **The section foreman** | Out of breath, exact about track | "Spikes drawn, two rail lengths, west of the tank. And two riders I never saw before." |
 | **The express messenger** | Bleeding, still doing his job | "They've shut the cocks. Part her and she'll run on. Open the cocks first." |

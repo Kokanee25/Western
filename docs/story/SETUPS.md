@@ -170,7 +170,7 @@ on payday (D, Sean 2026-11-11, #830, C3 b). He was shown the two below and didn'
 isn't a pick: they stay P·bible. Placed where a curious player could find them, not on the main
 path:
 - **The storekeeper's day-book:** a handsaw sold that day to a man he didn't know, in his own hand on
-  the counter. Found only by a player who reads the book or asks him about strangers.
+  the counter. (He is A. P. Hollis, the name gilded on his windows: Sean, #1067.) Found only by a player who reads the book or asks him about strangers.
 - **The cut itself:** pale new wood in the girder, seen from below with a lamp, in the back of the
   room where nobody stands.
 - Everyone gets the last seconds: the floor's creak and bow, plaster dust sifting into the drinks at
