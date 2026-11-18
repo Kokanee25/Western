@@ -400,6 +400,11 @@ manager, the ending as the state of the town.
 - **Little acts in the world, not cutscenes** (Sean 2026-10-15): the table scene, the robbery,
   the hanging are written as acts (who goes where and says what, beat by beat) that the systems
   carry out and that hand back to the systems the moment you interfere. The camera stays yours.
+  How (Sean 2026-11-17, #1050): the act **holds its cast** (their brains wait while it walks them) and
+  a **quiet zone** round the beat, where townsfolk still look, flinch and back off but keep off its
+  marks and chairs, armed men stay out uninvited and nobody takes an actor on unless he turns on them.
+  **You break it** with a shot, a drawn gun, a hit, or by walking onto a mark or into an actor's way:
+  everyone's own brain has him from where he stands, and the systems decide how it ends.
 - **The demo** (`docs/ROADMAP.md`) is the prologue and day 1.
 
 ### Reasons to fight (**decided**, Sean 2026-10-01)

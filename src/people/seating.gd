@@ -13,13 +13,16 @@ const NEAR := 8.0
 const ARRIVE := 0.9
 
 
-## The nearest kit chair to `at` with a seat nobody's in, standing (not loose), or null.
-static func free_chair_near(tree: SceneTree, at: Vector3, radius := NEAR) -> KitProp:
+## The nearest kit chair to `at` with a seat nobody's in, standing (not loose), or null. For `who` (a
+## man), a chair a scene holds (SceneHold) isn't free unless he's in its cast.
+static func free_chair_near(tree: SceneTree, at: Vector3, radius := NEAR, who: Node = null) -> KitProp:
 	var best: KitProp = null
 	var best_d := radius
 	for s: Node in tree.get_nodes_in_group(&"structures"):
 		var kp := s as KitProp
 		if kp == null or kp.loose or kp.seated != null or not kp.definition.has("seat") or not kp.is_inside_tree():
+			continue
+		if who != null and not SceneHold.live.is_empty() and SceneHold.chair_held(kp, who):
 			continue
 		var d := kp.seat_position().distance_to(at)
 		if d < best_d:
@@ -48,7 +51,7 @@ static func sit_step(man: HumanBody, chair: KitProp, delta: float) -> bool:
 	if chair.seated == man:
 		man.set_pose(&"sit_back")
 		return true
-	if chair.seated != null:
+	if chair.seated != null or (not SceneHold.live.is_empty() and SceneHold.chair_held(chair, man)):
 		return false
 	var at := spot(chair)
 	var flat := man.global_position - at

@@ -13,7 +13,8 @@ extends Act
 ##
 ## Kett is the hideout's: a HumanBody with no gun, run by this act till he's to be taken in, when
 ## he gets an OutlawBrain that's given up (so G arrests him and he walks bound behind you). Joe is
-## the hideout's CompanionBrain, `held` while the scene walks him.
+## the hideout's CompanionBrain, held while the scene walks him (SceneHold, #1050: `hold`, breaking on
+## nothing: everything you do in here is an answer, so the cabin lets him go itself).
 
 const ARREST := "arrest"
 const REVENGE := "revenge"
@@ -23,6 +24,8 @@ const OUTSIDE := "outside"
 var hideout: NoJusticeHideout
 var joe: HumanBody
 var joe_brain: CompanionBrain
+## Joe held by the scene from Kett's surrender to the answer's end (SceneHold; no breaks of its own).
+var hold: SceneHold
 var kett: HumanBody
 var kett_brain: OutlawBrain
 var shack: FalseFrontBuilding
@@ -280,7 +283,7 @@ func _surrender() -> void:
 	_say_once(kett, "surrender")
 	kett.face(player().camera.global_position)
 	_next_t = t + _gap(line_preview("surrender"))
-	joe_brain.held = true
+	_hold_joe()
 	if joe.held_gun != null and not joe.gun_holstered:
 		joe.holster_gun()
 	_give_up_kett()  # (given up from now: G by him binds him, and that answers Joe too: #966's playtest)
@@ -305,15 +308,19 @@ func _scene_step(p: Player, delta: float) -> void:
 					_draw_knife()
 					_say_once(joe, "knife")
 					_next_t = t + _gap(line_preview("knife"))
+					_joe_best = INF
+					_joe_still = 0.0
 					_go(&"knife")
 		&"knife":
 			var to := _joe_at_kett()
-			_joe_go(to, float(data.get("joe_walk", 1.1)), delta)
+			# Held up on his way (the door's wreck, a body: the tests' order put a piece in his way, #1050)
+			# he asks from where he stands, as walking in does: the scene never waits on him for good.
+			var there := _joe_go(to, float(data.get("joe_walk", 1.1)), delta) or _joe_stuck(to, delta)
 			joe.face(kett.global_position + Vector3.UP * 1.3)
 			if t >= _next_t and not _spoken.has("bargain"):
 				_say_once(kett, "bargain")
 				_next_t = t + _gap(line_preview("bargain"))
-			elif _spoken.has("bargain") and t >= _next_t and _flat(joe.global_position, to) < 0.5:
+			elif _spoken.has("bargain") and t >= _next_t and (_flat(joe.global_position, to) < 0.5 or there):
 				joe.face(p.camera.global_position)
 				_say_once(joe, "ask")
 				prompt(String(_prompts().get("answer", "")), 10.0)
@@ -731,6 +738,21 @@ func _end(how: String, yours := false) -> void:
 
 func _release_joe() -> void:
 	_put_knife_away()
+	_let_joe_go()
+
+
+## The shared hold (SceneHold, #1050) on Joe in the shack: its quiet zone the shack and the yard by its
+## door. It breaks on nothing: a gun drawn, a shove, a ball, all are your answer here (`_answered`).
+func _hold_joe() -> void:
+	if hold != null and hold.on:
+		return
+	hold = SceneHold.claim(self, {"label": &"no_justice_cabin", "cast": [joe], "follow": shack,
+			"radius": float(data.get("hold_m", 6.0)), "breaks": [], "make_way": false, "keep_armed": false})
+
+
+func _let_joe_go() -> void:
+	if hold != null and is_instance_valid(hold):
+		hold.release()
 	if joe_brain and is_instance_valid(joe_brain):
 		joe_brain.held = false
 
@@ -779,7 +801,7 @@ func _at_jail() -> void:
 	var ja := _jail_local(jd.get("joe", [4.1, -8.2]))
 	joe.global_position = ja + Vector3.UP * 0.05
 	joe.rotation.y = HumanBody.yaw_toward(ja, door)
-	joe_brain.held = false
+	_let_joe_go()
 	prompt(String(_prompts().get("jail", "")), 6.0)
 	_go(&"jail")
 

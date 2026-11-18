@@ -2119,6 +2119,8 @@ func _rebuild_rig() -> void:
 func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> bool:
 	if limp or rising or (stumbling > 0.0 and not _stumble.get("steering", false)):
 		return false
+	if not SceneHold.live.is_empty():
+		target = SceneHold.steer(self, target)  # a scene's quiet zone: off its marks, chairs, actors (#1050)
 	var to := target - global_position
 	to.y = 0.0
 	var dist := to.length()

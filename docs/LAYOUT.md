@@ -1976,6 +1976,17 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   is on within 80 m and he comes to and gets up after (`_get_back_up`; a broken leg: he says so). The
   rope turns `spared` off. `-- --joe` brings him in beside you; bridge `joe [here|wait|come|state]`;
   the gunfight lab's `joe=1` (Shift+Y to play it; `joe_stats.py`). Stand-in body `miner_s4_talking`.
+- **Scenes that hold their cast** (`scene_hold.gd`, `SceneHold`, #1050; DESIGN.md "Little acts"): an act's
+  `SceneHold.claim(self, {cast, marks, chairs, centre|follow, radius, breaks, keep_armed, invited})`. The cast's
+  brains `held` (CivilianBrain: no tick but senses; OutlawBrain/CompanionBrain: calm business off, squaring up
+  and fights still theirs); `walk_to` asks `SceneHold.steer` (off marks, held chairs, actors; an armed man not
+  invited stops at the zone's edge), `Seating` skips a held chair (its sitter at claim keeps it), OutlawBrain
+  `spares` a held actor unless he turned on that man; a townsman stood in a walking actor's way steps aside.
+  `breaks` (default shot, draw, hit, mark; within radius + 15 m, or at the cast): let go on that frame,
+  `broken(why)`, a brainless actor gets one (armed: OutlawBrain, provoked by your shot; else CivilianBrain).
+  Users: NoLawMurder (`scene_hold`, the stranger then Cody, Earl's and his chairs, Cody's next mark;
+  broken: `end` broken, `nolaw.hold_broken`), NoJusticeCabin (Joe, no breaks: its answers are yours),
+  CardGame (`seat_hold`: a hand's chairs). `tests/test_scene_hold.gd`.
 
 ## src/audio
 

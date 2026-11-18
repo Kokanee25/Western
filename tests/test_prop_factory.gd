@@ -208,6 +208,10 @@ func test_a_man_laid_on_the_table_or_the_cot_is_carried() -> void:
 
 
 func test_a_shot_through_an_oak_leg_is_carved_where_the_leg_is() -> void:
+	# Its own table whatever ran before: the id and variant count every examining table made (each
+	# valley builds the doctor's), the hole's ragged dice are by the id, and this leg holds on some
+	# dice and not others (#1050: three more valleys before it in the suite and it broke).
+	PropKit._made.erase(&"examining_table")
 	var t := await _place(&"examining_table")
 	var ballistics := Ballistics.new()
 	world.add_child(ballistics)

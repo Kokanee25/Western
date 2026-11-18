@@ -47,7 +47,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   the saloon lot's floor (the walk's top, not the ground: `ValleyFolk.ground` gives the pad under the floor), using
   the spec's own `no_law_table` (under the well) and bar instead of spawning a second set, with ways in by the
   corner door. Payday Night: `SpecBuilding.saw_girder()` with the dancers' weight on the dance floor's boards.
-- **Falls from height** done (#759, `Falls`, `config/falls.tres`).
+- **Scenes that hold their cast** (#1050, `SceneHold`; LAYOUT "src/people"): an act claims its men, marks, chairs and
+  a quiet zone; your shot, drawn gun, hit or step onto a mark lets go on that frame. On it: No Law's murder (the
+  stranger, Cody), the cabin (Joe, no breaks), a card hand's chairs. Not yet: No Justice's camp and hideout (Joe's
+  `held` set by hand), the sheriff's scenes, the funeral (#1050's handover).
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).

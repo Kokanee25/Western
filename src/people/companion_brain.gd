@@ -59,9 +59,7 @@ var _said_up := true  # (set false when he goes down)
 var _stuck_t := 0.0
 var _go_last := Vector3.INF
 var _way: Array[Vector3] = []
-## Held by a scene (No Justice's camp, `NoJusticeCamp`): while it's quiet the scene walks him and
-## turns him, not his following; in a fight he's his own man again.
-var held := false
+## (`held`, OutlawBrain's: a scene walks him while it's quiet, SceneHold; in a fight he's his own man.)
 ## In the cowboy's hat and neckerchief (S12, No Justice step 2; his look is the Studio's).
 var costume := false
 

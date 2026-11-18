@@ -248,6 +248,9 @@ var _post_look := Vector3.INF
 
 var body: HumanBody
 var mood := Mood.CALM
+## Held by a scene (SceneHold, #1050; No Justice's camp and cabin walk Joe so): while it's calm the
+## scene walks and turns him, not his own business; a man squaring up to him, or a fight, is still his.
+var held := false
 var fear := 0.0
 ## Where his fear came from (`_scare`): why -> how much, all told.
 var fear_from := {}
@@ -693,6 +696,8 @@ func turn_on(who: Node) -> void:
 func _start_fight(with_who: Node, his_idea := false) -> void:
 	if with_who == null or not is_instance_valid(with_who):
 		return
+	if not SceneHold.live.is_empty() and SceneHold.spares(body, with_who):
+		return  # held in a scene he isn't in (#1050): he takes cover, backs off or watches
 	if mood == Mood.CALM:
 		if not quiet_start and not his_idea:
 			say(&"jump" if _own_idea else &"provoked")
@@ -1151,15 +1156,23 @@ func _physics_step(delta: float) -> void:
 	_pick_fight(delta)
 	match mood:
 		Mood.CALM:
-			if _mind_fire(delta):
+			if held and not _held_reacts():
+				return  # the scene has him
+			if not held and _mind_fire(delta):
 				return
-			if _can_go_about():
+			if not held and _can_go_about():
 				_go_about(delta)
 			else:
 				_social(delta)
 		Mood.FIGHTING, Mood.RELOADING:
 			_fought_at = _now
 			_combat(delta)
+
+
+## Held by a scene, a man he's wary of or worse is still his to square up to (`_social`).
+func _held_reacts() -> bool:
+	var who := relations.focus()
+	return who != null and relations.stance(who) >= Relations.Stance.WARY
 
 
 ## Who (if anyone) he's fighting: whoever it's come to that with. Keeps to the man in front of him
@@ -1180,6 +1193,8 @@ func _pick_fight(delta: float) -> void:
 	for who in relations.entries.keys():  # a copy: a freed key can loop the walk (Senses)
 		if not is_instance_valid(who) or relations.stance(who) != Relations.Stance.FIGHT or _done_with(who):
 			continue
+		if not SceneHold.live.is_empty() and SceneHold.spares(body, who):
+			continue  # a scene's actor (#1050): he watches, unless that man turns on him
 		var p: float = relations.entries[who].pressure + (1.0 if senses.sees(who) else 0.0) + (0.5 if who == t else 0.0)
 		if p > best_p:
 			best = who
@@ -1464,7 +1479,7 @@ func _walk_route(delta: float, speed: float) -> bool:
 func _drink(step: Dictionary, delta: float) -> bool:
 	if step.get("sit", false):
 		if _chair == null or not is_instance_valid(_chair) or _chair.loose or (_chair.seated != null and _chair.seated != body):
-			_chair = Seating.free_chair_near(body.get_tree(), body.global_position)
+			_chair = Seating.free_chair_near(body.get_tree(), body.global_position, Seating.NEAR, body)
 		if _chair != null:
 			Seating.sit_step(body, _chair, delta)
 	else:

@@ -65,6 +65,9 @@ var mood := Mood.CALM
 var fear := 0.0
 ## His dials, each 0 to 1 (ValleyFolk.dials_of): nerve, nosy, duty; the middle if nobody set them.
 var dials := {"nerve": 0.5, "nosy": 0.5, "duty": 0.5}
+## Held by a scene (SceneHold, #1050): it walks and turns him, not his day or his fright; his senses
+## still take things in, and his own brain has him again from where he stands when it lets go.
+var held := false
 ## Doors he'd run to from trouble (his own, the store, the saloon: ValleyFolk's); none, he hides
 ## where he is.
 var refuges: Array[Vector3] = []
@@ -659,6 +662,8 @@ func _physics_step(delta: float) -> void:
 	if mood == Mood.DOWN:
 		# Back on his feet (HumanBody.get_up): shaken by it.
 		mood = Mood.SHAKEN
+	if held:
+		return  # the scene has him
 	_since_said += delta
 	_hush = maxf(_hush - delta, 0.0)
 	if body.stumbling > 0.0:
