@@ -125,6 +125,13 @@ Grey cards (`light_review.gd`, `build/light/*/cards.txt`), noon: shop middle / b
   the beams. Dark posts and beams kept; the pale-beam variant is in the before/after sheet for Sean.
 - `day_fill` / `window_day` left at 0.55 / 26: the shop doesn't read flat with them (the beams and posts still shade).
 - Lamps by day: not needed, the back reads lit.
+- **The other buildings re-checked** (`light_recheck.gd`, old = cap 2.5 and x1.05 / new; whole frame mean, middle): doctor's office
+  0.184/0.222 -> 0.269/0.314, jail office 0.079/0.086 -> 0.144/0.148, saloon B to the door 0.145/0.109 -> 0.250/0.193 (its bar view
+  under the new light didn't finish in an hour under lavapipe, twice). All read brighter, none blown; their looks have no goldens.
+- **Goldens**: `inside_store_afternoon_real` re-approved (the old town store by day, brighter by the indoor exposure, diff looked
+  at). The street's real views keep x1.05; their small fails (mean ~3.4) are the revolver hand's pose in the corner, from main, not
+  this change, left for the nightly run.
+- **Pale posts and beams**: the variant (`timber` in `painted_pale_tg`) was killed three times before a frame; not shown. Sean's call.
 - **Cheap judge** (`results/2026-11-17_light_cheap/cheap.md`, one round): the entry good indie, the rest cheap indie; tell 1 (flat
   light) passed in all five. What it marks is the store's emptiness (props, #695), the grey neighbours and the blank outside the
   windows, the stripe's moire at 800 px, and the grey cards it took for placeholders: none of it this step's light.
