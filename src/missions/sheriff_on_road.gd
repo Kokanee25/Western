@@ -26,6 +26,9 @@ var horse: Horse
 var phys: Physiology
 var site := Vector3.ZERO
 var gesture := HeadGesture.new()
+## The slow nod (a deliberate one, a swing a second or two apart): read as well as the plain one
+## (#1081). Only the nod: a slow shake is looking round.
+var slow_gesture := HeadGesture.new()
 
 ## What you've done.
 var found := false  ## been within found_m of him
@@ -41,6 +44,10 @@ var care := ""
 var loss_at_doctor := -1.0
 var trip_s := 0.0
 var trip_m := 0.0
+## Dragged to the doctor's by the collar (PlayerCarry) and knocked (PlayerKnock): the knocks there
+## with him by the door, and whether the doctor came out to him (not the card's way in).
+var knocks := 0
+var dragged_in := false
 
 var _wound_beat := -1.0  # when the nod's line was said (the red shirt follows)
 var _said_shot_by := false
@@ -51,6 +58,9 @@ var _closer_t := -9.0
 var _hail_t := -9.0
 var _wounds_seen: Array = []  # his wounds as they were on the road (drawn again at the doctor's)
 var _end_t := -1.0
+var _knock_t := 0.0
+var _e_held := 0.0  # how long E's been held this press
+var _had_him := false  # whether you had him by the collar when this press began
 ## Cards and the doctor's beats this many times as long (opts `pace`: the tests run them quicker).
 var pace := 1.0
 
@@ -71,6 +81,11 @@ func begin() -> void:
 	_horse_place()
 	state = &"wounding"
 	add_to_group(&"claims_use")
+	var sg: Dictionary = data.get("slow_nod", {})
+	slow_gesture.swing_deg = float(sg.get("swing_deg", 4.0))
+	slow_gesture.window_s = float(sg.get("window_s", 8.0))
+	if valley and valley.folk and not valley.folk.knocked.is_connected(_on_knocked):
+		valley.folk.knocked.connect(_on_knocked)
 	_note("begin")
 
 
@@ -261,6 +276,8 @@ func _physics_process(delta: float) -> void:
 		&"trip":
 			if not card_up():
 				_at_doctor()
+		&"knocked":
+			_knocked_step()
 		&"doctor":
 			_doctor_step()
 		&"left":
@@ -302,10 +319,16 @@ func _road_step(delta: float) -> void:
 		asked = true
 		_ask_t = t
 		_say(line("ask", band))
-		prompt("Nod to help him, shake your head to leave him (move your view)", 5.0)
+		prompt(String(data.get("ask_prompt", "Nod to help him (look down, up, down), shake your head to leave him (look left, right, left)")), 8.0)
 	# Your answer: the view's nod or shake, while you're with him.
 	if found and dist < float(dd.get("hail_m", 25.0)):
 		var g := gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), delta)
+		var slow := slow_gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), delta)
+		if g == &"" and slow == &"nod":
+			g = slow  # (a slow shake is only looking round: not read)
+		if g != &"":
+			gesture = HeadGesture.new()
+			slow_gesture = _slow_gesture()
 		# Only a change of answer counts (turning away to leave reads as more shaking).
 		if g != &"" and asked and String(g) != answer:
 			_answer(String(g), band)
@@ -335,7 +358,7 @@ func _answer(g: String, band: String) -> void:
 		_wound_beat = t
 		_said_shot_by = false
 		_say(line("nod", band))
-		prompt("Hold E on the wound to press it. E by his horse to take him in", 5.0)
+		prompt(String(data.get("nod_prompt", "Hold E on the wound to press it. E by his horse to take him in")), 6.0)
 	else:
 		_say(line("shake", band))
 
@@ -373,7 +396,20 @@ func _by_horse(p: Player) -> bool:
 
 func _press_step(p: Player, delta: float, band: String) -> void:
 	var e := Input.is_action_pressed(&"shove")
-	var now := e and _by_wound(p)
+	# By the collar your hands are on his coat, not his wound (#1081: held E at the doctor's door
+	# packed him as you knocked). E tapped by him takes him by the collar (PlayerCarry); held, it's
+	# for the wound: let go of the collar and press.
+	var have := _have_him(p)
+	if Input.is_action_just_pressed(&"shove") or not e:
+		_e_held = 0.0
+		_had_him = have
+	if e:
+		_e_held += delta
+		if have and not _had_him and _e_held >= float((data.get("care", {}) as Dictionary).get("hold_to_press_s", 0.35)) and _by_wound(p):
+			p.carry.drop()
+			have = false
+			_note("held E by his wound: let go of his collar to press it")
+	var now := e and _by_wound(p) and not have
 	if now != pressing:
 		pressing = now
 		if not phys.bleeds.is_empty():
@@ -391,9 +427,10 @@ func _press_step(p: Player, delta: float, band: String) -> void:
 			_note("packed and bound")
 			_say(line("packed", band))
 			prompt("Packed and bound. E by his horse to take him in", 4.0)
-	if e and not pressing and _by_horse(p):
+	if e and not pressing and not have and _by_horse(p):
 		_take_him_in()
-	elif e and not pressing and _flat(p.global_position, _sheriff_at()) < 5.0 and t - _closer_t > 2.0:
+	elif e and not pressing and not have and _flat(p.global_position, _sheriff_at()) < 5.0 and t - _closer_t > 2.0 \
+			and (p.carry == null or p.carry.near_man() != sheriff):
 		_closer_t = t
 		prompt("Closer: kneel by his wound", 1.5)
 
@@ -509,8 +546,11 @@ func _doctor_step() -> void:
 			phys.treated.emit(&"pressure", &"abdomen")
 		sheriff.go_limp()
 		_doc_said = 1
-	elif _doc_said == 1 and dt > 1.5:
+	elif _doc_said == 1 and dt > 1.5 and (not dragged_in or dt > 8.0 or doctor == null or not is_instance_valid(doctor) \
+			or _flat(doctor.global_position, _sheriff_at()) < 1.8):
 		_doc_said = 2
+		if dragged_in:
+			_doc_t = t - 1.5 * pace  # (the rest timed from his first word, however long he took to come)
 		speak(doctor, line("doctor", _doc_band))
 		_note("doctor: " + _doc_band)
 	elif _doc_said == 2 and dt > 7.5:
@@ -518,7 +558,8 @@ func _doctor_step() -> void:
 		speak(doctor, line("doctor_after", care))
 	elif _doc_said == 3 and dt > 12.0:
 		_doc_said = 4
-		card(String((data.get("cards", {}) as Dictionary).get("end", "%s")).replace("%s", care), 6.0 * pace)
+		var end := "end_dragged" if dragged_in else "end"
+		card(String((data.get("cards", {}) as Dictionary).get(end, "%s")).replace("%s", care), 6.0 * pace)
 		_end(care)
 
 
@@ -532,6 +573,97 @@ func _lot_front(id: String) -> Vector3:
 				var z := (front - 3.0) * (-1.0 if s == "north" else 1.0)
 				return _on_ground(Vector2((float(d.x0) + float(d.x1)) * 0.5, z))
 	return _on_ground(Vector2.ZERO)
+
+
+# --- Dragged in and knocked (#1081) ----------------------------------------------------------------
+
+## You have him by the collar (PlayerCarry, #1057).
+func _have_him(p: Player) -> bool:
+	return p != null and p.carry != null and sheriff != null and is_instance_valid(sheriff) and p.carry.carrying(sheriff)
+
+
+func _slow_gesture() -> HeadGesture:
+	var g := HeadGesture.new()
+	g.swing_deg = slow_gesture.swing_deg
+	g.window_s = slow_gesture.window_s
+	return g
+
+
+## A bang on a door (ValleyFolk.knocked): the doctor's, with the sheriff dragged to it, by day as by
+## night. The doctor in (the town's book): a voice through the door, and he comes out to him. Out:
+## nobody answers, and you're told where he is.
+func _on_knocked(place: StringName, inside: Array, by: Node, at: Vector3) -> void:
+	if done or not by is Player or place != StringName(String(data.get("doctor_lot", "doctor"))):
+		return
+	if state not in [&"road", &"knocked"] or sheriff == null or not is_instance_valid(sheriff):
+		return
+	if _flat(_sheriff_at(), at) > float(data.get("door_body_m", 4.5)):
+		_note("a knock at the doctor's without the sheriff by it")
+		return
+	knocks += 1
+	var doc_id := StringName(String((data.get("doctor", {}) as Dictionary).get("folk_id", "doctor")))
+	if not inside.has(doc_id):
+		var where := ""
+		if valley and valley.folk and valley.folk.book:
+			var row: Dictionary = valley.folk.book.row(doc_id)
+			where = String(row.get("in", ""))
+			if where == "":
+				where = String(row.get("at", ""))
+		where = where.replace("_", " ")
+		_note("knocked (%d): the doctor's out (%s)" % [knocks, where])
+		var text := String(data.get("doctor_out", "Nobody answers. The doctor's out: at the %s."))
+		prompt(text.replace("%s", where) if where != "" else "Nobody answers.", 4.0)
+		return
+	_note("knocked (%d): inside %s" % [knocks, inside])
+	if state == &"road":
+		_knock_t = t
+		state = &"knocked"
+		var wait := line("door_wait", band_of(phys))
+		if wait != "":
+			prompt("Doctor, inside: \"%s\"" % wait, 3.0)
+
+
+func _knocked_step() -> void:
+	if t - _knock_t > float(data.get("answer_s", 4.0)) * pace:
+		_doctor_out()
+
+
+## He opens: out of his door to the sheriff where you've dragged him (the town's doctor, ValleyFolk;
+## a stand-in at his door if the town has none). You let go; he's taken in.
+func _doctor_out() -> void:
+	taken = true
+	dragged_in = true
+	pressing = false
+	if not phys.bleeds.is_empty():
+		phys.bleeds[0].hand = false
+	var p := player()
+	if p and p.carry:
+		trip_m = p.carry.dragged_m
+		p.carry.drop()
+	var to := _sheriff_at()
+	var doc_id := StringName(String((data.get("doctor", {}) as Dictionary).get("folk_id", "doctor")))
+	doctor = valley.folk.call_out(doc_id) if valley and valley.folk else null
+	if doctor != null:
+		var brain := doctor.get_node_or_null(^"Brain") as CivilianBrain
+		if brain:
+			if brain.reaction:
+				brain.reaction.forget()
+			brain.chores = []
+			brain.chore = null
+			var from := doctor.global_position - to
+			from.y = 0.0
+			brain.go_to(to + (from.normalized() if from.length() > 0.1 else Vector3.BACK) * 1.1, to)
+	else:
+		var door := _doctor_front()
+		doctor = _man(data.doctor, door, to)
+	loss_at_doctor = phys.blood_loss()
+	care = care_for(true, packed, loss_at_doctor, float((data.get("care", {}) as Dictionary).get("good_max_loss", 0.3)))
+	_record()
+	_note("the doctor opens: %s" % care)
+	_doc_band = band_of(phys)
+	_doc_t = t
+	_doc_said = 1  # (his body's the one you dragged: nothing to lay down again)
+	state = &"doctor"
 
 
 # --- Leaving him -------------------------------------------------------------------------------------
@@ -602,6 +734,8 @@ func result() -> Dictionary:
 	r["pressed_s"] = snappedf(pressed_s, 0.01)
 	r["packed"] = packed
 	r["taken"] = taken
+	r["knocks"] = knocks
+	r["dragged_in"] = dragged_in
 	r["left"] = left_him
 	r["blood_loss"] = snappedf(phys.blood_loss(), 0.001) if phys else -1.0
 	r["band"] = band_of(phys) if phys else ""
@@ -625,6 +759,8 @@ func result() -> Dictionary:
 
 
 func reset() -> void:
+	if valley and is_instance_valid(valley) and valley.folk and valley.folk.knocked.is_connected(_on_knocked):
+		valley.folk.knocked.disconnect(_on_knocked)
 	for n in [sheriff, doctor, horse]:
 		if is_instance_valid(n):
 			(n as Node).queue_free()
