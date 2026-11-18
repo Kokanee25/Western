@@ -115,6 +115,16 @@ var heard: Array = []
 var fetch: FetchHelp
 var _spoke_at := {}
 var _said_n := {}
+## A door banged on (PlayerKnock, #1057): the place, who's in it on the book (heard it), who banged
+## and where. An act answers it (No Law's carry: the doctor); `knocks` keeps them [frame, place, ids].
+signal knocked(place: StringName, inside: Array, by: Node, at: Vector3)
+var knocks: Array = []
+## The dead laid out where they were left for the night (No Law: Earl in the doctor's front room,
+## #1057): id -> {place, at, sheet}. The undertaker takes them from there (`to_undertaker`).
+var laid := {}
+## No Law's carry (NoLawCarry, #1057): Earl alive after the murder, his body to the doctor's.
+var carry_act: Moment
+const CARRY := &"no_law_carry"
 
 
 func _init() -> void:
@@ -123,6 +133,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	add_to_group(&"valley_folk")
+	add_to_group(&"knock_doors")  # its places' doors (PlayerKnock)
 	fetch = FetchHelp.new(self)
 	if layout == null:
 		layout = ValleyLayout.main()
@@ -945,6 +956,7 @@ func _step(delta: float) -> void:
 	if lights:
 		lights.show_book(book, h)
 	_maybe_murder(h)
+	_carry_step()
 	_morning_step(h)
 	_funeral_step(h)
 	_talk_step()
@@ -1228,7 +1240,10 @@ func _morning_step(h: float) -> void:
 		_story("nolaw.morning", true)
 	if state.get(&"earl") == &"dead" and not gone_for_good.has(&"earl"):
 		var earl := folk_man(&"earl")
-		if earl == null or not _you_see(_body_at(earl), float(md.get("unseen_m", 30.0))):
+		# Laid out in the doctor's front room (#1057): there under his sheet till the sheriff's scene is
+		# over (you pass him on the way in), then the undertaker's.
+		var kept: bool = laid.has(&"earl") and StoryState.get_fact("nolaw.sheriff") != "dead"
+		if not kept and (earl == null or not _you_see(_body_at(earl), float(md.get("unseen_m", 30.0)))):
 			to_undertaker(&"earl")
 	if (sheriff_scene == null or not is_instance_valid(sheriff_scene)) and not StoryState.has_fact("nolaw.sheriff") \
 			and in_hours(h, [float(md.get("sheriff_from", 7.5)), float((md.get("hours", [5.0, 19.5]) as Array)[1])]):
@@ -1239,6 +1254,10 @@ func _morning_step(h: float) -> void:
 ## for good, and a recorded death (StoryState death.<id>; nolaw.earl = undertaker).
 func to_undertaker(id: StringName) -> void:
 	gone_for_good[id] = true
+	var lay: Dictionary = laid.get(id, {})
+	laid.erase(id)
+	if lay.get("sheet") != null and is_instance_valid(lay.sheet):
+		(lay.sheet as Node).queue_free()
 	var man := folk_man(id)
 	people.erase(id)
 	state[id] = &"buried"
@@ -1246,7 +1265,8 @@ func to_undertaker(id: StringName) -> void:
 		man.queue_free()
 	if id == &"earl":
 		_story("nolaw.earl", "undertaker")
-		_story("death.earl", String((data.get("morning", {}) as Dictionary).get("earl_death", "Earl, shot.")))
+		var md: Dictionary = data.get("morning", {})
+		_story("death.earl", String(md.get("earl_death_doctor" if lay.get("place", "") == "doctor" else "earl_death", md.get("earl_death", "Earl, shot."))))
 
 
 # --- The funeral (#868) ---------------------------------------------------------------------------
@@ -1412,3 +1432,143 @@ func report() -> Dictionary:
 		out[String(id)] = d
 	out["_day"] = {"day": town_day(), "kind": String(day_kind(town_day())), "shows": lights.report() if lights else {}}
 	return out
+
+
+# --- Doors banged on (PlayerKnock, #1057) -----------------------------------------------------------
+
+## Every place someone lives or goes in at (homes and their day's `in`), with a door point.
+func door_places() -> Array[StringName]:
+	if not _door_places.is_empty():
+		return _door_places
+	var out: Array[StringName] = []
+	for p: Dictionary in data.people:
+		var names: Array = [String(p.get("home", ""))]
+		for k: String in ["day", "sunday"]:
+			for b: Variant in p.get(k, []):
+				if b is Dictionary and (b as Dictionary).has("in"):
+					names.append(String(b["in"]))
+		for n: String in names:
+			var pn := StringName(n)
+			if n != "" and places.has(pn) and not out.has(pn):
+				out.append(pn)
+	_door_places = out
+	return out
+var _door_places: Array[StringName] = []
+
+
+## The door you're at (PlayerKnock): the nearest door point within `reach` (flat, a storey's height)
+## in front of you; {} if none.
+func door_near(at: Vector3, fwd: Vector3, reach: float) -> Dictionary:
+	var best := {}
+	var best_d := reach
+	for pn: StringName in door_places():
+		var d_at := places.at(pn)
+		var to := d_at - at
+		if absf(to.y) > 1.6:
+			continue
+		to.y = 0.0
+		var d := to.length()
+		if d > best_d:
+			continue
+		if d > 0.6 and fwd.length() > 0.01 and rad_to_deg(fwd.angle_to(to / d)) > 75.0:
+			continue
+		best = {"place": pn, "at": d_at}
+		best_d = d
+	return best
+
+
+## A bang on `place`'s door: whoever the book has inside hears it (their ids), and it's told
+## (`knocked`) for an act to answer.
+func knock(place: StringName, by: Node, at: Vector3) -> Array:
+	var inside: Array = []
+	for id: StringName in book.inside(place):
+		inside.append(id)
+	knocks.append([Engine.get_physics_frames(), place, inside.duplicate()])
+	knocked.emit(place, inside, by, at)
+	return inside
+
+
+# --- No Law's carry (#1057) --------------------------------------------------------------------------
+
+## The murder's shot fired and Earl still breathing: the carry (NoLawCarry: the barkeep sends you to
+## Doc's with him), once, from when the barkeep's said there's nobody to fetch (or it's over).
+func _carry_step() -> void:
+	if not murder_auto or carry_act != null or StoryState.has_fact("nolaw.carried_earl") \
+			or not StoryState.get_fact("nolaw.murder") in ["earl", "done"]:
+		return
+	if not FileAccess.file_exists("res://config/moments/%s.json" % CARRY):
+		return
+	var earl := folk_man(&"earl")
+	if earl == null or not earl.physiology.alive:
+		return
+	var m := murder as NoLawMurder
+	if m != null and is_instance_valid(m) and not m.done and not m.fetch_said():
+		return
+	start_carry()
+
+
+func start_carry(options := {}) -> Moment:
+	carry_act = Moment.start_named(CARRY, get_parent() as Node3D, null, options)
+	return carry_act
+
+
+## Lay a dead man out where he is for the night (a body under a sheet: `sheet` a drawn stand-in, a
+## pale box over him, no collision), moved first to `to` if it's given and you can't see him go.
+func lay_out(id: StringName, place: StringName, to := Vector3.INF) -> Node3D:
+	var man := folk_man(id)
+	if man == null:
+		return null
+	if to != Vector3.INF:
+		move_body(man, to)
+	var old: Dictionary = laid.get(id, {})
+	if old.get("sheet") != null and is_instance_valid(old.sheet):
+		(old.sheet as Node).queue_free()
+	var sheet := MeshInstance3D.new()
+	sheet.name = "Sheet_%s" % id
+	var box := BoxMesh.new()
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.86, 0.84, 0.78)
+	mat.roughness = 0.95
+	box.material = mat
+	sheet.mesh = box
+	sheet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	get_parent().add_child(sheet)
+	_fit_sheet(man, sheet)
+	laid[id] = {"place": String(place), "at": _body_at(man), "sheet": sheet}
+	return sheet
+
+
+## The sheet over his parts as they lie (a box round them, a hand's breadth over).
+func _fit_sheet(man: HumanBody, sheet: MeshInstance3D) -> void:
+	var lo := Vector3.INF
+	var hi := -Vector3.INF
+	for n: Variant in man.parts.values():
+		var at := (n as Node3D).global_position
+		lo = lo.min(at)
+		hi = hi.max(at)
+	var mid := (lo + hi) * 0.5
+	var floor_y := lo.y - 0.1
+	var size := Vector3(maxf(hi.x - lo.x, 0.3) + 0.35, maxf(hi.y - floor_y, 0.2) + 0.1, maxf(hi.z - lo.z, 0.3) + 0.35)
+	(sheet.mesh as BoxMesh).size = size
+	sheet.global_position = Vector3(mid.x, floor_y + size.y * 0.5, mid.z)
+
+
+## A limp body moved whole (every part by the same step) so his pelvis is over `to` and his lowest
+## part a little above its height, to settle: done only where nobody sees it (the undertaker's men,
+## the doctor overnight). (His ragdoll's parts are his children: each is set, the root left be.)
+static func move_body(man: HumanBody, to: Vector3) -> void:
+	var from := _body_at(man)
+	var low := INF
+	for n: Variant in man.parts.values():
+		low = minf(low, (n as Node3D).global_position.y)
+	var step := Vector3(to.x - from.x, to.y + 0.12 - low, to.z - from.z)
+	var xfs := {}
+	for sid: Variant in man.parts:
+		xfs[sid] = (man.parts[sid] as Node3D).global_transform.translated(step)
+	for sid: Variant in man.parts:
+		var rb := man.parts[sid] as Node3D
+		rb.global_transform = xfs[sid]
+		if rb is RigidBody3D:
+			(rb as RigidBody3D).linear_velocity = Vector3.ZERO
+			(rb as RigidBody3D).angular_velocity = Vector3.ZERO
+			(rb as RigidBody3D).sleeping = false

@@ -1158,6 +1158,10 @@ func _player_state() -> Dictionary:
 		"speed": snappedf(player.get_horizontal_speed(), 0.01), "motion": player.motion.describe()}
 	if player.seat:
 		out["seat"] = player.seat.report()
+	if player.carry:
+		out["carry"] = player.carry.report()
+	if player.knock:
+		out["knock"] = player.knock.report()
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
 		out["alive"] = w.physiology.alive

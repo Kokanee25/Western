@@ -46,6 +46,8 @@ var _followed := false
 var _early_from := false
 var _early := ""
 var state_t := 0.0
+## The doctor's said his word by Earl's body (#1057).
+var _earl_said := false
 
 
 func begin() -> void:
@@ -239,6 +241,7 @@ func _physics_process(delta: float) -> void:
 				_go(&"lead")
 		&"lead":
 			_lead_step(p, delta)
+			_by_earl(p)
 		&"room":
 			_room_step(p, delta)
 
@@ -460,6 +463,21 @@ func _do(what: String) -> void:
 
 
 ## The beats' gaps scaled (`pace` option: the tests run it quicker).
+## Earl under his sheet in the front room (No Law's carry, #1057: ValleyFolk.laid): passing him on
+## the way in, the doctor's word about the night (`body`), once.
+func _by_earl(p: Player) -> void:
+	if _earl_said or folk == null or not folk.laid.has(&"earl") or doctor == null or not is_instance_valid(doctor):
+		return
+	var at: Vector3 = (folk.laid[&"earl"] as Dictionary).get("at", Vector3.INF)
+	var earl := folk.folk_man(&"earl")
+	if earl != null:
+		at = ValleyFolk._body_at(earl)
+	if at == Vector3.INF or _flat(p.global_position, at) > float(data.get("earl_m", 2.6)):
+		return
+	_earl_said = true
+	_say(doctor, line("body", care))
+
+
 func _pace() -> float:
 	return clampf(float(opts.get("pace", 1.0)), 0.05, 4.0)
 

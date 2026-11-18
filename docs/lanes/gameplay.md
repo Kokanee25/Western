@@ -8,15 +8,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The sheriff on the road** (#746, build 3698): `-- --world=valley --mission=sheriff`; `StoryState`,
   `HeadGesture`, `Act`. Waiting on Sean: #755.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
-  `experiments/valley_folk/README.md` "Step 4", "Step 5"). Cody isn't the red shirt (the red shirt, Silas
-  Kett, raided Joe's camp; the stranger shot the sheriff, #905; nobody names either yet). The morning after: Earl to the undertaker's, day folk's lines
-  by the story's facts (`talk`); the sheriff dies on the doctor's cot (`-- --mission=sheriff_dies`); the story's
-  Harlan is unarmed till then. **The funeral** (#868, `-- --world=valley --mission=funeral`): the day after, at
-  ten, at the cemetery; nolaw.funeral = attended / distance / missed, nolaw.offer_heard, baron.met; mourners
-  are the folk's own men (`borrow`/`give_back`: never built in play). No Law's script still isn't OK'd (#835).
-  Open: playtests `docs/playtests/2026-11-13-funeral.md` and step 4's (the funeral's cues, grave, mourners'
-  looks, stand-in models; the badge on the dying sheriff, the wife's hands). **Next: the whole mission played end to end on the real clock and its
-  seams mended (#876).**
+  `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
+  **The night's carry (#1057):** Cody's ball goes through Earl's collarbone (`aim` subclavian_r: down, ~25 ml/s,
+  dead ~146 s on); the barkeep sends you to Doc's; `PlayerCarry` (E: by the collar, dragged), `PlayerKnock` (E at
+  a door; `ValleyFolk.knocked`), `NoLawCarry` (the doctor out, his lines, Earl laid in the front room under a
+  stand-in sheet, `ValleyFolk.lay_out`); in the morning SheriffDies' doctor says morning.body by him, the
+  undertaker's after the sheriff's dead. `tests/test_no_law_carry.gd`. Open: the doctor in the doorway can block
+  dragging him in yourself (the test lets go on the step); "on the table" in carry.lay but he's on the floor;
+  carry.street, morning.coat and the undertaker's lines by the body aren't wired; the coat isn't drawn bloody
+  (`blood_on_you` is a number); nobody answers a knock but an act. The funeral (#868) as it was. No Law's script
+  isn't OK'd (#1059). **Next: the whole mission played end to end, its seams mended (#876).**
 - **No Justice: steps 1-4 done** (#843's plan; each `-- --world=valley --mission=<m>`, bridge `moment <m> set_up=1`).
   Joe is `CompanionBrain` (`--joe`, the lab's `joe=1`, `--joe-tune`); `held`, a scene walks him and he doesn't step out
   of your line. 2: `NoJusticeCamp` (`no_justice`). 3: `NoJusticeHideout` (`no_justice_hideout [--arrive]`), ends
@@ -27,16 +28,13 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail. Playtests `docs/playtests/2026-11-1[345]-*.md`.
   **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
-  Open: the hideout fight's hard (spotted ~30 m, five guns; difficulty #349 is Sean's); silence at the doctor's
-  is a no; the clock's held (only cards move it); the drawn ground hides the shack's floor; the knife is two
-  boxes; a kick at 0.9 m can miss; the jail and rides are cards; no line when Kett's jailed (C8 a, Sean's).
-  Riding waits on #478. Playtest `docs/playtests/2026-11-15-nojustice-whole.md`.
+  Open (playtest `docs/playtests/2026-11-15-nojustice-whole.md`): the hideout fight's hard (difficulty #349 is
+  Sean's); the clock's held; the jail and rides are cards; no line when Kett's jailed (C8 a, Sean's).
+  Riding waits on #478.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
   book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
-  `tests/test_reactions.gd`; LAYOUT "src/people"). **6 the runner (#1040, `FetchHelp`)**: one runner
-  a man down to the doctor (bag, fast walk, tend), the law from the badge (Harlan seen within the hour, else the
-  doctor), nobody on night 1; `tests/test_runner.gd`, bridge `read fetch`. **Next: step 7, the town's news.** Open:
+  `tests/test_reactions.gd`; LAYOUT "src/people"). **6 the runner (#1040, `FetchHelp`, `tests/test_runner.gd`, bridge `read fetch`)**. **Next: step 7, the town's news.** Open:
   the noon street is too thin for anyone to run (playtest 2026-11-17-runner: three men, low duty); a body found later
   isn't a stimulus; shaken only changes the next start; refuges are door points; chores' props stand-ins; no talk sound.
 
@@ -62,16 +60,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
   walk casts); the gunfight's people are over (its men at full rate by design).
 
-- **The garment handoff** (#917, #949, #986, #997, #1008; LAYOUT "src/bodies"): `GarmentHandoff` and `GloveAct`
-  (bridge `glove MAN`) on **our own cloth** (`SolverCloth`/`ClothCore`, #973, `docs/briefs/garment-cloth.md`): his
-  skin is its collider (#986), it can meet itself (#997, `self_thickness`, off: MetaHuman `--seed=2` never rests),
-  and **his hand's and forearm's own skin is kept under it** (#1008, `body_verts` + `set_skin`, ON: `FINE_TRIS` 3000,
-  crops `results/2026-11-16-fingers-on/`; pop 1.8 mm, stretch 1.08; ~2.6-3 ms a tick at Sean's while drawn after #1023's cost cuts). Itself (#1029: lists by how far each point goes) costs ~+4.5 ms drawn at
-  Sean's on the MetaHuman, ~+5.5 on the talking man, and sean_s3_talking seed 2 no longer rests with it: still off,
-  left off for now (Sean, #1034); a later session: #1038 (`after slice`). Measure `skin_out`/`arm_out` (bench).
-  Build: `NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 cargo build --release` in the plugin, .so to
-  bin/. Films: the bridge's real look is OOM-killed in an 8 GB workspace (its memory climbs past 6 GB); use the
-  bench's stills (`xvfb-run ... bench.gd -- --shots=2.6,2.7,... --cam=hands`, ~2 min, 2.4 GB).
+- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` (bridge `glove MAN`) on our
+  cloth (`SolverCloth`, `docs/briefs/garment-cloth.md`); his hand's own skin kept under it (ON); self-meeting off (#1034;
+  later #1038, `after slice`). Build the plugin with `NO_PROXY=localhost,127.0.0.1 cargo build --release`, .so to bin/.
+  The bridge's real look is OOM-killed in 8 GB: use the bench's stills (`bench.gd -- --shots=... --cam=hands`).
 - **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
