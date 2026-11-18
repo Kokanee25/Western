@@ -1243,6 +1243,9 @@ func _morning_step(h: float) -> void:
 		# Laid out in the doctor's front room (#1057): there under his sheet till the sheriff's scene is
 		# over (you pass him on the way in), then the undertaker's.
 		var kept: bool = laid.has(&"earl") and StoryState.get_fact("nolaw.sheriff") != "dead"
+		# Not off your shoulder (PlayerCarry, #1081): carried or dragged, he's with whoever has him,
+		# seen or not (over your shoulder he's beside you, out of your view).
+		kept = kept or (earl != null and earl.dragged_by != null)
 		if not kept and (earl == null or not _you_see(_body_at(earl), float(md.get("unseen_m", 30.0)))):
 			to_undertaker(&"earl")
 	if (sheriff_scene == null or not is_instance_valid(sheriff_scene)) and not StoryState.has_fact("nolaw.sheriff") \
