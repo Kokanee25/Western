@@ -67,6 +67,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
+- **Red on main: card_game's broken-chair test** (#1077): not a leak. The valley's run depends on the absolute physics
+  frame (a world started 1, 2, 30, 60 or 120 frames later fails alone too). Reproduce: `await physics_frames(2)` before
+  card_game's valley loads. In the failing runs everything by the card table, loose since loop frame 50, is launched
+  on one tick (frame 122: Earl 38 m/s, cups 49): find what the table's body does that tick.
 
 ## Parked until after the slice
 coach heist (#840; `experiments/coach_heist/` README) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
