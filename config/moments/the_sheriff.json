@@ -3,6 +3,8 @@
   "script": "res://src/missions/sheriff_on_road.gd",
   "hour": 6.3,
   "clock_runs": true,
+  "clock_scale": 0.25,
+  "_clock_doc": "The prologue's clock at clock_scale of the day's rate (Sean, #1082, option B): getting him in to the doctor's takes about an hour (about 08:00 there), not the morning. The card's walk in moves it the same share. The day's rate again once the scene's over.",
   "dawn_line": "Dawn. A shot, a while back, from down by the East Road. North, past the ford.",
   "start": "harlan_homestead",
   "start_toward": "harlan_ford_path",

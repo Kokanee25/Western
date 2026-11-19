@@ -196,7 +196,9 @@ func test_help_him_well() -> void:
 	check_eq(m.care, "good", "care good (lost %.3f)" % m.loss_at_doctor)
 	check_eq(StoryState.get_fact("sheriff.care"), "good", "the story knows")
 	check(m.doctor != null and is_instance_valid(m.doctor), "the doctor's there")
-	check(m.clock().time_of_day > float(_data().hour) + 2.0, "hours on the clock (%.2f)" % m.clock().time_of_day)
+	var walk_in := m.clock().time_of_day - float(_data().hour)
+	check(walk_in > 0.5 and walk_in < 2.0, "about an hour on the clock, not the morning (#1082: %.2f h)" % walk_in)
+	check_eq(m.clock().time_scale, 1.0, "the day's rate again once it's over")
 
 
 func test_help_him_poorly() -> void:
@@ -342,7 +344,7 @@ func test_the_doctor_out_says_where() -> void:
 
 
 ## Carried (Sean, 2026-11-18: not dragged): taken up over your shoulder, clear of the ground, no blood
-## left on it while you carry him; and the clock at the game's own rate (a game hour every 112.5 s).
+## left on it while you carry him; and the clock at the prologue's rate (clock_scale of the day's, #1082).
 func test_carried_off_the_ground_no_trail_and_the_clock_at_its_rate() -> void:
 	var m := await _start()
 	var p := m.player()
@@ -381,8 +383,8 @@ func test_carried_off_the_ground_no_trail_and_the_clock_at_its_rate() -> void:
 			low = minf(low, (v as Node3D).global_position.y - ground)
 	Input.action_release(&"move_forward")
 	var hours := m.clock().time_of_day - h0
-	var rate := 10.0 / m.phys.tuning.game_hour_seconds
-	check(absf(hours - rate) < rate * 0.1, "10 s carrying him: %.3f game hours (the day's rate %.3f)" % [hours, rate])
+	var rate := 10.0 / m.phys.tuning.game_hour_seconds * float(_data().clock_scale)
+	check(absf(hours - rate) < rate * 0.1, "10 s carrying him: %.4f game hours (the prologue's rate %.4f, #1082)" % [hours, rate])
 	check(p.carry.dragged_m > 6.0, "carried him (%.1f m)" % p.carry.dragged_m)
 	check(low > 0.15, "clear of the ground all the way (his lowest part %.2f m up)" % low)
 	check(bleed > 0.5 and get_tree().get_nodes_in_group(&"blood_marks").size() == marks,
