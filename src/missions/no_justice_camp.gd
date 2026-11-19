@@ -125,8 +125,9 @@ func _set_up_day() -> void:
 	for k: String in before:
 		if not StoryState.has_fact(k):
 			fact(k, before[k])
-	# Earl's at the undertaker's by now, not at the card table (#859's playtest met him dealing).
-	if folk.people.has(&"earl") and not folk.gone_for_good.has(&"earl"):
+	# Earl's at the undertaker's by now, not at the card table (#859's playtest met him dealing; #1095:
+	# on the book too, not only in the world, or his evening brought him back to the cards).
+	if not folk.gone_for_good.has(&"earl"):
 		folk.to_undertaker(&"earl")
 	if opts.has("followed"):
 		fact("nolaw.followed", bool(opts.followed))

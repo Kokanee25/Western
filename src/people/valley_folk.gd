@@ -911,6 +911,10 @@ func _step(delta: float) -> void:
 	# (as the clock running into it while you watched).
 	var jumped := is_nan(_last_hour) or since(h, _last_hour) > walk_h
 	var kind := day_kind(town_day())
+	# One truth (#1095): the story has Earl at the undertaker's (a mission started past No Law's night
+	# sets it), so his day never brings him back to the cards.
+	if not gone_for_good.has(&"earl") and StoryState.get_fact("nolaw.earl", "") == "undertaker" and not _person(&"earl").is_empty():
+		to_undertaker(&"earl")
 	for p: Dictionary in data.people:
 		var id := StringName(p.id)
 		if p.has("act") or gone_for_good.has(id) or not p.has("day"):
