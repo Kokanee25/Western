@@ -30,7 +30,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
-  out cold in the cabin it waits forever. #1092's fix (ragdolls through the player) is PR #1099, unmerged: test_sheriff's lay-down red in shard 4.
+  out cold in the cabin it waits forever. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
   Riding waits on #478.
 - **Playtest run 2's faults (#1095):** one doctor (an act takes the day man: `ValleyFolk.seize`, `give_back`); a knock
   no act claims (`claim_knock`) with a hurt man by the door brings him out or back (`FetchHelp.at_door`, `take_in`:

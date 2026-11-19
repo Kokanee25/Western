@@ -412,7 +412,7 @@ func test_carried_off_the_ground_no_trail_and_the_clock_at_its_rate() -> void:
 	check(not p.carry.carrying() and not m.sheriff.carried, "a tap again: laid down (%s)" % p.carry.report())
 	var laid := ValleyFolk._body_at(m.sheriff)
 	check(laid.y - m._ground(laid.x, laid.z) < 0.45, "on the ground (%.2f m up)" % (laid.y - m._ground(laid.x, laid.z)))
-	check((laid - p.global_position).dot(p.get_forward()) > 0.2, "in front of you")
+	check((laid - p.global_position).dot(p.get_forward()) > 0.2, "in front of you (%.2f m along your view)" % (laid - p.global_position).dot(p.get_forward()))
 
 
 ## Enter after (or held): the scene starts again from dawn with the story as it stood when it
