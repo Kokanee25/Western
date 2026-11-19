@@ -746,6 +746,8 @@ func _doing_at(p: Dictionary, place: StringName) -> StringName:
 ## just gone. `cut`: the clock jumped (he's not watched going).
 func _gone(id: StringName, cut := false) -> void:
 	var man: HumanBody = people.get(id)
+	if man != null and is_instance_valid(man) and man.dragged_by != null:
+		return  # carried or dragged (PlayerCarry, #1081): he stays with whoever has him, seen or not
 	people.erase(id)
 	state[id] = &"out"
 	_going_for.erase(id)
@@ -1091,6 +1093,8 @@ func take(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
 ## An act's man out of the world (he's walked off).
 func release(id: StringName) -> void:
 	var man: HumanBody = people.get(id)
+	if man != null and is_instance_valid(man) and man.dragged_by != null:
+		return  # carried or dragged (#1081): not out of the world off someone's shoulder
 	people.erase(id)
 	state[id] = &"out"
 	if man != null and is_instance_valid(man):
