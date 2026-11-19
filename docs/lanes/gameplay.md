@@ -30,7 +30,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
-  out cold in the cabin it waits forever (#1092). Ragdolls don't collide with the player (#1092).
+  out cold in the cabin it waits forever. #1092's fix (ragdolls through the player) is PR #1099, unmerged: test_sheriff's lay-down red in shard 4.
   Riding waits on #478.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
