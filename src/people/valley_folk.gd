@@ -1145,13 +1145,13 @@ static func _strip_brain(man: HumanBody) -> void:
 
 ## An act's man out of the world (he's walked off). A day man goes back to his day (`give_back`).
 func release(id: StringName) -> void:
+	var man: HumanBody = people.get(id)
+	if man != null and is_instance_valid(man) and man.dragged_by != null:
+		return  # carried or dragged (#1081): not out of the world off someone's shoulder
 	var p := _person(id)
 	if not p.is_empty() and not p.has("act"):
 		give_back(id)
 		return
-	var man: HumanBody = people.get(id)
-	if man != null and is_instance_valid(man) and man.dragged_by != null:
-		return  # carried or dragged (#1081): not out of the world off someone's shoulder
 	people.erase(id)
 	state[id] = &"out"
 	if man != null and is_instance_valid(man):
