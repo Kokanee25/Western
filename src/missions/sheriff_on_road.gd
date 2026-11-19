@@ -72,7 +72,9 @@ func begin() -> void:
 	pace = float(opts.get("pace", 1.0))
 	set_hour()
 	if clock() and bool(data.get("clock_runs", true)):
-		clock().set_time_scale(1.0)  # the morning goes on while you're at it (the game holds it at noon)
+		# The morning goes on while you're at it, slower than the day's own rate (Sean, #1082: getting
+		# him in takes about an hour, not the morning); the day's rate again once it's over (_end).
+		clock().set_time_scale(clock_scale())
 	StoryState.clear("sheriff.")
 	StoryState.mark_checkpoint()  # its restart starts from the story as it is now (#864)
 	_place_player()
@@ -498,7 +500,18 @@ static func run_body(p: Physiology, seconds: float) -> void:
 func _forward_clock(seconds: float) -> void:
 	var c := clock()
 	if c:
-		c.set_time(c.time_of_day + seconds / phys.tuning.game_hour_seconds)
+		c.set_time(c.time_of_day + seconds * clock_scale() / phys.tuning.game_hour_seconds)
+
+
+## How fast the prologue's clock runs, a share of the day's rate (`clock_scale`, #1082).
+func clock_scale() -> float:
+	return float(data.get("clock_scale", 0.25))
+
+
+func _day_clock() -> void:
+	var c := clock()
+	if c and bool(data.get("clock_runs", true)):
+		c.set_time_scale(1.0)
 
 
 ## At the doctor's: you, him (laid in the street before the steps), his horse to the livery, the
@@ -722,6 +735,7 @@ func _end(final_care: String) -> void:
 		sheriff = null
 	if final_care == LEFT:
 		card(String((data.get("cards", {}) as Dictionary).get("end_left", "left him")), 5.0 * pace)
+	_day_clock()
 	_finish(&"done")
 
 
@@ -790,6 +804,7 @@ func reset() -> void:
 	var p := player()
 	if p:
 		p.input_enabled = true
+	_day_clock()
 	sheriff = null
 	doctor = null
 	horse = null
