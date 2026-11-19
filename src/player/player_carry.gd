@@ -265,10 +265,8 @@ func _shoulder(m: HumanBody, on: bool) -> void:
 		if rb == null:
 			continue
 		rb.collision_mask = Layers.RAGDOLL if on else Layers.WORLD | Layers.RAGDOLL
-		if on:
-			player.add_collision_exception_with(rb)
-		elif player.get_collision_exceptions().has(rb):
-			player.remove_collision_exception_with(rb)
+		# (Kept on as he's laid down: a limp man never collides with you, HumanBody._through_the_player.)
+		player.add_collision_exception_with(rb)
 		rb.linear_velocity = Vector3.ZERO
 		rb.angular_velocity = Vector3.ZERO
 		rb.sleeping = false

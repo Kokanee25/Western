@@ -505,6 +505,7 @@ func _revenge_step(p: Player, delta: float) -> void:
 	_joe_go(to, float(data.get("joe_walk", 1.1)) * 1.2, delta)
 	joe.face(kett.global_position + Vector3.UP * 1.2)
 	if _flat(joe.global_position, kett.global_position) > 0.95:
+		_over_the_pieces(to, delta)
 		return
 	_stab_t -= delta
 	if _stab_t > float(sd.get("every_s", 0.9)) * 0.45 * _pace():
@@ -638,6 +639,28 @@ func _over_the_wreck(delta: float) -> void:
 
 var _sill_at := Vector3.INF
 var _sill_t := 0.0
+
+
+## Inside, the door's pieces (or a body) between him and Kett: his walk stops short of them as on the
+## sill (#1092: on CI he stood 2.2 m off with the knife out and never reached him). No nearer for
+## `wreck_s`, he steps over them to Kett.
+func _over_the_pieces(to: Vector3, delta: float) -> void:
+	var d := _flat(joe.global_position, to)
+	if d < _over_best - 0.05 or not hideout.in_shack(joe.global_position):
+		_over_best = d
+		_over_t = 0.0
+		return
+	_over_t += delta
+	if _over_t > float(data.get("wreck_s", 1.5)):
+		_over_t = 0.0
+		_over_best = INF
+		joe.global_position = Vector3(to.x, joe.global_position.y, to.z)
+		_joe_way.clear()
+		_note("Joe over the pieces to Kett")
+
+
+var _over_best := INF
+var _over_t := 0.0
 
 
 ## Walk a man toward `to` (true there).
