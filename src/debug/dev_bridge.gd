@@ -1102,13 +1102,19 @@ func _listen_to_events() -> void:
 	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: _log("blast", "%.2f kg went off at %s" % [kg, _arr(at)]))
 	_hook(Events.callout, func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
 		_log("callout", "%s called %s%s" % [_who(s), kind, " (%s)" % _who(about) if about else ""]))
+	# What broke, named by what it's part of (#1095: "20 pieces of timber broke" for one shot said
+	# nothing true: it was a kit prop gone loose, falling whole as one body, each member counted).
 	_hook(Events.member_broken, func(id: StringName) -> void:
+		var whole := _whose_member(id)
 		if not _events.is_empty() and _events[-1].kind == "broke" and float(_events[-1].t) > _game_seconds() - 1.0:
 			_events[-1].count += 1
-			_events[-1].text = "%d pieces of timber broke" % _events[-1].count
+			var by: Dictionary = _events[-1].by
+			by[whole] = int(by.get(whole, 0)) + 1
 		else:
-			_log("broke", "timber broke (%s)" % id)
-			_events[-1]["count"] = 1)
+			_log("broke", "")
+			_events[-1]["count"] = 1
+			_events[-1]["by"] = {whole: 1}
+		_events[-1].text = _broke_text(_events[-1].by))
 	_hook(Events.near_miss, func(p: Node, s: Node, d: float, _at: Vector3, _sp: float, _tu: bool) -> void:
 		if p == player:
 			_log("near_miss", "a round from %s passed %.1f m from you" % [_who(s), d]))
@@ -1117,6 +1123,36 @@ func _listen_to_events() -> void:
 func _hook_screen() -> void:
 	if player != null and is_instance_valid(player) and player.wounds != null:
 		_hook(player.wounds.shown, func(text: String) -> void: _log("screen", text.replace("\n", " / ")))
+
+
+## The events' line for what broke: "Raid_barrel went loose (fell whole)", "Building_doctor: 2
+## members broke".
+static func _broke_text(by: Dictionary) -> String:
+	var parts: PackedStringArray = []
+	for w: String in by:
+		if w.ends_with(LOOSE):
+			parts.append("%s went loose (fell whole)" % w.trim_suffix(LOOSE))
+		else:
+			parts.append("%s: %d member%s broke" % [w, by[w], "" if int(by[w]) == 1 else "s"])
+	return "; ".join(parts)
+const LOOSE := "#loose"
+
+
+## What a broken member belongs to (a building, a kit prop: its node's name, marked LOOSE if it's a
+## kit prop gone loose whole), for the events (#1095); its id's first part if no structure has it.
+func _whose_member(id: StringName) -> String:
+	var any := ""
+	for n: Node in get_tree().get_nodes_in_group(&"structures"):
+		var st := n as Structure
+		if st == null or not st.members.has(id):
+			continue
+		var m := st.members[id] as StructureMember
+		var named := String(st.name) + (LOOSE if st is KitProp and (st as KitProp).loose else "")
+		if m != null and is_instance_valid(m) and m.broken:
+			return named  # (kit props share their members' ids: the one that's broken)
+		if any == "":
+			any = named
+	return any if any != "" else String(id).get_slice("/", 0)
 
 
 func _log(kind: String, text: String) -> void:
