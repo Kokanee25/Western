@@ -236,3 +236,30 @@ func test_the_store_has_a_storefront() -> void:
 			if pale == 1:
 				check(b._finish_of(m) == "ceiling", "the shop's ceiling in the ceiling's finish (%s)" % b._finish_of(m))
 	check(pale > 50, "the shop has a boarded ceiling (%d boards)" % pale)
+
+
+## #1074 (Sean on #1067): the posts and beams pale, like the ceiling; "A. P. HOLLIS" gilded on both show
+## windows, a piece on each pane it crosses; goods behind the glass.
+func test_the_store_is_hollis_s() -> void:
+	var b = lab.building
+	var sid := String(b.structure_id) + "/"
+	check(String(b.finish("timber").get("entry", "")) == "painted_pale_tg", "the posts and beams painted pale (%s)" % b.finish("timber"))
+	for id: String in ["beam/", "post/"]:
+		for m: StructureMember in b.get_members():
+			if String(m.member_id).trim_prefix(sid).begins_with(id):
+				check(b._finish_of(m) == "timber", "%s takes the timber finish (%s)" % [m.member_id, b._finish_of(m)])
+				break
+	var gilt := {}
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		if id.begins_with("front/window_show_") and m.kind == &"glass" and m.has_node(^"Gilt"):
+			gilt[id.get_slice("/", 1)] = int(gilt.get(id.get_slice("/", 1), 0)) + 1
+	check(gilt.size() == 2, "both show windows gilded (%s)" % [gilt])
+	for w: String in gilt:
+		check(int(gilt[w]) == 2, "%s: the lettering across both its lights (%d)" % [w, gilt[w]])
+	var goods: Dictionary = b.dressed.get("windows", {})
+	check(goods.size() >= 15, "goods in the windows (%d)" % goods.size())
+	for k: String in goods:
+		var n: Node3D = goods[k]
+		var z: float = (b.global_transform.affine_inverse() * n.global_position).z
+		check(z > 0.1 and z < 1.0, "%s behind the glass (z %.2f)" % [k, z])

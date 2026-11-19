@@ -88,7 +88,10 @@ SHOW_X = round(BX[0] - POST_HALF - 0.1 - 0.005 - SHOW_W / 2, 3)
 
 def show(at, **kw):
     d = {"type": "window", "show": True, "level": "ground", "at": at, "width": SHOW_W, "height": round(SF_H - 0.5, 3),
-         "sill": 0.5, "transom": SF_TRANSOM, "cols": 2, "transom_lights": 4}
+         "sill": 0.5, "transom": SF_TRANSOM, "cols": 2, "transom_lights": 4,
+         # #1074 (Sean's pick on #1067): the storekeeper's name gilded on the glass, the trades under it
+         # (tools/textures/gold_leaf.py, Storefront.gilt), its middle 1.45 m over the opening's foot (2 m off the floor).
+         "gilt": {"id": "hollis", "y": 1.45, "width": 2.65}}
     d.update(kw)
     return d
 front = {
@@ -270,7 +273,7 @@ surfaces = [
     ["roof/ridge_cap", "trim"], ["front/door_", "trim"], ["back/door_", "trim"], ["/door_", "inside"],
     ["/in_ground/", "inside"], ["/in_upper/", "inside"], ["/m/board/", "inside"], ["/p/board/", "inside"],
     ["floor/ground/board", "floor"], ["floor/loft/board", "floor"], ["floor/family/board", "floor"],
-    ["floor/loft/joist", "timber"], ["floor/family/joist", "timber"], ["beam/", "timber"], ["bracket/", "-"],
+    ["floor/loft/joist", "joists"], ["floor/family/joist", "joists"], ["beam/", "timber"], ["bracket/", "-"],
     ["wall_post/", "timber"], ["stair/main", "oak"], ["roof/board", "rough"], ["stoop/", "rough"], ["stair/back", "rough"],
     ["post/", "timber"],
 ]
@@ -290,9 +293,47 @@ materials = {
         "framing": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
         "rough": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
         "oak": {"use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"}},
-        "timber": {"use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"}},
+        "timber": {"want": {"entry": "painted_pale_tg", "age": "few"}, "use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"},
+                   "_why": "Sean 2026-11-18 (#1067): the shop's posts and beams painted pale, like the ceiling"},
+        "joists": {"use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"},
+                   "_why": "the floor joists stay dark: hidden over the shop's ceiling, bare over the storeroom"},
     },
     "surfaces": surfaces,
+}
+
+# The show windows' goods (#1074, Sean on #1067: "goods in the windows, now"): what a passer-by reads as a
+# general store, from the kit's props alone (docs/PARTS.md); what's missing (bolts of cloth, boots, tins,
+# tinware) is the prop lab's (the after-slice issue named in the README). Each window a low display
+# platform behind the glass (the kit's table fitted to the glass's foot), the goods on it facing the street
+# (180: a prop faces +z); the east window groceries and dry goods with a cracker barrel at its east end, the
+# west window hardware and crockery. x from the east corner, z in from the front wall's line.
+EAST_X = SHOW_X
+WEST_X = round(W - SHOW_X, 3)
+DZ = 0.56  # the platforms' middle: their backs 0.21 in from the wall's line, clear of the studs and lining
+dressing = {
+    "_doc": "#1074: the show windows' goods (PropDressing; the store's rooms are the prop lab's to dress)",
+    "batches": {"windows": [
+        {"id": "east_stand", "kit": "table", "fit": [2.3, 0.6, 0.7], "at": [EAST_X + 0.5, 0.0, DZ], "facing": 0,
+         "use": "the east window's display platform (the glass's foot is 0.61 over the floor)"},
+        {"id": "east_barrel", "kit": "barrel", "at": [EAST_X - 1.15, 0.0, DZ], "facing": 30, "use": "a cracker barrel, its top half over the bulkhead"},
+        {"id": "east_blankets", "kit": "folded_blankets", "on": "east_stand", "at": [EAST_X - 0.35, 0.0, DZ + 0.05], "facing": 186},
+        {"id": "east_blanket", "kit": "folded_blanket", "on": "east_stand", "at": [EAST_X + 0.15, 0.0, DZ + 0.12], "facing": 172},
+        {"id": "east_sack", "kit": "feed_sack", "on": "east_stand", "at": [EAST_X + 1.3, 0.0, DZ + 0.12], "facing": 200},
+        {"id": "east_scales", "kit": "scales", "on": "east_stand", "at": [EAST_X + 0.75, 0.0, DZ - 0.05], "facing": 180},
+        {"id": "east_jars", "kit": "drug_jar", "on": "east_stand", "at": [EAST_X - 0.05, 0.0, DZ - 0.24], "facing": 180,
+         "row": {"kits": ["drug_jar"], "count": 3, "step": [0.14, 0, 0], "jitter": [0.01, 0.01, 20]}},
+        {"id": "west_stand", "kit": "table", "fit": [3.0, 0.6, 0.7], "at": [WEST_X, 0.0, DZ], "facing": 0,
+         "use": "the west window's display platform"},
+        {"id": "west_box", "kit": "strongbox", "on": "west_stand", "at": [WEST_X - 1.1, 0.0, DZ + 0.08], "facing": 172},
+        {"id": "west_lamp", "kit": "oil_lamp", "on": "west_stand", "at": [WEST_X - 0.7, 0.0, DZ - 0.05], "facing": 180},
+        {"id": "west_basin", "kit": "wash_basin", "on": "west_stand", "at": [WEST_X - 0.2, 0.0, DZ + 0.08], "facing": 0},
+        {"id": "west_pitcher", "kit": "wash_pitcher", "on": "west_basin", "at": [WEST_X - 0.2, 0.0, DZ + 0.1], "facing": 200, "lift": 0.014},
+        {"id": "west_pot", "kit": "chamber_pot", "on": "west_stand", "at": [WEST_X + 0.35, 0.0, DZ + 0.1], "facing": 170},
+        {"id": "west_saw", "kit": "handsaw", "on": "west_stand", "at": [WEST_X + 0.15, 0.0, DZ - 0.24], "facing": 184},
+        {"id": "west_cups", "kit": "tin_cup", "on": "west_stand", "at": [WEST_X + 0.85, 0.0, DZ - 0.15], "facing": 180,
+         "row": {"kits": ["tin_cup"], "count": 4, "step": [0.15, 0, 0.0], "jitter": [0.015, 0.03, 40]}},
+        {"id": "west_trunk_lamp", "kit": "oil_lamp", "on": "west_stand", "at": [WEST_X + 1.25, 0.0, DZ + 0.15], "facing": 180},
+    ]},
 }
 
 spec = {
@@ -340,6 +381,7 @@ spec = {
     "fixtures": [], "furniture": [],
     "ceilings": {"_doc": "#1053 (Sean's pick B on #1052): beaded boards nailed up under the loft's joists over the shop (the storeroom open to its joists: its stair goes up through them), painted pale (materials.finishes.ceiling), butted to the beams that hang under them; four beads a board", "finish": "beaded", "rooms": ["shop"], "around_beams": True, "width": 0.42},
     "lamps": lamps,
+    "dressing": dressing,
     "light": {"_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall; judged by day in #1035 (the doctor's 0.1 and 7 left the shop near black): 0.55 and 26",
               "fill": [0.62, 0.6, 0.57], "window_day": 26.0, "day_fill": 0.55},
     "materials": materials,

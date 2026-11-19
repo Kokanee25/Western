@@ -7,7 +7,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746): `-- --world=valley --mission=sheriff`; `StoryState`, `HeadGesture`, `Act`.
   #1081: carried in over the shoulder (not dragged: Sean), a knock brings the doctor by day; a slow nod answers.
-  Waiting on Sean: #755, #1082 (the clock: carrying him in takes the morning at the day's rate). The drawn game
+  The clock runs at a quarter of the day's rate till it's over (#1082: in by about 08:00). Waiting on Sean: #755. The drawn game
   under lavapipe hung there (OOM; headless it doesn't). The carry's pose is unjudged on a real screen.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
