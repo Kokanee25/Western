@@ -119,6 +119,10 @@ func use() -> StringName:
 			return last
 		stand()
 		return last
+	# A man down by you has E first, asked now, not as last looked (PlayerCarry takes him on E's
+	# release; its look a few times a second may not have seen him yet on the press).
+	if player.carry != null and player.carry.man_here() != null:
+		return &""
 	var c := chair_here()
 	if c != null and sit(c):
 		return last

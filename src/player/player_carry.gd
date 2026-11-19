@@ -1,20 +1,20 @@
 class_name PlayerCarry
 extends Node
-## Taking a downed man with you (#1057, No Law: Harlan gets Earl up the street to the doctor's): E
-## by a man down (limp or lying, alive, wounded or dead; his collar within PlayerTuning.carry_reach
-## and within carry_view_deg of your view) takes him by the collar, and he comes along behind you,
-## dragged: his own body (the ragdoll, HumanBody.drag_toward, as OutlawBrain's rescue drags a
-## friend), his wounds still bleeding where they are, the floor smeared and dripped on by them
-## (WoundSigns), and what's on his collar comes off on your hands and cuffs (`blood_on_you`).
-## Dragging, not a fireman's carry: what reads best for its cost (a ragdoll on your shoulder in
-## first person would sit in your view and fight your capsule), and honest: it's how one man moves
-## a dead weight up a street.
+## Taking a downed man with you (#1057, No Law: Harlan gets Earl up the street to the doctor's; the
+## prologue's sheriff, #1081): a tap of E by a man down (limp or lying, alive, wounded or dead; his
+## collar within PlayerTuning.carry_reach and within carry_view_deg of your view) takes him up over
+## your right shoulder, a fireman's carry: his belly on your shoulder (that part of his ragdoll held
+## there, eased up over carry_lift_s), the rest of him hanging off it on his joints, head and arms down
+## your back, legs down your front, clear of the ground. Carried, not dragged (Sean, 2026-11-18): he
+## leaves no trail; what he bleeds goes into your coat (`blood_on_you`), not on the street
+## (HumanBody.carried: no pool, no smear). While you have him his parts touch only each other, not
+## you or the world (a door frame doesn't catch his boots). A tap again lays him down in front of you.
 ##
 ## While you have him: a walk at carry_speed (no run, no jump), no gun (PlayerWounds holds your
-## hands: busy_why), and E lets go (or bangs on a door you're at: PlayerKnock has it then). He's let
-## go if you're hit, go down, sit, take a ladder, if he comes up (not down any more), or if he's
-## caught on something and comes loose (carry_tear_m from your hands). In the group `claims_use`,
-## so E here isn't a shove.
+## hands: busy_why), and E lays him down (or bangs on a door you're at: PlayerKnock has it then). He's
+## put down if you're hit, go down, sit, take a ladder, or if he comes up (not down any more). In the
+## group `claims_use`, so E here isn't a shove. Held E isn't this (a scene may want it: the sheriff's
+## wound).
 ## Reusable: any act asks `carrying(man)`; `took` and `let_go` say when.
 
 signal took(man: HumanBody)
@@ -26,9 +26,12 @@ var him: HumanBody
 ## How much of his blood is on your hands and cuffs (WoundSigns prints, 0 to PRINTS_PER_HAND): the
 ## most it's come to while you had him. Stays (it doesn't wash off by itself).
 var blood_on_you := 0.0
-## Metres you've dragged him (flat), this time and all told.
+## Metres you've carried him (flat), this time and all told.
 var dragged_m := 0.0
 var dragged_total_m := 0.0
+var _e_held := 0.0  # how long E's been down this press (a tap takes him up or lays him down)
+var _lift_t := 0.0  # how far into lifting him (s)
+var _lift_from := Transform3D()  # his belly where you took him up from
 ## The last thing E did here (&"took", &"let_go", &"") and why he was last let go.
 var last := &""
 var last_why := &""
@@ -108,19 +111,10 @@ func claims_use(p: Player) -> bool:
 
 
 ## How fast you go with him, a share of your walk (1 without him).
-func pace(wish := Vector3.ZERO) -> float:
+func pace(_wish := Vector3.ZERO) -> float:
 	if not carrying() or player == null:
 		return 1.0
-	var base := clampf(player.tuning.carry_speed / maxf(player.tuning.walk_speed, 0.1), 0.05, 1.0)
-	# He's a load: caught (a chair over his legs, a step's edge) and lagging, he holds you; you don't
-	# walk away from him, you stand and haul till he comes (#1057: the card table's broken chair on
-	# Earl's legs; CI's run caught him on the walk's steps and tore him loose). Toward him you go free.
-	var to := collar(him) - player.global_position
-	to.y = 0.0
-	var away := wish.length() < 0.01 or to.length() < 0.01 or wish.normalized().dot(to.normalized()) < 0.2
-	if not away:
-		return base
-	return base * clampf(1.0 - (_lag - LAG_FREE) / LAG_SPAN, 0.0, 1.0)
+	return clampf(player.tuning.carry_speed / maxf(player.tuning.walk_speed, 0.1), 0.05, 1.0)
 
 
 func _physics_process(delta: float) -> void:
@@ -131,10 +125,16 @@ func _physics_process(delta: float) -> void:
 		_hold(delta)
 	elif him != null:
 		_drop(&"gone")
-	if player.input_enabled and Input.is_action_just_pressed(&"shove"):
-		use()
-		_look_t = 0.0
-		return
+	# A tap (let go within carry_tap_s): held, E's for something else (a scene's: his wound).
+	if player.input_enabled and Input.is_action_pressed(&"shove"):
+		_e_held += delta
+	elif _e_held > 0.0:
+		var tap := _e_held <= player.tuning.carry_tap_s
+		_e_held = 0.0
+		if tap and player.input_enabled:
+			use()
+			_look_t = 0.0
+			return
 	# Looked for a few times a second, not every tick (it's a pass over everyone).
 	_look_t -= delta
 	if _look_t > 0.0:
@@ -146,11 +146,11 @@ func _physics_process(delta: float) -> void:
 		_told_for = here
 		if here != null and _told_ago > TOLD_GAP and player.wounds:
 			_told_ago = 0.0
-			player.wounds.say("E: take him by the collar", 1.5)
+			player.wounds.say("E: take him up", 1.5)
 
 
-## What E does here: let him go (unless you're at a door: PlayerKnock bangs on it), or take the man
-## down by you.
+## What E does here: lay him down (unless you're at a door: PlayerKnock bangs on it), or take the man
+## down by you up.
 func use() -> StringName:
 	if carrying():
 		if player.knock != null and not player.knock.door_here().is_empty():
@@ -164,7 +164,7 @@ func use() -> StringName:
 	return &""
 
 
-## Take `m` by the collar (true if you have him).
+## Take `m` up over your shoulder (true if you have him).
 func take(m: HumanBody) -> bool:
 	if m == null or not is_down(m) or (m.dragged_by != null and m.dragged_by != player):
 		return false
@@ -173,8 +173,7 @@ func take(m: HumanBody) -> bool:
 	him = m
 	him.dragged_by = player
 	_tear_t = 0.0
-	_lag = 0.0
-	_stuck_t = 0.0
+	_shoulder(m, true)
 	dragged_m = 0.0
 	_from = player.global_position
 	_wounds_n = _wound_count()
@@ -182,7 +181,7 @@ func take(m: HumanBody) -> bool:
 		player.weapon.put_away()
 	last = &"took"
 	if player.wounds:
-		player.wounds.say("E: let him go", 1.5)
+		player.wounds.say("E: put him down", 1.5)
 	Events.deed.emit(player, &"carry", m, collar(m))
 	took.emit(m)
 	return true
@@ -197,15 +196,17 @@ func drop(why := &"you") -> void:
 func _drop(why: StringName) -> void:
 	var m := him
 	him = null
-	if m != null and is_instance_valid(m) and m.dragged_by == player:
-		m.dragged_by = null
+	if m != null and is_instance_valid(m):
+		_shoulder(m, false)
+		if m.dragged_by == player:
+			m.dragged_by = null
 	last = &"let_go"
 	last_why = why
 	if m != null and is_instance_valid(m):
 		let_go.emit(m, why)
 
 
-## Each tick with him: why you'd lose him, then him hauled after your hands, his blood on them.
+## Each tick with him: why you'd lose him, then his belly held over your shoulder, his blood on you.
 func _hold(delta: float) -> void:
 	var why := _lose_why()
 	if why != &"":
@@ -213,97 +214,76 @@ func _hold(delta: float) -> void:
 		return
 	him.wake()  # full ticks while you have him (PeopleTick's bands)
 	him.dragged_by = player
-	var fwd := player.get_forward()
-	fwd.y = 0.0
-	fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
-	# Your hands behind you at your hip, his collar in them.
-	var hands := player.global_position - fwd * player.tuning.carry_hold_back + Vector3.UP * player.tuning.carry_hold_up
-	him.drag_toward(hands, delta)
-	_lift(delta)
-	_lag = collar(him).distance_to(hands)
-	_heave_step(hands, delta)
+	var belly := him.parts.get(&"abdomen") as RigidBody3D
+	if belly != null and him.limp:
+		_lift_t = minf(_lift_t + delta, player.tuning.carry_lift_s)
+		var k := _lift_t / maxf(player.tuning.carry_lift_s, 0.01)
+		k = k * k * (3.0 - 2.0 * k)
+		var to := shoulder_xform()
+		belly.global_transform = Transform3D(_lift_from.basis.slerp(to.basis, k).orthonormalized(), _lift_from.origin.lerp(to.origin, k))
+		for rb: Variant in him.parts.values():
+			if rb is RigidBody3D:
+				(rb as RigidBody3D).sleeping = false
 	var step := Vector2(player.global_position.x - _from.x, player.global_position.z - _from.z).length()
 	dragged_m += step
 	dragged_total_m += step
 	_from = player.global_position
 	var signs := him.signs_now()
 	if signs != null:
+		# His collar in your hand, his belly on your shoulder: what's on them comes off on you.
 		blood_on_you = maxf(blood_on_you, signs.blood_on_me(collar(him), WoundSigns.ON_COLLAR))
+		if belly != null:
+			blood_on_you = maxf(blood_on_you, signs.blood_on_me(belly.global_position, WoundSigns.ON_COLLAR))
 
 
-## Up a step or onto a walk: what of him is below the floor you stand on is drawn up to it (hauled
-## by the collar his hips come up over a riser's edge; HumanBody.drag_toward moves his hips flat
-## and they caught on the doctor's steps, #1057).
-func _lift(delta: float) -> void:
-	if not him.limp:
-		return
-	# His legs come after his hips: hauled by the collar a man's heels drag, they don't hold (with only
-	# his trunk towed, Earl's feet under the card table held him there, #1057).
-	var pelvis := him.parts.get(&"pelvis") as RigidBody3D
-	if pelvis != null:
-		var flat := Vector3(pelvis.linear_velocity.x, 0.0, pelvis.linear_velocity.z)
-		for sid: StringName in LEGS:
-			var rb := him.parts.get(sid) as RigidBody3D
-			if rb == null:
-				continue
-			var v := rb.linear_velocity
-			rb.linear_velocity = v.lerp(Vector3(flat.x, v.y, flat.z), clampf(delta * 8.0, 0.0, 1.0))
-			rb.sleeping = false
-	var floor_y := player.global_position.y
-	for sid: StringName in LIFTED:
-		var rb := him.parts.get(sid) as RigidBody3D
+## Where his belly lies over your right shoulder: his head down your back, his front down on you.
+func shoulder_xform() -> Transform3D:
+	var fwd := player.get_forward()
+	fwd.y = 0.0
+	fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
+	var right := fwd.cross(Vector3.UP).normalized()
+	var t := player.tuning
+	var at := player.global_position + Vector3.UP * t.carry_shoulder_up + right * t.carry_shoulder_side + fwd * t.carry_shoulder_fwd
+	# His +Y (toward his head) behind you, his front (-Z) down: +Z up.
+	var y := -fwd
+	var z := Vector3.UP
+	return Transform3D(Basis(y.cross(z), y, z), at)
+
+
+## On (taken up) or off (laid down) your shoulder: his belly held (kinematic) or let go, his parts
+## out of the world and off you while you have him, his blood kept off the ground (HumanBody.carried).
+func _shoulder(m: HumanBody, on: bool) -> void:
+	if on and not m.limp:
+		m.go_limp()  # lying posed (prone): the ragdoll, to hang off your shoulder
+	m.carried = on
+	var belly := m.parts.get(&"abdomen") as RigidBody3D
+	if on:
+		_lift_t = 0.0
+		_lift_from = belly.global_transform if belly else Transform3D()
+	for v: Variant in m.parts.values():
+		var rb := v as RigidBody3D
 		if rb == null:
 			continue
-		var under := floor_y + 0.05 - rb.global_position.y
-		if under <= 0.0:
-			continue
-		var v := rb.linear_velocity
-		v.y = maxf(v.y, minf(under * 6.0, 1.6))
-		rb.linear_velocity = rb.linear_velocity.lerp(v, clampf(delta * 12.0, 0.0, 1.0))
+		rb.collision_mask = Layers.RAGDOLL if on else Layers.WORLD | Layers.RAGDOLL
+		if on:
+			player.add_collision_exception_with(rb)
+		elif player.get_collision_exceptions().has(rb):
+			player.remove_collision_exception_with(rb)
+		rb.linear_velocity = Vector3.ZERO
+		rb.angular_velocity = Vector3.ZERO
 		rb.sleeping = false
+	if belly != null:
+		belly.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+		belly.freeze = on
+	if not on and m.limp and belly != null and player.is_inside_tree():
+		# Laid down in front of you: the whole of him lowered there by the same step, to settle.
+		var fwd := player.get_forward()
+		fwd.y = 0.0
+		fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
+		var to := player.global_position + fwd * 0.7
+		ValleyFolk.move_body(m, Vector3(to.x, player.global_position.y, to.z))
 
 
-## His collar this far from your hands (m) and he's no load; LAG_SPAN more and you're at a crawl.
-const LAG_FREE := 1.1
-const LAG_SPAN := 1.2
-var _lag := 0.0
-## Caught and holding you (lagging past LAG_FREE + HEAVE_LAG for HEAVE_AFTER s): a heave, as you'd
-## put your back into it: his trunk and hips lifted and drawn toward your hands at once, every
-## HEAVE_EVERY s till he comes (#1057: on CI's machines Earl stuck on the steps up to the doctor's
-## walk where locally he came up them).
-const HEAVE_LAG := 0.4
-const HEAVE_AFTER := 0.8
-const HEAVE_EVERY := 0.9
-const HEAVE_UP := 1.4
-const HEAVE_PULL := 1.2
-var _stuck_t := 0.0
-var _heave_t := 0.0
-var heaves := 0
-
-
-func _heave_step(hands: Vector3, delta: float) -> void:
-	if not him.limp or _lag < LAG_FREE + HEAVE_LAG:
-		_stuck_t = 0.0
-		return
-	_stuck_t += delta
-	_heave_t -= delta
-	if _stuck_t < HEAVE_AFTER or _heave_t > 0.0:
-		return
-	_heave_t = HEAVE_EVERY
-	heaves += 1
-	var to := hands - collar(him)
-	to.y = 0.0
-	var pull := to.normalized() * HEAVE_PULL if to.length() > 0.01 else Vector3.ZERO
-	for sid: StringName in [&"chest", &"abdomen", &"pelvis", &"thigh_l", &"thigh_r", &"neck", &"head"]:
-		var rb := him.parts.get(sid) as RigidBody3D
-		if rb == null:
-			continue
-		rb.linear_velocity += pull + Vector3.UP * HEAVE_UP
-		rb.sleeping = false
-
-
-const LIFTED: Array[StringName] = [&"chest", &"abdomen", &"pelvis", &"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
-const LEGS: Array[StringName] = [&"thigh_l", &"thigh_r", &"shin_l", &"shin_r", &"foot_l", &"foot_r"]
 ## He comes loose only after he's been past carry_tear_m this long (s): a jolt on a step isn't it.
 const TEAR_S := 6.0
 var _tear_t := 0.0
@@ -342,5 +322,5 @@ func _wound_count() -> int:
 func report() -> Dictionary:
 	var here := man_here()
 	return {"carrying": String(him.person_id) if carrying() else "", "dragged_m": snappedf(dragged_m, 0.1),
-			"blood_on_you": snappedf(blood_on_you, 0.01), "heaves": heaves, "last": String(last), "why": String(last_why),
+			"blood_on_you": snappedf(blood_on_you, 0.01), "last": String(last), "why": String(last_why),
 			"by_man": String(here.person_id) if here else ""}

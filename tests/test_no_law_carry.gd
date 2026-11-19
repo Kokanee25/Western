@@ -34,7 +34,7 @@ func after_each() -> void:
 	ValleyFolk.murder_auto = true
 	if Events.spoke.is_connected(_on_spoke):
 		Events.spoke.disconnect(_on_spoke)
-	for a: StringName in [&"move_forward", &"shove"]:
+	for a: StringName in [&"move_forward", &"move_back", &"move_left", &"move_right", &"shove"]:
 		Input.action_release(a)
 
 
@@ -57,11 +57,20 @@ func _at(h: float) -> void:
 	await physics_frames(60)
 
 
-## You by `man`'s collar, looking at it.
+## You by `man`'s collar, looking at it: on a side of him where you can stand (not in the card
+## table he fell by: placed in its top you couldn't move, CI #1081).
 func _by(man: HumanBody) -> void:
 	var p := _player()
 	var c := PlayerCarry.collar(man)
 	var off := Vector3(0.9, 0.0, 0.0)
+	for k in 8:
+		var o := Vector3(0.9, 0.0, 0.0).rotated(Vector3.UP, TAU * k / 8.0)
+		var try := c + o
+		try.y = _folk().ground(try.x, try.z) + 0.05
+		p.global_position = try
+		if not p.test_move(p.global_transform, Vector3.UP * 0.01):
+			off = o
+			break
 	var at := c + off
 	at.y = _folk().ground(at.x, at.z) + 0.05
 	p.global_position = at
@@ -74,6 +83,7 @@ func _by(man: HumanBody) -> void:
 func _walk(way: Array[Vector3], max_s: float) -> bool:
 	var p := _player()
 	var frames := int(max_s * 60.0)
+	print("      walk: time_scale %.2f move_factor %.2f burden %.2f shove %.2f carry %.2f crouching %s winded %.2f" % [Engine.time_scale, p.move_factor, p.burden, p.shove.pace() if p.shove else 1.0, p.carry.pace(), p.is_crouching, p.composure.winded if p.composure else 0.0])
 	var stuck := 0
 	var last := p.global_position
 	for i in frames:
@@ -104,6 +114,24 @@ func _walk(way: Array[Vector3], max_s: float) -> bool:
 		if i % 60 == 59:
 			stuck = stuck + 1 if p.global_position.distance_to(last) < 0.2 else 0
 			last = p.global_position
+			if stuck == 2:
+				var cols := []
+				for k in p.get_slide_collision_count():
+					var col := p.get_slide_collision(k).get_collider() as Node
+					cols.append(str(col.get_path()) if col else "?")
+				print("      held at %s: touching %s" % [p.global_position, cols])
+			# Held (the card table's edge where Earl fell, the barkeep by it: where he fell decides
+			# whether the way out goes through them), you'd step back and round it with him, as a player
+			# would.
+			if stuck >= 1 and p.carry.carrying():
+				Input.action_release(&"move_forward")
+				Input.action_press(&"move_back")
+				await physics_frames(20)
+				Input.action_release(&"move_back")
+				var right := posmod(stuck, 2) == 1
+				Input.action_press(&"move_right" if right else &"move_left")
+				await physics_frames(50)
+				Input.action_release(&"move_right" if right else &"move_left")
 			if stuck >= 10:
 				break
 	Input.action_release(&"move_forward")
@@ -121,6 +149,35 @@ func _tap_e() -> void:
 	await physics_frames(1)
 	Input.action_release(&"shove")
 	await physics_frames(2)
+
+
+## Earl's wound as the test needs it whatever the ball did (#1079): a ball under the collarbone, one
+## bleed that doesn't clot (KNOWN_ML_S), his breath and head clear, so he talks while you carry him
+## (out at unconscious_at_loss about two minutes on, slower as his pressure falls) and dies of it.
+const KNOWN_ML_S := 14.0
+const KNOWN_LOST_ML := 300.0
+
+
+func _known_wound(man: HumanBody) -> void:
+	var p := man.physiology
+	p.bleeds.clear()
+	p.cut.clear()
+	p.torn.clear()
+	p.lung_damage.clear()
+	p.airway_blood = false
+	p.brain_dead = false
+	p.concussion = 0.0
+	p.oxygen = 1.0
+	p.bleeds.append({"id": 0, "source": &"subclavian_r", "kind": &"artery", "segment": &"chest",
+			"rate": KNOWN_ML_S, "clots": false, "clot": 1.0, "pressure": false, "tourniquet": false,
+			"lost": 0.0, "limit": 99999.0})
+	p.blood_ml = p.tuning.blood_ml - KNOWN_LOST_ML
+	p.wound_pain = 0.8
+	p.pain = 0.8
+	p.alive = true
+	for w: Dictionary in man.wounds:
+		if w.has("bleeds"):
+			w.bleeds = [0]
 
 
 ## A man knocked down, alive (the ragdoll), out on Main Street west of the doctor's.
@@ -179,6 +236,55 @@ func test_a_man_down_taken_by_the_collar_up_main_street_and_let_go() -> void:
 	if p.carry.carrying():
 		p.carry.drop()
 	check(not p.carry.carrying() and earl.dragged_by == null, "let go (%s)" % p.carry.report())
+
+
+## A man down beside a free chair: a tap of E takes him up, it doesn't sit you down, even before the
+## carry's look (a few times a second) has seen him (CI, #1081: by the card table, you sat with
+## Earl over your shoulder and never moved).
+func test_by_a_chair_e_takes_the_man_not_the_seat() -> void:
+	await _at(21.0)
+	var earl := await _downed(&"earl")
+	check(earl != null, "Earl down")
+	if earl == null:
+		return
+	var p := _player()
+	await _by(earl)
+	var chair := Seating.free_chair_near(get_tree(), Vector3(30.6, 0.3, -15.0), 20.0)
+	check(chair != null, "a free chair in the yard")
+	if chair == null:
+		return
+	# The chair at your elbow, in view, and the carry's look not yet round to him.
+	var fwd := p.get_forward()
+	fwd.y = 0.0
+	var side := fwd.normalized().cross(Vector3.UP) * 0.5
+	chair.global_position += (p.global_position + fwd.normalized() * 0.6 + side) - chair.seat_position() + Vector3.UP * (chair.global_position.y - chair.seat_position().y + 0.47)
+	await physics_frames(2)
+	check(p.seat.chair_here() != null or p.carry.near_man() != null, "by a chair you could sit in (%s)" % p.carry.report())
+	p.carry._near = null
+	p.carry._look_t = 99.0
+	await _tap_e()
+	await physics_frames(10)
+	check(p.carry.carrying(earl), "E took him up (%s)" % p.carry.report())
+	check(not p.seat.seated(), "and didn't sit you down")
+
+
+## A man down who could get up (not hurt past standing) doesn't get up off your shoulder while you
+## stand still with him (#1081: CI, held at a step with Earl still on your shoulder, he rose, you
+## lost him and he walked home).
+func test_he_doesnt_get_up_off_your_shoulder() -> void:
+	await _at(21.0)
+	var earl := await _downed(&"earl")
+	check(earl != null and earl.limp, "Earl down")
+	if earl == null:
+		return
+	earl.rise_ok = true
+	check(earl.physiology.can_stand(), "he could stand (%s)" % earl.physiology.describe())
+	var p := _player()
+	await _by(earl)
+	await _tap_e()
+	check(p.carry.carrying(earl), "taken up (%s)" % p.carry.report())
+	await physics_frames(60 * 4)  # past HumanBody's RISE_AFTER + RISE_STILL, standing still
+	check(p.carry.carrying(earl) and earl.limp and not earl.rising, "still over your shoulder (%s; limp %s rising %s)" % [p.carry.report(), earl.limp, earl.rising])
 
 
 func test_his_wound_bleeds_while_hes_dragged() -> void:
@@ -252,6 +358,9 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	check(earl.physiology.alive and earl.limp, "Earl down and breathing after it (%s)" % earl.physiology.describe())
 	check(earl.physiology.total_bleed_rate() > 1.0, "bleeding (%.1f ml/s)" % earl.physiology.total_bleed_rate())
 	check_eq(m.shots, 1, "one ball")
+	# Where Cody's ball lands rides on how Earl fell, and a few more bodies anywhere in the valley
+	# change that (#1079): his wound set to a known one from here, so the night plays the same.
+	_known_wound(earl)
 	var started := await wait_until(func() -> bool: return f.carry_act != null, 60 * 60)
 	check(started, "the carry starts once the barkeep's said there's nobody to fetch (%s)" % [m.result().get("events")])
 	if not started:
@@ -266,6 +375,12 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	print("    by Earl: you %s, Earl %s" % [p.global_position, ValleyFolk._body_at(earl)])
 	await _tap_e()
 	check(p.carry.carrying(earl), "you have him (%s)" % p.carry.report())
+	# Whatever takes his body out of the world while you have him says so (#1081: on CI he was freed
+	# off your shoulder).
+	earl.tree_exiting.connect(func() -> void:
+		if earl.dragged_by != null:
+			print("    Earl freed while carried (state %s):" % f.state.get(&"earl"))
+			print_stack())
 	await physics_frames(5)
 	check_eq(StoryState.get_fact("nolaw.carried_earl"), "yes", "nolaw.carried_earl")
 	# Up the street with him; if he comes loose on something (a snag), back to him and take him up
@@ -274,6 +389,9 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	var retakes := 0
 	for attempt in 3:
 		there = await _walk(_route_to(&"doctor"), 200.0)
+		if not is_instance_valid(earl):
+			check(false, "Earl's body taken out of the world on the way (state %s; the carry: %s)" % [f.state.get(&"earl"), p.carry.report()])
+			return
 		if p.carry.carrying(earl):
 			break
 		print("    lost him (%s) at %s: back for him" % [p.carry.report(), p.global_position])
