@@ -260,6 +260,11 @@ func _the_fight(h: NoJusticeHideout, kett_out := false) -> NoJusticeCabin:
 			await _shoot(p.camera.global_position, chest)
 			await physics_frames(8)
 		_mark("alarm")
+		# Down outside and still breathing after the shots (where the balls land is luck: 32 left him
+		# down but alive on CI, #1084): he dies of them where he lies, as the crew's wounds are made to
+		# kill them (_crew_down). The scene must still read him dead outside, below.
+		if h.kett.physiology.alive and h.kett_state == NoJusticeHideout.DOWN_OUTSIDE:
+			h.kett.physiology._die(&"blood_loss")
 		var dead := await wait_until(func() -> bool: return h.kett_state == NoJusticeHideout.DEAD_OUTSIDE, 60 * 10)
 		check(dead, "the red shirt dead outside (%s)" % h.result())
 		_put(h.spot([-120.0, -45.0]))
@@ -307,6 +312,12 @@ func _to_the_ask(m: NoJusticeCabin) -> bool:
 	_put(m._local([3.5, 2.4]), m.kett.global_position)
 	var asked := await wait_until(func() -> bool: return m.state == &"ask", _frames(160))
 	check(asked, "Joe in and his ask (%s)" % m.result())
+	# Joe at his place inside, whatever the kicked-in door's pieces did: where they land is luck, and a
+	# man's walk stops short of them (on CI he asked from the sill, held there by them, and never
+	# reached Kett for the revenge, #1084). The ask is made from inside; every answer starts from there.
+	m.joe.global_position = m._joe_in_spot()
+	m._joe_way.clear()
+	await physics_frames(2)
 	_put(m._local([3.5, 2.4]), m.joe.global_position + Vector3.UP * 1.5)
 	await physics_frames(5)
 	return asked
