@@ -146,7 +146,7 @@
          {"from": 18.0, "in": "doctor", "do": "supper"},
          {"from": 19.0, "in": "doctor", "do": "home"},
          {"from": 22.0, "in": "doctor", "do": "sleep"}]},
-     "_doc": "Townsfolk step 3 (#936), roster 2: the doctor's day self, the coroner. His own day id because `doc` is the sheriff-dies act's man (an act man has no hours): by day on the book in his building so the act's body is never a double; out on his walk in the afternoon only (the brief puts his crossing in 7-12; it waits for the act's morning to be free of him)."},
+     "_doc": "Townsfolk step 3 (#936), roster 2: the doctor's day self, the coroner. One man (#1095: there was an act-only `doc` too): the acts (SheriffDies, No Justice's office, the funeral) take him off his day (ValleyFolk.seize) and give him back; out on his walk in the afternoon only (the brief puts his crossing in 7-12; it waits for the act's morning to be free of him). He answers his door to any hurt man brought him (FetchHelp.at_door)."},
     {"id": "storekeeper", "name": "Storekeeper", "model": "storekeeper_s1_talking", "seed": 902, "dials": {"nerve": 0.3, "nosy": 0.6, "duty": 0.5}, "shirt": [0.82, 0.8, 0.7], "vest": [0.35, 0.3, 0.2], "home": "general_store",
      "day": {
        "ordinary": [
@@ -296,8 +296,6 @@
      "_doc": "The young man the doctor sends to find you on day 2 (SheriffDies: \"Harlan! Doc's asking for you.\")."},
     {"id": "dying_sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "shirt": [0.72, 0.68, 0.6], "vest": [0.22, 0.18, 0.14], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The sheriff on the doctor's cot, day 2 (SheriffDies): the road's man (the_sheriff.json's model), built with the folk (a Studio man built in play is a long frame)."},
-    {"id": "doc", "name": "Doc", "model": "doctor_s2_talking", "seed": 747, "shirt": [0.85, 0.84, 0.8], "vest": [0.12, 0.12, 0.13], "act": "sheriff_dies", "from": "doctor",
-     "_doc": "The doctor (the_sheriff.json's), day 2: at his door for you, then in the sick room."},
     {"id": "wife", "name": "Mrs.", "model": "widow_s6_talking", "seed": 796, "shirt": [0.3, 0.27, 0.3], "vest": [0, 0, 0, 0], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The sheriff's wife at his bedside, day 2. A stand-in: the widow's model (the characters lane's), only used here; at the funeral (Funeral, #868) she's the widow."},
     {"id": "preacher", "name": "Preacher", "model": "oldtimer_factory", "seed": 868, "shirt": [0.12, 0.12, 0.13], "vest": [0.08, 0.08, 0.09], "act": "funeral", "from": "undertaker",
@@ -309,6 +307,10 @@
     {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1], "act": "no_justice", "from": "doctor",
      "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."}
   ],
+  "no_knock": ["saloon", "saloon_annex"],
+  "_no_knock": "#1095: places with no door to bang on (PlayerKnock): the saloon's set is its open yard. Elsewhere E at a door bangs on it only from outside it (ValleyFolk.past_door).",
+  "doctor_room": [6.7, 0.95, 2.6],
+  "_doctor_room": "#1095: where the doctor has a hurt man laid in his front room when he answers his door to him (FetchHelp.at_door, ValleyFolk.take_in): the doctor's building's own space [x, floor y, z] (config/moments/no_law_carry.json's laid spot, a step back).",
   "talk": {
     "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",
     "near_m": 4.0,

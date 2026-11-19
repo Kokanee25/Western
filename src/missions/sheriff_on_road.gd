@@ -631,10 +631,14 @@ func _slow_gesture() -> HeadGesture:
 func _on_knocked(place: StringName, inside: Array, by: Node, at: Vector3) -> void:
 	if done or not by is Player or place != StringName(String(data.get("doctor_lot", "doctor"))):
 		return
-	if state not in [&"road", &"knocked"] or sheriff == null or not is_instance_valid(sheriff):
+	if sheriff == null or not is_instance_valid(sheriff):
 		return
 	if _flat(_sheriff_at(), at) > float(data.get("door_body_m", 4.5)):
 		_note("a knock at the doctor's without the sheriff by it")
+		return
+	if valley and valley.folk:
+		valley.folk.claim_knock()  # his: the town doesn't answer it as well (#1095)
+	if state not in [&"road", &"knocked"]:
 		return
 	knocks += 1
 	var doc_id := StringName(String((data.get("doctor", {}) as Dictionary).get("folk_id", "doctor")))

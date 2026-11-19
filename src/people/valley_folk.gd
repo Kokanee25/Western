@@ -119,6 +119,9 @@ var _said_n := {}
 ## and where. An act answers it (No Law's carry: the doctor); `knocks` keeps them [frame, place, ids].
 signal knocked(place: StringName, inside: Array, by: Node, at: Vector3)
 var knocks: Array = []
+## Set by an act that answers the knock it's just been told of (`claim_knock`, in its `knocked`
+## handler): else the town answers it itself (the doctor's door: FetchHelp.at_door, #1095).
+var knock_claimed := false
 ## The dead laid out where they were left for the night (No Law: Earl in the doctor's front room,
 ## #1057): id -> {place, at, sheet}. The undertaker takes them from there (`to_undertaker`).
 var laid := {}
@@ -1075,9 +1078,12 @@ func _ready_once() -> bool:
 # --- The acts' men and No Law's murder -----------------------------------------------------------
 
 ## An act's man (`act` in the data, no hours) into the world at `at`, facing `faces`: no brain, the
-## act moves him. Null if he isn't one or he's out already.
+## act moves him. Null if he isn't one or he's out already. A day man (the doctor, #1095: one man,
+## in by the town's book, in every scene) is taken off his day the same way (`seize`).
 func take(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
 	var p := _person(id)
+	if not p.is_empty() and not p.has("act"):
+		return seize(id, at, faces)
 	if p.is_empty() or not p.has("act") or (people.has(id) and is_instance_valid(people[id])):
 		return null
 	var man: HumanBody = _waiting.get(id)
@@ -1090,8 +1096,55 @@ func take(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
 	return man
 
 
-## An act's man out of the world (he's walked off).
+## A day man taken off his day for an act (#1095: the doctor in SheriffDies, No Justice's office, the
+## funeral): from the book (borrowed) or, out in the world already, his brain taken off him and moved
+## to `at`. Null if he's dead, gone or an act has him.
+func seize(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
+	var p := _person(id)
+	if p.is_empty() or p.has("act") or gone_for_good.has(id) or state.get(id) in [&"dead", &"act"]:
+		return null
+	var man := folk_man(id)
+	if man == null:
+		man = borrow(id, at, faces)
+		if man == null and not _waiting.has(id) and state.get(id, &"out") == &"out":
+			man = _make(p)
+			man.enter(get_parent(), at, HumanBody.yaw_toward(at, faces))
+			people[id] = man
+			state[id] = &"act"
+		if man != null:
+			book.take(id)
+		return man
+	if not man.physiology.alive or man.limp:
+		return null
+	_going_for.erase(id)
+	_going_to.erase(id)
+	_due.erase(id)
+	kept_out.erase(id)
+	if fetch:
+		fetch.drop_calls(man)
+	_strip_brain(man)
+	man.set_pose(&"stand")
+	man.global_position = at
+	man.rotation.y = HumanBody.yaw_toward(at, faces)
+	state[id] = &"act"
+	book.take(id)
+	return man
+
+
+static func _strip_brain(man: HumanBody) -> void:
+	for n: String in ["Brain", "Senses"]:
+		var c := man.get_node_or_null(NodePath(n))
+		if c:
+			man.remove_child(c)
+			c.free()
+
+
+## An act's man out of the world (he's walked off). A day man goes back to his day (`give_back`).
 func release(id: StringName) -> void:
+	var p := _person(id)
+	if not p.is_empty() and not p.has("act"):
+		give_back(id)
+		return
 	var man: HumanBody = people.get(id)
 	if man != null and is_instance_valid(man) and man.dragged_by != null:
 		return  # carried or dragged (#1081): not out of the world off someone's shoulder
@@ -1130,15 +1183,13 @@ func give_back(id: StringName) -> void:
 		return
 	people.erase(id)
 	state[id] = &"out"
-	for n: String in ["Brain", "Senses"]:
-		var c := man.get_node_or_null(NodePath(n))
-		if c:
-			man.remove_child(c)
-			c.free()
+	_strip_brain(man)
 	man.set_pose(&"stand")
 	if man.get_parent():
 		man.get_parent().remove_child(man)
 	_waiting[id] = man
+	if not _person(id).has("act"):
+		_key[id] = ""  # a day man: his block anew, so a block out in town brings him out again
 
 
 ## Up and away for the rest of his block (an act's: No Law's drifter and miner after the shot): he
@@ -1474,6 +1525,8 @@ func door_near(at: Vector3, fwd: Vector3, reach: float) -> Dictionary:
 	var best := {}
 	var best_d := reach
 	for pn: StringName in door_places():
+		if no_knock(pn):
+			continue
 		var d_at := places.at(pn)
 		var to := d_at - at
 		if absf(to.y) > 1.6:
@@ -1484,20 +1537,93 @@ func door_near(at: Vector3, fwd: Vector3, reach: float) -> Dictionary:
 			continue
 		if d > 0.6 and fwd.length() > 0.01 and rad_to_deg(fwd.angle_to(to / d)) > 75.0:
 			continue
+		if past_door(pn, at):
+			continue  # in at it already (#1095: the prompt showed in the doorway)
 		best = {"place": pn, "at": d_at}
 		best_d = d
+	if not best.is_empty():
+		# Worth banging on (#1095): someone in on the book, or a hurt man by it to bring in.
+		best["heard"] = not book.inside(best.place).is_empty()
+		best["hurt"] = not best.heard and hurt_by_door(best.place, null) != null
 	return best
 
 
+## A place with no door to bang on (#1095: the saloon's set is its open yard): `no_knock` in the data.
+func no_knock(place: StringName) -> bool:
+	return (data.get("no_knock", []) as Array).has(String(place))
+
+
+## In past `place`'s door point (its building's way in, +z in the valley's spec buildings) by more
+## than `PAST_DOOR` m: in the doorway or the room, not at the door.
+func past_door(place: StringName, at: Vector3) -> bool:
+	var bs: Variant = get_parent().get(&"buildings") if get_parent() else null
+	var b: Node3D = (bs as Dictionary).get(String(place)) if bs is Dictionary else null
+	if b == null or not is_instance_valid(b):
+		return false
+	var into := b.global_basis.z
+	into.y = 0.0
+	var off := at - places.at(place)
+	off.y = 0.0
+	return into.length() > 0.01 and off.dot(into.normalized()) > PAST_DOOR
+const PAST_DOOR := 0.9
+
+
 ## A bang on `place`'s door: whoever the book has inside hears it (their ids), and it's told
-## (`knocked`) for an act to answer.
+## (`knocked`) for an act to answer. None does: at the doctor's, the town answers it (FetchHelp:
+## the doctor out to any hurt man by his door, #1095).
 func knock(place: StringName, by: Node, at: Vector3) -> Array:
 	var inside: Array = []
 	for id: StringName in book.inside(place):
 		inside.append(id)
 	knocks.append([Engine.get_physics_frames(), place, inside.duplicate()])
+	knock_claimed = false
 	knocked.emit(place, inside, by, at)
+	if not knock_claimed and place == home_of(_person(FetchHelp.DOCTOR)) and fetch != null:
+		var hurt := hurt_by_door(place, by)
+		if hurt != null:
+			var said := fetch.at_door(hurt, places.at(place), inside.has(FetchHelp.DOCTOR))
+			if said != "" and by is Player and (by as Player).wounds:
+				(by as Player).wounds.say(said, 4.0)
+	knock_claimed = false
 	return inside
+
+
+## An act answering the knock it's being told of (in its `knocked` handler): the town leaves it be.
+func claim_knock() -> void:
+	knock_claimed = true
+
+
+## The hurt man by `place`'s door (#1095): the one you've got hold of, else the nearest man
+## within `DOOR_BODY_M` who's bleeding, down or hurt, alive. Null if none.
+func hurt_by_door(place: StringName, by: Node) -> HumanBody:
+	var door_at := places.at(place)
+	var held: HumanBody = null
+	if by is Player and (by as Player).carry != null:
+		held = (by as Player).carry.him
+	if held != null and is_instance_valid(held) and _hurt(held) \
+			and Vector2(_body_at(held).x - door_at.x, _body_at(held).z - door_at.z).length() < DOOR_BODY_M:
+		return held
+	var best: HumanBody = null
+	var best_d := DOOR_BODY_M
+	for n: Node in get_tree().get_nodes_in_group(&"people"):
+		var m := n as HumanBody
+		if m == null or m == by or not _hurt(m):
+			continue
+		var at := _body_at(m)
+		var d := Vector2(at.x - door_at.x, at.z - door_at.z).length()
+		if d < best_d:
+			best_d = d
+			best = m
+	return best
+const DOOR_BODY_M := 4.5
+
+
+## Alive and hurt: bleeding, blood lost, out cold or a wound on him.
+static func _hurt(m: HumanBody) -> bool:
+	if m == null or not is_instance_valid(m) or m.physiology == null or not m.physiology.alive:
+		return false
+	var ph := m.physiology
+	return not ph.bleeds.is_empty() or ph.blood_loss() > 0.02 or not ph.is_conscious()
 
 
 # --- No Law's carry (#1057) --------------------------------------------------------------------------
@@ -1522,6 +1648,40 @@ func _carry_step() -> void:
 func start_carry(options := {}) -> Moment:
 	carry_act = Moment.start_named(CARRY, get_parent() as Node3D, null, options)
 	return carry_act
+
+
+## Taken in at the doctor's (FetchHelp.at_door, #1095): a hurt man let go of off your shoulder and
+## laid in the doctor's front room (`doctor_room`, the doctor's building's own space), alive; a day
+## man's day waits (an act's, as it were: the doctor has him). Treating him by his wounds is #1093.
+## `taken_in`: id (or the body's name) -> {at, t}.
+var taken_in := {}
+func take_in(man: HumanBody) -> void:
+	if man == null or not is_instance_valid(man):
+		return
+	var you := get_tree().get_first_node_in_group(&"player") as Player
+	if you != null and you.carry != null and you.carry.carrying(man):
+		you.carry.drop(&"laid")
+	if man.dragged_by != null:
+		man.dragged_by = null
+	var bs: Variant = get_parent().get(&"buildings") if get_parent() else null
+	var b: Node3D = (bs as Dictionary).get(home_of(_person(FetchHelp.DOCTOR))) if bs is Dictionary else null
+	var room: Array = data.get("doctor_room", [6.7, 0.95, 2.6])
+	var to := b.global_transform * Vector3(float(room[0]), float(room[1]), float(room[2])) if b else _body_at(man)
+	var id := man.person_id
+	if people.get(id) == man:
+		_strip_brain(man)
+		_going_for.erase(id)
+		_going_to.erase(id)
+		state[id] = &"act"
+		book.take(id)
+	if man.limp:
+		move_body(man, to)
+	else:
+		man.global_position = to
+		man.set_pose(&"on_back")
+	taken_in[String(id) if id != &"" else String(man.name)] = {"at": to, "t": Time.get_ticks_msec()}
+	if you != null and you.wounds:
+		you.wounds.say("The doctor takes him in.", 4.0)
 
 
 ## Lay a dead man out where he is for the night (a body under a sheet: `sheet` a drawn stand-in, a

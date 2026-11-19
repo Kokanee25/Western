@@ -23,9 +23,13 @@ extends RefCounted
 ## a lab or test can make one with a `doctor` man and no folk. Nothing here runs per frame but the
 ## calls (a doctor walking) and a half-second look for Harlan.
 
-## The doctor's day id (ValleyFolk's people), and the acts' doctor (SheriffDies' `doc`).
+## The doctor's day id (ValleyFolk's people): one man, the acts' too (#1095: there was a `doc`).
 const DOCTOR := &"doctor"
-const DOCTORS: Array[StringName] = [&"doctor", &"doc"]
+const DOCTORS: Array[StringName] = [&"doctor"]
+## A knock at his door with a hurt man by it (#1095, `at_door`): in, he's at the door this long after
+## (s); then out to him, and he's taken in this long after the doctor's by him (s).
+const ANSWER_S := 4.0
+const TAKE_IN_S := 3.0
 ## A runner: calm (fear under nerve) and this dutiful at least (the most dutiful who saw it goes).
 const RUNNER_DUTY := 0.4
 ## Told, the doctor takes his bag (s), then comes at this pace (m/s: a fast walk, Reaction.WALK 1.2).
@@ -197,10 +201,67 @@ func step(delta: float) -> void:
 		_call_step(c, delta)
 
 
+## A knock at the doctor's door with `down` by it (ValleyFolk.knock, #1095): the doctor answers for
+## any hurt man, not only an act's. In, he comes out to him; out on a call to this same man (the
+## runner sent him to where he fell), he comes back for him; dead, gone or an act's, nobody comes.
+## He takes him in (ValleyFolk.take_in): treating him by his wounds is #1093. What the player's told.
+func at_door(down: HumanBody, door: Vector3, inside: bool) -> String:
+	if down == null or not is_instance_valid(down):
+		return ""
+	for c: Dictionary in calls:
+		if c.down == down and c.get("door", false):
+			return ""  # he's coming for him already
+	var doc := doctor_errand()
+	if doc.is_empty():
+		_note("knock: no doctor", &"")
+		return "Nobody answers."
+	var man: HumanBody = doc.get("man")
+	var bag: Node3D = null
+	for c: Dictionary in calls.duplicate():
+		if c.man != null and is_instance_valid(c.man) and c.man == man and c.down != down:
+			_note("knock: the doctor's on another call", &"")
+			return "Nobody answers. The doctor's out on a call."
+		if c.down == down:
+			bag = c.bag  # on his way to where the man fell: back he comes, bag and all
+			calls.erase(c)
+	calls.append({"down": down, "man": null, "brain": null, "t": 0.0, "stage": &"door", "bag": bag,
+			"door": true, "door_at": door, "inside": inside})
+	_note("knock: the doctor answers", &"")
+	return "Steps inside: the doctor's coming." if inside else "Nobody answers. The doctor's out."
+
+
+## Calls this man was on, dropped (an act's taken him: ValleyFolk.seize). His bag goes.
+func drop_calls(man: HumanBody) -> void:
+	for c: Dictionary in calls.duplicate():
+		if c.man == man:
+			if c.bag != null and is_instance_valid(c.bag):
+				(c.bag as Node).queue_free()
+			calls.erase(c)
+
+
 func _call_step(c: Dictionary, delta: float) -> void:
 	c.t += delta
 	var down: HumanBody = c.down if is_instance_valid(c.down) else null
 	match c.stage:
+		&"door":
+			if down == null:
+				calls.erase(c)
+				return
+			if c.inside and c.t < ANSWER_S:
+				return
+			c.stage = &"beat"
+			c.t = BAG_BEAT
+			_call_step(c, 0.0)
+		&"in":
+			var man: HumanBody = c.man if is_instance_valid(c.man) else null
+			if down == null or man == null or not man.physiology.alive:
+				_end_call(c)
+				return
+			if c.t >= TAKE_IN_S:
+				if folk != null:
+					folk.take_in(down)
+				_note("doctor takes him in", man.person_id)
+				_end_call(c)
 		&"beat":
 			if c.t < BAG_BEAT:
 				return
@@ -214,7 +275,8 @@ func _call_step(c: Dictionary, delta: float) -> void:
 			c.brain = brain
 			c.stage = &"walk"
 			c.t = 0.0
-			c.bag = _bag(man)
+			if c.bag == null or not is_instance_valid(c.bag):
+				c.bag = _bag(man)
 			var e: Dictionary = events.get(down.get_instance_id(), {}) if down else {}
 			if not e.is_empty():
 				e.left_frame = Engine.get_physics_frames()
@@ -235,7 +297,19 @@ func _call_step(c: Dictionary, delta: float) -> void:
 				_end_call(c)
 				return
 			var brain: CivilianBrain = c.brain
+			var down_at := ValleyFolk._body_at(down) if down != null else Vector3.ZERO
+			if c.get("door", false) and brain != null and down != null and down_at.distance_to(brain.post) > 2.0:
+				# (at the door: you've moved him, or let him down off your shoulder) to him where he is now
+				var from := man.global_position - down_at
+				from.y = 0.0
+				brain.go_to(down_at + (from.normalized() if from.length() > 0.1 else Vector3.FORWARD) * 0.85, down_at)
 			var there := brain != null and man.global_position.distance_to(brain.post) < 0.5
+			if c.stage == &"walk" and c.get("door", false) and there:
+				c.stage = &"in"
+				c.t = 0.0
+				_set_down(c.bag, man)
+				man.face(down_at)
+				return
 			if c.stage == &"walk":
 				_carry(c.bag, man)
 				if there:

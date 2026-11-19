@@ -274,6 +274,8 @@ func _gather() -> void:
 				man = folk.take(id, at, look) if kind == "take" else folk.borrow(id, at, look)
 			elif folk.state.get(id) == &"act":
 				man.global_position = at  # the last scene's (his wife, the doctor): here now
+			elif kind == "take":
+				man = folk.take(id, at, look)  # a day man in town (the doctor, #1095): off his day for it
 			else:
 				continue  # in town on his own hours: left be
 			if man == null:

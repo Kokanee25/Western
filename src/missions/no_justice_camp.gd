@@ -10,7 +10,7 @@ extends Act
 ## toward the hideout. Then he walks with you (CompanionBrain, no longer `held`) for step 3.
 ##
 ## Joe is a CompanionBrain from the start, `held` while it's quiet (the scene walks him); in a fight he
-## fights. The doctor is ValleyFolk's act man `doc` (SheriffDies'), the cowboy its `cowboy`.
+## fights. The doctor is ValleyFolk's `doctor` (taken off his day, #1095), the cowboy its act man `cowboy`.
 
 const NOD := "nod"
 const FOLLOWED := "followed"
@@ -147,7 +147,7 @@ func _set_up_day() -> void:
 func _make_men() -> void:
 	var joe_at := _local(data.get("joe_spot", [3.0, 2.3]))
 	var door := _local(data.get("door_out", [4.71, -1.2]))
-	doctor = _man(&"doc", _local(data.get("doctor_spot", [1.5, 2.6])), joe_at)
+	doctor = _man(&"doctor", _local(data.get("doctor_spot", [1.5, 2.6])), joe_at)
 	cowboy = _man(&"cowboy", _local(data.get("cowboy_spot", [7.7, 0.75])), _local(data.get("cowboy_faces", [5.0, 2.0])))
 	joe = CompanionBrain.make_joe(street, joe_at, HumanBody.yaw_toward(joe_at, door), player(), folk.places,
 			CompanionBrain.STAND_IN, true)
@@ -158,7 +158,7 @@ func _make_men() -> void:
 
 func _man(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
 	var here: HumanBody = folk.people.get(id)
-	if here != null and is_instance_valid(here):
+	if here != null and is_instance_valid(here) and folk.state.get(id) == &"act":
 		here.global_position = at
 		here.rotation.y = HumanBody.yaw_toward(at, faces)
 		return here
@@ -372,10 +372,11 @@ func _at_camp_start() -> void:
 	joe.global_position = jat + Vector3.UP * 0.05
 	joe.rotation.y = HumanBody.yaw_toward(jat, jat + camp_on)
 	# The doctor and the cowboy back to their day (ValleyFolk); the scene's at the camp now.
-	for id: StringName in [&"cowboy"]:
+	for id: StringName in [&"doctor", &"cowboy"]:
 		if folk.state.get(id) == &"act":
-			folk.release(id)
+			folk.release(id)  # (the doctor back to his day, #1095: he stood in the office all game)
 	cowboy = null
+	doctor = null
 	_beats = [["joe", "wait"], ["do", "to_them"], ["do", "back"], ["joe", "what"], ["joe", "shirt"], ["do", "point"],
 			["joe", "way"]]
 	if StoryState.get_fact("nolaw.followed", false) == true:
@@ -623,7 +624,7 @@ func result() -> Dictionary:
 ## Take back its men and props (the bridge, the tests).
 func reset() -> void:
 	if folk and is_instance_valid(folk):
-		for id: StringName in [&"doc", &"cowboy"]:
+		for id: StringName in [&"doctor", &"cowboy"]:
 			if folk.state.get(id) == &"act":
 				folk.release(id)
 	for n: Node in _made:
