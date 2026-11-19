@@ -10,7 +10,7 @@ extends Act
 ## toward the hideout. Then he walks with you (CompanionBrain, no longer `held`) for step 3.
 ##
 ## Joe is a CompanionBrain from the start, `held` while it's quiet (the scene walks him); in a fight he
-## fights. The doctor is ValleyFolk's act man `doc` (SheriffDies'), the cowboy its `cowboy`.
+## fights. The doctor is ValleyFolk's `doctor` (taken off his day, #1095), the cowboy its act man `cowboy`.
 
 const NOD := "nod"
 const FOLLOWED := "followed"
@@ -125,8 +125,9 @@ func _set_up_day() -> void:
 	for k: String in before:
 		if not StoryState.has_fact(k):
 			fact(k, before[k])
-	# Earl's at the undertaker's by now, not at the card table (#859's playtest met him dealing).
-	if folk.people.has(&"earl") and not folk.gone_for_good.has(&"earl"):
+	# Earl's at the undertaker's by now, not at the card table (#859's playtest met him dealing; #1095:
+	# on the book too, not only in the world, or his evening brought him back to the cards).
+	if not folk.gone_for_good.has(&"earl"):
 		folk.to_undertaker(&"earl")
 	if opts.has("followed"):
 		fact("nolaw.followed", bool(opts.followed))
@@ -147,7 +148,7 @@ func _set_up_day() -> void:
 func _make_men() -> void:
 	var joe_at := _local(data.get("joe_spot", [3.0, 2.3]))
 	var door := _local(data.get("door_out", [4.71, -1.2]))
-	doctor = _man(&"doc", _local(data.get("doctor_spot", [1.5, 2.6])), joe_at)
+	doctor = _man(&"doctor", _local(data.get("doctor_spot", [1.5, 2.6])), joe_at)
 	cowboy = _man(&"cowboy", _local(data.get("cowboy_spot", [7.7, 0.75])), _local(data.get("cowboy_faces", [5.0, 2.0])))
 	joe = CompanionBrain.make_joe(street, joe_at, HumanBody.yaw_toward(joe_at, door), player(), folk.places,
 			CompanionBrain.STAND_IN, true)
@@ -158,7 +159,7 @@ func _make_men() -> void:
 
 func _man(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
 	var here: HumanBody = folk.people.get(id)
-	if here != null and is_instance_valid(here):
+	if here != null and is_instance_valid(here) and folk.state.get(id) == &"act":
 		here.global_position = at
 		here.rotation.y = HumanBody.yaw_toward(at, faces)
 		return here
@@ -372,10 +373,11 @@ func _at_camp_start() -> void:
 	joe.global_position = jat + Vector3.UP * 0.05
 	joe.rotation.y = HumanBody.yaw_toward(jat, jat + camp_on)
 	# The doctor and the cowboy back to their day (ValleyFolk); the scene's at the camp now.
-	for id: StringName in [&"cowboy"]:
+	for id: StringName in [&"doctor", &"cowboy"]:
 		if folk.state.get(id) == &"act":
-			folk.release(id)
+			folk.release(id)  # (the doctor back to his day, #1095: he stood in the office all game)
 	cowboy = null
+	doctor = null
 	_beats = [["joe", "wait"], ["do", "to_them"], ["do", "back"], ["joe", "what"], ["joe", "shirt"], ["do", "point"],
 			["joe", "way"]]
 	if StoryState.get_fact("nolaw.followed", false) == true:
@@ -524,6 +526,20 @@ func _trail_dir_point(m: float) -> Vector3:
 	return v
 
 
+## How many living men (not Joe, not you) stand within `survivors_m` of `at`: the camp's people,
+## counted from the world (#1095), not assumed.
+var survivors_seen := -1
+func survivors_near(at: Vector3) -> int:
+	var n := 0
+	var r := float((data.get("camp", {}) as Dictionary).get("survivors_m", 25.0))
+	for node: Node in get_tree().get_nodes_in_group(&"people"):
+		var m := node as HumanBody
+		if m == null or m == joe or not m.physiology.alive or _flat(m.global_position, at) > r:
+			continue
+		n += 1
+	return n
+
+
 ## The walks' waits: Joe gone to the survivors and talking, back to you, or out to read the ground.
 func _camp_wait(p: Player, _delta: float) -> void:
 	var cd: Dictionary = data.get("camp", {})
@@ -534,7 +550,9 @@ func _camp_wait(p: Player, _delta: float) -> void:
 				joe.set_pose(&"stand")
 				if not _told:
 					_told = true
-					prompt(String(_prompts().get("survivors", "")), 5.0)
+					survivors_seen = survivors_near(joe.global_position)
+					# What's true (#1095): nobody's there to talk to till the Studio makes them.
+					prompt(String(_prompts().get("survivors" if survivors_seen > 0 else "no_survivors", "")), 5.0)
 					state_t = 0.0
 				elif state_t > float(cd.get("talk_s", 16.0)) * _pace():
 					_waiting = false
@@ -608,7 +626,7 @@ func _say(man: HumanBody, text: String) -> void:
 
 func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
-			"answer": answer, "met": met, "beat": _beat, "waiting": _waiting, "ride_s": snappedf(ride_s, 1.0),
+			"answer": answer, "met": met, "survivors": survivors_seen, "beat": _beat, "waiting": _waiting, "ride_s": snappedf(ride_s, 1.0),
 			"holes": holes, "props": props.size()}
 	var p := player()
 	if p and joe and is_instance_valid(joe):
@@ -623,7 +641,7 @@ func result() -> Dictionary:
 ## Take back its men and props (the bridge, the tests).
 func reset() -> void:
 	if folk and is_instance_valid(folk):
-		for id: StringName in [&"doc", &"cowboy"]:
+		for id: StringName in [&"doctor", &"cowboy"]:
 			if folk.state.get(id) == &"act":
 				folk.release(id)
 	for n: Node in _made:

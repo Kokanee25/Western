@@ -17,7 +17,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   undertaker's after the sheriff's dead. `tests/test_no_law_carry.gd`. Open: the doctor in the doorway can block
   dragging him in yourself (the test lets go on the step); "on the table" in carry.lay but he's on the floor;
   carry.street, morning.coat and the undertaker's lines by the body aren't wired; the coat isn't drawn bloody
-  (`blood_on_you` is a number); nobody answers a knock but an act. The funeral (#868) as it was. No Law's script
+  (`blood_on_you` is a number). The funeral (#868) as it was. No Law's script
   isn't OK'd (#1059). **Next: the whole mission played end to end, its seams mended (#876).**
 - **No Justice: steps 1-4 done** (#843's plan; each `-- --world=valley --mission=<m>`, bridge `moment <m> set_up=1`).
   Joe is `CompanionBrain` (`--joe`, the lab's `joe=1`, `--joe-tune`); `held`, a scene walks him and he doesn't step out
@@ -32,6 +32,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   out cold in the cabin it waits forever. #1092's fix (ragdolls through the player) is PR #1099, unmerged: test_sheriff's lay-down red in shard 4.
   Riding waits on #478.
+- **Playtest run 2's faults (#1095):** one doctor (an act takes the day man: `ValleyFolk.seize`, `give_back`); a knock
+  no act claims (`claim_knock`) with a hurt man by the door brings him out or back (`FetchHelp.at_door`, `take_in`:
+  laid in the front room alive; treating, #1093); the knock prompt only where worth it (`past_door`, `no_knock`);
+  Earl at the undertaker's stays; the camp counts its survivors; `PlayerWounds.down_line`; the carry's mutters spread;
+  bridge `tend`, broke lines name the prop. `tests/test_playtest_faults.gd`. Open: the saloon yard's "20 broke" not met again.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
   book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
@@ -83,11 +88,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
   test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
   `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
-- **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks of the town and the
-  valley; smoke legs for the valley, the sheriff, No Law (`sheriff_dies`) and the coach; a red night opens a
-  `nightly red` issue. Each export's smoke runs the town and the valley (#1003). Trap: a `.gdignore`
-  drops its folder from the pack (the editor still reads it). The orphan rule counts only what isn't held on purpose. Not yet in the valley: the
-  goldens and the tour (art's views); the bench is by hand (`perf_bench --world=valley`, below). Rubble growth is by design (DESIGN §8).
+- **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks, smoke legs (valley, sheriff,
+  `sheriff_dies`, coach); a red night opens a `nightly red` issue. Trap: a `.gdignore` drops its folder from the pack.
+  Not yet in the valley: the goldens and the tour (art's views).
 
 ## Traps
 - A `-s` script can't build a structure (autoloads); probe through a test or the bridge. A `-s` tool must
@@ -102,6 +105,5 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - Sight takes a new structure in at its first look (look once at the build).
 - A fresh container has no native plugin (`bin/` is ignored): `cargo build --release` in the plugin (2 min,
   crates.io reachable 2026-11-17), the .so to `bin/`, else most game tests fail to load.
-- The valley bench: the drawn runs take ~6 min each (80 s of shader compiles). Workspaces' cores differ (one
-  read 38% slower at 25): compare against a baseline from the same workspace; the noise is ±0.35.
+- The valley bench: drawn runs ~6 min each; compare against a baseline from the same workspace (noise ±0.35).
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.

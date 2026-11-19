@@ -22,6 +22,7 @@ const HELP := {
 	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
+	"tend": "tend [PERSON] [SECONDS] -> press on a man's wound: crouch by him, look at where he bleeds and hold E (default 4 s; the nearest bleeding man within 3 m with none named). Answers his bleeding before and after",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
 	"weapon": "weapon revolver|shotgun|rifle|dynamite|bucket|plunger|none -> take that out (none: put it away)",
@@ -367,9 +368,22 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var place := StringName(a[0])
 	if _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
+		if points.is_empty():
+			# Off the places' links (#1095: `walk hideout`, 2 km out across open country, said "no way
+			# there"): on to it as to a point, else straight at it.
+			var at := _places().at(place)
+			points = _places().route_to_point(World.space(player), player.global_position, at, [player.get_rid()])
+			if points.is_empty():
+				points = [at]
 	elif _person(a[0]) != null:
+		# Routed round what's in the way as a point is (#1095: `walk storekeeper` went straight at him
+		# through the buildings: 215 s for 154 m, and stopped short).
 		var p := _lies(_person(a[0]))
-		points = [p + (player.global_position - p).normalized() * 1.5]
+		var near := p + (player.global_position - p).normalized() * 1.5
+		near.y = player.global_position.y
+		points = _places().route_to_point(World.space(player), player.global_position, near, [player.get_rid()])
+		if points.is_empty():
+			points = [near]
 	elif a.size() >= 2 and a[0].is_valid_float():
 		# Round what's in the way as a place's route is (the places' links, then on to the point):
 		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
@@ -474,6 +488,48 @@ func _cmd_press(a: Array) -> Dictionary:
 	if why != "":
 		out["why"] = why
 	return out
+
+
+## Press on a man's wound (#1095: the game says "hold E on his wound" and the bridge had no way):
+## crouch by him, look at his bleeding part (else his belly), hold E (`shove`) for S seconds.
+func _cmd_tend(a: Array) -> Dictionary:
+	var man: HumanBody = null
+	var secs := 4.0
+	for x: String in a:
+		if x.is_valid_float():
+			secs = float(x)
+		elif _person(x) != null:
+			man = _person(x)
+	if man == null:
+		var best := 3.0
+		for n in get_tree().get_nodes_in_group(&"people"):
+			var h := n as HumanBody
+			if h != null and h.physiology != null and h.physiology.alive and not h.physiology.bleeds.is_empty():
+				var d := _lies(h).distance_to(player.global_position)
+				if d < best:
+					best = d
+					man = h
+	if man == null:
+		return {"ok": false, "error": "tend [PERSON] [SECONDS]: nobody bleeding within 3 m"}
+	var part := &"abdomen"
+	if not man.physiology.bleeds.is_empty():
+		part = StringName(man.physiology.bleeds[0].get("segment", part))
+	if not man.parts.has(part):
+		part = &"pelvis"
+	if not player.is_crouching:
+		_act(true, &"crouch_toggle")
+		await _physics_frames(2)
+		_act(false, &"crouch_toggle")
+		await _seconds(0.4)
+	_face((man.parts[part] as Node3D).global_position)
+	await _physics_frames(1)
+	var rate0 := man.physiology.total_bleed_rate()
+	_act(true, &"shove")
+	await _seconds(secs)
+	_act(false, &"shove")
+	await _settle()
+	return {"tended": String(man.person_id), "part": String(part), "held_s": secs,
+			"bleed_ml_s": [snappedf(rate0, 0.01), snappedf(man.physiology.total_bleed_rate(), 0.01)]}
 
 
 func _cmd_hold(a: Array) -> Dictionary:
@@ -1102,13 +1158,19 @@ func _listen_to_events() -> void:
 	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: _log("blast", "%.2f kg went off at %s" % [kg, _arr(at)]))
 	_hook(Events.callout, func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
 		_log("callout", "%s called %s%s" % [_who(s), kind, " (%s)" % _who(about) if about else ""]))
+	# What broke, named by what it's part of (#1095: "20 pieces of timber broke" for one shot said
+	# nothing true: it was a kit prop gone loose, falling whole as one body, each member counted).
 	_hook(Events.member_broken, func(id: StringName) -> void:
+		var whole := _whose_member(id)
 		if not _events.is_empty() and _events[-1].kind == "broke" and float(_events[-1].t) > _game_seconds() - 1.0:
 			_events[-1].count += 1
-			_events[-1].text = "%d pieces of timber broke" % _events[-1].count
+			var by: Dictionary = _events[-1].by
+			by[whole] = int(by.get(whole, 0)) + 1
 		else:
-			_log("broke", "timber broke (%s)" % id)
-			_events[-1]["count"] = 1)
+			_log("broke", "")
+			_events[-1]["count"] = 1
+			_events[-1]["by"] = {whole: 1}
+		_events[-1].text = _broke_text(_events[-1].by))
 	_hook(Events.near_miss, func(p: Node, s: Node, d: float, _at: Vector3, _sp: float, _tu: bool) -> void:
 		if p == player:
 			_log("near_miss", "a round from %s passed %.1f m from you" % [_who(s), d]))
@@ -1117,6 +1179,36 @@ func _listen_to_events() -> void:
 func _hook_screen() -> void:
 	if player != null and is_instance_valid(player) and player.wounds != null:
 		_hook(player.wounds.shown, func(text: String) -> void: _log("screen", text.replace("\n", " / ")))
+
+
+## The events' line for what broke: "Raid_barrel went loose (fell whole)", "Building_doctor: 2
+## members broke".
+static func _broke_text(by: Dictionary) -> String:
+	var parts: PackedStringArray = []
+	for w: String in by:
+		if w.ends_with(LOOSE):
+			parts.append("%s went loose (fell whole)" % w.trim_suffix(LOOSE))
+		else:
+			parts.append("%s: %d member%s broke" % [w, by[w], "" if int(by[w]) == 1 else "s"])
+	return "; ".join(parts)
+const LOOSE := "#loose"
+
+
+## What a broken member belongs to (a building, a kit prop: its node's name, marked LOOSE if it's a
+## kit prop gone loose whole), for the events (#1095); its id's first part if no structure has it.
+func _whose_member(id: StringName) -> String:
+	var any := ""
+	for n: Node in get_tree().get_nodes_in_group(&"structures"):
+		var st := n as Structure
+		if st == null or not st.members.has(id):
+			continue
+		var m := st.members[id] as StructureMember
+		var named := String(st.name) + (LOOSE if st is KitProp and (st as KitProp).loose else "")
+		if m != null and is_instance_valid(m) and m.broken:
+			return named  # (kit props share their members' ids: the one that's broken)
+		if any == "":
+			any = named
+	return any if any != "" else String(id).get_slice("/", 0)
 
 
 func _log(kind: String, text: String) -> void:

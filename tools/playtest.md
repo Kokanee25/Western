@@ -52,6 +52,9 @@ whenever something is worth showing: good or bad.
   (E held and let go). Arm's length is about 0.75 m, a kick's reach about 1 m. The answer and
   `events` say what it did, a miss included. (Not `press shove`: drawn this slowly, a press is
   held long enough to be a kick every time.)
+- `tend [PERSON] [SECONDS]` — press on a man's wound (the game's "hold E on his wound"): you
+  crouch by him, look at where he bleeds and hold E (4 s by default; the nearest bleeding man
+  within 3 m if you name nobody). The answer gives his bleeding before and after.
 - `hold ACTION` / `release ACTION` — keep a key down across commands: `hold aim`, then `shoot N`
   fires with the sights up (the weapon line says "aimed"), `release aim`.
 - `press ACTION [SECONDS]` — a key: `aim` (raise the sights; hold it with a duration), `reload`

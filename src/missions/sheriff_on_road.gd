@@ -589,8 +589,11 @@ func _lot_front(id: String) -> Vector3:
 # --- Carried in and knocked (#1081) ----------------------------------------------------------------
 
 ## Over your shoulder (#1081, the master chat): his word once as you take him up ("Don't let me lie
-## here."), then only a groan or a short word now and then (`carried_gap_s`, more or less), not his
-## lying-there lines every 20 s.
+## here."), then only a groan or a short word now and then, not his lying-there lines every 20 s.
+## Spread out (#1095: eight minutes of the same four mutters): each line of his band once, in a
+## shuffled order, before any again; the gaps grow by `grow` with each he's said, so the long carry
+## goes quiet; "How far?" (`late`) only once you've carried him `late_m`; a band's lines all said,
+## he's silent till he weakens into the next band (its own lines).
 func _carried_talk(band: String) -> void:
 	var cd: Dictionary = data.get("carried", {})
 	if not _said_picked_up:
@@ -601,16 +604,43 @@ func _carried_talk(band: String) -> void:
 		return
 	if t < _carried_next:
 		return
-	var gap := float(cd.get("gap_s", 40.0))
+	var gap := float(cd.get("gap_s", 40.0)) * (1.0 + float(cd.get("grow", 0.5)) * carried_said.size())
 	_carried_next = t + gap * (0.75 + 0.5 * _talk_rng.randf())
 	if band == "out":
 		return
-	var all: Variant = (data.get("lines", {}) as Dictionary).get("carried", {})
-	var pool: Variant = (all as Dictionary).get(band, (all as Dictionary).get("any", [])) if all is Dictionary else []
-	if pool is Array and not (pool as Array).is_empty():
-		var text := String((pool as Array)[_talk_rng.randi() % (pool as Array).size()])
-		if text != "...":
-			_say(text)
+	var text := _next_carried_line(band, cd)
+	if text != "" and text != "...":
+		carried_said.append(text)
+		_say(text)
+
+
+## What he's said over your shoulder, in order (the tests).
+var carried_said: Array[String] = []
+var _carried_deck: Array = []
+var _carried_band := ""
+
+
+func _next_carried_line(band: String, cd: Dictionary) -> String:
+	if band != _carried_band:
+		_carried_band = band
+		var all: Variant = (data.get("lines", {}) as Dictionary).get("carried", {})
+		var pool: Variant = (all as Dictionary).get(band, (all as Dictionary).get("any", [])) if all is Dictionary else []
+		_carried_deck = (pool as Array).duplicate() if pool is Array else []
+		# (a shuffle by the scene's own seed: the same carry says the same)
+		for i in range(_carried_deck.size() - 1, 0, -1):
+			var j := _talk_rng.randi() % (i + 1)
+			var x: Variant = _carried_deck[i]
+			_carried_deck[i] = _carried_deck[j]
+			_carried_deck[j] = x
+	var far := _have_him(player()) and player().carry.dragged_m >= float(cd.get("late_m", 150.0))
+	var late: Array = cd.get("late", [])
+	for i in _carried_deck.size():
+		var text := String(_carried_deck[i])
+		if late.has(text) and not far:
+			continue  # (not "How far?" a few steps from where he lay)
+		_carried_deck.remove_at(i)
+		return text
+	return ""
 
 
 ## You have him over your shoulder (PlayerCarry, #1057).
@@ -631,10 +661,14 @@ func _slow_gesture() -> HeadGesture:
 func _on_knocked(place: StringName, inside: Array, by: Node, at: Vector3) -> void:
 	if done or not by is Player or place != StringName(String(data.get("doctor_lot", "doctor"))):
 		return
-	if state not in [&"road", &"knocked"] or sheriff == null or not is_instance_valid(sheriff):
+	if sheriff == null or not is_instance_valid(sheriff):
 		return
 	if _flat(_sheriff_at(), at) > float(data.get("door_body_m", 4.5)):
 		_note("a knock at the doctor's without the sheriff by it")
+		return
+	if valley and valley.folk:
+		valley.folk.claim_knock()  # his: the town doesn't answer it as well (#1095)
+	if state not in [&"road", &"knocked"]:
 		return
 	knocks += 1
 	var doc_id := StringName(String((data.get("doctor", {}) as Dictionary).get("folk_id", "doctor")))
