@@ -69,13 +69,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
-
-## Parked until after the slice
-coach heist (#840; `experiments/coach_heist/` README) · train (#542 step 7; waiting #553, #557, #601) · trestle (#638, #658) ·
-dynamite (#596; #656 waiting; PR #683 open; bundles #647, #682) · masonry step 3 (#667) · horse (#341,
-riding #478) · farmhouse (#565, #573, #651) · men dying on the run (#483) · perf step 9 (#401) · Payday
-Night floor lab (#745).
-
+- **Flaky in shard order:** `test_town_day`'s fight tests (a different one fails each run, physics luck; red on #1085's
+  shard 3, merged on Sean's OK 2026-11-19). Locally `test_no_justice_whole` (shard 1) and `test_no_law_carry` (shard 2)
+  fail in shard order but pass on CI. `Seating.stand_up` now checks his step out of a chair (#1077).
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
