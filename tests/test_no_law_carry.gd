@@ -151,6 +151,35 @@ func _tap_e() -> void:
 	await physics_frames(2)
 
 
+## Earl's wound as the test needs it whatever the ball did (#1079): a ball under the collarbone, one
+## bleed that doesn't clot (KNOWN_ML_S), his breath and head clear, so he talks while you carry him
+## (out at unconscious_at_loss about two minutes on, slower as his pressure falls) and dies of it.
+const KNOWN_ML_S := 14.0
+const KNOWN_LOST_ML := 300.0
+
+
+func _known_wound(man: HumanBody) -> void:
+	var p := man.physiology
+	p.bleeds.clear()
+	p.cut.clear()
+	p.torn.clear()
+	p.lung_damage.clear()
+	p.airway_blood = false
+	p.brain_dead = false
+	p.concussion = 0.0
+	p.oxygen = 1.0
+	p.bleeds.append({"id": 0, "source": &"subclavian_r", "kind": &"artery", "segment": &"chest",
+			"rate": KNOWN_ML_S, "clots": false, "clot": 1.0, "pressure": false, "tourniquet": false,
+			"lost": 0.0, "limit": 99999.0})
+	p.blood_ml = p.tuning.blood_ml - KNOWN_LOST_ML
+	p.wound_pain = 0.8
+	p.pain = 0.8
+	p.alive = true
+	for w: Dictionary in man.wounds:
+		if w.has("bleeds"):
+			w.bleeds = [0]
+
+
 ## A man knocked down, alive (the ragdoll), out on Main Street west of the doctor's.
 func _downed(id: StringName) -> HumanBody:
 	var f := _folk()
@@ -310,6 +339,9 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	check(earl.physiology.alive and earl.limp, "Earl down and breathing after it (%s)" % earl.physiology.describe())
 	check(earl.physiology.total_bleed_rate() > 1.0, "bleeding (%.1f ml/s)" % earl.physiology.total_bleed_rate())
 	check_eq(m.shots, 1, "one ball")
+	# Where Cody's ball lands rides on how Earl fell, and a few more bodies anywhere in the valley
+	# change that (#1079): his wound set to a known one from here, so the night plays the same.
+	_known_wound(earl)
 	var started := await wait_until(func() -> bool: return f.carry_act != null, 60 * 60)
 	check(started, "the carry starts once the barkeep's said there's nobody to fetch (%s)" % [m.result().get("events")])
 	if not started:
