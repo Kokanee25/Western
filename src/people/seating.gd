@@ -70,9 +70,53 @@ static func sit_step(man: HumanBody, chair: KitProp, delta: float) -> bool:
 static func stand_up(man: HumanBody, chair: KitProp) -> void:
 	if chair != null and is_instance_valid(chair) and chair.seated == man:
 		chair.leave()
-		var out := chair.global_basis.z
-		out.y = 0.0
 		if not man.limp:
-			man.global_position += out.normalized() * 0.3
+			man.global_position = _step_clear(man, chair)
 	if not man.limp:
 		man.set_pose(&"stand")
+
+
+## How far he steps out of a chair as he stands (m), and to its side when the front's taken.
+const STEP_OUT := 0.3
+const STEP_ASIDE := 0.55
+## Floor this much above the chair's is something he'd stand up onto, not the floor (m).
+const RAISED := 0.2
+
+
+## Where he stands up to: a step out of the chair (he faces its +z), unless something's there, then a
+## step to either side of it, else where he is. A chair drawn up to a table faces into it: the Drifter
+## stood up from the card table's east chair onto its top (the step put him over it, and his feet
+## stood on it), sat back down at its height, and the table, knocked loose under his animated feet,
+## was flung across the yard by them as he turned (Earl's legs broken, #1077).
+static func _step_clear(man: HumanBody, chair: KitProp) -> Vector3:
+	var at := man.global_position
+	var out := chair.global_basis.z
+	out.y = 0.0
+	out = out.normalized()
+	# (Only looked in the physics frame: called outside it, as before, the plain step.)
+	var space := World.space(man) if Engine.is_in_physics_frame() and man.is_inside_tree() else null
+	if space == null:
+		return at + out * STEP_OUT
+	var skip: Array[RID] = []
+	for m in chair.get_members():
+		skip.append(m.get_rid())
+	var floor_y := chair.global_position.y
+	var side := Vector3.UP.cross(out)
+	for c: Vector3 in [at + out * STEP_OUT, at + side * STEP_ASIDE, at - side * STEP_ASIDE]:
+		if _room_at(space, at, c, floor_y, skip):
+			return c
+	return at
+
+
+## Floor at `c` no higher than the chair's (not a table's top), and nothing between there and `at`
+## at a man's hips (a wall, the next chair).
+static func _room_at(space: PhysicsDirectSpaceState3D, at: Vector3, c: Vector3, floor_y: float, skip: Array[RID]) -> bool:
+	var down := PhysicsRayQueryParameters3D.create(Vector3(c.x, floor_y + 1.2, c.z), Vector3(c.x, floor_y - 0.3, c.z), Layers.WORLD)
+	down.exclude = skip
+	var hit := space.intersect_ray(down)
+	if not hit.is_empty() and (hit.position as Vector3).y > floor_y + RAISED:
+		return false
+	var hips := floor_y + 0.9
+	var across := PhysicsRayQueryParameters3D.create(Vector3(at.x, hips, at.z), Vector3(c.x, hips, c.z), Layers.WORLD)
+	across.exclude = skip
+	return space.intersect_ray(across).is_empty()
