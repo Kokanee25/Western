@@ -56,6 +56,9 @@ details > summary .n { font-family: var(--f-ui); font-weight: 400; font-size: 11
 .it .x { min-width: 0; overflow-wrap: anywhere; }
 .sub { font-style: italic; color: var(--muted); font-family: var(--f-script); padding-top: 6px; }
 code { font-family: var(--f-script); font-size: .92em; overflow-wrap: anywhere; }
+.say { font-family: var(--f-script); font-size: 16px; line-height: 1.45; display: inline-block; padding-top: 2px; }
+.tag { font-family: var(--f-ui); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; white-space: nowrap; }
+.meta { display: block; font-size: 12px; color: var(--muted); padding-top: 3px; }
 .st-d { color: var(--accent); } .st-p { color: var(--new); } .st-o { color: var(--open); }
 
 .nb { grid-column: 2; display: grid; gap: 3px; margin-top: 2px; }
@@ -136,13 +139,15 @@ textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 2
       const it = el("div", "it" + (b.d ? " d" + b.d : ""));
       it.append(el("span", "n", esc(b.n || (b.t === "li" ? "·" : ""))));
       it.append(el("span", "x", mark(b.x)));
-      it.append(noteBox(keyBase + "." + i, plain(b.x), where));
+      it.append(noteBox(b.key || (keyBase + "." + i), plain(b.x), where));
       body.append(it);
     });
     return body;
   }
 
   function countNotes(prefix) { return Object.keys(notes).filter((k) => k === prefix || k.startsWith(prefix + ".")).length; }
+  // Notes on script lines are keyed by the script, not the mission: count them from the mission's own blocks.
+  function countMission(m) { let n = countNotes("m." + m.id); m.sections.forEach((s) => s.blocks.forEach((b) => { if (b.key && notes[b.key]) n++; })); return n; }
   function storeLine() {
     if (storeState === "loading") return el("p", "small", "Loading your notes…");
     if (!db) return el("p", "notice", "Notes can't be saved in this view (signed out, or the store didn't answer). Everything still reads.");
@@ -173,12 +178,13 @@ textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 2
     data.acts.forEach((a) => {
       const g = el("section", "group"); g.append(el("h2", "", esc(a.title)));
       a.missions.forEach((m) => {
-        const n = countNotes("m." + m.id);
+        const n = countMission(m);
         const sec = (k) => (m.sections.find((s) => s.label.toLowerCase().startsWith(k)) || { blocks: [] }).blocks.filter((b) => b.t !== "h").length;
         const r = el("button", "row"); r.type = "button";
         r.append(el("span", "t", esc(m.title)));
         if (m.one) r.append(el("span", "o", m.one));
         const c = [];
+        if (m.sections.some((s) => s.k === "script")) c.push("<span><b>full script</b></span>");
         if (!m.loose) { c.push("<span>" + sec("beats") + " beats</span>", "<span>" + sec("where the sources") + " disagree</span>", "<span>" + sec("open q") + " open</span>", "<span>" + sec("every other") + " other ideas</span>"); }
         if (n) c.push('<span class="has">' + n + " of your notes</span>");
         r.append(el("span", "c", c.join("")));
@@ -203,7 +209,7 @@ textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 2
   }
 
   // Sections opened by default: what a review needs first. The rest are the full record, closed until asked for.
-  const OPEN = ["harlan walks", "beats", "choices", "where the sources", "open q"];
+  const OPEN = ["harlan walks", "beats", "the script", "choices", "where the sources", "open q"];
   function mission(m, actTitle) {
     sheet.innerHTML = "";
     sheet.append(backBtn());
@@ -220,7 +226,7 @@ textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 2
     const order = (s) => { const i = OPEN.findIndex((k) => s.label.toLowerCase().startsWith(k)); return i < 0 ? 99 : i; };
     m.sections.slice().sort((a, b) => order(a) - order(b)).forEach((s) => {
       const d = document.createElement("details"); d.id = "s-" + s.k;
-      d.open = m.loose || order(s) < 99 || countNotes("m." + m.id + "." + s.k) > 0;
+      d.open = m.loose || order(s) < 99 || countNotes("m." + m.id + "." + s.k) > 0 || s.blocks.some((b) => b.key && notes[b.key]);
       const n = s.blocks.filter((b) => b.t !== "h").length;
       d.append(el("summary", "", esc(s.label) + '<span class="n">' + n + (n === 1 ? " line" : " lines") + "</span>"));
       d.append(renderBlocks(s.blocks, "m." + m.id + "." + s.k, m.title + " / " + s.label));
