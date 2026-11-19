@@ -5,12 +5,14 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 (that goes in `docs/status/` and the PR). Keep under 10 KB (a test fails the build over it). History: `docs/status/`.
 
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
-- **The sheriff on the road** (#746, build 3698): `-- --world=valley --mission=sheriff`; `StoryState`,
-  `HeadGesture`, `Act`. Waiting on Sean: #755.
+- **The sheriff on the road** (#746): `-- --world=valley --mission=sheriff`; `StoryState`, `HeadGesture`, `Act`.
+  #1081: carried in over the shoulder (not dragged: Sean), a knock brings the doctor by day; a slow nod answers.
+  Waiting on Sean: #755, #1082 (the clock: carrying him in takes the morning at the day's rate). The drawn game
+  under lavapipe hung there (OOM; headless it doesn't). The carry's pose is unjudged on a real screen.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
   **The night's carry (#1057):** Cody's ball goes through Earl's collarbone (`aim` subclavian_r: down, ~25 ml/s,
-  dead ~146 s on); the barkeep sends you to Doc's; `PlayerCarry` (E: by the collar, dragged), `PlayerKnock` (E at
+  dead ~146 s on); the barkeep sends you to Doc's; `PlayerCarry` (E: over the shoulder, no trail), `PlayerKnock` (E at
   a door; `ValleyFolk.knocked`), `NoLawCarry` (the doctor out, his lines, Earl laid in the front room under a
   stand-in sheet, `ValleyFolk.lay_out`); in the morning SheriffDies' doctor says morning.body by him, the
   undertaker's after the sheriff's dead. `tests/test_no_law_carry.gd`. Open: the doctor in the doorway can block
@@ -28,8 +30,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail. Playtests `docs/playtests/2026-11-1[345]-*.md`.
   **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
-  Open (playtest `docs/playtests/2026-11-15-nojustice-whole.md`): the hideout fight's hard (difficulty #349 is
-  Sean's); the clock's held; the jail and rides are cards; no line when Kett's jailed (C8 a, Sean's).
+  Open (playtest 2026-11-15-nojustice-whole): the hideout fight's hard (#349, Sean's); the clock's held; the jail
+  and rides are cards; no line when Kett's jailed (C8 a, Sean's).
   Riding waits on #478.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and

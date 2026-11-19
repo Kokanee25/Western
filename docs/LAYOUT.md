@@ -639,15 +639,17 @@ real look RoomLight is on whatever `Settings.room_light` says.
   `went_loose` (kicked, broken, blown) drops you flat (the crawl) and still for `seat_fall_s`
   (`dumped`); `Player.fell` exists only so a kit chair can listen for it. Bridge `sit [n|e|s|w]`,
   `stand`; `read player`'s `seat`.
-- `PlayerCarry` (`player_carry.gd`, #1057; dials PlayerTuning `carry_*`): E by a man down (`is_down`: limp or
-  prone, not rising; his collar, `collar()`, within `carry_reach`, in `carry_view_deg` of your view) takes him by
-  the collar (`take`, `dragged_by`, a `carry` deed): each tick `HumanBody.drag_toward` your hands behind you
-  (`carry_hold_back`/`_up`), his legs after his hips and what of him is under your floor lifted to it (`_lift`:
-  steps, walks); his wounds go on bleeding and smearing (WoundSigns), his collar's blood on your hands
-  (`blood_on_you`). A walk at `carry_speed` x how far he lags (`pace()`: caught on something he holds you back,
-  `LAG_FREE`/`LAG_SPAN`), no run, jump or gun (PlayerWounds `busy_why`); E lets go (at a door PlayerKnock has
-  E), as do a hit, going down, a seat, a ladder, him up, or him snagged past `carry_tear_m` for `TEAR_S`
-  (`let_go(man, why)`). Seats yield E to it (`PlayerSeat.chair_here`). `read player`'s `carry`.
+- `PlayerCarry` (`player_carry.gd`, #1057; carried, not dragged, Sean 2026-11-18; dials PlayerTuning `carry_*`):
+  a tap of E (let go within `carry_tap_s`; held E is a scene's) by a man down (`is_down`: limp or prone, not
+  rising; his collar, `collar()`, within `carry_reach`, in `carry_view_deg` of your view) takes him up (`take`,
+  `dragged_by`, `HumanBody.carried`, a `carry` deed; prone, he goes limp): his abdomen kinematic over your right
+  shoulder (`shoulder_xform`: `carry_shoulder_up`/`_side`/`_fwd`, eased up over `carry_lift_s`), the rest of his
+  ragdoll hanging off it (head down your back, legs down your front, clear of the ground), his parts touching
+  only each other (mask RAGDOLL, collision exceptions with you). Carried he leaves no blood on the ground (no pool,
+  no smear: `carried`); his collar's and belly's blood on you (`blood_on_you`). A walk at `carry_speed`, no run,
+  jump or gun (PlayerWounds `busy_why`); a tap again lays him down 0.7 m in front of you (`ValleyFolk.move_body`;
+  at a door PlayerKnock has E), as do a hit, going down, a seat, a ladder, him up, or him past `carry_tear_m` for
+  `TEAR_S` (`let_go(man, why)`). Seats yield E to it (`PlayerSeat.chair_here`). `read player`'s `carry`.
 - `PlayerKnock` (`player_knock.gd`, #1057; `knock_reach`): E at a door (a `knock_doors` node's `door_near`:
   ValleyFolk's `door_places`, homes and day `in`s) bangs on it: three `thump`s there, a `knock` deed, the owner's
   `knock(place, by, at)` (ValleyFolk: `knocked(place, inside, by, at)`, the book's rows inside, `knocks`).
@@ -1686,7 +1688,11 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   his body. `care_for`: left him / good (packed and lost <= 0.30 at the doctor's) / poor. Facts
   (`StoryState`, `src/missions/story_state.gd`: static, in memory, bridge `story [clear]`):
   `sheriff.care`, `sheriff.blood_loss`, `sheriff.packed`, `sheriff.answer`. `tests/test_sheriff.gd`;
-  valley_bench spots `harlan_home`, `sheriff_site`.
+  valley_bench spots `harlan_home`, `sheriff_site`. Also (#1081): a slow nod (`slow_nod`: 4 degrees, 8 s;
+  nods only) answers; a tap of E by him takes him up over your shoulder (`PlayerCarry`), held by the wound
+  presses it (not while you carry him); carried to the doctor's and E at his door (`ValleyFolk.knocked`, him
+  within 4.5 m of it): in by the book, `door_wait` through the door, then ValleyFolk's doctor `call_out` to
+  him, `carried_in`, the same lines and `end_carried`; out by the book, `doctor_out` says where he is.
 - **The sheriff's last day** (#796, No Law beat 5; `src/missions/sheriff_dies.gd`, `SheriffDies`, an `Act`; data
   `config/moments/sheriff_dies.json`; `tests/test_sheriff_dies.gd`): ValleyFolk's act men (`act: sheriff_dies`:
   runner, dying_sheriff, doc, wife). The runner finds you in town, the doctor at his door (lines by
