@@ -69,11 +69,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
-- **card_game's broken-chair test** (#1077): fixed in PR (not merged). `Seating.stand_up` stepped a man onto the table
-  his chair faces; now it checks the step (raised floor, hip-height block), then either side, else stays. Still red with
-  it, in shard order only (alone they pass): `test_no_law_carry` (player boxed in by the card table's chairs and broken
-  table, no man in the way) and one `test_town_day` fight test (a different one each run). Local shard 1's
-  `no_justice_whole` fails on main too (CI green).
+- **Flaky in shard order:** `test_town_day`'s fight tests (a different one fails each run, physics luck; red on #1085's
+  shard 3, merged on Sean's OK 2026-11-19). Locally `test_no_justice_whole` (shard 1) and `test_no_law_carry` (shard 2)
+  fail in shard order but pass on CI. `Seating.stand_up` now checks his step out of a chair (#1077).
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
