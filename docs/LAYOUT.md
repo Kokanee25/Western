@@ -60,7 +60,7 @@ file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y
 (a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON [PART]|PLACE` (at a
 person: `in_the_way`, `a_ball_goes_through`, `from_the_barrel`, `clear_to`), `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round
 buildings to a place; lets go in time to stop there, answers once stopped), `press
-ACTION [S]` (`why` when it does nothing), `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
+ACTION [S]` (`why` when it does nothing), `hold`/`release`, `tend [PERSON] [S]` (press a man's wound: crouch, look at it, hold E; #1095), `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
 `time H`, `clock SCALE|off`, `smoke [X Y Z]` (each burning building's smoke field, or how thick
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset

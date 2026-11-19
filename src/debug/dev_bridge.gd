@@ -22,6 +22,7 @@ const HELP := {
 	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
+	"tend": "tend [PERSON] [SECONDS] -> press on a man's wound: crouch by him, look at where he bleeds and hold E (default 4 s; the nearest bleeding man within 3 m with none named). Answers his bleeding before and after",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
 	"weapon": "weapon revolver|shotgun|rifle|dynamite|bucket|plunger|none -> take that out (none: put it away)",
@@ -367,9 +368,22 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var place := StringName(a[0])
 	if _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
+		if points.is_empty():
+			# Off the places' links (#1095: `walk hideout`, 2 km out across open country, said "no way
+			# there"): on to it as to a point, else straight at it.
+			var at := _places().at(place)
+			points = _places().route_to_point(World.space(player), player.global_position, at, [player.get_rid()])
+			if points.is_empty():
+				points = [at]
 	elif _person(a[0]) != null:
+		# Routed round what's in the way as a point is (#1095: `walk storekeeper` went straight at him
+		# through the buildings: 215 s for 154 m, and stopped short).
 		var p := _lies(_person(a[0]))
-		points = [p + (player.global_position - p).normalized() * 1.5]
+		var near := p + (player.global_position - p).normalized() * 1.5
+		near.y = player.global_position.y
+		points = _places().route_to_point(World.space(player), player.global_position, near, [player.get_rid()])
+		if points.is_empty():
+			points = [near]
 	elif a.size() >= 2 and a[0].is_valid_float():
 		# Round what's in the way as a place's route is (the places' links, then on to the point):
 		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
@@ -474,6 +488,48 @@ func _cmd_press(a: Array) -> Dictionary:
 	if why != "":
 		out["why"] = why
 	return out
+
+
+## Press on a man's wound (#1095: the game says "hold E on his wound" and the bridge had no way):
+## crouch by him, look at his bleeding part (else his belly), hold E (`shove`) for S seconds.
+func _cmd_tend(a: Array) -> Dictionary:
+	var man: HumanBody = null
+	var secs := 4.0
+	for x: String in a:
+		if x.is_valid_float():
+			secs = float(x)
+		elif _person(x) != null:
+			man = _person(x)
+	if man == null:
+		var best := 3.0
+		for n in get_tree().get_nodes_in_group(&"people"):
+			var h := n as HumanBody
+			if h != null and h.physiology != null and h.physiology.alive and not h.physiology.bleeds.is_empty():
+				var d := _lies(h).distance_to(player.global_position)
+				if d < best:
+					best = d
+					man = h
+	if man == null:
+		return {"ok": false, "error": "tend [PERSON] [SECONDS]: nobody bleeding within 3 m"}
+	var part := &"abdomen"
+	if not man.physiology.bleeds.is_empty():
+		part = StringName(man.physiology.bleeds[0].get("segment", part))
+	if not man.parts.has(part):
+		part = &"pelvis"
+	if not player.is_crouching:
+		_act(true, &"crouch_toggle")
+		await _physics_frames(2)
+		_act(false, &"crouch_toggle")
+		await _seconds(0.4)
+	_face((man.parts[part] as Node3D).global_position)
+	await _physics_frames(1)
+	var rate0 := man.physiology.total_bleed_rate()
+	_act(true, &"shove")
+	await _seconds(secs)
+	_act(false, &"shove")
+	await _settle()
+	return {"tended": String(man.person_id), "part": String(part), "held_s": secs,
+			"bleed_ml_s": [snappedf(rate0, 0.01), snappedf(man.physiology.total_bleed_rate(), 0.01)]}
 
 
 func _cmd_hold(a: Array) -> Dictionary:
