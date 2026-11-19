@@ -3782,5 +3782,18 @@
    "#ccbeaa",
    "#d1bea2"
   ]
+ },
+ "gilt_hollis": {
+  "kind": "gilt",
+  "metres": [
+   2.648,
+   0.484
+  ],
+  "texels": [
+   678,
+   124
+  ],
+  "strips": 0,
+  "palette": []
  }
 }

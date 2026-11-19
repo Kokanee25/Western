@@ -614,6 +614,11 @@
      "transom": 0.5,
      "cols": 2,
      "transom_lights": 4,
+     "gilt": {
+      "id": "hollis",
+      "y": 1.45,
+      "width": 2.65
+     },
      "_doc": "the east show window, its display shelf behind"
     },
     {
@@ -627,6 +632,11 @@
      "transom": 0.5,
      "cols": 2,
      "transom_lights": 4,
+     "gilt": {
+      "id": "hollis",
+      "y": 1.45,
+      "width": 2.65
+     },
      "_doc": "the west show window"
     },
     {
@@ -1670,6 +1680,232 @@
    }
   ]
  },
+ "dressing": {
+  "_doc": "#1074: the show windows' goods (PropDressing; the store's rooms are the prop lab's to dress)",
+  "batches": {
+   "windows": [
+    {
+     "id": "east_stand",
+     "kit": "table",
+     "fit": [
+      2.3,
+      0.6,
+      0.7
+     ],
+     "at": [
+      4.162,
+      0.0,
+      0.56
+     ],
+     "facing": 0,
+     "use": "the east window's display platform (the glass's foot is 0.61 over the floor)"
+    },
+    {
+     "id": "east_barrel",
+     "kit": "barrel",
+     "at": [
+      2.512,
+      0.0,
+      0.56
+     ],
+     "facing": 30,
+     "use": "a cracker barrel, its top half over the bulkhead"
+    },
+    {
+     "id": "east_blankets",
+     "kit": "folded_blankets",
+     "on": "east_stand",
+     "at": [
+      3.312,
+      0.0,
+      0.6100000000000001
+     ],
+     "facing": 186
+    },
+    {
+     "id": "east_blanket",
+     "kit": "folded_blanket",
+     "on": "east_stand",
+     "at": [
+      3.812,
+      0.0,
+      0.68
+     ],
+     "facing": 172
+    },
+    {
+     "id": "east_sack",
+     "kit": "feed_sack",
+     "on": "east_stand",
+     "at": [
+      4.962,
+      0.0,
+      0.68
+     ],
+     "facing": 200
+    },
+    {
+     "id": "east_scales",
+     "kit": "scales",
+     "on": "east_stand",
+     "at": [
+      4.412,
+      0.0,
+      0.51
+     ],
+     "facing": 180
+    },
+    {
+     "id": "east_jars",
+     "kit": "drug_jar",
+     "on": "east_stand",
+     "at": [
+      3.612,
+      0.0,
+      0.32000000000000006
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "drug_jar"
+      ],
+      "count": 3,
+      "step": [
+       0.14,
+       0,
+       0
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "west_stand",
+     "kit": "table",
+     "fit": [
+      3.0,
+      0.6,
+      0.7
+     ],
+     "at": [
+      13.098,
+      0.0,
+      0.56
+     ],
+     "facing": 0,
+     "use": "the west window's display platform"
+    },
+    {
+     "id": "west_box",
+     "kit": "strongbox",
+     "on": "west_stand",
+     "at": [
+      11.998000000000001,
+      0.0,
+      0.64
+     ],
+     "facing": 172
+    },
+    {
+     "id": "west_lamp",
+     "kit": "oil_lamp",
+     "on": "west_stand",
+     "at": [
+      12.398000000000001,
+      0.0,
+      0.51
+     ],
+     "facing": 180
+    },
+    {
+     "id": "west_basin",
+     "kit": "wash_basin",
+     "on": "west_stand",
+     "at": [
+      12.898000000000001,
+      0.0,
+      0.64
+     ],
+     "facing": 0
+    },
+    {
+     "id": "west_pitcher",
+     "kit": "wash_pitcher",
+     "on": "west_basin",
+     "at": [
+      12.898000000000001,
+      0.0,
+      0.66
+     ],
+     "facing": 200,
+     "lift": 0.014
+    },
+    {
+     "id": "west_pot",
+     "kit": "chamber_pot",
+     "on": "west_stand",
+     "at": [
+      13.448,
+      0.0,
+      0.66
+     ],
+     "facing": 170
+    },
+    {
+     "id": "west_saw",
+     "kit": "handsaw",
+     "on": "west_stand",
+     "at": [
+      13.248000000000001,
+      0.0,
+      0.32000000000000006
+     ],
+     "facing": 184
+    },
+    {
+     "id": "west_cups",
+     "kit": "tin_cup",
+     "on": "west_stand",
+     "at": [
+      13.948,
+      0.0,
+      0.41000000000000003
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "tin_cup"
+      ],
+      "count": 4,
+      "step": [
+       0.15,
+       0,
+       0.0
+      ],
+      "jitter": [
+       0.015,
+       0.03,
+       40
+      ]
+     }
+    },
+    {
+     "id": "west_trunk_lamp",
+     "kit": "oil_lamp",
+     "on": "west_stand",
+     "at": [
+      14.348,
+      0.0,
+      0.7100000000000001
+     ],
+     "facing": 180
+    }
+   ]
+  }
+ },
  "light": {
   "_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall; judged by day in #1035 (the doctor's 0.1 and 7 left the shop near black): 0.55 and 26",
   "fill": [
@@ -1775,11 +2011,24 @@
     }
    },
    "timber": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
     "use": {
      "entry": "fine_walnut_tg",
      "age": "few",
      "role": "wall"
-    }
+    },
+    "_why": "Sean 2026-11-18 (#1067): the shop's posts and beams painted pale, like the ceiling"
+   },
+   "joists": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the floor joists stay dark: hidden over the shop's ceiling, bare over the storeroom"
    }
   },
   "surfaces": [
@@ -1881,11 +2130,11 @@
    ],
    [
     "floor/loft/joist",
-    "timber"
+    "joists"
    ],
    [
     "floor/family/joist",
-    "timber"
+    "joists"
    ],
    [
     "beam/",

@@ -494,3 +494,6 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-14_cheap_fp_hands_r2 | rifle_lever_day | **cheap indie** | 3, 5, 6, 7 | Plastic blue rifle | 14% / 1.6 / 0.82 / 0.04 | #914 option 2 hands in the game, round 2 |
 | 2026-11-14_cheap_fp_hands_r2 | colt_hip_lamp | **good indie** | 2, 3, 5, 6, 8, 9 | Mannequin hand glowing orange | 53% / 0.0 / 1.32 / 0.19 | #914 option 2 hands in the game, round 2 |
 | 2026-11-14_cheap_fp_hands_r2 | rifle_lever_lamp | **good indie** | 2, 3, 5, 6, 9 | Fingers through the stock | 56% / 0.0 / 1.26 / 0.17 | #914 option 2 hands in the game, round 2 |
+| 2026-11-18_hollis_cheap | front12 | **cheap indie** | 2, 3, 4, 7, 9 | Grey placeholder buildings either side | 16% / 2.8 / 1.12 / 0.39 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-18_hollis_cheap | entry12 | **cheap indie** | 1, 4, 7, 9 | Empty shop behind the glass | 48% / 0.0 / 2.29 / 0.17 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-18_hollis_cheap | counter12 | **cheap indie** | 2, 3, 4, 5, 7, 9 | An empty room, not a store | 3% / 4.5 / 1.88 / 0.22 | #1074 pale posts/beams, HOLLIS gilt, window goods |

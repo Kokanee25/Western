@@ -111,11 +111,93 @@ static func show_window(b: FalseFrontBuilding, wall: Dictionary, o: Rect2, so: D
 	var cols := int(so.get("cols", maxi(roundi(r.size.x / 1.8), 1)))
 	var tcols := int(so.get("transom_lights", maxi(roundi(r.size.x / 0.85), 1)))
 	var panes := lights(b, f, id, r, cols, float(so.get("transom", 0.0)), tcols, wood)
+	if so.has("gilt"):
+		gilt(f, panes, r, so.gilt)
 	# The bulkhead: a panel a light under the sill, stiles and rails round them, on the siding.
 	var bottom := float(so.get("bulkhead_from", o.position.y - float(so.get("sill", 0.5)) + 0.08))
 	_panels(b, f, id + "/bulkhead", o.position.x - FalseFrontBuilding.TRIM_W, o.end.x + FalseFrontBuilding.TRIM_W,
 			bottom, o.position.y - 0.04, cols, outer, wood)
 	return panes
+
+
+## A sign-writer's gold leaf on a show window's glass (#1074, the store's "A. P. HOLLIS"): the
+## factory's `gilt_<id>` (tools/textures/gold_leaf.py: gold, outlined and shaded) laid on the inside
+## face of the lights it crosses, each pane carrying its own piece, so a broken pane takes its letters
+## with it. `g`: {id, y (the lettering's middle over the opening's foot), width (metres, else as
+## made)}. Seen from the shop it reads backwards, as gilding on glass does. `r` the glass's rect.
+static func gilt(f: Dictionary, panes: Array[StructureMember], r: Rect2, g: Dictionary) -> void:
+	var path := "res://assets/textures/gilt_%s.png" % String(g.get("id", ""))
+	if not ResourceLoader.exists(path):
+		return
+	var tex := load(path) as Texture2D
+	var w := float(g.get("width", tex.get_width() / float(GILT_TEXELS)))
+	var h := w * tex.get_height() / float(tex.get_width())
+	var sc := r.get_center().x
+	var yc := r.position.y - SashWindow.SILL_T + float(g.get("y", 1.3))
+	var along: Vector3 = f.along
+	var out: Vector3 = f.out
+	# Seen from the street (looking in, along -out) the letters run to the viewer's right.
+	var right := Vector3.UP.cross(out).normalized()
+	var k := signf(along.dot(right))
+	var basis := Basis(right, Vector3.UP, out)
+	for p: StructureMember in panes:
+		# The pane in the frame's coordinates (along its line, up): its centre and size.
+		var pc: Vector3 = p.position - (f.origin as Vector3)
+		var ps := pc.dot(along)
+		var py := pc.y
+		var x0 := maxf(ps - p.size.x * 0.5, sc - w * 0.5)
+		var x1 := minf(ps + p.size.x * 0.5, sc + w * 0.5)
+		var y0 := maxf(py - p.size.y * 0.5, yc - h * 0.5)
+		var y1 := minf(py + p.size.y * 0.5, yc + h * 0.5)
+		if x1 - x0 < 0.01 or y1 - y0 < 0.01:
+			continue
+		# Corners in the lettering's own (right, up) from its middle, and their UVs.
+		var a := (x0 - sc) * k
+		var c := (x1 - sc) * k
+		var r0 := minf(a, c)
+		var r1 := maxf(a, c)
+		var uv := func(rx: float, uy: float) -> Vector2: return Vector2(rx / w + 0.5, 0.5 - uy / h)
+		var q0 := y0 - yc
+		var q1 := y1 - yc
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		st.set_normal(Vector3.BACK)
+		for v: Vector2 in [Vector2(r0, q0), Vector2(r1, q0), Vector2(r1, q1), Vector2(r0, q0), Vector2(r1, q1), Vector2(r0, q1)]:
+			st.set_uv(uv.call(v.x, v.y))
+			st.add_vertex(Vector3(v.x, v.y, 0.0))
+		var mi := MeshInstance3D.new()
+		mi.name = "Gilt"
+		mi.mesh = st.commit()
+		mi.material_override = gilt_material(tex)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		# On the glass's inside face (the pane runs from GLASS_D - 0.004 to GLASS_D out of the studs).
+		var at := (f.origin as Vector3) + along * sc + Vector3.UP * yc + out * (pc.dot(out) - p.size.z * 0.5 - 0.0015)
+		mi.transform = p.transform.affine_inverse() * Transform3D(basis, at)
+		p.add_child(mi)
+
+
+const GILT_TEXELS := 256
+static var _gilt_mats := {}
+
+
+## Leaf over a black outline: a little metal where it's gold (the outline's black stays black), burnished,
+## both faces drawn (from the shop it's the leaf's back, read backwards).
+static func gilt_material(tex: Texture2D) -> StandardMaterial3D:
+	if _gilt_mats.has(tex):
+		return _gilt_mats[tex]
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = tex
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.5
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# (Mostly its own colour: at 0.85 metal it showed only what it reflects, and under the porch's roof
+	# with no probe outside that's next to nothing: the leaf went grey, #1074's first render.)
+	m.metallic = 0.3
+	m.metallic_specular = 0.8
+	m.roughness = 0.35
+	_gilt_mats[tex] = m
+	return m
 
 
 ## A panelled face from x0 to x1, y0 to y1, `n` panels, on a wall's outside at depth `d`: stiles
