@@ -268,6 +268,25 @@ func test_by_a_chair_e_takes_the_man_not_the_seat() -> void:
 	check(not p.seat.seated(), "and didn't sit you down")
 
 
+## A man down who could get up (not hurt past standing) doesn't get up off your shoulder while you
+## stand still with him (#1081: CI, held at a step with Earl still on your shoulder, he rose, you
+## lost him and he walked home).
+func test_he_doesnt_get_up_off_your_shoulder() -> void:
+	await _at(21.0)
+	var earl := await _downed(&"earl")
+	check(earl != null and earl.limp, "Earl down")
+	if earl == null:
+		return
+	earl.rise_ok = true
+	check(earl.physiology.can_stand(), "he could stand (%s)" % earl.physiology.describe())
+	var p := _player()
+	await _by(earl)
+	await _tap_e()
+	check(p.carry.carrying(earl), "taken up (%s)" % p.carry.report())
+	await physics_frames(60 * 4)  # past HumanBody's RISE_AFTER + RISE_STILL, standing still
+	check(p.carry.carrying(earl) and earl.limp and not earl.rising, "still over your shoulder (%s; limp %s rising %s)" % [p.carry.report(), earl.limp, earl.rising])
+
+
 func test_his_wound_bleeds_while_hes_dragged() -> void:
 	await _at(21.0)
 	var earl := await _downed(&"earl")
@@ -371,7 +390,7 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	for attempt in 3:
 		there = await _walk(_route_to(&"doctor"), 200.0)
 		if not is_instance_valid(earl):
-			check(false, "Earl's body taken out of the world on the way (state %s)" % f.state.get(&"earl"))
+			check(false, "Earl's body taken out of the world on the way (state %s; the carry: %s)" % [f.state.get(&"earl"), p.carry.report()])
 			return
 		if p.carry.carrying(earl):
 			break
