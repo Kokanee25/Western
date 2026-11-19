@@ -526,6 +526,20 @@ func _trail_dir_point(m: float) -> Vector3:
 	return v
 
 
+## How many living men (not Joe, not you) stand within `survivors_m` of `at`: the camp's people,
+## counted from the world (#1095), not assumed.
+var survivors_seen := -1
+func survivors_near(at: Vector3) -> int:
+	var n := 0
+	var r := float((data.get("camp", {}) as Dictionary).get("survivors_m", 25.0))
+	for node: Node in get_tree().get_nodes_in_group(&"people"):
+		var m := node as HumanBody
+		if m == null or m == joe or not m.physiology.alive or _flat(m.global_position, at) > r:
+			continue
+		n += 1
+	return n
+
+
 ## The walks' waits: Joe gone to the survivors and talking, back to you, or out to read the ground.
 func _camp_wait(p: Player, _delta: float) -> void:
 	var cd: Dictionary = data.get("camp", {})
@@ -536,7 +550,9 @@ func _camp_wait(p: Player, _delta: float) -> void:
 				joe.set_pose(&"stand")
 				if not _told:
 					_told = true
-					prompt(String(_prompts().get("survivors", "")), 5.0)
+					survivors_seen = survivors_near(joe.global_position)
+					# What's true (#1095): nobody's there to talk to till the Studio makes them.
+					prompt(String(_prompts().get("survivors" if survivors_seen > 0 else "no_survivors", "")), 5.0)
 					state_t = 0.0
 				elif state_t > float(cd.get("talk_s", 16.0)) * _pace():
 					_waiting = false
@@ -610,7 +626,7 @@ func _say(man: HumanBody, text: String) -> void:
 
 func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
-			"answer": answer, "met": met, "beat": _beat, "waiting": _waiting, "ride_s": snappedf(ride_s, 1.0),
+			"answer": answer, "met": met, "survivors": survivors_seen, "beat": _beat, "waiting": _waiting, "ride_s": snappedf(ride_s, 1.0),
 			"holes": holes, "props": props.size()}
 	var p := player()
 	if p and joe and is_instance_valid(joe):
