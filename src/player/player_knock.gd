@@ -20,6 +20,10 @@ var _cool := 0.0
 var _told_for := &""
 ## No oftener than this (s): one bang is three blows.
 const GAP := 0.9
+## The prompt again at the same door no sooner than this (s).
+const RETELL_S := 20.0
+var _said_at := {}
+var _clock := 0.0
 const LOOK_EVERY := 0.25
 var _look_t := 0.0
 
@@ -28,7 +32,10 @@ func _ready() -> void:
 	add_to_group(&"claims_use")
 
 
-## The door you're at (its owner's {place, at, by}), or {}.
+## The door you're at (its owner's {place, at, by}), or {}. Only a door worth banging on (#1095):
+## someone in there on the town's book (`heard`), a hurt man by it (`hurt`), or you've a man by the
+## collar to bring in; never
+## from inside it, nor at a place with no door (the owner's `door_near` leaves those out).
 func door_here() -> Dictionary:
 	if player == null or not player.is_inside_tree() or player.is_crawling or player.ladder != null:
 		return {}
@@ -39,6 +46,8 @@ func door_here() -> Dictionary:
 	for n: Node in player.get_tree().get_nodes_in_group(&"knock_doors"):
 		var d: Dictionary = n.call(&"door_near", player.global_position, fwd.normalized(), player.tuning.knock_reach)
 		if not d.is_empty():
+			if not bool(d.get("heard", true)) and not bool(d.get("hurt", false)) and not (player.carry != null and player.carry.carrying()):
+				continue
 			d["by"] = n
 			return d
 	return {}
@@ -52,6 +61,7 @@ func _physics_process(delta: float) -> void:
 	if player == null:
 		return
 	_cool = maxf(_cool - delta, 0.0)
+	_clock += delta
 	var pressed := player.input_enabled and Input.is_action_just_pressed(&"shove")
 	# Looked for a few times a second (and on E), not every tick: the doors are a search.
 	_look_t -= delta
@@ -62,8 +72,12 @@ func _physics_process(delta: float) -> void:
 	var place: StringName = d.get("place", &"")
 	if place != _told_for:
 		_told_for = place
-		if place != &"" and player.wounds:
+		# Once an approach (#1095: it came back each time you stepped in and out of reach).
+		var now := _clock
+		if place != &"" and player.wounds and now - float(_said_at.get(place, -INF)) > RETELL_S:
 			player.wounds.say("E: bang on the door", 1.5)
+		if place != &"":
+			_said_at[place] = now
 	if not d.is_empty() and pressed:
 		bang(d)
 
