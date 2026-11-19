@@ -137,13 +137,16 @@ const TINTED_GLASS := {
 	# glass: shop rounds), green.
 	"aqua": Color(0.62, 0.8, 0.76, 0.26), "amber": Color(0.42, 0.2, 0.05, 0.78), "cobalt": Color(0.1, 0.16, 0.55, 0.74),
 	"clear": Color(0.5, 0.54, 0.52, 0.08), "green": Color(0.28, 0.42, 0.22, 0.7),
+	# Window glass in a door (#1030: the wall clock's): a thin flat sheet you read a dial through,
+	# hardly there facing you, a little sheen edge-on.
+	"pane": Color(0.6, 0.62, 0.6, 0.025),
 	# Bar glass (#879): heavy pressed flint, thick-walled, its outline catching the lamps (clear's
 	# thin outline vanished at night under lamplight and left the drinks floating).
 	"flint": Color(0.62, 0.66, 0.64, 0.12),
 }
 ## How much each colour's outline thickens (clear flint glass hardly: round 1's balance case read as
 ## milky panes at the pale clear's 0.65).
-const TINTED_GLASS_EDGE := {"clear": 0.3, "flint": 0.55}
+const TINTED_GLASS_EDGE := {"clear": 0.3, "flint": 0.55, "pane": 0.12}
 
 
 static func tinted_glass(name: String) -> ShaderMaterial:
@@ -155,6 +158,8 @@ static func tinted_glass(name: String) -> ShaderMaterial:
 		m.set_shader_parameter(&"edge", TINTED_GLASS_EDGE.get(name, 0.65))
 		if name == "flint":
 			m.set_shader_parameter(&"sheen", 0.6)
+		elif name == "pane":
+			m.set_shader_parameter(&"sheen", 0.15)
 		m.resource_name = key
 		_materials[key] = m
 	return _materials[key]
@@ -637,8 +642,14 @@ static func pbr(model: String) -> StandardMaterial3D:
 	if not _materials.has(key):
 		var m := StandardMaterial3D.new()
 		var dir := "res://assets/props/models/%s_" % model
-		var albedo: Texture2D = load(dir + "albedo.png") if ResourceLoader.exists(dir + "albedo.png") else null
-		var orm: Texture2D = load(dir + "orm.png") if ResourceLoader.exists(dir + "orm.png") else null
+		var ext := "png"
+		if model.begins_with("@"):
+			# A weapon's own painted sheets ("@winchester73_w73_long": the rifle over the bar, #1030):
+			# assets/weapons/<name>_albedo.jpg and _orm.jpg, the gun lab's, not copied.
+			dir = "res://assets/weapons/%s_" % model.substr(1)
+			ext = "jpg"
+		var albedo: Texture2D = load(dir + "albedo." + ext) if ResourceLoader.exists(dir + "albedo." + ext) else null
+		var orm: Texture2D = load(dir + "orm." + ext) if ResourceLoader.exists(dir + "orm." + ext) else null
 		if albedo == null:
 			push_warning("PropModels: no baked albedo for %s" % model)
 		m.albedo_texture = albedo

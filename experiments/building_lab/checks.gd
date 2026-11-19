@@ -14,7 +14,7 @@ const EXCEPTIONS := {
 	&"static_batch": "the dressing's glass props' fixed parts drawn together (StaticBatch; a prop shot or falling is handed back) - #844, src/world/static_batch.gd",
 }
 ## Not things (they neither collide nor draw a surface): allowed, counted.
-const NOT_THINGS := "a stage's cloths (DrawCurtain, PaintedDrop: fittings, counted as `cloths`), the lamps' lights (OilLamp), the room's light probe and haze (FalseFrontBuilding._add_interior_ambient), use points (Marker3D), the dust in the air under a floor (FloorDust)"
+const NOT_THINGS := "a stage's cloths (DrawCurtain, PaintedDrop: fittings, counted as `cloths`), the lamps' lights (OilLamp), the room's light probe and haze (FalseFrontBuilding._add_interior_ambient), use points (Marker3D), the dust in the air under a floor (FloorDust), a clock's hands and pendulum (WallClock)"
 
 
 ## The walk: every node under `root` that collides or draws, sorted. "bad" lists any that's
@@ -39,6 +39,10 @@ static func _walk(n: Node, building: Structure, out: Dictionary) -> void:
 			# A stage's cloth (#902): the curtain on its rod, the drop on its batten; drawn, nothing to
 			# hit, a fitting (Fittings drops it when what it hangs on goes).
 			out.cloths += 1
+			continue
+		if c is WallClock:
+			# A kit clock's going parts (#1030): its hands and pendulum drawn on the prop, nothing to hit.
+			out.not_things += 1
 			continue
 		if c is FloorDust:
 			# Dust in the air under a floor (#867): motes, nothing to hit, break or burn.

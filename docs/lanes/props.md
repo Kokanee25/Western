@@ -21,17 +21,15 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   DIFFERENT (a steamer trunk), both seen by the owner's desk; CLOSE notes in the README (kegs and rack near-black
   at noon, the bed too clean, the desk grainless, the ledgers blank slabs). S2's CLOSE notes still open (the
   wheel's dice, the fiddle's f-holes, the saw's teeth and grip, the scales' size, the faro's chips).
-- **Saloon B's stage and dressing room props are made and judged, not placed** (#903): `dressing_mirror`,
-  `costume_pegs` (the doctor's coat pegs extended), `travelling_trunk` (lid on the kit's hinges),
-  `dressing_screen`, `footlight`. `tools/props/saloon_stage.py`, `tools/blender/props/saloon_stage.py`, stand
-  `experiments/prop_lab/saloon/stage_sheet.py`, results `results/2026-11-13_saloon_stage/` (r2: screen SAME,
-  mirror/pegs/trunk CLOSE, footlight DIFFERENT: reads as tin boxes). **Footlight redone** (#941, r3: a bright curved
-  reflector behind the chimney on a trough; critic still DIFFERENT: at noon pale-blue cups on the stand, too small,
-  no trough along the row, flame white; two rounds spent: next is placing it in the room and judging it there by
-  lamplight, a continuous trough for the row is the cheap fix). Where each goes: README "Saloon B, the
-  stage and dressing room". Placing waits for #902 (the room; not merged on 2026-11-14). No period refs saved (Commons came back thin).
-- **Next:** S4 (the chair
-  and strongbox, the CLOSE notes; Blender needs `bpy`, which needs pypi).
+- **Saloon B's S5, the walls (#1030), merged with steps 1-6:** batch `S5` in `saloon_b_dress.py`: the back bar's every
+  bay stocked, the **wall clock** (`WallClock`, a part: DayCycle's time, pendulum, tick, stops when shot through its works;
+  `tools/props/wall_clock.py`, `tools/blender/props/wall_clock.py`), trophies (deer heads, the steer skull), the **rifle on
+  pegs** (the game's own Winchester, `pbr:@<weapon sheet>`), spittoons, coat pegs, and #903's stage/dressing-room props placed
+  (the footlights were #902's). The nude's place is beside the back bar (`NUDE_PLACE`, yard wall z 0.1-1.9). Critic round 1
+  `results/2026-11-17_saloon_b_walls/critic.md`: skull, dress rail, trunk SAME; clock, rifle, deer head, mirror, screen,
+  bottles CLOSE; spittoons DIFFERENT (the old drawn one reads as rocks: S4). **Steps 7-8 wait for #1032** (pictures and ads);
+  the pronghorn is bought (up to $2, Sean #1042; no elk). No arm rail on the bar's top (Sean): the foot rail is the brass.
+- **Next:** S5's steps 7-8 once #1032 is in; then S4 (the chair and strongbox, the spittoon, the CLOSE notes).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
   (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
   `folded_blankets`, and `doctors_bag` (Rodin, Sean's A on #823). All his wooden kits are now
@@ -51,6 +49,9 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   `baron_coach` stays), farmhouse props (#540).
 
 ## Traps
+- `bpy`: `python3.11 -m venv ~/.venvs/bpy && ~/.venvs/bpy/bin/pip install bpy==5.0.1 pillow numpy` (pypi works); Vulkan:
+  `apt-get install mesa-vulkan-drivers`, `VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json`; a room view ~5 min.
+- A kit prop's going parts (WallClock's hands) are walked by the building lab's `Checks.destructible`: they're listed there.
 - A lavapipe view ~10-15 min; never two renders at once; Blender bakes share the CPU.
 - Never two renders, or a render and the suite, at once. A same-kind member thinner than 12 mm isn't "on" the
   one under it (CONTACT_EPSILON). The valley has no StaticBatch (glass props draw part by part).

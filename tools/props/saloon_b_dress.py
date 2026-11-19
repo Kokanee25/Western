@@ -49,8 +49,8 @@ def e(id_, kit, at, facing=0, **kw):
 def s1():
     out = []
     for i, z in enumerate(BAR_Z):
-        out.append(e("arm_rail_%d" % i, "bar_arm_rail", [BAR_X + 0.455, BAR_TOP, z], 90,
-                     use="on the bar section's top at its front edge (bar space x 0, y 1.095, z 0.455)"))
+        # No arm rail on the bar's top (Sean, #1041: the brass rail is for the feet; the bar's own
+        # foot rail is drawn with the arm rail's tube).
         out.append(e("work_board_%d" % i, "work_board", [1.665, 0.0, z], 270,
                      use="the bartender's work board, its back on the bar's back boards (x 1.96)"))
     for i, z in enumerate([2.95, 4.85, 6.75, 8.65, 10.55]):
@@ -105,6 +105,68 @@ def s1():
     out.append(e("no_law_glass_0", "shot_glass", [12.82, CARD_TOP, 7.5], 0))
     out.append(e("no_law_glass_1", "shot_glass", [13.38, CARD_TOP, 7.05], 0))
     out.append(e("no_law_bottle", "whiskey_bottle", [13.12, CARD_TOP, 7.38], 0))
+    return out
+
+
+# --- S5 (#1030): the walls -------------------------------------------------------------------------
+
+SHELF1 = 1.965   # the back bar's upper shelves' top
+# The bar-room nude's place (#1030 step 8, from #1032's pictures): beside the back bar, on the yard wall's
+# front corner (z 0.1 to 1.9: no window, the room's whole width to see it across), its middle 2.3 m up.
+# Over the back bar there's 0.56 m to the joists: no room above it.
+NUDE_PLACE = [0.11, 2.3, 1.0]
+
+
+def s5_back_bar():
+    """The back bar stocked as a bar's was: every bay's two shelves (S1 filled one shelf a section),
+    a row of whiskey on the lower, and on the upper the house's decanter among more bottles."""
+    out = []
+    for i, c in enumerate(BACK_BAR_Z):
+        # The right bay's lower shelf (S1's row is the left's).
+        out.append({"id": "bottles_r%d" % i, "row": {"kits": ["whiskey_bottle"], "count": 5, "step": [0, 0, 0.17], "jitter": [0.012, 0.02, 40]},
+                    "at": [0.3, SHELF0, c + 0.24], "facing": 90})
+        for side, z0 in (("l", c - 0.95), ("r", c + 0.24)):
+            out.append({"id": "bottles_up%s%d" % (side, i), "row": {"kits": ["whiskey_bottle"], "count": 2, "step": [0, 0, 0.15], "jitter": [0.012, 0.02, 40]},
+                        "at": [0.29, SHELF1, z0], "facing": 90})
+            out.append(e("decanter_up%s%d" % (side, i), "decanter", [0.3, SHELF1, z0 + 0.36], 0))
+            out.append({"id": "bottles_up%s%d_b" % (side, i), "row": {"kits": ["whiskey_bottle"], "count": 2, "step": [0, 0, 0.15], "jitter": [0.012, 0.02, 40]},
+                        "at": [0.29, SHELF1, z0 + 0.53], "facing": 90})
+    return out
+
+
+def s5():
+    """S5 (#1030): what hangs on saloon B's walls, and the stage's and dressing room's props (#903)."""
+    out = s5_back_bar()
+    # The regulator on the bar room's back wall by the bar's end, its dial ~1.87 m up, where the bartender
+    # and the drinkers read it (between the store room's door, x 0.82-1.73, and the lamp at 4.5).
+    out.append(e("clock", "wall_clock", [2.9, 1.2, 13.36], 180, use="the bar room's clock: the town's time (#789)"))
+    # Trophies: a deer's head over the store room's door, a longhorn's skull over the arch to the gaming
+    # room (the Studio's of 2026-10-24, the porch's twin), another head on the front wall's pier between
+    # the first two windows (x 3.96-6.86, its lamp at 5.95).
+    out.append(e("deer_head_door", "deer_head", [1.27, 2.72, 13.36], 180))
+    out.append(e("steer_skull_arch", "steer_skull", [9.2, 3.28, 13.36], 180))
+    out.append(e("deer_head_front", "deer_head", [4.75, 2.6, 0.1], 0))
+    # The house's Winchester on pegs over the back bar, between two sections' crests.
+    out.append(e("rifle", "rifle_pegs", [0.1, 3.27, 6.9], 90, use="the bartender's gun, over the back bar"))
+    # Spittoons along the bar's front between the drinkers' places (3.4, 5.2, 7.4, 9.0, 10.6).
+    for i, z in enumerate([4.3, 6.3, 8.2, 9.8]):
+        out.append(e("spittoon_%d" % i, "spittoon", [2.82, 0.0, z], 37 * i))
+    # Hat and coat pegs by the way in (the cut corner): on the side street's wall's pier past its void
+    # (z 0-2.44) and before the first window (3.54).
+    out.append(e("coat_pegs", "coat_pegs", [16.36, 1.7, 3.0], -90))
+    # The stage's and dressing room's props (#903, README "Saloon B, the stage and dressing room"): the
+    # mirror against room 6's yard wall past its window (z 18.15-19.06), the costume pegs across from it
+    # with the trunk at their foot, the screen along the back wall; the wing's trunk open for the night.
+    out.append(e("dressing_mirror", "dressing_mirror", [0.39, UP, 20.3], 90))
+    out.append(e("costume_pegs", "costume_pegs", [2.85, UP + 1.72, 20.3], -90))
+    out.append(e("trunk_room_6", "travelling_trunk", [2.42, UP, 20.3], -90))
+    out.append(e("dressing_screen", "dressing_screen", [1.5, UP, 21.35], 180))
+    # (Against the wing's yard wall, its lid back toward it: by the dance hall's door, x 1.58, it stood in
+    # the door's way in.)
+    out.append(e("trunk_wing", "travelling_trunk", [0.52, UP, 11.4], 90, open="lid"))
+    for d in out:
+        if d.get("use") is None:
+            d.pop("use", None)
     return out
 
 
@@ -201,7 +263,7 @@ def main():
         u.update(USE.get(u["id"], {}))
     dressing = spec.get("dressing", {})
     batches = dressing.get("batches", {})
-    batches.update({"S1": s1(), "S2": s2(), "S3": s3()})
+    batches.update({"S1": s1(), "S2": s2(), "S3": s3(), "S5": s5()})
     spec["dressing"] = {
         "_doc": "#902: the stage's footlights and the dressing room's table, chair and lamp (`stage`). "
                 "#950: saloon B's props, batches S1-S3 (#866, #879, #892), placed by the building's own build "
@@ -209,7 +271,8 @@ def main():
                 "Written by tools/props/saloon_b_dress.py (edit it there and re-run). Each entry a kit prop at "
                 "[x, y over the ground floor, z], turned `facing` degrees (a prop faces +Z); `on`, `lift`, `light`, "
                 "`row`: PropDressing's doc. The upper floor is 3.96 over the ground floor, #902's stage 4.72. "
-                "The rest of the stage's props (#903) are the prop lab's to place.",
+                "#1030: batch S5, the walls (the back bar stocked, the wall clock, trophies, the rifle, spittoons, "
+                "pegs) and the stage's and dressing room's props (#903).",
         "batches": batches,
     }
     open(SPEC, "w").write(json.dumps(spec, indent="\t", ensure_ascii=False))
