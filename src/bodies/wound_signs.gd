@@ -415,7 +415,9 @@ func _hands(p: Physiology, world: Node3D, dt: float) -> void:
 		if float(_bloody.get(side, 0.0)) <= 0.25 and not low:
 			_show_hand(side)
 			continue  # nothing to print, nothing to pick up
-		var hit := _touching(world, at, PRINT_REACH)
+		# Over someone's shoulder (PlayerCarry) his hands hang down your back: they touch you, not
+		# the world (no print on your coat's capsule or the street).
+		var hit := {} if body.carried else _touching(world, at, PRINT_REACH)
 		if not hit.is_empty():
 			var wet := Blood.wet_near(hit.position, PICK_REACH) if low else 0.0
 			if wet >= PICK_MIN:
@@ -558,6 +560,9 @@ func _show_hand(side: String) -> void:
 
 ## A bleeding man down and sliding (dragged, or slumping down a wall) smears his blood along it.
 func _smears(world: Node3D, dt: float) -> void:
+	if body.carried:
+		_end_smear()  # off the ground on a shoulder (PlayerCarry): nothing to smear on
+		return
 	var p := body.physiology
 	_smear_load = minf(SMEAR_LOAD_MAX, _smear_load + p.total_bleed_rate() * dt)
 	if not (body.limp or body.prone) or maxf(_smear_load, body._pool_ml * SMEAR_SOAK) < SMEAR_EMPTY:

@@ -387,7 +387,7 @@ func _physics_step(delta: float) -> void:
 		_jump_spent = false
 	wants_run = wants_run and can_sprint
 	if carry and carry.carrying():
-		# A man by the collar behind you: a walk, no run, no jump (PlayerCarry).
+		# A man over your shoulder: a walk, no run, no jump (PlayerCarry).
 		wants_run = false
 		wants_jump = false
 	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())

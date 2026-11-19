@@ -697,6 +697,8 @@ func _send_off(id: StringName, walk: bool) -> void:
 	if not man.physiology.alive:
 		state[id] = &"dead"  # his body stays where it lies (No Law: Earl's, #773)
 		return
+	if man.dragged_by != null:
+		return  # carried or dragged (PlayerCarry, #1081): with whoever has him, not off home
 	var p := _person(id)
 	if not _going_to.has(id):
 		_going_to[id] = [_going_place(p), _doing_at(p, _going_place(p))]
@@ -744,6 +746,8 @@ func _doing_at(p: Dictionary, place: StringName) -> StringName:
 ## just gone. `cut`: the clock jumped (he's not watched going).
 func _gone(id: StringName, cut := false) -> void:
 	var man: HumanBody = people.get(id)
+	if man != null and is_instance_valid(man) and man.dragged_by != null:
+		return  # carried or dragged (PlayerCarry, #1081): he stays with whoever has him, seen or not
 	people.erase(id)
 	state[id] = &"out"
 	_going_for.erase(id)
@@ -966,6 +970,9 @@ func _step(delta: float) -> void:
 func _place(p: Dictionary, b: Dictionary) -> void:
 	var id := StringName(p.id)
 	var st: StringName = state.get(id, &"out")
+	var held: HumanBody = people.get(id)
+	if held != null and is_instance_valid(held) and held.dragged_by != null:
+		return  # carried or dragged (#1081): he stays with whoever has him
 	if b.has("in"):
 		var place := StringName(String(b.in))
 		if st in [&"coming", &"in", &"going"]:
@@ -1086,6 +1093,8 @@ func take(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
 ## An act's man out of the world (he's walked off).
 func release(id: StringName) -> void:
 	var man: HumanBody = people.get(id)
+	if man != null and is_instance_valid(man) and man.dragged_by != null:
+		return  # carried or dragged (#1081): not out of the world off someone's shoulder
 	people.erase(id)
 	state[id] = &"out"
 	if man != null and is_instance_valid(man):
@@ -1243,6 +1252,9 @@ func _morning_step(h: float) -> void:
 		# Laid out in the doctor's front room (#1057): there under his sheet till the sheriff's scene is
 		# over (you pass him on the way in), then the undertaker's.
 		var kept: bool = laid.has(&"earl") and StoryState.get_fact("nolaw.sheriff") != "dead"
+		# Not off your shoulder (PlayerCarry, #1081): carried or dragged, he's with whoever has him,
+		# seen or not (over your shoulder he's beside you, out of your view).
+		kept = kept or (earl != null and earl.dragged_by != null)
 		if not kept and (earl == null or not _you_see(_body_at(earl), float(md.get("unseen_m", 30.0)))):
 			to_undertaker(&"earl")
 	if (sheriff_scene == null or not is_instance_valid(sheriff_scene)) and not StoryState.has_fact("nolaw.sheriff") \
