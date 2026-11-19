@@ -7,8 +7,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746): `-- --world=valley --mission=sheriff`; `StoryState`, `HeadGesture`, `Act`.
   #1081: carried in over the shoulder (not dragged: Sean), a knock brings the doctor by day; a slow nod answers.
-  The clock runs at a quarter of the day's rate till it's over (#1082: in by about 08:00). Waiting on Sean: #755. The drawn game
-  under lavapipe hung there (OOM; headless it doesn't). The carry's pose is unjudged on a real screen.
+  The clock runs at a quarter of the day's rate till it's over (#1082: in by about 08:00). Waiting on Sean: #755. The carry's pose is unjudged on a real screen.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
   **The night's carry (#1057):** Cody's ball goes through Earl's collarbone (`aim` subclavian_r: down, ~25 ml/s,
@@ -30,8 +29,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail. Playtests `docs/playtests/2026-11-1[345]-*.md`.
   **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
-  Open (playtest 2026-11-15-nojustice-whole): the hideout fight's hard (#349, Sean's); the clock's held; the jail
-  and rides are cards; no line when Kett's jailed (C8 a, Sean's).
+  Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
+  out cold in the cabin it waits forever (#1092). Ragdolls don't collide with the player (#1092).
   Riding waits on #478.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
