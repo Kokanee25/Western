@@ -34,6 +34,9 @@ var player: Player
 var wounds: Array[Dictionary] = []
 var tending := 0.0
 var out_cold := 0.0
+## The last thing that hurt you, in words (#1095: out cold at the hideout with nothing saying what
+## hit you): {kind (&"ball", &"cut", &"blow", &"fall", &"blast"), words, by (who fired it, if known)}.
+var last_hurt := {}
 ## Down (or dead), you stay down: no coming round (the gunfight lab, once its played fight is over,
 ## so its record, `read all` and what happens next agree: #595's "dead, then up again").
 var stays_down := false
@@ -98,6 +101,7 @@ func _ready() -> void:
 	player = get_parent() as Player
 	player.set_meta(&"human_body", self)
 	_rng.seed = 1882
+	Events.deed.connect(_on_deed)
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
 	physiology.roll_rng.seed = hash(["physiology", "player"])
@@ -200,6 +204,8 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	wounds.append({"segments": segs, "lodged": res.exit == null, "hits": hits})
 	_flash = 1.0
 	player.add_look(Vector2(_rng.randf_range(-4.0, 4.0), _rng.randf_range(-2.0, 5.0)))
+	var words := hit_words(res.traces, new_bleeds)
+	last_hurt = {"kind": &"ball", "words": words, "by": null}
 	var exit_world: Variant = null
 	if res.exit != null:
 		var e: Vector3 = res.exit
@@ -211,7 +217,7 @@ func take_bullet(_collider: Node3D, pos: Vector3, dir: Vector3, energy: float, b
 	var info := {"person": player, "person_id": &"player", "segment": first.segment, "hits": hits,
 			"position": xf * entry_local, "direction": dir, "exit": exit_world, "lodged": res.exit == null}
 	Events.body_hit.emit(info)
-	say(hit_words(res.traces, new_bleeds), 3.5)
+	say(words, 3.5)
 	return {"segment": first.segment, "exit": exit_world, "energy_out": res.energy_out, "hits": hits}
 
 
@@ -228,7 +234,9 @@ func take_cut(_collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embed
 	physiology.apply_trace(tr)
 	wounds.append({"segments": [seg], "lodged": embedded, "hits": [], "kind": &"cut"})
 	_flash = maxf(_flash, 0.4)
-	say("Glass cut your %s%s." % [_place(seg), ", and a shard's still in it" if embedded else ""], 2.5)
+	var cut_words := "Glass cut your %s%s." % [_place(seg), ", and a shard's still in it" if embedded else ""]
+	last_hurt = {"kind": &"cut", "words": cut_words, "by": null}
+	say(cut_words, 2.5)
 	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": seg, "hits": [], "position": pos,
 			"direction": dir, "exit": null, "lodged": embedded, "kind": &"cut"})
 	return {}
@@ -240,7 +248,9 @@ func take_blow(_collider: Node3D, joules: float, point: Vector3, dir := Vector3.
 	var harm := physiology.blow(seg, joules, _rng)
 	_flash = 1.0
 	player.add_look(Vector2(_rng.randf_range(-6.0, 6.0), _rng.randf_range(-6.0, 2.0)))
-	say("Something heavy caught your %s: %s." % [_place(seg), ", ".join(harm)], 3.0)
+	var blow_words := "Something heavy caught your %s: %s." % [_place(seg), ", ".join(harm)]
+	last_hurt = {"kind": &"blow", "words": blow_words, "by": null}
+	say(blow_words, 3.0)
 	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": seg, "hits": [], "position": point,
 			"direction": dir, "exit": null, "lodged": false, "kind": &"blow", "harm": harm, "joules": joules})
 	return harm
@@ -280,7 +290,9 @@ func take_fall(speed: float) -> PackedStringArray:
 	harm.append_array(physiology.axial(&"aorta", joules / maxf(ft.injury_share, 1e-6), _rng))
 	_flash = 1.0
 	player.add_look(Vector2(_rng.randf_range(-3.0, 3.0), _rng.randf_range(-10.0, -4.0)))
-	say("You land hard%s." % (": " + ", ".join(harm) if not harm.is_empty() else ""), 3.0)
+	var fall_words := "You landed hard%s." % (": " + ", ".join(harm) if not harm.is_empty() else "")
+	last_hurt = {"kind": &"fall", "words": fall_words, "by": null}
+	say(fall_words.replace("landed", "land"), 3.0)
 	Events.body_hit.emit({"person": player, "person_id": &"player", "segment": &"foot_r", "hits": [],
 			"position": player.global_position, "direction": Vector3.DOWN, "exit": null, "lodged": false,
 			"kind": &"blow", "harm": harm, "joules": joules, "fall": true})
@@ -344,6 +356,7 @@ func take_blast(at: Vector3, kg: float, held := false) -> Dictionary:
 		if player.composure:
 			player.composure.incoming(1.0)
 		return info
+	last_hurt = {"kind": &"blast", "words": "The blast: %s." % ", ".join(harm), "by": null}
 	say("The blast: %s." % ", ".join(harm), 5.0)
 	wounds.append({"segments": [&"chest"], "lodged": false, "hits": [], "kind": &"blast", "harm": harm})
 	Events.body_hit.emit(info)
@@ -1049,6 +1062,25 @@ func _name_of(who: Node) -> String:
 		var id := (who as HumanBody).person_id
 		return CALLED.get(id, String(id).capitalize())
 	return "Somebody"
+
+
+## Where you were last hurt and by what, in one plain line from the wound record (#1095: the card
+## when you go down): "Boyd's ball. Hit in the head. It's in your head." "" if nothing has.
+func down_line() -> String:
+	if last_hurt.is_empty():
+		return ""
+	var words := String(last_hurt.get("words", ""))
+	var by: Variant = last_hurt.get("by")
+	if last_hurt.get("kind") == &"ball":
+		var who := _name_of(by as Node) if by is Node and is_instance_valid(by) else ""
+		return ("%s's ball. %s" % [who, words]) if who != "" and who != "Somebody" else "A ball. %s" % words
+	return words
+
+
+## Who fired the ball that just hit you (Ballistics' deed, after take_bullet): into the record.
+func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void:
+	if kind == &"hit" and target == player and last_hurt.get("kind") == &"ball" and last_hurt.get("by") == null:
+		last_hurt["by"] = actor
 
 
 func describe() -> String:
