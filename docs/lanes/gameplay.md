@@ -34,8 +34,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Playtest run 2's faults (#1095):** one doctor (an act takes the day man: `ValleyFolk.seize`, `give_back`); a knock
   no act claims (`claim_knock`) with a hurt man by the door brings him (`FetchHelp.at_door`, `take_in`; treating, #1093);
   the prompt only where worth it (`past_door`, `no_knock`). `tests/test_playtest_faults.gd`. #1106: an act lends its man
-  back (`ValleyFolk.lends`, `lend`): the camp's doctor goes to a hurt man at his door. Open (#1106 items 3-6): the shack door's kick count
-  and side-wall kicks, Joe down at the hideout, silence as a nod, how "Joe gone" is reached.
+  back (`ValleyFolk.lends`, `lend`): the camp's doctor goes to a hurt man at his door. #1111: the shack door takes a set count
+  of kicks (`kick_share`, `takes_kicks`: the door, not your foot), the wall says where the door is, "between" needs you
+  to move. Waiting on Sean (#1114): Joe down with a bad leg at the cabin (helping him up isn't built), "Joe gone" (no such ending).
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
   book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,

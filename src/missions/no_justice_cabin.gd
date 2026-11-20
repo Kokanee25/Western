@@ -34,6 +34,7 @@ var ending := ""
 var answer := ""
 var forced_by := ""  # "kick", "shot", "wall", "down" (he lay outside: no door)
 var kicked_j := 0.0
+var kicked := 0.0  # sound standing kicks' worth (kick_share)
 var kicks := 0
 var shot_him := false  # your ball in him after he gave up
 var joe_saw := false
@@ -54,6 +55,7 @@ var _ride_s := 0.0
 var _jail: Node3D
 var _surrendered := false
 var _was_clear := false
+var _clear_at := Vector2.INF
 
 
 func begin() -> void:
@@ -68,6 +70,7 @@ func begin() -> void:
 	kett = hideout.kett
 	shack = hideout.shack
 	Events.deed.connect(_on_deed)
+	add_to_group(&"takes_kicks")
 	var p := player()
 	if p == null or joe == null or not is_instance_valid(joe):
 		_finish(&"no_player")
@@ -230,8 +233,12 @@ func _barred_step(p: Player) -> void:
 		_surrender()
 
 
-## A kick lands: on the door, it adds up against the bar (a barred door takes `bar_j`, an unbarred
-## one `door_j`) and gives all at once, bar and leaf inward; his second bluff at the first.
+## A kick lands: on the door, it counts against the bar (a barred door takes `bar_kicks` sound
+## standing kicks, an unbarred one `door_kicks`) and gives all at once, bar and leaf inward; his second
+## bluff at the first. Each kick counts by its speed against a sound standing kick's, squared (its
+## energy), up to `kick_most` for one on the run: a leg already hurt counts less, always by the same
+## amount, and the door takes the kick, not your foot (`takes_kick`: the count is the door's, not luck,
+## #1111). A kick on the shack's wall instead says where the door is.
 func _on_kick(info: Dictionary) -> void:
 	if done:
 		return
@@ -242,24 +249,22 @@ func _on_kick(info: Dictionary) -> void:
 		return
 	if state != &"barred" or String(info.get("move", "")) != "kick":
 		return
-	# On the door, or anything in its doorway (its jamb, its trim, a broken piece lying against it: the
-	# bridge's playtest kicked the jamb, then the loose trim, and never the leaf).
 	if not info.has("at") or not String(info.get("what", "")) in ["wall", "thing", "prop"]:
 		return
 	var at: Vector3 = info.at
-	var l := shack.global_transform.affine_inverse() * at
-	var dc := shack.door_rect.get_center().x
-	if absf(l.x - dc) > shack.door_rect.size.x * 0.5 + float(data.get("doorway_m", 0.45)) or l.z > 0.6 or l.z < -1.2 \
-			or l.y > shack.door_rect.end.y + 0.3:
+	if not _in_doorway(at):
+		_wrong_wall(at)
 		return
 	var e := 0.5 * float(info.get("mass", 0.0)) * pow(float(info.get("speed", 0.0)), 2.0)
+	var share := kick_share(float(info.get("speed", 0.0)))
 	kicked_j += e
+	kicked += share
 	kicks += 1
-	var need := float(data.get("bar_j", 1800.0)) if barred() else float(data.get("door_j", 600.0))
-	_note("kick %d on the door: %.0f J (%.0f of %.0f)" % [kicks, e, kicked_j, need])
+	var need := float(data.get("bar_kicks", 3.0)) if barred() else float(data.get("door_kicks", 1.0))
+	_note("kick %d on the door: %.2f of a sound kick, %.0f J (%.2f of %.1f)" % [kicks, share, e, kicked, need])
 	if kicks == 1:
 		_say_again(kett, "barred")
-	if kicked_j < need:
+	if kicked < need - 0.001:
 		if kicks == 2:
 			prompt(String(_prompts().get("holds", "")), 2.5)
 		return
@@ -274,6 +279,47 @@ func _on_kick(info: Dictionary) -> void:
 	GameAudio.play(p, &"timber_crack", hideout._shack_door(0.0) + Vector3.UP * 1.0, {"volume_db": 0.0})
 	Events.noise.emit(hideout._shack_door(0.0), 30.0, &"crash", p)
 	_note("the door gives")
+
+
+## A kick at `speed` m/s as a share of a sound standing kick (the shove's own kick_speed): its
+## energy's share, squared speed, up to `kick_most` (a running kick).
+func kick_share(speed: float) -> float:
+	var p := player()
+	var sound := p.shove.tuning.kick_speed if p and p.shove and p.shove.tuning else 7.0
+	return clampf(pow(speed / maxf(sound, 0.1), 2.0), 0.0, float(data.get("kick_most", 1.5)))
+
+
+## On the door, or anything in its doorway (its jamb, its trim, a broken piece lying against it: the
+## bridge's playtest kicked the jamb, then the loose trim, and never the leaf).
+func _in_doorway(at: Vector3) -> bool:
+	if shack == null or not is_instance_valid(shack):
+		return false
+	var l := shack.global_transform.affine_inverse() * at
+	var dc := shack.door_rect.get_center().x
+	return absf(l.x - dc) <= shack.door_rect.size.x * 0.5 + float(data.get("doorway_m", 0.45)) and l.z <= 0.6 and l.z >= -1.2 \
+			and l.y <= shack.door_rect.end.y + 0.3
+
+
+## The shack's door takes a kick (PlayerShove's `takes_kicks`): it gives a little each time while
+## it's barred and shut, so your foot isn't hurt on it (the hurt foot made the count luck, #1111).
+func takes_kick(_p: Player, at: Vector3, _info: Dictionary) -> bool:
+	return not done and state == &"barred" and not door_open() and _in_doorway(at)
+
+
+## A kick on the shack that isn't the door (playtest run 3 kicked its side wall nine times, told
+## nothing): which way the door is from you.
+func _wrong_wall(at: Vector3) -> void:
+	var l := shack.global_transform.affine_inverse() * at
+	if l.x < -0.4 or l.x > shack.width + 0.4 or l.z < -0.6 or l.z > shack.depth + 0.4 or l.y > 3.5:
+		return  # (not the shack)
+	var p := player()
+	var words := String(_prompts().get("wall_round", "That's the wall. The door's round the front."))
+	if l.z <= 0.6 and p != null:
+		var to := hideout._shack_door(0.0) - p.global_position
+		var right := p.camera.global_basis.x if p.camera else p.global_basis.x
+		words = String(_prompts().get("wall_right" if to.dot(right) > 0.0 else "wall_left", words))
+	prompt(words, 2.5)
+	_note("kick on the shack's wall, not the door: " + words)
 
 
 ## In: hands up, backing into the corner, begging (cabin.surrender); Joe held and brought in behind
@@ -369,16 +415,15 @@ func _read_head(p: Player, delta: float) -> void:
 ## shake).
 func _read_doing(p: Player, delta: float) -> void:
 	# Between them: on the line from Joe to Kett, not off its ends.
-	var a := Vector2(joe.global_position.x, joe.global_position.z)
-	var b := Vector2(kett.global_position.x, kett.global_position.z)
 	var me := Vector2(p.global_position.x, p.global_position.z)
-	var ab := b - a
-	var k := (me - a).dot(ab) / maxf(ab.length_squared(), 0.01)
-	var off := (a + ab * clampf(k, 0.0, 1.0)).distance_to(me)
-	var between := k > 0.1 and k < 0.9 and off < float(data.get("between_off_m", 0.45)) and ab.length() > 0.6
+	var between := _between(me)
 	if not between and state != &"in":
 		_was_clear = true  # (a step: standing there when the knife came out isn't one)
-	if state != &"in" and between and _was_clear:
+		_clear_at = me
+	# You stepped into his way, not he round you: where you last stood clear of them must still be
+	# clear of the line as it is now (run 3: Joe walked to Kett past a player standing still, and that
+	# read as "between", a nod, #1111).
+	if state != &"in" and between and _was_clear and not _between(_clear_at):
 		_between_t += delta
 		if _between_t > float(data.get("between_s", 0.5)):
 			_answered("between")
@@ -413,6 +458,16 @@ func _read_doing(p: Player, delta: float) -> void:
 			else not hideout.in_shack(p.global_position) and _flat(p.global_position, hideout._shack_door(0.0)) > float(data.get("walked_out_m", 4.0))
 	if gone and state != &"in":
 		_answered("walked_out")
+
+
+## `at` (flat) on the line from Joe to Kett, not off its ends.
+func _between(at: Vector2) -> bool:
+	var a := Vector2(joe.global_position.x, joe.global_position.z)
+	var b := Vector2(kett.global_position.x, kett.global_position.z)
+	var ab := b - a
+	var k := (at - a).dot(ab) / maxf(ab.length_squared(), 0.01)
+	var off := (a + ab * clampf(k, 0.0, 1.0)).distance_to(at)
+	return k > 0.1 and k < 0.9 and off < float(data.get("between_off_m", 0.45)) and ab.length() > 0.6
 
 
 ## Your look's line passes within `drawn_m` of him between his hips and his head (and he's near).
@@ -881,7 +936,7 @@ func _pace() -> float:
 
 func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
-			"ending": ending, "answer": answer, "forced_by": forced_by, "kicks": kicks, "kicked_j": snappedf(kicked_j, 1.0),
+			"ending": ending, "answer": answer, "forced_by": forced_by, "kicks": kicks, "kicked": snappedf(kicked, 0.01), "kicked_j": snappedf(kicked_j, 1.0),
 			"door_open": door_open() if shack else false, "barred": barred() if shack else false, "stabs": stabs,
 			"shot_him": shot_him, "joe_saw": joe_saw, "knife": knife != null}
 	var p := player()
