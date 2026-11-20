@@ -236,3 +236,12 @@ func test_look_says_what_the_barrels_line_meets() -> void:
 	check(not replies[0].has("in_the_way"), "your eye's line is clear (%s)" % str(replies[0]))
 	check(replies[0].has("from_the_barrel") and not String(replies[0].from_the_barrel).begins_with("clear"),
 			"and the barrel's isn't (%s)" % str(replies[0]))
+
+
+## A kick at nothing, and again: each answers what it did (#1116, the chaos playtest: the second miss
+## was the same Dictionary as the first, so the bridge called it "busy" for as long as you missed).
+func test_a_kick_after_a_miss_answers() -> void:
+	var replies := await _ask(["goto 3 0.1 -9 90", "kick", "wait 3", "kick", "wait 3", "kick", "shove"])
+	for i: int in [1, 3, 5, 6]:
+		check(replies[i].get("ok", true) != false and String(replies[i].get("did", "")) != "",
+				"%s answers what it did (%s)" % [["", "the kick", "", "the second", "", "the third", "a shove after"][i], replies[i]])
