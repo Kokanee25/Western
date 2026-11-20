@@ -84,7 +84,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `NoLawMurder._clear_to_head`, `WoundSigns.SMEAR_GAP`), each with a test. Sample a people test's odds by running
   its scene many times in one process, not the suite again.
   Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
-  differently from a workspace's (the same commit fails there and passes here: read the test's own timeline);
+  differently from a workspace's (the same commit fails there and passes here): nudge the test's setup a few cm
+  in a scratch test (5 variants) to find CI's path, then print the men's state each second (#1094);
   the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
   test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
   `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
@@ -101,9 +102,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `outlaw_brain.gd` while `run.py` runs.
 - Tests at night in the valley turn the murder off (`-- --no-murder`); a drawn rifle on Main Street sets the
   gang off (use the rope range).
-- lavapipe draws ~1 frame a second: a bridge `wait` under a second misses short poses.
 - Sight takes a new structure in at its first look (look once at the build).
 - A fresh container has no native plugin (`bin/` is ignored): `cargo build --release` in the plugin (2 min,
   crates.io reachable 2026-11-17), the .so to `bin/`, else most game tests fail to load.
 - The valley bench: drawn runs ~6 min each; compare against a baseline from the same workspace (noise ±0.35).
+- test_town_day's gang fights (#1094): two men wedged shoulder to shoulder in the saloon. A man who gives up a
+  cover now fights from where he stands `GAVE_UP_COVER_FIGHT` s; the friend check covers eye to muzzle too.
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.

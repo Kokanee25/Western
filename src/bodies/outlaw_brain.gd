@@ -337,6 +337,10 @@ var _retarget := 0.0
 ## The spot he's using: {at, low, peek}; {} in the open.
 var cover := {}
 var _cover_search := 0.0
+## A cover he couldn't get to (stuck on the way, or too long at it): he fights from where he stands
+## this long (s) before he looks for another (#1094: wedged by the saloon's tables, he picked cover
+## after cover a metre off and never fired).
+const GAVE_UP_COVER_FIGHT := 4.0
 var _tactic_time := 0.0
 var _peek_time := 0.0
 var _peek_shots := 0
@@ -2013,7 +2017,7 @@ func _combat(delta: float) -> void:
 			elif _move_time > _run_time() or _stuck > 1.2:
 				_decide("give that cover up", "stuck on the way" if _stuck > 1.2 else "too long getting there")
 				tactic = Tactic.OPEN
-				_cover_search = 0.0
+				_cover_search = GAVE_UP_COVER_FIGHT
 		Tactic.HIDDEN:
 			_hide(delta, eye)
 		Tactic.PEEKING:
@@ -2681,12 +2685,19 @@ func _can_shoot_at(t: Node3D) -> bool:
 	return not _friend_in_the_way(_aim_point(t))
 
 
-## A friend between his muzzle and where he's shooting.
+## A friend between his muzzle and where he's shooting, or between his eye and his muzzle (his
+## arm through a friend shoulder to shoulder: the ball starts where that line meets him,
+## `shot_origin`, and Lyle shot the Kid through the head, #1094).
 func _friend_in_the_way(point: Vector3) -> bool:
 	var gun := body.held_gun as RevolverModel
 	if gun == null or (crew.ids.is_empty() and not hold.has("spare")):
 		return false
-	var q := PhysicsRayQueryParameters3D.create(gun.muzzle.global_position, point, Layers.BODY_PARTS)
+	var muzzle := gun.muzzle.global_position
+	return _friend_on_line(muzzle, point) or _friend_on_line(senses.eye(), muzzle)
+
+
+func _friend_on_line(from: Vector3, to: Vector3) -> bool:
+	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.BODY_PARTS)
 	q.exclude = _exclude()
 	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
