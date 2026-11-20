@@ -31,12 +31,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   out cold in the cabin it waits forever. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-  Riding waits on #478.
 - **Playtest run 2's faults (#1095):** one doctor (an act takes the day man: `ValleyFolk.seize`, `give_back`); a knock
-  no act claims (`claim_knock`) with a hurt man by the door brings him out or back (`FetchHelp.at_door`, `take_in`:
-  laid in the front room alive; treating, #1093); the knock prompt only where worth it (`past_door`, `no_knock`);
-  Earl at the undertaker's stays; the camp counts its survivors; `PlayerWounds.down_line`; the carry's mutters spread;
-  bridge `tend`, broke lines name the prop. `tests/test_playtest_faults.gd`. Open: the saloon yard's "20 broke" not met again.
+  no act claims (`claim_knock`) with a hurt man by the door brings him (`FetchHelp.at_door`, `take_in`; treating, #1093);
+  the prompt only where worth it (`past_door`, `no_knock`). `tests/test_playtest_faults.gd`. #1106: an act lends its man
+  back (`ValleyFolk.lends`, `lend`): the camp's doctor goes to a hurt man at his door. Open (#1106 items 3-6): the shack door's kick count
+  and side-wall kicks, Joe down at the hideout, silence as a nod, how "Joe gone" is reached.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
   book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
