@@ -352,7 +352,9 @@ func _lying(delta: float) -> void:
 		_down_s = 0.0
 		return
 	_down_s += delta
-	if _down_s > UP_AFTER and p.can_stand() and p.shock() < UP_SHOCK and _body_bleed() < UP_BLEED:
+	# (Only hurt: a man knocked down whole gets up by his body's own rule, `rise_ok`, which a scene
+	# may stop: Earl kicked over at the table, #1057.)
+	if hurt and not body.keep_down and _down_s > UP_AFTER and p.can_stand() and p.shock() < UP_SHOCK and _body_bleed() < UP_BLEED:
 		body.get_up()
 		return
 	if hurt and _down_s > SAY_GAP + 0.5:

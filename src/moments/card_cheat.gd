@@ -149,6 +149,7 @@ func _physics_process(delta: float) -> void:
 	# own, HumanBody.get_up; a gun in his face is reason not to).
 	if cheater.limp and _fell_t >= 0.0:
 		cheater.rise_ok = false
+		cheater.keep_down = true
 	match state:
 		&"sitting":
 			if state_t > 0.6:

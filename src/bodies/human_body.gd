@@ -1805,6 +1805,8 @@ const COME_TO_BACK := [[&"lie_back", Vector3(90, 0, 0), 0.5, 0.0], [&"sit_ground
 		[&"prone", Vector3(-90, 0, 0), 0.9, 0.0]]
 ## He may get up (set by `brace`: an unhurt fall); cleared as he goes limp.
 var rise_ok := false
+## A scene wants him down where he is (Earl at the card table): no brain gets him up (#1116).
+var keep_down := false
 var _rise_to_prone := false  ## the stages end on his belly (come_to_ground), not on his feet
 ## Getting up now: the rig is the stages', not _place_rig's.
 var rising := false
