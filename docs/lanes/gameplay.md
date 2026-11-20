@@ -45,7 +45,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   isn't a stimulus; shaken only changes the next start; refuges are door points; chores' props stand-ins; no talk sound.
 
 ## Systems the slice leans on
-- **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done,
+- **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
+  G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
   heights (#736). **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
   No Law's set is still in the yard (no switch built): to move it in, `config/valley_folk.json`'s `set` goes to
   the saloon lot's floor (the walk's top, not the ground: `ValleyFolk.ground` gives the pad under the floor), using
