@@ -107,5 +107,6 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   crates.io reachable 2026-11-17), the .so to `bin/`, else most game tests fail to load.
 - The valley bench: drawn runs ~6 min each; compare against a baseline from the same workspace (noise ±0.35).
 - test_town_day's gang fights (#1094): two men wedged shoulder to shoulder in the saloon. A man who gives up a
-  cover now fights from where he stands `GAVE_UP_COVER_FIGHT` s; the friend check covers eye to muzzle too.
+  cover now fights from where he stands `GAVE_UP_COVER_FIGHT` s; the friend check covers eye to muzzle too;
+  the break-off hides you behind the livery (the range is in the saloon door's sight).
 - Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.
