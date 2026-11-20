@@ -31,11 +31,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   out cold in the cabin it waits forever. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest run 2's faults (#1095):** one doctor (an act takes the day man: `ValleyFolk.seize`, `give_back`); a knock
-  no act claims (`claim_knock`) with a hurt man by the door brings him (`FetchHelp.at_door`, `take_in`; treating, #1093);
-  the prompt only where worth it (`past_door`, `no_knock`). `tests/test_playtest_faults.gd`. #1106: an act lends its man
-  back (`ValleyFolk.lends`, `lend`): the camp's doctor goes to a hurt man at his door. Open (#1106 items 3-6): the shack door's kick count
-  and side-wall kicks, Joe down at the hideout, silence as a nod, how "Joe gone" is reached.
+- **Playtest faults (#1095, #1106, #1111):** one doctor (`ValleyFolk.seize`, `give_back`, `lends`); a knock no act
+  claims with a hurt man by the door brings him (`FetchHelp.at_door`); the knock prompt only where worth it. The shack
+  door: a set count of kicks (`kick_share`; `takes_kicks`, not your foot); "between" needs you to move. Tests
+  `test_playtest_faults.gd`, `test_cabin_faults.gd`. Waiting on Sean (#1114): Joe down at the cabin, "Joe gone".
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
   book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
