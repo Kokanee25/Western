@@ -265,10 +265,8 @@ func _shoulder(m: HumanBody, on: bool) -> void:
 		if rb == null:
 			continue
 		rb.collision_mask = Layers.RAGDOLL if on else Layers.WORLD | Layers.RAGDOLL
-		if on:
-			player.add_collision_exception_with(rb)
-		elif player.get_collision_exceptions().has(rb):
-			player.remove_collision_exception_with(rb)
+		# (Kept on as he's laid down: a limp man never collides with you, HumanBody._through_the_player.)
+		player.add_collision_exception_with(rb)
 		rb.linear_velocity = Vector3.ZERO
 		rb.angular_velocity = Vector3.ZERO
 		rb.sleeping = false
@@ -280,8 +278,19 @@ func _shoulder(m: HumanBody, on: bool) -> void:
 		var fwd := player.get_forward()
 		fwd.y = 0.0
 		fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
-		var to := player.global_position + fwd * 0.7
+		# Clear of you, all of him: his body hangs down your back as he comes off the shoulder, and
+		# with nothing of you to push him (a limp man goes through you, HumanBody._through_the_player)
+		# a pelvis set 0.7 m out left his chest inside you, to fold back through you (#1092).
+		var from := ValleyFolk._body_at(m)
+		var back := 0.0
+		for v: Variant in m.parts.values():
+			back = minf(back, ((v as Node3D).global_position - from).dot(fwd))
+		var to := player.global_position + fwd * maxf(0.7, player.tuning.radius + LAY_CLEAR_M - back)
 		ValleyFolk.move_body(m, Vector3(to.x, player.global_position.y, to.z))
+
+
+## Laid down, his nearest part this far (m) past your capsule.
+const LAY_CLEAR_M := 0.15
 
 
 ## He comes loose only after he's been past carry_tear_m this long (s): a jolt on a step isn't it.

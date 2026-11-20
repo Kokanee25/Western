@@ -57,6 +57,17 @@ func _at(h: float) -> void:
 	await physics_frames(60)
 
 
+## Your capsule at `at` overlaps something you'd collide with (a table's top, a broken chair's loose
+## pieces: #1084's CI pinned you on one).
+func _overlaps(p: Player, at: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = p.collision.shape
+	q.transform = Transform3D(Basis(), at) * p.collision.transform
+	q.collision_mask = p.collision_mask
+	q.exclude = [p.get_rid()]
+	return not World.space(p).intersect_shape(q, 1).is_empty()
+
+
 ## You by `man`'s collar, looking at it: on a side of him where you can stand (not in the card
 ## table he fell by: placed in its top you couldn't move, CI #1081).
 func _by(man: HumanBody) -> void:
@@ -67,8 +78,7 @@ func _by(man: HumanBody) -> void:
 		var o := Vector3(0.9, 0.0, 0.0).rotated(Vector3.UP, TAU * k / 8.0)
 		var try := c + o
 		try.y = _folk().ground(try.x, try.z) + 0.05
-		p.global_position = try
-		if not p.test_move(p.global_transform, Vector3.UP * 0.01):
+		if not _overlaps(p, try):
 			off = o
 			break
 	var at := c + off

@@ -1982,6 +1982,20 @@ func _spare_rubble(at: Vector3) -> void:
 			break
 
 
+## Gone limp: the player walks through him (Layers.BODY_PARTS), so he isn't shoved by the player either.
+## The player's capsule is on WORLD, which a ragdoll lands on: a kinematic capsule stood on a dead
+## man's legs pressed them into the ground, and stepped off, they sprang apart at 30-45 m/s and flung
+## the kicked-in door's pieces into your head (No Justice's cabin: out cold, woken in town, Joe let go
+## with you 2 km off; #1092). Men's own capsules (PEOPLE) already pass through him.
+func _through_the_player(bodies: Dictionary) -> void:
+	if not is_inside_tree():
+		return
+	for p: Node in get_tree().get_nodes_in_group(&"player"):
+		if p is PhysicsBody3D:
+			for rb: RigidBody3D in bodies.values():
+				rb.add_collision_exception_with(p)
+
+
 ## Gone limp: the pieces let through the rig he had (`_spare_rubble`) and in him now let through the
 ## ragdoll too (a man down again as he gets up among them), till they're clear (`_unspare`).
 func _spare_ragdoll(bodies: Dictionary, rig: Array) -> void:
@@ -5097,6 +5111,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		parts[sid] = rb
 	_scale_inertia(bodies)
 	_spare_ragdoll(bodies, rig)
+	_through_the_player(bodies)
 	for sid: StringName in anatomy.segments:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
