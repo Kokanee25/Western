@@ -500,7 +500,10 @@ func _fight_at_the_bar_and_break_off() -> void:
 	await physics_frames(60 * 8)
 	player.revolver().put_away()
 	Events.deed.emit(player, &"holster", null, player.global_position)
-	_put_player(Vector3(60.0, 0.0, -12.0), -90.0)
+	# Out of their sight for sure (#1094): behind the livery, the buildings between you and the
+	# saloon. On the range (60, -12) the saloon's door looks straight at you on some fights' paths:
+	# a man saw you get there, went looking, found you in the open and fought on.
+	_put_player(Vector3(14.0, TownLayout.ground_height(14.0) + 0.05, -29.0), 0.0)
 
 
 ## The gang men still on their feet and still at it: fighting, searching, or standing about
