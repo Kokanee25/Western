@@ -2149,7 +2149,7 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 	var p := physiology
 	var how := &"run" if speed > 2.4 else &"walk"
 	# Hurt legs slow him and make him limp; a leg or a body he's favouring slows him as it comes on.
-	var legs := minf(p.muscle_strength("leg", "r"), p.muscle_strength("leg", "l"))
+	var legs := minf(p.leg_power("r"), p.leg_power("l"))
 	speed *= lerpf(0.4, 1.0, legs) * (1.0 - p.shock() * 0.5) * favour_pace()
 	if (legs < 0.75 or maxf(favouring(&"leg_r"), favouring(&"leg_l")) > FAVOUR_LIMP) and not prone:
 		how = &"limp"
@@ -2878,8 +2878,8 @@ func _gait_overlay(delta: float) -> Dictionary:
 			var amp_t := 40.0 if run else 22.0
 			var amp_s := 75.0 if run else 38.0
 			var amp_a := 32.0 if run else 14.0
-			var bad_r := gait == &"limp" and physiology.muscle_strength("leg", "r") - favouring(&"leg_r") \
-					<= physiology.muscle_strength("leg", "l") - favouring(&"leg_l")
+			var bad_r := gait == &"limp" and physiology.leg_power("r") - favouring(&"leg_r") \
+					<= physiology.leg_power("l") - favouring(&"leg_l")
 			# A leg he favours takes a shorter stride as it comes on; limping, the bad one a third.
 			var k_r := 0.35 if gait == &"limp" and bad_r else lerpf(1.0, 0.5, favouring(&"leg_r"))
 			var k_l := 0.35 if gait == &"limp" and not bad_r else lerpf(1.0, 0.5, favouring(&"leg_l"))

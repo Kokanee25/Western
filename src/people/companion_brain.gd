@@ -533,6 +533,7 @@ func _get_back_up(delta: float) -> void:
 			body.get_up()
 		elif not _said_cant_stand:
 			_said_cant_stand = true
+			_said_up = false  # (once he's up he says he can walk: your first aid, #1116)
 			_say_line(&"cant_stand", true)
 		return
 	# On his belly (fought from the floor): to a knee, then up.

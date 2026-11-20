@@ -30,6 +30,9 @@ var broken := {}  ## bone id -> true
 var torn := {}  ## organ id -> true
 var cut := {}  ## artery, vein or nerve id -> true
 var muscle_damage := {}  ## muscle id -> 0..1 torn
+## Legs bound up by someone's first aid ("r"/"l" -> true, `bind_up`): a broken bone splinted, the leg
+## dressed. He can stand and limp on it (`leg_ok`); the wound and the weakness stay (#1116: Joe).
+var splinted := {}
 var blind := {}  ## eye id -> true
 ## The gore lab: a nosebleed after a blow to the face (seconds left), and a scalp wound's blood
 ## run into an eye ("r"/"l" -> seconds left; he can't see well out of it until it's wiped or dries).
@@ -327,6 +330,20 @@ func apply_pressure(segment: StringName, on := true) -> void:
 		treated.emit(&"pressure", segment)
 
 
+## First aid on a man (#1116): every outside bleed in `segment` packed and bound (as your own,
+## PlayerWounds._tend), and a leg's broken bone or torn muscle splinted, so he can stand and limp on
+## it. Nothing mends: the bone stays broken, the leg weak (`leg_strength`), the wound his.
+func bind_up(segment: StringName) -> void:
+	for b in bleeds:
+		if b.segment == segment and b.get("kind", &"ooze") != &"internal":
+			b.pressure = true
+			b.bandaged = true
+	var s := String(segment)
+	if s.begins_with("thigh_") or s.begins_with("shin_") or s.begins_with("foot_"):
+		splinted[s.right(1)] = true
+	treated.emit(&"pressure", segment)
+
+
 # --- Infection (the gore lab; the Medical and Surgical History of the War of the Rebellion) -----
 ## A wound with cloth carried in festers on its own; a clean one only sometimes, later. It shows
 ## (red, swollen, pus) from about the third day, fever with it; a limb's goes to gangrene, and
@@ -618,6 +635,16 @@ func _muscles(group: String, side: String) -> Array:
 	return ids
 
 
+## What one leg ("r"/"l") still gives him to walk on: its muscle, and a splinted leg (bind_up) little
+## more than a crutch's worth (SPLINTED_LEG): he limps on it.
+const SPLINTED_LEG := 0.3
+
+
+func leg_power(side: String) -> float:
+	var m := muscle_strength("leg", side)
+	return minf(m, SPLINTED_LEG) if splinted.has(side) else m
+
+
 ## Walking pace left in the legs (1 = sound, lower = limping).
 func leg_strength() -> float:
 	return minf(muscle_strength("leg", "r"), muscle_strength("leg", "l"))
@@ -671,10 +698,12 @@ func arms_paralysed() -> bool:
 
 
 func leg_ok(side: String) -> bool:
+	# Splinted (bind_up), a broken bone or a torn muscle holds him up, limping; a cut nerve doesn't.
+	var held := splinted.has(side)
 	for part in [&"femur_", &"tibia_", &"patella_", &"sciatic_"]:
-		if broken.has(StringName(part + side)) or cut.has(StringName(part + side)):
+		if cut.has(StringName(part + side)) or broken.has(StringName(part + side)) and not held:
 			return false
-	if muscle_strength("leg", side) < 0.3:
+	if muscle_strength("leg", side) < 0.3 and not held:
 		return false
 	return not severed_segments.has(StringName("shin_" + side)) and not severed_segments.has(StringName("foot_" + side))
 
@@ -805,7 +834,7 @@ func to_dict() -> Dictionary:
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
 			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys(),
-			"spared": spared, "spared_times": spared_times}
+			"spared": spared, "spared_times": spared_times, "splinted": splinted.keys()}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -815,6 +844,9 @@ func from_dict(d: Dictionary) -> void:
 	torn = _set_of(d.torn)
 	cut = _set_of(d.cut)
 	lost_fingers = _set_of(d.lost_fingers)
+	splinted = {}
+	for k in d.get("splinted", []):
+		splinted[String(k)] = true
 	muscle_damage = {}
 	for k in d.get("muscle_damage", {}):
 		muscle_damage[StringName(k)] = d.muscle_damage[k]

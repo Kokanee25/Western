@@ -56,6 +56,13 @@ var _jail: Node3D
 var _surrendered := false
 var _was_clear := false
 var _clear_at := Vector2.INF
+## Joe down at the hideout (#1116, Sean's): your first aid gets him up, a held E by his wound
+## (`aid_s` of it, as the sheriff's on the road); he limps in himself, and the knife and the ask
+## wait till he's there. No carry, no arm round him.
+var aided := false
+var aid_s := 0.0
+var _aid_told_t := -INF
+var _joe_way_t := 0.0
 
 
 func begin() -> void:
@@ -71,6 +78,7 @@ func begin() -> void:
 	shack = hideout.shack
 	Events.deed.connect(_on_deed)
 	add_to_group(&"takes_kicks")
+	add_to_group(&"claims_use")  # (E held by Joe down is your hands on his wound, not a kick)
 	var p := player()
 	if p == null or joe == null or not is_instance_valid(joe):
 		_finish(&"no_player")
@@ -94,6 +102,7 @@ func begin() -> void:
 func _go(s: StringName) -> void:
 	state = s
 	state_t = 0.0
+	_joe_way_t = 0.0
 	_note("-> %s" % s)
 
 
@@ -189,6 +198,8 @@ func _physics_process(delta: float) -> void:
 	kett.wake()
 	if _kett_died():
 		return
+	if answer == "" and state in [&"barred", &"down", &"in", &"knife"]:
+		_aid_step(p, delta)
 	match state:
 		&"barred":
 			_barred_step(p)
@@ -341,6 +352,11 @@ func _surrender() -> void:
 ## then the question; meanwhile anything you do may answer.
 func _scene_step(p: Player, delta: float) -> void:
 	_kett_cornered(p, delta)
+	if state in [&"in", &"knife"] and joe_down():
+		return  # (Kett waits cornered; Joe's to be got up: `_aid_step`)
+	if not joe.limp and not joe.prone and not joe.rising and (hideout.in_shack(joe.global_position) \
+			or _flat(joe.global_position, kett.global_position) < float(data.get("joe_near_m", 7.0))):
+		_joe_way_t += delta
 	match state:
 		&"in":
 			var at := _joe_in_spot()
@@ -629,7 +645,10 @@ func _joe_stuck(at: Vector3, delta: float) -> bool:
 	else:
 		_joe_still += delta
 	var in_it := hideout.in_shack(joe.global_position) or forced_by == "down" and _flat(joe.global_position, kett.global_position) < 3.0
-	return in_it and _joe_still > float(data.get("stuck_s", 1.5)) or state_t > float(data.get("in_most_s", 14.0))
+	# (`in_most_s` counts only while he's up and near: limping in from far off on a splinted leg takes
+	# as long as it takes, #1116; held up anywhere else, `far_stuck_s` without getting nearer.)
+	return in_it and _joe_still > float(data.get("stuck_s", 1.5)) or _joe_way_t > float(data.get("in_most_s", 14.0)) \
+			or _joe_still > float(data.get("far_stuck_s", 8.0))
 
 
 var _joe_best := INF
@@ -724,6 +743,94 @@ func _walk(man: HumanBody, to: Vector3, speed: float, delta: float) -> bool:
 		return true
 	man.set_pose(&"stand")
 	return man.walk_to(to, speed, delta)
+
+
+# --- Joe down: your first aid (#1116) -------------------------------------------------------------
+
+## Joe alive and off his feet (limp or on his belly, not getting up): the scene waits for him.
+func joe_down() -> bool:
+	return joe.physiology.alive and (joe.limp or joe.prone) and not joe.rising
+
+
+## E is your hands on Joe's wound while he's down and you're by it (PlayerShove: no kick on letting go).
+func claims_use(p: Player) -> bool:
+	return not done and answer == "" and joe != null and is_instance_valid(joe) and joe_down() and _by_joe(p)
+
+
+func _by_joe(p: Player) -> bool:
+	var at := _joe_wound_at()
+	return _flat(p.global_position, at) <= float(data.get("aid_reach_m", 2.0)) and absf(p.global_position.y - at.y) < 2.0
+
+
+## Where he's hurt: his worst outside bleed's part, else a broken leg's thigh, else his middle.
+func _joe_wound_at() -> Vector3:
+	var seg := _joe_wound()
+	var n := joe.parts.get(seg) as Node3D if seg != &"" else null
+	return n.global_position if n != null else OutlawBrain._lying_at(joe)
+
+
+func _joe_wound() -> StringName:
+	var ph := joe.physiology
+	var worst: Dictionary = {}
+	for b: Dictionary in ph.bleeds:
+		if b.get("kind", &"ooze") != &"internal" and not b.get(&"bandaged", false) \
+				and (worst.is_empty() or ph.bleed_rate(b) > ph.bleed_rate(worst)):
+			worst = b
+	if not worst.is_empty():
+		return StringName(worst.segment)
+	for side: String in ["r", "l"]:
+		if not ph.leg_ok(side):
+			return StringName("thigh_" + side)
+	return &""
+
+
+## Joe down: once you're near, the game says what to do; a held E by his wound (past a tap, which is
+## the carry's) for `aid_s` packs and binds every wound and splints a leg that won't hold him
+## (Physiology.bind_up). CompanionBrain gets him up then (`_get_back_up`: "I can walk").
+func _aid_step(p: Player, delta: float) -> void:
+	if not joe_down():
+		aid_s = 0.0
+		return
+	var near := _flat(p.global_position, joe.global_position) < float(data.get("aid_told_m", 8.0))
+	if near and not aided and t - _aid_told_t > float(data.get("aid_told_every_s", 12.0)):
+		_aid_told_t = t
+		prompt(String(_prompts().get("joe_down", "Joe's down. Kneel by his wound and hold E.")), 4.0)
+	var tap_s := p.tuning.carry_tap_s if p.tuning else 0.35
+	var holding := p.input_enabled and Input.is_action_pressed(&"shove") and _by_joe(p) \
+			and (p.carry == null or not p.carry.carrying())
+	_aid_e = _aid_e + delta if holding else 0.0
+	if _aid_e <= tap_s:
+		return
+	var seg := _joe_wound()
+	if seg != &"":
+		joe.physiology.apply_pressure(seg)
+	aid_s += delta
+	if aid_s >= float(data.get("aid_s", 5.0)):
+		aid_s = 0.0
+		_bind_joe()
+
+
+var _aid_e := 0.0
+
+
+func _bind_joe() -> void:
+	var ph := joe.physiology
+	var segs := {}
+	for b: Dictionary in ph.bleeds:
+		if b.get("kind", &"ooze") != &"internal":
+			segs[StringName(b.segment)] = true
+	for side: String in ["r", "l"]:
+		if not ph.leg_ok(side):
+			segs[StringName("thigh_" + side)] = true
+	for seg: StringName in segs:
+		ph.bind_up(seg)
+	aided = true
+	_joe_still = 0.0
+	_joe_best = INF
+	_joe_way_t = 0.0
+	if not ph.can_stand():
+		prompt(String(_prompts().get("joe_bound", "Bound up. He can't stand yet.")), 3.0)
+	_note("Joe's wounds bound (%s); can stand: %s" % [", ".join(segs.keys().map(func(k: StringName) -> String: return String(k))), ph.can_stand()])
 
 
 # --- The knife ----------------------------------------------------------------------------------
