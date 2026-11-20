@@ -108,6 +108,8 @@ static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: A
 			s._cands.append(from + Vector3(cos(ang), 0.0, sin(ang)) * r)
 	s._cands.append_array(_shadows(s._space, from, threat_eye, exclude, max_travel))
 	s._cands = _dedupe(s._cands)
+	# The furthest a spot can be (the shadows reach a little past `max_travel`), for `_way_reach`.
+	s._ctx.max_r = max_travel + 1.0
 	return s
 
 
@@ -846,6 +848,8 @@ const WAY_EXTRA := 6.0
 const WAY_EXTRA_FAR := 12.0
 ## The places nearest a spot he'll try reaching it from.
 const TOWN_NEAREST := 4
+## Spare metres in `_way_reach` for the climb along a way (a storey's stair is ~3 m up).
+const WAY_RISE := 10.0
 
 
 ## The way there by the town's places (in at the door, down the steps), if there's one not much
@@ -854,7 +858,7 @@ static func _town_way(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vecto
 		r: float, ctx: Dictionary) -> Array[Vector3]:
 	# His ways to every place, worked out once a search (`ctx`).
 	if not ctx.has("routes"):
-		ctx.routes = places.routes_from(space, from, exclude)
+		ctx.routes = places.routes_from(space, from, exclude, _way_reach(ctx))
 	var routes: Dictionary = ctx.routes
 	var near: Array = routes.keys()
 	near.sort_custom(func(a: StringName, b: StringName) -> bool:
@@ -876,6 +880,16 @@ static func _town_way(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vecto
 	if length > r * WAY_LONGER + float(ctx.get("way_extra", WAY_EXTRA)):
 		return []
 	return way
+
+
+## How far a way to any spot of this search may run (m), for `routes_from`'s `reach`: the longest
+## `_town_way` keeps (its furthest spot's `r` by WAY_LONGER, and the extra), and WAY_RISE spare for
+## stairs (that check is level metres; the routes' are along the slope). INF when the spots aren't
+## bounded (Cover.find). Exact: a place further off can only start a way it would throw out (#1119).
+static func _way_reach(ctx: Dictionary) -> float:
+	if not ctx.has("max_r"):
+		return INF
+	return float(ctx.max_r) * WAY_LONGER + float(ctx.get("way_extra", WAY_EXTRA)) + WAY_RISE
 
 
 ## How to get there on foot: straight if he can, else round the thing in the way by one point

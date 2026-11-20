@@ -194,16 +194,22 @@ func _route_from_nearest(from: Vector3, to: StringName) -> Array[Vector3]:
 
 ## The ways from `from` to every place he can get to: {name: points to walk through, ending there},
 ## worked out together (one search, a sweep per place to find where he can start), for choosing
-## among many places at once.
-func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array[RID] = []) -> Dictionary:
+## among many places at once. With `reach` and nowhere in it he can walk to straight: none (not the
+## nearest anyway: a way from there would start through the wall).
+func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array[RID] = [], reach := INF) -> Dictionary:
 	var dist := {}
 	var prev := {}
 	var open: Array[StringName] = []
 	for n: StringName in points:
-		if _walkable(space, from, points[n], exclude) and absf(from.y - (points[n] as Vector3).y) < 0.6:
+		# `reach` (m): only ways no longer than it. A place further than it in a straight line can't
+		# start one, so it isn't asked (each ask is a sweep: the valley's ~360 places were ~110 ms a
+		# cover search, #1119).
+		if from.distance_to(points[n]) > reach:
+			continue
+		if absf(from.y - (points[n] as Vector3).y) < 0.6 and _walkable(space, from, points[n], exclude):
 			dist[n] = from.distance_to(points[n])
 			open.append(n)
-	if open.is_empty() and not points.is_empty():
+	if open.is_empty() and not points.is_empty() and reach == INF:
 		# Nothing in a straight line: head for the nearest anyway (as `route` does).
 		var near: StringName = points.keys()[0]
 		for n: StringName in points:
@@ -219,7 +225,7 @@ func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array
 		open.erase(cur)
 		for nb: StringName in links.get(cur, []):
 			var d: float = dist[cur] + (points[cur] as Vector3).distance_to(points[nb])
-			if d < dist.get(nb, INF):
+			if d < dist.get(nb, INF) and d <= reach:
 				dist[nb] = d
 				prev[nb] = cur
 				if not open.has(nb):
@@ -243,13 +249,20 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 	var straight: Array[Vector3] = [point]
 	if _walkable(space, from, point, exclude) and absf(from.y - point.y) < 0.6:
 		return straight
-	var best := &""
-	var best_d := INF
+	# The nearest place he can walk to it from: asked nearest first, the first that's walkable (as
+	# asking each nearer than the best so far, in the dictionary's order, which in the valley was up
+	# to ~360 sweeps, 30-90 ms; #1119). Equal distances in the dictionary's order, as before.
+	var order: Array = []
+	var seq := 0
 	for n: StringName in points:
-		var d := (points[n] as Vector3).distance_to(point)
-		if d < best_d and _walkable(space, points[n], point, exclude):
-			best_d = d
-			best = n
+		order.append([(points[n] as Vector3).distance_to(point), seq, n])
+		seq += 1
+	order.sort_custom(_heap_less)
+	var best := &""
+	for e: Array in order:
+		if _walkable(space, points[e[2]], point, exclude):
+			best = e[2]
+			break
 	if best == &"":
 		return straight
 	var path := route(space, from, best, exclude)

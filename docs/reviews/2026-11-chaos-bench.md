@@ -74,3 +74,37 @@ clock while it can't keep up, as the game does at 2. Nothing is skipped.
 both just pressed and just released (Godot 4.7 reports both) is a tap, and with `CatchUp` a tap
 stays a tap. `PlayerShove` and `PlayerKnock` read `is_action_just_pressed` and already took them.
 `tests/test_catch_up.gd`.
+
+## The valley (#1119, 2026-11-20)
+
+`--world=valley --scene=chaos --chaos-seconds=60` (two crews of three by the saloon, three sticks in
+saloon B; no fire). Prof timers put round the cover search's parts for the run (taken out after).
+
+**outlaw_brain's 100-200 ms frames were the cover search's town ways.** A cover search
+(`Cover.search`, `_best_in_town`) works out a man's ways to every place once (`Waypoints.routes_from`),
+asking a straight walk (a ray, then a sweep) to **every** place. The town has 38; the valley ~360,
+most out of reach: 16,843 `q_walk` asks in one frame, `routes_from` 90-130 ms in nearly every spike.
+A way is only kept if it's no longer than its spot's distance x1.6 + 6 m (12 for `cover_way`), so a
+place further than that can't start one: `routes_from` now takes a `reach` (the search's furthest
+spot x1.6 + the extra + 10 m for stairs) and asks only the places in it. Second,
+`route_to_point` (a hunt's way, an order's, a rescue's) asked every place nearer the spot than the
+best so far in the dictionary's order (up to ~360 sweeps, 30-90 ms); now nearest first, the first
+it can walk from wins: the same place. `tests/test_places.gd` holds both to the old ways.
+
+| run (60 s, this VM) | brain frames >= 100 ms | >= 50 ms | worst brain frame |
+|---|---|---|---|
+| before | 25 | 34 | 204 ms |
+| `routes_from` with a reach | 0 | 14 | 90 ms |
+| and `route_to_point` nearest first | 0 | 3 | 91 ms |
+
+**What's left in the brain** (two fixes, then reported): a search step (40 spots a tick,
+`Search.step(40)`) is still 15-45 ms here, now and then 70-90: sight lines 2-8 ms, evaluating the
+spots (`evaluate`, far and narrow) 1-40 ms, and routing the best few (`route`'s sweeps round one
+thing, then `_town_way`) 17-37 ms, in the chunk that routes. `route_to_point`'s `route` 15-30 ms.
+Next: fewer spots a tick when they're dear (a time budget for `step`, not a count), or the routing
+moved to its own tick; both spread, neither changes where he goes.
+
+**Saloon B's blast frame is untouched:** 900-1,000 ms its first frame here, `settle_analyse`
+~670 ms of it (~1,800 members broken; the valley has no FireSystem to slice a settle). The run's
+mean frame is ~24 ms with ~400 frames over 33 ms, ~240 of them in the blast's first 5 s (Jolt
+stepping the pieces, as in the town above), most of the rest the search steps above.
