@@ -120,3 +120,60 @@ func test_joe_down_gets_up_with_first_aid_and_the_cabin_waits() -> void:
 	check(asked, "he limps in and asks (%s)" % m.result())
 	check(m.hideout.in_shack(joe.global_position) or m._flat(joe.global_position, m.kett.global_position) < 3.0,
 			"asked from inside, by Kett (%s)" % m.result())
+
+
+## A ball from you at `man`'s `seg` (your shot heard as the bridge's is: shot_fired, then the ball).
+func _your_ball(man: HumanBody, seg: StringName) -> void:
+	var p := _player()
+	var t: RevolverTuning = load("res://config/revolver.tres")
+	var from := p.camera.global_position
+	var to := (man.parts[seg] as Node3D).global_position
+	Events.shot_fired.emit(from, (to - from).normalized(), p)
+	var exclude: Array[RID] = [p.get_rid()]
+	var ballistics := get_tree().get_first_node_in_group(&"ballistics") as Ballistics
+	var b := ballistics.fire(from, (to - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, exclude)
+	b.shooter = p
+	await wait_until(func() -> bool: return not b.alive, 60)
+
+
+## The chaos round's 1 (2 of 2): in No Justice's start Joe took two of your balls and stayed `calm`,
+## the doctor stood. Held by the scene isn't deaf to a gun.
+func test_joe_and_the_doctor_answer_your_shots() -> void:
+	holder = Node.new()
+	holder.name = "Main"
+	add_child(holder)
+	valley = load("res://scenes/valley.tscn").instantiate()
+	holder.add_child(valley)
+	await physics_frames(5)
+	var m := Moment.start_named(&"no_justice_camp", valley, null, {"set_up": true, "pace": 0.25}) as NoJusticeCamp
+	check(m != null and not m.done, "it starts")
+	if m == null or m.done or m.doctor == null:
+		return
+	var joe := m.joe
+	var doctor := m.doctor
+	_put(joe.global_position + (m._local([4.71, -1.2]) - joe.global_position).normalized() * 2.2, joe.global_position + Vector3.UP * 1.3)
+	await physics_frames(20)
+	check(m.hold != null and m.hold.on, "the office held as a scene")
+	await _your_ball(joe, &"upper_arm_l")
+	await physics_frames(5)
+	check(not m.hold.on, "your shot breaks it (%s)" % m.hold.report())
+	check(doctor.get_node_or_null(^"Brain") is CivilianBrain, "the doctor has a mind of his own again")
+	var ducked := await wait_until(func() -> bool: return joe.pose == &"duck", 60)
+	check(ducked, "Joe ducks (%s)" % joe.pose)
+	check(_lines_of("joe").any(func(l: String) -> bool: return l in ["Harlan. That was me.", "Careful. I am on your side.", "Harlan! Stop!", "Stop. It is me."]),
+			"and tells you (%s)" % [_lines_of("joe")])
+	var cb := doctor.get_node(^"Brain") as CivilianBrain
+	var reacts := await wait_until(func() -> bool: return cb.mood != CivilianBrain.Mood.CALM, 60 * 3)
+	check(reacts, "the doctor takes it (%s)" % cb.describe())
+	var talk := m._beat
+	await physics_frames(60 * 4)
+	check_eq(m._beat, talk, "no talk under fire")
+	# Keep on: he's done telling you.
+	await physics_frames(30)
+	await _your_ball(joe, &"forearm_l")
+	await physics_frames(30)
+	await _your_ball(joe, &"thigh_l")
+	await physics_frames(10)
+	check(m.joe_brain.turned, "three of yours and Joe turns on you (%s)" % m.joe_brain.describe())
+	check(_lines_of("joe").has("Then I stop you."), "\"Then I stop you.\"")
+	check(m.joe_brain.target == _player(), "his fight's with you")
