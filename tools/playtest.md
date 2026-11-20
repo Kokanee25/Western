@@ -86,6 +86,12 @@ Play for real: decide what you want to do and do it. Cover at least these, in an
 6. Set a fire and watch it spread.
 7. (Talking a man down isn't in the game yet; skip it.)
 
+A run asked to play the slice's missions (`--world=valley --mission=<name>`): **No Justice has four
+endings, no more**: *arrest* (you take Kett in), *revenge* (Joe kills him), *murder* (you shoot the
+man who's given up) and *outside* (Kett killed in the fight, before the shack's door). There is no
+"Joe gone" ending (Sean, 2026-11-20, #1114): don't hunt for one. If Joe goes down hurt, your first aid
+(hold E by his wound) gets him up, and the cabin waits for him.
+
 ## The report
 
 Write `docs/playtests/<date>.md` (the date `playtest.py start` printed), in plain English, for
