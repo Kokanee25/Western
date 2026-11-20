@@ -172,6 +172,13 @@ func _make_men() -> void:
 			cast.append(m)
 	hold = SceneHold.claim(self, {"label": &"no_justice_office", "cast": cast, "follow": building,
 			"radius": float(data.get("hold_m", 7.0)), "breaks": [&"shot", &"hit"], "make_way": false, "keep_armed": false})
+	hold.brain_for = func(man: HumanBody) -> Node:
+		# The cowboy armed is a townsman, not a gang's: he holds fire for anyone in his line (#1116).
+		if not man.has_gun:
+			return null
+		var b := OutlawBrain.new()
+		b.careful = true
+		return b
 	hold.broken.connect(_on_hold_broken)
 	Events.shot_fired.connect(_on_any_shot)
 	_note("set: Joe, the doctor and the cowboy in the front office")

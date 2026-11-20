@@ -217,6 +217,10 @@ var agenda: Array[Dictionary] = []
 ## "floor_fight" (true): shot down and still with it, he fights from the floor (variant D's trial
 ## fix of that name, for him alone).
 var hold := {}
+## Holds fire for anyone in his line, not only his own (Sean, 2026-11-20, #1116; DESIGN.md §7 "Enemy
+## combat behaviour"): lawmen, Joe and armed townsfolk. An outlaw (false) holds it only for his
+## mates: a townsman between him and his man takes his chance.
+var careful := false
 ## Seconds left dazed by a blast that hurt him (deafened, his head ringing: `_blasted`).
 var stunned := 0.0
 ## A man he's holding (the hostage, issue #520): set, he goes to him and puts his gun on him (his
@@ -2682,21 +2686,21 @@ func _can_shoot_at(t: Node3D) -> bool:
 		return false
 	if senses.since_seen(t) >= 0.8 and not (covering > 0.0 and senses.since_known(t) < 20.0):
 		return false
-	return not _friend_in_the_way(_aim_point(t))
+	return not _friend_in_the_way(_aim_point(t), t)
 
 
 ## A friend between his muzzle and where he's shooting, or between his eye and his muzzle (his
 ## arm through a friend shoulder to shoulder: the ball starts where that line meets him,
 ## `shot_origin`, and Lyle shot the Kid through the head, #1094).
-func _friend_in_the_way(point: Vector3) -> bool:
+func _friend_in_the_way(point: Vector3, t: Node = null) -> bool:
 	var gun := body.held_gun as RevolverModel
-	if gun == null or (crew.ids.is_empty() and not hold.has("spare")):
+	if gun == null or (crew.ids.is_empty() and not hold.has("spare") and not careful):
 		return false
 	var muzzle := gun.muzzle.global_position
-	return _friend_on_line(muzzle, point) or _friend_on_line(senses.eye(), muzzle)
+	return _friend_on_line(muzzle, point, t) or _friend_on_line(senses.eye(), muzzle, t)
 
 
-func _friend_on_line(from: Vector3, to: Vector3) -> bool:
+func _friend_on_line(from: Vector3, to: Vector3, t: Node = null) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.BODY_PARTS)
 	q.exclude = _exclude()
 	Prof.count(&"q_brain")
@@ -2705,6 +2709,8 @@ func _friend_on_line(from: Vector3, to: Vector3) -> bool:
 		return false
 	var who: Variant = (hit.collider as Object).get_meta(&"human_body") if (hit.collider as Object).has_meta(&"human_body") else null
 	# Holding a house with a man in it he means to keep (the hostage, `hold.spare`): not through him.
+	if careful and who is HumanBody and who != t and who != body and (who as HumanBody).physiology.alive:
+		return true  # (anyone alive in his line: he waits for a clear shot)
 	return crew.is_mate(who) or (hold.has("spare") and who != null and who in hold.spare)
 
 

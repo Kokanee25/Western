@@ -90,6 +90,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	super._ready()
+	careful = true  # (with the law: he holds fire for anyone in his line, #1116)
 	body.add_to_group(&"companions")
 	if leader:
 		relations.friend_nodes = [leader]

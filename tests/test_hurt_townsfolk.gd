@@ -123,3 +123,38 @@ func test_down_and_his_leg_gone_he_calls_for_help() -> void:
 	var called := await wait_until(func() -> bool: return _said("leg", &"hurt_down"), 60 * 8)
 	check(called, "he calls for help (%s)" % [said])
 	check(man.limp, "and stays down: his leg won't hold him")
+
+
+## Two men 10 m apart facing, a townsman between; is the line held?
+func _line(careful: bool) -> bool:
+	var shooter := HumanBody.new()
+	shooter.person_id = &"shooter"
+	shooter.rng_seed = 5
+	var ob := OutlawBrain.new()
+	ob.name = "Brain"
+	ob.careful = careful
+	shooter.add_child(ob)
+	world.add_child(shooter)
+	shooter.global_position = Vector3(0.0, 0.0, 0.0)
+	var target := HumanBody.new()
+	target.person_id = &"target"
+	target.rng_seed = 6
+	world.add_child(target)
+	target.global_position = Vector3(0.0, 0.0, -10.0)
+	var by := _townsman("between", Vector3(0.0, 0.0, -5.0), Vector3(3.0, 1.5, -5.0))
+	await physics_frames(10)
+	var from := shooter.global_position + Vector3(0.0, 1.4, 0.0)
+	var to := target.global_position + Vector3(0.0, 1.3, 0.0)
+	var held := ob._friend_on_line(from, to, target)
+	check(not ob._friend_on_line(from + Vector3(3.0, 0.0, 0.0), to + Vector3(3.0, 0.0, 0.0), target) or not careful,
+			"a clear line isn't held")
+	shooter.queue_free()
+	target.queue_free()
+	by.body.queue_free()
+	await physics_frames(2)
+	return held
+
+
+func test_an_outlaw_fires_past_a_townsman_and_a_careful_man_doesnt() -> void:
+	check(not await _line(false), "an outlaw: a townsman in his line takes his chance (Sean, #1116)")
+	check(await _line(true), "a careful man (Joe, lawmen, armed townsfolk) holds fire")
