@@ -10,7 +10,7 @@ extends Node
 ## software Vulkan on a CI runner the first takes ~50 s of shader compiling), and each event waits
 ## for a few frames after the last, so no effect's first draw is left for the frame it quits on.
 ## On the desktop it fails without the native plugin (an export once shipped without it).
-## In the valley (`-- --world=valley`) too, and with a mission (`--mission=sheriff`, `sheriff_dies`,
+## A plain start is the valley (G8, #1098); `-- --world=town` the old street. With a mission (`--mission=sheriff`, `sheriff_dies`,
 ## `coach`): then it fails if the mission never started. The nightly runs those legs (#863,
 ## .github/workflows/nightly.yml, smoke).
 
