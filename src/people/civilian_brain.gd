@@ -40,11 +40,13 @@ const LINES := {
 	&"chair": ["What the hell?!", "Who kicked my damn chair?", "Son of a...!"],
 	&"help": ["Somebody get the doc!", "Easy, friend. Easy. Lie still.", "He's hit! Get the doctor!"],
 	&"gawk": ["Lord. Is he dead?", "What in the hell was that?", "Who's shooting?", "Stand back, give him air."],
+	&"hurt": ["I'm hit! Lord, I'm hit!", "He shot me! Oh God, he shot me!", "Ah—! My arm! My arm!"],
+	&"hurt_down": ["Help me! Somebody help me!", "Get the doc! For God's sake, get the doc!", "I'm shot... help..."],
 }
 ## A man's lines come no closer than this (s) (#773, the cards playtest: the drifter's hiding and
 ## pleading lines two a second for 20 s), but for these, which come once and matter.
 const SAY_GAP := 2.5
-const SAY_ALWAYS := [&"fire", &"thanks", &"chair"]
+const SAY_ALWAYS := [&"fire", &"thanks", &"chair", &"hurt"]
 ## Another man's cower line this recently (ms): he's likelier to keep quiet, and never says the same.
 const CROWD_MS := 900
 const SAME_LINE_MS := 4000
@@ -109,6 +111,18 @@ var _hush := 0.0
 var _since_said := INF
 ## A drawn gun he's keeping an eye on, and for how long (s).
 var _gun_seen: Node3D
+## Hurt (#1116, the chaos playtest: men shot at arm's length stayed hands-up on their bench; a man
+## with an arm wound lay `down` for minutes): a ball in him and a gun on him no longer holds him;
+## he runs (walks, if he can't run) for a door; down and awake, once he's lain still `UP_AFTER` and
+## isn't bleeding hard (`UP_BLEED`), he gets up if his legs will have him, else calls for help.
+var hurt := false
+var _wounds_seen := 0
+var _down_s := 0.0
+var _call_down := 0.0
+const UP_AFTER := 5.0
+const UP_BLEED := 4.0  # ml/s from his body (not a limb): worse, he stays down (Earl's collarbone, a belly)
+const UP_SHOCK := 0.3
+const CALL_DOWN_EVERY := Vector2(10.0, 18.0)
 var _gun_watch := 0.0
 ## Every man's lines, when last said (ms of game ticks): two men don't say the same thing in the same breath.
 static var _said_at := {}
@@ -281,6 +295,8 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 			_say_again = 4.0
 		&"aim_at":
 			fear += 0.05
+			if hurt:
+				return  # (hurt, a gun on him doesn't hold him: he's going)
 			_aimed = 0.8
 			_aimed_by = actor as Node3D
 			_troubled(actor)
@@ -301,6 +317,60 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 			reaction.sense(&"at_me", by.global_position if by else (guess if guess != Vector3.INF else body.global_position), by)
 			fear += 0.3
 			_troubled(actor)
+
+
+## A ball in him: no gun on him holds him now; he cries out and goes (Reaction, `at_me`: a hurt man
+## runs for a door, or walks to it if he can't run).
+func _on_hurt() -> void:
+	hurt = true
+	_aimed = 0.0
+	_cower = 0.0
+	_flinch = 0.0
+	_call_down = 0.0
+	if mood == Mood.HANDS_UP:
+		mood = Mood.ALARMED
+	say(&"hurt")
+	if not body.limp:
+		_go_hurt()
+
+
+## Hurt and on his feet: off to a door (a reaction already starting on the shot decides as hurt).
+func _go_hurt() -> void:
+	if reaction == null or reaction.kind == &"at_me" and reaction.stage in [Reaction.Stage.START, Reaction.Stage.LOOK]:
+		return
+	var from := _aimed_by.global_position if _aimed_by != null and is_instance_valid(_aimed_by) else body.global_position
+	reaction.drop(true)
+	reaction.sense(&"at_me", from, _aimed_by if _aimed_by != null and is_instance_valid(_aimed_by) else null)
+
+
+## Down and awake: up once he's lain still and isn't bleeding hard, if his legs will have him; else,
+## hurt, he calls for help now and then.
+func _lying(delta: float) -> void:
+	var p := body.physiology
+	_since_said += delta  # (his tick's own count stops while he's down)
+	if not p.is_conscious() or body.rising or body.dragged_by != null:
+		_down_s = 0.0
+		return
+	_down_s += delta
+	if _down_s > UP_AFTER and p.can_stand() and p.shock() < UP_SHOCK and _body_bleed() < UP_BLEED:
+		body.get_up()
+		return
+	if hurt and _down_s > SAY_GAP + 0.5:
+		_call_down -= delta
+		if _call_down <= 0.0:
+			_call_down = _rng.randf_range(CALL_DOWN_EVERY.x, CALL_DOWN_EVERY.y)
+			say(&"hurt_down")
+
+
+## What he's losing from his head, neck and body (ml/s): an arm or a leg bleeding doesn't keep him down.
+func _body_bleed() -> float:
+	var p := body.physiology
+	var r := 0.0
+	for b: Dictionary in p.bleeds:
+		var seg := String(b.get("segment", ""))
+		if not (seg.contains("arm") or seg.contains("hand") or seg.contains("thigh") or seg.contains("shin") or seg.contains("foot")):
+			r += p.bleed_rate(b)
+	return r
 
 
 ## Did the player stand up to that man (face him down, draw on him)?
@@ -656,12 +726,23 @@ func _physics_step(delta: float) -> void:
 	if not p.alive:
 		mood = Mood.DEAD
 		return
+	if p.wounds > _wounds_seen:
+		_wounds_seen = p.wounds
+		if p.is_conscious() and not held:
+			_on_hurt()
 	if body.limp:
 		mood = Mood.DOWN
+		if not held:
+			_lying(delta)
 		return
+	_down_s = 0.0
 	if mood == Mood.DOWN:
-		# Back on his feet (HumanBody.get_up): shaken by it.
+		# Back on his feet (HumanBody.get_up): shaken by it; hurt, he makes for a door.
+		if body.rising:
+			return  # (on his way up)
 		mood = Mood.SHAKEN
+		if hurt and not held:
+			_go_hurt()
 	if held:
 		return  # the scene has him
 	_since_said += delta
@@ -679,7 +760,7 @@ func _physics_step(delta: float) -> void:
 	for who in troubled_by.duplicate():
 		if not is_instance_valid(who):
 			troubled_by.erase(who)
-	if _aimed > 0.0 and _aimed_by and is_instance_valid(_aimed_by):
+	if _aimed > 0.0 and _aimed_by and is_instance_valid(_aimed_by) and not hurt:
 		_chore(delta, false)
 		mood = Mood.HANDS_UP
 		_calm_for = 0.0

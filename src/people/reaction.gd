@@ -405,9 +405,11 @@ func _decide() -> void:
 	elif scared:
 		_calm_need = CALM_HIDE + CALM_HIDE_NERVE * (1.0 - nerve)
 		var refuge := _refuge()
-		if refuge != Vector3.INF and body.physiology.can_run() and kind != &"down":
+		# (Hurt, #1116: he goes for it at a walk if he can't run, not cowering where he was shot.)
+		var can_go := body.physiology.can_run() or brain.hurt and body.physiology.can_stand()
+		if refuge != Vector3.INF and can_go and kind != &"down":
 			choice = &"flee"
-			_go(refuge, RUN)
+			_go(refuge, RUN if body.physiology.can_run() else WALK)
 			if kind == &"blast":
 				_wait = 2.5  # flat first, then runs from it
 		elif kind == &"down":
