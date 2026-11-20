@@ -149,6 +149,11 @@ func _make_men() -> void:
 	var joe_at := _local(data.get("joe_spot", [3.0, 2.3]))
 	var door := _local(data.get("door_out", [4.71, -1.2]))
 	doctor = _man(&"doctor", _local(data.get("doctor_spot", [1.5, 2.6])), joe_at)
+	if doctor != null:
+		# A hurt man brought to his door comes first (#1106): the town has him back, his lines go unsaid.
+		folk.lends[&"doctor"] = func(_id: StringName) -> void:
+			doctor = null
+			_note("the doctor's gone to a hurt man at his door")
 	cowboy = _man(&"cowboy", _local(data.get("cowboy_spot", [7.7, 0.75])), _local(data.get("cowboy_faces", [5.0, 2.0])))
 	joe = CompanionBrain.make_joe(street, joe_at, HumanBody.yaw_toward(joe_at, door), player(), folk.places,
 			CompanionBrain.STAND_IN, true)

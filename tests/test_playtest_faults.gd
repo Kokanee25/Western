@@ -233,3 +233,34 @@ func test_the_sheriffs_mutters_are_spread_out() -> void:
 	check(got.size() == all.size() - 1, "each of the rest once, then silence (%s)" % [got])
 	check(float(cd.get("grow", 0.0)) > 0.0, "the gaps grow")
 	m.free()
+
+
+## #1106 (playtest run 3): the No Justice start, as a player has it: the camp scene holds the doctor in
+## his front office with Joe and the cowboy (`act`). A townsman hurt and brought to the door, a knock:
+## the doctor still answers (he's lent back to the town, out of the scene), comes and takes him in.
+## #1100's test had the plain valley, where nobody held him.
+func test_the_doctor_answers_in_the_no_justice_start() -> void:
+	StoryState.clear()
+	var f := _folk()
+	var m := Moment.start_named(&"no_justice_camp", valley, null, {"set_up": true}) as NoJusticeCamp
+	check(m != null and not m.done and m.doctor != null, "the scene holds the doctor (%s)" % (m.result() if m else {}))
+	if m == null or m.doctor == null:
+		return
+	await _at(10.5)
+	check_eq(f.state.get(&"doctor"), &"act", "the scene has him")
+	var man := _hurt_man_by_door(&"miner")
+	check(man != null, "the miner by the door, bleeding")
+	if man == null:
+		return
+	await _at_door()
+	var p := _player()
+	check(not p.knock.door_here().is_empty(), "a door to bang on (%s)" % p.knock.report())
+	var shown: Array[String] = []
+	p.wounds.shown.connect(func(text: String) -> void: shown.append(text))
+	p.knock.bang()
+	check(shown.any(func(x: String) -> bool: return x.contains("doctor's coming")), "told he's coming (%s)" % [shown])
+	check(m.doctor == null, "the scene's let him go")
+	var took := await wait_until(func() -> bool: return f.taken_in.has("miner"), 60 * 40)
+	check(took, "the doctor takes him in (%s; calls %s)" % [f.fetch.report().get("log"), f.fetch.report().get("calls")])
+	m.reset()
+

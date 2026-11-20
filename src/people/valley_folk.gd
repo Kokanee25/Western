@@ -1177,6 +1177,7 @@ func borrow(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
 ## his hours, or the next act, bring him in with no long frame). The act's brain goes; a dead man
 ## stays where he lies.
 func give_back(id: StringName) -> void:
+	lends.erase(id)
 	var man: HumanBody = people.get(id)
 	if man == null or not is_instance_valid(man):
 		people.erase(id)
@@ -1203,6 +1204,28 @@ func send_off(id: StringName) -> void:
 		return
 	kept_out[id] = _key.get(id, "")
 	_send_off(id, true)
+
+
+## The men an act holds but lends back to the town for its need (#1106: the doctor to a hurt man at
+## his door): id -> the act's Callable, called (with the id) as he's lent, to let him go from its scene.
+var lends := {}
+
+
+## Lend an act's man back to the town (#1106): off the act's set and on the book in his own rooms
+## (`home`), as a day man indoors, the act told (`lends`); from there the town has him (the doctor
+## answers his door and comes out of it, as any day). True if he was the act's to lend.
+func lend(id: StringName) -> bool:
+	var man := folk_man(id)
+	var p := _person(id)
+	if man == null or p.is_empty() or p.has("act") or state.get(id) != &"act" or not man.physiology.alive or man.limp:
+		return false
+	var told: Callable = lends.get(id, Callable())
+	lends.erase(id)
+	if told.is_valid():
+		told.call(id)
+	give_back(id)
+	book.put(id, home_of(p), _doing_at(p, home_of(p)))
+	return true
 
 
 ## Where a runner finds the doctor (FetchHelp): his body if he's out in the world, else his door if
@@ -1583,9 +1606,11 @@ func knock(place: StringName, by: Node, at: Vector3) -> Array:
 	knock_claimed = false
 	knocked.emit(place, inside, by, at)
 	if not knock_claimed and place == home_of(_person(FetchHelp.DOCTOR)) and fetch != null:
+		if state.get(FetchHelp.DOCTOR) == &"act" and lends.has(FetchHelp.DOCTOR) and hurt_by_door(place, by) != null:
+			lend(FetchHelp.DOCTOR)  # (#1106) the scene that has him lets him go to the man
 		var hurt := hurt_by_door(place, by)
 		if hurt != null:
-			var said := fetch.at_door(hurt, places.at(place), inside.has(FetchHelp.DOCTOR))
+			var said := fetch.at_door(hurt, places.at(place), inside.has(FetchHelp.DOCTOR) or book.inside(place).has(FetchHelp.DOCTOR))
 			if said != "" and by is Player and (by as Player).wounds:
 				(by as Player).wounds.say(said, 4.0)
 	knock_claimed = false
