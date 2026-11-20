@@ -790,6 +790,9 @@ func _retry_step(delta: float) -> void:
 func restart() -> Moment:
 	var at := street
 	var opts_now := opts
+	var p := player()
+	if p and p.carry:
+		p.carry.start_over()  # (#1116: not the last run's metres and blood on your coat)
 	reset()
 	StoryState.restore(StoryState.checkpoint)
 	return Moment.start_named(&"the_sheriff", at, null, opts_now)

@@ -54,6 +54,22 @@ func _ready() -> void:
 	add_to_group(&"claims_use")
 
 
+## A mission started again in place (#1116: the sheriff's "start again" kept the last run's
+## metres and the blood on your coat): put down whoever you had, and none of it carried over.
+func start_over() -> void:
+	if carrying():
+		_drop(&"start_over")
+	blood_on_you = 0.0
+	dragged_m = 0.0
+	dragged_total_m = 0.0
+	last = &""
+	last_why = &""
+	_e_held = 0.0
+	_lift_t = 0.0
+	_told_for = null
+	_near = null
+
+
 func carrying(man: HumanBody = null) -> bool:
 	if him == null or not is_instance_valid(him):
 		return false
