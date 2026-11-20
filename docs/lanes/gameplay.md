@@ -58,6 +58,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).
 - **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
+- **The chaos bench** (#1117, `docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
+  [--by-ticks --catch-up=40 --catch-up-guard]`. The bridge's 2 fps was the catch-up spiral (40 ticks a frame once a tick
+  costs 1/60 s): `CatchUp` stops it. Open: Jolt's ~4 s of awake blast pieces (~27 ms a tick here; lower sleep thresholds
+  helped, untried in the falls lab); the valley's saloon B blast frame (700 ms, `settle_analyse`); `outlaw_brain` frames
+  of 100-200 ms in the valley's gunfight.
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881; the review's "After the cuts"): the brief's 24 townsfolk fit.** The valley's spec buildings warm their first analysis on a worker
   (`Structure.warm_analysis`; the valley has no FireSystem, so a settle is whole on one frame). `max_bodies`
