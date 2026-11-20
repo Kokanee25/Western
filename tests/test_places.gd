@@ -117,3 +117,72 @@ func _route_asking_all(w: Waypoints, space: PhysicsDirectSpaceState3D, from: Vec
 			break
 		n = prev[n]
 	return path
+
+
+## Bounded and nearest-first asks give the same ways (#1119): `routes_from` with a `reach` is the
+## unbounded one's ways no longer than it (the cover search's town ways), and `route_to_point`
+## asking nearest first is the old ask-each-nearer-than-the-best, from a grid over the street.
+func test_bounded_routes_and_route_to_point_keep_their_ways() -> void:
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	add_child(street)
+	await physics_frames(5)
+	for n in get_tree().get_nodes_in_group(&"people"):
+		n.queue_free()
+	await physics_frames(2)
+	var w := Waypoints.test_street()
+	var space := street.get_world_3d().direct_space_state
+	var ex: Array[RID] = [(street.get_node(^"Player") as Player).get_rid()]
+	var reach := 20.0
+	var asked := 0
+	var kept := 0
+	var differ: Array[String] = []
+	for x in range(-34, 31, 8):
+		for z in range(-14, 9, 4):
+			var top := Vector3(x, 6.0, z)
+			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(top, top + Vector3.DOWN * 8.0, Layers.STAND, ex))
+			if hit.is_empty():
+				continue
+			var from: Vector3 = hit.position
+			asked += 1
+			var all := w.routes_from(space, from, ex)
+			var near := w.routes_from(space, from, ex, reach)
+			for n: StringName in all:
+				var way: Array = all[n]
+				var length := 0.0
+				var at := from
+				for p: Vector3 in way:
+					length += at.distance_to(p)
+					at = p
+				# A way from the fallback start (nothing walkable straight, level with him) isn't kept bounded.
+				if length <= reach and absf(from.y - (way[0] as Vector3).y) < 0.6 and Waypoints._walkable(space, from, way[0], ex):
+					kept += 1
+					if not near.has(n) or near[n] != way:
+						differ.append("routes %s -> %s" % [str(from.snapped(Vector3.ONE * 0.1)), n])
+			for n: StringName in near:
+				if not all.has(n) or all[n] != near[n]:
+					differ.append("routes %s -> %s: not the unbounded way" % [str(from.snapped(Vector3.ONE * 0.1)), n])
+			for to: Vector3 in [w.at(&"bar_1") + Vector3(0.8, 0.0, 0.3), w.at(&"west_edge") + Vector3(0.0, 0.0, 2.0)]:
+				if w.route_to_point(space, from, to, ex) != _route_to_point_was(w, space, from, to, ex):
+					differ.append("route_to_point %s -> %s" % [str(from.snapped(Vector3.ONE * 0.1)), str(to)])
+	check(asked > 20 and kept > 50, "%d spots, %d ways in reach compared" % [asked, kept])
+	check(differ.is_empty(), "the same ways: %s" % str(differ))
+	street.queue_free()
+
+
+## Waypoints.route_to_point before #1119: every place nearer than the best so far asked.
+func _route_to_point_was(w: Waypoints, space: PhysicsDirectSpaceState3D, from: Vector3, point: Vector3, ex: Array[RID]) -> Array[Vector3]:
+	var straight: Array[Vector3] = [point]
+	if Waypoints._walkable(space, from, point, ex) and absf(from.y - point.y) < 0.6:
+		return straight
+	var best := &""
+	var best_d := INF
+	for n: StringName in w.points:
+		var d := w.at(n).distance_to(point)
+		if d < best_d and Waypoints._walkable(space, w.at(n), point, ex):
+			best_d = d
+			best = n
+	if best == &"":
+		return straight
+	var path := w.route(space, from, best, ex)
+	path.append(point)
+	return path
