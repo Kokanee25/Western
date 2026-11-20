@@ -141,10 +141,13 @@ func _physics_process(delta: float) -> void:
 		_hold(delta)
 	elif him != null:
 		_drop(&"gone")
-	# A tap (let go within carry_tap_s): held, E's for something else (a scene's: his wound).
+	# A tap (let go within carry_tap_s): held, E's for something else (a scene's: his wound). Down
+	# and up between two ticks (a tap in one slow frame, #1117) it's never seen down: a tap too.
+	var tapped := player.input_enabled and _e_held <= 0.0 and Input.is_action_just_pressed(&"shove") \
+			and Input.is_action_just_released(&"shove")
 	if player.input_enabled and Input.is_action_pressed(&"shove"):
 		_e_held += delta
-	elif _e_held > 0.0:
+	elif _e_held > 0.0 or tapped:
 		var tap := _e_held <= player.tuning.carry_tap_s
 		_e_held = 0.0
 		if tap and player.input_enabled:

@@ -61,6 +61,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). **Gunfight D+** (#633; difficulty #349 is Sean's).
+- **The chaos bench** (#1117, `docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
+  [--by-ticks --catch-up=40 --catch-up-guard]`. The bridge's 2 fps was the catch-up spiral (40 ticks a frame once a tick
+  costs 1/60 s): `CatchUp` stops it. Open: Jolt's ~4 s of awake blast pieces (~27 ms a tick here; lower sleep thresholds
+  helped, untried in the falls lab); the valley's saloon B blast frame (700 ms, `settle_analyse`); `outlaw_brain` frames
+  of 100-200 ms in the valley's gunfight.
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`, `tools/valley/bench_runs.py`; 24 townsfolk fit (#881). Open: every scene's else is over (~1 ms
   untimed), the outlaws' first cover moves (~120 ms twice at a fight's start), the gunfight's people.

@@ -582,6 +582,8 @@ real look RoomLight is on whatever `Settings.room_light` says.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
+- `CatchUp` (`catch_up.gd`, #1117): the physics ticks a frame may run to catch up, from what a tick
+  costs (the bridge's 40 only while ticks are cheap; the game's own 2 is project.godot's).
 - `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
   clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
   lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
