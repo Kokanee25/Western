@@ -106,8 +106,9 @@ func _ready() -> void:
 	player = main.find_child("Player", true, false) as Player
 	Settings.autosave = false  # a bridge run never writes the player's settings file
 	# Drawn slowly (lavapipe: about a frame a second), the game would only get 8 physics steps a
-	# frame and its clock would crawl; let it catch up so game time keeps near real time.
-	Engine.max_physics_steps_per_frame = 40
+	# frame and its clock would crawl; let it catch up so game time keeps near real time. But not
+	# when a tick costs its own 1/60 s: then catching up never ends (CatchUp, #1117).
+	Engine.max_physics_steps_per_frame = CatchUp.most
 	_arm_player.call_deferred()
 	_listen_to_events()
 	_load_labs()
@@ -142,6 +143,7 @@ func _arm_player() -> void:
 
 
 func _process(_delta: float) -> void:
+	_catch_up()
 	if _server and _server.is_connection_available():
 		var p := _server.take_connection()
 		p.set_no_delay(true)
@@ -225,6 +227,19 @@ func _settle() -> void:
 
 func _seconds(s: float) -> void:
 	await _physics_frames(int(ceil(s * Engine.physics_ticks_per_second)))
+
+
+## The next frame's catch-up limit from the last frame's ticks (the bug report's ring).
+func _catch_up() -> void:
+	if _rec == null:
+		_rec = get_tree().root.find_child("BugRecorder", true, false) as BugRecorder
+	if _rec and _rec.perf_on:
+		var row: Dictionary = _rec.perf.last_frame()
+		if not row.is_empty():
+			CatchUp.after_frame(float(row.physics_ms), int(row.ticks))
+
+
+var _rec: BugRecorder
 
 
 # -- Commands ------------------------------------------------------------------------------------

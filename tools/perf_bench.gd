@@ -34,7 +34,9 @@ extends SceneTree
 ## (nine at night before the saloon's yard: the folk's bar and card table, the lamps lit), `gunfight`
 ## (the day's street, two crews of three shooting it out 20 to 40 m from you) and `blast` (the day's
 ## street, a stick in the saloon's front and one in the doctor's, measured from 3 s after), each
-## after the valley's load (`load`: the bake, the scene, and the scene by part, ValleyWorld.load_ms).
+## after the valley's load; `chaos` (#1117, only by --scene=chaos, here or in the town): the gunfight,
+## three sticks in the saloon, the store alight 15 s on (the town only: the valley has no fire), a line
+## a second for --chaos-seconds=200 (the chaos playtest's slowdown, docs/reviews/2026-11-chaos-bench.md), (`load`: the bake, the scene, and the scene by part, ValleyWorld.load_ms).
 ## --townsfolk=N: N more townsfolk on Main Street (tools/valley/valley_townsfolk.gd), half near you
 ## and half far (--band=near|far: all in one band). --bodies: the collision bodies (Jolt's
 ## max_bodies counts them) by what owns them. tools/valley/bench_runs.py runs the counts and scenes
@@ -77,6 +79,9 @@ var bodies := false
 var valley := false
 ## --extra-bodies=N: N more static boxes at rest off the town (what more bodies cost Jolt, #865).
 var extra_bodies := 0
+## --scene=chaos (#1117): how long the timeline runs after the blast (game seconds).
+var chaos_seconds := 200.0
+var catch_up_guard := false
 
 
 func _initialize() -> void:
@@ -128,6 +133,14 @@ func _initialize() -> void:
 			pass  # BugRecorder reads it itself: no frame-timing ring (PerfRing), no viewport measuring
 		elif a == "--by-ticks":
 			by_ticks = true
+		elif a.begins_with("--catch-up="):
+			# Physics ticks a frame may run to catch up (the bridge's 40, project.godot's 2).
+			Engine.max_physics_steps_per_frame = int(a.substr(11))
+		elif a == "--catch-up-guard":
+			# The bridge's limit (CatchUp): it follows what a tick costs.
+			catch_up_guard = true
+		elif a.begins_with("--chaos-seconds="):
+			chaos_seconds = float(a.substr(16))
 		elif a.begins_with("--spikes="):
 			spikes = float(a.substr(9))
 		elif a.begins_with("--hour="):
@@ -419,6 +432,10 @@ func _run() -> void:
 		scenes.append("wall")
 	if only == "blast":
 		scenes.append("blast")
+	if only == "chaos":
+		var c: Dictionary = await _town_chaos(player)
+		report["chaos"] = c
+		scenes = []
 	for s in scenes:
 		if s == "fire":
 			_set_off_dynamite_and_fires()
@@ -676,6 +693,11 @@ func _run_valley() -> void:
 			await physics_frame  # (a blast asks the world: in the physics frame)
 			extra = _valley_blast()
 			await _frames(180)
+		elif s == "chaos":
+			# Its own measure: the timeline through the spike. No budget or ablation after it.
+			extra = await _valley_chaos(player)
+			report[s] = extra
+			continue
 		var m: Dictionary = await _measure(int(seconds * 60.0))
 		var entry := {"frames": m, "census": _census(), "people": _people_census(player)}
 		entry.people["townsfolk_added"] = made.size()
@@ -838,6 +860,172 @@ func _valley_blast() -> Dictionary:
 		blast.detonate(street, best.global_position + Vector3(0, 0.3, 0), 0.2)
 		out.sticks.append(id)
 	return out
+
+
+## The chaos round's slowdown (#1117, docs/playtests/2026-11-20-chaos.md finding 2): the gang
+## shooting it out by the saloon, a bundle of three sticks in saloon B, and the general store set
+## alight 15 s on; then each frame timed for `chaos_seconds`, a line a second (the second's mean and
+## worst frame, the physics ticks a frame ran, the systems' share, members broken and burning, nodes)
+## and the frames over --spikes with what each system took.
+func _valley_chaos(player: Node3D) -> Dictionary:
+	await _gunfight(player)
+	var bs: Dictionary = street.get("buildings")
+	return await _chaos(bs.get("saloon"), bs.get("general_store"))
+
+
+## The same in the old town (where the playtest's bridge was, and the only world with a FireSystem):
+## the gang turned on you, three sticks in the Saloon, the Store alight 15 s on.
+func _town_chaos(player: Node3D) -> Dictionary:
+	for n in street.find_children("*", "OutlawBrain", true, false):
+		if n.has_method(&"turn_on"):
+			n.turn_on(player)
+	return await _chaos(street.get_node(^"Saloon"), street.get_node(^"Store"))
+
+
+func _chaos(saloon: Node3D, store: Node3D) -> Dictionary:
+	var prof = load("res://src/debug/prof.gd")
+	var rec = main.get_node_or_null(^"BugRecorder")
+	var ring = rec.perf if rec and rec.perf_on else null
+	var members: Array = street.find_children("*", "StructureMember", true, false)
+	var at := _middle(saloon)
+	await physics_frame
+	var stick = load("res://src/blast/dynamite_stick.gd").make(street, at, Vector3.ZERO, 0.05, 3)
+	stick.light()
+	print("chaos: three sticks at %s, %d members in the world" % [at, members.size()])
+	prof.on = true
+	prof.roll()
+	var lit := false
+	var frames := int(chaos_seconds * 60.0)
+	var sec := {}
+	var sec_frames := 0
+	var sec_ms := 0.0
+	var sec_worst := 0.0
+	var sec_phys := 0.0
+	var timeline := []
+	var worst := {"frame_ms": 0.0}
+	var last := Time.get_ticks_usec()
+	var total_ms := 0.0
+	var over_budget := 0
+	var t_start := Engine.get_physics_frames()
+	var i := 0
+	var sec_ticks := 0
+	var sec_start := 0
+	while (Engine.get_physics_frames() - t_start < frames) if by_ticks else i < frames:
+		var game := (Engine.get_physics_frames() - t_start) if by_ticks else i
+		if not lit and game >= 15 * 60:
+			lit = true
+			var fire = load("res://src/fire/fire_system.gd").find(self)
+			var m: Node = _nearest_timber(store, _middle(store), fire)
+			if fire and m:
+				fire.ignite(m)
+			print("chaos: the store alight at %s (%s)" % [m.get(&"member_id") if m else "nothing", "fire" if fire else "no FireSystem"])
+		var ticks0 := Engine.get_physics_frames()
+		await process_frame
+		i += 1
+		prof.frame(1 << 30, 1e9)
+		var now := Time.get_ticks_usec()
+		var ms := (now - last) / 1000.0
+		last = now
+		total_ms += ms
+		sec_ticks += Engine.get_physics_frames() - ticks0
+		if catch_up_guard and ring:
+			var row: Dictionary = ring.last_frame()
+			load("res://src/main/catch_up.gd").after_frame(float(row.get("physics_ms", 0.0)), int(row.get("ticks", 0)))
+		var phys := float(ring.last_frame().get("physics_ms", 0.0)) if ring else 0.0
+		for k in prof.frame_ms:
+			sec[k] = float(sec.get(k, 0.0)) + float(prof.frame_ms[k])
+		sec_frames += 1
+		sec_ms += ms
+		sec_phys += phys
+		sec_worst = maxf(sec_worst, ms)
+		if ms > 33.3:
+			over_budget += 1
+		if spikes > 0.0 and ms > spikes:
+			var parts := []
+			for k in prof.frame_ms:
+				if float(prof.frame_ms[k]) > 0.5 and not String(k).begins_with("n_") and not String(k).begins_with("q_"):
+					parts.append("%s %.1f" % [k, float(prof.frame_ms[k])])
+			print("   spike t %.1f: %.1f ms, %d ticks (physics %.1f): %s" % [game / 60.0, ms, Engine.get_physics_frames() - ticks0, phys, ", ".join(parts)])
+		if ms > float(worst.frame_ms):
+			worst = {"frame_ms": ms, "t": game / 60.0, "systems": prof.frame_ms.duplicate()}
+		var game_now := (Engine.get_physics_frames() - t_start) if by_ticks else i
+		if game_now - sec_start >= 60:
+			sec_start = game_now
+			var broken := 0
+			var burning := 0
+			for m: Node in members:
+				if not is_instance_valid(m):
+					continue
+				if m.get(&"broken"):
+					broken += 1
+				if m.get(&"burning"):
+					burning += 1
+			# The loose bodies (a broken piece, a shard, a body thrown): all, and those Jolt still steps.
+			var loose := 0
+			var awake := 0
+			for b: RigidBody3D in street.find_children("*", "RigidBody3D", true, false):
+				loose += 1
+				if not b.sleeping and not b.freeze:
+					awake += 1
+			var top := []
+			for k in sec:
+				if not String(k).begins_with("n_") and not String(k).begins_with("q_") and float(sec[k]) / sec_frames > 0.3:
+					top.append([k, float(sec[k]) / sec_frames])
+			top.sort_custom(func(a, b) -> bool: return a[1] > b[1])
+			var row := {"t": game_now / 60.0, "avg_ms": sec_ms / sec_frames, "worst_ms": sec_worst,
+					"physics_ms": sec_phys / sec_frames, "ticks_a_frame": float(sec_ticks) / sec_frames, "frames": sec_frames,
+					"nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
+					"broken": broken, "burning": burning, "loose": loose, "awake": awake, "top": top.slice(0, 6)}
+			timeline.append(row)
+			var tops := []
+			for t in row.top:
+				tops.append("%s %.1f" % [t[0], t[1]])
+			print("t %5.0f  frames %3d avg %6.1f  worst %6.1f  physics %6.1f  ticks %4.1f  nodes %5d  broken %4d burning %3d loose %4d awake %4d | %s" % [
+					row.t, sec_frames, row.avg_ms, row.worst_ms, row.physics_ms, row.ticks_a_frame, row.nodes,
+					broken, burning, loose, awake, ", ".join(tops)])
+			sec = {}
+			sec_ticks = 0
+			sec_frames = 0
+			sec_ms = 0.0
+			sec_worst = 0.0
+			sec_phys = 0.0
+	prof.on = false
+	var w_parts := []
+	for k in worst.get("systems", {}):
+		if float(worst.systems[k]) > 1.0:
+			w_parts.append([k, float(worst.systems[k])])
+	w_parts.sort_custom(func(a, b) -> bool: return a[1] > b[1])
+	frames = i
+	print("chaos: %d frames, mean %.1f ms, %d over 33 ms, worst %.1f ms at t %.1f: %s" % [frames, total_ms / frames,
+			over_budget, worst.frame_ms, worst.get("t", 0.0), JSON.stringify(w_parts.slice(0, 8))])
+	return {"mean_ms": total_ms / frames, "frames_over_33": over_budget, "worst": {"ms": worst.frame_ms, "t": worst.get("t", 0.0),
+			"systems": w_parts.slice(0, 8)}, "timeline": timeline}
+
+
+## The middle of a building's members, a metre over its floor.
+func _middle(b: Node3D) -> Vector3:
+	var sum := Vector3.ZERO
+	var n := 0
+	for m: Node3D in b.find_children("*", "StructureMember", true, false):
+		sum += m.global_position
+		n += 1
+	var c := sum / maxf(n, 1)
+	c.y = b.global_position.y + 1.0
+	return c
+
+
+## The building's unbroken timber nearest a point (what the bridge's `ignite X Y Z` takes).
+func _nearest_timber(b: Node3D, at: Vector3, fire) -> Node:
+	var best: Node = null
+	var best_d := INF
+	for m in b.find_children("*", "StructureMember", true, false):
+		if m.broken or (fire and not fire.flammable(m)):
+			continue
+		var d: float = m.world_aabb().get_center().distance_to(at)
+		if d < best_d:
+			best_d = d
+			best = m
+	return best
 
 
 ## The collision bodies in the world (each a Jolt body, against project.godot's max_bodies) by what
