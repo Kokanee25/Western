@@ -81,6 +81,8 @@ var held := false
 var refuges: Array[Vector3] = []
 ## Running for help (FetchHelp, townsfolk step 6): who to run to for a man down; null, nobody runs.
 var fetch: FetchHelp
+## The town's news (TownNews, townsfolk step 7): what he senses of trouble goes in as his version.
+var news: TownNews
 ## His pace walking back to his post (m/s): the doctor called to a man down walks fast.
 const WALK := 1.2
 var walk_speed := WALK
@@ -427,6 +429,8 @@ func _on_heard(at: Vector3, kind: StringName, maker: Node) -> void:
 		return
 	if kind == &"gunshot":
 		reaction.sense(&"shot_seen" if maker != null else &"shot", at, maker as Node3D)
+		if news:
+			news.heard(self, at, maker)
 		fear += 0.3 * clampf(1.0 - body.global_position.distance_to(at) / 40.0, 0.0, 1.0)
 	elif kind == &"blast":
 		reaction.sense(&"blast", at)
@@ -446,9 +450,13 @@ func _on_down(p: Node) -> void:
 		# Further off: seen hit and fall, he knows a man's down (for running for help), no more.
 		if senses.sees(man):
 			reaction.far_down = man
+			if news:
+				news.saw_down(self, man)
 		return
 	if senses.sees(man) or senses._in_view(man, senses.eye()):
 		reaction.sense(&"down", man.global_position, man)
+		if news:
+			news.saw_down(self, man)
 
 
 ## His hat shot off his head: down on the boards, and he says so.

@@ -113,6 +113,13 @@ var heard: Array = []
 ## Running for help (townsfolk step 6, FetchHelp): who runs for the doctor or the law, the doctor's
 ## calls; every man brought gets it (`CivilianBrain.fetch`).
 var fetch: FetchHelp
+## The town's news (townsfolk step 7, TownNews): what each saw and heard, told on, overnight; every
+## man brought hands in what he senses (`CivilianBrain.news`). The town's day it was last turned on.
+var news: TownNews
+var _news_day := -1
+## The dead taken away (#1051): id -> {since (absolute clock hours), seen (anyone saw him down),
+## undertaker (fetched to him)}.
+var dead_out := {}
 var _spoke_at := {}
 var _said_n := {}
 ## A door banged on (PlayerKnock, #1057): the place, who's in it on the book (heard it), who banged
@@ -138,6 +145,7 @@ func _ready() -> void:
 	add_to_group(&"valley_folk")
 	add_to_group(&"knock_doors")  # its places' doors (PlayerKnock)
 	fetch = FetchHelp.new(self)
+	news = TownNews.new(self)
 	if layout == null:
 		layout = ValleyLayout.main()
 	data = JSON.parse_string(FileAccess.get_file_as_string(DATA))
@@ -605,6 +613,8 @@ func _bring(p: Dictionary, walk: bool, from_place := &"") -> HumanBody:
 	brain.dials = dials_of(p)
 	brain.refuges = refuges_of(p)
 	brain.fetch = fetch
+	if news:
+		news.join(brain)
 	brain.chores = _chores_for(man, p, sp)
 	man.add_child(brain)
 	man.move_child(brain, 0)
@@ -879,6 +889,25 @@ static func block_key(b: Dictionary) -> String:
 	return "%s|%s|%s" % [String(b.get("in", "")), str(b.get("at", "")), String(b.get("do", ""))]
 
 
+## Lines said on the next physics frame (`say_soon`): a line is a noise (DeedWatch's speech), and the
+## ears that hear it look along a ray, which only the physics frame may (the folk step in _process).
+var _to_say: Array = []
+
+
+func say_soon(man: HumanBody, text: String) -> void:
+	_to_say.append([man, text])
+
+
+func _physics_process(_delta: float) -> void:
+	if _to_say.is_empty():
+		return
+	var list := _to_say
+	_to_say = []
+	for x: Array in list:
+		if is_instance_valid(x[0]):
+			Events.spoke.emit(x[0], String(x[1]))
+
+
 func _process(delta: float) -> void:
 	var t := Prof.start()
 	_step(delta)
@@ -889,6 +918,8 @@ func _step(delta: float) -> void:
 	_ran += delta
 	if fetch:
 		fetch.step(delta)
+	if news:
+		news.step(delta)
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -910,6 +941,7 @@ func _step(delta: float) -> void:
 	# a cut, everyone where his day says, but a man whose block began within the window, who walks
 	# (as the clock running into it while you watched).
 	var jumped := is_nan(_last_hour) or since(h, _last_hour) > walk_h
+	_news_turn()
 	var kind := day_kind(town_day())
 	# One truth (#1095): the story has Earl at the undertaker's (a mission started past No Law's night
 	# sets it), so his day never brings him back to the cards.
@@ -970,6 +1002,7 @@ func _step(delta: float) -> void:
 	_carry_step()
 	_morning_step(h)
 	_funeral_step(h)
+	_dead_step(h)
 	_talk_step()
 
 
@@ -1441,6 +1474,78 @@ func _you_see(at: Vector3, m: float) -> bool:
 	return to.length() < 2.0 or fwd.normalized().dot(to.normalized()) > 0.0
 
 
+# --- The town's news and its dead (#1051) ---------------------------------------------------------
+
+## The town's day turned (the clock ran or jumped past the calendar's `starts_h`): the news goes
+## round overnight (TownNews.overnight), before the new day's kind is read.
+func _news_turn() -> void:
+	if news == null:
+		return
+	var td := town_day()
+	if _news_day >= 0 and td != _news_day:
+		news.overnight()
+	_news_day = td
+
+
+## The clock's hours since the game's first midnight.
+func _abs_hours() -> float:
+	var d := _clock.day if _clock and is_instance_valid(_clock) else 1
+	return float(d) * 24.0 + hour()
+
+
+## A townsman killed in town doesn't lie in the street (#1051): seen down (anyone holds it in the
+## news), the undertaker comes for him within `dead.seen_h` of the clock; unseen, by the next
+## morning (`dead.morning_h`). The undertaker walks out to him (called out of his day), and the body
+## goes to the undertaker's once you can't see it (`unseen_m`, as Earl's): out of the world for good,
+## a recorded death (StoryState death.<id>, the town's word on who did it). No Law's Earl keeps his
+## own way (`_morning_step`), and an act's men are the act's.
+func _dead_step(h: float) -> void:
+	var dd: Dictionary = data.get("dead", {})
+	for p: Dictionary in data.people:
+		var id := StringName(p.id)
+		if id == &"earl" or p.has("act") or not p.has("day") or gone_for_good.has(id) or laid.has(id) or state.get(id) != &"dead":
+			continue
+		var man := folk_man(id)
+		if man == null or man.dragged_by != null:
+			continue
+		if not dead_out.has(id):
+			dead_out[id] = {"since": _abs_hours(), "day": town_day(), "seen": false, "undertaker": false, "sent": 0.0}
+		var e: Dictionary = dead_out[id]
+		e.seen = e.seen or (news != null and news.known_down(id))
+		var due := false
+		if e.seen:
+			due = _abs_hours() - float(e.since) >= float(dd.get("seen_h", 0.75))
+		else:
+			due = town_day() > int(e.day) and h >= float(dd.get("morning_h", 6.0))
+		if not due:
+			continue
+		var at := _body_at(man)
+		var und := StringName(String(dd.get("undertaker", "undertaker")))
+		if not e.undertaker:
+			e.undertaker = true
+			e.sent = _ran
+			var u := call_out(und) if und != id else null
+			var ub := u.get_node_or_null(^"Brain") as CivilianBrain if u else null
+			if ub:
+				var to := at - u.global_position
+				to.y = 0.0
+				ub.go_to(at - to.normalized() * 1.2 if to.length() > 0.1 else at, at)
+		var uman := folk_man(und)
+		var there: bool = uman == null or state.get(und) != &"called" or Vector2(uman.global_position.x - at.x, uman.global_position.z - at.z).length() < 2.5
+		if not there and _ran - float(e.sent) < float(dd.get("walk_at_most_s", 240.0)):
+			continue
+		if _you_see(at, float(dd.get("unseen_m", 30.0))):
+			continue  # he waits by him till you're off it (nothing vanishes in your view)
+		if news:
+			news.found(und, id, true, at)  # he's seen him now, whoever else has
+		var who: StringName = news.said_did_it(id) if news else &""
+		to_undertaker(id)
+		dead_out.erase(id)
+		var nm := String(p.get("name", String(id)))
+		_story("death." + String(id), "%s, %s. Taken to the undertaker's." % [nm, ("shot by " + news.name_of(who)) if who != &"" else "killed in the street, nobody saw by whom"])
+		call_over(und)
+
+
 # --- What the day folk say when you pass (`talk`) -------------------------------------------------
 
 ## Does the story hold `cond` ({fact: value | [values] | "*"; "!fact": anything = not set})?
@@ -1489,9 +1594,10 @@ func _talk_step() -> void:
 	if p == null:
 		return
 	for pd: Dictionary in data.people:
-		if not pd.has("says"):
-			continue
 		var id := StringName(pd.id)
+		var rid: int = news.to_say(id) if news != null and not pd.has("act") else 0
+		if not pd.has("says") and rid == 0:
+			continue
 		var man := folk_man(id)
 		if man == null or state.get(id) != &"in" or not man.physiology.is_conscious():
 			continue
@@ -1499,13 +1605,21 @@ func _talk_step() -> void:
 			continue
 		if _spoke_at.has(id) and _talk_clock() - float(_spoke_at[id]) < float(talk.get("gap_s", 20.0)):
 			continue
-		var l := line_for(String(pd.says))
-		if l.is_empty():
+		# What he saw or was told himself first (TownNews: his own version, once), else his set's line.
+		var l := []
+		if rid != 0 and not TownNews._calm(man.get_node_or_null(^"Brain") as CivilianBrain):
+			rid = 0  # not with trouble on: what he says then is his fright's
+		if rid != 0:
+			l = ["news.%d" % rid, news.line_of(id, rid, TownNews.HARLAN)]
+			news.said(id, rid)
+		elif pd.has("says"):
+			l = line_for(String(pd.says))
+		if l.is_empty() or String(l[1]) == "":
 			continue
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
 		_spoke_at[id] = _talk_clock()
 		man.face(p.global_position + Vector3.UP * 1.5)
-		Events.spoke.emit(man, String(l[1]))
+		say_soon(man, String(l[1]))
 		heard.append([String(id), String(l[0]), String(l[1])])
 
 

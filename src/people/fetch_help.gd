@@ -177,6 +177,9 @@ func arrived(down: HumanBody, brain: CivilianBrain, to: StringName, shot: bool, 
 		line = _pick(&"runner") % ["shot" if shot else "down", where, "He's breathing." if breathing else ""]
 	brain.say_line(line.strip_edges())
 	_note("told " + String(to), brain.body.person_id)
+	# The news goes with him (TownNews): the doctor now holds the runner's version.
+	if brain.news != null:
+		brain.news.hand_over(brain.body.person_id, DOCTOR if to == &"doctor" else TownNews.HARLAN, down if key != 0 else null)
 	if to == &"doctor" and key != 0:
 		_call_doctor(down)
 
