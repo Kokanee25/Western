@@ -1794,3 +1794,62 @@ static func move_body(man: HumanBody, to: Vector3) -> void:
 			(rb as RigidBody3D).linear_velocity = Vector3.ZERO
 			(rb as RigidBody3D).angular_velocity = Vector3.ZERO
 			(rb as RigidBody3D).sleeping = false
+
+
+# --- Saved (SaveGame, #1138) -------------------------------------------------------------------
+
+## What a save keeps of the town's day: who's a body in the world and who's a row on the book, the
+## dead and the buried, who's laid out where, who an act sent off, the hands you've played. (The
+## acts themselves aren't kept: nobody sleeps in the middle of one; a man an act had goes back to
+## his day.)
+func save_dict() -> Dictionary:
+	var lay := {}
+	for id: StringName in laid:
+		lay[id] = {"place": String(laid[id].place), "at": laid[id].at}
+	var here: Array[StringName] = []
+	for id: StringName in people:
+		if folk_man(id) != null:
+			here.append(id)
+	return {"state": state.duplicate(), "here": here, "book": book.rows.duplicate(true), "laid": lay,
+			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands}
+
+
+## A save's town day put back on a fresh town, before its people's bodies are (`SaveGame.apply`):
+## the same men in the world (each at his spot: the body's own place follows) and on the book.
+func load_dict(d: Dictionary) -> void:
+	if not _ready_once():
+		_prebuild()
+	gone_for_good = (d.gone_for_good as Dictionary).duplicate()
+	kept_out = (d.kept_out as Dictionary).duplicate()
+	_your_hands = int(d.hands)
+	_last_hour = NAN
+	_look = 0.0
+	_step(0.0)
+	var here: Array = d.here
+	for id: StringName in people.keys():
+		if not here.has(id):
+			_gone(id, true)
+	for id: StringName in here:
+		if folk_man(id) == null and not _person(id).is_empty():
+			if _person(id).has("act"):
+				take(id, door(home_of(_person(id))), Vector3.FORWARD)
+			else:
+				_bring(_person(id), false)
+	for id: StringName in gone_for_good:
+		var man := folk_man(id)
+		people.erase(id)
+		if man:
+			man.queue_free()
+	for id: StringName in d.state:
+		var st: StringName = d.state[id]
+		if st in [&"act", &"called"]:
+			st = &"in" if here.has(id) else &"out"
+		state[id] = st
+	book.rows = (d.book as Dictionary).duplicate(true)
+
+
+## The save's dead laid out again under their sheets, once their bodies lie as saved.
+func load_laid(d: Dictionary) -> void:
+	for id: StringName in d.laid:
+		if folk_man(id) != null:
+			lay_out(id, StringName(String(d.laid[id].place)))

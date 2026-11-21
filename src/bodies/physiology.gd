@@ -884,7 +884,7 @@ func to_dict() -> Dictionary:
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
 			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys(),
-			"spared": spared, "spared_times": spared_times, "splinted": splinted.keys()}
+			"spared": spared, "spared_times": spared_times, "spared_cause": spared_cause, "splinted": splinted.keys()}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -914,6 +914,7 @@ func from_dict(d: Dictionary) -> void:
 	lost_parts = _set_of(d.get("lost_parts", []))
 	spared = d.get("spared", false)
 	spared_times = d.get("spared_times", 0)
+	spared_cause = d.get("spared_cause", &"")
 	blood_in_eye = {}
 	for k in d.get("blood_in_eye", {}):
 		blood_in_eye[StringName(k)] = d.blood_in_eye[k]

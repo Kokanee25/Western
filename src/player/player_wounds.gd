@@ -1216,3 +1216,21 @@ func describe() -> String:
 static func _yours(text: String) -> String:
 	var re := RegEx.create_from_string("\\bhis\\b")
 	return re.sub(text, "your", true)
+
+
+## What a save keeps of your own body (SaveGame, #1138): its physiology, your wounds, how far
+## you've mended. (You're never saved out cold: a save is a sleep.)
+func save_dict() -> Dictionary:
+	return {"physiology": physiology.to_dict(), "wounds": HumanBody.plain(wounds), "recovering": recovering,
+			"mend_from": HumanBody.plain(_mend_from), "mended": _mended, "last_hurt": HumanBody.plain(last_hurt)}
+
+
+func load_dict(d: Dictionary) -> void:
+	physiology.from_dict(d.physiology)
+	wounds.assign((d.wounds as Array).duplicate(true))
+	recovering = float(d.recovering)
+	_mend_from = (d.mend_from as Dictionary).duplicate(true)
+	_mended = bool(d.mended)
+	last_hurt = (d.last_hurt as Dictionary).duplicate(true)
+	_clock_was = -1.0
+	out_cold = 0.0
