@@ -460,7 +460,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _knocked_out():
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
-			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching}
+			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching,
+			"slowed": player.wounds.slow_why if player.wounds else "", "carrying": player.carry != null and player.carry.carrying()}
 
 
 func _cmd_key(a: Array) -> Dictionary:

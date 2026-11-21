@@ -35,6 +35,10 @@ var recovering := -1.0
 var _mend_from := {}
 var _mended := false
 var _clock_was := -1.0
+## Why your wounds slow you ("" if they don't): told once when it starts or changes (#1125: hurt, and
+## carrying a man, you went 3-6 m in 30 s with no word why).
+var slow_why := ""
+var _slow_told := ""
 
 var physiology: Physiology
 var anatomy: Anatomy
@@ -858,6 +862,7 @@ func _physics_step(delta: float) -> void:
 	player.move_factor = (1.0 - p.shock() * 0.5) * (lerpf(0.45, 1.0, p.leg_strength()) if legs else 0.35)
 	player.can_sprint = p.can_run()
 	player.can_jump = legs and p.shock() < 0.5
+	_tell_slow(legs)
 	for gun in player.weapons:
 		# Sat at a table no gun comes out (PlayerSeat, #766), as with your hands on a wound.
 		var sat := player.seat != null and player.seat.seated()
@@ -1058,6 +1063,31 @@ func _hurt_and_bound() -> bool:
 	if not p.alive or not p.is_conscious() or p.total_bleed_rate() > 0.01:
 		return false
 	return p.wounds > 0 or not p.broken.is_empty() or p.blood_ml < p.tuning.blood_ml - 1.0 or p.wound_pain > 0.0 or p.burns > 0.0
+
+
+## Why you're slow, in words, and the line on the screen the first time it is (when you move).
+func _tell_slow(legs: bool) -> void:
+	var p := physiology
+	var why := ""
+	if p.legs_paralysed():
+		why = "You can't feel your legs: you can only drag yourself."
+	elif not legs:
+		var broken_leg := false
+		for bone: StringName in p.broken:
+			var b := String(bone)
+			if b.begins_with("femur") or b.begins_with("tibia") or b.begins_with("patella") or b == "pelvis_bone":
+				broken_leg = true
+		why = "Your leg's broken: you can only hobble." if broken_leg else "Your leg won't hold you: you can only hobble."
+	elif p.shock() > 0.5:
+		why = "You're weak from the blood you've lost: you can't go fast."
+	elif p.leg_strength() < 0.6:
+		why = "Your leg's hurt: you limp."
+	slow_why = why
+	if why == "":
+		_slow_told = ""
+	elif why != _slow_told and player.get_horizontal_speed() > 0.05 and p.is_conscious():
+		_slow_told = why
+		say(why, 3.0)
 
 
 ## Your mending goes by the clock as it runs (a jump of it, a black-out's, comes by hours_passed).

@@ -218,3 +218,35 @@ func test_a_day_after_the_doctors_youre_mended() -> void:
 	check_near(p.blood_ml, p.tuning.blood_ml, 1.0, "your blood back")
 	check_eq(p.describe(), "Unhurt.", "unhurt")
 	check(player.wounds.recovering < 0.0, "done mending")
+
+
+## #1125's 5: a broken leg and a man over your shoulder, you went 3-6 m in 30 s with no word why (the
+## forced crouch's pace, the leg's, the carry's, all three). The carry's pace isn't cut again by
+## the crouch; the leg still slows you, and the screen says so.
+func test_hurt_and_carrying_you_go_slow_but_steady_and_are_told_why() -> void:
+	var man := HumanBody.new()
+	man.person_id = &"earl"
+	world.add_child(man)
+	man.global_position = player.global_position + Vector3(0.0, 0.0, -1.0)
+	await physics_frames(5)
+	man.go_limp()
+	await physics_frames(30)
+	var p := player.wounds.physiology
+	p.break_bone(&"tibia_r")
+	await physics_frames(2)
+	check(player.carry.take(man), "over your shoulder")
+	var from := player.global_position
+	var told: Array = []
+	var on_shown := func(text: String) -> void: told.append(text)
+	player.wounds.shown.connect(on_shown)
+	Input.action_press(&"move_forward")
+	await physics_frames(60 * 5)
+	Input.action_release(&"move_forward")
+	player.wounds.shown.disconnect(on_shown)
+	var went := Vector2(player.global_position.x - from.x, player.global_position.z - from.z).length()
+	# Carry pace (1.0 m/s) x the leg's 0.35: ~1.7 m in 5 s (it was ~0.9: the crouch's pace again).
+	check(went > 1.3, "slow but going (%.2f m in 5 s)" % went)
+	check(player.wounds.slow_why.contains("broken"), "why: %s" % player.wounds.slow_why)
+	check(told.any(func(l: String) -> bool: return l.contains("Your leg's broken")), "told: %s" % [told])
+	player.carry.start_over()
+
