@@ -26,6 +26,9 @@ var t := 0.0
 var holding := -1.0
 ## The last one's outcome (`landed`).
 var last := {}
+## How many moves have come to something (landed, missed, couldn't): `last` alone can't say a new one
+## came (#1116: two misses are the same Dictionary, so the bridge called the second "busy").
+var told := 0
 ## The lab and the bridge: start this move next tick as if the key had done it.
 var wants := &""
 
@@ -174,6 +177,7 @@ func _start(kind: StringName) -> void:
 
 func _tell(info: Dictionary, words := "") -> void:
 	last = info
+	told += 1
 	if words != "" and player.wounds:
 		player.wounds.say(words, 2.0)
 	landed.emit(info)

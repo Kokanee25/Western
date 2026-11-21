@@ -54,6 +54,22 @@ func _ready() -> void:
 	add_to_group(&"claims_use")
 
 
+## A mission started again in place (#1116: the sheriff's "start again" kept the last run's
+## metres and the blood on your coat): put down whoever you had, and none of it carried over.
+func start_over() -> void:
+	if carrying():
+		_drop(&"start_over")
+	blood_on_you = 0.0
+	dragged_m = 0.0
+	dragged_total_m = 0.0
+	last = &""
+	last_why = &""
+	_e_held = 0.0
+	_lift_t = 0.0
+	_told_for = null
+	_near = null
+
+
 func carrying(man: HumanBody = null) -> bool:
 	if him == null or not is_instance_valid(him):
 		return false
@@ -284,6 +300,17 @@ func _shoulder(m: HumanBody, on: bool) -> void:
 		# Clear of you, all of him: his body hangs down your back as he comes off the shoulder, and
 		# with nothing of you to push him (a limp man goes through you, HumanBody._through_the_player)
 		# a pelvis set 0.7 m out left his chest inside you, to fold back through you (#1092).
+		# Lowered, not dropped on end: over the shoulder he hangs folded at the hips (head down your
+		# back, legs down your front), and set down as he hung he stood on his head and feet and
+		# toppled for a second or more (#1116: CI's lay 0.48 m up a second on). A quarter turn about
+		# the fold's fore-and-aft line lays the fold flat, on his side; he settles from there.
+		var pivot := belly.global_position
+		var turn := Basis(fwd, deg_to_rad(LAY_TURN_DEG))
+		for v: Variant in m.parts.values():
+			var n := v as Node3D
+			if n != null:
+				var xf := n.global_transform
+				n.global_transform = Transform3D(turn * xf.basis, pivot + turn * (xf.origin - pivot))
 		var from := ValleyFolk._body_at(m)
 		var back := 0.0
 		for v: Variant in m.parts.values():
@@ -294,6 +321,8 @@ func _shoulder(m: HumanBody, on: bool) -> void:
 
 ## Laid down, his nearest part this far (m) past your capsule.
 const LAY_CLEAR_M := 0.15
+## Laid down: the hang's fold turned this far onto his side (degrees about your forward).
+const LAY_TURN_DEG := 90.0
 
 
 ## He comes loose only after he's been past carry_tear_m this long (s): a jolt on a step isn't it.

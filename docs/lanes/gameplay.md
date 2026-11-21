@@ -30,11 +30,15 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
-  out cold in the cabin it waits forever. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest faults (#1095, #1106, #1111):** one doctor (`ValleyFolk.seize`, `give_back`, `lends`); a knock no act
-  claims with a hurt man by the door brings him (`FetchHelp.at_door`); the knock prompt only where worth it. The shack
-  door: a set count of kicks (`kick_share`; `takes_kicks`, not your foot); "between" needs you to move. Tests
-  `test_playtest_faults.gd`, `test_cabin_faults.gd`. Waiting on Sean (#1114): Joe down at the cabin, "Joe gone".
+  Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
+- **Playtest faults (#1095, #1106, #1111, #1116):** one doctor (`ValleyFolk.seize`, `lends`); a knock brings a hurt
+  man's doctor (`FetchHelp.at_door`). The shack door: a set count of kicks (`kick_share`, `takes_kicks`). Joe down: held
+  E by his wound binds and splints him (`NoJusticeCabin._aid_step`, `Physiology.bind_up`/`splinted`), he limps in, the
+  knife waits. The office is a `SceneHold` your shot breaks; Joe ducks, "Stop", turns on you after 3 (`CompanionBrain.turned`).
+  Hurt townsfolk go, get up or call (`CivilianBrain.hurt`, `_lying`). `OutlawBrain.careful` (Joe, armed townsmen) holds
+  fire for anyone in the line; outlaws only for mates (DESIGN §7). Tests `test_chaos_faults`, `test_hurt_townsfolk`.
+  Open (chaos round): the slowdown after dynamite and fire (its own issue); two townsmen on one spot; the rifle's
+  `shoot 2`; walks stopping at posts.
 - Story decisions: #744's latest comments and STORY.md; the story bible is #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
   book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
@@ -56,29 +60,22 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `held` set by hand), the sheriff's scenes, the funeral (#1050's handover).
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
-- **The Colt** (#693 step 1 approved). Harlan's arms are characters' (#693).
-- **Gunfight D+** (#633 bugs; difficulty #349 is Sean's).
+- **The Colt** (#693 step 1 approved). **Gunfight D+** (#633; difficulty #349 is Sean's).
 - **The chaos bench** (#1117, #1119, `docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
   [--spikes=MS]`. `CatchUp` stops the bridge's spiral. Valley `outlaw_brain` spikes: cover ways asked of all ~360
   places, fixed (#1119, worst 204 -> 91 ms). Open: a search step still 15-90 ms (40 spots a tick); saloon B's blast
   frame (~900 ms, `settle_analyse`); Jolt's ~4 s of awake pieces.
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
-  --townsfolk=N [--band=] [--bodies] [--spikes=MS]`, `tools/valley/bench_runs.py`. **The cuts are in (#881; the review's "After the cuts"): the brief's 24 townsfolk fit.** The valley's spec buildings warm their first analysis on a worker
-  (`Structure.warm_analysis`; the valley has no FireSystem, so a settle is whole on one frame). `max_bodies`
-  65,536. Train past 400 m `Train.distant`. Open: every scene's else is over (~1 ms untimed engine share, the
-  train ~0.4 near, RoomLight ~0.2); the outlaws' first cover moves (~120 ms twice at a fight's start, ~21k
-  walk casts); the gunfight's people are over (its men at full rate by design).
+  --townsfolk=N`, `tools/valley/bench_runs.py`; 24 townsfolk fit (#881). Open: every scene's else is over (~1 ms
+  untimed), the outlaws' first cover moves (~120 ms twice at a fight's start), the gunfight's people.
 
-- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` (bridge `glove MAN`) on our
-  cloth (`SolverCloth`, `docs/briefs/garment-cloth.md`); his hand's own skin kept under it (ON); self-meeting off (#1034;
-  later #1038, `after slice`). Build the plugin with `NO_PROXY=localhost,127.0.0.1 cargo build --release`, .so to bin/.
-  The bridge's real look is OOM-killed in 8 GB: use the bench's stills (`bench.gd -- --shots=... --cam=hands`).
+- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`. Build the
+  plugin with `NO_PROXY=localhost,127.0.0.1 cargo build --release`, .so to bin/ (a fresh import here takes ~25 min).
 - **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
-- **Flaky in shard order:** `test_town_day`'s fight tests (a different one fails each run, physics luck; red on #1085's
-  shard 3, merged on Sean's OK 2026-11-19). Locally `test_no_justice_whole` (shard 1) and `test_no_law_carry` (shard 2)
-  fail in shard order but pass on CI. `Seating.stand_up` now checks his step out of a chair (#1077).
+- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3). Locally
+  `test_no_law_carry` (shard 2) has failed in shard order but passes on CI.
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 

@@ -576,13 +576,15 @@ func _cmd_kick(_a: Array) -> Dictionary:
 
 
 func _shove_move(kind: StringName) -> Dictionary:
-	var before: Dictionary = player.shove.last
+	# (By its count, not `last`: a second miss is the same Dictionary as the first, #1116.)
+	var before := player.shove.told
 	player.shove.wants = kind
 	var until := _game_seconds() + 2.0
-	while player.shove.last == before and _game_seconds() < until:
+	while player.shove.told == before and _game_seconds() < until:
 		await get_tree().physics_frame
-	if player.shove.last == before:
-		return {"ok": false, "error": "it didn't start (busy, or down on a stair)"}
+	if player.shove.told == before:
+		var why := "still kicking" if player.shove.move != &"" else ("down on the stair" if player.shove.slipped() else "busy")
+		return {"ok": false, "error": "it didn't start (%s)" % why}
 	return {"did": _shove_words(player.shove.last)}
 
 

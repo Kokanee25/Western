@@ -426,9 +426,16 @@ func test_a_restart_starts_it_from_the_story_as_it_began() -> void:
 		return
 	StoryState.set_fact("sheriff.care", "left him")
 	StoryState.set_fact("during.try", true)
+	var pl := get_tree().get_first_node_in_group(&"player") as Player
+	if pl and pl.carry:
+		pl.carry.dragged_m = 488.3
+		pl.carry.blood_on_you = 6.0
 	var again := m.restart() as SheriffOnRoad
 	await physics_frames(10)
 	check(again != null and not again.done, "started again")
+	if pl and pl.carry:
+		check(pl.carry.dragged_m == 0.0 and pl.carry.blood_on_you == 0.0,
+				"the last run's carry gone (#1116: %.1f m, %.1f blood)" % [pl.carry.dragged_m, pl.carry.blood_on_you])
 	check(StoryState.has_fact("earlier.thing"), "the earlier fact kept")
 	check(not StoryState.has_fact("during.try"), "the try's fact gone")
 	check(not StoryState.has_fact("sheriff.care"), "no care yet")

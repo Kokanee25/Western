@@ -38,6 +38,13 @@ var _beats: Array = []
 var _beat := 0
 var _next_t := 0.0
 var _waiting := false
+## The office held as a scene (SceneHold, #1116): your ball or your hand on anyone there breaks it,
+## and the doctor and the cowboy (brainless while the scene drives them) get brains and take it as
+## they would (the doctor takes cover; the cowboy, armed, answers); Joe takes it in his own way
+## (CompanionBrain: ducks, "Stop", and fires back if you keep on). The talk waits till it's quiet.
+var hold: SceneHold
+var broken_at := -INF
+var _quiet_from := -INF
 var _walk: Array[Vector3] = []
 var _looked := 0.0
 var _said_nobody := false
@@ -159,7 +166,37 @@ func _make_men() -> void:
 			CompanionBrain.STAND_IN, true)
 	joe_brain = joe.get_node(^"Brain") as CompanionBrain
 	_made.append(joe)
+	var cast: Array = [joe]
+	for m: HumanBody in [doctor, cowboy]:
+		if m != null:
+			cast.append(m)
+	hold = SceneHold.claim(self, {"label": &"no_justice_office", "cast": cast, "follow": building,
+			"radius": float(data.get("hold_m", 7.0)), "breaks": [&"shot", &"hit"], "make_way": false, "keep_armed": false})
+	hold.brain_for = func(man: HumanBody) -> Node:
+		# The cowboy armed is a townsman, not a gang's: he holds fire for anyone in his line (#1116).
+		if not man.has_gun:
+			return null
+		var b := OutlawBrain.new()
+		b.careful = true
+		return b
+	hold.broken.connect(_on_hold_broken)
+	Events.shot_fired.connect(_on_any_shot)
 	_note("set: Joe, the doctor and the cowboy in the front office")
+
+
+func _on_hold_broken(why: StringName) -> void:
+	broken_at = t
+	_quiet_from = t
+	_note("the office broken (%s): the doctor and the cowboy their own men" % why)
+
+
+func _on_any_shot(_o: Vector3, _d: Vector3, _shooter: Node) -> void:
+	_quiet_from = t
+
+
+## The office scene's off (broken) and it hasn't been quiet `quiet_s` since the last shot.
+func _shaken() -> bool:
+	return broken_at > -INF and t - _quiet_from < float(data.get("quiet_s", 15.0))
 
 
 func _man(id: StringName, at: Vector3, faces: Vector3) -> HumanBody:
@@ -220,12 +257,16 @@ func _prompts() -> Dictionary:
 
 ## The men stand and face the room; Joe's held (the brain's quiet) until the trail.
 func _hold_poses() -> void:
+	if broken_at > -INF:
+		return  # (broken: they're their own men)
 	for m: HumanBody in [doctor, cowboy]:
 		if m != null and is_instance_valid(m) and not m.limp:
 			m.set_pose(&"stand")
 
 
 func _office_step(p: Player, delta: float) -> void:
+	if _shaken() or joe_brain.turned:
+		return  # (no talk under fire, nor with Joe turned on you)
 	var near := _flat(p.global_position, joe.global_position) < float(data.get("hear_m", 8.0))
 	if _waiting:
 		var g := gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), delta) if near else &""
@@ -378,6 +419,8 @@ func _at_camp_start() -> void:
 	joe.global_position = jat + Vector3.UP * 0.05
 	joe.rotation.y = HumanBody.yaw_toward(jat, jat + camp_on)
 	# The doctor and the cowboy back to their day (ValleyFolk); the scene's at the camp now.
+	if hold != null and is_instance_valid(hold):
+		hold.release()
 	for id: StringName in [&"doctor", &"cowboy"]:
 		if folk.state.get(id) == &"act":
 			folk.release(id)  # (the doctor back to his day, #1095: he stood in the office all game)
