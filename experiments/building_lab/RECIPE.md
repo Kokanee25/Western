@@ -334,3 +334,22 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - **A change to the valley's static bodies can tip the card-game tests** (they share one valley; Jolt's contact
   order moves the chairs' pieces): the jail's shorter walk failed both chair tests in every full CI run. Run
   `--only=card_game` after any valley.json walk or lot change; the jail's walk waits on #834.
+
+## A log building and its yard (Harlan's homestead, #1126)
+
+- **One session can take a small building through every step** when the sheet runs while the code is
+  written: push the sheet's request first (on a `claude/art-building-*` branch: the workflow fires only
+  there; merge its results back), then build. Eight views, $1.12.
+- **Log walls are a part** (`LogWall`, FORMAT.md "A log building's parts"): give a wall `log: true` and the
+  builder lays courses, chinking, notched corners, bucks and a board gable. Keep the courses level all
+  round (butt and pass at the corners) so every log rests on what's under it; half-offset courses leave a
+  log's end over air in the support graph.
+- **A porch deck's posts need room:** `_deck` stands its posts on 0.25 m blocks under a 0.12 m beam, so a
+  deck under ~0.5 m makes a negative post (a BoxShape error). Put the deck's ledger on the footing's stones
+  (the deck a step under the floor) so it rests along the wall, not on one contact at the sill's middle.
+- **A repair job is a real piece, and it is weak:** a sprung board fails a crowd. The test lets a member with
+  meta `repair` fail the crowd check, and nothing else.
+- **Things off the pad stand on the slope:** a Structure grounds members only at its own y 0; the yard's
+  `YardStructure` grounds each on the ground under it (`ground_y`), so a pipe down a hill doesn't fall.
+- **A dirt floor** (`levels.ground.dirt`): the checks take the ground as the floor for use points under the
+  sills' level.

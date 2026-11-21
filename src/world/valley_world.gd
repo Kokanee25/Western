@@ -97,6 +97,7 @@ func _ready() -> void:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
 		u = _took(&"markers", u)
 		_make_buildings()
+		_make_homesteads()
 		u = _took(&"buildings", u)
 		_warm_buildings.call_deferred()
 		if markers.town and ValleyFolk.folk_default:
@@ -281,6 +282,31 @@ func _make_buildings() -> void:
 			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
 			if not sw.is_empty():
 				_side_walk(String(l.id), b, sw, floor_top)
+
+
+## Every place with a `site` (#1126, Harlan's homestead: Homestead) built on its pad: the node at the
+## pad's north-west corner, at the pad's level, the slope off it from the valley's ground.
+var homesteads := {}
+
+
+func _make_homesteads() -> void:
+	if not buildings_default:
+		return
+	for p: Dictionary in layout.places():
+		if not p.has("site"):
+			continue
+		var pad: Dictionary = p.get("pad", {})
+		var at := ValleyLayout.xz(p.at)
+		var h := Homestead.new()
+		h.name = "Homestead_" + String(p.id)
+		h.site_path = String(p.site)
+		var terrain := ValleyTerrain.main()
+		h.ground = terrain.height
+		h.position = Vector3(at.x - float(pad.get("w", 0.0)) * 0.5, float(pad.get("y", 0.0)), at.y - float(pad.get("d", 0.0)) * 0.5)
+		add_child(h)
+		homesteads[String(p.id)] = h
+		for id: String in h.buildings:
+			buildings["%s/%s" % [p.id, id]] = h.buildings[id]
 
 
 ## Each spec building's first analysis on a worker once the load's done (`Structure.warm_analysis`):
