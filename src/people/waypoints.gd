@@ -9,6 +9,9 @@ var points := {}  ## name -> Vector3
 var links := {}  ## name -> Array[StringName]
 ## Links that go up a stair ("a|b", both ways): walked by its ramp, not a straight sweep.
 var stairs := {}
+## Every query a way's asked (rays and sweeps), counted always (unlike Prof's q_walk): what a
+## spread-out cover search spends of its WorkBudget under World.deterministic (Cover.Search, #1123).
+static var asked := 0
 
 
 func add(name: StringName, at: Vector3, linked: Array = []) -> void:
@@ -291,6 +294,7 @@ static func _centre_blocked(space: PhysicsDirectSpaceState3D, from: Vector3, to:
 	var q := PhysicsRayQueryParameters3D.create(from + lift, to + lift, Layers.WORLD, exclude)
 	q.hit_back_faces = false
 	Prof.count(&"q_walk")
+	asked += 1
 	var hit := space.intersect_ray(q)
 	if hit.is_empty():
 		return false
@@ -314,6 +318,7 @@ static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3
 		var p := a.lerp(b, float(i) / n)
 		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, top, p.z), Vector3(p.x, bottom, p.z), Layers.STAND, exclude)
 		Prof.count(&"q_walk")
+		asked += 1
 		var hit := space.intersect_ray(q)
 		# Nothing within half a metre under the lower end: a drop (off a high walk into an alley,
 		# #737), unless the ray only fell between two planks.
@@ -336,6 +341,7 @@ static func _foot_height(space: PhysicsDirectSpaceState3D, p: Vector3, top: floa
 	for o: Vector2 in [Vector2(FOOT, 0.0), Vector2(-FOOT, 0.0), Vector2(0.0, FOOT), Vector2(0.0, -FOOT)]:
 		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x + o.x, top, p.z + o.y), Vector3(p.x + o.x, bottom, p.z + o.y), Layers.STAND, exclude)
 		Prof.count(&"q_walk")
+		asked += 1
 		var hit := space.intersect_ray(q)
 		if not hit.is_empty():
 			best = maxf(best, (hit.position as Vector3).y)

@@ -186,3 +186,63 @@ func _route_to_point_was(w: Waypoints, space: PhysicsDirectSpaceState3D, from: V
 	var path := w.route(space, from, best, ex)
 	path.append(point)
 	return path
+
+
+## A cover search spread thin (one piece a step: a chunk's lines, one spot scored, one routed;
+## #1123) finds what one chunk a step found: the same spot, score and way, by the town's ways and
+## by the way there (`by_way`) and with his own cover (`own`), from a grid over the street's west
+## end against a man up the street.
+func test_a_spread_cover_search_finds_the_same_spot() -> void:
+	var street: Node3D = load("res://scenes/test_street.tscn").instantiate()
+	add_child(street)
+	await physics_frames(5)
+	for n in get_tree().get_nodes_in_group(&"people"):
+		n.queue_free()
+	await physics_frames(2)
+	var w := Waypoints.test_street()
+	var space := street.get_world_3d().direct_space_state
+	var ex: Array[RID] = [(street.get_node(^"Player") as Player).get_rid()]
+	var eye := Vector3(10.0, 1.6, -3.0)
+	var compared := 0
+	var found := 0
+	var spread_steps := 0
+	var chunk_steps := 0
+	var differ: Array[String] = []
+	for x in range(-30, 1, 6):
+		for z in [-12, -8, -4]:
+			var top := Vector3(x, 6.0, z)
+			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(top, top + Vector3.DOWN * 8.0, Layers.STAND, ex))
+			if hit.is_empty():
+				continue
+			var from: Vector3 = hit.position
+			for v: StringName in [&"", &"by_way", &"own"]:
+				var got: Array[Dictionary] = []
+				for spread: bool in [false, true]:
+					var rng := RandomNumberGenerator.new()
+					rng.seed = 1123
+					var s := Cover.search(street, from, eye, ex, rng, Vector3.INF, 11.0, 3.0, w)
+					if v != &"":
+						s._ctx[v] = true
+					var steps := 0
+					while true:
+						steps += 1
+						# The whole search in one step (a budget it can't spend), or a piece a step.
+						var b := WorkBudget.new(0.0, 0) if spread else WorkBudget.new(1e9, 1 << 40)
+						if s.step(40, b) or steps > 5000:
+							break
+					if spread:
+						spread_steps += steps
+					else:
+						chunk_steps += steps
+					got.append(s.result)
+				compared += 1
+				var a: Dictionary = got[0]
+				var b2: Dictionary = got[1]
+				if not a.is_empty():
+					found += 1
+				if a.is_empty() != b2.is_empty() or (not a.is_empty() and (a.at != b2.at or a.score != b2.score or a.route != b2.route)):
+					differ.append("%s %s" % [str(from.snapped(Vector3.ONE * 0.1)), v])
+	check(compared > 30 and found > 10, "%d searches compared, %d found a spot" % [compared, found])
+	check(spread_steps > chunk_steps * 5, "spread over many more steps (%d against %d)" % [spread_steps, chunk_steps])
+	check(differ.is_empty(), "the same spots: %s" % str(differ))
+	street.queue_free()
