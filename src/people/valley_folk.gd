@@ -889,6 +889,25 @@ static func block_key(b: Dictionary) -> String:
 	return "%s|%s|%s" % [String(b.get("in", "")), str(b.get("at", "")), String(b.get("do", ""))]
 
 
+## Lines said on the next physics frame (`say_soon`): a line is a noise (DeedWatch's speech), and the
+## ears that hear it look along a ray, which only the physics frame may (the folk step in _process).
+var _to_say: Array = []
+
+
+func say_soon(man: HumanBody, text: String) -> void:
+	_to_say.append([man, text])
+
+
+func _physics_process(_delta: float) -> void:
+	if _to_say.is_empty():
+		return
+	var list := _to_say
+	_to_say = []
+	for x: Array in list:
+		if is_instance_valid(x[0]):
+			Events.spoke.emit(x[0], String(x[1]))
+
+
 func _process(delta: float) -> void:
 	var t := Prof.start()
 	_step(delta)
@@ -1600,7 +1619,7 @@ func _talk_step() -> void:
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
 		_spoke_at[id] = _talk_clock()
 		man.face(p.global_position + Vector3.UP * 1.5)
-		Events.spoke.emit(man, String(l[1]))
+		say_soon(man, String(l[1]))
 		heard.append([String(id), String(l[0]), String(l[1])])
 
 

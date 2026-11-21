@@ -485,7 +485,11 @@ func _start_talk(a: CivilianBrain, b: CivilianBrain, rid: int) -> void:
 	if not r.story:
 		var you := _player()
 		if you != null and you.global_position.distance_to(a.body.global_position) < 12.0:
-			a.say_line(line_of(a.body.person_id, rid, b.body.person_id))
+			var text := line_of(a.body.person_id, rid, b.body.person_id)
+			if folk != null:
+				folk.say_soon(a.body, text)  # (the folk step in _process: said on the physics frame)
+			else:
+				a.say_line(text)
 
 
 func _talking(b: CivilianBrain) -> bool:
