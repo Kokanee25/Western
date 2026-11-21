@@ -96,7 +96,7 @@ func test_a_hurt_man_isnt_held_by_a_gun_on_him() -> void:
 			went = true
 			break
 	check(b.hurt, "he knows he's hit (%s)" % b.describe())
-	check(_said("bench", &"hurt"), "and cries out (%s)" % [said])
+	check(_said("bench", &"hurt") or _said("bench", &"hurt_arm"), "and cries out (%s)" % [said])  # (by where he's hit: #1125)
 	check(went, "he goes for the door, the gun on him or not (%s)" % b.describe())
 	check(b.mood != CivilianBrain.Mood.HANDS_UP, "not hands up")
 
