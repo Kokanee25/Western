@@ -2659,11 +2659,46 @@ func _chimneys() -> void:
 		var sz := float(c.size)
 		var y0 := float(_fr.foundation.bottom)
 		var y1 := ridge + float(c.get("over_ridge", 0.6))
+		if c.has("fieldstone"):
+			_fieldstone_chimney(c, y0, y1, StringName(ch.get("wood", "stone")))
+			continue
 		var n := maxi(1, ceili((y1 - y0) / 1.2))
 		for k in n:
 			var a := y0 + (y1 - y0) * k / n
 			var b := y0 + (y1 - y0) * (k + 1) / n
 			add_member("chimney/%s/%d" % [c.id, k], &"post", StringName(ch.get("wood", "stone")), Vector3(sz, b - a - 0.002, sz), Vector3(c.at[0], (a + b) * 0.5, c.at[1]))
+
+
+## A chimney of rough fieldstone (#1126, Harlan's: a chimney's `fieldstone` {course, stack, from}): laid
+## in courses `course` high, four stones a course round a flue (the long pair across x and the short pair
+## between them, swapped course to course so the corners bond), each stone set out a little from the
+## face and a little long or short by its own hash, so the stack's edges are ragged; `size` wide to
+## `from` (over the ground: the firebox's base), narrowing to `stack` wide above. Each stone a member
+## (kind `sill`: it rests on the course under it); a blast takes stones, not lengths.
+func _fieldstone_chimney(c: Dictionary, y0: float, y1: float, wood: StringName) -> void:
+	var fs: Dictionary = c.fieldstone
+	var course := float(fs.get("course", 0.22))
+	var n := maxi(1, roundi((y1 - y0) / course))
+	var h := (y1 - y0) / n
+	var cx := float(c.at[0])
+	var cz := float(c.at[1])
+	for k in n:
+		var y := y0 + h * k
+		var wide := float(c.size) if y < float(fs.get("from", 1.8)) else float(fs.get("stack", c.size))
+		var t := minf(0.24, wide * 0.32)  # the stones' depth round the flue
+		var half := wide * 0.5
+		for e in 4:
+			var key := hash("%s_%d_%d" % [c.id, k, e])
+			var out := float(key % 25) / 1000.0  # 0-2.5 cm proud
+			var grow := float((key / 25) % 40) / 1000.0 - 0.02
+			var on_z := e < 2  # e 0/1: the +z/-z faces; 2/3: the +x/-x faces
+			var sgn := 1.0 if e % 2 == 0 else -1.0
+			var long := on_z == (k % 2 == 0)  # the long pair swaps course to course: the corners bond
+			var span := (wide + grow) if long else (wide - 2.0 * t + grow * 0.5)
+			var d := half - t * 0.5 + out
+			var size := Vector3(span, h - 0.002, t) if on_z else Vector3(t, h - 0.002, span)
+			var at := Vector3(cx, y + h * 0.5, cz + sgn * d) if on_z else Vector3(cx + sgn * d, y + h * 0.5, cz)
+			add_member("chimney/%s/%02d_%d" % [c.id, k, e], &"sill", wood, size, at)
 
 
 ## Ceilings: beaded boards nailed up under the loft's joists across every ground-floor room, run

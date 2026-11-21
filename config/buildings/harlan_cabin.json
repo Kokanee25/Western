@@ -61,16 +61,16 @@
   "log_wall": {
    "thick": 0.17,
    "course": 0.27,
-   "chink": 0.05,
-   "inset": 0.025,
+   "chink": 0.06,
+   "inset": 0.012,
    "over": 0.14,
    "piece": 6.5,
    "buck": 0.05,
    "wood": "framing",
-   "chink_wood": "stone",
+   "chink_wood": "painted_white",
    "lap": 0.06,
    "gable_wood": "weathered_pine",
-   "_doc": "LogWall (src/structures/log_wall.gd): 6 1/2 in hewn faces, 9 in logs, 2 in chinking set 1 in back, the ends 5 1/2 in past the corners"
+   "_doc": "LogWall (src/structures/log_wall.gd): 6 1/2 in hewn faces, 9 in logs, 2 1/2 in of lime chinking (whitewash pale) set 1/2 in back, the ends 5 1/2 in past the corners"
   },
   "pier": {
    "size": 0.3,
@@ -451,6 +451,11 @@
     ],
     "size": 0.8,
     "over_ridge": 0.6,
+    "fieldstone": {
+     "course": 0.22,
+     "stack": 0.62,
+     "from": 1.9
+    },
     "_doc": "rough fieldstone up the outside of the east gable, the stove's pipe in through the logs"
    }
   ]
@@ -773,10 +778,10 @@
    "logs": {
     "use": {
      "entry": "rough_pine_batten",
-     "age": "old",
+     "age": "few",
      "role": "wall"
     },
-    "_why": "hewn pine gone silver (R1 old) until a hewn-log entry is judged"
+    "_why": "hewn pine gone silver-grey (R1 a few years: old read near black on the logs, round 0) until a hewn-log entry is judged"
    },
    "new_wood": {
     "use": {
@@ -813,6 +818,10 @@
    [
     "_new",
     "new_wood"
+   ],
+   [
+    "/chink/",
+    "-"
    ],
    [
     "/log/",
