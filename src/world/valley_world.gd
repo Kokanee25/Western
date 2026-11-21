@@ -47,6 +47,12 @@ static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_use
 static var buildings_default := not "--no-buildings" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
+## `-- --mission=no_law`: No Law's first night (#1125: there was no flag, so it never started): the
+## clock at `NO_LAW_HOUR`, a quarter hour of game time before the murder's (config/moments/
+## no_law_murder.json, 22:00), you unarmed in the saloon yard facing the card table, the folk at
+## their night posts (Earl at the table from 19:30).
+const NO_LAW_ARG := "--mission=no_law"
+const NO_LAW_HOUR := 21.75
 ## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
 ## SheriffDies, the morning after set up, you on Main Street).
 const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
@@ -111,11 +117,18 @@ func _ready() -> void:
 		player.transform = start_transform(layout)
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
+	if NO_LAW_ARG in OS.get_cmdline_user_args():
+		_start_no_law.call_deferred()
 	if SHERIFF_DIES_ARG in OS.get_cmdline_user_args():
 		_start_sheriff_dies.call_deferred()
 	if FUNERAL_ARG in OS.get_cmdline_user_args():
 		_start_funeral.call_deferred()
-	if NoJusticeHideout.retry_on_load:
+	if JoeLost.restart != &"":
+		# Enter after Joe was lost to you (#1125): that act of No Justice again.
+		var again := JoeLost.restart
+		JoeLost.restart = &""
+		_start_act_again.call_deferred(again)
+	elif NoJusticeHideout.retry_on_load:
 		# Its retry (Enter after you went down there): the act again on the slope above it, whatever
 		# mission the game was started on.
 		NoJusticeHideout.retry_on_load = false
@@ -138,6 +151,15 @@ func _start_sheriff() -> void:
 		await get_tree().physics_frame
 	_unarmed()
 	Moment.start_named(&"the_sheriff", self, null)
+
+
+## No Law's first night (#1125), once the folk are built: the clock, you in the yard, unarmed.
+func _start_no_law() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	_unarmed()
+	if folk:
+		folk.set_up_no_law(NO_LAW_HOUR)
 
 
 ## No Law's sheriff's last day alone (#796), once the folk are built.
@@ -176,6 +198,13 @@ func _start_no_justice_hideout(arrive := false) -> void:
 	for i in 5:
 		await get_tree().physics_frame
 	Moment.start_named(&"no_justice_hideout", self, null, {"set_up": true, "arrive": arrive or "--arrive" in OS.get_cmdline_user_args()})
+
+
+## An act of No Justice again (JoeLost's Enter, #1125), set up as its own flag starts it.
+func _start_act_again(act_name: StringName) -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	Moment.start_named(act_name, self, null, {"set_up": true, "arrive": true})
 
 
 ## No Justice's cabin (#966), once the folk are built.

@@ -460,7 +460,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _knocked_out():
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
-			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching}
+			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching,
+			"slowed": player.wounds.slow_why if player.wounds else "", "carrying": player.carry != null and player.carry.carrying()}
 
 
 func _cmd_key(a: Array) -> Dictionary:
@@ -1156,6 +1157,8 @@ func _listen_to_events() -> void:
 			_shots += 1
 		_log("shot", "%s fired" % _who(shooter)))
 	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
+	_hook(Events.person_left, func(who: Node, why: StringName) -> void:
+		_log("left", "%s left town (%s)" % [_who(who), "his day done, while you were out" if why == &"day_done" else "rode out"]))
 	# What the screen told you (a wound, the gun you can't hold, coming round): #595's gun lost without a word.
 	_hook_screen.call_deferred()
 	_hook(Events.body_hit, func(info: Dictionary) -> void:
@@ -1293,6 +1296,10 @@ func _people() -> Array:
 			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
 			# one, so men who'd dropped theirs to give up still read armed).
 			"armed": man.held_gun != null, "wounds": man.wounds.size()}
+		# Every injury (blows and bruises too, not only holes: #1125's "0 wounds" was a bruised man) and his blood.
+		if man.physiology.wounds > man.wounds.size() or man.physiology.blood_ml < man.physiology.tuning.blood_ml:
+			e["injuries"] = man.physiology.wounds
+			e["blood_ml"] = int(man.physiology.blood_ml)
 		var brain := man.get_node_or_null(^"Brain")
 		if brain is OutlawBrain:
 			e["mood"] = OutlawBrain.Mood.keys()[brain.mood].to_lower()
@@ -1303,6 +1310,10 @@ func _people() -> Array:
 				e["arrested"] = "following" if brain.follow else "waiting"
 			if brain.relations:
 				e["toward_you"] = Relations.Stance.keys()[brain.relations.stance(player)].to_lower()
+			# What he has of you (#1125: "spotted" called at 100 m): sees you, his sight's reach on you as you're lit.
+			if brain.senses and brain.senses.known.has(player):
+				e["sees_you"] = brain.senses.sees(player)
+				e["sight_on_you_m"] = snappedf(brain.senses.range_to(player), 0.1)
 		elif brain is CivilianBrain:
 			e["mood"] = CivilianBrain.Mood.keys()[brain.mood].to_lower()
 			if brain.reaction != null and brain.reaction.describe() != "":

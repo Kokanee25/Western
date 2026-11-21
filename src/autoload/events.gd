@@ -63,6 +63,9 @@ signal callout(speaker: Node, kind: StringName, about: Node, at: Vector3)
 ## Hours went by in a moment (the clock jumped: you were out cold, `why` &"out_cold"). Whatever
 ## runs on time catches up roughly: a fight is over, the gang's day is done, frights fade.
 signal hours_passed(hours: float, why: StringName)
+## A man gone from the world on his own account, not dead (#1125: the riders off after a black-out
+## had gone with no word): `why` &"day_done" (his day had him ride out), &"rode_out" (walked out).
+signal person_left(person: Node, why: StringName)
 ## Water thrown on a fire: where, how much (litres), and how many burning members it put out.
 signal doused(at: Vector3, litres: float, put_out: int)
 ## A container broken (the prop kit's bottles and lamps, GlassProp): what it held let go on the floor

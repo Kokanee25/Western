@@ -1307,6 +1307,27 @@ func _maybe_murder(h: float) -> void:
 	start_murder()
 
 
+## `-- --mission=no_law` (#1125): the first night set up, the clock at `hour` (before the murder's),
+## you in the yard by the bar (`nolaw_yard_mid`) facing the card table: off the act's ways (on
+## its front, the stranger's way in, the scene's hold broke on its first frame). The murder then comes by
+## the clock or your hands at the table, as on any first night.
+func set_up_no_law(hour: float) -> void:
+	if _clock == null and get_parent():
+		_clock = get_parent().find_child("DayCycle", false, false) as DayCycle
+	if _clock:
+		_clock.set_time(hour)
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	var table := props.get("table") as Node3D
+	if p == null or table == null or not places.has(&"nolaw_yard_mid"):
+		return
+	var at := places.at(&"nolaw_yard_mid")
+	at.y = ground(at.x, at.z) + 0.1
+	p.global_position = at
+	p.velocity = Vector3.ZERO
+	var to := table.global_position - at
+	p.rotation.y = atan2(-to.x, -to.z)
+
+
 ## No Law's murder now (the clock, the card game, or the bridge's `moment no_law_murder`).
 func start_murder(options := {}) -> Moment:
 	murder = Moment.start_named(MURDER, get_parent() as Node3D, null, options)
