@@ -182,11 +182,11 @@
        "marks_s": [1, 5, 30, 90],
        "setup": "the player draws and shoots the victim twice across the saloon (bridge: weapon, look, shoot); everyone is a CivilianBrain",
        "expect": {
-         "witness": {"heard_shot": true, "saw_shooter": true, "knows_shooting": true},
-         "storekeeper": {"heard_shot": true, "who_by_sound_only": false},
+         "witness": {"heard_shot": true, "saw_shooter": true, "knows_shooting": true, "news_who": true},
+         "storekeeper": {"heard_shot": true, "who_by_sound_only": false, "news_who": false},
          "deputy": {"heard_shot": true, "knows_shooting": true, "who_by_sound_only": false},
-         "passerby": {"heard_shot": true, "who_by_sound_only": false}},
-       "why": "The barkeep sees it all; the storekeeper next door and the deputy at the jail hear two shots; a passer-by down the street too. Within a minute and a half someone runs to the deputy (the barkeep, or the storekeeper who went to look) and he knows a man's been shot in the saloon and by whom. Nobody knows who fired from the sound alone."},
+         "passerby": {"heard_shot": true, "who_by_sound_only": false, "news_who": false}},
+       "why": "The barkeep sees it all; the storekeeper next door and the deputy at the jail hear two shots; a passer-by down the street too. Within a minute and a half someone runs to the deputy (the barkeep, or the storekeeper who went to look) and he knows a man's been shot in the saloon and by whom. Nobody knows who fired from the sound alone. The news (TownNews, #1051): the barkeep's version names the player (he saw him fire); the storekeeper's and the passer-by's hold the shots and no shooter (they only heard)."},
       {"name": "store_holdup", "light": "day",
        "people": [
          {"id": "storekeeper", "role": "witness", "at": [4.65, 0.38, 3.7], "faces": [1, 1.5, 3.7]},

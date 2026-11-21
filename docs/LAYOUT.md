@@ -1957,6 +1957,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   (`CivilianBrain.walk_speed`) with the bag model in hand, `tend` beside the man `TEND_FOR` 240 s, then
   `call_over` (back to his block). The bridge's `read fetch`: the events (shot, ran, told, left frames,
   the route's m) and the log.
+  **The town's news** (townsfolk step 7, #1051; `TownNews`, `src/people/town_news.gd`, `tests/test_town_news.gd`,
+  `tests/test_town_news_valley.gd`): `records` the truth (Events.noise gunshots and their maker within 15 s / 30 m are one;
+  `deed` hit/kill and a fall or death near it set whom and what); `versions` per person id, filled only by his
+  CivilianBrain (`heard`: shots, who only if he saw him fire, first = who fired the first shot he saw; `saw_down`:
+  whom, dead), a body still lying found by anyone who sees it within 25 m (`_found_step`), the dead's own erased.
+  Telling: two calm men within 3 m, 6-10 s, the biggest piece the hearer lacks, one in three a slot wrong
+  (`_go_wrong`: first swapped, shots ±1, who or where dropped); two on the book in one house each clock hour;
+  the runner to the doctor (`hand_over`). `overnight` at the town's day turn (`ValleyFolk._news_turn`): size 0.5+
+  to everyone as told, small told news fades; StoryState `news.yesterday` (calendar kind `uneasy`), `news.harlan`
+  (`view_of_harlan`: stopped_a_killer / shot_a_man / split), `news.dead.<id>`. Story records (an act man's shot)
+  travel but don't set the day and aren't spoken (`to_say`). The folk's talk says a calm man's own version once
+  (`line_of`, PROPOSED words). **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
+  seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
+  body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
