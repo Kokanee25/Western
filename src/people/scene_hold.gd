@@ -171,7 +171,13 @@ func _prune() -> void:
 
 
 func holds(man: Node) -> bool:
-	return on and man is HumanBody and man in cast
+	return on and in_cast(man)
+
+
+## Is this one of its men? (Any node: `in` on the typed cast errors for one that isn't a HumanBody,
+## the player among them: #1125, Joe turning on you with the office's hold still on.)
+func in_cast(n: Variant) -> bool:
+	return n is HumanBody and is_instance_valid(n) and (n as HumanBody) in cast
 
 
 func zone_centre() -> Vector3:
@@ -304,17 +310,17 @@ func _on_deed(actor: Node, kind: StringName, target: Node, at: Vector3) -> void:
 	if not on:
 		return
 	if actor is HumanBody and actor in cast:
-		if kind in [&"shoot_at", &"hit", &"aim_at", &"kill"] and target != null and not target in cast:
+		if kind in [&"shoot_at", &"hit", &"aim_at", &"kill"] and target != null and not in_cast(target):
 			_turned_on[target] = actor
 		return
 	if not _you(actor):
 		return
 	if kind == &"draw" and &"draw" in breaks and _near_you(actor as Node3D):
 		break_hold(&"draw", actor, target, at)
-	elif kind == &"shoot_at" and &"shot" in breaks and (target in cast or _near_you(actor as Node3D)):
+	elif kind == &"shoot_at" and &"shot" in breaks and (in_cast(target) or _near_you(actor as Node3D)):
 		break_hold(&"shot", actor, target, at)  # (DeedWatch's word for your shot, ahead of shot_fired)
 	elif kind in [&"hit", &"shove", &"kick", &"kick_down", &"kill"] and &"hit" in breaks \
-			and (target in cast or _near_you(actor as Node3D)):
+			and (in_cast(target) or _near_you(actor as Node3D)):
 		break_hold(&"hit", actor, target, at)
 
 
@@ -463,7 +469,7 @@ static func _armed(man: HumanBody) -> bool:
 ## A held chair isn't free to `man` (Seating): his own if the scene sat him in it.
 static func chair_held(chair: KitProp, man: Node = null) -> bool:
 	for h: SceneHold in _live():
-		if h.on and chair in h.chairs and not (man != null and (man in h.cast or h._owner.get(chair) == man)):
+		if h.on and chair in h.chairs and not (man != null and (h.in_cast(man) or h._owner.get(chair) == man)):
 			return true
 	return false
 
@@ -471,7 +477,7 @@ static func chair_held(chair: KitProp, man: Node = null) -> bool:
 ## `by` (an armed man) leaves `who` be: who's held by a scene `by` isn't in, and hasn't turned on him.
 static func spares(by: Node, who: Node) -> bool:
 	for h: SceneHold in _live():
-		if h.on and who in h.cast and not by in h.cast and h._turned_on.get(by) != who:
+		if h.on and h.in_cast(who) and not h.in_cast(by) and h._turned_on.get(by) != who:
 			return true
 	return false
 
@@ -479,7 +485,7 @@ static func spares(by: Node, who: Node) -> bool:
 ## The live holding `man` (null if none).
 static func holding(man: Node) -> SceneHold:
 	for h: SceneHold in _live():
-		if h.on and man in h.cast:
+		if h.on and h.in_cast(man):
 			return h
 	return null
 

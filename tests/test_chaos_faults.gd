@@ -177,3 +177,34 @@ func test_joe_and_the_doctor_answer_your_shots() -> void:
 	check(m.joe_brain.turned, "three of yours and Joe turns on you (%s)" % m.joe_brain.describe())
 	check(_lines_of("joe").has("Then I stop you."), "\"Then I stop you.\"")
 	check(m.joe_brain.target == _player(), "his fight's with you")
+
+
+## Chaos round 2 (#1125): you shot Joe first, he shot you down, and in the black-out he'd gone; the
+## mission ended with no word ("he's long gone", `joe state` "no Joe"). Now it ends on a card that
+## says so, the story has it, and Enter would start the act again.
+func test_joe_lost_to_you_ends_no_justice_on_a_card() -> void:
+	holder = Node.new()
+	holder.name = "Main"
+	add_child(holder)
+	valley = load("res://scenes/valley.tscn").instantiate()
+	holder.add_child(valley)
+	await physics_frames(5)
+	var m := Moment.start_named(&"no_justice_camp", valley, null, {"set_up": true, "pace": 0.25}) as NoJusticeCamp
+	check(m != null and not m.done, "it starts")
+	if m == null or m.done or m.joe == null:
+		return
+	var lost := m.get_node_or_null(^"JoeLost") as JoeLost
+	check(lost != null, "watched")
+	m.joe_brain._turn_on_you()
+	await physics_frames(5)
+	# You go down (out cold) and come round hours on: Joe has gone his way.
+	var p := _player()
+	p.set_meta(&"last_hit_by", m.joe)
+	p.wounds.physiology.blood_ml = 2800.0
+	var woke := await wait_until(func() -> bool: return p.wounds.physiology.is_conscious() and p.wounds.out_cold == 0.0 and m.done, 60 * 12)
+	check(woke, "you came round and it's over (%s, %s)" % [m.state, m.done])
+	check_eq(String(m.state), "joe_lost", "ended: Joe lost")
+	check_eq(StoryState.get_fact("nojustice.ending"), "joe_lost", "the story has it")
+	check(lost != null and lost.over and m.card_up(), "on a card")
+	check(m._card_label != null and m._card_label.text.contains("No Justice is over"), "it says so (%s)" % (m._card_label.text if m._card_label else ""))
+	check(lost != null and lost.what.contains("Joe turned on you"), "what happened: %s" % (lost.what if lost else ""))

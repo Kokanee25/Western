@@ -123,7 +123,12 @@ func _ready() -> void:
 		_start_sheriff_dies.call_deferred()
 	if FUNERAL_ARG in OS.get_cmdline_user_args():
 		_start_funeral.call_deferred()
-	if NoJusticeHideout.retry_on_load:
+	if JoeLost.restart != &"":
+		# Enter after Joe was lost to you (#1125): that act of No Justice again.
+		var again := JoeLost.restart
+		JoeLost.restart = &""
+		_start_act_again.call_deferred(again)
+	elif NoJusticeHideout.retry_on_load:
 		# Its retry (Enter after you went down there): the act again on the slope above it, whatever
 		# mission the game was started on.
 		NoJusticeHideout.retry_on_load = false
@@ -193,6 +198,13 @@ func _start_no_justice_hideout(arrive := false) -> void:
 	for i in 5:
 		await get_tree().physics_frame
 	Moment.start_named(&"no_justice_hideout", self, null, {"set_up": true, "arrive": arrive or "--arrive" in OS.get_cmdline_user_args()})
+
+
+## An act of No Justice again (JoeLost's Enter, #1125), set up as its own flag starts it.
+func _start_act_again(act_name: StringName) -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	Moment.start_named(act_name, self, null, {"set_up": true, "arrive": true})
 
 
 ## No Justice's cabin (#966), once the folk are built.

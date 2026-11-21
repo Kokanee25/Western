@@ -79,6 +79,7 @@ func begin() -> void:
 		joe = CompanionBrain.make_joe(street, at, p.rotation.y, p, folk.places if folk else null)
 		_made.append(joe)
 	joe_brain = joe.get_node(^"Brain") as CompanionBrain
+	JoeLost.watch(self, joe, joe_brain)
 	joe_brain.costume = true
 	joe_brain.held = false
 	_trail_from = p.global_position
