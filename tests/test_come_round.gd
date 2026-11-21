@@ -61,7 +61,8 @@ func test_you_come_round_hours_later_still_hurt() -> void:
 	check_eq(p.wounds, wounds, "the wounds are still there")
 	check_eq(p.broken.size(), broken, "broken bones stay broken")
 	check(p.total_bleed_rate() < 0.01, "bound up: no bleeding (%.2f ml/s)" % p.total_bleed_rate())
-	check(p.blood_loss() >= PlayerWounds.WAKE_BLOOD_LOSS - 0.01, "still short of blood (%.2f)" % p.blood_loss())
+	check(p.blood_loss() > 0.05, "still short of blood (%.2f)" % p.blood_loss())
+	check_near(player.wounds.recovering, float(PlayerWounds.OUT_HOURS), 0.01, "a quarter of the way mended (#1125)")
 	check(p.describe() != "Unhurt.", "not unhurt: %s" % p.describe())
 	check_near(clock.time_of_day, 17.0 + PlayerWounds.OUT_HOURS, 0.05, "the clock moved on")
 	# And you stay up: nothing about you puts you straight back down.
@@ -190,3 +191,30 @@ func test_a_hurt_townsman_runs_on_through_the_hours() -> void:
 	Events.spoke.disconnect(on_spoke)
 	for line: String in said:
 		check(not line in CivilianBrain.LINES[&"cower"] and not line in CivilianBrain.LINES[&"hurt"], "no cry at an old shot: %s" % line)
+
+
+## #1125 (Sean on #1093: your wounds don't last; fully recovered within a day, nothing permanent):
+## at the doctor's the bleeding's stopped and a broken leg's splinted (you stand on it); half the day
+## on the bones have knit; by the day's end you're as you were.
+func test_a_day_after_the_doctors_youre_mended() -> void:
+	var p := player.wounds.physiology
+	p.break_bone(&"femur_r")
+	p.lost_fingers[&"finger_index_r"] = true
+	p.wounds += 3
+	check(not p.leg_ok("r"), "the broken leg won't hold you")
+	await _knock_out()
+	check(p.splinted.has("r") and p.leg_ok("r"), "splinted: you stand on it")
+	check(p.broken.has(&"femur_r"), "not mended yet")
+	check(player.wounds._message.text.contains("right in a day"), "told: %s" % player.wounds._message.text)
+	# The clock runs on (ticked by hand: the test's clock is still): the rest of the half day.
+	for i in 70:
+		clock.pass_hours(0.1)
+		await physics_frames(1)
+	check(not p.broken.has(&"femur_r"), "half a day on: the bone's knit (%.1f h)" % player.wounds.recovering)
+	check(p.wounds > 0, "not all of it yet")
+	Events.hours_passed.emit(13.0, &"test")
+	check_eq(p.wounds, 0, "a day on: no wounds")
+	check(p.lost_fingers.is_empty(), "nothing permanent")
+	check_near(p.blood_ml, p.tuning.blood_ml, 1.0, "your blood back")
+	check_eq(p.describe(), "Unhurt.", "unhurt")
+	check(player.wounds.recovering < 0.0, "done mending")

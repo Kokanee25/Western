@@ -26,6 +26,15 @@ const TEND_TOURNIQUET_SECONDS := 4.0
 const OUT_HOURS := 6
 const WAKE_BLOOD_LOSS := 0.2
 const WAKE_PAIN := 0.6
+## Your mending (#1125, Sean on #1093: the player's wounds don't last; fully recovered within a day,
+## nothing permanent): game hours from the doctor's (or from your bleeding stopping) to as you were.
+## Half way the bones, nerves and muscles have mended (`Physiology.mend`); at the end, everything.
+const RECOVER_HOURS := 24.0
+## Game hours into your mending (-1: not mending).
+var recovering := -1.0
+var _mend_from := {}
+var _mended := false
+var _clock_was := -1.0
 
 var physiology: Physiology
 var anatomy: Anatomy
@@ -102,6 +111,7 @@ func _ready() -> void:
 	player.set_meta(&"human_body", self)
 	_rng.seed = 1882
 	Events.deed.connect(_on_deed)
+	Events.hours_passed.connect(_on_hours_passed)
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
 	physiology.roll_rng.seed = hash(["physiology", "player"])
@@ -841,6 +851,7 @@ func _physics_step(delta: float) -> void:
 	_update_ears(delta)
 	physiology.step(delta * scale)
 	_drip(delta * scale)
+	_mend_by_clock()
 	var p := physiology
 	var legs := p.leg_ok("r") and p.leg_ok("l") and not p.legs_paralysed() and not p.broken.has(&"pelvis_bone")
 	player.force_crouch = not legs or p.shock() > 0.85
@@ -992,6 +1003,7 @@ func _come_round() -> void:
 	var left := _what_still_hurts()
 	if left != "":
 		lines.append(left)
+		lines.append("The doctor says you'll be right in a day.")
 	say("\n".join(lines), 10.0, true)
 
 
@@ -1024,7 +1036,68 @@ func _patch_up() -> void:
 	p.pain = p.wound_pain
 	for w in wounds:
 		w.dressed = true
+	# The doctor splints a broken leg (the card said so; #1125: you couldn't stand on it).
+	for bone: StringName in p.broken:
+		var b := String(bone)
+		if b.begins_with("femur_") or b.begins_with("tibia_") or b.begins_with("patella_"):
+			p.splinted[b.right(1)] = true
 	tending = 0.0
+	_start_mending()
+
+
+## Your mending from here (#1125): how far your blood and pain have to come back from.
+func _start_mending() -> void:
+	recovering = 0.0
+	_mended = false
+	_mend_from = {"blood": physiology.blood_ml, "pain": physiology.wound_pain}
+
+
+## Hurt, not bleeding, awake: you're mending (a wound you bound yourself mends as the doctor's does).
+func _hurt_and_bound() -> bool:
+	var p := physiology
+	if not p.alive or not p.is_conscious() or p.total_bleed_rate() > 0.01:
+		return false
+	return p.wounds > 0 or not p.broken.is_empty() or p.blood_ml < p.tuning.blood_ml - 1.0 or p.wound_pain > 0.0 or p.burns > 0.0
+
+
+## Your mending goes by the clock as it runs (a jump of it, a black-out's, comes by hours_passed).
+func _mend_by_clock() -> void:
+	if _day_cycle == null or not is_instance_valid(_day_cycle):
+		return
+	var now := float(_day_cycle.day) * 24.0 + float(_day_cycle.time_of_day)
+	var d := now - _clock_was if _clock_was >= 0.0 else 0.0
+	_clock_was = now
+	if d > 0.0 and d < 0.25:
+		mend_hours(d)
+
+
+func _on_hours_passed(hours: float, _why: StringName) -> void:
+	mend_hours(hours)
+
+
+## `hours` more of your mending (the clock running, or jumped).
+func mend_hours(hours: float) -> void:
+	if recovering < 0.0:
+		if not _hurt_and_bound():
+			return
+		_start_mending()
+	if physiology.total_bleed_rate() > 0.01:
+		return  # bleeding again (a new wound): it waits till that's stopped
+	recovering += hours
+	var f := clampf(recovering / RECOVER_HOURS, 0.0, 1.0)
+	var p := physiology
+	p.blood_ml = maxf(p.blood_ml, lerpf(float(_mend_from.get("blood", p.blood_ml)), p.tuning.blood_ml, f))
+	p.wound_pain = minf(p.wound_pain, float(_mend_from.get("pain", p.wound_pain)) * (1.0 - f))
+	p.pain = minf(p.pain, maxf(p.wound_pain, 0.0) + 0.05)
+	if f >= 0.5 and not _mended:
+		_mended = true
+		p.mend()
+	if f >= 1.0:
+		p.heal_all()
+		wounds.clear()
+		recovering = -1.0
+		_mend_from.clear()
+		say("You're mended: nothing hurts now.", 4.0)
 
 
 ## What you still carry, in a line ("" if nothing much).

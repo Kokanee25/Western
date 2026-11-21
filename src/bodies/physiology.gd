@@ -355,6 +355,45 @@ func bind_up(segment: StringName) -> void:
 	treated.emit(&"pressure", segment)
 
 
+## The player's mending (#1125; Sean on #1093: his wounds don't last, he's fully recovered within a
+## day, nothing permanent; townsfolk keep theirs). Half way: the bones knit, the nerves and the cord
+## join, the torn muscle mends: he walks and holds a gun as before.
+func mend() -> void:
+	broken.clear()
+	splinted.clear()
+	muscle_damage.clear()
+	jaw_broken = false
+	for k: StringName in cut.keys():
+		# The cut arteries' bleeds are tied off already; what's left of `cut` is nerves and the cord.
+		cut.erase(k)
+
+
+## The end of the day's mending: as he was before any of it (blood, every wound, the parts lost).
+func heal_all() -> void:
+	mend()
+	bleeds.clear()
+	torn.clear()
+	blind.clear()
+	lost_parts.clear()
+	blood_in_eye.clear()
+	lost_fingers.clear()
+	severed_segments.clear()
+	eardrums_burst.clear()
+	lung_damage.clear()
+	jaw_gone = false
+	airway_blood = false
+	nose_bleed = 0.0
+	gut_seconds = -1.0
+	neck_seconds = -1.0
+	concussion = 0.0
+	burns = 0.0
+	wound_pain = 0.0
+	pain = 0.0
+	oxygen = 1.0
+	blood_ml = tuning.blood_ml
+	wounds = 0
+
+
 # --- Infection (the gore lab; the Medical and Surgical History of the War of the Rebellion) -----
 ## A wound with cloth carried in festers on its own; a clean one only sometimes, later. It shows
 ## (red, swollen, pus) from about the third day, fever with it; a limb's goes to gangrene, and
