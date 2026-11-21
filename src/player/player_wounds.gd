@@ -972,13 +972,23 @@ func _come_round() -> void:
 	if day != null:
 		day.pass_hours(OUT_HOURS)
 		clock = " It's %s." % day.get_clock_text()
+	# Who left while you were out (#1125: the riders went with no word).
+	var left_town: Array[String] = []
+	var on_left := func(who: Node, _why: StringName) -> void:
+		var n := _name_of(who)
+		if n != "" and not n in left_town:
+			left_town.append(n)
+	Events.person_left.connect(on_left)
 	Events.hours_passed.emit(OUT_HOURS, &"out_cold")
+	Events.person_left.disconnect(on_left)
 	var lines: PackedStringArray = ["You come round %s, bandaged, %d hours on.%s" % [where, OUT_HOURS, clock]]
 	if by_name != "":
 		var gone := not is_instance_valid(by) or (by as Node).is_queued_for_deletion()
 		lines.append("%s shot you down%s." % [by_name, ", and he's long gone" if gone else ""])
 	if was_dead:
 		lines.append("They say you were as good as dead.")
+	if not left_town.is_empty():
+		lines.append("%s rode out while you were under." % _and_list(left_town))
 	var left := _what_still_hurts()
 	if left != "":
 		lines.append(left)
@@ -1053,6 +1063,16 @@ func _what_still_hurts() -> String:
 ## "Somebody"; "" for nobody, or yourself.
 const CALLED := {&"outlaw": "The outlaw", &"kid": "The Kid", &"storekeeper": "The storekeeper",
 		&"barkeep": "The barkeep", &"widow": "The widow", &"sheriff": "The sheriff", &"doctor": "The doctor", &"colter": "The Colter"}
+
+
+## "Brody", "Brody and Lyle", "Brody, Lyle and the Kid" (a name past the first lower-cased "The").
+static func _and_list(names: Array[String]) -> String:
+	var ns: Array[String] = []
+	for i in names.size():
+		ns.append(names[i] if i == 0 or not names[i].begins_with("The ") else "the" + names[i].substr(3))
+	if ns.size() == 1:
+		return ns[0]
+	return ", ".join(ns.slice(0, ns.size() - 1)) + " and " + ns[-1]
 
 
 func _name_of(who: Node) -> String:

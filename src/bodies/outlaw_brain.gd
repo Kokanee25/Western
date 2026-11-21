@@ -1392,6 +1392,7 @@ func _go_about(delta: float) -> void:
 			if _step_time >= 0.0 and _walk_route(delta, walk_speed):
 				if _at_way_out():
 					left_town.emit()
+					Events.person_left.emit(body, &"rode_out")
 					body.queue_free()
 					agenda.clear()
 					return
@@ -1691,7 +1692,11 @@ func _mind_fire(delta: float) -> bool:
 ## Hours went by while you were out cold: whatever fight there was is over. A town man (one with
 ## a day's plan) who can still walk and hasn't given himself up has had his day and gone; the
 ## rest stand down where they are.
-func _on_hours_passed(_hours: float, _why: StringName) -> void:
+func _on_hours_passed(hours: float, _why: StringName) -> void:
+	if not body.physiology.alive:
+		return
+	# His wounds ran on through the hours (#1125): stopped bleeding, or bled out.
+	body.physiology.pass_time(hours * body.physiology.tuning.game_hour_seconds)
 	if not body.physiology.alive:
 		return
 	for who in relations.entries.keys():
@@ -1707,6 +1712,7 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 	if places and hold.is_empty() and body.physiology.can_stand() and not body.limp and not body.prone:
 		agenda.clear()
 		left_town.emit()
+		Events.person_left.emit(body, &"day_done")
 		body.queue_free()
 
 

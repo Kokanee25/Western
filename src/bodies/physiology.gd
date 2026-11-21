@@ -258,6 +258,17 @@ func step(dt: float) -> void:
 		_die(&"gut_wound")
 
 
+## Time gone by in a moment (the clock jumped: a black-out, #1125): his body runs on through it at
+## its own rate, a second a step (bleeds clot or bleed him out, blood comes back, a gut wound kills
+## in its hours), to `seconds` or till he dies. Not the fast path: a few thousand steps at most.
+func pass_time(seconds: float, dt := 1.0) -> void:
+	var left := seconds
+	while left > 0.0 and alive:
+		var s := minf(dt, left)
+		step(s)
+		left -= s
+
+
 ## A broken bone that bleeds into the flesh round it (`fracture_bleed`, ml, in the anatomy: a femur
 ## ~1.2 L, Lieurance et al. 1992): inside him, at `fracture_bleed_rate`, until that much is lost.
 func _fracture_bleed(bone: StringName, segment: StringName) -> void:

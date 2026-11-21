@@ -117,6 +117,9 @@ var _gun_seen: Node3D
 ## isn't bleeding hard (`UP_BLEED`), he gets up if his legs will have him, else calls for help.
 var hurt := false
 var _wounds_seen := 0
+## Hurt before hours went by in a moment (#1125): the fright of it's spent; up again he doesn't cry
+## out and run from a shot hours old (the widow's "Get down!" four seconds after you came round).
+var _hurt_spent := false
 var _down_s := 0.0
 var _call_down := 0.0
 const UP_AFTER := 5.0
@@ -323,6 +326,7 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 ## runs for a door, or walks to it if he can't run).
 func _on_hurt() -> void:
 	hurt = true
+	_hurt_spent = false
 	_aimed = 0.0
 	_cower = 0.0
 	_flinch = 0.0
@@ -433,7 +437,14 @@ func _on_hat_shot(person: Node, _shooter: Node, _at: Vector3) -> void:
 
 
 ## Hours went by in a moment: whatever scared him is long over.
-func _on_hours_passed(_hours: float, _why: StringName) -> void:
+func _on_hours_passed(hours: float, _why: StringName) -> void:
+	# His wounds ran on through the hours (#1125): stopped bleeding, or bled out (townsfolk keep
+	# theirs: Sean, #1093).
+	var p := body.physiology
+	if p.alive:
+		p.pass_time(hours * p.tuning.game_hour_seconds)
+	_wounds_seen = p.wounds
+	_hurt_spent = hurt
 	_stop_bucket()
 	fear = 0.0
 	_aimed = 0.0
@@ -743,7 +754,7 @@ func _physics_step(delta: float) -> void:
 		if body.rising:
 			return  # (on his way up)
 		mood = Mood.SHAKEN
-		if hurt and not held:
+		if hurt and not held and not _hurt_spent:
 			_go_hurt()
 	if held:
 		return  # the scene has him
