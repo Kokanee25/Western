@@ -780,11 +780,14 @@ func _news(c: Dictionary) -> Dictionary:
 	var falls := []
 	var speech := []
 	var on_shot := func(origin: Vector3, _d: Vector3, shooter: Node) -> void:
-		var row := {"t": snappedf(_now() - t0, 0.01), "at": lab.arr(origin), "by": _id(shooter), "seen_by": []}
+		var row := {"t": snappedf(_now() - t0, 0.01), "at": lab.arr(origin), "by": _id(shooter), "seen_by": [], "glimpsed_by": []}
 		for id: String in people:
 			var s := _senses(people[id])
 			if s and s.sees(shooter):
 				row.seen_by.append(id)
+			# Senses' own rule for naming a noise's maker: seen, or in view at that moment (a glimpse).
+			if s and shooter is Node3D and (s.sees(shooter) or s._in_view(shooter as Node3D, s.eye())):
+				row.glimpsed_by.append(id)
 		shots.append(row)
 	var on_fell := func(who: Node, _conscious: bool) -> void:
 		var row := {"t": snappedf(_now() - t0, 0.01), "who": _id(who), "seen_by": []}
@@ -906,8 +909,9 @@ func _news_snapshot(people: Dictionary, p: Player, shots: Array, falls: Array, h
 			k["news_who"] = String(v.get("who", "")) == "harlan"
 			k["news_whom"] = String(v.get("whom", ""))
 			k["news_shots"] = int(v.get("shots", 0))
+			k["glimpsed_shooter"] = shots.any(func(sh: Dictionary) -> bool: return id in sh.get("glimpsed_by", []))
 			if not v.is_empty() and v.how != &"told":
-				if v.who != &"" and not k.saw_shooter:
+				if v.who != &"" and not k.glimpsed_shooter:
 					leaks.append({"t": snappedf(_now(), 0.01), "who": id, "kind": "news_who_unseen", "has": String(v.who)})
 				if v.whom != &"" and not (k.saw_fall or k.knows_victim_hurt):
 					leaks.append({"t": snappedf(_now(), 0.01), "who": id, "kind": "news_whom_unseen", "has": String(v.whom)})
