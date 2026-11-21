@@ -1,0 +1,93 @@
+{
+ "calls": [
+  {
+   "what": "yard",
+   "cost": 0.1385,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795271942.8877327
+  },
+  {
+   "what": "plan",
+   "cost": 0.1401,
+   "ok": true,
+   "size": [
+    2528,
+    1696
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795271964.423886
+  },
+  {
+   "what": "cabin_front",
+   "cost": 0.139,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795271993.9609213
+  },
+  {
+   "what": "cabin_back",
+   "cost": 0.142,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795272029.3286314
+  },
+  {
+   "what": "inside",
+   "cost": 0.1403,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795272065.0499191
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1404,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795272101.3530426
+  },
+  {
+   "what": "barn",
+   "cost": 0.1397,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795272130.7793784
+  },
+  {
+   "what": "spring",
+   "cost": 0.14,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795272159.543052
+  }
+ ],
+ "total": 1.1201
+}
