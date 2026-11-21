@@ -16,6 +16,7 @@ const HELP := {
 	"camera": "camera X Y Z [TX TY TZ] [FOV] | camera player -> a free camera there looking at T, or back to your eyes",
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
+	"ride": "ride [PLACE] -> \"ride there\" (#1120) from the tied horse you're at, as E and the list do: the fade, the clock on, you by your horse at PLACE's rail; answers the ride (or why not). Alone: what's offered from here and why not (goto horse_PLACE: by the horse there)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
@@ -336,6 +337,25 @@ func _cmd_goto(a: Array) -> Dictionary:
 		player.rotation.y = deg_to_rad(-yaw)
 	await _physics_frames(2)
 	return {"at": _arr(player.global_position), "facing": _facing()}
+
+
+func _cmd_ride(a: Array) -> Dictionary:
+	var r := get_tree().get_first_node_in_group(&"ride_there") as RideThere
+	if r == null:
+		return {"ok": false, "error": "no riding here (the valley only)"}
+	if a.is_empty():
+		return r.report()
+	if r.horse_here(float(r.data.get("reach_m", 2.8)) + 1.5, false) == null:
+		return {"ok": false, "error": "no tied horse by you (goto horse_%s; `ride` alone says where yours is)" % r.horse_at, "report": r.report()}
+	var why := r.ride(StringName(a[0]))
+	if why != "":
+		return {"ok": false, "refused": why}
+	while r.state != &"idle":
+		await get_tree().process_frame
+	await _physics_frames(2)
+	var out := r.last.duplicate()
+	out["at"] = _arr(player.global_position)
+	return out
 
 
 func _cmd_look(a: Array) -> Dictionary:
