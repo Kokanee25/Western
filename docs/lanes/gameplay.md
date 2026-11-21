@@ -42,17 +42,19 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds (round 2's #1, not in #1125); the bridge's `tend`
   on an unhurt man kicks, `look` blocked at 53 m vs 2.3 m, `goto PLACE YAW` ignores the yaw carrying; the gang's
   "spotted" at 100 m not reproduced (a test holds it); the slowdown after dynamite and fire; two townsmen on one spot.
-- Story decisions: #744's latest comments and STORY.md; the story bible is #809.
-- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
-  book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
-  `tests/test_reactions.gd`; LAYOUT "src/people"). **6 the runner (#1040, `FetchHelp`, `tests/test_runner.gd`, bridge `read fetch`)**. **Next: step 7, the town's news.** Open:
-  the noon street is too thin for anyone to run (playtest 2026-11-17-runner: three men, low duty); a body found later
-  isn't a stimulus; shaken only changes the next start; refuges are door points; chores' props stand-ins; no talk sound.
+- Story: #744, STORY.md; the bible #809.
+- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2-6 (day and book,
+  roster, spots, reactions `Reaction`, the runner `FetchHelp`). **7 the town's news (#1051, `TownNews`,
+  `tests/test_town_news.gd`, `_valley`; bridge `read news`; LAYOUT "src/people")**: versions only from Senses, telling,
+  overnight, `news.yesterday` -> calendar `uneasy`, `news.harlan`; the dead taken to the undertaker's
+  (`ValleyFolk._dead_step`). **Next: step 8, the town's script.** Open: Senses names a shooter on a glimpse
+  (`_in_view`; the lab's news case); news lines PROPOSED; nobody carries the body (it goes once unseen); outlaws
+  and act men killed aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
-  heights (#736). **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
+  **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
   No Law's set is still in the yard: to move it in, `valley_folk.json`'s `set` to saloon B's floor
   (`ValleyFolk.ground`), its own `no_law_table` and bar, ways in by the corner door. Payday Night: `SpecBuilding.saw_girder()` with the dancers' weight on the dance floor's boards.
 - **Scenes that hold their cast** (#1050, `SceneHold`; LAYOUT "src/people"): an act claims its men, marks, chairs and
@@ -68,9 +70,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
 - **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
-- **CI's tests in six shards** (#1015; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json` (refresh:
-  `tools/test_times.py`). Each file starts from cleared statics.
-  Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
+- **CI's tests in six shards** (#1015): `config/test_times.json` (`tools/test_times.py`); locally one shard at a time.
 - **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3). Locally
   `test_no_law_carry` (shard 2) has failed in shard order but passes on CI.
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);

@@ -13,15 +13,18 @@ extends TestCase
 
 var world: Node3D
 var fetch: FetchHelp
+var news: TownNews
 var said: Array = []
 
 
 class Stepper:
 	extends Node
 	var fetch: FetchHelp
+	var news: TownNews
 
 	func _physics_process(delta: float) -> void:
 		fetch.step(delta)
+		news.step(delta)
 
 
 func before_each() -> void:
@@ -36,8 +39,10 @@ func before_each() -> void:
 	ground.position.y = -0.5
 	world.add_child(ground)
 	fetch = FetchHelp.new()
+	news = TownNews.new()
 	var st := Stepper.new()
 	st.fetch = fetch
+	st.news = news
 	world.add_child(st)
 	said.clear()
 	Events.spoke.connect(_on_spoke)
@@ -67,6 +72,7 @@ func _man(id: String, seed_value: int, at: Vector3, faces: Vector3, dials := {})
 		brain.dials[k] = dials[k]
 	brain.fetch = fetch
 	man.add_child(brain)
+	news.join(brain)
 	world.add_child(man)
 	man.global_position = at
 	man.face(faces)
@@ -129,6 +135,10 @@ func test_one_runner_for_the_doctor_and_he_comes_with_his_bag() -> void:
 	check(shot_to_left <= walk * 1.2 + beats + 0.5, "from the shot to the doctor leaving: the walk and the beats (%.1f s)" % shot_to_left)
 	check(said.any(func(x: Array) -> bool: return x[0] == "first" and String(x[1]).begins_with("Doc")), "he tells the doctor (%s)" % [said])
 	check(said.any(func(x: Array) -> bool: return x[0] == "first" and String(x[1]).contains("shot")), "a shot, as he heard it (%s)" % [said])
+	# The news goes with him (TownNews, #1051): the doctor holds the runner's version, told by him.
+	var dv := news.version_of(&"doctor", int(news._record_of(&"victim").get("id", 0)))
+	check_eq(String(dv.get("by", "")), "first", "the doctor has it from the runner (%s)" % [news.report().versions.get("doctor", {})])
+	check(bool(dv.get("down", false)), "a man down, as the runner saw him")
 	# The doctor at a fast walk with his bag, then tends him.
 	var bag := world.get_node_or_null(^"DoctorsBag") as Node3D
 	check(bag != null, "his bag")
