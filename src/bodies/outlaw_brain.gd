@@ -52,6 +52,8 @@ const LINES := {
 	&"threat": ["Don't you do it.", "Put it down, or I put you down.", "One more move..."],
 	&"stand_down": ["That's better.", "Smart.", "Go on, then."],
 	&"search": ["Where'd he go?", "Come on out!", "I know you're there."],
+	# Where he last had you a long way off (#1125: "I know you're there" from 80 m with no sight of you).
+	&"search_far": ["Where'd he go?", "Come on out!"],
 	&"lost": ["...Gone.", "Damn it. Lost him."],
 	&"arrested": ["Alright, alright. Easy with that.", "You got me. Don't make 'em tight.", "Go on, then."],
 	&"tend": ["Damn, damn...", "Hold it together..."],
@@ -1981,7 +1983,7 @@ func _combat(delta: float) -> void:
 		tactic = Tactic.SEARCHING
 		_search_time = 0.0
 		_look_round = 0.0
-		say(&"search")
+		say(&"search" if body.global_position.distance_to(senses.last_known(t)) < SEARCH_NEAR_M else &"search_far")
 		_decide("look for you", "lost sight of you %.0f s ago, going to where you were" % senses.since_known(t))
 	if tactic == Tactic.SEARCHING:
 		_hunt(delta, t)
@@ -3021,6 +3023,8 @@ const GIVE_UP_HEARD := 4.0
 ## Walking backwards with a man by the collar (m/s).
 const DRAG_SPEED := 1.1
 ## The least time between two shouts of one kind (s); the rest every time.
+## Nearer than this (m) to where he last had you, he says he knows you're there.
+const SEARCH_NEAR_M := 20.0
 const CALL_EVERY := {&"hit": 3.0, &"spotted": 5.0, &"covering": 4.0, &"help": 6.0, &"shaken": 6.0, &"hold": 5.0, &"press": 6.0}
 ## Fear at seeing a friend go down, killed, give up, run (more if it's the man who leads them).
 const FEAR_MATE_OUT := {&"down": 0.12, &"dead": 0.15, &"quit": 0.1, &"fled": 0.08}

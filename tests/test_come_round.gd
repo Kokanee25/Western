@@ -280,3 +280,38 @@ func test_a_man_hurt_by_a_blast_says_so_not_he_shot_me() -> void:
 	brain._hit_seg = &"upper_arm_r"
 	check_eq(brain.hurt_line(), &"hurt_arm", "in the arm: his arm")
 	check(not "Ah—! My arm! My arm!" in CivilianBrain.LINES[&"hurt"], "no 'my arm' for the chest")
+
+
+## #1125's 7: the gang called "spotted" at you 100 m off at night. Not reproduced (two runs through
+## the bridge: none of them saw you past 26 m at 22:00); held here: at night, 90 m off on open
+## ground, three of them in a fight with you never see you nor call it.
+func test_at_night_the_gang_dont_spot_you_90_m_off() -> void:
+	clock.set_time(22.0)
+	var places := Waypoints.test_street()
+	var men: Array[OutlawBrain] = []
+	for i in 3:
+		var m := HumanBody.new()
+		m.person_id = StringName(["brody", "lyle", "kid"][i])
+		var b := OutlawBrain.new()
+		b.name = "Brain"
+		b.places = places
+		m.add_child(b)
+		world.add_child(m)
+		m.global_position = Vector3(float(i) * 1.5, 0.0, -90.0)
+		men.append(b)
+	await physics_frames(3)
+	var called: Array = []
+	var on_call := func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
+		if kind == &"spotted" and about == player:
+			called.append(s)
+	Events.callout.connect(on_call)
+	for b in men:
+		b.relations.provoke(player)
+	var saw := false
+	for i in 60 * 8:
+		await physics_frames(1)
+		for b in men:
+			saw = saw or b.senses.sees(player)
+	Events.callout.disconnect(on_call)
+	check(not saw, "nobody saw you at 90 m by night (sight on you %.1f m)" % men[0].senses.range_to(player))
+	check(called.is_empty(), "nobody called you spotted (%d)" % called.size())

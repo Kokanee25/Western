@@ -1310,6 +1310,10 @@ func _people() -> Array:
 				e["arrested"] = "following" if brain.follow else "waiting"
 			if brain.relations:
 				e["toward_you"] = Relations.Stance.keys()[brain.relations.stance(player)].to_lower()
+			# What he has of you (#1125: "spotted" called at 100 m): sees you, his sight's reach on you as you're lit.
+			if brain.senses and brain.senses.known.has(player):
+				e["sees_you"] = brain.senses.sees(player)
+				e["sight_on_you_m"] = snappedf(brain.senses.range_to(player), 0.1)
 		elif brain is CivilianBrain:
 			e["mood"] = CivilianBrain.Mood.keys()[brain.mood].to_lower()
 			if brain.reaction != null and brain.reaction.describe() != "":
