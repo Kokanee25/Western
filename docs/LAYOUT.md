@@ -1357,7 +1357,8 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
   his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
-  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks; given the
+  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks (40 spots a chunk, each chunk a piece at a time, `Cover.Pick`, by a
+  `WorkBudget`: `STEP_MS`, or `STEP_ASKS` queries under World.deterministic; #1123); given the
   town's `places`, as the gang's brains do, spots a porch's height up or down count, reached by
   the town's ways (in at a door, down the steps), and something wide a few metres off counts:
   a doorway, a building's corner; with variant D's `posts`, a post too narrow to hide him square
