@@ -221,6 +221,8 @@ func test_a_man_comes_back() -> void:
 	var died := []
 	var on_died := func(p: Node, _c: StringName) -> void: died.append(p)
 	Events.person_died.connect(on_died)
+	var on_fell := func(p: Node, _c: bool) -> void: died.append(p)
+	Events.person_fell.connect(on_fell)
 	var hurt2 := _man(world, &"hurt", Vector3(9, 0, 9))
 	var dead2 := HumanBody.made_from(read.dead)
 	world.add_child(dead2)
@@ -232,7 +234,8 @@ func test_a_man_comes_back() -> void:
 	_same(a.dead, b.dead, "the dead man", 0.02)
 	await physics_frames(90)
 	Events.person_died.disconnect(on_died)
-	check(died.is_empty(), "his death isn't told again")
+	Events.person_fell.disconnect(on_fell)
+	check(died.is_empty(), "nobody's death or fall is told again")
 	check(dead2.limp and not dead2.physiology.alive, "he's dead and down")
 	var pelvis: Vector3 = (dead2.parts[&"pelvis"] as Node3D).global_position
 	check(_worst_off(dead2, a.dead.lie) < 0.03, "and lies where he lay (%.2f m off at worst)" % _worst_off(dead2, a.dead.lie))
@@ -284,6 +287,11 @@ func _player() -> Player:
 func test_the_valley_saved_and_loaded_matches() -> void:
 	ValleyFolk.murder_auto = false
 	await _valley()
+	# Nothing's happened yet: there's next to nothing to keep.
+	var quiet := SaveGame.save(get_tree(), SLOT)
+	var first := SaveGame.read(SLOT)
+	check(first.structures.is_empty(), "a valley nothing's happened in keeps no structures (%s)" % [first.structures.keys().slice(0, 4)])
+	print("    untouched valley: %d bytes, capture %.1f ms, write %.1f ms, %d people" % [quiet.bytes, quiet.capture_ms, quiet.write_ms, first.people.size()])
 	var clock := valley.get_node(^"DayCycle") as DayCycle
 	clock.day = 3
 	clock.set_time(10.5)

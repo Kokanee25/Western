@@ -2283,6 +2283,18 @@ func to_dict() -> Dictionary:
 	return out
 
 
+## Might anything have happened to it since it was built (one quick pass; `to_dict` and `untouched`
+## say for sure)? A save asks every structure in the valley this, and most say no.
+func maybe_changed() -> bool:
+	if not rubble.is_empty() or get(&"loose") == true:
+		return true
+	for m in _order:
+		if m.broken or m.consumed or m.burning or m.fire_slot >= 0 or m._char_depth > 0.0 or m._wet > 0.0 \
+				or not m.holes.is_empty() or m.has_meta(&"cut") or m.has_meta(&"dents") or m.has_meta(&"dent_torn"):
+			return true
+	return false
+
+
 ## Is `d` (`to_dict`'s) a structure as authored: nothing a save need keep?
 static func untouched(d: Dictionary) -> bool:
 	for k: String in ["broken", "holes", "rubble", "cuts", "fire", "dents"]:

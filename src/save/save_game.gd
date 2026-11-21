@@ -41,6 +41,8 @@ static func capture(tree: SceneTree) -> Dictionary:
 	# The structures anything's happened to (most never are: nothing kept of those).
 	var structures := {}
 	for s: Structure in _structures(tree):
+		if not s.maybe_changed():
+			continue
 		var sd := s.to_dict()
 		if Structure.untouched(sd):
 			continue

@@ -5201,6 +5201,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 	_rig.queue_free()
 	pivots.clear()
 	_blocker.queue_free()
+	if _restoring:
+		return  # (a save's man laid as he lay: nobody falls, nobody sees one fall)
 	fell.emit(conscious)
 	Events.person_fell.emit(self, conscious)
 
@@ -6963,6 +6965,16 @@ static func made_from(d: Dictionary) -> HumanBody:
 ## wounds on him again (painted, opened, bound; no blood thrown, nothing heard, no death told: he
 ## was dead already), and, limp, lying as he lay.
 func load_dict(d: Dictionary) -> void:
+	_restoring = true
+	_load(d)
+	_restoring = false
+
+
+## True while a save's being put on him (`load_dict`).
+var _restoring := false
+
+
+func _load(d: Dictionary) -> void:
 	global_transform = d.at
 	physiology.from_dict(d.physiology)
 	_was_alive = physiology.alive
