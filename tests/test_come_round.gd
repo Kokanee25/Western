@@ -250,3 +250,33 @@ func test_hurt_and_carrying_you_go_slow_but_steady_and_are_told_why() -> void:
 	check(told.any(func(l: String) -> bool: return l.contains("Your leg's broken")), "told: %s" % [told])
 	player.carry.start_over()
 
+
+## #1125's 6: a piece of the store thrown by a blast 10 m off had a man cry "He shot me!", and a man
+## hit in the chest "My arm!". What he cries is by what hit him.
+func test_a_man_hurt_by_a_blast_says_so_not_he_shot_me() -> void:
+	var man := HumanBody.new()
+	man.person_id = &"porch_loafer"
+	var brain := CivilianBrain.new()
+	brain.name = "Brain"
+	brain.post = Vector3(4, 0, -6)
+	brain.faces = Vector3(4, 0, -10)
+	man.add_child(brain)
+	world.add_child(man)
+	man.global_position = Vector3(4, 0, -6)
+	await physics_frames(5)
+	var said: Array = []
+	var on_spoke := func(who: Node, text: String) -> void:
+		if who == man:
+			said.append(text)
+	Events.spoke.connect(on_spoke)
+	man.hit.emit({"person": man, "segment": &"hand_l", "kind": &"blow"})
+	man.physiology.wounds += 1
+	await physics_frames(20)
+	Events.spoke.disconnect(on_spoke)
+	check(not said.is_empty() and said[0] in CivilianBrain.LINES[&"hurt_blast"], "a blast's line (%s)" % [said])
+	brain._hit_kind = &"bullet"
+	brain._hit_seg = &"chest"
+	check_eq(brain.hurt_line(), &"hurt", "a ball in the chest: a ball's line")
+	brain._hit_seg = &"upper_arm_r"
+	check_eq(brain.hurt_line(), &"hurt_arm", "in the arm: his arm")
+	check(not "Ah—! My arm! My arm!" in CivilianBrain.LINES[&"hurt"], "no 'my arm' for the chest")
