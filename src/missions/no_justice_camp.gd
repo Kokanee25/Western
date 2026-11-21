@@ -80,6 +80,7 @@ func _start_at_camp() -> void:
 	_camp_frame()
 	joe = CompanionBrain.make_joe(street, _camp_point(2.2, 0.6), 0.0, player(), folk.places, CompanionBrain.STAND_IN, true)
 	joe_brain = joe.get_node(^"Brain") as CompanionBrain
+	JoeLost.watch(self, joe, joe_brain)
 	_made.append(joe)
 	_make_damage()
 	_at_camp_start()
@@ -165,6 +166,7 @@ func _make_men() -> void:
 	joe = CompanionBrain.make_joe(street, joe_at, HumanBody.yaw_toward(joe_at, door), player(), folk.places,
 			CompanionBrain.STAND_IN, true)
 	joe_brain = joe.get_node(^"Brain") as CompanionBrain
+	JoeLost.watch(self, joe, joe_brain)
 	_made.append(joe)
 	var cast: Array = [joe]
 	for m: HumanBody in [doctor, cowboy]:

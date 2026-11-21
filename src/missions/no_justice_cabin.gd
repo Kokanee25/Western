@@ -74,6 +74,8 @@ func begin() -> void:
 		return
 	joe = hideout.joe
 	joe_brain = hideout.joe_brain
+	if joe != null and is_instance_valid(joe) and joe_brain != null:
+		JoeLost.watch(self, joe, joe_brain)
 	kett = hideout.kett
 	shack = hideout.shack
 	Events.deed.connect(_on_deed)
