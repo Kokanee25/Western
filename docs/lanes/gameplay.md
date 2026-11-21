@@ -61,17 +61,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). **Gunfight D+** (#633; difficulty #349 is Sean's).
-- **The chaos bench** (#1117, #1119, `docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
-  [--spikes=MS]`. `CatchUp` stops the bridge's spiral. Valley `outlaw_brain` spikes: cover ways asked of all ~360
-  places, fixed (#1119, worst 204 -> 91 ms). Open: a search step still 15-90 ms (40 spots a tick); saloon B's blast
-  frame (~900 ms, `settle_analyse`); Jolt's ~4 s of awake pieces.
+- **The chaos bench** (#1117, #1119, #1123, `docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos
+  [--world=valley] [--spikes=MS]`. Valley brain frames now under 33 ms: town ways bounded (#1119); a cover search step
+  spread by a `WorkBudget` (`Cover.Pick`, `STEP_MS`/`STEP_ASKS`, same spots; #1123). Open: saloon B's blast frame
+  (~600 ms, `settle_analyse`: no FireSystem in the valley to slice a settle, #1123's next issue); Jolt's awake pieces.
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`, `tools/valley/bench_runs.py`; 24 townsfolk fit (#881). Open: every scene's else is over (~1 ms
   untimed), the outlaws' first cover moves (~120 ms twice at a fight's start), the gunfight's people.
 
-- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`. Build the
-  plugin with `NO_PROXY=localhost,127.0.0.1 cargo build --release`, .so to bin/ (a fresh import here takes ~25 min).
-- **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
+- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
+- **CI's tests in six shards** (#1015; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
   it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
   Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
 - **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3). Locally
@@ -80,10 +79,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
 ## Open problems
-- **The valley's people tests** (#925, PR #939): three real causes fixed (`HumanBody._spare_rubble`,
-  `NoLawMurder._clear_to_head`, `WoundSigns.SMEAR_GAP`), each with a test. Sample a people test's odds by running
-  its scene many times in one process, not the suite again.
-  Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
+- **The valley's people tests** (#925): sample a people test's odds by running its scene many times in one
+  process, not the suite again. Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
   differently from a workspace's (the same commit fails there and passes here): nudge the test's setup a few cm
   in a scratch test (5 variants) to find CI's path, then print the men's state each second (#1094);
   the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
@@ -105,7 +102,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - Sight takes a new structure in at its first look (look once at the build).
 - A fresh container has no native plugin (`bin/` is ignored): `cargo build --release` in the plugin (2 min,
   crates.io reachable 2026-11-17), the .so to `bin/`, else most game tests fail to load.
-- The valley bench: drawn runs ~6 min each; compare against a baseline from the same workspace (noise ±0.35).
+- The benches: compare against a baseline run in the same workspace; the valley's chaos fight differs run to run.
 - test_town_day's gang fights (#1094): two men wedged shoulder to shoulder in the saloon. A man who gives up a
   cover now fights from where he stands `GAVE_UP_COVER_FIGHT` s; the friend check covers eye to muzzle too;
   the break-off hides you behind the livery (the range is in the saloon door's sight).
