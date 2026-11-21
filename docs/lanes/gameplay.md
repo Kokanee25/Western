@@ -62,10 +62,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). **Gunfight D+** (#633; difficulty #349 is Sean's).
-- **The chaos bench** (#1117, #1119, #1123, `docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos
-  [--world=valley] [--spikes=MS]`. Valley brain frames now under 33 ms: town ways bounded (#1119); a cover search step
-  spread by a `WorkBudget` (`Cover.Pick`, `STEP_MS`/`STEP_ASKS`, same spots; #1123). Open: saloon B's blast frame
-  (~600 ms, `settle_analyse`: no FireSystem in the valley to slice a settle, #1123's next issue); Jolt's awake pieces.
+- **The chaos bench** (`docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
+  [--spikes=MS]`. Valley: brain frames < 33 ms (#1119, #1123: `Cover.Pick`); a blast's settle sliced by its own
+  `SettleQueue` (#1128). Open: `kit_blast` ~130 ms the tick after saloon B's sticks, the blast's own frame ~110 ms; Jolt.
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
 - **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.

@@ -142,3 +142,33 @@ a FireSystem's queue (`Structure.settle`, `FireSystem.queue_settle`), and the va
 the whole settle lands on the frame. Fixing it means a settle queue that isn't the fire's (or a
 FireSystem in the valley, which brings fire there: Sean's call), more than a targeted fix: the
 next step (its issue).
+
+### A settle queue of its own (#1128, 2026-11-21)
+
+**The FireSystem's slicing queue is now its own node, `SettleQueue`** (src/structures/settle_queue.gd):
+the same code (the queue, the slices of records, the worker's tick, `sit_out`, the routine looks), moved.
+A FireSystem holds one as its child and runs it from its tick where it ran before, so nothing about fire
+changes; the valley (no fire, Sean on #1128) adds one of its own, run on its physics frame (Prof
+`settle_queue`, counted in structures). `Structure.settle` / `settle_soon`, the trestle, the blast and the
+stick find it by `SettleQueue.find`.
+
+**The same collapse:** `tests/test_settle_incremental.gd`'s new test blows the spec saloon's stick three
+ways: with the fire's queue, with a SettleQueue alone, and with none (whole on its frame). All three bring
+down the same 76 members, member for member, as the analysis finishes; the stick's frame 20 ms sliced,
+480 ms whole.
+
+60 s valley chaos, same VM, one after the other (main, this, this):
+
+| run | worst frame | frames > 33 ms | of them >= 100 ms in the first 5 s | biggest settle frame | broken at 60 s |
+|---|---|---|---|---|---|
+| before (main) | 733 ms (`settle_analyse` 579) | 266 | 14 | 579 ms, later 96-150 | 1,914 |
+| settle queue, run 1 | 228 ms (`kit_blast` 123) | 216 | 8 | 37 ms (`settle_queue`) | 1,752 |
+| settle queue, run 2 | 232 ms (`kit_blast` 135) | 211 | 7 | 35 ms | 1,821 |
+
+(The broken count follows the fight, which differs each run: men shoot boards; the lab test is the check.)
+
+**Left, reported:** the blast's own frame is 108-120 ms (`dynamite` 80-100: `blast_response` ~40,
+`blast_gather` ~20) on both, before and after. The worst frame is now the tick after the sticks,
+`kit_blast` 123-135 ms (the kit props' push, in main as well: 134 ms), with that tick's first settle round
+(~35 ms: one `begin_update` near ~1,800 broken members, `bu_forget`/`bu_closure`/`bu_seeds`, a round
+can't be cut smaller). A settle round's update and the kit props' push are the next to spread.

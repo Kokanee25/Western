@@ -1045,7 +1045,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
   methods, worked out on the main thread). A structure keeps one a member (`load_record`), taken
   again when it's been `mark_dirty`'d since or for an analysis from the top (`records_all_stale`).
-  FireSystem's checks: `start_analysis` (main), the records copied a slice a frame (`prepare`,
+  The settle queue (`SettleQueue`, src/structures/settle_queue.gd, group `settle_queue`; a FireSystem's child,
+  run from its tick, or the valley's own, on its physics frame, #1128; `Structure.settle` hands an over-budget
+  settle to `SettleQueue.find`, none = whole on its frame): `start_analysis` (main), the records copied a slice a frame (`prepare`,
   `CHECK_MEMBERS` 120 for a routine look, `SETTLE_MEMBERS` 150 a slice while it's coming down,
   `SETTLE_FRAME_MS` 8), the rest on a worker (`run_async`, the pool, high priority), applied
   (`apply_round`) on a tick fixed by its size (1 + members / `WORKER_MEMBERS_A_TICK` 200), never
