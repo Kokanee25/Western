@@ -137,6 +137,10 @@ func test_the_valley_is_the_default_world() -> void:
 	check_eq(Settings.world_for(PackedStringArray(["--world=town"]), false), &"town", "the old town when asked")
 	check_eq(Settings.world_for(PackedStringArray(), true), &"town", "a script run: the town")
 	check_eq(Settings.world_for(PackedStringArray(["--world=valley"]), true), &"valley", "a script run that asks")
+	# #1125: a story mission is the valley's, the farmhouse is in both (a script run keeps the town).
+	check_eq(Settings.world_for(PackedStringArray(["--mission=no_law"]), true), &"valley", "a story mission: the valley")
+	check_eq(Settings.world_for(PackedStringArray(["--mission=farmhouse"]), true), &"town", "the farmhouse: the town")
+	check_eq(Settings.world_for(PackedStringArray(["--mission=no_law", "--world=town"]), true), &"town", "a world asked wins")
 	check_eq(Settings.world, &"town", "this run (a script) has the old town")
 	check(Settings.WORLDS.has(&"valley"), "the valley is one")
 	check(not Settings.set_world(&"moon"), "no such world")

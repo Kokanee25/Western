@@ -240,15 +240,19 @@ static func _world_asked() -> StringName:
 
 
 ## The world these user arguments ask for; with none, the valley for the game and the town for a
-## script run (G8, #1098).
+## script run (G8, #1098), but the valley for any `--mission=` but the farmhouse (#1125: the story's
+## missions are only in the valley; the farmhouse is in both).
 static func world_for(user_args: PackedStringArray, script_run: bool) -> StringName:
+	var valley_mission := false
 	for a in user_args:
 		if a.begins_with("--world="):
 			var w := StringName(a.substr(8))
 			if w in WORLDS:
 				return w
 			push_error("Settings: no world %s (town or valley)" % w)
-	return &"town" if script_run else &"valley"
+		elif a.begins_with("--mission=") and a != "--mission=farmhouse":
+			valley_mission = true
+	return &"town" if script_run and not valley_mission else &"valley"
 
 
 ## The world the next load builds (the running scene keeps what it has: reload it to change).
