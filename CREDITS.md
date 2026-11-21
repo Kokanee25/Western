@@ -83,6 +83,14 @@ adds its own lines.
   (`motions/card_cheat/`). Since #539 also the gun moves (a walk and a run with the revolver in
   hand, an aim stance, a reload, a stagger; the Studio's `motions/gun_moves/`, $7.50), in
   `assets/animations/library/` by `tools/blender/library_motion.py`.
+- **NVIDIA Kimodo** (trial, #1087; no clip in the game yet): text-to-motion with the
+  `Kimodo-SOMA-RP-v1.2` weights under the NVIDIA Open Model License (2025-10-24), which makes the
+  model "commercially usable" and says "NVIDIA claims no ownership rights in outputs"; its code is
+  Apache-2.0. A clip it makes may ship in the game, credited here as generated (never as captured
+  from a person). The weights are never shipped (if they ever were: the licence and the Notice
+  "Licensed by NVIDIA Corporation under the NVIDIA Open Model License"). Its prompt reader is
+  LLM2Vec on Meta Llama 3 (Meta Llama 3 Community License): Built with Meta Llama 3. The Studio's
+  `ledgers/licences.md` has the clauses.
 - **Quaternius, Universal Animation Library** (UAL1, the free Standard set; quaternius.com): CC0
   1.0. **Kay Lousberg, KayKit Character Animations 1.1** (Rig_Medium; www.kaylousberg.com): CC0
   1.0. Retargeted onto our rig by `tools/blender/library_motion.py` (issue #529) into
