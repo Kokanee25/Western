@@ -37,7 +37,7 @@ look, the judges.
 | Id | Where | What it is in the game |
 | --- | --- | --- |
 | `roof_patch` | cabin, west slope over the bed | shakes.missing: no shakes there, the skip sheathing shows (new pale shakes round it where he's started) |
-| `porch_board` | cabin porch, `back_porch/board_9` | sprung 7 cm at its west end (a crowd breaks it: the test lets a repair's piece fail) |
+| `porch_board` | cabin porch, `side_porch/board_9` | sprung 7 cm at its west end (a crowd breaks it: the test lets a repair's piece fail) |
 | `rotten_step` | cabin, `stair/porch/tread/00` | snapped in two, the halves sagging, both marked `rotten` |
 | `barn_door` | barn, `front/door_*` | off its top hinge, its free end dropped to the ground |
 | `corral_rail` | corral, `rail/1_2_1` | snapped near one post: a stub on it, the long piece hanging from the other post to the ground |

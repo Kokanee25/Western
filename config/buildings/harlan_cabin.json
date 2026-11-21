@@ -283,7 +283,7 @@
  "walls": [
   {
    "id": "front",
-   "_doc": "the chimney gable (south): the stone chimney outside it, the stove against it",
+   "_doc": "the chimney gable (east): the stone chimney outside it, the stove against it",
    "line": [
     [
      0,
@@ -301,7 +301,7 @@
   },
   {
    "id": "back",
-   "_doc": "the door gable (north, to the yard): the door, a small window either side, the porch",
+   "_doc": "the west gable: the woodpile against it",
    "line": [
     [
      0,
@@ -315,37 +315,11 @@
    "out": "+z",
    "top": "gable",
    "log": true,
-   "openings": [
-    {
-     "type": "door",
-     "level": "ground",
-     "at": 2.304,
-     "width": 0.81,
-     "height": 1.98,
-     "leaf": "inward"
-    },
-    {
-     "type": "window",
-     "level": "ground",
-     "at": 0.95,
-     "width": 0.6,
-     "height": 0.75,
-     "sill": 0.9,
-     "lights": 4
-    },
-    {
-     "type": "window",
-     "level": "ground",
-     "at": 3.657,
-     "width": 0.6,
-     "height": 0.75,
-     "sill": 0.9,
-     "lights": 4
-    }
-   ]
+   "openings": []
   },
   {
    "id": "west",
+   "_doc": "the door's long side (Sean, 2026-11-21: the door on the long side, under the eave), to the yard and the lane (north): the door, a small window either side, the porch",
    "line": [
     [
      0,
@@ -359,11 +333,38 @@
    "out": "-x",
    "top": "plate",
    "log": true,
-   "openings": []
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 2.208,
+     "width": 0.81,
+     "height": 1.98,
+     "leaf": "inward"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.0,
+     "width": 0.6,
+     "height": 0.75,
+     "sill": 0.9,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.217,
+     "width": 0.6,
+     "height": 0.75,
+     "sill": 0.9,
+     "lights": 4
+    }
+   ]
   },
   {
    "id": "east",
-   "_doc": "its window over the table; a new log at its foot (Harlan's first repair)",
+   "_doc": "the back long side (south): its window over the trunk; a new log at its foot (Harlan's first repair)",
    "line": [
     [
      4.607,
@@ -387,7 +388,7 @@
     {
      "type": "window",
      "level": "ground",
-     "at": 2.9,
+     "at": 1.7,
      "width": 0.6,
      "height": 0.75,
      "sill": 0.9,
@@ -396,40 +397,41 @@
    ]
   }
  ],
- "back_porch": {
-  "_doc": "the porch across the door gable, a step down from the floor, its shed roof on two hewn posts",
+ "side_porch": {
+  "_doc": "the porch along the door's long side, a step down from the floor, its shed roof on three hewn posts under the main roof's eave",
   "rect": [
+   -1.8,
    0.0,
-   5.217,
-   4.607,
-   7.017
+   0.0,
+   5.217
   ],
   "deck_top": 0.53,
-  "roof_height": 2.05,
+  "roof_height": 1.98,
+  "rise": 0.24,
   "posts": [
    [
-    0.12,
-    6.917
+    -1.75,
+    0.12
    ],
    [
-    2.304,
-    6.917
+    -1.75,
+    3.358
    ],
    [
-    4.487,
-    6.917
+    -1.75,
+    5.097
    ]
   ]
  },
  "stairs": [
   {
    "id": "porch",
-   "_doc": "three plank steps from the yard to the porch, west of its middle post",
+   "_doc": "three plank steps from the yard up to the porch before the door",
    "head": [
-    0.55,
-    7.017
+    -1.8,
+    1.708
    ],
-   "dir": "-z",
+   "dir": "+x",
    "width": 1.0,
    "from": 0.0,
    "to": 0.53,
@@ -444,28 +446,28 @@
    {
     "id": "stove",
     "at": [
-     3.557,
+     2.754,
      -0.42
     ],
     "size": 0.8,
     "over_ridge": 0.6,
-    "_doc": "rough fieldstone up the outside of the chimney gable, the stove's pipe in through the logs"
+    "_doc": "rough fieldstone up the outside of the east gable, the stove's pipe in through the logs"
    }
   ]
  },
  "hung": [
   {
    "id": "mirror",
-   "wall": "back",
+   "wall": "west",
    "side": "out",
-   "at": 4.227,
+   "at": 4.767,
    "y": 1.45,
    "size": [
     0.3,
     0.38
    ],
    "over": "porch",
-   "_doc": "his shaving mirror on a nail beside the window over the washstand"
+   "_doc": "his shaving mirror on a nail beside the west window, over the washstand"
   }
  ],
  "front": {
@@ -491,13 +493,13 @@
    "use": "sleep",
    "who": "harlan",
    "at": [
-    0.67,
+    3.94,
     0.63,
-    1.25
+    4.0
    ],
    "look": [
-    0.67,
-    3.0
+    3.94,
+    2.0
    ],
    "_doc": "the bed the save uses (sleeping, later)"
   },
@@ -506,13 +508,13 @@
    "use": "stand",
    "who": "harlan",
    "at": [
-    1.55,
+    3.0,
     0.63,
-    1.6
+    4.1
    ],
    "look": [
-    0.67,
-    1.6
+    3.94,
+    4.1
    ],
    "_doc": "the clear spot beside the bed: where you stand to lie down"
   },
@@ -521,12 +523,12 @@
    "use": "cook",
    "who": "harlan",
    "at": [
-    3.56,
+    2.75,
     0.63,
     1.45
    ],
    "look": [
-    3.56,
+    2.75,
     0.4
    ]
   },
@@ -536,13 +538,13 @@
    "use": "eat",
    "who": "harlan",
    "at": [
-    2.75,
+    1.25,
     0.63,
-    3.3
+    1.12
    ],
    "look": [
-    3.6,
-    3.3
+    0.5,
+    1.12
    ]
   },
   {
@@ -550,13 +552,13 @@
    "use": "kneel",
    "who": "harlan",
    "at": [
-    1.5,
+    3.94,
     0.63,
-    2.65
+    2.05
    ],
    "look": [
-    0.67,
-    2.65
+    3.94,
+    2.7
    ],
    "_doc": "at his army trunk (the steward's kit, the photograph: later)"
   },
@@ -565,13 +567,13 @@
    "use": "wash",
    "who": "harlan",
    "at": [
-    4.187,
+    -0.9,
     0.53,
-    6.117
+    4.767
    ],
    "look": [
-    4.187,
-    5.217
+    0.0,
+    4.767
    ],
    "_doc": "at the basin on the porch (washing the blood off: later)"
   }
@@ -595,21 +597,21 @@
      "id": "bed",
      "kit": "plank_bed",
      "at": [
-      0.67,
+      3.94,
       0.0,
-      1.2
+      4.03
      ],
      "facing": 0,
-     "use": "bed: the head against the chimney gable's west corner"
+     "use": "bed: its head against the west gable, in the back corner from the door"
     },
     {
      "id": "blanket",
      "kit": "folded_blanket",
      "on": "bed",
      "at": [
-      0.67,
+      3.94,
       0.0,
-      1.85
+      3.5
      ],
      "facing": 90
     },
@@ -617,18 +619,18 @@
      "id": "trunk",
      "kit": "travelling_trunk",
      "at": [
-      0.62,
+      3.94,
       0.0,
-      2.6
+      2.72
      ],
-     "facing": 90,
+     "facing": 0,
      "use": "his army trunk at the bed's foot"
     },
     {
      "id": "stove",
      "kit": "cookstove",
      "at": [
-      3.56,
+      2.75,
       0.0,
       0.62
      ],
@@ -643,30 +645,31 @@
       0.7
      ],
      "at": [
-      3.62,
+      0.55,
       0.0,
-      3.3
+      1.12
      ],
-     "facing": 90
+     "facing": 90,
+     "use": "under the window by the door, clear of its leaf"
     },
     {
      "id": "chair",
      "kit": "chair",
      "at": [
-      2.85,
+      1.25,
       0.0,
-      3.3
+      1.12
      ],
-     "facing": 90
+     "facing": 270
     },
     {
      "id": "lamp",
      "kit": "oil_lamp",
      "on": "table",
      "at": [
-      3.75,
+      0.5,
       0.0,
-      3.05
+      1.45
      ],
      "facing": 0,
      "light": 0.2,
@@ -679,9 +682,9 @@
      "kit": "tin_cup",
      "on": "table",
      "at": [
-      3.5,
+      0.6,
       0.0,
-      3.5
+      0.9
      ],
      "facing": 30
     },
@@ -691,24 +694,24 @@
      "fit": [
       0.32,
       1.6,
-      1.2
+      1.0
      ],
      "at": [
-      0.36,
+      1.25,
       0.0,
-      4.15
+      0.36
      ],
-     "facing": 90
+     "facing": 0
     },
     {
      "id": "washstand",
      "kit": "washstand",
      "at": [
-      4.157,
+      -0.3,
       -0.09999999999999998,
-      5.517
+      4.767
      ],
-     "facing": 0,
+     "facing": 270,
      "use": "on the porch, under the mirror"
     },
     {
@@ -716,9 +719,9 @@
      "kit": "wash_basin",
      "on": "washstand",
      "at": [
-      4.157,
+      -0.3,
       -0.09999999999999998,
-      5.517
+      4.767
      ],
      "facing": 0
     },
@@ -727,9 +730,9 @@
      "kit": "wash_pitcher",
      "on": "washstand",
      "at": [
-      4.307,
+      -0.25,
       -0.09999999999999998,
-      5.467
+      4.967
      ],
      "facing": 200
     }
@@ -747,9 +750,9 @@
   },
   {
    "id": "porch_board",
-   "what": "a porch board sprung up at its west end",
+   "what": "a porch board sprung up at one end",
    "kind": "loose",
-   "member": "back_porch/board_9",
+   "member": "side_porch/board_9",
    "lift": 0.07
   },
   {
@@ -840,7 +843,7 @@
     "rough"
    ],
    [
-    "back_porch/",
+    "side_porch/",
     "rough"
    ],
    [

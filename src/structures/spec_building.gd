@@ -272,6 +272,7 @@ func build() -> void:
 		band = 1
 		_gable_sign()
 		_back_porch()
+		_side_porch()
 		_stoops()
 		band = 0
 		_yard_front()
@@ -321,7 +322,8 @@ func _hung() -> void:
 		var inside := String(h.get("side", "out")) == "in"
 		var face := -float(lw.thick) if inside and walls[h.wall].spec.get("log", false) else (-STUD_D if inside else 0.0)
 		var over := String(h.get("over", "ground"))
-		var y0 := float(spec.back_porch.deck_top) if over == "porch" else float(_lv.get(over, floor_top))
+		var porch_d: Dictionary = spec.get("side_porch", spec.get("back_porch", {}))
+		var y0 := float(porch_d.get("deck_top", 0.0)) if over == "porch" else float(_lv.get(over, floor_top))
 		y0 += float(h.y)
 		var sz: Array = h.size
 		var x0 := float(h.at) - float(sz[0]) * 0.5
@@ -2864,6 +2866,57 @@ func _back_porch() -> void:
 		var w := minf(0.145, run - s)
 		var q := p0 + dv * (s + w * 0.5) + nrm * (0.1 + BOARD_T * 0.5)
 		add_member("back_porch/roof_board_%d" % j, &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(x1 - x0 + 0.5, BOARD_T, w - 0.003), Vector3((x0 + x1) * 0.5, q.y, q.x), bas)
+		s += 0.15
+		j += 1
+
+
+## A porch along the west wall (spec `side_porch`, #1126: Harlan's door on his cabin's long side, under
+## the eave): its deck (`rect` [x0, z0, 0, z1] west of the wall, `deck_top`) on `posts` along its outer
+## edge and a ledger on the wall, a shed roof over it on the same posts: rafters from a ledger on the
+## logs `rise` m over the beam (under the main roof's eave) down over a beam on the posts and 0.3 m past.
+func _side_porch() -> void:
+	var sp: Dictionary = spec.get("side_porch", {})
+	if sp.is_empty():
+		return
+	var r: Array = sp.rect
+	var top := float(sp.deck_top)
+	band = 1
+	_deck("side_porch", r, top, "yard", sp.posts)
+	band = 3
+	var rh := top + float(sp.roof_height)
+	var hi := rh + float(sp.get("rise", 0.25))
+	var x0 := float(r[0])
+	var z0 := float(r[1])
+	var z1 := float(r[3])
+	for k in (sp.posts as Array).size():
+		var p: Array = sp.posts[k]
+		add_member("side_porch/roof_post_%d" % k, &"post", &"framing", Vector3(0.1, rh - 0.12 - top, 0.1), Vector3(p[0], (top + rh - 0.12) * 0.5, p[1]))
+	var bx := float(sp.posts[0][0])
+	add_member("side_porch/roof_beam", &"beam", &"framing", Vector3(0.1, 0.12, z1 - z0 + 0.3), Vector3(bx, rh - 0.06, (z0 + z1) * 0.5))
+	add_member("side_porch/roof_ledger", &"ledger", &"framing", Vector3(0.05, 0.14, z1 - z0 + 0.3), Vector3(-0.025, hi - 0.07, (z0 + z1) * 0.5))
+	# The rafters' underside from the ledger's top at the wall down over the beam's top, 0.3 m past it.
+	var p0 := Vector2(-0.05, hi)  # (x, y)
+	var p1 := Vector2(bx, rh)
+	var dv := (p1 - p0).normalized()
+	var run := p0.distance_to(p1) + 0.3
+	var xa := Vector3(dv.x, dv.y, 0.0).normalized()
+	var ya := Vector3.UP.slide(xa).normalized()
+	var bas := Basis(xa, ya, xa.cross(ya))
+	band = 4
+	var z := z0 - 0.1
+	var i := 0
+	while z <= z1 + 0.15:
+		var mid := Vector3(p0.x, p0.y, z) + xa * (run * 0.5) + ya * 0.05
+		add_member("side_porch/rafter_%d" % i, &"rafter", &"framing", Vector3(run, 0.1, 0.05), mid, bas)
+		z += 0.61
+		i += 1
+	band = 5
+	var s := 0.0
+	var j := 0
+	while s < run:
+		var w := minf(0.145, run - s)
+		var q := Vector3(p0.x, p0.y, (z0 + z1) * 0.5) + xa * (s + w * 0.5) + ya * (0.1 + BOARD_T * 0.5)
+		add_member("side_porch/roof_board_%d" % j, &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(w - 0.003, BOARD_T, z1 - z0 + 0.5), q, bas)
 		s += 0.15
 		j += 1
 

@@ -7,10 +7,10 @@
    "spec": "res://config/buildings/harlan_cabin.json",
    "center": [
     8.0,
-    15.0
+    15.4
    ],
-   "facing": 180,
-   "_doc": "its door gable and porch to the north (the yard, the lane), the chimney gable to the south"
+   "facing": 270,
+   "_doc": "its door's long side and porch to the north (the yard, the lane), the chimney gable to the east, the woodpile's to the west"
   },
   {
    "id": "barn",
@@ -56,20 +56,20 @@
  },
  "woodpile": {
   "at": [
-   10.52,
-   13.0
+   5.0,
+   13.6
   ],
   "along": "z",
   "length": 3.6,
   "height": 1.25,
   "depth": 0.4,
   "billet": 0.14,
-  "_doc": "split cordwood stacked against the cabin's east wall (its spec's west: the cabin is turned)"
+  "_doc": "split cordwood stacked against the cabin's west gable"
  },
  "chopping_block": {
   "at": [
-   12.6,
-   12.6
+   3.4,
+   12.4
   ],
   "height": 0.5,
   "diameter": 0.45,

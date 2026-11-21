@@ -15,10 +15,10 @@ extends SceneTree
 const VIEWS := {
 	"yard": [Vector3(15.5, -1.7, -13.0), Vector3(14.0, 2.0, 14.0), 55.0, 17.0, false],
 	"cabin_front": [Vector3(8.6, 1.7, 3.2), Vector3(8.0, 2.1, 13.0), 55.0, 17.0, false],
-	"cabin_back": [Vector3(16.5, 1.7, 22.5), Vector3(9.0, 1.9, 15.5), 55.0, 17.0, false],
+	"cabin_back": [Vector3(0.5, 1.7, 22.0), Vector3(7.0, 1.9, 15.5), 55.0, 17.0, false],
 	"barn": [Vector3(13.5, 1.7, 8.5), Vector3(21.5, 1.8, 15.5), 58.0, 17.0, false],
 	"spring": [Vector3(67.0, -1.8, -43.0), Vector3(20.0, 1.0, 12.0), 55.0, 17.0, false],
-	"inside": [Vector3(8.35, 2.2, 13.05), Vector3(7.8, 1.3, 17.3), 74.0, 10.5, true],
+	"inside": [Vector3(8.5, 2.2, 13.75), Vector3(6.6, 1.3, 17.2), 74.0, 10.5, true],
 }
 
 var out_dir := "build/homestead_renders"
