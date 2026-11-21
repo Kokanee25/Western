@@ -206,7 +206,7 @@ func test_a_stick_in_the_spec_saloon_doesnt_freeze_the_frame() -> void:
 	check(direct >= 10, "the blast holes the floor (%d)" % direct)
 	check(ms < 400.0, "the frame the stick goes off on is bounded (%.0f ms; was 11,600)" % ms)
 	check(broken > direct, "and what the holes left unsupported comes down over the frames after (%d > %d)" % [broken, direct])
-	check(lab.fire._to_settle.is_empty() and lab.fire._check == null, "the settle is finished 5 s on")
+	check(lab.fire.settles.idle(), "the settle is finished 5 s on")
 	lab.queue_free()
 	await physics_frames(2)
 
@@ -231,7 +231,7 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 	var ground := Blast.t().ground_factor
 	Blast.t().ground_factor = 1.0
 	for worker in [true, false]:
-		FireSystem.analysis_worker = worker
+		SettleQueue.analysis_worker = worker
 		var lab := Lab.new()
 		add_child(lab)
 		await physics_frames(10)
@@ -241,13 +241,13 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 		var settled: Array = []  # what the analysis brought down, as it finished
 		for f in 400:
 			await physics_frames(1)
-			if settled_at < 0 and lab.fire._to_settle.is_empty() and lab.fire._check == null:
+			if settled_at < 0 and lab.fire.settles.idle():
 				settled_at = f
 				settled = _broken_ids(saloon)
 		results.append({"broken": _broken_ids(saloon), "settled_at": settled_at, "settled": settled})
 		lab.queue_free()
 		await physics_frames(2)
-	FireSystem.analysis_worker = true
+	SettleQueue.analysis_worker = true
 	Blast.t().ground_factor = ground
 	print("  worker / main thread: %d / %d broken, settled after %d / %d frames" % [results[0].broken.size(),
 			results[1].broken.size(), results[0].settled_at, results[1].settled_at])
@@ -264,3 +264,45 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 	for r: Dictionary in results:
 		check((r.settled as Array).all(func(x: String) -> bool: return (r.broken as Array).has(x)), "and nothing it brought down stood again")
 	check_eq(results[0].settled_at, results[1].settled_at, "and done on the same frame")
+
+
+## The valley has no FireSystem, whose queue sliced a settle: saloon B's three sticks were ~600 ms
+## on one frame (#1128). A SettleQueue on its own (the valley's) slices it as the fire's did: the
+## stick's frame bounded, and the same members brought down as with the fire's queue, as the
+## analysis finished, and as a settle done whole on its frame (no queue at all).
+func test_a_settle_queue_without_the_fire_slices_the_same_collapse() -> void:
+	var ground := Blast.t().ground_factor
+	Blast.t().ground_factor = 1.0  # (free air, as the worker's test: no floor board broken late)
+	var results := {}
+	for how: StringName in [&"fire", &"queue", &"none"]:
+		Lab.settles_with = how
+		var lab := Lab.new()
+		add_child(lab)
+		await physics_frames(10)
+		var saloon: Structure = lab.building
+		var q := SettleQueue.find(get_tree())
+		var t0 := Time.get_ticks_usec()
+		Blast.detonate(lab, Vector3(6.0, 0.8, 6.0), 0.15)
+		var ms := (Time.get_ticks_usec() - t0) / 1000.0
+		var settled: Array = []
+		var settled_at := -1
+		for f in 400:
+			await physics_frames(1)
+			if settled_at < 0 and (q == null or q.idle()) and not saloon.breaking():
+				settled_at = f
+				settled = _broken_ids(saloon)
+		results[how] = {"ms": ms, "settled": settled, "settled_at": settled_at, "broken": _broken_ids(saloon)}
+		lab.queue_free()
+		await physics_frames(2)
+	Lab.settles_with = &"fire"
+	Blast.t().ground_factor = ground
+	for how: StringName in results:
+		var r: Dictionary = results[how]
+		print("  %s: the stick's frame %.0f ms, %d brought down by frame %d (%d in the end)" % [how, r.ms,
+				(r.settled as Array).size(), r.settled_at, (r.broken as Array).size()])
+	check((results[&"queue"].settled as Array).size() > 10, "the stick brings something down")
+	check(results[&"queue"].settled_at > 0, "over the frames after the stick's")
+	check(results[&"queue"].ms < results[&"none"].ms * 0.5,
+			"the stick's frame, sliced: %.0f ms (whole on it: %.0f)" % [results[&"queue"].ms, results[&"none"].ms])
+	check(results[&"queue"].settled == results[&"fire"].settled, "the same members down as with the fire's queue")
+	check(results[&"queue"].settled == results[&"none"].settled, "and as settled whole on its frame")

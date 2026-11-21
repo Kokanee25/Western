@@ -80,7 +80,7 @@ var _analysis_valid := false
 ## Analyses carried over and brought up to date (StructuralAnalysis.begin_update); off, every one
 ## is done from the top (`-- --full-analysis`: the before for the blast-freeze lab, and the check).
 static var incremental := not "--full-analysis" in OS.get_cmdline_user_args()
-## A settle that has run this long (ms) on one frame hands the rest to the FireSystem's slices
+## A settle that has run this long (ms) on one frame hands the rest to the SettleQueue's slices
 ## (settle_soon): a blast's collapse unfolds over a few frames, not one long one (issue #374).
 const SETTLE_FRAME_MS := 6.0
 ## Under World.deterministic a settle's budget is members analysed, this many a millisecond of it
@@ -102,7 +102,7 @@ const SLICED_ABOVE := 1500
 const BLAST_FIRST_WHOLE := 24
 var blast_first_whole := BLAST_FIRST_WHOLE
 ## A budgeted settle with more changed members than this waiting (a blast's cuts and panes on top
-## of a fire's charring) leaves them all to the FireSystem's slices, not the frame that broke them.
+## of a fire's charring) leaves them all to the SettleQueue's slices, not the frame that broke them.
 const SETTLE_DIRTY_NOW := 48
 ## An analysis in progress with more members than this still to do isn't finished on a budgeted
 ## settle's frame either.
@@ -244,9 +244,9 @@ func _ready() -> void:
 func _first_look() -> void:
 	if not is_inside_tree() or _analysis_valid:
 		return
-	var fire := FireSystem.find(get_tree())
-	if fire:
-		fire.queue_check(self)
+	var q := SettleQueue.find(get_tree())
+	if q:
+		q.queue_check(self)
 
 
 func _notification(what: int) -> void:
@@ -1349,7 +1349,7 @@ func start_analysis(full := false) -> StructuralAnalysis:
 
 ## Its first analysis, from the top, begun now and run on a worker (its records copied here): so
 ## the first settle asked of it (a shot through a member) is an update of this one, not every
-## member on that frame. A world without a FireSystem (the valley) settles whole on one frame: the
+## member on that frame. A world without a SettleQueue settles whole on one frame: the valley's
 ## saloon's 7,600 members were a 0.9 s hitch on the gunfight's first broken member (#881).
 func warm_analysis() -> void:
 	if not collapses or not is_inside_tree() or (_analysis_valid and last_analysis != null):
@@ -1360,12 +1360,12 @@ func warm_analysis() -> void:
 		a.run_async()
 
 
-## Settle soon, once however many times it's asked: in a world with a FireSystem it works
+## Settle soon, once however many times it's asked: in a world with a SettleQueue (a FireSystem's, the valley's) it works
 ## through it a slice of the building a frame (a big collapse was seconds on one frame); else at
 ## the end of this frame.
 func settle_soon() -> void:
-	var fire := FireSystem.find(get_tree()) if is_inside_tree() else null
-	if fire and fire.queue_settle(self):
+	var q := SettleQueue.find(get_tree()) if is_inside_tree() else null
+	if q and q.queue_settle(self):
 		return
 	if not _settle_pending:
 		_settle_pending = true
@@ -1374,7 +1374,7 @@ func settle_soon() -> void:
 
 ## Work out the loads again and let whatever can't stand break or fall, until it's stable.
 ## Returns the ids that broke or fell. Past `budget_ms` on this frame (under World.deterministic,
-## its MEMBERS_A_MS members analysed), a FireSystem in the world takes the rest a slice a frame (its
+## its MEMBERS_A_MS members analysed), a SettleQueue in the world takes the rest a slice a frame (its
 ## queue), so a big collapse costs a few frames, never one long one; without one (tests, the labs'
 ## stands) it runs to the end.
 func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
@@ -1393,8 +1393,8 @@ func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
 		# it's coming down a slice a frame already (a blast's settle, handed on: a piece of it
 		# landing on a joist was a whole round on the frame after a stick, #538): a slice a frame
 		# for this too.
-		var fire := FireSystem.find(get_tree())
-		if fire and fire.queue_settle(self):
+		var q := SettleQueue.find(get_tree())
+		if q and q.queue_settle(self):
 			return changed
 	for round_ in 64:
 		var t_a := Prof.start()
@@ -1409,16 +1409,16 @@ func settle(budget_ms := INF, first_sliced := false) -> Array[StringName]:
 		if not more:
 			break
 		if budget and budget.over():
-			var fire := FireSystem.find(get_tree())
-			if fire and fire.queue_settle(self):
+			var q := SettleQueue.find(get_tree())
+			if q and q.queue_settle(self):
 				break
 	return changed
 
 
-## The fire's queue settling it already, a slice a frame (FireSystem.settling).
+## The settle queue settling it already, a slice a frame (SettleQueue.settling).
 func _settling_sliced() -> bool:
-	var fire := FireSystem.find(get_tree())
-	return fire != null and fire.settling(self)
+	var q := SettleQueue.find(get_tree())
+	return q != null and q.settling(self)
 
 
 ## One round of settling from an analysis of it as it stands: the worst overloaded member snaps,

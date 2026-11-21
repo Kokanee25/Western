@@ -141,11 +141,12 @@ static func detonate(world: Node3D, at: Vector3, charge: float, held_by: Node = 
 	var pushes := []  # [RigidBody3D, impulse vector]
 	var sticks: Array[DynamiteStick] = []
 	var fire := FireSystem.find(world.get_tree())
-	if fire:
+	var settles := SettleQueue.find(world.get_tree())
+	if settles:
 		# This tick and the next: the kit props' push, the gravel's hits and the physics taking the
 		# new bodies are all on the next (#538, round 5: the load checks' slices there were 4-22 ms).
-		fire.sit_out()
-		fire.sit_out(Engine.get_physics_frames() + 1)
+		settles.sit_out()
+		settles.sit_out(Engine.get_physics_frames() + 1)
 	var fireball := fireball_radius(kg)
 	var t_gather := Prof.start()
 	var found := gather(world, at, kg)

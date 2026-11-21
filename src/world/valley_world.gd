@@ -98,6 +98,12 @@ func _ready() -> void:
 		u = _took(&"markers", u)
 		_make_buildings()
 		u = _took(&"buildings", u)
+		# A blast's collapse a slice a frame (Structure.settle hands it on): the valley has no
+		# FireSystem, whose queue it was; saloon B's three sticks were ~600 ms on one frame (#1128).
+		if SettleQueue.find(get_tree()) == null:
+			var q := SettleQueue.new()
+			q.name = &"SettleQueue"
+			add_child(q)
 		_warm_buildings.call_deferred()
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
@@ -284,7 +290,7 @@ func _make_buildings() -> void:
 
 
 ## Each spec building's first analysis on a worker once the load's done (`Structure.warm_analysis`):
-## the valley has no FireSystem to slice a settle, so the first shot to break a member was every
+## before it, with no settle queue here, the first shot to break a member was every
 ## member of the building on one frame (#881). A few frames on, its props and fittings are in.
 func _warm_buildings() -> void:
 	for i in 3:

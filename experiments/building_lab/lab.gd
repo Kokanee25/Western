@@ -19,15 +19,23 @@ var side_walk: Boardwalk
 var ground: StaticBody3D
 ## The spec the next lab builds (the saloon's unless set: the doctor's test sets it, #765).
 static var spec_path := ""
+## What slices the next lab's settles: &"fire" (a FireSystem, as the street), &"queue" (a
+## SettleQueue alone, as the valley) or &"none" (each settle whole on its frame).
+static var settles_with := &"fire"
 
 
 func _ready() -> void:
 	var path := spec_path if spec_path != "" else SpecBuilding.SPEC
 	spec = SpecBuilding.load_spec(path)
 	_ground()
-	fire = FireSystem.new()
-	fire.name = "FireSystem"
-	add_child(fire)
+	if settles_with == &"fire":
+		fire = FireSystem.new()
+		fire.name = "FireSystem"
+		add_child(fire)
+	elif settles_with == &"queue":
+		var q := SettleQueue.new()  # (the valley's: no fire, its collapse sliced all the same, #1128)
+		q.name = "SettleQueue"
+		add_child(q)
 	ballistics = Ballistics.new()
 	ballistics.name = "Ballistics"
 	add_child(ballistics)
