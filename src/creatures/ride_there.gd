@@ -156,9 +156,9 @@ func _build_rails() -> void:
 
 ## The places by name for the bridge's goto (`horse_<id>`: where you stand by the horse there).
 func add_places(w: Waypoints) -> void:
+	# Unjoined: the way there from the place isn't always a walk (the mine's, the hideout's: test_valley_town).
 	for id: StringName in order:
-		var linked: Array = [id] if w.has(id) else []
-		w.add(StringName("horse_%s" % id), (spots[id].stand as Vector3) + Vector3.UP * 0.05, linked)
+		w.add(StringName("horse_%s" % id), (spots[id].stand as Vector3) + Vector3.UP * 0.05)
 
 
 # --- Your horse ---------------------------------------------------------------------------------

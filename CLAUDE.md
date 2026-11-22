@@ -332,7 +332,7 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
-- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
+- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins; "Ride there" (`RideThere`).
 - **src/train (the train)** — the 1D train, the track from a curve, cars on trucks (the train lab).
 - **src/missions (the farmhouse)** — the farmhouse out east (its spec, its places), the hills.
 - **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of

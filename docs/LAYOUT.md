@@ -2119,7 +2119,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `SHAPE_STEP` (`follow_bones`, `bone_move`). `take_off(part)` hides a piece of tack and drops it as
   a RigidBody3D (debris layers, its rest shape), `put_on` puts it back. `tie_to(point)` hides the
   ridden reins and draws two sagging reins from the bit (`bits()`, from `horse.json`) to the point.
-  Model space: head at -X, his right -Z, ground y = 0.
+  Model space: head at -X, his right -Z, ground y = 0. In the group `horses`.
+- `src/creatures/ride_there.gd` — `RideThere` (#1120, the valley's `ride`), a stand-in for riding
+  (#478): `config/ride_there.json`'s places (valley.json ids), each a hitch on a town lot (`lot`,
+  `along`, `out`) or back along one of its roads (`road`, `back_m`, `side_m`), a `HitchingRail` there;
+  your horse (`horse`, `horse_at`) at the one nearest where you start. E at any tied horse
+  (`horse_here`, `claims_use`): the list (`offered`: `known` always / been / fact:KEY[=V]; not where
+  you are), 1-9 or E; `ride(id)`: the fade, `DayCycle.pass_hours` by `ride_of` (flat distance x
+  `winding` at valley.json's `horse_trot`, + `extra_s`), `Events.hours_passed(h, &"rode")`, you and
+  your horse at the rail (`stand`, facing the place). `refusal()`: carried/dragged man, bleeding over
+  `bleed_ml_s`, `hostile_near` (an OutlawBrain against you that knows you, or within `close_m`), a
+  running Act's `ride_refusal()` (data `ride_no`, or `"ride": "ok"`), the group `ride_check`
+  (FarmhouseMission while ON); `beats_on_way` asks the group `timed_beats` (`ValleyFolk.beats_due`:
+  the murder, the sheriff's day, the funeral; "on" = it happens by its own clock after you arrive,
+  its `say` on arrival; "no" refuses). Places `horse_<id>` for `goto`; the bridge's `ride [PLACE]`.
 - `tools/blender/horse.py --shape=GLB` (the game's horse since 2026-10-24): Rodin's model from the
   Character Studio (`inputs/horse/shape.glb` on its `claude/studio-horse`, from pictures Sean approved),
   turned, scaled and measured by `horse_rodin.py` (legs by level cuts, poll, muzzle, withers, the tail

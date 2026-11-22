@@ -52,6 +52,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   and act men killed aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
+- **Ride there** (#1120, `RideThere`, `config/ride_there.json`; LAYOUT "src/creatures"): E at a tied horse, the places
+  you know, a fade, the clock on at a trot, you by your horse at the rail; bridge `ride [PLACE]`, `goto horse_<id>`.
+  Open: hitches unjudged on screen; mission horses offer it but yours is the one you arrive with.
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
   **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
