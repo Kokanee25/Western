@@ -3878,9 +3878,14 @@ func _tend(delta: float) -> void:
 		_tend_bleed = _worst_bleed()
 		_tend_time = 0.0
 		if _tend_bleed.is_empty():
-			# Nothing more he can do for it.
+			# Nothing more he can do for it: back to his fight if he has the nerve for it, else he goes
+			# on away (#1051's CI: he had fled, bound himself up, and knelt there tending nothing for
+			# good, never riding out).
+			_release_pressure()
 			if _after_tend == Mood.FIGHTING and dread() <= nerve_now():
 				_set_mood(Mood.FIGHTING)
+			else:
+				_start_fleeing()
 			return
 	_tend_time += delta
 	var seg: StringName = _tend_bleed.segment

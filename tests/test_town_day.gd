@@ -407,6 +407,20 @@ func test_break_off_a_fight_and_they_ride_out_not_stand_about() -> void:
 	check(done, "nobody's still fighting or hanging about a minute and a half on (%s)" % ", ".join(_still_at_it()))
 
 
+## Bound up and nothing more to tend (#1051's CI: the Kid knelt tending nothing for good after a
+## fight broke off): he goes on, his fight if he has the nerve for it, else away.
+func test_with_nothing_left_to_tend_he_doesnt_kneel_there() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	kid.global_position = town.places.at(&"street_west")
+	await physics_frames(10)
+	b._start_tending(OutlawBrain.Mood.FLEEING)
+	check_eq(b.mood, OutlawBrain.Mood.TENDING, "tending")
+	await physics_frames(60)
+	check(b.mood != OutlawBrain.Mood.TENDING, "nothing to tend: he's gone on (%s)" % OutlawBrain.MOOD_NAMES[b.mood])
+
+
 ## A man down with his legs gone, awake, and against you: alone he lies there; when you come up
 ## on him he gives himself up, and a shout binds his hands. (At the bar, Brody shot through the
 ## thigh with you three metres off gives up there and then.)
@@ -516,7 +530,8 @@ func _still_at_it() -> Array[String]:
 		var b := g.get_node(^"Brain") as OutlawBrain
 		var leaving: bool = b.mood == OutlawBrain.Mood.CALM and not b.agenda.is_empty() and b.agenda[0].do == &"leave"
 		if not leaving and b.mood != OutlawBrain.Mood.SURRENDERED and b.mood != OutlawBrain.Mood.FLEEING:
-			out.append("%s %s" % [g.person_id, b.describe().get_slice(".", 0)])
+			out.append("%s %s (after %s, bleeding %.1f ml/s)" % [g.person_id, b.describe().get_slice(".", 0),
+					OutlawBrain.MOOD_NAMES[b._after_tend], g.physiology.total_bleed_rate()])
 	return out
 
 
