@@ -3264,7 +3264,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `load_dict` / `made_from` (`plain`, `_pose_as`, `_lie_as`, `_lie_again`, `dropped_gun`),
   `Relations.from_dict`, `ValleyFolk.save_dict` / `load_dict` / `load_laid`, `TownNews.save_dict` /
   `load_dict`, `FloorMarks.save_dict` / `load_dict`, `Blood.save_list` / `load_list`,
-  `PlayerWounds.save_dict` / `load_dict`. People are keyed by `person_id`, structures by
+  `PlayerWounds.save_dict` / `load_dict`, `RideThere.save_dict` / `load_dict` (the `horse` section: his rail).
+  #1154: `ValleyFolk.kept` (a hurt man indoors: his body's state on the book, run on by the clock, `_keep`,
+  `_run_on`, `_put_back`, `_can_come_out`; laid up or `died_indoors`). People are keyed by `person_id`, structures by
   `structure_id`, members by `member_id`: a save warns (`warnings`) of two of a name.
 - `tests/test_save_game.gd`: the file, a structure, a man, marks and blood, the whole valley.
   `tests/test_sleep.gd`: a sleep saves and wakes you at dawn, loaded onto a fresh valley it's the same;

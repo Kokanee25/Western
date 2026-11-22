@@ -195,3 +195,145 @@ func test_continue_offered_only_with_a_save() -> void:
 	ContinueCard.done = true
 	check(not ContinueCard.offered(args, SLOT, false), "not twice a run")
 	ContinueCard.done = was
+
+
+## Saving step 3 (#1154): a townsman shot in the leg and bound, gone indoors, comes out of a sleep and a
+## load still hurt (his wounds, his splinted leg's limp), and your horse is where you tied him.
+func test_hurt_man_stays_hurt_overnight_and_horse_kept() -> void:
+	await _valley()
+	var p := _player()
+	p.sleep.slot = SLOT
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 1
+	clock.set_time(21.0)
+	valley.folk._look = 0.0
+	await physics_frames(20)
+	var out: Array = valley.folk.people.keys().filter(func(id: StringName) -> bool:
+		return valley.folk.folk_man(id) != null and valley.folk._person(id).has("day"))
+	check(not out.is_empty(), "a townsman's out at nine at night")
+	if out.is_empty():
+		return
+	var id: StringName = out[0]
+	var man: HumanBody = valley.folk.folk_man(id)
+	_ball(man, &"shin_l")
+	man.physiology.bind_up(&"shin_l")
+	await physics_frames(5)
+	var wounds := man.wounds.size()
+	check(wounds > 0 and man.physiology.alive, "%s is shot in the leg (%d wounds)" % [id, wounds])
+	# Indoors: his body freed, his state on the book.
+	valley.folk._send_off(id, false)
+	await physics_frames(2)
+	check(valley.folk.folk_man(id) == null, "he's gone in")
+	check(valley.folk.kept.has(id), "the book keeps his hurt body")
+	# Your horse tied somewhere other than where he was made.
+	var ride := get_tree().get_first_node_in_group(&"ride_there") as RideThere
+	var tie_at := &""
+	if ride:
+		await physics_frames(10)
+		for s: StringName in ride.order:
+			if s != ride.horse_at:
+				tie_at = s
+		ride.stand_horse(tie_at)
+		if ride.horse == null:
+			ride.horse_at = tie_at  # (no horse model built here: where he'd stand is still kept)
+	var bed := _by_a_bed(p)
+	check(bed != null, "the valley has a bed")
+	if bed == null:
+		return
+	await physics_frames(3)
+	var slept: bool = await p.sleep.sleep()
+	check(slept, "you sleep (%s)" % p.sleep.refused)
+	check(valley.folk.state.get(id) != &"buried", "a bound shin doesn't kill him in the night (%s)" % [p.sleep.last.get("died")])
+	check_eq(String(p.sleep.last_capture.get("horse", {}).get("horse_at", "")), String(tie_at), "the save has the horse where you tied him")
+	# Quit and Continue onto a fresh valley.
+	holder.queue_free()
+	holder = null
+	await physics_frames(3)
+	GameReset.clear_statics()
+	var d := SaveGame.read(SLOT)
+	GameReset.clear_for_load(d)
+	SaveGame.last_load = {}
+	await _valley()
+	await wait_until(func() -> bool: return not SaveGame.last_load.is_empty(), 120)
+	check(not SaveGame.last_load.is_empty(), "the save's on")
+	ride = get_tree().get_first_node_in_group(&"ride_there") as RideThere
+	if ride:
+		await physics_frames(10)
+		check_eq(String(ride.horse_at), String(tie_at), "your horse is tied where you left him")
+	# Out again (at dawn by his day, or brought now): still hurt.
+	var back := valley.folk.folk_man(id)
+	print("    %s after the load: %s" % [id, "out at dawn" if back != null else "on the book, brought now"])
+	if back == null:
+		check(valley.folk.kept.has(id), "still on the book, hurt (%s)" % valley.folk.state.get(id))
+		back = valley.folk._bring(valley.folk._person(id), false)
+	await physics_frames(5)
+	check(back != null and back.physiology.alive, "he comes out alive")
+	if back == null:
+		return
+	check_eq(back.wounds.size(), wounds, "with his wounds")
+	check(back.physiology.splinted.has("l") and back.physiology.leg_power("l") <= 0.31, "his leg bound up: he limps on it")
+	check(back.physiology.bleeds.all(func(b: Dictionary) -> bool: return b.get("kind", &"") == &"internal" or b.pressure or b.clot < 1.0),
+			"his bleeds bound or clotting")
+	check(not valley.folk.kept.has(id), "off the book once he's out")
+
+
+## A hurt man indoors who can't stand stays in (laid up); one whose wounds kill him in there is dead by
+## morning: never brought out again, the story told (#1154).
+func test_hurt_man_indoors_laid_up_or_dead_by_morning() -> void:
+	await _valley()
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 1
+	clock.set_time(21.0)
+	valley.folk._look = 0.0
+	await physics_frames(20)
+	var out: Array = valley.folk.people.keys().filter(func(id: StringName) -> bool:
+		return valley.folk.folk_man(id) != null and valley.folk._person(id).has("day"))
+	check(out.size() >= 2, "two townsmen out (%d)" % out.size())
+	if out.size() < 2:
+		return
+	var a: StringName = out[0]
+	var b: StringName = out[1]
+	for id: StringName in [a, b]:
+		var man := valley.folk.folk_man(id)
+		_ball(man, &"shin_l")
+		man.physiology.bind_up(&"shin_l")
+	await physics_frames(3)
+	valley.folk._send_off(a, false)
+	valley.folk._send_off(b, false)
+	await physics_frames(2)
+	check(valley.folk.kept.has(a) and valley.folk.kept.has(b), "both kept on the book")
+	# A's pelvis broken: he can't stand. B gut-shot hours ago: he dies within the hour.
+	(valley.folk.kept[a].body.physiology.broken as Array).append(&"pelvis_bone")
+	var t: PhysiologyTuning = Physiology.new().tuning
+	valley.folk.kept[b].body.physiology.gut_seconds = t.gut_death_game_hours * t.game_hour_seconds - 20.0
+	var died: Array = []
+	valley.folk.died_indoors.connect(func(id: StringName, n: String) -> void: died.append(id))
+	clock.pass_hours(1.0)
+	Events.hours_passed.emit(1.0, &"test")
+	check(died.has(b), "the gut-shot man died in the night (%s)" % [died])
+	check_eq(valley.folk.state.get(b), &"buried", "and he's not brought out again")
+	check(StoryState.has_fact("death." + String(b)), "the story has his death")
+	check(not valley.folk._can_come_out(a), "the broken pelvis keeps him in")
+	check(valley.folk.kept.has(a), "still on the book")
+
+
+## Every bed in the valley answers E with the sleep (#1154: saloon B's plank beds were taken as chairs,
+## so E sat you on them and no sleep was offered).
+func test_every_bed_offers_the_sleep() -> void:
+	await _valley()
+	var p := _player()
+	var beds := get_tree().get_nodes_in_group(&"beds")
+	check(beds.size() >= 5, "the valley has its beds (%d)" % beds.size())
+	var bad: Array[String] = []
+	for n: Node in beds:
+		var bed := n as Node3D
+		var off := bed.global_basis.z
+		off.y = 0.0
+		p.global_position = p.clear_spot_near(bed.global_position + off.normalized() * 1.0 - Vector3.UP * 0.5, 1.5)
+		p.velocity = Vector3.ZERO
+		var to := bed.global_position - p.global_position
+		p.rotation.y = atan2(-to.x, -to.z)
+		await physics_frames(3)
+		if p.sleep.bed_here() != bed:
+			bad.append("%s (%s; chair %s)" % [bed.name, p.sleep.bed_here(), p.seat.chair_here()])
+	check(bad.is_empty(), "every bed offers the sleep (not: %s)" % ", ".join(bad))

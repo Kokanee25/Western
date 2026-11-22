@@ -24,7 +24,6 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
   normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
   meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
-  Saloon B's gallery rail takes the framing finish (`gallery/` not in its surfaces): its step 2's to name.
 - **Wear by use** (#901, PR #963; RECIPE.md "Wear by use"): scan_wood's use pass from a spec's `materials.wear` and
   members' `use_role` or a kit look's `/<role>` (the bar's top `bar`, plinth `kick`). Dents (`dings`) built, set 0
   (Sean). Not done: chairs (test_perf's 1800 meshes), the brass rail. Quick look: `tools/wood_probe.gd`.
@@ -45,6 +44,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **The general store (#858): steps 1-3 done**
   (`experiments/building_lab/store/` README: bodies 38,185 of 65,536; #1035: library finishes, light 0.55/26, render CPU 1.5-2.4 ms (cellar 5.4, over); the sign on the porch band (#1045); the rear's gabled wing is Sean's form call). **Lit** (#1053): a `Storefront` (show windows, recessed entry; PARTS.md), RoomLight's cap 12 m², RealLook `exposure_indoor` 1.7, a pale beaded ceiling; back wall card 0.110 -> 0.193. **Hollis's** (#1074): pale posts and beams, A. P. HOLLIS gilded on the show windows (`Storefront.gilt`), kit goods in the windows (real stock #1076); the dark brackets are Sean's call;
   saloon B is Fable's (#848: step 1 done, below).
+- **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.

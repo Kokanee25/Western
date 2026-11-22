@@ -1,0 +1,142 @@
+{
+ "_doc": "Harlan's homestead on its pad (#1126; Sean 2026-11-21): written by experiments/building_lab/homestead/gen_spec.py. Homestead (src/structures/homestead.gd) builds it; ValleyWorld sets it on valley.json's harlan_homestead pad (its `site`). Pad space: x east from the pad's west edge, z south from its north edge, y over the pad.",
+ "id": "harlan",
+ "buildings": [
+  {
+   "id": "cabin",
+   "spec": "res://config/buildings/harlan_cabin.json",
+   "center": [
+    8.0,
+    15.4
+   ],
+   "facing": 270,
+   "_doc": "its door's long side and porch to the north (the yard, the lane), the chimney gable to the east, the woodpile's to the west"
+  },
+  {
+   "id": "barn",
+   "spec": "res://config/buildings/harlan_barn.json",
+   "center": [
+    19.5,
+    18.5
+   ],
+   "facing": 0,
+   "_doc": "its door to the yard (north), the corral beside it to the east"
+  }
+ ],
+ "corral": {
+  "at": [
+   22.6,
+   10.0
+  ],
+  "size": [
+   6.8,
+   12.0
+  ],
+  "post_spacing": 2.4,
+  "height": 1.5,
+  "gate_at": 1.0,
+  "gate_width": 2.4,
+  "rail_section": [
+   0.11,
+   0.1
+  ],
+  "broken": [
+   "1_2_1"
+  ],
+  "_doc": "peeled pine poles on posts beside the barn, its gate to the yard; one rail on the east side snapped (a repair job: corral_rail)"
+ },
+ "trough": {
+  "at": [
+   17.5,
+   8.0
+  ],
+  "length": 2.4,
+  "yaw": 0,
+  "_doc": "in the yard east of the lane's way in (the ford path's walk to the place stays clear), the pipe's spout over its east end"
+ },
+ "woodpile": {
+  "at": [
+   5.0,
+   13.6
+  ],
+  "along": "z",
+  "length": 3.6,
+  "height": 1.25,
+  "depth": 0.4,
+  "billet": 0.14,
+  "_doc": "split cordwood stacked against the cabin's west gable"
+ },
+ "chopping_block": {
+  "at": [
+   3.4,
+   12.4
+  ],
+  "height": 0.5,
+  "diameter": 0.45,
+  "axe_yaw": 35,
+  "chips": 12
+ },
+ "stock": {
+  "at": [
+   17.9,
+   19.2
+  ],
+  "along": "z",
+  "board_length": 3.05,
+  "layers": 3,
+  "per_layer": 5,
+  "shakes_at": [
+   [
+    18.95,
+    20.55
+   ],
+   [
+    18.95,
+    21.0
+   ],
+   [
+    18.95,
+    20.78,
+    1
+   ]
+  ],
+  "_doc": "in the barn along its west wall: new sawn boards on two bearers and three bundles of shakes, bought for the repairs"
+ },
+ "stall": {
+  "from": [
+   20.2,
+   17.45
+  ],
+  "to": [
+   20.2,
+   21.35
+  ],
+  "manger": [
+   21.05,
+   21.15,
+   1.4,
+   0.45
+  ],
+  "_doc": "the horse's stall along the barn's east side"
+ },
+ "spring": {
+  "at": [
+   63.0,
+   -38.0
+  ],
+  "size": 1.1,
+  "pipe_to": [
+   19.7,
+   8.32
+  ],
+  "spout_y": 0.85,
+  "piece": 3.0,
+  "pipe": 0.18,
+  "_doc": "valley.json's harlan_spring up the slope to the north-east: a plank box round the pool, stones on its rim; bored logs laid on the ground down to the trough, the last on a post over it"
+ },
+ "repairs": [
+  "cabin: roof_patch, porch_board, rotten_step",
+  "barn: barn_door",
+  "corral: corral_rail (broken)"
+ ]
+}

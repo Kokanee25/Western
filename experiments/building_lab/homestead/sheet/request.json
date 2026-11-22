@@ -1,0 +1,90 @@
+{
+ "_doc": "Harlan's homestead target sheet (#1126, the building lab's step 1). Sean's decisions are on #1126 (2026-11-21): a one-room hewn log cabin, worn and half fixed, with five repair jobs as real broken pieces; a small barn and a pole corral; the spring above with a pipe down to a trough; a woodpile and chopping block with an axe; a wash basin and shaving mirror on the porch; his army trunk at the bed's foot; no garden, no yard fence. Eight views at ~$0.14, $1.50 cap. The spec settles every size.",
+ "sheet_title": "Salt Creek, 1882: Harlan's homestead (target sheet, #1126)",
+ "cap": 1.5,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light, real worn materials (hewn and weathered timber, split shakes, lime chinking, fieldstone, iron, dust, dry grass), period-accurate in every object. No people unless the view asks for them. No modern objects. No text, no signs. No border, no frame, no watermark, no captions.",
+ "building": "Thomas Harlan's homestead in 1882, on dry rolling grassland with scattered pines a two-minute ride south-east of a small Colorado mining-and-ranching town. Harlan, an ex-army steward in his forties, bought the place worn from its last owner this spring and has only begun to fix it up: everything is weathered silver-grey, with a few new pale boards and shakes where he has started. THE CABIN: a small ONE-ROOM log cabin, about 16 x 18 ft outside, ONE storey, its door in the GABLE END facing the yard. SQUARE-HEWN logs (flat axe-hewn faces inside and out, about 9 in high, with white-grey lime chinking in the gaps between them), the corners notched with the log ends alternating and standing a few inches proud. A steep gable roof of split wooden SHAKES (ridge running front to back), board gables above the top log, a small four-pane window either side of the door and one in the side wall. A STONE CHIMNEY of rough fieldstone up the BACK gable end, outside the wall, its top over the ridge. A small porch across the front under its own plank shed roof on two hewn posts, a plank floor one step up, a WASH BASIN on a plank shelf and a small SHAVING MIRROR hung on the logs beside the door. Things left to fix, plainly visible: a missing patch of shakes on the roof (the boards showing), a loose porch board sprung up at one end, a rotten broken step, a few new pale shakes and one new pale log end among the grey ones. INSIDE (one room): a plank bed in one corner with a grey army blanket, an old army trunk (a wooden footlocker with iron corners) at the bed's foot, a small iron box stove against the back wall its pipe going into the chimney, a plank table and one chair, plank shelves on pegs with tins, a cup, a lamp; a plank floor. THE BARN: a small barn of vertical boards with battens, a gable roof of shakes, one big plank door hanging off its top hinge (sagging, its corner on the ground), a stall for one horse inside, and a pile of new sawn boards and bundles of shakes inside, bought for the repairs. THE CORRAL: a pole corral of peeled pine rails on posts beside the barn, one rail broken and hanging. In the yard: a WOODPILE of split firewood stacked against the cabin's side wall and a CHOPPING BLOCK (a big round of log) with an axe stuck in it, chips around it; a plank water TROUGH fed by a wooden pipe that runs down the grass slope from THE SPRING above the yard: a small spring in a hollow on the slope, boxed with planks and stones, its water spilling into the pipe. No garden, no yard fence: open dry grass round the buildings, a wagon track coming in.",
+ "views": [
+  {
+   "id": "yard",
+   "title": "The homestead, from the lane",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Arriving down the wagon track at eye level in a clear late afternoon, the low sun from the side: the whole homestead in frame, the log cabin on the left with its porch facing you, the barn and pole corral on the right, the woodpile and chopping block by the cabin, the trough in the middle of the yard with the wooden pipe coming down the grass slope behind from the spring above. A slightly long lens."
+  },
+  {
+   "id": "plan",
+   "title": "Site plan and the cabin's plan",
+   "aspect": "3:2",
+   "size": "2K",
+   "view": "A clean architect's drawing in black ink on off-white paper, seen from above: a site plan of the homestead (the cabin, the barn, the corral beside it, the woodpile against the cabin's side, the chopping block, the trough, the pipe running up to the spring, the wagon track coming in), and beside it at a larger scale the cabin's one-room floor plan: log walls, the door in the gable end with the porch before it, the windows, the bed in the back corner with the trunk at its foot, the stove against the back wall at the chimney, the table and chair, the shelves. Each thing labelled in small lettering."
+  },
+  {
+   "id": "cabin_front",
+   "title": "The cabin's front and porch",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The cabin's front gable end straight on from the yard at eye level, late afternoon light raking across the hewn log faces and the chinking: the door, the two small windows, the porch with its wash basin and shaving mirror, the loose porch board and the rotten step, the shake roof with its missing patch and a few new pale shakes, the board gable over the top log, the stone chimney's top showing over the ridge behind.",
+   "refs": [
+    "yard",
+    "plan"
+   ]
+  },
+  {
+   "id": "cabin_back",
+   "title": "The side and back, the chimney and woodpile",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the yard behind and to one side of the cabin: its long side wall of hewn logs with one small window, the notched corners with the log ends alternating, the rough fieldstone chimney up the back gable end, the woodpile stacked against the side wall and the chopping block with the axe stuck in it and chips round it. Late afternoon light.",
+   "refs": [
+    "yard",
+    "plan"
+   ]
+  },
+  {
+   "id": "inside",
+   "title": "Inside the cabin",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the one room at eye level, standing just inside the door looking to the back wall, afternoon light through the small windows: hewn log walls with chinking, the low ceiling of poles and boards under the roof, the plank bed with the grey army blanket in the back corner and the army trunk at its foot, the iron box stove against the back wall with its pipe into the stone chimney, the plank table and one chair, the shelves with tins and a lamp, the plank floor worn; sparse, a man living alone who has just moved in.",
+   "refs": [
+    "cabin_front",
+    "plan"
+   ]
+  },
+  {
+   "id": "cutaway",
+   "title": "The cabin's cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "An architectural cutaway of the cabin, a bird's-eye three-quarter view with the near side wall and half the roof cut away: the hewn logs stacked course on course with their notched corners and the chinking between them, the sill logs on fieldstone footings, the floor joists and plank floor, the door and windows framed in the logs with plank jambs, the rafters, the boards and the split shakes on them, the board gable, the stone chimney outside the back wall, the porch; the room furnished as the plan has it.",
+   "refs": [
+    "cabin_front",
+    "plan"
+   ]
+  },
+  {
+   "id": "barn",
+   "title": "The barn and corral",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The small board-and-batten barn and the pole corral beside it from the yard at eye level, late afternoon: the big plank door hanging off its top hinge with its corner on the ground, showing inside the horse's stall and the pile of new boards and bundled shakes, the shake roof, the peeled-pole corral with one broken rail hanging, a saddle on the top rail.",
+   "refs": [
+    "yard",
+    "plan"
+   ]
+  },
+  {
+   "id": "spring",
+   "title": "The spring and the pipe",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Up on the grass slope above the homestead, looking down toward it: the small spring in its hollow boxed in planks and stones, clear water spilling into the wooden pipe (bored logs joined end to end, laid along the ground), the pipe running down the slope to the trough in the yard below, the cabin and barn small in the distance. Late afternoon.",
+   "refs": [
+    "yard",
+    "plan"
+   ]
+  }
+ ]
+}

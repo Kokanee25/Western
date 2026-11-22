@@ -144,6 +144,7 @@
  "test_sight_world.gd": 7.7,
  "test_signs.gd": 0.0,
  "test_skeleton.gd": 0.7,
+ "test_sleep.gd": 200.0,
  "test_smoke.gd": 0.0,
  "test_smoke_column.gd": 0.0,
  "test_soak_rules.gd": 0.2,
