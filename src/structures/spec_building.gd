@@ -234,11 +234,19 @@ func build() -> void:
 		return
 	band = 0
 	_foundation()
+	var church_tower: ChurchTower = ChurchTower.new(self, spec.tower) if spec.has("tower") else null
+	if church_tower:
+		church_tower.foundation()  # the church's bell tower (#1142): src/structures/church_tower.gd
 	_cellar()
 	_posts_and_beams()
 	band = 1
 	_ground_floor()
+	if church_tower:
+		church_tower.floor()
 	_outer_walls()
+	if church_tower:
+		church_tower.gothic_heads()
+		church_tower.belfry()
 	if spec.has("corner"):
 		_corner_entrance()
 	band = 2
@@ -2709,7 +2717,7 @@ func _ladders() -> void:
 		foot.y = float(l.from)
 		var h := float(l.to) - float(l.from)
 		var lw := float(l.width)
-		band = 1
+		band = int(l.get("band", 1))  # (the church's ladder stands on the porch's floor: band 2)
 		for e in 2:
 			var c := foot + along * (lw * 0.5 * (1 if e == 0 else -1)) + Vector3.UP * (h * 0.5 + 0.45)
 			add_member("ladder/%s/stile_%d" % [l.id, e], &"post", &"framing", along.abs() * 0.05 + Vector3.UP * (h + 0.9) + out.abs() * 0.07, c)
