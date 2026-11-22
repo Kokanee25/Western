@@ -320,3 +320,48 @@ static func clear() -> void:
 ## A splat's turn about its normal (radians), by where it lands: no global dice.
 static func _turn_at(at: Vector3) -> float:
 	return posmod(hash(at.snapped(Vector3.ONE * 0.001)), 10000) / 10000.0 * TAU
+
+
+## What a save keeps of the blood on the ground (SaveGame, #1138): each mark's place, how much, how
+## long it flew and how dry it is.
+static func save_list() -> Array:
+	var out := []
+	for d in _splats:
+		if is_instance_valid(d) and d.is_inside_tree():
+			out.append({"at": d.global_transform, "ml": float(d.get_meta(&"ml", 0.0)), "long": float(d.get_meta(&"long", 1.0)),
+					"age_h": float(d.get_meta(&"age_h", 0.0))})
+	return out
+
+
+## A save's marks laid again, as dry as they were.
+static func load_list(world: Node, list: Array) -> void:
+	for s: Dictionary in list:
+		if _splats.size() >= MAX_SPLATS:
+			break
+		var d := Decal.new()
+		d.name = "BloodSplat"
+		var long := float(s.long)
+		d.texture_albedo = PixelArt.blood("splat_long", 44, false, 16) if long >= LONG_FROM else \
+				PixelArt.blood("splat%d" % (_splats.size() % 4), 40 + _splats.size() % 4, false, 16)
+		d.modulate = Color(0.8, 0.75, 0.75)
+		d.cull_mask = Layers.WORLD
+		d.upper_fade = 0.0
+		d.lower_fade = 0.0
+		d.set_meta(&"ml", 0.0)
+		if long != 1.0:
+			d.set_meta(&"long", long)
+		d.add_to_group(&"blood_splats")
+		d.add_to_group(&"blood_drying")
+		world.add_child(d)
+		d.global_transform = s.at
+		_grow(d, float(s.ml))
+		_splats.append(d)
+		var age := float(s.age_h)
+		d.set_meta(&"age_h", age)
+		if age > 0.0:  # (as dry as it was: `dry`'s colour)
+			var fresh := d.modulate
+			d.set_meta(&"fresh", fresh)
+			var k := 1.0 - exp(-age / DRY_HOURS)
+			var c := fresh * Color(lerpf(1.0, DRIED.r, k), lerpf(1.0, DRIED.g, k), lerpf(1.0, DRIED.b, k), 1.0)
+			c.a = fresh.a
+			d.modulate = c

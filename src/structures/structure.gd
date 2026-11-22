@@ -1584,7 +1584,7 @@ func _break_some(todo: Array, budget: WorkBudget) -> Array[StringName]:
 ## side stays in the frame as a member of its own (`<id>/a`, `<id>/b`), resting on whatever held
 ## that part of it. An end shorter than CUT_MIN_PIECE goes with the stretch. The member itself is
 ## broken (its record: `cut` meta, `to_dict`'s "cuts"). Returns the pieces left standing.
-func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) -> Array[StructureMember]:
+func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO, quiet := false) -> Array[StructureMember]:
 	var left: Array[StructureMember] = []
 	if m == null or not is_instance_valid(m) or m.broken or m.consumed:
 		return left
@@ -1635,6 +1635,11 @@ func cut_member(m: StructureMember, t0: float, t1: float, push := Vector3.ZERO) 
 	Prof.stop(&"cut_relink", t_l)
 	var t_c := Prof.start()
 	m.set_meta(&"cut_pieces", left)
+	if quiet:
+		# A save's cut made again (`from_dict`): the pieces stand, nothing flies or sounds.
+		Events.member_broken.emit(m.member_id)
+		Events.member_cut.emit(m, left)
+		return left
 	# The stretch, in pieces about a hand-span long, thrown: their dice thrown now (as they always
 	# were, so they fly the same), the bodies made as the tick has room (SpawnQueue, #538).
 	var n := maxi(1, ceili((t1 - t0) / CUT_CHUNK))
@@ -2247,16 +2252,216 @@ func to_dict() -> Dictionary:
 	for rb in rubble:
 		if is_instance_valid(rb):
 			var t := rb.global_transform
-			pieces.append({"members": (rb.get_meta(&"members", []) as Array).map(func(x): return String(x)),
+			var piece := {"members": (rb.get_meta(&"members", []) as Array).map(func(x): return String(x)),
 					"origin": [t.origin.x, t.origin.y, t.origin.z],
-					"basis": [t.basis.x.x, t.basis.x.y, t.basis.x.z, t.basis.y.x, t.basis.y.y, t.basis.y.z, t.basis.z.x, t.basis.z.y, t.basis.z.z]})
+					"basis": [t.basis.x.x, t.basis.x.y, t.basis.x.z, t.basis.y.x, t.basis.y.y, t.basis.y.z, t.basis.z.x, t.basis.z.y, t.basis.z.z]}
+			# A part of one member (half of a snapped board, a short piece of a cut stretch): its length.
+			if piece.members.size() == 1:
+				var m := get_member(StringName(piece.members[0]))
+				for c in rb.get_children():
+					if m != null and c is CollisionShape3D and (c as CollisionShape3D).shape is BoxShape3D:
+						var along: float = ((c as CollisionShape3D).shape as BoxShape3D).size[m.axis_index()]
+						if along < m.length() - 0.005:
+							piece["len"] = along
+						break
+			pieces.append(piece)
 	# Members a stretch was cut out of: the cut (along it, from its middle) remakes its pieces.
 	var cuts := {}
 	for m in _order:
 		if m.has_meta(&"cut"):
 			var c: Vector2 = m.get_meta(&"cut")
 			cuts[String(m.member_id)] = [c.x, c.y]
-	return {"id": String(structure_id), "broken": broken_ids, "holes": holes, "rubble": pieces, "cuts": cuts}
+	# What the fire's done to each: [char depth, wet, burnt away, alight] (only those it's touched).
+	var fire := {}
+	for m in _order:
+		if m.char_depth > 0.0 or m.wet > 0.0 or m.consumed or m.burning:
+			fire[String(m.member_id)] = [m.char_depth, m.wet, m.consumed, m.burning]
+	var out := {"id": String(structure_id), "broken": broken_ids, "holes": holes, "rubble": pieces, "cuts": cuts,
+			"fire": fire, "dents": Dents.state(self)}
+	if get(&"loose") == true:
+		out["loose"] = true  # (a kit prop knocked over: KitProp.go_loose)
+	return out
+
+
+## Might anything have happened to it since it was built (one quick pass; `to_dict` and `untouched`
+## say for sure)? A save asks every structure in the valley this, and most say no.
+func maybe_changed() -> bool:
+	if not rubble.is_empty() or get(&"loose") == true:
+		return true
+	for m in _order:
+		if m.broken or m.consumed or m.burning or m.fire_slot >= 0 or m._char_depth > 0.0 or m._wet > 0.0 \
+				or not m.holes.is_empty() or m.has_meta(&"cut") or m.has_meta(&"dents") or m.has_meta(&"dent_torn"):
+			return true
+	return false
+
+
+## Is `d` (`to_dict`'s) a structure as authored: nothing a save need keep?
+static func untouched(d: Dictionary) -> bool:
+	for k: String in ["broken", "holes", "rubble", "cuts", "fire", "dents"]:
+		if not (d.get(k, {}) as Variant).is_empty():
+			return false
+	return not d.has("loose")
+
+
+## A save put back on the structure as authored (SaveGame, #1138; the trestle's `restore_dict` was
+## the first of it): the cut members cut again, the holes carved again in their order, each saved
+## piece of rubble made of its members where it lay, asleep; the members broken and gone (burnt
+## away, or their pieces lost) taken out; the char and the dents back. Nothing thrown, no chips, no
+## sound; a snapped member's halves and a cut stretch's short pieces each where they lay. Returns
+## how many of its members it couldn't find.
+func from_dict(d: Dictionary) -> int:
+	var missed := 0
+	# Cuts first: the rest may name the pieces (`<id>/a`) only a cut makes.
+	var cuts: Dictionary = d.get("cuts", {})
+	var ids := cuts.keys()
+	ids.sort_custom(func(a: String, b: String) -> bool: return a.length() < b.length())  # (a piece's own cut after its parent's)
+	var holes: Dictionary = d.get("holes", {})
+	for id: String in ids:
+		var m := get_member(StringName(id))
+		if m == null:
+			missed += 1
+			continue
+		if holes.has(id):
+			m.restore_holes(holes[id])  # (shot through, then cut: its record as it was)
+		var c: Array = cuts[id]
+		cut_member(m, float(c[0]), float(c[1]), Vector3.ZERO, true)
+	for id: String in holes:
+		var m := get_member(StringName(id))
+		if m == null:
+			missed += 1
+		else:
+			m.restore_holes(holes[id])
+	# Carved all the way now (the workers waited for): what's laid next lies in the hollows, not
+	# on a board whole till its mesh comes (a dead man's hand was lifted out of one on loading).
+	var works := {}
+	for id: String in holes:
+		var m := get_member(StringName(id))
+		var w := m.get_parent().get_node_or_null(^"VoxelWorks") as VoxelWorks if m != null and m.get_parent() != null else null
+		if w != null and not works.has(w):
+			works[w] = true
+			w.finish()
+	var fire: Dictionary = d.get("fire", {})
+	var gone: Array[StringName] = []
+	for id: String in fire:
+		var m := get_member(StringName(id))
+		if m == null:
+			missed += 1
+			continue
+		var f: Array = fire[id]
+		m.char_depth = float(f[0])
+		m.wet = float(f[1])
+		if float(f[0]) > 0.0:
+			show_fire(m, clampf(m.char_depth / maxf(m.thickness() * 0.5, 0.001), 0.0, 1.0), 0.0)
+		if bool(f[2]) and not m.broken:
+			gone.append(m.member_id)
+	var placed := {}
+	var laid: Array = []  # [body, transform]
+	for p: Dictionary in d.get("rubble", []):
+		var o: Array = p.origin
+		var b: Array = p.basis
+		var t := Transform3D(Basis(Vector3(b[0], b[1], b[2]), Vector3(b[3], b[4], b[5]), Vector3(b[6], b[7], b[8])), Vector3(o[0], o[1], o[2]))
+		if p.has("len"):
+			var whole := get_member(StringName(String(p.members[0])))
+			if whole == null:
+				missed += 1
+			elif not gone.has(whole.member_id):
+				placed[whole.member_id] = true
+				laid.append([_lay_piece(whole, float(p.len), t), t])
+			continue
+		var clump: Array[StringName] = []
+		for path: Variant in p.members:
+			var id := StringName(String(path))
+			var m := get_member(id)
+			if m == null:
+				missed += 1
+			elif not placed.has(id) and not m.broken and not gone.has(id):
+				placed[id] = true
+				clump.append(id)
+		if clump.is_empty():
+			continue
+		var before := rubble.size()
+		_drop(clump)
+		for k in range(before, rubble.size()):
+			var rb := rubble[k]
+			if is_instance_valid(rb):
+				rb.global_transform = t
+				rb.linear_velocity = Vector3.ZERO
+				rb.angular_velocity = Vector3.ZERO
+				rb.set_meta(&"broken_up", true)
+				rb.sleeping = true
+				laid.append([rb, t])
+	for path: Variant in d.get("broken", []):
+		var id := StringName(String(path))
+		var m := get_member(id)
+		if m == null:
+			missed += 1
+		elif not m.broken and not placed.has(id) and not gone.has(id):
+			gone.append(id)
+	if not gone.is_empty():
+		var before := rubble.size()
+		_drop(gone)
+		for k in range(rubble.size() - 1, before - 1, -1):
+			var rb := rubble[k]
+			rubble.remove_at(k)
+			if is_instance_valid(rb):
+				rb.queue_free()
+	for id: String in fire:
+		var m := get_member(StringName(id))
+		if m != null and bool((fire[id] as Array)[2]):
+			m.consumed = true
+	if d.has("loose"):
+		set(&"loose", true)
+	Dents.restore(self, d.get("dents", {}))
+	invalidate_analysis()
+	settle_soon()
+	# (`_drop` wakes what's near and wakes it again a frame on: laid back where they lay, asleep.)
+	_lay_asleep.call_deferred(laid)
+	return missed
+
+
+## A part of a member (`along` long: a snapped board's half, a cut stretch's short piece) made as
+## rubble at `t`, still: a save's (`from_dict`). The member itself is broken by the first of them.
+func _lay_piece(m: StructureMember, along: float, t: Transform3D) -> RigidBody3D:
+	if not m.broken:
+		unbatch(m)
+		m.broken = true
+		mark_dirty(m.member_id)
+		for c in m.get_children():
+			if c is MeshInstance3D or c is CollisionShape3D:
+				c.queue_free()
+		m.pieces = []
+		m.set_meta(&"snapped", true)
+		Events.member_broken.emit(m.member_id)
+	var size := m.size
+	size[m.axis_index()] = along
+	var rb := _new_rubble([m.member_id])
+	rb.global_transform = t
+	var pmi := MeshInstance3D.new()
+	pmi.mesh = MemberMesh.box(size)
+	pmi.material_override = WoodMaterials.get_material(m.drawn_wood(), hash(m.member_id))
+	rb.add_child(pmi)
+	var pcs := CollisionShape3D.new()
+	pcs.shape = _box_shape(size)
+	rb.add_child(pcs)
+	if m.has_meta(&"snapped"):
+		m.pieces.append([pmi, pcs])
+	rb.mass = maxf(m.weight(tuning) / 9.81 * along / maxf(m.length(), 0.01), 0.05)
+	if maxf(size.x, maxf(size.y, size.z)) < Fittings.SMALL:
+		rb.collision_layer = Layers.DEBRIS  # (a short piece: small debris, as `_make_chunks` has it)
+		rb.collision_mask = Layers.DEBRIS_MASK
+	rb.set_meta(&"broken_up", true)
+	rb.sleeping = true
+	return rb
+
+
+func _lay_asleep(laid: Array) -> void:
+	for pair: Array in laid:
+		var rb := pair[0] as RigidBody3D
+		if is_instance_valid(rb):
+			rb.global_transform = pair[1]
+			rb.linear_velocity = Vector3.ZERO
+			rb.angular_velocity = Vector3.ZERO
+			rb.sleeping = true
 
 
 func rand_range(from: float, to: float) -> float:
