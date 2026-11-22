@@ -1,0 +1,1684 @@
+{
+ "_doc": "The town's script (townsfolk step 8, #1144; docs/briefs/townsfolk.md §5 'What they say'). The same shape as no_law.json (docs/scripts/README.md): `cast` the pools (townsfolk share pools by type, DESIGN §9; cast ids shared with no_law.json keep one voice), `scenes` with `lines` (id, speaker, trigger, when, condition, delivery, words, takes). Lines may hold slots in braces ({who}, {whom}, {where}, {shots}, {teller}); a scene's `reads` says which code reads it. The `runner` and `news` scenes are read by the game now (TownScript, src/people/town_script.gd; a wording `built` is what the game said before this file, kept); the rest wait for step 9's line picker. Every wording is PROPOSED and nothing is voiced until Sean taps Script OK. No line here says Harlan's name. No Law's town, morning and funeral lines stay in no_law.json and aren't repeated.",
+ "id": "town",
+ "title": "The town",
+ "mission": "none: the town between and after the missions (townsfolk #850, step 8)",
+ "year": 1882,
+ "status": "written 2026-11-22 (#1144): waiting on Sean's Script OK",
+ "written": "2026-11-22",
+ "rewritten_at": "2026-11-22T12:00:00Z",
+ "sources": [
+  "docs/briefs/townsfolk.md §5 (the line table, how the town treats Harlan), §10 (Sean's picks 2-4, #851)",
+  "src/people/fetch_help.gd FetchHelp.LINES, src/people/town_news.gd line_of (the placeholders these replace)",
+  "docs/story/WORDS.md, DIALOGUE.md, VOICES.md (K1-K14)",
+  "docs/playtests/2026-11-21-news.md (three men said one line)"
+ ],
+ "notes": [
+  "Harlan doesn't speak; nobody here names him.",
+  "Secrets: the news only carries what a townsman sensed, so K2-K4 can't leak; nobody in town names the prisoner (K3) or the Baron (K4).",
+  "Variants per line, picked by the speaker's seed (the playtest's 'Three shots, I counted.' three times)."
+ ],
+ "words_to_check": [
+  "'took bad' (taken ill) in runner: to check",
+  "'cleared leather' in harlan.shot.pass: to check"
+ ],
+ "facts": [
+  {
+   "fact": "nolaw.deputy",
+   "values": "true",
+   "exists": true,
+   "used": [
+    "run_law",
+    "runner_you",
+    "runner_you.shot",
+    "deputy.*"
+   ]
+  },
+  {
+   "fact": "news.harlan",
+   "values": "stopped_a_killer / shot_a_man / split",
+   "exists": true,
+   "set_by": "TownNews.overnight",
+   "used": [
+    "harlan.*"
+   ]
+  },
+  {
+   "fact": "news.yesterday (the day kind uneasy)",
+   "values": "killing / shooting",
+   "exists": true,
+   "used": [
+    "uneasy.*"
+   ]
+  },
+  {
+   "fact": "regard",
+   "values": "warm / wary / cold / afraid",
+   "exists": false,
+   "set_by": "step 9",
+   "used": [
+    "day.*",
+    "react.gun_you",
+    "deputy.for"
+   ]
+  },
+  {
+   "fact": "sheriff.care",
+   "values": "good / poor / left",
+   "exists": true,
+   "used": [
+    "sheriff.gone_care",
+    "sheriff.gone_left"
+   ]
+  },
+  {
+   "fact": "nojustice.ending, nojustice.jail, nojustice.bodies",
+   "values": "as no_justice_cabin.gd sets",
+   "exists": true,
+   "used": [
+    "kett.*",
+    "revenge.*",
+    "fight.back",
+    "surrendered.doubt"
+   ]
+  },
+  {
+   "fact": "kett.loose",
+   "values": "true",
+   "exists": false,
+   "set_by": "C8 a, when Sean nods on #830",
+   "used": [
+    "kett.loose.*",
+    "kett.street"
+   ]
+  }
+ ],
+ "kept": [
+  {
+   "line": "runner, runner_you",
+   "words": "Doc! Man down, out front of {where}. / A man's down.",
+   "why": "Built (the game's placeholder before this script). The blind reader heard police and army talk in 'man down'; the new wordings say 'a man's hurt' and 'took bad'. For Sean: drop the built ones if he agrees."
+  },
+  {
+   "line": "uneasy.quiet",
+   "words": "Nobody's out. Even the dogs are under the porch.",
+   "why": "The reader called it a neat writer's button but close to good; kept for Sean to say."
+  }
+ ],
+ "setups": [],
+ "cast": [
+  {
+   "id": "townsman",
+   "name": "A townsman",
+   "called": "",
+   "bible": "P·bible (No Law's Beat 1, the town without a sheriff)",
+   "brief": "Forties, a storekeeper type; worried, talks low, glances over his shoulder.",
+   "voice": null
+  },
+  {
+   "id": "townswoman",
+   "name": "A townswoman",
+   "called": "",
+   "bible": "WORDS.md, The town's women",
+   "brief": "Thirties to forties, plain-spoken, good grammar; brisk, says what she thinks.",
+   "voice": null
+  },
+  {
+   "id": "loudmouth",
+   "name": "A bold man in the street",
+   "called": "",
+   "bible": "No Law's Beat 1: 'others behave more boldly'",
+   "brief": "Thirties, a teamster or a hand in town; too loud, a little drunk, enjoying the sheriff's absence.",
+   "voice": null
+  },
+  {
+   "id": "barkeep",
+   "name": "The barkeep",
+   "called": "",
+   "bible": "VOICES.md, The barkeep",
+   "brief": "Forties, aggrieved and quick, always counting what a thing costs him; a nasal Midwestern voice that rises when he's upset.",
+   "voice": null
+  },
+  {
+   "id": "undertaker",
+   "name": "The undertaker",
+   "called": "",
+   "bible": "#259 (the undertaker); P·bible",
+   "brief": "Sixties, unhurried, precise, a dry gallows humour he doesn't know he has.",
+   "voice": null
+  },
+  {
+   "id": "doctor",
+   "name": "The doctor",
+   "called": "Doc",
+   "bible": "VOICES.md, The doctor (the same voice as in the sheriff's script)",
+   "brief": "Late forties, an educated Easterner; brisk, quiet, dry.",
+   "voice": null
+  },
+  {
+   "id": "storekeeper",
+   "name": "The storekeeper",
+   "called": "the storekeeper",
+   "bible": "townsfolk brief §2 (the roster)",
+   "brief": "Fifties, a Missouri man, careful with money and with words; polite to the penny. Says less when he's frightened, not more.",
+   "voice": null
+  },
+  {
+   "id": "landlady",
+   "name": "The hotel's landlady",
+   "called": "Mrs. (the landlady)",
+   "bible": "WORDS.md, the town's women",
+   "brief": "Forties, a widow who runs the hotel; brisk, plain, has fed worse men than these. Never raises her voice.",
+   "voice": null
+  }
+ ],
+ "scenes": [
+  {
+   "id": "runner",
+   "title": "The runner",
+   "when": "Any day, a man down in town",
+   "built": true,
+   "reads": "FetchHelp (src/people/fetch_help.gd): the most specific id that has words first (runner.shot, then runner); a wording by the runner's own seed. {where} is FetchHelp.place_name: 'the store', 'the saloon', 'Doc's'.",
+   "setting": "A townsman who saw a man go down runs for the doctor (or, once there's a deputy, for Harlan), tells him on arrival, and hands over his version of the news.",
+   "lines": [
+    {
+     "id": "run_doc",
+     "speaker": "townsman",
+     "trigger": "He starts for the doctor's (Reaction's runner)",
+     "when": "any",
+     "condition": "frightened, decided",
+     "delivery": "Called back over his shoulder as he goes. The first words are to the others.",
+     "words": [
+      {
+       "text": "I'll get Doc! Don't move him.",
+       "status": "built"
+      },
+      {
+       "text": "I'll go. Don't move him.",
+       "status": "built"
+      },
+      {
+       "text": "Somebody fetch Doc... I'll go!",
+       "status": "built"
+      },
+      {
+       "text": "Leave him lay. I'm going for Doc.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "run_law",
+     "speaker": "townsman",
+     "trigger": "He starts for Harlan (the badge given, Harlan seen in town)",
+     "when": "nolaw.deputy",
+     "condition": "frightened",
+     "delivery": "Over his shoulder, already going.",
+     "words": [
+      {
+       "text": "I'll get the deputy!",
+       "status": "built"
+      },
+      {
+       "text": "Somebody get the law... I'll go!",
+       "status": "built"
+      },
+      {
+       "text": "Where's the deputy? I'll find him.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "runner.shot",
+     "speaker": "townsman",
+     "trigger": "He reaches the doctor: the man was shot and is breathing",
+     "when": "the man shot, breathing",
+     "condition": "out of breath",
+     "delivery": "Blown from the run; the place first, then that he's alive.",
+     "words": [
+      {
+       "text": "Doc! Man shot, out front of {where}. He's breathing.",
+       "status": "built"
+      },
+      {
+       "text": "Doc, come quick! Man shot by {where}. He's breathing.",
+       "status": "built"
+      },
+      {
+       "text": "Doc! There's a man shot at {where}. He's breathing yet.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "runner",
+     "speaker": "townsman",
+     "trigger": "He reaches the doctor: the man is down, not shot (a fall, a blast), breathing",
+     "when": "the man down, breathing",
+     "condition": "out of breath",
+     "delivery": "As above.",
+     "words": [
+      {
+       "text": "Doc! Man down, out front of {where}. He's breathing.",
+       "status": "built"
+      },
+      {
+       "text": "Doc, come quick! A man's hurt by {where}. He's breathing.",
+       "status": "new"
+      },
+      {
+       "text": "Doc! A man's took bad at {where}. He's breathing yet.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "runner_dead.shot",
+     "speaker": "townsman",
+     "trigger": "He reaches the doctor: the man was shot and isn't breathing",
+     "when": "the man shot, not breathing",
+     "condition": "out of breath, flat",
+     "delivery": "He knows the run was for nothing and comes anyway.",
+     "words": [
+      {
+       "text": "Doc! There's a man dead by {where}. Shot.",
+       "status": "built"
+      },
+      {
+       "text": "Doc, a man's been killed, out by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "Doc, you'd best come anyhow. Man shot dead at {where}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "runner_dead",
+     "speaker": "townsman",
+     "trigger": "He reaches the doctor: the man isn't breathing, not shot",
+     "when": "the man down, not breathing",
+     "condition": "out of breath, flat",
+     "delivery": "As above.",
+     "words": [
+      {
+       "text": "Doc! There's a man dead by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "Doc, there's a man lying dead at {where}. I don't know what done it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "runner_you.shot",
+     "speaker": "townsman",
+     "trigger": "He reaches Harlan (day 2 on): a man shot",
+     "when": "nolaw.deputy; the man shot",
+     "condition": "out of breath",
+     "delivery": "Says 'Deputy' like a man still getting used to it.",
+     "words": [
+      {
+       "text": "Deputy! Down at {where}, quick! A man's shot.",
+       "status": "built"
+      },
+      {
+       "text": "Deputy! You'd best come. There's trouble at {where}.",
+       "status": "built"
+      },
+      {
+       "text": "Deputy! There's a man shot at {where}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "runner_you",
+     "speaker": "townsman",
+     "trigger": "He reaches Harlan: a man down, not shot",
+     "when": "nolaw.deputy; the man down",
+     "condition": "out of breath",
+     "delivery": "As above.",
+     "words": [
+      {
+       "text": "Deputy! You'd best come. There's trouble at {where}.",
+       "status": "built"
+      },
+      {
+       "text": "Deputy! Down at {where}, quick! A man's down.",
+       "status": "built"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "news",
+   "title": "The news, as a man has it",
+   "when": "Any day, the hours and the morning after a shooting",
+   "built": true,
+   "reads": "TownNews.line_of (src/people/town_news.gd) builds a man's line from his own version: one head line by what he holds (a killing, a shooting, a man down, shots), then at most one of 'who drew first' or 'how many shots', then who told him. The most specific id with words first (news.killing.you, then news.killing); a wording by his seed, so three men who counted three shots say it three ways. Slots: {who} who fired (by TownNews.name_of: Earl, Cody, Doc, 'the new man' or 'the deputy', else 'the storekeeper'), {whom} who was hit ('a man' if he doesn't know), {where}, {shots} ('three shots'), {teller}. A sentence that starts with a slot gets its capital.",
+   "setting": "A calm townsman near Harlan says his own news once, before his ordinary line; two townsmen telling each other say the same lines to each other. A version is only what that man sensed: a slot he didn't fill isn't spoken.",
+   "lines": [
+    {
+     "id": "news.killing.you",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan killed a man; said to Harlan's face",
+     "when": "who = Harlan, to Harlan",
+     "condition": "careful",
+     "delivery": "Not an accusation. He's telling the man what the town has, to see what the man does with it.",
+     "words": [
+      {
+       "text": "You shot {whom} dead, by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "You shot {whom}, out by {where}. He's dead, you know.",
+       "status": "new"
+      },
+      {
+       "text": "You shot {whom} dead at {where}. I was there.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.killing",
+     "speaker": "townsman",
+     "trigger": "His version: a killing, he has who did it",
+     "when": "who known",
+     "condition": "low, telling",
+     "delivery": "Leans in. Pleased to be the one who has it.",
+     "words": [
+      {
+       "text": "{who} shot {whom} dead, out by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "{who} killed {whom}. Shot him, at {where}.",
+       "status": "new"
+      },
+      {
+       "text": "{whom}'s dead. {who} shot him, by {where}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.killing.nobody",
+     "speaker": "townsman",
+     "trigger": "His version: a killing, nobody seen firing",
+     "when": "who empty",
+     "condition": "low",
+     "delivery": "He doesn't know, and minds not knowing.",
+     "words": [
+      {
+       "text": "Somebody's killed {whom}, by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "{whom}'s been shot dead at {where}. Nobody's saying who.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.shooting.you",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan shot a man who lived; to his face",
+     "when": "who = Harlan, to Harlan",
+     "condition": "careful",
+     "delivery": "As news.killing.you.",
+     "words": [
+      {
+       "text": "You shot {whom} by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "You put a ball in {whom}, by {where}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.shooting",
+     "speaker": "townsman",
+     "trigger": "His version: a man shot, who did it",
+     "when": "who known",
+     "condition": "low, telling",
+     "delivery": "As news.killing.",
+     "words": [
+      {
+       "text": "{who} shot {whom} by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "{who} put a ball in {whom}, at {where}.",
+       "status": "new"
+      },
+      {
+       "text": "{whom} got shot by {where}. It was {who} done it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.shooting.nobody",
+     "speaker": "townsman",
+     "trigger": "His version: a man shot, nobody seen firing",
+     "when": "who empty",
+     "condition": "low",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{whom}'s been shot, by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "Somebody shot {whom}, out by {where}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.down",
+     "speaker": "townsman",
+     "trigger": "His version: a man down, no shot he sensed",
+     "when": "a man down, no shots",
+     "condition": "puzzled",
+     "delivery": "",
+     "words": [
+      {
+       "text": "There's a man down by {where}.",
+       "status": "built"
+      },
+      {
+       "text": "A man went down by {where}. I never saw what took him.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.shots",
+     "speaker": "townsman",
+     "trigger": "His version: shots, nobody seen hit",
+     "when": "shots only",
+     "condition": "uneasy",
+     "delivery": "He only heard it. He keeps looking the way it came from.",
+     "words": [
+      {
+       "text": "Shooting, down by {where}. {shots}.",
+       "status": "built"
+      },
+      {
+       "text": "There was shooting by {where}. {shots}.",
+       "status": "new"
+      },
+      {
+       "text": "Somebody was shooting, out by {where}. {shots}, near as I could tell.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.first.saw",
+     "speaker": "townsman",
+     "trigger": "Tail: the man hit drew first, and he saw it",
+     "when": "first = whom, how = saw",
+     "condition": "firm",
+     "delivery": "He'll say it to anyone. He'd say it to a judge.",
+     "words": [
+      {
+       "text": "{whom} drew first. I saw it.",
+       "status": "built"
+      },
+      {
+       "text": "{whom} drew first. I'll swear to that.",
+       "status": "new"
+      },
+      {
+       "text": "It was {whom} drew first. I seen him.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.first.heard",
+     "speaker": "townsman",
+     "trigger": "Tail: the man hit drew first, by what he heard",
+     "when": "first = whom, how = heard",
+     "condition": "less sure",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{whom} drew first, I heard.",
+       "status": "built"
+      },
+      {
+       "text": "{whom} drew first, the way I heard it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.first.told",
+     "speaker": "townsman",
+     "trigger": "Tail: the man hit drew first, by what he was told",
+     "when": "first = whom, how = told",
+     "condition": "passing it on",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{whom} drew first, is what I'm told.",
+       "status": "new"
+      },
+      {
+       "text": "They say {whom} drew first.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.count",
+     "speaker": "townsman",
+     "trigger": "Tail: more than one shot, and he heard them",
+     "when": "shots > 1, how = saw or heard",
+     "condition": "",
+     "delivery": "The number is his: he counted.",
+     "words": [
+      {
+       "text": "{shots}, I counted.",
+       "status": "built"
+      },
+      {
+       "text": "{shots}. I counted them.",
+       "status": "new"
+      },
+      {
+       "text": "I made it {shots}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.count.told",
+     "speaker": "townsman",
+     "trigger": "Tail: more than one shot, by what he was told",
+     "when": "shots > 1, how = told",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{shots}, they say.",
+       "status": "built"
+      },
+      {
+       "text": "{shots}, I'm told.",
+       "status": "new"
+      },
+      {
+       "text": "They say {shots}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.told_by",
+     "speaker": "townsman",
+     "trigger": "Tail: who told him",
+     "when": "how = told",
+     "condition": "",
+     "delivery": "Last, a little offhand.",
+     "words": [
+      {
+       "text": "{teller} told me.",
+       "status": "built"
+      },
+      {
+       "text": "I had it from {teller}.",
+       "status": "new"
+      },
+      {
+       "text": "That's what {teller} says, anyhow.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.tell",
+     "speaker": "townsman",
+     "trigger": "Opening a telling to another townsman (mostly walla under it)",
+     "when": "any",
+     "condition": "eager",
+     "delivery": "One clear opener; the rest is murmur.",
+     "words": [
+      {
+       "text": "You heard what happened?",
+       "status": "new"
+      },
+      {
+       "text": "You hear? Last night.",
+       "status": "new"
+      }
+     ],
+     "takes": [],
+     "script_only": true
+    },
+    {
+     "id": "news.dont_know",
+     "speaker": "townsman",
+     "trigger": "Asked (a look held at him), his version's slots empty",
+     "when": "his version holds shots only",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I only heard it. I never saw a thing.",
+       "status": "new"
+      },
+      {
+       "text": "Don't ask me. I was indoors with the shutters to.",
+       "status": "new"
+      }
+     ],
+     "takes": [],
+     "script_only": true
+    }
+   ]
+  },
+  {
+   "id": "harlan",
+   "title": "The morning after, about Harlan",
+   "when": "The day after Harlan shot a man in town",
+   "built": false,
+   "reads": "Step 9 (regard and the barks) picks these by StoryState news.harlan, set overnight by TownNews: stopped_a_killer (the man he shot fired first, or had shot someone), shot_a_man, split (near even). Said as Harlan passes, or to him; only by a man whose own version has Harlan in it.",
+   "setting": "Main Street, the morning after. No line names him.",
+   "lines": [
+    {
+     "id": "harlan.killer.nod",
+     "speaker": "townsman",
+     "trigger": "Harlan passes; his view stopped_a_killer",
+     "when": "news.harlan = stopped_a_killer",
+     "condition": "warm, awkward",
+     "delivery": "A touch of the hat; he isn't used to praising anybody.",
+     "words": [
+      {
+       "text": "Heard he pulled on you first. Nobody's grieving him.",
+       "status": "new"
+      },
+      {
+       "text": "Morning. That was a bad one you put down.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "harlan.killer.woman",
+     "speaker": "townswoman",
+     "trigger": "Harlan passes; stopped_a_killer",
+     "when": "news.harlan = stopped_a_killer",
+     "condition": "relieved, to her neighbour",
+     "delivery": "Half to him, half to the woman beside her.",
+     "words": [
+      {
+       "text": "He'd shot one already, they say. Before you stopped him.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "harlan.killer.bar",
+     "speaker": "barkeep",
+     "trigger": "Harlan at the bar; stopped_a_killer",
+     "when": "news.harlan = stopped_a_killer",
+     "condition": "grudging",
+     "delivery": "Sets a glass down, and keeps his hand on the bottle.",
+     "words": [
+      {
+       "text": "This one's mine to stand.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "harlan.shot.pass",
+     "speaker": "townsman",
+     "trigger": "Harlan passes; his view shot_a_man (not to his face)",
+     "when": "news.harlan = shot_a_man",
+     "condition": "low, to another",
+     "delivery": "Said once Harlan is past, loud enough.",
+     "words": [
+      {
+       "text": "That's him. Shot a man in the street.",
+       "status": "new"
+      },
+      {
+       "text": "Shot him before he'd cleared leather, I heard.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "harlan.shot.woman",
+     "speaker": "townswoman",
+     "trigger": "Harlan near; shot_a_man",
+     "when": "news.harlan = shot_a_man",
+     "condition": "sharp, to a child",
+     "delivery": "To a boy at the window, not to Harlan.",
+     "words": [
+      {
+       "text": "Come away from there. Come inside.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "harlan.shot.store",
+     "speaker": "storekeeper",
+     "trigger": "Harlan at his counter; shot_a_man",
+     "when": "news.harlan = shot_a_man",
+     "condition": "polite, cold",
+     "delivery": "Doesn't look up from the ledger.",
+     "words": [
+      {
+       "text": "I'll have the money first, if it's the same to you.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "harlan.split",
+     "speaker": "townsman",
+     "trigger": "Harlan passes; the town split",
+     "when": "news.harlan = split",
+     "condition": "unsure",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Depends who you ask. Some say the other fellow pulled first.",
+       "status": "new"
+      },
+      {
+       "text": "I heard it both ways. I don't know as I believe either.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "harlan.split.loud",
+     "speaker": "loudmouth",
+     "trigger": "Harlan passes; split; the loudmouth on the walk",
+     "when": "news.harlan = split",
+     "condition": "loud, pleased with himself",
+     "delivery": "To the whole walk.",
+     "words": [
+      {
+       "text": "I was told the fellow drew. Then I was told he never. Ask the deputy, he was stood right there, and I'd ask him myself only I'm busy.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "uneasy",
+   "title": "The uneasy day",
+   "when": "The day after a killing or a shooting the town holds (the calendar's `uneasy`)",
+   "built": false,
+   "reads": "Step 9: barks by the day kind `uneasy` (valley_folk.json's kinds; StoryState news.yesterday = killing / shooting). Not after a story act's killing (No Law's morning is its own script).",
+   "setting": "The storekeeper keeps in, the loudmouth's out on the walk telling it, the street's thinner.",
+   "lines": [
+    {
+     "id": "uneasy.bar",
+     "speaker": "storekeeper",
+     "trigger": "Shutting at 17:00",
+     "when": "day kind uneasy",
+     "condition": "apologetic",
+     "delivery": "Turning the sign, the bar in his other hand.",
+     "words": [
+      {
+       "text": "I'm barring the door tonight. You'd do the same.",
+       "status": "new"
+      },
+      {
+       "text": "Shutting early. It's nothing against you.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "uneasy.heeled",
+     "speaker": "townsman",
+     "trigger": "Wearing a pistol, at a lean spot",
+     "when": "day kind uneasy",
+     "condition": "self-conscious",
+     "delivery": "Keeps touching it.",
+     "words": [
+      {
+       "text": "Never had cause to wear one in town before.",
+       "status": "new"
+      },
+      {
+       "text": "The wife made me put it on.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "uneasy.loud",
+     "speaker": "loudmouth",
+     "trigger": "On the walk, anyone within 4 m",
+     "when": "day kind uneasy",
+     "condition": "loud",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Somebody ought to do something about it, and I said so, I said it to the storekeeper this morning.",
+       "status": "new"
+      },
+      {
+       "text": "I'd have stopped it, if I'd been there. I was at my supper.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "uneasy.street",
+     "speaker": "townswoman",
+     "trigger": "Calling children in, before noon",
+     "when": "day kind uneasy",
+     "condition": "sharp",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You stay in the yard today, you hear me?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "uneasy.quiet",
+     "speaker": "townsman",
+     "trigger": "At the store's bench",
+     "when": "day kind uneasy",
+     "condition": "low",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Nobody's out. Even the dogs are under the porch.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "undertaker",
+   "title": "The undertaker comes for a man",
+   "when": "Any day, a man dead in town (ValleyFolk takes him to the undertaker's)",
+   "built": false,
+   "reads": "When the undertaker's walk to a body is built (today the dead go once unseen, step 7's open), these are his: {whom} from his own version. No Law's Earl has his own lines (no_law.json morning.undertaker).",
+   "setting": "The undertaker is exact; to him a dead man is a box, a name for the book and somebody to send the bill to.",
+   "lines": [
+    {
+     "id": "undertaker.come",
+     "speaker": "undertaker",
+     "trigger": "Arriving at the body",
+     "when": "any",
+     "condition": "matter-of-fact",
+     "delivery": "Already measuring him with his eye.",
+     "words": [
+      {
+       "text": "Stand away, please. Somebody take his feet.",
+       "status": "new"
+      },
+      {
+       "text": "I'll have him now. Mind his head on the step.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "undertaker.name",
+     "speaker": "undertaker",
+     "trigger": "At the body; his version has whom",
+     "when": "whom known",
+     "condition": "exact",
+     "delivery": "Writing it down.",
+     "words": [
+      {
+       "text": "{whom}. Shot. I'll want his other name for the book, if anybody has it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "undertaker.stranger",
+     "speaker": "undertaker",
+     "trigger": "At the body; nobody knows him",
+     "when": "whom empty",
+     "condition": "exact",
+     "delivery": "Looks round the ring of faces; nobody.",
+     "words": [
+      {
+       "text": "Anybody know him? No. Then he goes in the book as a stranger, and the county pays.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "undertaker.yours",
+     "speaker": "undertaker",
+     "trigger": "At the body; Harlan near and the undertaker's version has Harlan firing",
+     "when": "who = Harlan",
+     "condition": "polite",
+     "delivery": "Not unkind. He only wants it right for the book.",
+     "words": [
+      {
+       "text": "Yours, Deputy? I'll put it down that way.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "day",
+   "title": "An ordinary day",
+   "when": "Any day",
+   "built": false,
+   "reads": "Step 9 (the barks): by regard (warm, wary, cold, afraid), the hour and the spot.",
+   "setting": "The street, the store, the livery.",
+   "lines": [
+    {
+     "id": "day.morning",
+     "speaker": "townsman",
+     "trigger": "You pass, before 10",
+     "when": "regard warm",
+     "condition": "",
+     "delivery": "A nod with it.",
+     "words": [
+      {
+       "text": "Morning.",
+       "status": "new"
+      },
+      {
+       "text": "Morning, Deputy.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "day.heat",
+     "speaker": "townsman",
+     "trigger": "At a lean spot, noon",
+     "when": "any",
+     "condition": "idle",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Hot enough to curl a board.",
+       "status": "new"
+      },
+      {
+       "text": "Wind's gone round. It'll blow dust all afternoon.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "day.store_last",
+     "speaker": "storekeeper",
+     "trigger": "You at his counter",
+     "when": "regard wary",
+     "condition": "polite",
+     "delivery": "Serving the woman behind you first.",
+     "words": [
+      {
+       "text": "Directly. There's others before you.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "day.shut",
+     "speaker": "storekeeper",
+     "trigger": "You at his door",
+     "when": "regard cold",
+     "condition": "",
+     "delivery": "Through the glass.",
+     "words": [
+      {
+       "text": "We're shut.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "day.freight",
+     "speaker": "loudmouth",
+     "trigger": "Carrying a sack, anyone within 4 m",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Mind your feet. This ain't feathers.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "react",
+   "title": "Trouble in the street",
+   "when": "Any day, shots or a fight",
+   "built": false,
+   "reads": "Step 9, by Reaction's stages (CivilianBrain). The runner's own lines are scene `runner`.",
+   "setting": "",
+   "lines": [
+    {
+     "id": "react.shot_far",
+     "speaker": "townsman",
+     "trigger": "Heard a shot, unseen (stage 2)",
+     "when": "any",
+     "condition": "startled",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That was a shot.",
+       "status": "new"
+      },
+      {
+       "text": "Up the street. Was that up the street?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.inside",
+     "speaker": "townswoman",
+     "trigger": "Heard a shot, going in",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Get in. Get in and shut it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.who",
+     "speaker": "townsman",
+     "trigger": "At the ring round a man down, his version has no whom",
+     "when": "whom empty",
+     "condition": "",
+     "delivery": "Up on his toes.",
+     "words": [
+      {
+       "text": "Who is it? Can you see who it is?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.knows",
+     "speaker": "townsman",
+     "trigger": "At the ring, his version has whom",
+     "when": "whom known",
+     "condition": "",
+     "delivery": "The name is the slot.",
+     "words": [
+      {
+       "text": "It's {whom}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.doc",
+     "speaker": "townsman",
+     "trigger": "Sees a man down, somebody else is running",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Somebody fetch Doc!",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.gun",
+     "speaker": "barkeep",
+     "trigger": "A gun drawn in his room",
+     "when": "any",
+     "condition": "",
+     "delivery": "Both hands flat on the bar.",
+     "words": [
+      {
+       "text": "Put that up or get out.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.gun_you",
+     "speaker": "townsman",
+     "trigger": "Harlan draws near him",
+     "when": "regard warm",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Deputy... you've no call to point that here.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.fight",
+     "speaker": "loudmouth",
+     "trigger": "The ring round a fist fight",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Let 'em have it out!",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.fight_stop",
+     "speaker": "barkeep",
+     "trigger": "Parting them",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That'll do. That'll do, I said.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.back",
+     "speaker": "townsman",
+     "trigger": "Coming out after (stage 4)",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Is it done?",
+       "status": "new"
+      },
+      {
+       "text": "Is he gone?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.shaken",
+     "speaker": "townswoman",
+     "trigger": "Shaken, within the hour",
+     "when": "any",
+     "condition": "",
+     "delivery": "Holding a cup she isn't drinking.",
+     "words": [
+      {
+       "text": "Look at my hands. Look at them.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.body_child",
+     "speaker": "townswoman",
+     "trigger": "At the ring, a child with her",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Come away. That's nothing to look at.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "sheriff",
+   "title": "The sheriff dying, the badge",
+   "when": "Day 1 evening to the funeral; the badge from day 2",
+   "built": false,
+   "reads": "Step 9. No Law's own town lines (no_law.json `town`, `morning`) come first where both fit.",
+   "setting": "",
+   "lines": [
+    {
+     "id": "sheriff.sinking",
+     "speaker": "townswoman",
+     "trigger": "Day 1 evening to his death",
+     "when": "any",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "He's poorly. Doc's not left him.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "sheriff.gone",
+     "speaker": "townsman",
+     "trigger": "The mourning day, first hour",
+     "when": "sheriff dead",
+     "condition": "",
+     "delivery": "Hat in his hand.",
+     "words": [
+      {
+       "text": "He's gone. This morning.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "sheriff.gone_care",
+     "speaker": "townswoman",
+     "trigger": "The mourning day",
+     "when": "sheriff.care = good",
+     "condition": "",
+     "delivery": "To Harlan, quickly, then away.",
+     "words": [
+      {
+       "text": "You gave him a night with his wife.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "sheriff.gone_left",
+     "speaker": "townsman",
+     "trigger": "The mourning day, as Harlan passes",
+     "when": "sheriff.care = left",
+     "condition": "",
+     "delivery": "Not to his face.",
+     "words": [
+      {
+       "text": "Some rode right by him, I hear.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "deputy.first",
+     "speaker": "townsman",
+     "trigger": "First sight of the badge",
+     "when": "nolaw.deputy",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Deputy, is it. Well.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "deputy.for",
+     "speaker": "townswoman",
+     "trigger": "The badge",
+     "when": "nolaw.deputy, regard warm",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I'm glad somebody's wearing it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "deputy.against",
+     "speaker": "loudmouth",
+     "trigger": "The badge, drunk",
+     "when": "nolaw.deputy",
+     "condition": "drunk",
+     "delivery": "",
+     "words": [
+      {
+       "text": "A nester wearing the sheriff's badge. A nester! I'll drink to that, I will.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "deputy.cody",
+     "speaker": "barkeep",
+     "trigger": "The badge, Cody not yet taken",
+     "when": "nolaw.deputy",
+     "condition": "",
+     "delivery": "Wiping the same glass.",
+     "words": [
+      {
+       "text": "He'll walk back in here, you know. Bold as brass.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "kett",
+   "title": "After No Justice",
+   "when": "Days after the cabin",
+   "built": false,
+   "reads": "Step 9, by StoryState nojustice.ending, nojustice.jail, nojustice.bodies; kett.loose by C8 a (PROPOSED on #830). Nobody in town says the prisoner's name (K3).",
+   "setting": "Pick 2 (Sean, #851, A): after the prisoner is turned loose the town splits: some stand by Harlan, others say he should have finished it. Pick 3 (Sean, #851): the town only knows what it can find; found or not, it assumes Joe did it.",
+   "lines": [
+    {
+     "id": "kett.cell",
+     "speaker": "townsman",
+     "trigger": "Arrest, the prisoner in the cell",
+     "when": "nojustice.jail = in",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You brought him in alive. I'd not have troubled.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "kett.cell_woman",
+     "speaker": "townswoman",
+     "trigger": "Arrest",
+     "when": "nojustice.jail = in",
+     "condition": "",
+     "delivery": "Peering at the jail's window.",
+     "words": [
+      {
+       "text": "Is that him? He don't look like much, behind a door.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "kett.meal",
+     "speaker": "landlady",
+     "trigger": "Carrying the prisoner's tray",
+     "when": "nojustice.jail = in",
+     "condition": "brisk",
+     "delivery": "",
+     "words": [
+      {
+       "text": "He eats what the house eats. He'll not thank me.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "kett.fear",
+     "speaker": "storekeeper",
+     "trigger": "Arrest",
+     "when": "nojustice.jail = in",
+     "condition": "low",
+     "delivery": "",
+     "words": [
+      {
+       "text": "And when his friends come for him?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "kett.loose.for",
+     "speaker": "townsman",
+     "trigger": "The prisoner turned loose (pick 2 A: for Harlan)",
+     "when": "kett.loose",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You brought him in. What the Army done after ain't on you.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "kett.loose.against",
+     "speaker": "loudmouth",
+     "trigger": "The prisoner turned loose (pick 2 A: against)",
+     "when": "kett.loose",
+     "condition": "loud",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Should've left him up there with the others.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "kett.loose.woman",
+     "speaker": "townswoman",
+     "trigger": "The prisoner turned loose (against)",
+     "when": "kett.loose",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "They let him go? After all that?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "kett.street",
+     "speaker": "townsman",
+     "trigger": "The prisoner walking Main Street",
+     "when": "kett.loose",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That's him. Walking about like he owns the street.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "revenge.wagon",
+     "speaker": "undertaker",
+     "trigger": "The bodies brought in",
+     "when": "nojustice.ending = revenge, nojustice.bodies = left",
+     "condition": "exact",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Five. And one of them won't bear looking at.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "revenge.for",
+     "speaker": "townsman",
+     "trigger": "Revenge, the bodies found; his liking of Harlan high",
+     "when": "nojustice.bodies = left",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Whoever did it saved the county the cost of a trial.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "revenge.against",
+     "speaker": "townswoman",
+     "trigger": "Revenge, the bodies found",
+     "when": "nojustice.bodies = left",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Cut like that. Lord.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "revenge.ask",
+     "speaker": "loudmouth",
+     "trigger": "Revenge, the bodies found, drunk",
+     "when": "nojustice.bodies = left",
+     "condition": "drunk",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You were up there, Deputy. Who took his hair?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "revenge.joe",
+     "speaker": "townsman",
+     "trigger": "Revenge, the bodies not found (pick 3: the town assumes)",
+     "when": "nojustice.ending = revenge",
+     "condition": "low",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That Ute that rode out with the deputy. Anybody seen him since?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "fight.back",
+     "speaker": "townsman",
+     "trigger": "The prisoner killed in the fight",
+     "when": "nojustice.ending = dead_*",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Went up there with one man and came back. I'll say that for him.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "surrendered.doubt",
+     "speaker": "undertaker",
+     "trigger": "Harlan shot him; the undertaker has seen the body",
+     "when": "nojustice.ending = murder",
+     "condition": "polite, exact",
+     "delivery": "Evidence spoken by the one man who'd see it (DESIGN §10).",
+     "words": [
+      {
+       "text": "Powder on his shirt front. He was shot close, Deputy.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    }
+   ]
+  }
+ ]
+}
