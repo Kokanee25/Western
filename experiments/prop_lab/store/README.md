@@ -20,7 +20,7 @@ interiors there first and say which G1 piece they'd change.
 
 | Where | What | Batch |
 | --- | --- | --- |
-| East wall (the alley), between its windows (z 2.3, 4.2) | wall shelving to the ceiling (cupboards below, a working shelf, five open boards, cornice, iron ladder rail), three bays, a rolling ladder on the middle one | G1 |
+| East wall (the alley), between its windows (z 2.3, 4.2) | wall shelving to the ceiling (cupboards below, a working shelf, five open boards, cornice, iron ladder rail), three bays, a rolling ladder on the last (not over the cellar's trap: it fell through) | G1 |
 | East counter, x 2.0 to 2.6 | long panelled counter in two lengths with the clerk's gap between (the flap), brass yardstick let into the top, drawers on his side; the scales and the candy jars on it | G1 |
 | West wall (the hardware store's, blank), between its lamps (z 3.4, 8.0) | wall shelving, four bays (the last is the post office's, G3): dry goods on it, the bolts of cloth | G1 (bolts), G2 (boots, hats, thread, notions) |
 | West counter, x 14.3 to 14.9 | dry goods counter with the scales | G1 |
@@ -55,7 +55,7 @@ looks), the tins on the shelves.
 
 The chairs by the stove are the kit's `chair`, the spittoon the kit's, the till the saloon's (`till_drawer`, S1).
 
-**The placement** (`store_g1.dressing_g1`): the east counter in two lengths (z 2.0 to 5.3 and 6.2 to 8.9) leaves the
+**The placement** (`store_g1.dressing_g1`): the east counter in two lengths (z 2.0 to 5.3 and 6.2 to 8.6) leaves the
 clerk 0.9 m for the flap and the aisle behind it 1.5 m wide against the shelving (the cellar's trap, x 0.5 to 1.5,
 z 5.95 to 8.7, is in that aisle); the use points moved with it (`gen_spec.py`: `serve_east` behind the first length,
 `buy_1` and `buy_2` in front of the counters, `ledger` behind the back counter, `post_office` at the pigeonholes' bay).
@@ -83,3 +83,5 @@ painted glass). Next, G2: tins and boxed goods in quantity on the shelves, boots
 tools, rope, tinware), a glass display case and the coffee mill on the counters, hanging lamps and goods, a pot-bellied
 stove if Sean wants one, baked metal, and the three or four dated interiors in `refs/store/`. **The counters' warmth is
 the oak's**; if Sean wants them painted, that's the library's painted finish (#721), not G1's.
+
+**CI found (#1158):** a counter running to z 8.9 and a ladder over the cellar's trap were moved by the valley's settle (`test_save_game`): the second counter now ends at z 8.6 (the girder at 8.8) and the east ladder stands in the last bay, z 9.65.

@@ -243,7 +243,7 @@ BATCH_G1 = [store_counter, store_shelving, rolling_ladder, store_stove, cracker_
 # the east wall between its windows (z 2.3, 4.2: sill 0.9, 1.5 high) and the hardware wall between its lamps (z 3.4, 8.0).
 SH = 0.1 + SHELF_DEPTH * 0.5 + 0.004    # the shelving's centre against the east (alley) wall
 SH_W = 16.66 - SHELF_DEPTH * 0.5 - 0.004  # and the west one
-FRONT_COUNTER = [("east_counter_a", 2.3, 3.65, 3.3), ("east_counter_b", 2.3, 7.55, 2.7)]
+FRONT_COUNTER = [("east_counter_a", 2.3, 3.65, 3.3), ("east_counter_b", 2.3, 7.4, 2.4)]
 
 
 def e(id_, kit, at, facing=0, **kw):
@@ -269,7 +269,7 @@ def dressing_g1():
     for id_, z, L in (("west_shelves_a", 2.5, 1.3), ("west_shelves_b", 4.65, 2.0), ("west_shelves_c", 6.675, 2.05), ("west_shelves_d", 9.15, 1.7)):
         out.append(bay(id_, SH_W, z, L, 180))
     # The rolling ladders hang on the rail of a bay each (their hooks 4.5 cm over it).
-    out.append(e("ladder_east", "rolling_ladder", [SH + SHELF_DEPTH * 0.5 + 0.0825 + 0.045, 0.0, 7.75], 0))
+    out.append(e("ladder_east", "rolling_ladder", [SH + SHELF_DEPTH * 0.5 + 0.0825 + 0.045, 0.0, 9.65], 0))
     out.append(e("ladder_west", "rolling_ladder", [SH_W - SHELF_DEPTH * 0.5 - 0.0825 - 0.045, 0.0, 4.65], 180))
     # On the counters: the scales, the clerk's jars of candy.
     out.append(e("scales_east", "store_scales", [2.3, 0.0, 3.1], 270, on="east_counter_a"))
