@@ -59,3 +59,15 @@ corners alternating, four openings bucked); its repairs are real pieces; the who
    log, not on air), the ends alternating as a notched corner's do.
 3. **The spring stays where valley.json put it** (70 m up the slope), so the pipe is long.
 4. **Nothing interactive** (sleeping, washing, the trunk, the repairs): gameplay's.
+
+## Sean's calls and the judge (2026-11-21/22)
+
+- **The door on the long side** (Sean): the porch along it (`side_porch`), the cabin turned so it faces the yard.
+- **Silver logs and pale chinking, a fieldstone chimney** (Sean: fix those two first): R1 "few" for the logs, the
+  chinking in whitewash set 1/2 in back, the chimney laid in courses of stones (`fieldstone`).
+- **Option A** (Sean): merge as it stands; the rest after. Renders: `results/2026-11-21_pairs_r*.jpg`.
+- **Cheap judge, one round** (`docs/screenshots/judge/2026-11-22_homestead_r1_cheap/`): all six cheap indie. Its
+  reasons: the bare land round it (no trees, a flat horizon band), the chimney's game stone blue and checkered,
+  the barn door a flat slab, the spring's box grey with mirror-flat water, inside the log seams cold blue (before
+  the chinking change) and the trunk toy-like. Not done: stone and warm hewn-log entries in the library, trees.
+- Renders: a valley run is killed past two or three views (memory); render two views a run.
