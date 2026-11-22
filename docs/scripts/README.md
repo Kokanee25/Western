@@ -10,7 +10,7 @@ takes under every line, and he picks one.
 | The sheriff on the road | `sheriff_road.json` (page `board.html`) | https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX | rewritten 2026-11-17 (#1056), waiting on Sean's Script OK |
 | No Law | `no_law.json` (page `no_law.html`) | https://claude.ai/artifact/65eAXArWQm5XD5FCEXpYuY | rewritten 2026-11-17 (#1056), waiting on Sean's Script OK |
 | No Justice | `no_justice.json` (page `no_justice.html`) | https://claude.ai/artifact/3ojdVLjNoGLCt5qkADSEiW | rewritten 2026-11-17 (#1056), waiting on Sean's Script OK |
-| The town (no mission: the runner, the news, the morning after, the uneasy day, the undertaker; townsfolk step 8) | `town.json` (page `town.html`; the game reads its copy `config/town_script.json`, kept identical by `tests/test_town_script.gd`) | https://claude.ai/artifact/JFQURoGdJrUGWHtQp9LfA6 | written 2026-11-22 (#1144), waiting on Sean's Script OK |
+| The town (no mission: the runner, the news, the morning after, the uneasy day, the undertaker; townsfolk step 8) | `town.json` (page `town.html`; the game reads its copy `config/town_script.json`, kept identical by `tests/test_town_script.gd`) | https://claude.ai/artifact/JFQURoGdJrUGWHtQp9LfA6 | written 2026-11-22 (#1144), waiting on Sean's Script OK; scene `saloon` (ten lines, first wordings, not yet read blind) added the same day by gameplay (#1157): the page wants republishing |
 
 ## The house style, and the rewrite of 2026-11-17 (#1056)
 
@@ -45,7 +45,8 @@ The fields are in the file's `_doc`. In short: `cast` (each speaker, his voice b
 until casting), `scenes` in play order, each with `lines`: `id`, `speaker`, `trigger` (what in the
 game makes him say it), `when` (the branch: his blood-loss band, `sheriff.care`, a nod or shake),
 `condition`, `delivery`, `words` (wordings, each `built` / `new` / `bible`), `setups` (SETUPS.md ids),
-`check` (a WORDS.md worry), `takes` (empty until voiced). Built lines (in `config/moments/`) are copied
+`check` (a WORDS.md worry), `takes` (empty until voiced); in `town.json` a line the town's barks pick has
+`if` too, its `when` as data for the game (TownBarks, `src/people/town_barks.gd`: the keys are in its head). Built lines (in `config/moments/`) are copied
 as they are and never changed here; a change to one is a gameplay change.
 
 ## The page

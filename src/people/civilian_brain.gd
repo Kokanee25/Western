@@ -86,6 +86,20 @@ var news: TownNews
 ## His pace walking back to his post (m/s): the doctor called to a man down walks fast.
 const WALK := 1.2
 var walk_speed := WALK
+## A bark for a moment of his (townsfolk step 9, TownBarks): ValleyFolk's `bark_for(brain, on,
+## extra)`, which says it if a line fits; unset (a lab's man), he has none.
+var bark: Callable
+## What he's showing Harlan as he passes, by his regard (TownRegard.SHOWS): {what, who, t, aside}.
+var showing := {}
+## A bit the room's director gave him (SaloonRoom, townsfolk step 10; `start_bit`), {} when none.
+var bit := {}
+var _bit_ticked := false
+var _bit_segs := {}
+## Seconds his idle talk's kept shut (the room's talk dropping as Harlan comes in: SpotChore's mouth).
+var quiet := 0.0
+## The last he showed (for the tests and the bridge): &"nod", &"look_away", &"turn", &"clear".
+var last_shown := &""
+
 ## His reaction to trouble that isn't on him, in stages (townsfolk step 5).
 var reaction: Reaction
 ## The physics frame he was last sent somewhere (`go_to`): on an errand (an act's), a reaction
@@ -252,6 +266,11 @@ func say_line(text: String) -> void:
 		return
 	_since_said = 0.0
 	Events.spoke.emit(body, text)
+
+
+## May he say anything now (awake, able, not hushed by a scene)?
+func may_speak() -> bool:
+	return body.physiology.is_conscious() and body.physiology.can_speak() and _hush <= 0.0
 
 
 ## Quiet for `seconds` from now (0: not; an act's beat: No Law's room going quiet after the shot,
@@ -719,7 +738,13 @@ func _exit_tree() -> void:
 
 func tick(delta: float) -> void:
 	var t := Prof.start()
+	_bit_ticked = false
 	_physics_step(delta)
+	quiet = maxf(quiet - delta, 0.0)
+	if not bit.is_empty() and not _bit_ticked:
+		cut_bit()  # anything but calm at his chore this tick: the laugh stops in mid-laugh
+	elif bit.is_empty() and not _bit_segs.is_empty():
+		_bit_tidy()
 	Prof.stop(&"civilian_brain", t)
 
 
@@ -756,6 +781,8 @@ func slow_reason() -> StringName:
 		return &"shout"
 	if chore != null and chore.call(&"busy") and not (chore.has_method(&"lets_slow") and chore.call(&"lets_slow")):
 		return &"chore"
+	if not bit.is_empty() or not _bit_segs.is_empty():
+		return &"bit"
 	return &""
 
 
@@ -829,6 +856,9 @@ func _physics_step(delta: float) -> void:
 		_chore(delta, false)
 		body.set_pose(&"hands_up" if _flinch > 0.5 else &"stand")
 		return
+	if _show_step(delta) and not _seated():
+		_chore(delta, false)
+		return  # (sat down, he shows it with his head only and stays in his chair: his chore goes on)
 	_gun_watch -= delta
 	if _gun_watch <= 0.0 or _gun_seen == null or not is_instance_valid(_gun_seen):
 		_gun_seen = null
@@ -844,6 +874,7 @@ func _physics_step(delta: float) -> void:
 	if returning and (post == Vector3.INF or body.global_position.distance_to(post) < RETURNED):
 		returning = false
 	if _chore(delta, mood == Mood.CALM and fear < 0.05 and not (helped_by and not thanked) and not returning):
+		_bit_step(delta)
 		return
 	if post != Vector3.INF and body.global_position.distance_to(post) > 0.3:
 		body.set_pose(&"stand")
@@ -908,6 +939,264 @@ func _chore(delta: float, free: bool) -> bool:
 			chore = c
 			return true
 	return false
+
+
+# --- The room's bits (townsfolk step 10, SaloonRoom): a small thing he does at his chore --------------
+
+## The room's director gave him a bit: {what, for (s), look (whom he looks at), say + say_at (a
+## line, said from his own mouth), mark + mark_t (a Callable at that moment), at (a point)}. He does
+## it on top of his chore while he's calm at it; anything else and it's cut (`cut_bit`).
+## what: laugh (head back, shoulders, mouth open, eyes creased), grin, toast (glass up), lift (glass
+## half up), cough, stretch (sat, leant back), hail and wave (a hand up), nod, glass (the barkeep
+## sets one down at `at`).
+func start_bit(b: Dictionary) -> void:
+	if not bit.is_empty():
+		cut_bit()
+	b["t"] = 0.0
+	bit = b
+	_bit_ticked = true
+	body.wake()
+
+
+## Stopped where it is (trouble, a look round, sent off): his mouth shut, its sound stopped.
+func cut_bit() -> void:
+	_end_bit(true)
+
+
+func _end_bit(cut: bool) -> void:
+	if bit.is_empty():
+		return
+	bit["cut"] = cut
+	bit["ended"] = true
+	if cut:
+		var p: Variant = bit.get("player")
+		if p != null and is_instance_valid(p):
+			(p as AudioStreamPlayer3D).stop()
+			(p as AudioStreamPlayer3D).queue_free()
+		var sp := body.get_node_or_null(^"FaceSpeech") as FaceSpeech
+		if sp != null and sp.speaking() and bit.what == &"laugh":
+			sp.hush()
+	bit.erase("player")
+	bit.erase("mark")
+	_head_tip(Vector3.ZERO)
+	if chore is SpotChore:
+		(chore as SpotChore).glass_up = 0.0
+	bit = {}
+
+
+## A lean of his chest or belly for a bit, eased (and eased off after: `_bit_tidy`).
+func _bit_lean(seg: StringName, v: Vector3) -> void:
+	_bit_segs[seg] = true
+	body.pose_offsets[seg] = (body.pose_offsets.get(seg, Vector3.ZERO) as Vector3).lerp(v, 0.2)
+
+
+func _bit_tidy() -> void:
+	for seg: StringName in _bit_segs.keys():
+		var v: Vector3 = (body.pose_offsets.get(seg, Vector3.ZERO) as Vector3).lerp(Vector3.ZERO, 0.15)
+		if v.length() < 0.2:
+			body.pose_offsets.erase(seg)
+			_bit_segs.erase(seg)
+		else:
+			body.pose_offsets[seg] = v
+
+
+func _bit_step(delta: float) -> void:
+	if bit.is_empty():
+		return
+	_bit_ticked = true
+	bit.t += delta
+	var t: float = bit.t
+	var span := float(bit.get("for", 2.0))
+	if t >= span:
+		_end_bit(false)
+		return
+	var k := clampf(t / 0.3, 0.0, 1.0) * clampf((span - t) / 0.4, 0.0, 1.0)
+	var lk: Variant = bit.get("look")
+	if lk != null and is_instance_valid(lk):
+		_attend((lk as Node3D).global_position + Vector3.UP * 1.55)
+	if bit.has("say") and not bit.get("said", false) and t >= float(bit.get("say_at", 0.0)):
+		bit["said"] = true
+		say_line(String(bit.say))
+	if bit.has("mark") and not bit.get("marked", false) and t >= float(bit.get("mark_t", 0.0)):
+		bit["marked"] = true
+		(bit.mark as Callable).call()
+	var life := body.get_node_or_null(^"FaceLife") as FaceLife
+	var fwd := -body.global_basis.z
+	match bit.what:
+		&"laugh":
+			if not bit.get("mouthed", false):
+				bit["mouthed"] = true
+				var sp := body.get_node_or_null(^"FaceSpeech") as FaceSpeech
+				if sp != null:
+					sp.say("ha ha ha ha ha ha ha")
+			_head_tip(Vector3(13.0 * k * (0.7 + 0.3 * sin(t * 14.0)), 0, 0))
+			_bit_lean(&"chest", Vector3(5.0 * k + 2.0 * k * sin(t * 19.0), 0, 0))
+			if life != null:
+				life.mirth = k
+		&"grin":
+			_head_tip(Vector3(3.0 * k, 0, 0))
+			if life != null:
+				life.mirth = 0.7 * k
+		&"toast", &"lift":
+			if chore is SpotChore:
+				(chore as SpotChore).glass_up = k * (1.0 if bit.what == &"toast" else 0.45)
+			if bit.what == &"toast":
+				_bit_lean(&"chest", Vector3(4.0 * k, 0, 0))
+		&"cough":
+			_head_tip(Vector3(-12.0 * k, 0, 0))
+			_bit_lean(&"chest", Vector3(-9.0 * k * absf(sin(t * 9.0)), 0, 0))
+			body.reach_to("l", body.global_transform * Vector3(-0.02, 1.5, -0.2), fwd, k)
+		&"stretch":
+			_bit_lean(&"chest", Vector3(9.0 * k, 0, 0))
+			_bit_lean(&"abdomen", Vector3(5.0 * k, 0, 0))
+			_head_tip(Vector3(6.0 * k, 0, 0))
+		&"hail", &"wave":
+			var high := 1.8 if bit.what == &"hail" else 1.62
+			body.reach_to("l", body.global_transform * Vector3(-0.3, high + 0.04 * sin(t * 7.0), -0.24), fwd, k)
+			_head_tip(Vector3(4.0 * k, 0, 0))
+		&"nod":
+			_head_tip(Vector3(-10.0 * sin(clampf((t - 0.2) / 0.8, 0.0, 1.0) * PI), 0, 0))
+		&"glass":
+			var kk := smoothstep(0.4, 1.2, t) * (1.0 - smoothstep(1.6, 2.4, t))
+			var at: Vector3 = bit.get("at", body.global_position)
+			body.reach_to("r", at + Vector3.UP * 0.07, Vector3.UP, kk)
+			_bit_lean(&"chest", Vector3(-8.0 * kk, 0, 0))
+
+
+# --- Regard (townsfolk step 9): what he shows Harlan before anyone speaks ----------------------------
+
+## Calm at his post, nothing on him: he may show Harlan what he thinks of him.
+func can_show() -> bool:
+	return not held and mood == Mood.CALM and fear < 0.1 and not reaction.active() and not returning \
+			and _bucket == &"" and showing.is_empty() and body.physiology.is_conscious() and not body.limp
+
+
+## Show `who` his regard: &"nod" (a nod, a touch of the head), &"look_away" (a look that slides off),
+## &"turn" (a turned shoulder), &"clear" (out of his way: a step aside, eyes down).
+func show_regard(what: StringName, who: Node3D) -> void:
+	showing = {"what": what, "who": who, "t": 0.0, "aside": Vector3.INF}
+	last_shown = what
+	if what == &"clear":
+		var to := body.global_position - who.global_position
+		to.y = 0.0
+		var side := Vector3(-to.z, 0.0, to.x).normalized() if to.length() > 0.1 else body.global_basis.x
+		# The side away from where Harlan's headed (his facing), and back from him a little.
+		var heading := -who.global_basis.z
+		if side.dot(heading) > 0.0:
+			side = -side
+		showing.aside = body.global_position + side * 1.6 + to.normalized() * 0.4
+
+
+## How long each show lasts (s); `clear` till he's off or this long.
+const SHOW_FOR := {&"nod": 1.6, &"look_away": 1.8, &"turn": 3.0, &"clear": 6.0, &"look": 4.0}
+
+
+## The room's gone quiet and he looks round to see why (SaloonRoom's hush, townsfolk step 10): at
+## `who` (or the point `at`) for `seconds`; on his feet he turns to it, his chore stopped; sat, his
+## head and eyes only. Not his regard: nothing's kept of it.
+func show_look(at: Vector3, who: Node3D = null, seconds := 4.0) -> void:
+	showing = {"what": &"look", "who": who, "at": at, "for": seconds, "t": 0.0, "aside": Vector3.INF}
+
+
+func _show_step(delta: float) -> bool:
+	if showing.is_empty():
+		return false
+	var who_v: Variant = showing.who
+	var who: Node3D = who_v as Node3D if who_v != null and is_instance_valid(who_v) else null
+	showing.t += delta
+	var t: float = showing.t
+	var what: StringName = showing.what
+	if what == &"look":
+		if t >= float(showing.get("for", SHOW_FOR[what])):
+			showing = {}
+			return false
+		var point: Vector3 = who.global_position + Vector3.UP * 1.4 if who != null else showing.at
+		_attend(point)
+		if not _seated():
+			body.set_pose(&"stand")
+			_turn_to(point, delta)
+		return true
+	if who == null or t >= float(SHOW_FOR[what]) \
+			or what == &"clear" and t > 1.0 and who.global_position.distance_to(body.global_position) > 5.0:
+		_head_tip(Vector3.ZERO)
+		showing = {}
+		if what == &"clear" and post != Vector3.INF and body.global_position.distance_to(post) > RETURNED:
+			returning = true  # back to his place once Harlan's by
+		return false
+	var at := who.global_position + Vector3.UP * 1.5
+	if _seated():
+		# In his chair: his head and eyes only (a man at the cards doesn't get up to nod at you).
+		match what:
+			&"nod":
+				_attend(at)
+				_head_tip(Vector3(-11.0 * sin(clampf((t - 0.3) / 0.9, 0.0, 1.0) * PI), 0, 0))
+			&"look_away", &"turn":
+				if t < 0.5 and what == &"look_away":
+					_attend(at)
+				else:
+					var off := body.global_position + (at - body.global_position).rotated(Vector3.UP, deg_to_rad(-80.0))
+					_attend(Vector3(off.x, body.global_position.y + 0.9, off.z))
+			&"clear":
+				_head_tip(Vector3(-14.0, 0, 0))
+		return true
+	body.set_pose(&"stand")
+	match what:
+		&"nod":
+			_turn_to(at, delta)
+			_attend(at)
+			var k := clampf((t - 0.3) / 0.9, 0.0, 1.0)
+			_head_tip(Vector3(-11.0 * sin(k * PI), 0, 0))
+		&"look_away":
+			if t < 0.6:
+				_turn_to(at, delta)
+				_attend(at)
+			else:
+				# Eyes off: down and to the side away from him.
+				var off := body.global_position + (at - body.global_position).rotated(Vector3.UP, deg_to_rad(-70.0))
+				_attend(Vector3(off.x, body.global_position.y + 0.6, off.z))
+				_head_tip(Vector3(-6.0, -30.0, 0))
+		&"turn":
+			# His shoulder to Harlan: square side-on and a little away.
+			var away := body.global_position + (body.global_position - who.global_position).rotated(Vector3.UP, deg_to_rad(70.0))
+			_turn_to(away, delta)
+		&"clear":
+			_head_tip(Vector3(-14.0, 0, 0))  # nobody meets his eye
+			if showing.aside != Vector3.INF and body.walk_to(showing.aside, walk_speed * 1.2, delta):
+				showing.aside = Vector3.INF
+				_turn_to(at, delta)
+	return true
+
+
+## Sat in a chair (a SitChore has him).
+func _seated() -> bool:
+	for c: RefCounted in chores:
+		if c is SitChore and (c as SitChore).busy():
+			return true
+	return false
+
+
+## His head tipped (degrees, pose_offsets' axes): through his face's gaze, which owns his head's
+## offset each frame (FaceGaze.nod), or straight onto his pose if he has no face.
+func _head_tip(v: Vector3) -> void:
+	var life := body.get_node_or_null(^"FaceLife") as FaceLife
+	if life != null and life.gaze != null:
+		life.gaze.tip = v
+	elif v == Vector3.ZERO:
+		body.pose_offsets.erase(&"head")
+	else:
+		body.pose_offsets[&"head"] = v
+
+
+func _attend(point: Vector3) -> void:
+	var life := body.get_node_or_null(^"FaceLife") as FaceLife
+	if life != null:
+		life.attend_to(point)
+
+
+## Turned toward `point` at a man's pace (not snapped round).
+func _turn_to(point: Vector3, delta: float) -> void:
+	var want := HumanBody.yaw_toward(body.global_position, point)
+	body.global_rotation.y = rotate_toward(body.global_rotation.y, want, 5.0 * delta)
 
 
 ## Once it's quiet and the man who ran them off is near enough to hear it.

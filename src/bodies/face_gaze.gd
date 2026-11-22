@@ -31,6 +31,9 @@ var blink_rate := 1.0
 var lids := 0.0
 ## Degrees added to his head's turn (pose_offsets' axes): his speech's nod (FaceSpeech).
 var nod := Vector3.ZERO
+## His head tipped by what he's doing (a nod at Harlan, a laugh's head back: CivilianBrain), over
+## his speech's own nods (`nod` is FaceSpeech's while he talks).
+var tip := Vector3.ZERO
 var rng_seed := 0
 
 var _faces: Array[MeshInstance3D] = []
@@ -129,8 +132,8 @@ func step(delta: float) -> void:
 	_eye = _eye.lerp(goal_eye + (_micro if active else Vector2.ZERO), 1.0 - exp(-delta / tuning.eye_time))
 	# His head over his pose: HumanBody's pose axes (degrees; x tips his head up, y turns it to his
 	# left: checked in the face lab, --mode=gaze --check).
-	if active or not _head.is_zero_approx() or nod != Vector3.ZERO:
-		body.pose_offsets[&"head"] = Vector3(_head.y, _head.x, 0.0) + nod
+	if active or not _head.is_zero_approx() or nod != Vector3.ZERO or tip != Vector3.ZERO:
+		body.pose_offsets[&"head"] = Vector3(_head.y, _head.x, 0.0) + nod + tip
 	var blink := 0.0
 	if blinks:
 		_blink_in -= delta * blink_rate

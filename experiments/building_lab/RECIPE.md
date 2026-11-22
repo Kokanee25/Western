@@ -351,6 +351,24 @@ Record: `church/README.md`. What it taught:
   studs, siding and finish all stop round it, then fill the corners beside the point with short stepped boards (the slanted lining covers the
   steps). A V of trim and glass stuck on the siding over a square sash read as a sticker.
 - **A bell is a kit prop on four posts** (`solid` 0.035 for its weight); hung bells aren't supported by the member rules.
-- **Pointed windows are a V of trim over a stepped glass** (the sash below stays a rectangle): a stand-in until a window can take a curved head.
 - **Use points on a platform fail the "used" check** (it wants the floor's height): put the room's point on the floor by it.
 - Blocks the place's old grey box and `bell_tower` blocks in valley.json (they drew a box where the building stands).
+
+## A log building and its yard (Harlan's homestead, #1126)
+
+- **One session can take a small building through every step** when the sheet runs while the code is
+  written: push the sheet's request first (on a `claude/art-building-*` branch: the workflow fires only
+  there; merge its results back), then build. Eight views, $1.12.
+- **Log walls are a part** (`LogWall`, FORMAT.md "A log building's parts"): give a wall `log: true` and the
+  builder lays courses, chinking, notched corners, bucks and a board gable. Keep the courses level all
+  round (butt and pass at the corners) so every log rests on what's under it; half-offset courses leave a
+  log's end over air in the support graph.
+- **A porch deck's posts need room:** `_deck` stands its posts on 0.25 m blocks under a 0.12 m beam, so a
+  deck under ~0.5 m makes a negative post (a BoxShape error). Put the deck's ledger on the footing's stones
+  (the deck a step under the floor) so it rests along the wall, not on one contact at the sill's middle.
+- **A repair job is a real piece, and it is weak:** a sprung board fails a crowd. The test lets a member with
+  meta `repair` fail the crowd check, and nothing else.
+- **Things off the pad stand on the slope:** a Structure grounds members only at its own y 0; the yard's
+  `YardStructure` grounds each on the ground under it (`ground_y`), so a pipe down a hill doesn't fall.
+- **A dirt floor** (`levels.ground.dirt`): the checks take the ground as the floor for use points under the
+  sills' level.

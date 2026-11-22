@@ -1921,8 +1921,8 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   Act men (`doc`, `preacher`, `wife`, `cowboy`...) have no hours, so the doctor and the preacher have a
   second id for their day (`doctor` on the book except 14-15; `churchman` on the street 8-9, off by the
   funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
-  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
-  new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
+  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night (step 10): the
+  night's people are at the yard set's spots (the room, `SaloonRoom` below), the saloon's window lit by it (`room.lights`).
   **Spots** (townsfolk step 4, #957; `SpotChore`, `src/people/spot_chore.gd`, `tests/test_spot_chore.gd`):
   a block `at` a spot gets its `do` as the man's chore (`_chores_for`: a card chair stays SitChore, a
   band player PlayChore): `stand`, `lean` (back to the wall a ray finds behind him, a boot up; none, a
@@ -1977,6 +1977,35 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `run_doc`/`run_law`/`runner[_dead|_you][.shot]`; the built strings only a fallback. **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
   seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
   body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
+  **Regard and the barks** (townsfolk step 9, #1152; `TownRegard` `src/people/town_regard.gd`, `TownBarks`
+  `src/people/town_barks.gd`, `tests/test_town_barks.gd`, `_valley`; bridge `read regard`): each man's trust, fear,
+  liking, respect of Harlan worked out when asked from his own `view_of_harlan` and StoryState facts (data `regard`:
+  `view`, `facts` with `all`/`who`/`split`); band afraid / warm / wary / cold, the town's the average. Within
+  `show_m` a calm man at his post who sees you shows it (`CivilianBrain.show_regard`: nod, look_away, turn, clear;
+  the head through `FaceGaze.nod`). The barks: town.json lines with an `if` (`on` pass / react.* / undertaker;
+  keys in TownBarks' head), `fitting` most specific first (`specificity`), `pick` with the limits (once a day a
+  person, `once: ever`, no line another said within `same_line_s`), one at you a group (`blocked`/`block`/
+  `clear_far`). `_talk_step`: his news, else No Law's set (wins; the same limits), else a `pass` bark; Reaction's
+  stages call `brain.bark` (ValleyFolk.bark_for); the undertaker's at the body (`_undertaker_says`). Pools in data
+  `barks.pools`.
+  **The saloon as a room** (townsfolk step 10, #1157; `SaloonRoom` `src/people/saloon_room.gd`, data `room`,
+  `tests/test_saloon_room.gd`; bridge `read room`): on No Law's yard set (`room.rect` on the set's lot; the night's
+  people at its spots: `bar_far`, `bar_near`, `room_talk_a/b/c`, `room_bar_end`). `mood` 0-1 once a second from who's
+  in, their drink (hours at a drinking spot), the band sounding, the night (`nights`: bold / after_murder /
+  sheriff_dead, else the day kind), the town's band of Harlan while he's in, times the calm share of the room and
+  the climb back after trouble; `mood_name()` hushed / tense / calm / lively. The director (`_hand_out`, a `gap` by
+  the mood, `again_s` a bit a man): `start(bit, id)` gives a man who `can_do` (calm, at his chore, may speak, no
+  band player) a bit his brain does (`CivilianBrain.start_bit` / `_bit_step`: laugh, grin, toast, lift, cough,
+  stretch, hail, wave, nod, glass; cut the tick he isn't calm at his chore, `cut_bit`); lines by
+  `ValleyFolk.room_line` (the barks' rules; town.json scene `saloon`, `on` room.toast / hail / leave / answer /
+  glass); sounds (`_sound`: SynthSounds stand-ins `laugh_0-2`, `cough`, `glass_down`) at the man, logged
+  (`log`, `sounds`). Events: a man come in hailed, a man going "Night, all", you in: warm a hail, cold `drop`
+  (`CivilianBrain.quiet`, glances), the barkeep's glass (`_glass_step`). The hush (`trouble`: Events.deed of
+  `trouble.deeds` or a shot in the room): men who sensed it are Reaction's; the rest `CivilianBrain.show_look` after
+  base + per_m x d + nerve; a man with dial `ducks` (the pianist) gets Reaction `hush` and hides `DUCK_CALM`;
+  `hush_log` each man's seconds to his turn. The band (`config/band.json` `shaky`): two wrong notes
+  (`Band._wrong_notes`), the start again the piano alone and the hurried render `fast_s`. SpotChore `directed`
+  (its own laugh break off), `glass_up`; `FaceLife.mirth`; `FaceGaze.tip` (a head tip kept over speech's nods).
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
@@ -3236,7 +3265,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `load_dict` / `made_from` (`plain`, `_pose_as`, `_lie_as`, `_lie_again`, `dropped_gun`),
   `Relations.from_dict`, `ValleyFolk.save_dict` / `load_dict` / `load_laid`, `TownNews.save_dict` /
   `load_dict`, `FloorMarks.save_dict` / `load_dict`, `Blood.save_list` / `load_list`,
-  `PlayerWounds.save_dict` / `load_dict`. People are keyed by `person_id`, structures by
+  `PlayerWounds.save_dict` / `load_dict`, `RideThere.save_dict` / `load_dict` (the `horse` section: his rail).
+  #1154: `ValleyFolk.kept` (a hurt man indoors: his body's state on the book, run on by the clock, `_keep`,
+  `_run_on`, `_put_back`, `_can_come_out`; laid up or `died_indoors`). People are keyed by `person_id`, structures by
   `structure_id`, members by `member_id`: a save warns (`warnings`) of two of a name.
 - `tests/test_save_game.gd`: the file, a structure, a man, marks and blood, the whole valley.
   `tests/test_sleep.gd`: a sleep saves and wakes you at dawn, loaded onto a fresh valley it's the same;

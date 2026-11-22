@@ -24,7 +24,6 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
   normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
   meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
-  Saloon B's gallery rail takes the framing finish (`gallery/` not in its surfaces): its step 2's to name.
 - **Wear by use** (#901, PR #963; RECIPE.md "Wear by use"): scan_wood's use pass from a spec's `materials.wear` and
   members' `use_role` or a kit look's `/<role>` (the bar's top `bar`, plinth `kick`). Dents (`dings`) built, set 0
   (Sean). Not done: chairs (test_perf's 1800 meshes), the brass rail. Quick look: `tools/wood_probe.gd`.
@@ -48,6 +47,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
 - **The church and cemetery (#1142)**: built, judged, PR from `claude/art-church-windows-shingles-sfqsc1` (README `experiments/building_lab/church/`).
   Pointed heads are SashWindow's (`rise`); shingles are library SH1 `shingle_pine` (old approved; new/few not). Critic r2: see the status
   entry. Left for Sean: spire shape (squat, no flare), door (square, no hood), the nave's middle post, the open grave only in the funeral.
+- **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.

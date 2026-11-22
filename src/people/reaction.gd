@@ -34,7 +34,10 @@ const STIMULI := {
 	&"blast": {"fear": 1.5, "reach": 90.0},
 	&"gun": {"fear": 0.7, "reach": 9.0},  # a gun drawn near him, not fired (CivilianBrain.GUN_SEEN)
 	&"down": {"fear": 0.6, "reach": 20.0},  # a man fallen in his sight
+	&"hush": {"fear": 0.5, "reach": 15.0},  # the room's gone quiet round him (SaloonRoom: a man who `ducks`)
 }
+## A man who ducks (dials `ducks`: the piano player, Sean #276) stays down this long after it's quiet.
+const DUCK_CALM := 25.0
 ## Start: this long after it reached him (s): 0.15 for the jumpiest, +0.15 by nerve, +0.2 by how
 ## far off it was (full at `START_FAR` m). Shaken, the nerve part is shorter.
 const START_SOONEST := 0.15
@@ -293,6 +296,8 @@ func step(delta: float) -> bool:
 				return true
 			_enter(Stage.LOOK)
 			_look_for = lerpf(LOOK_FOR.x, LOOK_FOR.y, _rng.randf()) * (0.5 if fear > 1.0 else 1.0)
+			if kind == &"shot" and fear <= _nerve():
+				_bark("react.shot_far")  # heard, not seen: he says so (a frightened man cries out instead)
 			body.set_pose(&"wary")
 			_attend(at)
 		Stage.LOOK:
@@ -328,7 +333,7 @@ func step(delta: float) -> bool:
 			var y := deg_to_rad(50.0 * sin(_t * 1.7))
 			body.face(body.global_position + (p - body.global_position).rotated(Vector3.UP, y))
 			if _t >= _wait:
-				if choice in [&"hide", &"flee"]:
+				if choice in [&"hide", &"flee"] and not _bark("react.back"):
 					brain.say_relief()
 				# Come back to himself, a man down he saw and nobody gone for help: he goes now.
 				if choice != &"run" and _try_run():
@@ -395,8 +400,16 @@ func _decide() -> void:
 	errand = {}
 	told = false
 	_calm_need = CALM_WATCH + CALM_WATCH_NOSY * nosy
-	if kind == &"gun":
+	if float(brain.dials.get("ducks", 0.0)) > 0.0 and (scared or kind == &"hush") and not brain.hurt:
+		# The piano player: stops and ducks where he is, and comes up when it's been quiet a while.
+		choice = &"hide"
+		_calm_need = DUCK_CALM
+	elif kind == &"hush":
+		choice = &"watch"
+		_calm_need = CALM_GUN
+	elif kind == &"gun":
 		choice = &"back_away" if scared else &"watch"
+		_bark("react.gun", {"who_you": who is Player})
 		_calm_need = CALM_GUN
 		if scared:
 			var away := body.global_position - at
@@ -418,7 +431,8 @@ func _decide() -> void:
 		else:
 			choice = &"hide"
 		if choice in [&"flee", &"hide"]:
-			brain.say(&"cower")
+			if choice != &"flee" or not _bark("react.flee"):
+				brain.say(&"cower")
 	elif _runner_kind() and not shots_lately and not _on_errand() and _try_run():
 		pass  # off for help (the one runner)
 	elif down != null and duty >= 0.6 and duty >= nosy and not shots_lately and body.physiology.can_run():
@@ -575,7 +589,8 @@ func _help() -> void:
 	var from := body.global_position - down.global_position
 	from.y = 0.0
 	_go(down.global_position + (from.normalized() if from.length() > 0.1 else Vector3.FORWARD) * 0.9, HURRY)
-	brain.say(&"help")
+	if not _bark("react.doc"):
+		brain.say(&"help")
 
 
 ## Where he'd run: the nearest of his refuges (his door, the store, the saloon) that isn't toward
@@ -703,7 +718,22 @@ func _act(delta: float) -> void:
 			body.face(down.global_position + Vector3.UP * 0.3 if down != null and is_instance_valid(down) else p)
 			if choice == &"gawk" and not _said and _arrived:
 				_said = true
-				brain.say(&"gawk")
+				var dm := down as HumanBody if down != null and is_instance_valid(down) else null
+				if dm == null or not _bark("react.ring", _news_of(dm)):
+					brain.say(&"gawk")
+
+
+## A bark for this stage (TownBarks via his brain's `bark`, ValleyFolk.bark_for): true if he said one.
+func _bark(on: String, extra: Dictionary = {}) -> bool:
+	return brain.bark.is_valid() and brain.may_speak() and bool(brain.bark.call(brain, on, extra))
+
+
+## What his own news holds of `man` down (whom known, Harlan firing), for the ring's lines.
+func _news_of(man: HumanBody) -> Dictionary:
+	var f := brain.get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk if brain.is_inside_tree() else null
+	if f == null or man == null:
+		return {"whom": false}
+	return f.news_of_down(body.person_id, man.person_id)
 
 
 func _mark_shaken() -> void:

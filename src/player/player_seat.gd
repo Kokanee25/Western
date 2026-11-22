@@ -67,8 +67,8 @@ func chair_here() -> KitProp:
 		return null
 	var t := player.tuning
 	var c := Seating.free_chair_near(player.get_tree(), player.global_position + Vector3.UP * 0.47, t.seat_reach + 0.5)
-	if c == null:
-		return null
+	if c == null or String(c.kit_id).contains("bed"):
+		return null  # (a bed's E is the sleep's, PlayerSleep: saloon B's plank beds took it, #1154)
 	var to := c.seat_position() - player.global_position
 	to.y = 0.0
 	if to.length() > t.seat_reach or absf(c.seat_position().y - 0.47 - player.global_position.y) > 0.6:
