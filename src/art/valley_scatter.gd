@@ -286,12 +286,17 @@ func _chance(d: Dictionary, x: float, z: float, h: float, slope: float) -> float
 	var town := _from_town(x, z)
 	if town < float(d.town):
 		return 0.0
+	var around := 1.0
+	if d.has("place"):
+		around = _place_factor(d.place, x, z)
+		if around <= 0.0:
+			return 0.0
 	var water := art.water_at(x, z)
 	if d.has("water_within") and water > float(d.water_within):
 		return 0.0
 	if water < 1.5:
 		return 0.0
-	var p := 1.0
+	var p := around
 	# Its height band, eased at the ends.
 	p *= smoothstep(float(hi[0]) - 10.0, float(hi[0]) + 10.0, h) * (1.0 - smoothstep(float(hi[1]) - 10.0, float(hi[1]) + 10.0, h))
 	# The middle of its slope band.
@@ -309,6 +314,26 @@ func _chance(d: Dictionary, x: float, z: float, h: float, slope: float) -> float
 	var pt := float(d.patch)
 	p *= lerpf(1.0, smoothstep(0.42, 0.62, pn) * 2.2, pt)
 	return clampf(p, 0.0, 1.0)
+
+
+## A place's surrounds (#1160, the tuning's `place`): 1 from `inner` m off its rect's edge, easing to 0 at `outer`;
+## `side` favours the half of the ring toward that direction from the rect's middle (`side_min` opposite).
+func _place_factor(pl: Dictionary, x: float, z: float) -> float:
+	var r: Array = pl.rect
+	var dx := maxf(maxf(float(r[0]) - x, x - float(r[2])), 0.0)
+	var dz := maxf(maxf(float(r[1]) - z, z - float(r[3])), 0.0)
+	var dist := Vector2(dx, dz).length()
+	var inner := float(pl.get("inner", 0.0))
+	if dist < inner:
+		return 0.0
+	var f := 1.0 - smoothstep(inner + (float(pl.outer) - inner) * 0.35, float(pl.outer), dist)
+	if pl.has("side"):
+		var mid := Vector2((float(r[0]) + float(r[2])) * 0.5, (float(r[1]) + float(r[3])) * 0.5)
+		var v := Vector2(x, z) - mid
+		var sd := Vector2(float(pl.side[0]), float(pl.side[1])).normalized()
+		var towards := smoothstep(-0.3, 0.6, v.normalized().dot(sd)) if v.length() > 0.01 else 1.0
+		f *= lerpf(float(pl.get("side_min", 0.0)), 1.0, towards)
+	return f
 
 
 ## A species that lies only in the roads (`on_road` [class from, class to], ValleyGroundArt's classes;
