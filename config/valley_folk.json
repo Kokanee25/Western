@@ -76,9 +76,9 @@
     "doings": {"sleep": {}, "away": {}, "home": {"lamp": true}, "work": {"lamp": true}, "breakfast": {"lamp": true, "smoke": true}, "dinner": {"lamp": true, "smoke": true}, "supper": {"lamp": true, "smoke": true}, "drink": {"lamp": true}}
   },
   "calendar": {
-    "_doc": "The town's day kinds (townsfolk brief \u00a73 \"The data\"): a person's `day` is a list of blocks (every kind) or one list a kind (`ordinary` the default for any kind he hasn't). The town's day runs from `starts_h` to the next (a night's blocks past midnight belong to the day before). Each kind: `week_day` (the town's day number mod 7; day 1 a Monday) or `every` days from `first`, and an optional `if` (StoryState facts, as `talk`'s), the first that holds wins. PROPOSED: Sunday and a fortnight's payday on the Saturday; the story's kinds (mourning, uneasy) go here as `if` entries when the funeral and the news are built.",
+    "_doc": "The town's day kinds (townsfolk brief \u00a73 \"The data\"): a person's `day` is a list of blocks (every kind) or one list a kind (`ordinary` the default for any kind he hasn't). The town's day runs from `starts_h` to the next (a night's blocks past midnight belong to the day before). Each kind: `week_day` (the town's day number mod 7; day 1 a Monday) or `every` days from `first`, and an optional `if` (StoryState facts, as `talk`'s), the first that holds wins. PROPOSED: Sunday and a fortnight's payday on the Saturday; the story's kinds (mourning, uneasy) go here as `if` entries when the funeral and the news are built. `uneasy` (#1051, PROPOSED): the day after a killing or a shooting the town holds (TownNews sets StoryState news.yesterday at the day's turn; a story act's isn't counted, its day is the story's): the storekeeper keeps in, the loudmouth's out on the walk telling it.",
     "starts_h": 5.0,
-    "kinds": [{"id": "sunday", "week_day": 0}, {"id": "payday", "every": 14, "first": 13}]
+    "kinds": [{"id": "sunday", "week_day": 0}, {"id": "payday", "every": 14, "first": 13}, {"id": "uneasy", "if": {"news.yesterday": ["killing", "shooting"]}}]
   },
   "people": [
     {"id": "barkeep", "name": "Barkeep", "model": "barkeep_s2_talking", "seed": 761, "dials": {"nerve": 0.7, "nosy": 0.4, "duty": 0.6}, "shirt": [0.85, 0.84, 0.8], "vest": [0.15, 0.14, 0.13], "home": "saloon",
@@ -149,6 +149,14 @@
      "_doc": "Townsfolk step 3 (#936), roster 2: the doctor's day self, the coroner. One man (#1095: there was an act-only `doc` too): the acts (SheriffDies, No Justice's office, the funeral) take him off his day (ValleyFolk.seize) and give him back; out on his walk in the afternoon only (the brief puts his crossing in 7-12; it waits for the act's morning to be free of him). He answers his door to any hurt man brought him (FetchHelp.at_door)."},
     {"id": "storekeeper", "name": "Storekeeper", "model": "storekeeper_s1_talking", "seed": 902, "dials": {"nerve": 0.3, "nosy": 0.6, "duty": 0.5}, "shirt": [0.82, 0.8, 0.7], "vest": [0.35, 0.3, 0.2], "home": "general_store",
      "day": {
+       "uneasy": [
+         {"from": 5.0, "in": "general_store", "do": "breakfast"},
+         {"from": 7.0, "in": "general_store", "do": "work"},
+         {"from": 12.0, "in": "general_store", "do": "dinner"},
+         {"from": 13.0, "in": "general_store", "do": "work"},
+         {"from": 18.5, "in": "general_store", "do": "supper"},
+         {"from": 19.5, "in": "general_store", "do": "home"},
+         {"from": 22.0, "in": "general_store", "do": "sleep"}],
        "ordinary": [
          {"from": 5.0, "in": "general_store", "do": "breakfast"},
          {"from": 6.0, "at": "store_walk", "do": "sweep"},
@@ -265,6 +273,12 @@
      "_doc": "By day on the hotel's walk (No Law's scripts, docs/scripts/no_law.json: the townsman). Tells you the town's news: the sheriff shot (once he's brought in), and the morning after, Earl's murder as the town has it, or that you were sat at the table."},
     {"id": "loudmouth", "name": "Loudmouth", "model": "heavy_factory", "seed": 782, "dials": {"nerve": 0.5, "nosy": 0.8, "duty": 0.1}, "shirt": [0.62, 0.55, 0.42], "vest": [0.3, 0.22, 0.16], "home": "saloon", "says": "loudmouth",
      "day": {
+       "uneasy": [
+         {"from": 8.0, "at": "saloon_walk", "do": "talk"},
+         {"from": 12.0, "at": "saloon_walk", "do": "lean"},
+         {"from": 13.0, "at": "store_bench2", "do": "sit"},
+         {"from": 19.5, "in": "saloon", "do": "home"},
+         {"from": 23.0, "in": "saloon", "do": "sleep"}],
        "ordinary": [
          {"from": 8.0, "at": "store_freight", "do": "carry"},
          {"from": 10.0, "at": "store_bench2", "do": "sit"},
@@ -311,6 +325,7 @@
   "_no_knock": "#1095: places with no door to bang on (PlayerKnock): the saloon's set is its open yard. Elsewhere E at a door bangs on it only from outside it (ValleyFolk.past_door).",
   "doctor_room": [6.7, 0.95, 2.6],
   "_doctor_room": "#1095: where the doctor has a hurt man laid in his front room when he answers his door to him (FetchHelp.at_door, ValleyFolk.take_in): the doctor's building's own space [x, floor y, z] (config/moments/no_law_carry.json's laid spot, a step back).",
+  "dead": {"_doc": "The dead taken away (#1051; ValleyFolk._dead_step): a townsman killed in town and seen down (anyone holds it in TownNews), the undertaker comes for him within `seen_h` clock hours; unseen, from `morning_h` the next morning. He walks out to him (at most `walk_at_most_s`), and the body goes once you're `unseen_m` off it or it's out of your view. No Law's Earl keeps his own (`morning`).", "seen_h": 0.75, "morning_h": 6.0, "undertaker": "undertaker", "walk_at_most_s": 240.0, "unseen_m": 30.0},
   "talk": {
     "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",
     "near_m": 4.0,

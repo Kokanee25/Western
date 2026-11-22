@@ -16,6 +16,7 @@ const HELP := {
 	"camera": "camera X Y Z [TX TY TZ] [FOV] | camera player -> a free camera there looking at T, or back to your eyes",
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
+	"ride": "ride [PLACE] -> \"ride there\" (#1120) from the tied horse you're at, as E and the list do: the fade, the clock on, you by your horse at PLACE's rail; answers the ride (or why not). Alone: what's offered from here and why not (goto horse_PLACE: by the horse there)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
@@ -43,7 +44,7 @@ const HELP := {
 	"plunge": "plunge [SPREAD] -> the plunger pushed home: every wired bundle goes (SPREAD physics ticks apart; default the dial)",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
-	"read": "read frame|player|people|look|places|counts|fetch|all -> what's going on (fetch: the valley's runners for help, the doctor's calls)",
+	"read": "read frame|player|people|look|places|counts|fetch|news|all -> what's going on (fetch: the valley's runners for help, the doctor's calls; news: TownNews' records and each man's version)",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
 	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
@@ -338,6 +339,25 @@ func _cmd_goto(a: Array) -> Dictionary:
 	return {"at": _arr(player.global_position), "facing": _facing()}
 
 
+func _cmd_ride(a: Array) -> Dictionary:
+	var r := get_tree().get_first_node_in_group(&"ride_there") as RideThere
+	if r == null:
+		return {"ok": false, "error": "no riding here (the valley only)"}
+	if a.is_empty():
+		return r.report()
+	if r.horse_here(float(r.data.get("reach_m", 2.8)) + 1.5, false) == null:
+		return {"ok": false, "error": "no tied horse by you (goto horse_%s; `ride` alone says where yours is)" % r.horse_at, "report": r.report()}
+	var why := r.ride(StringName(a[0]))
+	if why != "":
+		return {"ok": false, "refused": why}
+	while r.state != &"idle":
+		await get_tree().process_frame
+	await _physics_frames(2)
+	var out := r.last.duplicate()
+	out["at"] = _arr(player.global_position)
+	return out
+
+
 func _cmd_look(a: Array) -> Dictionary:
 	var target: Vector3
 	if a.size() >= 3:
@@ -460,7 +480,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _knocked_out():
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
-			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching}
+			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching,
+			"slowed": player.wounds.slow_why if player.wounds else "", "carrying": player.carry != null and player.carry.carrying()}
 
 
 func _cmd_key(a: Array) -> Dictionary:
@@ -1095,8 +1116,11 @@ func _cmd_read(a: Array) -> Dictionary:
 	if what == "fetch":
 		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 		out["fetch"] = vf.fetch.report() if vf != null and vf.fetch != null else {}
+	if what == "news":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["news"] = vf.news.report() if vf != null and vf.news != null else {}
 	if out.is_empty():
-		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|all"}
+		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|news|all"}
 	return out
 
 
@@ -1156,6 +1180,8 @@ func _listen_to_events() -> void:
 			_shots += 1
 		_log("shot", "%s fired" % _who(shooter)))
 	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
+	_hook(Events.person_left, func(who: Node, why: StringName) -> void:
+		_log("left", "%s left town (%s)" % [_who(who), "his day done, while you were out" if why == &"day_done" else "rode out"]))
 	# What the screen told you (a wound, the gun you can't hold, coming round): #595's gun lost without a word.
 	_hook_screen.call_deferred()
 	_hook(Events.body_hit, func(info: Dictionary) -> void:
@@ -1293,6 +1319,10 @@ func _people() -> Array:
 			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
 			# one, so men who'd dropped theirs to give up still read armed).
 			"armed": man.held_gun != null, "wounds": man.wounds.size()}
+		# Every injury (blows and bruises too, not only holes: #1125's "0 wounds" was a bruised man) and his blood.
+		if man.physiology.wounds > man.wounds.size() or man.physiology.blood_ml < man.physiology.tuning.blood_ml:
+			e["injuries"] = man.physiology.wounds
+			e["blood_ml"] = int(man.physiology.blood_ml)
 		var brain := man.get_node_or_null(^"Brain")
 		if brain is OutlawBrain:
 			e["mood"] = OutlawBrain.Mood.keys()[brain.mood].to_lower()
@@ -1303,6 +1333,10 @@ func _people() -> Array:
 				e["arrested"] = "following" if brain.follow else "waiting"
 			if brain.relations:
 				e["toward_you"] = Relations.Stance.keys()[brain.relations.stance(player)].to_lower()
+			# What he has of you (#1125: "spotted" called at 100 m): sees you, his sight's reach on you as you're lit.
+			if brain.senses and brain.senses.known.has(player):
+				e["sees_you"] = brain.senses.sees(player)
+				e["sight_on_you_m"] = snappedf(brain.senses.range_to(player), 0.1)
 		elif brain is CivilianBrain:
 			e["mood"] = CivilianBrain.Mood.keys()[brain.mood].to_lower()
 			if brain.reaction != null and brain.reaction.describe() != "":

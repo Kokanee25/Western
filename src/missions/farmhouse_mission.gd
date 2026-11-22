@@ -114,6 +114,7 @@ var _farm_places: Waypoints
 func _ready() -> void:
 	add_to_group(&"farmhouse_mission")
 	add_to_group(&"claims_use")
+	add_to_group(&"ride_check")  # RideThere (#1120): not while the gang has the house
 	if tuning == null:
 		tuning = load("res://config/farmhouse.tres")
 	Events.exploded.connect(_on_exploded)
@@ -972,6 +973,11 @@ func hostage_at() -> Vector3:
 
 ## E is for the rancher by him: held, it cuts him loose; out cold and loose, held, you drag him
 ## by the collar.
+## "Ride there" (#1120): not while it's on (the gang has the rancher; you're in it).
+func ride_refusal(_p: Player) -> String:
+	return "Not now: the gang has the rancher at the farmhouse." if state == State.ON else ""
+
+
 func claims_use(p: Player) -> bool:
 	if state != State.ON or hostage_brain == null or not is_instance_valid(hostage) or not hostage.physiology.alive:
 		return false

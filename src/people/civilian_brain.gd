@@ -40,13 +40,19 @@ const LINES := {
 	&"chair": ["What the hell?!", "Who kicked my damn chair?", "Son of a...!"],
 	&"help": ["Somebody get the doc!", "Easy, friend. Easy. Lie still.", "He's hit! Get the doctor!"],
 	&"gawk": ["Lord. Is he dead?", "What in the hell was that?", "Who's shooting?", "Stand back, give him air."],
-	&"hurt": ["I'm hit! Lord, I'm hit!", "He shot me! Oh God, he shot me!", "Ah—! My arm! My arm!"],
+	&"hurt": ["I'm hit! Lord, I'm hit!", "He shot me! Oh God, he shot me!"],
+	# By what hit him (#1125: a piece of the store from a blast 10 m off had him cry "He shot me!",
+	# and a man hit in the chest cried "My arm!"): a ball in the arm, and anything a blast threw.
+	&"hurt_arm": ["Ah—! My arm! My arm!", "I'm hit! Lord, I'm hit!"],
+	&"hurt_blast": ["Ah! What hit me?", "Something hit me! Lord!", "I'm hurt! God, I'm hurt!"],
 	&"hurt_down": ["Help me! Somebody help me!", "Get the doc! For God's sake, get the doc!", "I'm shot... help..."],
 }
 ## A man's lines come no closer than this (s) (#773, the cards playtest: the drifter's hiding and
 ## pleading lines two a second for 20 s), but for these, which come once and matter.
 const SAY_GAP := 2.5
-const SAY_ALWAYS := [&"fire", &"thanks", &"chair", &"hurt"]
+const SAY_ALWAYS := [&"fire", &"thanks", &"chair", &"hurt", &"hurt_arm", &"hurt_blast"]
+## What a blast throws at a man (the body's hit kinds), not a gun's ball (#1125).
+const BLAST_KINDS := [&"blow", &"splinter", &"gravel", &"blast", &"burn"]
 ## Another man's cower line this recently (ms): he's likelier to keep quiet, and never says the same.
 const CROWD_MS := 900
 const SAME_LINE_MS := 4000
@@ -75,6 +81,8 @@ var held := false
 var refuges: Array[Vector3] = []
 ## Running for help (FetchHelp, townsfolk step 6): who to run to for a man down; null, nobody runs.
 var fetch: FetchHelp
+## The town's news (TownNews, townsfolk step 7): what he senses of trouble goes in as his version.
+var news: TownNews
 ## His pace walking back to his post (m/s): the doctor called to a man down walks fast.
 const WALK := 1.2
 var walk_speed := WALK
@@ -117,6 +125,12 @@ var _gun_seen: Node3D
 ## isn't bleeding hard (`UP_BLEED`), he gets up if his legs will have him, else calls for help.
 var hurt := false
 var _wounds_seen := 0
+## Hurt before hours went by in a moment (#1125): the fright of it's spent; up again he doesn't cry
+## out and run from a shot hours old (the widow's "Get down!" four seconds after you came round).
+var _hurt_spent := false
+## The last hit on him (HumanBody.hit's kind and segment): what he cries out.
+var _hit_kind := &""
+var _hit_seg := &""
 var _down_s := 0.0
 var _call_down := 0.0
 const UP_AFTER := 5.0
@@ -187,6 +201,9 @@ func _ready() -> void:
 	Events.person_died.connect(func(p: Node, _c: StringName) -> void: _on_down(p))
 	Events.hat_shot.connect(_on_hat_shot)
 	Events.hours_passed.connect(_on_hours_passed)
+	body.hit.connect(func(info: Dictionary) -> void:
+		_hit_kind = StringName(info.get("kind", &""))
+		_hit_seg = StringName(info.get("segment", &"")))
 	Events.scorched.connect(func(who: Node, amount: float) -> void:
 		if who == body:
 			_scorched += amount
@@ -323,15 +340,28 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 ## runs for a door, or walks to it if he can't run).
 func _on_hurt() -> void:
 	hurt = true
+	_hurt_spent = false
 	_aimed = 0.0
 	_cower = 0.0
 	_flinch = 0.0
 	_call_down = 0.0
 	if mood == Mood.HANDS_UP:
 		mood = Mood.ALARMED
-	say(&"hurt")
+	say(hurt_line())
 	if not body.limp:
 		_go_hurt()
+
+
+## What he cries when he's hurt, by what hit him: a blast's piece (or a blast heard just now with no
+## ball in him), a ball in the arm, else a ball.
+func hurt_line() -> StringName:
+	var blasted := _hit_kind in BLAST_KINDS or (_hit_kind == &"" and senses != null and not senses.last_sound([&"blast", &"explosion"], 2.0).is_empty())
+	if blasted:
+		return &"hurt_blast"
+	var s := String(_hit_seg)
+	if s.contains("arm") or s.begins_with("hand"):
+		return &"hurt_arm"
+	return &"hurt"
 
 
 ## Hurt and on his feet: off to a door (a reaction already starting on the shot decides as hurt).
@@ -399,6 +429,8 @@ func _on_heard(at: Vector3, kind: StringName, maker: Node) -> void:
 		return
 	if kind == &"gunshot":
 		reaction.sense(&"shot_seen" if maker != null else &"shot", at, maker as Node3D)
+		if news:
+			news.heard(self, at, maker)
 		fear += 0.3 * clampf(1.0 - body.global_position.distance_to(at) / 40.0, 0.0, 1.0)
 	elif kind == &"blast":
 		reaction.sense(&"blast", at)
@@ -418,9 +450,13 @@ func _on_down(p: Node) -> void:
 		# Further off: seen hit and fall, he knows a man's down (for running for help), no more.
 		if senses.sees(man):
 			reaction.far_down = man
+			if news:
+				news.saw_down(self, man)
 		return
 	if senses.sees(man) or senses._in_view(man, senses.eye()):
 		reaction.sense(&"down", man.global_position, man)
+		if news:
+			news.saw_down(self, man)
 
 
 ## His hat shot off his head: down on the boards, and he says so.
@@ -433,7 +469,14 @@ func _on_hat_shot(person: Node, _shooter: Node, _at: Vector3) -> void:
 
 
 ## Hours went by in a moment: whatever scared him is long over.
-func _on_hours_passed(_hours: float, _why: StringName) -> void:
+func _on_hours_passed(hours: float, _why: StringName) -> void:
+	# His wounds ran on through the hours (#1125): stopped bleeding, or bled out (townsfolk keep
+	# theirs: Sean, #1093).
+	var p := body.physiology
+	if p.alive:
+		p.pass_time(hours * p.tuning.game_hour_seconds)
+	_wounds_seen = p.wounds
+	_hurt_spent = hurt
 	_stop_bucket()
 	fear = 0.0
 	_aimed = 0.0
@@ -743,7 +786,7 @@ func _physics_step(delta: float) -> void:
 		if body.rising:
 			return  # (on his way up)
 		mood = Mood.SHAKEN
-		if hurt and not held:
+		if hurt and not held and not _hurt_spent:
 			_go_hurt()
 	if held:
 		return  # the scene has him

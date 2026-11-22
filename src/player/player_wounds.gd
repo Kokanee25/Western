@@ -26,6 +26,19 @@ const TEND_TOURNIQUET_SECONDS := 4.0
 const OUT_HOURS := 6
 const WAKE_BLOOD_LOSS := 0.2
 const WAKE_PAIN := 0.6
+## Your mending (#1125, Sean on #1093: the player's wounds don't last; fully recovered within a day,
+## nothing permanent): game hours from the doctor's (or from your bleeding stopping) to as you were.
+## Half way the bones, nerves and muscles have mended (`Physiology.mend`); at the end, everything.
+const RECOVER_HOURS := 24.0
+## Game hours into your mending (-1: not mending).
+var recovering := -1.0
+var _mend_from := {}
+var _mended := false
+var _clock_was := -1.0
+## Why your wounds slow you ("" if they don't): told once when it starts or changes (#1125: hurt, and
+## carrying a man, you went 3-6 m in 30 s with no word why).
+var slow_why := ""
+var _slow_told := ""
 
 var physiology: Physiology
 var anatomy: Anatomy
@@ -102,6 +115,7 @@ func _ready() -> void:
 	player.set_meta(&"human_body", self)
 	_rng.seed = 1882
 	Events.deed.connect(_on_deed)
+	Events.hours_passed.connect(_on_hours_passed)
 	anatomy = Anatomy.shared()
 	physiology = Physiology.new(null, anatomy)
 	physiology.roll_rng.seed = hash(["physiology", "player"])
@@ -841,12 +855,14 @@ func _physics_step(delta: float) -> void:
 	_update_ears(delta)
 	physiology.step(delta * scale)
 	_drip(delta * scale)
+	_mend_by_clock()
 	var p := physiology
 	var legs := p.leg_ok("r") and p.leg_ok("l") and not p.legs_paralysed() and not p.broken.has(&"pelvis_bone")
 	player.force_crouch = not legs or p.shock() > 0.85
 	player.move_factor = (1.0 - p.shock() * 0.5) * (lerpf(0.45, 1.0, p.leg_strength()) if legs else 0.35)
 	player.can_sprint = p.can_run()
 	player.can_jump = legs and p.shock() < 0.5
+	_tell_slow(legs)
 	for gun in player.weapons:
 		# Sat at a table no gun comes out (PlayerSeat, #766), as with your hands on a wound.
 		var sat := player.seat != null and player.seat.seated()
@@ -972,16 +988,27 @@ func _come_round() -> void:
 	if day != null:
 		day.pass_hours(OUT_HOURS)
 		clock = " It's %s." % day.get_clock_text()
+	# Who left while you were out (#1125: the riders went with no word).
+	var left_town: Array[String] = []
+	var on_left := func(who: Node, _why: StringName) -> void:
+		var n := _name_of(who)
+		if n != "" and not n in left_town:
+			left_town.append(n)
+	Events.person_left.connect(on_left)
 	Events.hours_passed.emit(OUT_HOURS, &"out_cold")
+	Events.person_left.disconnect(on_left)
 	var lines: PackedStringArray = ["You come round %s, bandaged, %d hours on.%s" % [where, OUT_HOURS, clock]]
 	if by_name != "":
 		var gone := not is_instance_valid(by) or (by as Node).is_queued_for_deletion()
 		lines.append("%s shot you down%s." % [by_name, ", and he's long gone" if gone else ""])
 	if was_dead:
 		lines.append("They say you were as good as dead.")
+	if not left_town.is_empty():
+		lines.append("%s rode out while you were under." % _and_list(left_town))
 	var left := _what_still_hurts()
 	if left != "":
 		lines.append(left)
+		lines.append("The doctor says you'll be right in a day.")
 	say("\n".join(lines), 10.0, true)
 
 
@@ -1014,7 +1041,93 @@ func _patch_up() -> void:
 	p.pain = p.wound_pain
 	for w in wounds:
 		w.dressed = true
+	# The doctor splints a broken leg (the card said so; #1125: you couldn't stand on it).
+	for bone: StringName in p.broken:
+		var b := String(bone)
+		if b.begins_with("femur_") or b.begins_with("tibia_") or b.begins_with("patella_"):
+			p.splinted[b.right(1)] = true
 	tending = 0.0
+	_start_mending()
+
+
+## Your mending from here (#1125): how far your blood and pain have to come back from.
+func _start_mending() -> void:
+	recovering = 0.0
+	_mended = false
+	_mend_from = {"blood": physiology.blood_ml, "pain": physiology.wound_pain}
+
+
+## Hurt, not bleeding, awake: you're mending (a wound you bound yourself mends as the doctor's does).
+func _hurt_and_bound() -> bool:
+	var p := physiology
+	if not p.alive or not p.is_conscious() or p.total_bleed_rate() > 0.01:
+		return false
+	return p.wounds > 0 or not p.broken.is_empty() or p.blood_ml < p.tuning.blood_ml - 1.0 or p.wound_pain > 0.0 or p.burns > 0.0
+
+
+## Why you're slow, in words, and the line on the screen the first time it is (when you move).
+func _tell_slow(legs: bool) -> void:
+	var p := physiology
+	var why := ""
+	if p.legs_paralysed():
+		why = "You can't feel your legs: you can only drag yourself."
+	elif not legs:
+		var broken_leg := false
+		for bone: StringName in p.broken:
+			var b := String(bone)
+			if b.begins_with("femur") or b.begins_with("tibia") or b.begins_with("patella") or b == "pelvis_bone":
+				broken_leg = true
+		why = "Your leg's broken: you can only hobble." if broken_leg else "Your leg won't hold you: you can only hobble."
+	elif p.shock() > 0.5:
+		why = "You're weak from the blood you've lost: you can't go fast."
+	elif p.leg_strength() < 0.6:
+		why = "Your leg's hurt: you limp."
+	slow_why = why
+	if why == "":
+		_slow_told = ""
+	elif why != _slow_told and player.get_horizontal_speed() > 0.05 and p.is_conscious():
+		_slow_told = why
+		say(why, 3.0)
+
+
+## Your mending goes by the clock as it runs (a jump of it, a black-out's, comes by hours_passed).
+func _mend_by_clock() -> void:
+	if _day_cycle == null or not is_instance_valid(_day_cycle):
+		return
+	var now := float(_day_cycle.day) * 24.0 + float(_day_cycle.time_of_day)
+	var d := now - _clock_was if _clock_was >= 0.0 else 0.0
+	_clock_was = now
+	if d > 0.0 and d < 0.25:
+		mend_hours(d)
+
+
+func _on_hours_passed(hours: float, _why: StringName) -> void:
+	mend_hours(hours)
+
+
+## `hours` more of your mending (the clock running, or jumped).
+func mend_hours(hours: float) -> void:
+	if recovering < 0.0:
+		if not _hurt_and_bound():
+			return
+		_start_mending()
+	if physiology.total_bleed_rate() > 0.01:
+		return  # bleeding again (a new wound): it waits till that's stopped
+	recovering += hours
+	var f := clampf(recovering / RECOVER_HOURS, 0.0, 1.0)
+	var p := physiology
+	p.blood_ml = maxf(p.blood_ml, lerpf(float(_mend_from.get("blood", p.blood_ml)), p.tuning.blood_ml, f))
+	p.wound_pain = minf(p.wound_pain, float(_mend_from.get("pain", p.wound_pain)) * (1.0 - f))
+	p.pain = minf(p.pain, maxf(p.wound_pain, 0.0) + 0.05)
+	if f >= 0.5 and not _mended:
+		_mended = true
+		p.mend()
+	if f >= 1.0:
+		p.heal_all()
+		wounds.clear()
+		recovering = -1.0
+		_mend_from.clear()
+		say("You're mended: nothing hurts now.", 4.0)
 
 
 ## What you still carry, in a line ("" if nothing much).
@@ -1055,6 +1168,16 @@ const CALLED := {&"outlaw": "The outlaw", &"kid": "The Kid", &"storekeeper": "Th
 		&"barkeep": "The barkeep", &"widow": "The widow", &"sheriff": "The sheriff", &"doctor": "The doctor", &"colter": "The Colter"}
 
 
+## "Brody", "Brody and Lyle", "Brody, Lyle and the Kid" (a name past the first lower-cased "The").
+static func _and_list(names: Array[String]) -> String:
+	var ns: Array[String] = []
+	for i in names.size():
+		ns.append(names[i] if i == 0 or not names[i].begins_with("The ") else "the" + names[i].substr(3))
+	if ns.size() == 1:
+		return ns[0]
+	return ", ".join(ns.slice(0, ns.size() - 1)) + " and " + ns[-1]
+
+
 func _name_of(who: Node) -> String:
 	if who == null or not is_instance_valid(who) or who == player:
 		return ""
@@ -1093,3 +1216,21 @@ func describe() -> String:
 static func _yours(text: String) -> String:
 	var re := RegEx.create_from_string("\\bhis\\b")
 	return re.sub(text, "your", true)
+
+
+## What a save keeps of your own body (SaveGame, #1138): its physiology, your wounds, how far
+## you've mended. (You're never saved out cold: a save is a sleep.)
+func save_dict() -> Dictionary:
+	return {"physiology": physiology.to_dict(), "wounds": HumanBody.plain(wounds), "recovering": recovering,
+			"mend_from": HumanBody.plain(_mend_from), "mended": _mended, "last_hurt": HumanBody.plain(last_hurt)}
+
+
+func load_dict(d: Dictionary) -> void:
+	physiology.from_dict(d.physiology)
+	wounds.assign((d.wounds as Array).duplicate(true))
+	recovering = float(d.recovering)
+	_mend_from = (d.mend_from as Dictionary).duplicate(true)
+	_mended = bool(d.mended)
+	last_hurt = (d.last_hurt as Dictionary).duplicate(true)
+	_clock_was = -1.0
+	out_cold = 0.0

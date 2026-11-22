@@ -44,6 +44,7 @@ means a section of this file.
 - [Training the image model on our style (tools/style)](#training-the-image-model-on-our-style-toolsstyle)
 - [tools/blender (the people pipeline)](#toolsblender-the-people-pipeline)
 - [addons/saltcreek_native (the native plugin)](#addonssaltcreek_native-the-native-plugin)
+- [src/save (the save)](#srcsave-the-save)
 - [tests](#tests)
 - [CI](#ci)
 
@@ -1045,7 +1046,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
   methods, worked out on the main thread). A structure keeps one a member (`load_record`), taken
   again when it's been `mark_dirty`'d since or for an analysis from the top (`records_all_stale`).
-  FireSystem's checks: `start_analysis` (main), the records copied a slice a frame (`prepare`,
+  The settle queue (`SettleQueue`, src/structures/settle_queue.gd, group `settle_queue`; a FireSystem's child,
+  run from its tick, or the valley's own, on its physics frame, #1128; `Structure.settle` hands an over-budget
+  settle to `SettleQueue.find`, none = whole on its frame): `start_analysis` (main), the records copied a slice a frame (`prepare`,
   `CHECK_MEMBERS` 120 for a routine look, `SETTLE_MEMBERS` 150 a slice while it's coming down,
   `SETTLE_FRAME_MS` 8), the rest on a worker (`run_async`, the pool, high priority), applied
   (`apply_round`) on a tick fixed by its size (1 + members / `WORKER_MEMBERS_A_TICK` 200), never
@@ -1357,7 +1360,8 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
   his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
-  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks; given the
+  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks (40 spots a chunk, each chunk a piece at a time, `Cover.Pick`, by a
+  `WorkBudget`: `STEP_MS`, or `STEP_ASKS` queries under World.deterministic; #1123); given the
   town's `places`, as the gang's brains do, spots a porch's height up or down count, reached by
   the town's ways (in at a door, down the steps), and something wide a few metres off counts:
   a doorway, a building's corner; with variant D's `posts`, a post too narrow to hide him square
@@ -1954,6 +1958,24 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   (`CivilianBrain.walk_speed`) with the bag model in hand, `tend` beside the man `TEND_FOR` 240 s, then
   `call_over` (back to his block). The bridge's `read fetch`: the events (shot, ran, told, left frames,
   the route's m) and the log.
+  **The town's news** (townsfolk step 7, #1051; `TownNews`, `src/people/town_news.gd`, `tests/test_town_news.gd`,
+  `tests/test_town_news_valley.gd`): `records` the truth (Events.noise gunshots and their maker within 15 s / 30 m are one;
+  `deed` hit/kill and a fall or death near it set whom and what); `versions` per person id, filled only by his
+  CivilianBrain (`heard`: shots, who only if he saw him fire, first = who fired the first shot he saw; `saw_down`:
+  whom, dead), a body still lying found by anyone who sees it within 25 m (`_found_step`), the dead's own erased.
+  Telling: two calm men within 3 m, 6-10 s, the biggest piece the hearer lacks, one in three a slot wrong
+  (`_go_wrong`: first swapped, shots ±1, who or where dropped); two on the book in one house each clock hour;
+  the runner to the doctor (`hand_over`). `overnight` at the town's day turn (`ValleyFolk._news_turn`): size 0.5+
+  to everyone as told, small told news fades; StoryState `news.yesterday` (calendar kind `uneasy`), `news.harlan`
+  (`view_of_harlan`: stopped_a_killer / shot_a_man / split), `news.dead.<id>`. Story records (an act man's shot)
+  travel but don't set the day and aren't spoken (`to_say`). The folk's talk says a calm man's own version once
+  (`line_of`). **The words are the town's script's** (#1144, `TownScript`, `src/people/town_script.gd`): `docs/scripts/town.json`
+  copied to `config/town_script.json` (docs/ is hidden from Godot; `tests/test_town_script.gd` holds them equal: edit the
+  script, then `cp` it); `pick(ids, seed, slots)` the first id with words, a wording by the speaker's seed, slots
+  {who} {whom} {where} {shots} {teller}; `line_of` a head line (`news.<kind>[.you|.nobody]`) and tails, FetchHelp's
+  `run_doc`/`run_law`/`runner[_dead|_you][.shot]`; the built strings only a fallback. **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
+  seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
+  body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
@@ -2102,7 +2124,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `SHAPE_STEP` (`follow_bones`, `bone_move`). `take_off(part)` hides a piece of tack and drops it as
   a RigidBody3D (debris layers, its rest shape), `put_on` puts it back. `tie_to(point)` hides the
   ridden reins and draws two sagging reins from the bit (`bits()`, from `horse.json`) to the point.
-  Model space: head at -X, his right -Z, ground y = 0.
+  Model space: head at -X, his right -Z, ground y = 0. In the group `horses`.
+- `src/creatures/ride_there.gd` — `RideThere` (#1120, the valley's `ride`), a stand-in for riding
+  (#478): `config/ride_there.json`'s places (valley.json ids), each a hitch on a town lot (`lot`,
+  `along`, `out`) or back along one of its roads (`road`, `back_m`, `side_m`), a `HitchingRail` there;
+  your horse (`horse`, `horse_at`) at the one nearest where you start. E at any tied horse
+  (`horse_here`, `claims_use`): the list (`offered`: `known` always / been / fact:KEY[=V]; not where
+  you are), 1-9 or E; `ride(id)`: the fade, `DayCycle.pass_hours` by `ride_of` (flat distance x
+  `winding` at valley.json's `horse_trot`, + `extra_s`), `Events.hours_passed(h, &"rode")`, you and
+  your horse at the rail (`stand`, facing the place). `refusal()`: carried/dragged man, bleeding over
+  `bleed_ml_s`, `hostile_near` (an OutlawBrain against you that knows you, or within `close_m`), a
+  running Act's `ride_refusal()` (data `ride_no`, or `"ride": "ok"`), the group `ride_check`
+  (FarmhouseMission while ON); `beats_on_way` asks the group `timed_beats` (`ValleyFolk.beats_due`:
+  the murder, the sheriff's day, the funeral; "on" = it happens by its own clock after you arrive,
+  its `say` on arrival; "no" refuses). Places `horse_<id>` for `goto`; the bridge's `ride [PLACE]`.
 - `tools/blender/horse.py --shape=GLB` (the game's horse since 2026-10-24): Rodin's model from the
   Character Studio (`inputs/horse/shape.glb` on its `claude/studio-horse`, from pictures Sean approved),
   turned, scaled and measured by `horse_rodin.py` (legs by level cuts, poll, muzzle, withers, the tail
@@ -3172,6 +3207,25 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   or with `--jolt-sight` every question goes to Jolt through the same face. `sight_sync` in the
   lab's perf is its upkeep. Its lab: `experiments/sight_lab/` (census, bench); the gate test
   `tests/test_sight_world.gd`.
+
+## src/save (the save)
+
+- `src/save/save_game.gd` — **`SaveGame`** (#1138; `docs/briefs/saving.md` has the inventory, what's
+  deliberately not kept, what isn't yet, and how a body is laid back). Static: `capture(tree)` (the
+  world as one dictionary: `SECTIONS` story, clock, structures, ground, floor, blood, dynamite, folk,
+  people, player), `write(d, slot)` / `read(slot)` / `head(slot)` (`user://saves/<slot>.save`: a JSON
+  first line, then `var_to_bytes` compressed; temp file then rename, the last kept as `.bak`),
+  `apply(tree, d)` onto a valley built fresh (returns `{missed, ms}`), `save(tree, slot)` (capture and
+  write, timed), `differences(a, b, tol, tol_m, skip)`. `VERSION`, `MIGRATIONS` (version -> Callable).
+  Nothing calls it in play yet (step 2: sleeping in a bed).
+- Each system's own half: `Structure.to_dict` / `from_dict` (`maybe_changed`, `untouched`,
+  `_lay_piece`; `cut_member(..., quiet)`; `StructureMember.restore_holes`), `HumanBody.save_dict` /
+  `load_dict` / `made_from` (`plain`, `_pose_as`, `_lie_as`, `_lie_again`, `dropped_gun`),
+  `Relations.from_dict`, `ValleyFolk.save_dict` / `load_dict` / `load_laid`, `TownNews.save_dict` /
+  `load_dict`, `FloorMarks.save_dict` / `load_dict`, `Blood.save_list` / `load_list`,
+  `PlayerWounds.save_dict` / `load_dict`. People are keyed by `person_id`, structures by
+  `structure_id`, members by `member_id`: a save warns (`warnings`) of two of a name.
+- `tests/test_save_game.gd`: the file, a structure, a man, marks and blood, the whole valley.
 
 ## tests
 

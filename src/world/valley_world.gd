@@ -47,6 +47,12 @@ static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_use
 static var buildings_default := not "--no-buildings" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
+## `-- --mission=no_law`: No Law's first night (#1125: there was no flag, so it never started): the
+## clock at `NO_LAW_HOUR`, a quarter hour of game time before the murder's (config/moments/
+## no_law_murder.json, 22:00), you unarmed in the saloon yard facing the card table, the folk at
+## their night posts (Earl at the table from 19:30).
+const NO_LAW_ARG := "--mission=no_law"
+const NO_LAW_HOUR := 21.75
 ## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
 ## SheriffDies, the morning after set up, you on Main Street).
 const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
@@ -65,6 +71,8 @@ const NO_JUSTICE_HIDEOUT_ARG := "--mission=no_justice_hideout"
 const NO_JUSTICE_CABIN_ARG := "--mission=no_justice_cabin"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
+## "Ride there" (#1120): the hitching rails, your horse and the ride list (RideThere).
+var ride: RideThere
 ## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
 ## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
 ## folk's set (their men are built a frame later: `folk.build_ms`).
@@ -99,6 +107,12 @@ func _ready() -> void:
 		_make_buildings()
 		_make_homesteads()
 		u = _took(&"buildings", u)
+		# A blast's collapse a slice a frame (Structure.settle hands it on): the valley has no
+		# FireSystem, whose queue it was; saloon B's three sticks were ~600 ms on one frame (#1128).
+		if SettleQueue.find(get_tree()) == null:
+			var q := SettleQueue.new()
+			q.name = &"SettleQueue"
+			add_child(q)
 		_warm_buildings.call_deferred()
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
@@ -107,16 +121,31 @@ func _ready() -> void:
 			folk.halls = buildings
 			add_child(folk)
 			u = _took(&"folk", u)
+		# "Ride there" (#1120): a hitching rail at each place you can ride to, your horse at the nearest.
+		ride = RideThere.new()
+		ride.name = "RideThere"
+		ride.layout = layout
+		ride.town = markers.town
+		add_child(ride)
+		ride.add_places(markers.places)
+		u = _took(&"ride", u)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
+	if NO_LAW_ARG in OS.get_cmdline_user_args():
+		_start_no_law.call_deferred()
 	if SHERIFF_DIES_ARG in OS.get_cmdline_user_args():
 		_start_sheriff_dies.call_deferred()
 	if FUNERAL_ARG in OS.get_cmdline_user_args():
 		_start_funeral.call_deferred()
-	if NoJusticeHideout.retry_on_load:
+	if JoeLost.restart != &"":
+		# Enter after Joe was lost to you (#1125): that act of No Justice again.
+		var again := JoeLost.restart
+		JoeLost.restart = &""
+		_start_act_again.call_deferred(again)
+	elif NoJusticeHideout.retry_on_load:
 		# Its retry (Enter after you went down there): the act again on the slope above it, whatever
 		# mission the game was started on.
 		NoJusticeHideout.retry_on_load = false
@@ -139,6 +168,15 @@ func _start_sheriff() -> void:
 		await get_tree().physics_frame
 	_unarmed()
 	Moment.start_named(&"the_sheriff", self, null)
+
+
+## No Law's first night (#1125), once the folk are built: the clock, you in the yard, unarmed.
+func _start_no_law() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	_unarmed()
+	if folk:
+		folk.set_up_no_law(NO_LAW_HOUR)
 
 
 ## No Law's sheriff's last day alone (#796), once the folk are built.
@@ -177,6 +215,13 @@ func _start_no_justice_hideout(arrive := false) -> void:
 	for i in 5:
 		await get_tree().physics_frame
 	Moment.start_named(&"no_justice_hideout", self, null, {"set_up": true, "arrive": arrive or "--arrive" in OS.get_cmdline_user_args()})
+
+
+## An act of No Justice again (JoeLost's Enter, #1125), set up as its own flag starts it.
+func _start_act_again(act_name: StringName) -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	Moment.start_named(act_name, self, null, {"set_up": true, "arrive": true})
 
 
 ## No Justice's cabin (#966), once the folk are built.
@@ -310,7 +355,7 @@ func _make_homesteads() -> void:
 
 
 ## Each spec building's first analysis on a worker once the load's done (`Structure.warm_analysis`):
-## the valley has no FireSystem to slice a settle, so the first shot to break a member was every
+## before it, with no settle queue here, the first shot to break a member was every
 ## member of the building on one frame (#881). A few frames on, its props and fittings are in.
 func _warm_buildings() -> void:
 	for i in 3:

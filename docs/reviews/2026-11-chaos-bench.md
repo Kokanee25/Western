@@ -108,3 +108,67 @@ moved to its own tick; both spread, neither changes where he goes.
 ~670 ms of it (~1,800 members broken; the valley has no FireSystem to slice a settle). The run's
 mean frame is ~24 ms with ~400 frames over 33 ms, ~240 of them in the blast's first 5 s (Jolt
 stepping the pieces, as in the town above), most of the rest the search steps above.
+
+### The search step, spread (#1123, 2026-11-21)
+
+**A cover search now spreads its chunks over ticks by a work budget.** `Cover.Search.step` still takes
+the spots 40 at a time (each chunk scored, then its best few routed, as before), but a chunk is
+worked a piece at a time (`Cover.Pick`: its first lines, then one spot scored, then one routed) and
+a step stops once it has spent `Cover.STEP_MS` (4 ms here) of the wall clock, or under
+`World.deterministic` `STEP_ASKS` (400) queries (`Cover.asked` + `Waypoints.asked`, counted always),
+the `WorkBudget` the settle uses. The next tick carries on from that piece, and a cheap chunk lets the
+next one start in the same step. The chunks are the same however it's spread, so **he finds the same
+spot**: 599 searches over the test street (five variants, two threats) gave identical spots, scores
+and ways before and after; `tests/test_places.gd` holds a spread search to the unspread one.
+
+Same VM, same run, one after the other (the fight goes differently each run: two runs of the old code
+gave 78 and 15 brain frames >= 33 ms):
+
+| run (60 s, this VM) | brain frames >= 33 ms | >= 50 ms | worst brain frame | frames > 33 ms | mean frame |
+|---|---|---|---|---|---|
+| before (main), run 1 | 78 | 29 | 116 ms | 453 | 19.8 ms |
+| before, run 2 | 15 | - | 89 ms | 334 | 20.6 ms |
+| spread, run 1 | 0 | 0 | 26 ms | 180 | 16.3 ms |
+| spread, run 2 | 0 | 0 | 33 ms | 186 | 17.4 ms |
+
+Searches (a print round `_step_search` for the runs, taken out): before 123 started, all finished,
+20 found a spot, 4 ticks median, 12 at most; spread 57 and 62 started, all finished, 6 and 19
+found, 2 and 4 ticks median, 32 and 79 at most (~1.3 s here, ~0.85 s on Sean's: the dear ones wait
+longer for his decision, never a different one).
+
+**Saloon B's blast frame, reported, not fixed:** 550-620 ms its first frame on these runs (the VM
+was quicker than #1119's), `settle_analyse` 420-480 ms of it. A settle is sliced over frames only by
+a FireSystem's queue (`Structure.settle`, `FireSystem.queue_settle`), and the valley has none, so
+the whole settle lands on the frame. Fixing it means a settle queue that isn't the fire's (or a
+FireSystem in the valley, which brings fire there: Sean's call), more than a targeted fix: the
+next step (its issue).
+
+### A settle queue of its own (#1128, 2026-11-21)
+
+**The FireSystem's slicing queue is now its own node, `SettleQueue`** (src/structures/settle_queue.gd):
+the same code (the queue, the slices of records, the worker's tick, `sit_out`, the routine looks), moved.
+A FireSystem holds one as its child and runs it from its tick where it ran before, so nothing about fire
+changes; the valley (no fire, Sean on #1128) adds one of its own, run on its physics frame (Prof
+`settle_queue`, counted in structures). `Structure.settle` / `settle_soon`, the trestle, the blast and the
+stick find it by `SettleQueue.find`.
+
+**The same collapse:** `tests/test_settle_incremental.gd`'s new test blows the spec saloon's stick three
+ways: with the fire's queue, with a SettleQueue alone, and with none (whole on its frame). All three bring
+down the same 76 members, member for member, as the analysis finishes; the stick's frame 20 ms sliced,
+480 ms whole.
+
+60 s valley chaos, same VM, one after the other (main, this, this):
+
+| run | worst frame | frames > 33 ms | of them >= 100 ms in the first 5 s | biggest settle frame | broken at 60 s |
+|---|---|---|---|---|---|
+| before (main) | 733 ms (`settle_analyse` 579) | 266 | 14 | 579 ms, later 96-150 | 1,914 |
+| settle queue, run 1 | 228 ms (`kit_blast` 123) | 216 | 8 | 37 ms (`settle_queue`) | 1,752 |
+| settle queue, run 2 | 232 ms (`kit_blast` 135) | 211 | 7 | 35 ms | 1,821 |
+
+(The broken count follows the fight, which differs each run: men shoot boards; the lab test is the check.)
+
+**Left, reported:** the blast's own frame is 108-120 ms (`dynamite` 80-100: `blast_response` ~40,
+`blast_gather` ~20) on both, before and after. The worst frame is now the tick after the sticks,
+`kit_blast` 123-135 ms (the kit props' push, in main as well: 134 ms), with that tick's first settle round
+(~35 ms: one `begin_update` near ~1,800 broken members, `bu_forget`/`bu_closure`/`bu_seeds`, a round
+can't be cut smaller). A settle round's update and the kit props' push are the next to spread.

@@ -447,3 +447,30 @@ func test_your_drawn_gun_breaks_it_and_cody_walks_out() -> void:
 	await physics_frames(60 * 6)
 	check(not is_instance_valid(cody) or cody.global_position.distance_to(from) > 4.0, "and gets on his way")
 	m.reset()
+
+
+## `-- --mission=no_law` (#1125): it started nothing (no such flag; the bridge's town has no folk).
+## Its set-up puts the clock before the murder's hour and you in the yard by the table; the clock
+## alone then brings Cody in, as on any first night.
+func test_the_mission_flag_sets_up_the_night_and_the_clock_brings_the_murder() -> void:
+	var f := _folk()
+	f.set_up_no_law(ValleyWorld.NO_LAW_HOUR)
+	await physics_frames(1)
+	f._look = 0.0
+	await physics_frames(60)
+	check(absf(_clock().time_of_day - ValleyWorld.NO_LAW_HOUR) < 0.05, "the clock at the start (%.2f)" % _clock().time_of_day)
+	check(_player().global_position.distance_to(f.cards.centre()) < 12.0, "you in the yard by the table (%.1f m)" % _player().global_position.distance_to(f.cards.centre()))
+	check(f.murder == null, "not yet")
+	var earl := f.folk_man(&"earl")
+	var sat := await wait_until(func() -> bool: return _chair("w").seated == earl, 60 * 60)
+	check(sat, "Earl at the table")
+	_clock().set_time(22.0)  # the test clock is held: the hour itself
+	var came := await wait_until(func() -> bool: return f.murder != null, 60 * 30)
+	check(came, "the clock brought the murder")
+	if came:
+		var m := f.murder as NoLawMurder
+		# The bridge's run of it: the start put you on the stranger's way in, and the scene's hold
+		# broke on its first frame ("mark"): it never played.
+		var shot := await wait_until(func() -> bool: return m.done or m.shots > 0, 60 * 120)
+		check(shot and m.shots > 0, "it plays to Cody's shot (%s)" % m.result())
+		check_eq(String(m.broken_by), "", "nothing broke the hold")

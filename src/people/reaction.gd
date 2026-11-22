@@ -494,7 +494,7 @@ func _try_run() -> bool:
 	_run_look = RUN_LOOK
 	_go(_errand_point(), RUN)
 	brain.fetch.running(man, StringName(e.to), _route_length())
-	brain.say_line(brain.fetch.off_line(StringName(e.to)))
+	brain.say_line(brain.fetch.off_line(StringName(e.to), String(man.person_id)))
 	return true
 
 

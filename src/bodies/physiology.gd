@@ -258,6 +258,17 @@ func step(dt: float) -> void:
 		_die(&"gut_wound")
 
 
+## Time gone by in a moment (the clock jumped: a black-out, #1125): his body runs on through it at
+## its own rate, a second a step (bleeds clot or bleed him out, blood comes back, a gut wound kills
+## in its hours), to `seconds` or till he dies. Not the fast path: a few thousand steps at most.
+func pass_time(seconds: float, dt := 1.0) -> void:
+	var left := seconds
+	while left > 0.0 and alive:
+		var s := minf(dt, left)
+		step(s)
+		left -= s
+
+
 ## A broken bone that bleeds into the flesh round it (`fracture_bleed`, ml, in the anatomy: a femur
 ## ~1.2 L, Lieurance et al. 1992): inside him, at `fracture_bleed_rate`, until that much is lost.
 func _fracture_bleed(bone: StringName, segment: StringName) -> void:
@@ -342,6 +353,45 @@ func bind_up(segment: StringName) -> void:
 	if s.begins_with("thigh_") or s.begins_with("shin_") or s.begins_with("foot_"):
 		splinted[s.right(1)] = true
 	treated.emit(&"pressure", segment)
+
+
+## The player's mending (#1125; Sean on #1093: his wounds don't last, he's fully recovered within a
+## day, nothing permanent; townsfolk keep theirs). Half way: the bones knit, the nerves and the cord
+## join, the torn muscle mends: he walks and holds a gun as before.
+func mend() -> void:
+	broken.clear()
+	splinted.clear()
+	muscle_damage.clear()
+	jaw_broken = false
+	for k: StringName in cut.keys():
+		# The cut arteries' bleeds are tied off already; what's left of `cut` is nerves and the cord.
+		cut.erase(k)
+
+
+## The end of the day's mending: as he was before any of it (blood, every wound, the parts lost).
+func heal_all() -> void:
+	mend()
+	bleeds.clear()
+	torn.clear()
+	blind.clear()
+	lost_parts.clear()
+	blood_in_eye.clear()
+	lost_fingers.clear()
+	severed_segments.clear()
+	eardrums_burst.clear()
+	lung_damage.clear()
+	jaw_gone = false
+	airway_blood = false
+	nose_bleed = 0.0
+	gut_seconds = -1.0
+	neck_seconds = -1.0
+	concussion = 0.0
+	burns = 0.0
+	wound_pain = 0.0
+	pain = 0.0
+	oxygen = 1.0
+	blood_ml = tuning.blood_ml
+	wounds = 0
 
 
 # --- Infection (the gore lab; the Medical and Surgical History of the War of the Rebellion) -----
@@ -834,7 +884,7 @@ func to_dict() -> Dictionary:
 			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
 			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys(),
-			"spared": spared, "spared_times": spared_times, "splinted": splinted.keys()}
+			"spared": spared, "spared_times": spared_times, "spared_cause": spared_cause, "splinted": splinted.keys()}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -864,6 +914,7 @@ func from_dict(d: Dictionary) -> void:
 	lost_parts = _set_of(d.get("lost_parts", []))
 	spared = d.get("spared", false)
 	spared_times = d.get("spared_times", 0)
+	spared_cause = d.get("spared_cause", &"")
 	blood_in_eye = {}
 	for k in d.get("blood_in_eye", {}):
 		blood_in_eye[StringName(k)] = d.blood_in_eye[k]

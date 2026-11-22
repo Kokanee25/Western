@@ -26,34 +26,43 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `no_justice_cabin [--down]`): kicks add up against the bar; Kett gives up (an OutlawBrain, silent) in the corner;
   Joe's knife and ask; nod / between / gun on either / a shove at Joe / binding Kett = arrest (a card, then Kett bound
   to the jail's door); shake / walking out / silence = revenge (`take_knife`); your ball in him = murder. Facts
-  nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail. Playtests `docs/playtests/2026-11-1[345]-*.md`.
+  nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail.
   **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
   balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest faults (#1095, #1106, #1111, #1116):** one doctor (`ValleyFolk.seize`, `lends`); a knock brings a hurt
-  man's doctor (`FetchHelp.at_door`). The shack door: a set count of kicks (`kick_share`, `takes_kicks`). Joe down: held
-  E by his wound binds and splints him (`NoJusticeCabin._aid_step`, `Physiology.bind_up`/`splinted`), he limps in, the
-  knife waits. The office is a `SceneHold` your shot breaks; Joe ducks, "Stop", turns on you after 3 (`CompanionBrain.turned`).
-  Hurt townsfolk go, get up or call (`CivilianBrain.hurt`, `_lying`). `OutlawBrain.careful` (Joe, armed townsmen) holds
-  fire for anyone in the line; outlaws only for mates (DESIGN §7). Tests `test_chaos_faults`, `test_hurt_townsfolk`.
-  Open (chaos round): the slowdown after dynamite and fire (its own issue); two townsmen on one spot; the rifle's
-  `shoot 2`; walks stopping at posts.
-- Story decisions: #744's latest comments and STORY.md; the story bible is #809.
-- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2 (the day and
-  book), 3 (roster as data), 4 (spots, `SpotChore`), 5 reactions in stages (#982, `Reaction`,
-  `tests/test_reactions.gd`; LAYOUT "src/people"). **6 the runner (#1040, `FetchHelp`, `tests/test_runner.gd`, bridge `read fetch`)**. **Next: step 7, the town's news.** Open:
-  the noon street is too thin for anyone to run (playtest 2026-11-17-runner: three men, low duty); a body found later
-  isn't a stimulus; shaken only changes the next start; refuges are door points; chores' props stand-ins; no talk sound.
+- **Playtest faults (#1095, #1106, #1111, #1116, #1125):** one doctor (`ValleyFolk.seize`, `lends`); a knock brings a
+  hurt man's doctor (`FetchHelp.at_door`); the shack's `kick_share`; Joe down: held E binds and splints him
+  (`NoJusticeCabin._aid_step`); the office a `SceneHold` your shot breaks, Joe turns on you after 3 (`CompanionBrain.turned`);
+  hurt townsfolk go, get up or call (`CivilianBrain.hurt`); `OutlawBrain.careful` (DESIGN §7). #1125: `--mission=no_law`
+  (`ValleyFolk.set_up_no_law`; a story `--mission=` picks the valley, the bridge too); the black-out moves the world on
+  (`Events.person_left`, `Physiology.pass_time`, `CivilianBrain._hurt_spent`); you mend in a day (`PlayerWounds.mend_hours`,
+  `Physiology.mend`/`heal_all`, Sean's #1093); `JoeLost` (Joe turned and gone or dead: a card, Enter again); `slow_why`;
+  blast lines (`hurt_blast`); `SEARCH_NEAR_M`. Tests `test_chaos_faults`, `test_hurt_townsfolk`, `test_come_round`.
+  Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds (round 2's #1, not in #1125); the bridge's `tend`
+  on an unhurt man kicks, `look` blocked at 53 m vs 2.3 m, `goto PLACE YAW` ignores the yaw carrying; the gang's
+  "spotted" at 100 m not reproduced (a test holds it); the slowdown after dynamite and fire; two townsmen on one spot.
+- Story: #744, STORY.md; the bible #809.
+- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2-6 (day and book,
+  roster, spots, reactions `Reaction`, the runner `FetchHelp`). **7 the town's news (#1051, `TownNews`,
+  `tests/test_town_news.gd`, `_valley`; bridge `read news`; LAYOUT "src/people")**: versions only from Senses, telling,
+  overnight, `news.yesterday` -> calendar `uneasy`, `news.harlan`; the dead taken to the undertaker's
+  (`ValleyFolk._dead_step`). **8 the town's script (#1144)**: `docs/scripts/town.json` (page in its README), the
+  runner's and the news's lines read from it (`TownScript`); Script OK waiting on Sean (#1150). **Next: step 9, regard
+  and the barks (#1152).** Open: Senses names a shooter on a glimpse (`_in_view`; the lab's news case); nobody carries the body (it goes once unseen); outlaws
+  and act men killed aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
+- **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
+  rail; bridge `ride [PLACE]`. Open: unjudged on screen; SaveGame doesn't keep where your horse is tied.
+- **Saving by sleeping** (#1138 step 1 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame` takes the valley's
+  difference from authored, writes `user://saves/<slot>.save`, reads it onto a fresh valley (`tests/test_save_game.gd`).
+  Nothing calls it in play. **Next: step 2, a bed ends the day and saves; Continue.** Not kept yet: the brief's list.
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
-  heights (#736). **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
-  No Law's set is still in the yard (no switch built): to move it in, `config/valley_folk.json`'s `set` goes to
-  the saloon lot's floor (the walk's top, not the ground: `ValleyFolk.ground` gives the pad under the floor), using
-  the spec's own `no_law_table` (under the well) and bar instead of spawning a second set, with ways in by the
-  corner door. Payday Night: `SpecBuilding.saw_girder()` with the dancers' weight on the dance floor's boards.
+  **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
+  No Law's set is still in the yard: to move it in, `valley_folk.json`'s `set` to saloon B's floor
+  (`ValleyFolk.ground`), its own `no_law_table` and bar, ways in by the corner door. Payday Night: `SpecBuilding.saw_girder()` with the dancers' weight on the dance floor's boards.
 - **Scenes that hold their cast** (#1050, `SceneHold`; LAYOUT "src/people"): an act claims its men, marks, chairs and
   a quiet zone; your shot, drawn gun, hit or step onto a mark lets go on that frame. On it: No Law's murder (the
   stranger, Cody), the cabin (Joe, no breaks), a card hand's chairs. Not yet: No Justice's camp and hideout (Joe's
@@ -61,31 +70,22 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
   play. Parked: men carrying it (#800).
 - **The Colt** (#693 step 1 approved). **Gunfight D+** (#633; difficulty #349 is Sean's).
-- **The chaos bench** (#1117, #1119, `docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
-  [--spikes=MS]`. `CatchUp` stops the bridge's spiral. Valley `outlaw_brain` spikes: cover ways asked of all ~360
-  places, fixed (#1119, worst 204 -> 91 ms). Open: a search step still 15-90 ms (40 spots a tick); saloon B's blast
-  frame (~900 ms, `settle_analyse`); Jolt's ~4 s of awake pieces.
+- **The chaos bench** (`docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
+  [--spikes=MS]`. Valley: brain frames < 33 ms (#1119, #1123: `Cover.Pick`); a blast's settle sliced by its own
+  `SettleQueue` (#1128). Open: `kit_blast` ~130 ms the tick after saloon B's sticks, the blast's own frame ~110 ms; Jolt.
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
-  --townsfolk=N`, `tools/valley/bench_runs.py`; 24 townsfolk fit (#881). Open: every scene's else is over (~1 ms
-  untimed), the outlaws' first cover moves (~120 ms twice at a fight's start), the gunfight's people.
-
-- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`. Build the
-  plugin with `NO_PROXY=localhost,127.0.0.1 cargo build --release`, .so to bin/ (a fresh import here takes ~25 min).
-- **CI's tests in six shards** (#1015, PR #1046 merged 2026-11-18; LAYOUT "CI", "tests"): `test (K/6)` by `config/test_times.json`; refresh
-  it with `tools/test_times.py` from the shards' logs when one runs long. Each file starts from cleared statics.
-  Locally one shard at a time (~4 GB each: two at once are OOM-killed in 8 GB).
-- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3). Locally
-  `test_no_law_carry` (shard 2) has failed in shard order but passes on CI.
+  --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
+- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
+- **CI's tests in six shards** (#1015): `config/test_times.json` (`tools/test_times.py`); locally one shard at a time.
+- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3).
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
 ## Open problems
-- **The valley's people tests** (#925, PR #939): three real causes fixed (`HumanBody._spare_rubble`,
-  `NoLawMurder._clear_to_head`, `WoundSigns.SMEAR_GAP`), each with a test. Sample a people test's odds by running
-  its scene many times in one process, not the suite again.
-  Traps: any `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI's machine draws
-  differently from a workspace's (the same commit fails there and passes here): nudge the test's setup a few cm
-  in a scratch test (5 variants) to find CI's path, then print the men's state each second (#1094);
+- **The valley's people tests** (#925): sample a people test's odds by running its scene many times in one
+  process, not the suite again.
+  Traps: `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI draws differently from a
+  workspace (nudge the test's setup a few cm in a scratch test to find CI's path, #1094);
   the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
   test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
   `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
@@ -103,10 +103,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - Tests at night in the valley turn the murder off (`-- --no-murder`); a drawn rifle on Main Street sets the
   gang off (use the rope range).
 - Sight takes a new structure in at its first look (look once at the build).
-- A fresh container has no native plugin (`bin/` is ignored): `cargo build --release` in the plugin (2 min,
-  crates.io reachable 2026-11-17), the .so to `bin/`, else most game tests fail to load.
-- The valley bench: drawn runs ~6 min each; compare against a baseline from the same workspace (noise ±0.35).
-- test_town_day's gang fights (#1094): two men wedged shoulder to shoulder in the saloon. A man who gives up a
-  cover now fights from where he stands `GAVE_UP_COVER_FIGHT` s; the friend check covers eye to muzzle too;
-  the break-off hides you behind the livery (the range is in the saloon door's sight).
-- Bridge commands: LAYOUT "The dev bridge"; a lab's own commands in `experiments/<lab>/bridge.gd`.
+- A fresh container has no native plugin (`bin/` is ignored): `NO_PROXY=localhost,127.0.0.1 cargo build --release`
+  in the plugin (2.5 min), the .so to `bin/`, then `godot --headless --import` (~5 min).
+- Bridge commands: LAYOUT "The dev bridge". `bridge.py start` is the old town (the gang, the store, the widow) unless
+  `--game-args=--world=valley` or a story `--mission=`; the clock's held (`clock on`).
