@@ -2310,6 +2310,8 @@ func _use_points() -> void:
 		m.rotation.y = deg_to_rad(float(u.get("facing", 0.0)))
 		m.set_meta(&"use", u.use)
 		m.set_meta(&"who", u.who)
+		if String(u.use) == "sleep":
+			m.add_to_group(&"beds")  # the player can sleep here (PlayerSleep, #1148)
 		if u.has("prop"):
 			# The dressing entry he sits or lies on (#844): the fit check leaves it out.
 			m.set_meta(&"prop", StringName("%s_dress_%s" % [structure_id, u.prop]))

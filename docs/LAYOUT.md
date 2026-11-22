@@ -3217,7 +3217,19 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   first line, then `var_to_bytes` compressed; temp file then rename, the last kept as `.bak`),
   `apply(tree, d)` onto a valley built fresh (returns `{missed, ms}`), `save(tree, slot)` (capture and
   write, timed), `differences(a, b, tol, tol_m, skip)`. `VERSION`, `MIGRATIONS` (version -> Callable).
-  Nothing calls it in play yet (step 2: sleeping in a bed).
+  `pending` / `load_slot(tree, slot)` (#1148: read, `GameReset.load_save` clears the world's statics and
+  puts the story back, reloads; `ValleyWorld._load_pending` applies it under a black cover once the folk
+  are in, `LOAD_AFTER_FRAMES`, and skips the command line's mission starts), `last_load`.
+- `src/player/player_sleep.gd` — **`PlayerSleep`** (`player.sleep`, #1148): E at a bed (group `beds`:
+  SpecBuilding puts every `use: sleep` use point there) fades out, `DayCycle.pass_hours` to `WAKE_HOUR`
+  (`hours_to_dawn`), `Events.hours_passed(h, &"sleep")` (your mending, townsfolk's wounds), the town
+  placed, then the save (after the night: you wake at dawn by the bed), fade in. `why_not` refuses
+  bleeding, a carry or seat, a hostile man within `DANGER_M`, a shot within `SHOT_S`, a Moment not done.
+  `last`, `last_capture`, `slot`.
+- `src/save/continue_card.gd` — **`ContinueCard`**: the plain valley start with a save offers it (Enter:
+  Continue, Space: new game; `offered(args, slot, headless)`; not on `--mission=`/`--moment=`, the
+  bridge unless `--continue-card`, headless, a reset). The bridge: `sleep [bed]`, `save`, `load`,
+  `continue`, `newgame`, `saves`.
 - Each system's own half: `Structure.to_dict` / `from_dict` (`maybe_changed`, `untouched`,
   `_lay_piece`; `cut_member(..., quiet)`; `StructureMember.restore_holes`), `HumanBody.save_dict` /
   `load_dict` / `made_from` (`plain`, `_pose_as`, `_lie_as`, `_lie_again`, `dropped_gun`),
@@ -3226,6 +3238,8 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   `PlayerWounds.save_dict` / `load_dict`. People are keyed by `person_id`, structures by
   `structure_id`, members by `member_id`: a save warns (`warnings`) of two of a name.
 - `tests/test_save_game.gd`: the file, a structure, a man, marks and blood, the whole valley.
+  `tests/test_sleep.gd`: a sleep saves and wakes you at dawn, loaded onto a fresh valley it's the same;
+  refused shooting or bleeding; Continue only with a save.
 
 ## tests
 

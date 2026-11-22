@@ -1962,6 +1962,9 @@ func save_dict() -> Dictionary:
 	for id: StringName in people:
 		if folk_man(id) != null:
 			here.append(id)
+	# (The order men came into the world isn't kept: a load brings them in its own. By name: a
+	# StringName's own order is its pointer's.)
+	here.sort_custom(func(x: StringName, y: StringName) -> bool: return String(x) < String(y))
 	# The dead not yet taken away (#1051): since when, and whether anyone's seen them.
 	var dead := {}
 	for id: StringName in dead_out:

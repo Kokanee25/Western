@@ -52,6 +52,8 @@ var seat: PlayerSeat
 ## A downed man by the collar (PlayerCarry, #1057) and a door banged on (PlayerKnock).
 var carry: PlayerCarry
 var knock: PlayerKnock
+## Sleeping in a bed: the night passes and the game is saved (E at a bed; #1148).
+var sleep: PlayerSleep
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -183,6 +185,10 @@ func _arm() -> void:
 	knock.name = "Knock"
 	knock.player = self
 	add_child(knock)
+	sleep = PlayerSleep.new()
+	sleep.name = "Sleep"
+	sleep.player = self
+	add_child(sleep)
 
 
 func revolver() -> RevolverViewmodel:
