@@ -21,7 +21,7 @@ the start. **Step 3 (not yet):** the "Not yet" list's slice items (a townsman's 
   the night** (a load puts you at dawn, up where you lay down, guns away); the fade in, a line: "You
   sleep till dawn. Day N, 06:00. Saved."
 - **Refused, with a line on screen:** bleeding ("bind it before you lie down"); a man by the collar or
-  a chair; a shot fired within 60 m in the last 30 s ("Not with shooting this close."); an outlaw on his
+  a chair; a shot fired within 60 m in the last 30 s, yours too ("Not with shooting this close."); an outlaw on his
   feet within 60 m who has you as his target or as a threat, or Joe turned; a scene in play (a Moment
   not done). Any hour is allowed: from noon you sleep 18 hours.
 - **Continue** (`ContinueCard`; there's no title screen): the plain valley start with a save in
@@ -32,6 +32,11 @@ the start. **Step 3 (not yet):** the "Not yet" list's slice items (a townsman's 
   over it (the one before kept as `.bak`). **Quitting doesn't save.**
 - **Measured** (this workspace): a sleep's capture and write are in the PR; a load onto the fresh valley
   as step 1's.
+- **The playtest** (`docs/playtests/2026-11-22.md`): sleep and Continue gave back the same world (the
+  dead where he lay, the blood, the clock, the gun's rounds; load 77 ms, nothing missed). Fixed from it:
+  your own shot now refuses a sleep; who died in the night is said on waking. Not fixed: the valley
+  jail's bed couldn't be walked to (art's building); under the bridge the world is the old town unless
+  `--world=valley` (it has no beds).
 - **The town overnight:** a townsman who goes indoors overnight comes back out unhurt (ValleyFolk frees
   his body: the "Not yet" list). Until step 3 **the town mends overnight**; the dead stay dead.
 

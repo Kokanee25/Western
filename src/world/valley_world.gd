@@ -71,6 +71,8 @@ const NO_JUSTICE_HIDEOUT_ARG := "--mission=no_justice_hideout"
 const NO_JUSTICE_CABIN_ARG := "--mission=no_justice_cabin"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
+## "Ride there" (#1120): the hitching rails, your horse and the ride list (RideThere).
+var ride: RideThere
 ## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
 ## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
 ## folk's set (their men are built a frame later: `folk.build_ms`).
@@ -120,6 +122,14 @@ func _ready() -> void:
 			folk.halls = buildings
 			add_child(folk)
 			u = _took(&"folk", u)
+		# "Ride there" (#1120): a hitching rail at each place you can ride to, your horse at the nearest.
+		ride = RideThere.new()
+		ride.name = "RideThere"
+		ride.layout = layout
+		ride.town = markers.town
+		add_child(ride)
+		ride.add_places(markers.places)
+		u = _took(&"ride", u)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)

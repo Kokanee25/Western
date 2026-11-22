@@ -166,6 +166,10 @@ func test_no_sleep_in_a_fight_or_bleeding() -> void:
 	check_eq(p.sleep.refused, "Not with shooting this close.", "and it says why")
 	check(not FileAccess.file_exists(SaveGame.path_of(SLOT)), "nothing's saved")
 	check(clock.day == day and absf(clock.time_of_day - 23.0) < 0.1, "the night hasn't passed")
+	# Your own shot counts too (the playtest slept seven seconds after shooting a man).
+	p.sleep._shot_at = -INF
+	Events.shot_fired.emit(p.global_position + Vector3.UP * 1.5, Vector3.FORWARD, p)
+	check_eq(p.sleep.why_not(), "Not with shooting this close.", "nor with your own gun just fired")
 	# Half a minute on, bleeding.
 	p.sleep._shot_at = -INF
 	p.wounds.physiology._add_bleed(&"test", &"forearm_l", 2.0)

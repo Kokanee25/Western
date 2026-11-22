@@ -13,7 +13,7 @@ extends Node
 ##
 ## Refused, with a line on screen saying why (`why_not`): bleeding; a man by the collar or a seat;
 ## a hostile man about who could shoot you (an outlaw on his feet, Joe turned) or shooting close by
-## in the last half minute; a scene in play (a Moment not done: nobody sleeps in the middle of one).
+## in the last half minute (yours too); a scene in play (a Moment not done: nobody sleeps in the middle of one).
 ## In the group `claims_use`, so E at a bed isn't a shove.
 
 signal slept(result: Dictionary)
@@ -64,7 +64,9 @@ func _ready() -> void:
 
 
 func _on_shot(origin: Vector3, _dir: Vector3, shooter: Node) -> void:
-	if player == null or shooter == player or not player.is_inside_tree():
+	# Yours too (the playtest, #1148: shot a man and slept seven seconds on): nobody lies down with the
+	# gun still warm.
+	if player == null or not player.is_inside_tree():
 		return
 	if origin.distance_to(player.global_position) < DANGER_M:
 		_shot_at = _t
@@ -210,6 +212,13 @@ func sleep(bed: Node3D = null) -> bool:
 	if clock:
 		clock.pass_hours(hours)
 		clock.apply_visuals()
+	# Who died in the night (a hurt man bled out while you slept): said when you wake.
+	var died: Array[String] = []
+	var on_died := func(who: Node, _cause: StringName) -> void:
+		var n := player.wounds._name_of(who) if player.wounds else ""
+		if n != "" and not n in died:
+			died.append(n)
+	Events.person_died.connect(on_died)
 	Events.hours_passed.emit(hours, &"sleep")
 	# The town where its day has it at dawn (ValleyFolk looks at the clock twice a second; now).
 	var folk := player.get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
@@ -219,6 +228,7 @@ func sleep(bed: Node3D = null) -> bool:
 		player.global_transform = stood
 		player.velocity = Vector3.ZERO
 		await player.get_tree().physics_frame
+	Events.person_died.disconnect(on_died)
 	# Up by the bed where you lay down, and the save taken: you wake at dawn.
 	player.global_transform = stood
 	player.velocity = Vector3.ZERO
@@ -232,6 +242,9 @@ func sleep(bed: Node3D = null) -> bool:
 			"bytes": FileAccess.get_file_as_bytes(SaveGame.path_of(slot)).size() if err == OK else 0}
 	var line := "You sleep till dawn. Day %d, %s." % [last.day, clock.get_clock_text() if clock else ""]
 	line += " Saved." if err == OK else " (The save failed: %s.)" % SaveGame.last_error
+	if not died.is_empty():
+		line += "\n%s died in the night." % " and ".join(died)
+	last["died"] = died
 	await _fade(0.0)
 	player.input_enabled = was_input
 	sleeping = false
