@@ -135,7 +135,7 @@ cabin = {
         {"id": "chair", "kit": "chair", "at": [1.25, 0.0, 1.12], "facing": 270},
         {"id": "lamp", "kit": "oil_lamp", "on": "table", "at": [0.5, 0.0, 1.45], "facing": 0, "light": 0.2, "energy": 0.9, "reach": 5.0, "shadows": True},
         {"id": "cup", "kit": "tin_cup", "on": "table", "at": [0.6, 0.0, 0.9], "facing": 30},
-        {"id": "shelves", "kit": "shelves", "fit": [0.32, 1.6, 1.0], "at": [1.25, 0.0, 0.36], "facing": 0},
+        {"id": "shelves", "kit": "shelves", "fit": [0.32, 1.6, 1.0], "at": [1.25, 0.0, 0.37], "facing": 90, "use": "along the chimney gable, their depth off the logs (facing 0 put them into the wall: they moved at load)"},
         {"id": "washstand", "kit": "washstand", "at": [-0.3, DECK - FLOOR, round(D - 0.45, 3)], "facing": 270, "use": "on the porch, under the mirror"},
         {"id": "basin", "kit": "wash_basin", "on": "washstand", "at": [-0.3, DECK - FLOOR, round(D - 0.45, 3)], "facing": 0},
         {"id": "pitcher", "kit": "wash_pitcher", "on": "washstand", "at": [-0.25, DECK - FLOOR, round(D - 0.25, 3)], "facing": 200},

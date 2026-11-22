@@ -704,9 +704,10 @@
      "at": [
       1.25,
       0.0,
-      0.36
+      0.37
      ],
-     "facing": 0
+     "facing": 90,
+     "use": "along the chimney gable, their depth off the logs (facing 0 put them into the wall: they moved at load)"
     },
     {
      "id": "washstand",
