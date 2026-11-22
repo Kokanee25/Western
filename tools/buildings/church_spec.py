@@ -172,6 +172,8 @@ s["dressing"] = {"_doc": "the prop lab's church batch (tools/props/church.py): p
                  "batches": {"C1": dress}}
 mat = copy.deepcopy(d["materials"])
 mat["wear"] = {"use": 0.55, "dings": 0.0, "_why": "a Sunday crowd and a weekday school: the aisle and the pews' ends worn; kept clean"}
+mat["finishes"]["roof"] = {"use": {"entry": "common_pine_lap", "age": "old", "role": "wall"},
+                           "_why": "silver-grey weathered shingle (the library has no shingle yet: the old pine's grey)"}
 mat["trim_outside"] = "painted_white"
 mat["fence"] = "painted_white"
 mat["finishes"]["exterior"] = {"want": {"entry": "painted_white_lap", "age": "old"}, "use": {"entry": "common_pine_lap", "age": "old", "role": "wall"},
@@ -183,7 +185,9 @@ mat["finishes"]["floor"] = {"want": {"entry": "floor_fir_worn", "age": "old", "r
 surf = [x for x in mat["surfaces"] if not x[0].startswith(("front/door_", "back/door_", "yard/door_", "lane/door_", "floor/attic", "back_porch"))]
 surf = [["floor/tower/board", "floor"], ["tower_front/door_", "trim"], ["front/door_", "trim"], ["tower/", "exterior"], ["stage/", "rough"]] + surf
 surf.insert(0, ["tower/belfry/louvre", "trim"])
-surf.insert(0, ["tower/spire/shingle", "rough"])
+surf.insert(0, ["tower/spire/shingle", "roof"])
+surf.insert(0, ["tower/belfry/skirt", "roof"])
+surf.insert(0, ["roof/board", "roof"])
 surf += [["floor/attic/board", "floor"]]
 mat["surfaces"] = surf
 s["materials"] = mat

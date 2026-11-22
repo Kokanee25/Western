@@ -1365,12 +1365,28 @@
      "role": "wall"
     },
     "_why": "the roof boards, the porch's and stoop's decks, steps, the fence, the ladder"
+   },
+   "roof": {
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "silver-grey weathered shingle (the library has no shingle yet: the old pine's grey)"
    }
   },
   "surfaces": [
    [
+    "roof/board",
+    "roof"
+   ],
+   [
+    "tower/belfry/skirt",
+    "roof"
+   ],
+   [
     "tower/spire/shingle",
-    "rough"
+    "roof"
    ],
    [
     "tower/belfry/louvre",

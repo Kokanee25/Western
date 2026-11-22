@@ -111,6 +111,22 @@ func belfry() -> void:
 	for ix in 2:
 		for iz in 2:
 			b.add_member("tower/belfry/post_%d%d" % [ix, iz], &"post", &"framing", Vector3(post, ph, post), Vector3(px[ix], py + ph * 0.5, pz[iz]))
+	# The skirt roof where the clapboard stops: a board a side sloping out from the posts to over the walls.
+	b.band = 4
+	var sk_w := 0.5
+	var sk_a := deg_to_rad(28.0)
+	var sk_y := fy + jh + 0.04
+	for i in 4:
+		var n: Vector3 = [Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(-1, 0, 0)][i]
+		var along_x_ := absf(n.z) > 0.5
+		var span := (x1 - x0 + 0.5) if along_x_ else (-z0 + 0.5)
+		var c := Vector3(cx, sk_y + 0.14, cz) + n * ((w if along_x_ else -z0) * 0.5 - 0.02 + sk_w * 0.45)
+		var sz := Vector3(span, 0.03, sk_w) if along_x_ else Vector3(sk_w, 0.03, span)
+		# tilt about the wall's own axis so the outer edge is lower
+		var ax := Vector3.RIGHT if along_x_ else Vector3.BACK
+		var ang := sk_a * (1.0 if (n.z < -0.5 or n.x > 0.5) else -1.0)
+		b.add_member("tower/belfry/skirt_%d" % i, &"roof_board", &"weathered_pine", sz, c, Basis(ax, ang))
+	b.band = 3
 	# A post at the middle of each face too, under the ring's mid-span (the spire's commons land there).
 	for mp in [[cx, z0 + post * 0.5 + 0.02], [cx, -post * 0.5 - 0.02], [x0 + post * 0.5 + 0.02, cz], [x1 - post * 0.5 - 0.02, cz]]:
 		b.add_member("tower/belfry/mid_%d_%d" % [int(float(mp[0]) * 10), int(float(mp[1]) * -10)], &"post", &"framing", Vector3(post, ph, post), Vector3(float(mp[0]), py + ph * 0.5, float(mp[1])))

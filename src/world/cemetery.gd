@@ -78,7 +78,7 @@ func _fence() -> void:
 			if i > 0 and absf(s - stops[i - 1]) < 0.05:
 				continue
 			var p := a + (Vector2(s, 0) if along_x else Vector2(0, s))
-			add_member("fence/%s/post_%d" % [r[0], i], &"post", &"framing", Vector3(0.1, ph + 0.3, 0.1), Vector3(p.x, (ph + 0.3) * 0.5, p.y))
+			_white(add_member("fence/%s/post_%d" % [r[0], i], &"post", &"framing", Vector3(0.1, ph + 0.3, 0.1), Vector3(p.x, (ph + 0.3) * 0.5, p.y)))
 			fence_posts += 1
 		var s0 := 0.0
 		var segs: Array = []
@@ -100,7 +100,7 @@ func _fence() -> void:
 				var off := 0.07
 				var size := Vector3(l1 - l0, 0.07, 0.04) if along_x else Vector3(0.04, 0.07, l1 - l0)
 				var c3 := Vector3(mid.x, rh, mid.y + (off if along_x else 0.0) * (1.0 if r[0] == "s" else -1.0)) if along_x else Vector3(mid.x + off * (1.0 if r[0] == "e" else -1.0), rh, mid.y)
-				add_member("fence/%s/rail_%d_%d" % [r[0], k, int(rh * 100)], &"beam", &"framing", size, c3)
+				_white(add_member("fence/%s/rail_%d_%d" % [r[0], k, int(rh * 100)], &"beam", &"framing", size, c3))
 			var px := l0 + 0.12
 			var j := 0
 			while px < l1 - 0.08:
@@ -108,7 +108,7 @@ func _fence() -> void:
 				var out := 0.1
 				var c4 := Vector3(pp.x, ph * 0.5 + 0.02, pp.y + out * (1.0 if r[0] == "s" else -1.0)) if along_x else Vector3(pp.x + out * (1.0 if r[0] == "e" else -1.0), ph * 0.5 + 0.02, pp.y)
 				var psize := Vector3(pw, ph, 0.02) if along_x else Vector3(0.02, ph, pw)
-				add_member("fence/%s/picket_%d_%d" % [r[0], k, j], &"board", wood, psize, c4)
+				_white(add_member("fence/%s/picket_%d_%d" % [r[0], k, j], &"board", wood, psize, c4))
 				pickets += 1
 				px += spacing
 				j += 1
@@ -117,7 +117,7 @@ func _fence() -> void:
 	var lw := gw * 0.5 - 0.04
 	for e in 2:
 		var hxg := gc - gw * 0.5 + 0.04 if e == 0 else gc + gw * 0.5 - 0.04
-		add_member("fence/gate_%d" % e, &"door", wood, Vector3(0.04, ph * 0.9, lw), Vector3(hxg, ph * 0.5 + 0.1, hz - lw * 0.5 - 0.1))
+		_white(add_member("fence/gate_%d" % e, &"door", wood, Vector3(0.04, ph * 0.9, lw), Vector3(hxg, ph * 0.5 + 0.1, hz - lw * 0.5 - 0.1)))
 
 
 ## The graves, the funeral's first (at their old places, as its scene had them), then the rest by seed in
@@ -173,6 +173,11 @@ func _graves() -> void:
 		marker.rotation.y = deg_to_rad(90.0 + rng.randf_range(-6.0, 6.0))
 		graves.append({"at": p, "kind": kind, "marker": marker})
 		k += 1
+
+
+## Drawn in the library's old white lead paint (`painted_white_lap`), as the church's clapboard.
+func _white(m: StructureMember) -> void:
+	PropKit.dress_member(m, {}, "lib:painted_white_lap/old")
 
 
 static func _kind(rng: RandomNumberGenerator, kinds: Dictionary) -> StringName:
