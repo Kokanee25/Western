@@ -262,6 +262,11 @@ func say_line(text: String) -> void:
 	Events.spoke.emit(body, text)
 
 
+## May he say anything now (awake, able, not hushed by a scene)?
+func may_speak() -> bool:
+	return body.physiology.is_conscious() and body.physiology.can_speak() and _hush <= 0.0
+
+
 ## Quiet for `seconds` from now (0: not; an act's beat: No Law's room going quiet after the shot,
 ## #773): he does as he would, but says nothing; a cry still to come is dropped.
 func hush(seconds: float) -> void:

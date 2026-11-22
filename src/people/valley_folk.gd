@@ -1729,7 +1729,7 @@ func bark_ctx(id: StringName, man: HumanBody) -> Dictionary:
 ## A moment of his asks for a bark (Reaction's stages: `react.<x>`): said on the physics frame if a
 ## line fits. `extra` adds to his ctx (whom, who_you) and gives the slots. True if he said one.
 func bark_for(brain: CivilianBrain, on: String, extra: Dictionary = {}) -> bool:
-	if barks == null or brain == null or brain.body == null:
+	if barks == null or brain == null or brain.body == null or not brain.may_speak():
 		return false
 	var id := brain.body.person_id
 	if _person(id).is_empty() or _person(id).has("act"):

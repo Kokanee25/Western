@@ -13,6 +13,7 @@ var made: Array[Node] = []
 
 
 func before_each() -> void:
+	ValleyFolk.murder_auto = true  # (static: an earlier test in the shard may have left No Law's beats off)
 	StoryState.wipe()
 	holder = Node.new()
 	holder.name = "Main"

@@ -715,8 +715,7 @@ func _act(delta: float) -> void:
 
 ## A bark for this stage (TownBarks via his brain's `bark`, ValleyFolk.bark_for): true if he said one.
 func _bark(on: String, extra: Dictionary = {}) -> bool:
-	return brain.bark.is_valid() and body.physiology.is_conscious() and body.physiology.can_speak() \
-			and bool(brain.bark.call(brain, on, extra))
+	return brain.bark.is_valid() and brain.may_speak() and bool(brain.bark.call(brain, on, extra))
 
 
 ## What his own news holds of `man` down (whom known, Harlan firing), for the ring's lines.
