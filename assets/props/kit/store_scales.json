@@ -1,0 +1,98 @@
+{
+  "_doc": "A grocer's counter scale (#1139, G1): a cast base, a pillar, a brass beam on its knife edge, a tin scoop on one side (the staples weighed) and a brass pan of weights on the other. ~4 kg of iron and brass. Stands on the counter. Written by tools/props/store_g1.py.",
+  "id": "store_scales",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "iron",
+  "look": "prop:iron",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.3,
+  "members": [
+    {
+      "id": "base",
+      "kind": "post",
+      "size": [
+        0.3,
+        0.04,
+        0.22
+      ],
+      "at": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "solid": 0.05
+    },
+    {
+      "id": "pillar",
+      "kind": "furniture_frame",
+      "size": [
+        0.045,
+        0.4,
+        0.045
+      ],
+      "at": [
+        0.0,
+        0.24,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "solid": 0.05
+    },
+    {
+      "id": "beam",
+      "kind": "trim",
+      "size": [
+        0.5,
+        0.02,
+        0.015
+      ],
+      "at": [
+        0.0,
+        0.45,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:brass"
+    },
+    {
+      "id": "scoop",
+      "kind": "furniture_top",
+      "size": [
+        0.2,
+        0.03,
+        0.17
+      ],
+      "at": [
+        -0.16,
+        0.06,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:plate_iron",
+      "solid": 0.05
+    },
+    {
+      "id": "weights",
+      "kind": "furniture_top",
+      "size": [
+        0.12,
+        0.03,
+        0.12
+      ],
+      "at": [
+        0.16,
+        0.06,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:brass",
+      "solid": 0.05
+    }
+  ],
+  "factory": "tools/props/store_g1.py"
+}
