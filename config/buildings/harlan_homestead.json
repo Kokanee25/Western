@@ -47,12 +47,12 @@
  },
  "trough": {
   "at": [
-   14.0,
+   17.5,
    8.0
   ],
   "length": 2.4,
   "yaw": 0,
-  "_doc": "in the yard, the pipe's spout over its east end"
+  "_doc": "in the yard east of the lane's way in (the ford path's walk to the place stays clear), the pipe's spout over its east end"
  },
  "woodpile": {
   "at": [
@@ -126,7 +126,7 @@
   ],
   "size": 1.1,
   "pipe_to": [
-   16.2,
+   19.7,
    8.32
   ],
   "spout_y": 0.85,

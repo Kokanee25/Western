@@ -275,7 +275,7 @@ site = {
     "corral": {"at": [22.6, 10.0], "size": [6.8, 12.0], "post_spacing": 2.4, "height": 1.5, "gate_at": 1.0, "gate_width": 2.4,
                "rail_section": [0.11, 0.1], "broken": ["1_2_1"],
                "_doc": "peeled pine poles on posts beside the barn, its gate to the yard; one rail on the east side snapped (a repair job: corral_rail)"},
-    "trough": {"at": [14.0, 8.0], "length": 2.4, "yaw": 0, "_doc": "in the yard, the pipe's spout over its east end"},
+    "trough": {"at": [17.5, 8.0], "length": 2.4, "yaw": 0, "_doc": "in the yard east of the lane's way in (the ford path's walk to the place stays clear), the pipe's spout over its east end"},
     "woodpile": {"at": [5.0, 13.6], "along": "z", "length": 3.6, "height": 1.25, "depth": 0.4, "billet": 0.14,
                  "_doc": "split cordwood stacked against the cabin's west gable"},
     "chopping_block": {"at": [3.4, 12.4], "height": 0.5, "diameter": 0.45, "axe_yaw": 35, "chips": 12},
@@ -283,7 +283,7 @@ site = {
               "shakes_at": [[18.95, 20.55], [18.95, 21.0], [18.95, 20.78, 1]],
               "_doc": "in the barn along its west wall: new sawn boards on two bearers and three bundles of shakes, bought for the repairs"},
     "stall": {"from": [20.2, 17.45], "to": [20.2, 21.35], "manger": [21.05, 21.15, 1.4, 0.45], "_doc": "the horse's stall along the barn's east side"},
-    "spring": {"at": SPRING, "size": 1.1, "pipe_to": [16.2, 8.32], "spout_y": 0.85, "piece": 3.0, "pipe": 0.18,
+    "spring": {"at": SPRING, "size": 1.1, "pipe_to": [19.7, 8.32], "spout_y": 0.85, "piece": 3.0, "pipe": 0.18,
                "_doc": "valley.json's harlan_spring up the slope to the north-east: a plank box round the pool, stones on its rim; bored logs laid on the ground down to the trough, the last on a post over it"},
     "repairs": ["cabin: roof_patch, porch_board, rotten_step", "barn: barn_door", "corral: corral_rail (broken)"],
 }
