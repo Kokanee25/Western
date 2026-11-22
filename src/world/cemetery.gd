@@ -155,8 +155,12 @@ func _graves() -> void:
 	for p: Vector2 in spots:
 		var kind := _kind(rng, kinds)
 		var mound := MeshInstance3D.new()
-		var mesh := BoxMesh.new()
-		mesh.size = Vector3(1.9, 0.18, 0.75)
+		# A mound of earth heaped over the grave and settled (half a squashed sphere above the ground).
+		var mesh := SphereMesh.new()
+		mesh.radius = 0.5
+		mesh.height = 1.0
+		mesh.radial_segments = 16
+		mesh.rings = 8
 		mound.mesh = mesh
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = dirt.lightened(0.06 * float(k % 3))
@@ -164,7 +168,8 @@ func _graves() -> void:
 		mound.material_override = mat
 		mound.name = "Mound%d" % k
 		add_child(mound)
-		mound.position = Vector3(p.x - global_position.x, 0.07, p.y - global_position.z)
+		mound.scale = Vector3(1.9, 0.36 + 0.08 * float(k % 2), 0.8)
+		mound.position = Vector3(p.x - global_position.x, -0.02, p.y - global_position.z)
 		mound.rotation.y = deg_to_rad(rng.randf_range(-4.0, 4.0))
 		var marker := PropKit.spawn(kind)
 		marker.name = "Marker%d" % k

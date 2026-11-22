@@ -78,11 +78,11 @@ def inside(a, b, level_up=True):
     return out
 
 
-def win(at, w=0.76, h=2.2, sill=1.0, lights=4, pointed=True):
+def win(at, w=0.92, h=2.6, sill=1.0, lights=8, pointed=True, rise=0.55):
     o = {"type": "window", "level": "ground", "at": at, "width": w, "height": h, "sill": sill, "lights": lights}
     if pointed:
         o["pointed"] = True
-        o["rise"] = 0.42
+        o["rise"] = rise
     return o
 
 
@@ -94,7 +94,7 @@ walls = [
                   win(1.3), win(W - 1.3)], "ribbon": False},
     {"_doc": "The back, behind the pulpit: one tall pointed window over it, the gable above.",
      "id": "back", "line": [[0, D], [W, D]], "out": "+z", "top": "gable", "outside": outside(), "inside": inside(0.1, W - 0.1),
-     "openings": [win(CX, 0.76, 2.0, 1.5)], "ribbon": False},
+     "openings": [win(CX, 0.92, 2.4, 1.3)], "ribbon": False},
     {"_doc": "The east side, to the yard: four pointed windows.", "id": "yard", "line": [[0, 0], [0, D]], "out": "-x", "top": "plate",
      "outside": outside(), "inside": inside(0.1, D - 0.1), "openings": [win(z) for z in side_z], "ribbon": False},
     {"_doc": "The west side, to the lane: four pointed windows (the weather side: the paint is worst here).", "id": "lane", "line": [[W, 0], [W, D]], "out": "+x",

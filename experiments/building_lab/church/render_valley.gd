@@ -86,6 +86,10 @@ func _run() -> void:
 	# The valley's place names (its markers' labels) are a map's, not the picture's.
 	for l in valley.find_children("*", "Label3D", true, false):
 		l.visible = false
+	# (and so are the places' coloured posts, the map's MultiMesh beside them)
+	for mm in valley.find_children("*", "MultiMeshInstance3D", true, false):
+		if mm.name == "Posts" and mm.get_parent().get(&"posts") != null:
+			mm.visible = false
 	var clock = valley.find_child("DayCycle", true, false)
 	if clock:
 		clock.set_physics_process(false)
