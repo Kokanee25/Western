@@ -144,6 +144,7 @@ func _init() -> void:
 func _ready() -> void:
 	add_to_group(&"valley_folk")
 	add_to_group(&"knock_doors")  # its places' doors (PlayerKnock)
+	add_to_group(&"timed_beats")  # what comes due while you ride (RideThere, #1120)
 	fetch = FetchHelp.new(self)
 	news = TownNews.new(self)
 	if layout == null:
@@ -1411,6 +1412,43 @@ func to_undertaker(id: StringName) -> void:
 		_story("nolaw.earl", "undertaker")
 		var md: Dictionary = data.get("morning", {})
 		_story("death.earl", String(md.get("earl_death_doctor" if lay.get("place", "") == "doctor" else "earl_death", md.get("earl_death", "Earl, shot."))))
+
+
+# --- What comes due while you ride (RideThere, #1120) ---------------------------------------------
+
+## The story's beats by the clock whose hour comes in the `hours` after `h` on `day`: [{what, hour,
+## ride, say}]. Each goes on by its own clock (`ride` "on": polled here, it begins once you're back
+## in the world, at once if its hour's come), so riding never skips one; `say` is what you're told on
+## arrival (only what Harlan would know: the funeral's hour is the town's news, the murder isn't).
+func beats_due(day: int, h: float, hours: float) -> Array:
+	var out: Array = []
+	if not murder_auto:
+		return out
+	if not _murder_data.is_empty() and not StoryState.has_fact("nolaw.murder") and _within(h, hours, float(_murder_data.get("hour", 22.0))):
+		out.append({"what": "nolaw.murder", "hour": float(_murder_data.get("hour", 22.0)), "ride": "on", "say": ""})
+	var md: Dictionary = data.get("morning", {})
+	if StoryState.get_fact("nolaw.murder") == "done" and not StoryState.has_fact("nolaw.sheriff") \
+			and (sheriff_scene == null or not is_instance_valid(sheriff_scene)) and _within(h, hours, float(md.get("sheriff_from", 7.5))):
+		out.append({"what": "nolaw.sheriff_dies", "hour": float(md.get("sheriff_from", 7.5)), "ride": "on", "say": ""})
+	var fd := _funeral_data
+	if not fd.is_empty() and StoryState.get_fact("nolaw.sheriff") == "dead" and not StoryState.has_fact("nolaw.funeral") \
+			and (funeral == null or not is_instance_valid(funeral)):
+		var died := int((StoryState.when.get("nolaw.sheriff", [1, 0.0]) as Array)[0])
+		var due := died + int(fd.get("days_after", 1))
+		var start := float((fd.get("hours", [10.0, 11.5]) as Array)[0])
+		var at := float(due) * 24.0 + start
+		var now := float(day) * 24.0 + h
+		if at > now and at <= now + hours:
+			var mins := roundi(start * 60.0)
+			out.append({"what": "nolaw.funeral", "hour": start, "ride": "on",
+					"say": "The sheriff's funeral began at %02d:%02d, up at the church." % [mins / 60, mins % 60]})
+	return out
+
+
+## Does the clock's `hour` come in the `hours` after `h` (round midnight too)?
+static func _within(h: float, hours: float, hour: float) -> bool:
+	var ahead := fposmod(hour - h, 24.0)
+	return ahead > 0.0 and ahead <= hours
 
 
 # --- The funeral (#868) ---------------------------------------------------------------------------

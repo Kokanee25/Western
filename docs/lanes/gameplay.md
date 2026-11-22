@@ -53,6 +53,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   and act men killed aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
+- **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
+  rail; bridge `ride [PLACE]`. Open: unjudged on screen; SaveGame doesn't keep where your horse is tied.
 - **Saving by sleeping** (#1138 step 1 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame` takes the valley's
   difference from authored, writes `user://saves/<slot>.save`, reads it onto a fresh valley (`tests/test_save_game.gd`).
   Nothing calls it in play. **Next: step 2, a bed ends the day and saves; Continue.** Not kept yet: the brief's list.
@@ -75,8 +77,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
 - **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
 - **CI's tests in six shards** (#1015): `config/test_times.json` (`tools/test_times.py`); locally one shard at a time.
-- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3). Locally
-  `test_no_law_carry` (shard 2) has failed in shard order but passes on CI.
+- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3).
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
