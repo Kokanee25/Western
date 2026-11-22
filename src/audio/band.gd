@@ -77,6 +77,14 @@ var night: StringName = &"ordinary"
 ## Playing the hurried render (a fight on), and how long the fight's still on for (s).
 var fast := false
 var _fight_left := 0.0
+## After trouble stopped them (a gun, a shot, a blast: `shaky`), the start again is thin and a little
+## fast (Sean, #276: "starts again shakily"): the piano alone for the first phrase, the hurried
+## render for `shaky.fast_s`. Seconds of it left; and how many times it's happened (tests).
+var _shaky_left := 0.0
+var _shaky := false
+var shaky_starts := 0
+var wrong_notes := 0
+var _wrong: Array = []
 ## Tests: the night to play (else the folk's day kind).
 var night_override: StringName = &""
 ## Heard through a real audio device: the tune's clock is kept to the parts (a long frame and the
@@ -427,6 +435,8 @@ func _physics_process(delta: float) -> void:
 
 
 func step(delta: float) -> void:
+	if not _wrong.is_empty():
+		_wrong_step(delta)
 	match state:
 		&"off":
 			if in_hours():
@@ -465,6 +475,8 @@ func _off() -> void:
 	state = &"off"
 	_curtain(false)
 	_fight_left = 0.0
+	_shaky_left = 0.0
+	_shaky = false
 	if fast:
 		fast = false
 		_set_streams()
@@ -483,16 +495,33 @@ func _anyone() -> bool:
 
 
 func _start(at: float) -> void:
+	var sh: Dictionary = data.get("shaky", {})
+	var shaky := _shaky and not sh.is_empty()
+	if shaky and has_fast(tune_id) and not fast:
+		# Over to the hurried render at the same phrase's top.
+		var i := maxi((notes.get("phrases", [0.0]) as Array).find(phrase_start(at)), 0)
+		fast = true
+		_set_streams()
+		var ph: Array = notes.get("phrases", [0.0])
+		at = float(ph[mini(i, ph.size() - 1)])
 	state = &"playing"
 	clock = at
+	resume_at = at
 	why = &""
 	# A part's playback position reads its last place till the mixer's been round: not read for now.
 	_sync = 0.6
 	log.append([&"start", at, tune_id])
+	var thin := shaky and can_play(StringName(String(sh.get("first", "piano"))))
+	if shaky:
+		_shaky_left = float(sh.get("fast_s", 16.0))
+		shaky_starts += 1
+		log.append([&"shaky", at, tune_id])
+	_shaky = false
 	for id: StringName in players:
 		var pl: Dictionary = players[id]
 		pl.gain = 0.0
-		pl.joining = can_play(id)
+		# Shaky: the piano alone to begin with; the others come in at the next phrase's top.
+		pl.joining = can_play(id) and (not thin or String(id) == String(sh.get("first", "piano")))
 		var p: AudioStreamPlayer3D = pl.sound
 		p.volume_db = SILENT_DB
 		if p.stream and p.is_inside_tree():
@@ -509,7 +538,8 @@ func _play_step(delta: float) -> void:
 		return
 	var crossed := phrase_start(clock) > clock - delta - 1e-4 and phrase_start(clock) <= clock
 	_fight_left = maxf(_fight_left - delta, 0.0)
-	var want_fast := _fight_left > 0.0 and has_fast(tune_id)
+	_shaky_left = maxf(_shaky_left - delta, 0.0)
+	var want_fast := (_fight_left > 0.0 or _shaky_left > 0.0) and has_fast(tune_id)
 	if crossed and want_fast != fast:
 		_change_tempo(want_fast)
 	for id: StringName in players:
@@ -517,7 +547,7 @@ func _play_step(delta: float) -> void:
 		var can := can_play(id)
 		if not can:
 			pl.joining = false
-		elif float(pl.gain) <= 0.0 and not pl.joining and crossed:
+		elif float(pl.gain) <= 0.0 and not pl.joining and crossed and not (_shaky_left > 0.0 and clock - resume_at < 0.05):
 			pl.joining = true  # in at the top of the phrase
 	_sync -= delta
 	if _sync <= 0.0:
@@ -581,7 +611,11 @@ func hush(reason: StringName) -> void:
 	if state == &"done":
 		return
 	_quiet = 0.0
+	if reason in [&"gun", &"shot", &"blast"]:
+		_shaky = true
 	if state == &"playing":
+		if reason in [&"gun", &"shot", &"blast"]:
+			_wrong_notes()
 		resume_at = phrase_start(clock)
 		_stop_all(reason)
 		state = &"hushed"
@@ -591,6 +625,46 @@ func hush(reason: StringName) -> void:
 		state = &"hushed"
 	elif state == &"hushed":
 		why = reason
+
+
+## The piano player's hands as it stops him (the brief: "two wrong notes after that"): two short
+## stabs of his own part, off pitch, from his piano, a moment after the rest have stopped.
+func _wrong_notes() -> void:
+	var sh: Dictionary = data.get("shaky", {})
+	var id := StringName(String(sh.get("first", "piano")))
+	if sh.is_empty() or not players.has(id) or float(players[id].gain) <= 0.0:
+		return
+	var src: AudioStreamPlayer3D = players[id].sound
+	var times: Array = sh.get("wrong_at_s", [0.22, 0.47])
+	var pitches: Array = sh.get("wrong_pitch", [1.06, 0.89])
+	for i in times.size():
+		wrong_notes += 1
+		log.append([&"wrong_note", clock + float(times[i]), tune_id])
+		if src.stream == null or not is_inside_tree():
+			continue
+		var p := AudioStreamPlayer3D.new()
+		p.stream = src.stream
+		p.unit_size = src.unit_size
+		p.max_db = src.max_db
+		p.bus = src.bus
+		p.volume_db = float(data.get("sound", {}).get("volume_db", 0.0)) - 2.0
+		p.pitch_scale = float(pitches[i % pitches.size()])
+		add_child(p)
+		p.global_position = src.global_position
+		_wrong.append({"p": p, "in": float(times[i]), "for": float(sh.get("wrong_s", 0.16)), "from": clock})
+
+
+## The wrong notes on their way: each played at its moment and stopped after.
+func _wrong_step(delta: float) -> void:
+	for w: Dictionary in _wrong.duplicate():
+		var p: AudioStreamPlayer3D = w.p
+		w["in"] = float(w["in"]) - delta
+		if float(w["in"]) <= 0.0 and not p.playing and not w.get("played", false):
+			w["played"] = true
+			p.play(float(w.from))
+		if float(w["in"]) <= -float(w["for"]):
+			p.queue_free()
+			_wrong.erase(w)
 
 
 func _near(at: Vector3, m: float) -> bool:

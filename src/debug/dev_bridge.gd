@@ -1189,8 +1189,11 @@ func _cmd_read(a: Array) -> Dictionary:
 		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 		out["regard"] = vf.regard.report() if vf != null and vf.regard != null else {}
 		out["barks"] = vf.barks.log.slice(-30) if vf != null and vf.barks != null else []
+	if what == "room":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["room"] = vf.room.report() if vf != null and vf.room != null else {}
 	if out.is_empty():
-		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|news|regard|all"}
+		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|news|regard|room|all"}
 	return out
 
 

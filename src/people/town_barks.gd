@@ -4,7 +4,8 @@ extends RefCounted
 ## picker over the town's script (TownScript, `config/town_script.json`). A line is picked only if the
 ## script gives it an `if` (its `when` as data); `on` says which moment asks for it:
 ##   `pass` (Harlan within the folk's talk reach, ValleyFolk._talk_step), `react.<x>` (Reaction's
-##   stages: shot_far, flee, ring, doc, gun, back), `undertaker` (at a body, ValleyFolk._dead_step).
+##   stages: shot_far, flee, ring, doc, gun, back), `undertaker` (at a body, ValleyFolk._dead_step),
+##   `room.<x>` (the saloon's bits, SaloonRoom by ValleyFolk.room_line: toast, hail, leave, answer, glass).
 ## The rest of `if`, all of which must hold (each counts toward how specific the line is):
 ##   `regard` the speaker's own band (TownRegard) or a list; `view` his own view of Harlan
 ##   (TownNews.view_of_harlan, "*" any: he holds news of him); `fact` StoryState facts
