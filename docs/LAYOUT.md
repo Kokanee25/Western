@@ -1969,7 +1969,11 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   to everyone as told, small told news fades; StoryState `news.yesterday` (calendar kind `uneasy`), `news.harlan`
   (`view_of_harlan`: stopped_a_killer / shot_a_man / split), `news.dead.<id>`. Story records (an act man's shot)
   travel but don't set the day and aren't spoken (`to_say`). The folk's talk says a calm man's own version once
-  (`line_of`, PROPOSED words). **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
+  (`line_of`). **The words are the town's script's** (#1144, `TownScript`, `src/people/town_script.gd`): `docs/scripts/town.json`
+  copied to `config/town_script.json` (docs/ is hidden from Godot; `tests/test_town_script.gd` holds them equal: edit the
+  script, then `cp` it); `pick(ids, seed, slots)` the first id with words, a wording by the speaker's seed, slots
+  {who} {whom} {where} {shots} {teller}; `line_of` a head line (`news.<kind>[.you|.nobody]`) and tails, FetchHelp's
+  `run_doc`/`run_law`/`runner[_dead|_you][.shot]`; the built strings only a fallback. **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
   seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
   body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump

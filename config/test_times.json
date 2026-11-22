@@ -162,6 +162,7 @@
  "test_town_buildings.gd": 13.2,
  "test_town_day.gd": 394.2,
  "test_town_layout.gd": 21.8,
+ "test_town_script.gd": 0.2,
  "test_track.gd": 26.4,
  "test_train.gd": 60.6,
  "test_train_models.gd": 0.3,
