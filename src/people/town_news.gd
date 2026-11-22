@@ -669,35 +669,59 @@ func name_of(id: StringName) -> String:
 	return "the " + n.to_lower()
 
 
-## His version of record `rid` in his own words (PROPOSED lines: voiced after Sean's Script OK).
+## His version of record `rid` in his own words: the town's script's (TownScript, scene `news` of
+## docs/scripts/town.json; PROPOSED, voiced after Sean's Script OK), the wordings by his seed; the built
+## words below only where the script hasn't the line.
 func line_of(pid: StringName, rid: int, to := &"") -> String:
 	var v := version_of(pid, rid)
 	if v.is_empty():
 		return ""
-	var where: String = v.where if v.where != "" else "the street"
+	var slots := {"who": "you" if v.who == HARLAN and to == HARLAN else name_of(v.who), "whom": _whom(v),
+			"where": v.where if v.where != "" else "the street", "shots": _count(int(v.shots)).to_lower(),
+			"teller": name_of(v.by) if v.by != &"" else "somebody"}
 	var parts: Array[String] = []
+	var k := kind_of(v)
+	var head: Array = []
+	if k == &"killing" or k == &"shooting":
+		var base := "news." + String(k)
+		head = [base + ".you"] if v.who == HARLAN and to == HARLAN else ([base] if v.who != &"" else [base + ".nobody"])
+	elif k == &"down" or k == &"shots":
+		head = ["news." + String(k)]
+	if not head.is_empty():
+		parts.append(_worded(pid, rid, head, slots, _built_head(v, to)))
+	if v.first != &"" and v.first == v.whom and v.who != &"":
+		var how := "saw" if v.how == &"saw" else ("told" if v.how == &"told" else "heard")
+		parts.append(_worded(pid, rid, ["news.first." + how, "news.first.heard"], slots,
+				"%s drew first, %s." % [_cap(_whom(v)), "I saw it" if v.how == &"saw" else "I heard"]))
+	elif int(v.shots) > 1 and k != &"shots":
+		parts.append(_worded(pid, rid, ["news.count.told"] if v.how == &"told" else ["news.count"], slots,
+				_count(int(v.shots)) + ", " + ("I counted." if v.how != &"told" else "they say.")))
+	if v.how == &"told" and v.by != &"":
+		parts.append(_worded(pid, rid, ["news.told_by"], slots, "%s told me." % _cap(name_of(v.by))))
+	return " ".join(parts)
+
+
+## One part of his line: the script's wording by his seed, else `built`.
+func _worded(pid: StringName, rid: int, ids: Array, slots: Dictionary, built: String) -> String:
+	var t := TownScript.pick(ids, TownScript.seed_of(String(pid), "%d:%s" % [rid, ids[0]]), slots)
+	return t if t != "" else built
+
+
+## The built head line (no script).
+func _built_head(v: Dictionary, to: StringName) -> String:
+	var where: String = v.where if v.where != "" else "the street"
 	match kind_of(v):
 		&"killing":
 			if v.who != &"":
-				parts.append("%s shot %s dead, out by %s." % [_doer(v, to), _whom(v), where])
-			else:
-				parts.append("Somebody's killed %s, by %s." % [_whom(v), where])
+				return "%s shot %s dead, out by %s." % [_doer(v, to), _whom(v), where]
+			return "Somebody's killed %s, by %s." % [_whom(v), where]
 		&"shooting":
 			if v.who != &"":
-				parts.append("%s shot %s by %s." % [_doer(v, to), _whom(v), where])
-			else:
-				parts.append("%s's been shot, by %s." % [_cap(_whom(v)), where])
+				return "%s shot %s by %s." % [_doer(v, to), _whom(v), where]
+			return "%s's been shot, by %s." % [_cap(_whom(v)), where]
 		&"down":
-			parts.append("There's a man down by %s." % where)
-		&"shots":
-			parts.append("Shooting, down by %s. %s." % [where, _count(int(v.shots))])
-	if v.first != &"" and v.first == v.whom and v.who != &"":
-		parts.append("%s drew first, %s." % [_cap(_whom(v)), "I saw it" if v.how == &"saw" else "I heard"])
-	elif int(v.shots) > 1 and kind_of(v) != &"shots":
-		parts.append(_count(int(v.shots)) + ", " + ("I counted." if v.how != &"told" else "they say."))
-	if v.how == &"told" and v.by != &"":
-		parts.append("%s told me." % _cap(name_of(v.by)))
-	return " ".join(parts)
+			return "There's a man down by %s." % where
+	return "Shooting, down by %s. %s." % [where, _count(int(v.shots))]
 
 
 ## Who did it, said to `to` ("You" to Harlan's face).

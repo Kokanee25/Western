@@ -47,8 +47,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   roster, spots, reactions `Reaction`, the runner `FetchHelp`). **7 the town's news (#1051, `TownNews`,
   `tests/test_town_news.gd`, `_valley`; bridge `read news`; LAYOUT "src/people")**: versions only from Senses, telling,
   overnight, `news.yesterday` -> calendar `uneasy`, `news.harlan`; the dead taken to the undertaker's
-  (`ValleyFolk._dead_step`). **Next: step 8, the town's script (#1144).** Open: Senses names a shooter on a glimpse
-  (`_in_view`; the lab's news case); news lines PROPOSED; nobody carries the body (it goes once unseen); outlaws
+  (`ValleyFolk._dead_step`). **8 the town's script (#1144)**: `docs/scripts/town.json` (page in its README), the
+  runner's and the news's lines read from it (`TownScript`); Script OK waiting on Sean (#1150). **Next: step 9, regard
+  and the barks (#1152).** Open: Senses names a shooter on a glimpse (`_in_view`; the lab's news case); nobody carries the body (it goes once unseen); outlaws
   and act men killed aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
