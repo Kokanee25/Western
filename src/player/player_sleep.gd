@@ -219,9 +219,15 @@ func sleep(bed: Node3D = null) -> bool:
 		if n != "" and not n in died:
 			died.append(n)
 	Events.person_died.connect(on_died)
+	# A hurt man indoors whose wounds kill him in the night (ValleyFolk.kept, #1154).
+	var folk := player.get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+	var on_died_in := func(_id: StringName, n: String) -> void:
+		if n != "" and not n in died:
+			died.append(n)
+	if folk:
+		folk.died_indoors.connect(on_died_in)
 	Events.hours_passed.emit(hours, &"sleep")
 	# The town where its day has it at dawn (ValleyFolk looks at the clock twice a second; now).
-	var folk := player.get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 	if folk:
 		folk._look = 0.0
 	for i in DARK_FRAMES:
@@ -229,6 +235,8 @@ func sleep(bed: Node3D = null) -> bool:
 		player.velocity = Vector3.ZERO
 		await player.get_tree().physics_frame
 	Events.person_died.disconnect(on_died)
+	if folk and is_instance_valid(folk):
+		folk.died_indoors.disconnect(on_died_in)
 	# Up by the bed where you lay down, and the save taken: you wake at dawn.
 	player.global_transform = stood
 	player.velocity = Vector3.ZERO

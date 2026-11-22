@@ -144,6 +144,9 @@ static func _make(id: StringName) -> AudioStreamWAV:
 			samples = _impact(rng, StringName(String(id).trim_prefix("impact_")))
 		&"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone":
 			samples = _glance(rng, StringName(String(id).trim_prefix("glance_")))
+		&"laugh_0", &"laugh_1", &"laugh_2": samples = _laugh(rng, int(String(id).right(1)))
+		&"cough": samples = _cough(rng)
+		&"glass_down": samples = _glass_down(rng)
 		_: samples = _clicks(rng, [0.0], 2000.0, 0.3)
 	var rate := HI_RATE if id in HI else RATE
 	var wav := _to_wav(_no_sub_bass(samples, rate), rate)
@@ -617,6 +620,78 @@ static func _clicks(rng: RandomNumberGenerator, times: Array, ring_hz: float, le
 			var t := float(i - s) / RATE
 			out[i] += (rng.randf_range(-1, 1) * exp(-t / 0.0015) + sin(TAU * ring_hz * t) * exp(-t / 0.008) * 0.6) * level
 	return out
+
+
+## A man's laugh, a stand-in till the voiced takes (#807): a run of "ha"s, each a buzz of the voice
+## (a pulse train falling in pitch) through two mouth resonances, breath on top; `which` 0-2 the
+## kind (a bark of four, a longer roll, a low chuckle). SaloonRoom places it at the man laughing.
+static func _laugh(rng: RandomNumberGenerator, which: int) -> PackedFloat32Array:
+	var count: int = [5, 8, 4][which % 3]
+	var f0: float = [128.0, 142.0, 104.0][which % 3]
+	var every: float = [0.19, 0.16, 0.23][which % 3]
+	var n := int(RATE * (count * every + 0.25))
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var phase := 0.0
+	# Two resonators (an open "ah": ~720 and ~1150 Hz), each a two-pole filter.
+	var y1 := [0.0, 0.0]
+	var y2 := [0.0, 0.0]
+	var c1 := _resonator(720.0, 110.0)
+	var c2 := _resonator(1150.0, 150.0)
+	for i in n:
+		var t := float(i) / RATE
+		var k := int(t / every)
+		var u := (t - k * every) / every
+		var on := k < count
+		# Each "ha": a breath in front, the voice up quick and off; the run falls away.
+		var env := (smoothstep(0.08, 0.3, u) * (1.0 - smoothstep(0.45, 0.8, u)) if on else 0.0) * pow(0.86, k)
+		var breath := (1.0 - smoothstep(0.0, 0.22, u) if on else 0.0) * pow(0.9, k)
+		var f: float = f0 * (1.22 - 0.05 * k) * (1.0 + 0.1 * (1.0 - u)) * (1.0 + 0.015 * sin(TAU * 5.5 * t))
+		phase = fmod(phase + f / RATE, 1.0)
+		var src := (2.0 * phase - 1.0) * env + rng.randf_range(-1, 1) * (0.25 * breath + 0.06 * env)
+		var a: float = c1[0] * src + c1[1] * y1[0] + c1[2] * y1[1]
+		y1[1] = y1[0]
+		y1[0] = a
+		var b: float = c2[0] * src + c2[1] * y2[0] + c2[2] * y2[1]
+		y2[1] = y2[0]
+		y2[0] = b
+		out[i] = a + 0.6 * b
+	return _normalise(out, 0.5)
+
+
+## A two-pole resonator's [gain, a1, a2] at `hz`, `bw` wide.
+static func _resonator(hz: float, bw: float) -> Array:
+	var r := exp(-PI * bw / RATE)
+	return [1.0 - r, 2.0 * r * cos(TAU * hz / RATE), -r * r]
+
+
+## A cough (a stand-in): two bursts of breath, low.
+static func _cough(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.55)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var y := [0.0, 0.0]
+	var c := _resonator(520.0, 260.0)
+	for i in n:
+		var t := float(i) / RATE
+		var env := exp(-t / 0.05) + (0.7 * exp(-(t - 0.27) / 0.045) if t > 0.27 else 0.0)
+		var a: float = c[0] * rng.randf_range(-1, 1) * env + c[1] * y[0] + c[2] * y[1]
+		y[1] = y[0]
+		y[0] = a
+		out[i] = a
+	return _normalise(out, 0.45)
+
+
+## A glass set down on a bar: the knock of the wood and the glass's short ring.
+static func _glass_down(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.3)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	for i in n:
+		var t := float(i) / RATE
+		out[i] = sin(TAU * 190.0 * t) * exp(-t / 0.02) * 0.8 + rng.randf_range(-1, 1) * exp(-t / 0.003) * 0.5 \
+				+ (sin(TAU * 2900.0 * t) + 0.5 * sin(TAU * 4700.0 * t)) * exp(-t / 0.05) * 0.18
+	return _normalise(out, 0.45)
 
 
 static func _tink(rng: RandomNumberGenerator) -> PackedFloat32Array:

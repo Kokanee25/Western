@@ -24,6 +24,7 @@
     "death_m": 30.0,
     "quiet_s": 45.0
   },
+  "shaky": {"_doc": "Townsfolk step 10 (#1157; Sean, #276: the piano player stops when trouble starts, ducks, and starts again shakily): stopped by a gun, a shot or a blast, the `first` part's player gets two wrong notes in as it stops him (`wrong_at_s` after, each `wrong_s` long, his own part `wrong_pitch` off), and the start again is thin and a little fast: the `first` part alone for its first phrase, the hurried render for `fast_s`, back to the tune's own at a phrase's top after.", "first": "piano", "wrong_at_s": [0.22, 0.47], "wrong_s": 0.16, "wrong_pitch": [1.06, 0.89], "fast_s": 16.0},
   "fight": {
     "_doc": "#938: a blow of `kinds` (Events.deed) within `fight_m` of the band's middle and they play on faster: the hurried render from the next phrase's top, back to the tune's own at a phrase's top `fight_s` after the last blow. A gun drawn or aimed (`draws`) within `draw_m`: stopped as a shot does.",
     "kinds": [
