@@ -1976,6 +1976,17 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `run_doc`/`run_law`/`runner[_dead|_you][.shot]`; the built strings only a fallback. **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
   seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
   body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
+  **Regard and the barks** (townsfolk step 9, #1152; `TownRegard` `src/people/town_regard.gd`, `TownBarks`
+  `src/people/town_barks.gd`, `tests/test_town_barks.gd`, `_valley`; bridge `read regard`): each man's trust, fear,
+  liking, respect of Harlan worked out when asked from his own `view_of_harlan` and StoryState facts (data `regard`:
+  `view`, `facts` with `all`/`who`/`split`); band afraid / warm / wary / cold, the town's the average. Within
+  `show_m` a calm man at his post who sees you shows it (`CivilianBrain.show_regard`: nod, look_away, turn, clear;
+  the head through `FaceGaze.nod`). The barks: town.json lines with an `if` (`on` pass / react.* / undertaker;
+  keys in TownBarks' head), `fitting` most specific first (`specificity`), `pick` with the limits (once a day a
+  person, `once: ever`, no line another said within `same_line_s`), one at you a group (`blocked`/`block`/
+  `clear_far`). `_talk_step`: his news, else No Law's set (wins; the same limits), else a `pass` bark; Reaction's
+  stages call `brain.bark` (ValleyFolk.bark_for); the undertaker's at the body (`_undertaker_says`). Pools in data
+  `barks.pools`.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
