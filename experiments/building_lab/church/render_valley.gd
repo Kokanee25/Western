@@ -18,6 +18,8 @@ extends SceneTree
 ## each camera in the room's far corner clear of every door's leaf (the leaves are set aside for
 ## the inside views, as the doctor's), by day; the corridor and the office again at night.
 const VIEWS := {
+	"wide": [Vector3(-24.0, 4.0, -46.0), Vector3(6.0, 5.0, -2.0), 64.0, 17.0, false],
+	"hill": [Vector3(46.0, 6.5, 22.0), Vector3(42.0, 1.8, 62.0), 66.0, 17.0, false],
 	"front": [Vector3(4.265, 3.0, -30.0), Vector3(4.265, 6.2, 0.0), 50.0, 17.0, false],
 	"side": [Vector3(30.0, 3.0, 5.0), Vector3(4.2, 4.2, 6.5), 52.0, 17.0, false],
 	"tower": [Vector3(4.265, 3.0, -15.0), Vector3(4.265, 11.0, -1.5), 42.0, 17.0, false],
