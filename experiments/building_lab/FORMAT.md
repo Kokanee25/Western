@@ -118,6 +118,26 @@ height, lift, wall, art} a PaintedDrop under a batten nailed to the wall behind 
 4 (legs, bearers, skirt), 5 (joists, boards, steps), 6 (the proscenium). A door's `hinge: "end"`
 hangs its leaf on the opening's far jamb.
 
+**A log building's parts** (`harlan_cabin.json`, #1126; all optional, the other specs build as before):
+an outer wall with `log: true` is laid by `LogWall` (`src/structures/log_wall.gd`) in place of studs,
+siding and inside finish: its `line` on the logs' OUTER face, the logs inward `frame.log_wall.thick`;
+`frame.log_wall` {thick, course (a log and its chinking), chink, inset, over (a log's end past the
+corner), piece, buck, wood, chink_wood, lap, gable_wood, stud_spacing}; courses from the sill's top to
+`levels.plate` (the top log's top), the walls along z running through the corners on the even courses;
+each opening bucked (`<wall>/opening<j>/buck/jamb0|jamb1|head|sill`), a door's leaf and a window's sash at
+the logs' inner face; a `gable` wall's gable of boards and battens over the top log; a wall's `new`
+[[course, piece]] replaced logs (ids `_new`). `frame.sill.section` [thick, h] the hewn sills. `shakes`
+{exposure, width, strip, thick, lift, skip, new_share, missing: [{side, s, z, repair}], new: [...]}:
+split shakes over skip sheathing on a rafter roof (`roof/shake_<side>/<row>_<k>`); `hung` [{id, wall,
+side, at, y, over, size}] a framed pane on a wall's face (his shaving mirror); `repairs` [{id, what,
+kind: missing | loose | off_hinge | rotten, member (an id prefix), lift, drop, break}]: the jobs left
+in it as real pieces (SpecBuilding `repair_jobs`, each member's meta `repair`); `levels.ground.dirt` a
+dirt floor (the barn's: the checks take the ground as its floor); a ladder's `side: "in"` up a wall's
+inside. A chimney outside the walls cuts no floor. The site round them (`harlan_homestead.json`,
+`Homestead`): its buildings by `center` and `facing`, a `corral` (Corral, its `broken` rails), a
+`trough`, a `woodpile`, a `chopping_block`, the repair `stock`, a `stall`, a `spring` and its pipe to the
+trough, in the pad's space.
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers
