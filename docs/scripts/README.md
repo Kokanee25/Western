@@ -45,7 +45,8 @@ The fields are in the file's `_doc`. In short: `cast` (each speaker, his voice b
 until casting), `scenes` in play order, each with `lines`: `id`, `speaker`, `trigger` (what in the
 game makes him say it), `when` (the branch: his blood-loss band, `sheriff.care`, a nod or shake),
 `condition`, `delivery`, `words` (wordings, each `built` / `new` / `bible`), `setups` (SETUPS.md ids),
-`check` (a WORDS.md worry), `takes` (empty until voiced). Built lines (in `config/moments/`) are copied
+`check` (a WORDS.md worry), `takes` (empty until voiced); in `town.json` a line the town's barks pick has
+`if` too, its `when` as data for the game (TownBarks, `src/people/town_barks.gd`: the keys are in its head). Built lines (in `config/moments/`) are copied
 as they are and never changed here; a change to one is a gameplay change.
 
 ## The page

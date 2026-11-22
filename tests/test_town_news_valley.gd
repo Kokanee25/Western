@@ -22,6 +22,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	ValleyFolk.murder_auto = true  # (static: put back for the tests after this one)
 	StoryState.clear()
 	if holder != null and is_instance_valid(holder):
 		holder.queue_free()
