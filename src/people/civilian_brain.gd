@@ -86,6 +86,14 @@ var news: TownNews
 ## His pace walking back to his post (m/s): the doctor called to a man down walks fast.
 const WALK := 1.2
 var walk_speed := WALK
+## A bark for a moment of his (townsfolk step 9, TownBarks): ValleyFolk's `bark_for(brain, on,
+## extra)`, which says it if a line fits; unset (a lab's man), he has none.
+var bark: Callable
+## What he's showing Harlan as he passes, by his regard (TownRegard.SHOWS): {what, who, t, aside}.
+var showing := {}
+## The last he showed (for the tests and the bridge): &"nod", &"look_away", &"turn", &"clear".
+var last_shown := &""
+
 ## His reaction to trouble that isn't on him, in stages (townsfolk step 5).
 var reaction: Reaction
 ## The physics frame he was last sent somewhere (`go_to`): on an errand (an act's), a reaction
@@ -829,6 +837,9 @@ func _physics_step(delta: float) -> void:
 		_chore(delta, false)
 		body.set_pose(&"hands_up" if _flinch > 0.5 else &"stand")
 		return
+	if _show_step(delta):
+		_chore(delta, false)
+		return
 	_gun_watch -= delta
 	if _gun_watch <= 0.0 or _gun_seen == null or not is_instance_valid(_gun_seen):
 		_gun_seen = null
@@ -908,6 +919,101 @@ func _chore(delta: float, free: bool) -> bool:
 			chore = c
 			return true
 	return false
+
+
+# --- Regard (townsfolk step 9): what he shows Harlan before anyone speaks ----------------------------
+
+## Calm at his post, nothing on him: he may show Harlan what he thinks of him.
+func can_show() -> bool:
+	return not held and mood == Mood.CALM and fear < 0.1 and not reaction.active() and not returning \
+			and _bucket == &"" and showing.is_empty() and body.physiology.is_conscious() and not body.limp
+
+
+## Show `who` his regard: &"nod" (a nod, a touch of the head), &"look_away" (a look that slides off),
+## &"turn" (a turned shoulder), &"clear" (out of his way: a step aside, eyes down).
+func show_regard(what: StringName, who: Node3D) -> void:
+	showing = {"what": what, "who": who, "t": 0.0, "aside": Vector3.INF}
+	last_shown = what
+	if what == &"clear":
+		var to := body.global_position - who.global_position
+		to.y = 0.0
+		var side := Vector3(-to.z, 0.0, to.x).normalized() if to.length() > 0.1 else body.global_basis.x
+		# The side away from where Harlan's headed (his facing), and back from him a little.
+		var heading := -who.global_basis.z
+		if side.dot(heading) > 0.0:
+			side = -side
+		showing.aside = body.global_position + side * 1.6 + to.normalized() * 0.4
+
+
+## How long each show lasts (s); `clear` till he's off or this long.
+const SHOW_FOR := {&"nod": 1.6, &"look_away": 1.8, &"turn": 3.0, &"clear": 6.0}
+
+
+func _show_step(delta: float) -> bool:
+	if showing.is_empty():
+		return false
+	var who: Node3D = showing.who
+	showing.t += delta
+	var t: float = showing.t
+	var what: StringName = showing.what
+	if who == null or not is_instance_valid(who) or t >= float(SHOW_FOR[what]) \
+			or what == &"clear" and t > 1.0 and who.global_position.distance_to(body.global_position) > 5.0:
+		_head_tip(Vector3.ZERO)
+		showing = {}
+		if what == &"clear" and post != Vector3.INF and body.global_position.distance_to(post) > RETURNED:
+			returning = true  # back to his place once Harlan's by
+		return false
+	var at := who.global_position + Vector3.UP * 1.5
+	body.set_pose(&"stand")
+	match what:
+		&"nod":
+			_turn_to(at, delta)
+			_attend(at)
+			var k := clampf((t - 0.3) / 0.9, 0.0, 1.0)
+			_head_tip(Vector3(-11.0 * sin(k * PI), 0, 0))
+		&"look_away":
+			if t < 0.6:
+				_turn_to(at, delta)
+				_attend(at)
+			else:
+				# Eyes off: down and to the side away from him.
+				var off := body.global_position + (at - body.global_position).rotated(Vector3.UP, deg_to_rad(-70.0))
+				_attend(Vector3(off.x, body.global_position.y + 0.6, off.z))
+				_head_tip(Vector3(-6.0, -30.0, 0))
+		&"turn":
+			# His shoulder to Harlan: square side-on and a little away.
+			var away := body.global_position + (body.global_position - who.global_position).rotated(Vector3.UP, deg_to_rad(70.0))
+			_turn_to(away, delta)
+		&"clear":
+			_head_tip(Vector3(-14.0, 0, 0))  # nobody meets his eye
+			if showing.aside != Vector3.INF and body.walk_to(showing.aside, walk_speed * 1.2, delta):
+				showing.aside = Vector3.INF
+				_turn_to(at, delta)
+	return true
+
+
+## His head tipped (degrees, pose_offsets' axes): through his face's gaze, which owns his head's
+## offset each frame (FaceGaze.nod), or straight onto his pose if he has no face.
+func _head_tip(v: Vector3) -> void:
+	var life := body.get_node_or_null(^"FaceLife") as FaceLife
+	if life != null and life.gaze != null:
+		life.gaze.nod = v
+	elif v == Vector3.ZERO:
+		body.pose_offsets.erase(&"head")
+	else:
+		body.pose_offsets[&"head"] = v
+
+
+func _attend(point: Vector3) -> void:
+	var life := body.get_node_or_null(^"FaceLife") as FaceLife
+	if life != null:
+		life.attend_to(point)
+
+
+## Turned toward `point` at a man's pace (not snapped round).
+func _turn_to(point: Vector3, delta: float) -> void:
+	var want := HumanBody.yaw_toward(body.global_position, point)
+	body.global_rotation.y = rotate_toward(body.global_rotation.y, want, 5.0 * delta)
 
 
 ## Once it's quiet and the man who ran them off is near enough to hear it.

@@ -326,6 +326,41 @@
   "doctor_room": [6.7, 0.95, 2.6],
   "_doctor_room": "#1095: where the doctor has a hurt man laid in his front room when he answers his door to him (FetchHelp.at_door, ValleyFolk.take_in): the doctor's building's own space [x, floor y, z] (config/moments/no_law_carry.json's laid spot, a step back).",
   "dead": {"_doc": "The dead taken away (#1051; ValleyFolk._dead_step): a townsman killed in town and seen down (anyone holds it in TownNews), the undertaker comes for him within `seen_h` clock hours; unseen, from `morning_h` the next morning. He walks out to him (at most `walk_at_most_s`), and the body goes once you're `unseen_m` off it or it's out of your view. No Law's Earl keeps his own (`morning`).", "seen_h": 0.75, "morning_h": 6.0, "undertaker": "undertaker", "walk_at_most_s": 240.0, "unseen_m": 30.0},
+  "regard": {
+    "_doc": "How the town treats Harlan (townsfolk step 9, #1152; TownRegard; docs/briefs/townsfolk.md §5): each man's trust, fear, liking, respect (DESIGN §9) from 0, nudged by his own news (`view`: his TownNews view of Harlan; `fear_each_more` for each further man he has Harlan shooting) and the story's facts (`facts`: `if` StoryState as `talk`'s, `all` everyone, `who` one man's, `split` the town halves by each man's seed). Band: fear at `afraid_at` afraid; else trust, liking, respect averaged: `warm_at` warm, `cold_at` cold, between wary. What he shows within `show_m` (looked every `look_s`), again once you're `show_clear_m` further off. PROPOSED numbers, to be felt in play.",
+    "warm_at": 0.2, "cold_at": -0.2, "afraid_at": 0.55, "fear_each_more": 0.12,
+    "show_m": 7.0, "show_clear_m": 5.0, "look_s": 0.25,
+    "view": {
+      "stopped_a_killer": {"trust": 0.25, "liking": 0.15, "respect": 0.45, "fear": 0.15},
+      "shot_a_man": {"trust": -0.45, "liking": -0.35, "respect": -0.1, "fear": 0.35}
+    },
+    "facts": [
+      {"_doc": "the sheriff brought in well: curious about the man from up the creek; the doctor's respect", "if": {"sheriff.care": "good"}, "all": {"liking": 0.1, "trust": 0.05}, "who": {"doctor": {"respect": 0.3}}},
+      {"_doc": "he rode by the sheriff: wary to cold", "if": {"sheriff.care": ["left", "left him"]}, "all": {"trust": -0.35, "liking": -0.3}},
+      {"_doc": "No Law: he sat at the table and never moved (the town split, morning.you_were_there)", "if": {"nolaw.seen_from": "table"}, "split": [{}, {"respect": -0.25}]},
+      {"_doc": "sworn: 'Deputy' from most", "if": {"nolaw.deputy": true}, "all": {"respect": 0.15, "trust": 0.1}},
+      {"_doc": "stood at the grave: the widow's word carries", "if": {"nolaw.funeral": "attended"}, "all": {"liking": 0.15}},
+      {"_doc": "stayed away: noted", "if": {"nolaw.funeral": "missed"}, "all": {"liking": -0.1}},
+      {"_doc": "No Justice, arrest: the first thing the law's done since the sheriff", "if": {"nojustice.ending": "arrest"}, "all": {"respect": 0.35, "trust": 0.15}},
+      {"_doc": "No Justice, revenge: the town splits (Sean, #851 pick 3)", "if": {"nojustice.ending": "revenge"}, "split": [{"liking": 0.2, "respect": 0.1}, {"trust": -0.35, "liking": -0.2, "fear": 0.2}]},
+      {"_doc": "he shot the surrendered man: cold from those who work it out (the doctor, the undertaker); a little fear in all", "if": {"nojustice.ending": "murder"}, "all": {"fear": 0.1}, "who": {"doctor": {"trust": -0.6, "liking": -0.4}, "undertaker": {"trust": -0.6, "liking": -0.4}}},
+      {"_doc": "Kett killed in the fight: plain respect and some fear", "if": {"nojustice.kett": ["dead_outside", "dead_inside"]}, "all": {"respect": 0.3, "fear": 0.15}}
+    ]
+  },
+  "barks": {
+    "_doc": "The barks (townsfolk step 9, TownBarks): the town's script's lines with an `if` (config/town_script.json), the most specific that fits; once a day a person, no line another said within `same_line_s`, one bark at you a group (`group_m`) as you pass (again once you're `group_clear_m` off it). `pools`: each man's pools in the script, his own first (`_default` the rest).",
+    "same_line_s": 60.0, "group_m": 4.0, "group_clear_m": 10.0,
+    "pools": {
+      "_default": ["townsman"],
+      "barkeep": ["barkeep", "townsman"],
+      "storekeeper": ["storekeeper", "townsman"],
+      "store_wife": ["townswoman"],
+      "landlady": ["landlady", "townswoman"],
+      "saloon_girl": ["townswoman"],
+      "loudmouth": ["loudmouth", "townsman"],
+      "undertaker": ["undertaker", "townsman"]
+    }
+  },
   "talk": {
     "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",
     "near_m": 4.0,
