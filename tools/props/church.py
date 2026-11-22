@@ -109,8 +109,25 @@ def grave_marker():
             "factory": "tools/props/church.py"}
 
 
+def church_bell():
+    # The cast bell (about 150 kg, 0.76 m across the lip) on a plain four-post stand of timber: the belfry's
+    # floor under it, its top and bottom rails, the bell standing on four posts at its corners (a box drawn as
+    # a bell by a lathe; `solid` is the share of its box that is bronze).
+    prof = [[0.38, 1.01], [0.37, 1.06], [0.33, 1.16], [0.27, 1.34], [0.2, 1.56], [0.15, 1.74], [0.1, 1.82], [0.0, 1.84]]
+    mem = []
+    for i, (sx, sz) in enumerate([(-0.3, -0.3), (0.3, -0.3), (-0.3, 0.3), (0.3, 0.3)]):
+        mem.append(m("post%d" % i, "post", (0.12, 1.0, 0.12), (sx, 0.5, sz), wood="framing"))
+    b = m("bell", "furniture_top", (0.76, 0.83, 0.76), (0.0, 1.42, 0.0), look="prop:brass", wood="iron")
+    b["draw"] = {"shape": "lathe", "profile": prof, "segments": 28}
+    b["solid"] = 0.035
+    mem.append(b)
+    return {"_doc": "The church's bell: cast bronze, 0.76 m across the lip, on a four-post timber stand in the belfry.", "id": "church_bell",
+            "kind": "members", "fixture": True, "in_game": True, "wood": "framing", "splits_below": 0.5, "blow_wood_share": 0.5,
+            "members": mem, "factory": "tools/props/church.py"}
+
+
 if __name__ == "__main__":
-    for f in (pew, pulpit, altar_rail, hymn_stand, wood_cross, headboard, grave_marker):
+    for f in (church_bell, pew, pulpit, altar_rail, hymn_stand, wood_cross, headboard, grave_marker):
         d = f()
         with open(os.path.join(KIT, d["id"] + ".json"), "w") as fh:
             json.dump(d, fh, indent=2)

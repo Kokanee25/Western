@@ -154,11 +154,6 @@ func belfry() -> void:
 				r += 1
 			y += step
 			n += 1
-	# The bell's beams across the tower, resting on the ring, and the bell (a kit prop) on them.
-	b.band = 5
-	var bz2 := [cz - 0.42, cz + 0.42]
-	for i in 2:
-		b.add_member("tower/belfry/bell_beam_%d" % i, &"beam", &"framing", Vector3(w - 0.04, 0.2, 0.16), Vector3(cx, ty + ring.y + 0.1, bz2[i]))
 	_spire(ty + ring.y, cx, cz)
 
 

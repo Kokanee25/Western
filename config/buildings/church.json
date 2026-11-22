@@ -679,25 +679,18 @@
   "spire": 4.4,
   "post": 0.15,
   "louvre": {
-   "from": 8.3,
+   "from": 8.0,
    "to": 10.299999999999999,
    "step": 0.13,
    "gap": [
-    3.7649999999999997,
-    4.765,
-    8.9,
-    9.9
+    3.715,
+    4.8149999999999995,
+    8.25,
+    10.049999999999999
    ]
   },
   "shingle": 0.22,
-  "finial": 0.9,
-  "bell": {
-   "at": [
-    4.265,
-    10.4,
-    -1.525
-   ]
-  }
+  "finial": 0.9
  },
  "stairs": [
   {
@@ -1263,6 +1256,17 @@
       9.7
      ],
      "facing": 0
+    },
+    {
+     "id": "bell",
+     "kit": "church_bell",
+     "at": [
+      4.265,
+      6.71,
+      -1.525
+     ],
+     "facing": 0,
+     "use": "the church bell on its stand in the belfry, over the porch"
     },
     {
      "id": "stove",

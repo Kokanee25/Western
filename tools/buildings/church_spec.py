@@ -110,8 +110,8 @@ s["walls"] = walls
 s["tower"] = {
     "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (10 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, four posts, louvres, the bell beams, a pyramidal spire of shingles on hip rafters, an iron cross. The top about 15.6 m over the ground (valley.json's bell_tower: 15 m).",
     "x": [TX0, TX1], "z": TZ, "belfry_floor": BELFRY_FLOOR, "belfry_top": BELFRY_TOP, "spire": SPIRE, "post": 0.15,
-    "louvre": {"from": BELFRY_FLOOR + 0.9, "to": BELFRY_TOP - 0.3, "step": 0.13, "gap": [CX - 0.5, CX + 0.5, BELFRY_FLOOR + 1.5, BELFRY_TOP - 0.7]},
-    "shingle": 0.22, "finial": 0.9, "bell": {"at": [CX, BELFRY_TOP - 0.2, TZ * 0.5]}}
+    "louvre": {"from": BELFRY_FLOOR + 0.6, "to": BELFRY_TOP - 0.3, "step": 0.13, "gap": [CX - 0.55, CX + 0.55, BELFRY_FLOOR + 0.85, BELFRY_TOP - 0.55]},
+    "shingle": 0.22, "finial": 0.9}
 s["stairs"] = [{"_doc": "the three plank steps to the tower's door (7 in risers, 11 in treads), as wide as the doors with room on either side", "id": "front",
                 "head": [CX - 1.1, TZ], "dir": "+z", "width": 2.2, "from": 0.0, "to": "ground", "risers": 3, "going": 0.28, "wood": "painted_white"}]
 s["stage"] = {
@@ -166,6 +166,7 @@ dress = pews + [
     {"id": "hymn", "kit": "hymn_stand", "at": [CX - 2.0, 0.3, D - 1.1], "facing": 180},
     {"id": "rail_a", "kit": "altar_rail", "at": [CX - 1.25, 0.0, 9.7], "facing": 0},
     {"id": "rail_b", "kit": "altar_rail", "at": [CX + 1.25, 0.0, 9.7], "facing": 0},
+    {"id": "bell", "kit": "church_bell", "at": [CX, BELFRY_FLOOR + 0.26 - FLOOR, TZ * 0.5], "facing": 0, "use": "the church bell on its stand in the belfry, over the porch"},
     {"id": "stove", "kit": "box_stove", "at": [1.0, 0.0, D - 1.8], "facing": 90, "use": "tend_stove"}]
 s["dressing"] = {"_doc": "the prop lab's church batch (tools/props/church.py): pews in two blocks of six, the pulpit and hymn stand on the chancel's platform, the altar rail in two halves with the gate between, the stove; placed by the build (SpecBuilding._dressing).",
                  "batches": {"C1": dress}}

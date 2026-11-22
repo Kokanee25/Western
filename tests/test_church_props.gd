@@ -2,7 +2,7 @@ extends TestCase
 ## The church and cemetery's props (#1142; tools/props/church.py): each is a kit prop that stands where
 ## it's put on the ground, with its members, and PropLibrary hands it out by name.
 
-const IDS := [&"pew", &"pulpit", &"altar_rail", &"hymn_stand", &"wood_cross", &"headboard", &"grave_marker"]
+const IDS := [&"church_bell", &"pew", &"pulpit", &"altar_rail", &"hymn_stand", &"wood_cross", &"headboard", &"grave_marker"]
 var world: Node3D
 
 
