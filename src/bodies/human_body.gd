@@ -6900,18 +6900,20 @@ func to_dict() -> Dictionary:
 
 ## A value with nothing of the scene in it (a wound's decals, a node): what a save can keep.
 static func plain(v: Variant) -> Variant:
-	if v is Object:
+	# (By type, not `is`: a node since freed, a body the undertaker took, is still an Object here,
+	# and `is` on one is an error.)
+	if typeof(v) == TYPE_OBJECT:
 		return null
 	if v is Dictionary:
 		var out := {}
 		for k: Variant in v:
-			if not (k is Object) and not (v[k] is Object):
+			if typeof(k) != TYPE_OBJECT and typeof(v[k]) != TYPE_OBJECT:
 				out[k] = plain(v[k])
 		return out
 	if v is Array:
 		var out := []
 		for x: Variant in v:
-			if not (x is Object):
+			if typeof(x) != TYPE_OBJECT:
 				out.append(plain(x))
 		return out
 	return v
