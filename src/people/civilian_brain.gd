@@ -91,6 +91,12 @@ var walk_speed := WALK
 var bark: Callable
 ## What he's showing Harlan as he passes, by his regard (TownRegard.SHOWS): {what, who, t, aside}.
 var showing := {}
+## A bit the room's director gave him (SaloonRoom, townsfolk step 10; `start_bit`), {} when none.
+var bit := {}
+var _bit_ticked := false
+var _bit_segs := {}
+## Seconds his idle talk's kept shut (the room's talk dropping as Harlan comes in: SpotChore's mouth).
+var quiet := 0.0
 ## The last he showed (for the tests and the bridge): &"nod", &"look_away", &"turn", &"clear".
 var last_shown := &""
 
@@ -732,7 +738,13 @@ func _exit_tree() -> void:
 
 func tick(delta: float) -> void:
 	var t := Prof.start()
+	_bit_ticked = false
 	_physics_step(delta)
+	quiet = maxf(quiet - delta, 0.0)
+	if not bit.is_empty() and not _bit_ticked:
+		cut_bit()  # anything but calm at his chore this tick: the laugh stops in mid-laugh
+	elif bit.is_empty() and not _bit_segs.is_empty():
+		_bit_tidy()
 	Prof.stop(&"civilian_brain", t)
 
 
@@ -769,6 +781,8 @@ func slow_reason() -> StringName:
 		return &"shout"
 	if chore != null and chore.call(&"busy") and not (chore.has_method(&"lets_slow") and chore.call(&"lets_slow")):
 		return &"chore"
+	if not bit.is_empty() or not _bit_segs.is_empty():
+		return &"bit"
 	return &""
 
 
@@ -860,6 +874,7 @@ func _physics_step(delta: float) -> void:
 	if returning and (post == Vector3.INF or body.global_position.distance_to(post) < RETURNED):
 		returning = false
 	if _chore(delta, mood == Mood.CALM and fear < 0.05 and not (helped_by and not thanked) and not returning):
+		_bit_step(delta)
 		return
 	if post != Vector3.INF and body.global_position.distance_to(post) > 0.3:
 		body.set_pose(&"stand")
@@ -926,6 +941,128 @@ func _chore(delta: float, free: bool) -> bool:
 	return false
 
 
+# --- The room's bits (townsfolk step 10, SaloonRoom): a small thing he does at his chore --------------
+
+## The room's director gave him a bit: {what, for (s), look (whom he looks at), say + say_at (a
+## line, said from his own mouth), mark + mark_t (a Callable at that moment), at (a point)}. He does
+## it on top of his chore while he's calm at it; anything else and it's cut (`cut_bit`).
+## what: laugh (head back, shoulders, mouth open, eyes creased), grin, toast (glass up), lift (glass
+## half up), cough, stretch (sat, leant back), hail and wave (a hand up), nod, glass (the barkeep
+## sets one down at `at`).
+func start_bit(b: Dictionary) -> void:
+	if not bit.is_empty():
+		cut_bit()
+	b["t"] = 0.0
+	bit = b
+	_bit_ticked = true
+	body.wake()
+
+
+## Stopped where it is (trouble, a look round, sent off): his mouth shut, its sound stopped.
+func cut_bit() -> void:
+	_end_bit(true)
+
+
+func _end_bit(cut: bool) -> void:
+	if bit.is_empty():
+		return
+	bit["cut"] = cut
+	bit["ended"] = true
+	if cut:
+		var p: Variant = bit.get("player")
+		if p != null and is_instance_valid(p):
+			(p as AudioStreamPlayer3D).stop()
+			(p as AudioStreamPlayer3D).queue_free()
+		var sp := body.get_node_or_null(^"FaceSpeech") as FaceSpeech
+		if sp != null and sp.speaking() and bit.what == &"laugh":
+			sp.hush()
+	bit.erase("player")
+	bit.erase("mark")
+	_head_tip(Vector3.ZERO)
+	if chore is SpotChore:
+		(chore as SpotChore).glass_up = 0.0
+	bit = {}
+
+
+## A lean of his chest or belly for a bit, eased (and eased off after: `_bit_tidy`).
+func _bit_lean(seg: StringName, v: Vector3) -> void:
+	_bit_segs[seg] = true
+	body.pose_offsets[seg] = (body.pose_offsets.get(seg, Vector3.ZERO) as Vector3).lerp(v, 0.2)
+
+
+func _bit_tidy() -> void:
+	for seg: StringName in _bit_segs.keys():
+		var v: Vector3 = (body.pose_offsets.get(seg, Vector3.ZERO) as Vector3).lerp(Vector3.ZERO, 0.15)
+		if v.length() < 0.2:
+			body.pose_offsets.erase(seg)
+			_bit_segs.erase(seg)
+		else:
+			body.pose_offsets[seg] = v
+
+
+func _bit_step(delta: float) -> void:
+	if bit.is_empty():
+		return
+	_bit_ticked = true
+	bit.t += delta
+	var t: float = bit.t
+	var span := float(bit.get("for", 2.0))
+	if t >= span:
+		_end_bit(false)
+		return
+	var k := clampf(t / 0.3, 0.0, 1.0) * clampf((span - t) / 0.4, 0.0, 1.0)
+	var lk: Variant = bit.get("look")
+	if lk != null and is_instance_valid(lk):
+		_attend((lk as Node3D).global_position + Vector3.UP * 1.55)
+	if bit.has("say") and not bit.get("said", false) and t >= float(bit.get("say_at", 0.0)):
+		bit["said"] = true
+		say_line(String(bit.say))
+	if bit.has("mark") and not bit.get("marked", false) and t >= float(bit.get("mark_t", 0.0)):
+		bit["marked"] = true
+		(bit.mark as Callable).call()
+	var life := body.get_node_or_null(^"FaceLife") as FaceLife
+	var fwd := -body.global_basis.z
+	match bit.what:
+		&"laugh":
+			if not bit.get("mouthed", false):
+				bit["mouthed"] = true
+				var sp := body.get_node_or_null(^"FaceSpeech") as FaceSpeech
+				if sp != null:
+					sp.say("ha ha ha ha ha ha ha")
+			_head_tip(Vector3(13.0 * k * (0.7 + 0.3 * sin(t * 14.0)), 0, 0))
+			_bit_lean(&"chest", Vector3(5.0 * k + 2.0 * k * sin(t * 19.0), 0, 0))
+			if life != null:
+				life.mirth = k
+		&"grin":
+			_head_tip(Vector3(3.0 * k, 0, 0))
+			if life != null:
+				life.mirth = 0.7 * k
+		&"toast", &"lift":
+			if chore is SpotChore:
+				(chore as SpotChore).glass_up = k * (1.0 if bit.what == &"toast" else 0.45)
+			if bit.what == &"toast":
+				_bit_lean(&"chest", Vector3(4.0 * k, 0, 0))
+		&"cough":
+			_head_tip(Vector3(-12.0 * k, 0, 0))
+			_bit_lean(&"chest", Vector3(-9.0 * k * absf(sin(t * 9.0)), 0, 0))
+			body.reach_to("l", body.global_transform * Vector3(-0.02, 1.5, -0.2), fwd, k)
+		&"stretch":
+			_bit_lean(&"chest", Vector3(9.0 * k, 0, 0))
+			_bit_lean(&"abdomen", Vector3(5.0 * k, 0, 0))
+			_head_tip(Vector3(6.0 * k, 0, 0))
+		&"hail", &"wave":
+			var high := 1.8 if bit.what == &"hail" else 1.62
+			body.reach_to("l", body.global_transform * Vector3(-0.3, high + 0.04 * sin(t * 7.0), -0.24), fwd, k)
+			_head_tip(Vector3(4.0 * k, 0, 0))
+		&"nod":
+			_head_tip(Vector3(-10.0 * sin(clampf((t - 0.2) / 0.8, 0.0, 1.0) * PI), 0, 0))
+		&"glass":
+			var kk := smoothstep(0.4, 1.2, t) * (1.0 - smoothstep(1.6, 2.4, t))
+			var at: Vector3 = bit.get("at", body.global_position)
+			body.reach_to("r", at + Vector3.UP * 0.07, Vector3.UP, kk)
+			_bit_lean(&"chest", Vector3(-8.0 * kk, 0, 0))
+
+
 # --- Regard (townsfolk step 9): what he shows Harlan before anyone speaks ----------------------------
 
 ## Calm at his post, nothing on him: he may show Harlan what he thinks of him.
@@ -951,17 +1088,35 @@ func show_regard(what: StringName, who: Node3D) -> void:
 
 
 ## How long each show lasts (s); `clear` till he's off or this long.
-const SHOW_FOR := {&"nod": 1.6, &"look_away": 1.8, &"turn": 3.0, &"clear": 6.0}
+const SHOW_FOR := {&"nod": 1.6, &"look_away": 1.8, &"turn": 3.0, &"clear": 6.0, &"look": 4.0}
+
+
+## The room's gone quiet and he looks round to see why (SaloonRoom's hush, townsfolk step 10): at
+## `who` (or the point `at`) for `seconds`; on his feet he turns to it, his chore stopped; sat, his
+## head and eyes only. Not his regard: nothing's kept of it.
+func show_look(at: Vector3, who: Node3D = null, seconds := 4.0) -> void:
+	showing = {"what": &"look", "who": who, "at": at, "for": seconds, "t": 0.0, "aside": Vector3.INF}
 
 
 func _show_step(delta: float) -> bool:
 	if showing.is_empty():
 		return false
-	var who: Node3D = showing.who
+	var who_v: Variant = showing.who
+	var who: Node3D = who_v as Node3D if who_v != null and is_instance_valid(who_v) else null
 	showing.t += delta
 	var t: float = showing.t
 	var what: StringName = showing.what
-	if who == null or not is_instance_valid(who) or t >= float(SHOW_FOR[what]) \
+	if what == &"look":
+		if t >= float(showing.get("for", SHOW_FOR[what])):
+			showing = {}
+			return false
+		var point: Vector3 = who.global_position + Vector3.UP * 1.4 if who != null else showing.at
+		_attend(point)
+		if not _seated():
+			body.set_pose(&"stand")
+			_turn_to(point, delta)
+		return true
+	if who == null or t >= float(SHOW_FOR[what]) \
 			or what == &"clear" and t > 1.0 and who.global_position.distance_to(body.global_position) > 5.0:
 		_head_tip(Vector3.ZERO)
 		showing = {}
@@ -1025,7 +1180,7 @@ func _seated() -> bool:
 func _head_tip(v: Vector3) -> void:
 	var life := body.get_node_or_null(^"FaceLife") as FaceLife
 	if life != null and life.gaze != null:
-		life.gaze.nod = v
+		life.gaze.tip = v
 	elif v == Vector3.ZERO:
 		body.pose_offsets.erase(&"head")
 	else:

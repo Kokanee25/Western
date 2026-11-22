@@ -7,7 +7,7 @@ extends TestCase
 ## - regard: each man's band from his own view of Harlan and the story's facts, the town's the average;
 ## - what you see by band (a man in a plain world): a nod, a look away, a turned shoulder, a step aside.
 
-const ONS := ["pass", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "undertaker"]
+const ONS := ["pass", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "undertaker", "room.toast", "room.hail", "room.leave", "room.answer", "room.glass"]
 const KNOWN := ["on", "once", "regard", "view", "fact", "day", "hour", "spot", "at", "whom", "who_you", "shaken", "opinion"]
 const FACTS := ["news.", "nolaw.", "sheriff.", "nojustice.", "kett."]
 

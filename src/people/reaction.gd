@@ -34,7 +34,10 @@ const STIMULI := {
 	&"blast": {"fear": 1.5, "reach": 90.0},
 	&"gun": {"fear": 0.7, "reach": 9.0},  # a gun drawn near him, not fired (CivilianBrain.GUN_SEEN)
 	&"down": {"fear": 0.6, "reach": 20.0},  # a man fallen in his sight
+	&"hush": {"fear": 0.5, "reach": 15.0},  # the room's gone quiet round him (SaloonRoom: a man who `ducks`)
 }
+## A man who ducks (dials `ducks`: the piano player, Sean #276) stays down this long after it's quiet.
+const DUCK_CALM := 25.0
 ## Start: this long after it reached him (s): 0.15 for the jumpiest, +0.15 by nerve, +0.2 by how
 ## far off it was (full at `START_FAR` m). Shaken, the nerve part is shorter.
 const START_SOONEST := 0.15
@@ -397,7 +400,14 @@ func _decide() -> void:
 	errand = {}
 	told = false
 	_calm_need = CALM_WATCH + CALM_WATCH_NOSY * nosy
-	if kind == &"gun":
+	if float(brain.dials.get("ducks", 0.0)) > 0.0 and (scared or kind == &"hush") and not brain.hurt:
+		# The piano player: stops and ducks where he is, and comes up when it's been quiet a while.
+		choice = &"hide"
+		_calm_need = DUCK_CALM
+	elif kind == &"hush":
+		choice = &"watch"
+		_calm_need = CALM_GUN
+	elif kind == &"gun":
 		choice = &"back_away" if scared else &"watch"
 		_bark("react.gun", {"who_you": who is Player})
 		_calm_need = CALM_GUN

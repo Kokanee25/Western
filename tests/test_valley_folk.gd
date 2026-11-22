@@ -265,7 +265,9 @@ func test_the_day_every_hour_bands_on_and_off() -> void:
 			# dark, smoke where someone's cooking.
 			for place: StringName in f.lights.shows:
 				var shows: Dictionary = f.lights.report()[String(place)]
-				if shows.lit != f.book.lit(place, h) or shows.smoke != f.book.smoke(place):
+				# (The saloon's window is lit by its room too, out in the yard: step 10.)
+				var lit := f.book.lit(place, h) or (String(place) == String(f.room.d.get("lights", "")) and f.room.lit())
+				if shows.lit != lit or shows.smoke != f.book.smoke(place):
 					wrong.append("%.2f %s shows %s, the book %s" % [h, place, shows, f.book.inside(place)])
 		check(wrong.is_empty(), "bands %s: everyone where his day says, every hour (%s)" % [on, wrong.slice(0, 6)])
 		check(most <= 24, "never more than 24 bodies in the world (%d)" % most)
@@ -280,9 +282,9 @@ func test_the_book_shows_lit_windows_and_smoke() -> void:
 	check(f.lights.shows.has(&"hotel") and f.lights.shows.has(&"saloon") and f.lights.shows.has(&"undertaker"),
 			"a window and a chimney for each building the day takes them into (%s)" % [f.lights.shows.keys()])
 	check(not f.lights.shows.has(&"back@0"), "none for a way out of town")
-	# Nine at night: the townsman at home in the hotel, the undertaker over his shop, the loudmouth in
-	# the saloon's back: lamps lit; nobody cooking.
-	await _at(21.0)
+	# Past nine at night: the townsman at home in the hotel, the undertaker over his shop (back from his
+	# one drink), the saloon's room full: lamps lit; nobody cooking.
+	await _at(21.2)
 	var s: Dictionary = shows.call()
 	check(s.hotel.lit and s.undertaker.lit and s.saloon.lit, "lit windows at nine (%s)" % [s])
 	check(not s.hotel.smoke and not s.undertaker.smoke, "no smoke at nine (%s)" % [s])

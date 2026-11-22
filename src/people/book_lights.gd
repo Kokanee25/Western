@@ -132,10 +132,11 @@ static func _smoke() -> GPUParticles3D:
 
 
 ## Each building's window and smoke to the book at `hour`.
-func show_book(book: TownBook, hour: float) -> void:
+func show_book(book: TownBook, hour: float, also: Array[StringName] = []) -> void:
 	for place: StringName in shows:
 		var s: Dictionary = shows[place]
-		var lit := book.lit(place, hour)
+		# (`also`: lit whatever the book says: the saloon while its room, out in the yard, has people in.)
+		var lit := book.lit(place, hour) or also.has(place)
 		(s.light as OmniLight3D).visible = lit
 		if s.pane != null:
 			(s.pane as MeshInstance3D).visible = lit

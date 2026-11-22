@@ -122,6 +122,8 @@ var _news_day := -1
 ## town's script's lines picked by their `if`, with the brief's limits (data `barks`).
 var regard: TownRegard
 var barks: TownBarks
+## The saloon at night as a room (townsfolk step 10, #1157): its mood, the bits, the hush.
+var room: SaloonRoom
 ## The dead taken away (#1051): id -> {since (absolute clock hours), seen (anyone saw him down),
 ## undertaker (fetched to him)}.
 var dead_out := {}
@@ -157,6 +159,7 @@ func _ready() -> void:
 	data = JSON.parse_string(FileAccess.get_file_as_string(DATA))
 	regard = TownRegard.new(self, data.get("regard", {}))
 	barks = TownBarks.new(data.get("barks", {}))
+	room = SaloonRoom.new(self, data.get("room", {}))
 	var u := Time.get_ticks_usec()
 	places = Waypoints.new()
 	if town:
@@ -542,7 +545,8 @@ static func home_of(p: Dictionary) -> StringName:
 ## 5); a man with none gets the middle.
 static func dials_of(p: Dictionary) -> Dictionary:
 	var d: Dictionary = p.get("dials", {})
-	return {"nerve": float(d.get("nerve", 0.5)), "nosy": float(d.get("nosy", 0.5)), "duty": float(d.get("duty", 0.5))}
+	return {"nerve": float(d.get("nerve", 0.5)), "nosy": float(d.get("nosy", 0.5)), "duty": float(d.get("duty", 0.5)),
+			"ducks": float(d.get("ducks", 0.0))}
 
 
 ## Where he'd run from trouble (Reaction's flee): his own door, then the town's open doors, the
@@ -907,7 +911,13 @@ func say_soon(man: HumanBody, text: String) -> void:
 	_to_say.append([man, text])
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	if room:
+		# (On the physics frame: its bits' lines and sounds go out there, as say_soon's.)
+		var t := Prof.start()
+		room.step(delta)
+		room.tick()
+		Prof.stop(&"saloon_room", t)
 	if _to_say.is_empty():
 		return
 	var list := _to_say
@@ -1007,7 +1017,10 @@ func _step(delta: float) -> void:
 				state[id] = &"in"
 	_last_hour = h
 	if lights:
-		lights.show_book(book, h)
+		var also: Array[StringName] = []
+		if room and room.lit():
+			also.append(StringName(String(room.d.get("lights", "saloon"))))
+		lights.show_book(book, h, also)
 	_maybe_murder(h)
 	_carry_step()
 	_morning_step(h)
@@ -1742,6 +1755,21 @@ func bark_for(brain: CivilianBrain, on: String, extra: Dictionary = {}) -> bool:
 	say_soon(brain.body, String(l[1]))
 	heard.append([String(id), String(l[0]), String(l[1])])
 	return true
+
+
+## A line of the room's for him (SaloonRoom's bits: `on` room.toast, room.hail, room.leave,
+## room.answer, room.glass), picked by the barks' rules and counted as said: [line id, text], or []
+## (none fits, he's said it today, another's just said it). The room has him say it.
+func room_line(id: StringName, on: String, extra: Dictionary = {}) -> Array:
+	var man := folk_man(id)
+	if barks == null or man == null:
+		return []
+	var ctx := bark_ctx(id, man)
+	ctx.merge(extra, true)
+	var l := barks.pick(on, ctx, town_day(), _ran, extra.get("slots", {}))
+	if not l.is_empty():
+		heard.append([String(id), String(l[0]), String(l[1])])
+	return l
 
 
 ## What his own news holds of the man down `whom` (by his record): whom known, Harlan firing.
