@@ -69,6 +69,7 @@ func test_the_tower_the_spire_and_the_pointed_heads_are_there() -> void:
 	var posts := 0
 	var shingles := 0
 	var heads := 0
+	var head_panes := 0
 	var top := 0.0
 	for m: StructureMember in b.get_members():
 		var id := String(m.member_id)
@@ -77,9 +78,12 @@ func test_the_tower_the_spire_and_the_pointed_heads_are_there() -> void:
 		elif id.contains("tower/spire/shingle_"):
 			shingles += 1
 			top = maxf(top, m.global_position.y - b.global_position.y)
-		elif id.contains("/gothic_") and id.ends_with("/l"):
+		elif id.contains("/trim_") and id.ends_with("/arch_l"):
 			heads += 1
+		elif id.contains("/window_") and id.contains("/head/pane_"):
+			head_panes += 1
 	check(posts == 4, "four belfry posts (%d)" % posts)
 	check(shingles > 60, "the spire's shingle courses (%d)" % shingles)
 	check(top > 12.0, "the spire stands over 12 m (%.1f)" % top)
 	check(heads == 11, "a pointed head over each of the eleven nave windows (%d)" % heads)
+	check(head_panes >= 11 * 6, "each glazed to its point, a pane a step either side of its bar (%d)" % head_panes)

@@ -347,6 +347,9 @@ Record: `church/README.md`. What it taught:
 - **A belfry's ring of plates carrying a spire needs posts at the middle of each face** (the commons' feet land mid-span) and a deep section
   (0.15 x 0.25); boards run across joists, never with them (a board along its joist read 1.04 in bending).
 - **A hatch goes between two joists**, never cutting one (a cut joist is two cantilevers: "joint" 5.4).
+- **A pointed (or any shaped) head is the window's, not a decoration over it** (`SashWindow`'s `rise`): cut the opening to the apex so the
+  studs, siding and finish all stop round it, then fill the corners beside the point with short stepped boards (the slanted lining covers the
+  steps). A V of trim and glass stuck on the siding over a square sash read as a sticker.
 - **A bell is a kit prop on four posts** (`solid` 0.035 for its weight); hung bells aren't supported by the member rules.
 - **Pointed windows are a V of trim over a stepped glass** (the sash below stays a rectangle): a stand-in until a window can take a curved head.
 - **Use points on a platform fail the "used" check** (it wants the floor's height): put the room's point on the floor by it.

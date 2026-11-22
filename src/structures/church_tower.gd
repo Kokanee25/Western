@@ -5,9 +5,9 @@ extends RefCounted
 ## of the same Structure: its footing, sills and floor (`foundation`, `floor`); its three outer walls
 ## are ordinary spec walls (`walls`, a numeric `top`); then the belfry floor on joists, plates and
 ## corner posts, louvres, the bell beams, the pent skirt roof, the pyramidal spire of shingle courses on
-## hip and common rafters with an iron finial (`belfry`), and pointed (Gothic) heads over the windows
-## that ask for them (`gothic_heads`). All of it members, so a ball breaks it and a lost post drops
-## what it carried. SpecBuilding calls these three places in `build`; nothing else of it changed.
+## hip and common rafters with an iron finial (`belfry`); the windows' pointed heads are SashWindow's
+## (`rise`). All of it members, so a ball breaks it and a lost post drops
+## what it carried. SpecBuilding calls these two places in `build`; nothing else of it changed.
 ##
 ## The spec's `tower`: {x: [x0, x1], z: z of its front face, belfry_floor, belfry_top, spire: height,
 ## post, louvre: {from, to, slat, step, gap: [x0, x1, y0, y1] on the front}, finial, shingle: step}.
@@ -228,46 +228,3 @@ func _spire(y0: float, cx: float, cz: float) -> void:
 	b.band = 6
 	b.add_member("tower/spire/finial", &"post", &"iron", Vector3(0.05, fh, 0.05), apex + Vector3(0, fh * 0.5 - 0.1, 0))
 	b.add_member("tower/spire/finial_arm", &"beam", &"iron", Vector3(0.3, 0.04, 0.04), apex + Vector3(0, fh * 0.6, 0))
-
-
-## Pointed heads over the walls' windows marked `pointed`: two trim boards leaning to a point and the
-## glass stepped up into it (members; the sash below keeps its rectangle).
-func gothic_heads() -> void:
-	b.band = 1
-	for w: Dictionary in b.spec.walls:
-		if w.get("partition", false) or not b.walls.has(w.id):
-			continue
-		var wd: Dictionary = b.walls[w.id].dict
-		for o in b._openings(w):
-			var so: Dictionary = o[1]
-			if not so.get("pointed", false) or so.type != "window":
-				continue
-			var r: Rect2 = o[0]
-			var rise := float(so.get("rise", 0.4))
-			var half := r.size.x * 0.5 + 0.06
-			var ang := atan2(rise, half)
-			var length := sqrt(half * half + rise * rise)
-			var d := 0.015  # the trim's middle: out from the siding's face, over it
-			var id := "%s/gothic_%d" % [wd.name, int(r.position.x * 100)]
-			for sgn: float in [-1.0, 1.0]:
-				var cxw := r.position.x + r.size.x * 0.5 + sgn * half * 0.5
-				var cyw := r.end.y + 0.05 + rise * 0.5
-				var c: Vector3 = wd.origin + (wd.along as Vector3) * cxw + Vector3.UP * cyw + (wd.out as Vector3) * (d + 0.02)
-				# local x along the wall, local y up, z outward: tilt about the outward axis
-				var ax: Vector3 = wd.along
-				var out: Vector3 = wd.out
-				var up_ := Vector3.UP
-				var dir := (ax * -sgn * half + up_ * rise).normalized()  # from the foot up to the apex
-				var normal := out
-				var bas := Basis(dir, normal.cross(dir), normal).orthonormalized()
-				b.add_member(id + ("/l" if sgn < 0 else "/r"), &"trim", &"framing", Vector3(length, 0.07, 0.03), c, bas)
-			# The glass stepped up into the point.
-			var n := 4
-			for i in n:
-				var frac := (float(i) + 0.5) / float(n)
-				var gw := (r.size.x + 0.04) * (1.0 - frac) * 0.9
-				var gy := r.end.y + 0.05 + rise * (float(i) + 0.5) / float(n) * 0.9
-				var c2: Vector3 = wd.origin + (wd.along as Vector3) * (r.position.x + r.size.x * 0.5) + Vector3.UP * gy + (wd.out as Vector3) * 0.032
-				var size := (wd.along as Vector3).abs() * gw + Vector3(0.0, rise * 0.9 / float(n), 0.0) + (wd.out as Vector3).abs() * 0.012
-				var m: StructureMember = b.add_member("%s/glass_%d" % [id, i], &"glass", &"glass", size, c2)
-				m.get_child(0).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

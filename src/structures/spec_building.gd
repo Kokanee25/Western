@@ -245,7 +245,6 @@ func build() -> void:
 		church_tower.floor()
 	_outer_walls()
 	if church_tower:
-		church_tower.gothic_heads()
 		church_tower.belfry()
 	if spec.has("corner"):
 		_corner_entrance()
@@ -875,7 +874,9 @@ func _openings(w: Dictionary, level := "") -> Array:
 		if level != "" and lvl != level:
 			continue
 		var y0 := (_lv[lvl] as float) + float(o.get("sill", 0.0))
-		out.append([Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), float(o.height)), o, lvl])
+		# A pointed window's opening runs on up to its apex (SashWindow.pointed_head; `height` is to the springing).
+		var h := float(o.height) + (float(o.get("rise", 0.0)) if o.get("pointed", false) and o.type == "window" else 0.0)
+		out.append([Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), h), o, lvl])
 	return out
 
 
@@ -978,13 +979,18 @@ func _outer_walls() -> void:
 				_opening_trim(wall, o[0], false)
 				Storefront.recess(self, wall, o[0], _recess_spec(spec_o), StringName(spec.materials.get("trim_outside", "dark_trim")))
 				continue
-			_opening_trim(wall, o[0], window or spec_o.type == "hatch")
+			var rise := float(spec_o.get("rise", 0.0)) if window and spec_o.get("pointed", false) else 0.0
+			var sq: Rect2 = o[0]
+			sq.size.y -= rise
+			# (a pointed head's casing is the window's own, slanted to the point: SashWindow)
+			_opening_trim(wall, sq, window or spec_o.type == "hatch", rise <= 0.0)
 			if window and spec_o.get("show", false):
 				# A storefront's show window (#1053): plate glass, a transom row, a panelled bulkhead.
 				Storefront.show_window(self, wall, o[0], spec_o, StringName(spec.materials.get("trim_outside", "dark_trim")))
 			elif window and spec_o.has("lights"):
 				# A sash window (#826): lined, two sashes, a pane a light (SashWindow, the part).
-				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim"))})
+				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim")),
+						"rise": rise, "face_wood": wood, "level": String(o[2])})
 			elif window:
 				_glass(wall, o[0])
 			if spec_o.get("bars", false):

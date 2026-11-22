@@ -1368,25 +1368,25 @@
    },
    "roof": {
     "use": {
-     "entry": "common_pine_lap",
+     "entry": "shingle_pine",
      "age": "old",
      "role": "wall"
     },
-    "_why": "silver-grey weathered shingle (the library has no shingle yet: the old pine's grey)"
+    "_why": "silver-grey weathered sawn shingles, split from the butts (SH1, judged 2026-11-22)"
    }
   },
   "surfaces": [
    [
     "roof/board",
-    "-"
+    "roof"
    ],
    [
     "tower/belfry/skirt",
-    "-"
+    "roof"
    ],
    [
     "tower/spire/shingle",
-    "-"
+    "roof"
    ],
    [
     "tower/belfry/louvre",

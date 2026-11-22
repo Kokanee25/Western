@@ -25,6 +25,12 @@ const VIEWS := {
 	"tower": [Vector3(4.265, 3.0, -15.0), Vector3(4.265, 11.0, -1.5), 42.0, 17.0, false],
 	"nave": [Vector3(4.265, 2.4, 1.0), Vector3(4.265, 2.6, 13.0), 72.0, 14.0, true],
 	"pulpit": [Vector3(4.265, 2.2, 7.0), Vector3(4.265, 1.9, 13.3), 60.0, 14.0, true],
+	# A lane-side window close, in the late light from the west (its pointed head, #1142 round 4).
+	"window": [Vector3(12.8, 2.6, 2.4), Vector3(8.53, 3.7, 5.4), 38.0, 17.0, false],
+	# The sheet's two cemetery views: from its far side back toward the church over the funeral's fresh
+	# grave and the rows, and low beside that grave (the cemetery's pad 3 m over the church's).
+	"graveyard": [Vector3(56.0, 5.0, 71.5), Vector3(35.0, 4.6, 50.0), 60.0, 17.0, false],
+	"grave": [Vector3(49.6, 4.4, 64.8), Vector3(40.0, 4.2, 55.5), 62.0, 17.0, false],
 }
 
 var out_dir := "build/church_renders"
