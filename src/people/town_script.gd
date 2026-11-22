@@ -13,6 +13,7 @@ extends RefCounted
 const PATH := "res://config/town_script.json"
 
 static var _lines: Dictionary = {}
+static var _meta: Dictionary = {}
 static var _loaded := false
 
 
@@ -21,6 +22,7 @@ static func lines() -> Dictionary:
 	if not _loaded:
 		_loaded = true
 		_lines = {}
+		_meta = {}
 		var f := FileAccess.open(PATH, FileAccess.READ)
 		if f != null:
 			var d: Variant = JSON.parse_string(f.get_as_text())
@@ -31,7 +33,16 @@ static func lines() -> Dictionary:
 						for w: Dictionary in l.get("words", []):
 							ws.append(String(w.get("text", "")))
 						_lines[String(l.id)] = ws
+						# Step 9's barks (TownBarks): who says it and its `if` (the `when` as data).
+						_meta[String(l.id)] = {"speaker": String(l.get("speaker", "")), "if": l.get("if", {}),
+								"scene": String(s.get("id", ""))}
 	return _lines
+
+
+## Every line id -> {speaker, if, scene} (the `if` empty where the script gives none).
+static func meta() -> Dictionary:
+	lines()
+	return _meta
 
 
 ## The wordings of `id` (empty if the script hasn't it).

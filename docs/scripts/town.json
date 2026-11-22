@@ -724,6 +724,10 @@
      "speaker": "townsman",
      "trigger": "Harlan passes; his view stopped_a_killer",
      "when": "news.harlan = stopped_a_killer",
+     "if": {
+      "on": "pass",
+      "view": "stopped_a_killer"
+     },
      "condition": "warm, awkward",
      "delivery": "A touch of the hat; he isn't used to praising anybody.",
      "words": [
@@ -743,6 +747,10 @@
      "speaker": "townswoman",
      "trigger": "Harlan passes; stopped_a_killer",
      "when": "news.harlan = stopped_a_killer",
+     "if": {
+      "on": "pass",
+      "view": "stopped_a_killer"
+     },
      "condition": "relieved, to her neighbour",
      "delivery": "Half to him, half to the woman beside her.",
      "words": [
@@ -758,6 +766,11 @@
      "speaker": "barkeep",
      "trigger": "Harlan at the bar; stopped_a_killer",
      "when": "news.harlan = stopped_a_killer",
+     "if": {
+      "on": "pass",
+      "view": "stopped_a_killer",
+      "at": "saloon"
+     },
      "condition": "grudging",
      "delivery": "Sets a glass down, and keeps his hand on the bottle.",
      "words": [
@@ -773,6 +786,10 @@
      "speaker": "townsman",
      "trigger": "Harlan passes; his view shot_a_man (not to his face)",
      "when": "news.harlan = shot_a_man",
+     "if": {
+      "on": "pass",
+      "view": "shot_a_man"
+     },
      "condition": "low, to another",
      "delivery": "Said once Harlan is past, loud enough.",
      "words": [
@@ -792,6 +809,10 @@
      "speaker": "townswoman",
      "trigger": "Harlan near; shot_a_man",
      "when": "news.harlan = shot_a_man",
+     "if": {
+      "on": "pass",
+      "view": "shot_a_man"
+     },
      "condition": "sharp, to a child",
      "delivery": "To a boy at the window, not to Harlan.",
      "words": [
@@ -807,6 +828,11 @@
      "speaker": "storekeeper",
      "trigger": "Harlan at his counter; shot_a_man",
      "when": "news.harlan = shot_a_man",
+     "if": {
+      "on": "pass",
+      "view": "shot_a_man",
+      "at": "store"
+     },
      "condition": "polite, cold",
      "delivery": "Doesn't look up from the ledger.",
      "words": [
@@ -822,6 +848,13 @@
      "speaker": "townsman",
      "trigger": "Harlan passes; the town split",
      "when": "news.harlan = split",
+     "if": {
+      "on": "pass",
+      "view": "*",
+      "fact": {
+       "news.harlan": "split"
+      }
+     },
      "condition": "unsure",
      "delivery": "",
      "words": [
@@ -841,6 +874,13 @@
      "speaker": "loudmouth",
      "trigger": "Harlan passes; split; the loudmouth on the walk",
      "when": "news.harlan = split",
+     "if": {
+      "on": "pass",
+      "view": "*",
+      "fact": {
+       "news.harlan": "split"
+      }
+     },
      "condition": "loud, pleased with himself",
      "delivery": "To the whole walk.",
      "words": [
@@ -866,6 +906,14 @@
      "speaker": "storekeeper",
      "trigger": "Shutting at 17:00",
      "when": "day kind uneasy",
+     "if": {
+      "on": "pass",
+      "day": "uneasy",
+      "hour": [
+       16.5,
+       17.5
+      ]
+     },
      "condition": "apologetic",
      "delivery": "Turning the sign, the bar in his other hand.",
      "words": [
@@ -904,6 +952,10 @@
      "speaker": "loudmouth",
      "trigger": "On the walk, anyone within 4 m",
      "when": "day kind uneasy",
+     "if": {
+      "on": "pass",
+      "day": "uneasy"
+     },
      "condition": "loud",
      "delivery": "",
      "words": [
@@ -923,6 +975,14 @@
      "speaker": "townswoman",
      "trigger": "Calling children in, before noon",
      "when": "day kind uneasy",
+     "if": {
+      "on": "pass",
+      "day": "uneasy",
+      "hour": [
+       6.0,
+       12.0
+      ]
+     },
      "condition": "sharp",
      "delivery": "",
      "words": [
@@ -938,6 +998,14 @@
      "speaker": "townsman",
      "trigger": "At the store's bench",
      "when": "day kind uneasy",
+     "if": {
+      "on": "pass",
+      "day": "uneasy",
+      "spot": [
+       "bench",
+       "sit"
+      ]
+     },
      "condition": "low",
      "delivery": "",
      "words": [
@@ -963,6 +1031,9 @@
      "speaker": "undertaker",
      "trigger": "Arriving at the body",
      "when": "any",
+     "if": {
+      "on": "undertaker"
+     },
      "condition": "matter-of-fact",
      "delivery": "Already measuring him with his eye.",
      "words": [
@@ -982,6 +1053,10 @@
      "speaker": "undertaker",
      "trigger": "At the body; his version has whom",
      "when": "whom known",
+     "if": {
+      "on": "undertaker",
+      "whom": true
+     },
      "condition": "exact",
      "delivery": "Writing it down.",
      "words": [
@@ -997,6 +1072,10 @@
      "speaker": "undertaker",
      "trigger": "At the body; nobody knows him",
      "when": "whom empty",
+     "if": {
+      "on": "undertaker",
+      "whom": false
+     },
      "condition": "exact",
      "delivery": "Looks round the ring of faces; nobody.",
      "words": [
@@ -1012,6 +1091,11 @@
      "speaker": "undertaker",
      "trigger": "At the body; Harlan near and the undertaker's version has Harlan firing",
      "when": "who = Harlan",
+     "if": {
+      "on": "undertaker",
+      "whom": true,
+      "who_you": true
+     },
      "condition": "polite",
      "delivery": "Not unkind. He only wants it right for the book.",
      "words": [
@@ -1037,6 +1121,14 @@
      "speaker": "townsman",
      "trigger": "You pass, before 10",
      "when": "regard warm",
+     "if": {
+      "on": "pass",
+      "regard": "warm",
+      "hour": [
+       5.0,
+       10.0
+      ]
+     },
      "condition": "",
      "delivery": "A nod with it.",
      "words": [
@@ -1056,6 +1148,16 @@
      "speaker": "townsman",
      "trigger": "At a lean spot, noon",
      "when": "any",
+     "if": {
+      "on": "pass",
+      "hour": [
+       11.0,
+       14.0
+      ],
+      "spot": [
+       "lean"
+      ]
+     },
      "condition": "idle",
      "delivery": "",
      "words": [
@@ -1075,6 +1177,11 @@
      "speaker": "storekeeper",
      "trigger": "You at his counter",
      "when": "regard wary",
+     "if": {
+      "on": "pass",
+      "regard": "wary",
+      "at": "store"
+     },
      "condition": "polite",
      "delivery": "Serving the woman behind you first.",
      "words": [
@@ -1090,6 +1197,13 @@
      "speaker": "storekeeper",
      "trigger": "You at his door",
      "when": "regard cold",
+     "if": {
+      "on": "pass",
+      "regard": [
+       "cold",
+       "afraid"
+      ]
+     },
      "condition": "",
      "delivery": "Through the glass.",
      "words": [
@@ -1130,6 +1244,9 @@
      "speaker": "townsman",
      "trigger": "Heard a shot, unseen (stage 2)",
      "when": "any",
+     "if": {
+      "on": "react.shot_far"
+     },
      "condition": "startled",
      "delivery": "",
      "words": [
@@ -1149,6 +1266,9 @@
      "speaker": "townswoman",
      "trigger": "Heard a shot, going in",
      "when": "any",
+     "if": {
+      "on": "react.flee"
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1164,6 +1284,10 @@
      "speaker": "townsman",
      "trigger": "At the ring round a man down, his version has no whom",
      "when": "whom empty",
+     "if": {
+      "on": "react.ring",
+      "whom": false
+     },
      "condition": "",
      "delivery": "Up on his toes.",
      "words": [
@@ -1179,6 +1303,10 @@
      "speaker": "townsman",
      "trigger": "At the ring, his version has whom",
      "when": "whom known",
+     "if": {
+      "on": "react.ring",
+      "whom": true
+     },
      "condition": "",
      "delivery": "The name is the slot.",
      "words": [
@@ -1194,6 +1322,9 @@
      "speaker": "townsman",
      "trigger": "Sees a man down, somebody else is running",
      "when": "any",
+     "if": {
+      "on": "react.doc"
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1209,6 +1340,10 @@
      "speaker": "barkeep",
      "trigger": "A gun drawn in his room",
      "when": "any",
+     "if": {
+      "on": "react.gun",
+      "at": "saloon"
+     },
      "condition": "",
      "delivery": "Both hands flat on the bar.",
      "words": [
@@ -1224,6 +1359,11 @@
      "speaker": "townsman",
      "trigger": "Harlan draws near him",
      "when": "regard warm",
+     "if": {
+      "on": "react.gun",
+      "who_you": true,
+      "regard": "warm"
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1269,6 +1409,9 @@
      "speaker": "townsman",
      "trigger": "Coming out after (stage 4)",
      "when": "any",
+     "if": {
+      "on": "react.back"
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1288,6 +1431,10 @@
      "speaker": "townswoman",
      "trigger": "Shaken, within the hour",
      "when": "any",
+     "if": {
+      "on": "pass",
+      "shaken": true
+     },
      "condition": "",
      "delivery": "Holding a cup she isn't drinking.",
      "words": [
@@ -1328,6 +1475,12 @@
      "speaker": "townswoman",
      "trigger": "Day 1 evening to his death",
      "when": "any",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.sheriff": "dying"
+      }
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1343,6 +1496,16 @@
      "speaker": "townsman",
      "trigger": "The mourning day, first hour",
      "when": "sheriff dead",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.sheriff": "dead",
+       "nolaw.funeral_due": [
+        "tomorrow",
+        "today"
+       ]
+      }
+     },
      "condition": "",
      "delivery": "Hat in his hand.",
      "words": [
@@ -1358,6 +1521,13 @@
      "speaker": "townswoman",
      "trigger": "The mourning day",
      "when": "sheriff.care = good",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.sheriff": "dead",
+       "sheriff.care": "good"
+      }
+     },
      "condition": "",
      "delivery": "To Harlan, quickly, then away.",
      "words": [
@@ -1373,6 +1543,16 @@
      "speaker": "townsman",
      "trigger": "The mourning day, as Harlan passes",
      "when": "sheriff.care = left",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.sheriff": "dead",
+       "sheriff.care": [
+        "left",
+        "left him"
+       ]
+      }
+     },
      "condition": "",
      "delivery": "Not to his face.",
      "words": [
@@ -1388,6 +1568,13 @@
      "speaker": "townsman",
      "trigger": "First sight of the badge",
      "when": "nolaw.deputy",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "once": "ever"
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1403,6 +1590,13 @@
      "speaker": "townswoman",
      "trigger": "The badge",
      "when": "nolaw.deputy, regard warm",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": "warm"
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1418,6 +1612,16 @@
      "speaker": "loudmouth",
      "trigger": "The badge, drunk",
      "when": "nolaw.deputy",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       20.0,
+       26.0
+      ]
+     },
      "condition": "drunk",
      "delivery": "",
      "words": [
@@ -1433,6 +1637,14 @@
      "speaker": "barkeep",
      "trigger": "The badge, Cody not yet taken",
      "when": "nolaw.deputy",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nolaw.deputy": true,
+       "!nojustice.ending": true
+      },
+      "at": "saloon"
+     },
      "condition": "",
      "delivery": "Wiping the same glass.",
      "words": [
@@ -1458,6 +1670,12 @@
      "speaker": "townsman",
      "trigger": "Arrest, the prisoner in the cell",
      "when": "nojustice.jail = in",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.jail": "in"
+      }
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1473,6 +1691,12 @@
      "speaker": "townswoman",
      "trigger": "Arrest",
      "when": "nojustice.jail = in",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.jail": "in"
+      }
+     },
      "condition": "",
      "delivery": "Peering at the jail's window.",
      "words": [
@@ -1503,6 +1727,12 @@
      "speaker": "storekeeper",
      "trigger": "Arrest",
      "when": "nojustice.jail = in",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.jail": "in"
+      }
+     },
      "condition": "low",
      "delivery": "",
      "words": [
@@ -1518,6 +1748,16 @@
      "speaker": "townsman",
      "trigger": "The prisoner turned loose (pick 2 A: for Harlan)",
      "when": "kett.loose",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "kett.loose": true
+      },
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1533,6 +1773,12 @@
      "speaker": "loudmouth",
      "trigger": "The prisoner turned loose (pick 2 A: against)",
      "when": "kett.loose",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "kett.loose": true
+      }
+     },
      "condition": "loud",
      "delivery": "",
      "words": [
@@ -1548,6 +1794,12 @@
      "speaker": "townswoman",
      "trigger": "The prisoner turned loose (against)",
      "when": "kett.loose",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "kett.loose": true
+      }
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1593,6 +1845,16 @@
      "speaker": "townsman",
      "trigger": "Revenge, the bodies found; his liking of Harlan high",
      "when": "nojustice.bodies = left",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.ending": "revenge",
+       "nojustice.bodies": "left"
+      },
+      "opinion": {
+       "liking": 0.2
+      }
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1608,6 +1870,13 @@
      "speaker": "townswoman",
      "trigger": "Revenge, the bodies found",
      "when": "nojustice.bodies = left",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.ending": "revenge",
+       "nojustice.bodies": "left"
+      }
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1623,6 +1892,17 @@
      "speaker": "loudmouth",
      "trigger": "Revenge, the bodies found, drunk",
      "when": "nojustice.bodies = left",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.ending": "revenge",
+       "nojustice.bodies": "left"
+      },
+      "hour": [
+       20.0,
+       26.0
+      ]
+     },
      "condition": "drunk",
      "delivery": "",
      "words": [
@@ -1638,6 +1918,12 @@
      "speaker": "townsman",
      "trigger": "Revenge, the bodies not found (pick 3: the town assumes)",
      "when": "nojustice.ending = revenge",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.ending": "revenge"
+      }
+     },
      "condition": "low",
      "delivery": "",
      "words": [
@@ -1653,6 +1939,15 @@
      "speaker": "townsman",
      "trigger": "The prisoner killed in the fight",
      "when": "nojustice.ending = dead_*",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.kett": [
+        "dead_outside",
+        "dead_inside"
+       ]
+      }
+     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -1668,6 +1963,12 @@
      "speaker": "undertaker",
      "trigger": "Harlan shot him; the undertaker has seen the body",
      "when": "nojustice.ending = murder",
+     "if": {
+      "on": "pass",
+      "fact": {
+       "nojustice.ending": "murder"
+      }
+     },
      "condition": "polite, exact",
      "delivery": "Evidence spoken by the one man who'd see it (DESIGN §10).",
      "words": [

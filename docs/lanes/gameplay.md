@@ -41,14 +41,13 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds (round 2's #1, not in #1125); the bridge's `tend`
   on an unhurt man kicks, `goto PLACE YAW` ignores the yaw carrying; the slowdown after dynamite and fire; two townsmen on one spot.
 - Story: #744, STORY.md; the bible #809.
-- **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2-6 (day and book,
-  roster, spots, reactions `Reaction`, the runner `FetchHelp`). **7 the town's news (#1051, `TownNews`,
-  `tests/test_town_news.gd`, `_valley`; bridge `read news`; LAYOUT "src/people")**: versions only from Senses, telling,
-  overnight, `news.yesterday` -> calendar `uneasy`, `news.harlan`; the dead taken to the undertaker's
-  (`ValleyFolk._dead_step`). **8 the town's script (#1144)**: `docs/scripts/town.json` (page in its README), the
-  runner's and the news's lines read from it (`TownScript`); Script OK waiting on Sean (#1150). **Next: step 9, regard
-  and the barks (#1152).** Open: Senses names a shooter on a glimpse (`_in_view`; the lab's news case); nobody carries the body (it goes once unseen); outlaws
-  and act men killed aren't taken; the noon street is thin; no talk sound.
+- **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-9: day and book, roster,
+  spots, `Reaction`, `FetchHelp`, `TownNews` (bridge `read news`), the script (`TownScript`, docs/scripts/town.json;
+  Script OK waiting on Sean, #1150), regard and the barks (#1152: `TownRegard`, `TownBarks`, bridge `read regard`).
+  **Next: step 10, the saloon as a room.** Open: the store's blind, doors shutting, the barkeep's glass (no blind
+  prop; step 10); react.fight*, body_child, freight, kett.meal, uneasy.heeled have no trigger; "drunk" is the hour;
+  regard numbers unfelt; Senses names a shooter on a glimpse; nobody carries the body; outlaws and act men killed
+  aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's

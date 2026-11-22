@@ -117,6 +117,11 @@ var fetch: FetchHelp
 ## man brought hands in what he senses (`CivilianBrain.news`). The town's day it was last turned on.
 var news: TownNews
 var _news_day := -1
+## How the town treats Harlan (townsfolk step 9, TownRegard): each man's opinions from his own news and
+## the story's facts (data `regard`), and what he shows as Harlan passes. And the barks (TownBarks): the
+## town's script's lines picked by their `if`, with the brief's limits (data `barks`).
+var regard: TownRegard
+var barks: TownBarks
 ## The dead taken away (#1051): id -> {since (absolute clock hours), seen (anyone saw him down),
 ## undertaker (fetched to him)}.
 var dead_out := {}
@@ -150,6 +155,8 @@ func _ready() -> void:
 	if layout == null:
 		layout = ValleyLayout.main()
 	data = JSON.parse_string(FileAccess.get_file_as_string(DATA))
+	regard = TownRegard.new(self, data.get("regard", {}))
+	barks = TownBarks.new(data.get("barks", {}))
 	var u := Time.get_ticks_usec()
 	places = Waypoints.new()
 	if town:
@@ -614,6 +621,7 @@ func _bring(p: Dictionary, walk: bool, from_place := &"") -> HumanBody:
 	brain.dials = dials_of(p)
 	brain.refuges = refuges_of(p)
 	brain.fetch = fetch
+	brain.bark = bark_for
 	if news:
 		news.join(brain)
 	brain.chores = _chores_for(man, p, sp)
@@ -921,6 +929,7 @@ func _step(delta: float) -> void:
 		fetch.step(delta)
 	if news:
 		news.step(delta)
+	_regard_step(delta)
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -1005,6 +1014,17 @@ func _step(delta: float) -> void:
 	_funeral_step(h)
 	_dead_step(h)
 	_talk_step()
+
+
+## Harlan as he passes (townsfolk step 9): what each shows him by his regard; the groups he's left.
+func _regard_step(delta: float) -> void:
+	var p := get_tree().get_first_node_in_group(&"player") as Node3D
+	if p == null:
+		return
+	if regard:
+		regard.step(delta, p)
+	if barks:
+		barks.clear_far(p.global_position)
 
 
 ## Where his block puts him, at once (the clock jumped: nobody's watching it happen).
@@ -1570,6 +1590,9 @@ func _dead_step(h: float) -> void:
 				ub.go_to(at - to.normalized() * 1.2 if to.length() > 0.1 else at, at)
 		var uman := folk_man(und)
 		var there: bool = uman == null or state.get(und) != &"called" or Vector2(uman.global_position.x - at.x, uman.global_position.z - at.z).length() < 2.5
+		if there and uman != null and not e.get("spoke", false):
+			e.spoke = true
+			_undertaker_says(und, uman, id)
 		if not there and _ran - float(e.sent) < float(dd.get("walk_at_most_s", 240.0)):
 			continue
 		if _you_see(at, float(dd.get("unseen_m", 30.0))):
@@ -1634,7 +1657,7 @@ func _talk_step() -> void:
 	for pd: Dictionary in data.people:
 		var id := StringName(pd.id)
 		var rid: int = news.to_say(id) if news != null and not pd.has("act") else 0
-		if not pd.has("says") and rid == 0:
+		if not pd.has("says") and rid == 0 and (pd.has("act") or not pd.has("day")):
 			continue
 		var man := folk_man(id)
 		if man == null or state.get(id) != &"in" or not man.physiology.is_conscious():
@@ -1643,22 +1666,105 @@ func _talk_step() -> void:
 			continue
 		if _spoke_at.has(id) and _talk_clock() - float(_spoke_at[id]) < float(talk.get("gap_s", 20.0)):
 			continue
-		# What he saw or was told himself first (TownNews: his own version, once), else his set's line.
+		# What he saw or was told himself first (TownNews: his own version, once), else his set's line
+		# (No Law's own, which win where both fit), else a bark (TownBarks, step 9): the most specific
+		# of the town's script's lines that fits him, by the limits, one a group as you pass.
 		var l := []
-		if rid != 0 and not TownNews._calm(man.get_node_or_null(^"Brain") as CivilianBrain):
+		var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+		var calm := TownNews._calm(brain)
+		if rid != 0 and not calm:
 			rid = 0  # not with trouble on: what he says then is his fright's
+		var day := town_day()
 		if rid != 0:
 			l = ["news.%d" % rid, news.line_of(id, rid, TownNews.HARLAN)]
 			news.said(id, rid)
 		elif pd.has("says"):
 			l = line_for(String(pd.says))
+			if not l.is_empty() and barks and not barks.allowed(String(id), String(l[0]), day, _ran):
+				l = []  # said today, or another's said it within the minute
+			if not l.is_empty() and barks:
+				barks.mark(String(id), String(l[0]), day, _ran)
+		if l.is_empty() and barks and calm and pd.has("day") and not barks.blocked(man.global_position):
+			l = barks.pick("pass", bark_ctx(id, man), day, _ran)
 		if l.is_empty() or String(l[1]) == "":
 			continue
+		if barks:
+			barks.block(man.global_position)  # one line at you a group as you pass
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
 		_spoke_at[id] = _talk_clock()
 		man.face(p.global_position + Vector3.UP * 1.5)
 		say_soon(man, String(l[1]))
 		heard.append([String(id), String(l[0]), String(l[1])])
+
+
+# --- The barks (townsfolk step 9, TownBarks) -----------------------------------------------------------
+
+## His pools in the town's script, his own first (data `barks.pools`, else `townsman`).
+func pools_of(id: StringName) -> Array:
+	var pools: Dictionary = (data.get("barks", {}) as Dictionary).get("pools", {})
+	return pools.get(String(id), pools.get("_default", ["townsman"]))
+
+
+## What the picker asks of him (TownBarks.fitting's ctx), now.
+func bark_ctx(id: StringName, man: HumanBody) -> Dictionary:
+	var p := _person(id)
+	var b := block_now(p, hour()) if p.has("day") else {}
+	var at: Array = []
+	for k: String in ["in", "at"]:
+		if b.has(k):
+			at.append(String(b[k]))
+	var sp := spot_of(p) if p.has("day") else {}
+	if sp.has("behind") or sp.has("at_bar") or sp.has("chair") or String(b.get("in", "")).begins_with("saloon") or String(b.get("at", "")).begins_with("saloon"):
+		at.append("saloon")
+	if "store" in String(b.get("in", "")) or "store" in String(b.get("at", "")):
+		at.append("store")
+	var brain := man.get_node_or_null(^"Brain") as CivilianBrain if man else null
+	var o := regard.opinions(id) if regard else {}
+	return {"pid": String(id), "pools": pools_of(id), "band": String(regard.band_of(o)) if regard else "",
+			"view": String(regard.view(id)) if regard else "", "opinion": o, "hour": hour(),
+			"day_kind": String(day_kind(town_day())), "spot": String(b.get("do", "")), "at": at,
+			"shaken": brain != null and brain.reaction != null and brain.reaction.shaken()}
+
+
+## A moment of his asks for a bark (Reaction's stages: `react.<x>`): said on the physics frame if a
+## line fits. `extra` adds to his ctx (whom, who_you) and gives the slots. True if he said one.
+func bark_for(brain: CivilianBrain, on: String, extra: Dictionary = {}) -> bool:
+	if barks == null or brain == null or brain.body == null or not brain.may_speak():
+		return false
+	var id := brain.body.person_id
+	if _person(id).is_empty() or _person(id).has("act"):
+		return false
+	var ctx := bark_ctx(id, brain.body)
+	ctx.merge(extra, true)
+	var l := barks.pick(on, ctx, town_day(), _ran, extra.get("slots", {}))
+	if l.is_empty():
+		return false
+	say_soon(brain.body, String(l[1]))
+	heard.append([String(id), String(l[0]), String(l[1])])
+	return true
+
+
+## What his own news holds of the man down `whom` (by his record): whom known, Harlan firing.
+func news_of_down(pid: StringName, whom: StringName) -> Dictionary:
+	if news == null or whom == &"":
+		return {"whom": false, "who_you": false}
+	var r := news._record_of(whom)
+	var v := news.version_of(pid, int(r.id)) if not r.is_empty() else {}
+	var knows: bool = not v.is_empty() and v.whom == whom
+	return {"whom": knows, "who_you": not v.is_empty() and v.who == TownNews.HARLAN,
+			"slots": {"whom": news.name_of(whom)} if knows else {}}
+
+
+## The undertaker at a body (`_dead_step`): his line, by what his own version holds of the man.
+func _undertaker_says(und: StringName, uman: HumanBody, dead: StringName) -> void:
+	var b := uman.get_node_or_null(^"Brain") as CivilianBrain
+	if b == null:
+		return
+	var extra := news_of_down(und, dead)
+	var p := get_tree().get_first_node_in_group(&"player") as Node3D
+	if extra.who_you and (p == null or p.global_position.distance_to(uman.global_position) > 15.0):
+		extra.who_you = false  # "Yours, Deputy?" only with you there to hear it
+	bark_for(b, "undertaker", extra)
 
 
 ## Game seconds the folk have run (their talk's gaps).
