@@ -36,6 +36,15 @@ func test_the_church_stands_on_its_pad_facing_the_lane() -> void:
 	var tower := ValleyLayout.main().place("bell_tower") if ValleyLayout.main().place_ids().has("bell_tower") else {}
 	if not tower.is_empty():
 		check(Vector2(float(tower.at[0]), float(tower.at[1])).distance_to(Vector2(door.x, door.z)) < 4.0, "the bell tower view is at the real tower")
+	# The bell tower's ladder is the church's own (its spec's `belfry` ladder in the porch, up to the hatch),
+	# found by the player as every ladder is.
+	var lad: Ladder = null
+	for n in b.find_children("Ladder_belfry", "", true, false):
+		lad = n as Ladder
+	check(lad != null and lad.is_in_group(Ladder.GROUP), "the belfry's ladder is there and found")
+	if lad != null:
+		var top := b.to_local(lad.global_position).y + lad.height
+		check(top > 7.3 and top < 8.0, "it reaches the belfry floor (%.2f m)" % top)
 
 
 func test_the_cemetery_is_on_its_hill() -> void:
