@@ -113,11 +113,11 @@ def church_bell():
     # The cast bell (about 150 kg, 0.76 m across the lip) on a plain four-post stand of timber: the belfry's
     # floor under it, its top and bottom rails, the bell standing on four posts at its corners (a box drawn as
     # a bell by a lathe; `solid` is the share of its box that is bronze).
-    prof = [[0.38, 1.01], [0.37, 1.06], [0.33, 1.16], [0.27, 1.34], [0.2, 1.56], [0.15, 1.74], [0.1, 1.82], [0.0, 1.84]]
+    prof = [[0.38, 1.56], [0.37, 1.61], [0.33, 1.71], [0.27, 1.89], [0.2, 2.11], [0.15, 2.29], [0.1, 2.37], [0.0, 2.39]]
     mem = []
     for i, (sx, sz) in enumerate([(-0.3, -0.3), (0.3, -0.3), (-0.3, 0.3), (0.3, 0.3)]):
-        mem.append(m("post%d" % i, "post", (0.12, 1.0, 0.12), (sx, 0.5, sz), wood="framing"))
-    b = m("bell", "furniture_top", (0.76, 0.83, 0.76), (0.0, 1.42, 0.0), look="prop:brass", wood="iron")
+        mem.append(m("post%d" % i, "post", (0.12, 1.55, 0.12), (sx, 0.775, sz), wood="framing"))
+    b = m("bell", "furniture_top", (0.76, 0.83, 0.76), (0.0, 1.97, 0.0), look="prop:brass", wood="iron")
     b["draw"] = {"shape": "lathe", "profile": prof, "segments": 28}
     b["solid"] = 0.035
     mem.append(b)
