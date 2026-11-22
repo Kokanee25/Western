@@ -963,6 +963,7 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/structures
 
+- `church_tower.gd` (#1142): the church's bell tower, belfry, louvres, spire and pointed window heads, called from `SpecBuilding.build` when the spec has a `tower`; the cemetery is `src/world/cemetery.gd` (`config/cemetery.json`), placed by `ValleyWorld._make_church` and `_make_cemetery`.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via

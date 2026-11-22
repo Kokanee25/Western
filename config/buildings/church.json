@@ -16,13 +16,13 @@
   ]
  },
  "lot": {
-  "_doc": "valley.json's `church` place (the rise north-west of town, +7.5 m): the front wall's outer face on z -132.5, its east corner at world x -57.735, facing the lane (south). Placed by ValleyWorld._make_church; the pad is the lot's.",
+  "_doc": "valley.json's `church` place (the rise north-west of town, +7.5 m): the front wall's outer face on z -135.5, its east corner at world x -57.735, facing the lane (south). Placed by ValleyWorld._make_church; the pad is the lot's.",
   "valley_place": "church",
   "side": "north",
   "at": [
    -57.735,
    7.5,
-   -132.5
+   -135.5
   ],
   "facing": 180,
   "width": 8.53,

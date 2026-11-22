@@ -43,8 +43,8 @@ s["identity"] = {
     "clues": ["a bell tower over the door", "a hymn board by the pulpit with last Sunday's numbers", "a stove in the corner with a pipe across the nave",
               "the grave dug beside it", "the children's names carved in the back pew"]}
 s["lot"] = {
-    "_doc": "valley.json's `church` place (the rise north-west of town, +7.5 m): the front wall's outer face on z -132.5, its east corner at world x -57.735, facing the lane (south). Placed by ValleyWorld._make_church; the pad is the lot's.",
-    "valley_place": "church", "side": "north", "at": [-57.735, 7.5, -132.5], "facing": 180, "width": W, "depth": D,
+    "_doc": "valley.json's `church` place (the rise north-west of town, +7.5 m): the front wall's outer face on z -135.5, its east corner at world x -57.735, facing the lane (south). Placed by ValleyWorld._make_church; the pad is the lot's.",
+    "valley_place": "church", "side": "north", "at": [-57.735, 7.5, -135.5], "facing": 180, "width": W, "depth": D,
     "yard": [-3.0, -6.0, W + 3.0, D + 3.0], "footprint_with_stair": [0.0, -4.4, W, D]}
 s["levels"] = {
     "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the ceiling joists, 3 x 15 in at 16 in, are the roof's ties across the 28 ft span and carry the boarded loft above; 9/12 roof (36.9 degrees, the doctor's).",
