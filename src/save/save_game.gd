@@ -26,6 +26,25 @@ static var MIGRATIONS := {}
 static var last_error := ""
 ## True while `apply` runs: what's put back isn't happening now (no deeds, no news of it).
 static var loading := false
+## A save to put on the valley as it's next built (#1148: Continue, the bridge's `load`): set by
+## `load_slot`, taken by ValleyWorld once its folk are in (`ValleyWorld._load_pending`).
+static var pending := {}
+## The last load's `apply` report ({missed, ms}) and the slot it came from, for the bridge and tests.
+static var last_load := {}
+
+
+## The game reloaded with `slot`'s save on it (Continue, the bridge's `load`): read now, the world's
+## statics cleared and the story put back as the save had it (a load is a retry's shape: the story
+## restored, never wiped), the scene reloaded, the rest applied once the fresh valley's in. False
+## (and `last_error`) if there's no save to load.
+static func load_slot(tree: SceneTree, slot := "slot1") -> bool:
+	var d := read(slot)
+	if d.is_empty():
+		return false
+	if String(d.get("world", "")) != "" and StringName(d.world) != Settings.world:
+		Settings.set_world(StringName(d.world))
+	GameReset.load_save(tree, d)
+	return true
 
 
 # --- Taking it from the world ------------------------------------------------------------------

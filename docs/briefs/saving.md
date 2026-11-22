@@ -4,9 +4,58 @@ Issue #1138 (step 1), the slice's "Saving by sleeping" (#953). DESIGN.md §3: **
 bed**; "Persistent rubble": the save records only the difference from the original town. ROADMAP 5.5
 (the outcome survives sleeping, quitting and loading) and 6.6 (a soak with saves and loads).
 
-**Step 1 (built, this brief):** what a save holds, written to one file and read back whole into a valley
-built fresh. No sleeping, no menu. **Step 2:** sleeping in a bed ends the day, saves, wakes you at dawn;
-Harlan's bed (#1126); quitting, and the title screen's Continue.
+**Step 1 (built):** what a save holds, written to one file and read back whole into a valley built
+fresh. **Step 2 (built, #1148):** sleeping in a bed ends the day, saves, wakes you at dawn; Continue at
+the start. **Step 3 (not yet):** the "Not yet" list's slice items (a townsman's wounds once indoors).
+
+## Step 2: sleeping, Continue (#1148)
+
+- **A bed** is any node in the group `beds`: every spec building's use point with `use: sleep` (the
+  doctor's cot, the jail's bunk, saloon B's lodgers' beds). Harlan's cabin (#1126) isn't on main yet:
+  once its spec has a `sleep` use point it's a bed with nothing more to do.
+- **E at a bed** (`PlayerSleep`): the screen fades out; the clock goes on to the next 06:00
+  (`hours_to_dawn`; under an hour to go, the dawn after); blood and floor marks dry and each hour and
+  midnight are announced (`DayCycle.pass_hours`), so the news goes overnight and the folk are placed by
+  their day; `Events.hours_passed(h, &"sleep")` mends you (`PlayerWounds.mend_hours`) and runs a hurt
+  townsman's wounds on; the town is given a dozen frames to place itself; **then the save, taken after
+  the night** (a load puts you at dawn, up where you lay down, guns away); the fade in, a line: "You
+  sleep till dawn. Day N, 06:00. Saved."
+- **Refused, with a line on screen:** bleeding ("bind it before you lie down"); a man by the collar or
+  a chair; a shot fired within 60 m in the last 30 s, yours too ("Not with shooting this close."); an outlaw on his
+  feet within 60 m who has you as his target or as a threat, or Joe turned; a scene in play (a Moment
+  not done). Any hour is allowed: from noon you sleep 18 hours.
+- **Continue** (`ContinueCard`; there's no title screen): the plain valley start with a save in
+  `slot1` shows a card (Enter: Continue, day and hour; Space: a new game). Continue reads the save,
+  clears the world's statics and puts its story back (a retry's shape), reloads the scene; the valley
+  puts the save on under black once its folk are in and lifts the black. A command line's mission and a
+  retry's flag don't start on a load. A new game leaves the save alone; only your next sleep writes
+  over it (the one before kept as `.bak`). **Quitting doesn't save.**
+- **Measured** (this workspace): a sleep's capture and write are in the PR; a load onto the fresh valley
+  as step 1's.
+- **The playtest** (`docs/playtests/2026-11-22.md`): sleep and Continue gave back the same world (the
+  dead where he lay, the blood, the clock, the gun's rounds; load 77 ms, nothing missed). Fixed from it:
+  your own shot now refuses a sleep; who died in the night is said on waking. Not fixed: the valley
+  jail's bed couldn't be walked to (art's building); under the bridge the world is the old town unless
+  `--world=valley` (it has no beds).
+- **The town overnight:** a townsman who goes indoors overnight comes back out unhurt (ValleyFolk frees
+  his body: the "Not yet" list). Until step 3 **the town mends overnight**; the dead stay dead.
+
+### The missions across a sleep (what a load brings back from the story's facts alone)
+
+- **The sheriff on the road** (day 1's dawn): started only by `--mission=sheriff`; nothing in play
+  starts it, so a load never does. What it leaves (`sheriff.care`, `sheriff.blood_loss`) is in the
+  story and No Law's day 2 reads it.
+- **No Law's night (the murder, the carry):** ValleyFolk starts the murder from the clock and the story
+  (no `nolaw.murder` yet, at 22:00 or after your hands at the table). Slept through before it, it plays
+  the next night: a load brings it back as it stood. You can't sleep in it (a Moment).
+- **No Law's morning, the sheriff's death, the funeral:** ValleyFolk starts each from the clock and the
+  facts (`nolaw.morning`, `sheriff_from`, `nolaw.sheriff` and when it was set, `funeral`'s hours): a load
+  between them brings the next one on as it would have come. Nothing to wire.
+- **No Justice** (camp, hideout, cabin): started only by its `--mission=` flags or the act before it;
+  there's no start in play after the funeral yet, so a load between No Law and No Justice brings nothing
+  back (nor would playing on). Its retry flag (`NoJusticeHideout.retry_on_load`) isn't taken on a load.
+- `SaveGame.apply`'s `missed` is empty for a sleep between missions (the test holds it): no mission's
+  cast is in the world then.
 
 ## On one screen
 
@@ -118,5 +167,8 @@ The same holds for rubble only loosely (it rests on the ground, not on its own j
   valley after `GameReset.clear_statics()`; loads; and compares story, clock, you, the town's day and
   news, the floor, the blood, each person and each changed structure. A second and a half later the
   dead are within 3 cm of where they lay.
-- Step 2's own test: sleep, quit, start the game again, Continue, and the same comparison.
+- Step 2's own test (`tests/test_sleep.gd`): sleep in a bed, the file there and the clock at dawn;
+  the world freed, a fresh valley built with the save pending (as Continue's reload), and the capture
+  taken as you slept compared with the loaded world's; a sleep refused shooting and bleeding;
+  Continue offered only with a save.
 - ROADMAP 6.6: the soak saves and loads as it goes (`SaveGame.differences` is its check).

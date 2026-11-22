@@ -77,6 +77,8 @@ var ride: RideThere
 ## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
 ## folk's set (their men are built a frame later: `folk.build_ms`).
 var load_ms := {}
+## A save's load waits this many physics frames for the valley's folk (built a frame after it).
+const LOAD_AFTER_FRAMES := 15
 
 
 func _ready() -> void:
@@ -131,6 +133,17 @@ func _ready() -> void:
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
+	if not SaveGame.pending.is_empty():
+		# A save loaded (#1148: Continue, the bridge's `load`): it's put on once the folk are in, under
+		# a black cover; no mission starts from the command line or a retry's flag.
+		_load_pending.call_deferred()
+		return
+	if ContinueCard.offered():
+		var card := ContinueCard.new()
+		card.name = &"ContinueCard"
+		add_child(card)
+	else:
+		ContinueCard.done = true
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
 	if NO_LAW_ARG in OS.get_cmdline_user_args():
@@ -158,6 +171,49 @@ func _ready() -> void:
 	if CoachCut.START_ARG in OS.get_cmdline_user_args() or CoachCut.start_on_load:
 		CoachCut.start_on_load = false
 		_start_coach_cut.call_deferred()
+
+
+## The save SaveGame.load_slot left (#1148), put on this fresh valley once its folk are built (the
+## save's test waits the same), under black till it's on; then the black fades. Capture and load are
+## one frame each (the brief: 280-360 ms here), hidden by the cover.
+func _load_pending() -> void:
+	var d := SaveGame.pending
+	SaveGame.pending = {}
+	ContinueCard.done = true
+	var cover := CanvasLayer.new()
+	cover.layer = 96
+	cover.name = &"LoadCover"
+	var black := ColorRect.new()
+	black.color = Color.BLACK
+	black.set_anchors_preset(Control.PRESET_FULL_RECT)
+	black.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cover.add_child(black)
+	add_child(cover)
+	var p := get_node_or_null(^"Player") as Player
+	if p:
+		p.input_enabled = false
+	for i in LOAD_AFTER_FRAMES:
+		await get_tree().physics_frame
+	var report := SaveGame.apply(get_tree(), d)
+	report["day"] = int((d.get("clock", {}) as Dictionary).get("day", 0))
+	SaveGame.last_load = report
+	if not (report.missed as Array).is_empty():
+		push_warning("the save's load missed: %s" % [report.missed])
+	if folk:
+		folk._look = 0.0
+	for i in 3:
+		await get_tree().physics_frame
+	if p and is_instance_valid(p):
+		p.input_enabled = true
+		if p.wounds:
+			var clock := get_node_or_null(^"DayCycle") as DayCycle
+			p.wounds.say("Day %d, %s." % [clock.day, clock.get_clock_text()] if clock else "", 3.0)
+	var t := 0.0
+	while t < 0.6:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		black.color.a = 1.0 - clampf(t / 0.6, 0.0, 1.0)
+	cover.queue_free()
 
 
 ## The sheriff on the road (#746), once the valley's in (its places, the ground under you). The

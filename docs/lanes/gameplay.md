@@ -16,8 +16,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   stand-in sheet, `ValleyFolk.lay_out`); in the morning SheriffDies' doctor says morning.body by him, the
   undertaker's after the sheriff's dead. `tests/test_no_law_carry.gd`. Open: the doctor in the doorway can block
   dragging him in yourself (the test lets go on the step); "on the table" in carry.lay but he's on the floor;
-  carry.street, morning.coat and the undertaker's lines by the body aren't wired; the coat isn't drawn bloody
-  (`blood_on_you` is a number). The funeral (#868) as it was. No Law's script
+  carry.street, morning.coat, the undertaker's lines aren't wired; the coat isn't drawn bloody. The funeral (#868) as it was. No Law's script
   isn't OK'd (#1059). **Next: the whole mission played end to end, its seams mended (#876).**
 - **No Justice: steps 1-4 done** (#843's plan; each `-- --world=valley --mission=<m>`, bridge `moment <m> set_up=1`).
   Joe is `CompanionBrain` (`--joe`, the lab's `joe=1`, `--joe-tune`); `held`, a scene walks him and he doesn't step out
@@ -38,10 +37,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (`ValleyFolk.set_up_no_law`; a story `--mission=` picks the valley, the bridge too); the black-out moves the world on
   (`Events.person_left`, `Physiology.pass_time`, `CivilianBrain._hurt_spent`); you mend in a day (`PlayerWounds.mend_hours`,
   `Physiology.mend`/`heal_all`, Sean's #1093); `JoeLost` (Joe turned and gone or dead: a card, Enter again); `slow_why`;
-  blast lines (`hurt_blast`); `SEARCH_NEAR_M`. Tests `test_chaos_faults`, `test_hurt_townsfolk`, `test_come_round`.
+  blast lines (`hurt_blast`); `SEARCH_NEAR_M`.
   Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds (round 2's #1, not in #1125); the bridge's `tend`
-  on an unhurt man kicks, `look` blocked at 53 m vs 2.3 m, `goto PLACE YAW` ignores the yaw carrying; the gang's
-  "spotted" at 100 m not reproduced (a test holds it); the slowdown after dynamite and fire; two townsmen on one spot.
+  on an unhurt man kicks, `goto PLACE YAW` ignores the yaw carrying; the slowdown after dynamite and fire; two townsmen on one spot.
 - Story: #744, STORY.md; the bible #809.
 - **Townsfolk behaving realistically** (#850; `docs/briefs/townsfolk.md`, 11 steps). Done: steps 2-6 (day and book,
   roster, spots, reactions `Reaction`, the runner `FetchHelp`). **7 the town's news (#1051, `TownNews`,
@@ -55,9 +53,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
   rail; bridge `ride [PLACE]`. Open: unjudged on screen; SaveGame doesn't keep where your horse is tied.
-- **Saving by sleeping** (#1138 step 1 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame` takes the valley's
-  difference from authored, writes `user://saves/<slot>.save`, reads it onto a fresh valley (`tests/test_save_game.gd`).
-  Nothing calls it in play. **Next: step 2, a bed ends the day and saves; Continue.** Not kept yet: the brief's list.
+- **Saving by sleeping** (#1138, #1148 steps 1-2 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame`;
+  E at a bed (group `beds`: spec `use: sleep` points) sleeps to 06:00 and saves (`PlayerSleep`); `ContinueCard` at a
+  plain start; `load_slot` reloads with it. Open: the town mends overnight (a man gone indoors comes out unhurt), the
+  brief's "Not yet"; no start in play for No Justice; Harlan's bed once #1126's spec has a `sleep` point.
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
   **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
