@@ -151,8 +151,9 @@ func step(delta: float, harlan: Node3D) -> void:
 		if d > near + _d("show_clear_m", 5.0):
 			shown.erase(pid)
 			continue
-		if shown.has(pid) or d > near or folk.state.get(pid) != &"in" or folk._person(pid).has("act"):
-			continue
+		if shown.has(pid) or d > near or folk.state.get(pid) != &"in" or folk._person(pid).has("act") \
+				or not folk._person(pid).has("day"):
+			continue  # (the day folk only: No Law's set men keep to their cards)
 		var b := man.get_node_or_null(^"Brain") as CivilianBrain
 		if b == null or not b.can_show():
 			continue

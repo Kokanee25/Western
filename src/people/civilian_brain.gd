@@ -837,9 +837,9 @@ func _physics_step(delta: float) -> void:
 		_chore(delta, false)
 		body.set_pose(&"hands_up" if _flinch > 0.5 else &"stand")
 		return
-	if _show_step(delta):
+	if _show_step(delta) and not _seated():
 		_chore(delta, false)
-		return
+		return  # (sat down, he shows it with his head only and stays in his chair: his chore goes on)
 	_gun_watch -= delta
 	if _gun_watch <= 0.0 or _gun_seen == null or not is_instance_valid(_gun_seen):
 		_gun_seen = null
@@ -964,6 +964,21 @@ func _show_step(delta: float) -> bool:
 			returning = true  # back to his place once Harlan's by
 		return false
 	var at := who.global_position + Vector3.UP * 1.5
+	if _seated():
+		# In his chair: his head and eyes only (a man at the cards doesn't get up to nod at you).
+		match what:
+			&"nod":
+				_attend(at)
+				_head_tip(Vector3(-11.0 * sin(clampf((t - 0.3) / 0.9, 0.0, 1.0) * PI), 0, 0))
+			&"look_away", &"turn":
+				if t < 0.5 and what == &"look_away":
+					_attend(at)
+				else:
+					var off := body.global_position + (at - body.global_position).rotated(Vector3.UP, deg_to_rad(-80.0))
+					_attend(Vector3(off.x, body.global_position.y + 0.9, off.z))
+			&"clear":
+				_head_tip(Vector3(-14.0, 0, 0))
+		return true
 	body.set_pose(&"stand")
 	match what:
 		&"nod":
@@ -990,6 +1005,14 @@ func _show_step(delta: float) -> bool:
 				showing.aside = Vector3.INF
 				_turn_to(at, delta)
 	return true
+
+
+## Sat in a chair (a SitChore has him).
+func _seated() -> bool:
+	for c: RefCounted in chores:
+		if c is SitChore and (c as SitChore).busy():
+			return true
+	return false
 
 
 ## His head tipped (degrees, pose_offsets' axes): through his face's gaze, which owns his head's
