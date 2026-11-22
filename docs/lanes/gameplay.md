@@ -47,14 +47,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   roster, spots, reactions `Reaction`, the runner `FetchHelp`). **7 the town's news (#1051, `TownNews`,
   `tests/test_town_news.gd`, `_valley`; bridge `read news`; LAYOUT "src/people")**: versions only from Senses, telling,
   overnight, `news.yesterday` -> calendar `uneasy`, `news.harlan`; the dead taken to the undertaker's
-  (`ValleyFolk._dead_step`). **Next: step 8, the town's script.** Open: Senses names a shooter on a glimpse
+  (`ValleyFolk._dead_step`). **Next: step 8, the town's script (#1144).** Open: Senses names a shooter on a glimpse
   (`_in_view`; the lab's news case); news lines PROPOSED; nobody carries the body (it goes once unseen); outlaws
   and act men killed aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
-- **Ride there** (#1120, `RideThere`, `config/ride_there.json`; LAYOUT "src/creatures"): E at a tied horse, the places
-  you know, a fade, the clock on at a trot, you by your horse at the rail; bridge `ride [PLACE]`, `goto horse_<id>`.
-  Open: hitches unjudged on screen; mission horses offer it but yours is the one you arrive with.
+- **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
+  rail; bridge `ride [PLACE]`. Open: unjudged on screen; SaveGame doesn't keep where your horse is tied.
+- **Saving by sleeping** (#1138 step 1 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame` takes the valley's
+  difference from authored, writes `user://saves/<slot>.save`, reads it onto a fresh valley (`tests/test_save_game.gd`).
+  Nothing calls it in play. **Next: step 2, a bed ends the day and saves; Continue.** Not kept yet: the brief's list.
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
   **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
@@ -74,8 +76,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
 - **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
 - **CI's tests in six shards** (#1015): `config/test_times.json` (`tools/test_times.py`); locally one shard at a time.
-- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3). Locally
-  `test_no_law_carry` (shard 2) has failed in shard order but passes on CI.
+- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3).
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 

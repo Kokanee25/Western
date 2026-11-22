@@ -794,3 +794,30 @@ func report() -> Dictionary:
 		vs[String(pid)] = mine
 	return {"records": recs, "versions": vs, "talks": talks.size(), "yesterday": StoryState.get_fact("news.yesterday", ""),
 			"harlan": StoryState.get_fact("news.harlan", "")}
+
+
+# --- Saved (SaveGame, #1138) -------------------------------------------------------------------
+
+## What a save keeps of the news: every record, everyone's version of each, what's been said. (The
+## talks under way aren't: nobody's mid-sentence when you sleep.) Frames are kept as how long ago.
+func save_dict() -> Dictionary:
+	return {"records": HumanBody.plain(records), "versions": versions.duplicate(true), "said": HumanBody.plain(_said),
+			"hour_told": _hour_told, "frame": Engine.get_physics_frames()}
+
+
+func load_dict(d: Dictionary) -> void:
+	var shift := Engine.get_physics_frames() - int(d.frame)
+	records.clear()
+	for saved: Dictionary in d.records:
+		var r := saved.duplicate(true)
+		r["frame"] = int(r.frame) + shift
+		r["last_frame"] = int(r.last_frame) + shift
+		r["body"] = null
+		records.append(r)
+	versions = (d.versions as Dictionary).duplicate(true)
+	for pid: StringName in versions:
+		for rid: Variant in versions[pid]:
+			versions[pid][rid]["frame"] = int(versions[pid][rid].frame) + shift
+	_said = (d.said as Dictionary).duplicate(true)
+	_hour_told = int(d.hour_told)
+	talks.clear()
