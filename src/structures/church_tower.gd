@@ -76,13 +76,12 @@ func belfry() -> void:
 	# Joists across the tower between the east and west plates, boards over them, the hatch left open.
 	b.band = 2
 	var jh := 0.235
-	var hatch := Rect2(cx + 0.62, -1.37, 0.6, 0.4)  # the ladder's hatch (x, z), between two joists, by the nave's front wall
 	var jzs: Array[float] = []
-	var jz := z0 + 0.13
-	while jz < -0.3:
-		jzs.append(jz)
-		jz += 0.5
-	jzs.append(-0.13)
+	var jn := ceili((-0.13 - (z0 + 0.13)) / 0.5)
+	for i in jn + 1:
+		jzs.append(lerpf(z0 + 0.13, -0.13, float(i) / float(jn)))
+	# The ladder's hatch (x, z), between two joists by the nave's front wall (the second gap from it).
+	var hatch := Rect2(cx + 0.62, jzs[jn - 2] + 0.04, 0.6, jzs[jn - 1] - jzs[jn - 2] - 0.08)
 	var k := 0
 	for z in jzs:
 		b.add_member("tower/belfry/joist_%d" % k, &"joist", &"framing", Vector3(x1 - x0 - 0.06, jh, 0.05), Vector3(cx, fy + jh * 0.5, z))
@@ -92,6 +91,8 @@ func belfry() -> void:
 	k = 0
 	while bx < x1 - 0.1:
 		var bw := minf(0.15, x1 - 0.1 - bx)
+		if x1 - 0.1 - bx < 0.22:
+			bw = x1 - 0.1 - bx  # the last board takes the remainder: no sliver
 		var runs := [[z0 + 0.1, -0.1]]
 		if bx + bw > hatch.position.x and bx < hatch.end.x:
 			runs = [[z0 + 0.1, hatch.position.y], [hatch.end.y, -0.1]]
@@ -100,7 +101,7 @@ func belfry() -> void:
 			b.add_member("tower/belfry/board_%d_%d" % [k, j], &"floor_board", &"floor", Vector3(bw - 0.004, 0.032, float(rr[1]) - float(rr[0])),
 					Vector3(bx + bw * 0.5, fy + jh + 0.016, (float(rr[0]) + float(rr[1])) * 0.5))
 			j += 1
-		bx += 0.15
+		bx += bw if bw > 0.15 else 0.15
 		k += 1
 	# Corner posts, and the ring of plates at their heads.
 	b.band = 3
@@ -128,7 +129,7 @@ func belfry() -> void:
 		b.add_member("tower/belfry/skirt_%d" % i, &"roof_board", &"weathered_pine", sz, c, Basis(ax, ang))
 	b.band = 3
 	# A post at the middle of each face too, under the ring's mid-span (the spire's commons land there).
-	for mp in [[cx, z0 + post * 0.5 + 0.02], [cx, -post * 0.5 - 0.02], [x0 + post * 0.5 + 0.02, cz], [x1 - post * 0.5 - 0.02, cz]]:
+	for mp in [[cx, -post * 0.5 - 0.02], [x0 + post * 0.5 + 0.02, cz], [x1 - post * 0.5 - 0.02, cz]]:
 		b.add_member("tower/belfry/mid_%d_%d" % [int(float(mp[0]) * 10), int(float(mp[1]) * -10)], &"post", &"framing", Vector3(post, ph, post), Vector3(float(mp[0]), py + ph * 0.5, float(mp[1])))
 	b.band = 4
 	var ring := Vector2(0.15, 0.25)  # (width, height)
@@ -177,13 +178,21 @@ func belfry() -> void:
 ## from the belfry's ring plates, an iron cross on its apex.
 func _spire(y0: float, cx: float, cz: float) -> void:
 	var hs := float(t.spire)
-	var half_x := (x1 - x0) * 0.5 - 0.06
-	var half_z := -z0 * 0.5 - 0.06
+	var eave := 0.16
+	var half_x := (x1 - x0) * 0.5 - 0.06 + eave
+	var half_z := -z0 * 0.5 - 0.06 + eave
 	var s_ := maxf(half_x, half_z)  # a square spire over the tower's square plan: half a side
 	var slope := atan2(hs, s_)
 	var len_total := sqrt(s_ * s_ + hs * hs)
 	var apex := Vector3(cx, y0 + hs, cz)
+	# The seat: four beams laid on the ring, standing out past it by the eave, the hips' feet on them.
 	b.band = 5
+	for i in 4:
+		var along_x := i < 2
+		var sgn := 1.0 if i % 2 == 0 else -1.0
+		var sz := Vector3(2.0 * s_ + 0.1, 0.1, 0.1) if along_x else Vector3(0.1, 0.1, 2.0 * s_ + 0.1)
+		var cc := Vector3(cx, y0 + 0.03, cz + sgn * (s_ - 0.05)) if along_x else Vector3(cx + sgn * (s_ - 0.05), y0 + 0.03, cz)
+		b.add_member("tower/spire/seat_%d" % i, &"beam", &"framing", sz, cc)
 	for i in 4:
 		var corner := Vector3(cx + (s_ if i % 2 == 0 else -s_), y0, cz + (s_ if i < 2 else -s_))
 		var d := apex - corner

@@ -35,7 +35,7 @@
   ],
   "footprint_with_stair": [
    0.0,
-   -4.4,
+   -5.0,
    8.53,
    13.41
   ]
@@ -549,12 +549,12 @@
    "id": "tower_front",
    "line": [
     [
-     2.7399999999999998,
-     -3.05
+     2.4349999999999996,
+     -3.66
     ],
     [
-     5.789999999999999,
-     -3.05
+     6.095,
+     -3.66
     ]
    ],
    "out": "-z",
@@ -568,7 +568,7 @@
     {
      "level": "ground",
      "from": 0.1,
-     "to": 2.95,
+     "to": 3.56,
      "finish": "boards"
     }
    ],
@@ -576,7 +576,7 @@
     {
      "type": "door",
      "level": "ground",
-     "at": 1.525,
+     "at": 1.83,
      "width": 1.5,
      "height": 2.7,
      "leaf": "inward"
@@ -589,11 +589,11 @@
    "id": "tower_e",
    "line": [
     [
-     2.7399999999999998,
-     -3.05
+     2.4349999999999996,
+     -3.66
     ],
     [
-     2.7399999999999998,
+     2.4349999999999996,
      0.1
     ]
    ],
@@ -608,7 +608,7 @@
     {
      "level": "ground",
      "from": 0.1,
-     "to": 3.05,
+     "to": 3.66,
      "finish": "boards"
     }
    ],
@@ -616,7 +616,7 @@
     {
      "type": "window",
      "level": "ground",
-     "at": 1.5,
+     "at": 1.83,
      "width": 0.6,
      "height": 1.2,
      "sill": 1.4,
@@ -630,11 +630,11 @@
    "id": "tower_w",
    "line": [
     [
-     5.789999999999999,
-     -3.05
+     6.095,
+     -3.66
     ],
     [
-     5.789999999999999,
+     6.095,
      0.1
     ]
    ],
@@ -649,7 +649,7 @@
     {
      "level": "ground",
      "from": 0.1,
-     "to": 3.05,
+     "to": 3.66,
      "finish": "boards"
     }
    ],
@@ -657,7 +657,7 @@
     {
      "type": "window",
      "level": "ground",
-     "at": 1.5,
+     "at": 1.83,
      "width": 0.6,
      "height": 1.2,
      "sill": 1.4,
@@ -670,13 +670,13 @@
  "tower": {
   "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (10 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, four posts, louvres, the bell beams, a pyramidal spire of shingles on hip rafters, an iron cross. The top about 15.6 m over the ground (valley.json's bell_tower: 15 m).",
   "x": [
-   2.7399999999999998,
-   5.789999999999999
+   2.4349999999999996,
+   6.095
   ],
-  "z": -3.05,
+  "z": -3.66,
   "belfry_floor": 7.4,
   "belfry_top": 10.6,
-  "spire": 4.4,
+  "spire": 5.2,
   "post": 0.15,
   "louvre": {
    "from": 8.0,
@@ -698,7 +698,7 @@
    "id": "front",
    "head": [
     3.1649999999999996,
-    -3.05
+    -3.66
    ],
    "dir": "+z",
    "width": 2.2,
@@ -755,9 +755,9 @@
    "id": "porch",
    "level": "ground",
    "rect": [
-    2.84,
-    -2.9499999999999997,
-    5.6899999999999995,
+    2.5349999999999997,
+    -3.56,
+    5.995,
     0.0
    ],
    "use": "the bell rope and the ladder to the belfry; where the families greet and the coffin waits"
@@ -1263,7 +1263,7 @@
      "at": [
       4.265,
       6.71,
-      -1.525
+      -1.83
      ],
      "facing": 0,
      "use": "the church bell on its stand in the belfry, over the porch"
@@ -1378,15 +1378,15 @@
   "surfaces": [
    [
     "roof/board",
-    "roof"
+    "-"
    ],
    [
     "tower/belfry/skirt",
-    "roof"
+    "-"
    ],
    [
     "tower/spire/shingle",
-    "roof"
+    "-"
    ],
    [
     "tower/belfry/louvre",

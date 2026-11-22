@@ -20,14 +20,15 @@ d = json.load(open(os.path.join(ROOT, "config", "buildings", "doctor.json")))
 
 W, D = 8.53, 13.41
 CX = W / 2
-TX0, TX1, TZ = CX - 1.525, CX + 1.525, -3.05
+TH = 1.83  # the tower's half width: 12 ft square
+TX0, TX1, TZ = CX - TH, CX + TH, -2 * TH
 FLOOR = 0.95
 PLATE = 5.55
 JOIST = [0.08, 0.38]
 UPPER = round(PLATE + JOIST[1] + 0.022, 3)
 BELFRY_FLOOR = 7.4
 BELFRY_TOP = 10.6
-SPIRE = 4.4
+SPIRE = 5.2
 
 s = {}
 s["_doc"] = ("The church of Salt Creek (#1142, the building lab; tools/buildings/church_spec.py writes this file): a white frame "
@@ -45,7 +46,7 @@ s["identity"] = {
 s["lot"] = {
     "_doc": "valley.json's `church` place (the rise north-west of town, +7.5 m): the front wall's outer face on z -135.5, its east corner at world x -57.735, facing the lane (south). Placed by ValleyWorld._make_church; the pad is the lot's.",
     "valley_place": "church", "side": "north", "at": [-57.735, 7.5, -135.5], "facing": 180, "width": W, "depth": D,
-    "yard": [-3.0, -6.0, W + 3.0, D + 3.0], "footprint_with_stair": [0.0, -4.4, W, D]}
+    "yard": [-3.0, -6.0, W + 3.0, D + 3.0], "footprint_with_stair": [0.0, -5.0, W, D]}
 s["levels"] = {
     "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the ceiling joists, 3 x 15 in at 16 in, are the roof's ties across the 28 ft span and carry the boarded loft above; 9/12 roof (36.9 degrees, the doctor's).",
     "ground": {"top": FLOOR}, "upper": {"top": UPPER, "_doc": "the loft's floor, on the ceiling joists over the plates"},
@@ -100,12 +101,12 @@ walls = [
      "top": "plate", "outside": outside(), "inside": inside(0.1, D - 0.1), "openings": [win(z) for z in side_z], "ribbon": False},
     {"_doc": "The tower's front: its double doors onto the steps, clapboard to the belfry's floor.",
      "id": "tower_front", "line": [[TX0, TZ], [TX1, TZ]], "out": "-z", "top": BELFRY_FLOOR, "outside": outside(),
-     "inside": inside(0.1, 2.95, False),
-     "openings": [{"type": "door", "level": "ground", "at": 1.525, "width": 1.5, "height": 2.7, "leaf": "inward"}], "ribbon": False},
+     "inside": inside(0.1, 2 * TH - 0.1, False),
+     "openings": [{"type": "door", "level": "ground", "at": TH, "width": 1.5, "height": 2.7, "leaf": "inward"}], "ribbon": False},
     {"_doc": "The tower's east side: a small window to the porch.", "id": "tower_e", "line": [[TX0, TZ], [TX0, 0.1]], "out": "-x", "top": BELFRY_FLOOR,
-     "outside": outside(), "inside": inside(0.1, 3.05, False), "openings": [win(1.5, 0.6, 1.2, 1.4, 2, False)], "ribbon": False},
+     "outside": outside(), "inside": inside(0.1, -TZ - 0.1 + 0.1, False), "openings": [win(TH, 0.6, 1.2, 1.4, 2, False)], "ribbon": False},
     {"_doc": "The tower's west side.", "id": "tower_w", "line": [[TX1, TZ], [TX1, 0.1]], "out": "+x", "top": BELFRY_FLOOR,
-     "outside": outside(), "inside": inside(0.1, 3.05, False), "openings": [win(1.5, 0.6, 1.2, 1.4, 2, False)], "ribbon": False}]
+     "outside": outside(), "inside": inside(0.1, -TZ - 0.1 + 0.1, False), "openings": [win(TH, 0.6, 1.2, 1.4, 2, False)], "ribbon": False}]
 s["walls"] = walls
 s["tower"] = {
     "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (10 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, four posts, louvres, the bell beams, a pyramidal spire of shingles on hip rafters, an iron cross. The top about 15.6 m over the ground (valley.json's bell_tower: 15 m).",
@@ -185,9 +186,9 @@ mat["finishes"]["floor"] = {"want": {"entry": "floor_fir_worn", "age": "old", "r
 surf = [x for x in mat["surfaces"] if not x[0].startswith(("front/door_", "back/door_", "yard/door_", "lane/door_", "floor/attic", "back_porch"))]
 surf = [["floor/tower/board", "floor"], ["tower_front/door_", "trim"], ["front/door_", "trim"], ["tower/", "exterior"], ["stage/", "rough"]] + surf
 surf.insert(0, ["tower/belfry/louvre", "trim"])
-surf.insert(0, ["tower/spire/shingle", "roof"])
-surf.insert(0, ["tower/belfry/skirt", "roof"])
-surf.insert(0, ["roof/board", "roof"])
+surf.insert(0, ["tower/spire/shingle", "-"])
+surf.insert(0, ["tower/belfry/skirt", "-"])
+surf.insert(0, ["roof/board", "-"])
 surf += [["floor/attic/board", "floor"]]
 mat["surfaces"] = surf
 s["materials"] = mat
