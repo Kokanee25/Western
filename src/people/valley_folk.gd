@@ -1924,8 +1924,13 @@ func save_dict() -> Dictionary:
 	for id: StringName in people:
 		if folk_man(id) != null:
 			here.append(id)
+	# The dead not yet taken away (#1051): since when, and whether anyone's seen them.
+	var dead := {}
+	for id: StringName in dead_out:
+		dead[id] = {"since": dead_out[id].since, "day": dead_out[id].day, "seen": dead_out[id].seen}
 	return {"state": state.duplicate(), "here": here, "book": book.rows.duplicate(true), "laid": lay,
-			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands}
+			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands,
+			"news": news.save_dict() if news else {}, "news_day": _news_day, "dead_out": dead}
 
 
 ## A save's town day put back on a fresh town, before its people's bodies are (`SaveGame.apply`):
@@ -1936,6 +1941,13 @@ func load_dict(d: Dictionary) -> void:
 	gone_for_good = (d.gone_for_good as Dictionary).duplicate()
 	kept_out = (d.kept_out as Dictionary).duplicate()
 	_your_hands = int(d.hands)
+	if news and not (d.get("news", {}) as Dictionary).is_empty():
+		news.load_dict(d.news)
+	_news_day = int(d.get("news_day", -1))
+	dead_out.clear()
+	for id: StringName in d.get("dead_out", {}):
+		var e: Dictionary = d.dead_out[id]
+		dead_out[id] = {"since": e.since, "day": e.day, "seen": e.seen, "undertaker": false, "sent": 0.0}
 	_last_hour = NAN
 	_look = 0.0
 	_step(0.0)

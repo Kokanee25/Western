@@ -52,6 +52,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   and act men killed aren't taken; the noon street is thin; no talk sound.
 
 ## Systems the slice leans on
+- **Saving by sleeping** (#1138 step 1 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame` takes the valley's
+  difference from authored, writes `user://saves/<slot>.save`, reads it onto a fresh valley (`tests/test_save_game.gd`).
+  Nothing calls it in play. **Next: step 2, a bed ends the day and saves; Continue.** Not kept yet: the brief's list.
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
   **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).

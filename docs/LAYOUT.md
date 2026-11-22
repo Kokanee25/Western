@@ -44,6 +44,7 @@ means a section of this file.
 - [Training the image model on our style (tools/style)](#training-the-image-model-on-our-style-toolsstyle)
 - [tools/blender (the people pipeline)](#toolsblender-the-people-pipeline)
 - [addons/saltcreek_native (the native plugin)](#addonssaltcreek_native-the-native-plugin)
+- [src/save (the save)](#srcsave-the-save)
 - [tests](#tests)
 - [CI](#ci)
 
@@ -3189,6 +3190,25 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   or with `--jolt-sight` every question goes to Jolt through the same face. `sight_sync` in the
   lab's perf is its upkeep. Its lab: `experiments/sight_lab/` (census, bench); the gate test
   `tests/test_sight_world.gd`.
+
+## src/save (the save)
+
+- `src/save/save_game.gd` — **`SaveGame`** (#1138; `docs/briefs/saving.md` has the inventory, what's
+  deliberately not kept, what isn't yet, and how a body is laid back). Static: `capture(tree)` (the
+  world as one dictionary: `SECTIONS` story, clock, structures, ground, floor, blood, dynamite, folk,
+  people, player), `write(d, slot)` / `read(slot)` / `head(slot)` (`user://saves/<slot>.save`: a JSON
+  first line, then `var_to_bytes` compressed; temp file then rename, the last kept as `.bak`),
+  `apply(tree, d)` onto a valley built fresh (returns `{missed, ms}`), `save(tree, slot)` (capture and
+  write, timed), `differences(a, b, tol, tol_m, skip)`. `VERSION`, `MIGRATIONS` (version -> Callable).
+  Nothing calls it in play yet (step 2: sleeping in a bed).
+- Each system's own half: `Structure.to_dict` / `from_dict` (`maybe_changed`, `untouched`,
+  `_lay_piece`; `cut_member(..., quiet)`; `StructureMember.restore_holes`), `HumanBody.save_dict` /
+  `load_dict` / `made_from` (`plain`, `_pose_as`, `_lie_as`, `_lie_again`, `dropped_gun`),
+  `Relations.from_dict`, `ValleyFolk.save_dict` / `load_dict` / `load_laid`, `TownNews.save_dict` /
+  `load_dict`, `FloorMarks.save_dict` / `load_dict`, `Blood.save_list` / `load_list`,
+  `PlayerWounds.save_dict` / `load_dict`. People are keyed by `person_id`, structures by
+  `structure_id`, members by `member_id`: a save warns (`warnings`) of two of a name.
+- `tests/test_save_game.gd`: the file, a structure, a man, marks and blood, the whole valley.
 
 ## tests
 
