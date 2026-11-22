@@ -44,6 +44,7 @@ means a section of this file.
 - [Training the image model on our style (tools/style)](#training-the-image-model-on-our-style-toolsstyle)
 - [tools/blender (the people pipeline)](#toolsblender-the-people-pipeline)
 - [addons/saltcreek_native (the native plugin)](#addonssaltcreek_native-the-native-plugin)
+- [src/save (the save)](#srcsave-the-save)
 - [tests](#tests)
 - [CI](#ci)
 
@@ -1969,7 +1970,11 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   to everyone as told, small told news fades; StoryState `news.yesterday` (calendar kind `uneasy`), `news.harlan`
   (`view_of_harlan`: stopped_a_killer / shot_a_man / split), `news.dead.<id>`. Story records (an act man's shot)
   travel but don't set the day and aren't spoken (`to_say`). The folk's talk says a calm man's own version once
-  (`line_of`, PROPOSED words). **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
+  (`line_of`). **The words are the town's script's** (#1144, `TownScript`, `src/people/town_script.gd`): `docs/scripts/town.json`
+  copied to `config/town_script.json` (docs/ is hidden from Godot; `tests/test_town_script.gd` holds them equal: edit the
+  script, then `cp` it); `pick(ids, seed, slots)` the first id with words, a wording by the speaker's seed, slots
+  {who} {whom} {where} {shots} {teller}; `line_of` a head line (`news.<kind>[.you|.nobody]`) and tails, FetchHelp's
+  `run_doc`/`run_law`/`runner[_dead|_you][.shot]`; the built strings only a fallback. **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
   seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
   body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
@@ -2120,7 +2125,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `SHAPE_STEP` (`follow_bones`, `bone_move`). `take_off(part)` hides a piece of tack and drops it as
   a RigidBody3D (debris layers, its rest shape), `put_on` puts it back. `tie_to(point)` hides the
   ridden reins and draws two sagging reins from the bit (`bits()`, from `horse.json`) to the point.
-  Model space: head at -X, his right -Z, ground y = 0.
+  Model space: head at -X, his right -Z, ground y = 0. In the group `horses`.
+- `src/creatures/ride_there.gd` — `RideThere` (#1120, the valley's `ride`), a stand-in for riding
+  (#478): `config/ride_there.json`'s places (valley.json ids), each a hitch on a town lot (`lot`,
+  `along`, `out`) or back along one of its roads (`road`, `back_m`, `side_m`), a `HitchingRail` there;
+  your horse (`horse`, `horse_at`) at the one nearest where you start. E at any tied horse
+  (`horse_here`, `claims_use`): the list (`offered`: `known` always / been / fact:KEY[=V]; not where
+  you are), 1-9 or E; `ride(id)`: the fade, `DayCycle.pass_hours` by `ride_of` (flat distance x
+  `winding` at valley.json's `horse_trot`, + `extra_s`), `Events.hours_passed(h, &"rode")`, you and
+  your horse at the rail (`stand`, facing the place). `refusal()`: carried/dragged man, bleeding over
+  `bleed_ml_s`, `hostile_near` (an OutlawBrain against you that knows you, or within `close_m`), a
+  running Act's `ride_refusal()` (data `ride_no`, or `"ride": "ok"`), the group `ride_check`
+  (FarmhouseMission while ON); `beats_on_way` asks the group `timed_beats` (`ValleyFolk.beats_due`:
+  the murder, the sheriff's day, the funeral; "on" = it happens by its own clock after you arrive,
+  its `say` on arrival; "no" refuses). Places `horse_<id>` for `goto`; the bridge's `ride [PLACE]`.
 - `tools/blender/horse.py --shape=GLB` (the game's horse since 2026-10-24): Rodin's model from the
   Character Studio (`inputs/horse/shape.glb` on its `claude/studio-horse`, from pictures Sean approved),
   turned, scaled and measured by `horse_rodin.py` (legs by level cuts, poll, muzzle, withers, the tail
@@ -3190,6 +3208,39 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   or with `--jolt-sight` every question goes to Jolt through the same face. `sight_sync` in the
   lab's perf is its upkeep. Its lab: `experiments/sight_lab/` (census, bench); the gate test
   `tests/test_sight_world.gd`.
+
+## src/save (the save)
+
+- `src/save/save_game.gd` — **`SaveGame`** (#1138; `docs/briefs/saving.md` has the inventory, what's
+  deliberately not kept, what isn't yet, and how a body is laid back). Static: `capture(tree)` (the
+  world as one dictionary: `SECTIONS` story, clock, structures, ground, floor, blood, dynamite, folk,
+  people, player), `write(d, slot)` / `read(slot)` / `head(slot)` (`user://saves/<slot>.save`: a JSON
+  first line, then `var_to_bytes` compressed; temp file then rename, the last kept as `.bak`),
+  `apply(tree, d)` onto a valley built fresh (returns `{missed, ms}`), `save(tree, slot)` (capture and
+  write, timed), `differences(a, b, tol, tol_m, skip)`. `VERSION`, `MIGRATIONS` (version -> Callable).
+  `pending` / `load_slot(tree, slot)` (#1148: read, `GameReset.load_save` clears the world's statics and
+  puts the story back, reloads; `ValleyWorld._load_pending` applies it under a black cover once the folk
+  are in, `LOAD_AFTER_FRAMES`, and skips the command line's mission starts), `last_load`.
+- `src/player/player_sleep.gd` — **`PlayerSleep`** (`player.sleep`, #1148): E at a bed (group `beds`:
+  SpecBuilding puts every `use: sleep` use point there) fades out, `DayCycle.pass_hours` to `WAKE_HOUR`
+  (`hours_to_dawn`), `Events.hours_passed(h, &"sleep")` (your mending, townsfolk's wounds), the town
+  placed, then the save (after the night: you wake at dawn by the bed), fade in. `why_not` refuses
+  bleeding, a carry or seat, a hostile man within `DANGER_M`, a shot within `SHOT_S`, a Moment not done.
+  `last`, `last_capture`, `slot`.
+- `src/save/continue_card.gd` — **`ContinueCard`**: the plain valley start with a save offers it (Enter:
+  Continue, Space: new game; `offered(args, slot, headless)`; not on `--mission=`/`--moment=`, the
+  bridge unless `--continue-card`, headless, a reset). The bridge: `sleep [bed]`, `save`, `load`,
+  `continue`, `newgame`, `saves`.
+- Each system's own half: `Structure.to_dict` / `from_dict` (`maybe_changed`, `untouched`,
+  `_lay_piece`; `cut_member(..., quiet)`; `StructureMember.restore_holes`), `HumanBody.save_dict` /
+  `load_dict` / `made_from` (`plain`, `_pose_as`, `_lie_as`, `_lie_again`, `dropped_gun`),
+  `Relations.from_dict`, `ValleyFolk.save_dict` / `load_dict` / `load_laid`, `TownNews.save_dict` /
+  `load_dict`, `FloorMarks.save_dict` / `load_dict`, `Blood.save_list` / `load_list`,
+  `PlayerWounds.save_dict` / `load_dict`. People are keyed by `person_id`, structures by
+  `structure_id`, members by `member_id`: a save warns (`warnings`) of two of a name.
+- `tests/test_save_game.gd`: the file, a structure, a man, marks and blood, the whole valley.
+  `tests/test_sleep.gd`: a sleep saves and wakes you at dawn, loaded onto a fresh valley it's the same;
+  refused shooting or bleeding; Continue only with a save.
 
 ## tests
 

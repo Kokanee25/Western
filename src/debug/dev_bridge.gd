@@ -16,6 +16,7 @@ const HELP := {
 	"camera": "camera X Y Z [TX TY TZ] [FOV] | camera player -> a free camera there looking at T, or back to your eyes",
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
+	"ride": "ride [PLACE] -> \"ride there\" (#1120) from the tied horse you're at, as E and the list do: the fade, the clock on, you by your horse at PLACE's rail; answers the ride (or why not). Alone: what's offered from here and why not (goto horse_PLACE: by the horse there)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
@@ -51,6 +52,12 @@ const HELP := {
 	"band": "band [hush] -> the band (#799, Band): its state, tune, clock and each part's gain, bus, place and man; hush stops it as a shot would",
 	"sit": "sit [n|e|s|w] -> E by a free kit chair, as the key does (sits you in it); with a compass letter, put by that chair of the valley's card table first (#766)",
 	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
+	"sleep": "sleep [bed] -> E at a bed (#1148, PlayerSleep): sleep till dawn and save to slot1. With `bed`: put by the nearest bed first. Answers the night (hours, day, hour, the save's size and time) or why it was refused",
+	"save": "save [SLOT] -> save now without sleeping (SaveGame.save; default slot1): its size and time",
+	"load": "load [SLOT] -> the game reloaded with that save on it (as Continue): answers, then the scene reloads; `state` after shows it",
+	"continue": "continue -> the start's Continue (the save in slot1 loaded, as Enter on the card)",
+	"newgame": "newgame -> the start's card answered with a new game (Space): the old save is kept",
+	"saves": "saves [SLOT] -> the slot's head (day, hour, when written), the last load's report",
 	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
 	"joe": "joe [here|wait|come|state] -> Joe, the companion (#843): here brings him in beside you (none yet), wait/come is your word to him (G looking at him), state what he's doing (the default)",
 	"glove": "glove MAN [toss_to X Y Z] -> MAN (any man with a Skin_whole: a Studio man) takes off a long glove (#949, GloveAct): it's made from his skin and put on his left arm, drawn off by his right hand as real cloth and flicked away (toward X Y Z if given: not aimed, it lands where it lands); again while he's at it: its phase",
@@ -336,6 +343,25 @@ func _cmd_goto(a: Array) -> Dictionary:
 		player.rotation.y = deg_to_rad(-yaw)
 	await _physics_frames(2)
 	return {"at": _arr(player.global_position), "facing": _facing()}
+
+
+func _cmd_ride(a: Array) -> Dictionary:
+	var r := get_tree().get_first_node_in_group(&"ride_there") as RideThere
+	if r == null:
+		return {"ok": false, "error": "no riding here (the valley only)"}
+	if a.is_empty():
+		return r.report()
+	if r.horse_here(float(r.data.get("reach_m", 2.8)) + 1.5, false) == null:
+		return {"ok": false, "error": "no tied horse by you (goto horse_%s; `ride` alone says where yours is)" % r.horse_at, "report": r.report()}
+	var why := r.ride(StringName(a[0]))
+	if why != "":
+		return {"ok": false, "refused": why}
+	while r.state != &"idle":
+		await get_tree().process_frame
+	await _physics_frames(2)
+	var out := r.last.duplicate()
+	out["at"] = _arr(player.global_position)
+	return out
 
 
 func _cmd_look(a: Array) -> Dictionary:
@@ -853,6 +879,66 @@ func _cmd_sit(a: Array) -> Dictionary:
 	return out
 
 
+func _cmd_sleep(a: Array) -> Dictionary:
+	if not a.is_empty() and String(a[0]) == "bed":
+		var best: Node3D = null
+		for n: Node in get_tree().get_nodes_in_group(&"beds"):
+			if best == null or (n as Node3D).global_position.distance_to(player.global_position) < best.global_position.distance_to(player.global_position):
+				best = n as Node3D
+		if best == null:
+			return {"ok": false, "error": "no bed in the world"}
+		var off := best.global_basis.z
+		off.y = 0.0
+		var at := player.clear_spot_near(best.global_position + off.normalized() * 1.0 - Vector3.UP * 0.5, 1.5)
+		player.global_position = at
+		player.velocity = Vector3.ZERO
+		var to := best.global_position - at
+		player.rotation.y = atan2(-to.x, -to.z)
+		await _physics_frames(3)
+	var slept: bool = await player.sleep.sleep()
+	var out := player.sleep.report()
+	out["slept"] = slept
+	return out
+
+
+func _cmd_save(a: Array) -> Dictionary:
+	var r := SaveGame.save(get_tree(), String(a[0]) if not a.is_empty() else "slot1")
+	r["head"] = SaveGame.head(String(a[0]) if not a.is_empty() else "slot1")
+	return r
+
+
+func _cmd_load(a: Array) -> Dictionary:
+	var slot := String(a[0]) if not a.is_empty() else "slot1"
+	var head := SaveGame.head(slot)
+	if head.is_empty():
+		return {"ok": false, "error": "no save in %s" % slot}
+	# Answered first: the reload frees this bridge with the scene (as `world`).
+	(func() -> void: SaveGame.load_slot(get_tree(), slot)).call_deferred()
+	return {"loading": slot, "head": head, "reloading": true}
+
+
+func _cmd_continue(_a: Array) -> Dictionary:
+	var card := get_tree().root.find_child("ContinueCard", true, false) as ContinueCard
+	if card:
+		(func() -> void: card.choose(true)).call_deferred()
+		return {"continue": "the card's", "head": card.head, "reloading": true}
+	return await _cmd_load([])
+
+
+func _cmd_newgame(_a: Array) -> Dictionary:
+	var card := get_tree().root.find_child("ContinueCard", true, false) as ContinueCard
+	if card == null:
+		return {"ok": false, "error": "no Continue card up (start with --game-args=--continue-card and a save in slot1)"}
+	card.choose(false)
+	return {"newgame": true, "save_kept": not SaveGame.head("slot1").is_empty()}
+
+
+func _cmd_saves(a: Array) -> Dictionary:
+	var slot := String(a[0]) if not a.is_empty() else "slot1"
+	return {"slot": slot, "head": SaveGame.head(slot), "last_load": SaveGame.last_load.duplicate(),
+			"card_up": get_tree().root.find_child("ContinueCard", true, false) != null}
+
+
 func _cmd_stand(_a: Array) -> Dictionary:
 	if not player.seat.seated():
 		return {"ok": false, "error": "you're not sat down"}
@@ -1277,6 +1363,7 @@ func _player_state() -> Dictionary:
 		out["carry"] = player.carry.report()
 	if player.knock:
 		out["knock"] = player.knock.report()
+		out["sleep"] = player.sleep.report()
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
 		out["alive"] = w.physiology.alive

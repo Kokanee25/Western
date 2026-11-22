@@ -144,6 +144,7 @@ func _init() -> void:
 func _ready() -> void:
 	add_to_group(&"valley_folk")
 	add_to_group(&"knock_doors")  # its places' doors (PlayerKnock)
+	add_to_group(&"timed_beats")  # what comes due while you ride (RideThere, #1120)
 	fetch = FetchHelp.new(self)
 	news = TownNews.new(self)
 	if layout == null:
@@ -1413,6 +1414,43 @@ func to_undertaker(id: StringName) -> void:
 		_story("death.earl", String(md.get("earl_death_doctor" if lay.get("place", "") == "doctor" else "earl_death", md.get("earl_death", "Earl, shot."))))
 
 
+# --- What comes due while you ride (RideThere, #1120) ---------------------------------------------
+
+## The story's beats by the clock whose hour comes in the `hours` after `h` on `day`: [{what, hour,
+## ride, say}]. Each goes on by its own clock (`ride` "on": polled here, it begins once you're back
+## in the world, at once if its hour's come), so riding never skips one; `say` is what you're told on
+## arrival (only what Harlan would know: the funeral's hour is the town's news, the murder isn't).
+func beats_due(day: int, h: float, hours: float) -> Array:
+	var out: Array = []
+	if not murder_auto:
+		return out
+	if not _murder_data.is_empty() and not StoryState.has_fact("nolaw.murder") and _within(h, hours, float(_murder_data.get("hour", 22.0))):
+		out.append({"what": "nolaw.murder", "hour": float(_murder_data.get("hour", 22.0)), "ride": "on", "say": ""})
+	var md: Dictionary = data.get("morning", {})
+	if StoryState.get_fact("nolaw.murder") == "done" and not StoryState.has_fact("nolaw.sheriff") \
+			and (sheriff_scene == null or not is_instance_valid(sheriff_scene)) and _within(h, hours, float(md.get("sheriff_from", 7.5))):
+		out.append({"what": "nolaw.sheriff_dies", "hour": float(md.get("sheriff_from", 7.5)), "ride": "on", "say": ""})
+	var fd := _funeral_data
+	if not fd.is_empty() and StoryState.get_fact("nolaw.sheriff") == "dead" and not StoryState.has_fact("nolaw.funeral") \
+			and (funeral == null or not is_instance_valid(funeral)):
+		var died := int((StoryState.when.get("nolaw.sheriff", [1, 0.0]) as Array)[0])
+		var due := died + int(fd.get("days_after", 1))
+		var start := float((fd.get("hours", [10.0, 11.5]) as Array)[0])
+		var at := float(due) * 24.0 + start
+		var now := float(day) * 24.0 + h
+		if at > now and at <= now + hours:
+			var mins := roundi(start * 60.0)
+			out.append({"what": "nolaw.funeral", "hour": start, "ride": "on",
+					"say": "The sheriff's funeral began at %02d:%02d, up at the church." % [mins / 60, mins % 60]})
+	return out
+
+
+## Does the clock's `hour` come in the `hours` after `h` (round midnight too)?
+static func _within(h: float, hours: float, hour: float) -> bool:
+	var ahead := fposmod(hour - h, 24.0)
+	return ahead > 0.0 and ahead <= hours
+
+
 # --- The funeral (#868) ---------------------------------------------------------------------------
 
 ## The sheriff dead: the day after (`days_after`), in its `hours`, the funeral; before then the
@@ -1908,3 +1946,77 @@ static func move_body(man: HumanBody, to: Vector3) -> void:
 			(rb as RigidBody3D).linear_velocity = Vector3.ZERO
 			(rb as RigidBody3D).angular_velocity = Vector3.ZERO
 			(rb as RigidBody3D).sleeping = false
+
+
+# --- Saved (SaveGame, #1138) -------------------------------------------------------------------
+
+## What a save keeps of the town's day: who's a body in the world and who's a row on the book, the
+## dead and the buried, who's laid out where, who an act sent off, the hands you've played. (The
+## acts themselves aren't kept: nobody sleeps in the middle of one; a man an act had goes back to
+## his day.)
+func save_dict() -> Dictionary:
+	var lay := {}
+	for id: StringName in laid:
+		lay[id] = {"place": String(laid[id].place), "at": laid[id].at}
+	var here: Array[StringName] = []
+	for id: StringName in people:
+		if folk_man(id) != null:
+			here.append(id)
+	# (The order men came into the world isn't kept: a load brings them in its own. By name: a
+	# StringName's own order is its pointer's.)
+	here.sort_custom(func(x: StringName, y: StringName) -> bool: return String(x) < String(y))
+	# The dead not yet taken away (#1051): since when, and whether anyone's seen them.
+	var dead := {}
+	for id: StringName in dead_out:
+		dead[id] = {"since": dead_out[id].since, "day": dead_out[id].day, "seen": dead_out[id].seen}
+	return {"state": state.duplicate(), "here": here, "book": book.rows.duplicate(true), "laid": lay,
+			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands,
+			"news": news.save_dict() if news else {}, "news_day": _news_day, "dead_out": dead}
+
+
+## A save's town day put back on a fresh town, before its people's bodies are (`SaveGame.apply`):
+## the same men in the world (each at his spot: the body's own place follows) and on the book.
+func load_dict(d: Dictionary) -> void:
+	if not _ready_once():
+		_prebuild()
+	gone_for_good = (d.gone_for_good as Dictionary).duplicate()
+	kept_out = (d.kept_out as Dictionary).duplicate()
+	_your_hands = int(d.hands)
+	if news and not (d.get("news", {}) as Dictionary).is_empty():
+		news.load_dict(d.news)
+	_news_day = int(d.get("news_day", -1))
+	dead_out.clear()
+	for id: StringName in d.get("dead_out", {}):
+		var e: Dictionary = d.dead_out[id]
+		dead_out[id] = {"since": e.since, "day": e.day, "seen": e.seen, "undertaker": false, "sent": 0.0}
+	_last_hour = NAN
+	_look = 0.0
+	_step(0.0)
+	var here: Array = d.here
+	for id: StringName in people.keys():
+		if not here.has(id):
+			_gone(id, true)
+	for id: StringName in here:
+		if folk_man(id) == null and not _person(id).is_empty():
+			if _person(id).has("act"):
+				take(id, door(home_of(_person(id))), Vector3.FORWARD)
+			else:
+				_bring(_person(id), false)
+	for id: StringName in gone_for_good:
+		var man := folk_man(id)
+		people.erase(id)
+		if man:
+			man.queue_free()
+	for id: StringName in d.state:
+		var st: StringName = d.state[id]
+		if st in [&"act", &"called"]:
+			st = &"in" if here.has(id) else &"out"
+		state[id] = st
+	book.rows = (d.book as Dictionary).duplicate(true)
+
+
+## The save's dead laid out again under their sheets, once their bodies lie as saved.
+func load_laid(d: Dictionary) -> void:
+	for id: StringName in d.laid:
+		if folk_man(id) != null:
+			lay_out(id, StringName(String(d.laid[id].place)))

@@ -43,7 +43,8 @@ const ARRIVE := 2.2
 const HARLAN_HOURS := 1.0
 ## Looked for every (s).
 const LOOK_EVERY := 0.5
-## The lines (the brief §5's table; voiced later, step 8's script).
+## The built lines, only a fallback now: the runner's words are the town's script's (TownScript, scene
+## `runner` of docs/scripts/town.json; ids run_doc, run_law, runner[.shot], runner_dead[.shot], runner_you[.shot]).
 const LINES := {
 	&"run_doc": ["I'll get Doc! Don't move him.", "I'll go. Don't move him.", "Somebody fetch Doc... I'll go!"],
 	&"run_law": ["I'll get the deputy!", "Somebody get the law... I'll go!"],
@@ -168,13 +169,11 @@ func arrived(down: HumanBody, brain: CivilianBrain, to: StringName, shot: bool, 
 	e.told = true
 	e.told_frame = Engine.get_physics_frames()
 	var where := place_name(down.global_position) if key != 0 else "the street"
-	var line := ""
-	if to == &"harlan":
-		line = _pick(&"runner_you") % ([where] if _pick_n == 0 else [where, "shot" if shot else "down"])
-	elif not breathing:
-		line = _pick(&"runner_dead") % ([where, "Shot." if shot else ""] if _pick_n == 0 else [where])
-	else:
-		line = _pick(&"runner") % ["shot" if shot else "down", where, "He's breathing." if breathing else ""]
+	var base := &"runner_you" if to == &"harlan" else (&"runner_dead" if not breathing else &"runner")
+	var ids: Array = [String(base) + ".shot", String(base)] if shot else [String(base)]
+	var line := TownScript.pick(ids, TownScript.seed_of(String(brain.body.person_id), "%s:%d" % [ids[0], key]), {"where": where})
+	if line == "":
+		line = _built_arrival(base, where, shot, breathing)
 	brain.say_line(line.strip_edges())
 	_note("told " + String(to), brain.body.person_id)
 	# The news goes with him (TownNews): the doctor now holds the runner's version.
@@ -496,9 +495,21 @@ func _pick(kind: StringName) -> String:
 	return lines[_pick_n]
 
 
-## A runner's start line (he's off).
-func off_line(to: StringName) -> String:
-	return _pick(&"run_law" if to == &"harlan" else &"run_doc")
+## The built line on arrival (no script).
+func _built_arrival(base: StringName, where: String, shot: bool, breathing: bool) -> String:
+	match base:
+		&"runner_you":
+			return _pick(base) % ([where] if _pick_n == 0 else [where, "shot" if shot else "down"])
+		&"runner_dead":
+			return _pick(base) % ([where, "Shot." if shot else ""] if _pick_n == 0 else [where])
+	return _pick(base) % ["shot" if shot else "down", where, "He's breathing." if breathing else ""]
+
+
+## A runner's start line (he's off): the script's, by `who` (his person id), else a built one.
+func off_line(to: StringName, who := "") -> String:
+	var id := "run_law" if to == &"harlan" else "run_doc"
+	var line := TownScript.pick([id], TownScript.seed_of(who, id) if who != "" else _rng.randi())
+	return line if line != "" else _pick(StringName(id))
 
 
 func _note(what: String, who: StringName) -> void:

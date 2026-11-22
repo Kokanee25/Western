@@ -653,16 +653,48 @@ func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, r
 	var local_entry := inv * entry
 	var local_to := inv * to
 	var spall := (joules * t.spall_share + blast * t.blast_share) / t.spall_cost(wood) * 1e-6
+	var seed := _carve_local(local_entry, local_to, through, radius, spall)
+	if seed != 0:
+		_throw_chips(direction, seed)
+	damaged.emit()
+
+
+## The carving itself, in the member's own space: the hole on its record, the channel and its spall
+## out of the voxels with the seed its place in the record gives (so a save's holes, carved again
+## in their order, leave the same wood). Returns the seed if anything came out, else 0.
+func _carve_local(local_entry: Vector3, local_to: Vector3, through: bool, radius: float, spall: float) -> int:
+	var t := voxel_damage_tuning()
 	var seed := hash(member_id) + holes.size() * 7919
 	holes.append({"entry": local_entry, "exit": local_to, "through": through, "radius": radius, "spall": spall})
 	var removed: int = voxels.carve(local_entry, local_to, radius * t.channel_scale, spall, seed, t.ragged, t.flare,
 			-1 if is_masonry() else axis_index(), t.grain_split, t.island_max, t.chips_per_hit)
-	if removed > 0:
-		_section_stale = true
-		solid_share = float(voxels.solid()) / maxf(float(voxels.total()), 1.0)
-		voxels.start_mesh()
-		VoxelWorks.watch(self)
-		_throw_chips(direction, seed)
+	if removed <= 0:
+		return 0
+	_section_stale = true
+	solid_share = float(voxels.solid()) / maxf(float(voxels.total()), 1.0)
+	voxels.start_mesh()
+	VoxelWorks.watch(self)
+	return seed if seed != 0 else 1
+
+
+## A save's holes (`to_dict`'s) made again in the member as authored: carved in their order where
+## it's voxelised, drawn where it isn't. No chips.
+func restore_holes(list: Array) -> void:
+	if list.is_empty() or not holes.is_empty():
+		return
+	realise()
+	var carved := _use_voxels() and _make_voxels()
+	for h: Dictionary in list:
+		var e: Array = h.entry
+		var x: Array = h.exit
+		var entry := Vector3(e[0], e[1], e[2])
+		var exit := Vector3(x[0], x[1], x[2])
+		if carved:
+			_carve_local(entry, exit, bool(h.through), float(h.radius), float(h.get("spall", 0.0)))
+		else:
+			holes.append({"entry": entry, "exit": exit, "through": bool(h.through), "radius": float(h.radius)})
+	if not carved:
+		_draw_holes()
 	damaged.emit()
 
 

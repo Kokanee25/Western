@@ -1,0 +1,25 @@
+{
+  "_doc": "\"Ride there\" (#1120, RideThere: src/creatures/ride_there.gd): E at a tied horse lists the places you know to ride to; one chosen, a fade, the clock on by the ride (the flat distance times `winding`, at `speed` from valley.json's speeds, plus `extra_s` to mount, tie up and go round), and you're stood by your horse at that place's hitching rail. A stand-in till riding's built (#478); the run speed is untouched (Sean, 2026-11-20). Each place: `id` (valley.json's places), `name` (as the list says it), `known` (any of: always; been, you've come within `been_m` of it; fact:KEY or fact:KEY=VALUE, a StoryState fact), and its hitch: on a town lot (`lot`, `along` m from its x0, `out` m off its front: minus is into the street) or on one of its roads (`road`, `back_m` m back along it from its end at the place, the rail `side_m` off the road's middle, + to the right going in).",
+  "speed": "horse_trot",
+  "winding": 1.3,
+  "extra_s": 45.0,
+  "reach_m": 2.8,
+  "near_m": 150.0,
+  "been_m": 120.0,
+  "bleed_ml_s": 2.0,
+  "hostile_m": 90.0,
+  "close_m": 30.0,
+  "fade_s": 0.5,
+  "card_s": 2.0,
+  "places": [
+    {"id": "town", "name": "Salt Creek", "known": ["always"], "lot": "livery", "along": 13.2, "out": -3.4},
+    {"id": "harlan_homestead", "name": "your place", "known": ["always"], "road": "harlan_lane", "back_m": 30.0, "side_m": 3.2},
+    {"id": "widow_homestead", "name": "the widow's place", "known": ["always"], "road": "widow_lane", "back_m": 70.0, "side_m": 3.0},
+    {"id": "ute_community", "name": "the Ute camp", "known": ["been", "fact:nojustice.camp"], "road": "ute_trail", "back_m": 60.0, "side_m": 3.0},
+    {"id": "hideout", "name": "the hideout on the mesa", "known": ["been", "fact:nojustice.trail=hideout", "fact:nojustice.hideout"], "road": "hideout_trail", "back_m": 120.0, "side_m": 3.0},
+    {"id": "baron_ranch", "name": "the Baron's ranch", "known": ["been"], "road": "south_road", "back_m": 60.0, "side_m": 4.0},
+    {"id": "ore_works", "name": "the ore works", "known": ["been"], "road": "west_road", "back_m": 60.0, "side_m": 4.0},
+    {"id": "mine", "name": "the mine", "known": ["been"], "road": "mine_road", "back_m": 60.0, "side_m": 4.0},
+    {"id": "timber_camp", "name": "the timber camp", "known": ["been"], "road": "timber_road", "back_m": 60.0, "side_m": 4.0}
+  ]
+}
