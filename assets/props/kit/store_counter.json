@@ -1,5 +1,5 @@
 {
-  "_doc": "A general store's counter (#1139, G1): the kit's counter (`like` counter.json: a front, two ends and a top overhanging the customers' side, -z) 3 m long and 0.94 high, its front in stiles and rails, a brass yardstick let into its top's edge, a bank of drawers with brass pulls on the clerk's side (+z), body and top oak from the material library (a few years; the top worn where he works). Fitted to the length each counter wants (PropKit.spawn_fitted). The yardstick and pulls are bare `prop:brass` until the baked metal (G2). Written by tools/props/store_g1.py.",
+  "_doc": "A general store's counter (#1139, G1): the kit's counter (`like` counter.json: a front, two ends and a top overhanging the customers' side, -z) 3 m long and 0.94 high, its front in stiles and rails, a brass yardstick let into its top's edge, a bank of drawers with brass pulls on the clerk's side (+z), body and top oak from the material library (a few years; the top worn where he works). Fitted to the length each counter wants (PropKit.spawn_fitted). The yardstick and pulls are brass baked (G2, #1172: `pbr:store_brass`). Written by tools/props/store_g1.py. Its brass and iron baked by tools/props/store_g2.py (G2, #1172).",
   "id": "store_counter",
   "like": "counter",
   "fixture": true,
@@ -201,7 +201,7 @@
         0.339
       ],
       "wood": "iron",
-      "look": "prop:brass"
+      "look": "pbr:store_brass"
     },
     {
       "id": "drawer1",
@@ -232,7 +232,7 @@
         0.339
       ],
       "wood": "iron",
-      "look": "prop:brass"
+      "look": "pbr:store_brass"
     },
     {
       "id": "drawer2",
@@ -263,7 +263,7 @@
         0.339
       ],
       "wood": "iron",
-      "look": "prop:brass"
+      "look": "pbr:store_brass"
     },
     {
       "id": "top",
@@ -294,7 +294,7 @@
         -0.26
       ],
       "wood": "iron",
-      "look": "prop:brass"
+      "look": "pbr:store_brass"
     }
   ],
   "factory": "tools/props/store_g1.py"

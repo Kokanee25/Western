@@ -316,10 +316,11 @@ DZ = 0.56  # the platforms' middle: their backs 0.21 in from the wall's line, cl
 # factory (tools/props/store_g1.py), which holds the numbers and the reasons (experiments/prop_lab/store/README.md).
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "tools", "props"))
 import store_g1  # noqa: E402
+import store_g2  # noqa: E402  (#1172: G2, the shelves filled, boots, hats, hardware, the mill and showcase, hung lamps)
 
 dressing = {
-    "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth): PropDressing, written by tools/props/store_g1.py",
-    "batches": {"windows": store_g1.dressing_windows(EAST_X, WEST_X, DZ), "G1": store_g1.dressing_g1()},
+    "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth), #1172 batch G2 (the shelves' tins and boxes, boots, hats, hardware, tinware, the coffee mill and a showcase, hung lamps): PropDressing, written by tools/props/store_g1.py and store_g2.py",
+    "batches": {"windows": store_g1.dressing_windows(EAST_X, WEST_X, DZ), "G1": store_g1.dressing_g1(), "G2": store_g2.dressing_g2()},
 }
 
 spec = {
