@@ -5,11 +5,12 @@ an 1882 undertaker and cabinetmaker with a period-true, walkable cellar. Sean's 
 
 ## Step 1: the target sheet (Sean OK, 2026-11-23, #1171: cost yes; white with black trim; 32 ft shop west, yard east; stair and bulkhead)
 
-`sheet/request.json`: twelve views (front, plan with the cellar's, the east yard with the side door and
-bulkhead, the back and hearse shed, the cutaway with the cellar, showroom, parlour, workroom, the cellar
-stair, the embalming room, the ice room, the coffin store), ~$0.14 each, about **$1.70**, cap $2.50.
-Not painted yet. The workflow (`building_sheet.yml`) fires only on a `claude/art-building-*` branch: push
-the request there once Sean says yes, merge the panels back.
+`sheet/sheet.jpg` (panels in `sheet/panels/`): twelve views painted 2026-11-23 for **$1.69** (run 12 of
+`building_sheet.yml` on `claude/art-building-undertaker`). Where the pictures differ from the words (the spec
+settles each, never the pictures): the front's walk drawn low (it's 1.15 m) and the trim grey, not near-black;
+the plan puts the yard and shed inside the 32 ft (they're beside it, east); the cutaway digs the cellar under the
+front, not the back half; the back view's hearse is an open carriage, the yard's the glass box; the coffin
+store's safety coffin shows no bell frame. Waiting on Sean's OK of the sheet before step 2.
 
 ## What the lot gives (probed 2026-11-23 from `config/valley_ground/heights.r16.gz`)
 
