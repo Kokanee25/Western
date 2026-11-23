@@ -14,13 +14,15 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   judged blind in its room (`experiments/prop_lab/doctor/dress.gd`).
 
 ## Open
-- **The general store, G1 to G3 placed** (#1139, #1172, #1182; `tools/props/store_g1.py`, `store_g2.py` (numbers, kits, `STOCK` per
-  board; its main also writes G3's), `store_g3.py` (the post office's `post_case` and mail, ledger, day-book, ink, cash, hung pails,
-  hams, lanterns), `tools/blender/props/store_g2.py`, `store_g3.py` (models; `bpy` 5.0.1 in `~/.venvs/studio`, ~1 min); plan, judging
-  and what's next in `experiments/prop_lab/store/README.md`; refs `refs/store/`). `gen_spec.py` imports all three (drops G1's
-  `west_shelves_d`); edit there, re-run `store_g2.py` then `gen_spec.py`. G3's critic r2: case CLOSE, hung goods DIFFERENT (tiny: make
-  clusters bigger and lower), the counter's books NOT SEEN (needs a view down on it); the room's ceiling, posts and light are art's.
-  Rodin sack and boots wait on Sean (#1175). `probe_shelves.gd` checks every good is on its board (and the post case's).
+- **The general store, G1 to G4 placed** (#1139, #1172, #1182, #1192; `tools/props/store_g1.py`, `store_g2.py` (numbers, kits, `STOCK` per
+  board; its main also writes G3's), `store_g3.py` (the post office's `post_case` and mail, ledger, day-book, ink, cash; G4: the hung
+  `hung_pails`, `hung_ham`, `hung_lantern`, `hung_boots`, bar clusters 1 to 1.3 m wide), `tools/blender/props/store_g2.py`, `store_g3.py`
+  (models; `bpy` 5.0.1 in `~/.venvs/studio`, ~1.3 min); plan, judging and what's next in `experiments/prop_lab/store/README.md`;
+  refs `refs/store/`). `gen_spec.py` imports all three (drops G1's `west_shelves_d`); edit there, re-run `store_g2.py` then
+  `gen_spec.py`. G4's critic (two rounds spent): counter books CLOSE (a `counter_top` view in `render_valley.gd` now sees them), hung
+  goods still DIFFERENT: too big from the door's camera (the cluster at z 2.6 to 2.7), hams read as gourds, boots as slabs. Next G5:
+  shrink or drop that near cluster, net and string on the hams, boots with an opening. The room's ceiling, posts, light are art's.
+  Rodin sack and boots wait on Sean (#1175). `probe_shelves.gd` reports "BAD" for anything not on a board (hung, counter goods): read `moved`.
 - **Saloon B's S1, S2 and S3 are placed** (#950): its spec's `dressing`, written by `tools/props/saloon_b_dress.py`
   (edit there, re-run; it also moves the bar to x 2.25 and the use points it touches). What was decided: README
   "Saloon B, S1 to S3 placed". Kit files `tools/props/saloon.py`, `saloon_s2.py`, `saloon_s3.py`. **Judged by lamplight** (#987, `results/2026-11-15_saloon_b_placed/`): placement and lamps stand; kit faults in the README's "Judged by lamplight", for S4.

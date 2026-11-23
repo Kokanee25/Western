@@ -251,7 +251,7 @@ FINISHES = {
               "rough": 0.85, "metal": 0.0, "wear": 0.2, "mottle": 0.4},
     # A cured ham in its muslin bag, as the grocers hung them (the general store, G3, #1182): a dull red-brown
     # with the cloth's weave greyed over it.
-    "cured_ham": {"kind": "coat", "color": (0.30, 0.11, 0.07), "under": (0.50, 0.34, 0.24), "rust": 0.0,
+    "cured_ham": {"kind": "coat", "color": (0.20, 0.075, 0.045), "under": (0.50, 0.34, 0.24), "rust": 0.0,
                   "rough": 0.62, "metal": 0.0, "wear": 0.4, "mottle": 0.45},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
