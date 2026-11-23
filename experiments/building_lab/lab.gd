@@ -19,15 +19,23 @@ var side_walk: Boardwalk
 var ground: StaticBody3D
 ## The spec the next lab builds (the saloon's unless set: the doctor's test sets it, #765).
 static var spec_path := ""
+## What slices the next lab's settles: &"fire" (a FireSystem, as the street), &"queue" (a
+## SettleQueue alone, as the valley) or &"none" (each settle whole on its frame).
+static var settles_with := &"fire"
 
 
 func _ready() -> void:
 	var path := spec_path if spec_path != "" else SpecBuilding.SPEC
 	spec = SpecBuilding.load_spec(path)
 	_ground()
-	fire = FireSystem.new()
-	fire.name = "FireSystem"
-	add_child(fire)
+	if settles_with == &"fire":
+		fire = FireSystem.new()
+		fire.name = "FireSystem"
+		add_child(fire)
+	elif settles_with == &"queue":
+		var q := SettleQueue.new()  # (the valley's: no fire, its collapse sliced all the same, #1128)
+		q.name = "SettleQueue"
+		add_child(q)
 	ballistics = Ballistics.new()
 	ballistics.name = "Ballistics"
 	add_child(ballistics)
@@ -99,6 +107,9 @@ func _ground() -> void:
 			cs0.transform = Transform3D(basis, Vector3(0.0, float(pl[0]), 0.0) + basis * Vector3(0.0, -0.5, 0.0))
 		ground.add_child(cs0)
 		return
+	if (spec.lot.get("ground", {}) as Dictionary).has("plane"):
+		_ground_cells()
+		return
 	var c: Array = spec.cellar.rect
 	var x0 := float(c[0])
 	var z0 := float(c[1])
@@ -123,3 +134,55 @@ func _ground() -> void:
 		cs.shape = box
 		cs.position = (a + b) * 0.5
 		ground.add_child(cs)
+
+
+## A lot that rises (`lot.ground.plane`) with a cellar and its bulkhead's areaway (#1174, the
+## undertaker's): the ground in boxes of up to a metre, each at the plane's height at its middle (steps
+## of a few centimetres), open over the pits down to the cellar's floor; slabs at y 0 beyond.
+func _ground_cells() -> void:
+	var pl: Array = spec.lot.ground.plane
+	var floor := float(spec.levels.cellar.floor)
+	var pits: Array[Rect2] = []
+	var c: Array = spec.cellar.rect
+	pits.append(Rect2(float(c[0]), float(c[1]), float(c[2]) - float(c[0]), float(c[3]) - float(c[1])))
+	var bk: Dictionary = spec.get("bulkhead", {})
+	if not bk.is_empty():
+		var cheek := float(bk.get("cheek", 0.3))
+		# (the yard wall at x 0, out -x: the areaway from it to its end wall)
+		pits.append(Rect2(-float(bk.out) - cheek, float(bk.z[0]) - cheek, float(bk.out) + cheek, float(bk.z[1]) - float(bk.z[0]) + cheek * 2.0))
+	var xs := [-16.0]
+	var zs := [-6.0]
+	for x in range(-15, 13):
+		xs.append(float(x))
+	for z in range(-5, 25):
+		zs.append(float(z))
+	for r in pits:
+		xs.append_array([r.position.x, r.end.x])
+		zs.append_array([r.position.y, r.end.y])
+	xs.sort()
+	zs.sort()
+	var add := func(a: Vector3, b: Vector3) -> void:
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = b - a
+		cs.shape = box
+		cs.position = (a + b) * 0.5
+		ground.add_child(cs)
+	for i in xs.size() - 1:
+		for j in zs.size() - 1:
+			var x0: float = xs[i]
+			var x1: float = xs[i + 1]
+			var z0: float = zs[j]
+			var z1: float = zs[j + 1]
+			if x1 - x0 < 0.005 or z1 - z0 < 0.005:
+				continue
+			var mid := Vector2((x0 + x1) * 0.5, (z0 + z1) * 0.5)
+			if pits.any(func(r: Rect2) -> bool: return r.has_point(mid)):
+				add.call(Vector3(x0, floor - 1.0, z0), Vector3(x1, floor, z1))
+				continue
+			var y := float(pl[0]) + float(pl[1]) * mid.x + float(pl[2]) * mid.y
+			add.call(Vector3(x0, -3.0, z0), Vector3(x1, y, z1))
+	var big := 60.0
+	for s: Array in [[Vector3(-big, -1.0, -big), Vector3(-16.0, 0.0, big)], [Vector3(12.0, -1.0, -big), Vector3(big, 0.0, big)],
+			[Vector3(-16.0, -1.0, -big), Vector3(12.0, 0.0, -6.0)], [Vector3(-16.0, -1.0, 24.0), Vector3(12.0, 0.0, big)]]:
+		add.call(s[0], s[1])

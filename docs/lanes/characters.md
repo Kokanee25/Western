@@ -50,6 +50,13 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - Talking face: four men's jaws go back more than down (#247).
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
+- **Joe's people's clothes** (#1096): brief `docs/briefs/ute-dress.md` (plain, no beads etc.); waiting on Sean's OK of
+  the garment list and the letter, and on the western bundle's upload to match garments.
+- **Kimodo** (#1087, NVIDIA text-to-motion; waiting on Sean): outputs may ship (Open Model License). Its text
+  encoder is Meta's gated Llama-3-8B (Sean's HF access + an `HF_TOKEN` secret); a GPU (~17 GB, or <3 GB with the
+  encoder on a ~20 GB-RAM CPU). Chain proven at $0 on NVIDIA's demo output: `kimodo_convert --bvh_standard_tpose`
+  (the default rest bends the knees and wrecks the clavicles) → `retarget_motion.py` (`RIGS["soma"]`). The four
+  clips' prompts: the Studio's `motions/kimodo_trial/plan.yaml`.
 - **The garment handoff** (#895, a lab): `experiments/garment_handoff/`, a worn skinned glove becoming cloth
   as it's drawn off (the core for #874's acts, coats hung up, a torn-shirt bandage). Into the game is
   gameplay's, on Sean's word (README: the part, a native skin shape).

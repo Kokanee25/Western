@@ -52,6 +52,8 @@ var seat: PlayerSeat
 ## A downed man by the collar (PlayerCarry, #1057) and a door banged on (PlayerKnock).
 var carry: PlayerCarry
 var knock: PlayerKnock
+## Sleeping in a bed: the night passes and the game is saved (E at a bed; #1148).
+var sleep: PlayerSleep
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -183,6 +185,10 @@ func _arm() -> void:
 	knock.name = "Knock"
 	knock.player = self
 	add_child(knock)
+	sleep = PlayerSleep.new()
+	sleep.name = "Sleep"
+	sleep.player = self
+	add_child(sleep)
 
 
 func revolver() -> RevolverViewmodel:
@@ -415,9 +421,12 @@ func _physics_step(delta: float) -> void:
 		return
 
 	var speed := tuning.walk_speed
+	var hauling := carry != null and carry.carrying()
 	if is_crawling:
 		speed = tuning.crawl_speed
-	elif is_crouching:
+	elif is_crouching and not hauling:
+		# (A man over your shoulder, you go at the carry's pace bent or not: a crouch forced by a bad
+		# leg doesn't slow it again, #1125's 3-6 m in 30 s; the leg itself does, by move_factor.)
 		speed = tuning.crouch_speed
 	elif is_running:
 		# Blown from running, the run sags.

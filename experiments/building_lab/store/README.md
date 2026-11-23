@@ -135,3 +135,24 @@ Grey cards (`light_review.gd`, `build/light/*/cards.txt`), noon: shop middle / b
 - **Cheap judge** (`results/2026-11-17_light_cheap/cheap.md`, one round): the entry good indie, the rest cheap indie; tell 1 (flat
   light) passed in all five. What it marks is the store's emptiness (props, #695), the grey neighbours and the blank outside the
   windows, the stripe's moire at 800 px, and the grey cards it took for placeholders: none of it this step's light.
+
+## Hollis's store (#1074, Sean's answers on #1067)
+
+`results/2026-11-18_hollis_before_after.jpg` (noon: front12, entry12, counter12; the before is #1053's).
+
+- **Pale posts and beams:** `finishes.timber` wants `painted_pale_tg` (few), as the ceiling and the walls inside do; the
+  floor joists take their own `joists` finish and stay dark (hidden over the shop, bare over the storeroom). The carved
+  brackets (`bracket/` `-`) keep their own dark wood: Sean's call if they go pale too.
+- **Why the pale render died before:** not the texture factory (`few` is in the entry's `approved`, and it's the walls'
+  material already). A front view peaks at 13.1 GB RSS (`build/light/pale/mem.log`) on a 15 GB box: anything else
+  running tips it over. With 6 GB of swap (`fallocate`, `mkswap`, `swapon`) it finished in 23 min, swap never used; three
+  views in one run 53 min, peak 12.6 GB.
+- **Gold leaf:** each show window's `gilt` {id `hollis`, y 1.45, width 2.65}: "A. P. HOLLIS" over "DRY GOODS · GROCERIES ·
+  HARDWARE", `Storefront.gilt` (PARTS.md "A storefront") laying `assets/textures/gilt_hollis.png` (`tools/textures/gold_leaf.py`:
+  set in DejaVu Serif Bold, burnished leaf, black outline and drop shade; no paid call) on the inside of each pane it
+  crosses. Metal 0.3: at 0.85 it showed only reflections and went grey under the porch roof. Reads backwards from inside.
+- **Window goods** (`dressing.windows`): a low platform (the kit's table fitted 0.6 m, the glass's foot) behind each window;
+  east: blankets, a feed sack, the scales, three jars, a barrel at its end; west: the strongbox, two lamps, basin and
+  pitcher, a chamber pot, a handsaw, tin cups. Stand-ins for a store's own stock (#1076, the prop lab's, after the slice).
+  The mop bucket isn't a member prop (the destructible test refuses it).
+- **Story:** Hollis named in `docs/story/VOICES.md` and `SETUPS.md` (S23's day-book).

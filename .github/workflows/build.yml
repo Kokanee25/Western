@@ -330,8 +330,8 @@ jobs:
         with:
           path: build/web
 
-  # Each export launched on its own platform for 30 s (src/debug/smoke_test.gd: the street, the gang,
-  # a stick, a fire, a shot; any error fails it), then again in the valley (-- --world=valley, #1003). Linux twice: headless, and drawn under software
+  # Each export launched on its own platform for 30 s (src/debug/smoke_test.gd; any error fails it): a
+  # plain start, the valley (G8, #1098), then the old town (-- --world=town: the gang, a stick, a fire, a shot). Linux twice: headless, and drawn under software
   # Vulkan so the shaders compile. Only builds that pass are released.
   smoke:
     needs: export
@@ -369,11 +369,12 @@ jobs:
             Windows-headless) unzip -q dist/SaltCreek-windows.zip; game=(./SaltCreek.exe --headless) ;;
           esac
           limit=(); command -v timeout >/dev/null && limit=(timeout 900)  # macOS has none: the job's limit
-          # The old town, then the valley (#1003: the valley crashed on start in the export, unseen).
+          # The valley as players get it (no --world: a plain start is the valley since G8, #1098;
+          # #1003: it once crashed on start in the export, unseen), then the old town, asked for.
           failed=0
-          for world in town valley; do
+          for world in valley town; do
             out="$(pwd -W 2>/dev/null || pwd)/smoke_$world.out"  # a Windows path on Windows
-            extra=(); [ "$world" = valley ] && extra=(--world=valley)
+            extra=(); [ "$world" = town ] && extra=(--world=town)
             set +e
             "${limit[@]}" "${game[@]}" -- "${extra[@]}" --smoke-test --smoke-out="$out" > "smoke_$world.log" 2>&1
             code=$?

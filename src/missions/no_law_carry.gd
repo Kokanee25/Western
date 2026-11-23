@@ -198,10 +198,13 @@ func _earl_talks() -> void:
 func _on_knocked(place: StringName, inside: Array, by: Node, _at: Vector3) -> void:
 	if done or place != StringName(String(data.get("building", "doctor"))) or not by is Player:
 		return
-	if state not in [&"ask", &"carry", &"knocked"] or not _earl_ok():
+	if not _earl_ok():
 		return
 	if _flat(ValleyFolk._body_at(earl), door_point()) > float(data.get("door_body_m", 4.5)):
 		_note("a knock at the doctor's without Earl by it")
+		return
+	folk.claim_knock()  # Earl's: the town doesn't answer it as well (#1095)
+	if state not in [&"ask", &"carry", &"knocked"]:
 		return
 	knocked_n += 1
 	var doc_in := inside.has(StringName(String(data.get("doctor", "doctor"))))

@@ -194,7 +194,10 @@ func _make_place() -> void:
 	var dirt := Color(0.33, 0.25, 0.18)
 	# The graves already here: a low mound and a headboard each.
 	var i := 0
-	for xz: Array in data.get("old_graves", []):
+	# (The valley's cemetery lays these itself since #1142, real crosses and headboards at the same places:
+	# the stand-in blocks only where there's no Cemetery, the old street.)
+	var real_graves := street.get_tree().root.find_child("Cemetery", true, false) != null
+	for xz: Array in ([] if real_graves else data.get("old_graves", [])):
 		_block("OldGrave%d" % i, Vector3(1.9, 0.18, 0.75), spot(xz), dirt.lightened(0.08), false)
 		_block("OldHeadboard%d" % i, Vector3(0.05, 0.75 + 0.1 * float(i % 3), 0.42), spot([float(xz[0]) - 1.1, float(xz[1])]), old_wood)
 		i += 1
@@ -252,6 +255,13 @@ func _gather() -> void:
 		var kind := String(m.get("how", "take"))
 		var man: HumanBody = null
 		var brain: CivilianBrain = null
+		# (#1167: with errand rounds and the saloon open by day, a day man may be indoors on a leg, borrowed
+		# from behind his door, and a night man out on his own hours, taken off his day as the doctor is.)
+		var out_now: bool = folk.folk_man(id) != null and folk.state.get(id) in [&"in", &"coming"]
+		if kind == "day" and not out_now and folk.state.get(id, &"out") == &"out":
+			kind = "borrow"
+		elif kind == "borrow" and out_now:
+			kind = "take"
 		if kind == "day":
 			man = folk.folk_man(id)
 			if man == null or not man.physiology.is_conscious() or not folk.state.get(id) in [&"in", &"coming"]:
@@ -274,6 +284,8 @@ func _gather() -> void:
 				man = folk.take(id, at, look) if kind == "take" else folk.borrow(id, at, look)
 			elif folk.state.get(id) == &"act":
 				man.global_position = at  # the last scene's (his wife, the doctor): here now
+			elif kind == "take":
+				man = folk.take(id, at, look)  # a day man in town (the doctor, #1095): off his day for it
 			else:
 				continue  # in town on his own hours: left be
 			if man == null:

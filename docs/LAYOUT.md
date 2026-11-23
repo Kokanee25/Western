@@ -44,6 +44,7 @@ means a section of this file.
 - [Training the image model on our style (tools/style)](#training-the-image-model-on-our-style-toolsstyle)
 - [tools/blender (the people pipeline)](#toolsblender-the-people-pipeline)
 - [addons/saltcreek_native (the native plugin)](#addonssaltcreek_native-the-native-plugin)
+- [src/save (the save)](#srcsave-the-save)
 - [tests](#tests)
 - [CI](#ci)
 
@@ -60,7 +61,7 @@ file's commands, stop. `help` lists the commands: `screenshot PATH`, `camera X Y
 (a free camera; `camera player` back), `goto X Y Z [YAW]|PLACE`, `look X Y Z|PERSON [PART]|PLACE` (at a
 person: `in_the_way`, `a_ball_goes_through`, `from_the_barrel`, `clear_to`), `turn DEG [PITCH]`, `walk X Z|PLACE|PERSON [run]` (routes round
 buildings to a place; lets go in time to stop there, answers once stopped), `press
-ACTION [S]` (`why` when it does nothing), `hold`/`release`, `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
+ACTION [S]` (`why` when it does nothing), `hold`/`release`, `tend [PERSON] [S]` (press a man's wound: crouch, look at it, hold E; #1095), `weapon revolver|shotgun|dynamite|none`, `shoot [N]`, `wait S`,
 `time H`, `clock SCALE|off`, `smoke [X Y Z]` (each burning building's smoke field, or how thick
 it is at a point), `set`/`get ADDRESS` (a look value: `settings.mosaic`,
 `global.min_square_px`, `env.glow_intensity`, `day.exposure_night`, `hour`; `LookPreset`), `preset
@@ -582,6 +583,8 @@ real look RoomLight is on whatever `Settings.room_light` says.
 - `src/main/main.gd` + `scenes/main.tscn` — the pixel pipeline: world renders in `GameViewport`
   (SubViewport at `Settings.internal_resolution`, 1280×720 default), drawn to `Screen` with nearest
   filtering.
+- `CatchUp` (`catch_up.gd`, #1117): the physics ticks a frame may run to catch up, from what a tick
+  costs (the bridge's 40 only while ticks are cheap; the game's own 2 is project.godot's).
 - `GameReset` (`game_reset.gd`): **Backspace** reloads the main scene (the game as it started), first
   clearing what's static and would differ (PropKit's and PropLibrary's per-id counters, SightLight's
   lamps, Blood, chips, shards); `tests/test_game_reset.gd` checks a reset street against a fresh one.
@@ -867,6 +870,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   spec's `stage`, `SpecBuilding._stage`): a platform of members in the dance hall, the wing, the
   `DrawCurtain` (`src/art/draw_curtain.gd`: `building.open_curtain()` / `close_curtain()`, `to_dict`)
   and the `PaintedDrop` (`src/art/painted_drop.gd`, the backdrop; `art` its painting).
+  **The undertaker's** (#1174, `experiments/building_lab/undertaker/`) has the first cellar a man walks down
+  into: `CellarDig` (`src/structures/cellar_dig.gd`, called from `_make_buildings` for a spec's `cellar.dig`) lowers
+  the valley's ground (Ground's dug tiles) under the cellar and its `Bulkhead`'s areaway to its floor.
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -961,6 +967,7 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/structures
 
+- `church_tower.gd` (#1142): the church's bell tower, belfry, louvres, spire and pointed window heads, called from `SpecBuilding.build` when the spec has a `tower`; the cemetery is `src/world/cemetery.gd` (`config/cemetery.json`), placed by `ValleyWorld._make_church` and `_make_cemetery`.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
@@ -1043,7 +1050,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   only its `LoadRecord` (weight, capacities, weakest point, supports, geometry: the member's own
   methods, worked out on the main thread). A structure keeps one a member (`load_record`), taken
   again when it's been `mark_dirty`'d since or for an analysis from the top (`records_all_stale`).
-  FireSystem's checks: `start_analysis` (main), the records copied a slice a frame (`prepare`,
+  The settle queue (`SettleQueue`, src/structures/settle_queue.gd, group `settle_queue`; a FireSystem's child,
+  run from its tick, or the valley's own, on its physics frame, #1128; `Structure.settle` hands an over-budget
+  settle to `SettleQueue.find`, none = whole on its frame): `start_analysis` (main), the records copied a slice a frame (`prepare`,
   `CHECK_MEMBERS` 120 for a routine look, `SETTLE_MEMBERS` 150 a slice while it's coming down,
   `SETTLE_FRAME_MS` 8), the rest on a worker (`run_async`, the pool, high priority), applied
   (`apply_round`) on a tick fixed by its size (1 + members / `WORKER_MEMBERS_A_TICK` 200), never
@@ -1355,7 +1364,8 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   barrel really points: the player's `Sway` with his own sizes, `config/gun_hand.tres`; lags onto
   you, unsettled by drawing, turning, moving, his kick, near misses and hits; he squeezes when
   his sights settle on what he can see of you, the squeeze jerks it; no random spread), `Cover` (finds hiding spots against a threat by rays: ring samples + "shadows"
-  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks; given the
+  behind whatever the threat's sight lines hit; `Cover.search()` spreads it over ticks (40 spots a chunk, each chunk a piece at a time, `Cover.Pick`, by a
+  `WorkBudget`: `STEP_MS`, or `STEP_ASKS` queries under World.deterministic; #1123); given the
   town's `places`, as the gang's brains do, spots a porch's height up or down count, reached by
   the town's ways (in at a door, down the steps), and something wide a few metres off counts:
   a doorway, a building's corner; with variant D's `posts`, a post too narrow to hide him square
@@ -1671,7 +1681,7 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `src/missions/sheriff_on_road.gd` (`SheriffOnRoad`, an `Act`), data `config/moments/the_sheriff.json`.
   Valley only: `-- --world=valley --mission=sheriff` (ValleyWorld starts it 5 ticks in) or the bridge's
   `moment the_sheriff`; Enter when it's over (held 1.5 s any time) starts it again (`restart`). You at
-  `harlan_homestead` facing the ford path at 6.3 (first sun; the clock runs); the sheriff (`sean_s3_talking`) shot through the
+  `harlan_homestead` facing the ford path at 6.3 (first sun; the clock runs at `clock_scale` 0.25 of the day's rate till it's over, #1082); the sheriff (`sean_s3_talking`) shot through the
   belly (`take_bullet` for the hole, then `shape_wound`: his body as the data has it: 450 ml lost, a
   weeping wall bleed 2.4 ml/s to 1,350 ml that doesn't clot, 0.2 ml/s inside to 300 ml, the gut holed 2
   game hours before; untended he passes out at ~0.41 lost and doesn't bleed to death: the gut kills him
@@ -1908,14 +1918,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
   past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
   (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  **Errands** (#1167): a block with `round` `[{at|in, do, stay: [s, s]}...]` walks him leg to leg (`_leg_block`,
+  `_leg_step`; a leg is the block as an `at` or `in`, stays in real seconds, never to a spot another holds);
+  `run_seed` (random a run; Engine meta `town_seed` fixes it: the tests' runner 0, replay the report's) spreads
+  the legs, the barks' gaps (`talk.gap_jitter`, `first_s`), the news' slips and the room's bits.
+  **Shops** (`shops`, #1167): a knock at an open shop with its keeper in brings him to its `spot` with a line
+  (`_shop_answers`; `on` pass, then knock). `tests/test_town_streets.gd`, `test_town_open.gd`.
   **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
   `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
   only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
   Act men (`doc`, `preacher`, `wife`, `cowboy`...) have no hours, so the doctor and the preacher have a
   second id for their day (`doctor` on the book except 14-15; `churchman` on the street 8-9, off by the
   funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
-  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night: the
-  new people are on the book in the saloon (`drink`, `work`), not in the yard, which is No Law's.
+  street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night (step 10): the
+  night's people are at the yard set's spots (the room, `SaloonRoom` below), the saloon's window lit by it (`room.lights`).
   **Spots** (townsfolk step 4, #957; `SpotChore`, `src/people/spot_chore.gd`, `tests/test_spot_chore.gd`):
   a block `at` a spot gets its `do` as the man's chore (`_chores_for`: a card chair stays SitChore, a
   band player PlayChore): `stand`, `lean` (back to the wall a ray finds behind him, a boot up; none, a
@@ -1952,6 +1968,54 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   (`CivilianBrain.walk_speed`) with the bag model in hand, `tend` beside the man `TEND_FOR` 240 s, then
   `call_over` (back to his block). The bridge's `read fetch`: the events (shot, ran, told, left frames,
   the route's m) and the log.
+  **The town's news** (townsfolk step 7, #1051; `TownNews`, `src/people/town_news.gd`, `tests/test_town_news.gd`,
+  `tests/test_town_news_valley.gd`): `records` the truth (Events.noise gunshots and their maker within 15 s / 30 m are one;
+  `deed` hit/kill and a fall or death near it set whom and what); `versions` per person id, filled only by his
+  CivilianBrain (`heard`: shots, who only if he saw him fire, first = who fired the first shot he saw; `saw_down`:
+  whom, dead), a body still lying found by anyone who sees it within 25 m (`_found_step`), the dead's own erased.
+  Telling: two calm men within 3 m, 6-10 s, the biggest piece the hearer lacks, one in three a slot wrong
+  (`_go_wrong`: first swapped, shots ±1, who or where dropped); two on the book in one house each clock hour;
+  the runner to the doctor (`hand_over`). `overnight` at the town's day turn (`ValleyFolk._news_turn`): size 0.5+
+  to everyone as told, small told news fades; StoryState `news.yesterday` (calendar kind `uneasy`), `news.harlan`
+  (`view_of_harlan`: stopped_a_killer / shot_a_man / split), `news.dead.<id>`. Story records (an act man's shot)
+  travel but don't set the day and aren't spoken (`to_say`). The folk's talk says a calm man's own version once
+  (`line_of`). **The words are the town's script's** (#1144, `TownScript`, `src/people/town_script.gd`): `docs/scripts/town.json`
+  copied to `config/town_script.json` (docs/ is hidden from Godot; `tests/test_town_script.gd` holds them equal: edit the
+  script, then `cp` it); `pick(ids, seed, slots)` the first id with words, a wording by the speaker's seed, slots
+  {who} {whom} {where} {shots} {teller}; `line_of` a head line (`news.<kind>[.you|.nobody]`) and tails, FetchHelp's
+  `run_doc`/`run_law`/`runner[_dead|_you][.shot]`; the built strings only a fallback. **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
+  seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
+  body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
+  **Regard and the barks** (townsfolk step 9, #1152; `TownRegard` `src/people/town_regard.gd`, `TownBarks`
+  `src/people/town_barks.gd`, `tests/test_town_barks.gd`, `_valley`; bridge `read regard`): each man's trust, fear,
+  liking, respect of Harlan worked out when asked from his own `view_of_harlan` and StoryState facts (data `regard`:
+  `view`, `facts` with `all`/`who`/`split`), and what he saw Harlan do himself (#1167: `deeds`, from Events.deed
+  and a won pot, `saw_harlan`; `fired`, his versions with Harlan firing and nobody down; kept in the save); band afraid / warm / wary / cold, the town's the average. Within
+  `show_m` a calm man at his post who sees you shows it (`CivilianBrain.show_regard`: nod, look_away, turn, clear;
+  the head through `FaceGaze.nod`). The barks: town.json lines with an `if` (`on` pass / react.* / undertaker;
+  keys in TownBarks' head), `fitting` most specific first (`specificity`), `pick` with the limits (once a day a
+  person, `once: ever`, no line another said within `same_line_s`), one at you a group (`blocked`/`block`/
+  `clear_far`). `_talk_step`: his news, else No Law's set (wins; the same limits), else a `pass` bark; Reaction's
+  stages call `brain.bark` (ValleyFolk.bark_for); the undertaker's at the body (`_undertaker_says`). Pools in data
+  `barks.pools`.
+  **The saloon as a room** (townsfolk step 10, #1157; `SaloonRoom` `src/people/saloon_room.gd`, data `room`,
+  `tests/test_saloon_room.gd`; bridge `read room`): on No Law's yard set (`room.rect` on the set's lot; the night's
+  people at its spots: `bar_far`, `bar_near`, `room_talk_a/b/c`, `room_bar_end`). `mood` 0-1 once a second from who's
+  in, their drink (hours at a drinking spot), the band sounding, the night (`nights`: bold / after_murder /
+  sheriff_dead, else the day kind), the town's band of Harlan while he's in, times the calm share of the room and
+  the climb back after trouble; `mood_name()` hushed / tense / calm / lively. The director (`_hand_out`, a `gap` by
+  the mood, `again_s` a bit a man): `start(bit, id)` gives a man who `can_do` (calm, at his chore, may speak, no
+  band player) a bit his brain does (`CivilianBrain.start_bit` / `_bit_step`: laugh, grin, toast, lift, cough,
+  stretch, hail, wave, nod, glass; cut the tick he isn't calm at his chore, `cut_bit`); lines by
+  `ValleyFolk.room_line` (the barks' rules; town.json scene `saloon`, `on` room.toast / hail / leave / answer /
+  glass); sounds (`_sound`: SynthSounds stand-ins `laugh_0-2`, `cough`, `glass_down`) at the man, logged
+  (`log`, `sounds`). Events: a man come in hailed, a man going "Night, all", you in: warm a hail, cold `drop`
+  (`CivilianBrain.quiet`, glances), the barkeep's glass (`_glass_step`). The hush (`trouble`: Events.deed of
+  `trouble.deeds` or a shot in the room): men who sensed it are Reaction's; the rest `CivilianBrain.show_look` after
+  base + per_m x d + nerve; a man with dial `ducks` (the pianist) gets Reaction `hush` and hides `DUCK_CALM`;
+  `hush_log` each man's seconds to his turn. The band (`config/band.json` `shaky`): two wrong notes
+  (`Band._wrong_notes`), the start again the piano alone and the hurried render `fast_s`. SpotChore `directed`
+  (its own laugh break off), `glass_up`; `FaceLife.mirth`; `FaceGaze.tip` (a head tip kept over speech's nods).
   The clock read every 0.5 s (`block_now`, `block_key`): his block begun while you watched (or a jump
   to within `walk_in_h` of its start while he was settled) and he walks: out of his book place's door
   (`door`: the place's way), to his spot or in at the next door, by the folk's own `places`
@@ -2100,7 +2164,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `SHAPE_STEP` (`follow_bones`, `bone_move`). `take_off(part)` hides a piece of tack and drops it as
   a RigidBody3D (debris layers, its rest shape), `put_on` puts it back. `tie_to(point)` hides the
   ridden reins and draws two sagging reins from the bit (`bits()`, from `horse.json`) to the point.
-  Model space: head at -X, his right -Z, ground y = 0.
+  Model space: head at -X, his right -Z, ground y = 0. In the group `horses`.
+- `src/creatures/ride_there.gd` — `RideThere` (#1120, the valley's `ride`), a stand-in for riding
+  (#478): `config/ride_there.json`'s places (valley.json ids), each a hitch on a town lot (`lot`,
+  `along`, `out`) or back along one of its roads (`road`, `back_m`, `side_m`), a `HitchingRail` there;
+  your horse (`horse`, `horse_at`) at the one nearest where you start. E at any tied horse
+  (`horse_here`, `claims_use`): the list (`offered`: `known` always / been / fact:KEY[=V]; not where
+  you are), 1-9 or E; `ride(id)`: the fade, `DayCycle.pass_hours` by `ride_of` (flat distance x
+  `winding` at valley.json's `horse_trot`, + `extra_s`), `Events.hours_passed(h, &"rode")`, you and
+  your horse at the rail (`stand`, facing the place). `refusal()`: carried/dragged man, bleeding over
+  `bleed_ml_s`, `hostile_near` (an OutlawBrain against you that knows you, or within `close_m`), a
+  running Act's `ride_refusal()` (data `ride_no`, or `"ride": "ok"`), the group `ride_check`
+  (FarmhouseMission while ON); `beats_on_way` asks the group `timed_beats` (`ValleyFolk.beats_due`:
+  the murder, the sheriff's day, the funeral; "on" = it happens by its own clock after you arrive,
+  its `say` on arrival; "no" refuses). Places `horse_<id>` for `goto`; the bridge's `ride [PLACE]`.
 - `tools/blender/horse.py --shape=GLB` (the game's horse since 2026-10-24): Rodin's model from the
   Character Studio (`inputs/horse/shape.glb` on its `claude/studio-horse`, from pictures Sean approved),
   turned, scaled and measured by `horse_rodin.py` (legs by level cuts, poll, muzzle, withers, the tail
@@ -3170,6 +3247,41 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   or with `--jolt-sight` every question goes to Jolt through the same face. `sight_sync` in the
   lab's perf is its upkeep. Its lab: `experiments/sight_lab/` (census, bench); the gate test
   `tests/test_sight_world.gd`.
+
+## src/save (the save)
+
+- `src/save/save_game.gd` — **`SaveGame`** (#1138; `docs/briefs/saving.md` has the inventory, what's
+  deliberately not kept, what isn't yet, and how a body is laid back). Static: `capture(tree)` (the
+  world as one dictionary: `SECTIONS` story, clock, structures, ground, floor, blood, dynamite, folk,
+  people, player), `write(d, slot)` / `read(slot)` / `head(slot)` (`user://saves/<slot>.save`: a JSON
+  first line, then `var_to_bytes` compressed; temp file then rename, the last kept as `.bak`),
+  `apply(tree, d)` onto a valley built fresh (returns `{missed, ms}`), `save(tree, slot)` (capture and
+  write, timed), `differences(a, b, tol, tol_m, skip)`. `VERSION`, `MIGRATIONS` (version -> Callable).
+  `pending` / `load_slot(tree, slot)` (#1148: read, `GameReset.load_save` clears the world's statics and
+  puts the story back, reloads; `ValleyWorld._load_pending` applies it under a black cover once the folk
+  are in, `LOAD_AFTER_FRAMES`, and skips the command line's mission starts), `last_load`.
+- `src/player/player_sleep.gd` — **`PlayerSleep`** (`player.sleep`, #1148): E at a bed (group `beds`:
+  SpecBuilding puts every `use: sleep` use point there) fades out, `DayCycle.pass_hours` to `WAKE_HOUR`
+  (`hours_to_dawn`), `Events.hours_passed(h, &"sleep")` (your mending, townsfolk's wounds), the town
+  placed, then the save (after the night: you wake at dawn by the bed), fade in. `why_not` refuses
+  bleeding, a carry or seat, a hostile man within `DANGER_M`, a shot within `SHOT_S`, a Moment not done.
+  `last`, `last_capture`, `slot`.
+- `src/save/continue_card.gd` — **`ContinueCard`**: the plain valley start with a save offers it (Enter:
+  Continue, Space: new game; `offered(args, slot, headless)`; not on `--mission=`/`--moment=`, the
+  bridge unless `--continue-card`, headless, a reset). The bridge: `sleep [bed]`, `save`, `load`,
+  `continue`, `newgame`, `saves`.
+- Each system's own half: `Structure.to_dict` / `from_dict` (`maybe_changed`, `untouched`,
+  `_lay_piece`; `cut_member(..., quiet)`; `StructureMember.restore_holes`), `HumanBody.save_dict` /
+  `load_dict` / `made_from` (`plain`, `_pose_as`, `_lie_as`, `_lie_again`, `dropped_gun`),
+  `Relations.from_dict`, `ValleyFolk.save_dict` / `load_dict` / `load_laid`, `TownNews.save_dict` /
+  `load_dict`, `FloorMarks.save_dict` / `load_dict`, `Blood.save_list` / `load_list`,
+  `PlayerWounds.save_dict` / `load_dict`, `RideThere.save_dict` / `load_dict` (the `horse` section: his rail).
+  #1154: `ValleyFolk.kept` (a hurt man indoors: his body's state on the book, run on by the clock, `_keep`,
+  `_run_on`, `_put_back`, `_can_come_out`; laid up or `died_indoors`). People are keyed by `person_id`, structures by
+  `structure_id`, members by `member_id`: a save warns (`warnings`) of two of a name.
+- `tests/test_save_game.gd`: the file, a structure, a man, marks and blood, the whole valley.
+  `tests/test_sleep.gd`: a sleep saves and wakes you at dawn, loaded onto a fresh valley it's the same;
+  refused shooting or bleeding; Continue only with a save.
 
 ## tests
 

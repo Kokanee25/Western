@@ -16,12 +16,14 @@ const HELP := {
 	"camera": "camera X Y Z [TX TY TZ] [FOV] | camera player -> a free camera there looking at T, or back to your eyes",
 	"goto": "goto X Y Z [YAW] | goto PLACE -> stand there (feet), facing YAW degrees (0 = north, -Z)",
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
+	"ride": "ride [PLACE] -> \"ride there\" (#1120) from the tied horse you're at, as E and the list do: the fade, the clock on, you by your horse at PLACE's rail; answers the ride (or why not). Alone: what's offered from here and why not (goto horse_PLACE: by the horse there)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
 	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
 	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
 	"hold": "hold ACTION -> press without letting go (release lets go)",
+	"tend": "tend [PERSON] [SECONDS] -> press on a man's wound: crouch by him, look at where he bleeds and hold E (default 4 s; the nearest bleeding man within 3 m with none named). Answers his bleeding before and after",
 	"release": "release [ACTION] -> let go of a held action (all of them with none named)",
 	"shoot": "shoot [N] -> cock and fire the gun in hand N times (as the keys do)",
 	"weapon": "weapon revolver|shotgun|rifle|dynamite|bucket|plunger|none -> take that out (none: put it away)",
@@ -42,7 +44,7 @@ const HELP := {
 	"plunge": "plunge [SPREAD] -> the plunger pushed home: every wired bundle goes (SPREAD physics ticks apart; default the dial)",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
-	"read": "read frame|player|people|look|places|counts|fetch|all -> what's going on (fetch: the valley's runners for help, the doctor's calls)",
+	"read": "read frame|player|people|look|places|counts|fetch|news|regard|all -> what's going on (fetch: the valley's runners for help, the doctor's calls; news: TownNews' records and each man's version; regard: each man's opinions of Harlan and band, what they showed, the barks said; room: the saloon's mood and bits; folk: each valley person's state, block, spot and book)",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
 	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
@@ -50,6 +52,12 @@ const HELP := {
 	"band": "band [hush] -> the band (#799, Band): its state, tune, clock and each part's gain, bus, place and man; hush stops it as a shot would",
 	"sit": "sit [n|e|s|w] -> E by a free kit chair, as the key does (sits you in it); with a compass letter, put by that chair of the valley's card table first (#766)",
 	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
+	"sleep": "sleep [bed] -> E at a bed (#1148, PlayerSleep): sleep till dawn and save to slot1. With `bed`: put by the nearest bed first. Answers the night (hours, day, hour, the save's size and time) or why it was refused",
+	"save": "save [SLOT] -> save now without sleeping (SaveGame.save; default slot1): its size and time",
+	"load": "load [SLOT] -> the game reloaded with that save on it (as Continue): answers, then the scene reloads; `state` after shows it",
+	"continue": "continue -> the start's Continue (the save in slot1 loaded, as Enter on the card)",
+	"newgame": "newgame -> the start's card answered with a new game (Space): the old save is kept",
+	"saves": "saves [SLOT] -> the slot's head (day, hour, when written), the last load's report",
 	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
 	"joe": "joe [here|wait|come|state] -> Joe, the companion (#843): here brings him in beside you (none yet), wait/come is your word to him (G looking at him), state what he's doing (the default)",
 	"glove": "glove MAN [toss_to X Y Z] -> MAN (any man with a Skin_whole: a Studio man) takes off a long glove (#949, GloveAct): it's made from his skin and put on his left arm, drawn off by his right hand as real cloth and flicked away (toward X Y Z if given: not aimed, it lands where it lands); again while he's at it: its phase",
@@ -105,8 +113,9 @@ func _ready() -> void:
 	player = main.find_child("Player", true, false) as Player
 	Settings.autosave = false  # a bridge run never writes the player's settings file
 	# Drawn slowly (lavapipe: about a frame a second), the game would only get 8 physics steps a
-	# frame and its clock would crawl; let it catch up so game time keeps near real time.
-	Engine.max_physics_steps_per_frame = 40
+	# frame and its clock would crawl; let it catch up so game time keeps near real time. But not
+	# when a tick costs its own 1/60 s: then catching up never ends (CatchUp, #1117).
+	Engine.max_physics_steps_per_frame = CatchUp.most
 	_arm_player.call_deferred()
 	_listen_to_events()
 	_load_labs()
@@ -141,6 +150,7 @@ func _arm_player() -> void:
 
 
 func _process(_delta: float) -> void:
+	_catch_up()
 	if _server and _server.is_connection_available():
 		var p := _server.take_connection()
 		p.set_no_delay(true)
@@ -224,6 +234,19 @@ func _settle() -> void:
 
 func _seconds(s: float) -> void:
 	await _physics_frames(int(ceil(s * Engine.physics_ticks_per_second)))
+
+
+## The next frame's catch-up limit from the last frame's ticks (the bug report's ring).
+func _catch_up() -> void:
+	if _rec == null:
+		_rec = get_tree().root.find_child("BugRecorder", true, false) as BugRecorder
+	if _rec and _rec.perf_on:
+		var row: Dictionary = _rec.perf.last_frame()
+		if not row.is_empty():
+			CatchUp.after_frame(float(row.physics_ms), int(row.ticks))
+
+
+var _rec: BugRecorder
 
 
 # -- Commands ------------------------------------------------------------------------------------
@@ -322,6 +345,25 @@ func _cmd_goto(a: Array) -> Dictionary:
 	return {"at": _arr(player.global_position), "facing": _facing()}
 
 
+func _cmd_ride(a: Array) -> Dictionary:
+	var r := get_tree().get_first_node_in_group(&"ride_there") as RideThere
+	if r == null:
+		return {"ok": false, "error": "no riding here (the valley only)"}
+	if a.is_empty():
+		return r.report()
+	if r.horse_here(float(r.data.get("reach_m", 2.8)) + 1.5, false) == null:
+		return {"ok": false, "error": "no tied horse by you (goto horse_%s; `ride` alone says where yours is)" % r.horse_at, "report": r.report()}
+	var why := r.ride(StringName(a[0]))
+	if why != "":
+		return {"ok": false, "refused": why}
+	while r.state != &"idle":
+		await get_tree().process_frame
+	await _physics_frames(2)
+	var out := r.last.duplicate()
+	out["at"] = _arr(player.global_position)
+	return out
+
+
 func _cmd_look(a: Array) -> Dictionary:
 	var target: Vector3
 	if a.size() >= 3:
@@ -367,9 +409,22 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var place := StringName(a[0])
 	if _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
+		if points.is_empty():
+			# Off the places' links (#1095: `walk hideout`, 2 km out across open country, said "no way
+			# there"): on to it as to a point, else straight at it.
+			var at := _places().at(place)
+			points = _places().route_to_point(World.space(player), player.global_position, at, [player.get_rid()])
+			if points.is_empty():
+				points = [at]
 	elif _person(a[0]) != null:
+		# Routed round what's in the way as a point is (#1095: `walk storekeeper` went straight at him
+		# through the buildings: 215 s for 154 m, and stopped short).
 		var p := _lies(_person(a[0]))
-		points = [p + (player.global_position - p).normalized() * 1.5]
+		var near := p + (player.global_position - p).normalized() * 1.5
+		near.y = player.global_position.y
+		points = _places().route_to_point(World.space(player), player.global_position, near, [player.get_rid()])
+		if points.is_empty():
+			points = [near]
 	elif a.size() >= 2 and a[0].is_valid_float():
 		# Round what's in the way as a place's route is (the places' links, then on to the point):
 		# straight at it, the D+ playtest's walks stopped on a chair or a post, often after 0 m.
@@ -431,7 +486,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	if _knocked_out():
 		return {"arrived": false, "knocked_out": true, "at": _arr(player.global_position)}
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
-			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching}
+			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching,
+			"slowed": player.wounds.slow_why if player.wounds else "", "carrying": player.carry != null and player.carry.carrying()}
 
 
 func _cmd_key(a: Array) -> Dictionary:
@@ -476,6 +532,48 @@ func _cmd_press(a: Array) -> Dictionary:
 	return out
 
 
+## Press on a man's wound (#1095: the game says "hold E on his wound" and the bridge had no way):
+## crouch by him, look at his bleeding part (else his belly), hold E (`shove`) for S seconds.
+func _cmd_tend(a: Array) -> Dictionary:
+	var man: HumanBody = null
+	var secs := 4.0
+	for x: String in a:
+		if x.is_valid_float():
+			secs = float(x)
+		elif _person(x) != null:
+			man = _person(x)
+	if man == null:
+		var best := 3.0
+		for n in get_tree().get_nodes_in_group(&"people"):
+			var h := n as HumanBody
+			if h != null and h.physiology != null and h.physiology.alive and not h.physiology.bleeds.is_empty():
+				var d := _lies(h).distance_to(player.global_position)
+				if d < best:
+					best = d
+					man = h
+	if man == null:
+		return {"ok": false, "error": "tend [PERSON] [SECONDS]: nobody bleeding within 3 m"}
+	var part := &"abdomen"
+	if not man.physiology.bleeds.is_empty():
+		part = StringName(man.physiology.bleeds[0].get("segment", part))
+	if not man.parts.has(part):
+		part = &"pelvis"
+	if not player.is_crouching:
+		_act(true, &"crouch_toggle")
+		await _physics_frames(2)
+		_act(false, &"crouch_toggle")
+		await _seconds(0.4)
+	_face((man.parts[part] as Node3D).global_position)
+	await _physics_frames(1)
+	var rate0 := man.physiology.total_bleed_rate()
+	_act(true, &"shove")
+	await _seconds(secs)
+	_act(false, &"shove")
+	await _settle()
+	return {"tended": String(man.person_id), "part": String(part), "held_s": secs,
+			"bleed_ml_s": [snappedf(rate0, 0.01), snappedf(man.physiology.total_bleed_rate(), 0.01)]}
+
+
 func _cmd_hold(a: Array) -> Dictionary:
 	if a.is_empty() or not InputMap.has_action(StringName(a[0])):
 		return {"ok": false, "error": "no action"}
@@ -505,13 +603,15 @@ func _cmd_kick(_a: Array) -> Dictionary:
 
 
 func _shove_move(kind: StringName) -> Dictionary:
-	var before: Dictionary = player.shove.last
+	# (By its count, not `last`: a second miss is the same Dictionary as the first, #1116.)
+	var before := player.shove.told
 	player.shove.wants = kind
 	var until := _game_seconds() + 2.0
-	while player.shove.last == before and _game_seconds() < until:
+	while player.shove.told == before and _game_seconds() < until:
 		await get_tree().physics_frame
-	if player.shove.last == before:
-		return {"ok": false, "error": "it didn't start (busy, or down on a stair)"}
+	if player.shove.told == before:
+		var why := "still kicking" if player.shove.move != &"" else ("down on the stair" if player.shove.slipped() else "busy")
+		return {"ok": false, "error": "it didn't start (%s)" % why}
 	return {"did": _shove_words(player.shove.last)}
 
 
@@ -779,6 +879,66 @@ func _cmd_sit(a: Array) -> Dictionary:
 	return out
 
 
+func _cmd_sleep(a: Array) -> Dictionary:
+	if not a.is_empty() and String(a[0]) == "bed":
+		var best: Node3D = null
+		for n: Node in get_tree().get_nodes_in_group(&"beds"):
+			if best == null or (n as Node3D).global_position.distance_to(player.global_position) < best.global_position.distance_to(player.global_position):
+				best = n as Node3D
+		if best == null:
+			return {"ok": false, "error": "no bed in the world"}
+		var off := best.global_basis.z
+		off.y = 0.0
+		var at := player.clear_spot_near(best.global_position + off.normalized() * 1.0 - Vector3.UP * 0.5, 1.5)
+		player.global_position = at
+		player.velocity = Vector3.ZERO
+		var to := best.global_position - at
+		player.rotation.y = atan2(-to.x, -to.z)
+		await _physics_frames(3)
+	var slept: bool = await player.sleep.sleep()
+	var out := player.sleep.report()
+	out["slept"] = slept
+	return out
+
+
+func _cmd_save(a: Array) -> Dictionary:
+	var r := SaveGame.save(get_tree(), String(a[0]) if not a.is_empty() else "slot1")
+	r["head"] = SaveGame.head(String(a[0]) if not a.is_empty() else "slot1")
+	return r
+
+
+func _cmd_load(a: Array) -> Dictionary:
+	var slot := String(a[0]) if not a.is_empty() else "slot1"
+	var head := SaveGame.head(slot)
+	if head.is_empty():
+		return {"ok": false, "error": "no save in %s" % slot}
+	# Answered first: the reload frees this bridge with the scene (as `world`).
+	(func() -> void: SaveGame.load_slot(get_tree(), slot)).call_deferred()
+	return {"loading": slot, "head": head, "reloading": true}
+
+
+func _cmd_continue(_a: Array) -> Dictionary:
+	var card := get_tree().root.find_child("ContinueCard", true, false) as ContinueCard
+	if card:
+		(func() -> void: card.choose(true)).call_deferred()
+		return {"continue": "the card's", "head": card.head, "reloading": true}
+	return await _cmd_load([])
+
+
+func _cmd_newgame(_a: Array) -> Dictionary:
+	var card := get_tree().root.find_child("ContinueCard", true, false) as ContinueCard
+	if card == null:
+		return {"ok": false, "error": "no Continue card up (start with --game-args=--continue-card and a save in slot1)"}
+	card.choose(false)
+	return {"newgame": true, "save_kept": not SaveGame.head("slot1").is_empty()}
+
+
+func _cmd_saves(a: Array) -> Dictionary:
+	var slot := String(a[0]) if not a.is_empty() else "slot1"
+	return {"slot": slot, "head": SaveGame.head(slot), "last_load": SaveGame.last_load.duplicate(),
+			"card_up": get_tree().root.find_child("ContinueCard", true, false) != null}
+
+
 func _cmd_stand(_a: Array) -> Dictionary:
 	if not player.seat.seated():
 		return {"ok": false, "error": "you're not sat down"}
@@ -1022,8 +1182,21 @@ func _cmd_read(a: Array) -> Dictionary:
 	if what == "fetch":
 		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 		out["fetch"] = vf.fetch.report() if vf != null and vf.fetch != null else {}
+	if what == "news":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["news"] = vf.news.report() if vf != null and vf.news != null else {}
+	if what == "regard":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["regard"] = vf.regard.report() if vf != null and vf.regard != null else {}
+		out["barks"] = vf.barks.log.slice(-30) if vf != null and vf.barks != null else []
+	if what == "folk":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["folk"] = vf.report() if vf != null else {}
+	if what == "room":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["room"] = vf.room.report() if vf != null and vf.room != null else {}
 	if out.is_empty():
-		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|all"}
+		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|news|regard|room|folk|all"}
 	return out
 
 
@@ -1083,6 +1256,8 @@ func _listen_to_events() -> void:
 			_shots += 1
 		_log("shot", "%s fired" % _who(shooter)))
 	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
+	_hook(Events.person_left, func(who: Node, why: StringName) -> void:
+		_log("left", "%s left town (%s)" % [_who(who), "his day done, while you were out" if why == &"day_done" else "rode out"]))
 	# What the screen told you (a wound, the gun you can't hold, coming round): #595's gun lost without a word.
 	_hook_screen.call_deferred()
 	_hook(Events.body_hit, func(info: Dictionary) -> void:
@@ -1102,13 +1277,31 @@ func _listen_to_events() -> void:
 	_hook(Events.exploded, func(at: Vector3, kg: float) -> void: _log("blast", "%.2f kg went off at %s" % [kg, _arr(at)]))
 	_hook(Events.callout, func(s: Node, kind: StringName, about: Node, _at: Vector3) -> void:
 		_log("callout", "%s called %s%s" % [_who(s), kind, " (%s)" % _who(about) if about else ""]))
+	# What broke, named by what it's part of (#1095: "20 pieces of timber broke" for one shot said
+	# nothing true: it was a kit prop gone loose, falling whole as one body, each member counted).
+	# The breaker's watch (the town gate's fault 5, #1167: one shot into the sky once logged 214
+	# timbers of a walk broken, not reproduced): the last shot and what it struck, and where you stood,
+	# logged once with any break of `BIG_BREAK` members or more.
+	_hook(Events.shot_fired, func(o: Vector3, d: Vector3, sh: Node) -> void:
+		_last_shot = {"t": _game_seconds(), "from": _arr(o), "dir": _arr(d), "by": _who(sh), "hit": ""})
+	_hook(Events.bullet_hit, func(info: Dictionary) -> void:
+		if not _last_shot.is_empty() and String(_last_shot.hit) == "":
+			_last_shot.hit = "%s%s at %s" % [_who(info.get("collider")), " member " + String(info.member_id) if info.get("member_id", &"") != &"" else "", _arr(info.get("position", Vector3.ZERO))])
 	_hook(Events.member_broken, func(id: StringName) -> void:
+		var whole := _whose_member(id)
 		if not _events.is_empty() and _events[-1].kind == "broke" and float(_events[-1].t) > _game_seconds() - 1.0:
 			_events[-1].count += 1
-			_events[-1].text = "%d pieces of timber broke" % _events[-1].count
+			var by: Dictionary = _events[-1].by
+			by[whole] = int(by.get(whole, 0)) + 1
 		else:
-			_log("broke", "timber broke (%s)" % id)
-			_events[-1]["count"] = 1)
+			_log("broke", "")
+			_events[-1]["count"] = 1
+			_events[-1]["by"] = {whole: 1}
+		_events[-1].text = _broke_text(_events[-1].by)
+		if int(_events[-1].count) == BIG_BREAK:
+			var at := "you at %s yaw %.0f pitch %.1f" % [_arr(player.global_position), rad_to_deg(player.rotation.y), player.get_pitch_degrees()] if player != null and is_instance_valid(player) else ""
+			var shot := "the last shot %.1f s before: %s from %s along %s, hit %s" % [_game_seconds() - float(_last_shot.t), _last_shot.by, _last_shot.from, _last_shot.dir, _last_shot.hit if _last_shot.hit != "" else "nothing"] if not _last_shot.is_empty() else "no shot"
+			_log("big_break", "%d+ members broke (%s among them): %s; %s" % [BIG_BREAK, id, shot, at]))
 	_hook(Events.near_miss, func(p: Node, s: Node, d: float, _at: Vector3, _sp: float, _tu: bool) -> void:
 		if p == player:
 			_log("near_miss", "a round from %s passed %.1f m from you" % [_who(s), d]))
@@ -1117,6 +1310,41 @@ func _listen_to_events() -> void:
 func _hook_screen() -> void:
 	if player != null and is_instance_valid(player) and player.wounds != null:
 		_hook(player.wounds.shown, func(text: String) -> void: _log("screen", text.replace("\n", " / ")))
+
+
+## A break this big is logged with its breaker (`big_break`).
+const BIG_BREAK := 20
+var _last_shot := {}
+
+
+## The events' line for what broke: "Raid_barrel went loose (fell whole)", "Building_doctor: 2
+## members broke".
+static func _broke_text(by: Dictionary) -> String:
+	var parts: PackedStringArray = []
+	for w: String in by:
+		if w.ends_with(LOOSE):
+			parts.append("%s went loose (fell whole)" % w.trim_suffix(LOOSE))
+		else:
+			parts.append("%s: %d member%s broke" % [w, by[w], "" if int(by[w]) == 1 else "s"])
+	return "; ".join(parts)
+const LOOSE := "#loose"
+
+
+## What a broken member belongs to (a building, a kit prop: its node's name, marked LOOSE if it's a
+## kit prop gone loose whole), for the events (#1095); its id's first part if no structure has it.
+func _whose_member(id: StringName) -> String:
+	var any := ""
+	for n: Node in get_tree().get_nodes_in_group(&"structures"):
+		var st := n as Structure
+		if st == null or not st.members.has(id):
+			continue
+		var m := st.members[id] as StructureMember
+		var named := String(st.name) + (LOOSE if st is KitProp and (st as KitProp).loose else "")
+		if m != null and is_instance_valid(m) and m.broken:
+			return named  # (kit props share their members' ids: the one that's broken)
+		if any == "":
+			any = named
+	return any if any != "" else String(id).get_slice("/", 0)
 
 
 func _log(kind: String, text: String) -> void:
@@ -1162,6 +1390,7 @@ func _player_state() -> Dictionary:
 		out["carry"] = player.carry.report()
 	if player.knock:
 		out["knock"] = player.knock.report()
+		out["sleep"] = player.sleep.report()
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
 		out["alive"] = w.physiology.alive
@@ -1184,6 +1413,10 @@ func _people() -> Array:
 			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
 			# one, so men who'd dropped theirs to give up still read armed).
 			"armed": man.held_gun != null, "wounds": man.wounds.size()}
+		# Every injury (blows and bruises too, not only holes: #1125's "0 wounds" was a bruised man) and his blood.
+		if man.physiology.wounds > man.wounds.size() or man.physiology.blood_ml < man.physiology.tuning.blood_ml:
+			e["injuries"] = man.physiology.wounds
+			e["blood_ml"] = int(man.physiology.blood_ml)
 		var brain := man.get_node_or_null(^"Brain")
 		if brain is OutlawBrain:
 			e["mood"] = OutlawBrain.Mood.keys()[brain.mood].to_lower()
@@ -1194,6 +1427,10 @@ func _people() -> Array:
 				e["arrested"] = "following" if brain.follow else "waiting"
 			if brain.relations:
 				e["toward_you"] = Relations.Stance.keys()[brain.relations.stance(player)].to_lower()
+			# What he has of you (#1125: "spotted" called at 100 m): sees you, his sight's reach on you as you're lit.
+			if brain.senses and brain.senses.known.has(player):
+				e["sees_you"] = brain.senses.sees(player)
+				e["sight_on_you_m"] = snappedf(brain.senses.range_to(player), 0.1)
 		elif brain is CivilianBrain:
 			e["mood"] = CivilianBrain.Mood.keys()[brain.mood].to_lower()
 			if brain.reaction != null and brain.reaction.describe() != "":

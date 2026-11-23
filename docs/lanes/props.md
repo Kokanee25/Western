@@ -14,6 +14,13 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   judged blind in its room (`experiments/prop_lab/doctor/dress.gd`).
 
 ## Open
+- **The general store, G1 to G3 placed** (#1139, #1172, #1182; `tools/props/store_g1.py`, `store_g2.py` (numbers, kits, `STOCK` per
+  board; its main also writes G3's), `store_g3.py` (the post office's `post_case` and mail, ledger, day-book, ink, cash, hung pails,
+  hams, lanterns), `tools/blender/props/store_g2.py`, `store_g3.py` (models; `bpy` 5.0.1 in `~/.venvs/studio`, ~1 min); plan, judging
+  and what's next in `experiments/prop_lab/store/README.md`; refs `refs/store/`). `gen_spec.py` imports all three (drops G1's
+  `west_shelves_d`); edit there, re-run `store_g2.py` then `gen_spec.py`. G3's critic r2: case CLOSE, hung goods DIFFERENT (tiny: make
+  clusters bigger and lower), the counter's books NOT SEEN (needs a view down on it); the room's ceiling, posts and light are art's.
+  Rodin sack and boots wait on Sean (#1175). `probe_shelves.gd` checks every good is on its board (and the post case's).
 - **Saloon B's S1, S2 and S3 are placed** (#950): its spec's `dressing`, written by `tools/props/saloon_b_dress.py`
   (edit there, re-run; it also moves the bar to x 2.25 and the use points it touches). What was decided: README
   "Saloon B, S1 to S3 placed". Kit files `tools/props/saloon.py`, `saloon_s2.py`, `saloon_s3.py`. **Judged by lamplight** (#987, `results/2026-11-15_saloon_b_placed/`): placement and lamps stand; kit faults in the README's "Judged by lamplight", for S4.
@@ -31,7 +38,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   lamplight, a continuous trough for the row is the cheap fix). Where each goes: README "Saloon B, the
   stage and dressing room". Placing waits for #902 (the room; not merged on 2026-11-14). No period refs saved (Commons came back thin).
 - **Next:** S4 (the chair
-  and strongbox, the CLOSE notes; Blender needs `bpy`, which needs pypi).
+  and strongbox, the CLOSE notes).
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
   (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
   `folded_blankets`, and `doctors_bag` (Rodin, Sean's A on #823). All his wooden kits are now
@@ -51,7 +58,10 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   `baron_coach` stays), farmhouse props (#540).
 
 ## Traps
-- A lavapipe view ~10-15 min; never two renders at once; Blender bakes share the CPU.
+- A lavapipe view ~10-15 min; never two renders at once; Blender bakes share the CPU. The valley render needs ~14 GB: on a 15 GB box add 8 GB swap (`fallocate`, `mkswap`, `swapon`) or it is OOM-killed; `apt-get update` then `mesa-vulkan-drivers` (else it falls back to OpenGL). A new baked model's .import needs the doctor's settings (mode 2, mipmaps) after the first import.
+- A fitted fixture is fitted to its members' own box: fit it smaller (G1's shelving, cornice and rail proud) and
+  PropKit.fit squashes it, its boards no longer at the numbers its goods were placed by. `on` names its own batch only.
+- New baked pngs import uncompressed without mipmaps headless: set their .import as the doctor's (mode 2, mipmaps).
 - Never two renders, or a render and the suite, at once. A same-kind member thinner than 12 mm isn't "on" the
   one under it (CONTACT_EPSILON). The valley has no StaticBatch (glass props draw part by part).
 - A hung cloth needs `hang_over` (a bar slips between points).

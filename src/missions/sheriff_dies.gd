@@ -174,7 +174,7 @@ func _cot_bed() -> Array:
 func _make_men() -> void:
 	var door := _local(data.get("door_out", [4.71, -1.2]))
 	var into := _local((data.get("lead", [[4.71, 0.6]]) as Array)[0])
-	doctor = folk.take(&"doc", door, into - (into - door) * 3.0)
+	doctor = folk.take(&"doctor", door, into - (into - door) * 3.0)
 	wife = folk.take(&"wife", chair.global_position + chair.global_basis.z * 0.8, cot.global_position)
 	if wife:
 		wife.global_position = Seating.spot(chair)
@@ -528,7 +528,7 @@ func hand_over() -> void:
 ## Take back its men and props (the bridge, the tests).
 func reset() -> void:
 	if folk and is_instance_valid(folk):
-		for id: StringName in [&"doc", &"wife", &"dying_sheriff", &"runner"]:
+		for id: StringName in [&"doctor", &"wife", &"dying_sheriff", &"runner"]:
 			if folk.state.get(id) == &"act":
 				if id == &"wife" and wife and is_instance_valid(wife) and chair and is_instance_valid(chair):
 					Seating.stand_up(wife, chair)

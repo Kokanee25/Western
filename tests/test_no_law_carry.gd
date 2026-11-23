@@ -57,6 +57,17 @@ func _at(h: float) -> void:
 	await physics_frames(60)
 
 
+## Your capsule at `at` overlaps something you'd collide with (a table's top, a broken chair's loose
+## pieces: #1084's CI pinned you on one).
+func _overlaps(p: Player, at: Vector3) -> bool:
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = p.collision.shape
+	q.transform = Transform3D(Basis(), at) * p.collision.transform
+	q.collision_mask = p.collision_mask
+	q.exclude = [p.get_rid()]
+	return not World.space(p).intersect_shape(q, 1).is_empty()
+
+
 ## You by `man`'s collar, looking at it: on a side of him where you can stand (not in the card
 ## table he fell by: placed in its top you couldn't move, CI #1081).
 func _by(man: HumanBody) -> void:
@@ -67,8 +78,7 @@ func _by(man: HumanBody) -> void:
 		var o := Vector3(0.9, 0.0, 0.0).rotated(Vector3.UP, TAU * k / 8.0)
 		var try := c + o
 		try.y = _folk().ground(try.x, try.z) + 0.05
-		p.global_position = try
-		if not p.test_move(p.global_transform, Vector3.UP * 0.01):
+		if not _overlaps(p, try):
 			off = o
 			break
 	var at := c + off
@@ -405,7 +415,16 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	# Bang (E at the door, Earl by it).
 	await _tap_e()
 	check(c.knocked_n == 1 and c.state in [&"knocked", &"door"], "the bang's the beat (%s; %s)" % [c.result().get("events"), _player().knock.report()])
-	check(c.said.any(func(s: Array) -> bool: return s[2] == "carry.door_wait"), "a voice through the door")
+	# Two right outcomes (Sean, #1168): the doctor in, a voice through the door; or the town's
+	# runner (#1095, fetch help) has already called him out to Earl, so nobody's inside to answer
+	# and he comes from the street instead. Which wins is a race the valley's makeup can tip.
+	var voice: bool = c.said.any(func(s: Array) -> bool: return s[2] == "carry.door_wait")
+	var already_out: bool = f.state.get(&"doctor") == &"called"
+	if already_out and not voice:
+		print("    the doctor already out to Earl (the town fetched him): no voice through the door")
+	check(voice or already_out, "a voice through the door, or the doctor already out (the knocks %s; the doctor: state %s, book %s, body %s; the act's last %s)" % [
+			f.knocks, f.state.get(&"doctor"), f.book.row(&"doctor"),
+			ValleyFolk._body_at(f.people[&"doctor"]) if f.people.has(&"doctor") else "none", c.timeline.slice(-6)])
 	var opened := await wait_until(func() -> bool: return c.state in [&"lay", &"laid"] or c.done, 60 * 60)
 	check(opened, "the doctor opens and says it (%s)" % c.result())
 	var ids: Array = c.said.map(func(s: Array) -> String: return s[2])

@@ -406,6 +406,7 @@ func _physics_process(delta: float) -> void:
 	state_t += delta
 	if cheater != null and is_instance_valid(cheater) and cheater.limp and _fell_t >= 0.0:
 		cheater.rise_ok = false
+		cheater.keep_down = true
 	match state:
 		&"stranger":
 			if _str_state in [&"sat", &"gone"] and (_str_t > float(_cody.get("after_s", 3.0)) or _str_state == &"gone"):

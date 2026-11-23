@@ -34,6 +34,7 @@ var ending := ""
 var answer := ""
 var forced_by := ""  # "kick", "shot", "wall", "down" (he lay outside: no door)
 var kicked_j := 0.0
+var kicked := 0.0  # sound standing kicks' worth (kick_share)
 var kicks := 0
 var shot_him := false  # your ball in him after he gave up
 var joe_saw := false
@@ -54,6 +55,14 @@ var _ride_s := 0.0
 var _jail: Node3D
 var _surrendered := false
 var _was_clear := false
+var _clear_at := Vector2.INF
+## Joe down at the hideout (#1116, Sean's): your first aid gets him up, a held E by his wound
+## (`aid_s` of it, as the sheriff's on the road); he limps in himself, and the knife and the ask
+## wait till he's there. No carry, no arm round him.
+var aided := false
+var aid_s := 0.0
+var _aid_told_t := -INF
+var _joe_way_t := 0.0
 
 
 func begin() -> void:
@@ -65,9 +74,13 @@ func begin() -> void:
 		return
 	joe = hideout.joe
 	joe_brain = hideout.joe_brain
+	if joe != null and is_instance_valid(joe) and joe_brain != null:
+		JoeLost.watch(self, joe, joe_brain)
 	kett = hideout.kett
 	shack = hideout.shack
 	Events.deed.connect(_on_deed)
+	add_to_group(&"takes_kicks")
+	add_to_group(&"claims_use")  # (E held by Joe down is your hands on his wound, not a kick)
 	var p := player()
 	if p == null or joe == null or not is_instance_valid(joe):
 		_finish(&"no_player")
@@ -91,6 +104,7 @@ func begin() -> void:
 func _go(s: StringName) -> void:
 	state = s
 	state_t = 0.0
+	_joe_way_t = 0.0
 	_note("-> %s" % s)
 
 
@@ -186,6 +200,8 @@ func _physics_process(delta: float) -> void:
 	kett.wake()
 	if _kett_died():
 		return
+	if answer == "" and state in [&"barred", &"down", &"in", &"knife"]:
+		_aid_step(p, delta)
 	match state:
 		&"barred":
 			_barred_step(p)
@@ -230,8 +246,12 @@ func _barred_step(p: Player) -> void:
 		_surrender()
 
 
-## A kick lands: on the door, it adds up against the bar (a barred door takes `bar_j`, an unbarred
-## one `door_j`) and gives all at once, bar and leaf inward; his second bluff at the first.
+## A kick lands: on the door, it counts against the bar (a barred door takes `bar_kicks` sound
+## standing kicks, an unbarred one `door_kicks`) and gives all at once, bar and leaf inward; his second
+## bluff at the first. Each kick counts by its speed against a sound standing kick's, squared (its
+## energy), up to `kick_most` for one on the run: a leg already hurt counts less, always by the same
+## amount, and the door takes the kick, not your foot (`takes_kick`: the count is the door's, not luck,
+## #1111). A kick on the shack's wall instead says where the door is.
 func _on_kick(info: Dictionary) -> void:
 	if done:
 		return
@@ -242,24 +262,22 @@ func _on_kick(info: Dictionary) -> void:
 		return
 	if state != &"barred" or String(info.get("move", "")) != "kick":
 		return
-	# On the door, or anything in its doorway (its jamb, its trim, a broken piece lying against it: the
-	# bridge's playtest kicked the jamb, then the loose trim, and never the leaf).
 	if not info.has("at") or not String(info.get("what", "")) in ["wall", "thing", "prop"]:
 		return
 	var at: Vector3 = info.at
-	var l := shack.global_transform.affine_inverse() * at
-	var dc := shack.door_rect.get_center().x
-	if absf(l.x - dc) > shack.door_rect.size.x * 0.5 + float(data.get("doorway_m", 0.45)) or l.z > 0.6 or l.z < -1.2 \
-			or l.y > shack.door_rect.end.y + 0.3:
+	if not _in_doorway(at):
+		_wrong_wall(at)
 		return
 	var e := 0.5 * float(info.get("mass", 0.0)) * pow(float(info.get("speed", 0.0)), 2.0)
+	var share := kick_share(float(info.get("speed", 0.0)))
 	kicked_j += e
+	kicked += share
 	kicks += 1
-	var need := float(data.get("bar_j", 1800.0)) if barred() else float(data.get("door_j", 600.0))
-	_note("kick %d on the door: %.0f J (%.0f of %.0f)" % [kicks, e, kicked_j, need])
+	var need := float(data.get("bar_kicks", 3.0)) if barred() else float(data.get("door_kicks", 1.0))
+	_note("kick %d on the door: %.2f of a sound kick, %.0f J (%.2f of %.1f)" % [kicks, share, e, kicked, need])
 	if kicks == 1:
 		_say_again(kett, "barred")
-	if kicked_j < need:
+	if kicked < need - 0.001:
 		if kicks == 2:
 			prompt(String(_prompts().get("holds", "")), 2.5)
 		return
@@ -274,6 +292,47 @@ func _on_kick(info: Dictionary) -> void:
 	GameAudio.play(p, &"timber_crack", hideout._shack_door(0.0) + Vector3.UP * 1.0, {"volume_db": 0.0})
 	Events.noise.emit(hideout._shack_door(0.0), 30.0, &"crash", p)
 	_note("the door gives")
+
+
+## A kick at `speed` m/s as a share of a sound standing kick (the shove's own kick_speed): its
+## energy's share, squared speed, up to `kick_most` (a running kick).
+func kick_share(speed: float) -> float:
+	var p := player()
+	var sound := p.shove.tuning.kick_speed if p and p.shove and p.shove.tuning else 7.0
+	return clampf(pow(speed / maxf(sound, 0.1), 2.0), 0.0, float(data.get("kick_most", 1.5)))
+
+
+## On the door, or anything in its doorway (its jamb, its trim, a broken piece lying against it: the
+## bridge's playtest kicked the jamb, then the loose trim, and never the leaf).
+func _in_doorway(at: Vector3) -> bool:
+	if shack == null or not is_instance_valid(shack):
+		return false
+	var l := shack.global_transform.affine_inverse() * at
+	var dc := shack.door_rect.get_center().x
+	return absf(l.x - dc) <= shack.door_rect.size.x * 0.5 + float(data.get("doorway_m", 0.45)) and l.z <= 0.6 and l.z >= -1.2 \
+			and l.y <= shack.door_rect.end.y + 0.3
+
+
+## The shack's door takes a kick (PlayerShove's `takes_kicks`): it gives a little each time while
+## it's barred and shut, so your foot isn't hurt on it (the hurt foot made the count luck, #1111).
+func takes_kick(_p: Player, at: Vector3, _info: Dictionary) -> bool:
+	return not done and state == &"barred" and not door_open() and _in_doorway(at)
+
+
+## A kick on the shack that isn't the door (playtest run 3 kicked its side wall nine times, told
+## nothing): which way the door is from you.
+func _wrong_wall(at: Vector3) -> void:
+	var l := shack.global_transform.affine_inverse() * at
+	if l.x < -0.4 or l.x > shack.width + 0.4 or l.z < -0.6 or l.z > shack.depth + 0.4 or l.y > 3.5:
+		return  # (not the shack)
+	var p := player()
+	var words := String(_prompts().get("wall_round", "That's the wall. The door's round the front."))
+	if l.z <= 0.6 and p != null:
+		var to := hideout._shack_door(0.0) - p.global_position
+		var right := p.camera.global_basis.x if p.camera else p.global_basis.x
+		words = String(_prompts().get("wall_right" if to.dot(right) > 0.0 else "wall_left", words))
+	prompt(words, 2.5)
+	_note("kick on the shack's wall, not the door: " + words)
 
 
 ## In: hands up, backing into the corner, begging (cabin.surrender); Joe held and brought in behind
@@ -295,6 +354,11 @@ func _surrender() -> void:
 ## then the question; meanwhile anything you do may answer.
 func _scene_step(p: Player, delta: float) -> void:
 	_kett_cornered(p, delta)
+	if state in [&"in", &"knife"] and joe_down():
+		return  # (Kett waits cornered; Joe's to be got up: `_aid_step`)
+	if not joe.limp and not joe.prone and not joe.rising and (hideout.in_shack(joe.global_position) \
+			or _flat(joe.global_position, kett.global_position) < float(data.get("joe_near_m", 7.0))):
+		_joe_way_t += delta
 	match state:
 		&"in":
 			var at := _joe_in_spot()
@@ -369,16 +433,15 @@ func _read_head(p: Player, delta: float) -> void:
 ## shake).
 func _read_doing(p: Player, delta: float) -> void:
 	# Between them: on the line from Joe to Kett, not off its ends.
-	var a := Vector2(joe.global_position.x, joe.global_position.z)
-	var b := Vector2(kett.global_position.x, kett.global_position.z)
 	var me := Vector2(p.global_position.x, p.global_position.z)
-	var ab := b - a
-	var k := (me - a).dot(ab) / maxf(ab.length_squared(), 0.01)
-	var off := (a + ab * clampf(k, 0.0, 1.0)).distance_to(me)
-	var between := k > 0.1 and k < 0.9 and off < float(data.get("between_off_m", 0.45)) and ab.length() > 0.6
+	var between := _between(me)
 	if not between and state != &"in":
 		_was_clear = true  # (a step: standing there when the knife came out isn't one)
-	if state != &"in" and between and _was_clear:
+		_clear_at = me
+	# You stepped into his way, not he round you: where you last stood clear of them must still be
+	# clear of the line as it is now (run 3: Joe walked to Kett past a player standing still, and that
+	# read as "between", a nod, #1111).
+	if state != &"in" and between and _was_clear and not _between(_clear_at):
 		_between_t += delta
 		if _between_t > float(data.get("between_s", 0.5)):
 			_answered("between")
@@ -413,6 +476,16 @@ func _read_doing(p: Player, delta: float) -> void:
 			else not hideout.in_shack(p.global_position) and _flat(p.global_position, hideout._shack_door(0.0)) > float(data.get("walked_out_m", 4.0))
 	if gone and state != &"in":
 		_answered("walked_out")
+
+
+## `at` (flat) on the line from Joe to Kett, not off its ends.
+func _between(at: Vector2) -> bool:
+	var a := Vector2(joe.global_position.x, joe.global_position.z)
+	var b := Vector2(kett.global_position.x, kett.global_position.z)
+	var ab := b - a
+	var k := (at - a).dot(ab) / maxf(ab.length_squared(), 0.01)
+	var off := (a + ab * clampf(k, 0.0, 1.0)).distance_to(at)
+	return k > 0.1 and k < 0.9 and off < float(data.get("between_off_m", 0.45)) and ab.length() > 0.6
 
 
 ## Your look's line passes within `drawn_m` of him between his hips and his head (and he's near).
@@ -505,6 +578,7 @@ func _revenge_step(p: Player, delta: float) -> void:
 	_joe_go(to, float(data.get("joe_walk", 1.1)) * 1.2, delta)
 	joe.face(kett.global_position + Vector3.UP * 1.2)
 	if _flat(joe.global_position, kett.global_position) > 0.95:
+		_over_the_pieces(to, delta)
 		return
 	_stab_t -= delta
 	if _stab_t > float(sd.get("every_s", 0.9)) * 0.45 * _pace():
@@ -573,7 +647,10 @@ func _joe_stuck(at: Vector3, delta: float) -> bool:
 	else:
 		_joe_still += delta
 	var in_it := hideout.in_shack(joe.global_position) or forced_by == "down" and _flat(joe.global_position, kett.global_position) < 3.0
-	return in_it and _joe_still > float(data.get("stuck_s", 1.5)) or state_t > float(data.get("in_most_s", 14.0))
+	# (`in_most_s` counts only while he's up and near: limping in from far off on a splinted leg takes
+	# as long as it takes, #1116; held up anywhere else, `far_stuck_s` without getting nearer.)
+	return in_it and _joe_still > float(data.get("stuck_s", 1.5)) or _joe_way_t > float(data.get("in_most_s", 14.0)) \
+			or _joe_still > float(data.get("far_stuck_s", 8.0))
 
 
 var _joe_best := INF
@@ -640,12 +717,122 @@ var _sill_at := Vector3.INF
 var _sill_t := 0.0
 
 
+## Inside, the door's pieces (or a body) between him and Kett: his walk stops short of them as on the
+## sill (#1092: on CI he stood 2.2 m off with the knife out and never reached him). No nearer for
+## `wreck_s`, he steps over them to Kett.
+func _over_the_pieces(to: Vector3, delta: float) -> void:
+	var d := _flat(joe.global_position, to)
+	if d < _over_best - 0.05 or not hideout.in_shack(joe.global_position):
+		_over_best = d
+		_over_t = 0.0
+		return
+	_over_t += delta
+	if _over_t > float(data.get("wreck_s", 1.5)):
+		_over_t = 0.0
+		_over_best = INF
+		joe.global_position = Vector3(to.x, joe.global_position.y, to.z)
+		_joe_way.clear()
+		_note("Joe over the pieces to Kett")
+
+
+var _over_best := INF
+var _over_t := 0.0
+
+
 ## Walk a man toward `to` (true there).
 func _walk(man: HumanBody, to: Vector3, speed: float, delta: float) -> bool:
 	if _flat(man.global_position, to) < 0.3 or man.limp:
 		return true
 	man.set_pose(&"stand")
 	return man.walk_to(to, speed, delta)
+
+
+# --- Joe down: your first aid (#1116) -------------------------------------------------------------
+
+## Joe alive and off his feet (limp or on his belly, not getting up): the scene waits for him.
+func joe_down() -> bool:
+	return joe.physiology.alive and (joe.limp or joe.prone) and not joe.rising
+
+
+## E is your hands on Joe's wound while he's down and you're by it (PlayerShove: no kick on letting go).
+func claims_use(p: Player) -> bool:
+	return not done and answer == "" and joe != null and is_instance_valid(joe) and joe_down() and _by_joe(p)
+
+
+func _by_joe(p: Player) -> bool:
+	var at := _joe_wound_at()
+	return _flat(p.global_position, at) <= float(data.get("aid_reach_m", 2.0)) and absf(p.global_position.y - at.y) < 2.0
+
+
+## Where he's hurt: his worst outside bleed's part, else a broken leg's thigh, else his middle.
+func _joe_wound_at() -> Vector3:
+	var seg := _joe_wound()
+	var n := joe.parts.get(seg) as Node3D if seg != &"" else null
+	return n.global_position if n != null else OutlawBrain._lying_at(joe)
+
+
+func _joe_wound() -> StringName:
+	var ph := joe.physiology
+	var worst: Dictionary = {}
+	for b: Dictionary in ph.bleeds:
+		if b.get("kind", &"ooze") != &"internal" and not b.get(&"bandaged", false) \
+				and (worst.is_empty() or ph.bleed_rate(b) > ph.bleed_rate(worst)):
+			worst = b
+	if not worst.is_empty():
+		return StringName(worst.segment)
+	for side: String in ["r", "l"]:
+		if not ph.leg_ok(side):
+			return StringName("thigh_" + side)
+	return &""
+
+
+## Joe down: once you're near, the game says what to do; a held E by his wound (past a tap, which is
+## the carry's) for `aid_s` packs and binds every wound and splints a leg that won't hold him
+## (Physiology.bind_up). CompanionBrain gets him up then (`_get_back_up`: "I can walk").
+func _aid_step(p: Player, delta: float) -> void:
+	if not joe_down():
+		aid_s = 0.0
+		return
+	var near := _flat(p.global_position, joe.global_position) < float(data.get("aid_told_m", 8.0))
+	if near and not aided and t - _aid_told_t > float(data.get("aid_told_every_s", 12.0)):
+		_aid_told_t = t
+		prompt(String(_prompts().get("joe_down", "Joe's down. Kneel by his wound and hold E.")), 4.0)
+	var tap_s := p.tuning.carry_tap_s if p.tuning else 0.35
+	var holding := p.input_enabled and Input.is_action_pressed(&"shove") and _by_joe(p) \
+			and (p.carry == null or not p.carry.carrying())
+	_aid_e = _aid_e + delta if holding else 0.0
+	if _aid_e <= tap_s:
+		return
+	var seg := _joe_wound()
+	if seg != &"":
+		joe.physiology.apply_pressure(seg)
+	aid_s += delta
+	if aid_s >= float(data.get("aid_s", 5.0)):
+		aid_s = 0.0
+		_bind_joe()
+
+
+var _aid_e := 0.0
+
+
+func _bind_joe() -> void:
+	var ph := joe.physiology
+	var segs := {}
+	for b: Dictionary in ph.bleeds:
+		if b.get("kind", &"ooze") != &"internal":
+			segs[StringName(b.segment)] = true
+	for side: String in ["r", "l"]:
+		if not ph.leg_ok(side):
+			segs[StringName("thigh_" + side)] = true
+	for seg: StringName in segs:
+		ph.bind_up(seg)
+	aided = true
+	_joe_still = 0.0
+	_joe_best = INF
+	_joe_way_t = 0.0
+	if not ph.can_stand():
+		prompt(String(_prompts().get("joe_bound", "Bound up. He can't stand yet.")), 3.0)
+	_note("Joe's wounds bound (%s); can stand: %s" % [", ".join(segs.keys().map(func(k: StringName) -> String: return String(k))), ph.can_stand()])
 
 
 # --- The knife ----------------------------------------------------------------------------------
@@ -858,7 +1045,7 @@ func _pace() -> float:
 
 func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
-			"ending": ending, "answer": answer, "forced_by": forced_by, "kicks": kicks, "kicked_j": snappedf(kicked_j, 1.0),
+			"ending": ending, "answer": answer, "forced_by": forced_by, "kicks": kicks, "kicked": snappedf(kicked, 0.01), "kicked_j": snappedf(kicked_j, 1.0),
 			"door_open": door_open() if shack else false, "barred": barred() if shack else false, "stabs": stabs,
 			"shot_him": shot_him, "joe_saw": joe_saw, "knife": knife != null}
 	var p := player()

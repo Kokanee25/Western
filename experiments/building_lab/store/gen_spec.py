@@ -8,6 +8,8 @@ saloon B's frame (a two-storey false front on queen-post trusses over a cellar) 
 rules (#824 light, #825 floors, #826 walls and windows). Run from the repo root.
 """
 import json
+import os
+import sys
 import copy
 
 FT = 0.3048
@@ -88,7 +90,10 @@ SHOW_X = round(BX[0] - POST_HALF - 0.1 - 0.005 - SHOW_W / 2, 3)
 
 def show(at, **kw):
     d = {"type": "window", "show": True, "level": "ground", "at": at, "width": SHOW_W, "height": round(SF_H - 0.5, 3),
-         "sill": 0.5, "transom": SF_TRANSOM, "cols": 2, "transom_lights": 4}
+         "sill": 0.5, "transom": SF_TRANSOM, "cols": 2, "transom_lights": 4,
+         # #1074 (Sean's pick on #1067): the storekeeper's name gilded on the glass, the trades under it
+         # (tools/textures/gold_leaf.py, Storefront.gilt), its middle 1.45 m over the opening's foot (2 m off the floor).
+         "gilt": {"id": "hollis", "y": 1.45, "width": 2.65}}
     d.update(kw)
     return d
 front = {
@@ -229,11 +234,11 @@ def up(id_, use, who, at, look, level="ground", **kw):
 
 
 use_points = [
-    up("serve_east", "serve", "storekeeper", (3.0, 5.0), (1.2, 5.0), _doc="behind the east counter (the dressing's: counter x 0.3-1.1... settled with the prop lab)"),
-    up("ledger", "work", "storekeeper", (13.6, 9.2), (13.6, 8.0), _doc="the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"),
-    up("post_office", "work", "storekeeper", (15.4, 8.0), (16.0, 8.0)),
-    up("buy_1", "buy", "anyone", (4.2, 3.2), (1.2, 3.2)),
-    up("buy_2", "buy", "anyone", (12.5, 3.2), (15.4, 3.2)),
+    up("serve_east", "serve", "storekeeper", (1.45, 4.0), (2.3, 4.0), _doc="behind the east counter (G1, #1139: its counter at x 2.0-2.6, z 2.0-5.3, in the light of the alley windows)"),
+    up("ledger", "work", "storekeeper", (13.3, 9.5), (13.3, 8.7), _doc="the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"),
+    up("post_office", "work", "storekeeper", (15.5, 9.15), (16.3, 9.15), _doc="the pigeonholes bay, west_shelves_d (G3, #1182: the case of pigeonholes; the postmaster's desk behind him at the back wall)"),
+    up("buy_1", "buy", "anyone", (3.5, 3.2), (2.6, 3.2)),
+    up("buy_2", "buy", "anyone", (13.5, 3.2), (14.9, 3.2)),
     up("browse_1", "stand", "anyone", (8.4, 2.6), (8.4, 6.0)),
     up("browse_2", "stand", "anyone", (8.4, 7.4), (8.4, 9.5)),
     up("wait_1", "wait", "anyone", (6.6, 4.4), (6.6, 6.0)),
@@ -270,7 +275,7 @@ surfaces = [
     ["roof/ridge_cap", "trim"], ["front/door_", "trim"], ["back/door_", "trim"], ["/door_", "inside"],
     ["/in_ground/", "inside"], ["/in_upper/", "inside"], ["/m/board/", "inside"], ["/p/board/", "inside"],
     ["floor/ground/board", "floor"], ["floor/loft/board", "floor"], ["floor/family/board", "floor"],
-    ["floor/loft/joist", "timber"], ["floor/family/joist", "timber"], ["beam/", "timber"], ["bracket/", "-"],
+    ["floor/loft/joist", "joists"], ["floor/family/joist", "joists"], ["beam/", "timber"], ["bracket/", "-"],
     ["wall_post/", "timber"], ["stair/main", "oak"], ["roof/board", "rough"], ["stoop/", "rough"], ["stair/back", "rough"],
     ["post/", "timber"],
 ]
@@ -290,9 +295,36 @@ materials = {
         "framing": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
         "rough": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
         "oak": {"use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"}},
-        "timber": {"use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"}},
+        "timber": {"want": {"entry": "painted_pale_tg", "age": "few"}, "use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"},
+                   "_why": "Sean 2026-11-18 (#1067): the shop's posts and beams painted pale, like the ceiling"},
+        "joists": {"use": {"entry": "fine_walnut_tg", "age": "few", "role": "wall"},
+                   "_why": "the floor joists stay dark: hidden over the shop's ceiling, bare over the storeroom"},
     },
     "surfaces": surfaces,
+}
+
+# The show windows' goods (#1074, Sean on #1067: "goods in the windows, now"): what a passer-by reads as a
+# general store, from the kit's props alone (docs/PARTS.md); what's missing (bolts of cloth, boots, tins,
+# tinware) is the prop lab's (the after-slice issue named in the README). Each window a low display
+# platform behind the glass (the kit's table fitted to the glass's foot), the goods on it facing the street
+# (180: a prop faces +z); the east window groceries and dry goods with a cracker barrel at its east end, the
+# west window hardware and crockery. x from the east corner, z in from the front wall's line.
+EAST_X = SHOW_X
+WEST_X = round(W - SHOW_X, 3)
+DZ = 0.56  # the platforms' middle: their backs 0.21 in from the wall's line, clear of the studs and lining
+# G1 (#1139) replaced the stand-ins: the windows' goods and the shop's fittings come from the prop lab's
+# factory (tools/props/store_g1.py), which holds the numbers and the reasons (experiments/prop_lab/store/README.md).
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "tools", "props"))
+import store_g1  # noqa: E402
+import store_g2  # noqa: E402  (#1172: G2, the shelves filled, boots, hats, hardware, the mill and showcase, hung lamps)
+import store_g3  # noqa: E402  (#1182: G3, the post office's case, the ledger and day-book, the till's cash, goods hung from the ceiling)
+
+dressing = {
+    "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth), #1172 batch G2 (the shelves' tins and boxes, boots, hats, hardware, tinware, the coffee mill and a showcase, hung lamps), #1182 batch G3 (the post office's pigeonholes and mail, the postmaster's desk, the ledger and day-book, the till's cash, hung pails, hams and lanterns): PropDressing, written by tools/props/store_g1.py, store_g2.py and store_g3.py",
+    "batches": {"windows": store_g1.dressing_windows(EAST_X, WEST_X, DZ),
+                # (G3's case stands in the last west bay: G1's shelving there is dropped)
+                "G1": [x for x in store_g1.dressing_g1() if x["id"] != store_g3.BAY_D[0]],
+                "G2": store_g2.dressing_g2(), "G3": store_g3.dressing_g3()},
 }
 
 spec = {
@@ -340,6 +372,7 @@ spec = {
     "fixtures": [], "furniture": [],
     "ceilings": {"_doc": "#1053 (Sean's pick B on #1052): beaded boards nailed up under the loft's joists over the shop (the storeroom open to its joists: its stair goes up through them), painted pale (materials.finishes.ceiling), butted to the beams that hang under them; four beads a board", "finish": "beaded", "rooms": ["shop"], "around_beams": True, "width": 0.42},
     "lamps": lamps,
+    "dressing": dressing,
     "light": {"_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall; judged by day in #1035 (the doctor's 0.1 and 7 left the shop near black): 0.55 and 26",
               "fill": [0.62, 0.6, 0.57], "window_day": 26.0, "day_fill": 0.55},
     "materials": materials,

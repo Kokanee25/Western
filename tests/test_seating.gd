@@ -69,3 +69,32 @@ func test_an_outlaw_takes_a_seated_drink_and_gets_up_after() -> void:
 		if chair.seated == null:
 			break
 	check(chair.seated == null and man.pose != &"sit_back", "and he's up when it's drunk")
+
+
+## A chair drawn up to a table faces into it: up out of it, he steps aside of it, not onto the table's
+## top (the Drifter stood up onto the card table, and it was flung by his feet when it went loose, #1077).
+func test_up_from_a_chair_at_a_table_he_stands_beside_it() -> void:
+	var chair := _chair(Vector3.ZERO)
+	var spot := Seating.spot(chair)
+	var table := StaticBody3D.new()
+	table.collision_layer = Layers.WORLD
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.9, 0.75, 0.9)
+	shape.shape = box
+	table.add_child(shape)
+	world.add_child(table)
+	table.global_position = Vector3(spot.x, 0.375, spot.z + 0.6)
+	var man := HumanBody.new()
+	world.add_child(man)
+	man.global_position = spot
+	await physics_frames(5)
+	check(Seating.sit_step(man, chair, 1.0 / 60.0) and chair.seated == man, "sat at the table")
+	await physics_frames(30)
+	Seating.stand_up(man, chair)
+	await physics_frames(30)
+	var p := man.global_position
+	var over := absf(p.x - table.global_position.x) < 0.45 and absf(p.z - table.global_position.z) < 0.45
+	check(not over, "not standing over the table (at %s)" % p)
+	check(p.y < 0.2, "on the floor, not its top (y %.2f)" % p.y)
+	check(chair.seated == null and man.pose == &"stand", "up out of the chair")

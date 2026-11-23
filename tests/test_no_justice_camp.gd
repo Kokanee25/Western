@@ -81,7 +81,7 @@ func _to_the_ask(opts := {}) -> NoJusticeCamp:
 	_put(m._local([4.6, 1.2]))
 	var asked := await wait_until(func() -> bool: return m._waiting, 60 * 60)
 	check(asked, "to the ask (%s)" % m.result())
-	check(_lines_of("doc").has("Bring them in if you like. I never yet saw a white man hang on an Indian's word."), "the doctor's warning (%s)" % [_lines_of("doc")])
+	check(_lines_of("doctor").has("Bring them in if you like. I never yet saw a white man hang on an Indian's word."), "the doctor's warning (%s)" % [_lines_of("doctor")])
 	check(_lines_of("cowboy").has("Doc's right. No jury in Colorado'll hang a white man for a Ute woman. I've seen 'em try."), "the cowboy's (%s)" % [_lines_of("cowboy")])
 	check(_lines_of("joe").has("I ride today. Will you come?"), "Joe asks (%s)" % [_lines_of("joe")])
 	return m

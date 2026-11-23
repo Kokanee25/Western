@@ -1,0 +1,128 @@
+{
+  "_doc": "The church's bell: cast bronze, 0.76 m across the lip, on a four-post timber stand in the belfry.",
+  "id": "church_bell",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "framing",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "post0",
+      "kind": "post",
+      "size": [
+        0.12,
+        1.55,
+        0.12
+      ],
+      "at": [
+        -0.3,
+        0.775,
+        -0.3
+      ],
+      "wood": "framing"
+    },
+    {
+      "id": "post1",
+      "kind": "post",
+      "size": [
+        0.12,
+        1.55,
+        0.12
+      ],
+      "at": [
+        0.3,
+        0.775,
+        -0.3
+      ],
+      "wood": "framing"
+    },
+    {
+      "id": "post2",
+      "kind": "post",
+      "size": [
+        0.12,
+        1.55,
+        0.12
+      ],
+      "at": [
+        -0.3,
+        0.775,
+        0.3
+      ],
+      "wood": "framing"
+    },
+    {
+      "id": "post3",
+      "kind": "post",
+      "size": [
+        0.12,
+        1.55,
+        0.12
+      ],
+      "at": [
+        0.3,
+        0.775,
+        0.3
+      ],
+      "wood": "framing"
+    },
+    {
+      "id": "bell",
+      "kind": "furniture_top",
+      "size": [
+        0.76,
+        0.83,
+        0.76
+      ],
+      "at": [
+        0.0,
+        1.97,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:brass",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.38,
+            1.56
+          ],
+          [
+            0.37,
+            1.61
+          ],
+          [
+            0.33,
+            1.71
+          ],
+          [
+            0.27,
+            1.89
+          ],
+          [
+            0.2,
+            2.11
+          ],
+          [
+            0.15,
+            2.29
+          ],
+          [
+            0.1,
+            2.37
+          ],
+          [
+            0.0,
+            2.39
+          ]
+        ],
+        "segments": 28
+      },
+      "solid": 0.035
+    }
+  ],
+  "factory": "tools/props/church.py"
+}

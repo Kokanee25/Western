@@ -1,0 +1,367 @@
+{
+  "_doc": "The post office's case of pigeonholes (#1182, G3; the west wall's last bay, west_shelves_d, where G1's shelving stood): 1.7 m of painted pine from the material library, cupboards below (the working shelf over them), 8 columns by 4 rows of cells 19 cm wide and 18 cm clear lettered by surname, a cornice and a lettered board (POST OFFICE, SALT CREEK) over it, 2.45 m. Placed at its own size (not fitted: G1's shelving squashed when fitted smaller than its box). Mail stands in the cells (`mail_row_a` to `_d`, one per row, placed on each board). Written by tools/props/store_g3.py.",
+  "id": "post_case",
+  "fixture": true,
+  "in_game": false,
+  "kind": "members",
+  "wood": "oak",
+  "look": "lib:furniture_oak/few",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g3.py",
+  "members": [
+    {
+      "id": "upright_l",
+      "kind": "post",
+      "size": [
+        0.3,
+        2.45,
+        0.03
+      ],
+      "at": [
+        0.0,
+        1.225,
+        -0.835
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "upright_r",
+      "kind": "post",
+      "size": [
+        0.3,
+        2.45,
+        0.03
+      ],
+      "at": [
+        0.0,
+        1.225,
+        0.835
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "cupboard_top",
+      "kind": "furniture_top",
+      "size": [
+        0.4,
+        0.03,
+        1.64
+      ],
+      "at": [
+        0.05,
+        0.915,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "kick",
+      "kind": "furniture_frame",
+      "size": [
+        0.02,
+        0.1,
+        1.64
+      ],
+      "at": [
+        0.14,
+        0.05,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "door0",
+      "kind": "furniture_frame",
+      "size": [
+        0.016,
+        0.73,
+        0.816
+      ],
+      "at": [
+        0.158,
+        0.465,
+        -0.41
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "pull0",
+      "kind": "trim",
+      "size": [
+        0.03,
+        0.06,
+        0.02
+      ],
+      "at": [
+        0.18,
+        0.63,
+        -0.05
+      ],
+      "wood": "iron",
+      "look": "pbr:store_iron"
+    },
+    {
+      "id": "door1",
+      "kind": "furniture_frame",
+      "size": [
+        0.016,
+        0.73,
+        0.816
+      ],
+      "at": [
+        0.158,
+        0.465,
+        0.41
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "pull1",
+      "kind": "trim",
+      "size": [
+        0.03,
+        0.06,
+        0.02
+      ],
+      "at": [
+        0.18,
+        0.63,
+        0.05
+      ],
+      "wood": "iron",
+      "look": "pbr:store_iron"
+    },
+    {
+      "id": "back",
+      "kind": "furniture_frame",
+      "size": [
+        0.012,
+        2.4,
+        1.64
+      ],
+      "at": [
+        -0.144,
+        1.225,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "board0",
+      "kind": "furniture_top",
+      "size": [
+        0.28,
+        0.015,
+        1.64
+      ],
+      "at": [
+        0.0,
+        1.25,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "board1",
+      "kind": "furniture_top",
+      "size": [
+        0.28,
+        0.015,
+        1.64
+      ],
+      "at": [
+        0.0,
+        1.45,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "board2",
+      "kind": "furniture_top",
+      "size": [
+        0.28,
+        0.015,
+        1.64
+      ],
+      "at": [
+        0.0,
+        1.65,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "board3",
+      "kind": "furniture_top",
+      "size": [
+        0.28,
+        0.015,
+        1.64
+      ],
+      "at": [
+        0.0,
+        1.85,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "board4",
+      "kind": "furniture_top",
+      "size": [
+        0.28,
+        0.015,
+        1.64
+      ],
+      "at": [
+        0.0,
+        2.05,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "divider0",
+      "kind": "furniture_frame",
+      "size": [
+        0.28,
+        0.785,
+        0.012
+      ],
+      "at": [
+        0.0,
+        1.65,
+        -0.6195
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "divider1",
+      "kind": "furniture_frame",
+      "size": [
+        0.28,
+        0.785,
+        0.012
+      ],
+      "at": [
+        0.0,
+        1.65,
+        -0.413
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "divider2",
+      "kind": "furniture_frame",
+      "size": [
+        0.28,
+        0.785,
+        0.012
+      ],
+      "at": [
+        0.0,
+        1.65,
+        -0.2065
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "divider3",
+      "kind": "furniture_frame",
+      "size": [
+        0.28,
+        0.785,
+        0.012
+      ],
+      "at": [
+        0.0,
+        1.65,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "divider4",
+      "kind": "furniture_frame",
+      "size": [
+        0.28,
+        0.785,
+        0.012
+      ],
+      "at": [
+        0.0,
+        1.65,
+        0.2065
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "divider5",
+      "kind": "furniture_frame",
+      "size": [
+        0.28,
+        0.785,
+        0.012
+      ],
+      "at": [
+        0.0,
+        1.65,
+        0.413
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "divider6",
+      "kind": "furniture_frame",
+      "size": [
+        0.28,
+        0.785,
+        0.012
+      ],
+      "at": [
+        0.0,
+        1.65,
+        0.6195
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "cornice",
+      "kind": "trim",
+      "size": [
+        0.34,
+        0.08,
+        1.74
+      ],
+      "at": [
+        0.02,
+        2.0975,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "sign",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.3,
+        1.5
+      ],
+      "at": [
+        0.13,
+        2.2875,
+        0.0
+      ],
+      "wood": "weathered_pine",
+      "look": "pbr:store_post",
+      "draw": {
+        "shape": "mesh",
+        "model": "store_post",
+        "part": "Sign"
+      }
+    }
+  ]
+}

@@ -8,7 +8,7 @@ class_name GameReset
 ##
 ## The story (StoryState; review A5, #864): a reload is a fresh start and wipes it, so No Law's
 ## murder plays again after Backspace; a mission's retry (`retry`) puts back the story as it stood
-## when that mission began. A save's load (after the slice) will be the retry's shape: the world's
+## when that mission began. A save's load (`load_save`, #1148) is the retry's shape: the world's
 ## statics cleared (`clear_world`), then the saved story put back, never wiped.
 
 
@@ -37,6 +37,24 @@ static func retry(tree: SceneTree, what := "the mission's retry") -> void:
 	CrashReports.begin_load(what)
 	clear_for_retry()
 	tree.reload_current_scene.call_deferred()
+
+
+## A save loaded (#1148, SaveGame.load_slot): the world's statics cleared, the story as the save
+## had it (its checkpoint too), the scene reloaded; ValleyWorld puts the rest of `d` on it.
+static func load_save(tree: SceneTree, d: Dictionary) -> void:
+	CrashReports.begin_load("the save's load")
+	clear_for_load(d)
+	tree.reload_current_scene.call_deferred()
+
+
+## A load's statics: the world's cleared, the story and its checkpoint as the save had them, the
+## save left for the next valley built (`SaveGame.pending`). (The tests build that valley themselves.)
+static func clear_for_load(d: Dictionary) -> void:
+	clear_world()
+	var story: Dictionary = d.get("story", {})
+	StoryState.restore(story)
+	StoryState.checkpoint = (story.get("checkpoint", {}) as Dictionary).duplicate(true)
+	SaveGame.pending = d
 
 
 ## A fresh start: everything static a new game would have empty, the story too.

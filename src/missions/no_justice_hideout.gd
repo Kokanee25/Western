@@ -79,6 +79,7 @@ func begin() -> void:
 		joe = CompanionBrain.make_joe(street, at, p.rotation.y, p, folk.places if folk else null)
 		_made.append(joe)
 	joe_brain = joe.get_node(^"Brain") as CompanionBrain
+	JoeLost.watch(self, joe, joe_brain)
 	joe_brain.costume = true
 	joe_brain.held = false
 	_trail_from = p.global_position
@@ -702,6 +703,8 @@ func _yell_after() -> void:
 
 ## Joe went down in it (out, or off his feet) at any time.
 var joe_went_down := false
+## You went down: where you were hit and by what (PlayerWounds.down_line), on the retry card.
+var down_line := ""
 
 
 func _fight_step(p: Player, _delta: float) -> void:
@@ -714,6 +717,7 @@ func _fight_step(p: Player, _delta: float) -> void:
 	if p.wounds and not p.wounds.physiology.is_conscious():
 		fact("nojustice.hideout", "you_down")
 		_down_t = t
+		down_line = p.wounds.down_line()  # what hit you, from the wound record (#1095)
 		_finish(&"you_down")
 		return
 	if _flat(p.global_position, centre) > float(data.get("left_m", 260.0)):
@@ -812,7 +816,8 @@ func _down_step() -> void:
 		return
 	if not _spoken.has("retry") and t - _down_t > float(data.get("retry_after_s", 16.0)):
 		_spoken["retry"] = t
-		prompt(String(_prompts().get("retry", "")), 12.0, true)
+		var text := String(_prompts().get("retry", ""))
+		prompt(("%s\n%s" % [down_line, text]) if down_line != "" else text, 12.0, true)
 	if _spoken.has("retry") and Input.is_action_just_pressed(&"mission_retry"):
 		retry()
 
@@ -859,7 +864,7 @@ func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
 			"alarm_t": snappedf(alarm_t, 0.01), "alarm_by": alarm_by, "started": started, "kett": kett_state,
 			"crew_out": crew_out() if not crew.is_empty() else 0, "crew": crew.size(), "ride_s": snappedf(ride_s, 1.0),
-			"props": props.size(), "horses": horses.size(), "shots": shots}
+			"props": props.size(), "horses": horses.size(), "shots": shots, "down_line": down_line}
 	var men := {}
 	for g: Dictionary in crew:
 		var man := g.man as HumanBody

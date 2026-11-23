@@ -57,7 +57,12 @@ static func find(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: Arr
 
 
 ## A search spread over several frames (the cover hunt is a few thousand rays): `step()` each
-## physics tick until it returns true, then read `result`.
+## physics tick until it returns true, then read `result`. The spots go in chunks of `per_tick`
+## (each chunk scored, then its best few routed, as `_best` would), and a chunk itself is spread:
+## a step stops once it's spent its budget (STEP_MS, or STEP_ASKS queries under
+## World.deterministic) and carries on next tick from the spot it got to (#1123: one chunk was
+## 15-90 ms in the valley's fight). The chunks are the same however it's spread, so he finds the
+## same spot; only later.
 class Search:
 	extends RefCounted
 	var result := {}
@@ -73,14 +78,156 @@ class Search:
 	var _places: Waypoints
 	var _ctx := {}
 	var _i := 0
+	var _pick: Pick = null  # the chunk under way
 
-	func step(per_tick := 120) -> bool:
-		var chunk := _cands.slice(_i, _i + per_tick)
-		_i += per_tick
-		var best := Cover._best(_space, chunk, _from, _eye, _flat, _exclude, _rng, _bias, _angle, _places, _ctx)
-		if not best.is_empty() and (result.is_empty() or best.score > result.score):
-			result = best
-		return _i >= _cands.size()
+	## `budget`: this step's (a fresh STEP_MS / STEP_ASKS one if null).
+	func step(per_tick := 120, budget: WorkBudget = null) -> bool:
+		if budget == null:
+			budget = WorkBudget.new(Cover.STEP_MS, Cover.STEP_ASKS)
+		while true:
+			if _pick == null:
+				var chunk := _cands.slice(_i, _i + per_tick)
+				_i += per_tick
+				_pick = Pick.new(_space, chunk, _from, _eye, _flat, _exclude, _rng, _bias, _angle, _places, _ctx)
+			if not _pick.run(budget):
+				return false
+			var best := _pick.best
+			_pick = null
+			if not best.is_empty() and (result.is_empty() or best.score > result.score):
+				result = best
+			if _i >= _cands.size():
+				return true
+			if budget.over():
+				return false
+		return true
+
+
+## What a step may spend: ms of the wall clock in the game, or (World.deterministic) this many
+## queries (rays and sweeps, `asked` and Waypoints.asked), about what the ms buy here (#1123).
+## At least one spot's worth goes each step, whatever it costs.
+const STEP_MS := 4.0
+const STEP_ASKS := 400
+## Every query the cover search asks (rays, sweeps), counted always (Prof's q_cover only while it's on).
+static var asked := 0
+
+
+static func _ask(n := 1) -> void:
+	Prof.count(&"q_cover", n)
+	asked += n
+
+
+## The best of a chunk of spots (`_best`), worked out a piece at a time: `run(budget)` until it
+## returns true, then read `best`. A piece is the chunk's first lines, one spot scored or one
+## spot routed; `run` stops between pieces once the budget's spent. With a null budget it runs
+## to the end (Cover.find).
+class Pick:
+	extends RefCounted
+	var best := {}
+	var _space: PhysicsDirectSpaceState3D
+	var _cands: Array[Vector3]
+	var _from: Vector3
+	var _eye: Vector3
+	var _flat: Vector3
+	var _exclude: Array[RID]
+	var _rng: RandomNumberGenerator
+	var _bias: Vector3
+	var _angle: float
+	var _places: Waypoints
+	var _ctx: Dictionary
+	enum { LINES, SCORE, ROUTE, UP, PLAIN, DONE }
+	var _stage := LINES
+	var _first: Array = []
+	var _scored: Array[Dictionary] = []
+	var _k := 0
+	var _tries := 0
+	var _seen := 0
+
+	func _init(space: PhysicsDirectSpaceState3D, cands: Array[Vector3], from: Vector3, eye: Vector3, flat: Vector3,
+			exclude: Array[RID], rng: RandomNumberGenerator, bias: Vector3, angle: float, places: Waypoints, ctx: Dictionary) -> void:
+		_space = space
+		_cands = cands
+		_from = from
+		_eye = eye
+		_flat = flat
+		_exclude = exclude
+		_rng = rng
+		_bias = bias
+		_angle = angle
+		_places = places
+		_ctx = ctx
+		_stage = LINES if places != null else PLAIN
+
+	## The queries asked since the last piece, into the budget; true if it's spent.
+	func _over(budget: WorkBudget) -> bool:
+		if budget == null:
+			return false
+		var now := Cover.asked + Waypoints.asked
+		budget.spend(now - _seen)
+		_seen = now
+		return budget.over()
+
+	func run(budget: WorkBudget) -> bool:
+		_seen = Cover.asked + Waypoints.asked
+		while _stage != DONE:
+			_piece()
+			if _stage != DONE and _over(budget):
+				return false
+		_over(budget)
+		return true
+
+	func _piece() -> void:
+		match _stage:
+			LINES:
+				_first = Cover._first_lines(_space, _cands, _eye, _exclude)
+				_stage = SCORE
+				_k = 0
+			SCORE:
+				if _k < _cands.size():
+					var spot := Cover._score_in_town(_space, _first[_k], _from, _eye, _flat, _exclude, _rng, _bias, _angle, _ctx)
+					if not spot.is_empty():
+						_scored.append(spot)
+					_k += 1
+				if _k >= _cands.size():
+					_scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.score > b.score)
+					_stage = UP if _ctx.has("climb") else ROUTE
+					_k = 0
+			ROUTE:
+				if _k >= _scored.size():
+					_stage = DONE
+					return
+				var spot := _scored[_k]
+				_k += 1
+				if Cover._route_in_town(_space, spot, _from, _exclude, _places, _ctx):
+					_tries += 1
+					# By the way there (`by_way`): the best few he can reach; else the first.
+					if not _ctx.get("by_way", false):
+						best = spot
+						_stage = DONE
+						return
+					if best.is_empty() or spot.score > best.score:
+						best = spot
+					if _tries >= Cover.WAY_TRIES:
+						_stage = DONE
+			UP:
+				if _k >= _scored.size():
+					_stage = DONE
+					return
+				var spot := _scored[_k]
+				_k += 1
+				if Cover._route_up(_space, spot, _from, _exclude, _places, _ctx):
+					if best.is_empty() or spot.score > best.score:
+						best = spot
+					_tries += 1
+					if _tries >= Cover.WAY_TRIES:
+						_stage = DONE
+			PLAIN:
+				if _k >= _cands.size():
+					_stage = DONE
+					return
+				var spot := Cover._score_plain(_space, _cands[_k], _from, _eye, _flat, _exclude, _rng, _bias, _angle)
+				_k += 1
+				if not spot.is_empty() and (best.is_empty() or spot.score > best.score):
+					best = spot
 
 
 ## `new_angle`: how much a spot at a new angle on the threat from `bias_from` counts (a man going
@@ -108,6 +255,8 @@ static func search(world: Node3D, from: Vector3, threat_eye: Vector3, exclude: A
 			s._cands.append(from + Vector3(cos(ang), 0.0, sin(ang)) * r)
 	s._cands.append_array(_shadows(s._space, from, threat_eye, exclude, max_travel))
 	s._cands = _dedupe(s._cands)
+	# The furthest a spot can be (the shadows reach a little past `max_travel`), for `_way_reach`.
+	s._ctx.max_r = max_travel + 1.0
 	return s
 
 
@@ -181,120 +330,103 @@ static func _dedupe(points: Array[Vector3]) -> Array[Vector3]:
 static func _best(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], from: Vector3, threat_eye: Vector3,
 		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle := 3.0,
 		places: Waypoints = null, ctx := {}) -> Dictionary:
-	if places != null:
-		return _best_in_town(space, candidates, from, threat_eye, threat_flat, exclude, rng, bias_from, new_angle, places, ctx)
-	var best := {}
-	for p in candidates:
-		var r := Vector2(p.x - from.x, p.z - from.z).length()
-		var spot := evaluate(space, p, threat_eye, exclude)
-		if spot.is_empty():
-			continue
-		var way := route(space, from, spot.at, exclude)
-		if way.is_empty():
-			continue
-		spot.route = way
-		var d_threat: float = (spot.at as Vector3).distance_to(threat_flat)
-		var spot_to := (spot.at as Vector3) - from
-		# Not right under his gun, and not charging at him to get there.
-		if d_threat < 5.0 or spot_to.dot((threat_flat - from).normalized()) > 3.0:
-			continue
-		var score := _score(spot, r, d_threat, from, threat_flat, rng, bias_from, new_angle)
-		spot.score = score
-		if best.is_empty() or score > best.score:
-			best = spot
-	return best
+	var pick := Pick.new(space, candidates, from, threat_eye, threat_flat, exclude, rng, bias_from, new_angle, places, ctx)
+	pick.run(null)
+	return pick.best
 
 
-## As `_best`, for a man who knows the town's ways: each spot dropped onto the floor under it (up
-## on the porch or down in the street), something wide a few metres off counted as cover, and the
-## way there found best spot first (straight, round one thing, or by the town's places), so only
-## the few best are routed.
-static func _best_in_town(space: PhysicsDirectSpaceState3D, candidates: Array[Vector3], from: Vector3, threat_eye: Vector3,
+## `_best` without the town's ways, one spot: evaluated, routed (straight or round one thing) and
+## scored; {} if it's no good.
+static func _score_plain(space: PhysicsDirectSpaceState3D, p: Vector3, from: Vector3, threat_eye: Vector3,
+		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle: float) -> Dictionary:
+	var r := Vector2(p.x - from.x, p.z - from.z).length()
+	var spot := evaluate(space, p, threat_eye, exclude)
+	if spot.is_empty():
+		return {}
+	var way := route(space, from, spot.at, exclude)
+	if way.is_empty():
+		return {}
+	spot.route = way
+	var d_threat: float = (spot.at as Vector3).distance_to(threat_flat)
+	var spot_to := (spot.at as Vector3) - from
+	# Not right under his gun, and not charging at him to get there.
+	if d_threat < 5.0 or spot_to.dot((threat_flat - from).normalized()) > 3.0:
+		return {}
+	spot.score = _score(spot, r, d_threat, from, threat_flat, rng, bias_from, new_angle)
+	return spot
+
+
+## As `_best`, for a man who knows the town's ways (`Pick`'s stages): each spot dropped onto the
+## floor under it (up on the porch or down in the street), something wide a few metres off counted
+## as cover, and the way there found best spot first (straight, round one thing, or by the town's
+## places), so only the few best are routed. This: one spot (its first lines, `_first_lines`)
+## evaluated and scored, unrouted; {} if it's no good.
+static func _score_in_town(space: PhysicsDirectSpaceState3D, first: Array, from: Vector3, threat_eye: Vector3,
 		threat_flat: Vector3, exclude: Array[RID], rng: RandomNumberGenerator, bias_from: Vector3, new_angle: float,
-		places: Waypoints, ctx: Dictionary) -> Dictionary:
-	var scored: Array[Dictionary] = []
-	var first := _first_lines(space, candidates, threat_eye, exclude)
-	for i in candidates.size():
-		var floor_at: Variant = first[i][0]
-		if floor_at == null:
-			continue
-		var p: Vector3 = floor_at
-		var spot := evaluate(space, p, threat_eye, exclude, true, first[i], ctx.get("narrow", false), ctx.get("screen", 0.0),
-				ctx.get("screen_above", INF), ctx.get("own", false))
-		if spot.is_empty():
-			continue
-		# Holding a house (OutlawBrain.hold): only spots inside it.
-		if ctx.has("inside") and not (ctx.inside as Callable).call(spot.at):
-			continue
-		var r := Vector2(p.x - from.x, p.z - from.z).length()
-		var d_threat: float = (spot.at as Vector3).distance_to(threat_flat)
-		if d_threat < 5.0 or ((spot.at as Vector3) - from).dot((threat_flat - from).normalized()) > 3.0:
-			continue
-		spot.score = _score(spot, r, d_threat, from, threat_flat, rng, bias_from, new_angle)
-		spot.r = r
-		scored.append(spot)
-	scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.score > b.score)
-	# By the way there (OutlawBrain's variant D `way_cost`, Experiment B): the best few spots he can
-	# get to, each scored on the way he'd run (round the end of the bar is 10 m for a spot 2 m off),
-	# not the straight line.
-	var by_way: bool = ctx.get("by_way", false)
-	var best := {}
-	var tries := 0
-	if ctx.has("climb"):
-		return _best_up(space, scored, from, exclude, places, ctx)
-	for spot in scored:
-		var way := route(space, from, spot.at, exclude)
-		if way.is_empty():
-			way = _town_way(space, from, spot.at, exclude, places, spot.r, ctx)
-		if way.is_empty():
-			continue
-		spot.route = way
-		if not by_way:
-			spot.erase("r")
-			return spot
+		ctx: Dictionary) -> Dictionary:
+	var floor_at: Variant = first[0]
+	if floor_at == null:
+		return {}
+	var p: Vector3 = floor_at
+	var spot := evaluate(space, p, threat_eye, exclude, true, first, ctx.get("narrow", false), ctx.get("screen", 0.0),
+			ctx.get("screen_above", INF), ctx.get("own", false))
+	if spot.is_empty():
+		return {}
+	# Holding a house (OutlawBrain.hold): only spots inside it.
+	if ctx.has("inside") and not (ctx.inside as Callable).call(spot.at):
+		return {}
+	var r := Vector2(p.x - from.x, p.z - from.z).length()
+	var d_threat: float = (spot.at as Vector3).distance_to(threat_flat)
+	if d_threat < 5.0 or ((spot.at as Vector3) - from).dot((threat_flat - from).normalized()) > 3.0:
+		return {}
+	spot.score = _score(spot, r, d_threat, from, threat_flat, rng, bias_from, new_angle)
+	spot.r = r
+	return spot
+
+
+## The way to one scored spot (`_score_in_town`), into it (`route`, and with `by_way` its length
+## and the score it costs: OutlawBrain's variant D `way_cost`, Experiment B: round the end of the
+## bar is 10 m for a spot 2 m off, not the straight line). False if he can't get there.
+static func _route_in_town(space: PhysicsDirectSpaceState3D, spot: Dictionary, from: Vector3, exclude: Array[RID],
+		places: Waypoints, ctx: Dictionary) -> bool:
+	var way := route(space, from, spot.at, exclude)
+	if way.is_empty():
+		way = _town_way(space, from, spot.at, exclude, places, spot.r, ctx)
+	if way.is_empty():
+		return false
+	spot.route = way
+	if ctx.get("by_way", false):
 		var run := _run_length(from, way)
 		spot.way_m = run
 		spot.score -= maxf(run - float(spot.r), 0.0) * WAY_COST
-		spot.erase("r")
-		if best.is_empty() or spot.score > best.score:
-			best = spot
-		tries += 1
-		if tries >= WAY_TRIES:
-			break
-	return best
+	spot.erase("r")
+	return true
 
 
-## Going up (`climb_search`): the best few spots up there, each by its way up the stair (never
+## Going up (`climb_search`), one of the best few spots up there: by its way up the stair (never
 ## straight: a level sweep from below passes under the gallery), no longer than the tuning's
 ## `max_way`, not past your gun on your floor (`way_clear`), each metre of it costing `way_cost`.
-static func _best_up(space: PhysicsDirectSpaceState3D, scored: Array[Dictionary], from: Vector3, exclude: Array[RID],
-		places: Waypoints, ctx: Dictionary) -> Dictionary:
+## False if it's no good.
+static func _route_up(space: PhysicsDirectSpaceState3D, spot: Dictionary, from: Vector3, exclude: Array[RID],
+		places: Waypoints, ctx: Dictionary) -> bool:
 	var tune: ClimbTuning = ctx.climb
 	var feet: Vector3 = ctx.threat_feet
-	var best := {}
-	var tries := 0
-	for spot in scored:
-		var at: Vector3 = spot.at
-		if at.y < maxf(from.y, feet.y) + tune.rise:
-			continue
-		if (ctx.get("taken", []) as Array).any(func(q: Vector3) -> bool: return q.distance_to(at) < tune.apart):
-			continue  # a friend's there, or going there
-		var c := {"routes": ctx.routes, "way_extra": tune.max_way}
-		var way := _town_way(space, from, at, exclude, places, 0.0, c)
-		if way.is_empty() or not _way_clear_of(from, way, feet, tune.way_clear) or _way_blocked(from, way, ctx.get("standing", []), tune.apart * 0.5):
-			continue
-		var run := _run_length(from, way)
-		spot.route = way
-		spot.way_m = run
-		spot.climb = true
-		spot.score -= run * tune.way_cost
-		spot.erase("r")
-		if best.is_empty() or spot.score > best.score:
-			best = spot
-		tries += 1
-		if tries >= WAY_TRIES:
-			break
-	return best
+	var at: Vector3 = spot.at
+	if at.y < maxf(from.y, feet.y) + tune.rise:
+		return false
+	if (ctx.get("taken", []) as Array).any(func(q: Vector3) -> bool: return q.distance_to(at) < tune.apart):
+		return false  # a friend's there, or going there
+	var c := {"routes": ctx.routes, "way_extra": tune.max_way}
+	var way := _town_way(space, from, at, exclude, places, 0.0, c)
+	if way.is_empty() or not _way_clear_of(from, way, feet, tune.way_clear) or _way_blocked(from, way, ctx.get("standing", []), tune.apart * 0.5):
+		return false
+	var run := _run_length(from, way)
+	spot.route = way
+	spot.way_m = run
+	spot.climb = true
+	spot.score -= run * tune.way_cost
+	spot.erase("r")
+	return true
 
 
 ## Does the way's climb (a stretch of it rising or falling more than half a metre: the stair) pass
@@ -343,7 +475,7 @@ static func _first_lines(space: PhysicsDirectSpaceState3D, candidates: Array[Vec
 	for p0 in candidates:
 		a.append(p0 + Vector3.UP * LEVELS)
 		b.append(p0 + Vector3.DOWN * LEVELS)
-	Prof.count(&"q_cover", a.size())
+	_ask(a.size())
 	var t := Sight.lines(space, a, b, Layers.STAND, exclude)
 	var normals := Sight.normals()
 	var ga := PackedVector3Array()
@@ -358,7 +490,7 @@ static func _first_lines(space: PhysicsDirectSpaceState3D, candidates: Array[Vec
 		ga.append(p + Vector3.UP * 0.6)
 		gb.append(p + Vector3.DOWN * 0.6)
 		asked.append(i)
-	Prof.count(&"q_cover", ga.size())
+	_ask(ga.size())
 	t = Sight.lines(space, ga, gb, Layers.WORLD, exclude)
 	normals = Sight.normals()
 	var la := PackedVector3Array()
@@ -376,7 +508,7 @@ static func _first_lines(space: PhysicsDirectSpaceState3D, candidates: Array[Vec
 		la.append(threat_eye)
 		lb.append(at + Vector3.UP * LIE_CHEST)
 		lie_asked.append(asked[k])
-	Prof.count(&"q_cover", la.size())
+	_ask(la.size())
 	t = Sight.lines(space, la, lb, Layers.WORLD, exclude)
 	var kinds := Sight.kinds()
 	for k in lie_asked.size():
@@ -440,7 +572,7 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 			var target := from + Vector3(cos(ang), 0.0, sin(ang)) * r + Vector3.UP * 0.5
 			froms.append(threat_eye)
 			tos.append(target + (target - threat_eye).normalized() * 3.0)
-	Prof.count(&"q_cover", froms.size())
+	_ask(froms.size())
 	var t := Sight.lines(space, froms, tos, Layers.WORLD, exclude)
 	var kinds := Sight.kinds()
 	var ats := PackedVector3Array()
@@ -459,7 +591,7 @@ static func _shadows(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye
 		alongs.append(along)
 		# Through to its far side (a woodpile's a metre deep): a ray back from beyond it.
 		backs.append(at + along * 4.0)
-	Prof.count(&"q_cover", backs.size())
+	_ask(backs.size())
 	var tb := Sight.lines(space, backs, ats, Layers.WORLD, exclude)
 	for k in tb.size():
 		var at := ats[k]
@@ -560,7 +692,7 @@ static func screen_share(space: PhysicsDirectSpaceState3D, at: Vector3, threat_e
 			var off := lerpf(-SHOULDERS, SHOULDERS, float(i) / (SCREEN_ACROSS - 1))
 			froms.append(threat_eye)
 			tos.append(at + side * off + Vector3.UP * h)
-	Prof.count(&"q_cover", froms.size())
+	_ask(froms.size())
 	var t := Sight.lines(space, froms, tos, Layers.WORLD, exclude)
 	var kinds := Sight.kinds()
 	var stopped := 0
@@ -574,7 +706,7 @@ static func screen_share(space: PhysicsDirectSpaceState3D, at: Vector3, threat_e
 			back_from.append(tos[k])
 			back_to.append(tos[k] + n * minf(HUGGING, froms[k].distance_to(tos[k])))
 	if not back_from.is_empty():
-		Prof.count(&"q_cover", back_from.size())
+		_ask(back_from.size())
 		var tb := Sight.lines(space, back_from, back_to, Layers.WORLD, exclude)
 		var kb := Sight.kinds()
 		for k in tb.size():
@@ -627,7 +759,7 @@ static func _narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: V
 		return {}
 	# It's close in front of him: the line to his chest stopped within arm's length.
 	var chest := at + Vector3.UP * NARROW_HEIGHTS[NARROW_CHEST]
-	Prof.count(&"q_cover")
+	_ask()
 	var t := Sight.cast(space, threat_eye, chest, Layers.WORLD, exclude)
 	if t >= 1.0:
 		return {}
@@ -697,7 +829,7 @@ static func hidden_narrow(space: PhysicsDirectSpaceState3D, at: Vector3, threat_
 	if (e + line * k).distance_to(c) > width * 0.5 - NARROW_MARGIN:
 		return false  # the line's past its edge: he's seen round it
 	var chest := at + Vector3.UP * NARROW_HEIGHTS[NARROW_CHEST]
-	Prof.count(&"q_cover")
+	_ask()
 	return Sight.cast(space, threat_eye, chest, Layers.WORLD, exclude) < 1.0
 
 
@@ -736,7 +868,7 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 	var t: float
 	var kind: int
 	if asked.is_empty():
-		Prof.count(&"q_cover")
+		_ask()
 		t = Sight.cast(space, threat_eye, target, Layers.WORLD, exclude)
 		kind = Sight.hit_kind() if t < 1.0 else Sight.KIND_OTHER
 	else:
@@ -764,7 +896,7 @@ static func _blocked(space: PhysicsDirectSpaceState3D, at: Vector3, threat_eye: 
 		return true
 	side = side.normalized() * PACE
 	for s: Vector3 in [side, -side]:
-		Prof.count(&"q_cover")
+		_ask()
 		var t2 := Sight.cast(space, threat_eye + s, target, Layers.WORLD, exclude)
 		var d2 := INF if t2 >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER else (1.0 - t2) * (threat_eye + s).distance_to(target)
 		if own and t2 < 1.0 and d2 >= reach:
@@ -785,7 +917,7 @@ static func _near_him(space: PhysicsDirectSpaceState3D, target: Vector3, eye: Ve
 	if n < 0.01:
 		return INF
 	var span := minf(within, n)
-	Prof.count(&"q_cover")
+	_ask()
 	var t := Sight.cast(space, target, target + to / n * span, Layers.WORLD, exclude)
 	if t >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER:
 		return INF
@@ -793,14 +925,14 @@ static func _near_him(space: PhysicsDirectSpaceState3D, target: Vector3, eye: Ve
 
 
 static func _sees(space: PhysicsDirectSpaceState3D, from: Vector3, threat_eye: Vector3, exclude: Array[RID]) -> bool:
-	Prof.count(&"q_cover")
+	_ask()
 	var t := Sight.cast(space, from, threat_eye, Layers.WORLD, exclude)
 	return t >= 1.0 or Sight.hit_kind() == Sight.KIND_CHARACTER or (1.0 - t) * from.distance_to(threat_eye) < 0.5
 
 
 ## Ground under a point (the floor, the boardwalk), or null.
 static func _ground(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
-	Prof.count(&"q_cover")
+	_ask()
 	var from := p + Vector3.UP * 0.6
 	var to := p + Vector3.DOWN * 0.6
 	var t := Sight.cast(space, from, to, Layers.WORLD, exclude)
@@ -819,7 +951,7 @@ static func _room(space: PhysicsDirectSpaceState3D, at: Vector3, exclude: Array[
 	q.exclude = exclude
 	for h in [0.45, 0.95]:
 		q.transform = Transform3D(Basis.IDENTITY, at + Vector3.UP * h)
-		Prof.count(&"q_cover")
+		_ask()
 		if not space.intersect_shape(q, 1).is_empty():
 			return false
 	return true
@@ -827,7 +959,7 @@ static func _room(space: PhysicsDirectSpaceState3D, at: Vector3, exclude: Array[
 
 ## The floor under a point, a step up to a porch's height above it or below it (null if none).
 static func _floor_under(space: PhysicsDirectSpaceState3D, p: Vector3, exclude: Array[RID]) -> Variant:
-	Prof.count(&"q_cover")
+	_ask()
 	var from := p + Vector3.UP * LEVELS
 	var to := p + Vector3.DOWN * LEVELS
 	var t := Sight.cast(space, from, to, Layers.STAND, exclude)
@@ -846,6 +978,8 @@ const WAY_EXTRA := 6.0
 const WAY_EXTRA_FAR := 12.0
 ## The places nearest a spot he'll try reaching it from.
 const TOWN_NEAREST := 4
+## Spare metres in `_way_reach` for the climb along a way (a storey's stair is ~3 m up).
+const WAY_RISE := 10.0
 
 
 ## The way there by the town's places (in at the door, down the steps), if there's one not much
@@ -854,7 +988,7 @@ static func _town_way(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vecto
 		r: float, ctx: Dictionary) -> Array[Vector3]:
 	# His ways to every place, worked out once a search (`ctx`).
 	if not ctx.has("routes"):
-		ctx.routes = places.routes_from(space, from, exclude)
+		ctx.routes = places.routes_from(space, from, exclude, _way_reach(ctx))
 	var routes: Dictionary = ctx.routes
 	var near: Array = routes.keys()
 	near.sort_custom(func(a: StringName, b: StringName) -> bool:
@@ -876,6 +1010,16 @@ static func _town_way(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vecto
 	if length > r * WAY_LONGER + float(ctx.get("way_extra", WAY_EXTRA)):
 		return []
 	return way
+
+
+## How far a way to any spot of this search may run (m), for `routes_from`'s `reach`: the longest
+## `_town_way` keeps (its furthest spot's `r` by WAY_LONGER, and the extra), and WAY_RISE spare for
+## stairs (that check is level metres; the routes' are along the slope). INF when the spots aren't
+## bounded (Cover.find). Exact: a place further off can only start a way it would throw out (#1119).
+static func _way_reach(ctx: Dictionary) -> float:
+	if not ctx.has("max_r"):
+		return INF
+	return float(ctx.max_r) * WAY_LONGER + float(ctx.get("way_extra", WAY_EXTRA)) + WAY_RISE
 
 
 ## How to get there on foot: straight if he can, else round the thing in the way by one point
@@ -907,6 +1051,6 @@ static func path_clear(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vect
 	q.exclude = exclude
 	q.transform = Transform3D(Basis.IDENTITY, from + Vector3.UP * 0.75)
 	q.motion = (to - from) * Vector3(1, 0, 1)
-	Prof.count(&"q_cover")
+	_ask()
 	var frac := space.cast_motion(q)
 	return frac[0] >= 0.98

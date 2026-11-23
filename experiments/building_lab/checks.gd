@@ -257,6 +257,8 @@ static func people_fit(b: Structure, spec: Dictionary) -> Dictionary:
 			on.append(String(fm.member_id).trim_prefix("saloon_spec/") if fm else str(h.collider))
 			if fm and fm.kind in [&"floor_board", &"sill"]:
 				floored = true
+			elif fm == null and bool((spec.levels.ground as Dictionary).get("dirt", false)) and at.y < float(spec.levels.ground.top):
+				floored = true  # a dirt floor (#1126, the barn): the ground under the sills' level
 		if not floored:
 			failures.append("%s: stands on %s" % [u.name, on])
 		for d: Dictionary in doors:
@@ -400,6 +402,11 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 					t = -float(p[1])
 			d0 = -t + 0.012
 			d1 = -0.012
+		if w.get("log", false):
+			# A log wall (#1126): through the logs' thickness from their outer face (its line).
+			var t := float((spec.frame.get("log_wall", {}) as Dictionary).get("thick", 0.17))
+			d0 = -t + 0.012
+			d1 = -0.012
 		var j := 0
 		for o: Dictionary in w.get("openings", []):
 			if o.type == "void":
@@ -407,7 +414,7 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 				continue  # a cut corner: open by design, its column and beams its frame (saloon B)
 			openings += 1
 			var lvl: String = o.get("level", w.get("level", "ground"))
-			var y0 := float(lv[lvl]) + float(o.get("sill", 0.0))
+			var y0 := float(lv[lvl]) + (0.08 if lvl == "cellar" else 0.0) + float(o.get("sill", 0.0))  # (a cellar's from its flags, #1174)
 			var s0 := float(o.at) - float(o.width) * 0.5
 			var s1 := float(o.at) + float(o.width) * 0.5
 			var pts := [origin + along * (s0 + 0.012) + out * d0 + Vector3.UP * (y0 + 0.012),
@@ -429,6 +436,10 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 				var ok := by_id.has(pre + "king0") and by_id.has(pre + "king1") and by_id.has(pre + "header")
 				if stone:
 					ok = by_id.has(pre + "lintel")  # a stone wall's opening: its lintel (and a window's sill)
+				if w.get("log", false):
+					# A log wall's opening (#1126, LogWall): bucked, a plank jamb either side (and a window's sill).
+					ok = by_id.has(pre + "buck/jamb0") and by_id.has(pre + "buck/jamb1")
+					pre += "buck/"
 				if o.type == "window" and y0 > float(lv[lvl]) + 0.4:
 					ok = ok and by_id.has(pre + "sill")
 				if ok:

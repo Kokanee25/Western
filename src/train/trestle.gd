@@ -481,7 +481,7 @@ func carry(train: Train) -> bool:
 		return false
 	# While the fire's queue is bringing it down a slice a frame (a blast's collapse), or its first
 	# look isn't done, the loads wait (they're put on next time).
-	var fire := FireSystem.find(get_tree()) if is_inside_tree() else null
+	var fire := SettleQueue.find(get_tree()) if is_inside_tree() else null
 	if fire and (fire.settling(self) or not _analysis_valid or (last_analysis != null and last_analysis.left() > 0)):
 		if not _analysis_valid:
 			fire.queue_check(self)

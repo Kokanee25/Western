@@ -23,9 +23,13 @@ extends RefCounted
 ## a lab or test can make one with a `doctor` man and no folk. Nothing here runs per frame but the
 ## calls (a doctor walking) and a half-second look for Harlan.
 
-## The doctor's day id (ValleyFolk's people), and the acts' doctor (SheriffDies' `doc`).
+## The doctor's day id (ValleyFolk's people): one man, the acts' too (#1095: there was a `doc`).
 const DOCTOR := &"doctor"
-const DOCTORS: Array[StringName] = [&"doctor", &"doc"]
+const DOCTORS: Array[StringName] = [&"doctor"]
+## A knock at his door with a hurt man by it (#1095, `at_door`): in, he's at the door this long after
+## (s); then out to him, and he's taken in this long after the doctor's by him (s).
+const ANSWER_S := 4.0
+const TAKE_IN_S := 3.0
 ## A runner: calm (fear under nerve) and this dutiful at least (the most dutiful who saw it goes).
 const RUNNER_DUTY := 0.4
 ## Told, the doctor takes his bag (s), then comes at this pace (m/s: a fast walk, Reaction.WALK 1.2).
@@ -39,7 +43,8 @@ const ARRIVE := 2.2
 const HARLAN_HOURS := 1.0
 ## Looked for every (s).
 const LOOK_EVERY := 0.5
-## The lines (the brief §5's table; voiced later, step 8's script).
+## The built lines, only a fallback now: the runner's words are the town's script's (TownScript, scene
+## `runner` of docs/scripts/town.json; ids run_doc, run_law, runner[.shot], runner_dead[.shot], runner_you[.shot]).
 const LINES := {
 	&"run_doc": ["I'll get Doc! Don't move him.", "I'll go. Don't move him.", "Somebody fetch Doc... I'll go!"],
 	&"run_law": ["I'll get the deputy!", "Somebody get the law... I'll go!"],
@@ -164,15 +169,16 @@ func arrived(down: HumanBody, brain: CivilianBrain, to: StringName, shot: bool, 
 	e.told = true
 	e.told_frame = Engine.get_physics_frames()
 	var where := place_name(down.global_position) if key != 0 else "the street"
-	var line := ""
-	if to == &"harlan":
-		line = _pick(&"runner_you") % ([where] if _pick_n == 0 else [where, "shot" if shot else "down"])
-	elif not breathing:
-		line = _pick(&"runner_dead") % ([where, "Shot." if shot else ""] if _pick_n == 0 else [where])
-	else:
-		line = _pick(&"runner") % ["shot" if shot else "down", where, "He's breathing." if breathing else ""]
+	var base := &"runner_you" if to == &"harlan" else (&"runner_dead" if not breathing else &"runner")
+	var ids: Array = [String(base) + ".shot", String(base)] if shot else [String(base)]
+	var line := TownScript.pick(ids, TownScript.seed_of(String(brain.body.person_id), "%s:%d" % [ids[0], key]), {"where": where})
+	if line == "":
+		line = _built_arrival(base, where, shot, breathing)
 	brain.say_line(line.strip_edges())
 	_note("told " + String(to), brain.body.person_id)
+	# The news goes with him (TownNews): the doctor now holds the runner's version.
+	if brain.news != null:
+		brain.news.hand_over(brain.body.person_id, DOCTOR if to == &"doctor" else TownNews.HARLAN, down if key != 0 else null)
 	if to == &"doctor" and key != 0:
 		_call_doctor(down)
 
@@ -197,10 +203,67 @@ func step(delta: float) -> void:
 		_call_step(c, delta)
 
 
+## A knock at the doctor's door with `down` by it (ValleyFolk.knock, #1095): the doctor answers for
+## any hurt man, not only an act's. In, he comes out to him; out on a call to this same man (the
+## runner sent him to where he fell), he comes back for him; dead, gone or an act's, nobody comes.
+## He takes him in (ValleyFolk.take_in): treating him by his wounds is #1093. What the player's told.
+func at_door(down: HumanBody, door: Vector3, inside: bool) -> String:
+	if down == null or not is_instance_valid(down):
+		return ""
+	for c: Dictionary in calls:
+		if c.down == down and c.get("door", false):
+			return ""  # he's coming for him already
+	var doc := doctor_errand()
+	if doc.is_empty():
+		_note("knock: no doctor", &"")
+		return "Nobody answers."
+	var man: HumanBody = doc.get("man")
+	var bag: Node3D = null
+	for c: Dictionary in calls.duplicate():
+		if c.man != null and is_instance_valid(c.man) and c.man == man and c.down != down:
+			_note("knock: the doctor's on another call", &"")
+			return "Nobody answers. The doctor's out on a call."
+		if c.down == down:
+			bag = c.bag  # on his way to where the man fell: back he comes, bag and all
+			calls.erase(c)
+	calls.append({"down": down, "man": null, "brain": null, "t": 0.0, "stage": &"door", "bag": bag,
+			"door": true, "door_at": door, "inside": inside})
+	_note("knock: the doctor answers", &"")
+	return "Steps inside: the doctor's coming." if inside else "Nobody answers. The doctor's out."
+
+
+## Calls this man was on, dropped (an act's taken him: ValleyFolk.seize). His bag goes.
+func drop_calls(man: HumanBody) -> void:
+	for c: Dictionary in calls.duplicate():
+		if c.man == man:
+			if c.bag != null and is_instance_valid(c.bag):
+				(c.bag as Node).queue_free()
+			calls.erase(c)
+
+
 func _call_step(c: Dictionary, delta: float) -> void:
 	c.t += delta
 	var down: HumanBody = c.down if is_instance_valid(c.down) else null
 	match c.stage:
+		&"door":
+			if down == null:
+				calls.erase(c)
+				return
+			if c.inside and c.t < ANSWER_S:
+				return
+			c.stage = &"beat"
+			c.t = BAG_BEAT
+			_call_step(c, 0.0)
+		&"in":
+			var man: HumanBody = c.man if is_instance_valid(c.man) else null
+			if down == null or man == null or not man.physiology.alive:
+				_end_call(c)
+				return
+			if c.t >= TAKE_IN_S:
+				if folk != null:
+					folk.take_in(down)
+				_note("doctor takes him in", man.person_id)
+				_end_call(c)
 		&"beat":
 			if c.t < BAG_BEAT:
 				return
@@ -214,7 +277,8 @@ func _call_step(c: Dictionary, delta: float) -> void:
 			c.brain = brain
 			c.stage = &"walk"
 			c.t = 0.0
-			c.bag = _bag(man)
+			if c.bag == null or not is_instance_valid(c.bag):
+				c.bag = _bag(man)
 			var e: Dictionary = events.get(down.get_instance_id(), {}) if down else {}
 			if not e.is_empty():
 				e.left_frame = Engine.get_physics_frames()
@@ -235,7 +299,19 @@ func _call_step(c: Dictionary, delta: float) -> void:
 				_end_call(c)
 				return
 			var brain: CivilianBrain = c.brain
+			var down_at := ValleyFolk._body_at(down) if down != null else Vector3.ZERO
+			if c.get("door", false) and brain != null and down != null and down_at.distance_to(brain.post) > 2.0:
+				# (at the door: you've moved him, or let him down off your shoulder) to him where he is now
+				var from := man.global_position - down_at
+				from.y = 0.0
+				brain.go_to(down_at + (from.normalized() if from.length() > 0.1 else Vector3.FORWARD) * 0.85, down_at)
 			var there := brain != null and man.global_position.distance_to(brain.post) < 0.5
+			if c.stage == &"walk" and c.get("door", false) and there:
+				c.stage = &"in"
+				c.t = 0.0
+				_set_down(c.bag, man)
+				man.face(down_at)
+				return
 			if c.stage == &"walk":
 				_carry(c.bag, man)
 				if there:
@@ -419,9 +495,21 @@ func _pick(kind: StringName) -> String:
 	return lines[_pick_n]
 
 
-## A runner's start line (he's off).
-func off_line(to: StringName) -> String:
-	return _pick(&"run_law" if to == &"harlan" else &"run_doc")
+## The built line on arrival (no script).
+func _built_arrival(base: StringName, where: String, shot: bool, breathing: bool) -> String:
+	match base:
+		&"runner_you":
+			return _pick(base) % ([where] if _pick_n == 0 else [where, "shot" if shot else "down"])
+		&"runner_dead":
+			return _pick(base) % ([where, "Shot." if shot else ""] if _pick_n == 0 else [where])
+	return _pick(base) % ["shot" if shot else "down", where, "He's breathing." if breathing else ""]
+
+
+## A runner's start line (he's off): the script's, by `who` (his person id), else a built one.
+func off_line(to: StringName, who := "") -> String:
+	var id := "run_law" if to == &"harlan" else "run_doc"
+	var line := TownScript.pick([id], TownScript.seed_of(who, id) if who != "" else _rng.randi())
+	return line if line != "" else _pick(StringName(id))
 
 
 func _note(what: String, who: StringName) -> void:

@@ -964,3 +964,95 @@ func test_the_handsaw_lies_where_its_put_and_a_ball_holes_its_blade() -> void:
 	await wait_until(func() -> bool: return not b.alive, 60)
 	await physics_frames(2)
 	check(p.holes >= 1, "a ball through its blade holes it (%d)" % p.holes)
+
+
+# --- The general store, batch G1 (#1139; tools/props/store_g1.py) -------------------------------------
+const STORE_G1 := [&"store_counter", &"store_shelving", &"rolling_ladder", &"store_stove", &"cracker_barrel", &"flour_barrel",
+		&"sugar_barrel", &"pickle_barrel", &"coffee_sack", &"flour_sack", &"store_scales", &"bolt_calico", &"bolt_felt", &"bolt_plaid"]
+# (store_scales is G2's since #1172: baked, its pans hung)
+
+
+func test_store_g1_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg, and each member a physics body while it stands (experiments/prop_lab/store/README.md "G1").
+	var weights := {&"store_counter": [60.0, 300.0], &"store_shelving": [30.0, 220.0], &"rolling_ladder": [5.0, 30.0],
+			&"store_stove": [150.0, 800.0], &"cracker_barrel": [20.0, 90.0], &"flour_barrel": [20.0, 90.0], &"sugar_barrel": [20.0, 90.0],
+			&"pickle_barrel": [20.0, 90.0], &"coffee_sack": [10.0, 80.0], &"flour_sack": [10.0, 80.0], &"store_scales": [2.0, 12.0],
+			&"bolt_calico": [0.1, 8.0], &"bolt_felt": [0.1, 8.0], &"bolt_plaid": [0.1, 8.0]}
+	var bodies := {&"store_counter": 24, &"store_shelving": 20, &"rolling_ladder": 14, &"store_stove": 17, &"cracker_barrel": 21,
+			&"flour_barrel": 21, &"sugar_barrel": 21, &"pickle_barrel": 21, &"coffee_sack": 1, &"flour_sack": 1, &"store_scales": 5,
+			&"bolt_calico": 2, &"bolt_felt": 2, &"bolt_plaid": 2}
+	for id: StringName in STORE_G1:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == ("tools/props/store_g2.py" if id == &"store_scales" else "tools/props/store_g1.py") or id in [&"coffee_sack", &"flour_sack"], "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= bodies[id], "%s stands as %d bodies (at most %d)" % [id, p.member_count(), bodies[id]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+# --- The general store, batch G2 (#1172; tools/props/store_g2.py, tools/blender/props/store_g2.py) ---------------
+## kit -> [kg low, kg high, bodies at most] (experiments/prop_lab/store/README.md "G2").
+const STORE_G2 := {&"tin_row": [8.0, 25.0, 2], &"tin_row_flat": [8.0, 25.0, 2], &"box_row": [3.0, 12.0, 2], &"box_row_flat": [3.0, 12.0, 2],
+		&"case_row": [3.0, 15.0, 2], &"tin_row_half": [4.0, 13.0, 1], &"box_row_half": [1.5, 6.0, 1], &"case_row_half": [1.5, 8.0, 1],
+		&"boot_row": [2.0, 15.0, 2], &"hat_stack": [0.1, 1.0, 1], &"hat_single": [0.05, 0.5, 1], &"rope_coil": [0.3, 10.0, 1],
+		&"showcase": [20.0, 80.0, 15], &"coffee_mill": [25.0, 90.0, 3], &"nail_keg": [8.0, 50.0, 2], &"tool_keg": [4.0, 20.0, 2],
+}
+## The tinware and the oil can are loose rigid props (as the tin cup): kit -> kg.
+const STORE_G2_LOOSE := {&"oil_can": 16.0, &"tin_pail": 0.8, &"coffeepot": 0.5, &"tea_kettle": 0.7}
+
+
+func test_store_g2_stands_weighs_and_draws_its_baked_models() -> void:
+	for id: StringName in STORE_G2:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/store_g2.py", "%s is the factory's" % id)
+		# Every member drawn from a baked model finds its part (a missing one would draw a plain box).
+		for spec: Dictionary in PropKit.expand(def):
+			var draws: Array = [spec.get("draw", {})] + (spec.get("dress", []) as Array).map(func(d: Dictionary) -> Dictionary: return d.get("draw", {}))
+			for dr: Dictionary in draws:
+				if String(dr.get("shape", "")) == "mesh":
+					check(PropKit.model_part(String(dr.model), String(dr.part)) != null, "%s/%s: %s has its part %s" % [id, spec.id, dr.model, dr.part])
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		var w: Array = STORE_G2[id]
+		check(kg >= w[0] and kg <= w[1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= int(w[2]), "%s stands as %d bodies (at most %d)" % [id, p.member_count(), w[2]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_store_g2_tinware_is_loose_and_drawn_from_its_model() -> void:
+	for id: StringName in STORE_G2_LOOSE:
+		var def := PropKit.definition(id)
+		check(String(def.kind) == "loose" and is_equal_approx(float(def.mass), STORE_G2_LOOSE[id]), "%s is a loose prop of %.1f kg" % [id, STORE_G2_LOOSE[id]])
+		for part: String in def.looks:
+			check(PropKit.model_part("store_hardware", part) != null, "%s: store_hardware has its part %s" % [id, part])
+		var p: Node3D = PropKit.make(id)
+		world.add_child(p)
+		await physics_frames(30)
+		check(p.global_position.y > -0.05, "%s rests on the ground (%.3f)" % [id, p.global_position.y])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_store_g1_metal_is_baked() -> void:
+	# G2 swapped G1's bare `prop:brass`/`prop:iron` for the baked swatches (#1172, README "Left for G2").
+	for id: StringName in [&"store_counter", &"store_shelving", &"rolling_ladder"]:
+		for spec: Dictionary in PropKit.expand(PropKit.definition(id)):
+			var look := String(spec.get("look", ""))
+			check(not look in ["prop:brass", "prop:iron"], "%s/%s is baked metal (%s)" % [id, spec.id, look])
+	check(PropModels.pbr("store_brass").albedo_texture != null and PropModels.pbr("store_iron").albedo_texture != null, "the swatches are baked")
+
+
+func test_the_stores_wood_is_the_librarys_furniture_never_the_floors() -> void:
+	for id: StringName in [&"store_counter", &"store_shelving", &"rolling_ladder"]:
+		for spec: Dictionary in PropKit.expand(PropKit.definition(id)):
+			var look := String(spec.get("look", PropKit.definition(id).get("look", "")))
+			check(not look.begins_with("lib:floor_") and not look.begins_with("wood:"), "%s/%s isn't the floor's wood (%s)" % [id, spec.id, look])

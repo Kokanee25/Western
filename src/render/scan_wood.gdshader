@@ -108,6 +108,16 @@ uniform float edge_round_end = 0.6;
 // The fresh grain's contrast against its own neighbourhood (a high mip): 1 the scan's, less to lose a
 // figure that reads drawn on (Sean, #721: new pine "lose the drawn-on grain").
 uniform float grain_contrast = 1.0;
+// Shingles (#1142, the church's roof and spire): a course of sawn shingles drawn on one board (a roof
+// board, a spire's course): butt joints across it every `shingle_w` metres on average (each shingle
+// 0.65..1.35 of it, as a bundle's random widths, 3 to 10 in), each shingle its own place in the scan,
+// its grain turned down the slope, its own weathering and a hair's lift, a dark gap of `shingle_gap` between; the course's butt (its
+// lower edge as the panel and a roof lay it) a shade darker, its top edge (under the course above)
+// darker still; old shingles split with the grain up from the butt. 0: a plain board. (Shingle widths and exposures from
+// the USDA Wood Handbook ch. 15 and Hodgson's "Practical Carpentry" 1883: 16 in sawn shingles laid
+// 4 1/2 to 5 in to the weather, joints broken by 1 1/2 in course to course.)
+uniform float shingle_w = 0.0;
+uniform float shingle_gap = 0.004;
 // Weathering's shelter (Sean, #721: bare pine in desert sun goes silver-grey in a year or two; the
 // orange survives only where sheltered): under the eaves (the top `eaves_m` of a wall `wall_top` m
 // high) and beside battens and joints (`edge_shelter`), less of it as the years go on.
@@ -343,6 +353,36 @@ void fragment() {
 	}
 	float face = v_face;
 	vec2 m = v_m;
+	float shingle_joint = 0.0;
+	float shingle_lift = 0.0;
+	vec2 shingle_uv = vec2(0.0);  // across the shingle (m from its left edge), its width
+	if (shingle_w > 0.0 && face < 0.5) {
+		float k = floor(m.x / shingle_w);
+		float bk = (k + rnd(seed + k * 0.0137, 81.0) * 0.33) * shingle_w;
+		float i = k;
+		float lo = bk;
+		float hi = (k + 1.0 + rnd(seed + (k + 1.0) * 0.0137, 81.0) * 0.33) * shingle_w;
+		if (m.x < bk) {
+			i = k - 1.0;
+			hi = bk;
+			lo = (k - 1.0 + rnd(seed + (k - 1.0) * 0.0137, 81.0) * 0.33) * shingle_w;
+		} else if (m.x >= hi) {
+			i = k + 1.0;
+			lo = hi;
+			hi = (k + 2.0 + rnd(seed + (k + 2.0) * 0.0137, 81.0) * 0.33) * shingle_w;
+		}
+		// Each keyway its own width (a shingle laid tight or open a finger's width as it dried).
+		float gl = shingle_gap * (0.4 + 0.9 * (rnd(seed + i * 0.0137, 85.0) * 0.5 + 0.5));
+		float gh = shingle_gap * (0.4 + 0.9 * (rnd(seed + (i + 1.0) * 0.0137, 85.0) * 0.5 + 0.5));
+		shingle_joint = max(1.0 - smoothstep(gl * 0.5, gl * 0.5 + 0.0025, m.x - lo), 1.0 - smoothstep(gh * 0.5, gh * 0.5 + 0.0025, hi - m.x));
+		shingle_uv = vec2(m.x - lo, hi - lo);
+		seed = fract(seed * 7.13 + i * 0.6180339 + 0.31);
+		// A shingle's grain runs down the roof, across the course (rived and sawn along the log).
+		m = vec2(m.y + i * 0.83, m.x);
+		// Each weathered its own way: a split one new, some greyer.
+		ag = age > 0.6 && rnd(seed, 84.0) > 0.9 ? age * 0.45 : clamp(age + rnd(seed, 82.0) * 0.18, 0.0, 1.0);
+		shingle_lift = rnd(seed, 83.0);
+	}
 	// End grain: the scan squeezed along the grain to the ends' tight rings, darker and dry.
 	bool end_grain = face > 0.5 && face < 1.5;
 	if (end_grain) {
@@ -498,7 +538,7 @@ void fragment() {
 				rb2 = texture(rough_b, uvb2, detail_bias).r;
 			}
 			// Long grain lines and checks (drying cracks) along the board, faded before they alias.
-			if (face < 0.5 && weathered_grain > 0.0) {
+			if (face < 0.5 && weathered_grain > 0.0 && shingle_w <= 0.0) {
 				float fade = 1.0 - smoothstep(0.3, 1.0, fwidth(v_m.y) / 0.003);
 				float gl = texture(big_noise, vec2(v_m.x / 0.9 + seed * 7.0, v_m.y / 0.006)).r;
 				colb *= mix(1.0, 0.82 + 0.36 * gl, weathered_grain * fade);
@@ -642,7 +682,7 @@ void fragment() {
 	}
 
 	float old_k = smoothstep(0.6, 1.0, ag);
-	if (checks > 0.0 && old_k > 0.0 && face < 0.5 && bisect >= 9) {
+	if (checks > 0.0 && old_k > 0.0 && face < 0.5 && bisect >= 9 && shingle_w <= 0.0) {
 		float fw = fwidth(v_m.y);
 		for (int i = 0; i < 5; i++) {
 			float fi = float(i);
@@ -1059,6 +1099,33 @@ void fragment() {
 		rough = mix(rough, 0.9, fdust * 0.8);
 		dull = furniture * smoothstep(0.4, 0.75, texture(big_noise, q / 0.3 + 0.61).r) * smoothstep(0.3, 1.0, ag);
 		by_joint = 0.0;
+	}
+	if (shingle_w > 0.0 && face < 0.5) {
+		// The gap between shingles, the course's shadowed butt and its covered top, each shingle a
+		// hair lighter or darker by how it lies.
+		float across = v_across * v_side;
+		col *= 1.0 + 0.13 * shingle_lift;
+		col *= mix(vec3(1.0), vec3(1.07, 1.0, 0.9), rnd(seed, 86.0) * 0.5 + 0.5);
+		// (+across is the butt, the course's lower edge; -across runs up under the course above)
+		col *= mix(1.0, 0.72, smoothstep(-0.55, -1.0, across));
+		col *= mix(1.0, 0.9, smoothstep(0.7, 1.0, across));
+		// Splits with the grain, up from the butt, open and tapering, on old shingles.
+		float split = 0.0;
+		for (int j = 0; j < 2; j++) {
+			float fj = float(j);
+			if (rnd(seed, 87.0 + fj) * 0.5 + 0.5 > 0.25 * old_k) {
+				continue;
+			}
+			float sx = (0.2 + 0.6 * (rnd(seed, 89.0 + fj) * 0.5 + 0.5)) * shingle_uv.y;
+			float reach = 0.6 + 0.9 * (rnd(seed, 91.0 + fj) * 0.5 + 0.5);  // of the course's height (-1..1)
+			float t = clamp((1.0 - across) / reach, 0.0, 1.0);
+			float wob = (texture(big_noise, vec2(across * 0.7 + seed * 9.0, fj + seed)).r - 0.5) * 0.006;
+			float wd = 0.0018 * (1.0 - t) + 0.0003;
+			split = max(split, (1.0 - smoothstep(wd, wd + 0.0012, abs(shingle_uv.x - sx - wob))) * step(t, 0.999));
+		}
+		col = mix(col, col * 0.25, split);
+		col = mix(col, col * 0.32, shingle_joint);
+		rough = mix(rough, 1.0, shingle_joint);
 	}
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = clamp(rough + (roughness_add + 0.18 * ag * (1.0 - varnish)) * (1.0 - pcov) - nail * 0.2, 0.05, 1.0);

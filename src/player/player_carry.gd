@@ -54,6 +54,22 @@ func _ready() -> void:
 	add_to_group(&"claims_use")
 
 
+## A mission started again in place (#1116: the sheriff's "start again" kept the last run's
+## metres and the blood on your coat): put down whoever you had, and none of it carried over.
+func start_over() -> void:
+	if carrying():
+		_drop(&"start_over")
+	blood_on_you = 0.0
+	dragged_m = 0.0
+	dragged_total_m = 0.0
+	last = &""
+	last_why = &""
+	_e_held = 0.0
+	_lift_t = 0.0
+	_told_for = null
+	_near = null
+
+
 func carrying(man: HumanBody = null) -> bool:
 	if him == null or not is_instance_valid(him):
 		return false
@@ -125,10 +141,13 @@ func _physics_process(delta: float) -> void:
 		_hold(delta)
 	elif him != null:
 		_drop(&"gone")
-	# A tap (let go within carry_tap_s): held, E's for something else (a scene's: his wound).
+	# A tap (let go within carry_tap_s): held, E's for something else (a scene's: his wound). Down
+	# and up between two ticks (a tap in one slow frame, #1117) it's never seen down: a tap too.
+	var tapped := player.input_enabled and _e_held <= 0.0 and Input.is_action_just_pressed(&"shove") \
+			and Input.is_action_just_released(&"shove")
 	if player.input_enabled and Input.is_action_pressed(&"shove"):
 		_e_held += delta
-	elif _e_held > 0.0:
+	elif _e_held > 0.0 or tapped:
 		var tap := _e_held <= player.tuning.carry_tap_s
 		_e_held = 0.0
 		if tap and player.input_enabled:
@@ -265,10 +284,8 @@ func _shoulder(m: HumanBody, on: bool) -> void:
 		if rb == null:
 			continue
 		rb.collision_mask = Layers.RAGDOLL if on else Layers.WORLD | Layers.RAGDOLL
-		if on:
-			player.add_collision_exception_with(rb)
-		elif player.get_collision_exceptions().has(rb):
-			player.remove_collision_exception_with(rb)
+		# (Kept on as he's laid down: a limp man never collides with you, HumanBody._through_the_player.)
+		player.add_collision_exception_with(rb)
 		rb.linear_velocity = Vector3.ZERO
 		rb.angular_velocity = Vector3.ZERO
 		rb.sleeping = false
@@ -280,8 +297,32 @@ func _shoulder(m: HumanBody, on: bool) -> void:
 		var fwd := player.get_forward()
 		fwd.y = 0.0
 		fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
-		var to := player.global_position + fwd * 0.7
+		# Clear of you, all of him: his body hangs down your back as he comes off the shoulder, and
+		# with nothing of you to push him (a limp man goes through you, HumanBody._through_the_player)
+		# a pelvis set 0.7 m out left his chest inside you, to fold back through you (#1092).
+		# Lowered, not dropped on end: over the shoulder he hangs folded at the hips (head down your
+		# back, legs down your front), and set down as he hung he stood on his head and feet and
+		# toppled for a second or more (#1116: CI's lay 0.48 m up a second on). A quarter turn about
+		# the fold's fore-and-aft line lays the fold flat, on his side; he settles from there.
+		var pivot := belly.global_position
+		var turn := Basis(fwd, deg_to_rad(LAY_TURN_DEG))
+		for v: Variant in m.parts.values():
+			var n := v as Node3D
+			if n != null:
+				var xf := n.global_transform
+				n.global_transform = Transform3D(turn * xf.basis, pivot + turn * (xf.origin - pivot))
+		var from := ValleyFolk._body_at(m)
+		var back := 0.0
+		for v: Variant in m.parts.values():
+			back = minf(back, ((v as Node3D).global_position - from).dot(fwd))
+		var to := player.global_position + fwd * maxf(0.7, player.tuning.radius + LAY_CLEAR_M - back)
 		ValleyFolk.move_body(m, Vector3(to.x, player.global_position.y, to.z))
+
+
+## Laid down, his nearest part this far (m) past your capsule.
+const LAY_CLEAR_M := 0.15
+## Laid down: the hang's fold turned this far onto his side (degrees about your forward).
+const LAY_TURN_DEG := 90.0
 
 
 ## He comes loose only after he's been past carry_tear_m this long (s): a jolt on a step isn't it.

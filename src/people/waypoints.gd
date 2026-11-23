@@ -9,6 +9,9 @@ var points := {}  ## name -> Vector3
 var links := {}  ## name -> Array[StringName]
 ## Links that go up a stair ("a|b", both ways): walked by its ramp, not a straight sweep.
 var stairs := {}
+## Every query a way's asked (rays and sweeps), counted always (unlike Prof's q_walk): what a
+## spread-out cover search spends of its WorkBudget under World.deterministic (Cover.Search, #1123).
+static var asked := 0
 
 
 func add(name: StringName, at: Vector3, linked: Array = []) -> void:
@@ -194,16 +197,22 @@ func _route_from_nearest(from: Vector3, to: StringName) -> Array[Vector3]:
 
 ## The ways from `from` to every place he can get to: {name: points to walk through, ending there},
 ## worked out together (one search, a sweep per place to find where he can start), for choosing
-## among many places at once.
-func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array[RID] = []) -> Dictionary:
+## among many places at once. With `reach` and nowhere in it he can walk to straight: none (not the
+## nearest anyway: a way from there would start through the wall).
+func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array[RID] = [], reach := INF) -> Dictionary:
 	var dist := {}
 	var prev := {}
 	var open: Array[StringName] = []
 	for n: StringName in points:
-		if _walkable(space, from, points[n], exclude) and absf(from.y - (points[n] as Vector3).y) < 0.6:
+		# `reach` (m): only ways no longer than it. A place further than it in a straight line can't
+		# start one, so it isn't asked (each ask is a sweep: the valley's ~360 places were ~110 ms a
+		# cover search, #1119).
+		if from.distance_to(points[n]) > reach:
+			continue
+		if absf(from.y - (points[n] as Vector3).y) < 0.6 and _walkable(space, from, points[n], exclude):
 			dist[n] = from.distance_to(points[n])
 			open.append(n)
-	if open.is_empty() and not points.is_empty():
+	if open.is_empty() and not points.is_empty() and reach == INF:
 		# Nothing in a straight line: head for the nearest anyway (as `route` does).
 		var near: StringName = points.keys()[0]
 		for n: StringName in points:
@@ -219,7 +228,7 @@ func routes_from(space: PhysicsDirectSpaceState3D, from: Vector3, exclude: Array
 		open.erase(cur)
 		for nb: StringName in links.get(cur, []):
 			var d: float = dist[cur] + (points[cur] as Vector3).distance_to(points[nb])
-			if d < dist.get(nb, INF):
+			if d < dist.get(nb, INF) and d <= reach:
 				dist[nb] = d
 				prev[nb] = cur
 				if not open.has(nb):
@@ -243,13 +252,20 @@ func route_to_point(space: PhysicsDirectSpaceState3D, from: Vector3, point: Vect
 	var straight: Array[Vector3] = [point]
 	if _walkable(space, from, point, exclude) and absf(from.y - point.y) < 0.6:
 		return straight
-	var best := &""
-	var best_d := INF
+	# The nearest place he can walk to it from: asked nearest first, the first that's walkable (as
+	# asking each nearer than the best so far, in the dictionary's order, which in the valley was up
+	# to ~360 sweeps, 30-90 ms; #1119). Equal distances in the dictionary's order, as before.
+	var order: Array = []
+	var seq := 0
 	for n: StringName in points:
-		var d := (points[n] as Vector3).distance_to(point)
-		if d < best_d and _walkable(space, points[n], point, exclude):
-			best_d = d
-			best = n
+		order.append([(points[n] as Vector3).distance_to(point), seq, n])
+		seq += 1
+	order.sort_custom(_heap_less)
+	var best := &""
+	for e: Array in order:
+		if _walkable(space, points[e[2]], point, exclude):
+			best = e[2]
+			break
 	if best == &"":
 		return straight
 	var path := route(space, from, best, exclude)
@@ -278,6 +294,7 @@ static func _centre_blocked(space: PhysicsDirectSpaceState3D, from: Vector3, to:
 	var q := PhysicsRayQueryParameters3D.create(from + lift, to + lift, Layers.WORLD, exclude)
 	q.hit_back_faces = false
 	Prof.count(&"q_walk")
+	asked += 1
 	var hit := space.intersect_ray(q)
 	if hit.is_empty():
 		return false
@@ -301,6 +318,7 @@ static func _no_step_up(space: PhysicsDirectSpaceState3D, a: Vector3, b: Vector3
 		var p := a.lerp(b, float(i) / n)
 		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, top, p.z), Vector3(p.x, bottom, p.z), Layers.STAND, exclude)
 		Prof.count(&"q_walk")
+		asked += 1
 		var hit := space.intersect_ray(q)
 		# Nothing within half a metre under the lower end: a drop (off a high walk into an alley,
 		# #737), unless the ray only fell between two planks.
@@ -323,6 +341,7 @@ static func _foot_height(space: PhysicsDirectSpaceState3D, p: Vector3, top: floa
 	for o: Vector2 in [Vector2(FOOT, 0.0), Vector2(-FOOT, 0.0), Vector2(0.0, FOOT), Vector2(0.0, -FOOT)]:
 		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x + o.x, top, p.z + o.y), Vector3(p.x + o.x, bottom, p.z + o.y), Layers.STAND, exclude)
 		Prof.count(&"q_walk")
+		asked += 1
 		var hit := space.intersect_ray(q)
 		if not hit.is_empty():
 			best = maxf(best, (hit.position as Vector3).y)

@@ -72,6 +72,8 @@
     "answer": "Nod or shake your head (move your view).",
     "follow": "Joe goes out to the horses.",
     "survivors": "(Joe talks with the survivors, in Ute.)",
+    "no_survivors": "(Joe goes on alone among the burned lodges and stands a long while.)",
+    "_no_survivors": "#1095: the prompt when nobody's there (counted in the world, `survivors_m` round Joe): no survivor is shown till the Studio makes them.",
     "costume": "(Joe puts on a cowboy's hat and ties a neckerchief.)",
     "trail": "Joe has their trail: south-east, toward the box canyon under the rimrock. G: tell him to wait or come."
   },

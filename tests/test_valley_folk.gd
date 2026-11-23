@@ -46,6 +46,8 @@ func _at(h: float) -> void:
 ## The night's five (the saloon yard's set; the day folk on the walks, #796, the band's players,
 ## test_band, and the roster's street folk, #936, are others).
 const NIGHT := [&"barkeep", &"miner", &"rancher", &"earl", &"drifter"]
+## The night's men with day hours too (#1167): the saloon open from ten, the drifter's errands.
+const DAY_TOO := [&"barkeep", &"drifter"]
 
 
 ## Who of the night's five is in the world.
@@ -75,12 +77,13 @@ func test_by_day_nobody_s_there_but_they_re_built() -> void:
 	await _empty()
 	var f := _folk()
 	check(f != null, "the valley has its folk")
-	check_eq(_night_in().size(), 0, "none of the night's folk in town at noon")
+	# (Since #1167 the barkeep keeps his bar from ten and the drifter has his day's errands.)
+	check_eq(_night_in().filter(func(id: StringName) -> bool: return not id in DAY_TOO).size(), 0, "none of the night's other folk in town at noon")
 	for p: Dictionary in f.data.people:
-		if not p.has("says"):
+		if not p.has("says") and not StringName(p.id) in DAY_TOO:
 			check_eq(String(f.state[StringName(p.id)]), "out", "%s out" % p.id)
 	# By day the day folk at their posts on the walks (No Law's morning after, #796).
-	for id: StringName in [&"townsman", &"loudmouth", &"undertaker"]:
+	for id: StringName in [&"townsman", &"loudmouth"]:  # (the undertaker's round takes him indoors at times, #1167)
 		check(f.state.get(id) in [&"in", &"coming"], "%s in town by day (%s)" % [id, f.state.get(id)])
 	check(f.build_ms.has("men"), "built while the valley loaded (%s)" % f.build_ms)
 	# The set stands in the saloon's yard (Sean's B on #755: the saloon a grey block for now).
@@ -147,9 +150,10 @@ func test_each_finds_his_way_in() -> void:
 	# The barkeep out of the saloon's door and down its walk's steps; the rancher from Back Street
 	# down the North-South Street; Earl from Back Street up the yard; the drifter from the hotel.
 	await _empty()
-	await _at(16.9)
-	await _at(17.01)
-	check_eq(String(_folk().state[&"barkeep"]), "coming", "the barkeep walking in at five")
+	await _at(9.9)
+	await _at(10.01)
+	check_eq(String(_folk().state[&"barkeep"]), "coming", "the barkeep walking in at ten (the saloon's day hours, #1167)")
+	await _at(19.0)  # (the drifter in from his day's errands: on the book at the hotel)
 	await _at(19.61)
 	var f := _folk()
 	for id: StringName in [&"rancher", &"earl", &"drifter"]:
@@ -265,7 +269,9 @@ func test_the_day_every_hour_bands_on_and_off() -> void:
 			# dark, smoke where someone's cooking.
 			for place: StringName in f.lights.shows:
 				var shows: Dictionary = f.lights.report()[String(place)]
-				if shows.lit != f.book.lit(place, h) or shows.smoke != f.book.smoke(place):
+				# (The saloon's window is lit by its room too, out in the yard: step 10.)
+				var lit := f.book.lit(place, h) or (String(place) == String(f.room.d.get("lights", "")) and f.room.lit())
+				if shows.lit != lit or shows.smoke != f.book.smoke(place):
 					wrong.append("%.2f %s shows %s, the book %s" % [h, place, shows, f.book.inside(place)])
 		check(wrong.is_empty(), "bands %s: everyone where his day says, every hour (%s)" % [on, wrong.slice(0, 6)])
 		check(most <= 24, "never more than 24 bodies in the world (%d)" % most)
@@ -280,9 +286,9 @@ func test_the_book_shows_lit_windows_and_smoke() -> void:
 	check(f.lights.shows.has(&"hotel") and f.lights.shows.has(&"saloon") and f.lights.shows.has(&"undertaker"),
 			"a window and a chimney for each building the day takes them into (%s)" % [f.lights.shows.keys()])
 	check(not f.lights.shows.has(&"back@0"), "none for a way out of town")
-	# Nine at night: the townsman at home in the hotel, the undertaker over his shop, the loudmouth in
-	# the saloon's back: lamps lit; nobody cooking.
-	await _at(21.0)
+	# Past nine at night: the townsman at home in the hotel, the undertaker over his shop (back from his
+	# one drink), the saloon's room full: lamps lit; nobody cooking.
+	await _at(21.2)
 	var s: Dictionary = shows.call()
 	check(s.hotel.lit and s.undertaker.lit and s.saloon.lit, "lit windows at nine (%s)" % [s])
 	check(not s.hotel.smoke and not s.undertaker.smoke, "no smoke at nine (%s)" % [s])
@@ -422,10 +428,14 @@ func test_the_roster_sixteen_with_homes_days_and_dials() -> void:
 			var blocks: Array = ValleyFolk.blocks_of(p, StringName(kind))
 			for i in blocks.size():
 				var b: Dictionary = blocks[i]
-				if b.has("in"):
-					check(f.places.has(StringName(String(b["in"]))), "%s %s: a place %s" % [id, kind, b["in"]])
-				else:
-					check(not f.spot(b.at).is_empty(), "%s %s: a spot %s" % [id, kind, b.at])
+				for leg: Dictionary in (b.get("round", [b]) as Array):  # an errand round's legs (#1167), each a block's own
+					if leg.has("in"):
+						check(f.places.has(StringName(String(leg["in"]))), "%s %s: a place %s" % [id, kind, leg["in"]])
+					else:
+						check(not f.spot(leg.at).is_empty(), "%s %s: a spot %s" % [id, kind, leg.at])
+					if b.has("round"):
+						var st: Array = leg.get("stay", [])
+						check(st.size() == 2 and float(st[0]) > 0.0 and float(st[1]) >= float(st[0]), "%s %s: a leg's stay %s" % [id, kind, st])
 				var span := fposmod(float(blocks[(i + 1) % blocks.size()].from) - float(b.from), 24.0)
 				check(span >= 0.5 or blocks.size() == 1, "%s %s: the block at %s lasts %.1f h" % [id, kind, b.from, span])
 	check_eq(ROSTER.size(), 16, "sixteen townsfolk")

@@ -225,6 +225,34 @@ FINISHES = {
     # Gut strings and a bow's white horse hair, greyed with rosin.
     "gut": {"kind": "coat", "color": (0.74, 0.70, 0.60), "under": (0.60, 0.55, 0.45), "rust": 0.0,
             "rough": 0.7, "metal": 0.0, "wear": 0.2},
+    # --- The general store, batch G2 (#1172) ---
+    # Boot leather (blacked calf, the stovepipe boot's: Ward's 1875 catalogue's "calf boots, pegged"):
+    # near black with a dull wax sheen, creased and greyed at the ankle, rubbed brown at the toe.
+    "boot_leather": {"kind": "coat", "color": (0.035, 0.028, 0.022), "under": (0.24, 0.15, 0.08), "rust": 0.0,
+                     "rough": 0.5, "metal": 0.0, "wear": 0.55, "craze": 0.6},
+    # Russet (undyed, oiled) leather: the cheaper work boot's, tan going brown where handled.
+    "russet_leather": {"kind": "coat", "color": (0.30, 0.16, 0.07), "under": (0.45, 0.30, 0.16), "rust": 0.0,
+                       "rough": 0.6, "metal": 0.0, "wear": 0.5, "craze": 0.4},
+    # A buff wool felt (the wide-brimmed "plainsman" hats of the 1870s catalogues came in black, brown,
+    # and a pale "silver belly" buff): matte, dust in the crease.
+    "felt_buff": {"kind": "coat", "color": (0.50, 0.42, 0.30), "under": (0.36, 0.30, 0.22), "rust": 0.0,
+                  "rough": 0.96, "metal": 0.0, "wear": 0.3, "mottle": 0.35},
+    "felt_brown": {"kind": "coat", "color": (0.16, 0.10, 0.06), "under": (0.30, 0.22, 0.14), "rust": 0.0,
+                   "rough": 0.96, "metal": 0.0, "wear": 0.3, "mottle": 0.35},
+    # Manila hemp rope: straw-tan, darkened with handling and tar in its lay.
+    "hemp": {"kind": "coat", "color": (0.50, 0.40, 0.24), "under": (0.32, 0.24, 0.14), "rust": 0.0,
+             "rough": 0.92, "metal": 0.0, "wear": 0.4, "mottle": 0.6},
+    # The coffee mill's paint (the Enterprise and Swift mills of the 1870s-90s: cast iron enamelled
+    # vermilion, striped in gilt): a glossy red, chipped to the iron on the wheels' rims.
+    "mill_red": {"kind": "coat", "color": (0.42, 0.05, 0.03), "under": (0.10, 0.10, 0.11), "rust": 0.2,
+                 "rough": 0.32, "metal": 0.0, "metal_under": 0.8, "wear": 0.45},
+    # A grocer's paper label pasted on a box's or a tin's end where no print shows: a plain brown kraft.
+    "kraft": {"kind": "coat", "color": (0.48, 0.36, 0.22), "under": (0.40, 0.30, 0.18), "rust": 0.0,
+              "rough": 0.85, "metal": 0.0, "wear": 0.2, "mottle": 0.4},
+    # A cured ham in its muslin bag, as the grocers hung them (the general store, G3, #1182): a dull red-brown
+    # with the cloth's weave greyed over it.
+    "cured_ham": {"kind": "coat", "color": (0.30, 0.11, 0.07), "under": (0.50, 0.34, 0.24), "rust": 0.0,
+                  "rough": 0.62, "metal": 0.0, "wear": 0.4, "mottle": 0.45},
     # A lamp's chimney and a bottle are drawn by the game's glass, not baked: this is only their
     # place on the atlas (a dark neutral, if anything shows it).
     "glass": {"kind": "coat", "color": (0.20, 0.21, 0.20), "under": (0.20, 0.21, 0.20), "rust": 0.0,

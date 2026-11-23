@@ -12,7 +12,7 @@
   "lane": {"_doc": "Church Lane's points (config/valley.json way `church_lane`) added to the folk's places, so the town can walk up and back.", "line": [[0, -60], [0, -95], [-30, -120], [-62, -128], [-85, -165], [-95, -185]], "out": 0},
   "mourners": [
     {"id": "wife", "how": "take", "spot": [0.3, -1.6], "stays": true},
-    {"id": "doc", "how": "take", "spot": [1.4, -1.8], "stays": true},
+    {"id": "doctor", "how": "take", "spot": [1.4, -1.8], "stays": true},
     {"id": "preacher", "how": "take", "spot": [2.3, 0.0], "stays": true, "pose": "stand"},
     {"id": "baron", "how": "take", "spot": [6.0, 3.6]},
     {"id": "foreman", "how": "take", "spot": [7.0, 4.5], "pose": "stand"},

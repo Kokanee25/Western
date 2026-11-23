@@ -1,0 +1,134 @@
+{
+ "_doc": "The undertaker's target sheet (#1141, the building lab's step 1). Sean 2026-11-21 (#1141): an 1882 undertaker and cabinetmaker, a false-front shop on Main Street, a workroom where coffins are built, a front parlour for viewing, the hearse's shed behind, and a creepy, period-true cellar walkable by the player. Twelve views at ~$0.14, $2.50 cap. Sean 2026-11-23 on #1171: the cost yes; white clapboard with near-black trim; a 32 x 50 ft shop on the lot's west half, the yard and hearse shed east; into the cellar both by the workroom's stair and the yard's bulkhead. The spec settles every size; the pictures are the look only. Painted by building_sheet.yml on claude/art-building-undertaker.",
+ "sheet_title": "Salt Creek, 1882: the undertaker and cabinetmaker (target sheet, #1141)",
+ "cap": 2.5,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light and lamplight, real worn materials (painted clapboard, sawn pine, planed boards, rough fieldstone, lime wash, iron, brass, glass, black cloth, sawdust, dust), period-accurate in every object. Grounded and grim, never horror-film: no gore, no skeletons, no cobwebs or candles for effect; the creepiness is the ordinary trade of the dead seen close. No people unless the view asks for them. No modern objects. No text, no signs. No border, no frame, no watermark, no captions.",
+ "building": "The town's undertaker and cabinetmaker in 1882, a two-year-old Colorado mining-and-ranching boom town: one man's trade, plain, careful and well kept, built of sawn lumber in 1880. It stands at the EAST END of the NORTH side of the dirt Main Street, so its FRONT faces SOUTH onto the street; a narrow junk-choked alley (crates and boards piled across it) runs along its WEST side with the barber's beyond, and to its EAST is its own open YARD, the last lot of the street, with dry grass and the open country past it. IN PLAN THE BUILDING IS A PLAIN RECTANGLE, no wing or ell: about 32 ft wide across the front and 50 ft deep. ONE STOREY with a low loft under a pitched gable roof (ridge running front to back) HIDDEN from the street by a square FALSE FRONT of painted clapboard (about 20 ft to the top of a plain cornice, a flat sign board across it); the side walls plain clapboard, the roof wood shingles. Painted white clapboard, a little weathered and dusty at the bottom, with near-black trim on the cornice, casings, door and sash: sober, as his trade wants. The street falls away to the east here, so his floor stands high: a plank BOARDWALK 3 ft 9 in (1.15 m) over the dirt on posts, with a rail along its edge, a few plank steps up from the street, the dark space under it open (a dog could lie there), and a plank awning on posts over it. THE FRONT: a pair of glazed doors at the middle with a transom, a big window either side with plain black blinds half drawn, a coffin-maker's sample (a small polished pine coffin on a stand) in one window. THE ROOMS (ground floor): at the front, the SHOWROOM and office (a few finished coffins and caskets on trestles, a counter with the order book, a desk) on one side, and the front PARLOUR on the other (a body laid out for viewing on a draped bier in its coffin, chairs round the walls, dark drapes); behind them across the whole width the WORKROOM where coffins are built (a long workbench with planes and saws, planks stacked, a coffin lid on trestles, a glue pot on a stove), with a wide SIDE DOOR onto the east yard at grade (a short plank ramp down) for coffins to go out; at the very back his own small room (a bed, a stove, a table). THE YARD (east): open dirt and dry grass, a wagon gate to Main Street, and at the BACK of the yard the HEARSE SHED, a plain board-and-batten shed with wide double doors and a black horse-drawn HEARSE inside (a plain black box hearse with glass side panels and black plumes on its four corners), a stall for the hearse horse. THE CELLAR under the back half of the building: reached by a steep plank stair down from the workroom AND by a pair of slanted wooden BULKHEAD DOORS on the ground against the building's east side in the yard, with steps down. Cold, low (7 ft), lamplit by a hanging iron lantern, walls of rough fieldstone lime-washed and stained, a packed earth and plank floor, the joists overhead. Its rooms: the EMBALMING ROOM (a wooden cooling board on trestles, an embalming table of planed boards with a zinc-lined top sloping to a drain hole and a pail under it, a brass hand pump with red rubber tubes, glass jars and bottles on a shelf, big glass carboys of embalming fluid in wicker baskets, folded white shrouds on a shelf); the ICE ROOM behind a thick plank door (blocks of ice packed in sawdust in a plank bin, a zinc-lined corpse cooler, an ice tong and saw on pegs, damp sawdust on the floor); and the COFFIN STORE (pine coffins stacked on racks, the old six-sided kind and the newer rectangular caskets, a small white CHILD'S COFFIN among them, a body under a white sheet on a board, a SAFETY COFFIN with a small brass bell on an iron frame at its head end and a cord running from the bell down into the lid, a framed mourning WREATH made of woven human hair under glass on the wall, and by the stair a photographer's iron posing stand with its head clamp beside a draped chair).",
+ "views": [
+  {
+   "id": "front",
+   "title": "The front, from Main Street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the dirt of Main Street at eye level, a little to the west, in clear late afternoon light from the south-west: the white false front with its near-black trim and blank sign board, the glazed double doors and the two big windows with black blinds half drawn and the sample coffin in one, the high plank boardwalk on its posts with the rail and the few steps up, the dark gap under the walk, the plank awning; the junk-piled alley on the left, the open east yard on the right with its wagon gate and the hearse shed's roof at the back of it. A slightly long lens."
+  },
+  {
+   "id": "plan",
+   "title": "Floor plan and the cellar's plan",
+   "aspect": "3:2",
+   "size": "2K",
+   "view": "A clean architect's drawing in black ink on off-white paper, seen from above, two plans side by side at the same scale. LEFT, the ground floor: a plain rectangle (no wing or ell), the boardwalk along the front (bottom of the sheet), the showroom and office on one side of the front and the parlour on the other, the glazed doors between them, the workroom across the whole width behind them with its wide side door onto the east yard and the stair going down, his small room at the back; and beside the building the east yard, the wagon gate, the hearse shed at the back of the yard, and the bulkhead doors against the building's east wall. RIGHT, the cellar under the back half: the stair down from the workroom and the bulkhead steps, the embalming room, the ice room behind its door, the coffin store. Each room labelled in small lettering."
+  },
+  {
+   "id": "yard",
+   "title": "The east yard, the side door and the bulkhead",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Standing in the east yard at eye level looking north-west, late afternoon light: the building's long white clapboard east side wall with a couple of windows, the wide side door of the workroom at grade with its short plank ramp, the pair of slanted wooden bulkhead cellar doors against the wall's foot (one leaf open, the stone steps going down into the dark), the hearse shed at the back of the yard with one door open and the black glass-sided hearse showing inside, a coffin-sized crate leaning by the side door, the yard's dirt and dry grass, the wagon gate to the street.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "rear",
+   "title": "The back and the hearse shed",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the back street behind the building at eye level, late afternoon: the plain back wall of the shop (unpainted gable over painted clapboard, a stovepipe through the roof, a back door with a step), and beside it the hearse shed with both its doors open and the black horse-drawn hearse standing in it, its glass side panels and black plumes, a black horse in the stall beside it, harness on pegs. The false front's back seen from behind, its props and bare boards.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "cutaway",
+   "title": "The cutaway, cellar and all",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "An architectural cutaway of the building, a bird's-eye three-quarter view from the south-east with the east side wall, half the roof and the ground beside the building cut away: the false front and the boardwalk, the showroom, parlour and workroom furnished as the plan has them, the joists and plank floors, the studs and clapboard, the roof's rafters, the low loft; and BELOW the back half the stone-walled CELLAR cut open: the stair down from the workroom, the bulkhead steps from the yard, the embalming room, the ice room and the coffin store with their contents, a lantern lit in each.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "showroom",
+   "title": "The showroom and office",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the showroom at eye level, from its back corner looking toward the front windows, afternoon light through the half-drawn black blinds: plain painted board walls, finished coffins and caskets on trestles (polished pine, one cloth-covered in black with silver handles), a catalogue of coffin furniture (handles, plates) open on the counter beside the order book, an inkwell, a desk with pigeonholes, a hat stand, a framed price list, a clock; tidy, sober, a little dusty.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "parlour",
+   "title": "The parlour, a body laid out",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the front parlour at eye level from its back corner, early evening: one oil lamp lit, the last daylight grey through the drawn blinds. A man laid out for viewing in an open pine coffin on a bier draped with black cloth, in his best dark suit, hands folded, his face pale and still; a row of plain chairs round the walls, dark drapes, a small table with a bible and a vase of dried flowers, a mirror covered with black crape, the stopped clock.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "workroom",
+   "title": "The workroom, coffins being built",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the workroom at eye level, looking toward the wide side door standing open on the bright yard: a long heavy workbench with a vise, wooden planes, handsaws and chisels on the wall rack, pine planks stacked against the wall, a coffin half built on the bench (its sides kerfed and bent round the shoulders), a finished lid on trestles, shavings and sawdust on the floor, a glue pot on a small iron stove, patterns hung on nails, and in the floor at the side the open hatch of the stair going down into the dark cellar.",
+   "refs": [
+    "showroom",
+    "plan"
+   ]
+  },
+  {
+   "id": "stair",
+   "title": "Down the cellar stair",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Standing at the top of the steep plank cellar stair at eye level, looking down into the cellar: the worn treads going down between stone walls into the cold, one iron lantern hanging lit at the bottom throwing a yellow pool, the lime-washed fieldstone, the joists low overhead; at the stair's foot a photographer's iron posing stand with its head clamp beside a draped chair, and beyond, the edge of the embalming table under its lamp. Dark, cold, still.",
+   "refs": [
+    "cutaway",
+    "plan"
+   ]
+  },
+  {
+   "id": "embalming",
+   "title": "The embalming room",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the embalming room at eye level, lit only by the iron lantern over the table: the embalming table of planed boards with its zinc-lined top sloping to a drain hole and a pail beneath, a wooden cooling board on trestles against the wall with a folded sheet on it, a brass hand pump with coiled red rubber tubes on a side table beside glass jars and bottles and a few steel instruments laid on a cloth, three big glass carboys of pale fluid in wicker baskets on the floor, white shrouds folded on a plank shelf, rough lime-washed fieldstone walls stained with damp, the low joists overhead, a drain in the packed floor. Clean, orderly, cold.",
+   "refs": [
+    "stair",
+    "plan"
+   ]
+  },
+  {
+   "id": "ice",
+   "title": "The ice room",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the ice room at eye level through its thick plank door standing open, lit by a lantern held up from the door: blocks of cloudy ice packed in damp sawdust in a big plank bin, a zinc-lined wooden corpse cooler on trestles with its lid shut, ice tongs and an ice saw on pegs, water darkening the sawdust on the floor, breath-cold air, the stone walls sweating.",
+   "refs": [
+    "stair",
+    "plan"
+   ]
+  },
+  {
+   "id": "coffins",
+   "title": "The coffin store",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the coffin store at eye level by lantern light: plain pine coffins stacked on plank racks, the old six-sided kind and the newer rectangular caskets, a small white child's coffin on the lowest rack; a body under a white sheet on a board on trestles, only its shape showing; a safety coffin on its own trestles, its lid shut, a small brass bell on an iron frame at its head end with a cord running from the bell down through a tube into the lid; on the stone wall a mourning wreath of woven human hair in a deep frame under glass; the low joists, the damp lime-washed stone.",
+   "refs": [
+    "stair",
+    "plan"
+   ]
+  }
+ ]
+}

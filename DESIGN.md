@@ -744,6 +744,9 @@ come round after going down will change later too.
 - **Morale:** casualties break the weak (run, surrender, play dead); the leader's nerve holds them until
   he goes down. Every fight ends differently.
 - **Fair tells** before they fire: raising the gun, stepping out, a shout.
+- **Who's in the line** (**decided**, Sean 2026-11-20, #1116): outlaws hold fire only for their own;
+  a townsman between them and their man takes his chance (the gang's ball through the store man is
+  right). Lawmen, Joe and armed townsfolk hold fire for anyone in the line (`OutlawBrain.careful`).
 - **Presentation:** mocap combat moves (crouch-run, peek, lean out, blind fire over cover, dive, crouched
   reload, dragging a wounded friend), **procedural aim** (arms and head track the real target), active
   ragdoll hit reactions, life touches (hard breathing, glancing around, flinching at near misses).
