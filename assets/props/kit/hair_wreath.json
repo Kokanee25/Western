@@ -1,0 +1,184 @@
+{
+  "_doc": "A hair wreath under glass (#1181; Victorian mourning work, a wreath of a family's hair woven over wire in loops and flowers, framed in a deep walnut shadow box; period-true): 50 cm square, a glass front. Hung on a nail. 3 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "hair_wreath",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "walnut",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "frame",
+      "kind": "post",
+      "size": [
+        0.5,
+        0.5,
+        0.07
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.035
+      ],
+      "wood": "walnut",
+      "look": "lib:furniture_walnut/old",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.5,
+              0.06,
+              0.07
+            ],
+            "at": [
+              0.0,
+              0.22,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.5,
+              0.06,
+              0.07
+            ],
+            "at": [
+              0.0,
+              -0.22,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.06,
+              0.38,
+              0.07
+            ],
+            "at": [
+              -0.22,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.06,
+              0.38,
+              0.07
+            ],
+            "at": [
+              0.22,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wreath",
+      "kind": "furniture_frame",
+      "size": [
+        0.36,
+        0.36,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.04
+      ],
+      "wood": "hay",
+      "look": "prop:hide_dark",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.16,
+            0.015
+          ],
+          [
+            0.19,
+            0.0
+          ],
+          [
+            0.16,
+            -0.015
+          ]
+        ],
+        "segments": 18,
+        "rot": [
+          90,
+          0,
+          0
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:burl",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.14,
+                0.008
+              ],
+              [
+                0.15,
+                0.02
+              ],
+              [
+                0.17,
+                0.008
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot": [
+              90.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "glass",
+      "kind": "glass",
+      "size": [
+        0.4,
+        0.4,
+        0.006
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.066
+      ],
+      "wood": "glass",
+      "look": "glass:clear"
+    }
+  ],
+  "hangs": {
+    "nails": [
+      [
+        0.0,
+        0.2,
+        0.0
+      ]
+    ]
+  },
+  "drawn_bounds": true,
+  "factory": "tools/props/undertaker.py"
+}

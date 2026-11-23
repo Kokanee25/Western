@@ -1,0 +1,160 @@
+{
+  "_doc": "A cellar lantern (#1181): a sheet-iron frame with a pierced cap and a ring, a glass chimney lamp inside; hung by its ring on the joist's hook (`hangs`: its nail at the top). Hangs still: its swing isn't simulated. 3 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "iron_lantern",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "iron",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "hook",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.12,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.46,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron"
+    },
+    {
+      "id": "frame",
+      "kind": "furniture_frame",
+      "size": [
+        0.16,
+        0.3,
+        0.16
+      ],
+      "at": [
+        0.0,
+        0.25,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.012,
+              0.3,
+              0.012
+            ],
+            "at": [
+              -0.07,
+              0.0,
+              -0.07
+            ]
+          },
+          {
+            "size": [
+              0.012,
+              0.3,
+              0.012
+            ],
+            "at": [
+              -0.07,
+              0.0,
+              0.07
+            ]
+          },
+          {
+            "size": [
+              0.012,
+              0.3,
+              0.012
+            ],
+            "at": [
+              0.07,
+              0.0,
+              -0.07
+            ]
+          },
+          {
+            "size": [
+              0.012,
+              0.3,
+              0.012
+            ],
+            "at": [
+              0.07,
+              0.0,
+              0.07
+            ]
+          },
+          {
+            "size": [
+              0.16,
+              0.012,
+              0.16
+            ],
+            "at": [
+              0.0,
+              0.15,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.16,
+              0.012,
+              0.16
+            ],
+            "at": [
+              0.0,
+              -0.15,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.1,
+              0.05,
+              0.1
+            ],
+            "at": [
+              0.0,
+              0.18,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "pane",
+      "kind": "glass",
+      "size": [
+        0.13,
+        0.22,
+        0.13
+      ],
+      "at": [
+        0.0,
+        0.25,
+        0.0
+      ],
+      "wood": "glass",
+      "look": "glass:amber"
+    }
+  ],
+  "hangs": {
+    "nails": [
+      [
+        0.0,
+        0.52,
+        0.0
+      ]
+    ]
+  },
+  "drawn_bounds": true,
+  "factory": "tools/props/undertaker.py"
+}
