@@ -1,0 +1,123 @@
+{
+  "_doc": "Two sawhorse trestles 0.7 m apart (#1181), for a child's coffin (1.05 m: it would fall between `trestles`' 1.4). 6 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "trestles_short",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "beam_w",
+      "kind": "furniture_top",
+      "size": [
+        0.1,
+        0.07,
+        0.56
+      ],
+      "at": [
+        -0.35,
+        0.525,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg_wa",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        -0.35,
+        0.26,
+        -0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_wb",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        -0.35,
+        0.26,
+        0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        -14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "beam_e",
+      "kind": "furniture_top",
+      "size": [
+        0.1,
+        0.07,
+        0.56
+      ],
+      "at": [
+        0.35,
+        0.525,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg_ea",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        0.35,
+        0.26,
+        -0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_eb",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        0.35,
+        0.26,
+        0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        -14.0,
+        0,
+        0
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

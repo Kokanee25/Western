@@ -1,0 +1,366 @@
+{
+  "_doc": "The cabinetmaker-undertaker's bench (#1181; refs: Roubo's and the Peterborough Museum's joiner's benches, the 1880s Sears catalogue's): 2.4 m long, 0.7 deep, 0.86 high, four stout raw pine legs, aprons, a lower shelf, a top of oak 70 mm thick with its tool well along the back, a quick-screw vise (a jaw, screw and guide) at the left end, bench dogs, and on it a jack plane, a handsaw and a mallet (drawn on). 11 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "workbench",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "oak",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.1,
+        0.79,
+        0.1
+      ],
+      "at": [
+        -1.05,
+        0.395,
+        -0.25
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.1,
+        0.79,
+        0.1
+      ],
+      "at": [
+        1.05,
+        0.395,
+        -0.25
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.1,
+        0.79,
+        0.1
+      ],
+      "at": [
+        -1.05,
+        0.395,
+        0.25
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.1,
+        0.79,
+        0.1
+      ],
+      "at": [
+        1.05,
+        0.395,
+        0.25
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "apron_b",
+      "kind": "furniture_frame",
+      "size": [
+        2.0,
+        0.14,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.69,
+        -0.25
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "apron_f",
+      "kind": "furniture_frame",
+      "size": [
+        2.0,
+        0.14,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.69,
+        0.25
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "end_w",
+      "kind": "furniture_frame",
+      "size": [
+        0.04,
+        0.14,
+        0.5
+      ],
+      "at": [
+        -1.05,
+        0.69,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "end_e",
+      "kind": "furniture_frame",
+      "size": [
+        0.04,
+        0.14,
+        0.5
+      ],
+      "at": [
+        1.05,
+        0.69,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        2.4,
+        0.07,
+        0.7
+      ],
+      "at": [
+        0.0,
+        0.825,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top",
+      "dress": [
+        {
+          "look": "wood:framing",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  2.3,
+                  0.02,
+                  0.1
+                ],
+                "at": [
+                  0.0,
+                  0.037,
+                  -0.29
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.04,
+                  0.04,
+                  0.2
+                ],
+                "at": [
+                  -1.0,
+                  0.05,
+                  0.38
+                ]
+              },
+              {
+                "size": [
+                  0.03,
+                  0.03,
+                  0.22
+                ],
+                "at": [
+                  -1.0,
+                  0.0,
+                  0.47
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.02,
+                  0.012,
+                  0.02
+                ],
+                "at": [
+                  -0.4,
+                  0.04,
+                  0.04
+                ]
+              },
+              {
+                "size": [
+                  0.02,
+                  0.012,
+                  0.02
+                ],
+                "at": [
+                  0.5,
+                  0.04,
+                  0.04
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "wood:framing",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.5,
+                  0.036,
+                  0.11
+                ],
+                "at": [
+                  0.0,
+                  0.056,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.04,
+                  0.06
+                ],
+                "at": [
+                  0.04,
+                  0.085,
+                  0.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.4,
+                  0.002,
+                  0.07
+                ],
+                "at": [
+                  -0.1,
+                  0.07,
+                  0.19
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.03,
+                  0.02
+                ],
+                "at": [
+                  0.12,
+                  0.071,
+                  0.2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "wood:framing",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.2,
+                  0.03,
+                  0.05
+                ],
+                "at": [
+                  0.5,
+                  0.05,
+                  0.14
+                ]
+              },
+              {
+                "size": [
+                  0.05,
+                  0.1,
+                  0.05
+                ],
+                "at": [
+                  0.6,
+                  0.07,
+                  0.14
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "vise_jaw",
+      "kind": "trim",
+      "size": [
+        0.06,
+        0.16,
+        0.22
+      ],
+      "at": [
+        -1.0,
+        0.88,
+        0.39
+      ],
+      "wood": "oak",
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "shelf",
+      "kind": "furniture_top",
+      "size": [
+        2.1,
+        0.025,
+        0.52
+      ],
+      "at": [
+        0.0,
+        0.17,
+        0.0
+      ],
+      "look": "wood:framing"
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

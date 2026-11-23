@@ -1,0 +1,123 @@
+{
+  "_doc": "Two sawhorse trestles (#1181) 1.4 m apart, 0.56 m to the top: what a coffin stands on in the showroom and the parlour, what the lid lies on; an A of two splayed legs under a beam, painted pine. 6 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "trestles",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "beam_w",
+      "kind": "furniture_top",
+      "size": [
+        0.1,
+        0.07,
+        0.56
+      ],
+      "at": [
+        -0.7,
+        0.525,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg_wa",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        -0.7,
+        0.26,
+        -0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_wb",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        -0.7,
+        0.26,
+        0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        -14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "beam_e",
+      "kind": "furniture_top",
+      "size": [
+        0.1,
+        0.07,
+        0.56
+      ],
+      "at": [
+        0.7,
+        0.525,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg_ea",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        0.7,
+        0.26,
+        -0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_eb",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        0.7,
+        0.26,
+        0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        -14.0,
+        0,
+        0
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

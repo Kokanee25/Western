@@ -1,0 +1,347 @@
+{
+  "_doc": "A six-sided \"toe-pincher\" coffin, closed (#1181; refs: Habenstein and Lamers 1955, the Bowers Museum's and the Smithsonian's): the plain walnut-stained coffin of an 1880s Western undertaker, 1.95 m long, 0.58 at the shoulders (head at -x), 0.40 deep, a bottom, six walls on its edge and a lid with a moulded plate and a brass name plate, brass bar handles on each side. Wood from the material library (walnut, old). 8 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "coffin_hex",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "walnut",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "base",
+      "kind": "post",
+      "size": [
+        1.95,
+        0.022,
+        0.58
+      ],
+      "at": [
+        0.0,
+        0.011,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -0.975,
+            -0.18
+          ],
+          [
+            -0.45,
+            -0.29
+          ],
+          [
+            0.975,
+            -0.09
+          ],
+          [
+            0.975,
+            0.09
+          ],
+          [
+            -0.45,
+            0.29
+          ],
+          [
+            -0.975,
+            0.18
+          ]
+        ]
+      }
+    },
+    {
+      "id": "wall0",
+      "kind": "furniture_frame",
+      "size": [
+        0.5584,
+        0.4,
+        0.022
+      ],
+      "at": [
+        -0.7125,
+        0.222,
+        -0.235
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        11.833645306160674,
+        0
+      ],
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  -0.6045,
+                  0.222,
+                  -0.2776
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  0.222,
+                  -0.2468
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.6045,
+                  0.222,
+                  -0.162
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  -0.6045,
+                  0.222,
+                  0.2776
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  0.222,
+                  0.2468
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.6045,
+                  0.222,
+                  0.162
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wall1",
+      "kind": "furniture_frame",
+      "size": [
+        1.461,
+        0.4,
+        0.022
+      ],
+      "at": [
+        0.2625,
+        0.222,
+        -0.19
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -7.989326766396895,
+        0
+      ]
+    },
+    {
+      "id": "wall2",
+      "kind": "furniture_frame",
+      "size": [
+        0.202,
+        0.4,
+        0.022
+      ],
+      "at": [
+        0.975,
+        0.222,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -90.0,
+        0
+      ]
+    },
+    {
+      "id": "wall3",
+      "kind": "furniture_frame",
+      "size": [
+        1.461,
+        0.4,
+        0.022
+      ],
+      "at": [
+        0.2625,
+        0.222,
+        0.19
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -172.01067323360311,
+        0
+      ]
+    },
+    {
+      "id": "wall4",
+      "kind": "furniture_frame",
+      "size": [
+        0.5584,
+        0.4,
+        0.022
+      ],
+      "at": [
+        -0.7125,
+        0.222,
+        0.235
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        168.16635469383934,
+        0
+      ]
+    },
+    {
+      "id": "wall5",
+      "kind": "furniture_frame",
+      "size": [
+        0.382,
+        0.4,
+        0.022
+      ],
+      "at": [
+        -0.975,
+        0.222,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        90.0,
+        0
+      ]
+    },
+    {
+      "id": "lid",
+      "kind": "furniture_top",
+      "size": [
+        1.99,
+        0.026,
+        0.62
+      ],
+      "at": [
+        0.0,
+        0.435,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old/top",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -0.995,
+            -0.2
+          ],
+          [
+            -0.47,
+            -0.31
+          ],
+          [
+            0.995,
+            -0.11
+          ],
+          [
+            0.995,
+            0.11
+          ],
+          [
+            -0.47,
+            0.31
+          ],
+          [
+            -0.995,
+            0.2
+          ]
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  1.0725,
+                  0.012,
+                  0.319
+                ],
+                "at": [
+                  0.0,
+                  0.453,
+                  0.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.18,
+                  0.004,
+                  0.07
+                ],
+                "at": [
+                  0.0,
+                  0.462,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}
