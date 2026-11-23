@@ -36,12 +36,26 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # The tests, split over parallel jobs (#1015; Sean, 2026-11-16: "I don't want it to become a 4 hour
+  # wait"): each runs `--shard=K/N`, its share of the test files by config/test_times.json's seconds
+  # per file (refresh it with tools/test_times.py when one shard runs long). To change N, change the
+  # list and TEST_SHARDS together. Each job builds the plugin itself (cached; its Rust tests run once,
+  # in the native job) and starts from main's last import (.godot, cached), so setup isn't paid in full
+  # every time.
   test:
     # Builds unless it's a plain branch push (see the top).
     if: >-
       github.event_name != 'push' || github.ref == 'refs/heads/main'
       || contains(github.event.head_commit.message, '[build]')
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
+    name: test (${{ matrix.shard }}/6)
+    env:
+      TEST_SHARDS: 6
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -65,6 +79,20 @@ jobs:
         uses: ./.github/actions/native-build
         with:
           target: x86_64-unknown-linux-gnu
+          tests: "false"
+
+      # The import (~10 min from nothing) starts from the newest one main saved: Godot reimports
+      # only what changed since (it checks each source's hash), and writes .import files for new
+      # assets as before, so the check below still sees them.
+      # Keyed by the .import files (a new or changed asset's import makes a new one; a source edited
+      # in place is just reimported from the last), so main saves one only when those change.
+      - name: Restore the last import
+        id: import-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .godot
+          key: godot-import-${{ env.GODOT_VERSION }}-${{ hashFiles('**/*.import') }}
+          restore-keys: godot-import-${{ env.GODOT_VERSION }}-
 
       - name: Import project
         run: ~/godot/godot --headless --import || true
@@ -82,11 +110,23 @@ jobs:
             exit 1
           fi
 
+      # Main's import is kept for the next runs (PRs read main's caches; their own aren't saved,
+      # so the cache holds a few, not one per push). One shard saves it, when its key is new.
+      - name: Keep the import (main)
+        if: >-
+          github.ref == 'refs/heads/main' && matrix.shard == 1
+          && steps.import-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .godot
+          key: godot-import-${{ env.GODOT_VERSION }}-${{ hashFiles('**/*.import') }}
+
       - name: Run tests
-        run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd
+        run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- --shard=${{ matrix.shard }}/${{ env.TEST_SHARDS }}
 
       - name: The feel numbers
-        # What tests/test_feel.gd and friends measured, against the ranges in config/feel_ranges.json.
+        # What tests/test_feel.gd and friends measured, against the ranges in config/feel_ranges.json
+        # (this shard's tests only).
         if: always()
         run: |
           f="$HOME/.local/share/godot/app_userdata/Salt Creek/feel_measured.json"
@@ -290,8 +330,8 @@ jobs:
         with:
           path: build/web
 
-  # Each export launched on its own platform for 30 s (src/debug/smoke_test.gd: the street, the gang,
-  # a stick, a fire, a shot; any error fails it), then again in the valley (-- --world=valley, #1003). Linux twice: headless, and drawn under software
+  # Each export launched on its own platform for 30 s (src/debug/smoke_test.gd; any error fails it): a
+  # plain start, the valley (G8, #1098), then the old town (-- --world=town: the gang, a stick, a fire, a shot). Linux twice: headless, and drawn under software
   # Vulkan so the shaders compile. Only builds that pass are released.
   smoke:
     needs: export
@@ -329,11 +369,12 @@ jobs:
             Windows-headless) unzip -q dist/SaltCreek-windows.zip; game=(./SaltCreek.exe --headless) ;;
           esac
           limit=(); command -v timeout >/dev/null && limit=(timeout 900)  # macOS has none: the job's limit
-          # The old town, then the valley (#1003: the valley crashed on start in the export, unseen).
+          # The valley as players get it (no --world: a plain start is the valley since G8, #1098;
+          # #1003: it once crashed on start in the export, unseen), then the old town, asked for.
           failed=0
-          for world in town valley; do
+          for world in valley town; do
             out="$(pwd -W 2>/dev/null || pwd)/smoke_$world.out"  # a Windows path on Windows
-            extra=(); [ "$world" = valley ] && extra=(--world=valley)
+            extra=(); [ "$world" = town ] && extra=(--world=town)
             set +e
             "${limit[@]}" "${game[@]}" -- "${extra[@]}" --smoke-test --smoke-out="$out" > "smoke_$world.log" 2>&1
             code=$?

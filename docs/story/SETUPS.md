@@ -170,7 +170,7 @@ on payday (D, Sean 2026-11-11, #830, C3 b). He was shown the two below and didn'
 isn't a pick: they stay P·bible. Placed where a curious player could find them, not on the main
 path:
 - **The storekeeper's day-book:** a handsaw sold that day to a man he didn't know, in his own hand on
-  the counter. Found only by a player who reads the book or asks him about strangers.
+  the counter. (He is A. P. Hollis, the name gilded on his windows: Sean, #1067.) Found only by a player who reads the book or asks him about strangers.
 - **The cut itself:** pale new wood in the girder, seen from below with a lamp, in the back of the
   room where nobody stands.
 - Everyone gets the last seconds: the floor's creak and bow, plaster dust sifting into the drinks at
@@ -184,9 +184,11 @@ path:
 **S24. The band** · T5 · P (Sean), the links P·bible. Plant: a travelling band gets down from the
 payroll's train with more instruments than the town has seen. They were in the coach Harlan saved
 (if the train is wrecked, C2 b, how they come is O: s23).
-Six men carry their piano up the saloon's stair that afternoon. Payoff: they play on that floor
-(D, 2026-11-11); the people he saved at noon fall at night; the piano is why a sawn girder that
-held the afternoon doesn't hold the dance. (The master chat's note that a troupe of strangers is
+**Corrected 2026-11-17:** this bible had six men carry the band's piano up the saloon's stair that afternoon, and
+made the piano the reason the girder gives. Sean's yes on #938 (2026-11-14) is the opposite: the full band plays
+on the dance hall's stage, "the dance hall keeps its own piano, nobody hauls one upstairs". So no piano is
+carried up. Payoff: they play on that floor (D, 2026-11-11); the people he saved at noon fall at night. Why a
+sawn girder that held the afternoon doesn't hold the dance is the crowd and the stamping reels (v6), not a piano. (The master chat's note that a troupe of strangers is
 cover for the Baron's guns is P, not placed here.)
 
 **S25. The captain's wire** · T5 · D. Plant: that evening he wires his report from the depot and Harlan
@@ -286,7 +288,7 @@ line and an object (rule 3).
 - Again, night one: the sorrel at the saloon's rail as Harlan goes in, then the stranger's built
   "Don't move, friend." A player who listened joins them himself; nobody tells him. His built "Easy,
   friend. I ain't the one you want." is a lie with no word changed. Tonight he can do nothing about
-  it (No Law's point); going for the stranger anyway is remembered (C16 a).
+  it (No Law's point); he has no gun until the sheriff gives him his on day 2 (Sean, 2026-11-17), so there is nothing to go for him with.
 - Again: the sorrel at the Baron's buggy at the funeral, the foreman standing behind the Baron
   while he makes the widow his offer.
 - Pays off: the widow's lane, where the foreman walks up with the deed and the widow, who heard her
@@ -296,6 +298,100 @@ line and an object (rule 3).
   isn't a case on its own ("Not enough to hang a man on, Harlan. Not yet.", the doctor, P·bible). It
   counts in "what people saw" (Harlan, the widow and the doctor heard it) and needs Cody or the
   papers beside it.
+
+## E. Callbacks: what the town remembers (2026-11-17, #1056)
+
+Sean, 2026-11-17: "I want call backs and remember what's going on: it's a story to tell, not a bunch
+of disjointed missions." A callback is a line that only plays when its fact is true (a script
+line's `when`, read from StoryState). Everything in this section is **P·bible** until Sean taps
+Script OK on the three pages; the slice's rows are written in `docs/scripts/` under the ids given,
+the later rows are for the cards that aren't scripted yet. Facts marked **(add)** aren't in the game:
+`docs/scripts/CHANGES.md` lists them for gameplay.
+
+### By what the player did
+
+| He did | Fact | Who remembers, in the slice (script line) | Who should, later |
+|---|---|---|---|
+| Packed the sheriff's wound | `sheriff.care = good` | A townsman (`town.you_packed`: "Doc says that wound was packed proper. Says you done it."); the doctor at his door that night (`carry.two`: "That's two you've carried to this door today."); the Baron at the grave (`funeral.baron_you_care`); Joe on the trail (`ride.carried`) | Joe's leg, dressed by the same hands (the rope's card: "the wound stays"); Payday Night's triage; Rourke's hospital steward looking at his work |
+| Left him on the road | `sheriff.care = left` | The freighter ("a name. Harlan, or near it"); the doctor ("three hours, by the blood"; at his door that night, `carry.this_one`: "This one you carried."); the widow (`day2.freighter`; at the grave, only "Mr. Harlan."); a townsman who doesn't know it was him (`town.you_left`); the stranger (`table.asks_left`); Joe (`ride.left`: "Don't walk off from me.") | The widow's place: she has the freighter's story by then, and asks about the road |
+| Shook his head on the road, then helped | `sheriff.shook` **(add)** | The sheriff at the oath (`day2.shake.twice`) | – |
+| Shook his head at the oath | `nolaw.accepted = shake` | The widow at the grave (`funeral.you_came_shake`) | The widow, when he tries to refuse the rifle (S15); Rourke, when he won't sign the letter |
+| Sat with the stranger (Sean, 2026-11-17: he asks you to his table, buys a drink, and calls the sheriff "a good man" who "didn't deserve that") | `nolaw.seen_from = table` | The doctor at the door ("The sheriff's not been told about Earl."); the doctor after (`day2.not_enough`); a townsman (`morning.you_were_there`); the bold cowboy (`doctor.cowboy_table`); Kett, selling it (`cabin.bargain_table`); the foreman at the grave (`funeral.foreman`: "Good morning to you, Deputy.") | The widow's lane: "We've met, Deputy. You sat very still."; the barkeep at Cody's arrest |
+| Told the stranger the sheriff talked, or lied | `nolaw.told_stranger` **(add)** | The stranger's answer at the table (`table.asks_nod`, `_shake`, `_none`) | The lane: a foreman who was told "yes" has watched him since; told "no", he's easy, and wrong |
+| Carried Earl to the doctor's (Sean, 2026-11-17: D) | `nolaw.carried_earl` **(add, #1057)** | The barkeep to his back (`after.lifted`: "He owes me four dollars."); a woman in a doorway; the doctor at the door, who counts it (`carry.two`, `carry.this_one`); next morning the doctor ("Button your coat."), the sheriff if he sees the blood, a townsman, a woman who tells him cold water, the bold cowboy (`doctor.cowboy_carried`) | The barkeep's word for him at Cody's arrest and on the captain's day; the coat, until he washes it: S50 |
+| Went out after Cody | `nolaw.followed` | A townsman (`morning.followed`: "On foot. After a man on a horse."); Joe (`camp.you_knew`) | Cody at his arrest: he knows who ran after him |
+| Stood at the grave | `nolaw.funeral = attended` | The widow; the Baron, who admires his spring (`funeral.baron_spring`) | The same faces, hats on, at the rope |
+| Stopped Joe, or didn't | `nojustice.ending` | Joe (`cabin.nod`: "See what your badge does."; `back.revenge`); Joe at the release (`release.joe`: "Doc told us.") | The rope's cause; the camp's trust; the captain's day ("hid him the way the law hid his wife's killer") |
+| Let Kett see Joe's face | `nojustice.kett_saw_joe` **(add)** | Kett on Main Street (`street.kett`: "Say good morning to your Indian for me.") | Whether the kin come for Joe or go to the camp (S12) |
+
+### Lines and things that come back
+
+**S41. "She pulls a hair to the left."** · T1 · P·bible. Plant: the dying sheriff, giving Harlan his
+revolver (`day2.pistol.clear`). Payoff: the widow, at her place: it doesn't pull left; he did, and
+he told everybody it was the pistol. And at Cody's arrest, the first time Harlan draws it in that
+saloon.
+
+**S42. The bread rising** · T1 · P·bible. Plant: the sheriff on the road, passing time
+(`road.idle.clear`: "My wife's got bread rising."). Payoff:
+the widow's kitchen; what she thought that morning.
+
+**S43. "Ain't no sheriff tonight, boys!"** · T7 · P·bible. Plant: a drunk on Main Street on night one,
+as a joke (`town.bold`). Payoff: Cody says nearly the same over Earl's body an hour later (S2); the
+drunk, sober next morning: "I said who's going to fine me. Hell. I was only funning." (`morning.nobody`).
+
+**S44. Four dollars and a chair** · T7 · P·bible. Grows S34. Plant: the barkeep over the body ("Jesus,
+Cody, my chair!", built), then "He owes me four dollars.", to Harlan's back as he carries Earl out (`after.lifted`). Payoff: the
+undertaker's book: "The saloon wants four dollars and a chair set down against that." (`morning.undertaker`); the barkeep and his floor on Payday Night.
+
+**S45. "Does it do anything?"** · T7, T2 · P·bible. Plant: Joe, looking at the badge in the doctor's
+office (`doctor.badge`). Payoff: the cabin, if Harlan stops him: "Take him. Go on. See what your badge
+does." (`cabin.nod`); the platform, where it does nothing; the mission called I Am the Law.
+
+**S46. The stranger asks leave** · T1, T4 · P·bible. His habit: he asks permission for what he means to
+do anyway. Plant: "Rode up easy, like he wanted directions" (the sheriff); "Sit with me a
+while, if you've no objection." (`table.sit`; Sean, 2026-11-17: he asks Harlan to his table and buys the drink). Payoff: the widow's lane, with
+the deed in his hand, asking if he might come up to the house.
+
+**S47. The hat comes off** · T2 · P·bible. Grows S12. Plant: Joe's hat, won at monte (`ride.nobody`).
+Payoff: he takes it off before he speaks to Kett (`cabin.knife`: "Look at me."). In the arrest
+ending Kett has seen his face, and says so on Main Street.
+
+**S48. Cañon City** · T7 · P·bible. Plant: Kett in Harlan's cell rates the supper against the state
+prison's (`jail.kett`). Payoff: Cody in the same cell, later: he knows they let Kett walk, and
+expects the same.
+
+**S49. The spring** · T4 · P·bible. Closes M6's plant. The Baron at the grave: "You have the spring
+above the creek, I believe. I have admired it." (`funeral.baron_spring`). Payoff: still needs a card
+(s14): the offer for it.
+
+**S50. Earl at the doctor's door** · T7, T1 · D (Sean, 2026-11-17, #1056: "Harlan has to carry Earl … to the
+doctor's and bang on the door"; the doctor "says, more or less, that this man needs a grave, not a
+doctor"); the wordings P·bible. Three things, of three kinds (rule 3):
+- **The door.** The doctor is up with the sheriff and slow to come ("Who is it? I've a man dying in
+  here."). He opens, looks once: "This man wants burying, Harlan, not doctoring." Earl is laid in the
+  front room under a sheet. Payoff, next morning, by the body: "He was dead when you knocked. I'd not
+  have you think it was the door." Which is how Harlan knows the doctor has thought about it.
+- **The count.** The doctor counts what Harlan carries: "That's two you've carried to this door
+  today." If Harlan left the sheriff on the road: "This one you carried."
+- **The coat.** Earl's blood is on Harlan's coat in the morning. The doctor: "The sheriff's not been
+  told about Earl. Button your coat." The sheriff, if he sees it: "Whose blood is that on you? ...
+  That ain't mine.", and the doctor lies to a dying man. In the street: "That his blood on you?";
+  "Cold water, Mr. Harlan, not hot." Later (P·bible): the widow at the grave sees the coat is clean or
+  isn't; Joe's leg bleeds on the same coat.
+- Later still (P·bible): this is the first man Harlan fails to save in front of the town; Payday
+  Night's triage is the answer to it.
+
+**S51. He didn't get down** · T1 · D that the stranger is a coward and that it's held to a mid-game reveal (Sean,
+2026-11-17: "that's why the sheriff was only shot in the gut and not finished off"; "probably a mid game reveal
+although I'm sure people will be guessing it right away"); the plants and the payoff P·bible.
+- Planted, as things done, never the word: the doctor that evening, as coroner ("One ball, and low. Fired from a
+  horse, by the line of it. Whoever it was didn't get down to make sure."); the sheriff at the bedside ("Shot me
+  from the saddle and never got down."); the table, where he lets another man do the killing and holds an unarmed
+  one; and that he walks out of the yard before anyone else does.
+- Harlan has no gun on night one (Sean, 2026-11-17: he gets the sheriff's on day 2; it is what stops a shoot-out in
+  the saloon), so the stranger is never tested then. The first time Harlan faces him armed is where it can start to show.
+- Pays off mid-game: the first time nobody stands behind him. The widow's lane, walked in at gunpoint
+  (`CONTRADICTIONS.md` f6), is the likely place; the raid if not. And the Baron's contempt for a job half done.
 
 ## Missing
 

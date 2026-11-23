@@ -1,0 +1,1540 @@
+{
+ "_doc": "The church of Salt Creek (#1142, the building lab; tools/buildings/church_spec.py writes this file): a white frame church, 28 x 44 ft, gable front facing the lane, a three-stage bell tower over its porch with a real bell, pointed windows, pews, a chancel on a low platform. Sizes by the spec, never the sheet's pictures (experiments/building_lab/church/sheet).",
+ "format": 1,
+ "id": "church",
+ "identity": {
+  "owner": "the town's families; a circuit preacher on alternate Sundays, the schoolmarm leads the hymns between",
+  "trade": "a Protestant meeting house: Sunday services, the town's weddings and funerals, the school on weekdays when there is no schoolhouse",
+  "means": "modest but proud: put up in 1880 by the families' own hands of freighted pine, the one painted building in a town of raw boards, the bell sent from St. Louis",
+  "age_and_repair": "two years: the white lead chalking and peeling on the weather (west) side, rust streaks from the nail heads, the steps worn pale",
+  "clues": [
+   "a bell tower over the door",
+   "a hymn board by the pulpit with last Sunday's numbers",
+   "a stove in the corner with a pipe across the nave",
+   "the grave dug beside it",
+   "the children's names carved in the back pew"
+  ]
+ },
+ "lot": {
+  "_doc": "valley.json's `church` place (the rise north-west of town, +7.5 m): the front wall's outer face on z -135.5, its east corner at world x -57.735, facing the lane (south). Placed by ValleyWorld._make_church; the pad is the lot's.",
+  "valley_place": "church",
+  "side": "north",
+  "at": [
+   -57.735,
+   7.5,
+   -135.5
+  ],
+  "facing": 180,
+  "width": 8.53,
+  "depth": 13.41,
+  "yard": [
+   -3.0,
+   -6.0,
+   11.53,
+   16.41
+  ],
+  "footprint_with_stair": [
+   0.0,
+   -5.0,
+   8.53,
+   13.41
+  ]
+ },
+ "levels": {
+  "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the ceiling joists, 3 x 15 in at 16 in, are the roof's ties across the 28 ft span and carry the boarded loft above; 9/12 roof (36.9 degrees, the doctor's).",
+  "ground": {
+   "top": 0.95
+  },
+  "upper": {
+   "top": 5.952,
+   "_doc": "the loft's floor, on the ceiling joists over the plates"
+  },
+  "plate": 5.55,
+  "false_front": 0.0,
+  "roof_pitch": 36.87,
+  "roof_from": -0.35,
+  "roof_to": 13.76
+ },
+ "frame": {
+  "_doc": "The doctor's balloon frame (Bell 1858; Woodward 1865) raised to a church: 2x4 studs at 16 in from the sill to the plate (a 15 ft wall), girders at the thirds under the floor's joists, the ceiling joists 3 x 15 in across the 28 ft span as the roof's ties, 2x6 rafters at 24 in, 9/12.",
+  "foundation": {
+   "_doc": "rubble stone laid in lime mortar, 18 in thick, 2 ft into the pad (below the worst of the frost a fine builder bothered with)",
+   "wood": "stone",
+   "thick": 0.45,
+   "bottom": -0.6,
+   "top": 0.54,
+   "piece": 1.5
+  },
+  "sill": {
+   "section": [
+    0.15,
+    0.15
+   ],
+   "wood": "framing"
+  },
+  "pier": {
+   "size": 0.4,
+   "wood": "stone"
+  },
+  "girder": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing",
+   "pier_every": 1.83
+  },
+  "joist": {
+   "section": [
+    0.05,
+    0.235
+   ],
+   "spacing": 0.406,
+   "wood": "framing"
+  },
+  "floor_board": {
+   "width": 0.14,
+   "thick": 0.022,
+   "wood": "floor"
+  },
+  "stud": {
+   "section": [
+    0.05,
+    0.1
+   ],
+   "spacing": 0.406,
+   "wood": "framing"
+  },
+  "plate": {
+   "height": 0.1,
+   "_doc": "two 2x4s flat, their joints a stud apart"
+  },
+  "ribbon": {
+   "section": [
+    0.025,
+    0.15
+   ]
+  },
+  "header": {
+   "height": 0.15,
+   "_doc": "two 2x6s on edge over every opening, on trimmers"
+  },
+  "post": {
+   "section": [
+    0.15,
+    0.15
+   ],
+   "wood": "framing"
+  },
+  "beam": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing"
+  },
+  "bracket": {
+   "reach": 0.3,
+   "thick": 0.08
+  },
+  "wall_post": {
+   "section": [
+    0.15,
+    0.1
+   ]
+  },
+  "ceiling_joist": {
+   "_doc": "the ties: 3x15 in at 16 in across the span, spiked to every rafter's foot",
+   "section": [
+    0.08,
+    0.38
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "lap": 0.6
+  },
+  "rafters": {
+   "_doc": "NEW (the builder's trusses replaced by a common-rafter roof): 2x6 at 24 in, 9/12, birdsmouthed on the plates, against a 1x8 ridge board; a 1x6 collar tie on every second pair a quarter of the rise down from the ridge (head room in the loft); the gables' studs up to the end rafters; 1x6 boards across them (shingle lath laid close), wood shingles drawn on them; 12 in eaves.",
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "spacing": 0.61,
+   "ridge": [
+    0.025,
+    0.185
+   ],
+   "collar": [
+    0.025,
+    0.14
+   ],
+   "collar_every": 2,
+   "collar_down": 0.25,
+   "eave": 0.3
+  },
+  "truss": {
+   "_doc": "unused (rafters above); kept for the builder's eave and board helpers until step 3 frees them",
+   "tie": [
+    0.05,
+    0.14
+   ],
+   "principal": [
+    0.0,
+    0.0
+   ],
+   "queen": [
+    0.0,
+    0.0
+   ],
+   "purlin": [
+    0.0,
+    0.0
+   ],
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "rafter_spacing": 0.61,
+   "at": [
+    0.0,
+    14.63
+   ],
+   "purlins": []
+  }
+ },
+ "girders": {
+  "_doc": "At the thirds of the 28 ft width, under the floor's joists (spans of 2.8 m), on stone piers at 6 ft.",
+  "x": [
+   2.843,
+   5.687
+  ]
+ },
+ "floors": [
+  {
+   "id": "ground",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    8.43,
+    13.31
+   ],
+   "joists": "x",
+   "look": "wood:int_floor"
+  },
+  {
+   "id": "attic",
+   "level": "upper",
+   "rect": [
+    0.02,
+    0.1,
+    8.51,
+    13.31
+   ],
+   "joists": "x",
+   "joist": "ceiling_joist",
+   "breaks": [],
+   "_doc": "the loft over the nave: the ceiling's joists, boarded"
+  }
+ ],
+ "ceilings": {
+  "finish": "beaded",
+  "rooms": "all"
+ },
+ "inside_finish": {
+  "boards": "judged",
+  "skirting": 0.2,
+  "regions": [
+   {
+    "rect": [
+     0.1,
+     0.1,
+     8.43,
+     13.31
+    ],
+    "y": [
+     0.95,
+     5.55
+    ],
+    "finish": "plaster_whitewash",
+    "_why": "the chimney's breast"
+   }
+  ]
+ },
+ "walls": [
+  {
+   "_doc": "The front, to the lane: the gable over it; the tower's porch against it (its door into the nave, two leaves); a pointed window either side.",
+   "id": "front",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     8.53,
+     0
+    ]
+   ],
+   "out": "-z",
+   "top": "gable",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 4.265,
+     "width": 1.5,
+     "height": 2.7,
+     "leaf": "inward",
+     "_doc": "the nave's doors from the tower porch"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.3,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 7.2299999999999995,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The back, behind the pulpit: one tall pointed window over it, the gable above.",
+   "id": "back",
+   "line": [
+    [
+     0,
+     13.41
+    ],
+    [
+     8.53,
+     13.41
+    ]
+   ],
+   "out": "+z",
+   "top": "gable",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 8.43,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.265,
+     "width": 0.92,
+     "height": 2.4,
+     "sill": 1.3,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The east side, to the yard: four pointed windows.",
+   "id": "yard",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     13.41
+    ]
+   ],
+   "out": "-x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 13.31,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 13.31,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.6,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 5.4,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 8.2,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 11.0,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The west side, to the lane: four pointed windows (the weather side: the paint is worst here).",
+   "id": "lane",
+   "line": [
+    [
+     8.53,
+     0
+    ],
+    [
+     8.53,
+     13.41
+    ]
+   ],
+   "out": "+x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 13.31,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 13.31,
+     "finish": "rough"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.6,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 5.4,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 8.2,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 11.0,
+     "width": 0.92,
+     "height": 2.6,
+     "sill": 1.0,
+     "lights": 8,
+     "pointed": true,
+     "rise": 0.55
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The tower's front: its double doors onto the steps, clapboard to the belfry's floor.",
+   "id": "tower_front",
+   "line": [
+    [
+     2.4349999999999996,
+     -3.66
+    ],
+    [
+     6.095,
+     -3.66
+    ]
+   ],
+   "out": "-z",
+   "top": 7.4,
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 3.56,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 1.83,
+     "width": 1.5,
+     "height": 2.7,
+     "leaf": "inward"
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The tower's east side: a small window to the porch.",
+   "id": "tower_e",
+   "line": [
+    [
+     2.4349999999999996,
+     -3.66
+    ],
+    [
+     2.4349999999999996,
+     0.1
+    ]
+   ],
+   "out": "-x",
+   "top": 7.4,
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 3.66,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.83,
+     "width": 0.6,
+     "height": 1.2,
+     "sill": 1.4,
+     "lights": 2
+    }
+   ],
+   "ribbon": false
+  },
+  {
+   "_doc": "The tower's west side.",
+   "id": "tower_w",
+   "line": [
+    [
+     6.095,
+     -3.66
+    ],
+    [
+     6.095,
+     0.1
+    ]
+   ],
+   "out": "+x",
+   "top": 7.4,
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 3.66,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.83,
+     "width": 0.6,
+     "height": 1.2,
+     "sill": 1.4,
+     "lights": 2
+    }
+   ],
+   "ribbon": false
+  }
+ ],
+ "tower": {
+  "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (10 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, four posts, louvres, the bell beams, a pyramidal spire of shingles on hip rafters, an iron cross. The top about 15.6 m over the ground (valley.json's bell_tower: 15 m).",
+  "x": [
+   2.4349999999999996,
+   6.095
+  ],
+  "z": -3.66,
+  "belfry_floor": 7.4,
+  "belfry_top": 10.6,
+  "spire": 5.2,
+  "post": 0.15,
+  "louvre": {
+   "from": 8.0,
+   "to": 10.299999999999999,
+   "step": 0.13,
+   "gap": [
+    3.715,
+    4.8149999999999995,
+    8.25,
+    10.2
+   ]
+  },
+  "shingle": 0.22,
+  "finial": 0.9
+ },
+ "stairs": [
+  {
+   "_doc": "the three plank steps to the tower's door (7 in risers, 11 in treads), as wide as the doors with room on either side",
+   "id": "front",
+   "head": [
+    3.1649999999999996,
+    -3.66
+   ],
+   "dir": "+z",
+   "width": 2.2,
+   "from": 0.0,
+   "to": "ground",
+   "risers": 3,
+   "going": 0.28,
+   "wood": "painted_white"
+  }
+ ],
+ "stage": {
+  "_doc": "the chancel's platform, a step up (a foot) across the back, with a step down at its front: legs, bearers and joists, the boards, a boarded skirt.",
+  "level": "ground",
+  "rect": [
+   1.6649999999999996,
+   10.71,
+   6.865,
+   13.290000000000001
+  ],
+  "height": 0.3,
+  "leg": 0.1,
+  "bearer": [
+   0.1,
+   0.1
+  ],
+  "joist": [
+   0.05,
+   0.1
+  ],
+  "spacing": 0.406,
+  "legs_every": 1.25,
+  "bearers": 3,
+  "skirt": [
+   "front",
+   "+x",
+   "-x"
+  ],
+  "steps": [
+   {
+    "id": "chancel",
+    "head": [
+     3.2649999999999997,
+     10.71
+    ],
+    "dir": "+z",
+    "width": 2.0,
+    "risers": 2,
+    "going": 0.28
+   }
+  ]
+ },
+ "rooms": [
+  {
+   "id": "porch",
+   "level": "ground",
+   "rect": [
+    2.5349999999999997,
+    -3.56,
+    5.995,
+    0.0
+   ],
+   "use": "the bell rope and the ladder to the belfry; where the families greet and the coffin waits"
+  },
+  {
+   "id": "nave",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    8.43,
+    9.4
+   ],
+   "use": "services: twelve pews either side of the aisle, the stove in the corner; weddings and funerals; the school's classes"
+  },
+  {
+   "id": "chancel",
+   "level": "ground",
+   "rect": [
+    1.6649999999999996,
+    9.5,
+    6.865,
+    13.290000000000001
+   ],
+   "use": "the preacher at the pulpit on the platform, the hymn board beside it, the altar rail across the front"
+  }
+ ],
+ "chimneys": {
+  "_doc": "one brick (the game's stone until a brick is made) chimney in the nave's rear east corner for the stove; its top a metre over the roof beside it.",
+  "wood": "stone",
+  "list": [
+   {
+    "id": "stove",
+    "at": [
+     0.72,
+     12.95
+    ],
+    "size": 0.34,
+    "over_ridge": -1.95
+   }
+  ]
+ },
+ "lamps": {
+  "_doc": "oil lamps on brackets down both walls, hung by the clock (#824); the pulpit's, over the platform, casts shadows.",
+  "kit": [
+   {
+    "room": "chancel",
+    "kit": "reflector_lamp",
+    "wall": "back",
+    "level": "ground",
+    "at": 2.5649999999999995,
+    "height": 2.0,
+    "energy": 1.6,
+    "reach": 7.0,
+    "shadows": true,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "chancel",
+    "kit": "reflector_lamp",
+    "wall": "back",
+    "level": "ground",
+    "at": 5.965,
+    "height": 2.0,
+    "energy": 1.4,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "nave",
+    "kit": "reflector_lamp",
+    "wall": "yard",
+    "level": "ground",
+    "at": 4.0,
+    "height": 2.0,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "nave",
+    "kit": "reflector_lamp",
+    "wall": "lane",
+    "level": "ground",
+    "at": 4.0,
+    "height": 2.0,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "nave",
+    "kit": "reflector_lamp",
+    "wall": "yard",
+    "level": "ground",
+    "at": 9.6,
+    "height": 2.0,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "nave",
+    "kit": "reflector_lamp",
+    "wall": "lane",
+    "level": "ground",
+    "at": 9.6,
+    "height": 2.0,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   }
+  ]
+ },
+ "light": {
+  "_doc": "A tall room of eight long windows: the daylight comes in at them (RoomLight's window spots); the fill low and near neutral.",
+  "fill": [
+   0.62,
+   0.6,
+   0.57
+  ],
+  "window_day": 16.0,
+  "day_fill": 0.22
+ },
+ "ladders": [
+  {
+   "_doc": "in the tower's porch on the nave front wall's face (its outside, the porch's inside) up to the belfry's hatch",
+   "id": "belfry",
+   "wall": "front",
+   "at": 5.14,
+   "from": 0.95,
+   "to": 7.66,
+   "width": 0.45,
+   "band": 2
+  }
+ ],
+ "furniture": [],
+ "fixtures": [],
+ "use_points": [
+  {
+   "id": "porch_stand",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    4.265,
+    0.95,
+    -1.4
+   ],
+   "look": [
+    4.265,
+    -8.0
+   ]
+  },
+  {
+   "id": "door_greet",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    4.265,
+    0.95,
+    1.5
+   ],
+   "look": [
+    4.265,
+    13.41
+   ]
+  },
+  {
+   "id": "preach",
+   "prop": "pulpit",
+   "use": "preach",
+   "who": "preacher",
+   "at": [
+    4.265,
+    1.25,
+    12.21
+   ],
+   "look": [
+    4.265,
+    3.0
+   ]
+  },
+  {
+   "id": "aisle_mid",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    4.265,
+    0.95,
+    6.5
+   ],
+   "look": [
+    4.265,
+    13.41
+   ]
+  },
+  {
+   "id": "sit_front_e",
+   "prop": "pew_E5",
+   "use": "sit",
+   "who": "anyone",
+   "at": [
+    1.95,
+    0.95,
+    8.75
+   ],
+   "look": [
+    1.95,
+    13.41
+   ]
+  },
+  {
+   "id": "sit_front_w",
+   "prop": "pew_W5",
+   "use": "sit",
+   "who": "anyone",
+   "at": [
+    6.579999999999999,
+    0.95,
+    8.75
+   ],
+   "look": [
+    6.579999999999999,
+    13.41
+   ]
+  },
+  {
+   "id": "sit_mid_e",
+   "prop": "pew_E3",
+   "use": "sit",
+   "who": "anyone",
+   "at": [
+    1.95,
+    0.95,
+    6.6
+   ],
+   "look": [
+    1.95,
+    13.41
+   ]
+  },
+  {
+   "id": "sit_mid_w",
+   "prop": "pew_W3",
+   "use": "sit",
+   "who": "anyone",
+   "at": [
+    6.579999999999999,
+    0.95,
+    6.6
+   ],
+   "look": [
+    6.579999999999999,
+    13.41
+   ]
+  },
+  {
+   "id": "sit_back_e",
+   "prop": "pew_E0",
+   "use": "sit",
+   "who": "anyone",
+   "at": [
+    1.95,
+    0.95,
+    3.5
+   ],
+   "look": [
+    1.95,
+    13.41
+   ]
+  },
+  {
+   "id": "sit_back_w",
+   "prop": "pew_W0",
+   "use": "sit",
+   "who": "anyone",
+   "at": [
+    6.579999999999999,
+    0.95,
+    3.5
+   ],
+   "look": [
+    6.579999999999999,
+    13.41
+   ]
+  },
+  {
+   "id": "tend_stove",
+   "prop": "stove",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    1.0,
+    0.95,
+    10.46
+   ],
+   "look": [
+    1.0,
+    11.61
+   ]
+  },
+  {
+   "id": "kneel",
+   "use": "kneel",
+   "who": "anyone",
+   "at": [
+    4.265,
+    0.95,
+    9.95
+   ],
+   "look": [
+    4.265,
+    13.41
+   ]
+  }
+ ],
+ "dressing": {
+  "_doc": "the prop lab's church batch (tools/props/church.py): pews in two blocks of six, the pulpit and hymn stand on the chancel's platform, the altar rail in two halves with the gate between, the stove; placed by the build (SpecBuilding._dressing).",
+  "batches": {
+   "C1": [
+    {
+     "id": "pew_E0",
+     "kit": "pew",
+     "at": [
+      1.95,
+      0.0,
+      3.5
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_E1",
+     "kit": "pew",
+     "at": [
+      1.95,
+      0.0,
+      4.55
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_E2",
+     "kit": "pew",
+     "at": [
+      1.95,
+      0.0,
+      5.6
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_E3",
+     "kit": "pew",
+     "at": [
+      1.95,
+      0.0,
+      6.65
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_E4",
+     "kit": "pew",
+     "at": [
+      1.95,
+      0.0,
+      7.7
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_E5",
+     "kit": "pew",
+     "at": [
+      1.95,
+      0.0,
+      8.75
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_W0",
+     "kit": "pew",
+     "at": [
+      6.58,
+      0.0,
+      3.5
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_W1",
+     "kit": "pew",
+     "at": [
+      6.58,
+      0.0,
+      4.55
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_W2",
+     "kit": "pew",
+     "at": [
+      6.58,
+      0.0,
+      5.6
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_W3",
+     "kit": "pew",
+     "at": [
+      6.58,
+      0.0,
+      6.65
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_W4",
+     "kit": "pew",
+     "at": [
+      6.58,
+      0.0,
+      7.7
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pew_W5",
+     "kit": "pew",
+     "at": [
+      6.58,
+      0.0,
+      8.75
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pulpit",
+     "kit": "pulpit",
+     "at": [
+      4.265,
+      0.3,
+      12.41
+     ],
+     "facing": 180,
+     "use": "preach"
+    },
+    {
+     "id": "hymn",
+     "kit": "hymn_stand",
+     "at": [
+      2.2649999999999997,
+      0.3,
+      12.31
+     ],
+     "facing": 180
+    },
+    {
+     "id": "rail_a",
+     "kit": "altar_rail",
+     "at": [
+      3.0149999999999997,
+      0.0,
+      9.7
+     ],
+     "facing": 0
+    },
+    {
+     "id": "rail_b",
+     "kit": "altar_rail",
+     "at": [
+      5.515,
+      0.0,
+      9.7
+     ],
+     "facing": 0
+    },
+    {
+     "id": "bell",
+     "kit": "church_bell",
+     "at": [
+      4.265,
+      6.71,
+      -1.83
+     ],
+     "facing": 0,
+     "use": "the church bell on its stand in the belfry, over the porch"
+    },
+    {
+     "id": "stove",
+     "kit": "box_stove",
+     "at": [
+      1.0,
+      0.0,
+      11.61
+     ],
+     "facing": 90,
+     "use": "tend_stove"
+    }
+   ]
+  }
+ },
+ "materials": {
+  "wear": {
+   "use": 0.55,
+   "dings": 0.0,
+   "_why": "a Sunday crowd and a weekday school: the aisle and the pews' ends worn; kept clean"
+  },
+  "_doc": "Sean, 2026-11-10 (#765): finished unpainted for now on swatches the materials judge passed (#721; docs/screenshots/judge/2026-11-10_material_r3e: R1 new and a few years, C1 old, F2 all three ages), each surface taking its finish from the library by name (spec_building.gd finish()): a finish's `want` (the paint he needs) is used the moment the library has that entry passed at that age; until then its `use`. Stone, brick, glass and the sign aren't the library's (yet).",
+  "finishes": {
+   "exterior": {
+    "want": {
+     "entry": "painted_white_lap",
+     "age": "old"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "white lead on clapboard, two weathered years: chalked, peeling on the west"
+   },
+   "trim": {
+    "want": {
+     "entry": "painted_white_lap",
+     "age": "old"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "all white: casings, corner boards, sashes, doors"
+   },
+   "inside": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "pale painted beaded boards (cream in the office, grey-green in the surgery)"
+   },
+   "ceiling": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "floor": {
+    "want": {
+     "entry": "floor_fir_worn",
+     "age": "old",
+     "role": "floor"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "floor"
+    },
+    "_why": "worn pine boards, the aisle paler (traffic map), dark under the pews"
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "rough-sawn timber where it shows: the loft's rafters and joists, the porch's frame, the roof boards' undersides"
+   },
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the roof boards, the porch's and stoop's decks, steps, the fence, the ladder"
+   },
+   "roof": {
+    "use": {
+     "entry": "shingle_pine",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "silver-grey weathered sawn shingles, split from the butts (SH1, judged 2026-11-22)"
+   }
+  },
+  "surfaces": [
+   [
+    "roof/board",
+    "roof"
+   ],
+   [
+    "tower/belfry/skirt",
+    "roof"
+   ],
+   [
+    "tower/spire/shingle",
+    "roof"
+   ],
+   [
+    "tower/belfry/louvre",
+    "trim"
+   ],
+   [
+    "floor/tower/board",
+    "floor"
+   ],
+   [
+    "tower_front/door_",
+    "trim"
+   ],
+   [
+    "front/door_",
+    "trim"
+   ],
+   [
+    "tower/",
+    "exterior"
+   ],
+   [
+    "stage/",
+    "rough"
+   ],
+   [
+    "/casing",
+    "trim"
+   ],
+   [
+    "/skirt",
+    "trim"
+   ],
+   [
+    "/window_",
+    "trim"
+   ],
+   [
+    "/siding/",
+    "exterior"
+   ],
+   [
+    "/corner_",
+    "trim"
+   ],
+   [
+    "/trim_",
+    "trim"
+   ],
+   [
+    "/transom_bar",
+    "trim"
+   ],
+   [
+    "roof/ridge_cap",
+    "trim"
+   ],
+   [
+    "/in_ground/",
+    "inside"
+   ],
+   [
+    "/in_upper/",
+    "inside"
+   ],
+   [
+    "/m/board/",
+    "inside"
+   ],
+   [
+    "/p/board/",
+    "inside"
+   ],
+   [
+    "/m/casing",
+    "inside"
+   ],
+   [
+    "/p/casing",
+    "inside"
+   ],
+   [
+    "/door_",
+    "inside"
+   ],
+   [
+    "ceiling/",
+    "ceiling"
+   ],
+   [
+    "floor/ground/board",
+    "floor"
+   ],
+   [
+    "roof/board",
+    "rough"
+   ],
+   [
+    "stoop/",
+    "rough"
+   ],
+   [
+    "fence/",
+    "rough"
+   ],
+   [
+    "stair/",
+    "rough"
+   ],
+   [
+    "ladder/",
+    "rough"
+   ],
+   [
+    "floor/attic/board",
+    "floor"
+   ]
+  ],
+  "floor": "wood:int_floor",
+  "wall_boards": "int_boards",
+  "woodwork": "wood:int_timber",
+  "timber": "wood:int_timber",
+  "trim_outside": "painted_white",
+  "roof": "weathered_pine",
+  "rough": "framing",
+  "chimney": "stone",
+  "stone": {
+   "want": {
+    "entry": "rubble_stone",
+    "age": "few"
+   },
+   "inside_age": "few",
+   "dressed": true,
+   "_why": "#857 pick 1a (the 'metal post', #844): his two chimneys plastered and whitewashed where they pass through his rooms (a chimney breast), dressed stone above the roof"
+  },
+  "fence": "painted_white"
+ },
+ "sources": [
+  "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021), ch. 5 and 7: the game's timber figures and checks.gd's sizing of every span.",
+  "William E. Bell, Carpentry Made Easy (1858): the balloon frame, studs at 16 in sill to plate, girders on piers.",
+  "George E. Woodward, Woodward's Country Homes (1865), 'Balloon Frames' (p.151); Woodward's National Architect (1869): sills, corner posts, partitions of 3x4 at 12-16 in.",
+  "Palliser, Palliser & Co., American Cottage Homes (1878): a cottage's storey heights and specification.",
+  "Fred T. Hodgson, The Carpenters' Steel Square and its Uses (1883): common rafters, the birdsmouth, the collar beam.",
+  "D. W. Cathell, The Physician Himself (1882): the office kept neat, his library on show, a second door so a patient leaves without crossing the waiting room.",
+  "Dr. Maghee's office, Rawlins, Wyoming, 1880s photograph (Carbon County Museum 1955.282.0025): a small clapboard doctor's office with a gable front and an off-centre door.",
+  "Operating tables: factory-made ones (Allison, 'Perfection') are of the 1890s; an 1882 country surgeon's was a plain wooden table (ECU 13885; Dittrick Museum).",
+  "Light for surgery: daylight from big windows, north preferred, lamps at night (Farrar 1880; Saint Marys Hospital's 1889 operating room).",
+  "History Colorado, 'False Front Commercial': the type the doctor's isn't (Sean chose the gable front, 2026-11-10).",
+  "All references: REFERENCES.md (found by search; none could be opened from the session: to be checked)."
+ ]
+}

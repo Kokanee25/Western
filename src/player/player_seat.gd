@@ -62,10 +62,13 @@ func held() -> bool:
 func chair_here() -> KitProp:
 	if player == null or not player.is_inside_tree() or player.is_crawling or player.ladder != null:
 		return null
+	# A man down by you, or one by the collar, has E first (PlayerCarry, #1057).
+	if player.carry != null and (player.carry.carrying() or player.carry.near_man() != null):
+		return null
 	var t := player.tuning
 	var c := Seating.free_chair_near(player.get_tree(), player.global_position + Vector3.UP * 0.47, t.seat_reach + 0.5)
-	if c == null:
-		return null
+	if c == null or String(c.kit_id).contains("bed"):
+		return null  # (a bed's E is the sleep's, PlayerSleep: saloon B's plank beds took it, #1154)
 	var to := c.seat_position() - player.global_position
 	to.y = 0.0
 	if to.length() > t.seat_reach or absf(c.seat_position().y - 0.47 - player.global_position.y) > 0.6:
@@ -116,6 +119,10 @@ func use() -> StringName:
 			return last
 		stand()
 		return last
+	# A man down by you has E first, asked now, not as last looked (PlayerCarry takes him on E's
+	# release; its look a few times a second may not have seen him yet on the press).
+	if player.carry != null and player.carry.man_here() != null:
+		return &""
 	var c := chair_here()
 	if c != null and sit(c):
 		return last

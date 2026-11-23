@@ -49,6 +49,11 @@ var deeds: PlayerDeeds
 var shove: PlayerShove
 ## Sitting in a kit chair (E by a free one; #766).
 var seat: PlayerSeat
+## A downed man by the collar (PlayerCarry, #1057) and a door banged on (PlayerKnock).
+var carry: PlayerCarry
+var knock: PlayerKnock
+## Sleeping in a bed: the night passes and the game is saved (E at a bed; #1148).
+var sleep: PlayerSleep
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -172,6 +177,18 @@ func _arm() -> void:
 	seat.name = "Seat"
 	seat.player = self
 	add_child(seat)
+	carry = PlayerCarry.new()
+	carry.name = "Carry"
+	carry.player = self
+	add_child(carry)
+	knock = PlayerKnock.new()
+	knock.name = "Knock"
+	knock.player = self
+	add_child(knock)
+	sleep = PlayerSleep.new()
+	sleep.name = "Sleep"
+	sleep.player = self
+	add_child(sleep)
 
 
 func revolver() -> RevolverViewmodel:
@@ -375,6 +392,10 @@ func _physics_step(delta: float) -> void:
 		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump and not _jump_spent
 		_jump_spent = false
 	wants_run = wants_run and can_sprint
+	if carry and carry.carrying():
+		# A man over your shoulder: a walk, no run, no jump (PlayerCarry).
+		wants_run = false
+		wants_jump = false
 	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())
 	var wants_crawl := force_crawl or (input_enabled and _crawl_toggled)
 
@@ -400,17 +421,20 @@ func _physics_step(delta: float) -> void:
 		return
 
 	var speed := tuning.walk_speed
+	var hauling := carry != null and carry.carrying()
 	if is_crawling:
 		speed = tuning.crawl_speed
-	elif is_crouching:
+	elif is_crouching and not hauling:
+		# (A man over your shoulder, you go at the carry's pace bent or not: a crouch forced by a bad
+		# leg doesn't slow it again, #1125's 3-6 m in 30 s; the leg itself does, by move_factor.)
 		speed = tuning.crouch_speed
 	elif is_running:
 		# Blown from running, the run sags.
 		var blown := clampf((composure.winded - 0.5) * 2.0, 0.0, 1.0) if composure else 0.0
 		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
-	speed *= move_factor * burden * (shove.pace() if shove else 1.0)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
+	speed *= move_factor * burden * (shove.pace() if shove else 1.0) * (carry.pace(wish) if carry else 1.0)
 	var target := Vector2(wish.x, wish.z) * speed
 
 	var on_floor := is_on_floor()

@@ -52,7 +52,7 @@ func step_chore(delta: float, free: bool) -> bool:
 		# Earl stood on the wreck for minutes).
 		if not free or not wanted or man.limp:
 			return false
-		var other := Seating.free_chair_near(man.get_tree(), man.global_position + Vector3.UP * 0.47, ANOTHER)
+		var other := Seating.free_chair_near(man.get_tree(), man.global_position + Vector3.UP * 0.47, ANOTHER, man)
 		if other == null:
 			return false
 		chair = other

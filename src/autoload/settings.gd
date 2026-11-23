@@ -15,7 +15,7 @@ const RESOLUTION_PRESETS: Array[Vector2i] = [
 ]
 ## Bumped when the default look changes: a settings file from before keeps the player's choices
 ## but moves an old default resolution to the new one.
-const LOOK_VERSION := 7
+const LOOK_VERSION := 8
 ## The finish (docs/ART_REVIEW.md §8.7): block edges softened by about a render pixel
 ## (pixel_screen.gdshader `finish_soften`) and a faint gradient of the real lighting across each
 ## tile (tiles.gdshaderinc `tile_gradient`). Off by default since the screen mosaic (2026-10-03):
@@ -91,7 +91,8 @@ var quantise_once := false
 ## The real look (docs/briefs/red-dead.md R0; RealLook, src/render/real_look.gd): the game drawn
 ## realistically (smooth filtered textures, no texel squares, mosaic or quantising, anti-aliased,
 ## AgX, SSIL, SDFGI outdoors, relief). The default since Sean's pick (#641, 2026-11-08; a settings
-## file from before is moved to it once, look_version 7); the look panel (N) turns it off, saved.
+## file from before is moved to it once, look_version 7, and again at 8 for the valley start, G8);
+## the look panel (N) turns it off, saved.
 ## `--real` / `--painted` on the command line for one run, unsaved.
 var real_look := true
 var surface_blocks := false
@@ -153,11 +154,13 @@ var library_motion := true
 ## has looked; not saved. For one run `-- --room-light=on|off`; the look address
 ## `settings.room_light` (the screenshots' --variants, the bridge's `set`).
 var room_light := false
-## Which world the game loads (docs/briefs/valley-plan.md §12, G1): `town`, the old Main Street
-## (scenes/test_street.tscn, the default), or `valley`, the new valley being built beside it from
-## config/valley.json (scenes/valley.tscn; ValleyLayout). Only one is ever loaded: main.tscn
-## swaps its street for the valley before either is in the tree (`main.gd`). Not saved: for one
-## run `-- --world=valley`; the bridge's `world` switches and reloads. G8 flips the default.
+## Which world the game loads (docs/briefs/valley-plan.md §12, G1): `valley`, the new town
+## (config/valley.json, scenes/valley.tscn; ValleyLayout), or `town`, the old Main Street
+## (scenes/test_street.tscn). Only one is ever loaded: main.tscn swaps its street for the valley
+## before either is in the tree (`main.gd`). G8 (#1098, Sean 2026-11-19): a plain start of the
+## game is the valley. A script run (`-s`: the tests, screenshots, goldens, tour, soak, probe,
+## benches, all built on the old street) still gets the town unless it asks. Not saved: for one
+## run `-- --world=town|valley`; the bridge's `world` switches and reloads.
 const WORLDS: Array[StringName] = [&"town", &"valley"]
 ## Read from the command line as Settings is made, not in `_ready`: the main scene enters the tree
 ## (and main.gd picks its world) before the autoloads' `_ready`.
@@ -230,15 +233,26 @@ func _ready() -> void:
 		add_child(SoftBodyDraw.new())
 
 
-## `-- --world=NAME`, or the town.
+## `-- --world=NAME`, or the valley (a script run: the town).
 static func _world_asked() -> StringName:
-	for a in OS.get_cmdline_user_args():
+	var engine_args := OS.get_cmdline_args()
+	return world_for(OS.get_cmdline_user_args(), "-s" in engine_args or "--script" in engine_args)
+
+
+## The world these user arguments ask for; with none, the valley for the game and the town for a
+## script run (G8, #1098), but the valley for any `--mission=` but the farmhouse (#1125: the story's
+## missions are only in the valley; the farmhouse is in both).
+static func world_for(user_args: PackedStringArray, script_run: bool) -> StringName:
+	var valley_mission := false
+	for a in user_args:
 		if a.begins_with("--world="):
 			var w := StringName(a.substr(8))
 			if w in WORLDS:
 				return w
 			push_error("Settings: no world %s (town or valley)" % w)
-	return &"town"
+		elif a.begins_with("--mission=") and a != "--mission=farmhouse":
+			valley_mission = true
+	return &"town" if script_run and not valley_mission else &"valley"
 
 
 ## The world the next load builds (the running scene keeps what it has: reload it to change).
@@ -385,6 +399,10 @@ func load_from_disk() -> void:
 	real_look = bool(cfg.get_value("video", "real_look", real_look))
 	# 7: the real look the default (#641): saved off while the painted look was the default.
 	if look_version < 7:
+		real_look = true
+	# 8: the plain start goes to the valley under the real look and its sky (G8, #1098, Sean
+	# 2026-11-19): a file that had it off is moved back on once.
+	if look_version < 8:
 		real_look = true
 	_apply_quantise()
 	_apply_texels()

@@ -249,6 +249,9 @@ static func report(tree: SceneTree, tick: int, events: Array) -> Dictionary:
 		"scene": tree.current_scene.scene_file_path if tree.current_scene else "",
 		"events": events,
 	}
+	var vf := tree.get_first_node_in_group(&"valley_folk") as ValleyFolk
+	if vf:
+		out["town_seed"] = vf.run_seed  # the town's run (#1167): replay.gd starts the same one
 	if player:
 		out["player"] = {"at": _arr(player.global_position), "yaw": snappedf(rad_to_deg(player.rotation.y), 0.1),
 			"pitch": snappedf(player.get_pitch_degrees(), 0.1),

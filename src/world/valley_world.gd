@@ -47,6 +47,12 @@ static var farm_mission_default := not "--no-farm-mission" in OS.get_cmdline_use
 static var buildings_default := not "--no-buildings" in OS.get_cmdline_user_args()
 ## `-- --mission=sheriff`: the first story mission from dawn at Harlan's place (#746).
 const SHERIFF_ARG := "--mission=sheriff"
+## `-- --mission=no_law`: No Law's first night (#1125: there was no flag, so it never started): the
+## clock at `NO_LAW_HOUR`, a quarter hour of game time before the murder's (config/moments/
+## no_law_murder.json, 22:00), you unarmed in the saloon yard facing the card table, the folk at
+## their night posts (Earl at the table from 19:30).
+const NO_LAW_ARG := "--mission=no_law"
+const NO_LAW_HOUR := 21.75
 ## `-- --mission=sheriff_dies [--care=good|poor|left]`: No Law's sheriff's last day alone (#796:
 ## SheriffDies, the morning after set up, you on Main Street).
 const SHERIFF_DIES_ARG := "--mission=sheriff_dies"
@@ -65,10 +71,14 @@ const NO_JUSTICE_HIDEOUT_ARG := "--mission=no_justice_hideout"
 const NO_JUSTICE_CABIN_ARG := "--mission=no_justice_cabin"
 ## The coach heist in the coach cut (#794: CoachCut, `-- --mission=coach`).
 var coach_cut: CoachCut
+## "Ride there" (#1120): the hitching rails, your horse and the ride list (RideThere).
+var ride: RideThere
 ## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
 ## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
 ## folk's set (their men are built a frame later: `folk.build_ms`).
 var load_ms := {}
+## A save's load waits this many physics frames for the valley's folk (built a frame after it).
+const LOAD_AFTER_FRAMES := 15
 
 
 func _ready() -> void:
@@ -97,7 +107,16 @@ func _ready() -> void:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
 		u = _took(&"markers", u)
 		_make_buildings()
+		_make_church()
+		_make_cemetery()
+		_make_homesteads()
 		u = _took(&"buildings", u)
+		# A blast's collapse a slice a frame (Structure.settle hands it on): the valley has no
+		# FireSystem, whose queue it was; saloon B's three sticks were ~600 ms on one frame (#1128).
+		if SettleQueue.find(get_tree()) == null:
+			var q := SettleQueue.new()
+			q.name = &"SettleQueue"
+			add_child(q)
 		_warm_buildings.call_deferred()
 		if markers.town and ValleyFolk.folk_default:
 			folk = ValleyFolk.new()
@@ -106,16 +125,42 @@ func _ready() -> void:
 			folk.halls = buildings
 			add_child(folk)
 			u = _took(&"folk", u)
+		# "Ride there" (#1120): a hitching rail at each place you can ride to, your horse at the nearest.
+		ride = RideThere.new()
+		ride.name = "RideThere"
+		ride.layout = layout
+		ride.town = markers.town
+		add_child(ride)
+		ride.add_places(markers.places)
+		u = _took(&"ride", u)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)
+	if not SaveGame.pending.is_empty():
+		# A save loaded (#1148: Continue, the bridge's `load`): it's put on once the folk are in, under
+		# a black cover; no mission starts from the command line or a retry's flag.
+		_load_pending.call_deferred()
+		return
+	if ContinueCard.offered():
+		var card := ContinueCard.new()
+		card.name = &"ContinueCard"
+		add_child(card)
+	else:
+		ContinueCard.done = true
 	if SHERIFF_ARG in OS.get_cmdline_user_args():
 		_start_sheriff.call_deferred()
+	if NO_LAW_ARG in OS.get_cmdline_user_args():
+		_start_no_law.call_deferred()
 	if SHERIFF_DIES_ARG in OS.get_cmdline_user_args():
 		_start_sheriff_dies.call_deferred()
 	if FUNERAL_ARG in OS.get_cmdline_user_args():
 		_start_funeral.call_deferred()
-	if NoJusticeHideout.retry_on_load:
+	if JoeLost.restart != &"":
+		# Enter after Joe was lost to you (#1125): that act of No Justice again.
+		var again := JoeLost.restart
+		JoeLost.restart = &""
+		_start_act_again.call_deferred(again)
+	elif NoJusticeHideout.retry_on_load:
 		# Its retry (Enter after you went down there): the act again on the slope above it, whatever
 		# mission the game was started on.
 		NoJusticeHideout.retry_on_load = false
@@ -131,6 +176,49 @@ func _ready() -> void:
 		_start_coach_cut.call_deferred()
 
 
+## The save SaveGame.load_slot left (#1148), put on this fresh valley once its folk are built (the
+## save's test waits the same), under black till it's on; then the black fades. Capture and load are
+## one frame each (the brief: 280-360 ms here), hidden by the cover.
+func _load_pending() -> void:
+	var d := SaveGame.pending
+	SaveGame.pending = {}
+	ContinueCard.done = true
+	var cover := CanvasLayer.new()
+	cover.layer = 96
+	cover.name = &"LoadCover"
+	var black := ColorRect.new()
+	black.color = Color.BLACK
+	black.set_anchors_preset(Control.PRESET_FULL_RECT)
+	black.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cover.add_child(black)
+	add_child(cover)
+	var p := get_node_or_null(^"Player") as Player
+	if p:
+		p.input_enabled = false
+	for i in LOAD_AFTER_FRAMES:
+		await get_tree().physics_frame
+	var report := SaveGame.apply(get_tree(), d)
+	report["day"] = int((d.get("clock", {}) as Dictionary).get("day", 0))
+	SaveGame.last_load = report
+	if not (report.missed as Array).is_empty():
+		push_warning("the save's load missed: %s" % [report.missed])
+	if folk:
+		folk._look = 0.0
+	for i in 3:
+		await get_tree().physics_frame
+	if p and is_instance_valid(p):
+		p.input_enabled = true
+		if p.wounds:
+			var clock := get_node_or_null(^"DayCycle") as DayCycle
+			p.wounds.say("Day %d, %s." % [clock.day, clock.get_clock_text()] if clock else "", 3.0)
+	var t := 0.0
+	while t < 0.6:
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		black.color.a = 1.0 - clampf(t / 0.6, 0.0, 1.0)
+	cover.queue_free()
+
+
 ## The sheriff on the road (#746), once the valley's in (its places, the ground under you). The
 ## story's Harlan has no revolver till the dying sheriff gives him his (No Law, #796).
 func _start_sheriff() -> void:
@@ -138,6 +226,15 @@ func _start_sheriff() -> void:
 		await get_tree().physics_frame
 	_unarmed()
 	Moment.start_named(&"the_sheriff", self, null)
+
+
+## No Law's first night (#1125), once the folk are built: the clock, you in the yard, unarmed.
+func _start_no_law() -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	_unarmed()
+	if folk:
+		folk.set_up_no_law(NO_LAW_HOUR)
 
 
 ## No Law's sheriff's last day alone (#796), once the folk are built.
@@ -176,6 +273,13 @@ func _start_no_justice_hideout(arrive := false) -> void:
 	for i in 5:
 		await get_tree().physics_frame
 	Moment.start_named(&"no_justice_hideout", self, null, {"set_up": true, "arrive": arrive or "--arrive" in OS.get_cmdline_user_args()})
+
+
+## An act of No Justice again (JoeLost's Enter, #1125), set up as its own flag starts it.
+func _start_act_again(act_name: StringName) -> void:
+	for i in 5:
+		await get_tree().physics_frame
+	Moment.start_named(act_name, self, null, {"set_up": true, "arrive": true})
 
 
 ## No Justice's cabin (#966), once the folk are built.
@@ -278,13 +382,73 @@ func _make_buildings() -> void:
 			b.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sp.lot.get("facing", 0.0)))), Vector3(float(at[0]), y, float(at[2])))
 			add_child(b)
 			buildings[String(l.id)] = b
+			# A cellar a man walks down into (#1174, the undertaker's, art's): its ground dug out.
+			if (sp.get("cellar", {}) as Dictionary).get("dig", false):
+				preload("res://src/structures/cellar_dig.gd").dig(get_node_or_null(^"Ground") as Ground, b, sp)
 			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
 			if not sw.is_empty():
 				_side_walk(String(l.id), b, sw, floor_top)
 
 
+## The church on its rise north-west of town (#1142): the building lab's builder on valley.json's `church`
+## place (its `building.spec`), set where the spec's lot says, facing the lane, on the pad the bake dug.
+func _make_church() -> void:
+	if markers == null or markers.town == null or not buildings_default:
+		return
+	var place := layout.place("church")
+	var path := String((place.get("building", {}) as Dictionary).get("spec", ""))
+	if path == "":
+		return
+	var b: Node3D = load("res://src/structures/spec_building.gd").new()
+	var sp: Dictionary = b.load_spec(path)
+	if not sp.has("lot") or not sp.has("levels"):
+		push_error("ValleyWorld: the church's spec %s didn't load" % path)
+		b.free()
+		return
+	b.set(&"spec_path", path)
+	b.set(&"structure_id", &"valley_church")
+	b.name = "Building_church"
+	var at: Array = (sp.lot as Dictionary).at
+	b.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sp.lot.get("facing", 0.0)))), Vector3(float(at[0]), float(at[1]), float(at[2])))
+	add_child(b)
+	buildings["church"] = b
+
+
+## The cemetery by the church (#1142, config/cemetery.json): its fence, gate and graves.
+func _make_cemetery() -> void:
+	if markers == null or markers.town == null or not buildings_default:
+		return
+	var yard := Cemetery.new()
+	yard.name = "Cemetery"
+	yard.position = Cemetery.world_at(Cemetery.load_config())
+	add_child(yard)
+## Every place with a `site` (#1126, Harlan's homestead: Homestead) built on its pad: the node at the
+## pad's north-west corner, at the pad's level, the slope off it from the valley's ground.
+var homesteads := {}
+
+
+func _make_homesteads() -> void:
+	if not buildings_default:
+		return
+	for p: Dictionary in layout.places():
+		if not p.has("site"):
+			continue
+		var pad: Dictionary = p.get("pad", {})
+		var at := ValleyLayout.xz(p.at)
+		var h := Homestead.new()
+		h.name = "Homestead_" + String(p.id)
+		h.site_path = String(p.site)
+		var terrain := ValleyTerrain.main()
+		h.ground = terrain.height
+		h.position = Vector3(at.x - float(pad.get("w", 0.0)) * 0.5, float(pad.get("y", 0.0)), at.y - float(pad.get("d", 0.0)) * 0.5)
+		add_child(h)
+		homesteads[String(p.id)] = h
+		for id: String in h.buildings:
+			buildings["%s/%s" % [p.id, id]] = h.buildings[id]
+
+
 ## Each spec building's first analysis on a worker once the load's done (`Structure.warm_analysis`):
-## the valley has no FireSystem to slice a settle, so the first shot to break a member was every
+## before it, with no settle queue here, the first shot to break a member was every
 ## member of the building on one frame (#881). A few frames on, its props and fittings are in.
 func _warm_buildings() -> void:
 	for i in 3:

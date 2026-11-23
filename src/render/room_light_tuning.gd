@@ -48,8 +48,10 @@ extends Resource
 @export var opening_day_colour := Color(0.82, 0.88, 1.0)
 ## By night the moon's (DayCycleConfig moon_window_*), for a metre square over a front window's.
 @export var opening_night_gain := 1.0
-## The most a single opening lets in, over a metre square's.
-@export var opening_max_area := 2.5
+## The most a single opening lets in, over a metre square's (m2; its light grows with the square
+## root of its area up to this). 12 since #1053: a storefront's show window (3.4 x 3 m) lets in more
+## than a house window; at 2.5 bigger glass added 2% (#1052).
+@export var opening_max_area := 12.0
 ## Smaller holes than this (m2) let in nothing worth a light.
 @export var hole_min_area := 0.03
 ## The grid a broken wall is probed on (metres), and the most cells a region is probed in.

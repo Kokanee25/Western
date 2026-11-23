@@ -1,0 +1,547 @@
+{
+ "_doc": "Harlan's barn (#1126): a small board barn for his horse, a hayloft over, the door off its top hinge. Written by experiments/building_lab/homestead/gen_spec.py.",
+ "format": 1,
+ "id": "harlan_barn",
+ "identity": {
+  "owner": "Thomas Harlan",
+  "trade": "his horse's stall, the hay over, the repair stock",
+  "means": "the last owner's",
+  "age_and_repair": "as old as the cabin: the boards grey and gapped, the door hanging off its top hinge",
+  "clues": [
+   "a stack of new sawn boards and bundles of shakes inside the door",
+   "one stall",
+   "hay in the loft"
+  ]
+ },
+ "lot": {
+  "at": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "facing": 0,
+  "width": 4.877,
+  "depth": 6.096
+ },
+ "levels": {
+  "ground": {
+   "top": 0.15,
+   "dirt": true
+  },
+  "upper": {
+   "top": 3.007
+  },
+  "plate": 2.75,
+  "false_front": 0.0,
+  "roof_pitch": 39.8,
+  "roof_from": -0.3,
+  "roof_to": 6.396,
+  "_doc": "a dirt floor inside (the ground), the sill a 6 in step at the door; the hayloft on the plates; a 10/12 shake roof"
+ },
+ "frame": {
+  "_doc": "Studs at 24 in on sills on flat stones, vertical boards (barn boards, the gaps open), common rafters, the loft's joists their ties.",
+  "foundation": {
+   "wood": "stone",
+   "thick": 0.15,
+   "bottom": -0.2,
+   "top": 0.05,
+   "piece": 1.2
+  },
+  "sill": {
+   "section": [
+    0.15,
+    0.1
+   ],
+   "wood": "framing"
+  },
+  "pier": {
+   "size": 0.3,
+   "wood": "stone"
+  },
+  "girder": {
+   "section": [
+    0.15,
+    0.15
+   ],
+   "wood": "framing",
+   "pier_every": 1.5
+  },
+  "joist": {
+   "section": [
+    0.05,
+    0.14
+   ],
+   "spacing": 0.61,
+   "wood": "framing"
+  },
+  "floor_board": {
+   "width": 0.2,
+   "thick": 0.022,
+   "wood": "floor"
+  },
+  "stud": {
+   "section": [
+    0.05,
+    0.1
+   ],
+   "spacing": 0.61,
+   "wood": "framing"
+  },
+  "plate": {
+   "height": 0.1
+  },
+  "ribbon": {
+   "section": [
+    0.025,
+    0.15
+   ]
+  },
+  "header": {
+   "height": 0.2
+  },
+  "post": {
+   "section": [
+    0.12,
+    0.12
+   ],
+   "wood": "framing"
+  },
+  "beam": {
+   "section": [
+    0.12,
+    0.15
+   ],
+   "wood": "framing"
+  },
+  "bracket": {
+   "reach": 0.3,
+   "thick": 0.08
+  },
+  "wall_post": {
+   "section": [
+    0.15,
+    0.1
+   ]
+  },
+  "ceiling_joist": {
+   "section": [
+    0.05,
+    0.235
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "lap": 0.6
+  },
+  "rafters": {
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "spacing": 0.61,
+   "ridge": [
+    0.025,
+    0.185
+   ],
+   "collar": [
+    0.025,
+    0.14
+   ],
+   "collar_every": 2,
+   "collar_down": 0.25,
+   "eave": 0.3
+  },
+  "truss": {
+   "tie": [
+    0.05,
+    0.14
+   ],
+   "principal": [
+    0.0,
+    0.0
+   ],
+   "queen": [
+    0.0,
+    0.0
+   ],
+   "purlin": [
+    0.0,
+    0.0
+   ],
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "rafter_spacing": 0.61,
+   "at": [
+    0.0,
+    6.096
+   ],
+   "purlins": []
+  }
+ },
+ "girders": {},
+ "stairs": [],
+ "ceilings": [],
+ "floors": [
+  {
+   "id": "loft",
+   "level": "upper",
+   "rect": [
+    0.02,
+    0.12,
+    4.857,
+    5.736
+   ],
+   "joists": "x",
+   "joist": "ceiling_joist",
+   "openings": [
+    {
+     "id": "hay_hole",
+     "rect": [
+      3.4,
+      4.2,
+      4.6,
+      5.0
+     ],
+     "leaves": 0
+    }
+   ],
+   "_doc": "the hayloft over the barn but a gap at the back gable the ladder comes up through, its hay hole over the stall's manger"
+  }
+ ],
+ "shakes": {
+  "exposure": 0.25,
+  "width": 0.8,
+  "strip": 0.16,
+  "thick": 0.016,
+  "lift": 0.012,
+  "skip": 0.3,
+  "new_share": 0.0
+ },
+ "walls": [
+  {
+   "id": "front",
+   "_doc": "its gable to the yard (north): the big door, off its top hinge",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     4.877,
+     0
+    ]
+   ],
+   "out": "-z",
+   "top": "gable",
+   "outside": {
+    "siding": "vertical",
+    "wood": "weathered_pine"
+   },
+   "inside": [],
+   "ribbon": false,
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 2.438,
+     "width": 2.13,
+     "height": 2.29,
+     "leaf": "outward"
+    }
+   ]
+  },
+  {
+   "id": "back",
+   "line": [
+    [
+     0,
+     6.096
+    ],
+    [
+     4.877,
+     6.096
+    ]
+   ],
+   "out": "+z",
+   "top": "gable",
+   "outside": {
+    "siding": "vertical",
+    "wood": "weathered_pine"
+   },
+   "inside": [],
+   "ribbon": false,
+   "openings": []
+  },
+  {
+   "id": "west",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     6.096
+    ]
+   ],
+   "out": "-x",
+   "top": "plate",
+   "outside": {
+    "siding": "vertical",
+    "wood": "weathered_pine"
+   },
+   "inside": [],
+   "ribbon": false,
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 3.0,
+     "width": 0.6,
+     "height": 0.6,
+     "sill": 1.3,
+     "_doc": "an open hatch for light and air"
+    }
+   ]
+  },
+  {
+   "id": "east",
+   "line": [
+    [
+     4.877,
+     0
+    ],
+    [
+     4.877,
+     6.096
+    ]
+   ],
+   "out": "+x",
+   "top": "plate",
+   "outside": {
+    "siding": "vertical",
+    "wood": "weathered_pine"
+   },
+   "inside": [],
+   "ribbon": false,
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.6,
+     "width": 0.6,
+     "height": 0.6,
+     "sill": 1.3,
+     "_doc": "over the stall, onto the corral"
+    }
+   ]
+  }
+ ],
+ "ladders": [
+  {
+   "id": "loft",
+   "wall": "back",
+   "side": "in",
+   "at": 1.8,
+   "from": 0.15,
+   "to": 3.007,
+   "width": 0.45,
+   "_doc": "up the back gable's inside to the loft (headroom there: on the side wall its stiles came through the roof)"
+  }
+ ],
+ "front": {
+  "sign": ""
+ },
+ "rooms": [
+  {
+   "id": "barn",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    4.777,
+    5.996
+   ],
+   "use": "his horse's stall, the saddle and tack, the repair stock"
+  }
+ ],
+ "use_points": [
+  {
+   "id": "stall",
+   "use": "tend_horse",
+   "who": "harlan",
+   "at": [
+    3.95,
+    0.02,
+    3.2
+   ],
+   "look": [
+    3.95,
+    5.6
+   ]
+  },
+  {
+   "id": "stock",
+   "use": "fetch",
+   "who": "harlan",
+   "at": [
+    1.75,
+    0.02,
+    3.2
+   ],
+   "look": [
+    0.84,
+    3.2
+   ],
+   "_doc": "at the boards and shakes pile (the repairs' stock)"
+  }
+ ],
+ "light": {
+  "fill": [
+   0.62,
+   0.6,
+   0.57
+  ],
+  "window_day": 9.0,
+  "day_fill": 0.18
+ },
+ "lamps": {
+  "kit": []
+ },
+ "dressing": {
+  "batches": {
+   "B1": [
+    {
+     "id": "bale_1",
+     "kit": "hay_bale",
+     "at": [
+      1.2,
+      2.857,
+      1.3
+     ],
+     "facing": 0
+    },
+    {
+     "id": "bale_2",
+     "kit": "hay_bale",
+     "at": [
+      1.2,
+      2.857,
+      1.9
+     ],
+     "facing": 0
+    },
+    {
+     "id": "bale_3",
+     "kit": "hay_bale",
+     "at": [
+      2.4,
+      2.857,
+      1.6
+     ],
+     "facing": 90
+    },
+    {
+     "id": "bale_4",
+     "kit": "hay_bale",
+     "at": [
+      1.2,
+      3.307,
+      1.6
+     ],
+     "facing": 0
+    },
+    {
+     "id": "water",
+     "kit": "water_barrel",
+     "at": [
+      4.35,
+      0.0,
+      2.5
+     ],
+     "facing": 0
+    },
+    {
+     "id": "sack",
+     "kit": "feed_sack",
+     "at": [
+      0.5,
+      0.0,
+      5.6
+     ],
+     "facing": 20
+    }
+   ]
+  }
+ },
+ "repairs": [
+  {
+   "id": "barn_door",
+   "what": "the big door off its top hinge, its far corner on the ground",
+   "kind": "off_hinge",
+   "member": "front/door_",
+   "drop": 0.16
+  }
+ ],
+ "materials": {
+  "wear": {
+   "use": 0.4,
+   "dings": 0.0
+  },
+  "finishes": {
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "old",
+     "role": "wall"
+    }
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   }
+  },
+  "surfaces": [
+   [
+    "/siding/",
+    "rough"
+   ],
+   [
+    "roof/",
+    "rough"
+   ],
+   [
+    "/door_",
+    "rough"
+   ],
+   [
+    "/trim_",
+    "rough"
+   ],
+   [
+    "floor/loft/board",
+    "rough"
+   ],
+   [
+    "ladder/",
+    "rough"
+   ]
+  ],
+  "trim_outside": "weathered_pine",
+  "roof": "weathered_pine",
+  "floor": "wood:int_floor",
+  "wall_boards": "int_boards",
+  "woodwork": "wood:int_timber",
+  "timber": "wood:int_timber"
+ },
+ "sources": [
+  "Eric Sloane, An Age of Barns (1967): the small board barn.",
+  "Fred T. Hodgson, Practical Carpentry (1883)."
+ ],
+ "furniture": [],
+ "fixtures": []
+}

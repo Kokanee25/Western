@@ -47,6 +47,9 @@ var _lids := 0.0
 var _rng := RandomNumberGenerator.new()
 ## A point a deed has him watching (his work: the bar under the cloth he's wiping), renewed every
 ## tick it's wanted (`attend_to`); a start and a fight still take his eyes off it.
+## A laugh or a grin on him, 0-1 (set each tick by whoever has him laughing: CivilianBrain's bits;
+## it fades by itself): his eyes creased, his brows a little up.
+var mirth := 0.0
 var _attend := Vector3.INF
 var _attend_frame := -10
 var _attend_over := false  ## ... even in a fight or a start (a man looking at his own wound)
@@ -160,7 +163,9 @@ func step(delta: float) -> void:
 	gaze.blink_rate = lerpf(1.0, tuning.fear_blink, fear)
 	var hurt := clampf(p.felt_pain() / maxf(p.tuning.pain_faint, 0.01), 0.0, 1.0) * tuning.pain_grimace
 	var up := maxf(tuning.startle_brows * _startle, tuning.fear_brows * fear) * (1.0 - hurt)
-	_express([up, hurt, maxf(hurt * 0.7, tuning.aim_squint if aiming else 0.0), hurt], delta)
+	up = maxf(up, 0.25 * mirth * (1.0 - hurt))
+	_express([up, hurt, maxf(maxf(hurt * 0.7, tuning.aim_squint if aiming else 0.0), 0.8 * mirth), hurt], delta)
+	mirth = maxf(mirth - delta * 3.0, 0.0)
 	gaze.step(delta)
 
 
@@ -237,7 +242,8 @@ func _pick(fear: float) -> void:
 	var best_score := -INF
 	if _senses != null:
 		for who: Variant in _senses.known.keys():
-			if not is_instance_valid(who) or not (who is Node3D) or who == body or not _senses.sees(who):
+			if not is_instance_valid(who) or not (who is Node3D) or who == body or not (who as Node3D).is_inside_tree() \
+					or not _senses.sees(who):  # (a man given back to wait is out of the world, #1167)
 				continue
 			var n := who as Node3D
 			if n is HumanBody and not (n as HumanBody).physiology.alive:

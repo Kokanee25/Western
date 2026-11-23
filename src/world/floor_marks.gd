@@ -451,3 +451,21 @@ func to_dict() -> Dictionary:
 	for k: Vector3i in cells:
 		out["%d,%d,%d" % [k.x, k.y, k.z]] = cells[k]
 	return out
+
+
+## What a save keeps (SaveGame, #1138): every marked cell as it is.
+func save_dict() -> Dictionary:
+	return cells.duplicate(true)
+
+
+## A save's marks put back over whatever's here: the cells, what's wet among them, every chunk
+## that had or has marks drawn again.
+func load_dict(d: Dictionary) -> void:
+	for k: Vector3i in cells:
+		_touched(k)
+	cells = d.duplicate(true)
+	_wet.clear()
+	for k: Vector3i in cells:
+		if not (cells[k].get("liq", {}) as Dictionary).is_empty():
+			_wet[k] = true
+		_touched(k)

@@ -33,6 +33,15 @@ func _chair(c: String) -> KitProp:
 	return valley.folk.props["chair_" + c] as KitProp
 
 
+## The chair he's sat in, any in the town (Seating's chairs are KitProps with a seat).
+func _seat_of(man: HumanBody) -> KitProp:
+	for s: Node in get_tree().get_nodes_in_group(&"structures"):
+		var kp := s as KitProp
+		if kp != null and kp.seated == man and not kp.loose:
+			return kp
+	return null
+
+
 ## Nine at night, everyone in, the game at four times its pace.
 func _night() -> void:
 	var clock := valley.get_node(^"DayCycle") as DayCycle
@@ -266,7 +275,10 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	var ch := _chair("w")
 	check(ch.seated == earl, "Earl in the west chair")
 	ch.go_loose(Vector3.ZERO, ch.global_basis.z * -80.0)
-	# Down with it, up again, and into the free north chair (the south one's broken above).
+	# Down with it, up again, and into a free chair near where he got up (SitChore.ANOTHER): the
+	# north one at the table (the south one's broken above), or the piano corner's when he lands
+	# nearer that. Which is nearer depends on how the chair throws him, and that differed with the
+	# tests run before this one (#1015's shards): any free chair but his broken one is right.
 	var brain := earl.get_node(^"Brain") as CivilianBrain
 	var tl: Array = []
 	var on_hit := func(info: Dictionary) -> void:
@@ -274,19 +286,24 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	earl.hit.connect(on_hit)
 	var last := ""
 	var sat := false
-	for k in 60 * 90:
+	# (120 s: the chair's blow bruises him, so up again he's a hurt man and goes to a door first
+	# (#1125's CivilianBrain.hurt), then back. In CI's shard order main sat him at 89.2 s of the old 90;
+	# #1167's town a second later.)
+	for k in 60 * 120:
 		await physics_frames(1)
 		var st := "limp %s rising %s pose %s mood %d ok %s" % [earl.limp, earl.rising, earl.pose, brain.mood, earl.rise_ok]
 		if st != last:
 			last = st
 			tl.append("%d %s fear %.2f at %s" % [k, st, brain.fear, earl.global_position.snappedf(0.01)])
-		if _chair("n").seated == earl:
+		var now := _seat_of(earl)
+		if now != null and now != ch:
 			sat = true
+			tl.append("sat in %s" % now.name)
 			break
 	earl.hit.disconnect(on_hit)
 	var chore_chair := ""
 	for c: RefCounted in brain.chores:
 		if c is SitChore:
 			chore_chair = "%s wanted %s" % [(c as SitChore).chair.name if (c as SitChore).chair and is_instance_valid((c as SitChore).chair) else "none", (c as SitChore).wanted]
-	check(sat, "Earl sat in the free north chair within 90 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
+	check(sat, "Earl sat in a free chair within 120 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
 			earl.physiology.describe(), earl.physiology.can_stand(), earl.physiology.is_conscious(), earl.physiology.shock(), earl._down_t, earl._still_t, _chair("n").seated, _chair("n").loose, chore_chair, p.global_position.snappedf(0.01), tl.slice(0, 60)])

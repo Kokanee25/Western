@@ -1,0 +1,6 @@
+a yard build/judge_in/yard.png
+b cabin_front build/judge_in/cabin_front.png
+c cabin_back build/judge_in/cabin_back.png
+d barn build/judge_in/barn.png
+e spring build/judge_in/spring.png
+f inside build/judge_in/inside.png

@@ -400,6 +400,11 @@ manager, the ending as the state of the town.
 - **Little acts in the world, not cutscenes** (Sean 2026-10-15): the table scene, the robbery,
   the hanging are written as acts (who goes where and says what, beat by beat) that the systems
   carry out and that hand back to the systems the moment you interfere. The camera stays yours.
+  How (Sean 2026-11-17, #1050): the act **holds its cast** (their brains wait while it walks them) and
+  a **quiet zone** round the beat, where townsfolk still look, flinch and back off but keep off its
+  marks and chairs, armed men stay out uninvited and nobody takes an actor on unless he turns on them.
+  **You break it** with a shot, a drawn gun, a hit, or by walking onto a mark or into an actor's way:
+  everyone's own brain has him from where he stands, and the systems decide how it ends.
 - **The demo** (`docs/ROADMAP.md`) is the prologue and day 1.
 
 ### Reasons to fight (**decided**, Sean 2026-10-01)
@@ -739,6 +744,9 @@ come round after going down will change later too.
 - **Morale:** casualties break the weak (run, surrender, play dead); the leader's nerve holds them until
   he goes down. Every fight ends differently.
 - **Fair tells** before they fire: raising the gun, stepping out, a shout.
+- **Who's in the line** (**decided**, Sean 2026-11-20, #1116): outlaws hold fire only for their own;
+  a townsman between them and their man takes his chance (the gang's ball through the store man is
+  right). Lawmen, Joe and armed townsfolk hold fire for anyone in the line (`OutlawBrain.careful`).
 - **Presentation:** mocap combat moves (crouch-run, peek, lean out, blind fire over cover, dive, crouched
   reload, dragging a wounded friend), **procedural aim** (arms and head track the real target), active
   ragdoll hit reactions, life touches (hard breathing, glancing around, flinching at near misses).

@@ -3,6 +3,8 @@
   "script": "res://src/missions/sheriff_on_road.gd",
   "hour": 6.3,
   "clock_runs": true,
+  "clock_scale": 0.25,
+  "_clock_doc": "The prologue's clock at clock_scale of the day's rate (Sean, #1082, option B): getting him in to the doctor's takes about an hour (about 08:00 there), not the morning. The card's walk in moves it the same share. The day's rate again once the scene's over.",
   "dawn_line": "Dawn. A shot, a while back, from down by the East Road. North, past the ford.",
   "start": "harlan_homestead",
   "start_toward": "harlan_ford_path",
@@ -11,7 +13,7 @@
   "livery_lot": "livery",
   "street_off_m": 4.0,
   "sheriff": {"id": "sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "off_road_m": 1.5},
-  "doctor": {"id": "doctor", "name": "Doc", "model": "doctor_s2_talking", "seed": 747},
+  "doctor": {"id": "doctor", "name": "Doc", "model": "doctor_s2_talking", "seed": 747, "folk_id": "doctor"},
   "horse": {"off_m": 8.0, "along_m": 4.0},
   "wound": {
     "_doc": "Gut-shot two game hours before dawn (shot_ago_s, real seconds: 112.5 a game hour): what he's lost lying there, a weeping wound in the belly wall (outer: shows, pressed and packed by you; it doesn't clot on its own) and a slow bleed inside (inner: nothing outside reaches it). Each stops by its limit (ml), so untreated and left he passes out (0.42 lost) but doesn't bleed to death on the road: by the wound rules a gut shot has hours (Physiology's gut_death_game_hours does for him later).",
@@ -32,12 +34,21 @@
   "trip": {"_doc": "The stand-in for leading his horse into town (Sean's maybe, #746: no horse of Harlan's at the start): the road's length from the site to the doctor (ValleyRoads), walked at lead_mps, plus load_s getting him up across the saddle; the minutes run on his body and the clock.", "lead_mps": 1.3, "load_s": 60.0},
   "left": {"found_after_s": 1500.0},
   "say_gap_s": 14.0,
+  "ask_prompt": "Nod to help him (look down, up, down at him), shake your head to leave him (look left, right, left). Or kneel and hold E on his wound",
+  "nod_prompt": "Hold E on his wound to press it. E by his horse to take him in, or tap E by him to carry him to the doctor's",
+  "slow_nod": {"_doc": "A deliberate nod or shake, slower or smaller than HeadGesture's plain one (6 degrees, 1.4 s): read as well (#1081: the playtester's view moved down and up a second or two apart).", "swing_deg": 4.0, "window_s": 8.0},
+  "carried": {"_doc": "Over your shoulder (#1081): lines.picked_up once as you take him up, then a groan or a short word from lines.carried (picked at random) about every gap_s (0.75 to 1.25 of it), not his lying-there idle lines. PROPOSED lines, not in docs/scripts/sheriff_road.json yet.", "gap_s": 40.0, "grow": 0.5, "late_m": 150.0, "late": ["How far?"], "_spread": "#1095: each of his band's lines once (shuffled) before silence, the gaps growing by `grow` a line said; `late` lines only past `late_m` carried."},
+  "door_body_m": 4.5,
+  "answer_s": 4.0,
+  "doctor_out": "Nobody answers. The doctor's out: at the %s.",
+  "_door_doc": "Carried to the doctor's over your shoulder (PlayerCarry) and E at his door (PlayerKnock, ValleyFolk.knocked; #1081): with the sheriff within door_body_m of it and the doctor in by the town's book, a voice through the door (lines.door_wait), answer_s on he comes out to him (the town's doctor, ValleyFolk.call_out) and the scene goes on as at the end of the card's walk in (lines.doctor, doctor_after). Out by the book: doctor_out says where he is.",
   "bands": {"clear": 0.22, "weak": 0.32, "fading": 0.5},
   "cards": {
     "trip": "You get him up across his saddle and lead his horse down the East Road into town.\nIt's %d minutes on foot.",
     "left": "You leave him on the road.\nLater that morning a freighter coming down the East Road finds him and hauls him into town in the back of his wagon.",
     "end": "The doctor takes him in. His horse is put up at the livery.\n\n(Enter: start again)",
-    "end_left": "(Enter: start again)"
+    "end_left": "(Enter: start again)",
+    "end_carried": "The doctor takes him in. His horse is still out on the East Road.\n\n(Enter: start again)"
   },
   "lines": {
     "hail": {
@@ -80,6 +91,16 @@
       "weak": ["My horse..."],
       "fading": ["..."]
     },
+    "picked_up": {
+      "clear": ["Don't let me lie here."],
+      "weak": ["Don't let me lie here."],
+      "fading": ["..."]
+    },
+    "carried": {
+      "clear": ["Ngh.", "Easy...", "Christ.", "Mm.", "How far?"],
+      "weak": ["Ngh...", "Mm.", "Easy..."],
+      "fading": ["Mm...", "..."]
+    },
     "idle": {
       "clear": ["Damn, it burns.", "Sun's coming up. Ain't that something.", "Don't you let me lie here."],
       "weak": ["I'm cold.", "Don't let me lie here."],
@@ -90,6 +111,7 @@
       "weak": ["Harlan..."],
       "fading": ["..."]
     },
+    "door_wait": {"any": ["I hear you! Coming."]},
     "doctor": {
       "clear": ["Gut-shot. Help me get him up the steps."],
       "weak": ["He's bled a fair bit. Up the steps with him, quick now."],

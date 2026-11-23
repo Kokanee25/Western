@@ -243,7 +243,7 @@ func _physics_step(delta: float) -> void:
 			return
 		if fuse_left <= delta:
 			# Off on the next tick: the fire's load checks sit it out (FireSystem.sit_out).
-			var fire := FireSystem.find(get_tree())
+			var fire := SettleQueue.find(get_tree())
 			if fire:
 				fire.sit_out(Engine.get_physics_frames() + 1)
 		if planted:

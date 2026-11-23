@@ -37,6 +37,12 @@
     "bar_back": {"behind": "bar", "along": 0.0},
     "bar_south": {"at_bar": "bar", "along": -0.6},
     "bar_north": {"at_bar": "bar", "along": 0.7},
+    "bar_far": {"at_bar": "bar", "along": 1.75, "_doc": "Step 10 (the saloon as a room, #1157): the bar's north end, the loudmouth's; `bar_near` its south end, the undertaker's one drink."},
+    "bar_near": {"at_bar": "bar", "along": -1.65},
+    "room_talk_a": {"lot": "saloon_annex", "at": [8.2, 8.9], "faces": [9.1, 8.3], "_doc": "Step 10: the room's second group (the brief's second table: standing talkers till sat talk is built), at the yard's back east of the way through, clear of the card table's chairs and the stranger's way round it."},
+    "room_talk_b": {"lot": "saloon_annex", "at": [9.1, 8.3], "faces": [8.2, 8.9]},
+    "room_talk_c": {"lot": "saloon_annex", "at": [9.2, 9.4], "faces": [8.6, 8.7]},
+    "room_bar_end": {"lot": "saloon_annex", "at": [3.5, 7.6], "faces": [2.6, 6.4], "_doc": "Step 10: the saloon woman by the bar's north end, late."},
     "card_w": {"chair": "w"},
     "card_e": {"chair": "e"},
     "hotel_walk": {"lot": "hotel", "at": [4.0, -1.0], "faces": [9.0, -6.0]},
@@ -73,19 +79,18 @@
     "_doc": "The book (townsfolk brief \u00a73 \"Three ways of being present\"): a man indoors or asleep behind a front is a row here, not a body: no cost. A day's block with `in` (a place: a building's door, its lot id, or a way out of town such as `back@0`) puts him on it, doing `do`; he goes in and comes out at that place's door, never while you can see the last step (`seen_m`: past this far off nothing's seen). `doings`: what each shows from the street: `lamp` a lit window while it's `dark` [from, to] by the clock, `smoke` chimney smoke. A building shows them only while someone's in it doing one (BookLights; only buildings, not ways out).",
     "seen_m": 120.0,
     "dark": [18.0, 6.0],
-    "doings": {"sleep": {}, "away": {}, "home": {"lamp": true}, "work": {"lamp": true}, "breakfast": {"lamp": true, "smoke": true}, "dinner": {"lamp": true, "smoke": true}, "supper": {"lamp": true, "smoke": true}, "drink": {"lamp": true}}
+    "doings": {"sleep": {}, "away": {}, "home": {"lamp": true}, "work": {"lamp": true}, "breakfast": {"lamp": true, "smoke": true}, "dinner": {"lamp": true, "smoke": true}, "supper": {"lamp": true, "smoke": true}, "drink": {"lamp": true}, "errand": {"lamp": true}}
   },
   "calendar": {
-    "_doc": "The town's day kinds (townsfolk brief \u00a73 \"The data\"): a person's `day` is a list of blocks (every kind) or one list a kind (`ordinary` the default for any kind he hasn't). The town's day runs from `starts_h` to the next (a night's blocks past midnight belong to the day before). Each kind: `week_day` (the town's day number mod 7; day 1 a Monday) or `every` days from `first`, and an optional `if` (StoryState facts, as `talk`'s), the first that holds wins. PROPOSED: Sunday and a fortnight's payday on the Saturday; the story's kinds (mourning, uneasy) go here as `if` entries when the funeral and the news are built.",
+    "_doc": "The town's day kinds (townsfolk brief \u00a73 \"The data\"): a person's `day` is a list of blocks (every kind) or one list a kind (`ordinary` the default for any kind he hasn't). The town's day runs from `starts_h` to the next (a night's blocks past midnight belong to the day before). Each kind: `week_day` (the town's day number mod 7; day 1 a Monday) or `every` days from `first`, and an optional `if` (StoryState facts, as `talk`'s), the first that holds wins. PROPOSED: Sunday and a fortnight's payday on the Saturday; the story's kinds (mourning, uneasy) go here as `if` entries when the funeral and the news are built. `uneasy` (#1051, PROPOSED): the day after a killing or a shooting the town holds (TownNews sets StoryState news.yesterday at the day's turn; a story act's isn't counted, its day is the story's): the storekeeper keeps in, the loudmouth's out on the walk telling it.",
     "starts_h": 5.0,
-    "kinds": [{"id": "sunday", "week_day": 0}, {"id": "payday", "every": 14, "first": 13}]
+    "kinds": [{"id": "sunday", "week_day": 0}, {"id": "payday", "every": 14, "first": 13}, {"id": "uneasy", "if": {"news.yesterday": ["killing", "shooting"]}}]
   },
   "people": [
     {"id": "barkeep", "name": "Barkeep", "model": "barkeep_s2_talking", "seed": 761, "dials": {"nerve": 0.7, "nosy": 0.4, "duty": 0.6}, "shirt": [0.85, 0.84, 0.8], "vest": [0.15, 0.14, 0.13], "home": "saloon",
      "day": [
        {"from": 3.0, "in": "saloon", "do": "sleep"},
-       {"from": 10.0, "in": "saloon", "do": "work"},
-       {"from": 17.0, "at": "bar_back", "do": "counter"}],
+       {"from": 10.0, "at": "bar_back", "do": "counter"}],
      "_doc": "The barman behind the bar (No Law: \"Jesus, Cody, my chair!\"). Comes out of the saloon's door."},
     {"id": "miner", "name": "Miner", "model": "miner_s4_talking", "seed": 762, "dials": {"nerve": 0.6, "nosy": 0.5, "duty": 0.4}, "shirt": [0.3, 0.42, 0.6], "vest": [0, 0, 0, 0], "home": "hotel",
      "day": {
@@ -93,6 +98,7 @@
          {"from": 1.5, "in": "hotel", "do": "sleep"},
          {"from": 6.0, "in": "hotel", "do": "breakfast"},
          {"from": 7.0, "in": "hotel", "do": "home"},
+         {"from": 13.0, "do": "drink", "round": [{"in": "hotel", "do": "home", "stay": [120, 240]}, {"at": "bar_near", "do": "drink", "stay": [90, 200]}]},
          {"from": 18.0, "in": "hotel", "do": "supper"},
          {"from": 19.0, "at": "bar_south", "do": "drink"}],
        "payday": [
@@ -114,8 +120,10 @@
     {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "dials": {"nerve": 0.4, "nosy": 0.6, "duty": 0.2}, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0], "home": "hotel",
      "day": [
        {"from": 2.0, "in": "hotel", "do": "sleep"},
+       {"from": 6.0, "do": "work", "round": [{"at": "livery_lean", "do": "lean", "stay": [60, 150]}, {"in": "livery", "do": "work", "stay": [90, 180]}]},
        {"from": 9.0, "in": "hotel", "do": "breakfast"},
-       {"from": 10.0, "in": "hotel", "do": "home"},
+       {"from": 10.0, "do": "stand", "round": [{"at": "saloon_porch", "do": "lean", "stay": [60, 150]}, {"at": "hotel_walk", "do": "stand", "stay": [40, 90]}, {"in": "hotel", "do": "home", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "bar_north", "do": "drink", "stay": [60, 150]}]},
+       {"from": 17.0, "in": "hotel", "do": "home"},
        {"from": 19.6, "at": "card_e", "do": "play"}],
      "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
     {"id": "fiddler", "name": "Fiddler", "model": "oldtimer_factory", "seed": 799, "dials": {"nerve": 0.4, "nosy": 0.5, "duty": 0.2}, "shirt": [0.72, 0.66, 0.52], "vest": [0.32, 0.22, 0.16], "home": "saloon", "plays": "fiddle",
@@ -127,7 +135,7 @@
          {"from": 1.5, "in": "saloon", "do": "sleep"},
          {"from": 19.0, "at": "stage_fiddle", "do": "play"}]},
      "_doc": "PROPOSED (#799, #938): the band's fiddler (config/band.json), stood at the back of the yard; Payday Night on saloon B's stage; a stand-in body till the Studio makes him. His part sounds while he's at his post and calm (PlayChore)."},
-    {"id": "pianist", "name": "Piano player", "model": "heavy_factory", "seed": 800, "dials": {"nerve": 0.2, "nosy": 0.5, "duty": 0.2}, "shirt": [0.82, 0.8, 0.74], "vest": [0.12, 0.12, 0.14], "home": "saloon", "plays": "piano", "instrument": "piano",
+    {"id": "pianist", "name": "Piano player", "model": "heavy_factory", "seed": 800, "dials": {"nerve": 0.2, "nosy": 0.5, "duty": 0.2, "ducks": 1}, "shirt": [0.82, 0.8, 0.74], "vest": [0.12, 0.12, 0.14], "home": "saloon", "plays": "piano", "instrument": "piano",
      "day": {
        "ordinary": [
          {"from": 1.5, "in": "saloon", "do": "sleep"},
@@ -140,24 +148,32 @@
      "day": {
        "ordinary": [
          {"from": 6.0, "in": "doctor", "do": "breakfast"},
-         {"from": 7.0, "in": "doctor", "do": "work"},
-         {"from": 14.0, "at": "doctor_walk", "do": "stand"},
-         {"from": 15.0, "in": "doctor", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"in": "doctor", "do": "work", "stay": [90, 200]}, {"at": "doctor_walk", "do": "stand", "stay": [30, 70]}, {"in": "hotel", "do": "errand", "stay": [60, 120]}, {"at": "hotel_walk", "do": "stand", "stay": [20, 40]}]},
+         {"from": 12.0, "in": "doctor", "do": "dinner"},
+         {"from": 13.0, "do": "work", "round": [{"in": "doctor", "do": "work", "stay": [120, 240]}, {"at": "doctor_walk", "do": "stand", "stay": [40, 80]}, {"in": "general_store", "do": "errand", "stay": [40, 90]}]},
          {"from": 18.0, "in": "doctor", "do": "supper"},
          {"from": 19.0, "in": "doctor", "do": "home"},
          {"from": 22.0, "in": "doctor", "do": "sleep"}]},
-     "_doc": "Townsfolk step 3 (#936), roster 2: the doctor's day self, the coroner. His own day id because `doc` is the sheriff-dies act's man (an act man has no hours): by day on the book in his building so the act's body is never a double; out on his walk in the afternoon only (the brief puts his crossing in 7-12; it waits for the act's morning to be free of him)."},
+     "_doc": "Townsfolk step 3 (#936), roster 2: the doctor's day self, the coroner. One man (#1095: there was an act-only `doc` too): the acts (SheriffDies, No Justice's office, the funeral) take him off his day (ValleyFolk.seize) and give him back; out on his walk in the afternoon only (the brief puts his crossing in 7-12; it waits for the act's morning to be free of him). He answers his door to any hurt man brought him (FetchHelp.at_door)."},
     {"id": "storekeeper", "name": "Storekeeper", "model": "storekeeper_s1_talking", "seed": 902, "dials": {"nerve": 0.3, "nosy": 0.6, "duty": 0.5}, "shirt": [0.82, 0.8, 0.7], "vest": [0.35, 0.3, 0.2], "home": "general_store",
      "day": {
-       "ordinary": [
+       "uneasy": [
          {"from": 5.0, "in": "general_store", "do": "breakfast"},
-         {"from": 6.0, "at": "store_walk", "do": "sweep"},
          {"from": 7.0, "in": "general_store", "do": "work"},
          {"from": 12.0, "in": "general_store", "do": "dinner"},
          {"from": 13.0, "in": "general_store", "do": "work"},
+         {"from": 18.5, "in": "general_store", "do": "supper"},
+         {"from": 19.5, "in": "general_store", "do": "home"},
+         {"from": 22.0, "in": "general_store", "do": "sleep"}],
+       "ordinary": [
+         {"from": 5.0, "in": "general_store", "do": "breakfast"},
+         {"from": 6.0, "at": "store_walk", "do": "sweep"},
+         {"from": 7.0, "do": "work", "round": [{"in": "general_store", "do": "work", "stay": [120, 240]}, {"at": "store_walk", "do": "stand", "stay": [30, 70]}, {"at": "store_freight", "do": "carry", "stay": [40, 90]}]},
+         {"from": 12.0, "in": "general_store", "do": "dinner"},
+         {"from": 13.0, "do": "work", "round": [{"in": "general_store", "do": "work", "stay": [120, 240]}, {"at": "store_walk", "do": "stand", "stay": [30, 70]}]},
          {"from": 17.5, "at": "store_walk", "do": "stand"},
          {"from": 18.5, "in": "general_store", "do": "supper"},
-         {"from": 19.5, "in": "saloon", "do": "drink"},
+         {"from": 19.5, "at": "room_talk_b", "do": "talk"},
          {"from": 21.5, "in": "general_store", "do": "home"},
          {"from": 22.0, "in": "general_store", "do": "sleep"}],
        "sunday": [
@@ -173,9 +189,10 @@
        "ordinary": [
          {"from": 6.0, "in": "general_store", "do": "breakfast"},
          {"from": 7.0, "in": "general_store", "do": "work"},
-         {"from": 10.0, "at": "store_bench", "do": "sit"},
+         {"from": 9.0, "do": "work", "round": [{"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"in": "general_store", "do": "work", "stay": [60, 120]}, {"at": "bakery_walk", "do": "stand", "stay": [30, 60]}, {"at": "butcher_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "in": "general_store", "do": "dinner"},
          {"from": 13.0, "in": "general_store", "do": "work"},
+         {"from": 15.0, "do": "work", "round": [{"in": "general_store", "do": "work", "stay": [90, 180]}, {"at": "store_bench", "do": "sit", "stay": [60, 120]}, {"at": "hotel_porch2", "do": "talk", "stay": [40, 90]}]},
          {"from": 18.0, "in": "general_store", "do": "supper"},
          {"from": 19.0, "in": "general_store", "do": "home"},
          {"from": 22.0, "in": "general_store", "do": "sleep"}],
@@ -191,21 +208,21 @@
      "day": {
        "ordinary": [
          {"from": 5.0, "at": "livery_lean", "do": "lean"},
-         {"from": 7.0, "in": "livery", "do": "work"},
-         {"from": 9.0, "at": "livery_door", "do": "stand"},
-         {"from": 12.0, "in": "livery", "do": "dinner"},
-         {"from": 13.0, "in": "livery", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"in": "livery", "do": "work", "stay": [90, 180]}, {"at": "livery_door", "do": "stand", "stay": [40, 90]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "wagonwright_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 12.0, "do": "dinner", "round": [{"at": "livery_door", "do": "stand", "stay": [60, 120]}, {"in": "livery", "do": "dinner", "stay": [60, 120]}]},
+         {"from": 13.0, "do": "work", "round": [{"in": "livery", "do": "work", "stay": [90, 180]}, {"at": "livery_door", "do": "stand", "stay": [40, 90]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "smith_door", "do": "talk", "stay": [30, 60]}]},
          {"from": 17.0, "at": "livery_lean", "do": "lean"},
          {"from": 18.0, "in": "livery", "do": "supper"},
-         {"from": 19.0, "in": "saloon", "do": "drink"},
+         {"from": 19.0, "at": "room_talk_a", "do": "talk"},
          {"from": 22.0, "in": "livery", "do": "sleep"}]},
      "_doc": "Roster 5: first up in the street, the last lamp but the saloon's; a drink in the saloon's second table 7-10. A stand-in: the rider model (the Baron's foreman wears it at the funeral). Door: the `livery` place (this file's `places`), its lot having no walk."},
     {"id": "smith", "name": "Blacksmith", "model": "blacksmith_s1_talking", "seed": 905, "dials": {"nerve": 0.8, "nosy": 0.2, "duty": 0.5}, "shirt": [0.55, 0.55, 0.5], "vest": [0.2, 0.15, 0.1], "home": "blacksmith",
      "day": {
        "ordinary": [
          {"from": 5.0, "at": "smith_door", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"at": "smith_door", "do": "work", "stay": [150, 300]}, {"in": "blacksmith", "do": "work", "stay": [40, 80]}, {"at": "hardware_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "in": "blacksmith", "do": "dinner"},
-         {"from": 13.0, "at": "smith_door", "do": "work"},
+         {"from": 13.0, "do": "work", "round": [{"at": "smith_door", "do": "work", "stay": [150, 300]}, {"in": "blacksmith", "do": "work", "stay": [40, 80]}, {"at": "livery_lean", "do": "talk", "stay": [30, 60]}]},
          {"from": 18.0, "in": "blacksmith", "do": "supper"},
          {"from": 19.0, "in": "blacksmith", "do": "home"},
          {"from": 22.0, "in": "blacksmith", "do": "sleep"}],
@@ -220,8 +237,10 @@
          {"from": 5.5, "in": "hotel", "do": "breakfast"},
          {"from": 6.0, "at": "hotel_rug", "do": "sweep"},
          {"from": 7.0, "in": "hotel", "do": "work"},
+         {"from": 9.0, "do": "work", "round": [{"in": "hotel", "do": "work", "stay": [120, 240]}, {"at": "hotel_rug", "do": "sweep", "stay": [40, 80]}, {"in": "general_store", "do": "errand", "stay": [40, 90]}, {"at": "bakery_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "in": "hotel", "do": "dinner"},
          {"from": 13.0, "in": "hotel", "do": "work"},
+         {"from": 15.0, "do": "work", "round": [{"in": "hotel", "do": "work", "stay": [120, 240]}, {"at": "hotel_porch2", "do": "sit", "stay": [60, 120]}]},
          {"from": 18.0, "in": "hotel", "do": "supper"},
          {"from": 19.0, "at": "hotel_porch2", "do": "talk"},
          {"from": 20.0, "in": "hotel", "do": "home"},
@@ -231,8 +250,8 @@
      "day": {
        "ordinary": [
          {"from": 5.0, "in": "ns@-61", "do": "away"},
-         {"from": 8.0, "at": "main_corner", "do": "stand"},
-         {"from": 9.0, "in": "ns@-61", "do": "away"}]},
+         {"from": 8.0, "do": "stand", "round": [{"at": "main_corner", "do": "stand", "stay": [40, 90]}, {"at": "jail_walk", "do": "stand", "stay": [30, 60]}, {"at": "bank_walk", "do": "stand", "stay": [30, 60]}, {"at": "land_office_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 10.0, "in": "ns@-61", "do": "away"}]},
      "_doc": "Roster 9: the church is off the ground (up Church Lane, past the North-South Street's end): he walks down Main Street once, 8-9, and back. His own id because `preacher` is the funeral's act man (no hours): he's off the street before its ten o'clock. A stand-in: the undertaker's model in black."},
     {"id": "saloon_girl", "name": "Saloon woman", "model": "working_girl_s3_talking", "seed": 908, "dials": {"nerve": 0.6, "nosy": 0.6, "duty": 0.4}, "shirt": [0.7, 0.25, 0.3], "vest": [0, 0, 0, 0], "home": "saloon",
      "day": {
@@ -240,7 +259,8 @@
          {"from": 3.0, "in": "saloon", "do": "sleep"},
          {"from": 12.0, "in": "saloon", "do": "home"},
          {"from": 17.0, "at": "saloon_porch", "do": "lean"},
-         {"from": 19.0, "in": "saloon", "do": "work"}]},
+         {"from": 19.0, "at": "room_talk_c", "do": "talk"},
+         {"from": 22.0, "at": "room_bar_end", "do": "stand"}]},
      "_doc": "Roster 16: asleep over the saloon till noon, on its porch for the lamps' hour, then in the room (on the book: the saloon's room is step 10's, and the yard's is No Law's). Her own face (working_girl_s3)."},
     {"id": "cody", "name": "Cody", "model": "blacksmith_s1_talking", "seed": 773, "gun": true, "shirt": [0.42, 0.45, 0.5], "vest": [0, 0, 0, 0], "act": "no_law_murder", "from": "saloon_annex",
      "_doc": "Cody, who kills Earl (No Law beat 3, #773): one of the Baron's hired guns, a rough man. Not the red shirt (Sean on #796, 2026-11-11: the red shirt (Kett) is another man and isn't in the saloon; the stranger shot the sheriff, #905), so no red shirt on him. No hours: built with the rest and kept out till the act (NoLawMurder) takes him. A stand-in: the blacksmith's model (grey-blue work shirt) till the characters lane makes Cody."},
@@ -250,8 +270,9 @@
      "day": {
        "ordinary": [
          {"from": 6.0, "in": "hotel", "do": "breakfast"},
-         {"from": 7.0, "at": "hotel_walk", "do": "stand"},
-         {"from": 12.0, "at": "hotel_walk", "do": "lean"},
+         {"from": 7.0, "do": "stand", "round": [{"at": "hotel_walk", "do": "stand", "stay": [60, 150]}, {"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"at": "saloon_walk", "do": "stand", "stay": [40, 90]}, {"in": "general_store", "do": "errand", "stay": [40, 90]}, {"at": "bank_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 12.0, "do": "lean", "round": [{"at": "hotel_walk", "do": "lean", "stay": [90, 200]}, {"at": "store_bench", "do": "sit", "stay": [90, 200]}]},
+         {"from": 13.0, "do": "stand", "round": [{"at": "hotel_walk", "do": "lean", "stay": [60, 150]}, {"at": "barber_walk", "do": "stand", "stay": [40, 90]}, {"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "talk", "stay": [30, 60]}, {"at": "bar_south", "do": "drink", "stay": [90, 200]}]},
          {"from": 18.0, "in": "hotel", "do": "supper"},
          {"from": 19.0, "at": "hotel_porch3", "do": "talk"},
          {"from": 20.0, "in": "hotel", "do": "home"},
@@ -265,13 +286,20 @@
      "_doc": "By day on the hotel's walk (No Law's scripts, docs/scripts/no_law.json: the townsman). Tells you the town's news: the sheriff shot (once he's brought in), and the morning after, Earl's murder as the town has it, or that you were sat at the table."},
     {"id": "loudmouth", "name": "Loudmouth", "model": "heavy_factory", "seed": 782, "dials": {"nerve": 0.5, "nosy": 0.8, "duty": 0.1}, "shirt": [0.62, 0.55, 0.42], "vest": [0.3, 0.22, 0.16], "home": "saloon", "says": "loudmouth",
      "day": {
-       "ordinary": [
-         {"from": 8.0, "at": "store_freight", "do": "carry"},
-         {"from": 10.0, "at": "store_bench2", "do": "sit"},
+       "uneasy": [
+         {"from": 8.0, "at": "saloon_walk", "do": "talk"},
          {"from": 12.0, "at": "saloon_walk", "do": "lean"},
-         {"from": 13.0, "at": "saloon_walk", "do": "stand"},
+         {"from": 13.0, "at": "store_bench2", "do": "sit"},
          {"from": 19.5, "in": "saloon", "do": "home"},
          {"from": 23.0, "in": "saloon", "do": "sleep"}],
+       "ordinary": [
+         {"from": 2.0, "in": "saloon", "do": "sleep"},
+         {"from": 8.0, "do": "carry", "round": [{"at": "store_freight", "do": "carry", "stay": [90, 200]}, {"at": "saloon_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 10.0, "do": "sit", "round": [{"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "saloon_walk", "do": "stand", "stay": [40, 90]}, {"at": "hotel_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 12.0, "at": "saloon_walk", "do": "lean"},
+         {"from": 13.0, "do": "stand", "round": [{"at": "saloon_walk", "do": "stand", "stay": [60, 150]}, {"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "barber_walk", "do": "stand", "stay": [30, 60]}, {"at": "bar_far", "do": "drink", "stay": [90, 200]}]},
+         {"from": 18.0, "in": "saloon", "do": "supper"},
+         {"from": 19.0, "at": "bar_far", "do": "drink"}],
        "sunday": [
          {"from": 12.0, "at": "saloon_walk", "do": "stand"},
          {"from": 19.5, "in": "saloon", "do": "home"},
@@ -281,9 +309,11 @@
      "day": {
        "ordinary": [
          {"from": 6.0, "in": "undertaker", "do": "breakfast"},
-         {"from": 7.0, "at": "undertaker_walk", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"at": "undertaker_walk", "do": "work", "stay": [150, 300]}, {"in": "undertaker", "do": "work", "stay": [40, 90]}, {"at": "carpenter_walk", "do": "stand", "stay": [30, 60]}, {"in": "general_store", "do": "errand", "stay": [30, 70]}]},
          {"from": 18.0, "in": "undertaker", "do": "supper"},
          {"from": 19.0, "in": "undertaker", "do": "home"},
+         {"from": 20.0, "at": "bar_near", "do": "drink"},
+         {"from": 20.5, "in": "undertaker", "do": "home"},
          {"from": 22.0, "in": "undertaker", "do": "sleep"}],
        "sunday": [
          {"from": 8.0, "in": "undertaker", "do": "breakfast"},
@@ -296,8 +326,6 @@
      "_doc": "The young man the doctor sends to find you on day 2 (SheriffDies: \"Harlan! Doc's asking for you.\")."},
     {"id": "dying_sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "shirt": [0.72, 0.68, 0.6], "vest": [0.22, 0.18, 0.14], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The sheriff on the doctor's cot, day 2 (SheriffDies): the road's man (the_sheriff.json's model), built with the folk (a Studio man built in play is a long frame)."},
-    {"id": "doc", "name": "Doc", "model": "doctor_s2_talking", "seed": 747, "shirt": [0.85, 0.84, 0.8], "vest": [0.12, 0.12, 0.13], "act": "sheriff_dies", "from": "doctor",
-     "_doc": "The doctor (the_sheriff.json's), day 2: at his door for you, then in the sick room."},
     {"id": "wife", "name": "Mrs.", "model": "widow_s6_talking", "seed": 796, "shirt": [0.3, 0.27, 0.3], "vest": [0, 0, 0, 0], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The sheriff's wife at his bedside, day 2. A stand-in: the widow's model (the characters lane's), only used here; at the funeral (Funeral, #868) she's the widow."},
     {"id": "preacher", "name": "Preacher", "model": "oldtimer_factory", "seed": 868, "shirt": [0.12, 0.12, 0.13], "vest": [0.08, 0.08, 0.09], "act": "funeral", "from": "undertaker",
@@ -309,10 +337,98 @@
     {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1], "act": "no_justice", "from": "doctor",
      "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."}
   ],
+  "shops": {"_doc": "The town gate's fault 3 (#1167): a shop's open hours and its keeper. A knock at its door while it's open and he's in (on the book at it) brings him out to `spot` facing you, with a line by his regard (TownBarks `knock`, else `pass`, `at` the shop); he goes back to his day once you're `leave_m` off or after `answer_s`. Shut, or him out: nobody comes.", "general_store": {"hours": [7.0, 18.0], "keeper": "storekeeper", "spot": "store_walk", "answer_s": 45.0, "leave_m": 8.0}},
+  "no_knock": ["saloon", "saloon_annex"],
+  "_no_knock": "#1095: places with no door to bang on (PlayerKnock): the saloon's set is its open yard. Elsewhere E at a door bangs on it only from outside it (ValleyFolk.past_door).",
+  "doctor_room": [6.7, 0.95, 2.6],
+  "_doctor_room": "#1095: where the doctor has a hurt man laid in his front room when he answers his door to him (FetchHelp.at_door, ValleyFolk.take_in): the doctor's building's own space [x, floor y, z] (config/moments/no_law_carry.json's laid spot, a step back).",
+  "dead": {"_doc": "The dead taken away (#1051; ValleyFolk._dead_step): a townsman killed in town and seen down (anyone holds it in TownNews), the undertaker comes for him within `seen_h` clock hours; unseen, from `morning_h` the next morning. He walks out to him (at most `walk_at_most_s`), and the body goes once you're `unseen_m` off it or it's out of your view. No Law's Earl keeps his own (`morning`).", "seen_h": 0.75, "morning_h": 6.0, "undertaker": "undertaker", "walk_at_most_s": 240.0, "unseen_m": 30.0},
+  "regard": {
+    "_doc": "How the town treats Harlan (townsfolk step 9, #1152; TownRegard; docs/briefs/townsfolk.md §5): each man's trust, fear, liking, respect (DESIGN §9) from 0, nudged by his own news (`view`: his TownNews view of Harlan; `fear_each_more` for each further man he has Harlan shooting) and the story's facts (`facts`: `if` StoryState as `talk`'s, `all` everyone, `who` one man's, `split` the town halves by each man's seed). Band: fear at `afraid_at` afraid; else trust, liking, respect averaged: `warm_at` warm, `cold_at` cold, between wary. What he shows within `show_m` (looked every `look_s`), again once you're `show_clear_m` further off. PROPOSED numbers, to be felt in play.",
+    "warm_at": 0.2, "cold_at": -0.2, "afraid_at": 0.55, "fear_each_more": 0.12,
+    "_deeds": "What a man saw Harlan do himself (#1167: a shot, a shove, a won pot used to move nothing). Each is what one seen adds; the man it was done to counts it as `to_him` seen; the nth of a kind adds `each_more`^(n-1). `fired`: each of his news versions (seen or told) with Harlan firing and nobody down. Seen: within `see_m` and his Senses see Harlan. PROPOSED numbers.",
+    "see_m": 20.0, "to_him": 2.0, "each_more": 0.5,
+    "deeds": {
+      "fired": {"trust": -0.12, "fear": 0.15, "respect": -0.08},
+      "shoot_at": {"trust": -0.3, "fear": 0.3, "liking": -0.2},
+      "aim_at": {"trust": -0.2, "fear": 0.18, "liking": -0.1},
+      "draw": {"trust": -0.06, "fear": 0.05},
+      "shove": {"liking": -0.2, "trust": -0.1, "respect": -0.05, "fear": 0.04},
+      "kick": {"liking": -0.35, "trust": -0.25, "fear": 0.12},
+      "kick_down": {"liking": -0.5, "trust": -0.35, "respect": -0.2, "fear": 0.15},
+      "won_pot": {"respect": 0.12, "liking": 0.04},
+      "carry": {"trust": 0.2, "liking": 0.2, "respect": 0.2}
+    },
+    "show_m": 7.0, "show_clear_m": 5.0, "look_s": 0.25,
+    "view": {
+      "stopped_a_killer": {"trust": 0.25, "liking": 0.15, "respect": 0.45, "fear": 0.15},
+      "shot_a_man": {"trust": -0.45, "liking": -0.35, "respect": -0.1, "fear": 0.35}
+    },
+    "facts": [
+      {"_doc": "the sheriff brought in well: curious about the man from up the creek; the doctor's respect", "if": {"sheriff.care": "good"}, "all": {"liking": 0.1, "trust": 0.05}, "who": {"doctor": {"respect": 0.3}}},
+      {"_doc": "he rode by the sheriff: wary to cold", "if": {"sheriff.care": ["left", "left him"]}, "all": {"trust": -0.35, "liking": -0.3}},
+      {"_doc": "No Law: he sat at the table and never moved (the town split, morning.you_were_there)", "if": {"nolaw.seen_from": "table"}, "split": [{}, {"respect": -0.25}]},
+      {"_doc": "sworn: 'Deputy' from most", "if": {"nolaw.deputy": true}, "all": {"respect": 0.15, "trust": 0.1}},
+      {"_doc": "stood at the grave: the widow's word carries", "if": {"nolaw.funeral": "attended"}, "all": {"liking": 0.15}},
+      {"_doc": "stayed away: noted", "if": {"nolaw.funeral": "missed"}, "all": {"liking": -0.1}},
+      {"_doc": "No Justice, arrest: the first thing the law's done since the sheriff", "if": {"nojustice.ending": "arrest"}, "all": {"respect": 0.35, "trust": 0.15}},
+      {"_doc": "No Justice, revenge: the town splits (Sean, #851 pick 3)", "if": {"nojustice.ending": "revenge"}, "split": [{"liking": 0.2, "respect": 0.1}, {"trust": -0.35, "liking": -0.2, "fear": 0.2}]},
+      {"_doc": "he shot the surrendered man: cold from those who work it out (the doctor, the undertaker); a little fear in all", "if": {"nojustice.ending": "murder"}, "all": {"fear": 0.1}, "who": {"doctor": {"trust": -0.6, "liking": -0.4}, "undertaker": {"trust": -0.6, "liking": -0.4}}},
+      {"_doc": "Kett killed in the fight: plain respect and some fear", "if": {"nojustice.kett": ["dead_outside", "dead_inside"]}, "all": {"respect": 0.3, "fear": 0.15}}
+    ]
+  },
+  "barks": {
+    "_doc": "The barks (townsfolk step 9, TownBarks): the town's script's lines with an `if` (config/town_script.json), the most specific that fits; once a day a person, no line another said within `same_line_s`, one bark at you a group (`group_m`) as you pass (again once you're `group_clear_m` off it). `pools`: each man's pools in the script, his own first (`_default` the rest).",
+    "same_line_s": 60.0, "group_m": 4.0, "group_clear_m": 10.0,
+    "pools": {
+      "_default": ["townsman"],
+      "barkeep": ["barkeep", "townsman"],
+      "storekeeper": ["storekeeper", "townsman"],
+      "store_wife": ["townswoman"],
+      "landlady": ["landlady", "townswoman"],
+      "saloon_girl": ["townswoman"],
+      "loudmouth": ["loudmouth", "townsman"],
+      "undertaker": ["undertaker", "townsman"]
+    }
+  },
+  "room": {
+    "_doc": "The saloon at night as a room (townsfolk step 10, #1157; SaloonRoom, src/people/saloon_room.gd; docs/briefs/townsfolk.md \u00a76). Built on No Law's yard set (`set`: the bar, the card table, the piano), which is where the night's people are till the set moves into saloon B; `rect` [a0, b0, a1, b1] is the room on the set's lot (move the set and this with it). **Mood** 0 hushed to 1 roaring, once `every_s`: `people` x (how many are in of `full`) + `drink` x (their drink, 0-1: `drink_per_h` an hour at a drinking spot, `drinks` the doings that count) + `music` while the band sounds + the night's `add` (`nights`: the first whose `if` the story holds, else the day kind's in `kinds`) + Harlan's (`regard`: the town's band of him, only while he's in the room), times how many of the room are calm, times the climb back after trouble (nothing for `hold_s`, then up over `recover_s`). Names: under `hushed_under` hushed; under `calm_at` with trouble not yet lived down or Harlan in and the town cold or afraid: tense; under `lively_at` calm; else lively. **The director** (once `every_s`, only with you within `live_m`): a bit every `gap` seconds by the mood ([mood, least, most] rows, between them by the mood; none under `none_under`), picked by `weight` among `bits` whose `from` (his block's `do`, or `seated`) fits a calm man in the room at his chore who may speak; the same bit from the same man not within `again_s`. laugh: his table (`table_m`) grins, one laughs `second_s` late. toast: glass up and a `room.toast` line (the town's script), the bar lifts theirs. The events: a man coming in is hailed (`room.hail`) and lifts a hand; a man going says `room.leave` and one answers (`room.answer`); you coming in (not again within `enter_again_s`): the town warm, a hail from a warm man who sees you; cold or afraid, the talk drops (`drop`: the mood times `to`, easing back over `s`; mouths shut `quiet_s`; the `looks` nearest look round at you); the barkeep, warm, sets a glass down before you unasked once a night when you've stood `glass.wait_s` within `glass.m` of him (`room.glass`). **The hush** (`trouble`): a deed of `deeds` or a shot within `margin_m` of the room: each man who hasn't sensed it himself (Reaction) looks round `look` = base + per_m x his distance + nerve x his nerve seconds after (0.15 to 1.2), a man with `ducks` (the piano player) ducks instead. `sounds`: stand-ins (SynthSounds) till #807's takes: each one placed at its man. PROPOSED numbers, to be felt in play.",
+    "rect": [0.0, 0.0, 10.4, 12.5],
+    "lights": "saloon", "_lights": "The building whose window is lit (BookLights) while the room's open after dark with someone in: the saloon's, the yard set standing in for its room.",
+    "hours": [10.0, 3.0],
+    "every_s": 1.0,
+    "live_m": 80.0,
+    "full": 12,
+    "people": 0.35, "drink": 0.25, "music": 0.15,
+    "drink_per_h": 0.3, "drinks": ["drink", "play", "talk"],
+    "kinds": {"ordinary": 0.0, "payday": 0.15, "sunday": -0.1, "uneasy": -0.15},
+    "nights": [
+      {"id": "sheriff_dead", "if": {"nolaw.sheriff": "dead", "!nolaw.funeral": true}, "add": 0.3, "_doc": "Night 2 (Sean's pick 4 C, #851): the night the sheriff dies the saloon is louder than ever."},
+      {"id": "after_murder", "if": {"nolaw.murder": "done", "!nolaw.sheriff": true}, "add": -0.25, "_doc": "The rest of the murder's night: what's left of the room is subdued."},
+      {"id": "bold", "if": {"!nolaw.murder": true, "!nolaw.sheriff": true}, "add": 0.1, "_doc": "Night 1, No Law: an ordinary night, a little bold (no sheriff tonight)."}],
+    "regard": {"warm": 0.05, "wary": 0.0, "cold": -0.25, "afraid": -0.35},
+    "hushed_under": 0.08, "calm_at": 0.4, "lively_at": 0.55,
+    "hold_s": 10.0, "recover_s": 150.0,
+    "none_under": 0.05,
+    "gap": [[0.05, 90.0, 120.0], [0.3, 40.0, 60.0], [0.7, 8.0, 20.0], [1.0, 5.0, 12.0]],
+    "again_s": 300.0,
+    "table_m": 2.4, "second_s": [0.5, 0.9],
+    "bits": {
+      "laugh": {"weight": 6, "from": ["drink", "talk", "play"], "for": [1.8, 3.0]},
+      "cough": {"weight": 1, "from": ["drink", "talk", "play", "stand", "counter"], "for": [1.1, 1.4]},
+      "stretch": {"weight": 1, "from": ["seated"], "for": [3.0, 4.5]},
+      "toast": {"weight": 1, "from": ["drink"], "for": [3.2, 3.2], "min_mood": 0.5}},
+    "enter_again_s": 120.0,
+    "drop": {"to": 0.35, "s": 45.0, "quiet_s": 6.0, "looks": 3},
+    "glass": {"m": 2.3, "wait_s": 2.0},
+    "trouble": {"deeds": ["draw", "aim_at", "shove", "kick", "kick_down", "punch", "hit", "kill"], "margin_m": 3.0, "shot_m": 15.0,
+      "look": {"base": 0.25, "per_m": 0.07, "nerve": 0.15}, "look_s": 4.0, "live_s": 3.0},
+    "sounds": {"on": true, "laugh_db": -9.0, "cough_db": -12.0, "glass_db": -8.0}
+  },
   "talk": {
     "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",
     "near_m": 4.0,
-    "gap_s": 20.0,
+    "gap_s": 20.0, "gap_jitter": 0.4, "first_s": 8.0, "_gap": "#1167: each gap `gap_s` give or take `gap_jitter` of it, and his first line within `first_s` of your coming by, by his seed and the run's (ValleyFolk.run_seed): no two runs say the same at the same seconds.",
     "sets": {
       "townsman": [
         {
@@ -371,6 +487,18 @@
           "words": [
             "Sheriff's gone, then. And Doc's pinned his star on you. Well. Somebody had to.",
             "Deputy, is it? You'll want to keep out of Cody's way."
+          ]
+        },
+        {
+          "id": "morning.you_carried",
+          "if": {
+            "nolaw.morning": true,
+            "nolaw.carried_earl": "yes"
+          },
+          "once": true,
+          "_doc": "#1057: in place of morning.you_were_there when you carried Earl (No Law's script, #1056).",
+          "words": [
+            "They say you carried him clear up the street. ... That his blood on you?"
           ]
         },
         {
@@ -464,6 +592,6 @@
     ],
     "unseen_m": 30.0,
     "sheriff_from": 7.5,
-    "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Laid out at the undertaker's."
+    "earl_death_doctor": "Earl, the card player. Shot by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Dead on the way to the doctor's; laid out in his front room overnight, then at the undertaker's.", "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Laid out at the undertaker's."
   }
 }

@@ -1,0 +1,268 @@
+<title>Salt Creek Missions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: one column, phone first. A home list (the cross-mission lists, then every mission by act); tap one to open
+   it; every line that can be answered has a note under it. The same paper, ink and type as the script pages. */
+:root {
+  --bg: #eef0ec; --page: #fbfbf8; --ink: #1d2124; --muted: #5f676b; --rule: #d4d8d2;
+  --accent: #8a3b22;   /* dried-blood brick: Sean's decisions, a saved note */
+  --new: #2f5e7a;      /* proposed */
+  --open: #6b5a1e;     /* open */
+  --field: #ffffff; --ok: #2f6b3a;
+  --f-script: "Courier Prime", "Courier New", Courier, monospace;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15181a; --page: #1d2124; --ink: #e6e4dc; --muted: #9aa3a6; --rule: #343a3d;
+  --accent: #d9805f; --new: #7fb3d1; --open: #cdb466; --field: #15181a; --ok: #7cc48a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #15181a; --page: #1d2124; --ink: #e6e4dc; --muted: #9aa3a6; --rule: #343a3d;
+  --accent: #d9805f; --new: #7fb3d1; --open: #cdb466; --field: #15181a; --ok: #7cc48a; color-scheme: dark; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 44rem; margin: 0 auto; padding-block: 16px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--page); border: 1px solid var(--rule); border-radius: 4px; padding: 20px 16px; display: grid; gap: 22px; }
+@media (min-width: 640px) { .sheet { padding: 32px 40px; } }
+h1 { font-family: var(--f-script); font-weight: 700; font-size: 1.3rem; letter-spacing: .02em; margin: 0; text-transform: uppercase; text-wrap: balance; }
+h2 { font-family: var(--f-script); font-weight: 700; font-size: 1.02rem; margin: 0; text-transform: uppercase; letter-spacing: .03em; text-wrap: balance; }
+h3 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0; }
+p { margin: 0; }
+.small { font-size: 12.5px; color: var(--muted); }
+.label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.head { display: grid; gap: 8px; }
+.notice { font-size: 13px; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 10px; }
+
+.group { display: grid; gap: 4px; }
+.row { display: grid; gap: 2px; width: 100%; text-align: left; padding: 10px 2px; border: 0; border-top: 1px solid var(--rule);
+  background: none; color: var(--ink); font: inherit; cursor: pointer; }
+.row:hover .t, .row:focus-visible .t { text-decoration: underline; }
+.row .t { font-family: var(--f-script); font-weight: 700; font-size: 16px; }
+.row .o { font-size: 13.5px; color: var(--muted); }
+.row .c { font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.has { color: var(--accent); font-weight: 600; }
+
+.back { justify-self: start; font: 600 13px var(--f-ui); border: 1px solid var(--rule); border-radius: 4px; background: var(--page); color: var(--ink); padding: 7px 12px; cursor: pointer; }
+.one { font-family: var(--f-script); font-size: 16.5px; line-height: 1.45; }
+details { border-top: 1px solid var(--rule); padding-top: 10px; }
+details > summary { cursor: pointer; font-family: var(--f-script); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: .95rem; padding: 2px 0; }
+details > summary .n { font-family: var(--f-ui); font-weight: 400; font-size: 11.5px; color: var(--muted); text-transform: none; letter-spacing: 0; margin-left: 6px; }
+.body { display: grid; gap: 8px; padding-top: 10px; }
+.it { display: grid; grid-template-columns: 2em 1fr; gap: 4px; }
+.it.d1 { margin-left: 1.2em; } .it.d2 { margin-left: 2.4em; }
+.it .n { color: var(--muted); font-size: 12.5px; padding-top: 2px; }
+.it .x { min-width: 0; overflow-wrap: anywhere; }
+.sub { font-style: italic; color: var(--muted); font-family: var(--f-script); padding-top: 6px; }
+code { font-family: var(--f-script); font-size: .92em; overflow-wrap: anywhere; }
+.st-d { color: var(--accent); } .st-p { color: var(--new); } .st-o { color: var(--open); }
+
+.nb { grid-column: 2; display: grid; gap: 3px; margin-top: 2px; }
+.addnote { justify-self: start; font: 600 11.5px var(--f-ui); color: var(--muted); border: 1px dashed var(--rule); border-radius: 4px; background: none; padding: 2px 8px; cursor: pointer; }
+.addnote.on { color: var(--accent); border-style: solid; border-color: var(--accent); }
+textarea { width: 100%; box-sizing: border-box; min-height: 2.6em; resize: vertical; font: 14px/1.4 var(--f-ui); color: var(--ink);
+  background: var(--field); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; }
+textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--new); outline-offset: 2px; }
+.saved { font-size: 11.5px; color: var(--muted); min-height: 1em; }
+.big { display: grid; gap: 4px; padding: 10px; background: var(--bg); border-radius: 4px; }
+.big .nb { grid-column: auto; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <article class="sheet" id="sheet">
+    <header class="head">
+      <div class="label">Salt Creek · missions</div>
+      <h1>Missions</h1>
+      <p class="small" id="status">Loading the missions…</p>
+    </header>
+  </article>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const sheet = document.getElementById("sheet");
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let db = null, notes = {}, data = null, storeState = "loading";
+
+  function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  // Mark the status words the bible uses, so Sean's decisions stand out.
+  const mark = (h) => h.replace(/\[(D\b[^\]]*)\]/g, '[<span class="st-d">$1</span>]').replace(/\[(P\b[^\]]*)\]/g, '[<span class="st-p">$1</span>]').replace(/\[(O\b[^\]]*)\]/g, '[<span class="st-o">$1</span>]');
+  const plain = (h) => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent || ""; };
+
+  function saver(key, getData, statusEl) {
+    let timer = null, busy = false, again = false;
+    async function write() {
+      if (!db) return;
+      if (busy) { again = true; return; }
+      busy = true; statusEl.textContent = "Saving…";
+      const d = getData();
+      try {
+        if (d.note.trim()) await db.doc("notes/" + key).set(Object.assign(d, { at: new Date().toISOString() }));
+        else if (notes[key]) await db.doc("notes/" + key).delete();
+        if (d.note.trim()) notes[key] = d; else delete notes[key];
+        statusEl.textContent = d.note.trim() ? "Saved" : "";
+      } catch (e) { statusEl.textContent = "Not saved: " + (e && e.code ? e.code : "the store refused it") + ". Try again in a moment."; }
+      busy = false; if (again) { again = false; write(); }
+    }
+    return { soon() { clearTimeout(timer); timer = setTimeout(write, 700); }, now() { clearTimeout(timer); write(); } };
+  }
+
+  // A note under one line (key), opened by a small button; `about` is the line's own words, kept with the note
+  // so a later session can find the line even if the numbering has moved.
+  function noteBox(key, about, where, open) {
+    const box = el("div", "nb");
+    const has = !!(notes[key] && notes[key].note);
+    const btn = el("button", "addnote" + (has ? " on" : ""), has ? "Your note" : "+ note"); btn.type = "button";
+    const ta = document.createElement("textarea"); ta.id = "n-" + key; ta.rows = 2; ta.value = has ? notes[key].note : "";
+    ta.placeholder = "Keep, cut, change, or the answer"; ta.setAttribute("aria-label", "Note on: " + about.slice(0, 80));
+    const saved = el("div", "saved");
+    const s = saver(key, () => ({ note: ta.value, about: about.slice(0, 300), where: where }), saved);
+    ta.disabled = !db; ta.hidden = !(has || open); saved.hidden = ta.hidden;
+    btn.hidden = !!open;
+    btn.addEventListener("click", () => { ta.hidden = !ta.hidden; saved.hidden = ta.hidden; if (!ta.hidden) ta.focus(); });
+    ta.addEventListener("input", () => { btn.textContent = ta.value.trim() ? "Your note" : "+ note"; btn.classList.toggle("on", !!ta.value.trim()); s.soon(); });
+    ta.addEventListener("blur", () => s.now());
+    box.append(btn, ta, saved);
+    return box;
+  }
+
+  function renderBlocks(blocks, keyBase, where) {
+    const body = el("div", "body");
+    blocks.forEach((b, i) => {
+      if (b.t === "h") { body.append(el("div", "sub", mark(b.x))); return; }
+      const it = el("div", "it" + (b.d ? " d" + b.d : ""));
+      it.append(el("span", "n", esc(b.n || (b.t === "li" ? "·" : ""))));
+      it.append(el("span", "x", mark(b.x)));
+      it.append(noteBox(keyBase + "." + i, plain(b.x), where));
+      body.append(it);
+    });
+    return body;
+  }
+
+  function countNotes(prefix) { return Object.keys(notes).filter((k) => k === prefix || k.startsWith(prefix + ".")).length; }
+  function storeLine() {
+    if (storeState === "loading") return el("p", "small", "Loading your notes…");
+    if (!db) return el("p", "notice", "Notes can't be saved in this view (signed out, or the store didn't answer). Everything still reads.");
+    return el("p", "small", "Notes save as you type. " + Object.keys(notes).length + " saved so far.");
+  }
+
+  function home() {
+    sheet.innerHTML = "";
+    const head = el("header", "head");
+    head.append(el("div", "label", "Salt Creek · 1882 · every mission in one place"));
+    head.append(el("h1", "", "Missions"));
+    head.append(el("p", "", "Pick a mission to read it beat by beat. Leave a note under any line: keep, cut, change, or the answer to a question. The next session reads them all."));
+    head.append(el("p", "small", "In a line's brackets: <span class=\"st-d\">D</span> is your decision, <span class=\"st-p\">P</span> is only proposed, <span class=\"st-o\">O</span> is open; “built” is in the game now. Gathered " + esc(data.built) + "."));
+    head.append(storeLine());
+    sheet.append(head);
+
+    const first = el("section", "group"); first.append(el("h2", "", "Across the missions"));
+    data.top.forEach((t) => {
+      const n = countNotes("t." + t.id);
+      const r = el("button", "row"); r.type = "button";
+      r.append(el("span", "t", esc(t.title)));
+      r.append(el("span", "c", "<span>" + t.blocks.filter((b) => b.t !== "h").length + " lines</span>" + (n ? '<span class="has">' + n + " of your notes</span>" : "")));
+      r.addEventListener("click", () => { location.hash = "t-" + t.id; });
+      first.append(r);
+    });
+    sheet.append(first);
+
+    data.acts.forEach((a) => {
+      const g = el("section", "group"); g.append(el("h2", "", esc(a.title)));
+      a.missions.forEach((m) => {
+        const n = countNotes("m." + m.id);
+        const sec = (k) => (m.sections.find((s) => s.label.toLowerCase().startsWith(k)) || { blocks: [] }).blocks.filter((b) => b.t !== "h").length;
+        const r = el("button", "row"); r.type = "button";
+        r.append(el("span", "t", esc(m.title)));
+        if (m.one) r.append(el("span", "o", m.one));
+        const c = [];
+        if (!m.loose) { c.push("<span>" + sec("beats") + " beats</span>", "<span>" + sec("where the sources") + " disagree</span>", "<span>" + sec("open q") + " open</span>", "<span>" + sec("every other") + " other ideas</span>"); }
+        if (n) c.push('<span class="has">' + n + " of your notes</span>");
+        r.append(el("span", "c", c.join("")));
+        r.addEventListener("click", () => { location.hash = "m-" + m.id; });
+        g.append(r);
+      });
+      sheet.append(g);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function backBtn() { const b = el("button", "back", "← All missions"); b.type = "button"; b.addEventListener("click", () => { location.hash = ""; }); return b; }
+
+  function topic(t) {
+    sheet.innerHTML = "";
+    sheet.append(backBtn());
+    const head = el("header", "head"); head.append(el("div", "label", "Across the missions")); head.append(el("h1", "", esc(t.title))); head.append(storeLine());
+    sheet.append(head);
+    sheet.append(renderBlocks(t.blocks, "t." + t.id, t.title));
+    sheet.append(backBtn());
+    window.scrollTo(0, 0);
+  }
+
+  // Sections opened by default: what a review needs first. The rest are the full record, closed until asked for.
+  const OPEN = ["harlan walks", "beats", "choices", "where the sources", "open q"];
+  function mission(m, actTitle) {
+    sheet.innerHTML = "";
+    sheet.append(backBtn());
+    const head = el("header", "head");
+    head.append(el("div", "label", esc(actTitle)));
+    head.append(el("h1", "", esc(m.title)));
+    if (m.one) head.append(el("p", "one", m.one));
+    head.append(storeLine());
+    sheet.append(head);
+    const big = el("div", "big");
+    big.append(el("h3", "", "Your note on the whole mission"));
+    big.append(noteBox("m." + m.id, m.title, m.title, true));
+    sheet.append(big);
+    const order = (s) => { const i = OPEN.findIndex((k) => s.label.toLowerCase().startsWith(k)); return i < 0 ? 99 : i; };
+    m.sections.slice().sort((a, b) => order(a) - order(b)).forEach((s) => {
+      const d = document.createElement("details"); d.id = "s-" + s.k;
+      d.open = m.loose || order(s) < 99 || countNotes("m." + m.id + "." + s.k) > 0;
+      const n = s.blocks.filter((b) => b.t !== "h").length;
+      d.append(el("summary", "", esc(s.label) + '<span class="n">' + n + (n === 1 ? " line" : " lines") + "</span>"));
+      d.append(renderBlocks(s.blocks, "m." + m.id + "." + s.k, m.title + " / " + s.label));
+      sheet.append(d);
+    });
+    sheet.append(backBtn());
+    window.scrollTo(0, 0);
+  }
+
+  function route() {
+    if (!data) return;
+    const h = (location.hash || "").replace(/^#/, "");
+    if (h.startsWith("m-")) {
+      for (const a of data.acts) { const m = a.missions.find((x) => x.id === h.slice(2)); if (m) return mission(m, a.title); }
+    }
+    if (h.startsWith("t-")) { const t = data.top.find((x) => x.id === h.slice(2)); if (t) return topic(t); }
+    home();
+  }
+
+  async function start() {
+    try {
+      const r = await fetch("missions.json", { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      data = await r.json();
+    } catch (e) {
+      document.getElementById("status").textContent = "The missions file didn't load (" + e.message + "). Reload the page.";
+      return;
+    }
+    route();
+    window.addEventListener("hashchange", route);
+    const giveUp = setTimeout(() => { if (storeState === "loading") { storeState = "none"; route(); } }, 10000);
+    try {
+      const use = window.claude && window.claude.use;
+      db = use ? await window.claude.use("db") : null;
+    } catch (e) { db = null; }
+    if (db) {
+      try { const c = await db.collection("notes").get(); c.docs.forEach((x) => { notes[x.id] = x.data(); }); }
+      catch (e) { /* an empty store: start blank */ }
+    }
+    clearTimeout(giveUp); storeState = db ? "ready" : "none";
+    route();
+  }
+  start();
+})();
+</script>

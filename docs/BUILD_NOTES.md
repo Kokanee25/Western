@@ -6,6 +6,12 @@ adrenaline, and loses his nerve. No hit points. Shoot at him and he shoots back,
 same body.
 
 
+### Changed: a PR's tests in about 25 minutes, not 100
+
+- **CI's tests run in six parallel jobs** ("test (1/6)" to "test (6/6)" under "Test and build"),
+  split by how long each test file takes, and start from main's last import instead of a fresh
+  ten-minute one. Nothing in the game changes; builds just come sooner. All tests still run.
+
 ### New: the man at the card table faces you
 
 - **The stranger at the saloon's card table sits upright with his head turned toward you**,

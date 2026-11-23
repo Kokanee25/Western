@@ -3,6 +3,10 @@
 The story bible, part 3 of 5 (#809). Planning only. A sheet for every speaking character: background,
 how they talk, what they call Harlan, what they know and from when, five lines, their threads.
 
+**How anyone talks at all** (the period's own record, the craft, the banned AI tells) is in
+[`DIALOGUE.md`](DIALOGUE.md), since 2026-11-17 (#1056). The sample lines below were written before it: where
+one breaks it, `DIALOGUE.md` and the scripts (`docs/scripts/`) win.
+
 **Read this first.**
 - Lines marked **(built)** are in the game now (`config/moments/the_sheriff.json`,
   `no_law_murder.json`). Lines marked **(Sean)** are his words or his decided beat. **Every other
@@ -126,6 +130,9 @@ fact, not the beat.
 - **Who:** a Southern Ute man; his wife was raped, murdered and scalped in the raid at B2 while the
   men were hunting (D). Harlan's one full companion (D). Later "the man with plans" (P, #738). Why he
   knows timber and trains is O (#738).
+- **Not stately** (`DIALOGUE.md` tell 9, #1056): he uses the contractions he's heard a thousand times, talks
+  about things (dogs, a hat, the horses) and never about what they mean. "Good. Get your horse.", not "Then
+  we go now."
 - **How he talks:** English is his third language, after Ute and Spanish (`WORDS.md`). So it's
   exact and plain, with few contractions: not broken, not grand. Says a thing once. Long quiet. Dry
   humour. His questions are tests. With his own people he speaks Ute, and those lines aren't written
@@ -177,6 +184,20 @@ fact, not the beat.
   2. "Don't move, friend. Whatever happens next, you sit still." (built)
   3. "You didn't see a thing tonight. Nobody did. Remember that." (built)
   4. "Put it up. You'll only get yourself killed." (built)
+- **What he is (D, Sean 2026-11-17, #1056):** "cocky and arrogant … but also a coward - that's why the sheriff was only
+  shot in the gut and not finished off". **Held back: "probably a mid game reveal"** (Sean), though players will guess.
+  So: he fired once from the saddle and rode, which is why the sheriff lived a day and talked, which is why he has to
+  sit down with Harlan and find out what was said. His cowardice is the reason the table scene exists. On night one he
+  must still seem the most dangerous man in the room: amused, condescending, and never tested (Harlan has no gun until day 2: Sean, 2026-11-17), with Cody's friends
+  are in the street. He only acts when it's safe: he lets Cody kill, he holds an unarmed man, he comes up the widow's
+  lane with the Colters' guns behind him. Not Kett's kind of coward: Kett begs aloud the moment he's cornered; this man
+  is smug until there is nobody standing behind him, and then there is nothing in him at all. Nobody ever says the word.
+  The Baron knows it, and despises him for the botched job (P·bible: one cold line from the Baron, later).
+  Hints only, before the reveal (`SETUPS.md` S51). Where it breaks (P·bible): alone with Harlan and the sheriff's own
+  revolver, on the widow's lane if he's walked in at gunpoint, or in the raid.
+- **How he talks, settled for the scripts (s21; P until Sean's Script OK, #1056):** soft-spoken and mannerly; he
+  asks leave for what he means to do anyway ("Mind if I sit in a while?", "Might I stand you a drink?"), which
+  is how the sheriff let him ride up (`SETUPS.md` S46). "Ain't" when it suits him. Before that:
 - **How he talks: O (s21).** The built lines are calm, low and educated (Sean wanted the stranger's
   voice "more educated": from the master chat, not in the repo; to confirm). The foreman's sheet
   before the pick was a cowman's flat, friendly, practical talk. Which one he is, or how both are
@@ -193,7 +214,7 @@ fact, not the beat.
   3. "Two lengths and go home. Not a spike more." (to the men at the rail; overheard)
   4. "I pay on the first. What a man does with it is his own lookout."
   5. "We've met, Deputy. You sat very still." (the lane, to a player who was at the table; "You
-     should have sat still", to one who went for him: C16 a, P·bible)
+     should have sat still" is dropped: Harlan is unarmed on night one, Sean 2026-11-17)
   6. "Morning, Sheriff. Am I right for the ford, friend?" (B0, by C16 a, D; nobody alive hears it but
      him. Was Kett's)
   7. "Heard it was you brought the sheriff in. He say who it was?" (B2, at the table, P·bible:
@@ -347,7 +368,7 @@ under "The Baron's foreman".
 | **Earl**, the card player | Caught out, placating | "Now, Cody, I never..." (built) |
 | **The boys** (two, young; names Sean's) | Loud, in the middle of a game | "Hands up, mister! This is a hold-up!" · "That's Pa's horse." |
 | **The livery man** | Grumbling to hide that he minds | "That horse is eating my oats, and the man that owned him's in the ground. Somebody ought to take him home to her." |
-| **The storekeeper** | Careful; everything's written down | "One handsaw, to a man I never saw before. It's in the book. Everything's in the book." |
+| **The storekeeper**, A. P. Hollis (his name gilded on the windows: Sean, #1067) | Careful; everything's written down | "One handsaw, to a man I never saw before. It's in the book. Everything's in the book." |
 | **The depot agent** | Railroad time, railroad words | "She's four minutes down by my clock. The town's clock don't signify." · "He's sent another wire east, Deputy." |
 | **The section foreman** | Out of breath, exact about track | "Spikes drawn, two rail lengths, west of the tank. And two riders I never saw before." |
 | **The express messenger** | Bleeding, still doing his job | "They've shut the cocks. Part her and she'll run on. Open the cocks first." |

@@ -390,6 +390,9 @@ var gait := &""
 var prone := false
 ## Someone has him by the collar and is dragging him (a friend getting him out of the line of fire).
 var dragged_by: Node3D
+## Carried over someone's shoulder (PlayerCarry): off the ground, so he bleeds into the carrier's
+## coat, not onto it (no pool under him, no smear; the pool where he lay stays there).
+var carried := false
 var _gait_phase := 0.0
 ## Experiment (Sean, 2026-10-17: "let's just experiment with it"): walking and running by motion
 ## capture (experiments/mocap_walk/: a CMU walk and run retargeted onto this rig) in place of the
@@ -1802,6 +1805,8 @@ const COME_TO_BACK := [[&"lie_back", Vector3(90, 0, 0), 0.5, 0.0], [&"sit_ground
 		[&"prone", Vector3(-90, 0, 0), 0.9, 0.0]]
 ## He may get up (set by `brace`: an unhurt fall); cleared as he goes limp.
 var rise_ok := false
+## A scene wants him down where he is (Earl at the card table): no brain gets him up (#1116).
+var keep_down := false
 var _rise_to_prone := false  ## the stages end on his belly (come_to_ground), not on his feet
 ## Getting up now: the rig is the stages', not _place_rig's.
 var rising := false
@@ -1827,14 +1832,17 @@ func _rise_watch(delta: float) -> void:
 			still = false
 			break
 	_still_t = _still_t + delta if still else 0.0
+	# Not while someone has him (carried over a shoulder or dragged, #1081: still on your shoulder
+	# while you stood, he got up off it).
 	if rise_ok and _down_t >= RISE_AFTER and _still_t >= RISE_STILL and physiology.can_stand() and physiology.shock() < 0.3 \
-			and physiology.severed_segments.is_empty():
+			and physiology.severed_segments.is_empty() and dragged_by == null:
 		get_up()
 
 
 ## Get up off the ground now (limp, alive, his legs his own).
 func get_up() -> void:
-	if not limp or rising or not physiology.can_stand() or not physiology.severed_segments.is_empty():
+	if not limp or rising or not physiology.can_stand() or not physiology.severed_segments.is_empty() \
+			or dragged_by != null:
 		return
 	_rise(RISE_BACK, RISE_FRONT, false)
 
@@ -1974,6 +1982,20 @@ func _spare_rubble(at: Vector3) -> void:
 			_spared.append(rb)
 		if hits.size() < SPARE_A_LOOK:
 			break
+
+
+## Gone limp: the player walks through him (Layers.BODY_PARTS), so he isn't shoved by the player either.
+## The player's capsule is on WORLD, which a ragdoll lands on: a kinematic capsule stood on a dead
+## man's legs pressed them into the ground, and stepped off, they sprang apart at 30-45 m/s and flung
+## the kicked-in door's pieces into your head (No Justice's cabin: out cold, woken in town, Joe let go
+## with you 2 km off; #1092). Men's own capsules (PEOPLE) already pass through him.
+func _through_the_player(bodies: Dictionary) -> void:
+	if not is_inside_tree():
+		return
+	for p: Node in get_tree().get_nodes_in_group(&"player"):
+		if p is PhysicsBody3D:
+			for rb: RigidBody3D in bodies.values():
+				rb.add_collision_exception_with(p)
 
 
 ## Gone limp: the pieces let through the rig he had (`_spare_rubble`) and in him now let through the
@@ -2119,6 +2141,8 @@ func _rebuild_rig() -> void:
 func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> bool:
 	if limp or rising or (stumbling > 0.0 and not _stumble.get("steering", false)):
 		return false
+	if not SceneHold.live.is_empty():
+		target = SceneHold.steer(self, target)  # a scene's quiet zone: off its marks, chairs, actors (#1050)
 	var to := target - global_position
 	to.y = 0.0
 	var dist := to.length()
@@ -2127,7 +2151,7 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 	var p := physiology
 	var how := &"run" if speed > 2.4 else &"walk"
 	# Hurt legs slow him and make him limp; a leg or a body he's favouring slows him as it comes on.
-	var legs := minf(p.muscle_strength("leg", "r"), p.muscle_strength("leg", "l"))
+	var legs := minf(p.leg_power("r"), p.leg_power("l"))
 	speed *= lerpf(0.4, 1.0, legs) * (1.0 - p.shock() * 0.5) * favour_pace()
 	if (legs < 0.75 or maxf(favouring(&"leg_r"), favouring(&"leg_l")) > FAVOUR_LIMP) and not prone:
 		how = &"limp"
@@ -2856,8 +2880,8 @@ func _gait_overlay(delta: float) -> Dictionary:
 			var amp_t := 40.0 if run else 22.0
 			var amp_s := 75.0 if run else 38.0
 			var amp_a := 32.0 if run else 14.0
-			var bad_r := gait == &"limp" and physiology.muscle_strength("leg", "r") - favouring(&"leg_r") \
-					<= physiology.muscle_strength("leg", "l") - favouring(&"leg_l")
+			var bad_r := gait == &"limp" and physiology.leg_power("r") - favouring(&"leg_r") \
+					<= physiology.leg_power("l") - favouring(&"leg_l")
 			# A leg he favours takes a shorter stride as it comes on; limping, the bad one a third.
 			var k_r := 0.35 if gait == &"limp" and bad_r else lerpf(1.0, 0.5, favouring(&"leg_r"))
 			var k_l := 0.35 if gait == &"limp" and not bad_r else lerpf(1.0, 0.5, favouring(&"leg_l"))
@@ -4775,6 +4799,11 @@ func mop_pool(share: float) -> void:
 
 
 func _update_pool() -> void:
+	if carried:
+		if _pool != null:
+			_pool = null  # left where he lay (top_level: it stays put); a new one where he's laid down
+			_pool_ml = 0.0
+		return
 	if not physiology.alive and physiology.total_bleed_rate() < 0.01:
 		return
 	var rate := physiology.total_bleed_rate()
@@ -4990,6 +5019,10 @@ func jaw_away(dir: Vector3) -> void:
 		(edge as Decal).position += Vector3(0, -0.02, 0)
 
 
+## The gun he dropped, where it lies (null: he has it, never had one, or it's gone).
+var dropped_gun: RigidBody3D
+
+
 func drop_gun() -> void:
 	if held_gun == null:
 		return
@@ -5011,6 +5044,7 @@ func drop_gun() -> void:
 	rb.add_child(shape)
 	gun.reparent(rb, true)
 	rb.add_to_group(&"dropped_guns")
+	dropped_gun = rb
 	curl_hand("r", 0.2)
 
 
@@ -5084,6 +5118,7 @@ func go_limp(push := Vector3.ZERO) -> void:
 		parts[sid] = rb
 	_scale_inertia(bodies)
 	_spare_ragdoll(bodies, rig)
+	_through_the_player(bodies)
 	for sid: StringName in anatomy.segments:
 		var parent: StringName = anatomy.segments[sid].parent
 		if parent == &"":
@@ -5166,6 +5201,8 @@ func go_limp(push := Vector3.ZERO) -> void:
 	_rig.queue_free()
 	pivots.clear()
 	_blocker.queue_free()
+	if _restoring:
+		return  # (a save's man laid as he lay: nobody falls, nobody sees one fall)
 	fell.emit(conscious)
 	Events.person_fell.emit(self, conscious)
 
@@ -6857,3 +6894,232 @@ func to_dict() -> Dictionary:
 			return {"at": [o.at.x, o.at.y, o.at.z], "energy": o.energy, "radius": o.radius})
 	return {"person_id": person_id, "tick_index": tick_index, "physiology": physiology.to_dict(), "wounds": ws, "openings": ops,
 			"garment_holes": gs, "limp": limp, "gun_dropped": has_gun and held_gun == null}
+
+
+# --- Saved (SaveGame, #1138) -------------------------------------------------------------------
+
+## A value with nothing of the scene in it (a wound's decals, a node): what a save can keep.
+static func plain(v: Variant) -> Variant:
+	# (By type, not `is`: a node since freed, a body the undertaker took, is still an Object here,
+	# and `is` on one is an error.)
+	if typeof(v) == TYPE_OBJECT:
+		return null
+	if v is Dictionary:
+		var out := {}
+		for k: Variant in v:
+			if typeof(k) != TYPE_OBJECT and typeof(v[k]) != TYPE_OBJECT:
+				out[k] = plain(v[k])
+		return out
+	if v is Array:
+		var out := []
+		for x: Variant in v:
+			if typeof(x) != TYPE_OBJECT:
+				out.append(plain(x))
+		return out
+	return v
+
+
+## What a save keeps of him: his body's state, each wound whole (what paints it as well as what it
+## did), where he stands or, limp, how each part of him lies; and what he's made of, so a dead man
+## no roster makes again can still lie where he fell (`made`).
+func save_dict() -> Dictionary:
+	var ws := []
+	for w in wounds:
+		var c: Dictionary = plain(w)
+		c.erase("stain")
+		c.erase("marks")
+		ws.append(c)
+	var gs := {}
+	for g in garments:
+		gs[g.id] = g.holes.duplicate(true)
+	var lie := {}
+	if limp:
+		for sid: StringName in parts:
+			if is_instance_valid(parts[sid]):
+				lie[sid] = (parts[sid] as Node3D).global_transform
+	# Which of his parts are let through each other as he lies (`_keep_apart`), and how deep.
+	var apart := []
+	for pair: Array in _apart:
+		if is_instance_valid(pair[0]) and is_instance_valid(pair[1]):
+			apart.append([(pair[0] as Node).get_meta(&"segment"), (pair[1] as Node).get_meta(&"segment"), pair[2]])
+	return {"person_id": person_id, "physiology": physiology.to_dict(), "wounds": ws, "openings": plain(openings), "apart": apart,
+			"garment_holes": gs, "limp": limp, "gun_dropped": has_gun and held_gun == null,
+			"at": global_transform, "lie": lie, "pose": pose, "prone": prone,
+			"gun_at": dropped_gun.global_transform if dropped_gun != null and is_instance_valid(dropped_gun) else null,
+			"made": {"name": String(name), "body_model": body_model, "rng_seed": rng_seed, "has_gun": has_gun,
+				"skin_tone": skin_tone, "shirt_color": shirt_color, "vest_color": vest_color, "coat_color": coat_color,
+				"trousers_color": trousers_color, "hat_color": hat_color, "bandana_color": bandana_color,
+				"masked": masked, "use_paint": use_paint, "total_mass": total_mass}}
+
+
+## A man as his roster or `made_from` makes him, not yet in the world: a save's dead with no one
+## else to make them.
+static func made_from(d: Dictionary) -> HumanBody:
+	var man := HumanBody.new()
+	man.person_id = d.person_id
+	var made: Dictionary = d.get("made", {})
+	for k: String in made:
+		man.set(k, made[k])
+	return man
+
+
+## A save's man put back on him as made (in the world, unhurt): where he was, his body's state, his
+## wounds on him again (painted, opened, bound; no blood thrown, nothing heard, no death told: he
+## was dead already), and, limp, lying as he lay.
+func load_dict(d: Dictionary) -> void:
+	_restoring = true
+	_load(d)
+	_restoring = false
+
+
+## True while a save's being put on him (`load_dict`).
+var _restoring := false
+
+
+func _load(d: Dictionary) -> void:
+	global_transform = d.at
+	physiology.from_dict(d.physiology)
+	_was_alive = physiology.alive
+	for g in garments:
+		if d.garment_holes.has(g.id):
+			g.holes = (d.garment_holes[g.id] as Array).duplicate(true)
+	openings = (d.openings as Dictionary).duplicate(true)
+	for sid: StringName in openings:
+		_apply_openings(sid)
+	wounds.clear()
+	for saved: Dictionary in d.wounds:
+		var w := saved.duplicate(true)
+		w["stain"] = null
+		wounds.append(w)
+		if w.get("kind", &"") in [&"severed", &"amputated"] or w.get("entry") == null or not w.has("dir") or not visuals.has(w.segment):
+			continue
+		if not w.has("stop"):
+			w["stop"] = null
+		_paint_wound(w)
+	if d.gun_dropped and held_gun != null:
+		drop_gun()
+		if d.get("gun_at") != null and dropped_gun != null:
+			dropped_gun.global_transform = d.gun_at  # (where it fell, not under his hand as he's made)
+			dropped_gun.sleeping = true
+		elif dropped_gun != null:
+			dropped_gun.queue_free()  # (picked up or lost since)
+			dropped_gun = null
+	if d.limp:
+		# Posed as he lay before he's let go: a ragdoll's joints take their limits from the pose he
+		# goes limp in, and let go standing, an arm lying bent was pushed to where a standing man's
+		# elbow allows (his hand lifted off the boards as you loaded).
+		_pose_as(d.lie)
+		go_limp()
+		_tone.clear()  # (no last moment of muscle holding him as he stood: he's lain here a while)
+		_lie_as(d.lie)
+		# The same pairs of his parts let through each other as when he was saved, no others
+		# (worked out afresh, a forearm he lay propped on was let through and he sank onto it).
+		for pair: Array in _apart:
+			(pair[0] as RigidBody3D).remove_collision_exception_with(pair[1])
+		_apart.clear()
+		for pair: Array in d.get("apart", []):
+			var pa := parts.get(pair[0]) as RigidBody3D
+			var pb := parts.get(pair[1]) as RigidBody3D
+			if pa and pb:
+				pa.add_collision_exception_with(pb)
+				_apart.append([pa, pb, pair[2]])
+		# (Going limp wakes him and hands on what he was doing: laid again a frame on, asleep.)
+		_lie_again(d.lie)
+	elif d.prone:
+		go_prone()
+	elif pose != d.pose:
+		set_pose(d.pose)
+	# Limbs off: the joint let go, the cut faces drawn (the limb lies where its parts were saved; a
+	# doctor's amputation has none).
+	for w in wounds:
+		var seg: StringName = w.get("part", &"")
+		if not w.get("kind", &"") in [&"severed", &"amputated"] or not anatomy.segments.has(seg):
+			continue
+		var parent: StringName = w.segment
+		var at: Vector3 = (parts[parent] as Node3D).global_transform * (w.entry as Vector3)
+		var down := (parts[seg] as Node3D).global_position - at
+		_stop_skinning_across_joints(seg)
+		var joint := get_node_or_null(NodePath("Joint_%s" % seg))
+		if joint:
+			joint.queue_free()
+		var r := float(anatomy.segments[seg].radius) * 1.2
+		if w.kind == &"amputated":
+			for sid in anatomy.segments_below(seg):
+				var rb := parts.get(sid) as Node3D
+				if rb:
+					rb.visible = false
+					if rb is CollisionObject3D:
+						(rb as CollisionObject3D).collision_layer = 0
+						(rb as CollisionObject3D).collision_mask = 0
+					for mi in segment_pieces.get(sid, []):
+						(mi as MeshInstance3D).visible = false
+			_stump_face(parent, at, down, r, &"stump_sewn")
+		else:
+			_stump_face(parent, at, down, r, _stump_look(parent, seg))
+			_stump_face(seg, at, -down, r, _stump_look(seg, seg))
+	# What was bound on him: the belt above, the bandage, the splint.
+	var bound := {}
+	for b: Dictionary in physiology.bleeds:
+		var how := &"tourniquet" if b.get("tourniquet", false) else (&"pressure" if b.get("bandaged", false) else &"")
+		if how != &"" and not bound.has([how, b.segment]):
+			bound[[how, b.segment]] = true
+			_bind_wound(how, b.segment)
+
+
+## Every part of him where a save had it, still and asleep.
+func _lie_as(lie: Dictionary) -> void:
+	for sid: StringName in lie:
+		var rb := parts.get(sid) as RigidBody3D
+		if rb and is_instance_valid(rb):
+			rb.global_transform = lie[sid]
+			rb.linear_velocity = Vector3.ZERO
+			rb.angular_velocity = Vector3.ZERO
+			rb.sleeping = true
+
+
+## The standing rig put in the pose a save's man lay in (each joint's angle as he lay; `_rise` reads
+## the same off a ragdoll to get him up).
+func _pose_as(lie: Dictionary) -> void:
+	if limp or not lie.has(&"pelvis") or _rig == null:
+		return
+	_rig.global_transform = (lie[&"pelvis"] as Transform3D).orthonormalized() * Transform3D(Basis(), -anatomy.segment_center(&"pelvis"))
+	for sid: StringName in anatomy.segment_order():
+		var parent: StringName = anatomy.segments[sid].parent
+		if parent == &"" or not lie.has(sid) or not lie.has(parent) or not pivots.has(sid):
+			continue
+		var rel := (lie[parent] as Transform3D).basis.orthonormalized().inverse() * (lie[sid] as Transform3D).basis.orthonormalized()
+		(pivots[sid] as Node3D).basis = rel
+		var deg := rel.get_euler() * (180.0 / PI)
+		# A knee's or an elbow's bend is the angle between the two bones as they lie (its hinge's
+		# limits are counted from it; off an Euler angle a knee was free to fold backwards and he
+		# sank on it): a knee bends with -X, an elbow with +X.
+		var hinge := String(sid).begins_with("shin") or String(sid).begins_with("forearm")
+		if hinge and not anatomy.segments[sid].capsules.is_empty() and not anatomy.segments[parent].capsules.is_empty():
+			var pc: Array = anatomy.segments[parent].capsules[0]
+			var cc: Array = anatomy.segments[sid].capsules[0]
+			var p_rest := ((pc[1] as Vector3) - (pc[0] as Vector3)).normalized()
+			var c_rest := ((cc[1] as Vector3) - (cc[0] as Vector3)).normalized()
+			var bend := rad_to_deg(((lie[parent] as Transform3D).basis.orthonormalized() * p_rest).angle_to((lie[sid] as Transform3D).basis.orthonormalized() * c_rest)) \
+					- rad_to_deg(p_rest.angle_to(c_rest))
+			deg.x = -clampf(bend, 0.0, KNEE_BEND) if String(sid).begins_with("shin") else clampf(bend, 0.0, ELBOW_BEND)
+		_pose_now[sid] = deg
+
+
+## The ragdoll's bodies are in the physics world a step after they're made, awake: laid again once
+## they are, and asleep this time, so nothing of him moves till something touches him.
+func _lie_again(lie: Dictionary) -> void:
+	await get_tree().physics_frame
+	if not is_inside_tree() or not limp:
+		return
+	_lie_as(lie)
+	# (Moving a body wakes it at the next step, whatever it was told: put to sleep once more, unmoved.)
+	for i in 2:
+		await get_tree().physics_frame
+		if not is_inside_tree() or not limp:
+			return
+		for sid: StringName in lie:
+			var rb := parts.get(sid) as RigidBody3D
+			if rb and is_instance_valid(rb):
+				rb.linear_velocity = Vector3.ZERO
+				rb.angular_velocity = Vector3.ZERO
+				rb.sleeping = true

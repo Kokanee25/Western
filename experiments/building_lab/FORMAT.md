@@ -59,7 +59,7 @@ studs (the siding cut for it) and a shed roof; `lamps.on_furniture` [x, y over t
 height by its `profile`, #811) {kit, wall, level, at, height (its foot over the floor), side (a
 partition's `-`/`+`; `out` on an outer wall's siding outside, #886), lit [from, until], energy, reach,
 shadows}; a front's painted sign letters (`letters_<sign>`, the factory's `lettering`) are laid on its
-board, cut to them, which takes a finish (`front/sign`), the letters at most `front.sign_width` m
+board, cut to them, which takes a finish (`front/sign`), the letters at most `front.sign_width` m (`sign_from`..`sign_to` the board's bottom and top; default the parapet's, the store's over its porch)
 across (shorter where the name is long), #886;
 furniture `members` `bed` (head `+x`/`-x`), `dresser` and `stove` (iron; `at`, `size` in its own
 axes, `facing`, `pipe`).
@@ -117,6 +117,38 @@ height, lift, wall, art} a PaintedDrop under a batten nailed to the wall behind 
 `wall`; `art` the painting's texture, plain canvas without). Ids `stage/...`, `stair/<id>/...`; bands
 4 (legs, bearers, skirt), 5 (joists, boards, steps), 6 (the proscenium). A door's `hinge: "end"`
 hangs its leaf on the opening's far jamb.
+
+**A log building's parts** (`harlan_cabin.json`, #1126; all optional, the other specs build as before):
+an outer wall with `log: true` is laid by `LogWall` (`src/structures/log_wall.gd`) in place of studs,
+siding and inside finish: its `line` on the logs' OUTER face, the logs inward `frame.log_wall.thick`;
+`frame.log_wall` {thick, course (a log and its chinking), chink, inset, over (a log's end past the
+corner), piece, buck, wood, chink_wood, lap, gable_wood, stud_spacing}; courses from the sill's top to
+`levels.plate` (the top log's top), the walls along z running through the corners on the even courses;
+each opening bucked (`<wall>/opening<j>/buck/jamb0|jamb1|head|sill`), a door's leaf and a window's sash at
+the logs' inner face; a `gable` wall's gable of boards and battens over the top log; a wall's `new`
+[[course, piece]] replaced logs (ids `_new`). `frame.sill.section` [thick, h] the hewn sills. `shakes`
+{exposure, width, strip, thick, lift, skip, new_share, missing: [{side, s, z, repair}], new: [...]}:
+split shakes over skip sheathing on a rafter roof (`roof/shake_<side>/<row>_<k>`); `hung` [{id, wall,
+side, at, y, over, size}] a framed pane on a wall's face (his shaving mirror); `repairs` [{id, what,
+kind: missing | loose | off_hinge | rotten, member (an id prefix), lift, drop, break}]: the jobs left
+in it as real pieces (SpecBuilding `repair_jobs`, each member's meta `repair`); `levels.ground.dirt` a
+dirt floor (the barn's: the checks take the ground as its floor); a ladder's `side: "in"` up a wall's
+inside. A chimney outside the walls cuts no floor. The site round them (`harlan_homestead.json`,
+`Homestead`): its buildings by `center` and `facing`, a `corral` (Corral, its `broken` rails), a
+`trough`, a `woodpile`, a `chopping_block`, the repair `stock`, a `stall`, a `spring` and its pipe to the
+trough, in the pad's space.
+
+**The undertaker's parts** (`undertaker.json`, #1174; all optional, the other specs build as before):
+walls of `level: "cellar"` (partitions on the cellar's flags, from them up to the girders' underside;
+their openings from the flags' top, `levels.cellar.top`); `cellar.dig` (the valley digs it: CellarDig);
+`bulkhead` {wall, z [s0, s1] the passage along the wall, out, grade, cheek, risers, going, high, low,
+lintel, open, wood} (Bulkhead, the part: the areaway, its steps, the passage under a stone lintel in the
+foundation, the doors); `side_ramp` {wall, at, width, run, wood} (a plank ramp from a side door's sill
+to the yard); a door's `leaves: 2` (a pair, each on its own jamb) and `thick` (its leaf's thickness);
+`outbuildings` kind `shed` {id, rect, eave, pitch, door {at, width, height}, stall {x, z}, wood};
+`lot.ground.plane` on a framed building (the yard's ground: the side fence, the shed, the ramp's foot
+and a stair with `ground_block` stand on it; `SpecBuilding.ground_y`); a summer beam's post as
+`{z, girder: true, size}` (down through a slot in the floor onto its girder).
 
 ## Bands: a second storey on the support ladder
 

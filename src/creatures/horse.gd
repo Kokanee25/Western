@@ -94,6 +94,7 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	add_to_group(&"horses")  # RideThere finds a tied one by you (#1120)
 	if skeleton == null:
 		_build()
 

@@ -11,14 +11,21 @@ static var _clouds: Array[Node] = []
 static var _material: StandardMaterial3D
 
 var _fog: FogVolume
+var _puffs: GPUParticles3D
+## The player's own shot (#1048): the cloud waits out the held flash (see SmokeTuning's own_*).
+var _own := false
+var _direction := Vector3.FORWARD
+var _amount := 1.0
 var _fog_mat: FogMaterial
 var _age := 0.0
 var _drift := Vector3.ZERO
 
 
 ## `amount`: how much powder burnt, relative to a .45 Colt load (a 12-bore shell makes nearly twice
-## the cloud).
-static func spawn(parent: Node, at: Vector3, direction: Vector3, amount := 1.0) -> GunSmoke:
+## the cloud). `own`: the player's own gun (#1048): seen from right behind it, in the flash's light,
+## the first puff read as a big cream square, so the cloud starts a little further out and fills in
+## once the flash has died (SmokeTuning's own_*). Everyone else's shots leave it false.
+static func spawn(parent: Node, at: Vector3, direction: Vector3, amount := 1.0, own := false) -> GunSmoke:
 	_load_tuning()
 	var alive: Array[Node] = []
 	for c in _clouds:
@@ -38,7 +45,8 @@ static func spawn(parent: Node, at: Vector3, direction: Vector3, amount := 1.0) 
 				c._fog = null
 	var s := GunSmoke.new()
 	parent.add_child(s)
-	s.global_position = at
+	s._own = own
+	s.global_position = at + (direction.normalized() * tuning.own_offset if own else Vector3.ZERO)
 	s._start(direction, _is_indoors(s, at), amount)
 	_clouds.append(s)
 	return s
@@ -64,12 +72,36 @@ static func _is_indoors(node: Node3D, at: Vector3) -> bool:
 func _start(direction: Vector3, indoors: bool, amount := 1.0) -> void:
 	var wind := tuning.wind * (tuning.indoor_wind if indoors else 1.0)
 	_drift = wind + Vector3.UP * tuning.rise
+	_direction = direction
+	_amount = amount
+	# Your own shot's puffs wait for the flash to die (_process_step makes them). A one-shot emitter
+	# switched off before its first frame still emitted (#1048), so they aren't made till then.
+	if not _own:
+		_make_puffs()
+	if not supports_fog_volumes():
+		return
+	_fog = FogVolume.new()
+	_fog.shape = RenderingServer.FOG_VOLUME_SHAPE_ELLIPSOID
+	_fog.size = Vector3(0.8, 0.6, 0.8) * sqrt(amount)
+	_fog_mat = FogMaterial.new()
+	_fog_mat.density = 0.0 if _own else tuning.fog_density
+	_fog_mat.albedo = Color(0.85, 0.84, 0.82)
+	_fog.material = _fog_mat
+	add_child(_fog)
+	_fog.position = direction.normalized() * 0.9
+
+
+func _make_puffs() -> void:
+	var direction := _direction
+	var amount := _amount
 	var p := GPUParticles3D.new()
 	p.name = "Puffs"
 	p.one_shot = true
 	p.amount = maxi(1, int(tuning.puffs * amount))
 	p.lifetime = tuning.lifetime * 0.85
-	p.explosiveness = 0.92
+	# Others' puffs come over the first second; your own, made late (#1048), all at once, or at
+	# 150 ms only a few were out and the cloud was a faint ring.
+	p.explosiveness = 1.0 if _own else 0.92
 	p.randomness = 0.5
 	# Seeded by where and which way the shot went, to the centimetre: in play no two puffs match,
 	# and the same shot (the screenshot tool's fixed views) makes the same smoke. Unseeded, the
@@ -96,14 +128,14 @@ func _start(direction: Vector3, indoors: bool, amount := 1.0) -> void:
 	pm.scale_min = 0.8
 	pm.scale_max = 1.5
 	var grow := Curve.new()
-	grow.add_point(Vector2(0.0, 0.25))
+	grow.add_point(Vector2(0.0, tuning.own_start_size if _own else 0.25))
 	grow.add_point(Vector2(0.12, 0.9))
 	grow.add_point(Vector2(1.0, 2.6))
 	var grow_tex := CurveTexture.new()
 	grow_tex.curve = grow
 	pm.scale_curve = grow_tex
 	var fade := Gradient.new()
-	fade.set_color(0, Color(0.9, 0.88, 0.84, 0.7))
+	fade.set_color(0, tuning.own_start_colour if _own else Color(0.9, 0.88, 0.84, 0.7))
 	fade.set_color(1, Color(0.8, 0.8, 0.8, 0.0))
 	fade.add_point(0.3, Color(0.86, 0.85, 0.82, 0.4))
 	var fade_tex := GradientTexture1D.new()
@@ -119,19 +151,8 @@ func _start(direction: Vector3, indoors: bool, amount := 1.0) -> void:
 	quad.material = _puff_material()
 	p.draw_pass_1 = quad
 	add_child(p)
+	_puffs = p
 	p.emitting = true
-
-	if not supports_fog_volumes():
-		return
-	_fog = FogVolume.new()
-	_fog.shape = RenderingServer.FOG_VOLUME_SHAPE_ELLIPSOID
-	_fog.size = Vector3(0.8, 0.6, 0.8) * sqrt(amount)
-	_fog_mat = FogMaterial.new()
-	_fog_mat.density = tuning.fog_density
-	_fog_mat.albedo = Color(0.85, 0.84, 0.82)
-	_fog.material = _fog_mat
-	add_child(_fog)
-	_fog.position = direction.normalized() * 0.9
 
 
 func _process(delta: float) -> void:
@@ -140,15 +161,26 @@ func _process(delta: float) -> void:
 	Prof.stop(&"smoke", t)
 
 
+## Step the cloud by hand (a tool holding time still, as the viewmodel lab does): the cloud and its
+## particles both advance `delta` seconds.
+func step(delta: float) -> void:
+	_process_step(delta)
+	if _puffs:
+		_puffs.request_particles_process(delta)
+
+
 func _process_step(delta: float) -> void:
 	_age += delta
+	if _own and _puffs == null and _age >= tuning.own_delay:
+		_make_puffs()
 	var t := clampf(_age / tuning.lifetime, 0.0, 1.0)
 	# The breeze takes a moment to get hold of the cloud, then carries it off.
 	global_position += _drift * delta * smoothstep(0.0, 0.2, t)
 	if _fog:
 		var s := lerpf(0.8, 3.5, sqrt(t))
 		_fog.size = Vector3(s, s * 0.7, s)
-		_fog_mat.density = tuning.fog_density * pow(1.0 - t, 2.0)
+		var fill := clampf((_age - tuning.own_delay) / tuning.own_fade_in, 0.0, 1.0) if _own else 1.0
+		_fog_mat.density = tuning.fog_density * pow(1.0 - t, 2.0) * fill
 	if _age > tuning.lifetime:
 		queue_free()
 

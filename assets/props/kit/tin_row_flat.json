@@ -1,0 +1,58 @@
+{
+  "_doc": "A row of tins flat on a store shelf (#1172, G2; refs experiments/prop_lab/refs/store/: every board packed label-out two or three high): two blocks of 0.3 m, each member a block of them (a ball through it, the block comes down; the row comes down with its shelf). Drawn from glb:store_goods, every label printed on one sheet (tools/blender/props/store_g2.py: Pillow; period grocers' lines, no maker's names). Written by tools/props/store_g2.py.",
+  "id": "tin_row_flat",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "paper",
+  "look": "pbr:store_goods",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g2.py",
+  "members": [
+    {
+      "id": "goods0",
+      "kind": "post",
+      "size": [
+        0.3,
+        0.186,
+        0.186
+      ],
+      "at": [
+        -0.15,
+        0.093,
+        0.062
+      ],
+      "wood": "paper",
+      "look": "pbr:store_goods",
+      "solid": 1.0,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_goods",
+        "part": "TinsFlat0"
+      }
+    },
+    {
+      "id": "goods1",
+      "kind": "post",
+      "size": [
+        0.3,
+        0.186,
+        0.186
+      ],
+      "at": [
+        0.15,
+        0.093,
+        0.062
+      ],
+      "wood": "paper",
+      "look": "pbr:store_goods",
+      "solid": 1.0,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_goods",
+        "part": "TinsFlat1"
+      }
+    }
+  ]
+}

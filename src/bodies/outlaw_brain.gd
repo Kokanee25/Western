@@ -52,6 +52,8 @@ const LINES := {
 	&"threat": ["Don't you do it.", "Put it down, or I put you down.", "One more move..."],
 	&"stand_down": ["That's better.", "Smart.", "Go on, then."],
 	&"search": ["Where'd he go?", "Come on out!", "I know you're there."],
+	# Where he last had you a long way off (#1125: "I know you're there" from 80 m with no sight of you).
+	&"search_far": ["Where'd he go?", "Come on out!"],
 	&"lost": ["...Gone.", "Damn it. Lost him."],
 	&"arrested": ["Alright, alright. Easy with that.", "You got me. Don't make 'em tight.", "Go on, then."],
 	&"tend": ["Damn, damn...", "Hold it together..."],
@@ -217,6 +219,10 @@ var agenda: Array[Dictionary] = []
 ## "floor_fight" (true): shot down and still with it, he fights from the floor (variant D's trial
 ## fix of that name, for him alone).
 var hold := {}
+## Holds fire for anyone in his line, not only his own (Sean, 2026-11-20, #1116; DESIGN.md §7 "Enemy
+## combat behaviour"): lawmen, Joe and armed townsfolk. An outlaw (false) holds it only for his
+## mates: a townsman between him and his man takes his chance.
+var careful := false
 ## Seconds left dazed by a blast that hurt him (deafened, his head ringing: `_blasted`).
 var stunned := 0.0
 ## A man he's holding (the hostage, issue #520): set, he goes to him and puts his gun on him (his
@@ -248,6 +254,9 @@ var _post_look := Vector3.INF
 
 var body: HumanBody
 var mood := Mood.CALM
+## Held by a scene (SceneHold, #1050; No Justice's camp and cabin walk Joe so): while it's calm the
+## scene walks and turns him, not his own business; a man squaring up to him, or a fight, is still his.
+var held := false
 var fear := 0.0
 ## Where his fear came from (`_scare`): why -> how much, all told.
 var fear_from := {}
@@ -334,6 +343,10 @@ var _retarget := 0.0
 ## The spot he's using: {at, low, peek}; {} in the open.
 var cover := {}
 var _cover_search := 0.0
+## A cover he couldn't get to (stuck on the way, or too long at it): he fights from where he stands
+## this long (s) before he looks for another (#1094: wedged by the saloon's tables, he picked cover
+## after cover a metre off and never fired).
+const GAVE_UP_COVER_FIGHT := 4.0
 var _tactic_time := 0.0
 var _peek_time := 0.0
 var _peek_shots := 0
@@ -693,6 +706,8 @@ func turn_on(who: Node) -> void:
 func _start_fight(with_who: Node, his_idea := false) -> void:
 	if with_who == null or not is_instance_valid(with_who):
 		return
+	if not SceneHold.live.is_empty() and SceneHold.spares(body, with_who):
+		return  # held in a scene he isn't in (#1050): he takes cover, backs off or watches
 	if mood == Mood.CALM:
 		if not quiet_start and not his_idea:
 			say(&"jump" if _own_idea else &"provoked")
@@ -1151,15 +1166,23 @@ func _physics_step(delta: float) -> void:
 	_pick_fight(delta)
 	match mood:
 		Mood.CALM:
-			if _mind_fire(delta):
+			if held and not _held_reacts():
+				return  # the scene has him
+			if not held and _mind_fire(delta):
 				return
-			if _can_go_about():
+			if not held and _can_go_about():
 				_go_about(delta)
 			else:
 				_social(delta)
 		Mood.FIGHTING, Mood.RELOADING:
 			_fought_at = _now
 			_combat(delta)
+
+
+## Held by a scene, a man he's wary of or worse is still his to square up to (`_social`).
+func _held_reacts() -> bool:
+	var who := relations.focus()
+	return who != null and relations.stance(who) >= Relations.Stance.WARY
 
 
 ## Who (if anyone) he's fighting: whoever it's come to that with. Keeps to the man in front of him
@@ -1180,6 +1203,8 @@ func _pick_fight(delta: float) -> void:
 	for who in relations.entries.keys():  # a copy: a freed key can loop the walk (Senses)
 		if not is_instance_valid(who) or relations.stance(who) != Relations.Stance.FIGHT or _done_with(who):
 			continue
+		if not SceneHold.live.is_empty() and SceneHold.spares(body, who):
+			continue  # a scene's actor (#1050): he watches, unless that man turns on him
 		var p: float = relations.entries[who].pressure + (1.0 if senses.sees(who) else 0.0) + (0.5 if who == t else 0.0)
 		if p > best_p:
 			best = who
@@ -1369,6 +1394,7 @@ func _go_about(delta: float) -> void:
 			if _step_time >= 0.0 and _walk_route(delta, walk_speed):
 				if _at_way_out():
 					left_town.emit()
+					Events.person_left.emit(body, &"rode_out")
 					body.queue_free()
 					agenda.clear()
 					return
@@ -1464,7 +1490,7 @@ func _walk_route(delta: float, speed: float) -> bool:
 func _drink(step: Dictionary, delta: float) -> bool:
 	if step.get("sit", false):
 		if _chair == null or not is_instance_valid(_chair) or _chair.loose or (_chair.seated != null and _chair.seated != body):
-			_chair = Seating.free_chair_near(body.get_tree(), body.global_position)
+			_chair = Seating.free_chair_near(body.get_tree(), body.global_position, Seating.NEAR, body)
 		if _chair != null:
 			Seating.sit_step(body, _chair, delta)
 	else:
@@ -1668,7 +1694,11 @@ func _mind_fire(delta: float) -> bool:
 ## Hours went by while you were out cold: whatever fight there was is over. A town man (one with
 ## a day's plan) who can still walk and hasn't given himself up has had his day and gone; the
 ## rest stand down where they are.
-func _on_hours_passed(_hours: float, _why: StringName) -> void:
+func _on_hours_passed(hours: float, _why: StringName) -> void:
+	if not body.physiology.alive:
+		return
+	# His wounds ran on through the hours (#1125): stopped bleeding, or bled out.
+	body.physiology.pass_time(hours * body.physiology.tuning.game_hour_seconds)
 	if not body.physiology.alive:
 		return
 	for who in relations.entries.keys():
@@ -1684,6 +1714,7 @@ func _on_hours_passed(_hours: float, _why: StringName) -> void:
 	if places and hold.is_empty() and body.physiology.can_stand() and not body.limp and not body.prone:
 		agenda.clear()
 		left_town.emit()
+		Events.person_left.emit(body, &"day_done")
 		body.queue_free()
 
 
@@ -1952,7 +1983,7 @@ func _combat(delta: float) -> void:
 		tactic = Tactic.SEARCHING
 		_search_time = 0.0
 		_look_round = 0.0
-		say(&"search")
+		say(&"search" if body.global_position.distance_to(senses.last_known(t)) < SEARCH_NEAR_M else &"search_far")
 		_decide("look for you", "lost sight of you %.0f s ago, going to where you were" % senses.since_known(t))
 	if tactic == Tactic.SEARCHING:
 		_hunt(delta, t)
@@ -1998,7 +2029,7 @@ func _combat(delta: float) -> void:
 			elif _move_time > _run_time() or _stuck > 1.2:
 				_decide("give that cover up", "stuck on the way" if _stuck > 1.2 else "too long getting there")
 				tactic = Tactic.OPEN
-				_cover_search = 0.0
+				_cover_search = GAVE_UP_COVER_FIGHT
 		Tactic.HIDDEN:
 			_hide(delta, eye)
 		Tactic.PEEKING:
@@ -2663,15 +2694,22 @@ func _can_shoot_at(t: Node3D) -> bool:
 		return false
 	if senses.since_seen(t) >= 0.8 and not (covering > 0.0 and senses.since_known(t) < 20.0):
 		return false
-	return not _friend_in_the_way(_aim_point(t))
+	return not _friend_in_the_way(_aim_point(t), t)
 
 
-## A friend between his muzzle and where he's shooting.
-func _friend_in_the_way(point: Vector3) -> bool:
+## A friend between his muzzle and where he's shooting, or between his eye and his muzzle (his
+## arm through a friend shoulder to shoulder: the ball starts where that line meets him,
+## `shot_origin`, and Lyle shot the Kid through the head, #1094).
+func _friend_in_the_way(point: Vector3, t: Node = null) -> bool:
 	var gun := body.held_gun as RevolverModel
-	if gun == null or (crew.ids.is_empty() and not hold.has("spare")):
+	if gun == null or (crew.ids.is_empty() and not hold.has("spare") and not careful):
 		return false
-	var q := PhysicsRayQueryParameters3D.create(gun.muzzle.global_position, point, Layers.BODY_PARTS)
+	var muzzle := gun.muzzle.global_position
+	return _friend_on_line(muzzle, point, t) or _friend_on_line(senses.eye(), muzzle, t)
+
+
+func _friend_on_line(from: Vector3, to: Vector3, t: Node = null) -> bool:
+	var q := PhysicsRayQueryParameters3D.create(from, to, Layers.BODY_PARTS)
 	q.exclude = _exclude()
 	Prof.count(&"q_brain")
 	var hit := World.space(body).intersect_ray(q)
@@ -2679,6 +2717,8 @@ func _friend_in_the_way(point: Vector3) -> bool:
 		return false
 	var who: Variant = (hit.collider as Object).get_meta(&"human_body") if (hit.collider as Object).has_meta(&"human_body") else null
 	# Holding a house with a man in it he means to keep (the hostage, `hold.spare`): not through him.
+	if careful and who is HumanBody and who != t and who != body and (who as HumanBody).physiology.alive:
+		return true  # (anyone alive in his line: he waits for a clear shot)
 	return crew.is_mate(who) or (hold.has("spare") and who != null and who in hold.spare)
 
 
@@ -2983,6 +3023,8 @@ const GIVE_UP_HEARD := 4.0
 ## Walking backwards with a man by the collar (m/s).
 const DRAG_SPEED := 1.1
 ## The least time between two shouts of one kind (s); the rest every time.
+## Nearer than this (m) to where he last had you, he says he knows you're there.
+const SEARCH_NEAR_M := 20.0
 const CALL_EVERY := {&"hit": 3.0, &"spotted": 5.0, &"covering": 4.0, &"help": 6.0, &"shaken": 6.0, &"hold": 5.0, &"press": 6.0}
 ## Fear at seeing a friend go down, killed, give up, run (more if it's the man who leads them).
 const FEAR_MATE_OUT := {&"down": 0.12, &"dead": 0.15, &"quit": 0.1, &"fled": 0.08}
@@ -3836,9 +3878,14 @@ func _tend(delta: float) -> void:
 		_tend_bleed = _worst_bleed()
 		_tend_time = 0.0
 		if _tend_bleed.is_empty():
-			# Nothing more he can do for it.
+			# Nothing more he can do for it: back to his fight if he has the nerve for it, else he goes
+			# on away (#1051's CI: he had fled, bound himself up, and knelt there tending nothing for
+			# good, never riding out).
+			_release_pressure()
 			if _after_tend == Mood.FIGHTING and dread() <= nerve_now():
 				_set_mood(Mood.FIGHTING)
+			else:
+				_start_fleeing()
 			return
 	_tend_time += delta
 	var seg: StringName = _tend_bleed.segment

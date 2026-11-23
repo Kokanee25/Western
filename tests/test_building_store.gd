@@ -111,7 +111,8 @@ func test_the_stores_rooms_have_their_own_light() -> void:
 	var n := 0
 	for w: Dictionary in spec.walls:
 		if not w.get("partition", false):
-			n += (w.get("openings", []) as Array).size()
+			for o: Dictionary in w.get("openings", []):
+				n += 3 if o.type == "recess" else 1  # a recess: its two angled sides' glass and its door (#1053)
 	var ops: Array = b.light_openings()
 	check(ops.size() == n, "RoomLight gets every outer opening (%d of %d)" % [ops.size(), n])
 	for o: Dictionary in ops:
@@ -179,25 +180,86 @@ func test_the_stores_walls_and_windows_are_as_judged() -> void:
 	for w: Dictionary in spec.walls:
 		for o: Dictionary in w.get("openings", []):
 			lights += int(o.get("lights", 0))
+			if o.get("show", false):
+				lights += int(o.cols) + int(o.transom_lights)  # a show window's plate lights and its transom's (#1053)
 	var panes: Array[StructureMember] = []
 	for m: StructureMember in b.get_members():
 		if m.kind == &"glass" and String(m.member_id).contains("/window_"):
 			panes.append(m)
 	check(panes.size() == lights, "a pane for each light (%d of %d)" % [panes.size(), lights])
 	check(panes.size() > 0 and panes[0].collision_layer & Layers.WORLD != 0, "a pane is in the world (Sight holds it as glass)")
-	# One pane of the front's first window broken: the other three stand, and so does its sash.
-	var pre := "%s/front/window_" % b.structure_id
-	var west: Array[StructureMember] = []
+	# One pane of the front's first show window broken (#1053): the others stand, and so does its frame.
+	var pre := "%s/front/window_show_" % b.structure_id
+	var east: Array[StructureMember] = []
 	for p in panes:
-		if String(p.member_id).begins_with(pre) and p.position.x > 2.9 and p.position.x < 4.9 and p.position.y < 4.0:
-			west.append(p)
-	check(west.size() == 4, "the front's first window has four panes (%d)" % west.size())
-	if west.size() == 4:
-		b.break_member(west[0])
+		if String(p.member_id).begins_with(pre) and p.position.x > 1.9 and p.position.x < 5.4:
+			east.append(p)
+	check(east.size() == 6, "the front's first show window has six panes, two lights and four transom lights (%d)" % east.size())
+	if east.size() == 6:
+		b.break_member(east[0])
 		await physics_frames(20)
-		check(west[0].broken, "the pane shot is broken")
-		for p in west.slice(1):
+		check(east[0].broken, "the pane shot is broken")
+		for p in east.slice(1):
 			check(not p.broken, "the next pane stands: %s" % p.member_id)
 		for m: StructureMember in b.get_members():
-			if String(m.member_id).begins_with(pre) and m.kind == &"trim" and m.position.x > 2.9 and m.position.x < 4.9 and m.position.y < 4.0:
-				check(not m.broken, "its sash stands: %s" % m.member_id)
+			if String(m.member_id).begins_with(pre) and m.kind == &"trim" and m.position.x > 1.9 and m.position.x < 5.4:
+				check(not m.broken, "its frame stands: %s" % m.member_id)
+
+
+## #1053: the storefront: the door set back in a recess, glass on its angled sides and over the door, a
+## ceiling over it; the show windows' glass up near the storey's head; a pale ceiling over the shop.
+func test_the_store_has_a_storefront() -> void:
+	var b = lab.building
+	var sid := String(b.structure_id) + "/"
+	var leaf: StructureMember = b.get_member(StringName(sid + "front/recess/entry_leaf/panel"))
+	check(leaf != null, "the recess's door is built")
+	if leaf:
+		check(leaf.position.z > 1.0, "the door is set back in the recess (z %.2f)" % leaf.position.z)
+	var side_glass := 0
+	var ceiling := 0
+	var top := 0.0
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		if id.begins_with("front/recess/side") and m.kind == &"glass":
+			side_glass += 1
+		if id.begins_with("front/recess/ceiling/"):
+			ceiling += 1
+		if id.begins_with("front/window_show_") and m.kind == &"glass":
+			top = maxf(top, m.position.y + m.size.y * 0.5)
+	check(side_glass >= 4, "glass on both of the recess's sides, under a transom (%d panes)" % side_glass)
+	check(ceiling >= 10, "a ceiling over the recess (%d boards)" % ceiling)
+	check(top - float(lab.spec.levels.ground.top) > 3.2, "the show glass up to %.2f m over the floor" % (top - float(lab.spec.levels.ground.top)))
+	var pale := 0
+	for m: StructureMember in b.get_members():
+		if String(m.member_id).begins_with(sid + "ceiling/shop/"):
+			pale += 1
+			if pale == 1:
+				check(b._finish_of(m) == "ceiling", "the shop's ceiling in the ceiling's finish (%s)" % b._finish_of(m))
+	check(pale > 50, "the shop has a boarded ceiling (%d boards)" % pale)
+
+
+## #1074 (Sean on #1067): the posts and beams pale, like the ceiling; "A. P. HOLLIS" gilded on both show
+## windows, a piece on each pane it crosses; goods behind the glass.
+func test_the_store_is_hollis_s() -> void:
+	var b = lab.building
+	var sid := String(b.structure_id) + "/"
+	check(String(b.finish("timber").get("entry", "")) == "painted_pale_tg", "the posts and beams painted pale (%s)" % b.finish("timber"))
+	for id: String in ["beam/", "post/"]:
+		for m: StructureMember in b.get_members():
+			if String(m.member_id).trim_prefix(sid).begins_with(id):
+				check(b._finish_of(m) == "timber", "%s takes the timber finish (%s)" % [m.member_id, b._finish_of(m)])
+				break
+	var gilt := {}
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		if id.begins_with("front/window_show_") and m.kind == &"glass" and m.has_node(^"Gilt"):
+			gilt[id.get_slice("/", 1)] = int(gilt.get(id.get_slice("/", 1), 0)) + 1
+	check(gilt.size() == 2, "both show windows gilded (%s)" % [gilt])
+	for w: String in gilt:
+		check(int(gilt[w]) == 2, "%s: the lettering across both its lights (%d)" % [w, gilt[w]])
+	var goods: Dictionary = b.dressed.get("windows", {})
+	check(goods.size() >= 15, "goods in the windows (%d)" % goods.size())
+	for k: String in goods:
+		var n: Node3D = goods[k]
+		var z: float = (b.global_transform.affine_inverse() * n.global_position).z
+		check(z > 0.1 and z < 1.0, "%s behind the glass (z %.2f)" % [k, z])

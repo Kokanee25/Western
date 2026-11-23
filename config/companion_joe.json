@@ -27,6 +27,11 @@
 		"order_deg": 14.0,
 		"nerve": 1.4,
 		"temper": 0.3,
+		"_you": "#1116: your ball within you_near_m of him or in him: he ducks duck_s and says so; you_turn_after of them inside you_window_s and he fights you.",
+		"you_near_m": 1.5,
+		"duck_s": 2.0,
+		"you_turn_after": 3,
+		"you_window_s": 20.0,
 		"seconds_between_shots": 1.6
 	},
 	"lines": {
@@ -46,11 +51,18 @@
 		"you_hit": ["Harlan! Get down.", "You are hit. Stay low."],
 		"loading": ["Loading.", "Cover me. I load."],
 		"come_to": ["I am still here.", "Not yet. I am still here."],
-		"up": ["Enough. I can walk."],
-		"down_leg": ["I am hit. The leg. Go on."],
+		"up": ["It's all right. I can walk."],
+		"down_leg": ["My leg. Go on. Go on!"],
 		"cant_stand": ["My leg will not hold me.", "I cannot stand on it."],
 		"over": ["That is all of them.", "It is quiet now."],
 		"not_me": ["Harlan. Not at me.", "Point it somewhere else."],
+		"stop": [
+			"Harlan! Stop!",
+			"Stop. It is me."
+		],
+		"turn": [
+			"Then I stop you."
+		],
 		"your_shot": ["Harlan. That was me.", "Careful. I am on your side."]
 	},
 	"brain_lines": {

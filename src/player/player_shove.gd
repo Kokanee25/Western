@@ -26,6 +26,9 @@ var t := 0.0
 var holding := -1.0
 ## The last one's outcome (`landed`).
 var last := {}
+## How many moves have come to something (landed, missed, couldn't): `last` alone can't say a new one
+## came (#1116: two misses are the same Dictionary, so the bridge called the second "busy").
+var told := 0
 ## The lab and the bridge: start this move next tick as if the key had done it.
 var wants := &""
 
@@ -174,6 +177,7 @@ func _start(kind: StringName) -> void:
 
 func _tell(info: Dictionary, words := "") -> void:
 	last = info
+	told += 1
 	if words != "" and player.wounds:
 		player.wounds.say(words, 2.0)
 	landed.emit(info)
@@ -352,6 +356,13 @@ func _on_member(m: StructureMember, at: Vector3, flat: Vector3, kick: bool, m_e:
 func _held_fast(at: Vector3, kick: bool, v: float, info: Dictionary) -> void:
 	info.result = &"held"
 	GameAudio.play(player, &"impact_wood", at, {"volume_db": -6.0 if kick else -14.0})
+	if kick and _gives_a_little(at, info):
+		# A door that gives a little to each kick (the cabin's barred door, #1111): it takes the
+		# blow, not your foot; whoever claims it counts it (`landed`).
+		info.result = &"gave"
+		player.motion.thump(tuning.thump_max * 0.6)
+		_tell(info)
+		return
 	if kick:
 		var j := 0.5 * tuning.foot_mass * v * v
 		info.joules = j
@@ -363,6 +374,15 @@ func _held_fast(at: Vector3, kick: bool, v: float, info: Dictionary) -> void:
 	else:
 		player.motion.thump(0.1)
 	_tell(info)
+
+
+## Something in the group `takes_kicks` says this kick, at `at`, lands on a thing that gives a
+## little each time (a barred door working loose) rather than one that stops the boot dead.
+func _gives_a_little(at: Vector3, info: Dictionary) -> bool:
+	for n in get_tree().get_nodes_in_group(&"takes_kicks"):
+		if n.has_method(&"takes_kick") and n.call(&"takes_kick", player, at, info):
+			return true
+	return false
 
 
 ## Your hands going out for a shove (a Studio man's own, as on the guns: HeldHand), the left alone

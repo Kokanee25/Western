@@ -376,7 +376,10 @@ func test_in_a_fight_they_work_together() -> void:
 	var from := player.camera.global_position
 	var bullet := bl.fire(from, (at - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
 	bullet.shooter = player
-	await physics_frames(60 * 30)
+	# Up to a minute for the second gun: from a fresh start (each test file's statics cleared, #1015)
+	# the first shots come late (the kid ~20 s, Lyle ~50 s, a drag each first), where the whole suite's
+	# props made before it had them both firing inside 30 s.
+	await wait_until(func() -> bool: return shots.size() >= 2, 60 * 60)
 	Events.callout.disconnect(hear)
 	var kinds := {}
 	for c in calls:
@@ -402,6 +405,20 @@ func test_break_off_a_fight_and_they_ride_out_not_stand_about() -> void:
 	await _fight_at_the_bar_and_break_off()
 	var done := await wait_until(func() -> bool: return _still_at_it().is_empty(), 60 * 90)
 	check(done, "nobody's still fighting or hanging about a minute and a half on (%s)" % ", ".join(_still_at_it()))
+
+
+## Bound up and nothing more to tend (#1051's CI: the Kid knelt tending nothing for good after a
+## fight broke off): he goes on, his fight if he has the nerve for it, else away.
+func test_with_nothing_left_to_tend_he_doesnt_kneel_there() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	kid.global_position = town.places.at(&"street_west")
+	await physics_frames(10)
+	b._start_tending(OutlawBrain.Mood.FLEEING)
+	check_eq(b.mood, OutlawBrain.Mood.TENDING, "tending")
+	await physics_frames(60)
+	check(b.mood != OutlawBrain.Mood.TENDING, "nothing to tend: he's gone on (%s)" % OutlawBrain.MOOD_NAMES[b.mood])
 
 
 ## A man down with his legs gone, awake, and against you: alone he lies there; when you come up
@@ -497,7 +514,10 @@ func _fight_at_the_bar_and_break_off() -> void:
 	await physics_frames(60 * 8)
 	player.revolver().put_away()
 	Events.deed.emit(player, &"holster", null, player.global_position)
-	_put_player(Vector3(60.0, 0.0, -12.0), -90.0)
+	# Out of their sight for sure (#1094): behind the livery, the buildings between you and the
+	# saloon. On the range (60, -12) the saloon's door looks straight at you on some fights' paths:
+	# a man saw you get there, went looking, found you in the open and fought on.
+	_put_player(Vector3(14.0, TownLayout.ground_height(14.0) + 0.05, -29.0), 0.0)
 
 
 ## The gang men still on their feet and still at it: fighting, searching, or standing about
@@ -510,7 +530,8 @@ func _still_at_it() -> Array[String]:
 		var b := g.get_node(^"Brain") as OutlawBrain
 		var leaving: bool = b.mood == OutlawBrain.Mood.CALM and not b.agenda.is_empty() and b.agenda[0].do == &"leave"
 		if not leaving and b.mood != OutlawBrain.Mood.SURRENDERED and b.mood != OutlawBrain.Mood.FLEEING:
-			out.append("%s %s" % [g.person_id, b.describe().get_slice(".", 0)])
+			out.append("%s %s (after %s, bleeding %.1f ml/s)" % [g.person_id, b.describe().get_slice(".", 0),
+					OutlawBrain.MOOD_NAMES[b._after_tend], g.physiology.total_bleed_rate()])
 	return out
 
 

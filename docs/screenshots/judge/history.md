@@ -494,3 +494,13 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-14_cheap_fp_hands_r2 | rifle_lever_day | **cheap indie** | 3, 5, 6, 7 | Plastic blue rifle | 14% / 1.6 / 0.82 / 0.04 | #914 option 2 hands in the game, round 2 |
 | 2026-11-14_cheap_fp_hands_r2 | colt_hip_lamp | **good indie** | 2, 3, 5, 6, 8, 9 | Mannequin hand glowing orange | 53% / 0.0 / 1.32 / 0.19 | #914 option 2 hands in the game, round 2 |
 | 2026-11-14_cheap_fp_hands_r2 | rifle_lever_lamp | **good indie** | 2, 3, 5, 6, 9 | Fingers through the stock | 56% / 0.0 / 1.26 / 0.17 | #914 option 2 hands in the game, round 2 |
+| 2026-11-18_hollis_cheap | front12 | **cheap indie** | 2, 3, 4, 7, 9 | Grey placeholder buildings either side | 16% / 2.8 / 1.12 / 0.39 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-18_hollis_cheap | entry12 | **cheap indie** | 1, 4, 7, 9 | Empty shop behind the glass | 48% / 0.0 / 2.29 / 0.17 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-18_hollis_cheap | counter12 | **cheap indie** | 2, 3, 4, 5, 7, 9 | An empty room, not a store | 3% / 4.5 / 1.88 / 0.22 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-23_undertaker_r1 | front | **cheap indie** | 1, 3, 4, 6, 7, 9 | An untextured grey box for a building | 19% / 2.2 / 1.05 / 0.30 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | yard | **cheap indie** | 2, 3, 4, 5, 7, 9 | Greybox buildings in the gap | 40% / 0.0 / 2.16 / 0.24 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | workroom | **good indie** | 2, 3, 4, 6, 7 | A shimmering ceiling | 36% / 0.0 / 2.60 / 0.33 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | stair | **cheap indie** | 3, 6, 7 | A blue camouflage cellar floor | 32% / 0.2 / 1.18 / 0.24 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | embalming | **cheap indie** | 2, 3, 5, 6, 7, 9 | A black band across the picture | 38% / 0.0 / 1.29 / 0.18 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r2 | stair | **cheap indie** | 2, 3, 4, 6, 7 | A vast bare floor | 35% / 0.1 / 1.10 / 0.24 | #1174 the cellar's fill to its floor |
+| 2026-11-23_undertaker_r2 | embalming | **cheap indie** | 2, 3, 4, 5, 6, 7 | Nothing in the room | 89% / 0.0 / 1.34 / 0.38 | #1174 the cellar's fill to its floor |

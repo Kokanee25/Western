@@ -13,7 +13,9 @@ extends RefCounted
 ## 3. **Decide**, by his dials (ValleyFolk.dials_of: nerve, nosy, duty) against the fear of it:
 ##    flee (to a door on his ways: `CivilianBrain.refuges`), hide (cower where he is), gawk (to a
 ##    ring at a distance, the gawk ring round a man down), watch (where he stands), help (to the man
-##    down, down beside him), back away (a gun drawn), or carry on (work stops for a breath).
+##    down, down beside him), run for help (step 6, #1040: the one runner an event, FetchHelp: to the
+##    doctor, or from the badge on to Harlan; he says it on arrival), back away (a gun drawn), or
+##    carry on (work stops for a breath).
 ## 4. **Come back**: once nothing new has reached him for a calm time (20-90 s, longer with low
 ##    nerve) he stands, looks round, and goes back to his spot, where its chore takes him again
 ##    (SpotChore). He stays **shaken** an hour of the clock: he starts sooner at the next one and
@@ -32,7 +34,10 @@ const STIMULI := {
 	&"blast": {"fear": 1.5, "reach": 90.0},
 	&"gun": {"fear": 0.7, "reach": 9.0},  # a gun drawn near him, not fired (CivilianBrain.GUN_SEEN)
 	&"down": {"fear": 0.6, "reach": 20.0},  # a man fallen in his sight
+	&"hush": {"fear": 0.5, "reach": 15.0},  # the room's gone quiet round him (SaloonRoom: a man who `ducks`)
 }
+## A man who ducks (dials `ducks`: the piano player, Sean #276) stays down this long after it's quiet.
+const DUCK_CALM := 25.0
 ## Start: this long after it reached him (s): 0.15 for the jumpiest, +0.15 by nerve, +0.2 by how
 ## far off it was (full at `START_FAR` m). Shaken, the nerve part is shorter.
 const START_SOONEST := 0.15
@@ -76,6 +81,12 @@ const HURRY := 2.6
 const ERRAND := 60.0
 ## Help: only if no shot's been heard this long (s): the shooter has gone.
 const SHOOTER_GONE := 3.0
+## A runner's target that moves (the doctor on his walk, Harlan) looked at again every (s), and
+## followed when it's gone this far (m) from where he's running to.
+const RUN_LOOK := 1.0
+const RUN_RETARGET := 3.0
+## A shot heard within this long (s) is in what the runner tells.
+const SHOT_TOLD := 120.0
 
 var brain: CivilianBrain
 var body: HumanBody
@@ -87,7 +98,7 @@ var who: Node3D
 ## How far it was when it reached him (m), and its fear for him.
 var distance := 0.0
 var fear := 0.0
-## What he decided (&"flee", &"hide", &"gawk", &"watch", &"help", &"back_away", &"carry_on").
+## What he decided (&"flee", &"hide", &"gawk", &"watch", &"help", &"run", &"back_away", &"carry_on").
 var choice := &""
 ## The frames: when it reached him (heard) and when his start came (for the reactions row).
 var sensed_frame := -1
@@ -96,6 +107,12 @@ var start_frame := -1
 var quiet := 0.0
 ## A man down he saw (for the gawk ring and help), and when (his senses' clock).
 var down: Node3D
+## A man he saw hit and fall further off than `down`'s reach (to `DOWN_FAR`): only for running for
+## help (the brief's "a man hit: sight"), not the gawk ring.
+var far_down: Node3D
+const DOWN_FAR := 60.0
+## The man he'd run for help for (down, else far_down).
+var patient: HumanBody
 ## The town's clock hour he came back at (shaken for SHAKEN_HOURS after), or -1.
 var shaken_since := -1.0
 var _shaken_s := 0.0
@@ -114,6 +131,15 @@ var _detours := 0
 var _wait := 0.0
 var _said := false
 var _day: Node
+## Running for help (choice &"run"): FetchHelp's errand ({to, at, man}), told yet, the man down
+## breathing when he left, and the last shot he heard (frame); a would-be runner held by shots still
+## going (`_run_later`) tries again once they've stopped.
+var errand := {}
+var told := false
+var _breathing := true
+var _shot_frame := -100000
+var _run_later := false
+var _run_look := 0.0
 
 ## Every man's start frame claimed (frame -> true), so no two start on the same one.
 static var _claimed := {}
@@ -154,6 +180,8 @@ func sense(k: StringName, where: Vector3, by: Node3D = null) -> void:
 		return
 	var d := body.global_position.distance_to(where)
 	var f := _fear_of(k, d)
+	if k in [&"shot", &"shot_seen", &"at_me"]:
+		_shot_frame = Engine.get_physics_frames()
 	if k == &"down" and by != null:
 		down = by
 	if stage != Stage.NONE:
@@ -235,6 +263,8 @@ func drop(keep_shaken := true) -> void:
 		return
 	if keep_shaken and stage in [Stage.ACT, Stage.BACK]:
 		_mark_shaken()
+	_give_up_run()
+	far_down = null
 	stage = Stage.NONE
 	_route.clear()
 	_target = Vector3.INF
@@ -244,6 +274,8 @@ func drop(keep_shaken := true) -> void:
 
 func forget() -> void:
 	drop(false)
+	far_down = null
+	patient = null
 	shaken_since = -1.0
 	_shaken_s = 0.0
 
@@ -264,6 +296,8 @@ func step(delta: float) -> bool:
 				return true
 			_enter(Stage.LOOK)
 			_look_for = lerpf(LOOK_FOR.x, LOOK_FOR.y, _rng.randf()) * (0.5 if fear > 1.0 else 1.0)
+			if kind == &"shot" and fear <= _nerve():
+				_bark("react.shot_far")  # heard, not seen: he says so (a frightened man cries out instead)
 			body.set_pose(&"wary")
 			_attend(at)
 		Stage.LOOK:
@@ -275,6 +309,14 @@ func step(delta: float) -> bool:
 				_decide()
 				_enter(Stage.ACT)
 		Stage.ACT:
+			if choice == &"run" and not told:
+				if _run_step(delta):
+					return true
+			elif _run_later:
+				if _try_run():
+					return true
+				if not _run_later and choice != &"help" and _duty() >= 0.6 and _duty() >= _nosy():
+					_help()  # another's gone for help: he goes to the man
 			_act(delta)
 			if quiet >= _calm_need and choice == &"carry_on":
 				_end()  # a breath, and back to it
@@ -291,8 +333,12 @@ func step(delta: float) -> bool:
 			var y := deg_to_rad(50.0 * sin(_t * 1.7))
 			body.face(body.global_position + (p - body.global_position).rotated(Vector3.UP, y))
 			if _t >= _wait:
-				if choice in [&"hide", &"flee"]:
+				if choice in [&"hide", &"flee"] and not _bark("react.back"):
 					brain.say_relief()
+				# Come back to himself, a man down he saw and nobody gone for help: he goes now.
+				if choice != &"run" and _try_run():
+					_enter(Stage.ACT)
+					return true
 				_end()
 				return false
 	return true
@@ -300,7 +346,9 @@ func step(delta: float) -> bool:
 
 func _end() -> void:
 	_mark_shaken()
-	if choice in [&"flee", &"gawk", &"help", &"back_away"] and brain.post != Vector3.INF \
+	_give_up_run()
+	far_down = null
+	if choice in [&"flee", &"gawk", &"help", &"run", &"back_away"] and brain.post != Vector3.INF \
 			and body.global_position.distance_to(brain.post) > 0.5:
 		brain.returning = true
 	stage = Stage.NONE
@@ -348,9 +396,20 @@ func _decide() -> void:
 	_arrived = false
 	_wait = 0.0
 	_speed = WALK
+	_run_later = false
+	errand = {}
+	told = false
 	_calm_need = CALM_WATCH + CALM_WATCH_NOSY * nosy
-	if kind == &"gun":
+	if float(brain.dials.get("ducks", 0.0)) > 0.0 and (scared or kind == &"hush") and not brain.hurt:
+		# The piano player: stops and ducks where he is, and comes up when it's been quiet a while.
+		choice = &"hide"
+		_calm_need = DUCK_CALM
+	elif kind == &"hush":
+		choice = &"watch"
+		_calm_need = CALM_GUN
+	elif kind == &"gun":
 		choice = &"back_away" if scared else &"watch"
+		_bark("react.gun", {"who_you": who is Player})
 		_calm_need = CALM_GUN
 		if scared:
 			var away := body.global_position - at
@@ -359,9 +418,11 @@ func _decide() -> void:
 	elif scared:
 		_calm_need = CALM_HIDE + CALM_HIDE_NERVE * (1.0 - nerve)
 		var refuge := _refuge()
-		if refuge != Vector3.INF and body.physiology.can_run() and kind != &"down":
+		# (Hurt, #1116: he goes for it at a walk if he can't run, not cowering where he was shot.)
+		var can_go := body.physiology.can_run() or brain.hurt and body.physiology.can_stand()
+		if refuge != Vector3.INF and can_go and kind != &"down":
 			choice = &"flee"
-			_go(refuge, RUN)
+			_go(refuge, RUN if body.physiology.can_run() else WALK)
 			if kind == &"blast":
 				_wait = 2.5  # flat first, then runs from it
 		elif kind == &"down":
@@ -370,13 +431,12 @@ func _decide() -> void:
 		else:
 			choice = &"hide"
 		if choice in [&"flee", &"hide"]:
-			brain.say(&"cower")
+			if choice != &"flee" or not _bark("react.flee"):
+				brain.say(&"cower")
+	elif _runner_kind() and not shots_lately and not _on_errand() and _try_run():
+		pass  # off for help (the one runner)
 	elif down != null and duty >= 0.6 and duty >= nosy and not shots_lately and body.physiology.can_run():
-		choice = &"help"
-		var from := body.global_position - down.global_position
-		from.y = 0.0
-		_go(down.global_position + (from.normalized() if from.length() > 0.1 else Vector3.FORWARD) * 0.9, HURRY)
-		brain.say(&"help")
+		_help()
 	elif down != null and nosy >= 0.5:
 		choice = &"gawk"
 		_go(_ring(down.global_position, GAWK_RING.x, GAWK_RING.y), WALK)
@@ -407,6 +467,130 @@ func _decide() -> void:
 		choice = &"watch"
 		_target = Vector3.INF
 		_route.clear()
+	# Would have run but for the shots still going: once they stop, he may yet.
+	_run_later = choice != &"run" and choice in [&"watch", &"gawk", &"carry_on", &"help"] and _runner_kind() and shots_lately
+
+
+# --- Running for help (step 6) ------------------------------------------------------------------------
+
+## Could he be the runner: calm, dutiful, able, not the doctor, a man down he saw, someone to run to?
+func _runner_kind() -> bool:
+	if brain.fetch == null:
+		return false
+	var m: Node3D = down if down != null and is_instance_valid(down) else (far_down if far_down != null and is_instance_valid(far_down) else null)
+	patient = m as HumanBody
+	return patient != null and (fear <= _nerve() or stage == Stage.BACK) and _duty() >= FetchHelp.RUNNER_DUTY and body.physiology.can_run() \
+			and not FetchHelp.is_doctor(body)
+
+
+## Did he see this man down (near or far)?
+func saw_down(man: Node3D) -> bool:
+	return man != null and (down == man or far_down == man)
+
+
+## Off for help if there's someone to run to and he's the one (FetchHelp.claim): true if he's off.
+func _try_run() -> bool:
+	_run_later = false
+	if not _runner_kind() or _on_errand():
+		return false
+	if brain.senses != null and not brain.senses.last_sound([&"gunshot"], SHOOTER_GONE).is_empty():
+		_run_later = true
+		return false
+	var man := patient
+	var e := brain.fetch.errand_for(man)
+	if e.is_empty() or not brain.fetch.claim(man, brain):
+		return false
+	choice = &"run"
+	errand = e
+	told = false
+	_breathing = man.physiology.alive
+	_calm_need = INF
+	_run_look = RUN_LOOK
+	_go(_errand_point(), RUN)
+	brain.fetch.running(man, StringName(e.to), _route_length())
+	brain.say_line(brain.fetch.off_line(StringName(e.to), String(man.person_id)))
+	return true
+
+
+## Where he's running: the man himself if he's out and (for Harlan) in sight, else the door or
+## the place he was last seen.
+func _errand_point() -> Vector3:
+	var who_to: Node3D = errand.get("man")
+	if who_to != null and is_instance_valid(who_to):
+		if errand.to == &"doctor" or (brain.senses != null and brain.senses.sees(who_to)):
+			return who_to.global_position
+	return errand.at
+
+
+func _route_length() -> float:
+	var m := 0.0
+	var from := body.global_position
+	for p: Vector3 in _route:
+		m += from.distance_to(p)
+		from = p
+	return m
+
+
+## The run: on to him, following him if he moves; there, he tells it. False when he's told it (the
+## act takes him on from there: he watches, then comes back).
+func _run_step(delta: float) -> bool:
+	var man := patient if patient != null and is_instance_valid(patient) else null
+	if man == null:
+		_give_up_run()
+		choice = &"watch"
+		_calm_need = CALM_WATCH
+		return false
+	_run_look -= delta
+	if _run_look <= 0.0:
+		_run_look = RUN_LOOK
+		var p := _errand_point()
+		if p.distance_to(_target) > RUN_RETARGET:
+			_go(p, RUN)
+	var to_point := _errand_point()
+	var near := Vector2(body.global_position.x - to_point.x, body.global_position.z - to_point.z).length() < FetchHelp.ARRIVE
+	if near or _arrived:
+		if errand.to == &"harlan" and not near:
+			# Not where he was seen, nor in sight: the doctor, the acting law, then.
+			var doc := brain.fetch.doctor_errand()
+			if not doc.is_empty():
+				errand = doc
+				errand["to"] = &"doctor"
+				brain.fetch.running(man, &"doctor", _route_length())
+				_go(_errand_point(), RUN)
+				return true
+		told = true
+		var shot := Engine.get_physics_frames() - _shot_frame < int(SHOT_TOLD * Engine.physics_ticks_per_second)
+		body.set_pose(&"stand")
+		var who_to: Node3D = errand.get("man")
+		body.face(who_to.global_position + Vector3.UP * 1.5 if who_to != null and is_instance_valid(who_to) else to_point)
+		brain.fetch.arrived(man, brain, StringName(errand.to), shot, _breathing)
+		_target = Vector3.INF
+		_route.clear()
+		_arrived = true
+		quiet = 0.0
+		_calm_need = CALM_WATCH
+		return false
+	_act(delta)
+	return true
+
+
+## Dropping a run he hadn't finished: the event's free for another.
+func _give_up_run() -> void:
+	if choice == &"run" and not told and brain.fetch != null and patient != null and is_instance_valid(patient):
+		brain.fetch.gave_up(patient, brain)
+
+
+## To the man down, down beside him.
+func _help() -> void:
+	if down == null or not is_instance_valid(down) or not body.physiology.can_run():
+		return
+	choice = &"help"
+	_calm_need = CALM_WATCH + CALM_WATCH_NOSY * _nosy()
+	var from := body.global_position - down.global_position
+	from.y = 0.0
+	_go(down.global_position + (from.normalized() if from.length() > 0.1 else Vector3.FORWARD) * 0.9, HURRY)
+	if not _bark("react.doc"):
+		brain.say(&"help")
 
 
 ## Where he'd run: the nearest of his refuges (his door, the store, the saloon) that isn't toward
@@ -518,6 +702,9 @@ func _act(delta: float) -> void:
 			if down != null and is_instance_valid(down):
 				body.face(down.global_position)
 			body.set_pose(&"tend")
+		&"run":
+			brain.mood = CivilianBrain.Mood.WATCHING
+			body.set_pose(&"stand")  # told: he stands by the man he told
 		&"carry_on":
 			brain.mood = CivilianBrain.Mood.WATCHING
 			body.set_pose(&"stand")
@@ -531,7 +718,24 @@ func _act(delta: float) -> void:
 			body.face(down.global_position + Vector3.UP * 0.3 if down != null and is_instance_valid(down) else p)
 			if choice == &"gawk" and not _said and _arrived:
 				_said = true
-				brain.say(&"gawk")
+				var dm := down as HumanBody if down != null and is_instance_valid(down) else null
+				if dm == null:
+					brain.say(&"gawk_shot")  # nobody down that he knows of: no "Is he dead?"
+				elif not _bark("react.ring", _news_of(dm)):
+					brain.say(&"gawk")
+
+
+## A bark for this stage (TownBarks via his brain's `bark`, ValleyFolk.bark_for): true if he said one.
+func _bark(on: String, extra: Dictionary = {}) -> bool:
+	return brain.bark.is_valid() and brain.may_speak() and bool(brain.bark.call(brain, on, extra))
+
+
+## What his own news holds of `man` down (whom known, Harlan firing), for the ring's lines.
+func _news_of(man: HumanBody) -> Dictionary:
+	var f := brain.get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk if brain.is_inside_tree() else null
+	if f == null or man == null:
+		return {"whom": false}
+	return f.news_of_down(body.person_id, man.person_id)
 
 
 func _mark_shaken() -> void:
@@ -549,5 +753,6 @@ func _clock() -> Node:
 func describe() -> String:
 	if stage == Stage.NONE:
 		return "shaken" if shaken() else ""
-	return "%s %s at %.0f m (fear %.2f)%s" % [String(Stage.keys()[stage]).to_lower(), kind, distance, fear,
-			(": " + String(choice)) if choice != &"" else ""]
+	return "%s %s at %.0f m (fear %.2f)%s%s" % [String(Stage.keys()[stage]).to_lower(), kind, distance, fear,
+			(": " + String(choice)) if choice != &"" else "",
+			(" for %s%s" % [errand.get("to", ""), ", told" if told else ""]) if choice == &"run" else ""]

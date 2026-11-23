@@ -23,6 +23,8 @@
     "stop_m": 6.0,
     "warn_after_s": 1.8,
     "aim_s": 0.6,
+    "_aim": "Where his ball goes: an anatomy structure's middle as Earl lies (config/anatomy.json ids), or \"head\". Sean, 2026-11-17 (#1057): Earl's down and bleeding, not shot dead: down through the right collarbone (the subclavian), a wound that kills him in a minute or two by the body's own clock, so he's alive when the barkeep sends you to Doc's and dead before you get him there. The body decides; a second ball only if the first missed him.",
+    "aim": "subclavian_r",
     "second_shot_s": 0.7,
     "gloat_s": 0.9,
     "leave_s": 1.6
