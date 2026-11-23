@@ -73,7 +73,7 @@ UPPER = [
 UPPER_FILL = [(0, 22, 30, 28), (48, 22, 80, 28)]  # wardrobe closets between the front rooms and the hall
 
 CELLAR = [
-	("Beer cellar", (0, 10, 24, 30), "cellar", "barrels on stillage; bulkhead to the lane"),
+	("Beer cellar", (0, 10, 24, 30), "cellar", "kegs; bulkhead; oak sawdust"),
 	("Stores", (24, 10, 48, 30), "cellar", "potatoes, flour, hams"),
 	("Passage", (12, 30, 48, 36), "open", ""),
 	("Coal", (0, 30, 12, 50), "cellar", "chute from the lane"),
@@ -81,7 +81,7 @@ CELLAR = [
 	("Wine room", (28, 36, 48, 50), "cellar", "locked; racks"),
 	("Cellar stair", (12, 50, 24, 60), "stair", "up to the back passage"),
 ]
-SECRET = (48, 36, 60, 50)  # where the proposals put their door (unexcavated today)
+DRIFT = (24, 28)  # the drift's sides (y), out of the beer cellar's west wall: the secret, B (Sean, 2026-11-23)
 
 
 def font(px, bold=False):
@@ -174,12 +174,18 @@ def upper_extra(d, y_top):
 
 
 def cellar_extra(d, y_top):
-	a, b = px(SECRET[0], SECRET[3], y_top), px(SECRET[2], SECRET[1], y_top)
-	for i in range(0, b[0] - a[0], 8):
-		d.line([a[0] + i, a[1], a[0] + i, b[1]], fill=(170, 120, 110), width=1)
-	d.rectangle([a, b], outline=(150, 60, 50), width=3)
-	d.text(((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), "?", fill=(150, 60, 50), font=font(30, True), anchor="mm")
-	d.text(((a[0] + b[0]) / 2, b[1] + 14), "the secret (§5)", fill=(150, 60, 50), font=font(11, True), anchor="mm")
+	# The secret, B (Sean, 2026-11-23): the drift west from the beer cellar under the saloon's yard and the
+	# lane to the saloon's cellar (saloon_b.json's cellar, on its east side): about 59 ft, 4 ft high, timbered.
+	red = (150, 60, 50)
+	a, b = px(-10, DRIFT[1], y_top), px(0, DRIFT[0], y_top)
+	d.rectangle([a, b], fill=(226, 196, 186), outline=red, width=3)
+	for x in range(a[0] + 6, b[0], 12):
+		d.line([x, a[1], x, b[1]], fill=red, width=2)  # the sets of timber
+	d.polygon([(a[0] - 2, a[1] - 8), (a[0] - 18, (a[1] + b[1]) / 2), (a[0] - 2, b[1] + 8)], fill=red)
+	c = px(0, (DRIFT[0] + DRIFT[1]) / 2, y_top)
+	d.rectangle([c[0] - 5, a[1] - 4, c[0] + 5, b[1] + 4], fill=(160, 70, 50), outline=INK)  # the arch, opened
+	d.text(px(1, 8.2, y_top), "<- THE DRIFT (\u00a75 B): an arched door in the beer cellar's west wall, bricked up in 1881 and lately\n"
+		"opened; 4 ft high, mine-timbered, about 59 ft west under the saloon's yard and the lane to the saloon's cellar", fill=red, font=font(11, True))
 	# the unexcavated part, dashed outline of the main block and the wing
 	for r in (MAIN, WING):
 		a, b = px(r[0], r[3], y_top), px(r[2], r[1], y_top)
@@ -439,7 +445,7 @@ def balcony():
 def main():
 	plan("ground", "Ground floor: lobby, bar, parlour, dining room; the kitchen wing", GROUND, ground_extra)
 	plan("upper", "Upper floor: eleven rooms, the best suite, the landlady's, the maids'", UPPER, upper_extra)
-	plan("cellar", "The cellar: beer, coal, ice, wine, stores (and the secret's place)", CELLAR, cellar_extra)
+	plan("cellar", "The cellar: beer, coal, ice, wine, stores, and the drift to the saloon", CELLAR, cellar_extra)
 	front()
 	section()
 	balcony()

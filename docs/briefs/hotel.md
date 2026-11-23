@@ -7,7 +7,7 @@ its own sessions (#1146's first prompt; the fancy-building parts list in its fir
 
 **For Sean, in one look:** the drawings in `hotel/` (ground, upper, cellar, the front, the gallery's
 section, the balcony; `hotel/draw_plans.py` draws them from one set of numbers). **Your calls are §9**: the front's
-material, the gallery's roof, a third storey or not, the cellar's secret (§5: A, B or C), and the
+material, a third storey or not, the cellar's secret (§5: B, decided), and the
 landlady's "fifty cents" line.
 
 ## 1. What it is, in a paragraph
@@ -155,8 +155,7 @@ stone walls laid dry at the bottom and limed above, a flagged and earth floor, t
   Baron's own bin.
 - The cellar stair from the kitchen's back hall; a lantern on a nail at its foot.
 
-**Three proposals for something to find** (each tied to the story bible; Sean picks one, §9 4). The
-cellar's plan leaves the place for it east of the wine room (the "?" on `hotel/cellar.png`).
+**Three proposals for something to find** (each tied to the story bible; Sean picks one, §9 4). 
 
 ### A. The Baron's copy book (the paper trail)
 
@@ -206,9 +205,11 @@ cellar's plan leaves the place for it east of the wine room (the "?" on `hotel/c
   ledger says so), and who took it (a Colter's ending, or the deputy's). Lowest story cost to explain;
   middling build. It ties to the train, not to the Baron.
 
-**Recommended: B**, for the story's open question it closes (s22) and the route it gives, with A's
-copy book as a smaller find in the Baron's wine bin if Sean wants both. A is the cheapest and
-cleanest if B's tunnel feels like too much.
+**DECIDED: B** (Sean, 2026-11-23, in session: "b is awesome"). The drift leaves the beer cellar's west
+wall and runs about 59 ft (18 m) west, nearly level, under the saloon's yard and the lane, to the east side of
+saloon B's cellar (`saloon_b.json` `cellar`: its east 16 ft, from 26 ft back), drawn on `hotel/cellar.png`.
+The saloon's spec gets the matching opening in its cellar's east wall when the drift is built (art's file).
+A and C stay on record, unpicked.
 
 ## 6. The gallery holds the ambush
 
@@ -281,8 +282,7 @@ Every one a person you can walk up to (#1207: unique), so each gets a sheet when
    street) or a brick front with stone at the corners and heads.
 2. **The gallery: DECIDED** (Sean, 2026-11-23): an exterior balcony on the upper floor, an open railed deck, to be blown up later (`hotel/balcony.png`).
 3. **Two storeys** (recommended: the town's size and §2's hotels; the third would be a mansard) **or three**.
-4. **The cellar's secret:** A (the Baron's copy book), B (the way under the lane, recommended) or C
-   (the payroll in the ice).
+4. **The cellar's secret: DECIDED, B** (the way under the lane; Sean, 2026-11-23).
 5. **The landlady's line "Rooms are fifty cents"** (#1184): a $3 room at the Teller House (§2); a small town's best charged dollars, not cents. Change it to "Two dollars a day, with board. Clean sheets are worth it." or keep fifty
    cents and make the hotel humbler.
 6. **The target sheet** (the building lab's step 1): twelve views, about **$1.70** (the undertaker's twelve cost $1.69) (one picture a view
