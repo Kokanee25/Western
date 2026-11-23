@@ -332,12 +332,117 @@ def section():
 	im.save(os.path.join(HERE, "gallery_section.png"))
 
 
+def balcony():
+	"""The open deck (Sean, 2026-11-23: an exterior balcony on the upper floor, to be blown up later; an
+	open deck): its framing from above, three bays close, and how two bays come down when a post goes."""
+	W, H = 1900, 1520
+	im = Image.new("RGB", (W, H), PAPER)
+	d = ImageDraw.Draw(im)
+	d.text((60, 24), "The balcony: an open deck over the walk, made to be blown down", fill=INK, font=font(28, True))
+	d.text((60, 62), "80 x 8 ft at the upper floor, 16 ft over the street; nine turned posts 10 ft apart; a beam a bay, "
+		"resting on the posts (so a post blown drops the two bays it carried)", fill=SOFT, font=font(15))
+	cream, red, wood, dark = (236, 228, 206), (120, 40, 36), (214, 194, 156), (150, 120, 90)
+
+	# 1. the framing from above
+	s1, ox, oy = 21, 60, 130
+	d.text((ox, oy), "1. From above: the framing (the deck boards lifted)", fill=INK, font=font(18, True))
+	oy += 40
+	P = lambda x, y: (ox + x * s1, oy + (8 - y) * s1)
+	d.rectangle([P(0, 8.6), P(80, 8)], fill=(176, 190, 198), outline=INK, width=2)
+	d.text((P(40, 8.3)[0], P(0, 8.3)[1]), "the front wall, the upper floor's band: the ledger bolted to it", fill=INK, font=font(12), anchor="mm")
+	for i in range(0, 61):
+		x = i * 80 / 60
+		d.line([P(x, 7.9), P(x, 0.3)], fill=dark, width=2)
+	for b in range(8):
+		a, c = P(b * 10 + 0.15, 0.55), P(b * 10 + 9.85, 0.0)
+		d.rectangle([a, c], fill=wood, outline=INK, width=2)
+	for i in range(9):
+		c = P(i * 10, 0.27)
+		d.rectangle([c[0] - 7, c[1] - 7, c[0] + 7, c[1] + 7], fill=cream, outline=INK, width=2)
+		d.text((c[0], c[1] + 22), "post %d" % (i + 1), fill=INK, font=font(11), anchor="mm")
+	d.text((P(25, 4)[0], P(0, 4)[1]), "2x10 joists at 16 in, ledger to beam", fill=INK, font=font(13, True), anchor="mm")
+	d.text((P(65, 4)[0], P(0, 4)[1]), "deck: 1x4 tongue-and-groove, laid along, falling to the street", fill=INK, font=font(13, True), anchor="mm")
+	d.text((P(40, -2.4)[0], P(0, -2.4)[1]), "beams of three 2x12s, one a bay, their ends meeting on the posts (not spliced through)", fill=INK, font=font(13), anchor="mm")
+	d.text((P(40, -3.6)[0], P(0, -3.6)[1]), "THE STREET", fill=SOFT, font=font(13, True), anchor="mm")
+
+	# 2. three bays close, from the street
+	s2, ox, oy = 26, 60, 470
+	d.text((ox, oy), "2. Three bays from the street (posts 4-6, the suite's French doors behind)", fill=INK, font=font(18, True))
+	base = oy + 40 + 27 * s2
+	Q = lambda x, y: (ox + 40 + (x - 28) * s2, base - y * s2)
+	deck = FLOOR + STOREY_1
+	d.line([Q(28, 0), Q(54, 0)], fill=INK, width=2)
+	d.rectangle([Q(28, deck + 9.5), Q(54, FLOOR)], fill=(176, 190, 198))
+	d.rectangle([Q(33, deck + 8), Q(39, deck)], fill=(70, 80, 84), outline=INK, width=2)
+	d.line([Q(36, deck + 8), Q(36, deck)], fill=cream, width=3)
+	d.rectangle([Q(43.4, deck + 8.7), Q(46.6, deck + 2.2)], fill=(70, 80, 84), outline=INK, width=2)
+	d.rectangle([Q(28, FLOOR), Q(54, FLOOR - 0.4)], fill=dark, outline=INK)
+	for x in (30, 40, 50):
+		d.rectangle([Q(x - 0.25, deck - 1.2), Q(x + 0.25, FLOOR)], fill=cream, outline=INK, width=2)
+		for t in (0.18, 0.5, 0.82):
+			y = FLOOR + (deck - 1.2 - FLOOR) * t
+			d.ellipse([Q(x - 0.42, y + 0.45), Q(x + 0.42, y - 0.45)], fill=cream, outline=INK, width=2)
+		d.rectangle([Q(x - 0.45, FLOOR + 0.8), Q(x + 0.45, FLOOR)], fill=cream, outline=INK)
+		d.polygon([Q(x - 0.25, deck - 1.2), Q(x - 1.6, deck - 1.2), Q(x - 0.25, deck - 3.0)], fill=red, outline=INK)
+		d.polygon([Q(x + 0.25, deck - 1.2), Q(x + 1.6, deck - 1.2), Q(x + 0.25, deck - 3.0)], fill=red, outline=INK)
+	d.rectangle([Q(28, deck), Q(54, deck - 1.2)], fill=cream, outline=INK, width=2)
+	d.line([Q(28, deck - 0.6), Q(54, deck - 0.6)], fill=red, width=3)
+	for x in (30, 40, 50):
+		d.rectangle([Q(x - 0.3, deck + 3.4), Q(x + 0.3, deck)], fill=cream, outline=INK, width=2)
+	d.rectangle([Q(28, deck + 3.3), Q(54, deck + 3.0)], fill=cream, outline=INK, width=2)
+	d.rectangle([Q(28, deck + 0.45), Q(54, deck + 0.25)], fill=cream, outline=INK)
+	for i in range(int(26 / 0.375)):
+		x = 28 + i * 0.375
+		if any(abs(x - p) < 0.35 for p in (30, 40, 50)):
+			continue
+		d.line([Q(x, deck + 3.0), Q(x, deck + 0.45)], fill=INK, width=2)
+	d.text(Q(55, deck + 1.7), "rail 3 ft: a moulded top rail, turned balusters\n4 1/2 in apart, a bottom rail clear of the deck", fill=INK, font=font(12))
+	d.text(Q(55, deck - 0.6), "fascia beam, cream, a red bead", fill=INK, font=font(12))
+	d.text(Q(55, deck - 2.4), "scroll brackets at each post head", fill=INK, font=font(12))
+	d.text(Q(55, FLOOR + 6), "turned post: 6 in square at head and foot,\nfrom 8x8 stock at the mill, on a stone footing", fill=INK, font=font(12))
+	d.text(Q(55, deck + 6), "the suite's French doors and the front rooms'\nwindows are the way out onto it", fill=INK, font=font(12))
+	d.text((Q(40, 0)[0], Q(0, -0.8)[1]), "10 ft", fill=SOFT, font=font(12), anchor="mm")
+
+	# 3. the collapse
+	s3, ox, oy = 18, 1060, 470
+	d.text((ox, oy), "3. Post 5 blown: the two bays it held come down", fill=INK, font=font(18, True))
+	base = oy + 50 + 20 * s3
+	R = lambda x, y: (ox + 20 + (x - 20) * s3, base - y * s3)
+	d.line([R(20, 0), R(60, 0)], fill=INK, width=2)
+	d.rectangle([R(20, FLOOR), R(60, FLOOR - 0.4)], fill=dark, outline=INK)
+	for x in (20, 30, 50, 60):
+		d.rectangle([R(x - 0.25, deck - 1.2), R(x + 0.25, FLOOR)], fill=cream, outline=INK)
+	d.line([R(20, deck), R(30, deck)], fill=INK, width=6)
+	d.line([R(50, deck), R(60, deck)], fill=INK, width=6)
+	d.line([R(30, deck - 0.3), R(39.6, FLOOR + 1.2)], fill=INK, width=6)
+	d.line([R(50, deck - 0.3), R(40.4, FLOOR + 1.2)], fill=INK, width=6)
+	for x, y in ((38.2, FLOOR + 0.3), (41.5, FLOOR + 0.2), (39.6, FLOOR + 0.6)):
+		d.rectangle([R(x - 0.4, y + 0.3), R(x + 0.4, y)], fill=cream, outline=INK)
+	d.text((R(40, 0)[0], R(0, -1)[1]), "post 5 gone: debris, dust", fill=INK, font=font(12), anchor="mm")
+	d.text((R(40, 0)[0], R(0, deck + 2)[1]), "front view: bays 4 and 5 hang from posts 4 and 6 and drop to the walk", fill=INK, font=font(12), anchor="mm")
+	oy2 = base + 70
+	d.text((ox, oy2), "...and in section: the deck hinges on the ledger", fill=INK, font=font(16, True))
+	base2 = oy2 + 40 + 22 * s3
+	T = lambda x, y: (ox + 120 + x * s3 * 1.3, base2 - y * s3)
+	d.line([T(-6, 0), T(18, 0)], fill=INK, width=2)
+	d.rectangle([T(8, deck + 9), T(8.6, FLOOR)], fill=(176, 190, 198), outline=INK, width=2)
+	d.rectangle([T(0, FLOOR), T(8, FLOOR - 0.35)], fill=dark, outline=INK)
+	d.line([T(8, deck - 0.4), T(0.4, FLOOR + 0.5)], fill=INK, width=6)
+	d.line([T(0.4, FLOOR + 0.5), T(-0.6, FLOOR + 3.2)], fill=INK, width=3)
+	d.text(T(9.5, deck + 4), "the men slide down the tipped deck\nonto the walk and into the street\n(13 ft at the outer edge); the rail\nbreaks or holds one hanging on", fill=INK, font=font(12))
+	d.text(T(9.5, deck - 2), "joists still on the ledger: the deck\nhangs from the wall like a ramp", fill=INK, font=font(12))
+	d.text(T(9.5, FLOOR + 2), "two posts blown: three or four bays;\na cracked post holds until it's loaded", fill=INK, font=font(12))
+	d.text((60, H - 40), "A design, not a spec: the spec (the building lab's step 2) and the game's own settle decide the sizes and the fall. #1146, docs/briefs/hotel.md section 6.", fill=SOFT, font=font(13))
+	im.save(os.path.join(HERE, "balcony.png"))
+
+
 def main():
 	plan("ground", "Ground floor: lobby, bar, parlour, dining room; the kitchen wing", GROUND, ground_extra)
 	plan("upper", "Upper floor: eleven rooms, the best suite, the landlady's, the maids'", UPPER, upper_extra)
 	plan("cellar", "The cellar: beer, coal, ice, wine, stores (and the secret's place)", CELLAR, cellar_extra)
 	front()
 	section()
+	balcony()
 
 
 if __name__ == "__main__":

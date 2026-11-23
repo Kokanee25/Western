@@ -6,7 +6,7 @@ find**, nice rooms, carpet and wallpaper. This is the design only: no game code 
 its own sessions (#1146's first prompt; the fancy-building parts list in its first comment).
 
 **For Sean, in one look:** the drawings in `hotel/` (ground, upper, cellar, the front, the gallery's
-section; `hotel/draw_plans.py` draws them from one set of numbers). **Your calls are §9**: the front's
+section, the balcony; `hotel/draw_plans.py` draws them from one set of numbers). **Your calls are §9**: the front's
 material, the gallery's roof, a third storey or not, the cellar's secret (§5: A, B or C), and the
 landlady's "fifty cents" line.
 
@@ -214,7 +214,9 @@ cleanest if B's tunnel feels like too much.
 
 **DECIDED (Sean, 2026-11-23, in session):** the second floor has an exterior balcony (this gallery), built to
 be blown up later. It stays on its own posts at the walk's edge so dynamite at the posts brings it down; the
-open deck or a roof over it is still §9 3.
+deck is **open, railed, no roof** (Sean, the same day). Drawn in `hotel/balcony.png`: its framing from
+above, three bays close, and post 5 blown (the two bays it carried hang from posts 4 and 6 and drop to the walk; in
+section the deck hinges on the ledger and tips the men down it).
 
 The girder men drink on the gallery the night after Payday Night (C9 a; `5_act4_sides.md`). The
 design gives it (`hotel/gallery_section.png`):
@@ -230,9 +232,9 @@ design gives it (`hotel/gallery_section.png`):
   dropping and a man hanging on the railing.
 - **Shot from the street:** the turned balusters give no cover (bullets go through); men crouch behind
   the fascia only when lying down. The windows behind them light them from inside (the suite's lamp).
-- **A roof over the gallery or not** (§9 2): an open, railed deck (recommended: the men are seen against
-  the lit windows, and the collapse is one clean fall) or a roofed double gallery (more shelter, more
-  members, more to bring down, darker at night).
+- **An open deck, no roof** (DECIDED, Sean 2026-11-23): the men are seen against the lit windows, and the
+  collapse is one clean fall. **Its beams are one a bay, ending on the posts**, not spliced through, so a
+  blown post drops exactly the two bays it carried.
 
 ## 7. Materials, room by room
 
@@ -277,7 +279,7 @@ Every one a person you can walk up to (#1207: unique), so each gets a sheet when
 
 1. **The front:** painted clapboard in three colours (recommended: brick stays the bank's across the
    street) or a brick front with stone at the corners and heads.
-2. **The gallery:** an open railed deck (recommended) or a roofed double gallery.
+2. **The gallery: DECIDED** (Sean, 2026-11-23): an exterior balcony on the upper floor, an open railed deck, to be blown up later (`hotel/balcony.png`).
 3. **Two storeys** (recommended: the town's size and §2's hotels; the third would be a mansard) **or three**.
 4. **The cellar's secret:** A (the Baron's copy book), B (the way under the lane, recommended) or C
    (the payroll in the ice).
