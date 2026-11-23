@@ -1,0 +1,7 @@
+{
+  "like": "feed_sack",
+  "id": "flour_sack",
+  "factory": "tools/props/store_g1.py",
+  "look": "prop:canvas",
+  "_doc": "A sack of flour (#1139, G1): the feed sack's shape in white canvas, a 50 lb sack. Written by tools/props/store_g1.py."
+}

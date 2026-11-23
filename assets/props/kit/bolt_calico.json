@@ -1,0 +1,45 @@
+{
+  "_doc": "A bolt of calico (#1139, G1): cloth wound on a flat board, 14 in tall, standing on its end. Written by tools/props/store_g1.py.",
+  "id": "bolt_calico",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "canvas",
+  "look": "prop:canvas",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "board",
+      "kind": "post",
+      "size": [
+        0.085,
+        0.36,
+        0.035
+      ],
+      "at": [
+        0.0,
+        0.18,
+        0.0
+      ],
+      "look": "prop:dark_wood"
+    },
+    {
+      "id": "cloth",
+      "kind": "trim",
+      "size": [
+        0.11,
+        0.34,
+        0.085
+      ],
+      "at": [
+        0.0,
+        0.18,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    }
+  ],
+  "factory": "tools/props/store_g1.py"
+}

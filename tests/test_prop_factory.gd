@@ -964,3 +964,38 @@ func test_the_handsaw_lies_where_its_put_and_a_ball_holes_its_blade() -> void:
 	await wait_until(func() -> bool: return not b.alive, 60)
 	await physics_frames(2)
 	check(p.holes >= 1, "a ball through its blade holes it (%d)" % p.holes)
+
+
+# --- The general store, batch G1 (#1139; tools/props/store_g1.py) -------------------------------------
+const STORE_G1 := [&"store_counter", &"store_shelving", &"rolling_ladder", &"store_stove", &"cracker_barrel", &"flour_barrel",
+		&"sugar_barrel", &"pickle_barrel", &"coffee_sack", &"flour_sack", &"store_scales", &"bolt_calico", &"bolt_felt", &"bolt_plaid"]
+
+
+func test_store_g1_stands_weighs_and_draws_in_a_few_batches() -> void:
+	# kg, and each member a physics body while it stands (experiments/prop_lab/store/README.md "G1").
+	var weights := {&"store_counter": [60.0, 300.0], &"store_shelving": [30.0, 220.0], &"rolling_ladder": [5.0, 30.0],
+			&"store_stove": [150.0, 800.0], &"cracker_barrel": [20.0, 90.0], &"flour_barrel": [20.0, 90.0], &"sugar_barrel": [20.0, 90.0],
+			&"pickle_barrel": [20.0, 90.0], &"coffee_sack": [10.0, 80.0], &"flour_sack": [10.0, 80.0], &"store_scales": [2.0, 12.0],
+			&"bolt_calico": [0.1, 8.0], &"bolt_felt": [0.1, 8.0], &"bolt_plaid": [0.1, 8.0]}
+	var bodies := {&"store_counter": 24, &"store_shelving": 20, &"rolling_ladder": 14, &"store_stove": 17, &"cracker_barrel": 21,
+			&"flour_barrel": 21, &"sugar_barrel": 21, &"pickle_barrel": 21, &"coffee_sack": 1, &"flour_sack": 1, &"store_scales": 5,
+			&"bolt_calico": 2, &"bolt_felt": 2, &"bolt_plaid": 2}
+	for id: StringName in STORE_G1:
+		var def := PropKit.definition(id)
+		check(def.get("factory", "") == "tools/props/store_g1.py" or id in [&"coffee_sack", &"flour_sack"], "%s is the factory's" % id)
+		var p := await _place(id)
+		check(p.settle().is_empty() and not p.loose, "%s stands: nothing breaks or falls" % id)
+		check(p.members_without_load_path().is_empty(), "%s: every member has its way down %s" % [id, p.members_without_load_path()])
+		var kg := p.mass()
+		check(kg >= weights[id][0] and kg <= weights[id][1], "%s weighs %.2f kg" % [id, kg])
+		check(p.member_count() <= bodies[id], "%s stands as %d bodies (at most %d)" % [id, p.member_count(), bodies[id]])
+		check(p.batch_count() <= 9, "%s draws untouched in a few batches (%d)" % [id, p.batch_count()])
+		p.queue_free()
+		await physics_frames(1)
+
+
+func test_the_stores_wood_is_the_librarys_furniture_never_the_floors() -> void:
+	for id: StringName in [&"store_counter", &"store_shelving", &"rolling_ladder"]:
+		for spec: Dictionary in PropKit.expand(PropKit.definition(id)):
+			var look := String(spec.get("look", PropKit.definition(id).get("look", "")))
+			check(not look.begins_with("lib:floor_") and not look.begins_with("wood:"), "%s/%s isn't the floor's wood (%s)" % [id, spec.id, look])
