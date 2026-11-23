@@ -1,0 +1,36 @@
+{
+  "_doc": "One row of the post office's pigeonholes with its mail (#1182, G3): letters on edge in the cells (cream, buff and blue envelopes addressed in a clerk's hand, the red stamp), bundles tied with string, a brown-paper parcel here and there, a lettered card on the board's lip at each cell (A to Z in groups, general delivery, registered, dead letters). One member (paper: ~2 kg of letters; a ball through it, the mail comes down; it comes down with its board). Drawn from glb:store_post (tools/blender/props/store_g3.py: Pillow). Written by tools/props/store_g3.py.",
+  "id": "mail_row_c",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "paper",
+  "look": "pbr:store_post",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g3.py",
+  "members": [
+    {
+      "id": "mail",
+      "kind": "post",
+      "size": [
+        1.6,
+        0.165,
+        0.2
+      ],
+      "at": [
+        0.0,
+        0.0825,
+        0.02
+      ],
+      "wood": "paper",
+      "look": "pbr:store_post",
+      "solid": 0.3,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_post",
+        "part": "MailC"
+      }
+    }
+  ]
+}

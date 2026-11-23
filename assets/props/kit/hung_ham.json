@@ -1,0 +1,62 @@
+{
+  "_doc": "Goods hung from the store's beaded ceiling (#1182, G3): two cured hams in muslin on tarred cord, one hung lower than the other. A prop that hangs by a hook (GlassProp, as the hanging lamp: it swings when pushed, and falls whole if the board it hangs from goes; its parts never shatter). Baked the gun way (tools/blender/props/store_g3.py: model hung_ham). Written by tools/props/store_g3.py.",
+  "id": "hung_ham",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "replaces": "",
+  "model": "glb:hung_ham",
+  "looks": {
+    "Hams": "pbr:hung_ham",
+    "Cords": "pbr:hung_ham"
+  },
+  "size": [
+    0.4,
+    0.8,
+    0.4
+  ],
+  "mass": 7.0,
+  "wall": 0.0015,
+  "hangs": {
+    "hook": [
+      0.0,
+      0.8,
+      0.0
+    ]
+  },
+  "hit": {
+    "at": [
+      0.0,
+      0.32,
+      0.0
+    ],
+    "size": [
+      0.36,
+      0.4,
+      0.36
+    ]
+  },
+  "swing": {
+    "pivot": [
+      0.0,
+      0.8,
+      0.0
+    ],
+    "length": 0.56,
+    "damping": 0.4
+  },
+  "glass": [],
+  "whole": [
+    [
+      "Hams",
+      "Cords"
+    ]
+  ],
+  "piece_mass": 5.6,
+  "shards": 8,
+  "breaks_at": 1000.0,
+  "shatters_kpa": 1000000000.0,
+  "heat_seconds": 30,
+  "cut_area": 0.04,
+  "factory": "tools/props/store_g3.py"
+}
