@@ -48,6 +48,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   are SashWindow's (`rise`); shingles library SH1 `shingle_pine`. Next: critic r2's top three (cemetery, belfry and
   spire shape, doors and hood). The open grave only in the funeral.
 - **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
+- **The undertaker's** (#1174, `undertaker/` README; PR on `claude/art-undertaker-steps-2-6-5uz4k2`): built, on its lot, its cellar dug (`CellarDig`) and walked (stair and `Bulkhead`, tests). Judged twice: cheap indie but the workroom (empty rooms, placeholder stone, the neighbours' grey blocks). Next: his props by the prop lab (#1141's list, the box hearse); the black trim wants `painted_black_trim` in the library.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.

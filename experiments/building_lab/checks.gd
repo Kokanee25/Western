@@ -414,7 +414,7 @@ static func built_right(b: Node, spec: Dictionary) -> Dictionary:
 				continue  # a cut corner: open by design, its column and beams its frame (saloon B)
 			openings += 1
 			var lvl: String = o.get("level", w.get("level", "ground"))
-			var y0 := float(lv[lvl]) + float(o.get("sill", 0.0))
+			var y0 := float(lv[lvl]) + (0.08 if lvl == "cellar" else 0.0) + float(o.get("sill", 0.0))  # (a cellar's from its flags, #1174)
 			var s0 := float(o.at) - float(o.width) * 0.5
 			var s1 := float(o.at) + float(o.width) * 0.5
 			var pts := [origin + along * (s0 + 0.012) + out * d0 + Vector3.UP * (y0 + 0.012),

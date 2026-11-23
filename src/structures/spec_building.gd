@@ -21,6 +21,7 @@ extends FalseFrontBuilding
 const Stair := preload("res://src/structures/stair.gd")
 const Marks := preload("res://src/structures/marks.gd")
 const StoneBuilder := preload("res://src/structures/stone.gd")
+const Bulkhead := preload("res://src/structures/bulkhead.gd")
 const CELL := 2.0
 const SPEC := "res://config/buildings/saloon.json"
 
@@ -239,6 +240,8 @@ func build() -> void:
 		church_tower.foundation()  # the church's bell tower (#1142): src/structures/church_tower.gd
 	_cellar()
 	_posts_and_beams()
+	# A cellar's rooms (#1174, the undertaker's): partitions on its flags, under the girders.
+	_partitions("cellar", 0)
 	band = 1
 	_ground_floor()
 	if church_tower:
@@ -248,6 +251,8 @@ func build() -> void:
 		church_tower.belfry()
 	if spec.has("corner"):
 		_corner_entrance()
+	_bulkhead()
+	_side_ramp()
 	band = 2
 	_partitions("ground", 2)
 	_stairs_inside()
@@ -496,9 +501,18 @@ func _add_interior_ambient() -> void:
 	if probe == null or light.is_empty():
 		return
 	probe.size = Vector3(width, probe.size.y, depth)
+	var cel: Dictionary = spec.get("cellar", {})
+	if cel.get("dig", false):
+		# A cellar a man walks in (#1174): the fill reaches down to its floor (below the building's 0 the
+		# sky's ambient lit its stone blue, and the box's edge drew a dark band across it at that height).
+		var lo := float(_lv.cellar)
+		var hi := probe.position.y + probe.size.y * 0.5
+		probe.size.y = hi - lo
+		probe.position.y = (hi + lo) * 0.5
 	probe.blend_distance = 0.05
 	if haze:
 		haze.size = probe.size
+		haze.position = probe.position
 	if light.has("window_day"):
 		set_meta(&"room_window_gain", float(light.window_day))
 	if light.has("day_fill"):
@@ -569,7 +583,24 @@ func _foundation() -> void:
 	# where it walls the cellar.
 	var runs := [["front", Vector2(0, 0), Vector2(w, 0)], ["back", Vector2(0, d - t), Vector2(w, d - t)],
 			["west", Vector2(0, t), Vector2(0, d - t)], ["east", Vector2(w - t, t), Vector2(w - t, d - t)]]
+	var bk: Dictionary = spec.get("bulkhead", {})
 	for r in runs:
+		var a: Vector2 = r[1]
+		var e: Vector2 = r[2]
+		if not bk.is_empty() and absf(a.x - e.x) < 0.001:
+			# The bulkhead's passage (#1174) through a side wall along z: the wall either side, jambs
+			# under a stone lintel (its ends bearing 0.25 m on them), the gap from the cellar's floor up.
+			var wl: Array = _wall_line(String(bk.wall))
+			if not wl.is_empty() and absf(float(wl[0][0]) - (a.x if a.x < 0.01 else a.x + t)) < 0.01:
+				var z0 := float(bk.z[0])
+				var z1 := float(bk.z[1])
+				var lt := top - float(bk.get("lintel", 0.2))
+				_stone_run("foundation/%s_a" % r[0], a, Vector2(a.x, z0 - 0.25), t, top, cel, floor)
+				_stone_run("foundation/%s_jamb_a" % r[0], Vector2(a.x, z0 - 0.25), Vector2(a.x, z0), t, lt, cel, floor)
+				add_member("foundation/%s_lintel" % r[0], &"sill", &"stone", Vector3(t, top - lt, z1 - z0 + 0.5), Vector3(a.x + t * 0.5, (top + lt) * 0.5, (z0 + z1) * 0.5))
+				_stone_run("foundation/%s_jamb_b" % r[0], Vector2(a.x, z1), Vector2(a.x, z1 + 0.25), t, lt, cel, floor)
+				_stone_run("foundation/%s_b" % r[0], Vector2(a.x, z1 + 0.25), e, t, top, cel, floor)
+				continue
 		_stone_run("foundation/" + r[0], r[1], r[2], t, top, cel, floor)
 	# The cellar's own walls inside the house: on each side of its rect that isn't the outer wall.
 	var c0 := Vector2(cel[0], cel[1])
@@ -588,6 +619,76 @@ func _foundation() -> void:
 	if c1.x < w - 0.01:
 		_stone_run("cellar/wall_x1", Vector2(c1.x - t * 0.5, za), Vector2(c1.x - t * 0.5, zb), t, top, [], floor)
 	_sills()
+
+
+## A wall's line in the spec ([[x, z], [x, z]]), or [] if there's none by that id.
+func _wall_line(id: String) -> Array:
+	for w: Dictionary in spec.walls:
+		if w.id == id:
+			return w.line
+	return []
+
+
+## The yard's ground under (x, z), building space (`lot.ground.plane` [a, b, c]: y = a + b x + c z;
+## #1174: the undertaker's lot has no pad); 0 where the spec gives none (the pad's level).
+func ground_y(x: float, z: float) -> float:
+	var pl: Array = (spec.lot.get("ground", {}) as Dictionary).get("plane", [0.0, 0.0, 0.0])
+	if pl.size() < 3 or float(pl[0]) < -100.0:
+		return 0.0
+	return float(pl[0]) + float(pl[1]) * x + float(pl[2]) * z
+
+
+## The cellar's outside door in the yard (#1174, spec `bulkhead`): Bulkhead, the part, against its
+## wall; the passage through the foundation is `_foundation`'s.
+func _bulkhead() -> void:
+	var bk: Dictionary = spec.get("bulkhead", {})
+	if bk.is_empty():
+		return
+	var st := Bulkhead.build(self, bk, walls[bk.wall].dict, {"floor": _lv.cellar, "flags": (_lv.cellar as float) + 0.08})
+	ramps.append([st.ramp, st.stringers])
+
+
+## A plank ramp from a side door's sill down to the yard (#1174, spec `side_ramp`: the undertaker's
+## workroom door 'at grade'): two stringers notched over the wall's sill, footed on a stone in the
+## yard, planks across them with cleats for the feet. Band 2: it rests on the wall and its stone.
+func _side_ramp() -> void:
+	var sr: Dictionary = spec.get("side_ramp", {})
+	if sr.is_empty():
+		return
+	var wall: Dictionary = walls[sr.wall].dict
+	var at := float(sr.at)
+	var w := float(sr.width)
+	var run := float(sr.run)
+	var wood := StringName(sr.get("wood", "framing"))
+	var outv: Vector3 = wall.out
+	var along: Vector3 = wall.along
+	var top_p: Vector3 = (wall.origin as Vector3) + along * at + Vector3.UP * (floor_top - 0.03)
+	var foot_xz: Vector3 = top_p + outv * run
+	var gy := ground_y(foot_xz.x, foot_xz.z)
+	var foot := Vector3(foot_xz.x, gy + 0.03, foot_xz.z)
+	var dir := (top_p - foot).normalized()
+	var acr := along.abs()
+	var normal := acr.cross(dir)
+	if normal.y < 0.0:
+		normal = -normal
+	var basis := Basis(acr, normal, acr.cross(normal)).orthonormalized()
+	var length := top_p.distance_to(foot) + 0.15
+	band = 0
+	var y0 := minf(0.0, gy - 0.2)  # (down to the building's 0: grounded)
+	add_member("side_ramp/foot", &"sill", &"stone", acr * (w + 0.1) + outv.abs() * 0.4 + Vector3.UP * (gy + 0.02 - y0),
+			Vector3(foot.x, (gy + 0.02 + y0) * 0.5, foot.z) + outv * 0.1)
+	band = 2
+	var mid := (top_p + foot) * 0.5 + outv * 0.075
+	for k in 2:
+		var off := (w * 0.5 - 0.1) * (1.0 if k == 0 else -1.0)
+		add_member("side_ramp/stringer_%d" % k, &"rafter", &"framing", Vector3(0.05, 0.2, length), mid + acr * off - normal * 0.12, basis)
+	var n := maxi(2, floori(length / 0.2))
+	for k in n:
+		var c := foot + dir * ((k + 0.5) * length / n - 0.05) + outv * 0.075
+		var pl := add_member("side_ramp/plank_%02d" % k, &"board", wood, Vector3(w, 0.04, length / n - 0.006), c, basis)
+		pl.set_meta(&"use_role", 4.0)
+		if k % 2 == 1:
+			add_member("side_ramp/cleat_%02d" % k, &"trim", wood, Vector3(w - 0.1, 0.025, 0.04), c + normal * 0.032, basis)
 
 
 ## Wood sills on the foundation's top, under the studs.
@@ -775,9 +876,11 @@ func _ground_floor() -> void:
 		var z := every
 		var k := 0
 		while z < depth - 0.4:
-			band = 0
-			add_member("pier/gx%d_%02d" % [int(gx * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(gx, (top - 0.3) * 0.5, z))
-			band = 1
+			# Inside a cellar (the undertaker's, #1174) the cellar's posts and walls carry it, not piers.
+			if not (gx > float(cel[0]) - 0.2 and gx < float(cel[2]) + 0.2 and z > float(cel[1]) - 0.3 and z < float(cel[3]) + 0.2):
+				band = 0
+				add_member("pier/gx%d_%02d" % [int(gx * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(gx, (top - 0.3) * 0.5, z))
+				band = 1
 			z += every
 			k += 1
 		_pieces("girder/x%d" % int(gx * 100), Vector3(gx, top + float(g[1]) * 0.5, 0.2), Vector3.BACK, depth - 0.4, Vector2(g[1], g[0]), &"sill", &"framing")
@@ -813,6 +916,13 @@ func _ground_floor() -> void:
 			z += every
 			k += 1
 		_pieces("girder/under%d" % int(ux * 100), Vector3(ux, top + h * 0.5, z0), Vector3.BACK, z1 - z0, Vector2(h, g[0]), &"sill", &"framing")
+	# A summer beam's post down onto its girder (#1174) goes through the floor in a slot of its own.
+	for sb: Dictionary in spec.get("summer_beams", []):
+		for pe: Variant in sb.posts:
+			if pe is Dictionary:
+				var h := float(pe.get("size", 0.1)) * 0.5 + 0.035
+				slots.append({"id": "post_%s_%d" % [sb.id, int(float(pe.z) * 100)], "slot": true,
+						"rect": [float(sb.x) - h + 0.035, float(pe.z) - h, float(sb.x) + h - 0.035, float(pe.z) + h]})
 	for f: Dictionary in spec.floors:
 		if f.level == "ground":
 			var fl := f
@@ -1017,7 +1127,8 @@ func _openings(w: Dictionary, level := "") -> Array:
 		var lvl: String = o.get("level", w.get("level", "ground"))
 		if level != "" and lvl != level:
 			continue
-		var y0 := (_lv[lvl] as float) + float(o.get("sill", 0.0))
+		# (a cellar's openings from its flags' top, #1174)
+		var y0 := (_lv[lvl] as float) + (0.08 if lvl == "cellar" else 0.0) + float(o.get("sill", 0.0))
 		# A pointed window's opening runs on up to its apex (SashWindow.pointed_head; `height` is to the springing).
 		var h := float(o.height) + (float(o.get("rise", 0.0)) if o.get("pointed", false) and o.type == "window" else 0.0)
 		out.append([Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), h), o, lvl])
@@ -1177,7 +1288,7 @@ func _outer_walls() -> void:
 					var bar := Rect2(lr.position.x, lr.end.y, lr.size.x, 0.05)
 					_wall_member("%s/transom_bar_%d" % [w.id, int(lr.position.x * 100)], &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), wall, bar.position.x, bar.end.x, bar.position.y, bar.end.y, -STUD_D, BOARD_T)
 					_glass(wall, Rect2(lr.position.x, lr.end.y + 0.05, lr.size.x, tr - 0.05))
-				_leaf(wall, lr, String(so.get("leaf", "inward")) == "outward", -STUD_D)
+				_leaves(wall, lr, so, -STUD_D)
 				band = clad
 			elif so.type == "batwings":
 				door_rect = o[0]
@@ -1591,7 +1702,20 @@ func _judged_board_w(id: String) -> float:
 
 
 ## A door's leaf standing open at right angles to its wall, into the room (or out of it).
-func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float, at_end := false) -> void:
+## A door's leaf, or its pair (`leaves: 2`, #1174: the undertaker's street doors and side door, each
+## hung on its own jamb); `thick` a heavier leaf (the ice room's, two layers of planks).
+func _leaves(wall: Dictionary, o: Rect2, so: Dictionary, d: float) -> void:
+	var outward := String(so.get("leaf", "inward")) == "outward"
+	var thick := float(so.get("thick", 0.04))
+	if int(so.get("leaves", 1)) == 2:
+		var half := o.size.x * 0.5
+		_leaf(wall, Rect2(o.position, Vector2(half, o.size.y)), outward, d, false, thick)
+		_leaf(wall, Rect2(o.position + Vector2(half, 0.0), Vector2(half, o.size.y)), outward, d, true, thick)
+	else:
+		_leaf(wall, o, outward, d, String(so.get("hinge", "start")) == "end", thick)
+
+
+func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float, at_end := false, thick := 0.04) -> void:
 	var lw := o.size.x - 0.05
 	var lh := o.size.y - 0.05
 	var into := (wall.out as Vector3) * (1.0 if outward else -1.0)
@@ -1601,7 +1725,8 @@ func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float, at_end := false)
 	var hinge: Vector3 = wall.origin + along * ((o.end.x - 0.03) if at_end else (o.position.x + 0.03)) + (wall.out as Vector3) * (0.0 if outward else d)
 	var c := hinge + into * (lw * 0.5 + 0.03) + along * (0.025 * k)
 	c.y = o.position.y + 0.01 + lh * 0.5
-	var size := into.abs() * lw + Vector3.UP * lh + along.abs() * 0.04
+	c += along * (thick - 0.04) * 0.5 * k
+	var size := into.abs() * lw + Vector3.UP * lh + along.abs() * thick
 	var leaf := add_member("%s/door_%d" % [wall.name, int(o.position.x * 100)], &"door", &"painted_rust", size, c)
 	# Its use (#901): hands at the latch, the edge away from the hinge.
 	if leaf:
@@ -1624,6 +1749,10 @@ func _partitions(level: String, b: int) -> void:
 		# A ground-floor partition carries the joists over it; one upstairs stops short of the
 		# trusses' ties (they span wall to wall: a tie on a partition would load the floor under it).
 		var top := (_lv.upper_joist_bottom as float) - PLATE_H if level == "ground" else wall_height - PLATE_H - 0.02
+		if level == "cellar":
+			# A cellar's (#1174): from its flags to the girders' underside (it carries them where it crosses them).
+			foot += 0.08
+			top = float(_fr.foundation.top) - PLATE_H
 		var ops := _openings(w, level)
 		var rects: Array[Rect2] = []
 		for o in ops:
@@ -1639,7 +1768,7 @@ func _partitions(level: String, b: int) -> void:
 			# Into the room it serves: a partition's leaf swings to its -out side unless its spec
 			# says "outward" (the back rooms' doors open into the rooms, not across the gallery).
 			if String((o[1] as Dictionary).type) == "door":  # (an arch and a hatch have no leaf)
-				_leaf(wall, o[0], String((o[1] as Dictionary).get("leaf", "inward")) == "outward", -STUD_D * 0.5, String((o[1] as Dictionary).get("hinge", "start")) == "end")
+				_leaves(wall, o[0], o[1], -STUD_D * 0.5)
 
 
 # --- stairs, balconies, rails ---------------------------------------------------------------------
@@ -1659,7 +1788,7 @@ func _stair(st: Dictionary, lower: float, upper: float) -> void:
 		posts.append([q.dot(up), q.dot(across)])
 	var made := Stair.build(self, "stair/" + String(st.id), head, up, across, float(st.width), risers, rise, float(st.going),
 			{"rail": 1 if _axis(String(st.get("rail", "+x"))).dot(across) > 0.0 else -1, "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
-			"stringer_look": st.get("stringer_look", st.get("look", ""))})
+			"stringer_look": st.get("stringer_look", st.get("look", "")), "ground_block": st.get("ground_block", false)})
 	ramps.append([made.ramp, made.stringers])
 
 
@@ -2019,6 +2148,9 @@ func _outbuildings() -> void:
 		if o.kind == "lean_to":
 			_lean_to(o)
 			continue
+		if o.kind == "shed":
+			_shed(o)
+			continue
 		if o.kind != "outhouse":
 			continue
 		band = 0
@@ -2087,6 +2219,143 @@ func _outbuildings() -> void:
 			add_member("%s/rafter_%d" % [id, k], &"rafter", &"framing", Vector3(0.05, 0.08, rlen), Vector3(rx, (h + back_h) * 0.5 + 0.04, at.z + 0.05), Basis(Vector3.RIGHT, ang))
 		for k in 5:
 			add_member("%s/roof_%d" % [id, k], &"roof_board", wood, Vector3(0.3 - 0.004, 0.02, rlen), Vector3(x0 - 0.1 + (k + 0.5) * (w + 0.2) / 5.0, (h + back_h) * 0.5 + 0.09, at.z + 0.05), Basis(Vector3.RIGHT, ang))
+
+
+## A shed in the yard (#1174, the undertaker's hearse shed; `outbuildings` kind `shed`): `rect` [x0, z0,
+## x1, z1], its floor the yard's dirt; stones under its corners and posts on the rising ground (its level
+## the ground's at its door), sills, posts at the corners, the door's jambs and the sides' middles, girts
+## and plates, board and batten up the walls and the gables, a gable roof of rafters on a ridge board
+## (its ridge front to back, `pitch`), the doors' two leaves (`door` {at, width, height} in its front, the
+## -z side) standing open against the front, and a horse's stall (`stall` {x, z}: a plank side on posts,
+## a manger at its head). Bands 0 (the stones) to 2 (the leaves); ids `<id>/...`.
+func _shed(o: Dictionary) -> void:
+	var id := String(o.id)
+	var r: Array = o.rect
+	var x0 := float(r[0])
+	var z0 := float(r[1])
+	var x1 := float(r[2])
+	var z1 := float(r[3])
+	var wood := StringName(o.get("wood", "framing"))
+	var dr: Dictionary = o.door
+	var gb := ground_y(float(dr.at), z0) + 0.05  # the sills' foot: the ground at the door
+	var sill := 0.15
+	var base := gb + sill
+	var eave := base + float(o.eave)
+	var half := (x1 - x0) * 0.5
+	var ang := deg_to_rad(float(o.get("pitch", 30.0)))
+	var ridge_y := eave + half * tan(ang)
+	var cx := (x0 + x1) * 0.5
+	var dx0 := float(dr.at) - float(dr.width) * 0.5
+	var dx1 := float(dr.at) + float(dr.width) * 0.5
+	band = 0
+	var corners := [Vector2(x0, z0), Vector2(x1, z0), Vector2(x0, z1), Vector2(x1, z1), Vector2(x0, (z0 + z1) * 0.5), Vector2(x1, (z0 + z1) * 0.5), Vector2(cx, z1)]
+	for k in corners.size():
+		var c: Vector2 = corners[k]
+		var y0 := minf(0.0, ground_y(c.x, c.y) - 0.25)
+		add_member("%s/stone_%d" % [id, k], &"sill", &"stone", Vector3(0.3, gb - y0, 0.3), Vector3(c.x, (gb + y0) * 0.5, c.y))
+	band = 1
+	# Sills round it (the front's a threshold the wheels go over).
+	add_member("%s/sill_f" % id, &"sill", &"framing", Vector3(x1 - x0, sill, 0.15), Vector3(cx, gb + sill * 0.5, z0 + 0.075))
+	add_member("%s/sill_b" % id, &"sill", &"framing", Vector3(x1 - x0, sill, 0.15), Vector3(cx, gb + sill * 0.5, z1 - 0.075))
+	add_member("%s/sill_w" % id, &"sill", &"framing", Vector3(0.15, sill, z1 - z0 - 0.3), Vector3(x0 + 0.075, gb + sill * 0.5, (z0 + z1) * 0.5))
+	add_member("%s/sill_e" % id, &"sill", &"framing", Vector3(0.15, sill, z1 - z0 - 0.3), Vector3(x1 - 0.075, gb + sill * 0.5, (z0 + z1) * 0.5))
+	# Posts: the corners, the sides' middles, the door's jambs; at the gables' middles up to the ridge.
+	var posts := [[x0 + 0.06, z0 + 0.06, eave], [x1 - 0.06, z0 + 0.06, eave], [x0 + 0.06, z1 - 0.06, eave], [x1 - 0.06, z1 - 0.06, eave],
+			[x0 + 0.06, (z0 + z1) * 0.5, eave], [x1 - 0.06, (z0 + z1) * 0.5, eave], [dx0 - 0.06, z0 + 0.06, base + float(dr.height) + 0.15],
+			[dx1 + 0.06, z0 + 0.06, base + float(dr.height) + 0.15], [cx, z1 - 0.06, ridge_y - 0.1]]
+	for k in posts.size():
+		var pp: Array = posts[k]
+		add_member("%s/post_%d" % [id, k], &"post", &"framing", Vector3(0.1, float(pp[2]) - base, 0.1), Vector3(pp[0], (base + float(pp[2])) * 0.5, pp[1]))
+	# The door's head, girts at mid height on the sides and back, plates at the eaves.
+	add_member("%s/door_head" % id, &"beam", &"framing", Vector3(dx1 - dx0 + 0.24, 0.15, 0.1), Vector3(float(dr.at), base + float(dr.height) + 0.225, z0 + 0.06))
+	var gy := base + float(o.eave) * 0.5
+	for side in 2:
+		var px := x0 + 0.06 if side == 0 else x1 - 0.06
+		add_member("%s/girt_%d" % [id, side], &"beam", &"framing", Vector3(0.05, 0.1, z1 - z0 - 0.12), Vector3(px + (-0.075 if side == 0 else 0.075), gy, (z0 + z1) * 0.5))
+		add_member("%s/plate_%d" % [id, side], &"beam", &"framing", Vector3(0.1, 0.1, z1 - z0), Vector3(px, eave + 0.05, (z0 + z1) * 0.5))
+	add_member("%s/girt_b" % id, &"beam", &"framing", Vector3(x1 - x0 - 0.12, 0.1, 0.05), Vector3(cx, gy, z1 + 0.015))
+	add_member("%s/girt_f" % id, &"beam", &"framing", Vector3(x1 - x0 - 0.12, 0.1, 0.05), Vector3(cx, eave - 0.05, z0 - 0.015))
+	# Board and batten: boards a foot wide on the girts, outside the frame, to the eave or the gable.
+	var bw := 0.3
+	var roof_at := func(x: float) -> float: return ridge_y - absf(x - cx) * tan(ang) - 0.02
+	for side in 4:
+		var length := (z1 - z0) if side < 2 else (x1 - x0)
+		var n := ceili(length / bw)
+		for k in n:
+			var a := length * k / n
+			var b := length * (k + 1) / n
+			var mid := (a + b) * 0.5
+			var c: Vector3
+			var size: Vector3
+			var y_top := eave + 0.1
+			if side >= 2:
+				y_top = roof_at.call(x0 + mid)
+				if side == 2 and x0 + b > dx0 - 0.02 and x0 + a < dx1 + 0.02:
+					if y_top < base + float(dr.height) + 0.3:
+						continue
+					var yb := base + float(dr.height) + 0.3
+					add_member("%s/board_%d_%02d" % [id, side, k], &"board", wood, Vector3(b - a - 0.006, y_top - yb, 0.022), Vector3(x0 + mid, (yb + y_top) * 0.5, z0 - 0.051))
+					continue
+			var yb := base + 0.02
+			if side < 2:
+				size = Vector3(0.022, y_top - yb, b - a - 0.006)
+				c = Vector3(x0 - 0.051 if side == 0 else x1 + 0.051, (yb + y_top) * 0.5, z0 + mid)
+			else:
+				size = Vector3(b - a - 0.006, y_top - yb, 0.022)
+				c = Vector3(x0 + mid, (yb + y_top) * 0.5, z0 - 0.051 if side == 2 else z1 + 0.051)
+			add_member("%s/board_%d_%02d" % [id, side, k], &"board", wood, size, c)
+			if k > 0:
+				var bt := c + (Vector3(-0.02 if side == 0 else 0.02, 0, 0) if side < 2 else Vector3(0, 0, -0.02 if side == 2 else 0.02))
+				var bs := Vector3(0.018, size.y, 0.06) if side < 2 else Vector3(0.06, size.y, 0.018)
+				bt += (Vector3(0, 0, -(b - a) * 0.5) if side < 2 else Vector3(-(b - a) * 0.5, 0, 0))
+				add_member("%s/batten_%d_%02d" % [id, side, k], &"trim", wood, bs, bt)
+	# The roof: rafter pairs at 2 ft on the plates to a ridge board, boards along it.
+	band = 1
+	var rl := half / cos(ang) + 0.3
+	add_member("%s/ridge" % id, &"ridge", &"framing", Vector3(0.03, 0.15, z1 - z0 + 0.3), Vector3(cx, ridge_y - 0.04, (z0 + z1) * 0.5))
+	var nz := ceili((z1 - z0) / 0.61)
+	for k in nz + 1:
+		var z := z0 + 0.04 + (z1 - z0 - 0.08) * k / nz
+		for side in 2:
+			var sg := -1.0 if side == 0 else 1.0
+			var rb := Basis(Vector3.BACK, -sg * ang)
+			var c := Vector3(cx + sg * (half * 0.5 + 0.06), (eave + ridge_y) * 0.5 + 0.08, z)
+			add_member("%s/rafter_%d_%d" % [id, side, k], &"rafter", &"framing", Vector3(rl, 0.12, 0.05), c, rb)
+	for side in 2:
+		var sg := -1.0 if side == 0 else 1.0
+		var rb := Basis(Vector3.BACK, -sg * ang)
+		var nb := ceili(rl / 0.3)
+		for k in nb:
+			var s := (k + 0.5) * rl / nb - 0.15
+			var c := Vector3(cx + sg * (s * cos(ang)), ridge_y + 0.09 - s * sin(ang), (z0 + z1) * 0.5)
+			add_member("%s/roof_%d_%02d" % [id, side, k], &"roof_board", wood, Vector3(rl / nb - 0.004, 0.022, z1 - z0 + 0.5), c, rb)
+	# The stall: a plank side on two posts, a manger at its head (Harlan's).
+	var st: Dictionary = o.get("stall", {})
+	if not st.is_empty():
+		var sx := float(st.x)
+		var sa := float(st.z[0])
+		var sb := float(st.z[1])
+		# (its posts and the manger set into the ground, under the structure's 0: grounded)
+		band = 0
+		for e in 2:
+			var pz := sa if e == 0 else sb
+			var lo := minf(0.0, ground_y(sx, pz) - 0.4)
+			add_member("%s/stall_post_%d" % [id, e], &"post", &"framing", Vector3(0.1, base + 1.4 - lo, 0.1), Vector3(sx, (base + 1.4 + lo) * 0.5, pz))
+		var mlo := minf(0.0, ground_y(x1, z1) - 0.3)
+		add_member("%s/stall_manger" % id, &"post", wood, Vector3(x1 - sx - 0.25, base + 0.9 - mlo, 0.45), Vector3((sx + x1) * 0.5, (base + 0.9 + mlo) * 0.5, z1 - 0.4))
+		band = 1
+		for k in 3:
+			add_member("%s/stall_board_%d" % [id, k], &"board", wood, Vector3(0.03, 0.2, sb - sa), Vector3(sx + 0.065, base + 0.45 + k * 0.35, (sa + sb) * 0.5))
+	# The doors: two plank leaves hung on the jambs, standing open flat against the front.
+	band = 2
+	var lw := (dx1 - dx0) * 0.5 - 0.02
+	var lh := float(dr.height) - 0.05
+	for e in 2:
+		var hx := dx0 - 0.01 if e == 0 else dx1 + 0.01
+		var sg := -1.0 if e == 0 else 1.0
+		var leaf := add_member("%s/door_%d" % [id, e], &"door", wood, Vector3(lw, lh, 0.04), Vector3(hx + sg * lw * 0.5, base + 0.03 + lh * 0.5, z0 - 0.09))
+		leaf.set_meta(&"use_role", 3.0)
+	band = 0
 
 
 ## A lean-to (a farmhouse's kitchen) against one of the house's walls (`wall`, the back): its own
@@ -2224,7 +2493,7 @@ func _kit_lamps(L: Dictionary) -> void:
 		var face_d := (STUD_D * 0.5 + 0.02 if plus else -STUD_D * 0.5 - 0.02) if partition else (BOARD_T + 0.005 if out else -STUD_D - 0.02)
 		var into := (wall.out as Vector3) if plus or out else -(wall.out as Vector3)
 		var level := String(e.get("level", "ground"))
-		var foot := (_lv[level] as float) + float(e.height)
+		var foot := (_lv[level] as float) + (0.08 if level == "cellar" else 0.0) + float(e.height)
 		if wl.spec.get("stone", false):
 			# A stone wall (#811, the jail): on its face at the lamp's height (its profile; a stone
 			# partition's + side is its line, the - side its thickness in).
@@ -3028,14 +3297,24 @@ func _yard_front() -> void:
 		var zb := float(sf.z[1])
 		var fh := float(sf.get("h", 1.8))
 		var n := maxi(1, ceili((zb - za) / 2.4))
+		# On the ground (`lot.ground.plane`, #1174: the undertaker's rising yard), a bay at a time; a
+		# post from 0.3 under the building's 0 (grounded) or under the ground, whichever is lower.
 		for i in n + 1:
-			add_member("fence/side_post_%d" % i, &"post", &"framing", Vector3(0.09, fh + 0.3, 0.09), Vector3(fx, (fh + 0.3) * 0.5 - 0.3, za + (zb - za) * i / n))
-		for h in [0.3, fh - 0.25]:
-			add_member("fence/side_rail_%d" % int(h * 100), &"beam", &"framing", Vector3(0.04, 0.09, zb - za), Vector3(fx - 0.065, h, (za + zb) * 0.5))
+			var pz := za + (zb - za) * i / n
+			var g := ground_y(fx, pz)
+			var pb := minf(-0.3, g - 0.3)
+			add_member("fence/side_post_%d" % i, &"post", &"framing", Vector3(0.09, g + fh - pb, 0.09), Vector3(fx, (g + fh + pb) * 0.5, pz))
+		for i in n:
+			var a := za + (zb - za) * i / n
+			var e := za + (zb - za) * (i + 1) / n
+			var g := ground_y(fx, (a + e) * 0.5)
+			for h in [0.3, fh - 0.25]:
+				add_member("fence/side_rail_%d_%d" % [int(h * 100), i], &"beam", &"framing", Vector3(0.04, 0.09, e - a), Vector3(fx - 0.065, g + h, (a + e) * 0.5))
 		var bz := za
 		var j := 0
 		while bz < zb - 0.05:
-			add_member("fence/side_board_%d" % j, &"board", wood, Vector3(0.02, fh - 0.05, 0.14), Vector3(fx - 0.095, (fh - 0.05) * 0.5 + 0.05, bz + 0.07))
+			var g := ground_y(fx, bz + 0.07)
+			add_member("fence/side_board_%d" % j, &"board", wood, Vector3(0.02, fh - 0.05, 0.14), Vector3(fx - 0.095, g + (fh - 0.05) * 0.5 + 0.05, bz + 0.07))
 			bz += 0.15
 			j += 1
 	# The gate's leaves, standing open into the yard.
@@ -3095,6 +3374,13 @@ func _summer_beams() -> void:
 			# A post is its z, or [z, depth]: one let into a wall is the wall's depth (#844: the
 			# doctor's front ones stood 0.15 m proud beside the street door, read as a metal post).
 			var pe: Variant = sb.posts[k]
+			if pe is Dictionary:
+				# (#1174) a post down through a slot in the floor onto the girder under it (`girder`: its
+				# load on the girder, not on the boards): `size` its section, clear of the boards and joists.
+				var ps := float(pe.get("size", 0.1))
+				var gt := float(_fr.foundation.top) + float(_fr.girder.section[1])
+				add_member("summer/%s/post_%d" % [sb.id, k], &"post", &"framing", Vector3(ps, yb - gt, ps), Vector3(x, (gt + yb) * 0.5, float(pe.z)))
+				continue
 			var pz := float(pe[0]) if pe is Array else float(pe)
 			var pd := float(pe[1]) if pe is Array else float(sec[0])
 			add_member("summer/%s/post_%d" % [sb.id, k], &"post", &"framing", Vector3(sec[0], yb - floor_top, pd), Vector3(x, (floor_top + yb) * 0.5, pz))

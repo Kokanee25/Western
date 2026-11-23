@@ -54,6 +54,11 @@ static func build(s: Structure, id: String, head: Vector3, up: Vector3, across: 
 		if foot.y <= Structure.GROUND_EPSILON:
 			var fb := foot - up * (going * 0.5) + side * off
 			out.append(s.add_member("%s/foot_%d" % [id, k], &"sill", wood, up.abs() * 0.3 + Vector3.UP * 0.1 + side.abs() * 0.12, fb + Vector3.UP * 0.05))
+		elif spec.get("ground_block", false):
+			# (#1174) a foot on ground over the structure's 0 (a lot with no pad): a stone set down to its 0.
+			var fb := foot - up * (going * 0.5) + side * off
+			var lo := minf(0.0, foot.y - 0.3)
+			out.append(s.add_member("%s/foot_%d" % [id, k], &"sill", &"stone", up.abs() * 0.3 + Vector3.UP * (foot.y + 0.1 - lo) + side.abs() * 0.12, Vector3(fb.x, (foot.y + 0.1 + lo) * 0.5, fb.z)))
 	# Treads and risers between the stringers.
 	for i in risers - 1:
 		var top := foot.y + rise * (i + 1)
