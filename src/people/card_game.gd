@@ -721,6 +721,12 @@ func _say(who: Variant, kind: String, fill := {}, always := false) -> void:
 	# (said whatever) takes the stalest.
 	var gap := float(data.get("same_line_s", 240.0))
 	var fresh := pick.filter(func(l: Variant) -> bool: return _clock - float(_line_at.get(String(l), -INF)) >= gap)
+	if fresh.is_empty() and kind.begins_with("win"):
+		# His own spent: the table's own words (gate 3 run 4: Earl's "Two pair... Don't look at me like
+		# that." three times in eight minutes).
+		var common: Array = (data.get("lines", {}) as Dictionary).get(kind, [])
+		pick = pick + common.filter(func(l: Variant) -> bool: return not pick.has(l))
+		fresh = pick.filter(func(l: Variant) -> bool: return _clock - float(_line_at.get(String(l), -INF)) >= gap)
 	if fresh.is_empty():
 		if not kind.begins_with("win"):
 			return

@@ -1801,6 +1801,8 @@ func line_for(set_id: String) -> Array:
 
 ## Lines each man's said (his gaps' seeds).
 var _said_by := {}
+## News record id -> when a man last told it you (`talk.news_again_s`: one telling a while, #1184).
+var _news_to_you := {}
 
 
 ## 0..1 by his id, `what` and the run.
@@ -1843,10 +1845,13 @@ func _talk_step() -> void:
 		var calm := TownNews._calm(brain)
 		if rid != 0 and not calm:
 			rid = 0  # not with trouble on: what he says then is his fright's
+		if rid != 0 and _ran - float(_news_to_you.get(rid, -INF)) < float(talk.get("news_again_s", 600.0)):
+			rid = 0  # another's just told you it (gate 3 run 4: nine men told you one shot ten times)
 		var day := town_day()
 		if rid != 0:
 			l = ["news.%d" % rid, news.line_of(id, rid, TownNews.HARLAN)]
 			news.said(id, rid)
+			_news_to_you[rid] = _ran
 		elif pd.has("says"):
 			l = line_for(String(pd.says))
 			if not l.is_empty() and barks and not barks.allowed(String(id), String(l[0]), day, _ran):

@@ -43,9 +43,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   5 / 5 / 7 / 10 out at 07 / 12 / 14 / 17:30, most moving (`tests/test_town_streets.gd`); the saloon open from 10, a
   knock at the open store brings the storekeeper (`shops`); gawkers at a shot with nobody down don't say "Is he
   dead?"; `run_seed` varies each run (random; Engine meta `town_seed`, 0 in tests); the bridge logs a big break's
-  breaker (`big_break`; the 214 still unreproduced). **Gate round 2 (#1180, `docs/playtests/2026-11-23-town-2.md`): not passed, much better** (regard moves, saloon open and
-  laughing by day, men walk, store answers, runs differ). Left: day talk thin (1-4 lines in 10 min), 4+ men static all run,
-  few in view, the knock brings a line not the man (and a man in the doorway makes E a shove). Next: those four, #1184. Unjudged on screen: the
+  breaker (`big_break`; the 214 still unreproduced). **Gate rounds 2 and 3** (`docs/playtests/2026-11-23-town-2.md`, `-town-3.md`): not passed. #1184 fixed day talk (`street`
+and `chat` scenes, `ValleyFolk._chat_step`; 13 / 7 / 25 lines in 10 min at 07 / 12 / 17:30), men still an hour
+(rounds; `test_town_streets.gd`), the knock (`knock` line first, `knock.wait`; E at a town door never a shove),
+loops (card `same_line_s`, relief, news told you once in 10 min). Left: stuck walks ("going" minutes without moving),
+night repetition fixes unseen blind, witnesses not naming you. Next: #1194. Unjudged on screen: the
   walks between spots, the store's door scene. Open: the room's sounds are synth stand-ins (#807); no argument,
   round bought or song called for; not in saloon B; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 
