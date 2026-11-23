@@ -415,8 +415,9 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	# Bang (E at the door, Earl by it).
 	await _tap_e()
 	check(c.knocked_n == 1 and c.state in [&"knocked", &"door"], "the bang's the beat (%s; %s)" % [c.result().get("events"), _player().knock.report()])
-	check(c.said.any(func(s: Array) -> bool: return s[2] == "carry.door_wait"), "a voice through the door (the knocks %s; the act's last %s)" % [
-			f.knocks, c.timeline.slice(-6)])
+	check(c.said.any(func(s: Array) -> bool: return s[2] == "carry.door_wait"), "a voice through the door (the knocks %s; the doctor: state %s, book %s, body %s; the act's last %s)" % [
+			f.knocks, f.state.get(&"doctor"), f.book.row(&"doctor"),
+			ValleyFolk._body_at(f.people[&"doctor"]) if f.people.has(&"doctor") else "none", c.timeline.slice(-6)])
 	var opened := await wait_until(func() -> bool: return c.state in [&"lay", &"laid"] or c.done, 60 * 60)
 	check(opened, "the doctor opens and says it (%s)" % c.result())
 	var ids: Array = c.said.map(func(s: Array) -> String: return s[2])

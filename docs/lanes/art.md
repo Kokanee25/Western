@@ -44,7 +44,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **The general store (#858): steps 1-3 done**
   (`experiments/building_lab/store/` README: bodies 38,185 of 65,536; #1035: library finishes, light 0.55/26, render CPU 1.5-2.4 ms (cellar 5.4, over); the sign on the porch band (#1045); the rear's gabled wing is Sean's form call). **Lit** (#1053): a `Storefront` (show windows, recessed entry; PARTS.md), RoomLight's cap 12 m², RealLook `exposure_indoor` 1.7, a pale beaded ceiling; back wall card 0.110 -> 0.193. **Hollis's** (#1074): pale posts and beams, A. P. HOLLIS gilded on the show windows (`Storefront.gilt`), kit goods in the windows (real stock #1076); the dark brackets are Sean's call;
   saloon B is Fable's (#848: step 1 done, below).
-- **The church and cemetery (#1142)**: built, judged, PR from `claude/art-church-windows-shingles-sfqsc1` (README `experiments/building_lab/church/`).
+- **The church and cemetery (#1142)**: built, judged, PR #1165 not merged (No Law's carry test races the doctor-fetch with the church in: #1168). README `experiments/building_lab/church/`.
   Pointed heads are SashWindow's (`rise`); shingles are library SH1 `shingle_pine` (old approved; new/few not). Critic r2: see the status
   entry. Left for Sean: spire shape (squat, no flare), door (square, no hood), the nave's middle post, the open grave only in the funeral.
 - **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
