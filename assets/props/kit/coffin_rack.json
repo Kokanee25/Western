@@ -1,0 +1,193 @@
+{
+  "_doc": "A coffin rack (#1181): four 8 cm posts, two tiers of side rails with two bearers across each, its tiers' tops at 0.34 and 1.04 m for coffins lying along it; raw pine. Under the cellar's 2.26 m. 12 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "coffin_rack",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "post00",
+      "kind": "post",
+      "size": [
+        0.08,
+        1.55,
+        0.08
+      ],
+      "at": [
+        -1.11,
+        0.775,
+        -0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "post01",
+      "kind": "post",
+      "size": [
+        0.08,
+        1.55,
+        0.08
+      ],
+      "at": [
+        -1.11,
+        0.775,
+        0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "post10",
+      "kind": "post",
+      "size": [
+        0.08,
+        1.55,
+        0.08
+      ],
+      "at": [
+        1.11,
+        0.775,
+        -0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "post11",
+      "kind": "post",
+      "size": [
+        0.08,
+        1.55,
+        0.08
+      ],
+      "at": [
+        1.11,
+        0.775,
+        0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "rail0b",
+      "kind": "furniture_frame",
+      "size": [
+        2.14,
+        0.08,
+        0.05
+      ],
+      "at": [
+        0.0,
+        0.26,
+        -0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "rail0f",
+      "kind": "furniture_frame",
+      "size": [
+        2.14,
+        0.08,
+        0.05
+      ],
+      "at": [
+        0.0,
+        0.26,
+        0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "bearer00",
+      "kind": "furniture_top",
+      "size": [
+        0.08,
+        0.04,
+        0.7
+      ],
+      "at": [
+        -0.7,
+        0.32,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "bearer01",
+      "kind": "furniture_top",
+      "size": [
+        0.08,
+        0.04,
+        0.7
+      ],
+      "at": [
+        0.7,
+        0.32,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "rail1b",
+      "kind": "furniture_frame",
+      "size": [
+        2.14,
+        0.08,
+        0.05
+      ],
+      "at": [
+        0.0,
+        0.96,
+        -0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "rail1f",
+      "kind": "furniture_frame",
+      "size": [
+        2.14,
+        0.08,
+        0.05
+      ],
+      "at": [
+        0.0,
+        0.96,
+        0.35
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "bearer10",
+      "kind": "furniture_top",
+      "size": [
+        0.08,
+        0.04,
+        0.7
+      ],
+      "at": [
+        -0.7,
+        1.02,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "bearer11",
+      "kind": "furniture_top",
+      "size": [
+        0.08,
+        0.04,
+        0.7
+      ],
+      "at": [
+        0.7,
+        1.02,
+        0.0
+      ],
+      "look": "wood:framing"
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

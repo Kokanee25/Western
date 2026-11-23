@@ -1,0 +1,189 @@
+{
+  "_doc": "A zinc pail (#1181) under the embalming table's drain, a bail over its rim, stained brown inside with a tide-line and a pinkish dregs at the bottom (Sean's add-on). 1 physics body. Written by tools/props/undertaker.py.",
+  "id": "zinc_pail",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "iron",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "pail",
+      "kind": "post",
+      "size": [
+        0.28,
+        0.26,
+        0.28
+      ],
+      "at": [
+        0.0,
+        0.13,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:tin",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.11,
+            0.0
+          ],
+          [
+            0.14,
+            0.26
+          ],
+          [
+            0.125,
+            0.26
+          ],
+          [
+            0.0,
+            0.01
+          ]
+        ],
+        "segments": 12
+      },
+      "dress": [
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.145,
+                0.25
+              ],
+              [
+                0.145,
+                0.265
+              ],
+              [
+                0.13,
+                0.265
+              ],
+              [
+                0.13,
+                0.25
+              ]
+            ],
+            "segments": 12,
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "look": "prop:hide_dark",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.0,
+                0.03
+              ],
+              [
+                0.1,
+                0.035
+              ],
+              [
+                0.128,
+                0.2
+              ],
+              [
+                0.13,
+                0.215
+              ],
+              [
+                0.12,
+                0.215
+              ],
+              [
+                0.0,
+                0.07
+              ]
+            ],
+            "segments": 12,
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "look": "prop:hide_pale",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.0,
+                0.075
+              ],
+              [
+                0.105,
+                0.075
+              ],
+              [
+                0.105,
+                0.08
+              ],
+              [
+                0.0,
+                0.08
+              ]
+            ],
+            "segments": 12,
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "from": [
+                  -0.14,
+                  0.26,
+                  0.0
+                ],
+                "to": [
+                  0.0,
+                  0.36,
+                  0.0
+                ],
+                "thick": 0.01
+              },
+              {
+                "from": [
+                  0.0,
+                  0.36,
+                  0.0
+                ],
+                "to": [
+                  0.14,
+                  0.26,
+                  0.0
+                ],
+                "thick": 0.01
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}
