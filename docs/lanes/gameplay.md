@@ -43,7 +43,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
   the barks (`TownRegard`, `TownBarks`), **the saloon as a room** (#1157: `SaloonRoom` on No Law's yard set, bridge
   `read room`; mood, the director's bits, the hush, the band's shaky restart; 11-12 in at 20:30).
-  **Next: step 11, the gate.** Open: the room's laugh, cough and glass sounds are synth stand-ins (#807's takes), no
+  **Step 11, the gate: run, not passed** (#1162; `docs/playtests/2026-11-22-town.md`; five blind headless runs, no screen: lavapipe crashes in the yard). The plan ends here. What the gate found, for Phase 2 data and spots work: the day streets hold 3 / 3 / 8 men (07:00 / 12:00 / 17:30), each on one spot all 10 minutes; saloon shut by day, store at noon; `TownRegard` never leaves "wary" 0.0 (not after a shot or a shove); the same hour plays identically run to run (noon runs word for word); a shot in the air draws "Is he dead?"; the noon shot run once logged 214 timbers broken (`Walk_undertaker`) and a man at y=-0.36, **not reproduced** (needs position and facing). `read folk` is on the bridge. Open: the room's laugh, cough and glass sounds are synth stand-ins (#807's takes), no
   walla bed; the second "table" stands (no sat talk); no argument, round bought, song called for, porch smoker;
   the glass can't be drunk; mood numbers unfelt; not in saloon B (No Law's set unmoved); the store's blind, doors
   shutting; react.fight*, body_child, freight, kett.meal, uneasy.heeled untriggered; Senses names a shooter on a
