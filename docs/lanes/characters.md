@@ -48,7 +48,12 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
   `HeldHand._canonical_fingers` reframes them (from #919, closed unmerged; its Studio branch kept).
 - Talking face: four men's jaws go back more than down (#247).
-- Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
+- **Our own clothes, the bundle's way** (#1188, waiting on Sean: #1195). The Studio's `docs/BUNDLE_ANATOMY.md` (how
+  the bought clothes are built: a shell with closed edges, details painted, buttons modelled; b1/b3's missing backs
+  are the `_Optimized` meshes). Our vest `sew_vest.py` (Hecklinger 1883), build `sean_metahuman_w10`: builds and
+  holds, but the critic ranked it below w8's and the bundle's (cut too deep and narrow for his figure). Next, if
+  Sean says: recut from his own measures (fronts, scye), then shirt and trousers the same way.
+- Trap: the bundle's licence (no AI): only words about its meshes in this repo; pictures and numbers in the Studio.
 - The run's planting foot drifts (foot IK).
 - **Joe's people's clothes** (#1096): brief `docs/briefs/ute-dress.md` (plain, no beads etc.); waiting on Sean's OK of
   the garment list and the letter, and on the western bundle's upload to match garments.
