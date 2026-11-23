@@ -1,0 +1,7 @@
+{
+  "like": "feed_sack",
+  "id": "coffee_sack",
+  "factory": "tools/props/store_g1.py",
+  "look": "prop:burlap",
+  "_doc": "A sack of green coffee (#1139, G1): the feed sack's burlap, stood by the counter (a 60 kg sack of Arbuckle's green beans came to the railhead in them). Written by tools/props/store_g1.py."
+}

@@ -8,6 +8,8 @@ saloon B's frame (a two-storey false front on queen-post trusses over a cellar) 
 rules (#824 light, #825 floors, #826 walls and windows). Run from the repo root.
 """
 import json
+import os
+import sys
 import copy
 
 FT = 0.3048
@@ -232,11 +234,11 @@ def up(id_, use, who, at, look, level="ground", **kw):
 
 
 use_points = [
-    up("serve_east", "serve", "storekeeper", (3.0, 5.0), (1.2, 5.0), _doc="behind the east counter (the dressing's: counter x 0.3-1.1... settled with the prop lab)"),
-    up("ledger", "work", "storekeeper", (13.6, 9.2), (13.6, 8.0), _doc="the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"),
-    up("post_office", "work", "storekeeper", (15.4, 8.0), (16.0, 8.0)),
-    up("buy_1", "buy", "anyone", (4.2, 3.2), (1.2, 3.2)),
-    up("buy_2", "buy", "anyone", (12.5, 3.2), (15.4, 3.2)),
+    up("serve_east", "serve", "storekeeper", (1.45, 4.0), (2.3, 4.0), _doc="behind the east counter (G1, #1139: its counter at x 2.0-2.6, z 2.0-5.3, in the light of the alley windows)"),
+    up("ledger", "work", "storekeeper", (13.3, 9.5), (13.3, 8.7), _doc="the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"),
+    up("post_office", "work", "storekeeper", (15.5, 9.15), (16.3, 9.15), _doc="the pigeonholes bay, west_shelves_d (G3 fits it out)"),
+    up("buy_1", "buy", "anyone", (3.5, 3.2), (2.6, 3.2)),
+    up("buy_2", "buy", "anyone", (13.5, 3.2), (14.9, 3.2)),
     up("browse_1", "stand", "anyone", (8.4, 2.6), (8.4, 6.0)),
     up("browse_2", "stand", "anyone", (8.4, 7.4), (8.4, 9.5)),
     up("wait_1", "wait", "anyone", (6.6, 4.4), (6.6, 6.0)),
@@ -310,30 +312,14 @@ materials = {
 EAST_X = SHOW_X
 WEST_X = round(W - SHOW_X, 3)
 DZ = 0.56  # the platforms' middle: their backs 0.21 in from the wall's line, clear of the studs and lining
+# G1 (#1139) replaced the stand-ins: the windows' goods and the shop's fittings come from the prop lab's
+# factory (tools/props/store_g1.py), which holds the numbers and the reasons (experiments/prop_lab/store/README.md).
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "tools", "props"))
+import store_g1  # noqa: E402
+
 dressing = {
-    "_doc": "#1074: the show windows' goods (PropDressing; the store's rooms are the prop lab's to dress)",
-    "batches": {"windows": [
-        {"id": "east_stand", "kit": "table", "fit": [2.3, 0.6, 0.7], "at": [EAST_X + 0.5, 0.0, DZ], "facing": 0,
-         "use": "the east window's display platform (the glass's foot is 0.61 over the floor)"},
-        {"id": "east_barrel", "kit": "barrel", "at": [EAST_X - 1.15, 0.0, DZ], "facing": 30, "use": "a cracker barrel, its top half over the bulkhead"},
-        {"id": "east_blankets", "kit": "folded_blankets", "on": "east_stand", "at": [EAST_X - 0.35, 0.0, DZ + 0.05], "facing": 186},
-        {"id": "east_blanket", "kit": "folded_blanket", "on": "east_stand", "at": [EAST_X + 0.15, 0.0, DZ + 0.12], "facing": 172},
-        {"id": "east_sack", "kit": "feed_sack", "on": "east_stand", "at": [EAST_X + 1.3, 0.0, DZ + 0.12], "facing": 200},
-        {"id": "east_scales", "kit": "scales", "on": "east_stand", "at": [EAST_X + 0.75, 0.0, DZ - 0.05], "facing": 180},
-        {"id": "east_jars", "kit": "drug_jar", "on": "east_stand", "at": [EAST_X - 0.05, 0.0, DZ - 0.24], "facing": 180,
-         "row": {"kits": ["drug_jar"], "count": 3, "step": [0.14, 0, 0], "jitter": [0.01, 0.01, 20]}},
-        {"id": "west_stand", "kit": "table", "fit": [3.0, 0.6, 0.7], "at": [WEST_X, 0.0, DZ], "facing": 0,
-         "use": "the west window's display platform"},
-        {"id": "west_box", "kit": "strongbox", "on": "west_stand", "at": [WEST_X - 1.1, 0.0, DZ + 0.08], "facing": 172},
-        {"id": "west_lamp", "kit": "oil_lamp", "on": "west_stand", "at": [WEST_X - 0.7, 0.0, DZ - 0.05], "facing": 180},
-        {"id": "west_basin", "kit": "wash_basin", "on": "west_stand", "at": [WEST_X - 0.2, 0.0, DZ + 0.08], "facing": 0},
-        {"id": "west_pitcher", "kit": "wash_pitcher", "on": "west_basin", "at": [WEST_X - 0.2, 0.0, DZ + 0.1], "facing": 200, "lift": 0.014},
-        {"id": "west_pot", "kit": "chamber_pot", "on": "west_stand", "at": [WEST_X + 0.35, 0.0, DZ + 0.1], "facing": 170},
-        {"id": "west_saw", "kit": "handsaw", "on": "west_stand", "at": [WEST_X + 0.15, 0.0, DZ - 0.24], "facing": 184},
-        {"id": "west_cups", "kit": "tin_cup", "on": "west_stand", "at": [WEST_X + 0.85, 0.0, DZ - 0.15], "facing": 180,
-         "row": {"kits": ["tin_cup"], "count": 4, "step": [0.15, 0, 0.0], "jitter": [0.015, 0.03, 40]}},
-        {"id": "west_trunk_lamp", "kit": "oil_lamp", "on": "west_stand", "at": [WEST_X + 1.25, 0.0, DZ + 0.15], "facing": 180},
-    ]},
+    "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth): PropDressing, written by tools/props/store_g1.py",
+    "batches": {"windows": store_g1.dressing_windows(EAST_X, WEST_X, DZ), "G1": store_g1.dressing_g1()},
 }
 
 spec = {

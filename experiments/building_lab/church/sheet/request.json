@@ -1,0 +1,120 @@
+{
+ "_doc": "The church and cemetery target sheet (#1142, the building lab's step 1). Sean's calls (2026-11-21): a white frame church with a bell steeple, the town's one painted building, beside the cemetery; tower over the door; late afternoon from the west; weathered white; $2.50 cap. The spec (step 2) settles every size.",
+ "sheet_title": "Salt Creek, 1882: the church and cemetery (target sheet, #1142)",
+ "cap": 2.5,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light, real worn materials (weathered white lead paint on wood clapboard, bare grey timber, iron, cedar shingle, dry earth, dust), period-accurate in every object. No people unless the view asks for them. No modern objects. No text other than the signs named. No border, no frame, no watermark, no captions.",
+ "building": "The Salt Creek church, built 1880 by the town's families, now 1882, on a rise north-west of a Colorado mining-and-ranching boom town: a plain white-painted WOODEN FRAME CHURCH, the one painted, proud building in a town of raw grey boards, but WEATHERED, not fresh: the white lead paint chalky, greying and peeling a little on the weather (west) side, bare silver-grey wood showing where it has flaked, rust streaks from the nail heads. IN PLAN A PLAIN RECTANGLE, no wing or ell: a nave 28 ft wide and 44 ft long, a GABLE FRONT facing south-east onto the dirt Church Lane, the long sides facing north-east and south-west, the pulpit at the far north-west end. Lapped clapboard siding (about 5 in to the weather) with plain corner boards and a plain frieze, a steep cedar-shingle roof (about 10 in 12) weathered grey-brown, a stone-and-timber-pier foundation about 2 ft high. Over the front door rises a SQUARE BELL TOWER built into the gable front, three stages: the lower stage the front's own width of 10 ft square forming a small enclosed porch, a middle clapboard stage, and a belfry stage with louvred pointed openings on all four sides showing a real cast bronze bell hung on a timber yoke, under a tall pointed shingled spire with a small iron cross or finial, the top about 50 ft above the ground. A small open porch and three wide plank steps up to a pair of tall plank double doors (painted white, a pointed Gothic head); POINTED GOTHIC WINDOWS in the front either side of the tower and four down each long side, narrow, tall, with plain wooden tracery and clear glass (no stained glass), plain wooden shutters not needed. A brick stovepipe chimney on the north-east side of the roof. No sign or lettering anywhere. INSIDE: plain whitewashed tongue-and-groove walls and a plank floor of worn pine; two rows of plain home-made wooden pews with a centre AISLE; at the far end the PULPIT, a plain white-painted lectern on a low platform one step high, a plain wooden altar rail, a cast-iron WOOD STOVE with a stovepipe running up and across the nave; oil lamps in brackets on the walls and a hanging oil lamp, a HYMN BOARD with sliding numbers on the wall by the pulpit, a rope for the bell hanging down in the porch. The CEMETERY lies beside the church up the hill to the north-west, on bare ground with sagebrush and dry grass: a picket fence of white-painted pales around it with a plank gate, mostly WOODEN CROSSES and wooden HEADBOARDS (weathered, hand-lettered names we cannot read), a few small stone markers, and one FRESH GRAVE dug for a funeral, a raw mound of pale earth and two planks across it. Wide dry hills, scrub and distant mountains behind.",
+ "views": [
+  {
+   "id": "front",
+   "title": "Front (south-east), from Church Lane",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The front of the church seen straight on from Church Lane at eye level, a clear late afternoon, the low warm sun from the west raking across the front and the south-west side, long shadows. The whole front from the ground to the spire's tip in frame: the porch and its three steps, the double doors, the pointed windows either side, the three-stage bell tower, the belfry with its bell visible through the louvres. A long lens, little perspective. Behind the church the bare hill; to the right, far off, the cemetery's white picket fence."
+  },
+  {
+   "id": "plan",
+   "title": "Floor plan",
+   "aspect": "2:3",
+   "size": "2K",
+   "view": "A clean architect's floor plan drawn from above, black ink lines on off-white paper, the front (south-east, Church Lane) at the BOTTOM: a plain RECTANGLE in plan with a square tower footprint at the front; thin wood walls drawn as double lines, every door with its swing arc, every window a triple line, the pews in two rows with the aisle, the pulpit on its platform at the far end with the altar rail, the stove, the hymn board, the bell rope, the porch and steps. Labelled in neat hand lettering: PORCH, NAVE, AISLE, PULPIT, STOVE, HYMN BOARD. A north arrow. No perspective, no colour except a pale wash on the floors."
+  },
+  {
+   "id": "side",
+   "title": "Side (south-west), from the yard",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "plan"
+   ],
+   "view": "The church's long SOUTH-WEST side seen from the churchyard at eye level in warm late afternoon light from the west: the four tall pointed windows along the wall, the weathered clapboard where the paint has peeled worst, the tower rising at the left end, the roof's slope and the chimney beyond. Churchyard dirt and sagebrush in front."
+  },
+  {
+   "id": "rear",
+   "title": "Rear (north-west) and the cemetery hill",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "From the north-west corner of the churchyard looking back at the church's blank rear gable and its north-east side in late sun, the tower's back showing over the roof, the chimney, and the cemetery's picket fence in the near foreground at the left. A plain rectangle with no wing."
+  },
+  {
+   "id": "tower",
+   "title": "The bell tower",
+   "aspect": "2:3",
+   "size": "2K",
+   "refs": [
+    "front"
+   ],
+   "view": "A tall close view of the bell tower and its pointed spire from the front corner, looking up at a steep angle: the three stages, the louvred belfry with the bronze bell on its yoke, the shingled spire and iron finial against a clear blue sky, the weathered white paint and peeling at the corners."
+  },
+  {
+   "id": "cutaway",
+   "title": "Cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "An architectural cutaway, a bird's-eye three-quarter view from the south-east with the roof and the south-west wall cut away, the cut edges showing the timber frame (studs, plates, joists and rafters): the pews in two rows, the aisle, the pulpit platform, the stove and its pipe, and the tower's three stages with the bell on its yoke and the ladder up to the belfry."
+  },
+  {
+   "id": "nave",
+   "title": "The nave, from the door",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the church at eye level, standing in the doorway looking down the aisle toward the pulpit in warm afternoon light through the tall pointed clear windows: the two rows of plain pews, the plank floor, the whitewashed walls, the pulpit on its low platform and the altar rail, the stove with its pipe across the nave, oil lamps in brackets. No people."
+  },
+  {
+   "id": "pulpit",
+   "title": "The pulpit end",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "plan",
+    "nave"
+   ],
+   "view": "Inside the church at eye level from the front pew looking at the pulpit end: the lectern on its one-step platform, the altar rail, the hymn board with its numbers on the wall, an oil lamp on a bracket, a pointed window beside it, the worn pine boards, the whitewash scuffed at hand height. No people."
+  },
+  {
+   "id": "porch",
+   "title": "The porch and the bell rope",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "Inside the small tower porch at eye level looking out through the open double doors onto the churchyard and the lane in bright light, the bell rope hanging down beside the ladder that climbs to the belfry above, the plank walls, the door hinges, the three steps outside."
+  },
+  {
+   "id": "graveyard",
+   "title": "The cemetery",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "front",
+    "plan"
+   ],
+   "view": "The cemetery from its picket gate at eye level, late afternoon: the white picket fence and plank gate, rows of weathered wooden crosses and headboards, a few small stone markers, sagebrush and bare ground, and in the middle a freshly dug grave with its raw pale mound and two planks across it; far down the hill the white church and its spire. No people."
+  },
+  {
+   "id": "grave",
+   "title": "The fresh grave",
+   "aspect": "16:9",
+   "size": "2K",
+   "refs": [
+    "graveyard"
+   ],
+   "view": "A close view of the fresh grave dug for a funeral: the open pit, the raw pale mound of earth with a shovel standing in it, two planks and ropes across, weathered wooden crosses and a headboard beside it, a few sagebrush, the white picket fence and the church spire out of focus beyond. No people."
+  }
+ ]
+}

@@ -1239,28 +1239,28 @@
    "use": "serve",
    "who": "storekeeper",
    "at": [
-    3.0,
+    1.45,
     1.1,
-    5.0
+    4.0
    ],
    "look": [
-    1.2,
-    5.0
+    2.3,
+    4.0
    ],
-   "_doc": "behind the east counter (the dressing's: counter x 0.3-1.1... settled with the prop lab)"
+   "_doc": "behind the east counter (G1, #1139: its counter at x 2.0-2.6, z 2.0-5.3, in the light of the alley windows)"
   },
   {
    "id": "ledger",
    "use": "work",
    "who": "storekeeper",
    "at": [
-    13.6,
+    13.3,
     1.1,
-    9.2
+    9.5
    ],
    "look": [
-    13.6,
-    8.0
+    13.3,
+    8.7
    ],
    "_doc": "the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"
   },
@@ -1269,26 +1269,27 @@
    "use": "work",
    "who": "storekeeper",
    "at": [
-    15.4,
+    15.5,
     1.1,
-    8.0
+    9.15
    ],
    "look": [
-    16.0,
-    8.0
-   ]
+    16.3,
+    9.15
+   ],
+   "_doc": "the pigeonholes bay, west_shelves_d (G3 fits it out)"
   },
   {
    "id": "buy_1",
    "use": "buy",
    "who": "anyone",
    "at": [
-    4.2,
+    3.5,
     1.1,
     3.2
    ],
    "look": [
-    1.2,
+    2.6,
     3.2
    ]
   },
@@ -1297,12 +1298,12 @@
    "use": "buy",
    "who": "anyone",
    "at": [
-    12.5,
+    13.5,
     1.1,
     3.2
    ],
    "look": [
-    15.4,
+    14.9,
     3.2
    ]
   },
@@ -1681,28 +1682,28 @@
   ]
  },
  "dressing": {
-  "_doc": "#1074: the show windows' goods (PropDressing; the store's rooms are the prop lab's to dress)",
+  "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth): PropDressing, written by tools/props/store_g1.py",
   "batches": {
    "windows": [
     {
      "id": "east_stand",
      "kit": "table",
-     "fit": [
-      2.3,
-      0.6,
-      0.7
-     ],
      "at": [
       4.162,
       0.0,
       0.56
      ],
      "facing": 0,
+     "fit": [
+      2.3,
+      0.6,
+      0.7
+     ],
      "use": "the east window's display platform (the glass's foot is 0.61 over the floor)"
     },
     {
      "id": "east_barrel",
-     "kit": "barrel",
+     "kit": "cracker_barrel",
      "at": [
       2.512,
       0.0,
@@ -1714,156 +1715,149 @@
     {
      "id": "east_blankets",
      "kit": "folded_blankets",
-     "on": "east_stand",
      "at": [
       3.312,
       0.0,
-      0.6100000000000001
+      0.61
      ],
-     "facing": 186
+     "facing": 186,
+     "on": "east_stand"
     },
     {
-     "id": "east_blanket",
-     "kit": "folded_blanket",
+     "id": "east_bolts",
+     "kit": "bolt_calico",
      "on": "east_stand",
      "at": [
-      3.812,
+      3.662,
       0.0,
-      0.68
-     ],
-     "facing": 172
-    },
-    {
-     "id": "east_sack",
-     "kit": "feed_sack",
-     "on": "east_stand",
-     "at": [
-      4.962,
-      0.0,
-      0.68
-     ],
-     "facing": 200
-    },
-    {
-     "id": "east_scales",
-     "kit": "scales",
-     "on": "east_stand",
-     "at": [
-      4.412,
-      0.0,
-      0.51
-     ],
-     "facing": 180
-    },
-    {
-     "id": "east_jars",
-     "kit": "drug_jar",
-     "on": "east_stand",
-     "at": [
-      3.612,
-      0.0,
-      0.32000000000000006
+      0.38000000000000006
      ],
      "facing": 180,
      "row": {
       "kits": [
-       "drug_jar"
+       "bolt_calico",
+       "bolt_plaid",
+       "bolt_felt",
+       "bolt_calico",
+       "bolt_plaid"
       ],
-      "count": 3,
+      "count": 5,
       "step": [
-       0.14,
+       0.2,
        0,
        0
       ],
       "jitter": [
+       0.005,
        0.01,
-       0.01,
-       20
+       8
       ]
      }
     },
     {
+     "id": "east_scales",
+     "kit": "store_scales",
+     "at": [
+      4.662,
+      0.0,
+      0.51
+     ],
+     "facing": 180,
+     "on": "east_stand"
+    },
+    {
+     "id": "east_sack_a",
+     "kit": "coffee_sack",
+     "at": [
+      5.062,
+      0.0,
+      0.68
+     ],
+     "facing": 200,
+     "on": "east_stand"
+    },
+    {
+     "id": "east_sack_b",
+     "kit": "flour_sack",
+     "at": [
+      4.412,
+      0.0,
+      0.71
+     ],
+     "facing": 160,
+     "on": "east_stand"
+    },
+    {
      "id": "west_stand",
      "kit": "table",
-     "fit": [
-      3.0,
-      0.6,
-      0.7
-     ],
      "at": [
       13.098,
       0.0,
       0.56
      ],
      "facing": 0,
-     "use": "the west window's display platform"
-    },
-    {
-     "id": "west_box",
-     "kit": "strongbox",
-     "on": "west_stand",
-     "at": [
-      11.998000000000001,
-      0.0,
-      0.64
+     "fit": [
+      3.0,
+      0.6,
+      0.7
      ],
-     "facing": 172
+     "use": "the west window's display platform"
     },
     {
      "id": "west_lamp",
      "kit": "oil_lamp",
-     "on": "west_stand",
      "at": [
-      12.398000000000001,
+      12.398,
       0.0,
       0.51
      ],
-     "facing": 180
+     "facing": 180,
+     "on": "west_stand"
     },
     {
      "id": "west_basin",
      "kit": "wash_basin",
-     "on": "west_stand",
      "at": [
-      12.898000000000001,
+      12.898,
       0.0,
       0.64
      ],
-     "facing": 0
+     "facing": 0,
+     "on": "west_stand"
     },
     {
      "id": "west_pitcher",
      "kit": "wash_pitcher",
-     "on": "west_basin",
      "at": [
-      12.898000000000001,
+      12.898,
       0.0,
       0.66
      ],
      "facing": 200,
+     "on": "west_basin",
      "lift": 0.014
     },
     {
-     "id": "west_pot",
-     "kit": "chamber_pot",
-     "on": "west_stand",
+     "id": "west_flour",
+     "kit": "flour_barrel",
      "at": [
       13.448,
       0.0,
-      0.66
+      0.61
      ],
-     "facing": 170
+     "facing": 0,
+     "on": "west_stand"
     },
     {
      "id": "west_saw",
      "kit": "handsaw",
-     "on": "west_stand",
      "at": [
-      13.248000000000001,
+      13.248,
       0.0,
-      0.32000000000000006
+      0.32
      ],
-     "facing": 184
+     "facing": 184,
+     "on": "west_stand"
     },
     {
      "id": "west_cups",
@@ -1895,13 +1889,1114 @@
     {
      "id": "west_trunk_lamp",
      "kit": "oil_lamp",
-     "on": "west_stand",
      "at": [
       14.348,
       0.0,
-      0.7100000000000001
+      0.71
+     ],
+     "facing": 180,
+     "on": "west_stand"
+    }
+   ],
+   "G1": [
+    {
+     "id": "east_counter_a",
+     "kit": "store_counter",
+     "at": [
+      2.3,
+      0.0,
+      3.65
+     ],
+     "facing": 270,
+     "fit": [
+      3.3,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "east_counter_b",
+     "kit": "store_counter",
+     "at": [
+      2.3,
+      0.0,
+      7.4
+     ],
+     "facing": 270,
+     "fit": [
+      2.4,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "west_counter",
+     "kit": "store_counter",
+     "at": [
+      14.6,
+      0.0,
+      4.15
+     ],
+     "facing": 90,
+     "fit": [
+      4.0,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "back_counter",
+     "kit": "store_counter",
+     "at": [
+      13.3,
+      0.0,
+      8.7
+     ],
+     "facing": 0,
+     "fit": [
+      3.0,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "east_shelves_a",
+     "kit": "store_shelving",
+     "at": [
+      0.284,
+      0.0,
+      5.8
+     ],
+     "facing": 0,
+     "fit": [
+      0.36,
+      3.1,
+      1.9
+     ]
+    },
+    {
+     "id": "east_shelves_b",
+     "kit": "store_shelving",
+     "at": [
+      0.284,
+      0.0,
+      7.75
+     ],
+     "facing": 0,
+     "fit": [
+      0.36,
+      3.1,
+      1.9
+     ]
+    },
+    {
+     "id": "east_shelves_c",
+     "kit": "store_shelving",
+     "at": [
+      0.284,
+      0.0,
+      9.65
+     ],
+     "facing": 0,
+     "fit": [
+      0.36,
+      3.1,
+      1.8
+     ]
+    },
+    {
+     "id": "west_shelves_a",
+     "kit": "store_shelving",
+     "at": [
+      16.476,
+      0.0,
+      2.5
+     ],
+     "facing": 180,
+     "fit": [
+      0.36,
+      3.1,
+      1.3
+     ]
+    },
+    {
+     "id": "west_shelves_b",
+     "kit": "store_shelving",
+     "at": [
+      16.476,
+      0.0,
+      4.65
+     ],
+     "facing": 180,
+     "fit": [
+      0.36,
+      3.1,
+      2.0
+     ]
+    },
+    {
+     "id": "west_shelves_c",
+     "kit": "store_shelving",
+     "at": [
+      16.476,
+      0.0,
+      6.675
+     ],
+     "facing": 180,
+     "fit": [
+      0.36,
+      3.1,
+      2.05
+     ]
+    },
+    {
+     "id": "west_shelves_d",
+     "kit": "store_shelving",
+     "at": [
+      16.476,
+      0.0,
+      9.15
+     ],
+     "facing": 180,
+     "fit": [
+      0.36,
+      3.1,
+      1.7
+     ]
+    },
+    {
+     "id": "ladder_east",
+     "kit": "rolling_ladder",
+     "at": [
+      0.592,
+      0.0,
+      9.65
+     ],
+     "facing": 0
+    },
+    {
+     "id": "ladder_west",
+     "kit": "rolling_ladder",
+     "at": [
+      16.168,
+      0.0,
+      4.65
      ],
      "facing": 180
+    },
+    {
+     "id": "scales_east",
+     "kit": "store_scales",
+     "at": [
+      2.3,
+      0.0,
+      3.1
+     ],
+     "facing": 270,
+     "on": "east_counter_a"
+    },
+    {
+     "id": "scales_west",
+     "kit": "store_scales",
+     "at": [
+      14.6,
+      0.0,
+      3.6
+     ],
+     "facing": 90,
+     "on": "west_counter"
+    },
+    {
+     "id": "candy_jars",
+     "kit": "drug_jar",
+     "at": [
+      2.3,
+      0.0,
+      4.4
+     ],
+     "facing": 270,
+     "on": "east_counter_a",
+     "row": {
+      "kits": [
+       "drug_jar"
+      ],
+      "count": 3,
+      "step": [
+       0,
+       0,
+       0.16
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       30
+      ]
+     }
+    },
+    {
+     "id": "till",
+     "kit": "till_drawer",
+     "at": [
+      13.3,
+      0.0,
+      9.0
+     ],
+     "facing": 0,
+     "on": "back_counter"
+    },
+    {
+     "id": "stove",
+     "kit": "store_stove",
+     "at": [
+      10.2,
+      0.0,
+      9.0
+     ],
+     "facing": 90,
+     "use": "the shop's stove (the use point 'stove' stands 1.4 m in front of it)"
+    },
+    {
+     "id": "stove_chair_a",
+     "kit": "chair",
+     "at": [
+      9.0,
+      0.0,
+      8.9
+     ],
+     "facing": 90
+    },
+    {
+     "id": "stove_chair_b",
+     "kit": "chair",
+     "at": [
+      11.4,
+      0.0,
+      8.9
+     ],
+     "facing": 270
+    },
+    {
+     "id": "stove_chair_c",
+     "kit": "chair",
+     "at": [
+      9.4,
+      0.0,
+      7.85
+     ],
+     "facing": 140
+    },
+    {
+     "id": "stove_spittoon",
+     "kit": "spittoon",
+     "at": [
+      10.9,
+      0.0,
+      7.95
+     ],
+     "facing": 0
+    },
+    {
+     "id": "cracker_barrel",
+     "kit": "cracker_barrel",
+     "at": [
+      11.5,
+      0.0,
+      7.55
+     ],
+     "facing": 20
+    },
+    {
+     "id": "pickle_barrel",
+     "kit": "pickle_barrel",
+     "at": [
+      12.1,
+      0.0,
+      7.45
+     ],
+     "facing": 0
+    },
+    {
+     "id": "flour_barrel_a",
+     "kit": "flour_barrel",
+     "at": [
+      6.4,
+      0.0,
+      10.35
+     ],
+     "facing": 0
+    },
+    {
+     "id": "flour_barrel_b",
+     "kit": "flour_barrel",
+     "at": [
+      7.0,
+      0.0,
+      10.4
+     ],
+     "facing": 40
+    },
+    {
+     "id": "sugar_barrel",
+     "kit": "sugar_barrel",
+     "at": [
+      10.0,
+      0.0,
+      10.4
+     ],
+     "facing": 0
+    },
+    {
+     "id": "coffee_sacks",
+     "kit": "coffee_sack",
+     "at": [
+      5.6,
+      0.0,
+      10.4
+     ],
+     "facing": 15,
+     "row": {
+      "kits": [
+       "coffee_sack",
+       "flour_sack"
+      ],
+      "count": 3,
+      "step": [
+       -0.45,
+       0,
+       0
+      ],
+      "jitter": [
+       0.02,
+       0.02,
+       20
+      ]
+     }
+    },
+    {
+     "id": "bolts_b_1",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      1.6624999999999999,
+      3.75
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_b_2",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.0125,
+      3.75
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_b_3",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.3625000000000003,
+      3.75
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_b_4",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.7125000000000004,
+      3.75
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_c_1",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      1.6624999999999999,
+      5.8
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_c_2",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.0125,
+      5.8
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_c_3",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.3625000000000003,
+      5.8
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_c_4",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.7125000000000004,
+      5.8
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "jars_west_a",
+     "kit": "drug_jar",
+     "at": [
+      16.426,
+      2.0125,
+      2.0
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "drug_jar"
+      ],
+      "count": 5,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "jars_west_d",
+     "kit": "drug_jar",
+     "at": [
+      16.426,
+      1.6624999999999999,
+      8.4
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "drug_jar",
+       "medicine_bottle"
+      ],
+      "count": 7,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_jars_a",
+     "kit": "drug_jar",
+     "at": [
+      0.28400000000000003,
+      1.6624999999999999,
+      4.95
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "drug_jar",
+       "medicine_bottle",
+       "medicine_bottle_round"
+      ],
+      "count": 8,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_bottles_a",
+     "kit": "medicine_bottle",
+     "at": [
+      0.28400000000000003,
+      2.3625000000000003,
+      4.95
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "medicine_bottle",
+       "whiskey_bottle",
+       "medicine_bottle_round"
+      ],
+      "count": 8,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_cups_a",
+     "kit": "tin_cup",
+     "at": [
+      0.28400000000000003,
+      1.3125,
+      4.95
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "tin_cup"
+      ],
+      "count": 6,
+      "step": [
+       0,
+       0,
+       0.28
+      ],
+      "jitter": [
+       0.015,
+       0.02,
+       40
+      ]
+     }
+    },
+    {
+     "id": "east_lamps_a",
+     "kit": "oil_lamp",
+     "at": [
+      0.28400000000000003,
+      2.0125,
+      5.25
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "oil_lamp"
+      ],
+      "count": 3,
+      "step": [
+       0,
+       0,
+       0.6
+      ],
+      "jitter": [
+       0.01,
+       0.02,
+       30
+      ]
+     }
+    },
+    {
+     "id": "east_jars_b",
+     "kit": "drug_jar",
+     "at": [
+      0.28400000000000003,
+      1.6624999999999999,
+      6.9
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "drug_jar",
+       "medicine_bottle",
+       "medicine_bottle_round"
+      ],
+      "count": 8,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_bottles_b",
+     "kit": "medicine_bottle",
+     "at": [
+      0.28400000000000003,
+      2.3625000000000003,
+      6.9
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "medicine_bottle",
+       "whiskey_bottle",
+       "medicine_bottle_round"
+      ],
+      "count": 8,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_cups_b",
+     "kit": "tin_cup",
+     "at": [
+      0.28400000000000003,
+      1.3125,
+      6.9
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "tin_cup"
+      ],
+      "count": 6,
+      "step": [
+       0,
+       0,
+       0.28
+      ],
+      "jitter": [
+       0.015,
+       0.02,
+       40
+      ]
+     }
+    },
+    {
+     "id": "east_lamps_b",
+     "kit": "oil_lamp",
+     "at": [
+      0.28400000000000003,
+      2.0125,
+      7.2
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "oil_lamp"
+      ],
+      "count": 3,
+      "step": [
+       0,
+       0,
+       0.6
+      ],
+      "jitter": [
+       0.01,
+       0.02,
+       30
+      ]
+     }
+    },
+    {
+     "id": "east_jars_c",
+     "kit": "drug_jar",
+     "at": [
+      0.28400000000000003,
+      1.6624999999999999,
+      8.85
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "drug_jar",
+       "medicine_bottle",
+       "medicine_bottle_round"
+      ],
+      "count": 8,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_bottles_c",
+     "kit": "medicine_bottle",
+     "at": [
+      0.28400000000000003,
+      2.3625000000000003,
+      8.85
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "medicine_bottle",
+       "whiskey_bottle",
+       "medicine_bottle_round"
+      ],
+      "count": 8,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_cups_c",
+     "kit": "tin_cup",
+     "at": [
+      0.28400000000000003,
+      1.3125,
+      8.85
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "tin_cup"
+      ],
+      "count": 6,
+      "step": [
+       0,
+       0,
+       0.28
+      ],
+      "jitter": [
+       0.015,
+       0.02,
+       40
+      ]
+     }
+    },
+    {
+     "id": "east_lamps_c",
+     "kit": "oil_lamp",
+     "at": [
+      0.28400000000000003,
+      2.0125,
+      9.15
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "oil_lamp"
+      ],
+      "count": 3,
+      "step": [
+       0,
+       0,
+       0.6
+      ],
+      "jitter": [
+       0.01,
+       0.02,
+       30
+      ]
+     }
+    },
+    {
+     "id": "table_dry",
+     "kit": "table",
+     "at": [
+      11.2,
+      0.0,
+      4.9
+     ],
+     "facing": 0,
+     "fit": [
+      1.8,
+      0.8,
+      0.9
+     ],
+     "use": "a display table of dry goods, off the browse and buy points"
+    },
+    {
+     "id": "table_dry_bolts",
+     "kit": "bolt_calico",
+     "at": [
+      10.6,
+      0.0,
+      4.75
+     ],
+     "facing": 170,
+     "on": "table_dry",
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 5,
+      "step": [
+       0.2,
+       0,
+       0
+      ],
+      "jitter": [
+       0.005,
+       0.01,
+       8
+      ]
+     }
+    },
+    {
+     "id": "table_dry_blankets",
+     "kit": "folded_blankets",
+     "at": [
+      11.5,
+      0.0,
+      5.1
+     ],
+     "facing": 10,
+     "on": "table_dry"
+    },
+    {
+     "id": "table_dry_bolt_stack",
+     "kit": "folded_blanket",
+     "at": [
+      11.95,
+      0.0,
+      4.7
+     ],
+     "facing": 355,
+     "on": "table_dry"
+    },
+    {
+     "id": "crates_a",
+     "kit": "crate",
+     "at": [
+      6.0,
+      0.0,
+      6.4
+     ],
+     "facing": 10
+    },
+    {
+     "id": "crates_b",
+     "kit": "crate",
+     "at": [
+      6.65,
+      0.0,
+      6.45
+     ],
+     "facing": 350
+    },
+    {
+     "id": "crates_c",
+     "kit": "crate",
+     "at": [
+      6.35,
+      0.0,
+      7.05
+     ],
+     "facing": 30
+    },
+    {
+     "id": "grain_sacks_a",
+     "kit": "grain_sacks",
+     "at": [
+      4.9,
+      0.0,
+      6.5
+     ],
+     "facing": 80
     }
    ]
   }
