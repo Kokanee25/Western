@@ -428,7 +428,7 @@
   "talk": {
     "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",
     "near_m": 4.0,
-    "gap_s": 20.0,
+    "gap_s": 20.0, "gap_jitter": 0.4, "first_s": 8.0, "_gap": "#1167: each gap `gap_s` give or take `gap_jitter` of it, and his first line within `first_s` of your coming by, by his seed and the run's (ValleyFolk.run_seed): no two runs say the same at the same seconds.",
     "sets": {
       "townsman": [
         {

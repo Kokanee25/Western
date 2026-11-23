@@ -176,6 +176,9 @@ func _ready() -> void:
 	regard = TownRegard.new(self, data.get("regard", {}))
 	barks = TownBarks.new(data.get("barks", {}))
 	room = SaloonRoom.new(self, data.get("room", {}))
+	# The run's own town (fault 4): the news' slips and the room's bits by it (0: as they always were).
+	news._rng.seed = 1051 + run_seed
+	room.rng.seed = 1157 + run_seed
 	var u := Time.get_ticks_usec()
 	places = Waypoints.new()
 	if town:
@@ -1791,6 +1794,15 @@ func line_for(set_id: String) -> Array:
 	return []
 
 
+## Lines each man's said (his gaps' seeds).
+var _said_by := {}
+
+
+## 0..1 by his id, `what` and the run.
+func _jit(id: StringName, what: String) -> float:
+	return float(TownScript.seed_of(String(id), "%s:%d" % [what, run_seed]) % 1000) / 1000.0
+
+
 func _talk_step() -> void:
 	var talk: Dictionary = data.get("talk", {})
 	if talk.is_empty():
@@ -1808,7 +1820,12 @@ func _talk_step() -> void:
 			continue
 		if man.global_position.distance_to(p.global_position) > float(talk.get("near_m", 4.0)):
 			continue
-		if _spoke_at.has(id) and _talk_clock() - float(_spoke_at[id]) < float(talk.get("gap_s", 20.0)):
+		# His gaps and his first word once you're by him, by his seed and the run's (the gate's fault 4:
+		# two noon runs said the same lines at the same seconds): `gap_s` give or take `gap_jitter`.
+		var gap := float(talk.get("gap_s", 20.0)) * (1.0 + float(talk.get("gap_jitter", 0.4)) * (2.0 * _jit(id, "gap:%d" % int(_said_by.get(id, 0))) - 1.0))
+		if not _spoke_at.has(id):
+			_spoke_at[id] = _talk_clock() - gap + float(talk.get("first_s", 8.0)) * _jit(id, "first")
+		if _talk_clock() - float(_spoke_at[id]) < gap:
 			continue
 		# What he saw or was told himself first (TownNews: his own version, once), else his set's line
 		# (No Law's own, which win where both fit), else a bark (TownBarks, step 9): the most specific
@@ -1835,6 +1852,7 @@ func _talk_step() -> void:
 		if barks:
 			barks.block(man.global_position)  # one line at you a group as you pass
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
+		_said_by[id] = int(_said_by.get(id, 0)) + 1
 		_spoke_at[id] = _talk_clock()
 		man.face(p.global_position + Vector3.UP * 1.5)
 		say_soon(man, String(l[1]))

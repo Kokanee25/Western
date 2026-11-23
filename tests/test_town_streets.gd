@@ -86,3 +86,36 @@ func test_the_day_street_is_out_and_moving() -> void:
 		check(peak >= int(row[1]), "%.1f h: at least %d out of doors (%d)" % [row[0], row[1], peak])
 		check(moved.size() >= int(row[2]), "%.1f h: at least %d of them on the move (%d)" % [row[0], row[2], moved.size()])
 	clock.time_scale = 1.0
+
+
+## Two runs, two towns (the gate's fault 4: the noon runs said the same at the same seconds): with
+## another run seed the rounds start elsewhere and the barks come at other times; with the same, the same.
+func test_another_run_another_town() -> void:
+	var f := valley.folk
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 2
+	clock.set_time(12.0)
+	await physics_frames(1)
+	f._look = 0.0
+	await physics_frames(10)
+	var first := {}
+	for id: StringName in f.people:
+		first[id] = [f._legs.get(id, {}).get("i", -1), snappedf(f._jit(id, "first"), 0.001)]
+	check_eq(f.run_seed, 0, "the tests' town is run 0")
+	var same := 0
+	var other := 0
+	for s: int in [0, 7]:
+		f.run_seed = s
+		f._legs.clear()
+		for id: StringName in first:
+			var p := f._person(id)
+			if p.has("day"):
+				f.block_now(p, 12.0)
+			var now := [f._legs.get(id, {}).get("i", -1), snappedf(f._jit(id, "first"), 0.001)]
+			if s == 0 and now == first[id]:
+				same += 1
+			elif s != 0 and now != first[id]:
+				other += 1
+	f.run_seed = 0
+	check_eq(same, first.size(), "the same run seed: the same legs and times")
+	check(other >= first.size() / 2, "another: most men's legs or first words elsewhere (%d of %d)" % [other, first.size()])
