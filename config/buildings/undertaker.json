@@ -1,0 +1,1819 @@
+{
+	"_doc": "The undertaker and cabinetmaker's (#1141, Sean's brief; #1174 steps 2-6; the building lab's fifth). Format 1 (../../experiments/building_lab/FORMAT.md) with what a cellar of rooms needs (each marked NEW, built in step 3). Target sheet: experiments/building_lab/undertaker/sheet/ (Sean OK 2026-11-23, #1173); Sean's answers on #1171: white clapboard, near-black trim; a 32 x 50 ft one-storey false-front shop with a low loft on the lot's WEST half, the yard east with a wagon gate and the hearse shed at its back; the cellar under the back half by a steep stair through a hatch in the workroom and by bulkhead doors in the yard against the east wall. Sizes from this spec only, never off the pictures (README's list of where the sheet strays). Written by make_spec.py. SPACE: on its north-side lot the building faces south (facing 180), so its x runs from its EAST corner (the yard's) westward, its z back (north) from the front wall's outer stud face; the side walls are named by what they face, 'yard' (east) and 'alley' (west).",
+	"format": 1,
+	"id": "undertaker",
+	"identity": {
+		"owner": "the town's undertaker and cabinetmaker, a quiet careful man who came up from Denver with a wagon of tools in 1880; he makes the town's furniture and its coffins, and buries its dead",
+		"trade": "an undertaker and cabinetmaker (undertakers made the coffins): he sells coffins and furniture from the showroom, lays out the dead in the front parlour for viewing, builds coffins in the workroom, keeps and embalms the bodies in the cellar (an ice room, the embalming room, the coffin store), drives the hearse, and lives in the back room",
+		"means": "modest and steady: a frame shop of sawn lumber put up by himself in 1880, painted white with black trim as his trade wants, the cellar dug and walled before the frame went up",
+		"age_and_repair": "two years: the paint fresh in front and dusty at the foot, the yard side splashed; the workroom floor worn pale to the side door and the hatch; the cellar's lime wash stained with damp",
+		"clues": [
+			"a small polished pine coffin on a stand in the window, black blinds half drawn",
+			"planks seasoning in the loft and against the workroom wall",
+			"a short plank ramp from the side door to the yard: coffins go out that way",
+			"sawdust trodden up from the cellar's stair onto the workroom floor",
+			"the hearse's shed door hanging open on the yard, the horse in its stall"
+		],
+		"class": "common",
+		"built": 1880,
+		"now": 1882
+	},
+	"lot": {
+		"_doc": "valley.json town.north 'undertaker' (x 106.0-128.0, 22 m = 72 ft, depth 18): the building on the lot's WEST 32 ft against the junk alley (alley_n8, its siding's face 3 cm inside the lot's line, world x 106.03), the yard east of it to the lot's edge (world 128.0) where Main Street ends. The front wall's face on the town's front line (z -10.05). Its floor is its walk's top (walk.h 1.15 over the ground at the walk's street edge, ValleyTown), `at`'s y the ground there. No pad (Sean's walk 'on posts 1.15 m over the dirt'): the ground under it rises ~0.6 m front to back and falls ~0.1 m west to east (`ground.plane`, README's probe, checked by the test against ValleyTerrain); the foundation shows 0.75 m at the front, ~0.25 at the back.",
+		"valley_lot": "undertaker",
+		"side": "north",
+		"at": [
+			115.784,
+			-0.4,
+			-10.05
+		],
+		"facing": 180,
+		"width": 9.754,
+		"depth": 15.24,
+		"yard": [
+			-12.2,
+			0.0,
+			0.0,
+			18.0
+		],
+		"ground": {
+			"plane": [
+				0.0,
+				0.0055,
+				0.034
+			],
+			"_doc": "the yard's ground (building space): y = a + b x + c z; the side fence, the ramp, the bulkhead and the hearse shed stand on it"
+		},
+		"footprint_with_stair": [
+			-12.2,
+			-0.3,
+			9.754,
+			18.0
+		],
+		"walk_h": 1.15,
+		"yard_name": "YARD",
+		"yard_front": {
+			"_doc": "the walk ends at the building (valley.json undertaker walk.span); a picket fence on the front line with a wagon gate 10 ft wide on 4x4 posts (the hearse out to Main Street), a board fence down the yard's east edge where the street ends",
+			"fence_z": 0.0,
+			"gate": [
+				-7.6,
+				-4.55
+			],
+			"side_fence": {
+				"_doc": "a 6 ft board fence down the yard's east edge, from the front line to the lot's back, its posts on the rising ground (lot.ground.plane)",
+				"x": -12.1,
+				"z": [
+					0.0,
+					18.0
+				],
+				"h": 1.8
+			}
+		}
+	},
+	"levels": {
+		"_doc": "One storey: the floor at the walk's top (1.15 m: the street's low end); 11 ft to the ceiling; the loft's 2x10 joists on the plates, boarded (a low loft for seasoning coffin boards, under a 6/12 roof: 2 m at the ridge); the false front 7.6 m over the walk's street edge, hiding the gable. The cellar's floor 1.6 m under the street edge's ground (its flags' top -1.52: 2.41 m clear to the joists, 2.26 under the girders: 'cold and low').",
+		"cellar": {
+			"floor": -1.6,
+			"top": -1.52
+		},
+		"ground": {
+			"top": 1.15
+		},
+		"upper": {
+			"top": 4.76
+		},
+		"plate": 4.503,
+		"false_front": 7.6,
+		"roof_pitch": 26.57,
+		"roof_from": 0.05,
+		"roof_to": 15.59
+	},
+	"frame": {
+		"_doc": "A balloon-framed one-storey shop (Bell 1858; Woodward 1865, 'Balloon Frames'): 2x4 studs at 16 in from the sill to a doubled plate, the floor's 2x10 joists on the sills and two girders, the false front's studs run up to its cornice, a roof of common rafters (Hodgson 1883) tied by the loft's joists, which break over two summer beams on posts (a 32 ft span). Dressed sizes, metres [width, depth]; spans to checks.gd's sizing (the Wood Handbook's figures, 40 lb/ft2, L/360). The cellar's walls rubble stone in lime, 18 in.",
+		"foundation": {
+			"_doc": "rubble stone laid in lime mortar, 18 in thick, 2 ft under the street edge's ground; where it walls the cellar, down to the cellar's floor",
+			"wood": "stone",
+			"thick": 0.45,
+			"bottom": -0.6,
+			"top": 0.743,
+			"piece": 1.5
+		},
+		"sill": {
+			"section": [
+				0.15,
+				0.15
+			],
+			"wood": "framing"
+		},
+		"pier": {
+			"size": 0.4,
+			"wood": "stone"
+		},
+		"girder": {
+			"section": [
+				0.15,
+				0.2
+			],
+			"wood": "framing",
+			"pier_every": 1.83
+		},
+		"joist": {
+			"section": [
+				0.05,
+				0.235
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"floor_board": {
+			"width": 0.14,
+			"thick": 0.022,
+			"wood": "floor"
+		},
+		"stud": {
+			"section": [
+				0.05,
+				0.1
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"plate": {
+			"height": 0.1,
+			"_doc": "two 2x4s flat, their joints a stud apart"
+		},
+		"ribbon": {
+			"section": [
+				0.025,
+				0.15
+			]
+		},
+		"header": {
+			"height": 0.15,
+			"_doc": "two 2x6s on edge over every opening, on trimmers"
+		},
+		"post": {
+			"section": [
+				0.15,
+				0.15
+			],
+			"wood": "framing"
+		},
+		"beam": {
+			"section": [
+				0.15,
+				0.2
+			],
+			"wood": "framing"
+		},
+		"bracket": {
+			"reach": 0.3,
+			"thick": 0.08
+		},
+		"wall_post": {
+			"section": [
+				0.15,
+				0.1
+			]
+		},
+		"ceiling_joist": {
+			"_doc": "the loft's floor joists, 2x10 at 16 in across the building on the plates, broken over the two summer beams (spans 3.25 m), each spiked to a rafter's foot: the roof's tie",
+			"section": [
+				0.05,
+				0.235
+			],
+			"spacing": 0.406,
+			"wood": "framing",
+			"lap": 0.6
+		},
+		"rafters": {
+			"_doc": "2x6 at 24 in, 6/12, birdsmouthed on the plates, against a 1x8 ridge board, a collar on every second pair; 1x6 boards across them; 12 in eaves at the sides; the front's gable behind the false front.",
+			"rafter": [
+				0.05,
+				0.14
+			],
+			"spacing": 0.61,
+			"ridge": [
+				0.025,
+				0.185
+			],
+			"collar": [
+				0.025,
+				0.14
+			],
+			"collar_every": 2,
+			"collar_down": 0.1,
+			"eave": 0.3
+		},
+		"truss": {
+			"_doc": "unused (rafters above); kept for the builder's eave and board helpers until step 3 frees them",
+			"tie": [
+				0.05,
+				0.14
+			],
+			"principal": [
+				0.0,
+				0.0
+			],
+			"queen": [
+				0.0,
+				0.0
+			],
+			"purlin": [
+				0.0,
+				0.0
+			],
+			"rafter": [
+				0.05,
+				0.14
+			],
+			"rafter_spacing": 0.61,
+			"at": [
+				0.0,
+				14.63
+			],
+			"purlins": []
+		}
+	},
+	"girders": {
+		"_doc": "Two lines front to back under the floor's joists (spans 3.25 m), on stone piers at 6 ft; in the cellar on its posts and its two bearing walls (the cross wall, the ice room's).",
+		"x": [
+			3.25,
+			6.47
+		]
+	},
+	"cellar": {
+		"_doc": "Under the back half (25 ft back to the back wall), 32 x 25 ft inside the house's foundation, rubble walls lime-washed, stone flags. Posts under the girders where no wall carries them. Its rooms are partitions on its level (walls of level 'cellar'): the coffin store across its front, the embalming room and the ice room behind. The stair down through the workroom's hatch (steep: 13 risers of 8 in on 8 1/4 in goings) lands in the coffin store; the bulkhead's passage comes in through its east wall (`bulkhead`).",
+		"rect": [
+			0.0,
+			7.62,
+			9.754,
+			15.24
+		],
+		"posts": [
+			[
+				3.25,
+				9.2
+			],
+			[
+				6.47,
+				9.2
+			],
+			[
+				6.47,
+				13.0
+			]
+		],
+		"flag": 1.0,
+		"stair": {
+			"head": [
+				3.33,
+				9.4
+			],
+			"dir": "-x",
+			"width": 0.8,
+			"risers": 13,
+			"going": 0.21
+		}
+	},
+	"bulkhead": {
+		"_doc": "NEW (Bulkhead, the part): the cellar's outside door in the yard against the east wall, as the New England hatchway: a stone areaway (cheek walls and an end wall of the cellar's rubble, from its floor to a course over the yard), wooden steps down it (10 risers), a timber lintel over the passage through the foundation, and on the cheeks a pair of slanted plank doors on a frame, high at the house wall, low at the yard, hinged at the cheeks and standing open. Coffins in and out without the house's stair.",
+		"wall": "yard",
+		"z": [
+			8.1,
+			9.1
+		],
+		"out": 2.45,
+		"grade": 0.286,
+		"cheek": 0.3,
+		"risers": 10,
+		"going": 0.24,
+		"high": 0.723,
+		"low": 0.486,
+		"lintel": 0.2,
+		"open": true,
+		"wood": "rough"
+	},
+	"side_ramp": {
+		"_doc": "NEW: the workroom's side door 'at grade (a short ramp)' (Sean, #1171): a plank ramp from the door's sill down to the yard, 1 in 5 (a coffin on a hand truck), on two stringers notched over the sill and footed on a stone in the yard; cleats across it for the feet.",
+		"wall": "yard",
+		"at": 10.9,
+		"width": 1.6,
+		"run": 3.952,
+		"dir": "-x",
+		"wood": "rough"
+	},
+	"floors": [
+		{
+			"id": "ground",
+			"level": "ground",
+			"rect": [
+				0.1,
+				0.1,
+				9.654,
+				15.14
+			],
+			"joists": "x",
+			"look": "wood:int_floor",
+			"openings": [
+				{
+					"id": "hatch",
+					"rect": [
+						3.33,
+						9.35,
+						6.39,
+						10.25
+					],
+					"hatch": 2,
+					"_doc": "the cellar's hatch in the workroom floor, girder to girder (no tail joists), its two leaves standing open"
+				}
+			]
+		},
+		{
+			"_doc": "the loft over the whole building on frame.ceiling_joist (2x10), boarded: coffin boards seasoning; its scuttle in the workroom's ceiling",
+			"id": "attic",
+			"level": "upper",
+			"rect": [
+				0.02,
+				0.1,
+				9.734,
+				15.14
+			],
+			"joists": "x",
+			"joist": "ceiling_joist",
+			"openings": [
+				{
+					"id": "scuttle",
+					"rect": [
+						7.0,
+						10.2,
+						7.8,
+						10.8
+					],
+					"leaves": 1
+				}
+			],
+			"breaks": [
+				3.25,
+				6.47
+			]
+		}
+	],
+	"summer_beams": [
+		{
+			"_doc": "the loft's joists break over two summer beams (6x10 cased in the ceiling) on the girders' lines: over the parlour's wall in front (it carries them there) and behind it on 4x4 posts standing through slots in the floor on the girders (between two joists, clear of the boards: their load on the girder, not the floor); one in the workroom, one by each partition, one let into the back wall",
+			"id": "loft_e",
+			"x": 3.25,
+			"z": [
+				5.4,
+				15.14
+			],
+			"section": [
+				0.15,
+				0.235
+			],
+			"posts": [
+				{
+					"z": 5.626,
+					"girder": true,
+					"size": 0.1
+				},
+				{
+					"z": 8.874,
+					"girder": true,
+					"size": 0.1
+				},
+				{
+					"z": 12.122,
+					"girder": true,
+					"size": 0.1
+				},
+				[
+					15.09,
+					0.1
+				]
+			]
+		},
+		{
+			"id": "loft_w",
+			"x": 6.47,
+			"z": [
+				0.1,
+				15.14
+			],
+			"section": [
+				0.15,
+				0.235
+			],
+			"posts": [
+				[
+					0.05,
+					0.1
+				],
+				{
+					"z": 3.19,
+					"girder": true,
+					"size": 0.1
+				},
+				{
+					"z": 5.626,
+					"girder": true,
+					"size": 0.1
+				},
+				{
+					"z": 8.874,
+					"girder": true,
+					"size": 0.1
+				},
+				{
+					"z": 12.122,
+					"girder": true,
+					"size": 0.1
+				},
+				[
+					15.09,
+					0.1
+				]
+			]
+		}
+	],
+	"ceilings": {
+		"_doc": "NEW (README 'What the format needs' item 11): beaded 1x4 boards nailed up under the ceiling joists in every room, run front to back (across the joists).",
+		"finish": "beaded",
+		"rooms": "all"
+	},
+	"inside_finish": {
+		"_doc": "#826 (Sean's pick 3 on #821): the inside boards drawn at the width their paint was judged at ('judged': painted_pale_tg's 9 cm beaded boards, three to a 27 cm member, SpecBuilding.strips_mesh; the ceiling's too), and a plain 8 in skirting at the foot of every boarded wall (its top rounded), stopped at the door casings; skirting, casings and the windows' sashes and linings in the trim's finish (surfaces /skirt, /casing, /window_).",
+		"boards": "judged",
+		"skirting": 0.2
+	},
+	"walls": [
+		{
+			"_doc": "The front, to the street: the false front's studs to its cornice; a pair of glazed doors (4 ft 6 in) under a transom into the showroom, a big window either side (black blinds half drawn; the sample coffin in the showroom's).",
+			"id": "front",
+			"line": [
+				[
+					0,
+					0
+				],
+				[
+					9.754,
+					0
+				]
+			],
+			"out": "-z",
+			"top": 7.6,
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 9.654,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 9.654,
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 5.2,
+					"width": 1.37,
+					"height": 2.67,
+					"glazed": true,
+					"transom": 0.4,
+					"leaves": 2,
+					"_doc": "the street doors: a glazed pair, a transom light over them"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 1.65,
+					"width": 1.52,
+					"height": 2.13,
+					"sill": 0.46,
+					"lights": 4,
+					"_doc": "the parlour's window (its blinds drawn)"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.95,
+					"width": 1.52,
+					"height": 2.13,
+					"sill": 0.46,
+					"lights": 4,
+					"_doc": "the showroom's window: the sample coffin on its stand"
+				}
+			],
+			"ribbon": false
+		},
+		{
+			"_doc": "The back, to the back lot: his room's door and window; the loft's small window in the gable.",
+			"id": "back",
+			"line": [
+				[
+					0,
+					15.24
+				],
+				[
+					9.754,
+					15.24
+				]
+			],
+			"out": "+z",
+			"top": "gable",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 9.654,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 9.654,
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 1.6,
+					"width": 0.86,
+					"height": 2.03,
+					"leaf": "inward"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.9,
+					"width": 0.76,
+					"height": 1.37,
+					"sill": 0.84,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 4.877,
+					"width": 0.61,
+					"height": 0.76,
+					"sill": 0.5,
+					"lights": 2,
+					"_doc": "the loft's window over the back lot"
+				}
+			],
+			"ribbon": false
+		},
+		{
+			"_doc": "The east side, to his yard: the parlour's window, the workroom's window and its wide side door (a pair of plank leaves, 5 ft) at the ramp's head, his room's window. The bulkhead against its foundation (`bulkhead`).",
+			"id": "yard",
+			"line": [
+				[
+					0,
+					0
+				],
+				[
+					0,
+					15.24
+				]
+			],
+			"out": "-x",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 2.75,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.66,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.0,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.66,
+					"lights": 4
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 10.9,
+					"width": 1.52,
+					"height": 2.29,
+					"leaves": 2,
+					"_doc": "the workroom's side door: two plank leaves, opening in"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 13.6,
+					"width": 0.76,
+					"height": 1.37,
+					"sill": 0.84,
+					"lights": 4
+				}
+			],
+			"ribbon": false
+		},
+		{
+			"_doc": "The west side, to the junk alley: a window a room.",
+			"id": "alley",
+			"line": [
+				[
+					9.754,
+					0
+				],
+				[
+					9.754,
+					15.24
+				]
+			],
+			"out": "+x",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 1.8,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 0.76,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 8.2,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.66,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 13.6,
+					"width": 0.76,
+					"height": 1.37,
+					"sill": 0.84,
+					"lights": 4
+				}
+			],
+			"ribbon": false
+		},
+		{
+			"_doc": "the parlour's wall, on the east girder's line: it carries the loft's joists over the front rooms; its door near the back into the showroom",
+			"id": "parlour_w",
+			"line": [
+				[
+					3.25,
+					0.1
+				],
+				[
+					3.25,
+					5.4
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 4.4,
+					"width": 0.91,
+					"height": 2.13
+				}
+			]
+		},
+		{
+			"_doc": "the office's corner in the showroom's back (his desk, the counter in front of it)",
+			"id": "office_e",
+			"line": [
+				[
+					6.65,
+					3.0
+				],
+				[
+					6.65,
+					5.4
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.3,
+					"width": 0.81,
+					"height": 2.03,
+					"leaf": "outward"
+				}
+			]
+		},
+		{
+			"id": "office_f",
+			"line": [
+				[
+					6.7,
+					3.0
+				],
+				[
+					9.654,
+					3.0
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "hatch",
+					"at": 1.6,
+					"width": 1.2,
+					"height": 0.9,
+					"sill": 1.0,
+					"_doc": "the office's window on the showroom: the order book's counter under it"
+				}
+			]
+		},
+		{
+			"_doc": "the workroom's front wall across the width: the parlour's door (a coffin's width) and the showroom's",
+			"id": "work_f",
+			"line": [
+				[
+					0.1,
+					5.45
+				],
+				[
+					9.654,
+					5.45
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.6,
+					"width": 1.07,
+					"height": 2.13,
+					"leaf": "outward"
+				},
+				{
+					"type": "door",
+					"at": 4.9,
+					"width": 0.91,
+					"height": 2.13
+				}
+			]
+		},
+		{
+			"_doc": "his room's wall",
+			"id": "work_b",
+			"line": [
+				[
+					0.1,
+					11.95
+				],
+				[
+					9.654,
+					11.95
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 4.9,
+					"width": 0.86,
+					"height": 2.03
+				}
+			]
+		},
+		{
+			"_doc": "NEW: the cellar's cross wall between the coffin store and the back rooms, of planks on studs from the flags to the girders (it carries both where it crosses them); the embalming room's door",
+			"id": "cel_cross",
+			"line": [
+				[
+					0.47,
+					11.1
+				],
+				[
+					9.284,
+					11.1
+				]
+			],
+			"partition": true,
+			"level": "cellar",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 4.6,
+					"width": 0.91,
+					"height": 1.98
+				}
+			]
+		},
+		{
+			"_doc": "NEW: the ice room's wall under the east girder (it carries it): planked both sides, sawdust packed between, the thick door (`thick`) of two layers of planks",
+			"id": "cel_ice",
+			"line": [
+				[
+					3.25,
+					11.15
+				],
+				[
+					3.25,
+					14.77
+				]
+			],
+			"partition": true,
+			"level": "cellar",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.4,
+					"width": 0.86,
+					"height": 1.98,
+					"thick": 0.1,
+					"leaf": "outward",
+					"hinge": "end"
+				}
+			]
+		}
+	],
+	"stairs": [
+		{
+			"_doc": "his room's back step: three risers to the back lot",
+			"id": "back",
+			"head": [
+				1.0,
+				16.14
+			],
+			"dir": "-z",
+			"width": 1.2,
+			"from": 0.561,
+			"to": 1.15,
+			"risers": 3,
+			"going": 0.28,
+			"wood": "painted_white",
+			"stoop": [
+				1.0,
+				15.24,
+				2.2,
+				16.14
+			],
+			"ground_block": true
+		}
+	],
+	"front": {
+		"_doc": "the false front: a plain cornice in black, the sign board across it over the walk's awning (2.9 m over the walk): UNDERTAKER, and smaller the cabinetmaking",
+		"sign": "UNDERTAKER",
+		"sign_from": 4.9,
+		"sign_to": 6.75,
+		"sign_width": 6.4
+	},
+	"rooms": [
+		{
+			"id": "showroom",
+			"level": "ground",
+			"rect": [
+				3.35,
+				0.1,
+				9.654,
+				5.4
+			],
+			"use": "coffins and caskets on trestles for the bereaved to choose, chairs; his office in its back corner (the desk, the order book on the counter under the office's window); furniture for sale"
+		},
+		{
+			"id": "parlour",
+			"level": "ground",
+			"rect": [
+				0.1,
+				0.1,
+				3.15,
+				5.4
+			],
+			"use": "the dead laid out for viewing in an open coffin on a draped bier, chairs round the walls for the mourners, the blinds drawn, one lamp"
+		},
+		{
+			"id": "workroom",
+			"level": "ground",
+			"rect": [
+				0.1,
+				5.5,
+				9.654,
+				11.9
+			],
+			"use": "coffins built: the long bench and its vise, planks, a lid on trestles, the glue pot on the stove; the side door to the yard and its ramp; the cellar's hatch"
+		},
+		{
+			"id": "back_room",
+			"level": "ground",
+			"rect": [
+				0.1,
+				12.0,
+				9.654,
+				15.14
+			],
+			"use": "his room: his bed, a stove, a table and chair, his clothes on pegs; the back door"
+		},
+		{
+			"id": "loft",
+			"level": "upper",
+			"rect": [
+				0.1,
+				0.1,
+				9.654,
+				15.14
+			],
+			"use": "coffin boards seasoning on bearers; a place to look over the yard from the back window"
+		},
+		{
+			"id": "coffin_store",
+			"level": "cellar",
+			"rect": [
+				0.47,
+				7.845,
+				9.284,
+				11.05
+			],
+			"use": "coffins stacked on racks, a child's among them; a body under a sheet on a board; the safety coffin; the stair's foot and the bulkhead's passage; the photographer's posing stand by the stair"
+		},
+		{
+			"id": "embalming",
+			"level": "cellar",
+			"rect": [
+				3.3,
+				11.15,
+				9.284,
+				14.77
+			],
+			"use": "the embalming table (zinc-lined, sloped to its drain, a pail under it), the cooling board on trestles, the hand pump, tubes and jars, the carboys of fluid, shrouds on a shelf"
+		},
+		{
+			"id": "ice_room",
+			"level": "cellar",
+			"rect": [
+				0.47,
+				11.15,
+				3.2,
+				14.77
+			],
+			"use": "ice blocks packed in sawdust in a plank bin, the corpse cooler on trestles; the thick door shut on it"
+		}
+	],
+	"use_points": [
+		{
+			"id": "counter",
+			"use": "serve",
+			"who": "undertaker",
+			"at": [
+				7.4,
+				1.15,
+				3.45
+			],
+			"look": [
+				7.4,
+				2.0
+			],
+			"_doc": "in the office at the counter under its window: the order book"
+		},
+		{
+			"id": "desk",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				8.9,
+				1.15,
+				4.6
+			],
+			"look": [
+				9.6,
+				4.6
+			]
+		},
+		{
+			"id": "choose",
+			"use": "buy",
+			"who": "anyone",
+			"at": [
+				5.4,
+				1.15,
+				2.0
+			],
+			"look": [
+				4.4,
+				2.0
+			],
+			"_doc": "the bereaved among the coffins"
+		},
+		{
+			"id": "watch_street",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				7.95,
+				1.15,
+				0.75
+			],
+			"look": [
+				7.95,
+				-8.0
+			]
+		},
+		{
+			"id": "mourn_1",
+			"use": "sit",
+			"who": "anyone",
+			"at": [
+				0.55,
+				1.15,
+				1.6
+			],
+			"look": [
+				1.6,
+				2.8
+			],
+			"_doc": "the parlour's chairs round the walls"
+		},
+		{
+			"id": "mourn_2",
+			"use": "sit",
+			"who": "anyone",
+			"at": [
+				2.75,
+				1.15,
+				1.0
+			],
+			"look": [
+				1.6,
+				2.8
+			]
+		},
+		{
+			"id": "view",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				2.5,
+				1.15,
+				3.3
+			],
+			"look": [
+				1.6,
+				3.0
+			],
+			"_doc": "beside the bier"
+		},
+		{
+			"id": "bench",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				7.8,
+				1.15,
+				6.4
+			],
+			"look": [
+				7.8,
+				5.6
+			],
+			"tool": "bench",
+			"_doc": "planing at the long bench against the workroom's front wall"
+		},
+		{
+			"id": "lid",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				2.0,
+				1.15,
+				7.3
+			],
+			"look": [
+				3.0,
+				7.3
+			]
+		},
+		{
+			"id": "side_door",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				1.0,
+				1.15,
+				9.6
+			],
+			"look": [
+				-6.0,
+				10.9
+			]
+		},
+		{
+			"id": "eat",
+			"use": "eat",
+			"who": "undertaker",
+			"at": [
+				7.6,
+				1.15,
+				13.0
+			],
+			"look": [
+				7.6,
+				14.0
+			]
+		},
+		{
+			"id": "stove",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				5.6,
+				1.15,
+				14.3
+			],
+			"look": [
+				5.6,
+				15.1
+			]
+		},
+		{
+			"id": "bed",
+			"use": "sleep",
+			"who": "undertaker",
+			"at": [
+				8.8,
+				1.15,
+				14.2
+			],
+			"look": [
+				8.8,
+				13.0
+			]
+		},
+		{
+			"id": "loft_store",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				4.877,
+				4.76,
+				7.5
+			],
+			"look": [
+				4.877,
+				3.0
+			]
+		},
+		{
+			"id": "loft_window",
+			"use": "shoot",
+			"who": "anyone",
+			"at": [
+				4.877,
+				4.76,
+				14.6
+			],
+			"look": [
+				4.877,
+				30.0
+			]
+		},
+		{
+			"id": "coffins",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				2.2,
+				-1.52,
+				10.2
+			],
+			"look": [
+				2.2,
+				11.0
+			],
+			"_doc": "at the coffin racks"
+		},
+		{
+			"id": "stair_foot",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				6.8,
+				-1.52,
+				9.8
+			],
+			"look": [
+				5.0,
+				9.8
+			]
+		},
+		{
+			"id": "embalm",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				7.6,
+				-1.52,
+				12.4
+			],
+			"look": [
+				7.6,
+				13.2
+			],
+			"_doc": "at the embalming table"
+		},
+		{
+			"id": "cool",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				4.4,
+				-1.52,
+				13.6
+			],
+			"look": [
+				4.4,
+				14.5
+			]
+		},
+		{
+			"id": "ice",
+			"use": "work",
+			"who": "undertaker",
+			"at": [
+				1.8,
+				-1.52,
+				12.2
+			],
+			"look": [
+				1.8,
+				13.5
+			],
+			"_doc": "at the ice bin"
+		}
+	],
+	"lamps": {
+		"_doc": "kit lamps hung on the walls, a room each (#824), lit by the clock; in the cellar a lamp each room on its plank walls (the sheet's hanging iron lantern waits for the props, #1174's next step): those a player stands in cast shadows",
+		"kit": [
+			{
+				"room": "showroom",
+				"kit": "reflector_lamp",
+				"wall": "alley",
+				"level": "ground",
+				"at": 3.6,
+				"height": 1.55,
+				"energy": 1.3,
+				"reach": 7.0,
+				"shadows": true,
+				"lit": [
+					17,
+					22
+				]
+			},
+			{
+				"room": "parlour",
+				"kit": "reflector_lamp",
+				"wall": "parlour_w",
+				"side": "-",
+				"level": "ground",
+				"at": 2.6,
+				"height": 1.5,
+				"energy": 0.9,
+				"reach": 5.0,
+				"shadows": true,
+				"lit": [
+					16,
+					6
+				],
+				"_doc": "the one lamp kept lit by the dead all night"
+			},
+			{
+				"room": "workroom",
+				"kit": "reflector_lamp",
+				"wall": "alley",
+				"level": "ground",
+				"at": 6.3,
+				"height": 1.6,
+				"energy": 1.4,
+				"reach": 8.0,
+				"shadows": true,
+				"lit": [
+					17,
+					21
+				]
+			},
+			{
+				"room": "workroom",
+				"kit": "reflector_lamp",
+				"wall": "yard",
+				"level": "ground",
+				"at": 8.5,
+				"height": 1.6,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					17,
+					21
+				]
+			},
+			{
+				"room": "back_room",
+				"kit": "reflector_lamp",
+				"wall": "work_b",
+				"side": "+",
+				"level": "ground",
+				"at": 7.6,
+				"height": 1.5,
+				"energy": 0.9,
+				"lit": [
+					19,
+					23
+				]
+			},
+			{
+				"room": "coffin_store",
+				"kit": "reflector_lamp",
+				"wall": "cel_cross",
+				"side": "-",
+				"level": "cellar",
+				"at": 1.8,
+				"height": 1.5,
+				"energy": 1.0,
+				"reach": 6.0,
+				"shadows": true,
+				"lit": [
+					0,
+					24
+				]
+			},
+			{
+				"room": "embalming",
+				"kit": "reflector_lamp",
+				"wall": "cel_cross",
+				"side": "+",
+				"level": "cellar",
+				"at": 6.8,
+				"height": 1.55,
+				"energy": 1.2,
+				"reach": 6.0,
+				"shadows": true,
+				"lit": [
+					0,
+					24
+				]
+			},
+			{
+				"room": "ice_room",
+				"kit": "reflector_lamp",
+				"wall": "cel_ice",
+				"side": "-",
+				"level": "cellar",
+				"at": 2.6,
+				"height": 1.5,
+				"energy": 0.7,
+				"reach": 4.0,
+				"lit": [
+					0,
+					24
+				]
+			}
+		]
+	},
+	"light": {
+		"_doc": "NEW (#824): the room's light. `fill` the indoor fill's colour (RoomLight's `room_fill`): near neutral and low, so the windows (RoomLight's soft sky through every outer door and window, `light_openings`) and the lamps give the rooms their shape, not one tint; the fill's box reaches the outer walls' inside boards (spec_building.gd _add_interior_ambient). `window_day` scales RoomLight's daylight through the windows for this building (round 1 at 1: the dispensary under its high window read dull and flat; 7 since #829, with the fill low). `day_fill` (#829) the fill's level by day (DayCycle's 0.45 else: one even level, the rooms flat): low, so the windows (aimed across each room at its floor, falling off) and the sun's patches (a light off each) give the rooms their shape by day.",
+		"fill": [
+			0.62,
+			0.6,
+			0.57
+		],
+		"window_day": 9.0,
+		"day_fill": 0.14
+	},
+	"outbuildings": [
+		{
+			"_doc": "NEW: the hearse shed at the yard's back, board and batten on a light frame (posts, girts, rafters), a gable roof, open-floored on the yard's dirt; wide double doors to the yard (standing open) for the box hearse, a stall on its west side for the hearse horse behind a plank side (Sean, #1171: 'a glass-sided box hearse, a stall'). The hearse itself is a prop (the next step).",
+			"kind": "shed",
+			"id": "hearse_shed",
+			"rect": [
+				-11.7,
+				12.0,
+				-5.1,
+				17.6
+			],
+			"eave": 2.9,
+			"pitch": 30.0,
+			"door": {
+				"at": -9.4,
+				"width": 2.6,
+				"height": 2.5
+			},
+			"stall": {
+				"x": -6.75,
+				"z": [
+					13.0,
+					17.4
+				]
+			},
+			"wood": "rough",
+			"ground": [
+				0.344,
+				0.57
+			]
+		}
+	],
+	"materials": {
+		"wear": {
+			"use": 0.6,
+			"dings": 0.0,
+			"_why": "#901 (dents off until the judges like them): a workroom's feet and hand trucks to the side door and hatch; the front rooms kept"
+		},
+		"_doc": "Each surface takes its finish from the library by name (spec_building.gd finish()): a finish's `want` the moment the library has it passed at that age, until then its `use`. White lead on narrow clapboard (painted_white_lap, passed); the near-black trim Sean asked for has no library entry yet (painted_black_trim wanted; drawn in dark walnut till it passes). Inside, pale painted boards in the front rooms; the workroom and cellar rough.",
+		"finishes": {
+			"exterior": {
+				"want": {
+					"entry": "painted_white_lap",
+					"age": "few"
+				},
+				"use": {
+					"entry": "common_pine_lap",
+					"age": "old",
+					"role": "wall"
+				},
+				"_why": "white lead on narrow clapboard, two years old (Sean, #1171)"
+			},
+			"trim": {
+				"want": {
+					"entry": "painted_black_trim",
+					"age": "few"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				},
+				"_why": "near-black trim (Sean, #1171): cornice, casings, corner boards, sash and doors"
+			},
+			"inside": {
+				"want": {
+					"entry": "painted_pale_tg",
+					"age": "few"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				},
+				"_why": "pale painted beaded boards (cream in the office, grey-green in the surgery)"
+			},
+			"ceiling": {
+				"want": {
+					"entry": "painted_pale_tg",
+					"age": "few"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"floor": {
+				"want": {
+					"entry": "floor_fir_worn",
+					"age": "few",
+					"role": "floor"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "floor"
+				},
+				"_why": "oiled fir and pine boards, worn on his ways (door to desk, the hall), dark by the walls (#825); never his furniture's wood"
+			},
+			"framing": {
+				"use": {
+					"entry": "rough_pine_batten",
+					"age": "few",
+					"role": "wall"
+				},
+				"_why": "rough-sawn timber where it shows: the loft's rafters and joists, the porch's frame, the roof boards' undersides"
+			},
+			"rough": {
+				"use": {
+					"entry": "rough_pine_batten",
+					"age": "few",
+					"role": "wall"
+				},
+				"_why": "the roof boards, the porch's and stoop's decks, steps, the fence, the ladder"
+			}
+		},
+		"surfaces": [
+			[
+				"/casing",
+				"trim"
+			],
+			[
+				"/skirt",
+				"trim"
+			],
+			[
+				"/window_",
+				"trim"
+			],
+			[
+				"/siding/",
+				"exterior"
+			],
+			[
+				"/corner_",
+				"trim"
+			],
+			[
+				"/trim_",
+				"trim"
+			],
+			[
+				"/transom_bar",
+				"trim"
+			],
+			[
+				"roof/ridge_cap",
+				"trim"
+			],
+			[
+				"front/door_",
+				"trim"
+			],
+			[
+				"back/door_",
+				"trim"
+			],
+			[
+				"yard/door_",
+				"trim"
+			],
+			[
+				"alley/door_",
+				"trim"
+			],
+			[
+				"cel_cross/",
+				"rough"
+			],
+			[
+				"cel_ice/",
+				"rough"
+			],
+			[
+				"/in_ground/",
+				"inside"
+			],
+			[
+				"/in_upper/",
+				"inside"
+			],
+			[
+				"/m/board/",
+				"inside"
+			],
+			[
+				"/p/board/",
+				"inside"
+			],
+			[
+				"/m/casing",
+				"inside"
+			],
+			[
+				"/p/casing",
+				"inside"
+			],
+			[
+				"/door_",
+				"inside"
+			],
+			[
+				"ceiling/",
+				"ceiling"
+			],
+			[
+				"floor/ground/board",
+				"floor"
+			],
+			[
+				"roof/board",
+				"rough"
+			],
+			[
+				"stoop/",
+				"rough"
+			],
+			[
+				"fence/",
+				"rough"
+			],
+			[
+				"stair/",
+				"rough"
+			],
+			[
+				"ladder/",
+				"rough"
+			],
+			[
+				"floor/attic/board",
+				"floor"
+			],
+			[
+				"bulkhead/",
+				"rough"
+			],
+			[
+				"side_ramp/",
+				"rough"
+			],
+			[
+				"hearse_shed/",
+				"rough"
+			],
+			[
+				"cellar/",
+				"rough"
+			]
+		],
+		"floor": "wood:int_floor",
+		"wall_boards": "int_boards",
+		"woodwork": "wood:int_timber",
+		"timber": "wood:int_timber",
+		"trim_outside": "painted_green",
+		"roof": "weathered_pine",
+		"rough": "framing",
+		"chimney": "stone",
+		"stone": {
+			"want": {
+				"entry": "rubble_whitewash",
+				"age": "few"
+			},
+			"inside_age": "few",
+			"_why": "the cellar's walls lime-washed rubble (the sheet's)"
+		}
+	},
+	"dressing": {
+		"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit has today, standing in for the trade's own (a plain table fitted as his bench, the bier, the cooling board and trestles; his bed, stove, desk and chairs). The trade's props (coffins, the hearse, the embalming table and pump, ice and sawdust, the safety coffin, the posing stand) are the prop lab's next batch (#1174's handover).",
+		"batches": {
+			"U0": []
+		}
+	},
+	"furniture": [],
+	"fixtures": [],
+	"sources": [
+		"USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021), ch. 5 and 7: the game's timber figures and checks.gd's sizing of every span.",
+		"William E. Bell, Carpentry Made Easy (1858): the balloon frame, studs at 16 in sill to plate, girders on piers.",
+		"George E. Woodward, Woodward's Country Homes (1865), 'Balloon Frames' (p.151); Woodward's National Architect (1869): sills, corner posts, partitions of 3x4 at 12-16 in.",
+		"Palliser, Palliser & Co., American Cottage Homes (1878): a cottage's storey heights and specification.",
+		"Fred T. Hodgson, The Carpenters' Steel Square and its Uses (1883): common rafters, the birdsmouth, the collar beam.",
+		"A. Renouard, The Undertakers' Manual (1878): the undertaker's rooms, the cooling board, ice and the corpse cooler, arterial embalming by hand pump.",
+		"R. W. Habenstein and W. M. Lamers, The History of American Funeral Directing (1955): the cabinetmaker-undertaker of the 1870s-80s, the rooms of a small-town shop, the box hearse with glass sides.",
+		"Bulkhead (hatchway) cellar doors: the stone areaway and slanted plank doors of 19th-century New England and the Midwest (the Old House Journal's surveys); steps 7-8 in, the doors on cheeks.",
+		"F. Vester, Burial Case, US patent 81,437 (1868): a safety coffin with a bell at the grave's head on a cord to the hand (the cellar's sample).",
+		"History Colorado, 'False Front Commercial': the type."
+	]
+}
