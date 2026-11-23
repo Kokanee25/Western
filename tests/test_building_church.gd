@@ -85,5 +85,5 @@ func test_the_tower_the_spire_and_the_pointed_heads_are_there() -> void:
 	check(posts == 4, "four belfry posts (%d)" % posts)
 	check(shingles > 60, "the spire's shingle courses (%d)" % shingles)
 	check(top > 12.0, "the spire stands over 12 m (%.1f)" % top)
-	check(heads == 11, "a pointed head over each of the eleven nave windows (%d)" % heads)
-	check(head_panes >= 11 * 6, "each glazed to its point, a pane a step either side of its bar (%d)" % head_panes)
+	check(heads == 12, "a pointed head over each of the eleven nave windows and the tower's doors (%d)" % heads)
+	check(head_panes >= 12 * 6, "each glazed to its point, a pane a step either side of its bar (%d)" % head_panes)

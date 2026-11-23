@@ -41,17 +41,17 @@
   ]
  },
  "levels": {
-  "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the ceiling joists, 3 x 15 in at 16 in, are the roof's ties across the 28 ft span and carry the boarded loft above; 9/12 roof (36.9 degrees, the doctor's).",
+  "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the ceiling joists, 3 x 15 in at 16 in, are the roof's ties across the 28 ft span and carry the boarded loft above; 12/12 roof (45 degrees, #1170: the sheet's steep roof).",
   "ground": {
    "top": 0.95
   },
   "upper": {
-   "top": 5.952,
+   "top": 5.702,
    "_doc": "the loft's floor, on the ceiling joists over the plates"
   },
-  "plate": 5.55,
+  "plate": 5.3,
   "false_front": 0.0,
-  "roof_pitch": 36.87,
+  "roof_pitch": 45.0,
   "roof_from": -0.35,
   "roof_to": 13.76
  },
@@ -254,7 +254,7 @@
     ],
     "y": [
      0.95,
-     5.55
+     5.3
     ],
     "finish": "plaster_whitewash",
     "_why": "the chimney's breast"
@@ -310,23 +310,23 @@
      "type": "window",
      "level": "ground",
      "at": 1.3,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     },
     {
      "type": "window",
      "level": "ground",
      "at": 7.2299999999999995,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     }
    ],
    "ribbon": false
@@ -371,11 +371,11 @@
      "level": "ground",
      "at": 4.265,
      "width": 0.92,
-     "height": 2.4,
-     "sill": 1.3,
+     "height": 2.1,
+     "sill": 1.2,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.75
     }
    ],
    "ribbon": false
@@ -419,45 +419,45 @@
      "type": "window",
      "level": "ground",
      "at": 2.6,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     },
     {
      "type": "window",
      "level": "ground",
      "at": 5.4,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     },
     {
      "type": "window",
      "level": "ground",
      "at": 8.2,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     },
     {
      "type": "window",
      "level": "ground",
      "at": 11.0,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     }
    ],
    "ribbon": false
@@ -501,45 +501,45 @@
      "type": "window",
      "level": "ground",
      "at": 2.6,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     },
     {
      "type": "window",
      "level": "ground",
      "at": 5.4,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     },
     {
      "type": "window",
      "level": "ground",
      "at": 8.2,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     },
     {
      "type": "window",
      "level": "ground",
      "at": 11.0,
-     "width": 0.92,
-     "height": 2.6,
-     "sill": 1.0,
+     "width": 0.95,
+     "height": 2.4,
+     "sill": 0.85,
      "lights": 8,
      "pointed": true,
-     "rise": 0.55
+     "rise": 0.8
     }
    ],
    "ribbon": false
@@ -578,8 +578,12 @@
      "level": "ground",
      "at": 1.83,
      "width": 1.5,
-     "height": 2.7,
-     "leaf": "inward"
+     "height": 2.25,
+     "pointed": true,
+     "rise": 0.75,
+     "leaves": 2,
+     "leaf": "inward",
+     "_doc": "pointed double doors (#1170): the leaves to the springing, a glazed pointed head over them"
     }
    ],
    "ribbon": false
@@ -668,7 +672,7 @@
   }
  ],
  "tower": {
-  "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (10 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, four posts, louvres, the bell beams, a pyramidal spire of shingles on hip rafters, an iron cross. The top about 15.6 m over the ground (valley.json's bell_tower: 15 m).",
+  "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (12 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, its corner posts, a pointed bell opening on each face between jamb posts with a louvred panel either side, a flared skirt, a pyramidal spire of shingles on hip rafters bell-cast at its foot, a tall iron finial (#1170); the hood over the doors and the steps' handrails. The cross about 19.5 m over the ground.",
   "x": [
    2.4349999999999996,
    6.095
@@ -676,7 +680,7 @@
   "z": -3.66,
   "belfry_floor": 7.4,
   "belfry_top": 10.6,
-  "spire": 5.2,
+  "spire": 7.0,
   "post": 0.15,
   "louvre": {
    "from": 8.0,
@@ -690,7 +694,40 @@
    ]
   },
   "shingle": 0.22,
-  "finial": 0.9
+  "finial": 1.8,
+  "opening": 1.0,
+  "spring_down": 1.0,
+  "hood": {
+   "_doc": "a small shingled gable over the doors on two brackets (#1170)",
+   "width": 2.2,
+   "out": 0.75,
+   "y": 4.15,
+   "pitch": 40.0
+  },
+  "handrails": {
+   "_doc": "an iron pipe rail either side of the three steps, set in the ground (#1170)",
+   "half": 1.2,
+   "run": 0.95,
+   "top": 0.95,
+   "height": 0.85
+  }
+ },
+ "trim": {
+  "_doc": "wide flat casings (5 1/2 in), a drip cap over each pointed head, thick sloped stools standing out (#1170; the blind judge's fourth note)",
+  "width": 0.14,
+  "hood": 0.05,
+  "sill": 0.065,
+  "sill_out": 0.09
+ },
+ "eaves": {
+  "_doc": "boxed eaves on the side walls (#1170): fascia, soffit and frieze, white (ChurchTower._boxed_eaves)",
+  "walls": [
+   "yard",
+   "lane"
+  ],
+  "fascia": 0.24,
+  "frieze": 0.22,
+  "past": 0.3
  },
  "stairs": [
   {
@@ -706,7 +743,8 @@
    "to": "ground",
    "risers": 3,
    "going": 0.28,
-   "wood": "painted_white"
+   "wood": "painted_white",
+   "rail": "none"
   }
  ],
  "stage": {
@@ -796,7 +834,7 @@
      12.95
     ],
     "size": 0.34,
-    "over_ridge": -1.95
+    "over_ridge": -1.2
    }
   ]
  },
@@ -1278,6 +1316,17 @@
      ],
      "facing": 90,
      "use": "tend_stove"
+    },
+    {
+     "id": "stove_pipe",
+     "kit": "church_stove_pipe",
+     "at": [
+      1.0,
+      3.2,
+      11.879999999999999
+     ],
+     "facing": 0,
+     "_doc": "the stove's pipe on up through the ceiling (#1170), over the box stove's last joint"
     }
    ]
   }
@@ -1378,6 +1427,38 @@
   "surfaces": [
    [
     "roof/board",
+    "roof"
+   ],
+   [
+    "tower/belfry/panel",
+    "trim"
+   ],
+   [
+    "tower/belfry/opening",
+    "trim"
+   ],
+   [
+    "tower/belfry/skirt_ledger",
+    "rough"
+   ],
+   [
+    "tower/hood/roof",
+    "roof"
+   ],
+   [
+    "tower/spire/finial",
+    "-"
+   ],
+   [
+    "tower/handrail",
+    "-"
+   ],
+   [
+    "/eave/",
+    "trim"
+   ],
+   [
+    "tower/spire/kick",
     "roof"
    ],
    [
