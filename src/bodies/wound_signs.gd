@@ -77,7 +77,7 @@ var _drip_ml := 0.0
 ## Its own dice, seeded by the man's (his `_rng` decides how he falls; the drips and spits come
 ## every few ticks and would move that on by however much he bled).
 var _rng := RandomNumberGenerator.new()
-var _drip_gap := 0.0
+var _drip_gap := 0.9  # (its period, not 0: a man loaded mid-bleed waits for his next drop, not one at once, #1178)
 var _ears_done := {}
 var _eyes_done := {}
 var _scalp_done := {}
