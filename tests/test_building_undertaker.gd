@@ -184,7 +184,7 @@ func test_a_man_walks_down_into_the_cellar_and_up_the_bulkhead() -> void:
 	for i in route.size() - 1:
 		var a: Vector3 = route[i]
 		var e: Vector3 = route[i + 1]
-		var n := maxi(1, ceili(Vector2(a.x, a.z).distance_to(Vector2(e.x, e.z)) / 0.3))
+		var n := maxi(1, ceili(Vector2(a.x, a.z).distance_to(Vector2(e.x, e.z)) / 0.2))
 		var prev: Vector3 = feet.call(a)
 		for k in range(1, n + 1):
 			var here: Vector3 = feet.call(a.lerp(e, float(k) / n))

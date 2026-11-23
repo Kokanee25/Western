@@ -265,6 +265,8 @@
 			]
 		],
 		"flag": 1.0,
+		"dig": true,
+		"_dig": "NEW (CellarDig): in the valley the ground under it and the bulkhead's areaway is dug to its floor (Ground's dug tiles), the cut's edge inside the walls' stone",
 		"stair": {
 			"head": [
 				3.33,
@@ -1121,13 +1123,13 @@
 			"use": "work",
 			"who": "undertaker",
 			"at": [
-				8.9,
+				8.45,
 				1.15,
-				4.6
+				4.4
 			],
 			"look": [
 				9.6,
-				4.6
+				4.4
 			]
 		},
 		{
@@ -1166,7 +1168,7 @@
 			"at": [
 				0.55,
 				1.15,
-				1.6
+				1.2
 			],
 			"look": [
 				1.6,
@@ -1210,7 +1212,7 @@
 			"at": [
 				7.8,
 				1.15,
-				6.4
+				6.65
 			],
 			"look": [
 				7.8,
@@ -1226,11 +1228,11 @@
 			"at": [
 				2.0,
 				1.15,
-				7.3
+				7.6
 			],
 			"look": [
-				3.0,
-				7.3
+				1.0,
+				7.6
 			]
 		},
 		{
@@ -1251,14 +1253,15 @@
 			"id": "eat",
 			"use": "eat",
 			"who": "undertaker",
+			"prop": "chair",
 			"at": [
-				7.6,
+				6.9,
 				1.15,
-				13.0
+				12.95
 			],
 			"look": [
-				7.6,
-				14.0
+				6.9,
+				13.8
 			]
 		},
 		{
@@ -1268,7 +1271,7 @@
 			"at": [
 				5.6,
 				1.15,
-				14.3
+				13.85
 			],
 			"look": [
 				5.6,
@@ -1279,13 +1282,14 @@
 			"id": "bed",
 			"use": "sleep",
 			"who": "undertaker",
+			"prop": "bed",
 			"at": [
-				8.8,
+				8.6,
 				1.15,
-				14.2
+				14.55
 			],
 			"look": [
-				8.8,
+				8.6,
 				13.0
 			]
 		},
@@ -1322,13 +1326,13 @@
 			"use": "work",
 			"who": "undertaker",
 			"at": [
-				2.2,
+				2.0,
 				-1.52,
-				10.2
+				9.4
 			],
 			"look": [
-				2.2,
-				11.0
+				2.0,
+				10.4
 			],
 			"_doc": "at the coffin racks"
 		},
@@ -1353,7 +1357,7 @@
 			"at": [
 				7.6,
 				-1.52,
-				12.4
+				12.15
 			],
 			"look": [
 				7.6,
@@ -1368,7 +1372,7 @@
 			"at": [
 				4.4,
 				-1.52,
-				13.6
+				13.55
 			],
 			"look": [
 				4.4,
@@ -1799,7 +1803,264 @@
 	"dressing": {
 		"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit has today, standing in for the trade's own (a plain table fitted as his bench, the bier, the cooling board and trestles; his bed, stove, desk and chairs). The trade's props (coffins, the hearse, the embalming table and pump, ice and sawdust, the safety coffin, the posing stand) are the prop lab's next batch (#1174's handover).",
 		"batches": {
-			"U0": []
+			"U0": [
+				{
+					"id": "desk",
+					"kit": "roll_top_desk",
+					"at": [
+						9.25,
+						0.0,
+						4.4
+					],
+					"facing": 270,
+					"use": "his desk in the office"
+				},
+				{
+					"id": "display_1",
+					"kit": "table",
+					"fit": [
+						0.6,
+						0.55,
+						1.9
+					],
+					"at": [
+						4.3,
+						0.0,
+						2.2
+					],
+					"facing": 0,
+					"use": "a coffin trestle in the showroom (the coffin is the prop lab's next batch)"
+				},
+				{
+					"id": "display_2",
+					"kit": "table",
+					"fit": [
+						0.6,
+						0.55,
+						1.9
+					],
+					"at": [
+						6.0,
+						0.0,
+						1.4
+					],
+					"facing": 0,
+					"use": "a coffin trestle"
+				},
+				{
+					"id": "bier",
+					"kit": "table",
+					"fit": [
+						0.7,
+						0.75,
+						2.0
+					],
+					"at": [
+						1.6,
+						0.0,
+						2.9
+					],
+					"facing": 0,
+					"use": "the parlour's bier (its black drape and the coffin: the next batch)"
+				},
+				{
+					"id": "mourners",
+					"kit": "wall_bench",
+					"at": [
+						0.35,
+						0.0,
+						3.2
+					],
+					"facing": 90,
+					"use": "the mourners' bench along the yard wall"
+				},
+				{
+					"id": "bench",
+					"kit": "table",
+					"fit": [
+						2.4,
+						0.86,
+						0.7
+					],
+					"at": [
+						7.8,
+						0.0,
+						5.92
+					],
+					"facing": 0,
+					"use": "his long workbench against the workroom's front wall (its vise and planes: the next batch)"
+				},
+				{
+					"id": "lid",
+					"kit": "table",
+					"fit": [
+						0.7,
+						0.75,
+						2.0
+					],
+					"at": [
+						1.0,
+						0.0,
+						7.6
+					],
+					"facing": 0,
+					"use": "a coffin lid on trestles under the yard window"
+				},
+				{
+					"id": "glue_stove",
+					"kit": "box_stove",
+					"at": [
+						8.9,
+						0.0,
+						11.3
+					],
+					"facing": 0,
+					"use": "the workroom's stove (the glue pot)"
+				},
+				{
+					"id": "planks",
+					"kit": "crate",
+					"at": [
+						9.2,
+						0.0,
+						7.6
+					],
+					"facing": 0
+				},
+				{
+					"id": "bed",
+					"kit": "plank_bed",
+					"at": [
+						8.6,
+						0.0,
+						14.55
+					],
+					"facing": 90,
+					"use": "his bed along the back wall"
+				},
+				{
+					"id": "cookstove",
+					"kit": "cookstove",
+					"at": [
+						5.6,
+						0.0,
+						14.6
+					],
+					"facing": 180,
+					"use": "his cookstove against the back wall"
+				},
+				{
+					"id": "table",
+					"kit": "table",
+					"fit": [
+						0.9,
+						0.75,
+						0.6
+					],
+					"at": [
+						6.9,
+						0.0,
+						13.6
+					],
+					"facing": 0
+				},
+				{
+					"id": "chair",
+					"kit": "chair",
+					"at": [
+						6.9,
+						0.0,
+						12.95
+					],
+					"facing": 0
+				},
+				{
+					"id": "embalming_table",
+					"kit": "table",
+					"fit": [
+						0.75,
+						0.85,
+						1.9
+					],
+					"at": [
+						7.6,
+						-2.67,
+						13.4
+					],
+					"facing": 0,
+					"use": "the embalming table (its zinc top and drain: the next batch)"
+				},
+				{
+					"id": "cooling_board",
+					"kit": "table",
+					"fit": [
+						0.6,
+						0.7,
+						1.9
+					],
+					"at": [
+						4.6,
+						-2.67,
+						14.35
+					],
+					"facing": 90,
+					"use": "the cooling board on its trestles against the back wall"
+				},
+				{
+					"id": "fluids",
+					"kit": "shelves",
+					"at": [
+						8.6,
+						-2.67,
+						11.4
+					],
+					"facing": 0,
+					"use": "the embalmer's shelf: jars and carboys (the next batch)"
+				},
+				{
+					"id": "meltwater",
+					"kit": "barrel",
+					"at": [
+						0.9,
+						-2.67,
+						14.3
+					],
+					"facing": 0,
+					"use": "the ice room's meltwater barrel"
+				},
+				{
+					"id": "rack_1",
+					"kit": "table",
+					"fit": [
+						0.7,
+						0.45,
+						2.0
+					],
+					"at": [
+						2.0,
+						-2.67,
+						10.4
+					],
+					"facing": 90,
+					"use": "a coffin rack along the cross wall"
+				},
+				{
+					"id": "rack_2",
+					"kit": "table",
+					"fit": [
+						0.7,
+						0.45,
+						1.6
+					],
+					"at": [
+						8.45,
+						-2.67,
+						10.4
+					],
+					"facing": 90,
+					"use": "a coffin rack"
+				}
+			]
 		}
 	},
 	"furniture": [],

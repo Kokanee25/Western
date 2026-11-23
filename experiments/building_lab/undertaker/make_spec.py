@@ -116,6 +116,8 @@ spec["cellar"] = {
     "rect": [0.0, CEL_Z0, W, D],
     "posts": [[3.25, 9.2], [6.47, 9.2], [6.47, 13.0]],
     "flag": 1.0,
+    "dig": True,
+    "_dig": "NEW (CellarDig): in the valley the ground under it and the bulkhead's areaway is dug to its floor (Ground's dug tiles), the cut's edge inside the walls' stone",
     "stair": {"head": [HATCH[0], 9.4], "dir": "-x", "width": 0.8, "risers": 13, "going": 0.21},
 }
 # The bulkhead (NEW, src/structures/bulkhead.gd): the stone areaway against the yard wall, its steps
@@ -236,24 +238,24 @@ spec["rooms"] = [
 C = FLAGS_TOP
 spec["use_points"] = [
     {"id": "counter", "use": "serve", "who": "undertaker", "at": [7.4, FLOOR, 3.45], "look": [7.4, 2.0], "_doc": "in the office at the counter under its window: the order book"},
-    {"id": "desk", "use": "work", "who": "undertaker", "at": [8.9, FLOOR, 4.6], "look": [9.6, 4.6]},
+    {"id": "desk", "use": "work", "who": "undertaker", "at": [8.45, FLOOR, 4.4], "look": [9.6, 4.4]},
     {"id": "choose", "use": "buy", "who": "anyone", "at": [5.4, FLOOR, 2.0], "look": [4.4, 2.0], "_doc": "the bereaved among the coffins"},
     {"id": "watch_street", "use": "watch", "who": "anyone", "at": [7.95, FLOOR, 0.75], "look": [7.95, -8.0]},
-    {"id": "mourn_1", "use": "sit", "who": "anyone", "at": [0.55, FLOOR, 1.6], "look": [1.6, 2.8], "_doc": "the parlour's chairs round the walls"},
+    {"id": "mourn_1", "use": "sit", "who": "anyone", "at": [0.55, FLOOR, 1.2], "look": [1.6, 2.8], "_doc": "the parlour's chairs round the walls"},
     {"id": "mourn_2", "use": "sit", "who": "anyone", "at": [2.75, FLOOR, 1.0], "look": [1.6, 2.8]},
     {"id": "view", "use": "stand", "who": "anyone", "at": [2.5, FLOOR, 3.3], "look": [1.6, 3.0], "_doc": "beside the bier"},
-    {"id": "bench", "use": "work", "who": "undertaker", "at": [7.8, FLOOR, 6.4], "look": [7.8, 5.6], "tool": "bench", "_doc": "planing at the long bench against the workroom's front wall"},
-    {"id": "lid", "use": "work", "who": "undertaker", "at": [2.0, FLOOR, 7.3], "look": [3.0, 7.3]},
+    {"id": "bench", "use": "work", "who": "undertaker", "at": [7.8, FLOOR, 6.65], "look": [7.8, 5.6], "tool": "bench", "_doc": "planing at the long bench against the workroom's front wall"},
+    {"id": "lid", "use": "work", "who": "undertaker", "at": [2.0, FLOOR, 7.6], "look": [1.0, 7.6]},
     {"id": "side_door", "use": "watch", "who": "anyone", "at": [1.0, FLOOR, 9.6], "look": [-6.0, 10.9]},
-    {"id": "eat", "use": "eat", "who": "undertaker", "at": [7.6, FLOOR, 13.0], "look": [7.6, 14.0]},
-    {"id": "stove", "use": "work", "who": "undertaker", "at": [5.6, FLOOR, 14.3], "look": [5.6, 15.1]},
-    {"id": "bed", "use": "sleep", "who": "undertaker", "at": [8.8, FLOOR, 14.2], "look": [8.8, 13.0]},
+    {"id": "eat", "use": "eat", "who": "undertaker", "prop": "chair", "at": [6.9, FLOOR, 12.95], "look": [6.9, 13.8]},
+    {"id": "stove", "use": "work", "who": "undertaker", "at": [5.6, FLOOR, 13.85], "look": [5.6, 15.1]},
+    {"id": "bed", "use": "sleep", "who": "undertaker", "prop": "bed", "at": [8.6, FLOOR, 14.55], "look": [8.6, 13.0]},
     {"id": "loft_store", "use": "stand", "who": "anyone", "at": [4.877, UPPER, 7.5], "look": [4.877, 3.0]},
     {"id": "loft_window", "use": "shoot", "who": "anyone", "at": [4.877, UPPER, 14.6], "look": [4.877, 30.0]},
-    {"id": "coffins", "use": "work", "who": "undertaker", "at": [2.2, C, 10.2], "look": [2.2, 11.0], "_doc": "at the coffin racks"},
+    {"id": "coffins", "use": "work", "who": "undertaker", "at": [2.0, C, 9.4], "look": [2.0, 10.4], "_doc": "at the coffin racks"},
     {"id": "stair_foot", "use": "stand", "who": "anyone", "at": [6.8, C, 9.8], "look": [5.0, 9.8]},
-    {"id": "embalm", "use": "work", "who": "undertaker", "at": [7.6, C, 12.4], "look": [7.6, 13.2], "_doc": "at the embalming table"},
-    {"id": "cool", "use": "work", "who": "undertaker", "at": [4.4, C, 13.6], "look": [4.4, 14.5]},
+    {"id": "embalm", "use": "work", "who": "undertaker", "at": [7.6, C, 12.15], "look": [7.6, 13.2], "_doc": "at the embalming table"},
+    {"id": "cool", "use": "work", "who": "undertaker", "at": [4.4, C, 13.55], "look": [4.4, 14.5]},
     {"id": "ice", "use": "work", "who": "undertaker", "at": [1.8, C, 12.2], "look": [1.8, 13.5], "_doc": "at the ice bin"},
 ]
 spec["lamps"] = {
@@ -290,7 +292,29 @@ mt["surfaces"][mt["surfaces"].index(["yard/door_", "trim"]) + 1:mt["surfaces"].i
 extra = [["cel_cross/", "rough"], ["cel_ice/", "rough"], ["floor/attic/board", "floor"], ["bulkhead/", "rough"], ["side_ramp/", "rough"], ["hearse_shed/", "rough"], ["cellar/", "rough"]]
 mt["surfaces"] = mt["surfaces"][:mt["surfaces"].index(["/in_ground/", "inside"])] + extra[:2] + mt["surfaces"][mt["surfaces"].index(["/in_ground/", "inside"]):] + extra[2:]
 mt["stone"] = {"want": {"entry": "rubble_whitewash", "age": "few"}, "inside_age": "few", "_why": "the cellar's walls lime-washed rubble (the sheet's)"}
-spec["dressing"] = {"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit has today, standing in for the trade's own (a plain table fitted as his bench, the bier, the cooling board and trestles; his bed, stove, desk and chairs). The trade's props (coffins, the hearse, the embalming table and pump, ice and sawdust, the safety coffin, the posing stand) are the prop lab's next batch (#1174's handover).", "batches": {"U0": []}}
+CY = r3(CELLAR_FLOOR + 0.08 - FLOOR)  # the cellar's flags, over the ground floor
+U0 = [
+    {"id": "desk", "kit": "roll_top_desk", "at": [9.25, 0.0, 4.4], "facing": 270, "use": "his desk in the office"},
+    {"id": "display_1", "kit": "table", "fit": [0.6, 0.55, 1.9], "at": [4.3, 0.0, 2.2], "facing": 0, "use": "a coffin trestle in the showroom (the coffin is the prop lab's next batch)"},
+    {"id": "display_2", "kit": "table", "fit": [0.6, 0.55, 1.9], "at": [6.0, 0.0, 1.4], "facing": 0, "use": "a coffin trestle"},
+    {"id": "bier", "kit": "table", "fit": [0.7, 0.75, 2.0], "at": [1.6, 0.0, 2.9], "facing": 0, "use": "the parlour's bier (its black drape and the coffin: the next batch)"},
+    {"id": "mourners", "kit": "wall_bench", "at": [0.35, 0.0, 3.2], "facing": 90, "use": "the mourners' bench along the yard wall"},
+    {"id": "bench", "kit": "table", "fit": [2.4, 0.86, 0.7], "at": [7.8, 0.0, 5.92], "facing": 0, "use": "his long workbench against the workroom's front wall (its vise and planes: the next batch)"},
+    {"id": "lid", "kit": "table", "fit": [0.7, 0.75, 2.0], "at": [1.0, 0.0, 7.6], "facing": 0, "use": "a coffin lid on trestles under the yard window"},
+    {"id": "glue_stove", "kit": "box_stove", "at": [8.9, 0.0, 11.3], "facing": 0, "use": "the workroom's stove (the glue pot)"},
+    {"id": "planks", "kit": "crate", "at": [9.2, 0.0, 7.6], "facing": 0},
+    {"id": "bed", "kit": "plank_bed", "at": [8.6, 0.0, 14.55], "facing": 90, "use": "his bed along the back wall"},
+    {"id": "cookstove", "kit": "cookstove", "at": [5.6, 0.0, 14.6], "facing": 180, "use": "his cookstove against the back wall"},
+    {"id": "table", "kit": "table", "fit": [0.9, 0.75, 0.6], "at": [6.9, 0.0, 13.6], "facing": 0},
+    {"id": "chair", "kit": "chair", "at": [6.9, 0.0, 12.95], "facing": 0},
+    {"id": "embalming_table", "kit": "table", "fit": [0.75, 0.85, 1.9], "at": [7.6, CY, 13.4], "facing": 0, "use": "the embalming table (its zinc top and drain: the next batch)"},
+    {"id": "cooling_board", "kit": "table", "fit": [0.6, 0.7, 1.9], "at": [4.6, CY, 14.35], "facing": 90, "use": "the cooling board on its trestles against the back wall"},
+    {"id": "fluids", "kit": "shelves", "at": [8.6, CY, 11.4], "facing": 0, "use": "the embalmer's shelf: jars and carboys (the next batch)"},
+    {"id": "meltwater", "kit": "barrel", "at": [0.9, CY, 14.3], "facing": 0, "use": "the ice room's meltwater barrel"},
+    {"id": "rack_1", "kit": "table", "fit": [0.7, 0.45, 2.0], "at": [2.0, CY, 10.4], "facing": 90, "use": "a coffin rack along the cross wall"},
+    {"id": "rack_2", "kit": "table", "fit": [0.7, 0.45, 1.6], "at": [8.45, CY, 10.4], "facing": 90, "use": "a coffin rack"},
+]
+spec["dressing"] = {"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit has today, standing in for the trade's own (a plain table fitted as his bench, the bier, the cooling board and trestles; his bed, stove, desk and chairs). The trade's props (coffins, the hearse, the embalming table and pump, ice and sawdust, the safety coffin, the posing stand) are the prop lab's next batch (#1174's handover).", "batches": {"U0": U0}}
 spec["furniture"] = []
 spec["fixtures"] = []
 spec["sources"] = DOC["sources"][:5] + [

@@ -380,6 +380,9 @@ func _make_buildings() -> void:
 			b.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sp.lot.get("facing", 0.0)))), Vector3(float(at[0]), y, float(at[2])))
 			add_child(b)
 			buildings[String(l.id)] = b
+			# A cellar a man walks down into (#1174, the undertaker's, art's): its ground dug out.
+			if (sp.get("cellar", {}) as Dictionary).get("dig", false):
+				preload("res://src/structures/cellar_dig.gd").dig(get_node_or_null(^"Ground") as Ground, b, sp)
 			var sw: Dictionary = (sp.lot as Dictionary).get("side_walk", {})
 			if not sw.is_empty():
 				_side_walk(String(l.id), b, sw, floor_top)
