@@ -18,8 +18,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   and the Milky Way), lights the world from it (sun colour and energy, ambient, fog), draws one sheet of
   drifting cloud (`coverage`; `RealSky.set_coverage` for weather) and in the valley the far land (the
   bake past 800 m and the ranges to 45 km, over the sky only). Dials `config/looks/real_sky.json`.
-  Judged twice (`docs/screenshots/judge/2026-11-14_sky_r*`); left: flat midday clouds, a weak golden hour,
-  the night street crushed, a plain moon. Weather (#947) is after the slice.
+  Weather (#947) is after the slice.
 - **Eased edges** (#873): every library board's arrises and ends rounded in `scan_wood.gdshader`'s normal
   (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
   normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
@@ -27,8 +26,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
 - **Wear by use** (#901, PR #963; RECIPE.md "Wear by use"): scan_wood's use pass from a spec's `materials.wear` and
   members' `use_role` or a kit look's `/<role>` (the bar's top `bar`, plinth `kick`). Dents (`dings`) built, set 0
   (Sean). Not done: chairs (test_perf's 1800 meshes), the brass rail. Quick look: `tools/wood_probe.gd`.
-- **Saloon B's gallery view over budget on main:** render CPU 5.9 ms at Sean's (lavapipe) since step 2's look (was
-  3.8-4.0 before it); #901 adds nothing. Someone should find what step 2 added there.
+- **Saloon B's gallery view over budget on main:** render CPU 5.9 ms at Sean's (lavapipe) since step 2's look (was 3.8-4.0); find what step 2 added.
 - **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
   from one change; re-approving them needs each view's diff looked at, not a blanket approve.
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
@@ -48,7 +46,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   are SashWindow's (`rise`); shingles library SH1 `shingle_pine`. Next: critic r2's top three (cemetery, belfry and
   spire shape, doors and hood). The open grave only in the funeral.
 - **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
-- **The undertaker's** (#1174, `undertaker/` README; PR on `claude/art-undertaker-steps-2-6-5uz4k2`): built, on its lot, its cellar dug (`CellarDig`) and walked (stair and `Bulkhead`, tests). Judged twice: cheap indie but the workroom (empty rooms, placeholder stone, the neighbours' grey blocks). His props are in (U1, #1181, the prop lab: coffins, embalming room, ice, hearse; placed, tests green, not yet judged in a render). Next: judge the rooms again; the black trim wants `painted_black_trim` in the library. **Grim** (#1187): old blood by its `past` (`PastStains`, src/art: Blood splats and FloorMarks stains from props and paths), a smoky embalming lamp, CellarHaze; embalming judged good indie. Damp on the cellar's stone waits on Sean (#1197).
+- **The undertaker's** (#1174, `undertaker/` README): built, on its lot, its cellar dug (`CellarDig`) and walked. Props in (U1, #1181). **Grim** (#1187): old blood by its `past` (`PastStains`: Blood splats, FloorMarks stains), a smoky lamp, CellarHaze; embalming good indie. Damp waits on Sean (#1197); the black trim wants `painted_black_trim`.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
@@ -61,7 +59,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   stones and clods in the streets, clumped pines (five shapes, open crowns), cottonwoods, snags. Cheap judge
   (`2026-11-15_valley_land2_r2_cheap`): roads good indie, streets cheap (stone wall, greybox, empty). Left: tree clumps
   read as dark bonsai pads at camp, the shrubs evenly sprinkled, the far ground still pale, a faint zip on low-sun
-  ruts. The drawn perf bench can't finish on an 8 GB box: draws +2.5% street, +17% road (est. 2.9 and 1.05 ms).
+  ruts.
 - **Saloon B, the corner saloon** (#772; #848, #884, the stage #902): `experiments/building_lab/saloon_b/` README,
   `tests/test_building_saloon_b.gd`. 7,775 members; 31,688 valley bodies, **1,080 left** of Jolt's 32,768 (the prop
   lab's sets, ~550, fit once; the jail and store need the guard raised or members put to rest). Look judged good indie
