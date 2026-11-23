@@ -88,7 +88,7 @@ oldest freed) and its whole parts one each. The placing session counts the room'
 | `till_drawer` | 2 | its members | the back bar, 1 |
 | `card_deck` | 1 | 1 | each table in play (~5) |
 | `chip_stacks` | 1 | 1 | each table in play (~5) |
-| `bar_arm_rail` | 1 | 1 | on each bar section's top at its front edge (bar space x 0, y 1.095, z 0.455): 4. Its own prop, not a `bar` member: added to every bar in the valley it tipped the card-game chair tests (#834) |
+| `bar_arm_rail` | 1 | 1 | not placed since #1041 (Sean: the brass rail is for the feet; its tube draws `bar`'s foot rail, a draw change only). Was on each bar section's top (bar space x 0, y 1.095, z 0.455). Its own prop, not a `bar` member: added to every bar in the valley it tipped the card-game chair tests (#834) |
 
 ## Saloon B, batch S2 (#879)
 
@@ -207,6 +207,32 @@ tall are out of scale; the `slat_mat` reads as a ladder (darken, texture); the s
 no mirrors in the back bar's niches, no spittoons or foot rail on the counter; the `lookout_stool` is right but
 looks wrong from the player's side (it stands in front of the dealer's cut). Renders: a view's PNG appears in
 ~6-9 min, then Godot may hang on exit (kill it); a 30 min background limit kills a loop, so one view per command.
+
+## Saloon B, S5: the walls (#1030)
+
+Placed by `tools/props/saloon_b_dress.py` (batch `S5`); the clock `tools/props/wall_clock.py` and
+`tools/blender/props/wall_clock.py`, the rifle `tools/props/saloon_walls.py` and `tools/blender/props/rifle_pegs.py`;
+the stand `saloon/walls_sheet.py`. Decided in the making (Sean's issue and its comments; the rest by the brief):
+- **The back bar** stays the kit's four 2.5 m sections (big, mirrored, shelved); every bay's two shelves now stocked
+  (S1 filled one shelf a section): whiskey below, a decanter among bottles above. **The nude's place is beside it**,
+  on the yard wall's front corner (z 0.1-1.9, no window; `NUDE_PLACE`): over the back bar there's 0.56 m to the joists.
+  Its mirrors are `prop:mirror` (art's painted-room shader): #987's critic read them as pale panels, art's to judge.
+- **The wall clock** (`WallClock`, a part): on the bar room's back wall by the bar's end (x 2.9), its dial ~1.87 m up.
+  A bullet through its works stops it (small, so done). Its case is library walnut as kit members (grain, wear), the
+  rest modelled; the earlier session's box-built case was dropped (Sean wasn't happy with it).
+- **Light:** nothing added. Every room's light already has its fixture (`lamps.kit`'s reflector lamps, #824: a room
+  each, not an even row of sconces) and S1's hanging lamps; more sconces would be more lights for nothing.
+- **Trophies:** the deer head (Rodin, 2026-10-24) over the store room's door and on the front wall's pier, the
+  steer skull (the Studio's, 2026-10-24; reused as it is) over the arch. **Pronghorn antlers and an elk head need a
+  paid Rodin call each (~$1-2): waiting on Sean.**
+- **Useful things:** the rifle on pegs over the back bar (the game's own Winchester), spittoons between the drinkers'
+  places, the doctor's coat pegs (coat and hat on them) on the side street's wall by the way in. The bar's brass foot
+  rail is the kit bar's own (`foot_rail` on brackets).
+- **The stage's and dressing room's props** (#903): the mirror on room 6's yard wall past its window (z 20.3), the
+  costume pegs across from it with the trunk shut at their foot, the screen along the back wall (by the door, as
+  first planned, it stood in the door's way in); the wing's trunk open (`open`: PropDressing opens a hinge). The
+  footlights were placed by #902.
+- **Steps 7 and 8** (the ads and the pictures) wait for #1032's `assets/props/paintings/`.
 
 ## Saloon B, the stage and dressing room (#903)
 

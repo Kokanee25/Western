@@ -404,7 +404,7 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 			return
 		if p.carry.carrying(earl):
 			break
-		print("    lost him (%s) at %s: back for him" % [p.carry.report(), p.global_position])
+		print("    lost him (%s) at %s: back for him; hurt %s" % [p.carry.report(), p.global_position, p.wounds.last_hurt])
 		retakes += 1
 		await _by(earl)
 		await _tap_e()
