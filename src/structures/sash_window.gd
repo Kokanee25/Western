@@ -195,7 +195,7 @@ static func pointed_head(b: FalseFrontBuilding, wall: Dictionary, o: Rect2, rise
 				# to the middle line, and on by half its width's mitre, so the two meet at the point
 				var p1 := p0 + dir * ((cx - p0.x) / dir.x) + dir * (hd * 0.5 * cos_t / sin_t)
 				made.append(_slant(b, wall, "%s/hood_%s" % [tid, "lr"[side]], &"trim", wood, p0, p1, hd,
-						outer + FalseFrontBuilding.TRIM_T - 0.005, outer + FalseFrontBuilding.TRIM_T + 0.03))
+						outer - 0.002, outer + FalseFrontBuilding.TRIM_T + 0.03))  # (back on the siding: it rests on the boards, not the casing)
 	made.append_array(panes)
 	return made
 

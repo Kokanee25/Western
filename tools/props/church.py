@@ -120,7 +120,7 @@ def hymn_stand():
            m("board", "furniture_top", (0.575, 0.78, 0.03), (0.0, 1.35, -0.02), "lib:furniture_oak/old/top"),
            m("ledge", "furniture_frame", (0.575, 0.03, 0.08), (0.0, 0.945, 0.02), WHITE)]
     for i in range(3):
-        mem.append(m("card%d" % i, "furniture_frame", (0.42, 0.13, 0.008), (0.0, 1.6 - i * 0.22, 0.0), "prop:ivory"))
+        mem.append(m("card%d" % i, "trim", (0.42, 0.13, 0.008), (0.0, 1.6 - i * 0.22, 0.0), "prop:ivory"))
     return {"_doc": "The hymn board (three numbers slid into its slots) on a plain white stand.", "id": "hymn_stand", "kind": "members",
             "fixture": True, "in_game": True, "wood": "weathered_pine", "splits_below": 0.5, "blow_wood_share": 0.5, "members": mem,
             "factory": "tools/props/church.py"}

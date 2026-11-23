@@ -85,7 +85,7 @@
     },
     {
       "id": "card0",
-      "kind": "furniture_frame",
+      "kind": "trim",
       "size": [
         0.42,
         0.13,
@@ -100,7 +100,7 @@
     },
     {
       "id": "card1",
-      "kind": "furniture_frame",
+      "kind": "trim",
       "size": [
         0.42,
         0.13,
@@ -115,7 +115,7 @@
     },
     {
       "id": "card2",
-      "kind": "furniture_frame",
+      "kind": "trim",
       "size": [
         0.42,
         0.13,
