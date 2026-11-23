@@ -1063,6 +1063,7 @@ func _step(delta: float) -> void:
 	if news:
 		news.step(delta)
 	_regard_step(delta)
+	_answer_step(delta)
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -2050,8 +2051,60 @@ func knock(place: StringName, by: Node, at: Vector3) -> Array:
 			var said := fetch.at_door(hurt, places.at(place), inside.has(FetchHelp.DOCTOR) or book.inside(place).has(FetchHelp.DOCTOR))
 			if said != "" and by is Player and (by as Player).wounds:
 				(by as Player).wounds.say(said, 4.0)
+	if not knock_claimed:
+		_shop_answers(place, by)
 	knock_claimed = false
 	return inside
+
+
+# --- Shops (the town gate's fault 3, #1167) --------------------------------------------------------
+## Keepers out at their door for a knock: id -> {"shop", "by", "t"}.
+var answering := {}
+
+
+## Is `place` a shop (data `shops`) open now?
+func shop_open(place: StringName) -> bool:
+	var sh: Dictionary = (data.get("shops", {}) as Dictionary).get(String(place), {})
+	return not sh.is_empty() and in_hours(hour(), sh.get("hours", [7.0, 18.0])) and day_kind(town_day()) != &"sunday"
+
+
+## A knock at an open shop with its keeper in: he comes out to the door, facing whoever knocked, and
+## says a line by his regard of him.
+func _shop_answers(place: StringName, by: Node) -> void:
+	if not shop_open(place) or not by is Node3D:
+		return
+	var sh: Dictionary = data.shops[String(place)]
+	var keeper := StringName(String(sh.keeper))
+	if answering.has(keeper) or not book.inside(place).has(keeper):
+		return
+	var man := call_out(keeper)
+	if man == null:
+		return
+	var b := man.get_node_or_null(^"Brain") as CivilianBrain
+	var pf := spot_point(spot(String(sh.spot)))
+	if b != null:
+		b.go_to(pf[0], (by as Node3D).global_position + Vector3.UP * 1.5)
+	answering[keeper] = {"shop": place, "by": by, "t": 0.0, "said": false}
+
+
+func _answer_step(delta: float) -> void:
+	for keeper: StringName in answering.keys():
+		var a: Dictionary = answering[keeper]
+		var sh: Dictionary = data.shops[String(a.shop)]
+		var man := folk_man(keeper)
+		a.t = float(a.t) + delta
+		if man == null or state.get(keeper) != &"called" or not man.physiology.alive:
+			answering.erase(keeper)
+			continue
+		var by: Node3D = a.by as Node3D if is_instance_valid(a.by) else null
+		var b := man.get_node_or_null(^"Brain") as CivilianBrain
+		if not a.said and b != null and by != null and man.global_position.distance_to(spot_point(spot(String(sh.spot)))[0]) < 1.2:
+			man.face(by.global_position + Vector3.UP * 1.5)
+			a.said = bark_for(b, "pass") or bark_for(b, "knock") or true  # (his wary or cold line first)
+		if float(a.t) > float(sh.get("answer_s", 45.0)) or by == null \
+				or by.global_position.distance_to(man.global_position) > float(sh.get("leave_m", 8.0)) and a.said:
+			answering.erase(keeper)
+			call_over(keeper)
 
 
 ## An act answering the knock it's being told of (in its `knocked` handler): the town leaves it be.
