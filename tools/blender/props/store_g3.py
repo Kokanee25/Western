@@ -1,6 +1,6 @@
 """The general store's batch G3 (#1182; numbers in tools/props/store_g3.py): the post office's mail and sign, the
 ledger and day-book, the ink, the till's cash, a stack of parcels (all on one printed sheet, `store_post`, as G2's
-goods), and the goods hung from the ceiling (`hung_pails`, `hung_ham`, `hung_lantern`, baked the gun way).
+goods), and the goods hung from the ceiling (`hung_pails`, `hung_ham`, `hung_lantern`, `hung_boots`, baked the gun way).
 
     ~/.venvs/studio/bin/python tools/blender/props/build.py --only=store_g3
     ~/.venvs/studio/bin/python tools/blender/props/store_g3.py --only=post,hung
@@ -8,7 +8,7 @@ goods), and the goods hung from the ceiling (`hung_pails`, `hung_ham`, `hung_lan
 Models (assets/props/models/<id>.glb and its _albedo/_orm sheets):
   store_post  Sign (the lettered board), MailA..MailD (a row of pigeonholes each: letters on edge, bundles, parcels,
               a card at each cell), Ledger, DayBook, Ink, Cash, Parcels: every face's UVs on one printed sheet
-  hung_pails, hung_ham, hung_lantern  (Pails, Hams, Lantern and their Cords; the lantern's Globe is glass: the game's)
+  hung_pails, hung_ham, hung_lantern, hung_boots  (Pails, Hams, Lantern, Boots and their Cords; the lanterns' Globe is glass: the game's)
 """
 import importlib.util
 import math
@@ -306,37 +306,97 @@ def post():
 
 
 # === The hung goods (store_hung, baked) =============================================================================
-def hung():
-    D = N.HUNG
-    # Pails on a cross-cord: three of G2's pail, their bails' tops hung from the cord by a loop each.
-    drop = D["hung_pails"]["drop"]
-    bar_y = drop - 0.12
-    pails, cords = [], [tube("c", [(0.0, drop, 0.0), (0.0, bar_y, 0.0)], 0.004, sides=5),
-                        tube("b", [(-0.22, bar_y, 0.0), (0.22, bar_y, 0.0)], 0.004, sides=5)]
-    for x, z, foot in ((-0.22, -0.05, 0.33), (0.0, 0.07, 0.25), (0.22, -0.05, 0.37)):
+# #1192 (G4): the G3 clusters read as specks at 2.7 m, so each is now a bar or rail 1 to 1.3 m wide, hung from the hook by two
+# cords (a V), with six or seven goods on it at two heights. Local space: y 0 at the lowest of the goods, the hook at `drop`.
+def _vee(bar_y, half, drop, r=0.005):
+    """The two cords from the hook (0, drop) down to the bar's ends, and the bar between them."""
+    return [tube("v", [(0.0, drop, 0.0), (-half, bar_y, 0.0)], r, sides=5), tube("v", [(0.0, drop, 0.0), (half, bar_y, 0.0)], r, sides=5),
+            tube("b", [(-half, bar_y, 0.0), (half, bar_y, 0.0)], 0.011, sides=7)]
+
+
+def hung_pails_parts():
+    drop = N.HUNG["hung_pails"]["drop"]
+    bar_y = 0.95
+    pails, cords = [], _vee(bar_y, 0.6, drop)
+    # Four close under the bar, three on long cords behind them (a string, as the hardware shops hung theirs).
+    for x, z, foot in [(x, -0.14, 0.40) for x in (-0.45, -0.15, 0.15, 0.45)] + [(x, 0.16, 0.0) for x in (-0.3, 0.0, 0.3)]:
         pails.append(shifted(G2.pail(), (x, foot, z)))
         cords.append(tube("l", [(x, bar_y, 0.0), (x, foot + 0.365, z)], 0.0035, sides=5))
-    ring = lathe("r", [(0.013, drop - 0.006), (0.016, drop), (0.013, drop + 0.006)], 10, caps=(False, False))
-    # Hams in muslin: the big end up, a cord round the hock, each on a cord from a ring.
-    dh = D["hung_ham"]["drop"]
-    hams, hcords = [], []
-    for x, y, r in ((-0.1, 0.40, 0.085), (0.1, 0.22, 0.075)):
-        hams.append(blob("h", (x, y, 0.0), (r, r * 1.5, r * 0.9), rings=7, sides=14, noise=0.06, seed=int(abs(x) * 100)))
-        hcords.append(tube("c", [(0.0, dh - 0.02, 0.0), (x * 0.5, dh - 0.12, 0.0), (x, y + r * 1.5, 0.0)], 0.004, sides=5))
-    hcords.append(tube("c", [(0.0, dh, 0.0), (0.0, dh - 0.03, 0.0)], 0.005, sides=5))
-    # The lantern: a tin cage on a base, a cone cap with a vent, the bail up to the hook; its glass globe inside.
-    dl = D["hung_lantern"]["drop"]
+    return pails, cords
+
+
+def hung_ham_parts():
+    drop = N.HUNG["hung_ham"]["drop"]
+    rail_y = 0.78
+    hams, cords = [], _vee(rail_y, 0.6, drop)
+    for i, x in enumerate((-0.5, -0.3, -0.1, 0.1, 0.3, 0.5)):
+        r = (0.100, 0.108, 0.096, 0.104, 0.098, 0.106)[i]
+        low = i % 2 == 0
+        cy = r * 1.5 + (0.0 if low else 0.14)
+        z = 0.05 if low else -0.05
+        hams.append(blob("h", (x, cy, z), (r, r * 1.5, r * 0.9), rings=8, sides=14, noise=0.06, seed=i * 7 + 3))
+        # the narrow hock below the body, and the muslin's gathered neck at the top (r2 of #1192: the hams read as balloons)
+        hams.append(lathe("k", [(0.0, cy - r * 1.5 - 0.1), (0.014, cy - r * 1.5 - 0.1), (0.03, cy - r * 1.5 + 0.01), (0.05, cy - r * 1.3), (0.0, cy - r * 1.3)], 10, at=(x, 0.0, z)))
+        hams.append(lathe("n", [(0.0, cy + r * 1.5 + 0.035), (0.012, cy + r * 1.5 + 0.035), (0.03, cy + r * 1.5 + 0.015), (0.055, cy + r * 1.3), (0.0, cy + r * 1.3)], 10, at=(x, 0.0, z)))
+        # the cord from the rail down round the hock (the narrow end up), a knot of it at the rail
+        cords.append(tube("c", [(x, rail_y, 0.0), (x, rail_y - 0.1, z * 0.5), (x * 1.0, cy + r * 1.5 + 0.02, z)], 0.0045, sides=5))
+        cords.append(tube("k", [(x, rail_y + 0.012, 0.0), (x, rail_y - 0.03, 0.0)], 0.008, sides=5))
+    return hams, cords
+
+
+def lantern_parts(x, foot, z):
+    """One tin barn lantern, 1.25 x the G3 size, its bail top at 0.52 over its foot."""
+    k = 1.25
     base = lathe("b", [(0.0, 0.02), (0.058, 0.02), (0.065, 0.03), (0.06, 0.045), (0.0, 0.045)], 14)
     cage = [tube("w", [(math.sin(a) * 0.052, 0.045, math.cos(a) * 0.052), (math.sin(a) * 0.052, 0.235, math.cos(a) * 0.052)], 0.0022, sides=4)
             for a in (0.0, math.pi * 0.5, math.pi, math.pi * 1.5)]
     cap = lathe("c", [(0.062, 0.235), (0.066, 0.245), (0.03, 0.28), (0.018, 0.29), (0.02, 0.31), (0.0, 0.32)], 14)
-    bail = tube("l", [(-0.06, 0.255, 0.0), (-0.04, 0.4, 0.0), (0.0, dl, 0.0), (0.04, 0.4, 0.0), (0.06, 0.255, 0.0)], 0.0028, sides=5)
-    lantern = merged("Lantern", [base, *cage, cap, bail])
-    globe = lathe("Globe", [(0.0, 0.05), (0.03, 0.05), (0.046, 0.09), (0.05, 0.15), (0.044, 0.205), (0.04, 0.23), (0.037, 0.23), (0.041, 0.205),
-                            (0.047, 0.15), (0.043, 0.09), (0.027, 0.055), (0.0, 0.055)], 16, caps=(False, False))
-    metal.export_baked("hung_pails", [(merged("Pails", pails + [ring]), "tin"), (merged("Cords", cords), "hemp")], size=512)
-    metal.export_baked("hung_ham", [(merged("Hams", hams), "cured_ham"), (merged("Cords", hcords), "hemp")], size=512)
-    metal.export_baked("hung_lantern", [(lantern, "tin"), (globe, "glass")], size=512)
+    bail = tube("l", [(-0.06, 0.255, 0.0), (-0.04, 0.34, 0.0), (0.0, 0.415, 0.0), (0.04, 0.34, 0.0), (0.06, 0.255, 0.0)], 0.0028, sides=5)
+    globe = lathe("g", [(0.0, 0.05), (0.03, 0.05), (0.046, 0.09), (0.05, 0.15), (0.044, 0.205), (0.04, 0.23), (0.037, 0.23), (0.041, 0.205),
+                        (0.047, 0.15), (0.043, 0.09), (0.027, 0.055), (0.0, 0.055)], 16, caps=(False, False))
+    body = G2.scaled(merged("L", [base, *cage, cap, bail]), k, k, k)
+    return shifted(body, (x, foot, z)), shifted(G2.scaled(globe, k, k, k), (x, foot, z)), foot + 0.415 * k
+
+
+def hung_lantern_parts():
+    drop = N.HUNG["hung_lantern"]["drop"]
+    bar_y = 0.74
+    cords = _vee(bar_y, 0.45, drop, r=0.0045)
+    lanterns, globes = [], []
+    for i, x in enumerate((-0.36, -0.12, 0.12, 0.36)):
+        foot = 0.0 if i % 2 == 0 else 0.14
+        l, g, top = lantern_parts(x, foot, 0.0)
+        lanterns.append(l)
+        globes.append(g)
+        cords.append(tube("l", [(x, bar_y, 0.0), (x, top, 0.0)], 0.0035, sides=5))
+    return merged("Lantern", lanterns), merged("Globe", globes), cords
+
+
+def hung_boots_parts():
+    drop = N.HUNG["hung_boots"]["drop"]
+    bar_y = 0.9
+    boots, cords = [], _vee(bar_y, 0.5, drop)
+    top = G2.N.BOOT["h"] + 0.02
+    g = G2.N.BOOT["pair_gap"] * 0.5
+    for i, x in enumerate((-0.4, -0.13, 0.13, 0.4)):
+        foot = 0.0 if i % 2 == 0 else 0.12
+        z = 0.04 if i % 2 == 0 else -0.04
+        boots.append(shifted(merged("p", [G2.boot(-g, -6), G2.boot(g, 6)]), (x, foot, z)))
+        # each strap's cord to a loop on the bar over the pair's middle
+        for sx in (-g, g):
+            cords.append(tube("s", [(x, bar_y, 0.0), (x + sx, foot + top, z - 0.042)], 0.0035, sides=5))
+    return boots, cords
+
+
+def hung():
+    pails, cords = hung_pails_parts()
+    metal.export_baked("hung_pails", [(merged("Pails", pails), "tin"), (merged("Cords", cords), "hemp")], size=1024)
+    hams, hcords = hung_ham_parts()
+    metal.export_baked("hung_ham", [(merged("Hams", hams), "cured_ham"), (merged("Cords", hcords), "hemp")], size=1024)
+    lantern, globe, lcords = hung_lantern_parts()
+    metal.export_baked("hung_lantern", [(merged("Lantern", [lantern, *lcords]), "tin"), (globe, "glass")], size=512)
+    boots, bcords = hung_boots_parts()
+    metal.export_baked("hung_boots", [(merged("Boots", boots), "russet_leather"), (merged("Cords", bcords), "hemp")], size=1024)
 
 
 STEPS = {"post": post, "hung": hung}

@@ -113,8 +113,12 @@ static func splat(world: Node, at: Vector3, normal: Vector3, ml: float, velocity
 		_grow(nearest, ml)
 		return nearest
 	if _splats.size() >= MAX_SPLATS:
-		# Full: the oldest goes (a long drip trail mustn't grow a splat across the street).
-		_splats.pop_front().queue_free()
+		# Full: the oldest goes (a long drip trail mustn't grow a splat across the street); a building's
+		# old blood (PastStains' `past`, #1187) stays, as the town's history.
+		var i := 0
+		while i < _splats.size() - 1 and _splats[i].has_meta(&"past"):
+			i += 1
+		_splats.pop_at(i).queue_free()
 	var d := Decal.new()
 	d.name = "BloodSplat"
 	d.texture_albedo = PixelArt.blood("splat%d" % (_splats.size() % 4), 40 + _splats.size() % 4, false, 16)
