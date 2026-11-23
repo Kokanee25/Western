@@ -24,7 +24,7 @@ const ALL := [&"gunshot", &"shotgun", &"dynamite", &"fuse", &"match", &"ringing"
 	&"fire_roar", &"step_boards_0", &"step_boards_1", &"step_boards_2", &"step_boards_3", &"step_dirt_0",
 	&"step_dirt_1", &"step_dirt_2", &"step_dirt_3", &"impact_wood", &"impact_dirt", &"impact_metal",
 	&"impact_stone", &"glance_wood", &"glance_dirt", &"glance_metal", &"glance_stone", &"thump", &"whoosh",
-	&"rifle", &"report_rifle", &"rolling_rifle"]
+	&"rifle", &"report_rifle", &"rolling_rifle", &"clock_tick"]
 
 
 ## Make every sound on a worker thread, so none is made mid-game. A sound asked for before its turn
@@ -114,6 +114,7 @@ static func _make(id: StringName) -> AudioStreamWAV:
 		&"gate": samples = _clicks(rng, [0.0], 1800.0, 0.35)
 		&"insert": samples = _clicks(rng, [0.0, 0.05], 1500.0, 0.3)
 		&"eject": samples = _tink(rng)
+		&"clock_tick": samples = _clock_tick(rng)
 		&"glass": samples = _glass(rng)
 		&"flesh": samples = _flesh(rng)
 		&"thump": samples = _thump(rng)
@@ -702,6 +703,19 @@ static func _tink(rng: RandomNumberGenerator) -> PackedFloat32Array:
 		var t := float(i) / RATE
 		out[i] = (sin(TAU * 4100.0 * t) * 0.5 + sin(TAU * 6300.0 * t) * 0.3) * exp(-t / 0.07) * 0.4
 		out[i] += (sin(TAU * 3900.0 * (t - 0.18)) * 0.3) * exp(-maxf(t - 0.18, 0.0) / 0.05) * (1.0 if t > 0.18 else 0.0) * 0.4
+	return out
+
+
+## A clock's tick (#1030, the prop lab: WallClock): the escapement's pallet letting go a tooth, a tiny
+## hard click with a brass ring, and the hollow walnut case answering it low and short.
+static func _clock_tick(rng: RandomNumberGenerator) -> PackedFloat32Array:
+	var n := int(RATE * 0.09)
+	var out := PackedFloat32Array()
+	out.resize(n)
+	for i in n:
+		var t := float(i) / RATE
+		out[i] = (rng.randf_range(-1, 1) * exp(-t / 0.0008) * 0.7 + sin(TAU * 2650.0 * t) * exp(-t / 0.006) * 0.35
+				+ sin(TAU * 5300.0 * t) * exp(-t / 0.003) * 0.12 + sin(TAU * 420.0 * t) * exp(-t / 0.012) * 0.3) * 0.5
 	return out
 
 
