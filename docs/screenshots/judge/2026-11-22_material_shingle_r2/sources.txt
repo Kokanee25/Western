@@ -1,0 +1,6 @@
+SH1_few_near.png build/sh_lab3/common/shingle_pine_few/noon_near.png (420, 0, 1820, 780)
+SH1_few_far.png build/sh_lab3/common/shingle_pine_few/golden_far.png (750, 240, 1310, 600)
+SH1_new_near.png build/sh_lab3/common/shingle_pine_new/noon_near.png (420, 0, 1820, 780)
+SH1_new_far.png build/sh_lab3/common/shingle_pine_new/golden_far.png (750, 240, 1310, 600)
+SH1_old_near.png build/sh_lab3/common/shingle_pine_old/noon_near.png (420, 0, 1820, 780)
+SH1_old_far.png build/sh_lab3/common/shingle_pine_old/golden_far.png (750, 240, 1310, 600)

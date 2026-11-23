@@ -107,6 +107,8 @@ func _ready() -> void:
 			Farmhouse.add_valley_places(markers.places, markers.way_end("widow_lane"), markers.join)
 		u = _took(&"markers", u)
 		_make_buildings()
+		_make_church()
+		_make_cemetery()
 		_make_homesteads()
 		u = _took(&"buildings", u)
 		# A blast's collapse a slice a frame (Structure.settle hands it on): the valley has no
@@ -385,6 +387,38 @@ func _make_buildings() -> void:
 				_side_walk(String(l.id), b, sw, floor_top)
 
 
+## The church on its rise north-west of town (#1142): the building lab's builder on valley.json's `church`
+## place (its `building.spec`), set where the spec's lot says, facing the lane, on the pad the bake dug.
+func _make_church() -> void:
+	if markers == null or markers.town == null or not buildings_default:
+		return
+	var place := layout.place("church")
+	var path := String((place.get("building", {}) as Dictionary).get("spec", ""))
+	if path == "":
+		return
+	var b: Node3D = load("res://src/structures/spec_building.gd").new()
+	var sp: Dictionary = b.load_spec(path)
+	if not sp.has("lot") or not sp.has("levels"):
+		push_error("ValleyWorld: the church's spec %s didn't load" % path)
+		b.free()
+		return
+	b.set(&"spec_path", path)
+	b.set(&"structure_id", &"valley_church")
+	b.name = "Building_church"
+	var at: Array = (sp.lot as Dictionary).at
+	b.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(sp.lot.get("facing", 0.0)))), Vector3(float(at[0]), float(at[1]), float(at[2])))
+	add_child(b)
+	buildings["church"] = b
+
+
+## The cemetery by the church (#1142, config/cemetery.json): its fence, gate and graves.
+func _make_cemetery() -> void:
+	if markers == null or markers.town == null or not buildings_default:
+		return
+	var yard := Cemetery.new()
+	yard.name = "Cemetery"
+	yard.position = Cemetery.world_at(Cemetery.load_config())
+	add_child(yard)
 ## Every place with a `site` (#1126, Harlan's homestead: Homestead) built on its pad: the node at the
 ## pad's north-west corner, at the pad's level, the slope off it from the valley's ground.
 var homesteads := {}
