@@ -68,6 +68,8 @@ var _acted := {}
 var _deal_q: Array = []
 var _draw_i := -1
 var _said := {}
+## Each line (its words as picked, slots unfilled) -> when the table last said it (#1184).
+var _line_at := {}
 var _gesture := HeadGesture.new()
 var _you_turn := false
 var _you_told := false
@@ -714,7 +716,24 @@ func _say(who: Variant, kind: String, fill := {}, always := false) -> void:
 	var pick := _lines(who, kind)
 	if pick.is_empty():
 		return
-	var text := String(pick[rng.randi() % pick.size()])
+	# Not a line the table's said within `same_line_s` (#1184: "Same game, gents." and "My deal. Ante up,
+	# boys." came round every few hands in ten minutes); all said lately: he says nothing, but a win
+	# (said whatever) takes the stalest.
+	var gap := float(data.get("same_line_s", 240.0))
+	var fresh := pick.filter(func(l: Variant) -> bool: return _clock - float(_line_at.get(String(l), -INF)) >= gap)
+	if fresh.is_empty() and kind.begins_with("win"):
+		# His own spent: the table's own words (gate 3 run 4: Earl's "Two pair... Don't look at me like
+		# that." three times in eight minutes).
+		var common: Array = (data.get("lines", {}) as Dictionary).get(kind, [])
+		pick = pick + common.filter(func(l: Variant) -> bool: return not pick.has(l))
+		fresh = pick.filter(func(l: Variant) -> bool: return _clock - float(_line_at.get(String(l), -INF)) >= gap)
+	if fresh.is_empty():
+		if not kind.begins_with("win"):
+			return
+		fresh = [pick.reduce(func(a: Variant, b: Variant) -> Variant:
+				return a if float(_line_at.get(String(a), -INF)) <= float(_line_at.get(String(b), -INF)) else b)]
+	var text := String(fresh[rng.randi() % fresh.size()])
+	_line_at[text] = _clock
 	for k: String in fill:
 		text = text.replace("{%s}" % k, String(fill[k]))
 	_said[id] = _clock
