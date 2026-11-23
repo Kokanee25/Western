@@ -1,5 +1,5 @@
 {
-  "_doc": "Half of the church's altar rail (1.5 m): six balusters under an oak rail; two stand side by side with a gap for the gate.",
+  "_doc": "Half of the church's plain altar rail (1.5 m): two posts, a moulded top rail, a low rail; two stand with the way between.",
   "id": "altar_rail",
   "kind": "members",
   "fixture": true,
@@ -14,115 +14,61 @@
       "size": [
         1.5,
         0.07,
-        0.1
+        0.11
       ],
       "at": [
         0.0,
         0.855,
         0.0
       ],
-      "look": "lib:furniture_oak/few"
+      "look": "lib:furniture_painted_pine/few",
+      "draw": {
+        "shape": "profile",
+        "profile": "handrail",
+        "along": "x",
+        "up": "y"
+      }
     },
     {
-      "id": "base",
+      "id": "low",
       "kind": "furniture_frame",
       "size": [
-        1.5,
-        0.08,
-        0.06
+        1.36,
+        0.06,
+        0.04
       ],
       "at": [
         0.0,
-        0.12,
+        0.2,
         0.0
       ],
       "look": "lib:furniture_painted_pine/few"
     },
     {
-      "id": "bal0",
+      "id": "post0",
       "kind": "post",
       "size": [
-        0.05,
+        0.08,
         0.82,
-        0.05
+        0.08
       ],
       "at": [
-        -0.69,
+        -0.7,
         0.41,
         0.0
       ],
       "look": "lib:furniture_painted_pine/few"
     },
     {
-      "id": "bal1",
+      "id": "post1",
       "kind": "post",
       "size": [
-        0.05,
+        0.08,
         0.82,
-        0.05
+        0.08
       ],
       "at": [
-        -0.414,
-        0.41,
-        0.0
-      ],
-      "look": "lib:furniture_painted_pine/few"
-    },
-    {
-      "id": "bal2",
-      "kind": "post",
-      "size": [
-        0.05,
-        0.82,
-        0.05
-      ],
-      "at": [
-        -0.138,
-        0.41,
-        0.0
-      ],
-      "look": "lib:furniture_painted_pine/few"
-    },
-    {
-      "id": "bal3",
-      "kind": "post",
-      "size": [
-        0.05,
-        0.82,
-        0.05
-      ],
-      "at": [
-        0.138,
-        0.41,
-        0.0
-      ],
-      "look": "lib:furniture_painted_pine/few"
-    },
-    {
-      "id": "bal4",
-      "kind": "post",
-      "size": [
-        0.05,
-        0.82,
-        0.05
-      ],
-      "at": [
-        0.414,
-        0.41,
-        0.0
-      ],
-      "look": "lib:furniture_painted_pine/few"
-    },
-    {
-      "id": "bal5",
-      "kind": "post",
-      "size": [
-        0.05,
-        0.82,
-        0.05
-      ],
-      "at": [
-        0.69,
+        0.7,
         0.41,
         0.0
       ],

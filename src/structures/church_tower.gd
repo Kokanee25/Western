@@ -112,66 +112,240 @@ func belfry() -> void:
 	for ix in 2:
 		for iz in 2:
 			b.add_member("tower/belfry/post_%d%d" % [ix, iz], &"post", &"framing", Vector3(post, ph, post), Vector3(px[ix], py + ph * 0.5, pz[iz]))
-	# The skirt roof where the clapboard stops: a board a side sloping out from the posts to over the walls.
+	# The skirt where the clapboard stops (#1170): flared, a steep upper pitch off the posts kicking out
+	# to a shallow lower one past the walls (the bell-cast eave of the pattern books), a pair of boards a side.
 	b.band = 4
-	var sk_w := 0.5
-	var sk_a := deg_to_rad(28.0)
-	var sk_y := fy + jh + 0.04
-	for i in 4:
-		var n: Vector3 = [Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(-1, 0, 0)][i]
-		var along_x_ := absf(n.z) > 0.5
-		var span := (x1 - x0 + 0.5) if along_x_ else (-z0 + 0.5)
-		var c := Vector3(cx, sk_y + 0.14, cz) + n * ((w if along_x_ else -z0) * 0.5 - 0.02 + sk_w * 0.45)
-		var sz := Vector3(span, 0.03, sk_w) if along_x_ else Vector3(sk_w, 0.03, span)
-		# tilt about the wall's own axis so the outer edge is lower
-		var ax := Vector3.RIGHT if along_x_ else Vector3.BACK
-		var ang := sk_a * (1.0 if (n.z < -0.5 or n.x > 0.5) else -1.0)
-		b.add_member("tower/belfry/skirt_%d" % i, &"roof_board", &"weathered_pine", sz, c, Basis(ax, ang))
+	_flare("tower/belfry/skirt", Vector2(cx, cz), Vector2(w * 0.5, -z0 * 0.5), w * 0.5 - 0.1, fy + jh + 0.25,
+			[[0.46, 45.0], [0.36, 15.0]], &"weathered_pine", fy)
 	b.band = 3
-	# A post at the middle of each face too, under the ring's mid-span (the spire's commons land there).
-	for mp in [[cx, -post * 0.5 - 0.02], [x0 + post * 0.5 + 0.02, cz], [x1 - post * 0.5 - 0.02, cz]]:
-		b.add_member("tower/belfry/mid_%d_%d" % [int(float(mp[0]) * 10), int(float(mp[1]) * -10)], &"post", &"framing", Vector3(post, ph, post), Vector3(float(mp[0]), py + ph * 0.5, float(mp[1])))
+	# Each face: a pointed bell opening at its middle between two jamb posts (they carry the ring's
+	# mid-span, where the spire's commons land), a louvred panel either side of it (#1170).
+	var ow := float(t.get("opening", 1.0))
+	var ys := ty - float(t.get("spring_down", 1.0))  # the opening's springing
+	var apex_y := ty - 0.22
+	var faces := _faces(cx, cz, post)
+	for f: Dictionary in faces:
+		for s in [-1.0, 1.0]:
+			var u: float = f.c + s * (ow * 0.5 + post * 0.5)
+			b.add_member("tower/belfry/jamb_%s_%d" % [f.id, int(s)], &"post", &"framing", Vector3(post, ph, post), _on(f, u, py + ph * 0.5, 0.0))
 	b.band = 4
 	var ring := Vector2(0.15, 0.25)  # (width, height)
 	b.add_member("tower/belfry/ring_front", &"beam", &"framing", Vector3(w - 0.04, ring.y, ring.x), Vector3(cx, ty + ring.y * 0.5, z0 + 0.05 + 0.02))
 	b.add_member("tower/belfry/ring_back", &"beam", &"framing", Vector3(w - 0.04, ring.y, ring.x), Vector3(cx, ty + ring.y * 0.5, -0.05 - 0.02))
 	b.add_member("tower/belfry/ring_w", &"beam", &"framing", Vector3(ring.x, ring.y, -z0 - 0.04), Vector3(x1 - 0.05 - 0.02, ty + ring.y * 0.5, z0 + (-z0) * 0.5))
 	b.add_member("tower/belfry/ring_e", &"beam", &"framing", Vector3(ring.x, ring.y, -z0 - 0.04), Vector3(x0 + 0.05 + 0.02, ty + ring.y * 0.5, z0 + (-z0) * 0.5))
-	# Louvres: slats tilted 40 degrees between the posts, on all four faces, the front's left open
-	# in the middle for the bell to be seen.
+	# The panels: boarded below the louvres and over them, slats tilted 40 degrees between; the opening's
+	# sill, its pointed head (stepped boards to the slant, a slanted casing over them), a board over the point.
 	var lv: Dictionary = t.get("louvre", {})
 	var ly0 := float(lv.get("from", py + 0.6))
-	var ly1 := float(lv.get("to", ty - 0.35))
 	var step := float(lv.get("step", 0.13))
-	var slat := Vector3(0.0, 0.12, 0.02)
+	var slat_h := 0.12
 	var tilt := deg_to_rad(40.0)
-	var gap: Array = lv.get("gap", [])
-	var faces := [["front", Vector3(0, 0, 1), z0 + post * 0.5 + 0.02, true], ["back", Vector3(0, 0, 1), -post * 0.5 - 0.02, false],
-			["w", Vector3(1, 0, 0), x1 - post * 0.5 - 0.02, false], ["e", Vector3(1, 0, 0), x0 + post * 0.5 + 0.02, false]]
-	for face: Array in faces:
-		var along_x: bool = (face[1] as Vector3).z > 0.5
-		var span0 := (x0 + post + 0.01) if along_x else (z0 + post + 0.01)
-		var span1 := (x1 - post - 0.01) if along_x else (-post - 0.01)
-		var y := ly0
-		var n := 0
-		while y < ly1:
-			var runs: Array = [[span0, span1]]
-			if face[3] and not gap.is_empty() and y + slat.y > float(gap[2]) and y < float(gap[3]):
-				runs = [[span0, float(gap[0])], [float(gap[1]), span1]]
-			var r := 0
-			for rr: Array in runs:
-				var len_ := float(rr[1]) - float(rr[0])
-				if len_ < 0.1:
-					continue
-				var mid := (float(rr[0]) + float(rr[1])) * 0.5
-				var size := Vector3(len_, slat.y, slat.z) if along_x else Vector3(slat.z, slat.y, len_)
-				var c := Vector3(mid, y + slat.y * 0.5, float(face[2])) if along_x else Vector3(float(face[2]), y + slat.y * 0.5, mid)
-				var axis := Vector3.RIGHT if along_x else Vector3.BACK
-				b.add_member("tower/belfry/louvre_%s_%d_%d" % [face[0], n, r], &"board", &"framing", size, c, Basis(axis, -tilt if along_x else tilt))
-				r += 1
-			y += step
-			n += 1
+	var board := 0.03
+	var hw := ow * 0.5
+	var rise := apex_y - ys
+	for f: Dictionary in faces:
+		var fid: String = f.id
+		var c: float = f.c
+		var inner_a: float = f.lo + post + 0.002  # the corner post's inner face
+		var inner_b: float = f.hi - post - 0.002
+		var ja: float = c - hw - post - 0.002  # the jamb posts' outer faces
+		var jb: float = c + hw + post + 0.002
+		for pnl: Array in [["l", inner_a, ja], ["r", jb, inner_b]]:
+			var a0: float = pnl[1]
+			var a1: float = pnl[2]
+			b.add_member("tower/belfry/panel_%s_%s_lo" % [fid, pnl[0]], &"board", &"framing", _size(f, a1 - a0, ly0 - py, board),
+					_on(f, (a0 + a1) * 0.5, (py + ly0) * 0.5, 0.0))
+			b.add_member("tower/belfry/panel_%s_%s_hi" % [fid, pnl[0]], &"board", &"framing", _size(f, a1 - a0, ty - ys, board),
+					_on(f, (a0 + a1) * 0.5, (ys + ty) * 0.5, 0.0))
+			var y := ly0 + 0.02
+			var n := 0
+			while y + slat_h < ys - 0.02:
+				b.add_member("tower/belfry/louvre_%s_%s%d" % [fid, pnl[0], n], &"board", &"framing", _size(f, a1 - a0, slat_h, 0.02),
+						_on(f, (a0 + a1) * 0.5, y + slat_h * 0.5, 0.0), Basis(f.u, -tilt))
+				y += step
+				n += 1
+		var o0 := c - hw
+		var o1 := c + hw
+		b.add_member("tower/belfry/opening_%s_sill" % fid, &"board", &"framing", _size(f, ow, 0.05, post + 0.06), _on(f, c, ly0 - 0.025, 0.03))
+		b.add_member("tower/belfry/opening_%s_apron" % fid, &"board", &"framing", _size(f, ow, ly0 - 0.05 - py, board), _on(f, c, (py + ly0 - 0.05) * 0.5, 0.0))
+		var nstep := maxi(4, roundi(rise / 0.08))
+		var dy := rise / nstep
+		for i in nstep:
+			var ya := ys + dy * i
+			var inset := hw * (i + 0.5) / nstep  # the slant's distance in from the jamb at this step's middle
+			for s in 2:
+				var e0 := o0 if s == 0 else o1 - inset
+				var e1 := o0 + inset if s == 0 else o1
+				b.add_member("tower/belfry/opening_%s_head%s%d" % [fid, "lr"[s], i], &"board", &"framing", _size(f, e1 - e0 + 0.004, dy, board),
+						_on(f, (e0 + e1) * 0.5, ya + dy * 0.5, 0.0))
+		b.add_member("tower/belfry/opening_%s_key" % fid, &"board", &"framing", _size(f, ow, ty - apex_y, board), _on(f, c, (apex_y + ty) * 0.5, 0.0))
+		var sl := sqrt(hw * hw + rise * rise)
+		for s in 2:
+			var foot := Vector2(o0 if s == 0 else o1, ys)
+			var d := (Vector2(c, apex_y) - foot).normalized()
+			var mid := (foot + Vector2(c, apex_y)) * 0.5
+			var dir3: Vector3 = (f.u as Vector3) * d.x + Vector3.UP * d.y
+			var nrm: Vector3 = f.n
+			b.add_member("tower/belfry/opening_%s_arch%s" % [fid, "lr"[s]], &"trim", &"framing", Vector3(sl + 0.06, 0.1, 0.025),
+					_on(f, mid.x, mid.y, board * 0.5 + 0.0125), Basis(dir3, nrm.cross(dir3).normalized(), nrm))
 	_spire(ty + ring.y, cx, cz)
+	_porch(cx)
+	_boxed_eaves()
+
+
+## The side walls' boxed eaves (#1170; the blind judge's first note on the side wall: "bare dark rafter ends"):
+## a fascia board on the rafter tails, a soffit under them back to the siding, a frieze board on the siding under
+## the soffit, white, in stock lengths. The spec's `eaves`: {walls, fascia, frieze} (heights in m).
+func _boxed_eaves() -> void:
+	var e: Dictionary = b.spec.get("eaves", {})
+	if e.is_empty():
+		return
+	var over := float(b._fr.rafters.get("eave", 0.3))
+	var ang := deg_to_rad(b.roof_pitch_degrees)
+	var rf: Array = b._fr.rafters.rafter
+	var wh: float = b.wall_height
+	var tail_y := wh - over * tan(ang)  # the rafters' underside at their tails
+	var reach := over + sin(ang) * float(rf[1])  # the tails' outer top corner out from the wall line
+	var trim := StringName(b.spec.materials.get("trim_outside", "painted_white"))
+	var bt := 0.025  # the siding's face (FalseFrontBuilding.BOARD_T)
+	b.band = 5
+	for id: String in e.walls:
+		if not b.walls.has(id):
+			continue
+		var wall: Dictionary = b.walls[id].dict
+		var length: float = wall.length
+		var a0 := -float(e.get("past", 0.3))
+		var a1 := length - a0
+		var n := maxi(1, ceili((a1 - a0) / 4.9))
+		for k in n:
+			var s0 := a0 + (a1 - a0) * k / n
+			var s1 := a0 + (a1 - a0) * (k + 1) / n - 0.003
+			b._wall_member("%s/eave/soffit_%d" % [id, k], &"trim", trim, wall, s0, s1, tail_y - 0.022, tail_y + 0.002, bt, reach)
+			b._wall_member("%s/eave/fascia_%d" % [id, k], &"trim", trim, wall, s0, s1, tail_y - 0.12, tail_y - 0.12 + float(e.get("fascia", 0.24)),
+					reach - 0.003, reach + 0.022)
+			b._wall_member("%s/eave/frieze_%d" % [id, k], &"trim", trim, wall, maxf(s0, 0.0), minf(s1, length), tail_y - 0.022 - float(e.get("frieze", 0.22)),
+					tail_y - 0.022, bt, bt + 0.022)
+
+
+## The front door's hood and the steps' handrails (#1170; the spec's `tower.hood`, `tower.handrails`): a small
+## gable of shingles on two brackets over the pointed doors (an arm out from a plate on the siding, a brace
+## under it), its barge boards white; an iron pipe rail either side of the three steps, set in the ground.
+func _porch(cx: float) -> void:
+	var h: Dictionary = t.get("hood", {})
+	if not h.is_empty():
+		b.band = 4
+		var face := z0 - 0.025  # the siding's face
+		var hw := float(h.width) * 0.5
+		var out := float(h.out)
+		var ye := float(h.y)
+		var a := deg_to_rad(float(h.get("pitch", 40.0)))
+		var trim := StringName(b.spec.materials.get("trim_outside", "painted_white"))
+		for s in [-1.0, 1.0]:
+			var x: float = cx + s * (hw - 0.04)
+			b.add_member("tower/hood/plate_%d" % int(s), &"beam", trim, Vector3(0.08, 0.7, 0.04), Vector3(x, ye - 0.35, face - 0.02))
+			b.add_member("tower/hood/arm_%d" % int(s), &"rafter", trim, Vector3(0.07, 0.09, out), Vector3(x, ye - 0.045, face - 0.04 - out * 0.5))
+			var p0 := Vector3(x, ye - 0.62, face - 0.05)
+			var p1 := Vector3(x, ye - 0.09, face - 0.04 - out * 0.8)
+			var d := p1 - p0
+			b.add_member("tower/hood/brace_%d" % int(s), &"cripple", trim, Vector3(0.06, 0.06, d.length()), (p0 + p1) * 0.5, Basis.looking_at(d.normalized(), Vector3.RIGHT))
+		# The two roof boards: low edges on the arms, meeting at a ridge over the door's middle, running out from the wall.
+		var roof := StringName(b.spec.materials.get("roof", "weathered_pine"))
+		var span := hw / cos(a)
+		for s in [-1.0, 1.0]:
+			var up := Vector2(-s * cos(a), sin(a))  # from the low edge toward the ridge, in (x, y)
+			var nrm := Vector3(s * sin(a), cos(a), 0.0)
+			var c := Vector3(cx + s * hw, ye - 0.005, 0.0) + Vector3(up.x, up.y, 0.0) * (span * 0.5) + nrm * 0.016
+			c.z = face - (out + 0.12) * 0.5
+			var ax := Vector3(up.x, up.y, 0.0)
+			b.add_member("tower/hood/roof_%d" % int(s), &"roof_board", roof, Vector3(span + 0.12, 0.032, out + 0.12), c, Basis(ax, nrm, ax.cross(nrm)).orthonormalized())
+			# its barge board under the front edge, white
+			b.add_member("tower/hood/barge_%d" % int(s), &"trim", trim, Vector3(span + 0.1, 0.12, 0.025), c - nrm * 0.07 + Vector3(0, 0, -(out + 0.12) * 0.5 + 0.0125),
+					Basis(ax, nrm, ax.cross(nrm)).orthonormalized())
+	var hr: Dictionary = t.get("handrails", {})
+	if not hr.is_empty():
+		b.band = 1
+		var hgt := float(hr.get("height", 0.9))
+		var z_top := z0 - 0.08
+		var z_foot := z0 - float(hr.run)
+		for s in [-1.0, 1.0]:
+			var x: float = cx + s * float(hr.half)
+			var top_y := float(hr.top) + hgt
+			var foot_y := hgt
+			b.add_member("tower/handrail/post_top_%d" % int(s), &"post", &"iron", Vector3(0.045, top_y, 0.045), Vector3(x, top_y * 0.5, z_top))
+			b.add_member("tower/handrail/post_foot_%d" % int(s), &"post", &"iron", Vector3(0.045, foot_y, 0.045), Vector3(x, foot_y * 0.5, z_foot))
+			var p0 := Vector3(x, foot_y + 0.02, z_foot - 0.1)
+			var p1 := Vector3(x, top_y + 0.02, z_top)
+			var d := p1 - p0
+			b.add_member("tower/handrail/rail_%d" % int(s), &"beam", &"iron", Vector3(0.045, 0.045, d.length() + 0.04), (p0 + p1) * 0.5, Basis.looking_at(d.normalized(), Vector3.UP))
+
+
+## The belfry's four faces: `id`, their outward normal `n`, the axis along them `u`, the plane they lie in
+## (`plane`, through the posts' middles), and `lo`, `hi`, `c` along `u`.
+func _faces(cx: float, cz: float, post: float) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	out.append({"id": "front", "n": Vector3(0, 0, -1), "u": Vector3.RIGHT, "plane": z0 + post * 0.5 + 0.02, "lo": x0 + 0.02, "hi": x1 - 0.02, "c": cx})
+	out.append({"id": "back", "n": Vector3(0, 0, 1), "u": Vector3.RIGHT, "plane": -post * 0.5 - 0.02, "lo": x0 + 0.02, "hi": x1 - 0.02, "c": cx})
+	out.append({"id": "w", "n": Vector3(1, 0, 0), "u": Vector3.BACK, "plane": x1 - post * 0.5 - 0.02, "lo": z0 + 0.02, "hi": -0.02, "c": cz})
+	out.append({"id": "e", "n": Vector3(-1, 0, 0), "u": Vector3.BACK, "plane": x0 + post * 0.5 + 0.02, "lo": z0 + 0.02, "hi": -0.02, "c": cz})
+	return out
+
+
+## A point on a face: `a` along it, `y` up, `out` from its plane along its normal.
+func _on(f: Dictionary, a: float, y: float, out: float) -> Vector3:
+	var u: Vector3 = f.u
+	var n: Vector3 = f.n
+	var p := Vector3(0.0, y, 0.0) + n * out
+	if absf(u.x) > 0.5:
+		p.x += a
+		p.z += float(f.plane)
+	else:
+		p.z += a
+		p.x += float(f.plane)
+	return p
+
+
+## A box `along` long on a face, `h` high, `thick` through it.
+func _size(f: Dictionary, along: float, h: float, thick: float) -> Vector3:
+	return Vector3(along, h, thick) if absf((f.u as Vector3).x) > 0.5 else Vector3(thick, h, along)
+
+
+## A flared roof round the tower (#1170): for each side, a run of boards from `inner` (the distance out from
+## the middle `c` where the top edge lies, at `y`) down and out, each [width, pitch in degrees]; the boards
+## run past the corners so the sides lap there as hips do. `half` is the tower's half size (x, z).
+## With `ledger_from` (a height), a timber laid on the walls' plates under the pitches' joint carries it (a sprocket's job).
+func _flare(id: String, c: Vector2, half: Vector2, inner: float, y: float, segs: Array, wood: StringName, ledger_from := -1.0) -> void:
+	for i in 4:
+		var n: Vector3 = [Vector3(0, 0, -1), Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(-1, 0, 0)][i]
+		var along_x := absf(n.z) > 0.5
+		var own := half.y if along_x else half.x  # this side's half depth out from the middle
+		var other := half.x if along_x else half.y
+		var start := Vector2(inner + (own - minf(half.x, half.y)), y)  # (out, up)
+		var k := 0
+		for sg: Array in segs:
+			var wdt := float(sg[0])
+			var a := deg_to_rad(float(sg[1]))
+			var down := Vector2(cos(a), -sin(a))
+			var mid := start + down * (wdt * 0.5)
+			var reach := other + (mid.x - own) + wdt * 0.5 * cos(a)
+			var tan_ := Vector3(n.z, 0, -n.x).abs()
+			var dir3 := n * down.x + Vector3.UP * down.y
+			var up3 := dir3.cross(tan_).normalized()
+			if up3.y < 0.0:
+				up3 = -up3
+			var centre := Vector3(c.x, 0.0, c.y) + n * mid.x + Vector3.UP * mid.y + up3 * 0.015
+			var bas := Basis(tan_, up3, tan_.cross(up3))
+			# (the box's z along the slope: tan_ x up3 points along +/-dir3)
+			b.add_member("%s_%d_%d" % [id, i, k], &"roof_board", wood, Vector3(2.0 * reach, 0.03, wdt + 0.04), centre, bas.orthonormalized())
+			start += down * wdt
+			if k == 0 and ledger_from >= 0.0 and segs.size() > 1:
+				var lo := own - 0.1
+				var hi := start.x + 0.02
+				var top := start.y - 0.004
+				var lc := Vector3(c.x, 0.0, c.y) + n * ((lo + hi) * 0.5) + Vector3.UP * ((ledger_from + top) * 0.5)
+				var lsz := Vector3(2.0 * (other + 0.1), top - ledger_from, hi - lo) if along_x else Vector3(hi - lo, top - ledger_from, 2.0 * (other + 0.1))
+				b.add_member("%s_ledger_%d" % [id, i], &"beam", &"framing", lsz, lc)
+			k += 1
 
 
 ## The spire: shingle courses stepped up four faces, over four hip rafters and four common rafters
@@ -223,8 +397,11 @@ func _spire(y0: float, cx: float, cz: float) -> void:
 			b.add_member("tower/spire/shingle_%d_%02d" % [i, k], &"roof_board", wood, Vector3(width, SKIN, (s1 - s0) + 0.03), p, bas.orthonormalized())
 			s0 = s1
 			k += 1
-	# The iron finial: a post and a small cross on the apex.
-	var fh := float(t.get("finial", 0.9))
+	# The bell-cast eave (#1170): the spire's foot kicks out over the belfry on a shallow pitch, boards on the
+	# seat beams lapping under its first course.
 	b.band = 6
+	_flare("tower/spire/kick", Vector2(cx, cz), Vector2(s_, s_), s_ - 0.12, y0 + 0.09, [[0.5, 20.0]], wood)
+	# The iron finial: a tall rod, a cross at its head.
+	var fh := float(t.get("finial", 0.9))
 	b.add_member("tower/spire/finial", &"post", &"iron", Vector3(0.05, fh, 0.05), apex + Vector3(0, fh * 0.5 - 0.1, 0))
-	b.add_member("tower/spire/finial_arm", &"beam", &"iron", Vector3(0.3, 0.04, 0.04), apex + Vector3(0, fh * 0.6, 0))
+	b.add_member("tower/spire/finial_arm", &"beam", &"iron", Vector3(0.36, 0.045, 0.045), apex + Vector3(0, fh * 0.72, 0))

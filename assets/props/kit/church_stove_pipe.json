@@ -1,0 +1,51 @@
+{
+  "_doc": "The church stove's pipe up through the ceiling (one joint over the box stove's own).",
+  "id": "church_stove_pipe",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "iron",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "pipe",
+      "kind": "post",
+      "size": [
+        0.15,
+        1.19,
+        0.15
+      ],
+      "at": [
+        0.0,
+        0.595,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.075,
+            0.0
+          ],
+          [
+            0.075,
+            1.1899999999999995
+          ],
+          [
+            0.0,
+            1.1899999999999995
+          ]
+        ],
+        "segments": 14
+      }
+    }
+  ],
+  "factory": "tools/props/church.py"
+}

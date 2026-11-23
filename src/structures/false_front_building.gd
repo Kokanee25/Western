@@ -72,6 +72,11 @@ const RAFTER_W := 0.05
 const RAFTER_D := 0.15
 const TRIM_T := 0.02
 const TRIM_W := 0.1
+## A building's own casings (#1170, the church: "wide casings, thick sills"): the casing's width, the window
+## stool's thickness and how far it stands out from the siding. SpecBuilding sets them from its spec's `trim`.
+var trim_w := TRIM_W
+var sill_t := 0.04
+var sill_out := 0.06
 const LAP_BOARD_H := 0.2
 const VERTICAL_BOARD_W := 0.24
 const JOIST_W := 0.06
@@ -361,14 +366,15 @@ func _opening_trim(wall: Dictionary, o: Rect2, is_window: bool, head := true) ->
 	var n := "%s/trim_%d_%d" % [wall.name, int(o.position.x * 100.0), int(o.position.y * 100.0)]
 	var d0 := BOARD_T
 	var d1 := BOARD_T + TRIM_T
-	var bottom := o.position.y - (TRIM_W if is_window else 0.0)
-	_wall_member(n + "/jamb0", &"trim", &"dark_trim", wall, o.position.x - TRIM_W, o.position.x, bottom, o.end.y, d0, d1)
-	_wall_member(n + "/jamb1", &"trim", &"dark_trim", wall, o.end.x, o.end.x + TRIM_W, bottom, o.end.y, d0, d1)
+	var tw := trim_w
+	var bottom := o.position.y - (tw if is_window else 0.0)
+	_wall_member(n + "/jamb0", &"trim", &"dark_trim", wall, o.position.x - tw, o.position.x, bottom, o.end.y, d0, d1)
+	_wall_member(n + "/jamb1", &"trim", &"dark_trim", wall, o.end.x, o.end.x + tw, bottom, o.end.y, d0, d1)
 	if head:
-		_wall_member(n + "/head", &"trim", &"dark_trim", wall, o.position.x - TRIM_W, o.end.x + TRIM_W, o.end.y, o.end.y + TRIM_W, d0, d1)
+		_wall_member(n + "/head", &"trim", &"dark_trim", wall, o.position.x - tw, o.end.x + tw, o.end.y, o.end.y + tw, d0, d1)
 	if is_window:
-		_wall_member(n + "/stool", &"trim", &"dark_trim", wall, o.position.x - TRIM_W * 1.5, o.end.x + TRIM_W * 1.5,
-				o.position.y - 0.04, o.position.y, d0, d0 + 0.06)
+		_wall_member(n + "/stool", &"trim", &"dark_trim", wall, o.position.x - tw * 1.5, o.end.x + tw * 1.5,
+				o.position.y - sill_t, o.position.y, d0, d0 + sill_out)
 
 
 func _glass(wall: Dictionary, o: Rect2) -> void:

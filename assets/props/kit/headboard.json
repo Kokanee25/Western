@@ -1,5 +1,5 @@
 {
-  "_doc": "A grave's headboard: a board between two posts, the name painted and weathered off.",
+  "_doc": "A grave's headboard: a board with a round top on two posts, the name painted and weathered off.",
   "id": "headboard",
   "kind": "members",
   "fixture": true,
@@ -12,14 +12,14 @@
       "id": "post_l",
       "kind": "post",
       "size": [
-        0.05,
-        0.85,
-        0.05
+        0.06,
+        0.6,
+        0.06
       ],
       "at": [
         -0.27,
-        0.425,
-        0.0
+        0.3,
+        -0.05
       ],
       "wood": "weathered_pine"
     },
@@ -27,14 +27,14 @@
       "id": "post_r",
       "kind": "post",
       "size": [
-        0.05,
-        0.85,
-        0.05
+        0.06,
+        0.6,
+        0.06
       ],
       "at": [
         0.27,
-        0.425,
-        0.0
+        0.3,
+        -0.05
       ],
       "wood": "weathered_pine"
     },
@@ -42,16 +42,74 @@
       "id": "board",
       "kind": "furniture_frame",
       "size": [
-        0.59,
-        0.34,
-        0.03
+        0.62,
+        0.5,
+        0.035
       ],
       "at": [
         0.0,
-        0.63,
+        0.62,
         0.0
       ],
-      "wood": "weathered_pine"
+      "wood": "weathered_pine",
+      "draw": {
+        "shape": "cut",
+        "plane": "xy",
+        "outline": [
+          [
+            -0.31,
+            -0.25
+          ],
+          [
+            0.31,
+            -0.25
+          ],
+          [
+            0.31,
+            0.12
+          ],
+          [
+            0.2948,
+            0.2158
+          ],
+          [
+            0.2508,
+            0.3022
+          ],
+          [
+            0.1822,
+            0.3708
+          ],
+          [
+            0.0958,
+            0.4148
+          ],
+          [
+            0.0,
+            0.43
+          ],
+          [
+            -0.0958,
+            0.4148
+          ],
+          [
+            -0.1822,
+            0.3708
+          ],
+          [
+            -0.2508,
+            0.3022
+          ],
+          [
+            -0.2948,
+            0.2158
+          ],
+          [
+            -0.31,
+            0.12
+          ]
+        ]
+      }
     }
   ],
   "factory": "tools/props/church.py"
