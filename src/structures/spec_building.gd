@@ -191,6 +191,10 @@ func build() -> void:
 	depth = float(lot.depth)
 	floor_top = float(lv.ground.top)
 	wall_height = float(lv.plate)
+	var tr_: Dictionary = spec.get("trim", {})
+	trim_w = float(tr_.get("width", TRIM_W))
+	sill_t = float(tr_.get("sill", sill_t))
+	sill_out = float(tr_.get("sill_out", sill_out))
 	front_height = float(lv.false_front)
 	roof_pitch_degrees = float(lv.roof_pitch)
 	var front: Dictionary = spec.get("front", {})
@@ -1130,7 +1134,7 @@ func _openings(w: Dictionary, level := "") -> Array:
 		# (a cellar's openings from its flags' top, #1174)
 		var y0 := (_lv[lvl] as float) + (0.08 if lvl == "cellar" else 0.0) + float(o.get("sill", 0.0))
 		# A pointed window's opening runs on up to its apex (SashWindow.pointed_head; `height` is to the springing).
-		var h := float(o.height) + (float(o.get("rise", 0.0)) if o.get("pointed", false) and o.type == "window" else 0.0)
+		var h := float(o.height) + (float(o.get("rise", 0.0)) if o.get("pointed", false) and o.type in ["window", "door"] else 0.0)
 		out.append([Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), h), o, lvl])
 	return out
 
@@ -1237,18 +1241,23 @@ func _outer_walls() -> void:
 				_opening_trim(wall, o[0], false)
 				Storefront.recess(self, wall, o[0], _recess_spec(spec_o), StringName(spec.materials.get("trim_outside", "dark_trim")))
 				continue
-			var rise := float(spec_o.get("rise", 0.0)) if window and spec_o.get("pointed", false) else 0.0
+			var rise := float(spec_o.get("rise", 0.0)) if (window or spec_o.type == "door") and spec_o.get("pointed", false) else 0.0
 			var sq: Rect2 = o[0]
 			sq.size.y -= rise
 			# (a pointed head's casing is the window's own, slanted to the point: SashWindow)
 			_opening_trim(wall, sq, window or spec_o.type == "hatch", rise <= 0.0)
+			if spec_o.type == "door" and rise > 0.0:
+				# A pointed door (#1170, the church): the leaves stand to the springing, under a transom bar,
+				# and the head over them is a pointed window's fixed head sash (SashWindow.pointed_head).
+				SashWindow.pointed_head(self, wall, o[0], rise, {"wood": StringName(spec.materials.get("trim_outside", "dark_trim")),
+						"face_wood": wood, "level": String(o[2]), "hood": float(spec.get("trim", {}).get("hood", 0.0))})
 			if window and spec_o.get("show", false):
 				# A storefront's show window (#1053): plate glass, a transom row, a panelled bulkhead.
 				Storefront.show_window(self, wall, o[0], spec_o, StringName(spec.materials.get("trim_outside", "dark_trim")))
 			elif window and spec_o.has("lights"):
 				# A sash window (#826): lined, two sashes, a pane a light (SashWindow, the part).
 				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim")),
-						"rise": rise, "face_wood": wood, "level": String(o[2])})
+						"rise": rise, "face_wood": wood, "level": String(o[2]), "hood": float(spec.get("trim", {}).get("hood", 0.0))})
 			elif window:
 				_glass(wall, o[0])
 			if spec_o.get("bars", false):
@@ -1282,6 +1291,10 @@ func _outer_walls() -> void:
 				band = 4 if o[2] == "upper" else clad  # a leaf stands on the floor it opens on
 				var lr: Rect2 = o[0]
 				var tr := float(so.get("transom", 0.0))
+				if so.get("pointed", false):
+					# (its pointed head's glass is the transom: the bar at the springing, the leaves under it)
+					lr.size.y -= float(so.get("rise", 0.0)) + 0.05
+					_wall_member("%s/transom_bar_%d" % [w.id, int(lr.position.x * 100)], &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), wall, lr.position.x, lr.end.x, lr.end.y, lr.end.y + 0.05, -STUD_D, BOARD_T)
 				if tr > 0.0:
 					# A transom light over the leaf: its bar and its glass in the one opening.
 					lr.size.y -= tr
@@ -1787,7 +1800,7 @@ func _stair(st: Dictionary, lower: float, upper: float) -> void:
 		var q := Vector3(p[0], 0, p[1]) - Vector3(foot.x, 0, foot.z)
 		posts.append([q.dot(up), q.dot(across)])
 	var made := Stair.build(self, "stair/" + String(st.id), head, up, across, float(st.width), risers, rise, float(st.going),
-			{"rail": 1 if _axis(String(st.get("rail", "+x"))).dot(across) > 0.0 else -1, "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
+			{"rail": 0 if String(st.get("rail", "+x")) == "none" else (1 if _axis(String(st.get("rail", "+x"))).dot(across) > 0.0 else -1), "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
 			"stringer_look": st.get("stringer_look", st.get("look", "")), "ground_block": st.get("ground_block", false)})
 	ramps.append([made.ramp, made.stringers])
 

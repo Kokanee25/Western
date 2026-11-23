@@ -61,7 +61,7 @@ func test_the_graves_the_funeral_s_first_and_mostly_wood() -> void:
 		match g.kind:
 			&"wood_cross", &"headboard":
 				wood += 1
-			&"grave_marker":
+			&"grave_marker", &"headstone_arched":
 				stone += 1
 	check(wood > stone * 2 and stone >= 1, "mostly wooden crosses and headboards, a few stone (%d wood, %d stone)" % [wood, stone])
 	var funeral_grave := Vector2(float(funeral.grave[0]), float(funeral.grave[1]))

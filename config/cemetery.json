@@ -1,11 +1,42 @@
 {
-  "_doc": "Salt Creek's cemetery (#1142, the building lab; src/world/cemetery.gd): on the hill north-west of the church (valley.json place `cemetery`, its pad 40 x 30 m at y 10.5), a white picket fence round a yard of bare ground with a plank gate on its south side, where Church Lane arrives. Graves are laid by seed in rows, most a wooden cross or headboard, a few small stone markers (the kinds are the prop lab's: tools/props/church.py); the funeral's graves ([config/moments/funeral.json] `old_graves`, [east, south] of its `grave`) are laid first, at the same places, so the scene's stand-in blocks are real. The new grave itself is the funeral's (src/missions/funeral.gd), dug when the funeral starts.",
-  "at": [-100.0, -197.0],
-  "half": [14.0, 11.0],
+  "_doc": "Salt Creek's cemetery (#1142, the building lab; src/world/cemetery.gd): on the hill north-west of the church (valley.json place `cemetery`, its pad 40 x 30 m at y 10.5), a tall close white picket fence round a yard of bare ground with a plank gate on its south side, where Church Lane arrives. Graves are laid in close rows by seed (#1170), most a heavy wooden cross with a name board or a headboard, a few arched headstones and small stone markers (the kinds are the prop lab's: tools/props/church.py); the funeral's graves ([config/moments/funeral.json] `old_graves`, [east, south] of its `grave`) are laid first, at the same places, so the scene's stand-in blocks are real. The new grave itself is the funeral's (src/missions/funeral.gd), dug when the funeral starts.",
+  "at": [
+    -100.0,
+    -197.0
+  ],
+  "half": [
+    14.0,
+    11.0
+  ],
   "pad_y": 10.5,
-  "picket": {"spacing": 0.3, "width": 0.07, "height": 1.0, "rail_heights": [0.3, 0.8], "post_every": 2.4},
-  "gate": {"side": "south", "centre": -4.0, "width": 2.0},
+  "picket": {
+    "spacing": 0.15,
+    "width": 0.08,
+    "height": 1.3,
+    "rail_heights": [
+      0.3,
+      1.05
+    ],
+    "post_every": 2.4
+  },
+  "gate": {
+    "side": "south",
+    "centre": -4.0,
+    "width": 2.0
+  },
   "seed": 1882,
-  "extra_graves": 16,
-  "kinds": {"wood_cross": 0.55, "headboard": 0.35, "grave_marker": 0.1}
+  "kinds": {
+    "wood_cross": 0.5,
+    "headboard": 0.2,
+    "headstone_arched": 0.18,
+    "grave_marker": 0.12
+  },
+  "graves_max": 72,
+  "rows": {
+    "_doc": "the graves after the funeral's: rows east-west, `along` apart in a row, rows `apart`, `fill` the share of cells used (#1170)",
+    "along": 2.7,
+    "apart": 1.45,
+    "fill": 0.78,
+    "margin": 1.9
+  }
 }

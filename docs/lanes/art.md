@@ -44,16 +44,14 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **The general store (#858): steps 1-3 done**
   (`experiments/building_lab/store/` README: bodies 38,185 of 65,536; render CPU 1.5-2.4 ms (cellar 5.4, over); the rear's gabled wing is Sean's call). **Lit** (#1053): a `Storefront` (show windows, recessed entry; PARTS.md), RoomLight's cap 12 m², RealLook `exposure_indoor` 1.7, a pale beaded ceiling; back wall card 0.110 -> 0.193. **Hollis's** (#1074): pale posts and beams, A. P. HOLLIS gilded on the show windows (`Storefront.gilt`), kit goods in the windows (real stock #1076); the dark brackets are Sean's call;
   saloon B is Fable's (#848: step 1 done, below).
-- **The church and cemetery (#1142)**: merged (PR #1165); README `experiments/building_lab/church/`. Pointed heads
-  are SashWindow's (`rise`); shingles library SH1 `shingle_pine`. Next: critic r2's top three (cemetery, belfry and
-  spire shape, doors and hood). The open grave only in the funeral.
+- **The church (#1142, #1170)**: `church/` README, round 6. Left: patchy paint, lap shadows, wavy glass (shared code);
+  trusses for the nave's post are Sean's call. The valley render needs a swapfile on a 16 GB box.
 - **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
 - **The undertaker's** (#1174, `undertaker/` README; PR on `claude/art-undertaker-steps-2-6-5uz4k2`): built, on its lot, its cellar dug (`CellarDig`) and walked (stair and `Bulkhead`, tests). Judged twice: cheap indie but the workroom (empty rooms, placeholder stone, the neighbours' grey blocks). Next: his props by the prop lab (#1141's list, the box hearse); the black trim wants `painted_black_trim` in the library.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
-  Drawn only once `materials.stone.want` is approved; `"trial": true` in the lab (never committed). The quoins,
-  drips, damp, whitewash and age dials are reusable under a scanned wall (#928's (a)).
+  Drawn only once `materials.stone.want` is approved; never `"trial": true` committed. Its dials reusable (#928 (a)).
   The rooms wait on the prop lab's furniture.
 - **The valley's ground and scatter** (#891, #962; LAYOUT "src/world/town_layout.gd"): scanned ground by a map baked
   from valley.json (re-bake `tools/textures/valley_ground_map.gd` when it changes); ruts with parallax depth, berms and

@@ -107,7 +107,8 @@ func _fence() -> void:
 				var pp := a + (Vector2(px, 0) if along_x else Vector2(0, px))
 				var out := 0.1
 				var c4 := Vector3(pp.x, ph * 0.5 + 0.02, pp.y + out * (1.0 if r[0] == "s" else -1.0)) if along_x else Vector3(pp.x + out * (1.0 if r[0] == "e" else -1.0), ph * 0.5 + 0.02, pp.y)
-				var psize := Vector3(pw, ph, 0.02) if along_x else Vector3(0.02, ph, pw)
+				var psize := Vector3(pw, ph, 0.022) if along_x else Vector3(0.022, ph, pw)
+				# (square-topped: a cut point drew each picket its own mesh, ~700 unbatched, and the view's render ran past 30 min)
 				_white(add_member("fence/%s/picket_%d_%d" % [r[0], k, j], &"board", wood, psize, c4))
 				pickets += 1
 				px += spacing
@@ -137,20 +138,28 @@ func _graves() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(cfg.seed)
 	var half: Array = cfg.half
-	var tries := 0
-	var extra := int(cfg.extra_graves)
-	while extra > 0 and tries < 400:
-		tries += 1
-		var p := at + Vector2(rng.randf_range(-float(half[0]) + 2.5, float(half[0]) - 2.5), rng.randf_range(-float(half[1]) + 2.5, float(half[1]) - 3.5))
-		var ok := p.distance_to(mid) > 3.5
-		for q in spots:
-			if absf(q.x - p.x) < 3.4 and absf(q.y - p.y) < 2.4:
-				ok = false
-				break
-		if ok:
-			spots.append(p)
-			extra -= 1
-	var dirt := Color(0.36, 0.27, 0.19)
+	# The rest in close rows (#1170: the sheet's crowded yard): a grave a cell, east-west, some cells empty, none in
+	# the lane from the gate, on the funeral's grave or on one of the old ones.
+	var rows: Dictionary = cfg.get("rows", {"along": 2.7, "apart": 1.45, "fill": 0.75, "margin": 1.9})
+	var gate_x := at.x + float(cfg.gate.centre)
+	var z := at.y - float(half[1]) + float(rows.margin)
+	var row := 0
+	var most := int(cfg.get("graves_max", 70))
+	while z < at.y + float(half[1]) - float(rows.margin) and spots.size() < most:
+		var x := at.x - float(half[0]) + float(rows.margin) + 1.1 + (0.0 if row % 2 == 0 else float(rows.along) * 0.35)
+		while x < at.x + float(half[0]) - 1.2 and spots.size() < most:
+			var p := Vector2(x + rng.randf_range(-0.2, 0.2), z + rng.randf_range(-0.12, 0.12))
+			var ok := rng.randf() < float(rows.fill) and p.distance_to(mid) > 3.0 and absf(p.x - gate_x) > 1.9
+			for q in spots:
+				if absf(q.x - p.x) < 2.4 and absf(q.y - p.y) < 1.2:
+					ok = false
+					break
+			if ok:
+				spots.append(p)
+			x += float(rows.along)
+		z += float(rows.apart)
+		row += 1
+	var dirt := Color(0.45, 0.37, 0.28)  # (settled and dried to the yard's colour, #1170: not dark domes)
 	var k := 0
 	for p: Vector2 in spots:
 		var kind := _kind(rng, kinds)
@@ -168,7 +177,7 @@ func _graves() -> void:
 		mound.material_override = mat
 		mound.name = "Mound%d" % k
 		add_child(mound)
-		mound.scale = Vector3(1.9, 0.36 + 0.08 * float(k % 2), 0.8)
+		mound.scale = Vector3(1.9, 0.16 + 0.06 * float(k % 3), 0.85)
 		mound.position = Vector3(p.x - global_position.x, -0.02, p.y - global_position.z)
 		mound.rotation.y = deg_to_rad(rng.randf_range(-4.0, 4.0))
 		var marker := PropKit.spawn(kind)
@@ -181,8 +190,8 @@ func _graves() -> void:
 
 
 ## Drawn in the library's old white lead paint (`painted_white_lap`), as the church's clapboard.
-func _white(m: StructureMember) -> void:
-	PropKit.dress_member(m, {}, "lib:painted_white_lap/old")
+func _white(m: StructureMember, draw := {}) -> void:
+	PropKit.dress_member(m, draw, "lib:painted_white_lap/old")
 
 
 static func _kind(rng: RandomNumberGenerator, kinds: Dictionary) -> StringName:

@@ -145,6 +145,12 @@ static func pointed_head(b: FalseFrontBuilding, wall: Dictionary, o: Rect2, rise
 			made.append(b._wall_member("%s/siding/%s/%s" % [wall.name, tag, sfx], &"board", face_wood, wall, a0, a1, ya, ya + dy, 0.0, outer))
 			made.append(b._wall_member("%s/in_%s/%s/%s" % [wall.name, lvl, tag, sfx], &"board", &"framing", wall, a0, a1, ya, ya + dy,
 					inner, -FalseFrontBuilding.STUD_D))
+	# Over the apex, the rest of the lap course the opening cut (#1170: it showed as a dark strip of header): one
+	# board across the opening from the point to that course's top (the courses from 0.05 up, LAP_BOARD_H each).
+	var lap := FalseFrontBuilding.LAP_BOARD_H
+	var course_top := 0.05 + (floorf((ye - 0.05) / lap) + 1.0) * lap - 0.005
+	if course_top - ye > 0.008 and opts.get("lap_fill", true):
+		made.append(b._wall_member("%s/siding/%s/over" % [wall.name, tag], &"board", face_wood, wall, x0, x1, ye, course_top, 0.0, outer))
 	# The fixed head sash: its slanted sides, a bar up the middle, a pane each side of it a step.
 	var d1 := (UPPER_D + LOWER_D) * 0.5
 	var d0 := d1 - SASH_T
@@ -172,7 +178,7 @@ static func pointed_head(b: FalseFrontBuilding, wall: Dictionary, o: Rect2, rise
 			panes.append(p)
 	# The casing outside: two slanted boards over the joint, from the jambs' casings to a point.
 	if opts.get("casing", true):
-		var tw := FalseFrontBuilding.TRIM_W
+		var tw: float = b.trim_w
 		var tid := "%s/trim_%d_%d" % [wall.name, int(x0 * 100.0), int(o.position.y * 100.0)]
 		for side in 2:
 			var bx: float = slant_x.call(ys, -tw * 0.5)
@@ -181,6 +187,15 @@ static func pointed_head(b: FalseFrontBuilding, wall: Dictionary, o: Rect2, rise
 			apex += (apex - a).normalized() * tw * 0.5 * cos_t / sin_t
 			made.append(_slant(b, wall, "%s/arch_%s" % [tid, "lr"[side]], &"trim", wood, a, apex, tw,
 					outer, outer + FalseFrontBuilding.TRIM_T))
+			if opts.get("hood", 0.0) > 0.0:
+				# a drip cap along the casing's outer edge, standing proud of it (#1170: "a hood on the arch")
+				var hd := float(opts.hood)
+				var dir := (apex - a).normalized()
+				var p0 := a + dir.rotated(PI * 0.5 if side == 0 else -PI * 0.5) * (tw * 0.5 + hd * 0.5 - 0.01)
+				# to the middle line, and on by half its width's mitre, so the two meet at the point
+				var p1 := p0 + dir * ((cx - p0.x) / dir.x) + dir * (hd * 0.5 * cos_t / sin_t)
+				made.append(_slant(b, wall, "%s/hood_%s" % [tid, "lr"[side]], &"trim", wood, p0, p1, hd,
+						outer + FalseFrontBuilding.TRIM_T - 0.005, outer + FalseFrontBuilding.TRIM_T + 0.03))
 	made.append_array(panes)
 	return made
 

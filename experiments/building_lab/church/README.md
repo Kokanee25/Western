@@ -10,3 +10,16 @@ cut to the apex, the two sashes under a transom at the springing, a fixed head s
 the reveal lined with slanted boards, the wall's corners each side filled with stepped siding and finish boards, a slanted casing outside
 (`results/2026-11-22_r4/window.jpg`). **Shingles:** library entry `shingle_pine` (SH1; scan_wood's `shingle_w`: a course a board, each shingle
 its own place in the scan), judged on the material lab's panel before it goes on the roof and spire. Views `window`, `graveyard`, `grave` added.
+Round 6 (2026-11-23, #1170, the second form pass): **the belfry** a pointed bell opening on each face between jamb posts (stepped
+boards to the slant, a slanted casing; the jambs carry the ring's mid-span where the commons land), a louvred panel either side,
+a **flared skirt** (45 then 15 degrees, the lower pitch on a ledger laid on the walls' plates: hung off the upper one it failed
+"joint" at 3.7), the spire 7 m and **bell-cast** (a kick on the seat beams), a 1.8 m finial; **the front** pointed double doors
+(a door's `pointed`/`rise`: SashWindow's head glazed over the leaves), a shingled **hood** on two brackets, iron **handrails**;
+**the shape** 45 degree roof, the plate 5.3 m, the windows 0.85 m off the floor with 0.8 m pointed heads, the chimney taller;
+**the side wall** boxed eaves (fascia, soffit, frieze), wide casings (0.14 m) with a drip cap on each arch and thick stools,
+the lap course over each apex filled (the dark strip); **inside** a period pew (scrolled ends, two-board seat, panelled back,
+book rail; painted), a white box pulpit, a plain rail, the hymn board's cards, the stove pipe to the ceiling; **the cemetery**
+in close rows (up to 72 graves), heavy crosses with name boards, arched headstones, round-topped headboards, 1.3 m
+pickets at 0.15 m (square-topped: cut points made each its own mesh and the view ran past 30 min), the mounds low and dry. Renders `results/2026-11-23_r6/`, judged in `docs/screenshots/judge/2026-11-23_church_r3/`.
+Not done (the judge's wall notes 2, 3, 5): patchy paint, lapped clapboards' shadow lines and wavy old glass are the shared siding
+(`LAP_BOARD_H`, every lap-sided building) and the shared glass shader: a material-library job of their own.
