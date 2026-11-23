@@ -1070,6 +1070,7 @@ func _step(delta: float) -> void:
 		news.step(delta)
 	_regard_step(delta)
 	_answer_step(delta)
+	_later_step()
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -1161,6 +1162,7 @@ func _step(delta: float) -> void:
 	_funeral_step(h)
 	_dead_step(h)
 	_talk_step()
+	_chat_step()
 
 
 ## Harlan as he passes (townsfolk step 9): what each shows him by his regard; the groups he's left.
@@ -1821,7 +1823,10 @@ func _talk_step() -> void:
 		var man := folk_man(id)
 		if man == null or state.get(id) != &"in" or not man.physiology.is_conscious():
 			continue
-		if man.global_position.distance_to(p.global_position) > float(talk.get("near_m", 4.0)):
+		# A bark reaches you from a stride or two further (`bark_m`, #1184: the day street's talk was thin);
+		# his set's lines and his news, from `near_m`.
+		var reach := float(talk.get("near_m", 4.0)) if pd.has("says") or rid != 0 else float(talk.get("bark_m", talk.get("near_m", 4.0)))
+		if man.global_position.distance_to(p.global_position) > reach:
 			continue
 		# His gaps and his first word once you're by him, by his seed and the run's (the gate's fault 4:
 		# two noon runs said the same lines at the same seconds): `gap_s` give or take `gap_jitter`.
@@ -1848,18 +1853,126 @@ func _talk_step() -> void:
 				l = []  # said today, or another's said it within the minute
 			if not l.is_empty() and barks:
 				barks.mark(String(id), String(l[0]), day, _ran)
-		if l.is_empty() and barks and calm and pd.has("day") and not barks.blocked(man.global_position):
+		if l.is_empty() and barks and calm and pd.has("day") and not barks.blocked(man.global_position, _ran) and not _story_on() and not _room_night(man):
 			l = barks.pick("pass", bark_ctx(id, man), day, _ran)
 		if l.is_empty() or String(l[1]) == "":
 			continue
 		if barks:
-			barks.block(man.global_position)  # one line at you a group as you pass
+			barks.block(man.global_position, _ran)  # one line at you a group as you pass (again once you've stood by a while)
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
 		_said_by[id] = int(_said_by.get(id, 0)) + 1
 		_spoke_at[id] = _talk_clock()
 		man.face(p.global_position + Vector3.UP * 1.5)
 		say_soon(man, String(l[1]))
 		heard.append([String(id), String(l[0]), String(l[1])])
+
+
+# --- Men talking to each other (#1184) -------------------------------------------------------------
+## The gate's second round: a day street was read-outs, not a town talking (1 to 4 lines in ten
+## minutes, all at you). Two calm day men within `chat_m` of each other, you within `hear_m` (talk
+## nobody hears isn't picked: its once-a-day stays for when you're by), a man once a `gap_s` (give or
+## take `jitter`, by his seed and the run's) and a pair once a `pair_gap_s`: one says a `chat` line
+## (TownBarks, by his ctx: his pools, the hour, his spot), the other answers (`chat.reply`) `reply_s`
+## on, each turned to the other. Not a man at play (the cards, the band) or asleep: those have theirs.
+var _chat_at := {}
+var _pair_at := {}
+## [when (_ran), man, text]: said when due.
+var _later: Array = []
+
+
+func _chat_step() -> void:
+	var c: Dictionary = data.get("chat", {})
+	if c.is_empty() or barks == null or _story_on():
+		return
+	var p := get_tree().get_first_node_in_group(&"player") as Node3D
+	if p == null:
+		return
+	var day := town_day()
+	var free: Array = []
+	for pd: Dictionary in data.people:
+		var id := StringName(pd.id)
+		if pd.has("act") or not pd.has("day") or state.get(id) != &"in":
+			continue
+		var man := folk_man(id)
+		if man == null or not man.physiology.is_conscious() or man.global_position.distance_to(p.global_position) > float(c.get("hear_m", 20.0)):
+			continue
+		var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+		if brain == null or not brain.may_speak() or not TownNews._calm(brain):
+			continue
+		if String(block_now(pd, hour()).get("do", "")) in ["play", "sleep"] or _room_night(man):
+			continue
+		var gap := float(c.get("gap_s", 45.0)) * (1.0 + float(c.get("jitter", 0.4)) * (2.0 * _jit(id, "chat:%d" % int(_said_by.get(id, 0))) - 1.0))
+		if _ran - float(_chat_at.get(id, -INF)) < gap or _ran - float(_spoke_at.get(id, -INF)) < 6.0:
+			continue
+		free.append([id, man])
+	for i in free.size():
+		for j in range(i + 1, free.size()):
+			var a: Array = free[i]
+			var b: Array = free[j]
+			var am: HumanBody = a[1]
+			var bm: HumanBody = b[1]
+			if am.global_position.distance_to(bm.global_position) > float(c.get("chat_m", 4.0)):
+				continue
+			var key := "%s|%s" % [a[0], b[0]] if String(a[0]) < String(b[0]) else "%s|%s" % [b[0], a[0]]
+			if _ran - float(_pair_at.get(key, -INF)) < float(c.get("pair_gap_s", 120.0)):
+				continue
+			# The one who's said less lately opens.
+			if float(_chat_at.get(a[0], -INF)) > float(_chat_at.get(b[0], -INF)):
+				var t := a
+				a = b
+				b = t
+				am = a[1]
+				bm = b[1]
+			var l := barks.pick("chat", bark_ctx(a[0], am), day, _ran)
+			if l.is_empty():
+				continue
+			_pair_at[key] = _ran
+			_chat_at[a[0]] = _ran
+			_chat_at[b[0]] = _ran
+			_said_by[a[0]] = int(_said_by.get(a[0], 0)) + 1
+			am.face(bm.global_position + Vector3.UP * 1.5)
+			bm.face(am.global_position + Vector3.UP * 1.5)
+			say_soon(am, String(l[1]))
+			heard.append([String(a[0]), String(l[0]), String(l[1])])
+			var r := barks.pick("chat.reply", bark_ctx(b[0], bm), day, _ran)
+			if not r.is_empty():
+				_later.append([_ran + float(c.get("reply_s", 2.5)), bm, String(r[1])])
+				_spoke_at[b[0]] = _ran  # nothing of his own before his answer (gate 3 run 2)
+				heard.append([String(b[0]), String(r[0]), String(r[1])])
+			return  # one exchange a look
+
+
+## A story's scene is on (No Law's murder, the funeral, any act holding a man): the town's small talk
+## keeps out of it (#1184: the barkeep's "You drinking, or holding my bar up?" before his lines in No Law's night).
+func _story_on() -> bool:
+	for m: Moment in [murder, funeral]:
+		if m != null and is_instance_valid(m) and not m.done:
+			return true
+	# No Law's first night, the murder still to come: its room is the script's.
+	if murder_auto and not _murder_data.is_empty() and not StoryState.has_fact("nolaw.murder") \
+			and in_hours(hour(), [float(_murder_data.get("earliest", 20.0)) - 1.5, float(_murder_data.get("until", 2.0))]):
+		return true
+	return state.values().has(&"act")
+
+
+## In the saloon's room at night (19:00 to 03:00): its talk is the room's (SaloonRoom's bits, `room.*`
+## lines), not the street's barks or chat (#1184: No Law's night heard the barkeep's chat before his lines).
+func _room_night(man: HumanBody) -> bool:
+	return room != null and in_hours(hour(), [19.0, 3.0]) and room.inside(man.global_position)
+
+
+func _later_step() -> void:
+	if _later.is_empty():
+		return
+	var keep: Array = []
+	for x: Array in _later:
+		if _ran < float(x[0]):
+			keep.append(x)
+		elif is_instance_valid(x[1]) and (x[1] as HumanBody).physiology.is_conscious():
+			var br := (x[1] as Node).get_node_or_null(^"Brain") as CivilianBrain
+			if br == null or br.may_speak():
+				say_soon(x[1], String(x[2]))
+	_later = keep
 
 
 # --- The barks (townsfolk step 9, TownBarks) -----------------------------------------------------------
@@ -2096,7 +2209,13 @@ func _shop_answers(place: StringName, by: Node) -> void:
 		return
 	var sh: Dictionary = data.shops[String(place)]
 	var keeper := StringName(String(sh.keeper))
-	if answering.has(keeper) or not book.inside(place).has(keeper):
+	if answering.has(keeper):
+		return
+	# In on the book, or out on his own walk by the door (#1184: he stood in the doorway and the knock
+	# brought nothing): either way he answers it.
+	var by_door: bool = state.get(keeper) == &"in" and folk_man(keeper) != null \
+			and folk_man(keeper).global_position.distance_to(places.at(place)) < float(sh.get("by_door_m", 6.0))
+	if not book.inside(place).has(keeper) and not by_door:
 		return
 	var man := call_out(keeper)
 	if man == null:
@@ -2121,7 +2240,18 @@ func _answer_step(delta: float) -> void:
 		var b := man.get_node_or_null(^"Brain") as CivilianBrain
 		if not a.said and b != null and by != null and man.global_position.distance_to(spot_point(spot(String(sh.spot)))[0]) < 1.2:
 			man.face(by.global_position + Vector3.UP * 1.5)
-			a.said = bark_for(b, "pass") or bark_for(b, "knock") or true  # (his wary or cold line first)
+			# The knock's own answer first (#1184: his wary `pass` line, "There's others before you",
+			# came with nobody else there), else his line by his regard (a cold man's shut door).
+			# (A second knock, the knock's line said today: his "what'll it be", never his counter's
+			# "I'm in the middle of something" after he's asked you in: gate 3 run 1.)
+			a.said = bark_for(b, "knock") or bark_for(b, "knock.wait") or (not barks.said_today(String(keeper), "day.store_open", town_day()) and bark_for(b, "pass")) or true
+			a.said_t = a.t
+		elif a.said and not a.get("again", false) and b != null and by != null \
+				and float(a.t) - float(a.get("said_t", 0.0)) > float(sh.get("again_s", 12.0)) \
+				and by.global_position.distance_to(man.global_position) < float(sh.get("again_m", 4.0)):
+			man.face(by.global_position + Vector3.UP * 1.5)
+			bark_for(b, "knock.wait")  # you've stood there and said nothing: he asks again
+			a.again = true
 		if float(a.t) > float(sh.get("answer_s", 45.0)) or by == null \
 				or by.global_position.distance_to(man.global_position) > float(sh.get("leave_m", 8.0)) and a.said:
 			answering.erase(keeper)

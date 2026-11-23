@@ -18,7 +18,7 @@ const HELP := {
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
 	"ride": "ride [PLACE] -> \"ride there\" (#1120) from the tied horse you're at, as E and the list do: the fade, the clock on, you by your horse at PLACE's rail; answers the ride (or why not). Alone: what's offered from here and why not (goto horse_PLACE: by the horse there)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
-	"walk": "walk X Z [run] | walk PLACE [run] | walk PERSON [run] -> walk there (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
+	"walk": "walk X Z [run] | walk PLACE [run] | walk SPOT [run] | walk PERSON [run] -> walk there (SPOT: a folk spot, e.g. saloon_porch) (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
 	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
@@ -401,6 +401,14 @@ func _cmd_turn(a: Array) -> Dictionary:
 	return {"facing": _facing(), "pitch": snappedf(player.get_pitch_degrees(), 0.1)}
 
 
+## A spot of the valley folk's by name (config/valley_folk.json `spots`), its point; INF if none.
+func _folk_spot(name: String) -> Vector3:
+	var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+	if vf == null or vf.spot(name).is_empty():
+		return Vector3.INF
+	return vf.spot_point(vf.spot(name))[0]
+
+
 func _cmd_walk(a: Array) -> Dictionary:
 	if a.is_empty():
 		return {"ok": false, "error": "walk X Z [run] | walk PLACE [run] | walk PERSON [run]"}
@@ -416,6 +424,13 @@ func _cmd_walk(a: Array) -> Dictionary:
 			points = _places().route_to_point(World.space(player), player.global_position, at, [player.get_rid()])
 			if points.is_empty():
 				points = [at]
+	elif _folk_spot(a[0]) != Vector3.INF:
+		# A spot of the folk's (#1184: `walk saloon_porch` said "no way there": it's a spot, not a
+		# place): to it as to a point, else straight at it.
+		var at := _folk_spot(a[0])
+		points = _places().route_to_point(World.space(player), player.global_position, at, [player.get_rid()])
+		if points.is_empty():
+			points = [at]
 	elif _person(a[0]) != null:
 		# Routed round what's in the way as a point is (#1095: `walk storekeeper` went straight at him
 		# through the buildings: 215 s for 154 m, and stopped short).

@@ -1922,8 +1922,10 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `_leg_step`; a leg is the block as an `at` or `in`, stays in real seconds, never to a spot another holds);
   `run_seed` (random a run; Engine meta `town_seed` fixes it: the tests' runner 0, replay the report's) spreads
   the legs, the barks' gaps (`talk.gap_jitter`, `first_s`), the news' slips and the room's bits.
-  **Shops** (`shops`, #1167): a knock at an open shop with its keeper in brings him to its `spot` with a line
-  (`_shop_answers`; `on` pass, then knock). `tests/test_town_streets.gd`, `test_town_open.gd`.
+  **Shops** (`shops`, #1167): a knock at an open shop with its keeper in (or out on his walk within `by_door_m`,
+  #1184) brings him to its `spot` with a line (`_shop_answers`; `on` knock, then pass; `knock.wait` if you stand
+  there `again_s`). A man at a door makes E the door's (`PlayerKnock.door_here(any)`), never a shove.
+  `tests/test_town_streets.gd` (also: no man out of doors still ten minutes, by the data and played), `test_town_open.gd`.
   **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
   `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
   only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
@@ -1995,7 +1997,9 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   the head through `FaceGaze.nod`). The barks: town.json lines with an `if` (`on` pass / react.* / undertaker;
   keys in TownBarks' head), `fitting` most specific first (`specificity`), `pick` with the limits (once a day a
   person, `once: ever`, no line another said within `same_line_s`), one at you a group (`blocked`/`block`/
-  `clear_far`). `_talk_step`: his news, else No Law's set (wins; the same limits), else a `pass` bark; Reaction's
+  `clear_far`; again after `group_again_s` if you stay, #1184). `_talk_step`: his news, else No Law's set (wins;
+  the same limits; from `near_m`), else a `pass` bark (from `bark_m`). `_chat_step` (#1184, data `chat`): two calm
+  day men by each other in your hearing: a `chat` line, a `chat.reply` a beat on (`_later`). Reaction's
   stages call `brain.bark` (ValleyFolk.bark_for); the undertaker's at the body (`_undertaker_says`). Pools in data
   `barks.pools`.
   **The saloon as a room** (townsfolk step 10, #1157; `SaloonRoom` `src/people/saloon_room.gd`, data `room`,

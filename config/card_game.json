@@ -21,6 +21,7 @@
   },
   "say_chance": 0.55,
   "say_gap_s": 2.5,
+  "same_line_s": 240.0, "_same_line": "#1184: no line the table said within this (s); the lines came round every few hands.",
   "stop_on": {"_doc": "A shot this near (m), a blast this near: the hand's over.", "shot_m": 40.0, "blast_m": 90.0},
   "resume_after_s": 25.0,
   "place": {
@@ -40,8 +41,9 @@
     "broke": "You're cleaned out"
   },
   "lines": {
-    "_doc": "What the men say (Events.spoke: his mouth and the subtitle), one picked at random, at most one a man every say_gap_s and each only say_chance of the time (a win always). {hand} the hand's name, {n} cards. `by` a man's own lines over these.",
-    "shuffle": ["Five-card draw. Ante up.", "Same game, gents.", "Cut 'em thin, deal 'em true.", "Ante."],
+    "_doc": "What the men say (Events.spoke: his mouth and the subtitle), one picked at random, at most one a man every say_gap_s and each only say_chance of the time (a win always). {hand} the hand's name, {n} cards. `by` a man's own lines over these. No line the table said within the game's `same_line_s` (#1184); all said lately, he keeps quiet (a win takes the stalest).",
+    "shuffle": ["Five-card draw. Ante up.", "Same game, gents.", "Cut 'em thin, deal 'em true.", "Ante.",
+      "Another, then.", "Somebody cut.", "Let's see if these are any kinder.", "Ante up. You know the price."],
     "your_turn": ["Your bet, mister.", "Up to you, friend.", "Mister?", "You in or out?"],
     "check": ["Check.", "I'll knock.", "Check."],
     "bet": ["A dollar.", "I'll bet.", "Bet two bits more'n it's worth.", "Bet."],
@@ -49,9 +51,9 @@
     "raise": ["And one more.", "Raise.", "Let's make it worth the lamp oil."],
     "fold": ["Ain't my night.", "I'm out.", "Fold.", "Hell with it."],
     "draw_0": ["I'll play these.", "None for me."],
-    "draw_1": ["One.", "Just the one."],
-    "draw_2": ["Two.", "Give me two."],
-    "draw_3": ["Three. And make 'em good.", "Three."],
+    "draw_1": ["One.", "Just the one.", "One card. That's all I ask."],
+    "draw_2": ["Two.", "Give me two.", "Two, if you'd be so good."],
+    "draw_3": ["Three. And make 'em good.", "Three.", "Three, and quit smiling.", "Three. Don't spare me."],
     "win": ["{hand}. Thank you kindly.", "{hand}. Read 'em.", "{hand}."],
     "win_quiet": ["Mine, I reckon.", "Nobody? Then that's mine."],
     "lose": ["Again.", "Hell.", "That's a hand."],
@@ -61,7 +63,8 @@
     "by": {
       "earl": {
         "win": ["{hand}. Lady's been kind tonight.", "{hand}. Don't look at me like that."],
-        "shuffle": ["My deal. Ante up, boys.", "Five-card. Same as ever."]
+        "shuffle": ["My deal. Ante up, boys.", "Five-card. Same as ever.", "Come on, come on. Ante.",
+          "These cards have been against me since Christmas.", "Deal's mine. Watch my hands, if you like."]
       },
       "drifter": {
         "lose": ["Every damn hand.", "You're a lucky old man, Earl."]

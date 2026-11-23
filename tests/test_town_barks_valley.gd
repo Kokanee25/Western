@@ -80,7 +80,7 @@ func test_a_walk_down_the_town() -> void:
 					var e: Array = f.barks.log[seen]
 					seen += 1
 					var who := f.folk_man(StringName(e[0]))
-					bark_at.append([float(e[4]), e[0], e[1], who.global_position if who else Vector3.INF])
+					bark_at.append([float(e[4]), e[0], e[1], who.global_position if who else Vector3.INF, e[3]])
 		# Off down the street and back: the groups may greet him again.
 		_player().global_position += Vector3(0, 0, 40)
 		await physics_frames(30)
@@ -95,6 +95,8 @@ func test_a_walk_down_the_town() -> void:
 		for j in range(i + 1, bark_at.size()):
 			var a: Array = bark_at[i]
 			var b: Array = bark_at[j]
+			if String(a[4]) != "pass" or String(b[4]) != "pass":
+				continue  # (two men talking to each other, #1184, aren't barks at you)
 			if float(b[0]) - float(a[0]) < 6.0 and a[3] != Vector3.INF and b[3] != Vector3.INF and (a[3] as Vector3).distance_to(b[3]) < 3.0:
 				check(false, "one bark a group: %s and %s together (%s, %s)" % [a[1], b[1], a[2], b[2]])
 	check(bark_at.size() >= 2, "the town barked (%s)" % [bark_at.map(func(e: Array) -> String: return "%s:%s" % [e[1], e[2]])])
@@ -106,3 +108,65 @@ func test_a_walk_down_the_town() -> void:
 		check(TownRegard.SHOWS[StringName(e[1])] == StringName(e[2]), "%s's %s band shows %s" % [e[0], e[1], e[2]])
 	check(shows.has("warm nod"), "a warm man nodded (%s)" % [shows.keys()])
 	check(shows.has("cold turn"), "a cold man turned his shoulder (%s)" % [shows.keys()])
+
+
+## #1184 (gate round 2: 1 line in ten minutes at 07:00, 2 at noon, 4 at 17:30): you stood about the
+## store and the saloon's walks for ten minutes of an ordinary day, the clock at the gate's rate:
+## about a dozen lines, men to you and to each other, no man saying one line twice, no wording heard
+## more than twice.
+func test_ten_minutes_on_the_street_by_day() -> void:
+	for h: float in [7.0, 12.0, 17.5]:
+		var f := valley.folk
+		var clock := valley.get_node(^"DayCycle") as DayCycle
+		clock.day = 2
+		clock.set_time(h)
+		clock.time_scale = 0.03
+		await physics_frames(1)
+		f._look = 0.0
+		await physics_frames(60 * 3)
+		var said := []
+		var hook := func(who: Node, text: String) -> void:
+			said.append([String((who as HumanBody).person_id) if who is HumanBody else "?", text])
+		Events.spoke.connect(hook)
+		var from := f.heard.size()
+		var t := 0.0
+		var k := 0
+		var last := &""
+		while t < 600.0:
+			# A minute by one man who's out (the next in turn, not the last), as the gate's players went
+			# from one to the next; nobody out: up the street a minute.
+			var out: Array[StringName] = []
+			for id: StringName in f.people:
+				var pp := f._person(id)
+				if not pp.has("act") and pp.has("day") and f.state.get(id) == &"in" and f.folk_man(id) != null and id != last:
+					out.append(id)
+			out.sort()
+			var p := _player()
+			if out.is_empty():
+				p.global_position = Vector3(0.0, f.ground(0.0, 0.0) + 0.1, 0.0)
+			else:
+				last = out[k % out.size()]
+				_put_by(f.folk_man(last))
+			p.velocity = Vector3.ZERO
+			k += 1
+			for _i in 12:
+				await physics_frames(60 * 5)
+				t += 5.0
+		Events.spoke.disconnect(hook)
+		clock.time_scale = 1.0
+		var lines := f.heard.slice(from)
+		print("  %05.2f, ten minutes: %d lines heard: %s" % [h, said.size(), said])
+		check(said.size() >= 10, "%.1f h: about a dozen lines in ten minutes (%d)" % [h, said.size()])
+		var by := {}
+		for e: Array in lines:
+			var key := "%s %s" % [e[0], e[1]]
+			check(not by.has(key), "%.1f h: %s says %s once" % [h, e[0], e[1]])
+			by[key] = true
+		var texts := {}
+		for e: Array in said:
+			texts[e[1]] = int(texts.get(e[1], 0)) + 1
+		for text: String in texts:
+			check(int(texts[text]) <= 2, "%.1f h: \"%s\" heard at most twice (%d)" % [h, text, texts[text]])
+		if h < 17.0:
+			# The next hour afresh: a new valley would cost a minute; the day moves on instead.
+			f.barks.said.clear()
