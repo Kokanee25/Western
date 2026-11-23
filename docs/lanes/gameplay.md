@@ -47,6 +47,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   walks between spots, the store's door scene. Open: the room's sounds are synth stand-ins (#807); no argument,
   round bought or song called for; not in saloon B; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 
+- The mission cards are `docs/missions/` (index `README.md`, order `BUILD_ORDER.md`); each card's first line says what the
+  story bible (`docs/story/`) changed. Where they differ, the bible wins.
+
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
   rail; bridge `ride [PLACE]`; saved where he's tied (#1154). Open: unjudged on screen.
