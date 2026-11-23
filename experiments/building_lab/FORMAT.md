@@ -41,7 +41,7 @@ separately and don't agree). The pictures are the look to match.
 | `outbuildings` | each by kind, place, size | the outhouse |
 | `use_points` | where people stand, sit, serve, work, sleep, watch and take cover; `seats` points at a kit prop's | 22, plus the tables' seats |
 | `use` | how it's used day in day out (docs/briefs/lived-in.md): years in use; walking paths by level, who, passings a day and width; climbs a day on each stair; spots where people stand at a rail (`at`, `feet`); doors; spills; the kit's furniture; lamps' soot; weather (splash, bleach, streaks) | ten paths, four stairs, four spots, two spills |
-| `past` | what happened, to what: each event's marks (`new`, `bullet` (`pried`, `filled`), `pale`, `holes`, `scrubbed`, `carved`, `scuff`...) at a point, within a reach, on members of given kinds | the 1880 brawl, the stag moved, the scrubbed floor, a thrown bottle, initials, a loose tread, the flood, the kicked kitchen door, a split tread |
+| `past` | what happened, to what: each event's marks (`new`, `bullet` (`pried`, `filled`), `pale`, `holes`, `scrubbed`, `carved`, `scuff`...) at a point, within a reach, on members of given kinds; and its `blood` (#1187, PastStains): `soak` (FloorMarks stains), `drips`, `splash`, `smear` (dried Blood splats), placed by props (`by` a dressing id, `off`) or points, seeded | the 1880 brawl, the stag moved, the scrubbed floor, a thrown bottle, initials, a loose tread, the flood, the kicked kitchen door, a split tread |
 | `materials` | which approved wood each surface takes | the interior woods inside, the exterior woods out |
 | `sources` | the references the frame and sizes came from | Wood Handbook, Bell, Woodward, Tredgold, Hodgson |
 

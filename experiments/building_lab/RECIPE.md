@@ -394,4 +394,10 @@ Record: `church/README.md`. What it taught:
 - **The walk test** (`Waypoints._foot_height`, `_walkable`, as saloon B's): sample every 0.2 m up a steep
   stair (a 44 degree stair rises 0.27 in 0.3 m, over STEP_UP); the player's own limit is 46 degrees.
 - **Valley bodies:** 44,986 of Jolt's 65,536 with the undertaker in (his 4,079): no guard to raise.
+- **A building's history in blood** (#1187, `src/art/past_stains.gd`): a `past` event's `blood` is laid once the building
+  stands in a world, through the game's own systems (dried Blood splats, FloorMarks stains), so it scrubs off, saves and
+  draws as any blood. Place it by the props (`by`, `off`) and the ways people go (the stair, the carrying path), never on a
+  prop's top (a ray finds the floor; a kit prop's hit is refused) and beside a heap, not under it. Keep it to a third of
+  Blood's cap (160 a world); Blood's cull spares it (`past`). A save holds it all (SaveGame clears Blood before loading).
+  A `smoky` lamp burns deeper and sooty (soot up the boards over it); `light.cellar_haze` the cellar's close air.
 

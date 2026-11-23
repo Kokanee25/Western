@@ -213,3 +213,107 @@ func test_the_yard_has_its_hearse_shed_and_gate() -> void:
 	check(shed > 80, "the hearse shed is members (%d)" % shed)
 	check(stall >= 4, "its stall (%d)" % stall)
 	check(b.get_member(StringName(sid + "fence/gate_0")) != null, "the wagon gate")
+
+
+## The cellar's old blood by the building's past (#1187, PastStains): laid from the spec's `past` through
+## Blood (dried splats) and FloorMarks (stains soaked in) round the table, its pail, the cooling board,
+## down the stair and the carrying path, on the plank wall behind the table and in the ice room's melt;
+## dark and dry, the same every build, scrubbed off by a mop or a rag, and kept from Blood's cap.
+func test_the_cellar_is_stained_by_its_years_of_embalming() -> void:
+	var b = lab.building
+	var ps := b.get_node_or_null(^"PastStains") as PastStains
+	check(ps != null, "the building lays its past")
+	if ps == null:
+		return
+	for i in 10:
+		if ps.done:
+			break
+		await physics_frames(1)
+	print("  laid: %s" % [ps.laid])
+	check(ps.done, "laid once the building stood in the world")
+	check((ps.laid.unplaced as Array).is_empty(), "every stain found its place (%s)" % [ps.laid.unplaced])
+	var splats: Array[Decal] = []
+	for d in ps.find_children("*", "Decal", false, false).filter(func(x: Node) -> bool: return x.has_meta(&"past")):
+		splats.append(d as Decal)
+	check(splats.size() >= 30 and splats.size() <= Blood.MAX_SPLATS / 3, "dried splats, a third of Blood's cap at most (%d of %d)" % [splats.size(), Blood.MAX_SPLATS])
+	check(int(ps.laid.cells) >= 60, "stains soaked into the flags (%d cells)" % ps.laid.cells)
+	check(int(ps.laid.soot) == 1, "soot over the embalming room's smoky lamp")
+	# Old: dark and dry (Blood's own drying, years of it), nothing wet to pick up.
+	var dark := true
+	for d in splats:
+		dark = dark and float(d.get_meta(&"age_h", 0.0)) >= PastStains.OLD_HOURS and d.modulate.r < 0.5 and d.has_meta(&"past")
+	check(dark, "every splat dried dark")
+	var table := (b.dressed.U1 as Dictionary).embalming_table as Node3D
+	var pail := (b.dressed.U1 as Dictionary).pail as Node3D
+	var flags := float(lab.spec.levels.cellar.top)
+	var drain: Vector3 = b.to_global(b.to_local(table.global_position) * Vector3(1, 0, 1) + Vector3(0, flags, 0.78))
+	check(Blood.wet_near(drain, 1.0) == 0.0, "none of it wet")
+	# Where the work was.
+	var where := {"table": 0, "stair": 0, "wall": 0, "board": 0, "path": 0, "ice": 0}
+	var board: Vector3 = b.to_local(((b.dressed.U1 as Dictionary).cooling_board as Node3D).global_position)
+	var t: Vector3 = b.to_local(table.global_position)
+	for d in splats:
+		var p: Vector3 = b.to_local(d.global_position)
+		var up := d.global_basis.y.normalized().dot(Vector3.UP)
+		if up < 0.5:
+			where.wall += 1
+		elif p.y > flags + 0.1 and p.y < float(lab.spec.levels.ground.top):
+			where.stair += 1
+		elif Vector2(p.x - t.x, p.z - t.z).length() < 1.4:
+			where.table += 1
+		elif Vector2(p.x - board.x, p.z - board.z).length() < 1.2:
+			where.board += 1
+		elif p.x < 3.25 and p.z > 11.1:
+			where.ice += 1
+		else:
+			where.path += 1
+	print("  splats by place: %s" % [where])
+	for k: String in where:
+		check(int(where[k]) >= (1 if k == "ice" else 3), "old blood at the %s (%d)" % [k, where[k]])
+	var fm := FloorMarks.find(get_tree())
+	check(fm != null, "the floor's marks are the world's")
+	var at_pail := pail.global_position
+	at_pail.y = b.to_global(Vector3(0, flags, 0)).y
+	var stain0 := float(fm.mess(at_pail, 0.35).stain)
+	check(stain0 > 20.0, "the flags round the pail soaked dark (%.0f ml)" % stain0)
+	var ice_door: Vector3 = b.to_global(Vector3(3.25, flags, 12.55))
+	check(float(fm.mess(ice_door, 0.3).stain) > 0.5, "the ice room's melt run under its door")
+	# The same every build.
+	var sig := func(n: Node) -> Array:
+		var out := []
+		for d in n.find_children("*", "Decal", false, false).filter(func(x: Node) -> bool: return x.has_meta(&"past")):
+			out.append([(b.to_local((d as Decal).global_position) * 100.0).round(), roundf(float((d as Decal).get_meta(&"ml")) * 100.0)])
+		return out
+	var first: Array = sig.call(ps)
+	var cells := fm.cells.size()
+	b.rebuild()
+	await physics_frames(3)
+	var again := b.get_node_or_null(^"PastStains") as PastStains
+	check(again != null and again != ps and again.done, "a rebuild lays it again")
+	if again:
+		check(sig.call(again) == first, "the same splats every build (%d)" % first.size())
+	check(fm.cells.size() == cells, "the floor's stains laid once a world, not again by a rebuild")
+	# Scrubbed: a rag over the drips, a mop with a stain share over the pail's stains.
+	table = (b.dressed.U1 as Dictionary).embalming_table as Node3D
+	var side: Vector3 = b.to_global(b.to_local(table.global_position) * Vector3(1, 0, 1) + Vector3(-0.42, flags, 0.1))
+	var before := Blood.amount_near(side, 0.8)
+	var got := 0.0
+	for i in 6:
+		got += float(fm.take(side, 0.8, 1.0).blood)
+	check(before > 0.0 and got > 0.0 and Blood.amount_near(side, 0.8) < before * 0.5, "a rag lifts the dried drips (%.1f of %.1f ml)" % [got, before])
+	var s1 := float(fm.mess(at_pail, 0.35).stain)
+	fm.take(at_pail, 0.35, 1.0, 0.5)
+	check(float(fm.mess(at_pail, 0.35).stain) < s1 * 0.6, "scrubbing lifts the soaked stain")
+	# Kept from Blood's cap: a gunfight's worth of new blood elsewhere culls the new, not the old.
+	var kept := 0
+	for d in again.find_children("*", "Decal", false, false).filter(func(x: Node) -> bool: return x.has_meta(&"past")):
+		kept += 1
+	for i in Blood.MAX_SPLATS + 20:
+		Blood.splat(lab, Vector3(60.0 + (i % 20) * 0.3, 0.0, 60.0 + (i / 20) * 0.3), Vector3.UP, 2.0)
+	await physics_frames(1)
+	var left := 0
+	for d in again.find_children("*", "Decal", false, false).filter(func(x: Node) -> bool: return x.has_meta(&"past")):
+		if not (d as Node).is_queued_for_deletion():
+			left += 1
+	check(left == kept, "the cellar's old blood outlasts Blood's cap (%d of %d)" % [left, kept])
+	Blood.clear()
