@@ -1,0 +1,408 @@
+{
+  "_doc": "The cooling board (#1181; the period's: a board of slats on folding legs a body lay on to be cooled and washed before the coffin; refs Renouard 1878): 1.9 m by 0.42, 0.70 high, thirteen slats of pine on four splayed legs, a head block. A body under a sheet: only the sheet, a form of lumps over the slats (nothing under it). 9 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "sheeted_board",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg_c0a",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.7,
+        0.05
+      ],
+      "at": [
+        -0.7,
+        0.33,
+        -0.18
+      ],
+      "look": "wood:framing",
+      "rot": [
+        9.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_c0b",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.7,
+        0.05
+      ],
+      "at": [
+        -0.7,
+        0.33,
+        0.18
+      ],
+      "look": "wood:framing",
+      "rot": [
+        -9.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cross_c0",
+      "kind": "furniture_frame",
+      "size": [
+        0.05,
+        0.04,
+        0.46
+      ],
+      "at": [
+        -0.7,
+        0.65,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg_c1a",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.7,
+        0.05
+      ],
+      "at": [
+        0.7,
+        0.33,
+        -0.18
+      ],
+      "look": "wood:framing",
+      "rot": [
+        9.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_c1b",
+      "kind": "post",
+      "size": [
+        0.06,
+        0.7,
+        0.05
+      ],
+      "at": [
+        0.7,
+        0.33,
+        0.18
+      ],
+      "look": "wood:framing",
+      "rot": [
+        -9.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cross_c1",
+      "kind": "furniture_frame",
+      "size": [
+        0.05,
+        0.04,
+        0.46
+      ],
+      "at": [
+        0.7,
+        0.65,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "slats",
+      "kind": "furniture_top",
+      "size": [
+        1.9,
+        0.03,
+        0.42
+      ],
+      "at": [
+        0.0,
+        0.7,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              -0.875,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              -0.7292,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              -0.5833,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              -0.4375,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              -0.2917,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              -0.1458,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              0.1458,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              0.2917,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              0.4375,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              0.5833,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              0.7292,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.11,
+              0.03,
+              0.42
+            ],
+            "at": [
+              0.875,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "head_block",
+      "kind": "trim",
+      "size": [
+        0.2,
+        0.07,
+        0.3
+      ],
+      "at": [
+        -0.75,
+        0.75,
+        0.0
+      ],
+      "wood": "weathered_pine",
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "sheet",
+      "kind": "trim",
+      "size": [
+        1.8,
+        0.2,
+        0.5
+      ],
+      "at": [
+        0.05,
+        0.815,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.26,
+              0.15,
+              0.24
+            ],
+            "at": [
+              -0.78,
+              0.09,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.42,
+              0.16,
+              0.46
+            ],
+            "at": [
+              -0.45,
+              0.1,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.5,
+              0.11,
+              0.34
+            ],
+            "at": [
+              0.02,
+              0.08,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.5,
+              0.13,
+              0.28
+            ],
+            "at": [
+              0.5,
+              0.09,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.24,
+              0.1,
+              0.22
+            ],
+            "at": [
+              0.92,
+              0.08,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              1.9,
+              0.01,
+              0.56
+            ],
+            "at": [
+              0.0,
+              0.005,
+              0.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}
