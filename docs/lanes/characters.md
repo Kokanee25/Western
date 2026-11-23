@@ -51,7 +51,10 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
 - **Joe's people's clothes** (#1096): brief `docs/briefs/ute-dress.md` (plain, no beads etc.); waiting on Sean's OK of
-  the garment list and the letter, and on the western bundle's upload to match garments.
+  the garment list and the letter; #1176 lists which bundle garments could be recut plain.
+- **The Western Bundle** (#1163, CGTrader, no AI, never in this repo: fetched like the MetaHumans): fitted in the
+  Studio (`mh_bundle.py`, builds `sean_metahuman_b1..b3`, METAHUMAN.md "The Western Bundle"). Waiting on Sean's pick
+  per garment and on an encrypted export (licence §21A.3), #1176. Left: the vests' backs, ballooning shirt sleeves.
 - **Kimodo** (#1087, NVIDIA text-to-motion; waiting on Sean): outputs may ship (Open Model License). Its text
   encoder is Meta's gated Llama-3-8B (Sean's HF access + an `HF_TOKEN` secret); a GPU (~17 GB, or <3 GB with the
   encoder on a ~20 GB-RAM CPU). Chain proven at $0 on NVIDIA's demo output: `kimodo_convert --bvh_standard_tpose`
