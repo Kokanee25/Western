@@ -255,6 +255,13 @@ func _gather() -> void:
 		var kind := String(m.get("how", "take"))
 		var man: HumanBody = null
 		var brain: CivilianBrain = null
+		# (#1167: with errand rounds and the saloon open by day, a day man may be indoors on a leg, borrowed
+		# from behind his door, and a night man out on his own hours, taken off his day as the doctor is.)
+		var out_now: bool = folk.folk_man(id) != null and folk.state.get(id) in [&"in", &"coming"]
+		if kind == "day" and not out_now and folk.state.get(id, &"out") == &"out":
+			kind = "borrow"
+		elif kind == "borrow" and out_now:
+			kind = "take"
 		if kind == "day":
 			man = folk.folk_man(id)
 			if man == null or not man.physiology.is_conscious() or not folk.state.get(id) in [&"in", &"coming"]:

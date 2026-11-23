@@ -39,7 +39,10 @@ const LINES := {
 	&"gun_out": ["Whoa, now. Easy with that iron.", "Put that away, mister.", "Hey now. There's no call for that."],
 	&"chair": ["What the hell?!", "Who kicked my damn chair?", "Son of a...!"],
 	&"help": ["Somebody get the doc!", "Easy, friend. Easy. Lie still.", "He's hit! Get the doctor!"],
-	&"gawk": ["Lord. Is he dead?", "What in the hell was that?", "Who's shooting?", "Stand back, give him air."],
+	&"gawk": ["Lord. Is he dead?", "What in the hell was that?", "Stand back, give him air."],
+	# Gawking at a shot with nobody down (the town gate, #1167: a shot in the air drew "Is he dead?"
+	# and "give him air" from men who'd seen no one hurt).
+	&"gawk_shot": ["What in the hell was that?", "Who's shooting?", "Where'd that come from?"],
 	&"hurt": ["I'm hit! Lord, I'm hit!", "He shot me! Oh God, he shot me!"],
 	# By what hit him (#1125: a piece of the store from a blast 10 m off had him cry "He shot me!",
 	# and a man hit in the chest cried "My arm!"): a ball in the arm, and anything a blast threw.

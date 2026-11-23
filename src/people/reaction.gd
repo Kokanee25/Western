@@ -719,7 +719,9 @@ func _act(delta: float) -> void:
 			if choice == &"gawk" and not _said and _arrived:
 				_said = true
 				var dm := down as HumanBody if down != null and is_instance_valid(down) else null
-				if dm == null or not _bark("react.ring", _news_of(dm)):
+				if dm == null:
+					brain.say(&"gawk_shot")  # nobody down that he knows of: no "Is he dead?"
+				elif not _bark("react.ring", _news_of(dm)):
 					brain.say(&"gawk")
 
 

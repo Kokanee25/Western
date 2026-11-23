@@ -286,7 +286,10 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	earl.hit.connect(on_hit)
 	var last := ""
 	var sat := false
-	for k in 60 * 90:
+	# (120 s: the chair's blow bruises him, so up again he's a hurt man and goes to a door first
+	# (#1125's CivilianBrain.hurt), then back. In CI's shard order main sat him at 89.2 s of the old 90;
+	# #1167's town a second later.)
+	for k in 60 * 120:
 		await physics_frames(1)
 		var st := "limp %s rising %s pose %s mood %d ok %s" % [earl.limp, earl.rising, earl.pose, brain.mood, earl.rise_ok]
 		if st != last:
@@ -302,5 +305,5 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 	for c: RefCounted in brain.chores:
 		if c is SitChore:
 			chore_chair = "%s wanted %s" % [(c as SitChore).chair.name if (c as SitChore).chair and is_instance_valid((c as SitChore).chair) else "none", (c as SitChore).wanted]
-	check(sat, "Earl sat in a free chair within 90 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
+	check(sat, "Earl sat in a free chair within 120 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
 			earl.physiology.describe(), earl.physiology.can_stand(), earl.physiology.is_conscious(), earl.physiology.shock(), earl._down_t, earl._still_t, _chair("n").seated, _chair("n").loose, chore_chair, p.global_position.snappedf(0.01), tl.slice(0, 60)])

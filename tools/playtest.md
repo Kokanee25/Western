@@ -63,6 +63,8 @@ whenever something is worth showing: good or bad.
   `jump`, `tend_wounds` (press on your wounds; hold to tie a belt), `debug_overlay` (frame-rate
   readout on screen), `debug_help` (the key list on screen). For dynamite: `press cock` lights
   the fuse, `press fire 1` throws (hold longer to throw harder), `press aim` sets it down.
+- `read folk` — each townsperson of the valley: in or out, what his day says he's doing, how far he stands from his post (the town's doing, when you can't see it). `read room` (the saloon's mood, who's in, its bits), `read regard`, `read news`, `read fetch`.
+- `key E` — knock at a shut door when the screen says "E: bang on the door" (face it first), as the key does.
 - `wait SECONDS` — let time pass (things happen while you wait: watch the events).
 - `gang` — the gang rides in from the west end of the street (they come anyway after a while).
 - `time HOUR` — set the clock (17.5 golden hour, 23 night).

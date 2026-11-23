@@ -1215,6 +1215,33 @@
      "takes": []
     },
     {
+     "id": "day.store_open",
+     "speaker": "storekeeper",
+     "trigger": "You knock at the store's door in its hours",
+     "when": "regard warm or wary (cold: day.shut)",
+     "if": {
+      "on": "knock",
+      "regard": [
+       "warm",
+       "wary"
+      ],
+      "at": "store"
+     },
+     "condition": "",
+     "delivery": "Opening the door, wiping his hands.",
+     "words": [
+      {
+       "text": "Door sticks. Come on in.",
+       "status": "new"
+      },
+      {
+       "text": "We're open. What'll it be?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
      "id": "day.freight",
      "speaker": "loudmouth",
      "trigger": "Carrying a sack, anyone within 4 m",

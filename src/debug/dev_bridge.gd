@@ -44,7 +44,7 @@ const HELP := {
 	"plunge": "plunge [SPREAD] -> the plunger pushed home: every wired bundle goes (SPREAD physics ticks apart; default the dial)",
 	"ignite": "ignite [X Y Z] -> set fire to the timber nearest the point (or what you look at)",
 	"smoke": "smoke [X Y Z] -> each building's smoke (SmokeField): its box, how much, the thickest cell, drawn or not; with a point, how thick it is there",
-	"read": "read frame|player|people|look|places|counts|fetch|news|regard|all -> what's going on (fetch: the valley's runners for help, the doctor's calls; news: TownNews' records and each man's version; regard: each man's opinions of Harlan and band, what they showed, the barks said)",
+	"read": "read frame|player|people|look|places|counts|fetch|news|regard|all -> what's going on (fetch: the valley's runners for help, the doctor's calls; news: TownNews' records and each man's version; regard: each man's opinions of Harlan and band, what they showed, the barks said; room: the saloon's mood and bits; folk: each valley person's state, block, spot and book)",
 	"events": "events [N] -> the last N things that happened (shots, words, hits, deaths...)",
 	"moment": "moment NAME [key=value...] -> start a showcase moment (config/moments/NAME.json; animated=0: pose to pose, hour=H); one running is taken back first",
 	"moment_result": "moment_result [wait [S]] -> what the moment has done (wait: once it's over, up to S s, 40); a mission's too (the sheriff: -- --mission=sheriff)",
@@ -1189,11 +1189,14 @@ func _cmd_read(a: Array) -> Dictionary:
 		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 		out["regard"] = vf.regard.report() if vf != null and vf.regard != null else {}
 		out["barks"] = vf.barks.log.slice(-30) if vf != null and vf.barks != null else []
+	if what == "folk":
+		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+		out["folk"] = vf.report() if vf != null else {}
 	if what == "room":
 		var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 		out["room"] = vf.room.report() if vf != null and vf.room != null else {}
 	if out.is_empty():
-		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|news|regard|room|all"}
+		return {"ok": false, "error": "read frame|player|people|look|places|counts|fetch|news|regard|room|folk|all"}
 	return out
 
 
@@ -1276,6 +1279,14 @@ func _listen_to_events() -> void:
 		_log("callout", "%s called %s%s" % [_who(s), kind, " (%s)" % _who(about) if about else ""]))
 	# What broke, named by what it's part of (#1095: "20 pieces of timber broke" for one shot said
 	# nothing true: it was a kit prop gone loose, falling whole as one body, each member counted).
+	# The breaker's watch (the town gate's fault 5, #1167: one shot into the sky once logged 214
+	# timbers of a walk broken, not reproduced): the last shot and what it struck, and where you stood,
+	# logged once with any break of `BIG_BREAK` members or more.
+	_hook(Events.shot_fired, func(o: Vector3, d: Vector3, sh: Node) -> void:
+		_last_shot = {"t": _game_seconds(), "from": _arr(o), "dir": _arr(d), "by": _who(sh), "hit": ""})
+	_hook(Events.bullet_hit, func(info: Dictionary) -> void:
+		if not _last_shot.is_empty() and String(_last_shot.hit) == "":
+			_last_shot.hit = "%s%s at %s" % [_who(info.get("collider")), " member " + String(info.member_id) if info.get("member_id", &"") != &"" else "", _arr(info.get("position", Vector3.ZERO))])
 	_hook(Events.member_broken, func(id: StringName) -> void:
 		var whole := _whose_member(id)
 		if not _events.is_empty() and _events[-1].kind == "broke" and float(_events[-1].t) > _game_seconds() - 1.0:
@@ -1286,7 +1297,11 @@ func _listen_to_events() -> void:
 			_log("broke", "")
 			_events[-1]["count"] = 1
 			_events[-1]["by"] = {whole: 1}
-		_events[-1].text = _broke_text(_events[-1].by))
+		_events[-1].text = _broke_text(_events[-1].by)
+		if int(_events[-1].count) == BIG_BREAK:
+			var at := "you at %s yaw %.0f pitch %.1f" % [_arr(player.global_position), rad_to_deg(player.rotation.y), player.get_pitch_degrees()] if player != null and is_instance_valid(player) else ""
+			var shot := "the last shot %.1f s before: %s from %s along %s, hit %s" % [_game_seconds() - float(_last_shot.t), _last_shot.by, _last_shot.from, _last_shot.dir, _last_shot.hit if _last_shot.hit != "" else "nothing"] if not _last_shot.is_empty() else "no shot"
+			_log("big_break", "%d+ members broke (%s among them): %s; %s" % [BIG_BREAK, id, shot, at]))
 	_hook(Events.near_miss, func(p: Node, s: Node, d: float, _at: Vector3, _sp: float, _tu: bool) -> void:
 		if p == player:
 			_log("near_miss", "a round from %s passed %.1f m from you" % [_who(s), d]))
@@ -1295,6 +1310,11 @@ func _listen_to_events() -> void:
 func _hook_screen() -> void:
 	if player != null and is_instance_valid(player) and player.wounds != null:
 		_hook(player.wounds.shown, func(text: String) -> void: _log("screen", text.replace("\n", " / ")))
+
+
+## A break this big is logged with its breaker (`big_break`).
+const BIG_BREAK := 20
+var _last_shot := {}
 
 
 ## The events' line for what broke: "Raid_barrel went loose (fell whole)", "Building_doctor: 2
