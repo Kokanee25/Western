@@ -173,3 +173,22 @@ and grey specks: the ham and pail clusters are 0.4 to 0.7 m wide at 2.7 m up); t
 looks down on the counter's top); the room from the door DIFFERENT (the critic's first three differences are the building's: the pale
 ceiling, the posts, the flat light). One of the two rounds spent. **For G4 or after**: hang bigger clusters lower over the aisle (5 to 7
 hams, a string of pails, lamps) and a counter view from the clerk's side looking down at the books; the room's ceiling and posts are art's.
+
+## G4 (#1192): bolder hung goods, the counter's books seen
+
+**Made** (`tools/props/store_g3.py` `HUNG`/`hung()`/`dressing_g3()`, `tools/blender/props/store_g3.py` `hung()`): the G3 hung props are
+now clusters 1 to 1.3 m wide on a bar or rail hung by a V of cords from the hook (drop 1.05 to 1.2 m, so the lowest goods are 2.36 to 2.5 m
+over the floor, clear of a 1.8 m head): `hung_pails` (seven pails: four close under the bar, three on long cords behind), `hung_ham`
+(six hams on a rail at two lengths, with hock and muslin neck), `hung_lantern` (four lanterns, 1.25 x, at two heights; the globes are one
+glass part), and new `hung_boots` (four pairs tied by their straps, russet leather). Seven clusters over the aisle, staggered about
+x 8.4 so the door's line down the room stays open (`dressing_g3()`); G3's over-the-counter ones are gone. Finish `cured_ham` darkened.
+New view `counter_top` in `render_valley.gd` (camera 13.5/3.05/10.6 on 13.5/2.0/8.7, fov 45).
+
+**Judged blind** (two rounds, both spent; `results/2026-11-23_store_g4/r1`, `r2`; shop, clerk, post, counter_top vs the target sheet):
+r1: hung goods DIFFERENT (boots black slabs, hams balloons, pails neat), counter's books CLOSE (was NOT SEEN: ledger, closed ledger,
+ink and pen, cash all identified; the counter's front is dark: art's light), post case CLOSE, room DIFFERENT (palette, pale ceiling,
+bare floor: art's). Fixes: boots to russet, hams darker with hock and neck. r2: hung goods still DIFFERENT, now for **scale**: from the
+door (the camera 1.7 m from the first cluster) they are huge and cut at the frame edge; pails and lanterns read, hams read as gourds,
+boots as slabs; at distance (clerk, post) they read better. Case CLOSE, books CLOSE, room DIFFERENT. **For later**: drop the
+cluster nearest the door's camera (z 2.6 to 2.7) or make it the lanterns only; the hams want a net or string and a fat-white edge;
+boots want a visible opening and lighter sole. Not a prop fault: the room's ceiling, posts, flat light and bare floor (art's).
