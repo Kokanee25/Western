@@ -1495,7 +1495,7 @@
 				"wall": "cel_cross",
 				"side": "+",
 				"level": "cellar",
-				"at": 6.8,
+				"at": 6.3,
 				"height": 1.55,
 				"energy": 1.2,
 				"reach": 6.0,
@@ -2010,11 +2010,11 @@
 					"id": "fluids",
 					"kit": "shelves",
 					"at": [
-						8.6,
+						8.25,
 						-2.67,
 						11.4
 					],
-					"facing": 0,
+					"facing": 90,
 					"use": "the embalmer's shelf: jars and carboys (the next batch)"
 				},
 				{
