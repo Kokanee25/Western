@@ -307,3 +307,31 @@ func test_his_chair_broken_he_takes_a_free_one() -> void:
 			chore_chair = "%s wanted %s" % [(c as SitChore).chair.name if (c as SitChore).chair and is_instance_valid((c as SitChore).chair) else "none", (c as SitChore).wanted]
 	check(sat, "Earl sat in a free chair within 120 s (at %s, limp %s; '%s' can_stand %s conscious %s shock %.2f down_t %.1f still_t %.1f; n.seated %s n.loose %s; chore %s; player %s; timeline %s)" % [earl.global_position, earl.limp,
 			earl.physiology.describe(), earl.physiology.can_stand(), earl.physiology.is_conscious(), earl.physiology.shock(), earl._down_t, earl._still_t, _chair("n").seated, _chair("n").loose, chore_chair, p.global_position.snappedf(0.01), tl.slice(0, 60)])
+
+
+## #1184 (gate round 2, run 4): "Same game, gents." at 2, 89 and 300 s, "My deal. Ante up, boys." at
+## 24, 66 and 277: the table's lines came round every few hands. None again within `same_line_s`.
+func test_the_table_does_not_repeat_itself() -> void:
+	var g := _game()
+	var who: HumanBody = null
+	for m: Node in get_tree().get_nodes_in_group(&"people"):
+		if m is HumanBody and not m is Player:
+			who = m
+			break
+	check(who != null, "a man to deal")
+	var said := []
+	var hook := func(by: Node, text: String) -> void:
+		if by == who:
+			said.append([g._clock, text])
+	Events.spoke.connect(hook)
+	for i in 16:
+		g._clock += 30.0
+		g._say(who, "shuffle", {}, true)
+		g._say(who, "draw_3", {}, true)
+	Events.spoke.disconnect(hook)
+	var gap := float(g.data.get("same_line_s", 240.0))
+	for i in said.size():
+		for j in range(i + 1, said.size()):
+			if said[i][1] == said[j][1]:
+				check(float(said[j][0]) - float(said[i][0]) >= gap, "\"%s\" not again within %.0f s (%.0f, %.0f)" % [said[i][1], gap, said[i][0], said[j][0]])
+	check(said.size() >= 8, "the table still talks (%d lines in eight minutes)" % said.size())

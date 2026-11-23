@@ -254,3 +254,42 @@ func test_calm_a_while_he_comes_back_to_his_spot_and_its_chore_shaken() -> void:
 	var second := float(b.reaction.start_frame - f1) / 60.0
 	check(second < first, "shaken, he starts sooner (%.2f s against %.2f s)" % [second, first])
 	check(b.reaction.fear > Reaction.STIMULI[&"shot"].fear * 0.9, "and it frightens him more (%.2f)" % b.reaction.fear)
+
+
+## #1184 (gate round 2, run 4): after a shot the liveryman backed off to watch it from the street and
+## stayed there, 24.8 m from his post, for the rest of the night. Whatever he chose, off his spot he
+## comes back to it.
+func test_whatever_he_chose_off_his_spot_he_comes_back() -> void:
+	for choice: StringName in [&"watch", &"hide", &"flee", &"gawk"]:
+		var b := _man("w_%s" % choice, 95, Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.5, -5.0))
+		await physics_frames(2)
+		b.post = Vector3(0.0, 0.0, 0.0)
+		b.body.global_position = Vector3(12.0, 0.0, 6.0)
+		b.reaction.choice = choice
+		b.reaction.stage = Reaction.Stage.BACK
+		b.returning = false
+		b.reaction._end()
+		check(b.returning, "%s: off his spot (12 m), he goes back to it" % choice)
+		b.body.queue_free()
+		await physics_frames(2)
+
+
+## #1184 (gate round 2, run 4): after one shot "...They gone?" was said by four men and "Lord, lord" by
+## four more. The relief goes round the town in other words, or not at all.
+func test_the_relief_is_not_said_twice() -> void:
+	var said := []
+	var hook := func(_by: Node, text: String) -> void: said.append(text)
+	Events.spoke.connect(hook)
+	var men: Array[CivilianBrain] = []
+	for i in 8:
+		men.append(_man("r%d" % i, 120 + i, Vector3(float(i) * 2.0, 0.0, 30.0), Vector3(0.0, 1.5, 0.0)))
+	await physics_frames(int(CivilianBrain.SAY_GAP * 60) + 10)
+	for b in men:
+		b.say(&"relief")
+		await physics_frames(30)
+	Events.spoke.disconnect(hook)
+	var seen := {}
+	for t: String in said:
+		check(not seen.has(t), "\"%s\" once" % t)
+		seen[t] = true
+	check(said.size() >= 5, "most of them said something (%s)" % [said])

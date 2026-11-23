@@ -348,8 +348,9 @@ func _end() -> void:
 	_mark_shaken()
 	_give_up_run()
 	far_down = null
-	if choice in [&"flee", &"gawk", &"help", &"run", &"back_away"] and brain.post != Vector3.INF \
-			and body.global_position.distance_to(brain.post) > 0.5:
+	# Back to his spot whatever he chose, if he's off it (#1184: a man who'd backed off to watch a shot
+	# from a distance was left standing in the street, 24.8 m from his post, for the rest of the night).
+	if brain.post != Vector3.INF and body.global_position.distance_to(brain.post) > 0.5:
 		brain.returning = true
 	stage = Stage.NONE
 	_route.clear()

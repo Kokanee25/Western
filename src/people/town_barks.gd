@@ -3,7 +3,9 @@ extends RefCounted
 ## The town's barks (townsfolk step 9, #1152; docs/briefs/townsfolk.md §5 "What they say"): the line
 ## picker over the town's script (TownScript, `config/town_script.json`). A line is picked only if the
 ## script gives it an `if` (its `when` as data); `on` says which moment asks for it:
-##   `pass` (Harlan within the folk's talk reach, ValleyFolk._talk_step), `react.<x>` (Reaction's
+##   `pass` (Harlan within the folk's talk reach, ValleyFolk._talk_step), `chat` and `chat.reply` (two
+##   men by each other, in your hearing, ValleyFolk._chat_step: one says, the other answers), `knock`
+##   and `knock.wait` (a shopkeeper at his door, and again if you stand there), `react.<x>` (Reaction's
 ##   stages: shot_far, flee, ring, doc, gun, back), `undertaker` (at a body, ValleyFolk._dead_step),
 ##   `room.<x>` (the saloon's bits, SaloonRoom by ValleyFolk.room_line: toast, hail, leave, answer, glass).
 ## The rest of `if`, all of which must hold (each counts toward how specific the line is):
@@ -14,8 +16,8 @@ extends RefCounted
 ##   is (`saloon`, `store`, his block's place or spot); `whom` his version has the man down's name
 ##   (true) or not (false); `who_you` his version has Harlan firing; `shaken`; `opinion` {name: at
 ##   least}; `once` "ever" (said once in the game, not once a day).
-## The rules: the most specific line that fits wins (`specificity`; then a line of his own pool
-## before a shared one); a person says a given line once a day; nobody says a line another said in
+## The rules: the most specific line that fits wins (`specificity`, his own pool's one more; then a
+## line of his own pool before a shared one); a person says a given line once a day; nobody says a line another said in
 ## the last `same_line_s`; the speaker must hold the news (view, whom, who_you are his own
 ## version's). One bark per group as Harlan passes is ValleyFolk's (`blocked`, `block`), by place.
 ## The wording by the speaker's seed (TownScript.pick).
@@ -24,14 +26,19 @@ extends RefCounted
 var same_line_s := 60.0
 var group_m := 4.0
 var group_clear_m := 10.0
+## A group you stand by speaks again after this long (s; #1184: one line, then a group you stood
+## beside for minutes kept quiet till you'd walked 10 m off and back).
+var group_again_s := 45.0
 
 ## pid -> {line id: the town day he last said it}; and those said once for good.
 var said := {}
 var said_ever := {}
 ## line id -> when anyone last said it (the folk's seconds).
 var last_said := {}
-## Where a group was barked at as Harlan passed: [Vector3], cleared once he's off.
+## Where a group was barked at as Harlan passed: [Vector3], cleared once he's off; and when (the
+## folk's seconds, -1 for good till he's off).
 var blocks: Array[Vector3] = []
+var block_t: Array[float] = []
 ## What was said: [pid, line id, text, on, when].
 var log: Array = []
 
@@ -40,6 +47,7 @@ func _init(dials: Dictionary = {}) -> void:
 	same_line_s = float(dials.get("same_line_s", same_line_s))
 	group_m = float(dials.get("group_m", group_m))
 	group_clear_m = float(dials.get("group_clear_m", group_clear_m))
+	group_again_s = float(dials.get("group_again_s", group_again_s))
 
 
 ## The lines `on` asks for that fit `ctx`, most specific first: [line id].
@@ -59,7 +67,10 @@ static func fitting(on: String, ctx: Dictionary) -> Array:
 			continue
 		if not holds(c, ctx):
 			continue
-		found.append([-specificity(c), pool_at, id])
+		# His own pool's lines (a man with a trade's: the smith's, not the town's) count one more
+		# (#1184: the town's shared "Morning." and weather came from three men in ten minutes, over their own).
+		var own := 1 if pool_at == 0 and pools.size() > 1 else 0
+		found.append([-(specificity(c) + own), pool_at, id])
 	found.sort()
 	return found.map(func(x: Array) -> String: return String(x[2]))
 
@@ -191,21 +202,33 @@ func said_today(pid: String, id: String, day: int) -> bool:
 
 
 ## One bark at Harlan a group as he passes: a man within `group_m` of a group already barked at.
-func blocked(at: Vector3) -> bool:
-	for b: Vector3 in blocks:
+## `now` (the folk's seconds) given: a block older than `group_again_s` has lapsed.
+func blocked(at: Vector3, now := -1.0) -> bool:
+	for i in blocks.size():
+		var b := blocks[i]
+		if now >= 0.0 and block_t[i] >= 0.0 and now - block_t[i] > group_again_s:
+			continue
 		if Vector2(b.x - at.x, b.z - at.z).length() < group_m:
 			return true
 	return false
 
 
-func block(at: Vector3) -> void:
+func block(at: Vector3, now := -1.0) -> void:
 	blocks.append(at)
+	block_t.append(now)
 
 
 ## Harlan's moved on: the groups he's left behind may greet him again next time.
 func clear_far(harlan: Vector3) -> void:
-	blocks = blocks.filter(func(b: Vector3) -> bool:
-		return Vector2(b.x - harlan.x, b.z - harlan.z).length() < group_clear_m)
+	var keep: Array[Vector3] = []
+	var keep_t: Array[float] = []
+	for i in blocks.size():
+		var b := blocks[i]
+		if Vector2(b.x - harlan.x, b.z - harlan.z).length() < group_clear_m:
+			keep.append(b)
+			keep_t.append(block_t[i])
+	blocks = keep
+	block_t = keep_t
 
 
 func to_dict() -> Dictionary:
