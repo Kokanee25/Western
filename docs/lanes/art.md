@@ -44,7 +44,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   saloon B is Fable's (#848: step 1 done, below).
 - **The church (#1142, #1170)**: `church/` README, round 6. Left: patchy paint, lap shadows, wavy glass (shared code);
   trusses for the nave's post are Sean's call. The valley render needs a swapfile on a 16 GB box.
-- **The hotel** (#1146): designed, not built (`docs/briefs/hotel.md`, drawings in `docs/briefs/hotel/`); the sheet's request ready, waits on Sean's calls and the cost (#1146's waiting-on-Sean issue).
+- **The hotel** (#1146): designed, not built (`docs/briefs/hotel.md`, drawings in `docs/briefs/hotel/`, branch `claude/salt-creek-hotel-design-olzd6z`); the sheet's request ready; waits on Sean (#1215).
 - **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
 - **The undertaker's** (#1174, `undertaker/` README): built, on its lot, its cellar dug (`CellarDig`) and walked. Props in (U1, #1181). **Grim** (#1187): old blood by its `past` (`PastStains`: Blood splats, FloorMarks stains), a smoky lamp, CellarHaze; embalming good indie. Damp waits on Sean (#1197); the black trim wants `painted_black_trim`.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
