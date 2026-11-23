@@ -124,3 +124,14 @@ at Sean's for the whole store (barrels and shelving still the largest shares). N
 
 **Rodin**: the sacks (G1's "lumpy urns") and boots quoted on #1175 (~$2.02 each; the Studio's ledger $64.89 of $66 with
 the doctor's bag counted, so neither fits without Sean raising the cap). Nothing paid sent.
+
+**Judged blind in the room** (one round, `results/2026-11-23_store_g2/r1/critic.md`; `sheet.jpg` G1 before against G2, from
+the door and from behind the back counter, by day; the clerk's view didn't finish in the render's hour): shelf stock
+DIFFERENT -> CLOSE ("tins and boxes on the right-hand units"), coffee mill, showcase, scales, hanging lamps CLOSE; boots
+and hats NOT SEEN (on the working shelf behind the counters and the top boards: neither camera sees them), tinware NOT
+SEEN (on the back counter, small), hardware DIFFERENT (the kegs far off by the back counter). The critic's "left wall
+bare" from the door is the post office's bay (west_shelves_d: G3's pigeonholes; the post at the door hides the stocked
+west bays). Its other big differences aren't props: the room's plan (counters against the walls, a wide floor, the
+posts), the pale beaded ceiling and cool even light (the building's and art's). One round spent; the second kept for G3
+with the post office in. Next: G3 (the pigeonholes, the ledger and day-book), then for the room to read from the door:
+goods hung from the ceiling (pails, lanterns) and a camera from the clerk's place.
