@@ -18,7 +18,7 @@ const HELP := {
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
 	"ride": "ride [PLACE] -> \"ride there\" (#1120) from the tied horse you're at, as E and the list do: the fade, the clock on, you by your horse at PLACE's rail; answers the ride (or why not). Alone: what's offered from here and why not (goto horse_PLACE: by the horse there)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
-	"walk": "walk X Z [run] | walk PLACE [run] | walk SPOT [run] | walk PERSON [run] -> walk there (SPOT: a folk spot, e.g. saloon_porch) (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
+	"walk": "walk X Z [run] | walk PLACE [run] | walk SPOT [run] | walk PERSON [run] -> walk there (SPOT: a folk spot, e.g. saloon_porch; `saloon`: the town's saloon room; PERSON: within a shove's reach, facing his chest) (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
 	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
@@ -415,6 +415,11 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var run := "run" in a
 	var points: Array[Vector3] = []
 	var place := StringName(a[0])
+	# The town's saloon room is No Law's yard set (#1194: `walk saloon` stopped at saloon B's door, 17 m
+	# short of the bar and the card table): to the room's middle while that set stands.
+	if place == &"saloon" and _places().has(&"nolaw_yard_mid"):
+		place = &"nolaw_yard_mid"
+	var man: HumanBody = null
 	if _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
 		if points.is_empty():
@@ -434,7 +439,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 	elif _person(a[0]) != null:
 		# Routed round what's in the way as a point is (#1095: `walk storekeeper` went straight at him
 		# through the buildings: 215 s for 154 m, and stopped short).
-		var p := _lies(_person(a[0]))
+		man = _person(a[0])
+		var p := _lies(man)
 		var near := p + (player.global_position - p).normalized() * 1.5
 		near.y = player.global_position.y
 		points = _places().route_to_point(World.space(player), player.global_position, near, [player.get_rid()])
@@ -494,6 +500,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 			break
 	_act(false, &"move_forward")
 	_act(false, &"run")
+	if arrived and man != null and is_instance_valid(man):
+		await _close_in(man)
 	await _physics_frames(10)
 	var settle := _game_seconds() + 3.0
 	while player.get_horizontal_speed() > 0.1 and _game_seconds() < settle and not _knocked_out():
@@ -503,6 +511,36 @@ func _cmd_walk(a: Array) -> Dictionary:
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
 			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching,
 			"slowed": player.wounds.slow_why if player.wounds else "", "carrying": player.carry != null and player.carry.carrying()}
+
+
+## The last of `walk PERSON` (#1194: it stopped 1.5-2 m off, past a shove's reach, and shoves went at
+## nothing): on in at a walk till he's within reach (SHOVE_NEAR, body to body), then face his chest.
+const SHOVE_NEAR := 0.85
+
+
+func _close_in(man: HumanBody) -> void:
+	var until := _game_seconds() + 3.0
+	var last := player.global_position
+	var still := _game_seconds()
+	while _game_seconds() < until and not _knocked_out() and is_instance_valid(man):
+		var p := _lies(man)
+		var flat := Vector2(p.x - player.global_position.x, p.z - player.global_position.z)
+		if flat.length() < SHOVE_NEAR:
+			break
+		_set_view(atan2(-flat.x, -flat.y), player.get_pitch_degrees())
+		_act(true, &"move_forward")
+		await get_tree().physics_frame
+		if player.global_position.distance_to(last) > 0.05:
+			last = player.global_position
+			still = _game_seconds()
+		elif _game_seconds() - still > 0.6:
+			break  # against him or something between: as near as you'll get
+	_act(false, &"move_forward")
+	if is_instance_valid(man):
+		var chest := _lies(man) + Vector3.UP * 1.2
+		var to := chest - player.camera.global_position
+		var flat := Vector2(to.x, to.z)
+		_set_view(atan2(-flat.x, -flat.y), rad_to_deg(atan2(to.y, flat.length())))
 
 
 func _cmd_key(a: Array) -> Dictionary:
