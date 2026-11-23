@@ -239,6 +239,18 @@ func add_liquid(at: Vector3, kind: StringName, ml: float, radius := -1.0) -> voi
 		_touched(k)
 
 
+## A stain already soaked in (a building's past, laid at build: PastStains, #1187): `ml` of `kind`
+## shared among the cells within `radius` of `at` (on the surface there: `at` is on it), nothing wet.
+## Returns the cells it stained.
+func soak_in(at: Vector3, kind: StringName, ml: float, radius: float) -> int:
+	var ks := _disc(at, radius)
+	for k: Vector3i in ks:
+		var c := _cell(k, at.y)
+		c.stain[kind] = float(c.stain.get(kind, 0.0)) + ml / ks.size()
+		_touched(k)
+	return ks.size()
+
+
 func _disc(at: Vector3, r: float) -> Array[Vector3i]:
 	var out: Array[Vector3i] = []
 	var k0 := key(at)

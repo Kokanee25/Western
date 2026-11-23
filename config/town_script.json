@@ -170,6 +170,38 @@
    "bible": "WORDS.md, the town's women",
    "brief": "Forties, a widow who runs the hotel; brisk, plain, has fed worse men than these. Never raises her voice.",
    "voice": null
+  },
+  {
+   "id": "liveryman",
+   "name": "The liveryman",
+   "called": "",
+   "bible": "townsfolk brief §2 (the roster)",
+   "brief": "Fifties, horse-sense and no patience; counts feed in nickels (#1184).",
+   "voice": null
+  },
+  {
+   "id": "smith",
+   "name": "The smith",
+   "called": "",
+   "bible": "townsfolk brief §2 (the roster)",
+   "brief": "Forties, big and slow-spoken; proud of his iron, shy of his letters (#1184).",
+   "voice": null
+  },
+  {
+   "id": "drifter",
+   "name": "The drifter",
+   "called": "",
+   "bible": "townsfolk brief §2 (the roster)",
+   "brief": "Twenties, out of work and easy about it; rode in from nowhere much (#1184).",
+   "voice": null
+  },
+  {
+   "id": "saloon_girl",
+   "name": "The saloon girl",
+   "called": "",
+   "bible": "townsfolk brief §2 (the roster)",
+   "brief": "Twenties, quick and tired; teases, sizes a man up by his purse (#1184).",
+   "voice": null
   }
  ],
  "scenes": [
@@ -1183,14 +1215,19 @@
       "at": "store"
      },
      "condition": "polite",
-     "delivery": "Serving the woman behind you first.",
+     "delivery": "Not looking up from his ledger.",
      "words": [
       {
-       "text": "Directly. There's others before you.",
+       "text": "Directly. I'm in the middle of something.",
+       "status": "new"
+      },
+      {
+       "text": "Be with you directly.",
        "status": "new"
       }
      ],
-     "takes": []
+     "takes": [],
+     "changed": "2026-11-23 (#1184: 'There's others before you' was said with nobody else there)"
     },
     {
      "id": "day.shut",
@@ -2267,6 +2304,1718 @@
       }
      ],
      "added": "2026-11-22 (#1157)",
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "street",
+   "title": "An ordinary day in the street",
+   "when": "Any day",
+   "built": true,
+   "reads": "TownBarks `pass` (#1184): each man's own lines by his job (his pools), the hour and his spot, any regard but the cold and the afraid for the friendly ones; the gate's second round had one to four lines in ten minutes.",
+   "setting": "Main Street by day.",
+   "lines": [
+    {
+     "id": "store.morning",
+     "speaker": "storekeeper",
+     "trigger": "You pass the store, morning",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "at": "store",
+      "hour": [
+       6.0,
+       10.0
+      ],
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Coffee's in. Flour's late. Same as every week.",
+       "status": "new"
+      },
+      {
+       "text": "Freight wagon's due Thursday, if the road holds.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "store.sweep",
+     "speaker": "storekeeper",
+     "trigger": "Sweeping his walk",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "sweep"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Dust comes back faster than I can sweep it.",
+       "status": "new"
+      },
+      {
+       "text": "Mind the step. I've just wet it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "store.carry",
+     "speaker": "storekeeper",
+     "trigger": "Carrying freight",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "carry"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "These crates don't get any lighter.",
+       "status": "new"
+      },
+      {
+       "text": "Nails, lamp oil, and a sack of something nobody ordered.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "store.afternoon",
+     "speaker": "storekeeper",
+     "trigger": "You pass the store, afternoon",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "at": "store",
+      "hour": [
+       13.0,
+       17.5
+      ],
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Slow today. Folks are keeping their money in their boots.",
+       "status": "new"
+      },
+      {
+       "text": "If you're buying, I'm selling. If you're looking, look quick.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "store.closing",
+     "speaker": "storekeeper",
+     "trigger": "Near closing",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       17.0,
+       19.0
+      ],
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Near closing. Whatever you want, want it now.",
+       "status": "new"
+      },
+      {
+       "text": "Shutting up shop directly.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "livery.morning",
+     "speaker": "liveryman",
+     "trigger": "Morning at the livery",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       5.0,
+       11.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Grey mare threw a shoe again. Smith'll love that.",
+       "status": "new"
+      },
+      {
+       "text": "Morning. Hay's gone up a nickel.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "livery.lean",
+     "speaker": "liveryman",
+     "trigger": "Leaning at the livery",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "lean"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Horses have more sense than half this town.",
+       "status": "new"
+      },
+      {
+       "text": "That bay's been kicking the boards all day. Don't stand behind him.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "livery.afternoon",
+     "speaker": "liveryman",
+     "trigger": "Afternoon at the livery",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       12.0,
+       19.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Feed and a stall, two bits a night. Less if you muck it yourself.",
+       "status": "new"
+      },
+      {
+       "text": "Wind's got the horses jumpy.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "smith.work",
+     "speaker": "smith",
+     "trigger": "At his fire",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "work"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Stand off the anvil. I don't want to burn you.",
+       "status": "new"
+      },
+      {
+       "text": "Iron's the only thing in this town that does what it's told.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "smith.morning",
+     "speaker": "smith",
+     "trigger": "Morning",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       5.0,
+       11.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Fire's lit before the rooster. Every day.",
+       "status": "new"
+      },
+      {
+       "text": "Morning. Bring me anything bent and I'll make it straight.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "smith.talk",
+     "speaker": "smith",
+     "trigger": "Off his fire a minute",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": [
+       "talk",
+       "stand"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Livery owes me for four shoes. Don't tell him I said.",
+       "status": "new"
+      },
+      {
+       "text": "Hands like these, and they want me to write my name neat.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "doctor.day",
+     "speaker": "doctor",
+     "trigger": "On his walk",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Keep your feet dry and your powder drier.",
+       "status": "new"
+      },
+      {
+       "text": "Nobody's sick today. I don't trust it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "doctor.morning",
+     "speaker": "doctor",
+     "trigger": "Morning",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       6.0,
+       12.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Morning. If you're bleeding, come by. If you're not, good.",
+       "status": "new"
+      },
+      {
+       "text": "Morning. Sleep, if you can get it. Best medicine I've got.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "undertaker.day",
+     "speaker": "undertaker",
+     "trigger": "You pass him in the street",
+     "when": "any day",
+     "if": {
+      "on": "pass"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Forgive me. I measure folk by eye. Habit.",
+       "status": "new"
+      },
+      {
+       "text": "Quiet week. Good news for everybody but me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "drifter.day",
+     "speaker": "drifter",
+     "trigger": "Idling",
+     "when": "any day",
+     "if": {
+      "on": "pass"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Don't suppose there's any work in this town.",
+       "status": "new"
+      },
+      {
+       "text": "I've seen worse towns. Not many.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "drifter.lean",
+     "speaker": "drifter",
+     "trigger": "Leaning",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "lean"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Just holding up the wall. It'd fall without me.",
+       "status": "new"
+      },
+      {
+       "text": "Sun's warm. Wall's warm. I'm not moving.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "landlady.sweep",
+     "speaker": "landlady",
+     "trigger": "Sweeping the hotel's rug",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "sweep"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Boots off my rug. I mean it.",
+       "status": "new"
+      },
+      {
+       "text": "Rooms are fifty cents. Clean sheets are extra, and worth it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "landlady.day",
+     "speaker": "landlady",
+     "trigger": "At the hotel",
+     "when": "any day",
+     "if": {
+      "on": "pass"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I've two rooms empty, if you know anybody respectable.",
+       "status": "new"
+      },
+      {
+       "text": "Supper's at six. Late is cold.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "girl.porch",
+     "speaker": "saloon_girl",
+     "trigger": "On the saloon porch",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "lean"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Too early for the piano. Too late for church.",
+       "status": "new"
+      },
+      {
+       "text": "You're not buying, you're just looking. I know the type.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "girl.day",
+     "speaker": "saloon_girl",
+     "trigger": "Any time",
+     "when": "any day",
+     "if": {
+      "on": "pass"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "It's quiet till sundown. Then it's not.",
+       "status": "new"
+      },
+      {
+       "text": "Buy a girl a sarsaparilla? No? Suit yourself.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "bar.day",
+     "speaker": "barkeep",
+     "trigger": "At the bar by day",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "at": "saloon",
+      "hour": [
+       10.0,
+       18.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Bar's open. Whiskey's two bits, and it isn't worth it.",
+       "status": "new"
+      },
+      {
+       "text": "Glasses don't clean themselves. More's the pity.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "loud.day",
+     "speaker": "loudmouth",
+     "trigger": "On the walk",
+     "when": "any day",
+     "if": {
+      "on": "pass"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "This town's dead as a doornail till payday.",
+       "status": "new"
+      },
+      {
+       "text": "I could lift that wagon. Bet me a dollar.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "loud.noon",
+     "speaker": "loudmouth",
+     "trigger": "Noon",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       11.0,
+       14.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Hot as the hinges out here. Somebody stand me a beer.",
+       "status": "new"
+      },
+      {
+       "text": "Noon, and not a drop taken. A man could die.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "loud.bench",
+     "speaker": "loudmouth",
+     "trigger": "On the bench",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "sit"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Best seat in town. Free, too.",
+       "status": "new"
+      },
+      {
+       "text": "Sit down, sit down. The bench don't bite.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "town.weather",
+     "speaker": "townsman",
+     "trigger": "Any day",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       6.0,
+       20.0
+      ],
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Dry as a bone. We could use a rain.",
+       "status": "new"
+      },
+      {
+       "text": "Looks like weather out west.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "town.nod",
+     "speaker": "townsman",
+     "trigger": "A wary man's morning",
+     "when": "regard wary",
+     "if": {
+      "on": "pass",
+      "regard": "wary",
+      "hour": [
+       5.0,
+       12.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Morning.",
+       "status": "new"
+      },
+      {
+       "text": "Mm. Morning.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "town.afternoon",
+     "speaker": "townsman",
+     "trigger": "Afternoon",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       13.0,
+       18.0
+      ],
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Long afternoon.",
+       "status": "new"
+      },
+      {
+       "text": "Same as yesterday. Hotter.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "town.evening",
+     "speaker": "townsman",
+     "trigger": "Evening",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       17.0,
+       21.0
+      ],
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Evening.",
+       "status": "new"
+      },
+      {
+       "text": "Getting on for supper.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "town.bench",
+     "speaker": "townsman",
+     "trigger": "On a bench",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "sit"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sit if you like. Bench don't belong to me.",
+       "status": "new"
+      },
+      {
+       "text": "I'm resting my feet. They've earned it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "town.work",
+     "speaker": "townsman",
+     "trigger": "At work",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": [
+       "work",
+       "carry"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Can't stop. I'm behind already.",
+       "status": "new"
+      },
+      {
+       "text": "Busy. Talk later.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "town.stand",
+     "speaker": "townsman",
+     "trigger": "Standing on a walk",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "spot": "stand"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Waiting on the mail. It's always late.",
+       "status": "new"
+      },
+      {
+       "text": "Just seeing who's about.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "woman.morning",
+     "speaker": "townswoman",
+     "trigger": "Morning",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       6.0,
+       11.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Morning. Mind the mud by the trough.",
+       "status": "new"
+      },
+      {
+       "text": "Morning. You're up early.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "woman.day",
+     "speaker": "townswoman",
+     "trigger": "Any day",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Don't block the walk, please.",
+       "status": "new"
+      },
+      {
+       "text": "Have you seen what they want for sugar?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "woman.evening",
+     "speaker": "townswoman",
+     "trigger": "Evening",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       17.0,
+       21.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Evening to you.",
+       "status": "new"
+      },
+      {
+       "text": "It gets dark earlier every night.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "knock.wait",
+     "speaker": "storekeeper",
+     "trigger": "You knocked, he came, you said nothing",
+     "when": "any day",
+     "if": {
+      "on": "knock.wait",
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Well? I've a counter to keep.",
+       "status": "new"
+      },
+      {
+       "text": "Something you're wanting, or is it just the shade?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "knock.wait_cold",
+     "speaker": "storekeeper",
+     "trigger": "Cold: you stand at his door",
+     "when": "any day",
+     "if": {
+      "on": "knock.wait",
+      "regard": [
+       "cold",
+       "afraid"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I said we're shut.",
+       "status": "new"
+      },
+      {
+       "text": "Go on, now.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    }
+   ]
+  },
+  {
+   "id": "chat",
+   "title": "Neighbours",
+   "when": "Any day, two men within a few metres of each other",
+   "built": true,
+   "reads": "ValleyFolk._chat_step (#1184): two calm day men by each other, you within earshot: one says a `chat` line, the other answers with a `chat.reply` a beat on.",
+   "setting": "Walks, benches, the livery, the bar.",
+   "lines": [
+    {
+     "id": "chat.flour",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Flour's up again. Robbery, plain and simple.",
+       "status": "new"
+      },
+      {
+       "text": "You seen the price of coffee? I'll drink water.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.rain",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat",
+      "hour": [
+       6.0,
+       20.0
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Rain by Sunday. You mark me.",
+       "status": "new"
+      },
+      {
+       "text": "Creek's lower than I've ever seen it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.railroad",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Railroad man was in again, asking after land.",
+       "status": "new"
+      },
+      {
+       "text": "They say the line's coming through north of the creek.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.herd",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Baron's men moved a herd past the creek last night.",
+       "status": "new"
+      },
+      {
+       "text": "Saw dust on the east road. Cattle, a lot of 'em.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.wife",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "My wife says I talk too much. I told her she don't listen.",
+       "status": "new"
+      },
+      {
+       "text": "Wife's sister's coming. For a month.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.cards",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Lost four dollars to Earl last night. Four!",
+       "status": "new"
+      },
+      {
+       "text": "That drifter plays cards like he's got nowhere to be.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.mine",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "They say the mine's hiring again.",
+       "status": "new"
+      },
+      {
+       "text": "Miner come in with a poke of dust yesterday. Spent it all by dark.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.mail",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Stage brought no mail again. Three weeks.",
+       "status": "new"
+      },
+      {
+       "text": "Letter come for the widow Pratt. Nobody wants to take it up.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.preacher",
+     "speaker": "townsman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat",
+      "day": "ordinary"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Preacher's coming through next month, if he don't get lost again.",
+       "status": "new"
+      },
+      {
+       "text": "Church roof wants fixing before the snow.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.store",
+     "speaker": "storekeeper",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Your account's at nine dollars. I'm only saying.",
+       "status": "new"
+      },
+      {
+       "text": "Got a bolt of blue calico in. Pretty, if you like blue.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.shoes",
+     "speaker": "smith",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Bring it round after dinner and I'll true it up.",
+       "status": "new"
+      },
+      {
+       "text": "That wheel's got a cracked felloe. It'll go on you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.feed",
+     "speaker": "liveryman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Feed bill's due. I'm not a charity.",
+       "status": "new"
+      },
+      {
+       "text": "Your horse ate more'n you did this week.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.loud",
+     "speaker": "loudmouth",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I'll tell you what this town needs. A second saloon.",
+       "status": "new"
+      },
+      {
+       "text": "I arm-wrestled a mule skinner in Abilene. Beat him twice.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.woman",
+     "speaker": "townswoman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "The Pratt girl's walking out with the bank clerk.",
+       "status": "new"
+      },
+      {
+       "text": "I'd not let a daughter of mine near that saloon.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.woman2",
+     "speaker": "townswoman",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Hens have stopped laying. It's the heat.",
+       "status": "new"
+      },
+      {
+       "text": "Did you hear the dog howling half the night?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.bar",
+     "speaker": "barkeep",
+     "trigger": "To a man at his bar",
+     "when": "any day",
+     "if": {
+      "on": "chat",
+      "at": "saloon"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Beer's warm. Ice wagon never came.",
+       "status": "new"
+      },
+      {
+       "text": "Swept this floor twice today and it's still dirty.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.doc",
+     "speaker": "doctor",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That cough of yours wants listening to. Come by.",
+       "status": "new"
+      },
+      {
+       "text": "Eat something green once a week. That's all I ask.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.girl",
+     "speaker": "saloon_girl",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "The piano man's sweet on the landlady. Don't say I told you.",
+       "status": "new"
+      },
+      {
+       "text": "Earl tipped me a whole dollar last night. Then asked for it back.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.landlady",
+     "speaker": "landlady",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Your room's paid to Friday. After that, we'll see.",
+       "status": "new"
+      },
+      {
+       "text": "The drummer in number four snores like a sawmill.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.drifter",
+     "speaker": "drifter",
+     "trigger": "To a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Rode in from Tascosa. Nothing there either.",
+       "status": "new"
+      },
+      {
+       "text": "I'll take any work going. Fences, horses, anything.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.so",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That so.",
+       "status": "new"
+      },
+      {
+       "text": "Is that right.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.could",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Hm. Could be.",
+       "status": "new"
+      },
+      {
+       "text": "Might be, might be.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.know",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Don't I know it.",
+       "status": "new"
+      },
+      {
+       "text": "You're telling me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.say",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You don't say.",
+       "status": "new"
+      },
+      {
+       "text": "Well, I'll be.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.laugh",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Ha! That'll be the day.",
+       "status": "new"
+      },
+      {
+       "text": "Ha. Pull the other one.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.worse",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Could be worse.",
+       "status": "new"
+      },
+      {
+       "text": "Been worse.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.heard",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I heard different.",
+       "status": "new"
+      },
+      {
+       "text": "That's not how I heard it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.shrug",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Well. What can you do.",
+       "status": "new"
+      },
+      {
+       "text": "Nothing to be done about it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.true",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "True enough.",
+       "status": "new"
+      },
+      {
+       "text": "Can't argue with that.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.later",
+     "speaker": "townsman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Tell me later. I've work.",
+       "status": "new"
+      },
+      {
+       "text": "Not now, I'm busy.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.woman",
+     "speaker": "townswoman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Well, I never.",
+       "status": "new"
+      },
+      {
+       "text": "Goodness.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
+     "takes": []
+    },
+    {
+     "id": "chat.reply.woman2",
+     "speaker": "townswoman",
+     "trigger": "Answering a neighbour",
+     "when": "any day",
+     "if": {
+      "on": "chat.reply"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I'm sure I don't know.",
+       "status": "new"
+      },
+      {
+       "text": "Hmph. Men.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1184)",
      "takes": []
     }
    ]

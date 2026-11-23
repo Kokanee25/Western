@@ -52,6 +52,10 @@ func test_the_graves_the_funeral_s_first_and_mostly_wood() -> void:
 	var funeral: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Cemetery.FUNERAL))
 	var olds: Array = funeral.old_graves
 	check(yard.graves.size() >= olds.size() + 10, "the old graves and more (%d)" % yard.graves.size())
+	check(yard.free_plots.size() >= 30, "room left for the game's dead (%d free plots)" % yard.free_plots.size())
+	for p: Vector2 in yard.free_plots:
+		for g: Dictionary in yard.graves:
+			check(absf((g.at as Vector2).x - p.x) >= 2.3 or absf((g.at as Vector2).y - p.y) >= 1.1, "a free plot clear of every grave")
 	for i in olds.size():
 		var want := Vector2(float(funeral.grave[0]) + float(olds[i][0]), float(funeral.grave[1]) + float(olds[i][1]))
 		check((yard.graves[i].at as Vector2).distance_to(want) < 0.01, "the funeral's old grave %d is where its scene had it" % i)
@@ -61,7 +65,7 @@ func test_the_graves_the_funeral_s_first_and_mostly_wood() -> void:
 		match g.kind:
 			&"wood_cross", &"headboard":
 				wood += 1
-			&"grave_marker":
+			&"grave_marker", &"headstone_arched":
 				stone += 1
 	check(wood > stone * 2 and stone >= 1, "mostly wooden crosses and headboards, a few stone (%d wood, %d stone)" % [wood, stone])
 	var funeral_grave := Vector2(float(funeral.grave[0]), float(funeral.grave[1]))

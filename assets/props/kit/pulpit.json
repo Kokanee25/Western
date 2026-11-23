@@ -1,5 +1,5 @@
 {
-  "_doc": "The church's pulpit, a plain white-painted lectern with a sloped reading desk.",
+  "_doc": "The church's pulpit: a white-painted box, panelled front and sides on a plinth, a moulded cap, a sloped reading desk.",
   "id": "pulpit",
   "kind": "members",
   "fixture": true,
@@ -9,36 +9,118 @@
   "blow_wood_share": 0.5,
   "members": [
     {
-      "id": "body",
+      "id": "plinth",
       "kind": "post",
       "size": [
-        0.62,
-        1.0,
-        0.5
+        1.01,
+        0.1,
+        0.68
       ],
       "at": [
         0.0,
-        0.5,
+        0.05,
         0.0
       ],
       "look": "lib:furniture_painted_pine/few"
     },
     {
-      "id": "desk",
-      "kind": "furniture_top",
+      "id": "front",
+      "kind": "post",
       "size": [
-        0.7,
-        0.04,
-        0.5
+        0.95,
+        0.98,
+        0.04
       ],
       "at": [
         0.0,
-        1.03,
-        0.02
+        0.59,
+        0.29
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "draw": {
+        "shape": "panel",
+        "out": "z",
+        "bevel": 0.04
+      }
+    },
+    {
+      "id": "side_l",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.98,
+        0.58
+      ],
+      "at": [
+        -0.455,
+        0.59,
+        -0.02
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "draw": {
+        "shape": "panel",
+        "out": "x",
+        "bevel": 0.04
+      }
+    },
+    {
+      "id": "side_r",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.98,
+        0.58
+      ],
+      "at": [
+        0.455,
+        0.59,
+        -0.02
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "draw": {
+        "shape": "panel",
+        "out": "x",
+        "bevel": 0.04
+      }
+    },
+    {
+      "id": "cap",
+      "kind": "furniture_frame",
+      "size": [
+        1.0,
+        0.05,
+        0.07
+      ],
+      "at": [
+        0.0,
+        1.105,
+        0.3
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "draw": {
+        "shape": "profile",
+        "profile": "ogee",
+        "along": "x",
+        "up": "y",
+        "across": "z"
+      }
+    },
+    {
+      "id": "desk",
+      "kind": "furniture_top",
+      "size": [
+        0.9,
+        0.035,
+        0.45
+      ],
+      "at": [
+        0.0,
+        1.16,
+        0.06
       ],
       "look": "lib:furniture_painted_pine/few/top",
       "rot": [
-        -12.0,
+        -14.0,
         0.0,
         0.0
       ]
@@ -47,14 +129,14 @@
       "id": "lip",
       "kind": "furniture_frame",
       "size": [
-        0.7,
-        0.05,
-        0.03
+        0.9,
+        0.04,
+        0.025
       ],
       "at": [
         0.0,
-        1.0,
-        0.27
+        1.15,
+        0.3
       ],
       "look": "lib:furniture_painted_pine/few"
     }

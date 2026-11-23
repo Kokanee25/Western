@@ -267,12 +267,13 @@ spec["lamps"] = {
         {"room": "workroom", "kit": "reflector_lamp", "wall": "yard", "level": "ground", "at": 8.5, "height": 1.6, "energy": 1.0, "reach": 6.0, "lit": [17, 21]},
         {"room": "back_room", "kit": "reflector_lamp", "wall": "work_b", "side": "+", "level": "ground", "at": 7.6, "height": 1.5, "energy": 0.9, "lit": [19, 23]},
         {"room": "coffin_store", "kit": "reflector_lamp", "wall": "cel_cross", "side": "-", "level": "cellar", "at": 1.8, "height": 1.5, "energy": 1.0, "reach": 6.0, "shadows": True, "lit": [0, 24]},
-        {"room": "embalming", "kit": "reflector_lamp", "wall": "cel_cross", "side": "+", "level": "cellar", "at": 6.3, "height": 1.55, "energy": 1.2, "reach": 6.0, "shadows": True, "lit": [0, 24]},
+        {"room": "embalming", "kit": "reflector_lamp", "wall": "cel_cross", "side": "+", "level": "cellar", "at": 6.3, "height": 1.2, "energy": 0.95, "reach": 5.5, "shadows": True, "lit": [0, 24], "smoky": 0.7, "_doc": "#1187: hung low over the work, the wick high and smoking: a deeper flame, a halo in the cellar's air and soot up the boards over it"},
         {"room": "ice_room", "kit": "reflector_lamp", "wall": "cel_ice", "side": "-", "level": "cellar", "at": 2.6, "height": 1.5, "energy": 0.7, "reach": 4.0, "lit": [0, 24]},
     ],
 }
 spec["light"] = copy.deepcopy(DOC["light"])
 spec["light"].update({"window_day": 9.0, "day_fill": 0.14})
+spec["light"]["cellar_haze"] = {"density": 0.05, "albedo": [0.62, 0.6, 0.55], "_doc": "#1187: the cellar's close air, damp and the lamps' smoke (a FogVolume over its rooms, flags to joists: CellarHaze); RoomLight's gunsmoke still thickens the house's RoomHaze"}
 
 # --- the yard: the hearse shed (NEW: outbuildings kind `shed`) -------------------------------------
 SHED = [-11.7, 12.0, -5.1, 17.6]
@@ -363,6 +364,58 @@ U1 = [
     {"id": "harness", "kit": "harness_rack", "at": [-5.9, r3(YARD(-5.9, 17.55) + 1.5), 17.58], "facing": 180, "use": "the stall's harness"},
 ]
 spec["dressing"] = {"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit already had (his desk, bed, stoves, table and chair, the mourners' bench). U1: the trade's own, the prop lab's batch (#1181, tools/props/undertaker.py, refs experiments/prop_lab/undertaker/README.md): coffins on trestles and racks, the bier and its drape, the bench and tool rack, the embalming table, pump, carboys, shelves, cooling board, ice bin and corpse cooler, the safety coffin, the posing stand, the hair wreath, the lantern, the box hearse and the stall's harness.", "batches": {"U0": U0, "U1": U1}}
+
+# --- the building's past (#1187, Sean 2026-11-23: "more blood stained and gross down in the basement") ---
+# Fourteen years of embalming laid as old blood through the game's own Blood (dried splats: decals) and
+# FloorMarks (stains soaked into the flags and treads), placed by the props (`by`: a dressing id, `off` in the
+# building's x and z from it) and the ways the dead come in. Laid at build (PastStains), seeded, dark and dry;
+# the mop and the rag lift them as any (Blood.take, FloorMarks.take). Points are [x, z] on `level`, or
+# [x, z, y] (y over the building's 0: the stair). Sean's sawdust heaps are props: the drips go beside them.
+C_TOP = FLAGS_TOP
+TABLE = lambda dx, dz: {"by": "embalming_table", "off": [dx, dz]}
+PAIL = lambda dx, dz: {"by": "pail", "off": [dx, dz]}
+BOARD = lambda dx, dz: {"by": "cooling_board", "off": [dx, dz]}
+COOLER = lambda dx, dz: {"by": "cooler", "off": [dx, dz]}
+STAIR_HEAD = spec["cellar"]["stair"]["head"]
+STAIR_RUN = 13 * spec["cellar"]["stair"]["going"]
+STAIR_Z = r3(STAIR_HEAD[1] + spec["cellar"]["stair"]["width"] * 0.5)  # its middle (the head is its edge)
+spec["past"] = [{
+    "id": "embalming_years",
+    "_doc": "NEW (#1187, PastStains): the undertaker's cellar since 1868. `blood`: `soak` a stain soaked into the surface (FloorMarks), `r` round a point or `width` along `points`, ml a cell's worth over the patch; `drips` dried splats (Blood) every `every` m along `points` (velocity: the way the dead were carried); `splash` n splats round a point within `r`; `smear` splats run down a wall, found by a ray from `points` (inside the room) along `toward`, `y` over the level. ml ranges are drawn from the seeded rng. Not gore: the table and its pail, the board, the carrying path, the melt.",
+    "years": 14, "seed": 1882, "marks": [],
+    "blood": [
+        # The table: what ran off its zinc into the drain's pail, and what dripped through and round it for years.
+        {"what": "soak", "level": "cellar", "at": TABLE(0, 0.78), "r": 0.26, "ml": 110, "_doc": "under the drain's end"},
+        {"what": "soak", "level": "cellar", "points": [TABLE(0, 0.85), PAIL(0, -0.08)], "width": 0.16, "ml": 30, "_doc": "the drain's drip to the pail"},
+        {"what": "soak", "level": "cellar", "at": PAIL(0.05, 0.02), "r": 0.3, "ml": 55, "_doc": "round the pail: spilt carrying it"},
+        {"what": "soak", "level": "cellar", "at": TABLE(0, 0.1), "r": 0.34, "ml": 45, "_doc": "through the table's seams"},
+        {"what": "soak", "level": "cellar", "at": TABLE(-0.55, -0.2), "r": 0.28, "ml": 14, "_doc": "where he stands, trodden"},
+        {"what": "soak", "level": "cellar", "at": TABLE(0.55, 0.3), "r": 0.26, "ml": 12},
+        {"what": "splash", "level": "cellar", "at": PAIL(0, 0), "r": [0.16, 0.5], "n": 6, "ml": [6.0, 25.0], "_doc": "slopped from the pail"},
+        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.72), "r": [0.0, 0.22], "n": 3, "ml": [40.0, 90.0], "_doc": "dried pools under the drain's end, beside the heap"},
+        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.1), "r": [0.0, 0.75], "n": 5, "ml": [8.0, 30.0], "props": True, "over": 1.1, "_doc": "on the table's zinc: scrubbed after every one and still stained (judge r1: 'the table is spotless')"},
+        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.05), "r": [0.05, 0.4], "n": 4, "ml": [15.0, 45.0], "_doc": "through the table's seams"},
+        {"what": "drips", "level": "cellar", "points": [TABLE(-0.42, -0.55), TABLE(-0.42, 0.75)], "every": [0.3, 0.6], "ml": [1.5, 8.0], "_doc": "off the table's edge, between the heaps"},
+        {"what": "drips", "level": "cellar", "points": [TABLE(0.42, -0.4), TABLE(0.42, 0.75)], "every": [0.35, 0.7], "ml": [1.5, 7.0]},
+        # The cooling board: the dead laid out before and after.
+        {"what": "soak", "level": "cellar", "at": BOARD(0.2, 0), "r": 0.42, "ml": 50, "_doc": "under the board"},
+        {"what": "soak", "level": "cellar", "at": BOARD(-0.65, 0), "r": 0.24, "ml": 18},
+        {"what": "drips", "level": "cellar", "points": [BOARD(-0.8, -0.32), BOARD(0.85, -0.32)], "every": [0.35, 0.8], "ml": [1.5, 7.0], "_doc": "off its front edge"},
+        {"what": "splash", "level": "cellar", "at": BOARD(0.2, 0), "r": [0.1, 0.5], "n": 3, "ml": [15.0, 45.0], "_doc": "dried under it"},
+        # The plank wall behind the table (the cross wall's embalming side, between the lamp and the fluids' shelf):
+        # wiped hands and the pump's spatter, run down the boards.
+        {"what": "smear", "level": "cellar", "points": [[7.15, 11.4], [8.15, 11.4]], "toward": [0, -1], "y": [0.7, 1.5], "n": 10, "ml": [10.0, 35.0]},
+        # The carrying path: down the workroom's stair, across the coffin store, through the embalming room's door to the
+        # table; and in from the bulkhead's passage.
+        {"what": "drips", "level": "cellar", "points": [[r3(STAIR_HEAD[0] + 0.25), STAIR_Z, FLOOR - 0.2], [r3(STAIR_HEAD[0] + STAIR_RUN - 0.1), STAIR_Z, C_TOP]], "over": 0.35, "every": [0.4, 0.85], "ml": [1.0, 5.0], "carry": [1.0, 0], "_doc": "down the stair's treads"},
+        {"what": "drips", "level": "cellar", "points": [[6.3, 9.8], [5.4, 10.4], [4.6, 10.95], [4.85, 11.6], [6.0, 12.1], TABLE(-0.5, -0.9)], "every": [0.5, 1.1], "ml": [1.0, 5.0], "carry": "path"},
+        {"what": "drips", "level": "cellar", "points": [[0.7, 8.6], [2.2, 9.3], [3.5, 9.75], [4.5, 10.8]], "every": [0.8, 1.5], "ml": [0.8, 3.5], "carry": "path", "_doc": "in from the bulkhead"},
+        # The ice room: the cooler's melt, pinkish, run to the door and under it.
+        {"what": "soak", "level": "cellar", "points": [COOLER(0.25, -1.05), [1.9, 12.45], [3.25, 12.55], [3.75, 12.5]], "width": 0.2, "ml": 7, "_doc": "the melt run under the ice room's door"},
+        {"what": "soak", "level": "cellar", "at": COOLER(0.2, -1.0), "r": 0.22, "ml": 14},
+        {"what": "splash", "level": "cellar", "at": COOLER(0.25, 0), "r": [0.3, 0.9], "n": 3, "ml": [1.0, 4.0]},
+    ],
+}]
 spec["furniture"] = []
 spec["fixtures"] = []
 spec["sources"] = DOC["sources"][:5] + [
