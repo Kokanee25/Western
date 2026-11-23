@@ -417,10 +417,14 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var place := StringName(a[0])
 	# The town's saloon room is No Law's yard set (#1194: `walk saloon` stopped at saloon B's door, 17 m
 	# short of the bar and the card table): to the room's middle while that set stands.
-	if place == &"saloon" and _places().has(&"nolaw_yard_mid"):
-		place = &"nolaw_yard_mid"
+	# (The set's places are the folk's own, not the valley's: routed by theirs.)
+	var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 	var man: HumanBody = null
-	if _places().has(place):
+	if place == &"saloon" and vf != null and vf.places != null and vf.places.has(&"nolaw_yard_mid"):
+		points = vf.places.route(World.space(player), player.global_position, &"nolaw_yard_mid", [player.get_rid()])
+		if points.is_empty():
+			points = [vf.places.at(&"nolaw_yard_mid")]
+	elif _places().has(place):
 		points = _places().route(World.space(player), player.global_position, place, [player.get_rid()])
 		if points.is_empty():
 			# Off the places' links (#1095: `walk hideout`, 2 km out across open country, said "no way
