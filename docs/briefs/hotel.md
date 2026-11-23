@@ -212,6 +212,10 @@ cleanest if B's tunnel feels like too much.
 
 ## 6. The gallery holds the ambush
 
+**DECIDED (Sean, 2026-11-23, in session):** the second floor has an exterior balcony (this gallery), built to
+be blown up later. It stays on its own posts at the walk's edge so dynamite at the posts brings it down; the
+open deck or a roof over it is still §9 3.
+
 The girder men drink on the gallery the night after Payday Night (C9 a; `5_act4_sides.md`). The
 design gives it (`hotel/gallery_section.png`):
 
