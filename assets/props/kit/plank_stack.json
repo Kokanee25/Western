@@ -1,0 +1,190 @@
+{
+  "_doc": "A stack of seasoning boards (#1181): raw pine planks 2 m by 34 cm in three layers of two on stickers, his coffin stock. 6 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "plank_stack",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "sticker0",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.04,
+        0.34
+      ],
+      "at": [
+        -0.7,
+        0.02,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "sticker1",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.04,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "sticker2",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.04,
+        0.34
+      ],
+      "at": [
+        0.7,
+        0.02,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "layer0",
+      "kind": "furniture_frame",
+      "size": [
+        2.0,
+        0.06,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.07,
+        0.0
+      ],
+      "look": "wood:framing",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              2.0,
+              0.026,
+              0.34
+            ],
+            "at": [
+              0.0,
+              -0.015,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              1.9,
+              0.026,
+              0.3
+            ],
+            "at": [
+              0.0,
+              0.015,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "layer1",
+      "kind": "furniture_top",
+      "size": [
+        2.0,
+        0.06,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.13,
+        0.0
+      ],
+      "look": "wood:framing",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              2.0,
+              0.026,
+              0.34
+            ],
+            "at": [
+              0.0,
+              -0.015,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              1.8,
+              0.026,
+              0.3
+            ],
+            "at": [
+              0.0,
+              0.015,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "layer2",
+      "kind": "trim",
+      "size": [
+        2.0,
+        0.06,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.19,
+        0.0
+      ],
+      "look": "wood:framing",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              2.0,
+              0.026,
+              0.34
+            ],
+            "at": [
+              0.0,
+              -0.015,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              1.7,
+              0.026,
+              0.3
+            ],
+            "at": [
+              0.0,
+              0.015,
+              0.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

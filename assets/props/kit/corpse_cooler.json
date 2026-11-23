@@ -1,0 +1,280 @@
+{
+  "_doc": "The corpse cooler (#1181; sold from the 1870s, the period note: a box with an ice pan over the chest): a pine case 2.15 m by 0.66 raised on four legs, lined with zinc (the sheet drawn as the pan and its rim), a tin pan on the chest and two blocks of ice in it, a drain at the foot (+x). Open, its lid off. 12 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "corpse_cooler",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.46,
+        0.07
+      ],
+      "at": [
+        -1.015,
+        0.23,
+        -0.27
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.46,
+        0.07
+      ],
+      "at": [
+        1.015,
+        0.23,
+        -0.27
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.46,
+        0.07
+      ],
+      "at": [
+        -1.015,
+        0.23,
+        0.27
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.46,
+        0.07
+      ],
+      "at": [
+        1.015,
+        0.23,
+        0.27
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "floor",
+      "kind": "furniture_frame",
+      "size": [
+        2.15,
+        0.04,
+        0.66
+      ],
+      "at": [
+        0.0,
+        0.48,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "dress": [
+        {
+          "look": "prop:tin",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.04,
+                  0.36,
+                  0.04
+                ],
+                "at": [
+                  0.775,
+                  -0.23,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wall_b",
+      "kind": "furniture_top",
+      "size": [
+        2.15,
+        0.42,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.71,
+        -0.315
+      ],
+      "wood": "weathered_pine",
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "wall_f",
+      "kind": "furniture_top",
+      "size": [
+        2.15,
+        0.42,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.71,
+        0.315
+      ],
+      "wood": "weathered_pine",
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "end_w",
+      "kind": "furniture_top",
+      "size": [
+        0.03,
+        0.42,
+        0.6
+      ],
+      "at": [
+        -1.06,
+        0.71,
+        0.0
+      ],
+      "wood": "weathered_pine",
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "end_e",
+      "kind": "furniture_top",
+      "size": [
+        0.03,
+        0.42,
+        0.6
+      ],
+      "at": [
+        1.06,
+        0.71,
+        0.0
+      ],
+      "wood": "weathered_pine",
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "ice_pan",
+      "kind": "trim",
+      "size": [
+        0.8,
+        0.06,
+        0.5
+      ],
+      "at": [
+        0.15,
+        0.53,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:tin",
+      "dress": [
+        {
+          "look": "prop:tin",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.8,
+                  0.1,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  0.03,
+                  -0.25
+                ]
+              },
+              {
+                "size": [
+                  0.8,
+                  0.1,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  0.03,
+                  0.25
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.1,
+                  0.5
+                ],
+                "at": [
+                  -0.4,
+                  0.03,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.1,
+                  0.5
+                ],
+                "at": [
+                  0.4,
+                  0.03,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ice1",
+      "kind": "trim",
+      "size": [
+        0.34,
+        0.18,
+        0.4
+      ],
+      "at": [
+        -0.02,
+        0.65,
+        0.0
+      ],
+      "wood": "stone",
+      "look": "glass:aqua"
+    },
+    {
+      "id": "ice2",
+      "kind": "trim",
+      "size": [
+        0.3,
+        0.16,
+        0.38
+      ],
+      "at": [
+        0.34,
+        0.64,
+        0.0
+      ],
+      "wood": "stone",
+      "look": "glass:aqua"
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}
