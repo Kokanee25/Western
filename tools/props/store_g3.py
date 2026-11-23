@@ -145,25 +145,31 @@ def parcel_stack():
 # --- Hung from the ceiling ------------------------------------------------------------------------------------
 # The kit's hook (`hangs.hook`: what's over it, the ceiling's board, is what it hangs from: it swings when pushed and
 # falls whole with its ceiling). The lamps' pattern (tools/props/saloon.py `_hanging`): no glass except a lantern's.
-HUNG = {"hung_pails": {"drop": 0.95, "w": 0.72, "mass": 2.4, "what": "three tin pails, 10 qt, hung by their bails from a cross-cord on one hook (a hardware shop's cheapest sign)"},
-        "hung_ham": {"drop": 0.8, "w": 0.4, "mass": 7.0, "what": "two cured hams in muslin on tarred cord, one hung lower than the other"},
-        "hung_lantern": {"drop": 0.65, "w": 0.3, "mass": 1.6, "what": "a tin barn lantern with its globe, hung by its bail from a hook (for sale: the oil unfilled)"}}
+HUNG = {"hung_pails": {"drop": 1.15, "w": 1.3, "d": 0.6, "goods_h": 0.85, "mass": 7.0,
+                       "what": "a string of seven tin pails, 10 qt, hung by their bails from a bar on two cords (four close under the bar, three on long cords behind: a hardware shop's cheapest sign)"},
+        "hung_ham": {"drop": 1.2, "w": 1.3, "d": 0.4, "goods_h": 0.6, "mass": 24.0,
+                     "what": "six cured hams in muslin on tarred cord from a rail, hung at two lengths"},
+        "hung_lantern": {"drop": 1.05, "w": 0.95, "d": 0.3, "goods_h": 0.45, "mass": 5.0,
+                         "what": "four tin barn lanterns with their globes on a bar, at two heights (for sale: the oil unfilled)"},
+        "hung_boots": {"drop": 1.1, "w": 1.1, "d": 0.4, "goods_h": 0.7, "mass": 6.0,
+                       "what": "four pairs of pull-on boots tied by their straps along a bar, hung at two heights"}}
 
 
 def hung(kit):
     h = HUNG[kit]
-    drop = h["drop"]
+    drop, w, d, gh = h["drop"], h["w"], h["d"], h["goods_h"]
     glass = ["Globe"] if kit == "hung_lantern" else []
-    parts = {"hung_pails": ["Pails", "Cords"], "hung_ham": ["Hams", "Cords"], "hung_lantern": ["Lantern", "Globe"]}[kit]
+    parts = {"hung_pails": ["Pails", "Cords"], "hung_ham": ["Hams", "Cords"], "hung_lantern": ["Lantern", "Globe"],
+             "hung_boots": ["Boots", "Cords"]}[kit]
     looks = {p: ("glass:flint" if p == "Globe" else "pbr:" + kit) for p in parts}
     return {
-        "_doc": "Goods hung from the store's beaded ceiling (#1182, G3): %s. A prop that hangs by a hook (GlassProp, as the hanging lamp: it swings when pushed, and falls whole if the board it hangs from goes; its parts never shatter%s). Baked the gun way (tools/blender/props/store_g3.py: model %s). Written by tools/props/store_g3.py." % (
-            h["what"], ", but the globe does" if glass else "", kit),
+        "_doc": "Goods hung from the store's beaded ceiling (#1182 G3, bolder in #1192 G4): %s. A prop that hangs by a hook (GlassProp, as the hanging lamp: it swings when pushed, and falls whole if the board it hangs from goes; its parts never shatter%s). Baked the gun way (tools/blender/props/store_g3.py: model %s). Written by tools/props/store_g3.py." % (
+            h["what"], ", but the globes do" if glass else "", kit),
         "id": kit, "kind": "shatters", "fixture": True, "in_game": False, "replaces": "",
         "model": "glb:" + kit, "looks": looks,
-        "size": store_g1.r([h["w"], drop, 0.3 if kit == "hung_pails" else h["w"]]), "mass": h["mass"], "wall": 0.0015,
+        "size": store_g1.r([w, drop, d]), "mass": h["mass"], "wall": 0.0015,
         "hangs": {"hook": store_g1.r([0.0, drop, 0.0])},
-        "hit": {"at": store_g1.r([0.0, drop * 0.4, 0.0]), "size": store_g1.r([h["w"] * 0.9, drop * 0.5, 0.28 if kit == "hung_pails" else h["w"] * 0.9])},
+        "hit": {"at": store_g1.r([0.0, gh * 0.5, 0.0]), "size": store_g1.r([w * 0.9, gh, d * 0.9])},
         "swing": {"pivot": store_g1.r([0.0, drop, 0.0]), "length": round(drop * 0.7, 3), "damping": 0.4},
         "glass": glass, "whole": [[p for p in parts if p not in glass]], "piece_mass": round(h["mass"] * 0.8, 2), "shards": 8,
         "breaks_at": 1.5 if glass else 1000.0, "shatters_kpa": 15 if glass else 1000000000.0, "heat_seconds": 30, "cut_area": 0.04,
@@ -172,7 +178,7 @@ def hung(kit):
 
 
 BATCH_G3 = [post_case, lambda: mail_row(0), lambda: mail_row(1), lambda: mail_row(2), lambda: mail_row(3), ledger_book, day_book, ink_set,
-            till_cash, parcel_stack, lambda: hung("hung_pails"), lambda: hung("hung_ham"), lambda: hung("hung_lantern")]
+            till_cash, parcel_stack, lambda: hung("hung_pails"), lambda: hung("hung_ham"), lambda: hung("hung_lantern"), lambda: hung("hung_boots")]
 
 
 # === Where each goes: the store's `dressing`, batch G3 =============================================================
@@ -196,14 +202,15 @@ def dressing_g3():
     out.append(e("post_stool", "bar_stool", [14.78, 0.0, 10.05], 0))
     out.append(e("ink_post", "ink_set", [15.25, 0.76, 10.2], 190))
     out.append(e("parcels_post", "parcel_stack", [15.95, 0.76, 10.3], 15))
-    # Hung from the beaded ceiling (3.56 over the floor), each its drop under its hook: over the west counter and the
-    # east counter's end the pails and lanterns the camera at the door sees, hams over the back.
+    # Hung from the beaded ceiling (3.56 over the floor), each its drop under its hook (#1192, G4: bigger clusters, the lowest goods
+    # 2.36 to 2.5 m up, clear of a man's 1.8 m head). Over the aisle between the two counters (x 5.6 to 11.2, the free posts'
+    # line), staggered about the centre line x 8.4 so the door's view down the room stays open between them.
     ceil = 3.56
-    for id_, kit, x, z in (("hung_pails_w", "hung_pails", 13.7, 2.9), ("hung_pails_e", "hung_pails", 3.4, 3.2),
-                           ("hung_ham_a", "hung_ham", 3.2, 8.4), ("hung_ham_b", "hung_ham", 14.4, 8.2),
-                           ("hung_lantern_a", "hung_lantern", 9.4, 3.0), ("hung_lantern_b", "hung_lantern", 6.6, 9.0),
-                           ("hung_lantern_c", "hung_lantern", 11.2, 5.6)):
-        out.append(e(id_, kit, [x, round(ceil - HUNG[kit]["drop"], 3), z], 20 if id_.endswith("a") else 0))
+    for id_, kit, x, z, turn in (("hung_ham_a", "hung_ham", 7.0, 4.7, 0), ("hung_ham_b", "hung_ham", 9.9, 7.9, 0),
+                                 ("hung_pails_a", "hung_pails", 9.9, 4.3, 0), ("hung_pails_b", "hung_pails", 6.9, 8.3, 0),
+                                 ("hung_boots_a", "hung_boots", 7.0, 2.7, 0),
+                                 ("hung_lantern_a", "hung_lantern", 9.9, 2.6, 0), ("hung_lantern_b", "hung_lantern", 7.4, 6.3, 0)):
+        out.append(e(id_, kit, [x, round(ceil - HUNG[kit]["drop"], 3), z], turn))
     return out
 
 

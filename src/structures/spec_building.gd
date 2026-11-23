@@ -218,7 +218,7 @@ func build() -> void:
 	walls.clear()
 	# What the last build made that isn't a member (Structure.rebuild frees only those).
 	for c in get_children():
-		if c == _furnish or String(c.name).begins_with("Ramp_") or c.name in [&"InteriorAmbient", &"RoomHaze"]:
+		if c == _furnish or String(c.name).begins_with("Ramp_") or c.name in [&"InteriorAmbient", &"RoomHaze", &"CellarHaze", &"PastStains"]:
 			c.free()
 	_furnish = Node3D.new()
 	_furnish.name = "Furnishings"
@@ -327,6 +327,24 @@ func build() -> void:
 	marks = Marks.place(self, spec)
 	_library_finishes()
 	_stone_finish()
+	_past_stains()
+
+
+## The building's old blood by its `past` (#1187, the undertaker's cellar): PastStains lays it through
+## Blood and FloorMarks once the building is in a world (src/art/past_stains.gd).
+func _past_stains() -> void:
+	var any := false
+	for ev: Dictionary in spec.get("past", []):
+		any = any or not (ev.get("blood", []) as Array).is_empty()
+	for lamp: OilLamp in lamps:
+		any = any or lamp.has_meta(&"smoky")
+	if not any:
+		return
+	var ps := PastStains.new()
+	ps.name = "PastStains"
+	ps.spec = spec
+	ps.building = self
+	add_child(ps)
 
 
 # --- things hung on a wall, and the repair jobs left in a building (#1126, Harlan's) ---------------
@@ -522,6 +540,24 @@ func _add_interior_ambient() -> void:
 	if haze:
 		haze.size = probe.size
 		haze.position = probe.position
+	if light.has("cellar_haze") and cel.has("rect") and GunSmoke.supports_fog_volumes():
+		# The cellar's close air (#1187): damp and the lamps' smoke, a box over its rooms from the flags to the joists.
+		var ch: Dictionary = light.cellar_haze
+		var r: Array = cel.rect
+		var lo := float(_lv.cellar)
+		var hi := float(_lv.ground_joist_bottom)
+		var fog := FogVolume.new()
+		fog.name = "CellarHaze"
+		fog.shape = RenderingServer.FOG_VOLUME_SHAPE_BOX
+		fog.size = Vector3(float(r[2]) - float(r[0]), hi - lo, float(r[3]) - float(r[1]))
+		fog.position = Vector3((float(r[0]) + float(r[2])) * 0.5, (hi + lo) * 0.5, (float(r[1]) + float(r[3])) * 0.5)
+		var fm := FogMaterial.new()
+		fm.density = float(ch.get("density", 0.04))
+		var al: Array = ch.get("albedo", [0.6, 0.6, 0.6])
+		fm.albedo = Color(al[0], al[1], al[2])
+		fm.height_falloff = 0.3
+		fog.material = fm
+		add_child(fog)
 	if light.has("window_day"):
 		set_meta(&"room_window_gain", float(light.window_day))
 	if light.has("day_fill"):
@@ -2596,6 +2632,13 @@ func _kit_lamp_light(prop: Node3D, e: Dictionary, flame_at: Array) -> void:
 	lamp.energy = float(e.get("energy", 1.2))
 	lamp.light_range = float(e.get("reach", 6.0))
 	lamp.casts_shadows = bool(e.get("shadows", false))
+	if e.has("smoky"):
+		# A wick turned high and smoking (#1187, the embalming room's): a deeper flame, a halo in the air,
+		# soot up the boards over it (PastStains).
+		var sm := float(e.smoky)
+		lamp.colour = Color(1.0, 0.74, 0.48).lerp(Color(1.0, 0.56, 0.27), sm)
+		lamp.haze = 1.2 + 2.0 * sm
+		lamp.set_meta(&"smoky", sm)
 	var flame: Array = e.get("flame", flame_at)
 	lamp.position = Vector3(flame[0], flame[1], flame[2])
 	prop.add_child(lamp)
