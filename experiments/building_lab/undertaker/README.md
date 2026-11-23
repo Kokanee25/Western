@@ -104,3 +104,19 @@ store's safety coffin shows no bell frame. Sean OK'd the sheet 2026-11-23 (#1173
 - **Round 2** (`2026-11-23_undertaker_r2/`, stair and embalming): both cheap indie, for the empty rooms (props),
   the floor's gloss and repeat, the stone's square blotches and no contact shadow under the tables. The cellar now
   reads dark and lamplit. Left for the props step and the library (stone, black trim).
+
+## The cellar made grim (#1187, 2026-11-23)
+
+- **Old blood by its history** (`make_spec.py`'s `past` `embalming_years`, laid by `PastStains`, src/art): fourteen
+  years of embalming as dried Blood splats and FloorMarks stains soaked into the flags, placed by the props (the table,
+  its pail, the cooling board, the cooler) and the carrying path (down the stair's treads, across the coffin store,
+  through the door to the table; in from the bulkhead), smears run down the cross wall's boards behind the table, the
+  ice room's melt under its door. Seeded (the same every build), fully dry and dark, scrubbed by a rag or a mop (Blood.take,
+  FloorMarks.take), saved as any blood; Blood's cap spares it. Sean's sawdust heaps are props: the drips go beside them.
+- **The light:** the embalming room's lamp hung low (1.2 m) and `smoky` (a deeper flame, a halo, soot up the boards); the
+  cellar's close air a FogVolume (`light.cellar_haze`, CellarHaze) from the flags to the joists.
+- **Not done: damp on the walls.** The library's stone (`rubble_whitewash`) hasn't passed (#928), so damp on the game's
+  placeholder stone waits on Sean (the issue opened for it).
+- **Judged once** (`docs/screenshots/judge/2026-11-23_undertaker_grim_r1/`, renders in `results/2026-11-23_grim/`): embalming
+  good indie (was cheap indie), stair cheap indie (the workroom's glossy floor). The critic: the walls boards, not stone; the
+  table plain (the judge: "spotless": its top now takes old splats, `props` splash; its zinc is the prop lab's look).

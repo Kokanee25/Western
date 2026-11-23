@@ -3901,42 +3901,52 @@
      "facing": 15
     },
     {
-     "id": "hung_pails_w",
-     "kit": "hung_pails",
-     "at": [
-      13.7,
-      2.61,
-      2.9
-     ],
-     "facing": 0
-    },
-    {
-     "id": "hung_pails_e",
-     "kit": "hung_pails",
-     "at": [
-      3.4,
-      2.61,
-      3.2
-     ],
-     "facing": 0
-    },
-    {
      "id": "hung_ham_a",
      "kit": "hung_ham",
      "at": [
-      3.2,
-      2.76,
-      8.4
+      7.0,
+      2.36,
+      4.7
      ],
-     "facing": 20
+     "facing": 0
     },
     {
      "id": "hung_ham_b",
      "kit": "hung_ham",
      "at": [
-      14.4,
-      2.76,
-      8.2
+      9.9,
+      2.36,
+      7.9
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_pails_a",
+     "kit": "hung_pails",
+     "at": [
+      9.9,
+      2.41,
+      4.3
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_pails_b",
+     "kit": "hung_pails",
+     "at": [
+      6.9,
+      2.41,
+      8.3
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_boots_a",
+     "kit": "hung_boots",
+     "at": [
+      7.0,
+      2.46,
+      2.7
      ],
      "facing": 0
     },
@@ -3944,29 +3954,19 @@
      "id": "hung_lantern_a",
      "kit": "hung_lantern",
      "at": [
-      9.4,
-      2.91,
-      3.0
+      9.9,
+      2.51,
+      2.6
      ],
-     "facing": 20
+     "facing": 0
     },
     {
      "id": "hung_lantern_b",
      "kit": "hung_lantern",
      "at": [
-      6.6,
-      2.91,
-      9.0
-     ],
-     "facing": 0
-    },
-    {
-     "id": "hung_lantern_c",
-     "kit": "hung_lantern",
-     "at": [
-      11.2,
-      2.91,
-      5.6
+      7.4,
+      2.51,
+      6.3
      ],
      "facing": 0
     }
