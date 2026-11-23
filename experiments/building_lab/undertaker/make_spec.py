@@ -316,7 +316,7 @@ U1 = [
     {"id": "display_1_coffin", "kit": "coffin_rect", "at": [4.3, TR, 2.2], "facing": 90, "use": "a casket on its trestles"},
     {"id": "display_2", "kit": "trestles", "at": [6.0, 0.0, 1.5], "facing": 90},
     {"id": "display_2_coffin", "kit": "coffin_hex", "at": [6.0, TR, 1.5], "facing": 90, "use": "a toe-pincher on its trestles"},
-    {"id": "display_3", "kit": "trestles", "at": [8.9, 0.0, 2.0], "facing": 90},
+    {"id": "display_3", "kit": "trestles_short", "at": [8.9, 0.0, 2.0], "facing": 90},
     {"id": "display_3_coffin", "kit": "coffin_child", "at": [8.9, TR, 2.0], "facing": 90, "use": "a child's coffin, white"},
     # The workroom: the bench, its tools on the wall, a lid on trestles, planks, the glue pot on the stove.
     {"id": "bench", "kit": "workbench", "at": [7.8, 0.0, 5.92], "facing": 0, "use": "his long bench with its vise, against the workroom's front wall"},
@@ -356,7 +356,10 @@ U1 = [
     {"id": "posing_chair", "kit": "posing_chair", "at": [8.35, CY, 10.7], "facing": 0},
     {"id": "lantern", "kit": "iron_lantern", "at": [6.47, LANTERN_Y, 7.95], "facing": 0, "use": "the iron lantern on a hook in the east girder"},
     # The hearse shed: the box hearse, the horse's harness in the stall.
-    {"id": "hearse", "kit": "hearse", "at": [-9.4, YARD(-9.4, 15.85), 15.85], "facing": 270, "use": "the box hearse, its driver's box toward the doors"},
+    # The box hearse (`hearse`, made and standing on a flat floor) is NOT placed: the yard falls 3.4 cm a metre and a kit prop's
+    # feet are looked for at one height (KitProp._find_footing), so its four wheels, 2.4 m by 1.45 m apart, can't all meet the
+    # ground and it tips loose (CI's test_save_game found it). It wants a level pad under the shed (the valley's ground, like
+    # CellarDig) before this line can come back: {"id": "hearse", "kit": "hearse", "at": [-9.4, YARD(-9.4, 15.85), 15.85], "facing": 270}
     {"id": "harness", "kit": "harness_rack", "at": [-5.9, r3(YARD(-5.9, 17.55) + 1.5), 17.58], "facing": 180, "use": "the stall's harness"},
 ]
 spec["dressing"] = {"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit already had (his desk, bed, stoves, table and chair, the mourners' bench). U1: the trade's own, the prop lab's batch (#1181, tools/props/undertaker.py, refs experiments/prop_lab/undertaker/README.md): coffins on trestles and racks, the bier and its drape, the bench and tool rack, the embalming table, pump, carboys, shelves, cooling board, ice bin and corpse cooler, the safety coffin, the posing stand, the hair wreath, the lantern, the box hearse and the stall's harness.", "batches": {"U0": U0, "U1": U1}}

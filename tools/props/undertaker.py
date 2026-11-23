@@ -183,6 +183,11 @@ def trestles():
                 ms, wood="weathered_pine")
 
 
+def trestles_short():
+    ms = _trestle(-0.35, "w") + _trestle(0.35, "e")
+    return prop("trestles_short", "Two sawhorse trestles 0.7 m apart (#1181), for a child's coffin (1.05 m: it would fall between `trestles`' 1.4). 6 physics bodies. Written by tools/props/undertaker.py.", ms, wood="weathered_pine")
+
+
 def bier():
     ms = _trestle(-0.7, "w") + _trestle(0.7, "e")
     for k, z in enumerate((-0.2, 0.2)):
@@ -561,7 +566,7 @@ def hearse():
     for s in (-1, 1):
         ms.append(member("riser%d" % (s > 0), "trim", [0.4, 0.5, 0.04], [bx - L * 0.5 - 0.15, top + 0.25, s * (W * 0.5 - 0.1)], look=EBONY, wood="weathered_pine"))
     ms.append(member("dash", "trim", [0.03, 0.5, W - 0.05], [bx - L * 0.5 - 0.35, top + 0.25, 0], look=EBONY, wood="weathered_pine", rot=[0, 0, -12]))
-    return prop("hearse", "The box hearse (#1181; Habenstein and Lamers 1955: the glass-sided box hearse of the 1870s-80s, black, plumes at its corners, a driver's box before it; Concord and the Sayers & Scovill hearse catalogues): the buckboard's running gear stretched (12-spoke wheels with iron tyres, oak axles, bolsters, reach, tongue) under a deck of pine boards; on it a black body %.1f m by %.1f, black panels to knee height, four corner posts, glass in the sides and rear, a black roof with a crown and brass drops, a plume in a black cup at each corner, and the driver's box. Stands in the shed's centre. Written by tools/props/undertaker.py." % (L, W),
+    return prop("hearse", "The box hearse (#1181; Habenstein and Lamers 1955: the glass-sided box hearse of the 1870s-80s, black, plumes at its corners, a driver's box before it; Concord and the Sayers & Scovill hearse catalogues): the buckboard's running gear stretched (12-spoke wheels with iron tyres, oak axles, bolsters, reach, tongue) under a deck of pine boards; on it a black body %.1f m by %.1f, black panels to knee height, four corner posts, glass in the sides and rear, a black roof with a crown and brass drops, a plume in a black cup at each corner, and the driver's box. Needs level ground (a kit prop's feet all sit at its origin's height: on the yard's 3.4 cm/m fall it tips loose), so it isn't placed yet. Written by tools/props/undertaker.py." % (L, W),
                 ms, wood="oak", look=wagons.GEAR_LOOK, splits_below=0.4)
 
 
@@ -616,7 +621,7 @@ def mop_pail():
                 [p], wood="oak")
 
 
-BATCH_U1 = [sawdust_wet, sawdust_pale, rags, mop_pail, coffin_hex, coffin_hex_open, coffin_lid, coffin_rect, coffin_child, trestles, bier, workbench, tool_rack, glue_pot,
+BATCH_U1 = [trestles_short, sawdust_wet, sawdust_pale, rags, mop_pail, coffin_hex, coffin_hex_open, coffin_lid, coffin_rect, coffin_child, trestles, bier, workbench, tool_rack, glue_pot,
             plank_stack, embalming_table, zinc_pail, cooling_board, sheeted_board, embalming_pump, carboy, fluids_shelf,
             shroud_shelf, ice_bin, corpse_cooler, coffin_rack, safety_coffin, posing_stand, posing_chair, hair_wreath,
             iron_lantern, hearse, harness_rack]

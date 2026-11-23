@@ -1952,7 +1952,7 @@
 				},
 				{
 					"id": "display_3",
-					"kit": "trestles",
+					"kit": "trestles_short",
 					"at": [
 						8.9,
 						0.0,
@@ -2305,17 +2305,6 @@
 					],
 					"facing": 0,
 					"use": "the iron lantern on a hook in the east girder"
-				},
-				{
-					"id": "hearse",
-					"kit": "hearse",
-					"at": [
-						-9.4,
-						-0.663,
-						15.85
-					],
-					"facing": 270,
-					"use": "the box hearse, its driver's box toward the doors"
 				},
 				{
 					"id": "harness",

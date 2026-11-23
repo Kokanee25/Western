@@ -44,7 +44,7 @@ shrouds on the back wall (6.3, 14.55), the sheeted board (4.6, 14.35). Ice room:
 cooler along the east wall (0.85, 13.2) (the thick door's way in stays clear). Coffin store: the rack on the cross wall
 (1.9, 10.4) with a toe-pincher below and a casket above, the safety coffin along the west wall (8.85, 8.7) facing 90, the
 posing stand (7.75, 10.7) behind its chair (8.35, 10.7), the lantern on a hook in the east girder (6.47, 7.95). Yard: the
-hearse in the shed (-9.4, 15.85) facing 270 (driver's box to the doors), the harness on the stall's back wall.
+harness on the stall's back wall. **The hearse is not placed** (below).
 The first placement of the safety coffin stood across the walk from the bulkhead to the stair's foot: the test
 (`test_a_man_walks_down_into_the_cellar_and_up_the_bulkhead`) caught it; it lies along the west wall now.
 
@@ -71,3 +71,13 @@ swept into two corners, `rags` by the pail, `mop_pail` (a mop in pinkish water) 
 with dark and pale streaks. Heaps are small and few, the floor between left clear: **no blood splats or floor stains**,
 those come from the building's history (#1187). Looks only (no new texture): the stains are the kit's dark and pale
 hide looks drawn as thin boxes, so how they read is for the judge.
+
+## The hearse is made but not placed (CI found it, #1189)
+
+In the valley it tipped loose at once: `test_save_game` (a valley nothing has happened in keeps no structures) listed it.
+Why: the yard falls 3.4 cm a metre, and a kit prop looks for every foot's footing at *one* height (its origin's:
+`KitProp._find_footing`), so wheels 2.4 m by 1.45 m apart on that slope can't all meet the ground (8 cm). Lowering the
+front wheels by the fall did not help (the footing box is still at the origin's height). It stands on a flat floor
+(`test_undertaker_props`). To place it: a level pad under the shed in the valley's ground (like `CellarDig`), then the
+commented line in `make_spec.py`. The child's coffin hit a different fault: 1.05 m on trestles 1.4 m apart fell between
+them (loose too): `trestles_short`.

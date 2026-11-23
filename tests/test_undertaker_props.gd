@@ -3,7 +3,7 @@ extends TestCase
 ## weighs something and is handed out by name; the hung ones (tool rack, wreath, lantern, harness) are
 ## files with their nails; the whole batch's bodies are counted (the valley is near Jolt's limit).
 
-const STANDING := [&"coffin_hex", &"coffin_hex_open", &"coffin_lid", &"coffin_rect", &"coffin_child", &"trestles", &"bier",
+const STANDING := [&"coffin_hex", &"coffin_hex_open", &"coffin_lid", &"coffin_rect", &"coffin_child", &"trestles", &"trestles_short", &"bier",
 		&"workbench", &"glue_pot", &"plank_stack", &"embalming_table", &"zinc_pail", &"cooling_board", &"sheeted_board",
 		&"embalming_pump", &"carboy", &"fluids_shelf", &"shroud_shelf", &"ice_bin", &"corpse_cooler", &"coffin_rack",
 		&"safety_coffin", &"posing_stand", &"posing_chair", &"hearse", &"sawdust_wet", &"sawdust_pale", &"rags", &"mop_pail"]

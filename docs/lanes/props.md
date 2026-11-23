@@ -19,7 +19,8 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   test `tests/test_undertaker_props.gd`). 345 bodies (valley 50,152 of 65,536). Tests green (building 9, valley, card_game).
   **Not judged:** two valley views rendered (parlour, embalming: the wreath a flat plaque, the zinc too dark); the stand
   sheet, the other four views and the critic still to run (README "What stands in"). Lantern and wreath hang on nails (a lantern's swing wants a baked GlassProp); glass is members, not GlassProps.
-  A prop's `kind` ladder bit twice (frame on trim, a trim hung under a top): `StructureMember.TIERS`.
+  **The hearse is made, not placed:** the yard's slope tips it loose (a kit prop's feet are looked for at one height); it wants
+  a level pad under the shed. A prop's `kind` ladder bit twice (frame on trim, a trim hung under a top): `StructureMember.TIERS`.
 - **The general store, G1 and G2 placed** (#1139, #1172; `tools/props/store_g1.py`, `store_g2.py` (numbers, kits, `STOCK` per
   board), `tools/blender/props/store_g2.py` (models: `bpy` 5.0.1 in `~/.venvs/studio` works, ~1 min of bakes); plan, judging
   and G3 in `experiments/prop_lab/store/README.md`; refs `refs/store/`). `gen_spec.py` imports both; edit there, re-run
