@@ -8,6 +8,8 @@ extends Node3D
 ## and chips lie on the table (stand-ins: boxes and discs, the faces as text). On your turn a nod
 ## calls or checks and a shake folds (HeadGesture), and waited on you check, or fold to a bet.
 ##
+## A hand in play holds its men's chairs (SceneHold, #1050: nobody else sits in a man's chair while he's
+## in the hand; no cast and no breaks of its own: its own stops below end it).
 ## It runs till something stops it: a shot or a blast near, a man in the hand out of his chair
 ## (kicked, up and running), or an act's `interrupt` (No Law's next step: Cody walks up).
 ## Stopped, the cards stay where they lie and the pot rides; it deals again once it's been calm
@@ -86,6 +88,8 @@ var _letters := false
 var _centre := Vector3.ZERO
 var _centre_at := -1.0
 var _top := -1.0
+## The hand's hold on its chairs (SceneHold), on while a hand plays.
+var seat_hold: SceneHold
 
 
 func _init() -> void:
@@ -241,6 +245,7 @@ func interrupt(reason: StringName, hold_it := false) -> void:
 		return
 	stop_reason = reason
 	state = &"stopped"
+	_let_seats_go()
 	_calm = 0.0
 	_you_turn = false
 	_reach.clear()
@@ -335,7 +340,23 @@ func _watch_you() -> void:
 	_you_seated = now
 
 
+## The hand's chairs held while it plays (the men in them keep them; nobody else sits down in one).
+func _hold_seats() -> void:
+	_let_seats_go()
+	var cs: Array = seats.map(func(x: Dictionary) -> KitProp: return x.chair)
+	seat_hold = SceneHold.claim(self, {"label": &"card_game", "chairs": cs, "centre": centre(),
+			"radius": float(data.get("hold_m", 2.5)), "breaks": [], "keep_armed": false})
+
+
+func _let_seats_go() -> void:
+	if seat_hold != null and is_instance_valid(seat_hold):
+		seat_hold.release()
+		seat_hold.queue_free()
+	seat_hold = null
+
+
 func _start_hand() -> void:
+	_let_seats_go()
 	var who := sat()
 	seats.clear()
 	last_move.clear()
@@ -371,6 +392,7 @@ func _start_hand() -> void:
 	dealer_id = men[(at + 1) % men.size()].id
 	deck = Poker.deck(rng)
 	state = &"shuffle"
+	_hold_seats()
 	_t = _beat("shuffle_s")
 	_say(_seat(dealer_id).who, "shuffle", {}, true)
 	_reach_for(dealer_id, "r", _deck_at().origin, _t)

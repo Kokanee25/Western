@@ -88,8 +88,15 @@ func test_the_scatter_keeps_off_roads_pads_and_lots() -> void:
 	var all := _instances(s)
 	check(all.size() > 200, "something grows round the opening site (%d)" % all.size())
 	var bad := 0
+	# The streets' stones and clods lie in the roads by their rule (`on_road`, #962).
+	var in_road := {}
+	for d: Dictionary in (load("res://config/valley_scatter.tres") as ValleyScatterTuning).species:
+		if d.has("on_road"):
+			in_road[String(d.name)] = true
 	for it: Array in all:
 		var p: Vector3 = it[1]
+		if in_road.has(it[0]):
+			continue
 		var f := art.flags_at(p.x, p.z)
 		if art.off_road(p.x, p.z) < 0.0 or f.pad or f.lot or f.rail:
 			bad += 1
@@ -98,6 +105,23 @@ func test_the_scatter_keeps_off_roads_pads_and_lots() -> void:
 	check_eq(bad, 0, "none on a road, a pad, a lot or the rail bed")
 	check(ms < 20000, "made round a place in %d ms" % ms)
 	print("  scatter round the opening site: %d instances, %d cells in %d ms, %s" % [all.size(), s.cells_made, ms, s.placed])
+
+
+func test_stones_and_clods_lie_in_the_street() -> void:
+	var s := _scatter()
+	var art := ValleyGroundArt.main()
+	s.make_all_round(Vector3(10.0, 0.0, 0.0))
+	var n := 0
+	var off := 0
+	for it: Array in _instances(s):
+		if it[0] != "pebbles" and it[0] != "clods":
+			continue
+		n += 1
+		var p: Vector3 = it[1]
+		if art.off_road(p.x, p.z) > 0.0 or art.flags_at(p.x, p.z).pad:
+			off += 1
+	check(n > 20, "stones and clods in the town's streets (%d)" % n)
+	check_eq(off, 0, "all inside a road")
 
 
 func test_the_scatter_is_the_same_every_run() -> void:

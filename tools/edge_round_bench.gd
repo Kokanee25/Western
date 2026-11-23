@@ -6,13 +6,13 @@ extends SceneTree
 ## its sides hard, its ends flat: the cheapest mesh that rounds a silhouette). Prints vertices,
 ## triangles and the time to build them for the building's boards.
 ##
-##   godot --headless -s res://tools/edge_round_bench.gd -- [--spec=res://experiments/building_lab/saloon_b/saloon_b.json]
+##   godot --headless -s res://tools/edge_round_bench.gd -- [--spec=res://config/buildings/saloon_b.json]
 
 func _initialize() -> void:
 	await process_frame
 	var Lab = load("res://experiments/building_lab/lab.gd")
 	var Kit = load("res://src/props/prop_kit.gd")
-	var spec := "res://experiments/building_lab/saloon_b/saloon_b.json"
+	var spec := "res://config/buildings/saloon_b.json"
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--spec="):
 			spec = a.get_slice("=", 1)

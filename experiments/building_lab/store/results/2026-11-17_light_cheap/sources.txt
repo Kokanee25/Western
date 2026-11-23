@@ -1,0 +1,5 @@
+a front12 build/light/all/front12.png
+b entry12 build/light/all/entry12.png
+c shop12 build/light/all/shop12.png
+d counter12 build/light/all/counter12.png
+e ceiling12 build/light/all/ceiling12.png

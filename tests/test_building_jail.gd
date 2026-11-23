@@ -1,6 +1,6 @@
 extends TestCase
 ## The sheriff's office and jail (#780, the building lab's second practice building, the first in
-## stone): built from its spec (experiments/building_lab/jail/jail.json) it is destructible through
+## stone): built from its spec (config/buildings/jail.json) it is destructible through
 ## and through, stands, is built right (#695: nothing across a door or window, every opening in its
 ## stone walls under a lintel and every window on a sill, glazed but the slits), fits a man at every
 ## door and use point, every room has its people's places, and the jailbreak's wall breached at its
@@ -9,7 +9,7 @@ extends TestCase
 
 const Lab := preload("res://experiments/building_lab/lab.gd")
 const Checks := preload("res://experiments/building_lab/checks.gd")
-const SPEC := "res://experiments/building_lab/jail/jail.json"
+const SPEC := "res://config/buildings/jail.json"
 
 var lab: Node3D
 

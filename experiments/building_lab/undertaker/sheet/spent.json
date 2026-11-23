@@ -1,0 +1,137 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.1404,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403009.4248357
+  },
+  {
+   "what": "plan",
+   "cost": 0.141,
+   "ok": true,
+   "size": [
+    2528,
+    1696
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403030.390908
+  },
+  {
+   "what": "yard",
+   "cost": 0.1398,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403061.5783997
+  },
+  {
+   "what": "rear",
+   "cost": 0.1404,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403091.121828
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1421,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403120.3851397
+  },
+  {
+   "what": "showroom",
+   "cost": 0.1453,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403150.7283494
+  },
+  {
+   "what": "parlour",
+   "cost": 0.1409,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403178.9122922
+  },
+  {
+   "what": "workroom",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403207.8523967
+  },
+  {
+   "what": "stair",
+   "cost": 0.1416,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403238.6129825
+  },
+  {
+   "what": "embalming",
+   "cost": 0.1412,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403271.3693511
+  },
+  {
+   "what": "ice",
+   "cost": 0.141,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403301.878824
+  },
+  {
+   "what": "coffins",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795403332.3975253
+  }
+ ],
+ "total": 1.6947
+}

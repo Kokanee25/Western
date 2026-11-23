@@ -2,7 +2,7 @@ class_name Farmhouse
 extends Node3D
 ## The farmhouse out east of town (issue #520: the hostage rescue), on its knoll in the hills north
 ## of the road (config/town.json `Farmhouse`, ground.hills). Built from its building spec
-## (experiments/building_lab/farmhouse.json, by the building lab's builder: every board of it a
+## (config/buildings/farmhouse.json, by the building lab's builder: every board of it a
 ## member, its furniture the prop kit's), its porch's deck a Boardwalk, its ways in and about joined
 ## into the town's places (Waypoints.test_street adds them), so a man can walk it.
 ##
@@ -15,8 +15,8 @@ extends Node3D
 ## on_ground, use_point, ground_at) answer for it there, and its places join the valley's
 ## (`add_valley_places`). The old town's is unchanged.
 
-const SPEC := "res://experiments/building_lab/farmhouse.json"
-const SpecBuilding := preload("res://experiments/building_lab/spec_building.gd")
+const SPEC := "res://config/buildings/farmhouse.json"
+const SpecBuilding := preload("res://src/structures/spec_building.gd")
 ## Its floor's top, its loft's (the spec's levels).
 const FLOOR := 0.56
 const LOFT := 3.11

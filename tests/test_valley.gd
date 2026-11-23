@@ -130,8 +130,18 @@ func test_an_empty_layout_is_safe() -> void:
 	check_eq(ValleyLayout.xz([3, 4, 5]), Vector2(3, 4), "a point from the file")
 
 
-func test_the_town_is_the_default_world() -> void:
-	check_eq(Settings.world, &"town", "the old town unless asked")
+func test_the_valley_is_the_default_world() -> void:
+	# G8 (#1098): a plain start of the game is the valley; a script run (this one) keeps the town.
+	check_eq(Settings.world_for(PackedStringArray(), false), &"valley", "a plain start: the valley")
+	check_eq(Settings.world_for(PackedStringArray(["--smoke-test"]), false), &"valley", "the smoke test too")
+	check_eq(Settings.world_for(PackedStringArray(["--world=town"]), false), &"town", "the old town when asked")
+	check_eq(Settings.world_for(PackedStringArray(), true), &"town", "a script run: the town")
+	check_eq(Settings.world_for(PackedStringArray(["--world=valley"]), true), &"valley", "a script run that asks")
+	# #1125: a story mission is the valley's, the farmhouse is in both (a script run keeps the town).
+	check_eq(Settings.world_for(PackedStringArray(["--mission=no_law"]), true), &"valley", "a story mission: the valley")
+	check_eq(Settings.world_for(PackedStringArray(["--mission=farmhouse"]), true), &"town", "the farmhouse: the town")
+	check_eq(Settings.world_for(PackedStringArray(["--mission=no_law", "--world=town"]), true), &"town", "a world asked wins")
+	check_eq(Settings.world, &"town", "this run (a script) has the old town")
 	check(Settings.WORLDS.has(&"valley"), "the valley is one")
 	check(not Settings.set_world(&"moon"), "no such world")
 	check_eq(Settings.world, &"town", "unchanged by a bad name")
@@ -195,3 +205,26 @@ func test_main_loads_one_world() -> void:
 		main.queue_free()
 		await process_frames(3)
 	Settings.set_world(&"town")
+
+
+## #1003: a folder with a .gdignore is left out of the exported pack, though the editor still reads
+## its files from disk, so a spec the valley builds from must not sit under one (saloon B's did, and
+## the exported valley crashed on start).
+func test_the_valley_specs_ship_in_the_export() -> void:
+	var v := _valley()
+	var n := 0
+	for side: String in ["north", "south"]:
+		for l: Dictionary in v.lots(side):
+			if not l.has("spec"):
+				continue
+			var path := String(l.spec)
+			n += 1
+			check(path.begins_with("res://"), "%s's spec is a res:// path (%s)" % [l.id, path])
+			check(FileAccess.file_exists(path), "%s's spec exists" % l.id)
+			check(path.begins_with("res://config/buildings/"), "%s's spec is in config/buildings (R1, #975): %s" % [l.id, path])
+			var dir := path.get_base_dir()
+			while dir.length() > "res://".length():
+				check(not FileAccess.file_exists(dir.path_join(".gdignore")),
+						"%s's spec isn't under a .gdignore (%s)" % [l.id, dir])
+				dir = dir.get_base_dir()
+	check(n >= 3, "the valley's spec buildings (%d)" % n)

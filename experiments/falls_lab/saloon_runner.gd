@@ -1,6 +1,6 @@
 extends Node3D
 ## The falls lab in the building lab's saloon (issue #759; falls.gd `--saloon`): a fresh saloon
-## (experiments/building_lab/spec_building.gd, saloon.json) for each case and seed, a man in it
+## (src/structures/spec_building.gd, saloon.json) for each case and seed, a man in it
 ## going limp with a push (a ball's or a shove's: `push` m/s, his ragdoll's own fall after), and what
 ## his fall did: to him (HumanBody.last_fall, his harm, whether he dies of it in ten minutes) and to
 ## the saloon (the members broken, by kind), whether he's still drawn where he lies (#562), and the
@@ -13,7 +13,7 @@ extends Node3D
 ## - roof_edge: on the roof's boards by the eave over the street, pushed off it (onto the balcony
 ##   below and on to the street).
 
-const SPEC_SCRIPT := "res://experiments/building_lab/spec_building.gd"
+const SPEC_SCRIPT := "res://src/structures/spec_building.gd"
 var args := {}
 var cases: Array[String] = ["gallery", "balcony", "roof", "roof_edge"]
 var seeds := 6

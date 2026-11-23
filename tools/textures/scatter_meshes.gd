@@ -18,6 +18,7 @@ const TARGETS := {
 	"namaqualand_rocks_01": [1500, 250],
 	"namaqualand_stones_01": [600, 120],
 	"grass_medium_02": [100000, 700],
+	"grass_medium_01": [100000, 400],
 	"wild_rooibos_bush": [100000, 2500],
 	"dead_tree_trunk_02": [5000, 800],
 }
@@ -37,7 +38,10 @@ func _run() -> void:
 	# The trees built in code (ValleyTrees), baked so the game loads them rather than building them.
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://assets/props/trees"))
 	var trees = load("res://src/art/valley_trees.gd")
-	for kind in [&"pine", &"cottonwood"]:
+	var only_scan := false
+	for a in OS.get_cmdline_user_args():
+		only_scan = only_scan or a.begins_with("--only=")
+	for kind in ([] if only_scan else [&"pine", &"cottonwood", &"snag"]):
 		for v in trees.VARIANTS:
 			for near in [true, false]:
 				var t: Dictionary = trees.build(kind, near, v)
@@ -45,7 +49,17 @@ func _run() -> void:
 				ResourceSaver.save(t.trunk, base + "_trunk.res", ResourceSaver.FLAG_COMPRESS)
 				ResourceSaver.save(t.crown, base + "_crown.res", ResourceSaver.FLAG_COMPRESS)
 				print("tree %s: %d + %d triangles" % [base.get_file(), _tris(t.trunk), _tris(t.crown)])
+	# `-- --trees-only`: the trees alone (the scans' cuts are kept); `-- --only=ID`: that scan alone.
+	var args := OS.get_cmdline_user_args()
+	if "--trees-only" in args:
+		return
+	var only := ""
+	for a in args:
+		if a.begins_with("--only="):
+			only = a.substr(7)
 	for id: String in TARGETS:
+		if only != "" and id != only:
+			continue
 		var dir := "res://assets/props/scans/%s/" % id
 		var ps: PackedScene = load(dir + id + ".gltf")
 		var root := ps.instantiate()

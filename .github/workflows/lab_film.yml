@@ -1,0 +1,84 @@
+name: Lab film
+
+# A lab's film made on a runner (#973; tools/lab_film.py): runs only when a claude/ branch pushes a
+# changed experiments/<lab>/film/request.txt (the dev bridge's commands), builds the native plugin,
+# renders under software Vulkan and commits the film (film/out/: the mp4s, stills, the answers) back
+# to that branch. For sessions whose workspace can't build the plugin (crates.io unreachable there)
+# or render fast enough. The push it makes builds nothing (GITHUB_TOKEN pushes start no workflows).
+
+on:
+  push:
+    branches: ["claude/**"]
+    paths: ["experiments/*/film/request.txt"]
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+concurrency:
+  group: lab-film-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Software Vulkan, a screen and ffmpeg
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q mesa-vulkan-drivers xvfb ffmpeg
+
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: Film each changed request
+        env:
+          GODOT: /home/runner/godot/godot
+        run: |
+          status=0
+          for req in $(git diff --name-only HEAD~1 HEAD -- 'experiments/*/film/request.txt'); do
+            [ -f "$req" ] || continue
+            echo "::group::$req"
+            python3 tools/lab_film.py "$req" || status=1
+            echo "::endgroup::"
+          done
+          tail -40 build/bridge/godot.log || true
+          exit $status
+
+      - name: Commit the films back
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/*/film/out
+          git diff --cached --quiet && exit 0
+          git commit -m "Lab film: the films (run ${{ github.run_number }})"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push

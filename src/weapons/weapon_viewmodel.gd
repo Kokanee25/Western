@@ -75,6 +75,13 @@ var _kick_rng := RandomNumberGenerator.new()
 var _climb_left := 0.0
 const CLIMB_TIME := 0.12
 var _cam_base := Vector3.ZERO
+## The viewmodel's own field of view (vertical degrees; 0: the world camera's). Shooters draw the
+## gun in hand with a narrower one than the world's, so it's big without being pulled into the lens
+## and stretched. Here the world's camera draws it, scaled across the view about the eye (x and y
+## by tan(world/2) / tan(own/2), depth kept): that projects every point of it exactly where a
+## camera of `view_fov` would, with no second pass, and keeps its line through the screen's centre
+## (the sights stay on it). Set by each gun (#1014).
+var view_fov := 0.0
 
 
 func _init() -> void:
@@ -98,6 +105,15 @@ func _setup_common() -> void:
 ## follows the daylight so a gun in the dark stays dark.
 const FILL_ENERGY := 0.55
 var _fill: OmniLight3D
+## The glint (#1031): a small light by your eye, on the held layer, that lights the steel's sheen and
+## little else (its diffuse low, its specular high). Blued steel takes almost no diffuse light, so a
+## gun lit only from the side or behind read flat black at night and a mirror of the sky by day; real
+## eyes see a soft highlight roll over the cylinder and the receiver as the gun turns. Where it sits
+## from the eye (camera space) and its strength, following the daylight as the fill does.
+const GLINT_AT := Vector3(0.12, 0.1, 0.0)
+const GLINT_ENERGY := 0.15
+const GLINT_SPECULAR := 6.0
+var _glint: OmniLight3D
 
 
 func _add_fill() -> void:
@@ -110,8 +126,18 @@ func _add_fill() -> void:
 	_fill.light_cull_mask = Layers.VIS_HELD
 	_fill.shadow_enabled = false
 	_fill.light_specular = 0.6
-	_fill.position = Vector3(-0.3, 0.25, 0.05)
+	_fill.position = Vector3(-0.1, 0.3, -0.25)
 	add_child(_fill)
+	_glint = OmniLight3D.new()
+	_glint.name = "HeldGlint"
+	_glint.light_color = Color(1.0, 0.93, 0.84)
+	_glint.light_energy = GLINT_ENERGY
+	_glint.light_specular = GLINT_SPECULAR
+	_glint.omni_range = 1.5
+	_glint.omni_attenuation = 0.5
+	_glint.light_cull_mask = Layers.VIS_HELD
+	_glint.shadow_enabled = false
+	add_child(_glint)
 
 
 func _mark_held() -> void:
@@ -125,6 +151,27 @@ func _update_fill() -> void:
 	var day := get_tree().get_first_node_in_group(&"day_cycle") as DayCycle
 	var daylight := day.get_daylight() if day else 1.0
 	_fill.light_energy = FILL_ENERGY * (0.15 + 0.85 * daylight)
+	_glint.light_energy = GLINT_ENERGY * (0.4 + 0.6 * daylight)
+
+
+## How much the gun is scaled across the view for `view_fov` (1: drawn as the world is).
+func view_scale() -> float:
+	var cam := get_parent() as Camera3D
+	if view_fov <= 0.0 or cam == null:
+		return 1.0
+	return tan(deg_to_rad(cam.fov) * 0.5) / tan(deg_to_rad(view_fov) * 0.5)
+
+
+## Sets the gun's place under the camera (camera space: metres, degrees as `rotation_degrees`),
+## drawn at `view_fov`.
+func _set_view(pos: Vector3, rot_deg: Vector3) -> void:
+	var t := Transform3D(Basis.from_euler(rot_deg * (PI / 180.0)), pos)
+	var k := view_scale()
+	if not is_equal_approx(k, 1.0):
+		t = Transform3D(Basis.from_scale(Vector3(k, k, 1.0)), Vector3.ZERO) * t
+	transform = t
+	if _glint:
+		_glint.position = t.affine_inverse() * GLINT_AT
 
 
 func _find_player() -> Player:

@@ -13,8 +13,9 @@ extends RefCounted
 static var ORIGIN := Vector3(-72.0, 0.0, 26.0) + Vector3.UP * TownLayout.footing(Transform3D(Basis(), Vector3(-72.0, 0.0, 26.0)), 16.44, 17.07)
 
 
-static func build(street: Node3D) -> Node3D:
-	var building = load("res://experiments/building_lab/spec_building.gd").new()
+static func build(street: Node3D, extra_furniture: Array = []) -> Node3D:
+	var building = load("res://src/structures/spec_building.gd").new()
+	building.extra_furniture = extra_furniture
 	building.name = "SpecSaloon"
 	building.position = ORIGIN
 	street.add_child(building)

@@ -275,12 +275,13 @@ func test_a_customer_stops_him() -> void:
 func test_trouble_and_the_cloth_is_tossed_down_then_fetched() -> void:
 	await _barkeep()
 	await wait_until(_wiping, 6 * 60)
-	Events.noise.emit(Vector3(1.5, 1.2, 2.0), 1.0, &"gunshot", null)
-	await physics_frames(2)
-	check_eq(brain.mood, CivilianBrain.Mood.COWERING, "a shot close by: he cowers")
+	Events.noise.emit(Vector3(1.5, 1.2, 2.0), DeedWatch.GUNSHOT, &"gunshot", null)
+	# (Townsfolk step 5: he takes it in a beat after, looks, then gets down.)
+	var down := await wait_until(func() -> bool: return brain.mood == CivilianBrain.Mood.COWERING, 4 * 60)
+	check(down, "a shot close by: he cowers (%s)" % brain.describe())
 	check_eq(chore.stopped, &"trouble", "the chore stops")
 	check_eq(cloth.held, ClothProp.Held.FREE, "the cloth tossed down")
-	var fetched := await wait_until(func() -> bool: return cloth.held == ClothProp.Held.SHOULDER, 30 * 60)
+	var fetched := await wait_until(func() -> bool: return cloth.held == ClothProp.Held.SHOULDER, 120 * 60)
 	check(fetched, "calm again, he gets it and puts it back over his shoulder")
 
 

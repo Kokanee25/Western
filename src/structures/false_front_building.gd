@@ -356,14 +356,16 @@ func _vertical_siding(wall: Dictionary, top_at: Callable, openings: Array[Rect2]
 		col += 1
 
 
-func _opening_trim(wall: Dictionary, o: Rect2, is_window: bool) -> void:
+## (`head` false: no head across the top, a pointed window's casing slants to its point instead.)
+func _opening_trim(wall: Dictionary, o: Rect2, is_window: bool, head := true) -> void:
 	var n := "%s/trim_%d_%d" % [wall.name, int(o.position.x * 100.0), int(o.position.y * 100.0)]
 	var d0 := BOARD_T
 	var d1 := BOARD_T + TRIM_T
 	var bottom := o.position.y - (TRIM_W if is_window else 0.0)
 	_wall_member(n + "/jamb0", &"trim", &"dark_trim", wall, o.position.x - TRIM_W, o.position.x, bottom, o.end.y, d0, d1)
 	_wall_member(n + "/jamb1", &"trim", &"dark_trim", wall, o.end.x, o.end.x + TRIM_W, bottom, o.end.y, d0, d1)
-	_wall_member(n + "/head", &"trim", &"dark_trim", wall, o.position.x - TRIM_W, o.end.x + TRIM_W, o.end.y, o.end.y + TRIM_W, d0, d1)
+	if head:
+		_wall_member(n + "/head", &"trim", &"dark_trim", wall, o.position.x - TRIM_W, o.end.x + TRIM_W, o.end.y, o.end.y + TRIM_W, d0, d1)
 	if is_window:
 		_wall_member(n + "/stool", &"trim", &"dark_trim", wall, o.position.x - TRIM_W * 1.5, o.end.x + TRIM_W * 1.5,
 				o.position.y - 0.04, o.position.y, d0, d0 + 0.06)

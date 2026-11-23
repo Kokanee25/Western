@@ -1163,6 +1163,21 @@
    "vram": true,
    "about": "Sean, 2026-10-25 (#402, his $10): the coded lettering out; signs painted by the image model in R1's real wood, cut at 192 a metre, VRAM-compressed. Lettering alone, laid on a false front's own boards (FacadeArt)."
   },
+  "drop_baron": {
+   "for": "stage",
+   "kind": "painting",
+   "metres": [
+    4.6,
+    2.3
+   ],
+   "aspect": "21:9",
+   "what": "A painted theatre backdrop in the hand of an 1880s American scene painter (distemper on canvas: broad flat washes, crisp painted highlights, painted perspective, no photographic detail). A booster's view of a western cattle town as its richest man promises it will be in ten years, seen from a rise to the west. A main street of two- and three-storey red brick blocks with cast-iron fronts and striped awnings, a railway depot with a steam train and a water tower, a white church spire, a hotel with a flag, the streets laid out square. Beyond the town, green irrigated fields in straight rows fed by ditches from a creek, fat cattle in fenced pasture, gentle blue mountains, a clear golden sky. Across the top, a painted ribbon banner lettered SALT CREEK in big shaded circus capitals, and under it a smaller painted line: THE GARDEN OF THE VALLEY. Grand, tidy and false: no dust, no adobe, nobody poor, prettier than any real frontier town. The canvas a little faded and smoked: the colours softened, a brown water stain low on one side, the paint finely cracked along old fold lines.",
+   "whole": true,
+   "smooth": true,
+   "flatten": 0,
+   "texels_per_metre": 256,
+   "about": "Saloon B's stage drop (#902; Sean's yes on #960, up to $0.50): Salt Creek as the Baron promises it, hung by PaintedDrop (src/art/painted_drop.gd) from the spec's stage.backdrop.art."
+  },
   "letters_the_new_occidental": {
    "for": "street",
    "kind": "lettering",

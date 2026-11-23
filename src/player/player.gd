@@ -49,6 +49,11 @@ var deeds: PlayerDeeds
 var shove: PlayerShove
 ## Sitting in a kit chair (E by a free one; #766).
 var seat: PlayerSeat
+## A downed man by the collar (PlayerCarry, #1057) and a door banged on (PlayerKnock).
+var carry: PlayerCarry
+var knock: PlayerKnock
+## Sleeping in a bed: the night passes and the game is saved (E at a bed; #1148).
+var sleep: PlayerSleep
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -172,6 +177,18 @@ func _arm() -> void:
 	seat.name = "Seat"
 	seat.player = self
 	add_child(seat)
+	carry = PlayerCarry.new()
+	carry.name = "Carry"
+	carry.player = self
+	add_child(carry)
+	knock = PlayerKnock.new()
+	knock.name = "Knock"
+	knock.player = self
+	add_child(knock)
+	sleep = PlayerSleep.new()
+	sleep.name = "Sleep"
+	sleep.player = self
+	add_child(sleep)
 
 
 func revolver() -> RevolverViewmodel:
@@ -375,6 +392,10 @@ func _physics_step(delta: float) -> void:
 		wants_jump = Input.is_action_just_pressed(&"jump") and can_jump and not _jump_spent
 		_jump_spent = false
 	wants_run = wants_run and can_sprint
+	if carry and carry.carrying():
+		# A man over your shoulder: a walk, no run, no jump (PlayerCarry).
+		wants_run = false
+		wants_jump = false
 	wants_crouch = wants_crouch or force_crouch or (shove != null and shove.slipped())
 	var wants_crawl := force_crawl or (input_enabled and _crawl_toggled)
 
@@ -400,17 +421,20 @@ func _physics_step(delta: float) -> void:
 		return
 
 	var speed := tuning.walk_speed
+	var hauling := carry != null and carry.carrying()
 	if is_crawling:
 		speed = tuning.crawl_speed
-	elif is_crouching:
+	elif is_crouching and not hauling:
+		# (A man over your shoulder, you go at the carry's pace bent or not: a crouch forced by a bad
+		# leg doesn't slow it again, #1125's 3-6 m in 30 s; the leg itself does, by move_factor.)
 		speed = tuning.crouch_speed
 	elif is_running:
 		# Blown from running, the run sags.
 		var blown := clampf((composure.winded - 0.5) * 2.0, 0.0, 1.0) if composure else 0.0
 		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
-	speed *= move_factor * burden * (shove.pace() if shove else 1.0)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
+	speed *= move_factor * burden * (shove.pace() if shove else 1.0) * (carry.pace(wish) if carry else 1.0)
 	var target := Vector2(wish.x, wish.z) * speed
 
 	var on_floor := is_on_floor()
@@ -701,6 +725,57 @@ func dumped_from_seat() -> void:
 	_set_collision_height(tuning.stand_height)
 	_update_crouch(true, true)
 	add_look(Vector2(0.0, 8.0), false)
+
+
+## Where you can stand nearest `at` (within `most_m`): on the lowest floor round it (not up on a cot,
+## a chair's seat or a table), with room for you standing. `at` itself if nowhere is. #979's playtest
+## came round on the doctor's bedside chair, boxed in by its legs, the wall and the cot, and couldn't
+## walk off. `most_m`: how far round it to look.
+func clear_spot_near(at: Vector3, most_m := 3.0) -> Vector3:
+	var space := World.space(self)
+	# Room to step off, not just to stand: a stride's width clear all round (a bare fit, the playtest's
+	# second spot, was a pocket between the chair, the cot and the wall).
+	var shape := CapsuleShape3D.new()
+	shape.radius = tuning.radius + 0.3
+	shape.height = maxf(tuning.stand_height - 0.3, shape.radius * 2.0)
+	var params := PhysicsShapeQueryParameters3D.new()
+	params.shape = shape
+	params.collision_mask = collision_mask
+	params.exclude = [get_rid()]
+	var best := at
+	var best_score := INF
+	var rings: Array[float] = [0.0, 0.35, 0.6, 0.9, 1.25, 1.6, 2.0, 2.5, 3.0]
+	for r: float in rings:
+		if r > most_m:
+			break
+		var n := 1 if r == 0.0 else 12
+		for i in n:
+			var a := TAU * float(i) / float(n)
+			var c := at + Vector3(cos(a), 0.0, sin(a)) * r
+			var ray := PhysicsRayQueryParameters3D.create(Vector3(c.x, at.y + 1.2, c.z), Vector3(c.x, at.y - 1.5, c.z), collision_mask)
+			ray.exclude = [get_rid()]
+			var hit := space.intersect_ray(ray)
+			if hit.is_empty():
+				continue
+			var floor_y := (hit.position as Vector3).y
+			if floor_y < at.y - 0.7:
+				continue  # (past a wall, down on the ground outside)
+			if r > 0.0:
+				# In the same room: nothing between it and `at` at chest height (a wall, a partition).
+				var y := floor_y + 1.3
+				var see := PhysicsRayQueryParameters3D.create(Vector3(at.x, y, at.z), Vector3(c.x, y, c.z), collision_mask)
+				see.exclude = [get_rid()]
+				if not space.intersect_ray(see).is_empty():
+					continue
+			params.transform = Transform3D(Basis(), Vector3(c.x, floor_y + shape.height * 0.5 + 0.12, c.z))
+			if not space.intersect_shape(params, 1).is_empty():
+				continue
+			# The lowest floor first (a tenth of a metre counts), then the nearest.
+			var score := snappedf(floor_y, 0.1) * 100.0 + r
+			if score < best_score:
+				best_score = score
+				best = Vector3(c.x, floor_y + 0.05, c.z)
+	return best
 
 
 ## True when there is headroom to stand up from a crouch (or to come up to `height`).

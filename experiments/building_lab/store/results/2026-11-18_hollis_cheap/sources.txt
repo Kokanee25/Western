@@ -1,0 +1,3 @@
+a front12 build/light/r2/front12.png
+b entry12 build/light/r2/entry12.png
+c counter12 build/light/r2/counter12.png

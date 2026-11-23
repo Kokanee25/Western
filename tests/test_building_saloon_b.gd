@@ -1,13 +1,13 @@
 extends TestCase
 ## Saloon B, the corner saloon (#848 step 1: the spec and the frame): built from its spec
-## (experiments/building_lab/saloon_b/saloon_b.json) it is destructible through and through, stands,
+## (config/buildings/saloon_b.json) it is destructible through and through, stands,
 ## is built right, fits a man at every door, stair and use point, and every room has its people's
 ## places and its own lamp. It writes every member to build/saloon_b_members.json for the X-ray
 ## sheet (tools/buildings/xray.py).
 
 const Lab := preload("res://experiments/building_lab/lab.gd")
 const Checks := preload("res://experiments/building_lab/checks.gd")
-const SPEC := "res://experiments/building_lab/saloon_b/saloon_b.json"
+const SPEC := "res://config/buildings/saloon_b.json"
 
 var lab: Node3D
 
@@ -35,6 +35,7 @@ func test_saloon_b_is_built_and_destructible() -> void:
 	for k: StringName in r.allowed:
 		check(Checks.EXCEPTIONS.has(k), "%s is a listed exception" % k)
 	check(int(r.members) > 4000, "the building is members (%d)" % r.members)
+	check(int(r.cloths) == 2, "the stage's curtain and drop are its only cloths (%d)" % r.cloths)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://build"))
 	var n := Checks.export_members(b, ProjectSettings.globalize_path("res://build/saloon_b_members.json"))
 	print("  exported %d members to build/saloon_b_members.json" % n)
@@ -155,6 +156,17 @@ func test_the_sawn_girder_drops_the_dance_floor_over_the_bar() -> void:
 	check(boards >= 40, "and the boards on them, under the crowd (%d)" % boards)
 	check(unexplained.is_empty(), "nothing else gives but what the falling floor hit: %s" % [unexplained.slice(0, 8)])
 	check(landed.size() <= 12, "and the falling floor breaks only a few members where it lands (%d: %s)" % [landed.size(), landed.keys().slice(0, 8)])
+	# The stage (#902) stands clear of the panel, and it and what stands on it stay up.
+	var stage_n := 0
+	var stage_down := []
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		if id.begins_with("stage/") or id.begins_with("stair/stage/") or id.begins_with("stair/wing/") or id.begins_with("wing/"):
+			stage_n += 1
+			if m.broken:
+				stage_down.append(id)
+	check(stage_n > 100 and stage_down.is_empty(), "the stage, its steps and the wing stand when the panel falls (%d of %d down: %s)" % [stage_down.size(), stage_n, stage_down.slice(0, 6)])
+	check(b.curtain != null and b.curtain.is_inside_tree() and b.backdrop != null and b.backdrop.is_inside_tree(), "the curtain and the drop still hang")
 	for id: String in ["beam/east/1", "beam/east/3", "beam/west/2", "truss/3/tie"]:
 		check(not (b.get_member(StringName(sid + id)) as StructureMember).broken, "%s stands" % id)
 	# For real: the pieces fall (none left hanging where they were), and over the bar.
@@ -175,6 +187,12 @@ func test_the_sawn_girder_drops_the_dance_floor_over_the_bar() -> void:
 	print("  %d pieces of the girder and its joists; %d fell a metre or more, %d of them on the bar's side" % [n, fell, over_bar])
 	check(fell >= n * 0.6, "the girder's halves and its joists fall (%d of %d)" % [fell, n])
 	check(over_bar >= 6, "and come down on the bar's side of the room (%d)" % over_bar)
+	# The hanging lamps on the panel's joists come down with them (#950: its dressing); the rest hang on.
+	var lamps: Dictionary = b.dressed.get("S1", {})
+	for id: String in ["hanging_lamp_1", "hanging_lamp_5"]:
+		check(lamps.has(id) and lamps[id].loose, "%s, hung from the panel's joists, falls with them" % id)
+	for id: String in ["hanging_lamp_0", "hanging_lamp_3"]:
+		check(lamps.has(id) and not lamps[id].loose, "%s, off the panel, still hangs" % id)
 
 
 ## The open well (Sean's answer 1): a 36 in rail round it. A man leaning on it is held; a man
@@ -229,7 +247,7 @@ func test_saloon_bs_stairs_are_climbed() -> void:
 	var b = lab.building
 	var space: PhysicsDirectSpaceState3D = b.get_world_3d().direct_space_state
 	var ramps: Array = b.find_children("Ramp_*", "StaticBody3D", false, false)
-	check(ramps.size() == 5, "five stairs: the hall's, the outside stair, the cellar's, two back steps (%d)" % ramps.size())
+	check(ramps.size() == 7, "seven stairs: the hall's, the outside stair, the cellar's, two back steps, the stage's two (%d)" % ramps.size())
 	for ramp: StaticBody3D in ramps:
 		var box := (ramp.get_child(0) as CollisionShape3D).shape as BoxShape3D
 		var on := 0
@@ -246,7 +264,7 @@ func test_saloon_bs_stairs_are_climbed() -> void:
 			var t := lo
 			lo = hi
 			hi = t
-		var floors: Array = [0.0, float(b._lv.cellar) + 0.08, float(b._lv.ground), float(b._lv.upper)]
+		var floors: Array = [0.0, float(b._lv.cellar) + 0.08, float(b._lv.ground), float(b._lv.upper), float(b._lv.upper) + float(lab.spec.stage.height)]
 		var near := func(y: float) -> bool: return floors.any(func(f: float) -> bool: return absf(f - y) < 0.3)
 		check(near.call(lo.y) and near.call(hi.y), "%s runs floor to floor (%.2f to %.2f)" % [ramp.get_meta(&"stair"), lo.y, hi.y])
 
@@ -360,6 +378,167 @@ func test_saloon_b_has_its_finishes_cornices_and_dust() -> void:
 			if c is CPUParticles3D and (c as CPUParticles3D).one_shot and (c as CPUParticles3D).emitting:
 				falling += 1
 		check(falling == 1, "a step above shakes one fall down (%d)" % falling)
+
+
+## The stage (#902; Sean, 2026-11-13: 16 x 8 ft, a wing and a dressing room, a curtain that opens on
+## a painted drop; the band plays there on Payday Night): against the dance hall's back partition,
+## 30 in high, of members, clear of the sawn girder's panel; the wing boarded off with its own door
+## across the hall from the dressing room's; room_6 the dressing room.
+func test_saloon_bs_stage_stands_clear_of_the_panel_with_its_wing_and_dressing_room() -> void:
+	var b = lab.building
+	var sid := String(b.structure_id) + "/"
+	var spec: Dictionary = lab.spec
+	var girder: StructureMember = b.get_member(StringName(sid + String(spec.sabotage.girder)))
+	var gz1 := girder.position.z + girder.size.z * 0.5
+	var top := float(b._lv.upper) + float(spec.stage.height)
+	var counts := {"leg": 0, "bearer": 0, "joist": 0, "board": 0, "skirt": 0, "proscenium": 0}
+	var nearest := INF
+	var highest := -INF
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		if not (id.begins_with("stage/") or id.begins_with("stair/stage/") or id.begins_with("stair/wing/")):
+			continue
+		var box: AABB = m.structure_aabb()
+		nearest = minf(nearest, box.position.z)
+		for k: String in counts:
+			if id.begins_with("stage/%s/" % k):
+				counts[k] += 1
+		if id.begins_with("stage/board/"):
+			highest = maxf(highest, box.end.y)
+	print("  stage: %s; its nearest edge z %.2f (the panel ends at %.2f); its top %.3f" % [counts, nearest, gz1, highest])
+	check(int(counts.board) >= 15 and int(counts.joist) >= 12 and int(counts.leg) >= 12 and int(counts.skirt) >= 8, "the stage is built as a floor: %s" % [counts])
+	check(nearest > gz1 + 0.2, "it and its steps stand clear of the sawn girder's panel (%.2f past %.2f)" % [nearest, gz1])
+	check(absf(highest - top) < 0.005 and absf(highest - float(b._lv.upper) - 0.762) < 0.01, "30 in over the dance floor (%.3f)" % (highest - float(b._lv.upper)))
+	check(int(counts.proscenium) == 4, "two posts, a header and the rod (%d)" % counts.proscenium)
+	# The wing's door and the hall's: one at 1.58 across from room_6's, the public one at 8.43, none behind the stage.
+	var doors := []
+	for w: Dictionary in spec.walls:
+		if w.id == "dance_back":
+			for o: Dictionary in w.openings:
+				doors.append(float(o.at))
+		if w.id == "rooms_front":
+			check(absf(float(w.openings[0].at) - 1.58) < 0.01, "room_6's door at 1.58")
+	check(doors == [1.58, 8.43], "the dance hall's doors: the wing's across from the dressing room's, the public one (%s)" % [doors])
+	var leaves := 0
+	for m: StructureMember in b.get_members():
+		if String(m.member_id).begins_with(sid + "dance_back/door_"):
+			leaves += 1
+	check(leaves == 2, "both its doors have their leaves (%d)" % leaves)
+	var wing_boards := 0
+	for m: StructureMember in b.get_members():
+		if String(m.member_id).begins_with(sid + "wing/"):
+			wing_boards += 1
+	check(wing_boards > 20, "the wing is boarded off from the dance floor (%d members)" % wing_boards)
+	var room_6: Dictionary = (spec.rooms as Array).filter(func(r: Dictionary) -> bool: return r.id == "room_6")[0]
+	check(String(room_6.use).begins_with("the dressing room"), "room_6 is the dressing room")
+	var let := (spec.rooms as Array).filter(func(r: Dictionary) -> bool: return String(r.use) == "let by the night").size()
+	check(let == 3, "three rooms let (%d)" % let)
+	var dressed: Dictionary = b.dressed.get("stage", {})
+	for k: String in ["dress_table", "dress_chair", "dress_lamp", "foot_0", "foot_4"]:
+		check(dressed.has(k), "%s is placed" % k)
+	if dressed.has("dress_table"):
+		var at: Vector3 = b.to_local((dressed.dress_table as Node3D).global_position)
+		check(at.x < 2.85 and at.z > 15.29 and absf(at.y - float(b._lv.upper)) < 0.05, "the dressing table in room_6, on its floor (%s)" % at.snappedf(0.01))
+	if dressed.has("foot_0"):
+		var at: Vector3 = b.to_local((dressed.foot_0 as Node3D).global_position)
+		check(absf(at.y - top) < 0.02, "the footlights on the stage's boards (%.2f)" % at.y)
+	# The band's places on the stage, behind the curtain's line.
+	var band := 0
+	for u: Dictionary in spec.use_points:
+		if u.has("at") and absf(float(u.at[1]) - top) < 0.01:
+			band += 1
+	check(band >= 4, "the band and the act have their places on the stage (%d)" % band)
+
+
+## A man can go the way Payday Night's acts do: up the outside stair's landing into the upper hall,
+## into the dressing room, back across to the wing's door, through the wing and up its steps, across
+## the stage behind the curtain and down its steps to the dance floor. Each stretch walked as the
+## town's people walk (Waypoints._walkable), a step at a time over whatever floor is there.
+func test_a_man_walks_from_the_yard_stair_through_the_dressing_room_and_wing_onto_the_stage() -> void:
+	var b = lab.building
+	var space: PhysicsDirectSpaceState3D = b.get_world_3d().direct_space_state
+	var u := float(b._lv.upper)
+	var route: Array = [Vector2(-0.6, 14.43), Vector2(0.6, 14.43), Vector2(1.68, 14.45), Vector2(1.68, 16.3), Vector2(1.68, 14.45),
+			Vector2(1.68, 12.75), Vector2(1.0, 12.45), Vector2(1.0, 11.9), Vector2(1.3, 11.9), Vector2(2.9, 11.9), Vector2(4.0, 11.75), Vector2(7.2, 11.75),
+			Vector2(8.9, 11.75), Vector2(8.9, 8.0)]
+	var names := ["landing", "yard door", "hall", "dressing room", "hall", "wing door", "the wing's back", "wing", "wing steps' foot", "stage", "behind the curtain",
+			"stage's side", "steps' foot", "dance floor"]
+	var feet := func(p: Vector2) -> Vector3:
+		# What's under his feet (past a board's gap, as the walkers look).
+		var at: Vector3 = b.to_global(Vector3(p.x, u, p.y))
+		var y := Waypoints._foot_height(space, at, at.y + 1.2, at.y - 0.4, [])
+		return Vector3(at.x, y, at.z)
+	var bad := []
+	for i in route.size() - 1:
+		var a: Vector2 = route[i]
+		var c: Vector2 = route[i + 1]
+		var n := maxi(1, ceili(a.distance_to(c) / 0.4))
+		var prev: Vector3 = feet.call(a)
+		for k in range(1, n + 1):
+			var here: Vector3 = feet.call(a.lerp(c, float(k) / n))
+			if prev.y == -INF or here.y == -INF or not Waypoints._walkable(space, prev, here, []):
+				bad.append("%s -> %s at %d/%d (%s to %s)" % [names[i], names[i + 1], k, n, b.to_local(prev).snappedf(0.01), b.to_local(here).snappedf(0.01)])
+				break
+			prev = here
+	var on_stage: Vector3 = b.to_local(feet.call(route[10]))
+	check(absf(on_stage.y - u - float(lab.spec.stage.height)) < 0.02, "the walk is up on the stage behind the curtain (%.2f)" % on_stage.y)
+	check(bad.is_empty(), "walked every stretch: %s" % [bad])
+
+
+## The curtain (#902; DrawCurtain): hung shut on the rod between the proscenium's posts; drawn open
+## its halves pack at the sides, drawn shut they meet past the middle; its state saves and loads.
+func test_the_stage_curtain_opens_closes_and_saves() -> void:
+	var b = lab.building
+	var c: DrawCurtain = b.curtain
+	check(c != null, "the stage has its curtain")
+	if c == null:
+		return
+	var post_gap := 4.9 - 2.0 * 0.12
+	check(absf(c.width - post_gap) < 0.01 and c.height > 1.9, "it fills the opening between the posts (%.2f x %.2f)" % [c.width, c.height])
+	check(not c.is_open() and c.half_width() > c.width * 0.5, "it hangs shut, its halves past the middle (%.2f of %.2f)" % [c.half_width(), c.width * 0.5])
+	var shut_box := _drawn(c)
+	b.open_curtain()
+	check(c.moving(), "drawing it takes time")
+	var done := []
+	c.finished.connect(func(open: bool) -> void: done.append(open))
+	await wait_until(func() -> bool: return not c.moving(), int((c.travel + 2.0) * 60.0))
+	check(c.is_open() and is_equal_approx(c.amount, 1.0) and done == [true], "drawn open (%.2f, %s)" % [c.amount, done])
+	check(c.half_width() < c.width * 0.12, "its halves packed at the sides (%.2f each)" % c.half_width())
+	var open_box := _drawn(c)
+	check(open_box.x < shut_box.x * 0.3, "open, the middle of the stage is clear (cloth across %.2f of the middle's %.2f)" % [open_box.x, shut_box.x])
+	check(open_box.y > shut_box.y, "and its folds deepen as it gathers (%.3f, shut %.3f)" % [open_box.y, shut_box.y])
+	var saved := c.to_dict()
+	b.close_curtain()
+	await wait_until(func() -> bool: return not c.moving(), int((c.travel + 2.0) * 60.0))
+	check(not c.is_open() and c.half_width() > c.width * 0.5, "drawn shut again")
+	c.from_dict(saved)
+	check(c.is_open() and not c.moving() and is_equal_approx(c.amount, 1.0), "a saved open curtain loads open, where it was")
+	var fresh := DrawCurtain.new()
+	add_child(fresh)
+	fresh.from_dict({"open": false})
+	check(not fresh.is_open() and fresh.to_dict() == {"open": false}, "and a shut one shut")
+	fresh.queue_free()
+	check(b.backdrop != null and b.backdrop.painted() and absf(b.backdrop.width - 4.6) < 0.01, "the drop hangs, painted (Salt Creek as the Baron promises it, #960)")
+	var cloth := b.backdrop.get_node(^"Cloth") as MeshInstance3D
+	check(cloth != null and (cloth.material_override as StandardMaterial3D).albedo_texture != null, "its painting on the canvas")
+
+
+## The cloth a curtain draws across the stage's middle metre (x) and its folds' depth (y), from its meshes.
+func _drawn(c: DrawCurtain) -> Vector2:
+	var across := 0.0
+	var depth := 0.0
+	for mi: MeshInstance3D in c.find_children("*", "MeshInstance3D", false, false):
+		var verts: PackedVector3Array = (mi.mesh as ArrayMesh).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+		var lo := INF
+		var hi := -INF
+		for v in verts:
+			depth = maxf(depth, absf(v.z))
+			if absf(v.x) < 0.5:
+				lo = minf(lo, v.x)
+				hi = maxf(hi, v.x)
+		if hi > lo:
+			across += hi - lo
+	return Vector2(across, depth)
 
 
 ## #886 (Sean's yes on #885; the name his, 2026-11-13): THE NEW OCCIDENTAL painted on the false front's board (the factory's

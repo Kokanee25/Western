@@ -382,14 +382,25 @@ const LIB_AGES := {"new": 0.0, "few": 0.5, "old": 1.0}
 static var _lib_mats := {}
 
 
-## A look's parts: "lib:<entry>/<age>[/top|/front]" -> [entry, age, role]. The role (the library
-## shader's CUSTOM2.w): 1 `top`, a worked or leaned-on top (rings and elbow wear where it's varnished);
-## 2 `front`, a drawer's front (hands round its pulls, under a furniture entry, #825); else 0.
+## A look's parts: "lib:<entry>/<age>[/<role>]" -> [entry, age, role]. The role (the library
+## shader's CUSTOM2.w, its use, #825 and #901): 1 `top`, a worked or leaned-on top (rings and elbow wear
+## where it's varnished); 2 `front`, a drawer's front (hands round its pulls, under a furniture entry);
+## 3 `door` a door's leaf; 4 `tread`; 5 `walk`; 6 `kick` (boots' scuffs: a bar's foot); 7 `bar` a bar's
+## top (its front rubbed, burns, rings, initials); 8 `seat` a chair's seat; 9 `grip` (polished by hands:
+## a chair's crest); else 0. (wood_use.gdshaderinc has what each draws.)
+const LIB_ROLES := {"top": 1.0, "front": 2.0, "door": 3.0, "tread": 4.0, "walk": 5.0, "kick": 6.0,
+		"bar": 7.0, "seat": 8.0, "grip": 9.0}
+## Furniture's use and knocks (#901) where a prop's library wood doesn't set its own: kit props share
+## one material an entry and age across every building, so a middling, much-used piece's.
+## (Dents and cuts off, `dings` 0, until the judges like them: Sean 2026-11-14, #901.)
+const LIB_USE := {"use_wear": 0.7, "dings": 0.0}
+
+
 static func lib_parts(look: String) -> Array:
 	var p := look.trim_prefix("lib:").split("/")
 	var role := 0.0
 	if p.size() > 2:
-		role = 1.0 if p[2] == "top" else (2.0 if p[2] == "front" else 0.0)
+		role = float(LIB_ROLES.get(p[2], 0.0))
 	return [p[0], p[1] if p.size() > 1 else "few", role]
 
 
@@ -406,6 +417,8 @@ static func lib_material(look: String) -> ShaderMaterial:
 	var e := MaterialLibrary.entry(String(lp[0]))
 	if e.is_empty():
 		push_warning("PropKit: no library entry %s" % lp[0])
+	for k: String in LIB_USE:
+		mat.set_shader_parameter(k, float(LIB_USE[k]))
 	MaterialLibrary.apply(mat, e, float(LIB_AGES.get(String(lp[1]), 0.5)), &"wall")
 	mat.set_shader_parameter(&"sun_fade", 0.0)
 	mat.set_shader_parameter(&"streaks", 0.0)

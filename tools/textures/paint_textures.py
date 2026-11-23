@@ -77,6 +77,14 @@ LETTERING = (
 )
 
 
+# A picture painted whole (#902, the stage's drop: a scene painter's view on canvas): what it shows
+# is all in `what`; the picture is the canvas, edge to edge (reduce.py cuts it as painted: `whole`).
+PAINTING = (
+    "{what} The painted canvas fills the whole frame edge to edge, seen perfectly square on "
+    "(orthographic, no perspective on the canvas itself), in soft, even, flat light. Keep the "
+    "lettering and everything important well inside the frame, clear of the edges. No border, no "
+    "frame, no wall or stage round it, no curtains, no people in front of it."
+)
 # A material with "height": its relief, painted from its own picture (the ground shader lights the
 # road's ruts, ridges and stones by it in the low sun: roadmap 1.4, Sean's road).
 HEIGHT = (
@@ -192,7 +200,8 @@ def paint_material(mid, spec, key, out, style_man, tries=3, budget=None):
     """One material painted (in the men's hand with style_man) and kept at `out`; None if every
     try failed or the budget (dollars for the run, SPENT so far) can't take another call."""
     kind = spec["kind"]
-    template = {"sign": SIGN_R1 if spec.get("r1") else SIGN, "ground": GROUND, "lettering": LETTERING}.get(kind, TILE)
+    template = {"sign": SIGN_R1 if spec.get("r1") else SIGN, "ground": GROUND, "lettering": LETTERING,
+                "painting": PAINTING}.get(kind, TILE)
     prompt = template.format(what=spec["what"], text=spec.get("text", ""))
     refs = [reference(spec)] if ("ref" in spec or "ref_image" in spec) else []
     if style_man:
@@ -206,7 +215,8 @@ def paint_material(mid, spec, key, out, style_man, tries=3, budget=None):
             print("budget: $%.2f spent of $%.2f; %s not painted" % (SPENT, budget, mid))
             return None
         try:
-            img = ask(prompt, refs, {"aspect_ratio": aspect_name(spec["metres"])}, mid, key)
+            # `aspect`: asked wider than it's cut (the drop's 2:1 from 21:9, its sides trimmed, not its banner).
+            img = ask(prompt, refs, {"aspect_ratio": spec.get("aspect") or aspect_name(spec["metres"])}, mid, key)
             break
         except (RuntimeError, OSError, KeyError, ValueError, http.client.HTTPException) as e:
             print("failed (try %d):" % (attempt + 1), e)

@@ -31,6 +31,7 @@ var _frame := 0
 var _last := Vector3.INF
 var _queue: Array[Vector3i] = []
 var _plant_mats := {}
+var _day: DayCycle
 
 const PLANT := "res://src/art/scatter_plant.gdshader"
 ## Metres over which a bush's scan hands over to its far blob (dithered, per pixel).
@@ -72,7 +73,7 @@ func setup(t: ValleyTerrain, a: ValleyGroundArt, tn: ValleyScatterTuning) -> voi
 				var nm: Mesh = load(String(d.dir) + piece + "_near.res")
 				var fm: Mesh = load(String(d.dir) + piece + "_far.res")
 				s.near.append(_tinted(nm, tint, d))
-				s.far.append(_tinted(fm, tint, d))
+				s.far.append(_tinted(fm, tint, d, true))
 			s.piece_scale = d.get("piece_scale", [])
 			if d.has("far_blob"):
 				var blob := _blob_mesh(d.far_blob, d)
@@ -106,7 +107,7 @@ func _blob_mesh(b: Dictionary, d: Dictionary) -> Mesh:
 
 ## A copy of the scan's mesh with its material tinted and set to fade out by distance (dithered); a
 ## plant's (`plant` in its species: saturation, brightness, vary) drawn by scatter_plant.gdshader.
-func _tinted(m: Mesh, tint: Array, d: Dictionary) -> Mesh:
+func _tinted(m: Mesh, tint: Array, d: Dictionary, far := false) -> Mesh:
 	var out := m.duplicate() as Mesh
 	var fade := float(d.get("fade", 0.0))
 	for s in out.get_surface_count():
@@ -116,11 +117,12 @@ func _tinted(m: Mesh, tint: Array, d: Dictionary) -> Mesh:
 		var std := mat as StandardMaterial3D
 		if d.has("plant"):
 			var pl: Dictionary = d.plant
-			var key := "%s_%d" % [d.name, std.get_instance_id()]
+			var key := "%s_%d_%s" % [d.name, std.get_instance_id(), far]
 			if not _plant_mats.has(key):
 				var sm := ShaderMaterial.new()
 				sm.shader = load(PLANT)
-				sm.set_shader_parameter(&"albedo_tex", std.albedo_texture)
+				var alb: Texture2D = load(String(pl.albedo)) if pl.has("albedo") and ResourceLoader.exists(String(pl.albedo)) else std.albedo_texture
+				sm.set_shader_parameter(&"albedo_tex", alb)
 				sm.set_shader_parameter(&"normal_tex", std.normal_texture)
 				sm.set_shader_parameter(&"has_normal", std.normal_texture != null)
 				sm.set_shader_parameter(&"arm_tex", std.roughness_texture)
@@ -129,6 +131,10 @@ func _tinted(m: Mesh, tint: Array, d: Dictionary) -> Mesh:
 				sm.set_shader_parameter(&"saturation", float(pl.get("saturation", 1.0)))
 				sm.set_shader_parameter(&"brightness", float(pl.get("brightness", 1.0)))
 				sm.set_shader_parameter(&"vary", float(pl.get("vary", 0.15)))
+				sm.set_shader_parameter(&"translucency", float(pl.get("translucency", 0.25)))
+				sm.set_shader_parameter(&"bend", float(pl.get("bend", 0.0)))
+				sm.set_shader_parameter(&"foot_dark", float(pl.get("foot_dark", 0.0)))
+				sm.set_shader_parameter(&"height_m", maxf(0.05, m.get_aabb().end.y))
 				if pl.has("recolour"):
 					var rc: Array = pl.recolour
 					sm.set_shader_parameter(&"recolour", Color(float(rc[0]), float(rc[1]), float(rc[2])))
@@ -138,9 +144,24 @@ func _tinted(m: Mesh, tint: Array, d: Dictionary) -> Mesh:
 					# Handing over to the far blob per pixel at near_m.
 					sm.set_shader_parameter(&"fade_from", float(d.near_m) - BLEND_M)
 					sm.set_shader_parameter(&"fade_to", float(d.near_m))
+				elif d.get("blend", false) and not far:
+					# The near pieces hand over to the far ones per pixel at near_m (#962: by the cell's
+					# middle, a 32 m cell's near grass was mostly not drawn).
+					sm.set_shader_parameter(&"fade_from", float(d.near_m) - BLEND_M * 0.5)
+					sm.set_shader_parameter(&"fade_to", float(d.near_m))
+				elif d.get("blend", false) and far:
+					sm.set_shader_parameter(&"appear_from", float(d.near_m) - BLEND_M * 0.5)
+					sm.set_shader_parameter(&"appear_to", float(d.near_m))
+					sm.set_shader_parameter(&"fade_from", float(d.range) - fade)
+					sm.set_shader_parameter(&"fade_to", float(d.range))
 				elif fade > 0.0:
 					sm.set_shader_parameter(&"fade_from", float(d.range) - fade)
 					sm.set_shader_parameter(&"fade_to", float(d.range))
+				if d.has("appear"):
+					# A far layer only (near_m 0), dithered in as the near one goes.
+					var ap: Array = d.appear
+					sm.set_shader_parameter(&"appear_from", float(ap[0]))
+					sm.set_shader_parameter(&"appear_to", float(ap[1]))
 				_plant_mats[key] = sm
 			out.surface_set_material(s, _plant_mats[key])
 			continue
@@ -158,6 +179,7 @@ func _process(_delta: float) -> void:
 	if terrain == null or art == null or not art.ready:
 		return
 	var pt := Prof.start()
+	_keep_sun()
 	var cam := _eye()
 	if cam != Vector3.INF:
 		_frame += 1
@@ -180,6 +202,22 @@ func _process(_delta: float) -> void:
 				_make(_queue.pop_back())
 				n += 1
 	Prof.stop(&"scatter", pt)
+
+
+## The ground's trenches' shadows follow the sun (#962): the DayCycle's direction into the ground's
+## material every few frames.
+func _keep_sun() -> void:
+	if _frame % 10 != 0:
+		return
+	if _day == null or not is_instance_valid(_day):
+		_day = null
+		# Looked for rarely (the town is tens of thousands of nodes).
+		if is_inside_tree() and _frame % 600 == 0:
+			var found := get_tree().root.find_children("*", "DayCycle", true, false)
+			if not found.is_empty():
+				_day = found[0]
+	if _day:
+		art.set_sun(_day.get_sun_direction())
 
 
 func _eye() -> Vector3:
@@ -235,6 +273,8 @@ func make_all_round(at: Vector3) -> void:
 
 ## How likely a candidate at (x, z) grows, by its species' rules (0 none).
 func _chance(d: Dictionary, x: float, z: float, h: float, slope: float) -> float:
+	if d.has("on_road"):
+		return _road_chance(d, x, z)
 	var sl: Array = d.slope
 	if slope < float(sl[0]) or slope > float(sl[1]):
 		return 0.0
@@ -268,6 +308,29 @@ func _chance(d: Dictionary, x: float, z: float, h: float, slope: float) -> float
 	var pn := _noise.get_noise_2d(x / pm, z / pm) * 0.5 + 0.5
 	var pt := float(d.patch)
 	p *= lerpf(1.0, smoothstep(0.42, 0.62, pn) * 2.2, pt)
+	return clampf(p, 0.0, 1.0)
+
+
+## A species that lies only in the roads (`on_road` [class from, class to], ValleyGroundArt's classes;
+## `inside` m within the road's edge): stones and clods in the street, more by the lanes' middles.
+func _road_chance(d: Dictionary, x: float, z: float) -> float:
+	var r := art.road_at(x, z)
+	var cls := int(r["class"])
+	var cl: Array = d.on_road
+	if cls < int(cl[0]) or cls > int(cl[1]):
+		return 0.0
+	var a := absf(float(r.across))
+	var half := float(r.half)
+	var inside := float(d.get("inside", 0.5))
+	if a > half - inside:
+		return 0.0
+	var f := art.flags_at(x, z)
+	if f.pad or f.rail or f.ford:
+		return 0.0
+	var p := 0.6 + 0.4 * (1.0 - a / maxf(half, 0.5))
+	var pm := float(d.get("patch_m", 6.0))
+	var pn := _noise.get_noise_2d(x / pm + 51.0, z / pm) * 0.5 + 0.5
+	p *= lerpf(1.0, smoothstep(0.35, 0.65, pn) * 2.0, float(d.get("patch", 0.0)))
 	return clampf(p, 0.0, 1.0)
 
 
@@ -327,7 +390,9 @@ func _make(key: Vector3i) -> void:
 		if roll >= _chance(d, x, z, h, slope):
 			continue
 		var cl: Array = d.get("cluster", [1, 0.0])
-		for c in int(cl[0]):
+		# [n, m] n plants within m; [n, m, least]: between least and n of them (clumps of trees).
+		var count := int(cl[0]) if cl.size() < 3 else rng.randi_range(int(cl[2]), int(cl[0]))
+		for c in count:
 			var cx := x
 			var cz := z
 			if c > 0:
@@ -336,9 +401,12 @@ func _make(key: Vector3i) -> void:
 				cx += cos(a) * rr
 				cz += sin(a) * rr
 				piece = rng.randi() % pieces
-				size = rng.randf_range(float(sc[0]), float(sc[1])) * 0.85
+				size = rng.randf_range(float(sc[0]), float(sc[1])) * float(d.get("cluster_scale", 0.85))
 				turn = rng.randf() * TAU
-				if art.kept_clear(cx, cz, float(d.clear)):
+				if d.has("on_road"):
+					if _road_chance(d, cx, cz) <= 0.0:
+						continue
+				elif art.kept_clear(cx, cz, float(d.clear)):
 					continue
 			_place(s, d, cx, cz, piece, size, turn, origin, xfs, points, shapes)
 	_finish(node, s, d, origin, pieces, xfs, points, shapes)
@@ -354,9 +422,9 @@ func _place(s: Species, d: Dictionary, x: float, z: float, piece: int, size: flo
 		up = (up + Vector3(sin(turn * 3.1), 0.0, cos(turn * 2.3)) * lean * fposmod(turn * 7.7, 1.0)).normalized()
 	var b := Basis(Quaternion(Vector3.UP, up)) * Basis(Vector3.UP, turn)
 	var ps := float(s.piece_scale[piece]) if piece < s.piece_scale.size() else 1.0
-	b = b.scaled(Vector3.ONE * size * ps)
+	b = b.scaled(Vector3(1.0, float(d.get("squash", 1.0)), 1.0) * size * ps)
 	var aabb: AABB = s.near[piece].get_aabb() if s.tree.is_empty() else AABB(Vector3(-1, 0, -1), Vector3(2, float(s.trees[piece].height), 2))
-	var sink := float(d.sink) * aabb.size.y * size * ps
+	var sink := float(d.sink) * aabb.size.y * size * ps * float(d.get("squash", 1.0))
 	var p := Vector3(x, h - sink, z)
 	(xfs[piece] as Array).append(Transform3D(b, p - origin))
 	points.append(p)
@@ -391,7 +459,13 @@ func _finish(node: Node3D, s: Species, d: Dictionary, origin: Vector3, pieces: i
 				_multi(node, s.near[k], list, 0.0, near_m + reach, d)
 				_multi(node, s.far[k], list, maxf(0.0, near_m - BLEND_M - reach), range_m, d)
 				continue
-			_multi(node, s.near[k], list, 0.0, minf(near_m, range_m), d)
+			if d.get("blend", false):
+				var reach := cell * 0.71
+				_multi(node, s.near[k], list, 0.0, near_m + reach, d)
+				_multi(node, s.far[k], list, maxf(0.0, near_m - BLEND_M - reach), range_m, d, false, false)
+				continue
+			if near_m > 0.0:
+				_multi(node, s.near[k], list, 0.0, minf(near_m, range_m), d)
 			if range_m > near_m:
 				_multi(node, s.far[k], list, near_m, range_m, d, false, false)
 		else:

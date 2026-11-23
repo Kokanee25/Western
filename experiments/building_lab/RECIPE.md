@@ -135,6 +135,24 @@ a file); the X-ray's and plan's images go in a `.gdignore`d folder (Godot import
   judges them (`experiments/prop_lab/doctor/dress.gd`) reads `building.dressed`, never a placement of
   its own. The jail (#811) and the store take theirs this way from their first prop.
 
+## Wear by use (#901, Sean 2026-11-13: "wear and dents to the wood ... basically everywhere")
+
+- **Every building is worn by its own use, from its data, never painted per room.** The spec's
+  `materials.wear` says how hard the place is used and knocked about: `use` (a saloon 1.0, the jail
+  0.65, the doctor's careful office 0.45) and `dings` (dents, gouges, crushed arrises: 0.9, 0.75,
+  0.4); without it a middling 0.5 each (`SpecBuilding.WEAR_DEFAULT`). Its library wood draws them
+  (`scan_wood.gdshader`'s use pass, `src/render/wood_use.gdshaderinc`), every mark from the board's
+  own seed, growing with the finish's age.
+- **The members say how they're used** (meta `use_role`, set where the member is made): a door's leaf
+  (3; its latch edge, away from the hinge, turned to the board's +Y: grease at the push, boots at its
+  foot), a stair's tread (4: dished in the middle, its nosing rounder), a walk's middle boards (5: the
+  deck's middle 40 % across, worn along), a door's jamb (9: polished and grimy at the hand's height).
+  The floor's feet are the traffic map's (above). A new kind of member that's used gets a role, not a
+  painted patch.
+- **The props are worn by their kit looks** (`lib:<entry>/<age>/<role>`, `docs/briefs/prop-factory.md`
+  point 1): the bar's top `bar` (its front rubbed and dark, burns along the edge, rings, initials),
+  its plinth and low rail `kick` (boots' scuffs).
+
 ## Light (#824, Sean's pick 1 on #821: rooms get real light)
 
 The doctor's office is the test room; the jail, the store and saloon B follow it.
@@ -290,6 +308,24 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - A render is 10 to 14 minutes a view here: give a background render its whole time
   (`timeout`), and try a change on one or two views before a round.
 
+## A shop's look (the general store, #1035)
+
+- **Scale the light by the room before anything else.** The doctor's `day_fill` 0.1 / `window_day` 7 left the 16.8 x 10.7 m
+  shop near black; 0.55 / 26 lit it to the back wall (saloon B's 0.32 / 14 was a hall 22 m deep with a bar lamp). Try two
+  variants of the dials in one load (`render_valley.gd --variants=`) before any round: a render is ~15 min.
+- **A spec that names library entries needs no paint step**: check each `want` entry's `approved` list passes its age, then render.
+- **Cameras:** a side panel taken from a 1.2 m alley is a wall of the neighbour's grey box: pair it with a corner view instead.
+- **Before the judges: what they will mark that isn't yours.** Empty rooms (props), the cellar's doors and lantern (#695), grey
+  neighbours: tell the critic nothing, but expect 5-6 DIFFERENT and don't spend a second round of renders on them.
+- **Measure the valley's render CPU once per building** (`--cpu`): a camera under the dug lot (the cellar) draws everything, 5.4 ms.
+- **A shop is lit through its storefront, not by dials** (#1053): sash windows on a 17 m deep room leave the back near black
+  however the fill is turned. Give a shop a `recess` entry and `show` windows (`Storefront`), let RoomLight see their full area
+  (`opening_max_area` 12), and leave the indoor exposure (RealLook `exposure_indoor` 1.7) to do the rest: back wall 0.110 -> 0.193.
+  A pale beaded ceiling (`ceilings`, `around_beams`) bounces it; measure each with grey cards, not by eye.
+- **Wide openings need a deeper header** (an opening's `header`): a 5 m recess on the 0.15 m default bent 1.24 in the checks.
+- **Cloud Vulkan:** `apt-get update && apt-get install -y mesa-vulkan-drivers libvulkan1` gives lavapipe's ICD; Godot 4.7.2 from
+  the release zip, `cargo build --release` in the native plugin, `--import` ~6 min.
+
 ## The valley
 
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests
@@ -298,3 +334,64 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - **A change to the valley's static bodies can tip the card-game tests** (they share one valley; Jolt's contact
   order moves the chairs' pieces): the jail's shorter walk failed both chair tests in every full CI run. Run
   `--only=card_game` after any valley.json walk or lot change; the jail's walk waits on #834.
+
+## A church (#1142, the building lab's fourth practice building after the saloons: a tower and a steeple)
+
+Record: `church/README.md`. What it taught:
+
+- **A new kind of structure goes in its own file, hooked in at three places** (`church_tower.gd`, called from `SpecBuilding.build`): the
+  tower's walls are ordinary spec walls (a numeric `top`, `ribbon: false`), its footing, floor, belfry and spire are the module's.
+- **Tilted members rest only where their oriented boxes meet** (12 mm): a hip rafter lifted 5 cm off the ring it should land on had
+  no load path, so did a spire's whole skin (90 shingle courses). Centre a hip on its line; sit courses on it, not above it.
+- **A 28 ft span is the ceiling joists' job** (3 x 15 in at 16 in; 2x10 failed at 1.11 with a crowd); keep the doctor's rafters (a 2x8 and a 10/12 roof stopped touching the ridge board).
+- **A belfry's ring of plates carrying a spire needs posts at the middle of each face** (the commons' feet land mid-span) and a deep section
+  (0.15 x 0.25); boards run across joists, never with them (a board along its joist read 1.04 in bending).
+- **A hatch goes between two joists**, never cutting one (a cut joist is two cantilevers: "joint" 5.4).
+- **A pointed (or any shaped) head is the window's, not a decoration over it** (`SashWindow`'s `rise`): cut the opening to the apex so the
+  studs, siding and finish all stop round it, then fill the corners beside the point with short stepped boards (the slanted lining covers the
+  steps). A V of trim and glass stuck on the siding over a square sash read as a sticker.
+- **A bell is a kit prop on four posts** (`solid` 0.035 for its weight); hung bells aren't supported by the member rules.
+- **Use points on a platform fail the "used" check** (it wants the floor's height): put the room's point on the floor by it.
+- Blocks the place's old grey box and `bell_tower` blocks in valley.json (they drew a box where the building stands).
+
+## A log building and its yard (Harlan's homestead, #1126)
+
+- **One session can take a small building through every step** when the sheet runs while the code is
+  written: push the sheet's request first (on a `claude/art-building-*` branch: the workflow fires only
+  there; merge its results back), then build. Eight views, $1.12.
+- **Log walls are a part** (`LogWall`, FORMAT.md "A log building's parts"): give a wall `log: true` and the
+  builder lays courses, chinking, notched corners, bucks and a board gable. Keep the courses level all
+  round (butt and pass at the corners) so every log rests on what's under it; half-offset courses leave a
+  log's end over air in the support graph.
+- **A porch deck's posts need room:** `_deck` stands its posts on 0.25 m blocks under a 0.12 m beam, so a
+  deck under ~0.5 m makes a negative post (a BoxShape error). Put the deck's ledger on the footing's stones
+  (the deck a step under the floor) so it rests along the wall, not on one contact at the sill's middle.
+- **A repair job is a real piece, and it is weak:** a sprung board fails a crowd. The test lets a member with
+  meta `repair` fail the crowd check, and nothing else.
+- **Things off the pad stand on the slope:** a Structure grounds members only at its own y 0; the yard's
+  `YardStructure` grounds each on the ground under it (`ground_y`), so a pipe down a hill doesn't fall.
+- **A dirt floor** (`levels.ground.dirt`): the checks take the ground as the floor for use points under the
+  sills' level.
+
+## A cellar you walk down into (the undertaker's, #1174)
+
+- **The valley's ground is a height field: a cellar needs its ground dug.** `cellar.dig` (CellarDig) sets
+  Ground's dug tiles (5 cm points) under the cellar and the bulkhead's areaway to the cellar's floor, the
+  cut's edge 10 cm inside the walls' stone so its slope never shows. The lab's ground opens the same pits
+  (`lab.gd`). No pad needed: the lot keeps its slope, and `lot.ground.plane` (checked against the bake in
+  `tests/test_undertaker_valley.gd`, within 4 cm) stands the yard's things on it.
+- **A cellar's rooms are partitions on its flags** (walls of level `cellar`): put the bearing ones under
+  the girders (they carry them); a door in one needs 1.98 m under its header, so the cellar's floor goes
+  1.6 m under the street edge (2.41 m to the joists). Its openings and lamps count from the flags' top.
+- **A post on floor boards gives the boards its load** (StructuralAnalysis shares an upright's load evenly
+  among what it touches): a summer beam's post goes down through a slot in the floor onto its girder,
+  standing between two joists and 2 cm clear of the boards (CONTACT_EPSILON is 1.2 cm). Put the girders
+  on a floor board's middle so the slot cuts one row.
+- **Keep a partition off a summer beam's line** (its plate and the beam overlap: the settle drops both).
+- **A beam sits on a hatch's edges only if the hatch's sides are on the girders' faces** (boards beside a
+  hatch over a strip with no joist bent 2x with a crowd).
+- **An outward door in an outer wall has nothing under its leaf** (the floor's inside): open it inward.
+- **The walk test** (`Waypoints._foot_height`, `_walkable`, as saloon B's): sample every 0.2 m up a steep
+  stair (a 44 degree stair rises 0.27 in 0.3 m, over STEP_UP); the player's own limit is 46 degrees.
+- **Valley bodies:** 44,986 of Jolt's 65,536 with the undertaker in (his 4,079): no guard to raise.
+

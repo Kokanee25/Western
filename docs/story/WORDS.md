@@ -187,6 +187,28 @@ enough.
 civilians. Rank is always said. An officer is never loud. The surgeon's men in 1882 were a hospital
 steward and privates detailed to him (`payday-night`, checked there).
 
+## Checked 2026-11-17 (#1056)
+
+Against Bartlett (1877), De Vere (1872) and Farmer (1889), and the period texts read for
+[`DIALOGUE.md`](DIALOGUE.md) (its sources). How people talk, and the AI tells, are in that file.
+
+| Word | Verdict | Use |
+|---|---|---|
+| heeled (armed) | ✓ De Vere 1872: "Were both men heeled?" | keep |
+| played out, you bet, pard, git, plumb, dry up (hush), on the square, go under, pass in his checks, skedaddle, vamose | ✓ all in Bartlett or De Vere | keep |
+| disremember | ✓ Twain, *Roughing It* ch. 53 | the sheriff's oath |
+| gut-shot | Not in the three dictionaries; the Tombstone witnesses (1881) say "shot in the belly" | built in two lines; "shot in the belly", "through the bowel" proposed |
+| out cold | Not found; reads later | "He's insensible." (proposed for the built line) |
+| nester | Not in the three dictionaries | "farmer", from a cowhand, in the scripts; "granger" still to check |
+| hold up (to rob) | Farmer 1889: "The term is new" | "rob", "stop the stage" |
+| rustler | Farmer 1889: first "an active busy individual"; thief is later | "cow thief", "stock thief" |
+| the drop (get the drop on) | Farmer 1889 only | avoid, or check |
+| tenderfoot | Farmer cites 1881 | sparing |
+| tarnation | A New England word (De Vere) | not a cowhand's |
+| howdy | In none of Twain, Harte, Adams or Siringo, who have "Hello", "How're ye", "How goes it?", "So long", "Adios" | sparing; "Evening", "Morning" and a name. "Hello" is fine as a hail (this corrects the table above) |
+| reckon | Not universal: a Colorado settler's wife in 1873 says "guess" (Bird); "calculate" is New England | vary by where a man is from |
+| "Throw up your hands" | ✓ the order as witnesses gave it, 1881 | not "hands up", "reach" |
+
 ## To check before anything is recorded
 
 1. "gut-shot", "out cold", "hold it", "fire in the hole", "nester", "dry-gulch", "hello": dates.

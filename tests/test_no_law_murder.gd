@@ -2,7 +2,7 @@ extends TestCase
 ## No Law, beat 3 (#773; NoLawMurder, config/moments/no_law_murder.json): at night at the saloon
 ## yard's card table, a stranger sits in the free chair, Cody walks in shouting at Earl, the game
 ## stops and you're held in your seat, the stranger tells you not to move, Cody kicks Earl's chair
-## out, shoots him in the head where he lies, says there's no law to save him and walks out; the
+## out, shoots him where he lies (down through his collarbone since #1057: down and bleeding), says there's no law to save him and walks out; the
 ## room quiet till the barman's "Jesus, Cody, my chair!". After: you're let go, Earl's body stays,
 ## the drifter and the miner leave, StoryState has what you saw. Not at the table, it happens all
 ## the same. And the townsfolk after a shot (the cards playtest): cries by turns, not all at once.
@@ -136,9 +136,12 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	check(shot, "Cody shoots (%s)" % m.result())
 	var r := m.result()
 	check(r.chair_loose and r.earl_fell, "Earl's chair kicked out from under him (%s)" % r)
-	var dead := await wait_until(func() -> bool: return not earl.physiology.alive, 60 * 3)
-	check(dead, "Earl dead of the head shot (%s)" % earl.physiology.describe())
-	check(m.shots <= 2, "one shot, two at most (%d)" % m.shots)
+	# Down and bleeding, not shot dead (Sean, 2026-11-17, #1057): the ball through his collarbone,
+	# what it does the body's.
+	await physics_frames(20)
+	check(not earl.wounds.is_empty() and (earl.physiology.total_bleed_rate() > 1.0 or not earl.physiology.alive),
+			"Earl shot and bleeding (%s)" % earl.physiology.describe())
+	check(m.shots == 1, "one shot (%d)" % m.shots)
 	check(p.seat.seated(), "you're still sat")
 	var over := await wait_until(func() -> bool: return m.done, 60 * 60)
 	r = m.result()
@@ -169,14 +172,15 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	# After: let go, Earl stays, the men leave, the facts.
 	check(not p.seat.held(), "let go")
 	check(f.folk_man(&"earl") == earl and earl.is_inside_tree(), "Earl's body stays")
-	check_eq(String(f.state[&"earl"]), "dead", "Earl's dead to the folk")
+	# Down and breathing when it's over (#1057): the carry's, and he dies by his own clock.
+	check(String(f.state[&"earl"]) == "dead" or earl.physiology.alive, "Earl breathing, or dead to the folk (%s)" % f.state[&"earl"])
 	var gone := await wait_until(func() -> bool: return not f.people.has(&"cody") and not f.people.has(&"stranger"), 60 * 90)
 	check(gone, "Cody and the stranger walk off down the street and are gone (%s)" % [m.result().events.slice(-3)])
 	check(String(f.state[&"drifter"]) in ["going", "out"] and f.kept_out.has(&"drifter"), "the drifter leaves (%s)" % f.state[&"drifter"])
 	check_eq(StoryState.get_fact("nolaw.murder"), "done", "nolaw.murder")
 	check_eq(StoryState.get_fact("nolaw.seen_from"), "table", "seen from the table")
 	check_eq(StoryState.get_fact("nolaw.witnessed"), true, "you witnessed it")
-	check_eq(StoryState.get_fact("nolaw.earl"), "dead", "nolaw.earl")
+	check(StoryState.get_fact("nolaw.earl") in ["alive", "dead"], "nolaw.earl (%s)" % StoryState.get_fact("nolaw.earl"))
 	p.seat.use()
 	await physics_frames(10)
 	check(not p.seat.seated(), "E stands you up now")
@@ -200,13 +204,13 @@ func test_away_from_the_table_it_happens_all_the_same() -> void:
 	var r := m.result()
 	check(over and r.end == "done", "it plays out (%s)" % r)
 	check(not m.you_held, "nobody held you")
-	check(r.earl_dead, "Earl dead (%s)" % r.get("earl", ""))
+	check(not m.cheater.wounds.is_empty(), "Earl shot (%s)" % r.get("earl", ""))
 	check_eq(StoryState.get_fact("nolaw.seen_from"), "heard", "heard it")
 	check_eq(StoryState.get_fact("nolaw.witnessed"), false, "not a witness")
 
 
-## What lies between Cody's muzzle and Earl's head doesn't save him (#925): a piece of his chair
-## held over his face as Cody stands over him. Before, the ball stopped in whatever lay on its line
+## What lies between Cody's muzzle and where he aims doesn't save Earl (#925; since #1057 his
+## collarbone, not his head): a piece of his chair held on the line as Cody stands over him. Before, the ball stopped in whatever lay on its line
 ## (a chair leg, Earl's own neck or arm): of 16 murders in fresh valleys 2 left him alive after all
 ## three shots, by how his ragdoll happened to lie.
 func test_a_chair_leg_over_his_face_doesnt_save_him() -> void:
@@ -237,16 +241,16 @@ func test_a_chair_leg_over_his_face_doesnt_save_him() -> void:
 	var gun := m.victim.held_gun as RevolverModel
 	var across := 0
 	while m.shots == 0 and not m.done and across < 60 * 10:
-		var head := (m.cheater.parts[&"head"] as Node3D).global_position
+		var head := m._aim_point()
 		var from := gun.muzzle.global_position if gun != null else m.victim.global_position + Vector3.UP * 1.2
 		var dir := (from - head).normalized()
 		leg.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP if absf(dir.y) < 0.95 else Vector3.RIGHT), head + dir * 0.22)
 		across += 1
 		await physics_frames(1)
 	check(m.shots > 0, "he fires (%s)" % m.result())
-	var dead := await wait_until(func() -> bool: return not m.cheater.physiology.alive, 60 * 3)
-	check(dead, "Earl dead of it, the leg in the way or not (%s; shots %d)" % [m.cheater.physiology.describe(), m.shots])
-	check(m.shots == 1, "of the first shot (%d)" % m.shots)
+	await physics_frames(10)
+	check(not m.cheater.wounds.is_empty(), "the ball's in Earl, the leg in the way or not (%s; shots %d)" % [m.cheater.physiology.describe(), m.shots])
+	check(m.shots == 1, "the first shot (%d)" % m.shots)
 	leg.queue_free()
 
 
@@ -341,3 +345,132 @@ func test_a_murder_over_before_it_played_writes_nothing_and_comes_again() -> voi
 	check(m != null and m.get_instance_id() != first_id and not m.done, "a new one at its hour (%s)" % _folk().report())
 	if m != null:
 		m.reset()
+
+
+# --- The hold (SceneHold, #1050) ---------------------------------------------------------------
+
+## An armed man by the table, spoiling for it: while the scene holds, he never takes Cody on (Sean's
+## No Law case on #1050: the shooter downed by a townsman before you'd done anything), and the murder
+## plays out.
+func test_an_armed_townsman_leaves_cody_be_while_its_held() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	var f := _folk()
+	var p := _player()
+	p.global_position = f.cards.centre() + Vector3(30.0, 0.0, 10.0)
+	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	var guard := HumanBody.new()
+	guard.person_id = &"guard"
+	guard.name = "Guard"
+	guard.rng_seed = 1050
+	guard.has_gun = true
+	var ob := OutlawBrain.new()
+	ob.name = "Brain"
+	ob.temper = 1.0
+	ob.nerve = 99.0
+	guard.add_child(ob)
+	var at := f.cards.centre() + Vector3(-3.0, 0.0, 1.5)
+	at.y = f.ground(at.x, at.z) + 0.05
+	valley.add_child(guard)
+	guard.global_position = at
+	await physics_frames(5)
+	var m := f.start_murder() as NoLawMurder
+	check(m != null and m.scene_hold != null and m.scene_hold.on, "started, held (%s)" % (m.scene_hold.report() if m and m.scene_hold else {}))
+	var on_cody := []
+	var watch := func(actor: Node, kind: StringName, target: Node, _w: Vector3) -> void:
+		if m.victim != null and target == m.victim and actor != m.victim and kind in [&"shoot_at", &"hit", &"kill"]:
+			on_cody.append([String(actor.name), String(kind)])
+	Events.deed.connect(watch)
+	var cody_in := await wait_until(func() -> bool: return m.victim != null, 60 * 90)
+	check(cody_in, "Cody comes in (%s)" % m.result())
+	if cody_in:
+		ob.relations.provoke(m.victim)  # he's for taking Cody on: the hold keeps him off it
+	var over := await wait_until(func() -> bool: return m.done, 60 * 120)
+	Events.deed.disconnect(watch)
+	var r := m.result()
+	check(over and r.end == "done", "it plays out (%s)" % r)
+	check(on_cody.is_empty(), "nobody shot at or hit Cody (%s)" % [on_cody])
+	check(r.broken == "", "nothing of yours broke it")
+	check(StoryState.get_fact("nolaw.murder") == "done" and not m.cheater.wounds.is_empty(), "Earl murdered (%s)" % StoryState.get_fact("nolaw.murder"))
+	guard.queue_free()
+
+
+## Your shot as Cody stands over Earl: it lets go on that frame, the beats stop, Cody's his own man
+## (an outlaw's brain) and fights you.
+func test_your_shot_breaks_it_and_cody_fights_you() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	var f := _folk()
+	var p := _player()
+	p.global_position = f.cards.centre() + Vector3(6.0, 0.0, 4.0)
+	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	await physics_frames(5)
+	var m := f.start_murder() as NoLawMurder
+	check(m != null, "started")
+	var up := await wait_until(func() -> bool: return m.state in [&"kick", &"after_kick", &"draw", &"approach"], 60 * 120)
+	check(up, "Cody's at Earl (%s)" % m.result())
+	var hold := m.scene_hold
+	var f0 := Engine.get_physics_frames()
+	var from := p.global_position + Vector3.UP * 1.5
+	Events.noise.emit(from, 1.0, &"gunshot", p)
+	Events.shot_fired.emit(from, Vector3.UP, p)
+	check(not hold.on and hold.ended_frame == f0 and m.broken_by == &"shot", "let go on the shot's frame (%s)" % hold.report())
+	check(m.state == &"after" and m.end_reason == &"broken", "the beats stop (%s)" % m.result())
+	var cb := m.victim.get_node_or_null(^"Brain") as OutlawBrain if m.victim else null
+	check(cb != null, "Cody has a brain of his own")
+	if cb != null:
+		var fights := await wait_until(func() -> bool: return cb.mood == OutlawBrain.Mood.FIGHTING and cb.target == p, 60 * 4)
+		check(fights, "and fights you (mood %s, target %s)" % [cb.mood, cb.target])
+	check(not p.seat.held(), "you're nobody's")
+	m.reset()
+
+
+## Your gun drawn as Cody's at Earl (the playtest's 2026-11-17: he then stood over Earl 40 s doing
+## nothing): it lets go, and with nobody to fight he walks out the way he came.
+func test_your_drawn_gun_breaks_it_and_cody_walks_out() -> void:
+	ValleyFolk.murder_auto = false
+	await _at(21.0)
+	var f := _folk()
+	var p := _player()
+	p.global_position = f.cards.centre() + Vector3(6.0, 0.0, 4.0)
+	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	await physics_frames(5)
+	var m := f.start_murder() as NoLawMurder
+	var up := await wait_until(func() -> bool: return m.state in [&"kick", &"after_kick", &"draw", &"approach"], 60 * 120)
+	check(up, "Cody's at Earl (%s)" % m.result())
+	Events.deed.emit(p, &"draw", null, p.global_position)
+	check(m.broken_by == &"draw" and not m.scene_hold.on, "your gun let it go (%s)" % m.scene_hold.report())
+	var cody := m.victim
+	var from := cody.global_position
+	var went := await wait_until(func() -> bool: return m.events.any(func(e: Array) -> bool: return e[1] == "Cody, let be, walks out"), 60 * 20)
+	check(went, "he walks out (%s)" % [m.events.slice(-4)])
+	await physics_frames(60 * 6)
+	check(not is_instance_valid(cody) or cody.global_position.distance_to(from) > 4.0, "and gets on his way")
+	m.reset()
+
+
+## `-- --mission=no_law` (#1125): it started nothing (no such flag; the bridge's town has no folk).
+## Its set-up puts the clock before the murder's hour and you in the yard by the table; the clock
+## alone then brings Cody in, as on any first night.
+func test_the_mission_flag_sets_up_the_night_and_the_clock_brings_the_murder() -> void:
+	var f := _folk()
+	f.set_up_no_law(ValleyWorld.NO_LAW_HOUR)
+	await physics_frames(1)
+	f._look = 0.0
+	await physics_frames(60)
+	check(absf(_clock().time_of_day - ValleyWorld.NO_LAW_HOUR) < 0.05, "the clock at the start (%.2f)" % _clock().time_of_day)
+	check(_player().global_position.distance_to(f.cards.centre()) < 12.0, "you in the yard by the table (%.1f m)" % _player().global_position.distance_to(f.cards.centre()))
+	check(f.murder == null, "not yet")
+	var earl := f.folk_man(&"earl")
+	var sat := await wait_until(func() -> bool: return _chair("w").seated == earl, 60 * 60)
+	check(sat, "Earl at the table")
+	_clock().set_time(22.0)  # the test clock is held: the hour itself
+	var came := await wait_until(func() -> bool: return f.murder != null, 60 * 30)
+	check(came, "the clock brought the murder")
+	if came:
+		var m := f.murder as NoLawMurder
+		# The bridge's run of it: the start put you on the stranger's way in, and the scene's hold
+		# broke on its first frame ("mark"): it never played.
+		var shot := await wait_until(func() -> bool: return m.done or m.shots > 0, 60 * 120)
+		check(shot and m.shots > 0, "it plays to Cody's shot (%s)" % m.result())
+		check_eq(String(m.broken_by), "", "nothing broke the hold")

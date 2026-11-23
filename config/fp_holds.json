@@ -1,0 +1,196 @@
+{
+ "about": "Harlan's first-person hands (option 2, #914): MetaHuman Sean's hands cut at the wrist with a cuff and sleeve, fitted per gun. HeldHand.hold(key, painted) reads these where his hands are in (assets/people/private/harlan_fp.glb), else each viewmodel keeps its own constant. Fingers: degrees of grasp (the middle joint; HeldHand.GRASP couples the three). Thumbs: [[root x, y, z], bend 1, bend 2]. Places: design inches (the rifle) or metres and degrees under the camera ([at, rot]: the Colt's poses).",
+ "colt.grip": {
+  "middle": 75.0,
+  "ring": 59.0,
+  "little": 52.0
+ },
+ "colt.trigger_rest": 36.0,
+ "colt.trigger_pull": 44.0,
+ "colt.thumb_rest": [
+  [
+   10.0,
+   60.0,
+   -24.0
+  ],
+  30.0,
+  25.0
+ ],
+ "colt.thumb_cock": [
+  [
+   36.0,
+   48.0,
+   24.0
+  ],
+  45.0,
+  40.0
+ ],
+ "win73.l_hand_ful": [
+  8.2,
+  -2.05,
+  -0.25
+ ],
+ "win73.l_roll": 30.0,
+ "win73.l_grip": {
+  "index": 50.0,
+  "middle": 62.0,
+  "ring": 66.0,
+  "little": 70.0
+ },
+ "win73.l_thumb": [
+  [
+   -20.0,
+   0.0,
+   -10.0
+  ],
+  10.0,
+  5.0
+ ],
+ "win73.eye_relief": 0.7,
+ "win73.r_thumb": [
+  [
+   24.0,
+   60.0,
+   -24.0
+  ],
+  35.0,
+  30.0
+ ],
+ "colt.hand": [
+  [
+   0.027,
+   -0.013,
+   0.016
+  ],
+  [
+   -20.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "colt.index_off": [
+  [
+   30.0,
+   25.0,
+   0.0
+  ],
+  5.0,
+  0.0
+ ],
+ "colt.eye_relief": 0.58,
+ "colt.elbow_aim": [
+  0.15,
+  -0.55,
+  -0.1
+ ],
+ "colt.hip": [
+  [
+   0.14,
+   -0.12,
+   -0.31
+  ],
+  [
+   0.0,
+   -10.0,
+   -35.0
+  ]
+ ],
+ "colt.aim_cant": -3.0,
+ "win73.hip": [
+  [
+   0.17,
+   -0.095,
+   -0.32
+  ],
+  [
+   0.0,
+   14.0,
+   -18.0
+  ]
+ ],
+ "win73.aim_cant": 5.0,
+ "win73.r_index": [
+  45.0,
+  55.0,
+  -5.0
+ ],
+ "colt.aim_turn": [
+  6.0,
+  5.0
+ ],
+ "win73.aim_turn": [
+  3.0,
+  3.0
+ ],
+ "win73.r_elbow_aim": [
+  0.35,
+  -0.4,
+  0.05
+ ],
+ "colt.loading": [
+  [
+   0.05,
+   -0.1,
+   -0.5
+  ],
+  [
+   20.0,
+   -50.0,
+   20.0
+  ]
+ ],
+ "colt.l_load": [
+  [
+   0.004,
+   0.0,
+   0.002
+  ],
+  [
+   0.2,
+   -0.2,
+   1.0
+  ],
+  [
+   -1.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "colt.l_load_grip": {
+  "index": 40.0,
+  "middle": 75.0,
+  "ring": 85.0,
+  "little": 88.0
+ },
+ "colt.l_load_thumb": [
+  [
+   -20.0,
+   40.0,
+   30.0
+  ],
+  25.0,
+  20.0
+ ],
+ "colt.l_elbow_load": [
+  0.0,
+  -0.45,
+  0.0
+ ],
+ "win73.loading": [
+  [
+   0.04,
+   -0.12,
+   -0.44
+  ],
+  [
+   8.0,
+   -62.0,
+   10.0
+  ]
+ ],
+ "win73.l_elbow_aim": [
+  -0.35,
+  -0.4,
+  -0.1
+ ]
+}

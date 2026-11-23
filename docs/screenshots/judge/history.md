@@ -480,3 +480,27 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-13_valley_ground_r2 | camp_approach | **good indie** | 3, 4, 6, 9 | Posterised sky | 0% / 27.1 / 0.71 / 0.03 | #891 round 2: after only |
 | 2026-11-13_valley_ground_r2 | cabin | **cheap indie** | 3, 4, 6, 7, 9 | Posterised sky | 0% / 21.9 / 0.55 / 0.04 | #891 round 2: after only |
 | 2026-11-13_valley_ground_r2 | town_height | **cheap indie** | 1, 3, 4, 6, 7, 8, 9 | Untextured grey boxes for a town | 0% / 34.1 / 0.92 / 0.19 | #891 round 2: after only |
+| 2026-11-14_cheap_fp_hands | colt_hip_day | **cheap indie** | 3, 4, 6, 7, 9 | The hand and gun look like a placeholder rig | 12% / 1.4 / 0.80 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | colt_aim_day | **cheap indie** | 3, 4, 6, 7, 8, 9 | A giant forearm and cuff block a third of the view | 13% / 0.8 / 0.86 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | colt_cock_day | **cheap indie** | 3, 4, 6, 7, 9 | The rubbery hand holding the revolver sideways | 13% / 1.4 / 0.79 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | rifle_aim_day | **cheap indie** | 3, 6, 7, 8, 9 | The rifle aim is a wall of arm and a bright-blue toy receiver | 14% / 0.5 / 1.01 / 0.05 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | rifle_lever_day | **cheap indie** | 3, 4, 5, 6, 7, 9 | Hands that don't grip the rifle | 14% / 1.6 / 0.82 / 0.04 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | colt_hip_lamp | **cheap indie** | 1, 2, 3, 6, 7, 9 | The rubbery hand and sideways revolver again | 53% / 0.0 / 1.29 / 0.19 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands | rifle_lever_lamp | **cheap indie** | 1, 2, 3, 5, 6, 7, 9 | Hands that don't hold the rifle, and plastic-blue steel | 56% / 0.0 / 1.21 / 0.17 | #914 option 2 hands in the game, round 1 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_hip_day | **good indie** | 3, 6, 7, 8 | Mannequin hand on a smeared revolver | 13% / 1.5 / 0.80 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_aim_day | **cheap indie** | 3, 5, 6, 7, 8 | Giant black sleeve filling the lower middle | 13% / 0.8 / 0.86 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_cock_day | **good indie** | 3, 6, 7, 8 | Mannequin hand on a smeared revolver | 13% / 1.5 / 0.79 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | rifle_aim_day | **cheap indie** | 3, 5, 6, 7, 8 | Two black tubes eat the screen | 13% / 0.7 / 0.98 / 0.05 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | rifle_lever_day | **cheap indie** | 3, 5, 6, 7 | Plastic blue rifle | 14% / 1.6 / 0.82 / 0.04 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | colt_hip_lamp | **good indie** | 2, 3, 5, 6, 8, 9 | Mannequin hand glowing orange | 53% / 0.0 / 1.32 / 0.19 | #914 option 2 hands in the game, round 2 |
+| 2026-11-14_cheap_fp_hands_r2 | rifle_lever_lamp | **good indie** | 2, 3, 5, 6, 9 | Fingers through the stock | 56% / 0.0 / 1.26 / 0.17 | #914 option 2 hands in the game, round 2 |
+| 2026-11-18_hollis_cheap | front12 | **cheap indie** | 2, 3, 4, 7, 9 | Grey placeholder buildings either side | 16% / 2.8 / 1.12 / 0.39 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-18_hollis_cheap | entry12 | **cheap indie** | 1, 4, 7, 9 | Empty shop behind the glass | 48% / 0.0 / 2.29 / 0.17 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-18_hollis_cheap | counter12 | **cheap indie** | 2, 3, 4, 5, 7, 9 | An empty room, not a store | 3% / 4.5 / 1.88 / 0.22 | #1074 pale posts/beams, HOLLIS gilt, window goods |
+| 2026-11-23_undertaker_r1 | front | **cheap indie** | 1, 3, 4, 6, 7, 9 | An untextured grey box for a building | 19% / 2.2 / 1.05 / 0.30 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | yard | **cheap indie** | 2, 3, 4, 5, 7, 9 | Greybox buildings in the gap | 40% / 0.0 / 2.16 / 0.24 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | workroom | **good indie** | 2, 3, 4, 6, 7 | A shimmering ceiling | 36% / 0.0 / 2.60 / 0.33 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | stair | **cheap indie** | 3, 6, 7 | A blue camouflage cellar floor | 32% / 0.2 / 1.18 / 0.24 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r1 | embalming | **cheap indie** | 2, 3, 5, 6, 7, 9 | A black band across the picture | 38% / 0.0 / 1.29 / 0.18 | #1174 the undertaker's first renders (U0 props) |
+| 2026-11-23_undertaker_r2 | stair | **cheap indie** | 2, 3, 4, 6, 7 | A vast bare floor | 35% / 0.1 / 1.10 / 0.24 | #1174 the cellar's fill to its floor |
+| 2026-11-23_undertaker_r2 | embalming | **cheap indie** | 2, 3, 4, 5, 6, 7 | Nothing in the room | 89% / 0.0 / 1.34 / 0.38 | #1174 the cellar's fill to its floor |

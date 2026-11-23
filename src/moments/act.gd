@@ -108,10 +108,23 @@ func card(text: String, seconds := 4.0) -> void:
 	_card_layer.visible = true
 	_card_left = seconds
 	_note("card: " + text)
+	# Logged as the screen's lines are (the bridge's `events`): #979's blind playtest, drawn at a frame
+	# a second, never saw a ride's card and read each join as a jump.
+	var p := player()
+	if p and p.wounds:
+		p.wounds.shown.emit(text)
 
 
 func card_up() -> bool:
 	return _card_layer != null and _card_layer.visible
+
+
+## Why you can't ride off ("Ride there", #1120: RideThere asks every running act): "" lets you go
+## (the data's `"ride": "ok"`); else the data's `ride_no`, or a line that this isn't done with.
+func ride_refusal() -> String:
+	if String(data.get("ride", "")) == "ok":
+		return ""
+	return String(data.get("ride_no", "Not now: there's something here to see through."))
 
 
 ## The card's own clock (call each tick).

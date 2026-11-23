@@ -117,8 +117,9 @@ func test_folk_on_the_porches_and_in_the_street_take_their_ease_and_get_down_at_
 	var bench := dressing.get_node(^"BenchManA") as HumanBody
 	# A shot fired in the street in front of the saloon.
 	Events.noise.emit(bench.global_position + Vector3(0.5, 1.0, -5.5), 350.0, &"gunshot", player)
-	await physics_frames(20)
-	check_eq((bench.get_node(^"Brain") as CivilianBrain).mood, CivilianBrain.Mood.COWERING, "a shot close by: he gets down")
+	var bb := bench.get_node(^"Brain") as CivilianBrain
+	var down := await wait_until(func() -> bool: return bb.mood == CivilianBrain.Mood.COWERING, 60 * 4)
+	check(down, "a shot close by: he gets down (%s)" % bb.describe())
 
 
 ## The riders are built while the street loads and wait out of the world (#488: building them took
@@ -375,7 +376,10 @@ func test_in_a_fight_they_work_together() -> void:
 	var from := player.camera.global_position
 	var bullet := bl.fire(from, (at - from).normalized(), t.muzzle_velocity, t.bullet_mass, t.bullet_diameter, ex)
 	bullet.shooter = player
-	await physics_frames(60 * 30)
+	# Up to a minute for the second gun: from a fresh start (each test file's statics cleared, #1015)
+	# the first shots come late (the kid ~20 s, Lyle ~50 s, a drag each first), where the whole suite's
+	# props made before it had them both firing inside 30 s.
+	await wait_until(func() -> bool: return shots.size() >= 2, 60 * 60)
 	Events.callout.disconnect(hear)
 	var kinds := {}
 	for c in calls:
@@ -401,6 +405,20 @@ func test_break_off_a_fight_and_they_ride_out_not_stand_about() -> void:
 	await _fight_at_the_bar_and_break_off()
 	var done := await wait_until(func() -> bool: return _still_at_it().is_empty(), 60 * 90)
 	check(done, "nobody's still fighting or hanging about a minute and a half on (%s)" % ", ".join(_still_at_it()))
+
+
+## Bound up and nothing more to tend (#1051's CI: the Kid knelt tending nothing for good after a
+## fight broke off): he goes on, his fight if he has the nerve for it, else away.
+func test_with_nothing_left_to_tend_he_doesnt_kneel_there() -> void:
+	town.bring_gang([&"kid"])
+	var kid := _man(&"kid")
+	var b := _brain(&"kid")
+	kid.global_position = town.places.at(&"street_west")
+	await physics_frames(10)
+	b._start_tending(OutlawBrain.Mood.FLEEING)
+	check_eq(b.mood, OutlawBrain.Mood.TENDING, "tending")
+	await physics_frames(60)
+	check(b.mood != OutlawBrain.Mood.TENDING, "nothing to tend: he's gone on (%s)" % OutlawBrain.MOOD_NAMES[b.mood])
 
 
 ## A man down with his legs gone, awake, and against you: alone he lies there; when you come up
@@ -496,7 +514,10 @@ func _fight_at_the_bar_and_break_off() -> void:
 	await physics_frames(60 * 8)
 	player.revolver().put_away()
 	Events.deed.emit(player, &"holster", null, player.global_position)
-	_put_player(Vector3(60.0, 0.0, -12.0), -90.0)
+	# Out of their sight for sure (#1094): behind the livery, the buildings between you and the
+	# saloon. On the range (60, -12) the saloon's door looks straight at you on some fights' paths:
+	# a man saw you get there, went looking, found you in the open and fought on.
+	_put_player(Vector3(14.0, TownLayout.ground_height(14.0) + 0.05, -29.0), 0.0)
 
 
 ## The gang men still on their feet and still at it: fighting, searching, or standing about
@@ -509,7 +530,8 @@ func _still_at_it() -> Array[String]:
 		var b := g.get_node(^"Brain") as OutlawBrain
 		var leaving: bool = b.mood == OutlawBrain.Mood.CALM and not b.agenda.is_empty() and b.agenda[0].do == &"leave"
 		if not leaving and b.mood != OutlawBrain.Mood.SURRENDERED and b.mood != OutlawBrain.Mood.FLEEING:
-			out.append("%s %s" % [g.person_id, b.describe().get_slice(".", 0)])
+			out.append("%s %s (after %s, bleeding %.1f ml/s)" % [g.person_id, b.describe().get_slice(".", 0),
+					OutlawBrain.MOOD_NAMES[b._after_tend], g.physiology.total_bleed_rate()])
 	return out
 
 
@@ -623,8 +645,8 @@ func test_far_off_the_street_cowers_from_a_blast_and_still_ticks_slowly() -> voi
 	_put_player(Vector3(130.0, 0.0, -8.4), -90.0)
 	player.set_physics_process(false)
 	await physics_frames(3)
-	Events.noise.emit(Vector3(0.0, 0.5, -5.0), 1.0, &"blast", null)
-	await physics_frames(30)
+	Events.noise.emit(Vector3(0.0, 0.5, -5.0), DeedWatch.BLAST, &"blast", null)
+	await physics_frames(150)  # (each takes it in a beat after it reaches him, then looks: townsfolk step 5)
 	var cowering: Array[HumanBody] = []
 	for p: HumanBody in [town.storekeeper, town.barkeep, town.widow, town.sheriff, town.doctor, town.miner, town.rancher, town.blacksmith]:
 		var b := p.get_node_or_null(^"Brain") as CivilianBrain

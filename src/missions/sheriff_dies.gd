@@ -46,6 +46,8 @@ var _followed := false
 var _early_from := false
 var _early := ""
 var state_t := 0.0
+## The doctor's said his word by Earl's body (#1057).
+var _earl_said := false
 
 
 func begin() -> void:
@@ -172,7 +174,7 @@ func _cot_bed() -> Array:
 func _make_men() -> void:
 	var door := _local(data.get("door_out", [4.71, -1.2]))
 	var into := _local((data.get("lead", [[4.71, 0.6]]) as Array)[0])
-	doctor = folk.take(&"doc", door, into - (into - door) * 3.0)
+	doctor = folk.take(&"doctor", door, into - (into - door) * 3.0)
 	wife = folk.take(&"wife", chair.global_position + chair.global_basis.z * 0.8, cot.global_position)
 	if wife:
 		wife.global_position = Seating.spot(chair)
@@ -239,6 +241,7 @@ func _physics_process(delta: float) -> void:
 				_go(&"lead")
 		&"lead":
 			_lead_step(p, delta)
+			_by_earl(p)
 		&"room":
 			_room_step(p, delta)
 
@@ -460,6 +463,21 @@ func _do(what: String) -> void:
 
 
 ## The beats' gaps scaled (`pace` option: the tests run it quicker).
+## Earl under his sheet in the front room (No Law's carry, #1057: ValleyFolk.laid): passing him on
+## the way in, the doctor's word about the night (`body`), once.
+func _by_earl(p: Player) -> void:
+	if _earl_said or folk == null or not folk.laid.has(&"earl") or doctor == null or not is_instance_valid(doctor):
+		return
+	var at: Vector3 = (folk.laid[&"earl"] as Dictionary).get("at", Vector3.INF)
+	var earl := folk.folk_man(&"earl")
+	if earl != null:
+		at = ValleyFolk._body_at(earl)
+	if at == Vector3.INF or _flat(p.global_position, at) > float(data.get("earl_m", 2.6)):
+		return
+	_earl_said = true
+	_say(doctor, line("body", care))
+
+
 func _pace() -> float:
 	return clampf(float(opts.get("pace", 1.0)), 0.05, 4.0)
 
@@ -510,7 +528,7 @@ func hand_over() -> void:
 ## Take back its men and props (the bridge, the tests).
 func reset() -> void:
 	if folk and is_instance_valid(folk):
-		for id: StringName in [&"doc", &"wife", &"dying_sheriff", &"runner"]:
+		for id: StringName in [&"doctor", &"wife", &"dying_sheriff", &"runner"]:
 			if folk.state.get(id) == &"act":
 				if id == &"wife" and wife and is_instance_valid(wife) and chair and is_instance_valid(chair):
 					Seating.stand_up(wife, chair)

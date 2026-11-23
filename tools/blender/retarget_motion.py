@@ -133,6 +133,20 @@ RIGS = {
         "upper_arm_l": "upperarm.l", "forearm_l": "lowerarm.l", "hand_l": "wrist.l",
         "upper_arm_r": "upperarm.r", "forearm_r": "lowerarm.r", "hand_r": "wrist.r"},
         "tips": {"foot_l": "toes.l", "foot_r": "toes.r", "hand_l": "hand.l", "hand_r": "hand.r"}},
+    # NVIDIA's SOMA skeleton (Kimodo's BVH, somaskel77; #1087): its LeftLeg is the thigh and
+    # LeftShin the shin, so the Mixamo patterns would take the thigh for the shin. Chest is the
+    # bone the shoulders hang from; Spine1 the belly; LeftShoulder the clavicle. Export the BVH with
+    # `kimodo_convert --bvh_standard_tpose`: from its default rest (BONES-SEED's) the clavicles
+    # came out 100+ degrees off and the knees bent with the feet in the air.
+    "soma": {"detect": "LeftShin", "bones": {
+        "pelvis": "Hips", "abdomen": "Spine1", "chest": "Chest", "neck": "Neck1", "head": "Head",
+        "thigh_l": "LeftLeg", "shin_l": "LeftShin", "foot_l": "LeftFoot",
+        "thigh_r": "RightLeg", "shin_r": "RightShin", "foot_r": "RightFoot",
+        "upper_arm_l": "LeftArm", "forearm_l": "LeftForeArm", "hand_l": "LeftHand",
+        "upper_arm_r": "RightArm", "forearm_r": "RightForeArm", "hand_r": "RightHand",
+        "clavicle_l": "LeftShoulder", "clavicle_r": "RightShoulder"},
+        "tips": {"foot_l": "LeftToeBase", "foot_r": "RightToeBase", "hand_l": "LeftHandMiddle1",
+                 "hand_r": "RightHandMiddle1", "head": "HeadEnd"}},
 }
 
 

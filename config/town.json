@@ -51,7 +51,7 @@
 		"Well": {"at": [-2.5, 0, -28.5], "facing": 0},
 		"Windpump": {"at": [1.5, 0, -30], "facing": 0},
 		"WindpumpTank": {"at": [2.2, 0, -30], "facing": 0},
-		"Farmhouse": {"at": [102.5, 1.767, -46.2], "facing": 180, "_doc": "The rancher's farmhouse out east (issue #520): on its knoll north of the road, its front to the road; built from experiments/building_lab/farmhouse.json (src/missions/farmhouse.gd), standing on the ground under its low corner (TownLayout.footing over its 9 x 7.6 m with the lean-to: change the hills, change its y)."},
+		"Farmhouse": {"at": [102.5, 1.767, -46.2], "facing": 180, "_doc": "The rancher's farmhouse out east (issue #520): on its knoll north of the road, its front to the road; built from config/buildings/farmhouse.json (src/missions/farmhouse.gd), standing on the ground under its low corner (TownLayout.footing over its 9 x 7.6 m with the lean-to: change the hills, change its y)."},
 		"Corral": {"at": [18, 0, -32], "facing": 180},
 		"TargetBoard": {"at": [60, 0, -8.4], "facing": 90},
 		"TargetBoard50": {"at": [94, 0, 3], "facing": 90},

@@ -1,0 +1,245 @@
+{
+  "dress": {
+    "glove": {
+      "binds": 21,
+      "points": 371,
+      "skin_points": 6293,
+      "skin_tris": 12543,
+      "skin_tris_hidden": 12543,
+      "tips": 37,
+      "tris": 699,
+      "under_tris": 12543
+    },
+    "ok": true
+  },
+  "frame_ms_mean": 81.457,
+  "glove": true,
+  "handoff": {
+    "below_floor": 0,
+    "by_phase": {
+      "draw": {
+        "on_arm": 319,
+        "stretch": 1.063,
+        "through": 12
+      },
+      "lie": {
+        "on_arm": 0,
+        "stretch": 1.013,
+        "through": 0
+      },
+      "take": {
+        "on_arm": 319,
+        "stretch": 1.0,
+        "through": 9
+      },
+      "toss": {
+        "on_arm": 0,
+        "stretch": 1.005,
+        "through": 0
+      }
+    },
+    "flung": 0,
+    "glove": {
+      "binds": 21,
+      "points": 371,
+      "skin_points": 6293,
+      "skin_tris": 12543,
+      "skin_tris_hidden": 12543,
+      "tips": 37,
+      "tris": 699,
+      "under_tris": 12543
+    },
+    "held_off_mm": 2.1,
+    "lost": 0,
+    "part_us": {
+      "draw": [
+        110545,
+        53377,
+        49214,
+        156
+      ],
+      "lie": [
+        4606,
+        826,
+        0,
+        336
+      ],
+      "rest": [
+        301,
+        0,
+        0,
+        43
+      ],
+      "take": [
+        4467,
+        4067,
+        3927,
+        9
+      ],
+      "toss": [
+        4994,
+        938,
+        0,
+        20
+      ]
+    },
+    "phase_at": {
+      "draw": 2.267,
+      "lie": 5.2,
+      "present": 0.0,
+      "reach": 1.0,
+      "rest": 10.8,
+      "take": 2.117,
+      "toss": 4.867
+    },
+    "pop_mm": 0.57165464386344,
+    "released_all_at": 0.833,
+    "rest_at": 10.8000000000001,
+    "skin_tris_max": 699,
+    "skin_us_max": 1537,
+    "stretch_max": 1.06284352258406,
+    "through_max": 12,
+    "through_ticks": 89,
+    "through_total": 485,
+    "through_worst": {
+      "phase": "draw",
+      "t": 2.42,
+      "where": {
+        "finger_little_l_2": [
+          3.8
+        ],
+        "finger_middle_l_0": [
+          5.0
+        ],
+        "finger_middle_l_0 (held)": [
+          3.2
+        ],
+        "finger_middle_l_1": [
+          5.3,
+          3.3,
+          2.3
+        ],
+        "finger_thumb_l_1 (held)": [
+          6.3,
+          8.8
+        ],
+        "finger_thumb_l_2": [
+          2.0
+        ],
+        "forearm_twist_l_0 (held)": [
+          2.8
+        ],
+        "hand_l (held)": [
+          5.6,
+          4.8
+        ]
+      }
+    },
+    "ticks": {
+      "draw": 156,
+      "lie": 336,
+      "present": 59,
+      "reach": 67,
+      "rest": 43,
+      "take": 9,
+      "toss": 20
+    },
+    "under_10mm_max": 0,
+    "under_5mm_max": 4,
+    "us": {
+      "draw": 120247.0,
+      "lie": 103344.4,
+      "present": 16.4,
+      "reach": 143.7,
+      "rest": 14.8,
+      "take": 158035.0,
+      "toss": 98185.1
+    },
+    "where": [],
+    "worn_under_max": 11
+  },
+  "model": "sean_metahuman_s3",
+  "phase_ms": {
+    "draw": {
+      "cloth": 0.045,
+      "garment": 0.707,
+      "glove_handoff": 120.229,
+      "mean": 122.468,
+      "median": 112.116,
+      "n": 156,
+      "people_body": 0.338,
+      "people_skeleton": 0.091
+    },
+    "lie": {
+      "cloth": 0.018,
+      "garment": 0.015,
+      "glove_handoff": 103.328,
+      "mean": 104.684,
+      "median": 102.039,
+      "n": 336,
+      "people_body": 0.266,
+      "people_skeleton": 0.088
+    },
+    "present": {
+      "cloth": 0.0,
+      "garment": 0.0,
+      "glove_handoff": 0.013,
+      "mean": 0.569,
+      "median": 0.546,
+      "n": 60,
+      "people_body": 0.148,
+      "people_skeleton": 0.05
+    },
+    "reach": {
+      "cloth": 0.0,
+      "garment": 0.0,
+      "glove_handoff": 0.141,
+      "mean": 0.745,
+      "median": 0.708,
+      "n": 67,
+      "people_body": 0.172,
+      "people_skeleton": 0.084
+    },
+    "rest": {
+      "cloth": 0.0,
+      "garment": 0.0,
+      "glove_handoff": 0.008,
+      "mean": 0.618,
+      "median": 0.541,
+      "n": 43,
+      "people_body": 0.138,
+      "people_skeleton": 0.057
+    },
+    "take": {
+      "cloth": 0.039,
+      "garment": 0.612,
+      "glove_handoff": 158.016,
+      "mean": 159.942,
+      "median": 167.675,
+      "n": 9,
+      "people_body": 0.331,
+      "people_skeleton": 0.089
+    },
+    "toss": {
+      "cloth": 0.05,
+      "garment": 0.25,
+      "glove_handoff": 98.167,
+      "mean": 99.743,
+      "median": 99.881,
+      "n": 20,
+      "people_body": 0.33,
+      "people_skeleton": 0.083
+    },
+    "worn": {
+      "cloth": 0.0,
+      "garment": 0.0,
+      "glove_handoff": 0.0,
+      "mean": 0.559,
+      "median": 0.532,
+      "n": 19,
+      "people_body": 0.137,
+      "people_skeleton": 0.053
+    }
+  },
+  "ticks": 720
+}

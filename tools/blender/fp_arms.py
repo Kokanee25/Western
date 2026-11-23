@@ -17,7 +17,11 @@ What it makes (Godot space, metres; the man's rest pose, arms hanging):
 
 **The private folder is git-ignored:** the hands are the MetaHuman's mesh and skin, which never go in
 this public repo (#692's licence rule; never used to train anything). The cloth and this script are
-ours and are committed. Nothing in the game reads any of it: the lab (experiments/viewmodel_rig/) does.
+ours and are committed. The game reads it from assets/people/private/ (HeldHand, #914:
+tools/characters/fetch_fp_hands.sh; CI's export with the STUDIO_TOKEN secret); the lab
+(experiments/viewmodel_rig/) from its own private/. The hands are decimated to HAND_TRIANGLES; the cuff
+and sleeve carry seeded grime in their vertex colours (dust, sweat, a worn hem), the sleeve's far end
+closed.
 
 Ideas, not code, from the usual first-person practice (a separate arms rig posed per weapon, the
 sleeve hiding the cut: e.g. GDC talks on first-person viewmodels); written fresh here.
@@ -41,9 +45,12 @@ KEEP_UP = 0.095
 CUFF_FROM, CUFF_TO = -0.010, 0.058
 CUFF_CLEAR = 0.0055   # off his skin (m)
 # The coat's sleeve: its hem a little above the cuff's lower edge, up to near the elbow.
-SLEEVE_FROM, SLEEVE_TO = 0.030, 0.255
-SLEEVE_CLEAR = (0.0125, 0.024)   # off his skin at the hem, at the top
+SLEEVE_FROM, SLEEVE_TO = 0.030, 0.36
+SLEEVE_CLEAR = (0.010, 0.016)   # off his skin at the hem, at the top
 TILE = 0.03   # one cloth texture tile (m)
+# The hands cut from his 21k triangles to about this many (they fill a corner of the screen).
+HAND_TRIANGLES = 4000
+GRIME_SEED = 914
 
 
 def args():
@@ -134,7 +141,16 @@ def cloth_material(name, folder, stem):
             node.image.colorspace_settings.name = "Non-Color"
         return node
     a = img(f"{stem}_albedo.png", True)
-    nt.links.new(a.outputs["Color"], bsdf.inputs["Base Color"])
+    # The grime (the tubes' colour attribute) multiplies the weave.
+    va = nt.nodes.new("ShaderNodeVertexColor")
+    va.layer_name = "Col"
+    mix = nt.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    mix.blend_type = "MULTIPLY"
+    mix.inputs["Factor"].default_value = 1.0
+    nt.links.new(a.outputs["Color"], mix.inputs[6])
+    nt.links.new(va.outputs["Color"], mix.inputs[7])
+    nt.links.new(mix.outputs[2], bsdf.inputs["Base Color"])
     o = img(f"{stem}_orm.png", False)
     sep = nt.nodes.new("ShaderNodeSeparateColor")
     nt.links.new(o.outputs["Color"], sep.inputs["Color"])
@@ -277,7 +293,53 @@ def slices(hands, fr, s, hs):
     return out
 
 
-def tube(name, fr, s, hs, sec, clear, folds, hem, mat, group, segs=48):
+def _blotch(rng, n=7):
+    """A seeded sum of a few soft blotches round a tube: f(h, th) in 0..1 (dust caught in a crease,
+    a sweat mark), periodic round the arm."""
+    waves = [(rng.integers(1, 6), rng.uniform(12, 70), rng.uniform(0, 6.3), rng.uniform(0, 6.3), rng.uniform(0.4, 1.0))
+             for _ in range(n)]
+    tot = sum(w[4] for w in waves)
+    def f(h, th):
+        v = sum(w[4] * math.sin(w[0] * th + w[2]) * math.sin(w[1] * h + w[3]) for w in waves) / tot
+        return 0.5 + 0.5 * v
+    return f
+
+
+def grime_cuff(rng):
+    """The shirt's cuff, worn: its open edge greyed and darkened where it rubs the heel of the hand
+    (sweat, dirt), a dusty top where the coat's sleeve rests, soft blotches between (multiplies the
+    linen's albedo, 1 = clean)."""
+    bl = _blotch(rng)
+    span = CUFF_TO - CUFF_FROM
+    def f(h, th, hem_ring):
+        t = (h - CUFF_FROM) / span
+        edge = max(0.0, 1.0 - t / 0.22) ** 1.6 if not hem_ring else 1.0
+        under = 0.5 + 0.5 * max(0.0, -math.sin(th))          # the underside meets the table, the reins
+        top = max(0.0, (t - 0.8) / 0.2)
+        g = 0.42 * edge * (0.65 + 0.35 * under) + 0.12 * top + 0.16 * bl(h, th)
+        return (1.0 - g, 1.0 - g * 1.05, 1.0 - g * 1.25)     # sweat yellows as it greys
+    return f
+
+
+def grime_sleeve(rng):
+    """The coat's sleeve: dust on its lower half (heaviest at the hem and on top, where it settles
+    riding), the hem's edge worn pale, the cuff's crease dark; soft blotches."""
+    bl = _blotch(rng)
+    def f(h, th, hem_ring):
+        t = (h - SLEEVE_FROM) / (SLEEVE_TO - SLEEVE_FROM)
+        low = max(0.0, 1.0 - t / 0.55) ** 1.2
+        top = 0.5 + 0.5 * max(0.0, math.sin(th))
+        dust = 0.5 * low * (0.55 + 0.45 * top) * (0.6 + 0.6 * bl(h, th))
+        if hem_ring:
+            dust += 0.35                                   # the fold's edge: worn to the pale yarn
+        # dust lightens and greys a dark wool: towards a dry yellow-grey
+        k = min(dust, 0.85)
+        dust_rgb = (2.1, 1.95, 1.7)
+        return tuple(1.0 + (d - 1.0) * k * 0.6 for d in dust_rgb)
+    return f
+
+
+def tube(name, fr, s, hs, sec, clear, folds, hem, mat, group, segs=48, grime=None, cap=False):
     """A cloth tube round the forearm: rings at heights `hs`, each an ellipse round that height's
     section plus `clear` (a number or (at the first ring, at the last)), pushed in and out by
     `folds(h, theta)` (m), UVs by the cloth's own scale. `hem` turns the first ring's edge back on
@@ -287,6 +349,7 @@ def tube(name, fr, s, hs, sec, clear, folds, hem, mat, group, segs=48):
     y = a.cross(x)
     bm = bmesh.new()
     uv = bm.loops.layers.uv.new("UVMap")
+    col = bm.loops.layers.color.new("Col") if grime else None
     rings = []
     rows = []
     n = len(hs)
@@ -326,6 +389,24 @@ def tube(name, fr, s, hs, sec, clear, folds, hem, mat, group, segs=48):
                 # the hem's turned-in ring reads along the cloth's length as the run doubles back
                 v = (h if ri > 0 or not hem else hs[0] - 0.012) / TILE
                 face.loops[k][uv].uv = (u, v)
+                if col is not None:
+                    th = 2 * math.pi * jj / segs
+                    c3 = grime(rows[ri][0] if ri > 0 or not hem else hs[0], th, hem and ri == 0)
+                    face.loops[k][col] = (*[min(max(x_, 0.0), 1.0) for x_ in c3], 1.0)
+    if cap:
+        # The far end closed (a shallow dome): in first person the forearm can point at the eye
+        # (the rifle's support hand), and an open sleeve showed its hollow (#914).
+        h, rx, ry = rows[-1]
+        cx, cy = sec[-1][0], sec[-1][1]
+        tip = bm.verts.new(w + a * (h + 0.35 * min(rx, ry)) + x * cx + y * cy)
+        last = rings[-1]
+        for j in range(segs):
+            face = bm.faces.new((last[j], last[(j + 1) % segs], tip))
+            for k in range(3):
+                face.loops[k][uv].uv = (j / segs * 6.0, h / TILE)
+                if col is not None:
+                    c3 = grime(h, 2 * math.pi * j / segs, False)
+                    face.loops[k][col] = (*[min(max(x_, 0.0), 1.0) for x_ in c3], 1.0)
     # A tube's outside should face out: our winding faces in for a right-handed (x, y, a); flip if so.
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     me = bpy.data.meshes.new(name)
@@ -410,6 +491,7 @@ def main():
     linen = cloth_material("linen_shirt", a.cloth, "linen")
     horn = plain_material("button_bone", (0.62, 0.56, 0.45), 0.45)
     info = {"src": os.path.basename(a.src), "keep_up_m": KEEP_UP, "kept_vertices": counts, "sides": {}}
+    rng = np.random.default_rng(GRIME_SEED)
     made = []
     for s in SIDES:
         hc = [CUFF_FROM + (CUFF_TO - CUFF_FROM) * i / 10 for i in range(11)]
@@ -417,15 +499,15 @@ def main():
         # a cuff is a band: one section for its length, the widest of his wrist under it
         wide = (float(np.mean([q[0] for q in sc])), float(np.mean([q[1] for q in sc])),
                 max(q[2] for q in sc), max(q[3] for q in sc))
-        made.append(tube(f"fp_cuff_{s}", fr, s, hc, [wide] * len(hc), CUFF_CLEAR, cuff_folds, True, linen, f"forearm_{s}"))
+        made.append(tube(f"fp_cuff_{s}", fr, s, hc, [wide] * len(hc), CUFF_CLEAR, cuff_folds, True, linen, f"forearm_{s}", grime=grime_cuff(rng)))
         made.append(button(f"fp_button_{s}", fr, s, (CUFF_FROM + CUFF_TO) * 0.5, wide, CUFF_CLEAR, horn))
-        hs = [SLEEVE_FROM + (SLEEVE_TO - SLEEVE_FROM) * i / 28 for i in range(29)]
+        hs = [SLEEVE_FROM + (SLEEVE_TO - SLEEVE_FROM) * i / 36 for i in range(37)]
         ss = slices(hands, fr, s, [min(h, KEEP_UP - 0.006) for h in hs])
         # past his kept skin the forearm thickens towards the elbow (~+35% at 25 cm)
-        ss = [(q[0], q[1], q[2] * (1 + 1.4 * max(0.0, h - KEEP_UP)), q[3] * (1 + 1.4 * max(0.0, h - KEEP_UP))) for q, h in zip(ss, hs)]
+        ss = [(q[0], q[1], q[2] * (1 + 0.8 * max(0.0, min(h, 0.255) - KEEP_UP)), q[3] * (1 + 0.8 * max(0.0, min(h, 0.255) - KEEP_UP))) for q, h in zip(ss, hs)]
         # the hem sits over the cuff: never tighter than the cuff plus cloth
         ss = [(q[0], q[1], max(q[2], wide[2] + CUFF_CLEAR), max(q[3], wide[3] + CUFF_CLEAR)) for q in ss]
-        made.append(tube(f"fp_sleeve_{s}", fr, s, hs, ss, SLEEVE_CLEAR, coat_folds, True, wool, f"forearm_{s}"))
+        made.append(tube(f"fp_sleeve_{s}", fr, s, hs, ss, SLEEVE_CLEAR, coat_folds, True, wool, f"forearm_{s}", grime=grime_sleeve(rng), cap=True))
         f = fr[s]
         # in Godot's space (glTF: x, z, -y)
         info["sides"][s] = {k: [round(f[k].x, 4), round(f[k].z, 4), round(-f[k].y, 4)] for k in ("wrist", "elbow", "k_index", "k_middle", "k_little")}
@@ -454,12 +536,24 @@ def main():
     sol.offset = -1.0
     bpy.context.view_layer.objects.active = cuffs
     bpy.ops.object.modifier_move_to_index(modifier="thick", index=0)
+    # The hands decimated (collapse keeps his weights and UVs, blended); the seams' UVs kept by
+    # weighting boundary edges (the modifier's own triangulate first).
+    full = sum(len(p.vertices) - 2 for p in hands.data.polygons)
+    dec = hands.modifiers.new("fewer", "DECIMATE")
+    dec.decimate_type = "COLLAPSE"
+    dec.ratio = min(1.0, HAND_TRIANGLES / max(full, 1))
+    dec.use_collapse_triangulate = True
+    bpy.context.view_layer.objects.active = hands
+    bpy.ops.object.modifier_move_to_index(modifier="fewer", index=0)
+    bpy.ops.object.modifier_apply(modifier="fewer")
+    info["hand_triangles_before"] = full
     info["triangles"] = {o.name: sum(len(p.vertices) - 2 for p in o.data.polygons) for o in (hands, cuffs, sleeves)}
     os.makedirs(a.out, exist_ok=True)
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.gltf(filepath=os.path.abspath(f"{a.out}/harlan_fp.glb"), export_format="GLB",
                               use_selection=True, export_skins=True, export_apply=True,
-                              export_animations=False, export_yup=True)
+                              export_animations=False, export_yup=True,
+                              export_vertex_color="ACTIVE")
     with open(f"{a.out}/harlan_fp.json", "w") as fh:
         json.dump(info, fh, indent=1)
     print("fp arms:", json.dumps(info["triangles"]), "kept", counts)

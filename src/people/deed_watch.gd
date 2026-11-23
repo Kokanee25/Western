@@ -49,6 +49,9 @@ static func _on_shot(origin: Vector3, dir: Vector3, shooter: Node) -> void:
 
 static func _on_death(person: Node, _cause: StringName) -> void:
 	# Who did it: the last man to hit him (HumanBody keeps note).
-	var killer: Node = person.get_meta(&"last_hit_by") if person and person.has_meta(&"last_hit_by") else null
-	if killer and is_instance_valid(killer):
+	# (Untyped till it's known to be there: the man who hit him may be gone from the world since, as
+	# Cody is by the time Earl bleeds out on the way to the doctor's, #1057.)
+	var hit_by: Variant = person.get_meta(&"last_hit_by") if person and person.has_meta(&"last_hit_by") else null
+	var killer: Node = hit_by if is_instance_valid(hit_by) and hit_by is Node else null
+	if killer:
 		Events.deed.emit(killer, &"kill", person, (person as Node3D).global_position)

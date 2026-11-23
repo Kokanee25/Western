@@ -11,7 +11,7 @@ import sys
 
 from PIL import Image, ImageDraw
 
-STATES = [("idle", "idle"), ("aimed", "aimed"), ("cocked", "cocked / lever thrown"), ("reloading", "reloading")]
+STATES = [("idle", "idle"), ("aimed", "aimed"), ("cocked", "cocked / lever thrown"), ("firing", "firing (50 ms)"), ("reloading", "reloading")]
 W = 640
 
 
@@ -33,7 +33,7 @@ def gun_sheet(day, night, out, gun):
     for d, when in ((day, "day 16:00"), (night, "lamplight 21:30")):
         rows.append([_cell(os.path.join(d, "arms_%s_%s.png" % (gun, s)), "%s, %s" % (t, when)) for s, t in STATES])
     h = rows[0][0].height
-    sheet = Image.new("RGB", (W * 4, h * 2))
+    sheet = Image.new("RGB", (W * len(STATES), h * 2))
     for r, row in enumerate(rows):
         for c, im in enumerate(row):
             sheet.paste(im, (c * W, r * h))
@@ -48,7 +48,7 @@ def before_after(old, new, out):
     cells = [[_cell(os.path.join(d, n + ".png"), "%s: %s" % (who, t)) for n, t in names]
              for d, who in ((old, "before"), (new, "after"))]
     h = cells[0][0].height
-    sheet = Image.new("RGB", (W * 4, h * 2))
+    sheet = Image.new("RGB", (W * len(names), h * 2))
     for r, row in enumerate(cells):
         for c, im in enumerate(row):
             sheet.paste(im, (c * W, r * h))

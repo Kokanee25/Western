@@ -48,6 +48,13 @@ var _call_t := 0.0
 var _rng := RandomNumberGenerator.new()
 
 
+## Enter after you went down here (`retry`): the valley starts this act again on its next load, on
+## the slope above the hideout, the story as it was when the act began (#979's playtest: going down
+## was a dead end, you came round at the doctor's and nothing went on).
+static var retry_on_load := false
+var _down_t := -1.0
+
+
 func begin() -> void:
 	_rng.seed = 934
 	Events.shot_fired.connect(_on_shot)
@@ -60,6 +67,7 @@ func begin() -> void:
 	centre = Vector3(at2.x, _ground(at2.x, at2.y), at2.y)
 	if opts.get("set_up", false):
 		_set_up()
+	StoryState.mark_checkpoint()  # a retry starts from the story as it is now (#864)
 	var p := player()
 	if p == null:
 		_finish(&"no_player")
@@ -71,6 +79,7 @@ func begin() -> void:
 		joe = CompanionBrain.make_joe(street, at, p.rotation.y, p, folk.places if folk else null)
 		_made.append(joe)
 	joe_brain = joe.get_node(^"Brain") as CompanionBrain
+	JoeLost.watch(self, joe, joe_brain)
 	joe_brain.costume = true
 	joe_brain.held = false
 	_trail_from = p.global_position
@@ -189,6 +198,36 @@ func _build_shack() -> void:
 	shack.position = Vector3(mid.x - shack.width * 0.5, lo, mid.z - shack.depth * 0.5)
 	street.add_child(shack)
 	_made.append(shack)
+	_build_doorstep(sd)
+
+
+## A flat stone before the door, half the floor's height (#966's playtest: you can step 0.3 m, and
+## the shack's floor stands higher than that off the ground; Joe and Kett walk up more).
+func _build_doorstep(sd: Dictionary) -> void:
+	var ds: Array = sd.get("doorstep", [1.1, 0.5])
+	var h := shack.floor_top * 0.5
+	var at := _shack_door(float(ds[1]) * 0.5)
+	var body := StaticBody3D.new()
+	body.name = "HideoutDoorstep"
+	body.collision_layer = Layers.WORLD
+	body.collision_mask = 0
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(float(ds[0]), h, float(ds[1]))
+	cs.shape = box
+	body.add_child(cs)
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = box.size
+	mi.mesh = bm
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.46, 0.42, 0.36)
+	mat.roughness = 1.0
+	mi.material_override = mat
+	body.add_child(mi)
+	street.add_child(body)
+	body.global_transform = Transform3D(shack.global_basis, Vector3(at.x, shack.global_position.y + h * 0.5, at.z))
+	_made.append(body)
 
 
 func _build_fire() -> void:
@@ -438,6 +477,8 @@ func _physics_process(delta: float) -> void:
 	state_t += delta
 	card_step(delta)
 	if done:
+		if state == &"you_down":
+			_down_step()
 		return
 	var p := player()
 	if p == null or joe == null or not is_instance_valid(joe):
@@ -662,6 +703,8 @@ func _yell_after() -> void:
 
 ## Joe went down in it (out, or off his feet) at any time.
 var joe_went_down := false
+## You went down: where you were hit and by what (PlayerWounds.down_line), on the retry card.
+var down_line := ""
 
 
 func _fight_step(p: Player, _delta: float) -> void:
@@ -673,6 +716,8 @@ func _fight_step(p: Player, _delta: float) -> void:
 		_crew_calls(p)
 	if p.wounds and not p.wounds.physiology.is_conscious():
 		fact("nojustice.hideout", "you_down")
+		_down_t = t
+		down_line = p.wounds.down_line()  # what hit you, from the wound record (#1095)
 		_finish(&"you_down")
 		return
 	if _flat(p.global_position, centre) > float(data.get("left_m", 260.0)):
@@ -736,7 +781,7 @@ func crew_out() -> int:
 	return crew.filter(func(g: Dictionary) -> bool: return is_out(g)).size()
 
 
-## The fight's over: the facts, and the act ends (step 4 is the cabin's).
+## The fight's over: the facts, and the act ends (step 4, the cabin, starts from it).
 func _after_step(_p: Player) -> void:
 	if done:
 		return
@@ -761,6 +806,36 @@ func _after_step(_p: Player) -> void:
 	var how := {HOLED_UP: "over_holed_up", DEAD_OUTSIDE: "over_dead", DEAD_INSIDE: "over_dead", DOWN_OUTSIDE: "over_down"}
 	prompt(String(_prompts().get(how.get(kett_state, "over_holed_up"), "")), 8.0)
 	_finish(StringName(kett_state if kett_state != "" else "over"))
+	_next_act()
+
+
+## Down in the fight: once you've come round (wherever they carried you), the way to try it again.
+func _down_step() -> void:
+	var p := player()
+	if p == null or p.wounds == null or not p.wounds.physiology.is_conscious():
+		return
+	if not _spoken.has("retry") and t - _down_t > float(data.get("retry_after_s", 16.0)):
+		_spoken["retry"] = t
+		var text := String(_prompts().get("retry", ""))
+		prompt(("%s\n%s" % [down_line, text]) if down_line != "" else text, 12.0, true)
+	if _spoken.has("retry") and Input.is_action_just_pressed(&"mission_retry"):
+		retry()
+
+
+func retry() -> void:
+	retry_on_load = true
+	GameReset.retry(street.get_tree() if street else Engine.get_main_loop() as SceneTree, "No Justice's hideout, again")
+
+
+## Step 4 from here (#966, NoJusticeCabin): the shack, Kett, Joe and the bodies stay this act's (the
+## cabin's `hideout`). Not with `no_next` (the tests of this step alone, the cabin's own set-up).
+var next_act: Moment
+
+
+func _next_act() -> void:
+	if opts.get("no_next", false):
+		return
+	next_act = Moment.start_named(&"no_justice_cabin", street, null, {"hideout": self, "pace": _pace()})
 
 
 func _say_once(man: HumanBody, beat: String) -> void:
@@ -789,7 +864,7 @@ func result() -> Dictionary:
 	var r := {"moment": String(moment_name), "state": String(state), "t": snappedf(t, 0.01), "done": done,
 			"alarm_t": snappedf(alarm_t, 0.01), "alarm_by": alarm_by, "started": started, "kett": kett_state,
 			"crew_out": crew_out() if not crew.is_empty() else 0, "crew": crew.size(), "ride_s": snappedf(ride_s, 1.0),
-			"props": props.size(), "horses": horses.size(), "shots": shots}
+			"props": props.size(), "horses": horses.size(), "shots": shots, "down_line": down_line}
 	var men := {}
 	for g: Dictionary in crew:
 		var man := g.man as HumanBody

@@ -8,6 +8,16 @@ var ears: Camera3D
 
 
 func before_each() -> void:
+	# The sounds' holder is the root viewport's, shared by every test in the process: what earlier
+	# tests left sounding (a fire's glass, a building's timbers) would count toward this test's
+	# crowds (#1161: three checks failed by shard order).
+	var holder := get_viewport().get_node_or_null(^"GameAudio")
+	if holder != null:
+		for c: Node in holder.get_children():
+			if c is AudioStreamPlayer3D:
+				(c as AudioStreamPlayer3D).stop()
+				c.free()
+	GameAudio.forget_volley()
 	world = Node3D.new()
 	add_child(world)
 	_box(Vector3(0, -0.5, 0), Vector3(200, 1, 200))  # the ground

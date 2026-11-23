@@ -1,0 +1,301 @@
+{
+  "_doc": "A general store's counter (#1139, G1): the kit's counter (`like` counter.json: a front, two ends and a top overhanging the customers' side, -z) 3 m long and 0.94 high, its front in stiles and rails, a brass yardstick let into its top's edge, a bank of drawers with brass pulls on the clerk's side (+z), body and top oak from the material library (a few years; the top worn where he works). Fitted to the length each counter wants (PropKit.spawn_fitted). The yardstick and pulls are brass baked (G2, #1172: `pbr:store_brass`). Written by tools/props/store_g1.py. Its brass and iron baked by tools/props/store_g2.py (G2, #1172).",
+  "id": "store_counter",
+  "like": "counter",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "look": "lib:furniture_oak/few",
+  "members": [
+    {
+      "id": "front",
+      "kind": "post",
+      "size": [
+        3.0,
+        0.9,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.45,
+        -0.25
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "end_l",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.9,
+        0.515
+      ],
+      "at": [
+        -1.485,
+        0.45,
+        0.0375
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "end_r",
+      "kind": "post",
+      "size": [
+        0.03,
+        0.9,
+        0.515
+      ],
+      "at": [
+        1.485,
+        0.45,
+        0.0375
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "back",
+      "kind": "post",
+      "size": [
+        2.94,
+        0.9,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.45,
+        0.295
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "plinth",
+      "kind": "furniture_frame",
+      "size": [
+        2.94,
+        0.08,
+        0.02
+      ],
+      "at": [
+        0.0,
+        0.04,
+        -0.275
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "stile0",
+      "kind": "trim",
+      "size": [
+        0.07,
+        0.7,
+        0.012
+      ],
+      "at": [
+        -1.435,
+        0.45,
+        -0.271
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "stile1",
+      "kind": "trim",
+      "size": [
+        0.07,
+        0.7,
+        0.012
+      ],
+      "at": [
+        -0.4783,
+        0.45,
+        -0.271
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "stile2",
+      "kind": "trim",
+      "size": [
+        0.07,
+        0.7,
+        0.012
+      ],
+      "at": [
+        0.4783,
+        0.45,
+        -0.271
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "stile3",
+      "kind": "trim",
+      "size": [
+        0.07,
+        0.7,
+        0.012
+      ],
+      "at": [
+        1.435,
+        0.45,
+        -0.271
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "rail_top",
+      "kind": "trim",
+      "size": [
+        2.94,
+        0.1,
+        0.012
+      ],
+      "at": [
+        0.0,
+        0.85,
+        -0.271
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "rail_bottom",
+      "kind": "trim",
+      "size": [
+        2.94,
+        0.1,
+        0.012
+      ],
+      "at": [
+        0.0,
+        0.1,
+        -0.271
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "drawer0",
+      "kind": "furniture_frame",
+      "size": [
+        0.9533,
+        0.26,
+        0.018
+      ],
+      "at": [
+        -0.9733,
+        0.62,
+        0.319
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "pull0",
+      "kind": "trim",
+      "size": [
+        0.08,
+        0.02,
+        0.025
+      ],
+      "at": [
+        -0.9733,
+        0.66,
+        0.339
+      ],
+      "wood": "iron",
+      "look": "pbr:store_brass"
+    },
+    {
+      "id": "drawer1",
+      "kind": "furniture_frame",
+      "size": [
+        0.9533,
+        0.26,
+        0.018
+      ],
+      "at": [
+        -0.0,
+        0.62,
+        0.319
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "pull1",
+      "kind": "trim",
+      "size": [
+        0.08,
+        0.02,
+        0.025
+      ],
+      "at": [
+        -0.0,
+        0.66,
+        0.339
+      ],
+      "wood": "iron",
+      "look": "pbr:store_brass"
+    },
+    {
+      "id": "drawer2",
+      "kind": "furniture_frame",
+      "size": [
+        0.9533,
+        0.26,
+        0.018
+      ],
+      "at": [
+        0.9733,
+        0.62,
+        0.319
+      ],
+      "look": "lib:furniture_oak/few/front"
+    },
+    {
+      "id": "pull2",
+      "kind": "trim",
+      "size": [
+        0.08,
+        0.02,
+        0.025
+      ],
+      "at": [
+        0.9733,
+        0.66,
+        0.339
+      ],
+      "wood": "iron",
+      "look": "pbr:store_brass"
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        3.0,
+        0.04,
+        0.62
+      ],
+      "at": [
+        0.0,
+        0.92,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few/top"
+    },
+    {
+      "id": "yardstick",
+      "kind": "trim",
+      "size": [
+        0.914,
+        0.004,
+        0.022
+      ],
+      "at": [
+        -0.593,
+        0.942,
+        -0.26
+      ],
+      "wood": "iron",
+      "look": "pbr:store_brass"
+    }
+  ],
+  "factory": "tools/props/store_g1.py"
+}

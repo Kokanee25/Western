@@ -1,0 +1,12 @@
+{
+  "_doc": "Who in the valley is played by a private man (#933): a MetaHuman the Character Studio made, fetched into the git-ignored assets/people/private/ by tools/characters/fetch_private.sh (CI does it with the STUDIO_TOKEN secret; never committed, #692). Read by PeopleBodies.cast_model/cast_dress, asked by ValleyFolk._make. Each person (an id in config/valley_folk.json) gets `build`'s level (`level`, else `near`: lod1, the review's 4-25 m level; `far`: lod3, past 60 m, for a man who's only ever seen down the street) when that level is laid in, else keeps his own model (a Studio man): nothing changes in a build without the private files. `hat` (a colour, or [0,0,0,0] for none: his hair shows) and `vest` (a tint on his own vest's texture) re-dress each one, so the same face twice doesn't read as clones. Costs: docs/reviews/2026-11-metahumans-town.md (lod1 ~56k triangles, about a Studio man).",
+  "on": false,
+  "_on": "Off (2026-11-15, #933): sean_metahuman_s3's export wears only a vest and drawers (no shirt, trousers or boots), and a whole man wears nothing of BodyMesh's, so he'd stand in the street half dressed. On once he's dressed (Sean's pick on the waiting-on-Sean issue).",
+  "build": "sean_metahuman_s3",
+  "near": "lod1",
+  "far": "lod3",
+  "people": {
+    "townsman": {"hat": [0.28, 0.22, 0.16], "vest": [0.6, 0.6, 0.58]},
+    "loudmouth": {"hat": [0, 0, 0, 0], "vest": [0.85, 0.6, 0.45]}
+  }
+}

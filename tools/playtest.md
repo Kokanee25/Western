@@ -52,6 +52,9 @@ whenever something is worth showing: good or bad.
   (E held and let go). Arm's length is about 0.75 m, a kick's reach about 1 m. The answer and
   `events` say what it did, a miss included. (Not `press shove`: drawn this slowly, a press is
   held long enough to be a kick every time.)
+- `tend [PERSON] [SECONDS]` — press on a man's wound (the game's "hold E on his wound"): you
+  crouch by him, look at where he bleeds and hold E (4 s by default; the nearest bleeding man
+  within 3 m if you name nobody). The answer gives his bleeding before and after.
 - `hold ACTION` / `release ACTION` — keep a key down across commands: `hold aim`, then `shoot N`
   fires with the sights up (the weapon line says "aimed"), `release aim`.
 - `press ACTION [SECONDS]` — a key: `aim` (raise the sights; hold it with a duration), `reload`
@@ -60,6 +63,8 @@ whenever something is worth showing: good or bad.
   `jump`, `tend_wounds` (press on your wounds; hold to tie a belt), `debug_overlay` (frame-rate
   readout on screen), `debug_help` (the key list on screen). For dynamite: `press cock` lights
   the fuse, `press fire 1` throws (hold longer to throw harder), `press aim` sets it down.
+- `read folk` — each townsperson of the valley: in or out, what his day says he's doing, how far he stands from his post (the town's doing, when you can't see it). `read room` (the saloon's mood, who's in, its bits), `read regard`, `read news`, `read fetch`.
+- `key E` — knock at a shut door when the screen says "E: bang on the door" (face it first), as the key does.
 - `wait SECONDS` — let time pass (things happen while you wait: watch the events).
 - `gang` — the gang rides in from the west end of the street (they come anyway after a while).
 - `time HOUR` — set the clock (17.5 golden hour, 23 night).
@@ -82,6 +87,12 @@ Play for real: decide what you want to do and do it. Cover at least these, in an
 5. Use dynamite on a building.
 6. Set a fire and watch it spread.
 7. (Talking a man down isn't in the game yet; skip it.)
+
+A run asked to play the slice's missions (`--world=valley --mission=<name>`): **No Justice has four
+endings, no more**: *arrest* (you take Kett in), *revenge* (Joe kills him), *murder* (you shoot the
+man who's given up) and *outside* (Kett killed in the fight, before the shack's door). There is no
+"Joe gone" ending (Sean, 2026-11-20, #1114): don't hunt for one. If Joe goes down hurt, your first aid
+(hold E by his wound) gets him up, and the cabin waits for him.
 
 ## The report
 

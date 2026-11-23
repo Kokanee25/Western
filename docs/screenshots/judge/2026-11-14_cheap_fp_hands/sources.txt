@@ -1,0 +1,7 @@
+a colt_hip_day build/judge_in/colt_hip_day.png
+b colt_aim_day build/judge_in/colt_aim_day.png
+c colt_cock_day build/judge_in/colt_cock_day.png
+d rifle_aim_day build/judge_in/rifle_aim_day.png
+e rifle_lever_day build/judge_in/rifle_lever_day.png
+f colt_hip_lamp build/judge_in/colt_hip_lamp.png
+g rifle_lever_lamp build/judge_in/rifle_lever_lamp.png

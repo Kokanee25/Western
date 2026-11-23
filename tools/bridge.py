@@ -4,7 +4,7 @@
 Start the game with the bridge, send it commands, stop it:
 
     python3 tools/bridge.py start [--size=960x540] [--headless] [--port=8737] [--fps=N] [--movie=OUT.avi]
-        [--game-args=--young-town,...] [--render-thread=on]
+        [--game-args=--young-town,...] [--render-thread=on]   (the old town unless --game-args=--world=valley or a story --mission=)
     python3 tools/bridge.py "goto saloon_porch" "look saloon_door" "screenshot /tmp/a.png"
     python3 tools/bridge.py -f script.txt          # one command a line, # comments
     python3 tools/bridge.py stop
@@ -13,7 +13,7 @@ or all at once (start, the script, stop), the way a session collects screenshots
 
     python3 tools/bridge.py run script.txt [--size=...] [--timeout=S]
 
---timeout: the seconds (wall) one command may take before the game counts as lost (600; a film's
+--timeout (with run, or before plain commands): the seconds (wall) one command may take before the game counts as lost (600; a film's
 long command under the movie writer at lavapipe's pace needs more).
 
 --movie records every frame drawn, with the game's sound, to an AVI (Godot's Movie Maker; it
@@ -78,6 +78,13 @@ def start(args):
     game_args = _opt(args, "game-args")
     if game_args:
         cmd += game_args.split(",")
+    # The old town unless a world is asked for: a plain game start is the valley since G8 (#1098),
+    # but the bridge's places, views and command files are the old street's (--game-args=--world=valley).
+    # A story mission (--mission=, but the farmhouse, which is in both) is the valley's (#1125).
+    ga = (game_args or "").split(",")
+    if not any(a.startswith("--world=") for a in ga):
+        valley = any(a.startswith("--mission=") and a != "--mission=farmhouse" for a in ga)
+        cmd += ["--world=valley" if valley else "--world=town"]
     script = _opt(args, "script")
     if script:
         cmd.append(f"--bridge-script={os.path.abspath(script)}")
@@ -220,8 +227,8 @@ def main(argv):
         return 0
     if argv[0] == "-f":
         return 0 if send(open(argv[1]).read().splitlines(), port) is not None else 1
-    cmds = [a for a in argv if not a.startswith("--port=")]
-    return 0 if send(cmds, port) is not None else 1
+    cmds = [a for a in argv if not a.startswith("--port=") and not a.startswith("--timeout=")]
+    return 0 if send(cmds, port, int(_opt(argv, "timeout", 600))) is not None else 1
 
 
 if __name__ == "__main__":

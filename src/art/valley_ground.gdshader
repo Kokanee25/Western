@@ -61,6 +61,13 @@ uniform float rut_dark = 0.72;
 // Ruts: depth (m), half-width (m), the wheels' gauge (m, centre to centre).
 uniform float rut_depth = 0.05;
 uniform float rut_half = 0.09;
+// The dirt a rut pushed up either side (its height, a share of the rut's depth), how much its top
+// catches the light, and how dark the trench's shadowed side is (#962).
+uniform float berm_h = 0.35;
+uniform float berm_light = 0.0;
+uniform float rut_shadow = 0.0;
+// Toward the sun (world; ValleyScatter keeps it the DayCycle's): the trenches' shadows.
+uniform vec3 sun_dir = vec3(0.3, 0.8, 0.2);
 uniform float gauge = 1.55;
 // Main Street's wagon lanes: their middles each side of the street's (m), how far they wander.
 uniform float street_lane = 2.4;
@@ -77,6 +84,15 @@ uniform float straw_density = 6.0;
 uniform float puddle_cover = 0.18;
 // How far (m) the fine marks (prints, straw, the scans' normals) fade out.
 uniform float detail_far = 60.0;
+// The grassland's two colours (a tuft's shaded base, its pale top), how much it covers near and far,
+// and how much its tufts darken the soil between them (#962).
+uniform vec3 grassland_a = vec3(0.46, 0.40, 0.26);
+uniform vec3 grassland_b = vec3(0.66, 0.57, 0.37);
+uniform float grassland_near = 0.3;
+uniform float grassland_far = 0.75;
+uniform float grassland_tufts = 0.55;
+// The withered-grass scan's share of the open land, before the land's slow patches move it.
+uniform float grass_cover = 0.55;
 // The dug tiles (ValleyGroundArt's second material): fresh loose earth by COLOR.r (loose depth).
 uniform bool dug_tile = false;
 
@@ -196,12 +212,62 @@ float road_class(vec2 xz) {
 float rut(float d, float churn) {
 	float w = rut_half * (0.8 + churn * 0.8);
 	// The trench, and the dirt it pushed up either side (a berm half as high).
-	float berm = exp(-pow((abs(d) - 1.9 * w) / (0.8 * w), 2.0)) * 0.35;
+	float berm = exp(-pow((abs(d) - 1.9 * w) / (0.8 * w), 2.0)) * berm_h;
 	return 1.0 - exp(-(d * d) / (w * w)) + berm;
 }
 
 // Prints in a lane: dents at random points in cells `cell` m across, kept where `keep` > the cell's
 // die; returns how deep (0..1) at p.
+// The road's height across it here (0 the land, -1 a rut's bottom, a berm's top above 0), by the
+// map's across-offset `across` (m) and its class: lanes of ruts in a town street, one pair on a road,
+// and how travelled it is (`travel`), the lanes' middles (`lane_mid`, the hooves') and a grass crown.
+// A function of (xz, across) alone, so the parallax and the sun's shadow can ask it elsewhere (#962).
+float road_profile(vec2 xz, float across, float cls, float half_w, out float lane_mid, out float travel, out float crown) {
+	lane_mid = 0.0;
+	travel = 0.0;
+	crown = 0.0;
+	float churn = vnoise(xz * 1.7);
+	float wander = (vnoise(xz * 0.045 + 11.0) - 0.5) * 2.0 * lane_wander;
+	if (cls < 2.5) {
+		// The town's streets: lanes each side of the middle (and a third down it on Main Street),
+		// each two ruts; several sets so it's churned, not ruled.
+		float lanes = cls < 1.5 ? street_lane : street_lane * 0.6;
+		float rr = 1.0;
+		for (int s = 0; s < 5; s++) {
+			float fs = float(s);
+			float off = s == 0 ? lanes : (s == 1 ? -lanes : (s == 2 ? 0.15 * lanes : (s == 3 ? 1.75 * lanes : -1.6 * lanes)));
+			float depth = s < 2 ? 1.0 : (s == 2 ? 0.6 : 0.45);
+			// Each set comes and goes along the street (wheels leave a line and join another).
+			float there = smoothstep(0.25, 0.55, vnoise(xz * 0.035 + fs * 13.1));
+			depth *= mix(0.35, 1.0, there);
+			float wv = wander * (s >= 2 ? 1.6 : 1.0) + (vnoise(xz * 0.11 + fs * 7.0) - 0.5) * 0.6
+				+ (vnoise(xz * 0.021 + fs * 3.3) - 0.5) * 1.4;
+			float c = across - off - wv;
+			float g = gauge * 0.5 + (vnoise(xz * 0.3 + fs) - 0.5) * 0.1;
+			rr = min(rr, 1.0 - (1.0 - rut(c - g, churn)) * depth);
+			rr = min(rr, 1.0 - (1.0 - rut(c + g, churn)) * depth);
+			lane_mid = max(lane_mid, (1.0 - smoothstep(0.25, 0.6, abs(c))) * depth);
+			travel = max(travel, (1.0 - smoothstep(g + 0.2, g + 1.4, abs(c))) * depth);
+		}
+		// Churned between the ruts: clods and hollows where hooves and wheels have worked it.
+		rr += (fbm(xz * 2.6) - 0.5) * 0.6 * travel + (fbm(xz * 0.9 + 4.0) - 0.5) * 1.2 * travel;
+		return rr - 1.0;
+	} else if (cls < 5.5) {
+		// A wagon road, lane or track: one pair of ruts with a crown of grass between them.
+		float c = across - wander * min(1.0, half_w * 0.25);
+		float g = gauge * 0.5;
+		float rr = min(rut(c - g, churn), rut(c + g, churn));
+		float depth = cls < 3.5 ? 1.0 : (cls < 4.5 ? 0.8 : 0.6);
+		lane_mid = 1.0 - smoothstep(0.2, 0.5, abs(c));
+		travel = (1.0 - smoothstep(g + 0.25, g + 0.9, abs(c))) * depth;
+		crown = (1.0 - smoothstep(0.15, 0.45, abs(c))) * (cls < 3.5 ? 0.35 : 0.8);
+		return (rr - 1.0) * depth;
+	}
+	// A path: one trodden line.
+	travel = 1.0 - smoothstep(0.15, 0.55, abs(across - wander * 0.3));
+	return 0.0;
+}
+
 float prints(vec2 p, float cell, float keep, float r) {
 	vec2 c = floor(p / cell);
 	float h = 0.0;
@@ -277,6 +343,19 @@ void fragment() {
 	float half_w = ma.g;
 	float cls = road_class(xz);
 	float water = ma.a;
+	// Which way across the road is (world xz, unit): the across-offset's gradient from the map a
+	// half metre either way (smooth; the screen's derivatives, constant over each 2x2 of pixels, drew
+	// the trench's shadow as a zip, #962's first judge).
+	vec2 across_dir = vec2(0.0);
+	if (cls > 0.5) {
+		vec2 gr = vec2(map_at(map_a, xz + vec2(0.5, 0.0)).r - map_at(map_a, xz - vec2(0.5, 0.0)).r,
+			map_at(map_a, xz + vec2(0.0, 0.5)).r - map_at(map_a, xz - vec2(0.0, 0.5)).r);
+		across_dir = dot(gr, gr) > 1e-4 ? normalize(gr) : vec2(0.0);
+	}
+	float rut_scale = 0.7 + vnoise(xz * 0.6) * 0.6;
+	// How many pixels across a rut is here: under a few, its walls' slope (a height read by the
+	// screen's 2x2 derivatives) and the parallax alias into a zip along it (#962's judge), so both fade.
+	float rut_fine = smoothstep(3.0, 9.0, rut_half / max(fwidth(across), 1e-4));
 	float pad = mb.r;
 	float lot = mb.g;
 	float rail = mb.b;
@@ -296,62 +375,56 @@ void fragment() {
 	float lane_mid = 0.0;
 	float gather = 0.0;
 	float crown = 0.0;
+	float rut_shade = 0.0;
+	// Where the ground's textures are read: shifted by the ruts' depth as the eye sees it (parallax).
+	vec2 txz = xz;
 	if (cls > 0.5 && half_w > 0.1) {
 		float rag = (vnoise(xz * 0.45) - 0.5) * (0.35 + half_w * 0.08) + (vnoise(xz * 2.3) - 0.5) * 0.25;
 		float e = half_w + rag;
 		float a = abs(across);
 		on_road = 1.0 - smoothstep(e - 0.5, e + 0.35, a);
-		float churn = vnoise(xz * 1.7);
-		float wander = (vnoise(xz * 0.045 + 11.0) - 0.5) * 2.0 * lane_wander;
-		if (cls < 2.5) {
-			// The town's streets: lanes each side of the middle (and a third down it on Main Street),
-			// each two ruts; several sets so it's churned, not ruled.
-			float lanes = cls < 1.5 ? street_lane : street_lane * 0.6;
-			float rr = 1.0;
-			for (int s = 0; s < 5; s++) {
-				float fs = float(s);
-				float off = s == 0 ? lanes : (s == 1 ? -lanes : (s == 2 ? 0.15 * lanes : (s == 3 ? 1.75 * lanes : -1.6 * lanes)));
-				float depth = s < 2 ? 1.0 : (s == 2 ? 0.6 : 0.45);
-				// Each set comes and goes along the street (wheels leave a line and join another).
-				float there = smoothstep(0.25, 0.55, vnoise(xz * 0.035 + fs * 13.1));
-				depth *= mix(0.35, 1.0, there);
-				float wv = wander * (s >= 2 ? 1.6 : 1.0) + (vnoise(xz * 0.11 + fs * 7.0) - 0.5) * 0.6
-					+ (vnoise(xz * 0.021 + fs * 3.3) - 0.5) * 1.4;
-				float c = across - off - wv;
-				float g = gauge * 0.5 + (vnoise(xz * 0.3 + fs) - 0.5) * 0.1;
-				rr = min(rr, 1.0 - (1.0 - rut(c - g, churn)) * depth);
-				rr = min(rr, 1.0 - (1.0 - rut(c + g, churn)) * depth);
-				lane_mid = max(lane_mid, (1.0 - smoothstep(0.25, 0.6, abs(c))) * depth);
-				travel = max(travel, (1.0 - smoothstep(g + 0.2, g + 1.4, abs(c))) * depth);
+		rut_h = road_profile(xz, across, cls, half_w, lane_mid, travel, crown) * on_road;
+		if (on_road > 0.02 && near > 0.0 && dot(across_dir, across_dir) > 0.25) {
+			// Parallax occlusion along the road's across (the ruts run along it, #962): the eye's ray
+			// stepped into the trench twice, so a rut's near wall hides its bottom and a berm stands up.
+			vec3 v = normalize(CAMERA_POSITION_WORLD - world_pos);
+			vec2 per_m = -v.xz / max(v.y, 0.18);
+			vec2 shift = vec2(0.0);
+			float lm;
+			float tr;
+			float cr;
+			for (int k = 0; k < 2; k++) {
+				float depth = -rut_h * rut_depth * rut_scale;
+				shift = per_m * depth * near * rut_fine;
+				rut_h = road_profile(xz + shift, across + dot(across_dir, shift), cls, half_w, lm, tr, cr) * on_road;
 			}
-			// Churned between the ruts: clods and hollows where hooves and wheels have worked it.
-			rr += (fbm(xz * 2.6) - 0.5) * 0.6 * travel + (fbm(xz * 0.9 + 4.0) - 0.5) * 1.2 * travel;
-			rut_h = (rr - 1.0);
-			if (cls < 1.5) {
-				// The boardwalks' edge: dust and litter gathered against it.
-				gather = smoothstep(walk_edge - 1.4, walk_edge - 0.1, a) * (1.0 - smoothstep(walk_edge + 0.2, walk_edge + 0.8, a));
+			txz = xz + shift;
+			// The sun's shadow in the trench: its height along the sun's way across the road.
+			if (sun_dir.y > 0.03) {
+				vec2 sh = normalize(sun_dir.xz + vec2(1e-4));
+				float rise = sun_dir.y / max(length(sun_dir.xz), 1e-3);
+				float h0 = rut_h * rut_depth;
+				// Along the sun's way across the road only (the trench runs along it), so the profile
+				// is asked at the same xz: its noise stays put and the shadow's edge is smooth.
+				float along = dot(sh, across_dir);
+				for (int k = 1; k <= 4; k++) {
+					float d = rut_half * 0.8 * float(k);
+					float hk = road_profile(xz + shift, across + dot(across_dir, shift) + along * d, cls, half_w, lm, tr, cr) * on_road * rut_depth;
+					rut_shade = max(rut_shade, smoothstep(0.0, rut_depth * 0.35, hk - h0 - d * rise));
+				}
+				rut_shade *= near;
 			}
-		} else if (cls < 5.5) {
-			// A wagon road, lane or track: one pair of ruts with a crown of grass between them.
-			float c = across - wander * min(1.0, half_w * 0.25);
-			float g = gauge * 0.5;
-			float rr = min(rut(c - g, churn), rut(c + g, churn));
-			float depth = cls < 3.5 ? 1.0 : (cls < 4.5 ? 0.8 : 0.6);
-			rut_h = (rr - 1.0) * depth;
-			lane_mid = 1.0 - smoothstep(0.2, 0.5, abs(c));
-			travel = (1.0 - smoothstep(g + 0.25, g + 0.9, abs(c))) * depth;
-			crown = (1.0 - smoothstep(0.15, 0.45, abs(c))) * (cls < 3.5 ? 0.35 : 0.8);
-		} else {
-			// A path: one trodden line.
-			travel = 1.0 - smoothstep(0.15, 0.55, abs(across - wander * 0.3));
+		}
+		if (cls < 1.5) {
+			// The boardwalks' edge: dust and litter gathered against it.
+			gather = smoothstep(walk_edge - 1.4, walk_edge - 0.1, a) * (1.0 - smoothstep(walk_edge + 0.2, walk_edge + 0.8, a));
 		}
 		travel *= on_road;
-		rut_h *= on_road;
 	}
 	bool street = cls > 0.5 && cls < 2.5 && (on_road > 0.01 || lot > 0.5);
 
 	// The layers' weights.
-	float w_grass = clamp(0.55 + (macro - 0.5) * 1.2 + wet * 0.6 - patch * 0.3, 0.0, 1.0);
+	float w_grass = clamp(grass_cover + (macro - 0.5) * 1.2 + wet * 0.6 - patch * 0.3, 0.0, 1.0);
 	float w_dry = 1.0 - w_grass;
 	float w_trail = 0.0;
 	float w_dirt = 0.0;
@@ -400,22 +473,22 @@ void fragment() {
 	g.nrm = vec2(0.0);
 	g.rough = 0.0;
 	g.height = 0.0;
-	if (w_grass > 0.01) add(g, layer(grass_albedo, grass_normal, grass_rough, xz, grass_m), w_grass);
-	if (w_dry > 0.01) add(g, layer(dry_albedo, dry_normal, dry_rough, xz, dry_m), w_dry);
+	if (w_grass > 0.01) add(g, layer(grass_albedo, grass_normal, grass_rough, txz, grass_m), w_grass);
+	if (w_dry > 0.01) add(g, layer(dry_albedo, dry_normal, dry_rough, txz, dry_m), w_dry);
 	if (w_trail > 0.01) {
-		Layer tl = layer(trail_albedo, trail_normal, trail_rough, xz, trail_m);
+		Layer tl = layer(trail_albedo, trail_normal, trail_rough, txz, trail_m);
 		tl.albedo *= trail_tint;
 		add(g, tl, w_trail);
 	}
 	if (w_dirt > 0.01) {
-		Layer dl = layer(dirt_albedo, dirt_normal, dirt_rough, xz, dirt_m);
+		Layer dl = layer(dirt_albedo, dirt_normal, dirt_rough, txz, dirt_m);
 		// A country road's dirt is the land's own, bared and dusty: lighter than the town's churned street.
 		if (!(cls > 0.5 && cls < 1.5)) {
 			dl.albedo *= vec3(1.42, 1.34, 1.24);
 		}
 		add(g, dl, w_dirt);
 	}
-	if (w_mud > 0.01) add(g, layer(mud_albedo, mud_normal, mud_rough, xz, mud_m), w_mud);
+	if (w_mud > 0.01) add(g, layer(mud_albedo, mud_normal, mud_rough, txz, mud_m), w_mud);
 	if (w_rock > 0.01) {
 		Layer r = rock_layer(world_pos, n);
 		add(g, r, w_rock);
@@ -436,8 +509,11 @@ void fragment() {
 	float town_road = cls > 0.5 && cls < 1.5 ? 1.0 : 0.35;
 	col *= mix(1.0, packed_dark, travel * 0.8 * town_road);
 	rough = mix(rough, rough * 0.85, travel);
-	h += rut_h * rut_depth * (0.7 + vnoise(xz * 0.6) * 0.6);
+	h += rut_h * rut_depth * rut_scale * rut_fine;
 	col *= mix(1.0, rut_dark, clamp(-rut_h, 0.0, 1.0) * mix(0.3, 1.0, town_road));
+	// The trench's side away from the sun in its own shadow; a berm's top catching it, lighter and drier.
+	col *= 1.0 - rut_shade * rut_shadow;
+	col *= 1.0 + clamp(rut_h, 0.0, 1.0) * berm_light;
 	// Hoof prints between the ruts, boot prints toward the walks.
 	if (on_road > 0.05 && near > 0.0) {
 		float hp = prints(xz, 0.38, hoof_density * 0.3 * lane_mid * on_road, 0.065);
@@ -478,9 +554,18 @@ void fragment() {
 		col *= 1.0 - puddle * 0.12;
 		rough = mix(rough, rough * 0.8, puddle);
 	}
-	// Grassland reads as straw from afar, the blades too small to see apart.
-	float grassland = w_grass * (1.0 - on_road) * (1.0 - w_rock);
-	col = mix(col, vec3(0.62, 0.53, 0.34) * (0.85 + patch * 0.3), grassland * (0.25 + 0.4 * smoothstep(15.0, 120.0, dist)));
+	// Grassland (#962: it read as pale sand to the horizon): bunch grass in tufts with soil between,
+	// the tufts' bases in their own shade and their tops pale straw; past the drawn grass, the tufts too
+	// small to see apart, their average: a darker, olive-tan cover broken by the land's slow patches.
+	float grassland = (w_grass + w_dry * 0.6) * (1.0 - on_road) * (1.0 - w_rock) * (1.0 - worked);
+	float tuft_fine = vnoise(xz * 3.1) * 0.6 + vnoise(xz * 7.3 + 2.0) * 0.4;
+	float tuft_px = fwidth(xz.x * 3.1) + fwidth(xz.y * 3.1);
+	float tuft = mix(smoothstep(0.35, 0.75, tuft_fine), 0.5, smoothstep(0.3, 0.8, tuft_px));
+	float bunch = smoothstep(0.3, 0.7, fbm(xz * 0.35 + 7.0));
+	vec3 gcol = mix(grassland_a, grassland_b, tuft * 0.7 + patch * 0.3) * (0.85 + macro * 0.3);
+	gcol *= 1.0 - grassland_tufts * (1.0 - tuft) * 0.35 * (1.0 - smoothstep(0.3, 0.8, tuft_px));
+	float gmix = mix(grassland_near, grassland_far, smoothstep(12.0, 110.0, dist)) * (0.55 + bunch * 0.45);
+	col = mix(col, gcol, grassland * gmix);
 	// Wet ground near water: darker.
 	col *= 1.0 - wet * 0.12;
 	// The land's slow variation and the valley's grade.

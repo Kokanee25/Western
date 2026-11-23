@@ -89,6 +89,13 @@ func _make(dug: bool) -> ShaderMaterial:
 	return m
 
 
+## Toward the sun (world), for the trenches' shadows (#962; ValleyScatter keeps it the DayCycle's).
+func set_sun(dir: Vector3) -> void:
+	if material:
+		material.set_shader_parameter(&"sun_dir", dir)
+		tile_material.set_shader_parameter(&"sun_dir", dir)
+
+
 func _metres(dir: String) -> float:
 	var meta: Variant = JSON.parse_string(FileAccess.get_file_as_string(dir + "meta.json")) if FileAccess.file_exists(dir + "meta.json") else null
 	if meta is Dictionary and meta.get("metres") is Array and not (meta.metres as Array).is_empty():

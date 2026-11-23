@@ -12,9 +12,9 @@ extends SceneTree
 ##
 ## Writes DIR/summary.json (and s_<tick>.png for --shots).
 
-## The man: a Studio man in the repo by default (`--model=`; the lab used `sean_metahuman_s3`, his
-## files copied in for a run and never committed).
-var MODEL := &"barkeep_s2_talking"
+## The man: the MetaHuman, `sean_metahuman_s3` (Sean, 2026-11-15: only him), his files copied into
+## assets/people/ for a run and never committed (#692); `--model=` for another.
+var MODEL := &"sean_metahuman_s3"  # (Sean, 2026-11-15: only the MetaHuman; his files copied in, never committed, #692)
 var Handoff: GDScript
 const CAMS := {
 	"front": [Vector3(0.9, 1.45, -2.1), Vector3(0.25, 1.05, 0.0), 40.0],
@@ -23,6 +23,8 @@ const CAMS := {
 	"left": [Vector3(-0.85, 1.4, -1.0), Vector3(0.0, 1.05, -0.3), 40.0],
 	"hands": [Vector3(-0.2, 1.75, -1.25), Vector3(0.15, 1.05, -0.45), 42.0],
 	"floor": [Vector3(1.9, 1.5, -1.6), Vector3(0.9, 0.5, -0.4), 45.0],
+	"seat": [Vector3(1.55, 1.25, -1.45), Vector3(0.95, 0.55, -0.75), 30.0],
+	"toss": [Vector3(1.6, 1.4, -2.2), Vector3(0.6, 0.8, -0.6), 38.0],
 }
 
 var opts := {}
@@ -56,6 +58,8 @@ func _run() -> void:
 	MODEL = StringName(opts.get("model", String(MODEL)))
 	var out_dir := String(opts.get("out", "build/garment_handoff"))
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	if opts.has("by-vertex"):  # the measure as #917 had it (nearest skin vertex, its normal)
+		load("res://src/bodies/worn_garment.gd").by_surface = false
 	prof = load("res://src/debug/prof.gd")
 	prof.on = true
 	_build_world()
@@ -70,6 +74,8 @@ func _run() -> void:
 	man.person_id = &"sean"
 	man.body_model = MODEL
 	man.has_gun = false
+	if opts.has("seed"):  # (his idle's and breath's noise: a different run of the same handoff)
+		man.rng_seed = int(opts.seed)
 	world.add_child(man)
 	man.global_position = Vector3.ZERO
 	man.face(Vector3(0, 1.4, -3.0))
@@ -92,10 +98,16 @@ func _run() -> void:
 			handoff.measure_skin = false
 			handoff.tune.end_after_rest = 2.0
 		handoff.tris = int(opts.get("tris", "700"))
+		handoff.under_tris = int(opts.get("under-tris", "-1"))
+		handoff.fine_tris = int(opts.get("fine-tris", "-1"))
 		handoff.part_tune = {}
 		for k in ["precision", "skin_every", "give"]:
 			if opts.has(k):
 				handoff.part_tune[k] = float(opts[k])
+		# --solver=name:value,... over our cloth's numbers (GarmentHandoff.solver_tune).
+		for kv in String(opts.get("solver", "")).split(",", false):
+			var pair := kv.split(":")
+			handoff.solver_tune[pair[0]] = float(pair[1])
 		world.add_child(handoff)
 		info = handoff.dress(man, chair)
 		if opts.has("hide-glove") and handoff.part:

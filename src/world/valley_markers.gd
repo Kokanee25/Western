@@ -648,6 +648,8 @@ func _build_posts() -> void:
 	posts.clear()
 	for p: Dictionary in layout.places():
 		var id := StringName(String(p.id))
+		if p.has("site") and ValleyWorld.buildings_default:
+			continue  # built for real (#1126, Harlan's homestead): no greybox post in its yard
 		posts.append({"id": String(p.id), "at": places.at(id) - Vector3.UP * 0.05, "name": String(p.get("name", p.id)), "cat": String(p.get("cat", ""))})
 	for f: Dictionary in ValleyMarks.fords(layout):
 		var c: Vector2 = f.at

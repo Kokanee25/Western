@@ -147,6 +147,32 @@ def _add_string(out, i0, n, sr, freqs, amps, s_fast, s_slow, after, phases, off,
                 break
 
 
+def _add_string_np(out, i0, n, sr, freqs, amps, s_fast, s_slow, after, phases, off, tau_d):
+    """_add_string in numpy, for numba's stand-in (tools/band/nonumba: PyPI refused, #938): the same
+    partials in closed form (each oscillator's phase w j, its two decays as powers, the damper's from
+    `off`), each cut where the loop's would break."""
+    n = min(n, out.shape[0] - i0)
+    if n <= 0:
+        return
+    j = np.arange(n, dtype=np.float64)
+    d = np.ones(n) if tau_d <= 0 else np.exp(-np.maximum(j - off, 0.0) / (tau_d * sr))
+    floor = 1e-7 * amps[0] + 1e-12
+    for k in range(freqs.shape[0]):
+        w = 2.0 * np.pi * freqs[k] / sr
+        env = (amps[k] * (1.0 - after)) * np.exp(-s_fast[k] / sr * j) + (amps[k] * after) * np.exp(-s_slow[k] / sr * j)
+        env *= d
+        below = np.flatnonzero(env < floor)
+        m = int(below[0]) + 1 if below.size else n
+        out[i0:i0 + m] += env[:m] * np.sin(phases[k] + w * j[:m])
+
+
+try:
+    import numba as _numba
+    if getattr(_numba, "STANDIN", False):
+        _add_string = _add_string_np  # noqa: F811 (plain Python: the loop would take hours)
+except ImportError:
+    pass
+
 _VOICING = {}
 
 

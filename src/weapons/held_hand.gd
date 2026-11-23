@@ -42,6 +42,9 @@ var _src: Dictionary
 ## Skeleton bone -> the pivot whose transform it takes (a finger bone), in hand space.
 var _bone_pivot := {}
 var _tip_dir := {}   # pivot -> the bone's direction in its own space (to its next joint)
+## pivot -> degrees the man's finger is already closed at rest (a MetaHuman's rest hand is curled):
+## taken off every curl, so a pose's angles mean the same finger whoever's hand it is.
+var _rest_curl := {}
 
 ## side ("r"/"l") -> what's cut from the man's model, in hand space (built once).
 static var _sources := {}
@@ -84,6 +87,7 @@ func build() -> void:
 			frame.add_child(pivot)
 			chain.append(pivot)
 			_bone_pivot[bn] = pivot
+			_rest_curl[pivot] = float((_src.get("rest_curl", {}) as Dictionary).get(bn, 0.0))
 			var next: Transform3D = rests.get("finger_%s_%s_%d" % [f, side, k + 1], Transform3D.IDENTITY)
 			if k < 2 and rests.has("finger_%s_%s_%d" % [f, side, k + 1]):
 				var d := rest.affine_inverse() * next.origin
@@ -109,15 +113,18 @@ func build() -> void:
 			_skeleton.add_bone(names[i])
 			_skeleton.set_bone_rest(i, rests[names[i]])
 			_skeleton.set_bone_pose(i, rests[names[i]])
-		mesh = MeshInstance3D.new()
-		mesh.name = "Arm"
-		mesh.mesh = _src.mesh
-		mesh.skin = _src.skin
-		mesh.material_override = _src.material
-		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		mesh.custom_aabb = AABB(Vector3(-0.6, -0.6, -0.6), Vector3(1.2, 1.2, 1.2))
-		_skeleton.add_child(mesh)
-		mesh.skeleton = NodePath("..")
+		for part: Dictionary in _src.parts:
+			var mi := MeshInstance3D.new()
+			mi.name = part.name
+			mi.mesh = part.mesh
+			mi.skin = _src.skin
+			mi.material_override = part.material
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			mi.custom_aabb = AABB(Vector3(-0.6, -0.6, -0.6), Vector3(1.2, 1.2, 1.2))
+			_skeleton.add_child(mi)
+			mi.skeleton = NodePath("..")
+			if mesh == null:
+				mesh = mi
 	_pose()
 
 
@@ -148,7 +155,8 @@ func curl(finger: String, angles: Array) -> void:
 	var bones: Array = fingers.get(finger, [])
 	var sx := -1.0 if right else 1.0
 	for i in mini(bones.size(), angles.size()):
-		(bones[i] as Node3D).rotation = Vector3(0.0, 0.0, deg_to_rad(float(angles[i])) * sx)
+		var c := float(angles[i]) - float(_rest_curl.get(bones[i], 0.0))
+		(bones[i] as Node3D).rotation = Vector3(0.0, 0.0, deg_to_rad(c) * sx)
 
 
 ## Curl a finger so it wraps a round grip `radius` m from the bone's middle line: each bone turns by
@@ -174,9 +182,10 @@ func pose_finger(finger: String, root_deg: Vector3, bend1: float, bend2: float) 
 	if t.size() < 3:
 		return
 	var sx := -1.0 if right else 1.0
-	(t[0] as Node3D).rotation_degrees = root_deg if right else Vector3(root_deg.x, -root_deg.y, -root_deg.z)
-	(t[1] as Node3D).rotation = Vector3(0.0, 0.0, deg_to_rad(bend1) * sx)
-	(t[2] as Node3D).rotation = Vector3(0.0, 0.0, deg_to_rad(bend2) * sx)
+	var r := root_deg + Vector3(0.0, 0.0, float(_rest_curl.get(t[0], 0.0)))
+	(t[0] as Node3D).rotation_degrees = r if right else Vector3(r.x, -r.y, -r.z)
+	(t[1] as Node3D).rotation = Vector3(0.0, 0.0, deg_to_rad(bend1 - float(_rest_curl.get(t[1], 0.0))) * sx)
+	(t[2] as Node3D).rotation = Vector3(0.0, 0.0, deg_to_rad(bend2 - float(_rest_curl.get(t[2], 0.0))) * sx)
 
 
 ## A bone's direction in its own space, from its joint towards the next (its pivot's).
@@ -257,11 +266,24 @@ func _arm_to_shoulder(inv: Transform3D, side: String, rests: Dictionary, w: Vect
 	var cxf := (cam as Camera3D).global_transform
 	var s := inv * (cxf * shoulder)
 	var pole := (inv.basis * (cxf.basis * elbow_pole)).normalized()
-	var r_up: Transform3D = rests["upper_arm_" + side]
 	var r_fo: Transform3D = rests["forearm_" + side]
 	var r_ha: Transform3D = rests["hand_" + side]
+	# The first-person hands (option 2) are cut below the elbow: no upper arm to fill the view from
+	# the elbow to the shoulder, so the forearm runs from the wrist down and back towards a point
+	# `FP_ELBOW_DROP` under the shoulder (camera space), out of the bottom of the view, as first-person
+	# arms are posed (the lab's `aim_elbow`), not to where the elbow really is.
+	var has_up := rests.has("upper_arm_" + side)
+	if not has_up:
+		var below := inv * (cxf * (shoulder + elbow_drop))
+		var i_fa := _skeleton.find_bone("forearm_" + side)
+		if i_fa >= 0:
+			var q := Quaternion((r_fo.origin - r_ha.origin).normalized(), (below - w).normalized())
+			var about := Transform3D(Basis.IDENTITY, w) * Transform3D(Basis(q), Vector3.ZERO) * Transform3D(Basis.IDENTITY, -w)
+			_skeleton.set_bone_pose(i_fa, about * r_fo)
+		return true
+	var r_up: Transform3D = rests["upper_arm_" + side] if has_up else r_fo
 	var l1 := r_fo.origin.distance_to(r_ha.origin)   # elbow to wrist
-	var l2 := r_up.origin.distance_to(r_fo.origin)   # shoulder to elbow
+	var l2 := r_up.origin.distance_to(r_fo.origin) if has_up else UPPER_ARM   # shoulder to elbow
 	var to_s := s - w
 	var reach := to_s.length()
 	var n := to_s / maxf(reach, 0.0001)
@@ -273,32 +295,122 @@ func _arm_to_shoulder(inv: Transform3D, side: String, rests: Dictionary, w: Vect
 	var e := w + n * a + perp * h
 	var s_used := w + n * d
 	var q_fo := Quaternion((r_ha.origin - r_fo.origin).normalized(), (w - e).normalized())
-	var q_up := Quaternion((r_fo.origin - r_up.origin).normalized(), (e - s_used).normalized())
 	var i_fo := _skeleton.find_bone("forearm_" + side)
 	var i_up := _skeleton.find_bone("upper_arm_" + side)
 	if i_fo >= 0:
 		_skeleton.set_bone_pose(i_fo, Transform3D(Basis(q_fo) * r_fo.basis, e))
-	if i_up >= 0:
+	if i_up >= 0 and has_up:
+		var q_up := Quaternion((r_fo.origin - r_up.origin).normalized(), (e - s_used).normalized())
 		_skeleton.set_bone_pose(i_up, Transform3D(Basis(q_up) * r_up.basis, s_used))
 	return true
 
 
+## Where the arms come from: Harlan's first-person hands (option 2, Sean's pick on #913: the game's
+## `tools/blender/fp_arms.py` cuts MetaHuman Sean's hands at the wrist and models his shirt's cuff and
+## his coat's sleeve on them, `fp_hands`/`fp_cuffs`/`fp_sleeves`) where that private file is here,
+## else the painted Studio man's (`MODEL`). MetaHuman files never go in this public repo (#692): the
+## file is built into the git-ignored `assets/people/private/` (tools/characters/fetch_fp_hands.sh).
+const PRIVATE_ARMS := "res://assets/people/private/harlan_fp.glb"
+## The upper arm's length where the hands are cut below the elbow (m, shoulder to elbow: a man's).
+const UPPER_ARM := 0.3
+## His skin's albedo multiplied by this (less red: a weathered hand, not a pink one).
+const SKIN_TINT := Color(0.9, 0.86, 0.84)
+## The shirt's cuff's linen multiplied by this (unbleached and a day worn, not white).
+const CUFF_TINT := Color(0.7, 0.66, 0.58)
+## Where a cut-off forearm (option 2's hands) runs back to: this far from the shoulder in the camera's
+## space (down and a little back), so the sleeve leaves the view's bottom edge (#914).
+const FP_ELBOW_DROP := Vector3(0.0, -0.45, 0.1)
+## This hand's: a viewmodel moves it (the rifle's left forearm aimed runs out to the lower left, #1014).
+var elbow_drop := FP_ELBOW_DROP
+## Off, the painted arms even where the private file is (the labs' "before"; tests; the game started
+## with `-- --painted-arms`).
+static var use_private := not OS.get_cmdline_user_args().has("--painted-arms")
+
+
+static func arms_path() -> String:
+	if use_private and ResourceLoader.exists(PRIVATE_ARMS):
+		return PRIVATE_ARMS
+	return PeopleBodies.PATH % MODEL if PeopleBodies.has_model(MODEL) else ""
+
+
+## True when the hands are the MetaHuman arms (their own skin and shirt, not the painted man's).
+static func metahuman() -> bool:
+	return arms_path() == PRIVATE_ARMS
+
+
+## Holds fitted to the MetaHuman hand, by gun and name (a viewmodel asks `hold(key, painted)`), as
+## data in `HOLDS_PATH` (each key's `about` says where it came from). His hand is a real big hand: its
+## fingers ~25% longer than the painted man's (middle 4.5 cm to his 3.6), so the painted hand's angles
+## overshoot or float; the grips are the gun lab's `views.gd --fit` for his, the places set by eye.
+const HOLDS_PATH := "res://config/fp_holds.json"
+static var _holds := {}
+
+
+static func holds() -> Dictionary:
+	if _holds.is_empty():
+		var d = JSON.parse_string(FileAccess.get_file_as_string(HOLDS_PATH)) if FileAccess.file_exists(HOLDS_PATH) else null
+		_holds = d if d is Dictionary else {"_": {}}
+	return _holds
+
+
+## The hold called `key` for the hands you have: the MetaHuman's where his hands are in, else
+## `painted` (the viewmodel's own constant). The data takes the painted value's shape: a Vector3 from
+## [x, y, z], a thumb ([root, bend, bend]) from [[x, y, z], b1, b2], a pose ([at, rot]) from two.
+static func hold(key: String, painted: Variant) -> Variant:
+	if not metahuman() or not holds().has(key):
+		return painted
+	return _shaped(holds()[key], painted)
+
+
+static func _shaped(v: Variant, like: Variant) -> Variant:
+	if like is Vector3 and v is Array:
+		return Vector3(float(v[0]), float(v[1]), float(v[2]))
+	if like is Vector2 and v is Array:
+		return Vector2(float(v[0]), float(v[1]))
+	if like is Array and v is Array:
+		var out := []
+		for i in (v as Array).size():
+			out.append(_shaped(v[i], like[i] if i < (like as Array).size() else 0.0))
+		return out
+	if like is Dictionary and v is Dictionary:
+		var out := {}
+		for k in v:
+			out[k] = float(v[k])
+		return out
+	if (like is float or like is int) and (v is float or v is int):
+		return float(v)
+	return v
+
+
+## Forgets the cut arms (after `use_private` changes, so the next hand is cut again).
+static func reset() -> void:
+	_sources.clear()
+	_holds.clear()
+
+
 ## The man's arm cut out of his model at the shoulder, in hand space (see the class notes): its
-## mesh (every triangle whose corners are all on this side's arm, hand or finger bones), its skin
-## and the bones' rests. Empty where his model can't be loaded.
+## meshes (every triangle whose corners are all on this side's arm, hand or finger bones: his skin,
+## and the MetaHuman arms' shirt sleeve), its skin and the bones' rests. Empty where his model can't
+## be loaded.
 static func source(side: String) -> Dictionary:
 	if _sources.has(side):
 		return _sources[side]
 	var out := {}
 	_sources[side] = out
-	var scene := load(PeopleBodies.PATH % MODEL) as PackedScene if PeopleBodies.has_model(MODEL) else null
+	var path := arms_path()
+	var scene := load(path) as PackedScene if path != "" else null
 	if scene == null:
 		return out
+	var mh := path == PRIVATE_ARMS
 	var root := scene.instantiate()
 	var mi: MeshInstance3D = null
+	var cloth: Array[MeshInstance3D] = []
 	for m: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
-		if String(m.name).to_lower() == "body_skin":
+		var nm := String(m.name).to_lower()
+		if nm == "body_skin" or (mh and nm.begins_with("fp_hands")):
 			mi = m
+		elif mh and (nm.begins_with("fp_cuffs") or nm.begins_with("fp_sleeves")):
+			cloth.append(m)
 	var skel := mi.get_node_or_null(mi.skeleton) as Skeleton3D if mi else null
 	if skel == null or mi.skin == null:
 		root.free()
@@ -318,7 +430,9 @@ static func source(side: String) -> Dictionary:
 	# y x z is the back of a right hand and the palm of a left one: the left is the mirror.
 	var x := y.cross(z)
 	var to_hand := Transform3D(Basis(x, y, z), k_index).affine_inverse()
-	var names: Array = ["upper_arm_" + side, "forearm_" + side, "hand_" + side]
+	var names: Array = ["forearm_" + side, "hand_" + side]
+	if model_rest.has("upper_arm_" + side):
+		names.push_front("upper_arm_" + side)
 	for f: String in FINGERS + ["thumb"]:
 		for k in 3:
 			names.append("finger_%s_%s_%d" % [f, side, k])
@@ -326,22 +440,94 @@ static func source(side: String) -> Dictionary:
 	for n: String in names:
 		var r: Transform3D = to_hand * (model_rest[n] as Transform3D)
 		rests[n] = r.orthonormalized()
+	if mh:
+		out["rest_curl"] = _canonical_fingers(rests, side)
 	out["names"] = names
 	out["rests"] = rests
 	var elbow: Vector3 = (rests["forearm_" + side] as Transform3D).origin
 	out["forearm_dir"] = (elbow - (rests["hand_" + side] as Transform3D).origin).normalized()
-	# The mesh: its bone numbers are the skin's binds; ours are `names` (anything else on the arm,
-	# the shoulder's chest share, goes to the upper arm).
+	# The arm's twist bones (a fuller-skeleton model's) carry their segment's share.
+	var alias := {}
+	for k in 2:
+		alias["upper_arm_twist_%s_%d" % [side, k]] = "upper_arm_" + side
+		alias["forearm_twist_%s_%d" % [side, k]] = "forearm_" + side
+	var points := {}
+	var cut := _cut(mi, skel, names, alias, to_hand, points)
+	out["points"] = points
+	if cut == null:
+		root.free()
+		return out
+	out["mesh"] = cut
+	out["material"] = _own_material(mi, true) if mh else _material()
+	out["triangles"] = cut.surface_get_array_index_len(0) / 3
+	var parts: Array = [{"name": "Arm", "mesh": cut, "material": out.material}]
+	for c in cloth:
+		for si in c.mesh.get_surface_count():
+			var cm := _cut(c, skel, names, alias, to_hand, {}, si)
+			if cm:
+				parts.append({"name": String(c.name).to_pascal_case() + ("" if si == 0 else str(si)), "mesh": cm,
+						"material": _own_material(c, false, si)})
+				out["triangles"] = int(out.triangles) + cm.surface_get_array_index_len(0) / 3
+	out["parts"] = parts
+	root.free()
+	var skin := Skin.new()
+	for i in names.size():
+		skin.add_bind(i, (rests[names[i]] as Transform3D).affine_inverse())
+	out["skin"] = skin
+	return out
+
+
+## A MetaHuman's finger bones in the painted men's frames, in place (hand space): each bone's +Y back
+## along it from its next joint, +Z the knuckle's hinge (across the hand, -Y), so a curl is a turn
+## about Z as theirs is (his own point +Y to the tip, Z flipped, and lean ~25 degrees). Returns each
+## bone's curl at rest (degrees towards the palm from the bone before it, the first from the hand's
+## line): his rest hand is half closed.
+static func _canonical_fingers(rests: Dictionary, side: String) -> Dictionary:
+	var curl := {}
+	var palm := Vector3(-1.0, 0.0, 0.0) if side == "r" else Vector3(1.0, 0.0, 0.0)
+	for f: String in FINGERS + ["thumb"]:
+		var o: Array[Vector3] = []
+		for k in 3:
+			o.append((rests["finger_%s_%s_%d" % [f, side, k]] as Transform3D).origin)
+		var dirs: Array[Vector3] = [(o[1] - o[0]).normalized(), (o[2] - o[1]).normalized()]
+		dirs.append(dirs[1])
+		var before := Vector3(0.0, 0.0, -1.0)
+		for k in 3:
+			var bn := "finger_%s_%s_%d" % [f, side, k]
+			var yb := -dirs[k]
+			var zb := Vector3(0.0, -1.0, 0.0)
+			zb = (zb - yb * zb.dot(yb)).normalized()
+			var xb := yb.cross(zb)
+			rests[bn] = Transform3D(Basis(xb, yb, zb), o[k])
+			# Its bend from the bone before, in the hinge's plane, closing (towards the palm) positive.
+			var a := before - zb * before.dot(zb)
+			var b := dirs[k] - zb * dirs[k].dot(zb)
+			var ang := rad_to_deg(a.angle_to(b)) if k < 2 else 0.0
+			curl[bn] = ang if (b - a).dot(palm) >= 0.0 else -ang
+			before = dirs[k]
+	return curl
+
+
+## One mesh's triangles on this arm, in hand space, their weights on `names` (an `alias`ed bone
+## counts as its segment; anything else, the shoulder's chest share, is dropped). `points` takes each
+## bone's own skin (the vertices it carries most), for measuring a finger against what it holds.
+static func _cut(mi: MeshInstance3D, skel: Skeleton3D, names: Array, alias: Dictionary,
+		to_hand: Transform3D, points: Dictionary, surf := 0) -> ArrayMesh:
 	var bind_of := PackedInt32Array()
 	for b in mi.skin.get_bind_count():
 		var n := String(mi.skin.get_bind_name(b))
 		if n == "":
 			n = String(skel.get_bone_name(mi.skin.get_bind_bone(b)))
-		bind_of.append(names.find(n))
-	var arrays := mi.mesh.surface_get_arrays(0)
+		bind_of.append(names.find(alias.get(n, n)))
+	var arrays := mi.mesh.surface_get_arrays(surf)
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var tangents = arrays[Mesh.ARRAY_TANGENT]
+	# The sleeves' and cuff's grime is painted in their vertex colours (tools/blender/fp_arms.py).
+	var colors = arrays[Mesh.ARRAY_COLOR]
+	var has_colors: bool = colors is PackedColorArray and (colors as PackedColorArray).size() == verts.size()
+	var o_colors := PackedColorArray()
 	var src_bones: PackedInt32Array = arrays[Mesh.ARRAY_BONES]
 	var src_weights: PackedFloat32Array = arrays[Mesh.ARRAY_WEIGHTS]
 	var tris: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
@@ -349,8 +535,6 @@ static func source(side: String) -> Dictionary:
 	var on_arm := PackedByteArray()
 	on_arm.resize(verts.size())
 	var xf := to_hand * mi.transform
-	# Each bone's own skin (the vertices it carries most), for measuring a finger against what it holds.
-	var points := {}
 	for v in verts.size():
 		var best := 0
 		for k in per:
@@ -362,11 +546,12 @@ static func source(side: String) -> Dictionary:
 			var pts: PackedVector3Array = points.get(names[bind_of[b]], PackedVector3Array())
 			pts.append(xf * verts[v])   # a packed array is a value: put back
 			points[names[bind_of[b]]] = pts
-	out["points"] = points
 	var new_index := {}
 	var o_verts := PackedVector3Array()
 	var o_normals := PackedVector3Array()
 	var o_uvs := PackedVector2Array()
+	var o_tangents := PackedFloat32Array()
+	var has_tangents: bool = tangents is PackedFloat32Array and (tangents as PackedFloat32Array).size() == verts.size() * 4
 	var o_bones := PackedInt32Array()
 	var o_weights := PackedFloat32Array()
 	var o_tris := PackedInt32Array()
@@ -380,24 +565,32 @@ static func source(side: String) -> Dictionary:
 				o_verts.append(xf * verts[v])
 				o_normals.append((xf.basis * normals[v]).normalized())
 				o_uvs.append(uvs[v])
-				var total := 0.0
-				var bw := [0, 0, 0, 0]
-				var ww := [0.0, 0.0, 0.0, 0.0]
-				for k in mini(per, 4):
+				if has_colors:
+					o_colors.append(colors[v])
+				if has_tangents:
+					var tg := xf.basis * Vector3(tangents[v * 4], tangents[v * 4 + 1], tangents[v * 4 + 2])
+					tg = tg.normalized()
+					o_tangents.append_array([tg.x, tg.y, tg.z, tangents[v * 4 + 3] * signf(xf.basis.determinant())])
+				# The strongest four of this vertex's bones that are on the arm, summed by bone.
+				var acc := {}
+				for k in per:
 					var b := src_bones[v * per + k]
 					var mapped := bind_of[b] if b < bind_of.size() else -1
-					ww[k] = src_weights[v * per + k] if mapped >= 0 else 0.0
-					bw[k] = maxi(mapped, 0)
-					total += ww[k]
+					if mapped >= 0 and src_weights[v * per + k] > 0.0:
+						acc[mapped] = float(acc.get(mapped, 0.0)) + src_weights[v * per + k]
+				var keys := acc.keys()
+				keys.sort_custom(func(p, q): return acc[p] > acc[q])
+				var total := 0.0
+				for k in mini(keys.size(), 4):
+					total += float(acc[keys[k]])
 				for k in 4:
-					o_bones.append(bw[k])
-					o_weights.append(ww[k] / total if total > 0.0 else (1.0 if k == 0 else 0.0))
+					o_bones.append(int(keys[k]) if k < keys.size() else 0)
+					o_weights.append(float(acc[keys[k]]) / total if k < keys.size() and total > 0.0 else (1.0 if k == 0 and keys.is_empty() else 0.0))
 			o_tris.append(new_index[v])
-	root.free()
 	if o_tris.is_empty():
-		return out
-	# His mesh is split at nearly every triangle (a texture seam each: 11,615 vertices on 3,036
-	# points), so each face shaded flat and the arm drew in facets: every vertex takes the mean
+		return null
+	# A painted man's mesh is split at nearly every triangle (a texture seam each: 11,615 vertices on
+	# 3,036 points), so each face shaded flat and the arm drew in facets: every vertex takes the mean
 	# normal of all those at its point (an arm has no hard edge to keep).
 	var at := {}
 	for i in o_verts.size():
@@ -410,19 +603,42 @@ static func source(side: String) -> Dictionary:
 	a[Mesh.ARRAY_VERTEX] = o_verts
 	a[Mesh.ARRAY_NORMAL] = o_normals
 	a[Mesh.ARRAY_TEX_UV] = o_uvs
+	if has_tangents:
+		a[Mesh.ARRAY_TANGENT] = o_tangents
+	if has_colors:
+		a[Mesh.ARRAY_COLOR] = o_colors
 	a[Mesh.ARRAY_BONES] = o_bones
 	a[Mesh.ARRAY_WEIGHTS] = o_weights
 	a[Mesh.ARRAY_INDEX] = o_tris
 	var am := ArrayMesh.new()
 	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a)
-	out["mesh"] = am
-	var skin := Skin.new()
-	for i in names.size():
-		skin.add_bind(i, (rests[names[i]] as Transform3D).affine_inverse())
-	out["skin"] = skin
-	out["material"] = _material()
-	out["triangles"] = o_tris.size() / 3
-	return out
+	return am
+
+
+## A MetaHuman arms mesh's own material (his skin maps, the shirt's weave), as the Studio draws
+## him: skin with subsurface scattering in skin mode, so the light through his fingers' edges warms.
+static func _own_material(mi: MeshInstance3D, skin: bool, surf := 0) -> Material:
+	var m := mi.mesh.surface_get_material(surf) if mi.mesh.get_surface_count() > surf else null
+	if m == null:
+		m = mi.get_surface_override_material(surf)
+	var std := m.duplicate() as StandardMaterial3D if m is StandardMaterial3D else StandardMaterial3D.new()
+	if skin:
+		# His albedo is a pale man's under studio light: in the town's sun it read pink and rubbery
+		# (the cheap judge, #914), so a little less red, and his skin a little drier.
+		std.albedo_color = SKIN_TINT
+		std.roughness = maxf(std.roughness, 0.6)
+		std.subsurf_scatter_enabled = true
+		std.subsurf_scatter_strength = 0.15
+		std.subsurf_scatter_skin_mode = true
+	else:
+		std.uv1_scale = Vector3.ONE
+		# The grime in the vertex colours multiplies the weave (dust, sweat at the cuff's edge).
+		std.vertex_color_use_as_albedo = mi.mesh.get_surface_count() > surf \
+				and (mi.mesh.surface_get_format(surf) & Mesh.ARRAY_FORMAT_COLOR) != 0
+		# The linen cuff a day worn: it was the brightest thing in a lamplit view (judge, #1014).
+		if String(mi.name).to_lower().begins_with("fp_cuffs"):
+			std.albedo_color = CUFF_TINT
+	return std
 
 
 ## His skin's painted texture in the men's own shader (HumanBody's whole men: _baked_cloth then

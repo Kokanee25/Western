@@ -1,54 +1,15 @@
-extends Node3D
-## The garment handoff's choreography (#895 the lab, #917 on the game's part): a long glove worn as
-## part of his skinned mesh, drawn off down his fingers and forearm by his other hand as real cloth,
-## tossed, and left lying where it lands. The glove, the cloth, the release rule and his skin's
-## shape are the game's GarmentHandoff (src/bodies/); this is only where his hands go and when, and
-## the measures (`rec`).
-##
-## Phases (s from `begin`): present (his left hand out in front, palm down, fingers open), reach
-## (his right hand to its fingertips), take (the worn glove becomes cloth, its fingertips pinned to
-## his right hand where they are), draw (the right hand draws it off along the left hand's line,
-## two tugs, the left arm drawing back), toss (a swing toward the chair, let go), lie (it falls
-## and drapes; at rest its soft body is taken out).
+extends GloveAct
+## The garment handoff's lab (#895 the lab, #917 on the game's part, #949 its clipping): the game's
+## GloveAct (src/bodies/glove_act.gd: a long glove worn as part of his skinned mesh, drawn off as real
+## cloth, flicked away, lying where it lands) with a chair by him to flick it toward, and the
+## measures (`rec`): ticks and cost a phase, the pop, cloth under his skin, stretch, flung, below
+## the floor, where it ended.
 
-
-## The handoff's timing and reach (s, m).
-var tune := {
-	"present": 0.9, "reach_at": 1.0, "reach": 0.9, "take_at": 2.1, "draw_at": 2.25, "draw": 2.6,
-	"draw_len": 0.62, "left_back": 0.12, "tug": 0.035, "toss_swing": 0.38, "toss_flight": 0.45,
-	"seat": 0.5, "end_after_rest": 1.0, "max_seconds": 12.0, "bare_rest_after": 4.5,
-}
-var man: HumanBody
 var chair: Node3D
-var part: GarmentHandoff
-var glove: WornGarment
-var cloth: GarmentCloth
-var phase := "worn"
-var t := 0.0
-var started := false
-var done := false
-## Without the glove (the cost runs' baseline): the same hands, nothing on them.
-var with_glove := true
-## The glove's triangles (simplified to about).
-var tris := 700
-## Over the part's own tune (the bench's flags).
-var part_tune := {}
 ## Count the cloth under his skin each tick (CPU-skins his arm: ~10 ms here; off for the cost runs).
 var measure_skin := true
 ## Measure at all (off for the cost runs: only the handoff's own work).
 var measure := true
-## (Debug: present and reach only, the glove left worn.)
-var no_take := false
-
-# Where things go (set at present/take).
-var _l_at := Vector3.ZERO
-var _l_n := Vector3.UP
-var _r_from := Vector3.ZERO
-var _r_take := Vector3.ZERO
-var _draw_dir := Vector3.ZERO
-var _toss_from := Vector3.ZERO
-var _toss_to := Vector3.ZERO
-var _rest_t := -1.0
 
 ## What's measured: ticks a phase, cloth through the arm each tick (from take), the worst point
 ## speed, the pop at the handoff, the cost a tick by phase (ms, this machine).
@@ -57,43 +18,24 @@ var rec := {"ticks": {}, "through": [], "through_max": 0, "through_ticks": 0, "t
 		"glove": {}, "rest_at": -1.0, "where": []}
 
 
-## His glove made and put on (worn, part of his skinned mesh).
+## His glove made and put on (worn); flicked toward the chair's seat if there's one.
 func dress(who: HumanBody, on_chair: Node3D) -> Dictionary:
-	man = who
 	chair = on_chair
-	if not with_glove:
-		return {"ok": true, "glove": "none"}
-	part = GarmentHandoff.glove_on(man, get_parent(), "l", null, tris)
-	if part == null:
-		return {"ok": false, "error": "no Skin_whole on " + String(man.body_model)}
-	glove = part.garment
-	part.tune.merge(part_tune, true)
-	rec.glove = glove.report.duplicate()
-	return {"ok": true, "glove": rec.glove}
-
-
-func begin() -> void:
-	started = true
-	t = 0.0
-	phase = "present"
-	man.curl_hand("l", 0.0)
-	var fwd := -man.global_basis.z
-	var right := man.global_basis.x
-	var sh := (man.pivots[&"upper_arm_l"] as Node3D).global_position
-	# Out in front, a little across toward his right, a hand below the shoulder; palm down.
-	_l_at = sh + fwd * 0.40 + right * 0.16 + Vector3.DOWN * 0.20
-	_l_n = Vector3.UP
-	_r_from = man.palm("r")
+	if chair:
+		toss_to = chair.global_position + Vector3.UP * 0.5
+	var r := wear_on(who)
+	if r.get("glove") is Dictionary:
+		rec.glove = r.glove
+	return r
 
 
 func _physics_process(delta: float) -> void:
 	if not started or done:
 		return
 	var t0 := Time.get_ticks_usec()
-	var pt := Prof.start()
-	t += delta
-	_step(delta)
-	Prof.stop(&"glove_handoff", pt)
+	super(delta)
+	rec.phase_at = phase_at
+	rec.rest_at = rest_at
 	rec.ticks[phase] = int(rec.ticks.get(phase, 0)) + 1
 	if part and part.collider and part.state != GarmentHandoff.State.WORN:
 		var c: Dictionary = rec.get_or_add("part_us", {})
@@ -102,137 +44,44 @@ func _physics_process(delta: float) -> void:
 		e[1] += part.collider.rebuild_us if part.collider.active else 0
 		e[2] += part.collider.last_tris if part.collider.active else 0
 		e[3] += 1
+		if part.ours():
+			# Our cloth's own step (ms, summed) and its contacts with itself (the most at once).
+			var core = (part.cloth as SolverCloth).core
+			var sm: Dictionary = rec.get_or_add("solver_ms", {})
+			sm[phase] = float(sm.get(phase, 0.0)) + core.millis()
+			if core.has_method("body_vert_pushes"):
+				rec.vert_pushes = maxi(int(rec.get("vert_pushes", 0)), core.body_vert_pushes())
+				var vl: Dictionary = rec.get_or_add("vert_listed", {})
+				vl[phase] = int(vl.get(phase, 0)) + core.body_vert_listed()
+				var vu: Dictionary = rec.get_or_add("vert_us", {})
+				var u: Vector2 = core.body_vert_us()
+				var e2: Array = vu.get_or_add(phase, [0.0, 0.0])
+				e2[0] += u.x
+				e2[1] += u.y
+				var vp: Dictionary = rec.get_or_add("vert_pairs", {})
+				vp[phase] = int(vp.get(phase, 0)) + core.body_vert_pairs()
+			if core.has_method("self_contacts"):
+				rec.self_max = maxi(int(rec.get("self_max", 0)), core.self_contacts())
+				var sp: Dictionary = rec.get_or_add("self_pairs", {})
+				sp[phase] = int(sp.get(phase, 0)) + core.self_pairs()
+				var sl: Dictionary = rec.get_or_add("self_lists", {})
+				sl[phase] = int(sl.get(phase, 0)) + core.self_lists()
+				if core.has_method("self_lookups"):
+					var su: Dictionary = rec.get_or_add("self_us", {})
+					var e3: Array = su.get_or_add(phase, [0.0, 0.0, 0, 0])
+					e3[0] += core.self_list_us()
+					e3[1] += core.self_meet_us()
+					e3[2] += core.self_lookups()
+					e3[3] += core.self_met()
 	var us := Time.get_ticks_usec() - t0
 	rec.us[phase] = float(rec.us.get(phase, 0.0)) + us
 
 
-func _ease(x: float) -> float:
-	x = clampf(x, 0.0, 1.0)
-	return x * x * (3.0 - 2.0 * x)
-
-
-func _step(delta: float) -> void:
-	var T: Dictionary = tune
-	var left_k := _ease(t / float(T.present))
-	var l_at := _l_at
-	if phase in ["draw", "toss", "lie", "rest"]:
-		# The left arm draws back as the glove comes off it.
-		var u := _ease((t - float(T.draw_at)) / float(T.draw))
-		l_at = _l_at - _draw_dir * float(T.left_back) * u
-	var down := phase in ["lie", "rest"]
-	if not down or t - float(rec.phase_at.get("lie", t)) < 0.6:
-		man.reach_to("l", l_at, _l_n, left_k if not down else 1.0 - _ease((t - float(rec.phase_at.lie)) / 0.6))
-	match phase:
-		"present":
-			if t >= float(T.reach_at):
-				_enter("reach")
-		"reach":
-			var tips: Vector3 = _tips_now()
-			var dir := _finger_dir()
-			_r_take = tips + dir * 0.025 + Vector3.UP * 0.012
-			var k := _ease((t - float(T.reach_at)) / float(T.reach))
-			man.reach_to("r", _r_take, Vector3.UP, k)
-			man.curl_hand("r", 0.2 + 0.35 * k)
-			if t >= float(T.take_at) and not no_take:
-				_take()
-		"take":
-			man.reach_to("r", _r_take, Vector3.UP, 1.0)
-			_measure()
-			if t >= float(T.draw_at):
-				_enter("draw")
-		"draw":
-			var u := (t - float(T.draw_at)) / float(T.draw)
-			# Two tugs on the way (a pull and a little give), then one long draw.
-			var tug := float(T.tug) * (sin(clampf(u, 0.0, 0.5) * TAU * 2.0)) * (1.0 - _ease(u * 2.0))
-			var drawn := float(T.draw_len) * _ease(u) + tug
-			var at := _r_take + _draw_dir * drawn
-			man.reach_to("r", at, Vector3.UP, 1.0)
-			_measure()
-			if u >= 1.0:
-				if part:
-					part.let_go_of_arm()
-				_toss_from = at
-				var to_chair := (chair.global_position + Vector3.UP * 0.9) - at if chair else -man.global_basis.z
-				to_chair.y = 0.0
-				_toss_to = at + to_chair.normalized() * 0.25 + Vector3.UP * 0.12
-				_enter("toss")
-		"toss":
-			var u := (t - float(rec.phase_at.toss)) / float(T.toss_swing)
-			man.reach_to("r", _toss_from.lerp(_toss_to, _ease(u)), Vector3.UP, 1.0)
-			_measure()
-			if u >= 1.0:
-				# Thrown to land on the chair's seat in `toss_flight` s (from where the glove's middle is).
-				var from: Vector3 = cloth.centre() if cloth else man.palm("r")
-				var aim := chair.global_position + Vector3.UP * float(T.seat) if chair else from + (_toss_to - _toss_from) * 4.0
-				var fl := float(T.toss_flight)
-				var vel := (aim - from) / fl + Vector3.UP * 0.5 * 9.8 * fl
-				# (It's already moving with his hand: the throw adds what's still wanted.)
-				var moving := (from - _centre_was) * 60.0
-				rec.toss = {"from": [snappedf(from.x, 0.01), snappedf(from.y, 0.01), snappedf(from.z, 0.01)],
-						"speed": snappedf(vel.length(), 0.01), "had": snappedf(moving.length(), 0.01)}
-				if part:
-					part.let_go(vel - moving)
-				man.curl_hand("r", 0.1)
-				_enter("lie")
-			elif cloth:
-				_centre_was = cloth.centre()
-		"lie":
-			if man.can_reach("r", _toss_to):
-				man.reach_to("r", _toss_to, Vector3.UP, 1.0 - _ease((t - float(rec.phase_at.lie)) / 0.8))
-			_measure()
-			var at_rest: bool = cloth.resting if cloth else t - float(rec.phase_at.lie) >= float(T.bare_rest_after)
-			if at_rest and _rest_t < 0.0:
-				_rest_t = t
-				rec.rest_at = t
-				_enter("rest")
-			elif t >= float(T.max_seconds):
-				if cloth:
-					rec.where = _where()
-					rec.last_fastest = snappedf(cloth.last_mean_speed, 0.001)
-				done = true
-		"rest":
-			if t - _rest_t >= float(T.end_after_rest):
-				if cloth:
-					rec.where = _where()
-					rec.last_fastest = snappedf(cloth.last_mean_speed, 0.001)
-				done = true
-
-
-func _enter(p: String) -> void:
-	phase = p
-	rec.phase_at[p] = snappedf(t, 0.001)
-
-
-func _tips_now() -> Vector3:
-	if glove == null:
-		var sk: Skeleton3D = man.skeleton
-		return sk.global_transform * sk.get_bone_global_pose(sk.find_bone("finger_middle_l_2")).origin
-	var pts: PackedVector3Array = glove.posed()
-	var c := Vector3.ZERO
-	for i: int in glove.tips:
-		c += pts[i]
-	return c / maxf(glove.tips.size(), 1)
-
-
-## Along his left hand toward its fingertips (world).
-func _finger_dir() -> Vector3:
-	var sk: Skeleton3D = man.skeleton
-	var wr := sk.global_transform * sk.get_bone_global_pose(sk.find_bone("hand_l")).origin
-	var tip := sk.global_transform * sk.get_bone_global_pose(sk.find_bone("finger_middle_l_2")).origin
-	return (tip - wr).normalized()
-
-
-## The handoff: the part's take (the worn glove out, the cloth in where it was drawn, its fingertips
-## in his right hand, the rest held on his bones by friction).
-func _take() -> void:
-	_draw_dir = (_finger_dir() + man.global_basis.x * 0.35).normalized()  # out toward his right
-	if part:
-		part.take("r")
-		cloth = part.cloth
-	_enter("take")
-
-
-var _centre_was := Vector3.ZERO
+func _finish() -> void:
+	if cloth:
+		rec.where = _where()
+		rec.last_fastest = snappedf(cloth.last_mean_speed, 0.001)
+	super()
 
 
 ## Each tick the cloth is out: how far the points moved on the first ticks (the pop), points
@@ -244,9 +93,17 @@ func _measure() -> void:
 	rec.pop_mm = part.pop_mm
 	rec.skin_us_max = maxi(int(rec.get("skin_us_max", 0)), part.collider.rebuild_us)
 	rec.skin_tris_max = maxi(int(rec.get("skin_tris_max", 0)), part.collider.last_tris)
+	rec.fine_points = part.collider.fine_count()
 	if part.released_all_at >= 0.0:
 		rec.released_all_at = snappedf(part.released_all_at, 0.001)
 	var sx: float = cloth.stretch(pts)
+	if part.on_arm() > 0:
+		# The points still held on him against where his skin carries the worn glove now (mm).
+		var drawn: PackedVector3Array = glove.posed()
+		var off := 0.0
+		for i: int in part._on_arm:
+			off = maxf(off, pts[i].distance_to(drawn[i]))
+		rec.held_off_mm = maxf(float(rec.get("held_off_mm", 0.0)), snappedf(off * 1000.0, 0.1))
 	rec.stretch_max = maxf(float(rec.get("stretch_max", 1.0)), sx)
 	if measure_skin:
 		# The same count of the glove as worn (skinned with him), this tick: what the measure finds
@@ -254,6 +111,27 @@ func _measure() -> void:
 		var base: int = glove.under_skin(glove.posed())
 		rec.worn_under_max = maxi(int(rec.get("worn_under_max", 0)), base)
 	var n: int = glove.under_skin(pts) if measure_skin else 0
+	# His hand's skin through the glove (#1008): what the eye sees of his fingers through it.
+	if measure_skin and part.collider and part.collider.active:
+		if not rec.has("worn_out_max"):
+			rec.worn_out_max = glove.skin_out(glove.posed())
+		var so: int = glove.skin_out(pts)
+		var bo: Dictionary = rec.get_or_add("skin_out_by_phase", {})
+		bo[phase] = maxi(int(bo.get(phase, 0)), so)
+		if so > int(rec.get("skin_out_max", -1)):
+			rec.skin_out_max = so
+			rec.skin_out_at = snappedf(t, 0.01)
+		rec.skin_out_total = int(rec.get("skin_out_total", 0)) + so
+		# His forearm's (Sean's specks at 3.4 s); the count leaves last_out as the hand's below.
+		var fo: int = glove.skin_out(pts, 0.001, true)
+		rec.arm_out_max = maxi(int(rec.get("arm_out_max", 0)), fo)
+		rec.arm_out_total = int(rec.get("arm_out_total", 0)) + fo
+		so = glove.skin_out(pts)
+		if int(rec.ticks.get(phase, 0)) % 6 == 0:
+			var hist := [0, 0, 0, 0]
+			for h: float in glove.last_out_h:
+				hist[0 if h < 0.003 else (1 if h < 0.006 else (2 if h < 0.01 else 3))] += 1
+			(rec.get_or_add("skin_out_series", []) as Array).append([snappedf(t, 0.01), so, hist])
 
 	var deep5 := 0
 	var deep10 := 0
@@ -292,6 +170,8 @@ func _measure() -> void:
 			rec.below_floor = int(rec.below_floor) + 1
 		if _last.size() == pts.size() and p.distance_to(_last[i]) * 60.0 > 20.0:
 			rec.flung = int(rec.flung) + 1
+			if not rec.has("flung_at"):
+				rec.flung_at = [snappedf(t, 0.01), phase, i]
 	_last = pts
 
 

@@ -28,6 +28,26 @@ const MOVEMENT_GROUPS := ["Body", "Speed (m/s)", "Steps", "Head bob", "Lean (deg
 @export var seat_reach := 1.3
 @export var seat_view_deg := 70.0
 @export var seat_fall_s := 1.4
+## A downed man taken up and carried over your shoulder (PlayerCarry, #1057; carried, not dragged,
+## Sean 2026-11-18): his collar this near (m, flat) and within this much of your view (degrees) for
+## a tap of E (shorter than carry_tap_s) to take him up; with him, a walk at this speed (m/s, no run,
+## no jump); his belly over your right shoulder this high, this far to the side and this far ahead of
+## you (m: his legs hang down your front, not through you), lifted there over carry_lift_s; your hands (carry_hold_back behind you, carry_hold_up
+## high) and his collar this far apart (m) for long and he's lost (carry_tear_m).
+@export var carry_reach := 1.4
+@export var carry_view_deg := 60.0
+@export var carry_speed := 1.0
+@export var carry_hold_back := 0.45
+@export var carry_hold_up := 0.45
+@export var carry_tear_m := 2.6
+@export var carry_tap_s := 0.35
+@export var carry_lift_s := 0.8
+@export var carry_shoulder_up := 1.42
+@export var carry_shoulder_side := 0.24
+@export var carry_shoulder_fwd := 0.12
+## A door's point (a place's way in) this near (m, flat) and in front of you for E to bang on it
+## (PlayerKnock, #1057).
+@export var knock_reach := 1.8
 ## On your belly, loose pieces this light or lighter (kg: a broken chair's, a plank or two) are
 ## yours to shove aside as you crawl (Player._wade), never a wall that holds you or a weight that
 ## carries you; and how fast (m/s) you push one out from under or beside you, on top of your own

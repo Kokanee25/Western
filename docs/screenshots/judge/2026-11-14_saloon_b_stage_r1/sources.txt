@@ -1,0 +1,3 @@
+a stage build/stage_judge/stage.png
+b stage_open build/stage_judge/stage_open.png
+c dance build/stage_judge/dance.png

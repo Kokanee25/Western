@@ -1,0 +1,36 @@
+{
+  "_doc": "A wide-brimmed felt hat (#1172, G2), the pale buff the catalogues called silver belly, set down on its brim. One member (felt: canvas's rules). Modelled and baked in tools/blender/props/store_g2.py. Written by tools/props/store_g2.py.",
+  "id": "hat_single",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "canvas",
+  "look": "pbr:store_dry",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g2.py",
+  "members": [
+    {
+      "id": "hats",
+      "kind": "post",
+      "size": [
+        0.36,
+        0.13,
+        0.32
+      ],
+      "at": [
+        0.0,
+        0.065,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "pbr:store_dry",
+      "solid": 0.2,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_dry",
+        "part": "HatSingle"
+      }
+    }
+  ]
+}

@@ -79,6 +79,14 @@ Where it and the steps above disagree, this wins.
    next material round, #721: `painted_*`); until then the prop is unpainted on a passing wood.
    Library boards are boxes: a turned leg or a carved crest stays on a passing look of its own
    (the kit's lathes keep `wood:`) or is made square, as country furniture mostly was.
+   **Every prop is worn by its use** (#901): its library wood is used and knocked (`PropKit.LIB_USE`:
+   dents, gouges, crushed arrises, from each board's seed), and a member that's used in a particular
+   way names it after the age, **`lib:<entry>/<age>/<role>`**: `top` (rings, elbows), `front` (a
+   drawer's pulls), `bar` (a bar's top: its front rubbed and dark, cigarette burns along the edge,
+   rings, initials cut in it), `kick` (boots' scuffs: a bar's plinth and low rail), `seat` (polished
+   where you sit, its front edge rubbed), `grip` (polished and grimy where hands hold), `tread`,
+   `walk`, `door` (`scan_wood.gdshader`'s use pass, `src/render/wood_use.gdshaderinc`). Ask of each
+   member who uses it and how; name the role, never paint the wear.
 2. **Metal is made the gun way** (the Colt `experiments/gun_lab/saa/saa_paint.py`, the Winchester
    `win73_paint.py`): modelled in Blender, its finish made from 3D noise in each part's own space
    (no UV stretch), worn by its own shape (edges rubbed bright, hollows dark and duller), baked by

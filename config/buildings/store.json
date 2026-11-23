@@ -1,0 +1,4245 @@
+{
+ "_doc": "The general store and grocer (#858; the building lab's step 2). Format 1 (../FORMAT.md). valley.json town.north 'general_store' (x -54.3..-37.4, 55 x 56 ft): a two-storey false front on queen-post trusses over a goods cellar, the shop across the ground floor, a storeroom behind it, the stock loft over the shop and the family's rooms over the storeroom. Frame from saloon B's (#848), rules from the doctor's (#824-#826). Written by experiments/building_lab/store/gen_spec.py.",
+ "format": 1,
+ "id": "store",
+ "identity": {
+  "owner": "the storekeeper, a merchant who freighted his stock in from the railhead, with his wife and two children",
+  "trade": "a general store and grocer: dry goods, groceries, hardware, patent medicines, a post office pigeonhole counter; credit on the book",
+  "means": "the best-stocked building on the street: sawn lumber in 1880, painted buff with green trim, a loading dock at wagon height",
+  "age_and_repair": "two years: the paint fresh, the dock's boards already worn along the wagons' line, the cellar doors' hinges rust-stained",
+  "clues": [
+   "the day-book open on the counter",
+   "a rolling ladder on the shelves",
+   "barrels of crackers and pickles by the stove",
+   "the scale on the post office counter"
+  ],
+  "class": "common",
+  "built": 1880,
+  "now": 1882
+ },
+ "lot": {
+  "_doc": "valley.json town.north 'general_store' (x -54.3..-37.4, depth 20): its origin the EAST front corner 3 cm off the store alley's line (x -37.4: the siding's face is the lot's line, the alley 1.2 m), west to the hardware store 14 cm off its wall. The dock and its steps are the valley's walk (h 1.1, awning 3.0, the east end dropping into the alley).",
+  "valley_lot": "general_store",
+  "side": "north",
+  "at": [
+   -37.43,
+   0.52,
+   -10.05
+  ],
+  "facing": 180,
+  "width": 16.76,
+  "depth": 17.07,
+  "yard": [
+   0.0,
+   17.07,
+   16.76,
+   20.0
+  ],
+  "pad": {
+   "_doc": "valley.json's pad: the lot dug level at the walk's street edge's ground (world 0.52, the building's y 0); the ground rises 0.63 m to the back of the lot"
+  },
+  "footprint_with_stair": [
+   -0.3,
+   -0.3,
+   17.060000000000002,
+   18.47
+  ],
+  "walk_h": 1.1,
+  "yard_name": "BACK YARD"
+ },
+ "levels": {
+  "_doc": "The floor at the loading dock's top, 1.10 m (wagon-bed height); 12 ft storeys (stock to the ceiling, a rolling ladder), 9 ft 6 in upstairs; the roof a low 2/12 on queen-post trusses (the saloon's), its ridge hidden behind the false front.",
+  "cellar": {
+   "floor": -1.4
+  },
+  "ground": {
+   "top": 1.1
+  },
+  "upper": {
+   "top": 5.0
+  },
+  "plate": 7.9,
+  "false_front": 10.4,
+  "roof_pitch": 9.46,
+  "roof_tight": true
+ },
+ "frame": {
+  "stacked": true,
+  "foundation": {
+   "wood": "stone",
+   "thick": 0.45,
+   "bottom": -0.3,
+   "top": 0.625,
+   "piece": 1.5
+  },
+  "sill": {
+   "section": [
+    0.2,
+    0.2
+   ],
+   "wood": "framing"
+  },
+  "pier": {
+   "size": 0.45,
+   "wood": "stone"
+  },
+  "girder": {
+   "section": [
+    0.15,
+    0.2
+   ],
+   "wood": "framing",
+   "pier_every": 1.9
+  },
+  "joist": {
+   "section": [
+    0.05,
+    0.25
+   ],
+   "spacing": 0.406,
+   "wood": "framing"
+  },
+  "dance_joist": {
+   "section": [
+    0.075,
+    0.3
+   ],
+   "spacing": 0.305,
+   "wood": "framing"
+  },
+  "long_joist": {
+   "section": [
+    0.075,
+    0.3
+   ],
+   "spacing": 0.305,
+   "wood": "framing"
+  },
+  "floor_board": {
+   "width": 0.15,
+   "thick": 0.025,
+   "wood": "floor"
+  },
+  "stud": {
+   "section": [
+    0.05,
+    0.1
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "tall": {
+    "section": [
+     0.1,
+     0.1
+    ],
+    "walls": [
+     "front",
+     "back",
+     "alley",
+     "hardware"
+    ]
+   }
+  },
+  "plate": {
+   "height": 0.1
+  },
+  "ribbon": {
+   "section": [
+    0.025,
+    0.15
+   ]
+  },
+  "header": {
+   "height": 0.15
+  },
+  "post": {
+   "section": [
+    0.2,
+    0.2
+   ],
+   "wood": "framing",
+   "look": "wood:int_timber",
+   "chamfer": 0.035
+  },
+  "beam": {
+   "section": [
+    0.25,
+    0.3
+   ],
+   "wood": "framing",
+   "look": "wood:int_timber",
+   "chamfer": 0.03
+  },
+  "bracket": {
+   "reach": 0.55,
+   "thick": 0.1,
+   "look": "wood:int_timber"
+  },
+  "wall_post": {
+   "section": [
+    0.15,
+    0.1
+   ]
+  },
+  "truss": {
+   "tie": [
+    0.15,
+    0.25
+   ],
+   "principal": [
+    0.15,
+    0.2
+   ],
+   "queen": [
+    0.15,
+    0.15
+   ],
+   "purlin": [
+    0.1,
+    0.15
+   ],
+   "rafter": [
+    0.05,
+    0.15
+   ],
+   "rafter_spacing": 0.61,
+   "at": [
+    0.25,
+    3.05,
+    6.1,
+    9.14,
+    12.19,
+    15.24,
+    16.77
+   ],
+   "purlins": [
+    0.3,
+    3.0,
+    5.7,
+    8.4
+   ]
+  }
+ },
+ "girders": {
+  "z": [
+   2.9,
+   5.85,
+   8.8,
+   11.9,
+   14.9
+  ],
+  "_doc": "Lines under the ground floor's joists, a joist span 3 m; in the cellar on its posts every 1.9 m, outside it on piers."
+ },
+ "cellar": {
+  "_doc": "Under the front half, 13 x 9.5 m (the valley's 13 x 9): rubble-stone walls, 2.5 m under the floor. The trap by the east counter, its stair down the east wall; the doors under the dock at the street are the valley's (bulkhead: #695).",
+  "rect": [
+   0.0,
+   0.0,
+   16.76,
+   9.5
+  ],
+  "posts": [
+   [
+    1.9,
+    2.9
+   ],
+   [
+    3.8,
+    2.9
+   ],
+   [
+    5.7,
+    2.9
+   ],
+   [
+    7.6,
+    2.9
+   ],
+   [
+    9.5,
+    2.9
+   ],
+   [
+    11.4,
+    2.9
+   ],
+   [
+    13.3,
+    2.9
+   ],
+   [
+    15.2,
+    2.9
+   ],
+   [
+    1.9,
+    5.85
+   ],
+   [
+    3.8,
+    5.85
+   ],
+   [
+    5.7,
+    5.85
+   ],
+   [
+    7.6,
+    5.85
+   ],
+   [
+    9.5,
+    5.85
+   ],
+   [
+    11.4,
+    5.85
+   ],
+   [
+    13.3,
+    5.85
+   ],
+   [
+    15.2,
+    5.85
+   ],
+   [
+    1.9,
+    8.8
+   ],
+   [
+    3.8,
+    8.8
+   ],
+   [
+    5.7,
+    8.8
+   ],
+   [
+    7.6,
+    8.8
+   ],
+   [
+    9.5,
+    8.8
+   ],
+   [
+    11.4,
+    8.8
+   ],
+   [
+    13.3,
+    8.8
+   ],
+   [
+    15.2,
+    8.8
+   ]
+  ],
+  "flag": 1.2,
+  "trap": {
+   "rect": [
+    0.5,
+    5.95,
+    1.5,
+    8.7
+   ]
+  },
+  "stair": {
+   "head": [
+    0.55,
+    5.95
+   ],
+   "dir": "-z",
+   "width": 0.9,
+   "risers": 13,
+   "going": 0.2
+  }
+ },
+ "posts": {
+  "free": [
+   [
+    5.587,
+    3.4
+   ],
+   [
+    5.587,
+    6.4
+   ],
+   [
+    5.587,
+    10.5
+   ],
+   [
+    5.587,
+    11.1
+   ],
+   [
+    5.587,
+    14.0
+   ],
+   [
+    11.173,
+    3.4
+   ],
+   [
+    11.173,
+    6.4
+   ],
+   [
+    11.173,
+    10.5
+   ],
+   [
+    11.173,
+    11.1
+   ],
+   [
+    11.173,
+    14.0
+   ],
+   [
+    1.3,
+    11.0
+   ],
+   [
+    1.3,
+    14.0
+   ]
+  ],
+  "wall": [
+   [
+    5.587,
+    0.05
+   ],
+   [
+    11.173,
+    0.05
+   ],
+   [
+    5.587,
+    17.02
+   ],
+   [
+    11.173,
+    17.02
+   ],
+   [
+    1.3,
+    17.02
+   ]
+  ]
+ },
+ "beams": [
+  {
+   "id": "front_0",
+   "from": [
+    5.587,
+    0.1
+   ],
+   "to": [
+    5.587,
+    10.75
+   ],
+   "_doc": "carries the loft's joists both sides, butted to the shop's back wall"
+  },
+  {
+   "id": "back_0",
+   "from": [
+    5.587,
+    10.850000000000001
+   ],
+   "to": [
+    5.587,
+    16.97
+   ]
+  },
+  {
+   "id": "front_1",
+   "from": [
+    11.173,
+    0.1
+   ],
+   "to": [
+    11.173,
+    10.75
+   ]
+  },
+  {
+   "id": "back_1",
+   "from": [
+    11.173,
+    10.850000000000001
+   ],
+   "to": [
+    11.173,
+    16.97
+   ]
+  },
+  {
+   "id": "stair",
+   "from": [
+    1.3,
+    10.93
+   ],
+   "to": [
+    1.3,
+    16.97
+   ],
+   "_doc": "the stair's well: the upper hall's edge beside the stair"
+  }
+ ],
+ "floors": [
+  {
+   "id": "ground",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    16.97
+   ],
+   "joists": "z",
+   "look": "wood:int_floor",
+   "openings": [
+    {
+     "id": "trap",
+     "rect": [
+      0.5,
+      5.95,
+      1.5,
+      8.7
+     ],
+     "hatch": 2
+    }
+   ]
+  },
+  {
+   "id": "loft",
+   "level": "upper",
+   "joist": "dance_joist",
+   "end_gap": 0.012,
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    10.75
+   ],
+   "joists": "x",
+   "breaks": [
+    5.587,
+    11.173
+   ],
+   "look": "wood:int_floor",
+   "_doc": "the stock loft over the shop, 3x12 at 12 in across the building, broken over the two beams; the stair arrives at its back edge"
+  },
+  {
+   "id": "family",
+   "level": "upper",
+   "joist": "long_joist",
+   "rect": [
+    1.3,
+    10.75,
+    16.66,
+    16.97
+   ],
+   "joists": "x",
+   "breaks": [
+    5.587,
+    11.173
+   ],
+   "look": "wood:int_floor",
+   "_doc": "the hall and the family's rooms over the storeroom, to the stair's beam"
+  }
+ ],
+ "walls": [
+  {
+   "id": "front",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     16.76,
+     0
+    ]
+   ],
+   "out": "-z",
+   "top": 10.4,
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "recess",
+     "level": "ground",
+     "at": 8.38,
+     "width": 5.176,
+     "height": 3.4,
+     "depth": 1.2,
+     "header": 0.25,
+     "door": {
+      "width": 1.22,
+      "height": 2.4
+     },
+     "bulkhead": 0.5,
+     "transom": 0.5,
+     "_doc": "the recessed entry: the door 1.2 m in, glazed, a transom light over it; the show glass angling in from the posts to its jambs over a panelled bulkhead; a boarded ceiling at the head"
+    },
+    {
+     "type": "window",
+     "show": true,
+     "level": "ground",
+     "at": 3.662,
+     "width": 3.44,
+     "height": 2.9,
+     "sill": 0.5,
+     "transom": 0.5,
+     "cols": 2,
+     "transom_lights": 4,
+     "gilt": {
+      "id": "hollis",
+      "y": 1.45,
+      "width": 2.65
+     },
+     "_doc": "the east show window, its display shelf behind"
+    },
+    {
+     "type": "window",
+     "show": true,
+     "level": "ground",
+     "at": 13.098,
+     "width": 3.44,
+     "height": 2.9,
+     "sill": 0.5,
+     "transom": 0.5,
+     "cols": 2,
+     "transom_lights": 4,
+     "gilt": {
+      "id": "hollis",
+      "y": 1.45,
+      "width": 2.65
+     },
+     "_doc": "the west show window"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 3.662,
+     "width": 1.0,
+     "height": 1.7,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "the stock loft's, over the show window, centred"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 8.38,
+     "width": 1.0,
+     "height": 1.7,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "over the door"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 13.098,
+     "width": 1.0,
+     "height": 1.7,
+     "sill": 0.6,
+     "lights": 4
+    }
+   ]
+  },
+  {
+   "id": "alley",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     17.07
+    ]
+   ],
+   "out": "-x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 2.3,
+     "width": 1.0,
+     "height": 1.5,
+     "sill": 0.9,
+     "lights": 4,
+     "_doc": "the shop, by the east counter"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.2,
+     "width": 1.0,
+     "height": 1.5,
+     "sill": 0.9,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 13.9,
+     "width": 1.0,
+     "height": 1.4,
+     "sill": 1.0,
+     "lights": 4,
+     "_doc": "the storeroom"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 2.3,
+     "width": 0.9,
+     "height": 1.5,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "the loft"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 5.4,
+     "width": 0.9,
+     "height": 1.5,
+     "sill": 0.6,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 8.5,
+     "width": 0.9,
+     "height": 1.5,
+     "sill": 0.6,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 14.5,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "the family's first room"
+    }
+   ]
+  },
+  {
+   "id": "hardware",
+   "line": [
+    [
+     16.76,
+     0
+    ],
+    [
+     16.76,
+     17.07
+    ]
+   ],
+   "out": "+x",
+   "top": "plate",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.97,
+     "finish": "boards"
+    }
+   ],
+   "openings": [],
+   "_doc": "against the hardware store (valley.json gap_n3, 0.3 m): a blank wall, no window or door"
+  },
+  {
+   "id": "back",
+   "line": [
+    [
+     0,
+     17.07
+    ],
+    [
+     16.76,
+     17.07
+    ]
+   ],
+   "out": "+z",
+   "top": "gable",
+   "outside": {
+    "siding": "lap",
+    "wood": "painted_white",
+    "exposure": 0.1
+   },
+   "inside": [
+    {
+     "level": "ground",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    },
+    {
+     "level": "upper",
+     "from": 0.1,
+     "to": 16.66,
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 9.35,
+     "width": 1.07,
+     "height": 2.13,
+     "glazed": false,
+     "leaf": "outward",
+     "_doc": "the storeroom's back door onto the yard, 5 steps down"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.1,
+     "width": 0.9,
+     "height": 1.3,
+     "sill": 1.0,
+     "lights": 4,
+     "_doc": "the storeroom"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 14.2,
+     "width": 0.9,
+     "height": 1.3,
+     "sill": 1.0,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 4.1,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "room 1"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 9.35,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "room 2, over the door"
+    },
+    {
+     "type": "window",
+     "level": "upper",
+     "at": 14.2,
+     "width": 0.9,
+     "height": 1.4,
+     "sill": 0.6,
+     "lights": 4,
+     "_doc": "room 3"
+    }
+   ]
+  },
+  {
+   "id": "shop_back",
+   "line": [
+    [
+     0.1,
+     10.8
+    ],
+    [
+     16.66,
+     10.8
+    ]
+   ],
+   "partition": true,
+   "level": "ground",
+   "bearing": true,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 8.280000000000001,
+     "width": 1.1,
+     "height": 2.1
+    }
+   ],
+   "_doc": "the shop's back wall; the two bearing lines' beams butt it"
+  },
+  {
+   "id": "loft_back",
+   "line": [
+    [
+     1.45,
+     10.8
+    ],
+    [
+     16.66,
+     10.8
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 1.55,
+     "width": 0.86,
+     "height": 2.03
+    }
+   ],
+   "_doc": "the loft's back wall from the stair's corner east: the stair lands in the loft's north-east corner, the door to the hall is at x 3.0"
+  },
+  {
+   "id": "rooms_front",
+   "line": [
+    [
+     1.45,
+     12.1
+    ],
+    [
+     16.66,
+     12.1
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": [
+    {
+     "type": "door",
+     "at": 2.55,
+     "width": 0.81,
+     "height": 2.03
+    },
+    {
+     "type": "door",
+     "at": 7.8999999999999995,
+     "width": 0.81,
+     "height": 2.03
+    },
+    {
+     "type": "door",
+     "at": 12.75,
+     "width": 0.81,
+     "height": 2.03
+    }
+   ]
+  },
+  {
+   "id": "room_1_2",
+   "line": [
+    [
+     6.9,
+     12.15
+    ],
+    [
+     6.9,
+     16.97
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": []
+  },
+  {
+   "id": "room_2_3",
+   "line": [
+    [
+     11.8,
+     12.15
+    ],
+    [
+     11.8,
+     16.97
+    ]
+   ],
+   "partition": true,
+   "level": "upper",
+   "bearing": false,
+   "inside": [
+    {
+     "side": "-",
+     "finish": "boards"
+    },
+    {
+     "side": "+",
+     "finish": "boards"
+    }
+   ],
+   "openings": []
+  }
+ ],
+ "inside_finish": {
+  "boards": "judged",
+  "skirting": 0.2
+ },
+ "stairs": [
+  {
+   "id": "main",
+   "head": [
+    0.15,
+    10.75
+   ],
+   "dir": "-z",
+   "width": 1.0,
+   "from": "ground",
+   "to": "upper",
+   "risers": 22,
+   "going": 0.25,
+   "rail": "+x",
+   "look": "wood:int_oak",
+   "stringer_look": "wood:int_timber",
+   "posts": [
+    [
+     0.2,
+     13.5
+    ],
+    [
+     1.05,
+     13.5
+    ]
+   ],
+   "_doc": "the storeroom's stair up the alley wall to the upper hall: 22 risers of 7 in, 10 in treads (Hodgson 1884)"
+  },
+  {
+   "id": "back_store",
+   "head": [
+    8.75,
+    18.07
+   ],
+   "dir": "-z",
+   "width": 1.2,
+   "from": 0.0,
+   "to": "ground",
+   "risers": 6,
+   "going": 0.28,
+   "wood": "weathered_pine",
+   "stoop": [
+    8.75,
+    17.07,
+    9.95,
+    18.07
+   ],
+   "_doc": "the storeroom's back door: six steps to the yard"
+  }
+ ],
+ "front": {
+  "sign": "GENERAL STORE",
+  "sign_from": 4.4,
+  "sign_to": 5.45,
+  "sign_width": 6.0,
+  "cornice": "dark_trim",
+  "brackets": {
+   "spacing": 0.9,
+   "drop": 0.34,
+   "reach": 0.16,
+   "width": 0.09,
+   "sides": []
+  }
+ },
+ "rooms": [
+  {
+   "id": "shop",
+   "level": "ground",
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    10.75
+   ],
+   "use": "the long shop: a counter along each side, shelving to the ceiling, the stove, the scale, the post office pigeonholes; customers browse and queue, the storekeeper serves and writes his day-book"
+  },
+  {
+   "id": "storeroom",
+   "level": "ground",
+   "rect": [
+    0.1,
+    10.850000000000001,
+    16.66,
+    16.97
+   ],
+   "use": "stock and the back door; the stair up to the family's rooms"
+  },
+  {
+   "id": "cellar",
+   "level": "cellar",
+   "rect": [
+    0.5,
+    0.5,
+    16.26,
+    9.0
+   ],
+   "use": "the goods cellar: flour, salt pork, pickles, a keg of powder; its stair behind the east counter, its doors under the dock"
+  },
+  {
+   "id": "loft",
+   "level": "upper",
+   "rect": [
+    0.1,
+    0.1,
+    16.66,
+    10.75
+   ],
+   "use": "stock loft over the shop: cloth, boots, hardware; windows over Main Street"
+  },
+  {
+   "id": "hall",
+   "level": "upper",
+   "rect": [
+    1.5,
+    10.850000000000001,
+    16.66,
+    12.049999999999999
+   ],
+   "use": "the upper hall at the stair's head"
+  },
+  {
+   "id": "room_1",
+   "level": "upper",
+   "rect": [
+    1.4,
+    12.15,
+    6.85,
+    16.97
+   ],
+   "use": "the storekeeper's and his wife's bedroom"
+  },
+  {
+   "id": "room_2",
+   "level": "upper",
+   "rect": [
+    6.95,
+    12.15,
+    11.75,
+    16.97
+   ],
+   "use": "the family's sitting room and table"
+  },
+  {
+   "id": "room_3",
+   "level": "upper",
+   "rect": [
+    11.85,
+    12.15,
+    16.66,
+    16.97
+   ],
+   "use": "the children's room, or a lodger's"
+  }
+ ],
+ "use_points": [
+  {
+   "id": "serve_east",
+   "use": "serve",
+   "who": "storekeeper",
+   "at": [
+    1.45,
+    1.1,
+    4.0
+   ],
+   "look": [
+    2.3,
+    4.0
+   ],
+   "_doc": "behind the east counter (G1, #1139: its counter at x 2.0-2.6, z 2.0-5.3, in the light of the alley windows)"
+  },
+  {
+   "id": "ledger",
+   "use": "work",
+   "who": "storekeeper",
+   "at": [
+    13.3,
+    1.1,
+    9.5
+   ],
+   "look": [
+    13.3,
+    8.7
+   ],
+   "_doc": "the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"
+  },
+  {
+   "id": "post_office",
+   "use": "work",
+   "who": "storekeeper",
+   "at": [
+    15.5,
+    1.1,
+    9.15
+   ],
+   "look": [
+    16.3,
+    9.15
+   ],
+   "_doc": "the pigeonholes bay, west_shelves_d (G3, #1182: the case of pigeonholes; the postmaster's desk behind him at the back wall)"
+  },
+  {
+   "id": "buy_1",
+   "use": "buy",
+   "who": "anyone",
+   "at": [
+    3.5,
+    1.1,
+    3.2
+   ],
+   "look": [
+    2.6,
+    3.2
+   ]
+  },
+  {
+   "id": "buy_2",
+   "use": "buy",
+   "who": "anyone",
+   "at": [
+    13.5,
+    1.1,
+    3.2
+   ],
+   "look": [
+    14.9,
+    3.2
+   ]
+  },
+  {
+   "id": "browse_1",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    8.4,
+    1.1,
+    2.6
+   ],
+   "look": [
+    8.4,
+    6.0
+   ]
+  },
+  {
+   "id": "browse_2",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    8.4,
+    1.1,
+    7.4
+   ],
+   "look": [
+    8.4,
+    9.5
+   ]
+  },
+  {
+   "id": "wait_1",
+   "use": "wait",
+   "who": "anyone",
+   "at": [
+    6.6,
+    1.1,
+    4.4
+   ],
+   "look": [
+    6.6,
+    6.0
+   ]
+  },
+  {
+   "id": "stove",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    10.2,
+    1.1,
+    7.6
+   ],
+   "look": [
+    10.2,
+    9.6
+   ]
+  },
+  {
+   "id": "watch_street",
+   "use": "watch",
+   "who": "anyone",
+   "at": [
+    6.7,
+    1.1,
+    1.0
+   ],
+   "look": [
+    6.7,
+    -3.0
+   ]
+  },
+  {
+   "id": "store_1",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    4.2,
+    1.1,
+    14.2
+   ],
+   "look": [
+    4.2,
+    15.8
+   ]
+  },
+  {
+   "id": "store_2",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    12.6,
+    1.1,
+    14.2
+   ],
+   "look": [
+    12.6,
+    15.8
+   ]
+  },
+  {
+   "id": "cellar_1",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    4.5,
+    -1.3199999999999998,
+    4.4
+   ],
+   "look": [
+    4.5,
+    6.0
+   ]
+  },
+  {
+   "id": "cellar_2",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    11.0,
+    -1.3199999999999998,
+    4.4
+   ],
+   "look": [
+    11.0,
+    6.0
+   ]
+  },
+  {
+   "id": "loft_1",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    4.2,
+    5.0,
+    3.0
+   ],
+   "look": [
+    4.2,
+    0.2
+   ]
+  },
+  {
+   "id": "loft_2",
+   "use": "work",
+   "who": "anyone",
+   "at": [
+    12.4,
+    5.0,
+    4.4
+   ],
+   "look": [
+    12.4,
+    6.5
+   ]
+  },
+  {
+   "id": "loft_window",
+   "use": "shoot",
+   "who": "anyone",
+   "at": [
+    8.4,
+    5.0,
+    1.0
+   ],
+   "look": [
+    8.4,
+    -3.0
+   ],
+   "_doc": "the middle front window over Main Street"
+  },
+  {
+   "id": "hall_stand",
+   "use": "stand",
+   "who": "anyone",
+   "at": [
+    8.4,
+    5.0,
+    11.45
+   ],
+   "look": [
+    8.4,
+    10.9
+   ]
+  },
+  {
+   "id": "room1_sleep",
+   "use": "sleep",
+   "who": "storekeeper",
+   "at": [
+    3.6,
+    5.0,
+    15.4
+   ],
+   "look": [
+    3.6,
+    13.0
+   ]
+  },
+  {
+   "id": "room2_eat",
+   "use": "eat",
+   "who": "storekeeper",
+   "at": [
+    9.35,
+    5.0,
+    14.8
+   ],
+   "look": [
+    9.35,
+    13.0
+   ]
+  },
+  {
+   "id": "room3_sleep",
+   "use": "sleep",
+   "who": "anyone",
+   "at": [
+    14.2,
+    5.0,
+    15.4
+   ],
+   "look": [
+    14.2,
+    13.0
+   ]
+  }
+ ],
+ "fixtures": [],
+ "furniture": [],
+ "ceilings": {
+  "_doc": "#1053 (Sean's pick B on #1052): beaded boards nailed up under the loft's joists over the shop (the storeroom open to its joists: its stair goes up through them), painted pale (materials.finishes.ceiling), butted to the beams that hang under them; four beads a board",
+  "finish": "beaded",
+  "rooms": [
+   "shop"
+  ],
+  "around_beams": true,
+  "width": 0.42
+ },
+ "lamps": {
+  "kit": [
+   {
+    "room": "shop",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "ground",
+    "at": 3.4,
+    "height": 1.7,
+    "energy": 1.5,
+    "reach": 7.0,
+    "shadows": true,
+    "lit": [
+     17,
+     23
+    ],
+    "_doc": "by the front counter"
+   },
+   {
+    "room": "shop",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "ground",
+    "at": 8.0,
+    "height": 1.7,
+    "energy": 1.5,
+    "reach": 7.0,
+    "shadows": true,
+    "lit": [
+     17,
+     23
+    ],
+    "_doc": "by the day-book"
+   },
+   {
+    "room": "shop",
+    "kit": "reflector_lamp",
+    "wall": "alley",
+    "level": "ground",
+    "at": 7.0,
+    "height": 1.7,
+    "energy": 1.3,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "storeroom",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "ground",
+    "at": 14.0,
+    "height": 1.6,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "loft",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "upper",
+    "at": 5.0,
+    "height": 1.6,
+    "energy": 1.2,
+    "reach": 6.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "hall",
+    "kit": "reflector_lamp",
+    "wall": "loft_back",
+    "level": "upper",
+    "at": 8.4,
+    "side": "+",
+    "height": 1.6,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "room_1",
+    "kit": "reflector_lamp",
+    "wall": "room_1_2",
+    "level": "upper",
+    "at": 2.4,
+    "side": "-",
+    "height": 1.5,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "room_2",
+    "kit": "reflector_lamp",
+    "wall": "room_2_3",
+    "level": "upper",
+    "at": 2.4,
+    "side": "-",
+    "height": 1.5,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   },
+   {
+    "room": "room_3",
+    "kit": "reflector_lamp",
+    "wall": "hardware",
+    "level": "upper",
+    "at": 14.5,
+    "height": 1.5,
+    "energy": 1.0,
+    "reach": 5.0,
+    "lit": [
+     17,
+     23
+    ]
+   }
+  ]
+ },
+ "dressing": {
+  "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth), #1172 batch G2 (the shelves' tins and boxes, boots, hats, hardware, tinware, the coffee mill and a showcase, hung lamps), #1182 batch G3 (the post office's pigeonholes and mail, the postmaster's desk, the ledger and day-book, the till's cash, hung pails, hams and lanterns): PropDressing, written by tools/props/store_g1.py, store_g2.py and store_g3.py",
+  "batches": {
+   "windows": [
+    {
+     "id": "east_stand",
+     "kit": "table",
+     "at": [
+      4.162,
+      0.0,
+      0.56
+     ],
+     "facing": 0,
+     "fit": [
+      2.3,
+      0.6,
+      0.7
+     ],
+     "use": "the east window's display platform (the glass's foot is 0.61 over the floor)"
+    },
+    {
+     "id": "east_barrel",
+     "kit": "cracker_barrel",
+     "at": [
+      2.512,
+      0.0,
+      0.56
+     ],
+     "facing": 30,
+     "use": "a cracker barrel, its top half over the bulkhead"
+    },
+    {
+     "id": "east_blankets",
+     "kit": "folded_blankets",
+     "at": [
+      3.312,
+      0.0,
+      0.61
+     ],
+     "facing": 186,
+     "on": "east_stand"
+    },
+    {
+     "id": "east_bolts",
+     "kit": "bolt_calico",
+     "on": "east_stand",
+     "at": [
+      3.662,
+      0.0,
+      0.38000000000000006
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_plaid",
+       "bolt_felt",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 5,
+      "step": [
+       0.2,
+       0,
+       0
+      ],
+      "jitter": [
+       0.005,
+       0.01,
+       8
+      ]
+     }
+    },
+    {
+     "id": "east_scales",
+     "kit": "store_scales",
+     "at": [
+      4.662,
+      0.0,
+      0.51
+     ],
+     "facing": 180,
+     "on": "east_stand"
+    },
+    {
+     "id": "east_sack_a",
+     "kit": "coffee_sack",
+     "at": [
+      5.062,
+      0.0,
+      0.68
+     ],
+     "facing": 200,
+     "on": "east_stand"
+    },
+    {
+     "id": "east_sack_b",
+     "kit": "flour_sack",
+     "at": [
+      4.412,
+      0.0,
+      0.71
+     ],
+     "facing": 160,
+     "on": "east_stand"
+    },
+    {
+     "id": "west_stand",
+     "kit": "table",
+     "at": [
+      13.098,
+      0.0,
+      0.56
+     ],
+     "facing": 0,
+     "fit": [
+      3.0,
+      0.6,
+      0.7
+     ],
+     "use": "the west window's display platform"
+    },
+    {
+     "id": "west_lamp",
+     "kit": "oil_lamp",
+     "at": [
+      12.398,
+      0.0,
+      0.51
+     ],
+     "facing": 180,
+     "on": "west_stand"
+    },
+    {
+     "id": "west_basin",
+     "kit": "wash_basin",
+     "at": [
+      12.898,
+      0.0,
+      0.64
+     ],
+     "facing": 0,
+     "on": "west_stand"
+    },
+    {
+     "id": "west_pitcher",
+     "kit": "wash_pitcher",
+     "at": [
+      12.898,
+      0.0,
+      0.66
+     ],
+     "facing": 200,
+     "on": "west_basin",
+     "lift": 0.014
+    },
+    {
+     "id": "west_flour",
+     "kit": "flour_barrel",
+     "at": [
+      13.448,
+      0.0,
+      0.61
+     ],
+     "facing": 0,
+     "on": "west_stand"
+    },
+    {
+     "id": "west_saw",
+     "kit": "handsaw",
+     "at": [
+      13.248,
+      0.0,
+      0.32
+     ],
+     "facing": 184,
+     "on": "west_stand"
+    },
+    {
+     "id": "west_cups",
+     "kit": "tin_cup",
+     "on": "west_stand",
+     "at": [
+      13.948,
+      0.0,
+      0.41000000000000003
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "tin_cup"
+      ],
+      "count": 4,
+      "step": [
+       0.15,
+       0,
+       0.0
+      ],
+      "jitter": [
+       0.015,
+       0.03,
+       40
+      ]
+     }
+    },
+    {
+     "id": "west_trunk_lamp",
+     "kit": "oil_lamp",
+     "at": [
+      14.348,
+      0.0,
+      0.71
+     ],
+     "facing": 180,
+     "on": "west_stand"
+    }
+   ],
+   "G1": [
+    {
+     "id": "east_counter_a",
+     "kit": "store_counter",
+     "at": [
+      2.3,
+      0.0,
+      3.65
+     ],
+     "facing": 270,
+     "fit": [
+      3.3,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "east_counter_b",
+     "kit": "store_counter",
+     "at": [
+      2.3,
+      0.0,
+      7.4
+     ],
+     "facing": 270,
+     "fit": [
+      2.4,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "west_counter",
+     "kit": "store_counter",
+     "at": [
+      14.6,
+      0.0,
+      4.15
+     ],
+     "facing": 90,
+     "fit": [
+      4.0,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "back_counter",
+     "kit": "store_counter",
+     "at": [
+      13.3,
+      0.0,
+      8.7
+     ],
+     "facing": 0,
+     "fit": [
+      3.0,
+      0.94,
+      0.62
+     ]
+    },
+    {
+     "id": "east_shelves_a",
+     "kit": "store_shelving",
+     "at": [
+      0.284,
+      0.0,
+      5.8
+     ],
+     "facing": 0,
+     "fit": [
+      0.46,
+      3.2,
+      1.9
+     ]
+    },
+    {
+     "id": "east_shelves_b",
+     "kit": "store_shelving",
+     "at": [
+      0.284,
+      0.0,
+      7.75
+     ],
+     "facing": 0,
+     "fit": [
+      0.46,
+      3.2,
+      1.9
+     ]
+    },
+    {
+     "id": "east_shelves_c",
+     "kit": "store_shelving",
+     "at": [
+      0.284,
+      0.0,
+      9.65
+     ],
+     "facing": 0,
+     "fit": [
+      0.46,
+      3.2,
+      1.8
+     ]
+    },
+    {
+     "id": "west_shelves_a",
+     "kit": "store_shelving",
+     "at": [
+      16.476,
+      0.0,
+      2.5
+     ],
+     "facing": 180,
+     "fit": [
+      0.46,
+      3.2,
+      1.3
+     ]
+    },
+    {
+     "id": "west_shelves_b",
+     "kit": "store_shelving",
+     "at": [
+      16.476,
+      0.0,
+      4.65
+     ],
+     "facing": 180,
+     "fit": [
+      0.46,
+      3.2,
+      2.0
+     ]
+    },
+    {
+     "id": "west_shelves_c",
+     "kit": "store_shelving",
+     "at": [
+      16.476,
+      0.0,
+      6.675
+     ],
+     "facing": 180,
+     "fit": [
+      0.46,
+      3.2,
+      2.05
+     ]
+    },
+    {
+     "id": "ladder_east",
+     "kit": "rolling_ladder",
+     "at": [
+      0.592,
+      0.0,
+      9.65
+     ],
+     "facing": 0
+    },
+    {
+     "id": "ladder_west",
+     "kit": "rolling_ladder",
+     "at": [
+      16.168,
+      0.0,
+      4.65
+     ],
+     "facing": 180
+    },
+    {
+     "id": "scales_east",
+     "kit": "store_scales",
+     "at": [
+      2.3,
+      0.0,
+      3.1
+     ],
+     "facing": 270,
+     "on": "east_counter_a"
+    },
+    {
+     "id": "scales_west",
+     "kit": "store_scales",
+     "at": [
+      14.6,
+      0.0,
+      3.6
+     ],
+     "facing": 90,
+     "on": "west_counter"
+    },
+    {
+     "id": "candy_jars",
+     "kit": "drug_jar",
+     "at": [
+      2.3,
+      0.0,
+      4.4
+     ],
+     "facing": 270,
+     "on": "east_counter_a",
+     "row": {
+      "kits": [
+       "drug_jar"
+      ],
+      "count": 3,
+      "step": [
+       0,
+       0,
+       0.16
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       30
+      ]
+     }
+    },
+    {
+     "id": "till",
+     "kit": "till_drawer",
+     "at": [
+      13.3,
+      0.0,
+      8.75
+     ],
+     "facing": 0,
+     "on": "back_counter"
+    },
+    {
+     "id": "stove",
+     "kit": "store_stove",
+     "at": [
+      10.2,
+      0.0,
+      9.0
+     ],
+     "facing": 90,
+     "use": "the shop's stove (the use point 'stove' stands 1.4 m in front of it)"
+    },
+    {
+     "id": "stove_chair_a",
+     "kit": "chair",
+     "at": [
+      9.0,
+      0.0,
+      8.9
+     ],
+     "facing": 90
+    },
+    {
+     "id": "stove_chair_b",
+     "kit": "chair",
+     "at": [
+      11.4,
+      0.0,
+      8.9
+     ],
+     "facing": 270
+    },
+    {
+     "id": "stove_chair_c",
+     "kit": "chair",
+     "at": [
+      9.4,
+      0.0,
+      7.85
+     ],
+     "facing": 140
+    },
+    {
+     "id": "stove_spittoon",
+     "kit": "spittoon",
+     "at": [
+      10.9,
+      0.0,
+      7.95
+     ],
+     "facing": 0
+    },
+    {
+     "id": "cracker_barrel",
+     "kit": "cracker_barrel",
+     "at": [
+      11.5,
+      0.0,
+      7.55
+     ],
+     "facing": 20
+    },
+    {
+     "id": "pickle_barrel",
+     "kit": "pickle_barrel",
+     "at": [
+      12.1,
+      0.0,
+      7.45
+     ],
+     "facing": 0
+    },
+    {
+     "id": "flour_barrel_a",
+     "kit": "flour_barrel",
+     "at": [
+      6.4,
+      0.0,
+      10.35
+     ],
+     "facing": 0
+    },
+    {
+     "id": "flour_barrel_b",
+     "kit": "flour_barrel",
+     "at": [
+      7.0,
+      0.0,
+      10.4
+     ],
+     "facing": 40
+    },
+    {
+     "id": "sugar_barrel",
+     "kit": "sugar_barrel",
+     "at": [
+      10.0,
+      0.0,
+      10.4
+     ],
+     "facing": 0
+    },
+    {
+     "id": "coffee_sacks",
+     "kit": "coffee_sack",
+     "at": [
+      5.6,
+      0.0,
+      10.4
+     ],
+     "facing": 15,
+     "row": {
+      "kits": [
+       "coffee_sack",
+       "flour_sack"
+      ],
+      "count": 3,
+      "step": [
+       -0.45,
+       0,
+       0
+      ],
+      "jitter": [
+       0.02,
+       0.02,
+       20
+      ]
+     }
+    },
+    {
+     "id": "bolts_b_1",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      1.6624999999999999,
+      3.75
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_b_2",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.0125,
+      3.75
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_c_1",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      1.6624999999999999,
+      5.8
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "bolts_c_2",
+     "kit": "bolt_calico",
+     "at": [
+      16.456,
+      2.0125,
+      5.8
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 9,
+      "step": [
+       0,
+       0,
+       0.215
+      ],
+      "jitter": [
+       0.004,
+       0.004,
+       6
+      ]
+     }
+    },
+    {
+     "id": "jars_west_d",
+     "kit": "drug_jar",
+     "at": [
+      16.426,
+      1.6624999999999999,
+      8.4
+     ],
+     "facing": 180,
+     "row": {
+      "kits": [
+       "drug_jar",
+       "medicine_bottle"
+      ],
+      "count": 7,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_bottles_a",
+     "kit": "medicine_bottle",
+     "at": [
+      0.28400000000000003,
+      2.7125000000000004,
+      4.95
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "medicine_bottle",
+       "whiskey_bottle",
+       "medicine_bottle_round"
+      ],
+      "count": 8,
+      "step": [
+       0,
+       0,
+       0.22
+      ],
+      "jitter": [
+       0.01,
+       0.01,
+       20
+      ]
+     }
+    },
+    {
+     "id": "east_lamps_b",
+     "kit": "oil_lamp",
+     "at": [
+      0.28400000000000003,
+      2.7125000000000004,
+      7.2
+     ],
+     "facing": 0,
+     "row": {
+      "kits": [
+       "oil_lamp"
+      ],
+      "count": 3,
+      "step": [
+       0,
+       0,
+       0.6
+      ],
+      "jitter": [
+       0.01,
+       0.02,
+       30
+      ]
+     }
+    },
+    {
+     "id": "table_dry",
+     "kit": "table",
+     "at": [
+      11.2,
+      0.0,
+      4.9
+     ],
+     "facing": 0,
+     "fit": [
+      1.8,
+      0.8,
+      0.9
+     ],
+     "use": "a display table of dry goods, off the browse and buy points"
+    },
+    {
+     "id": "table_dry_bolts",
+     "kit": "bolt_calico",
+     "at": [
+      10.6,
+      0.0,
+      4.75
+     ],
+     "facing": 170,
+     "on": "table_dry",
+     "row": {
+      "kits": [
+       "bolt_calico",
+       "bolt_felt",
+       "bolt_plaid",
+       "bolt_calico",
+       "bolt_plaid"
+      ],
+      "count": 5,
+      "step": [
+       0.2,
+       0,
+       0
+      ],
+      "jitter": [
+       0.005,
+       0.01,
+       8
+      ]
+     }
+    },
+    {
+     "id": "table_dry_blankets",
+     "kit": "folded_blankets",
+     "at": [
+      11.5,
+      0.0,
+      5.1
+     ],
+     "facing": 10,
+     "on": "table_dry"
+    },
+    {
+     "id": "table_dry_bolt_stack",
+     "kit": "folded_blanket",
+     "at": [
+      11.95,
+      0.0,
+      4.7
+     ],
+     "facing": 355,
+     "on": "table_dry"
+    },
+    {
+     "id": "crates_a",
+     "kit": "crate",
+     "at": [
+      6.0,
+      0.0,
+      6.4
+     ],
+     "facing": 10
+    },
+    {
+     "id": "crates_b",
+     "kit": "crate",
+     "at": [
+      6.65,
+      0.0,
+      6.45
+     ],
+     "facing": 350
+    },
+    {
+     "id": "crates_c",
+     "kit": "crate",
+     "at": [
+      6.35,
+      0.0,
+      7.05
+     ],
+     "facing": 30
+    },
+    {
+     "id": "grain_sacks_a",
+     "kit": "grain_sacks",
+     "at": [
+      4.9,
+      0.0,
+      6.5
+     ],
+     "facing": 80
+    }
+   ],
+   "G2": [
+    {
+     "id": "box_row_east_a_work_0",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      0.93,
+      5.208
+     ],
+     "facing": 91.43
+    },
+    {
+     "id": "box_row_east_a_work_1",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      0.93,
+      5.796
+     ],
+     "facing": 89.875
+    },
+    {
+     "id": "box_row_east_a_work_2",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      0.93,
+      6.398
+     ],
+     "facing": 91.43
+    },
+    {
+     "id": "tin_row_flat_east_a_0_0",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.312,
+      5.209
+     ],
+     "facing": 90.455
+    },
+    {
+     "id": "tin_row_flat_east_a_0_1",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.312,
+      5.806
+     ],
+     "facing": 87.94
+    },
+    {
+     "id": "tin_row_flat_east_a_0_2",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.312,
+      6.401
+     ],
+     "facing": 90.415
+    },
+    {
+     "id": "tin_row_east_a_1_0",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.663,
+      5.21
+     ],
+     "facing": 88.15
+    },
+    {
+     "id": "tin_row_east_a_1_1",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.663,
+      5.802
+     ],
+     "facing": 88.845
+    },
+    {
+     "id": "tin_row_east_a_1_2",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.663,
+      6.411
+     ],
+     "facing": 90.41
+    },
+    {
+     "id": "box_row_flat_east_a_2_0",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      2.013,
+      5.193
+     ],
+     "facing": 88.535
+    },
+    {
+     "id": "box_row_flat_east_a_2_1",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      2.013,
+      5.802
+     ],
+     "facing": 88.135
+    },
+    {
+     "id": "box_row_flat_east_a_2_2",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      2.013,
+      6.395
+     ],
+     "facing": 92.4
+    },
+    {
+     "id": "tin_row_east_a_3_0",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      5.201
+     ],
+     "facing": 92.49
+    },
+    {
+     "id": "tin_row_east_a_3_1",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      5.808
+     ],
+     "facing": 88.64
+    },
+    {
+     "id": "tin_row_east_a_3_2",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      6.412
+     ],
+     "facing": 88.285
+    },
+    {
+     "id": "case_row_east_a_top_0",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      5.201
+     ],
+     "facing": 90.89
+    },
+    {
+     "id": "case_row_east_a_top_1",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      5.811
+     ],
+     "facing": 89.68
+    },
+    {
+     "id": "case_row_east_a_top_2",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      6.405
+     ],
+     "facing": 91.385
+    },
+    {
+     "id": "box_row_east_b_work_0",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      0.93,
+      7.149
+     ],
+     "facing": 90.3
+    },
+    {
+     "id": "box_row_east_b_work_1",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      0.93,
+      7.762
+     ],
+     "facing": 91.315
+    },
+    {
+     "id": "box_row_east_b_work_2",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      0.93,
+      8.343
+     ],
+     "facing": 88.18
+    },
+    {
+     "id": "tin_row_flat_east_b_0_0",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.312,
+      7.159
+     ],
+     "facing": 90.71
+    },
+    {
+     "id": "tin_row_flat_east_b_0_1",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.312,
+      7.745
+     ],
+     "facing": 89.985
+    },
+    {
+     "id": "tin_row_flat_east_b_0_2",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.312,
+      8.36
+     ],
+     "facing": 88.48
+    },
+    {
+     "id": "tin_row_east_b_1_0",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.663,
+      7.162
+     ],
+     "facing": 89.86
+    },
+    {
+     "id": "tin_row_east_b_1_1",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.663,
+      7.744
+     ],
+     "facing": 87.98
+    },
+    {
+     "id": "tin_row_east_b_1_2",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.663,
+      8.36
+     ],
+     "facing": 89.105
+    },
+    {
+     "id": "box_row_flat_east_b_2_0",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      2.013,
+      7.148
+     ],
+     "facing": 92.365
+    },
+    {
+     "id": "box_row_flat_east_b_2_1",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      2.013,
+      7.747
+     ],
+     "facing": 91.36
+    },
+    {
+     "id": "box_row_flat_east_b_2_2",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      2.013,
+      8.342
+     ],
+     "facing": 90.495
+    },
+    {
+     "id": "tin_row_east_b_3_0",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      7.154
+     ],
+     "facing": 87.895
+    },
+    {
+     "id": "tin_row_east_b_3_1",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      7.755
+     ],
+     "facing": 90.45
+    },
+    {
+     "id": "tin_row_east_b_3_2",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      8.358
+     ],
+     "facing": 89.355
+    },
+    {
+     "id": "case_row_east_b_top_0",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      7.157
+     ],
+     "facing": 88.315
+    },
+    {
+     "id": "case_row_east_b_top_1",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      7.752
+     ],
+     "facing": 91.0
+    },
+    {
+     "id": "case_row_east_b_top_2",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      8.341
+     ],
+     "facing": 91.01
+    },
+    {
+     "id": "box_row_flat_east_c_work_0",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      0.93,
+      9.207
+     ],
+     "facing": 90.66
+    },
+    {
+     "id": "box_row_flat_east_c_work_1",
+     "kit": "box_row_flat",
+     "at": [
+      0.284,
+      0.93,
+      9.809
+     ],
+     "facing": 89.895
+    },
+    {
+     "id": "box_row_flat_east_c_work_end",
+     "kit": "box_row_flat_half",
+     "at": [
+      0.284,
+      0.93,
+      10.1
+     ],
+     "facing": 90
+    },
+    {
+     "id": "tin_row_east_c_0_0",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.312,
+      9.19
+     ],
+     "facing": 88.365
+    },
+    {
+     "id": "tin_row_east_c_0_1",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      1.312,
+      9.806
+     ],
+     "facing": 89.285
+    },
+    {
+     "id": "tin_row_east_c_0_end",
+     "kit": "tin_row_half",
+     "at": [
+      0.284,
+      1.312,
+      10.1
+     ],
+     "facing": 90
+    },
+    {
+     "id": "tin_row_flat_east_c_1_0",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.663,
+      9.206
+     ],
+     "facing": 89.745
+    },
+    {
+     "id": "tin_row_flat_east_c_1_1",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      1.663,
+      9.791
+     ],
+     "facing": 90.45
+    },
+    {
+     "id": "tin_row_flat_east_c_1_end",
+     "kit": "tin_row_flat_half",
+     "at": [
+      0.284,
+      1.663,
+      10.1
+     ],
+     "facing": 90
+    },
+    {
+     "id": "box_row_east_c_2_0",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      2.013,
+      9.188
+     ],
+     "facing": 89.845
+    },
+    {
+     "id": "box_row_east_c_2_1",
+     "kit": "box_row",
+     "at": [
+      0.284,
+      2.013,
+      9.812
+     ],
+     "facing": 90.625
+    },
+    {
+     "id": "box_row_east_c_2_end",
+     "kit": "box_row_half",
+     "at": [
+      0.284,
+      2.013,
+      10.1
+     ],
+     "facing": 90
+    },
+    {
+     "id": "tin_row_east_c_3_0",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      9.2
+     ],
+     "facing": 88.695
+    },
+    {
+     "id": "tin_row_east_c_3_1",
+     "kit": "tin_row",
+     "at": [
+      0.284,
+      2.362,
+      9.807
+     ],
+     "facing": 90.735
+    },
+    {
+     "id": "tin_row_east_c_3_end",
+     "kit": "tin_row_half",
+     "at": [
+      0.284,
+      2.362,
+      10.1
+     ],
+     "facing": 90
+    },
+    {
+     "id": "tin_row_flat_east_c_4_0",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      2.712,
+      9.21
+     ],
+     "facing": 88.07
+    },
+    {
+     "id": "tin_row_flat_east_c_4_1",
+     "kit": "tin_row_flat",
+     "at": [
+      0.284,
+      2.712,
+      9.789
+     ],
+     "facing": 91.105
+    },
+    {
+     "id": "tin_row_flat_east_c_4_end",
+     "kit": "tin_row_flat_half",
+     "at": [
+      0.284,
+      2.712,
+      10.1
+     ],
+     "facing": 90
+    },
+    {
+     "id": "case_row_east_c_top_0",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      9.207
+     ],
+     "facing": 90.67
+    },
+    {
+     "id": "case_row_east_c_top_1",
+     "kit": "case_row",
+     "at": [
+      0.284,
+      3.2,
+      9.811
+     ],
+     "facing": 90.245
+    },
+    {
+     "id": "case_row_east_c_top_end",
+     "kit": "case_row_half",
+     "at": [
+      0.284,
+      3.2,
+      10.1
+     ],
+     "facing": 90
+    },
+    {
+     "id": "box_row_west_a_work_0",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      0.93,
+      2.211
+     ],
+     "facing": 271.675
+    },
+    {
+     "id": "box_row_west_a_work_1",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      0.93,
+      2.809
+     ],
+     "facing": 268.245
+    },
+    {
+     "id": "box_row_flat_west_a_0_0",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      1.312,
+      2.188
+     ],
+     "facing": 268.35
+    },
+    {
+     "id": "box_row_flat_west_a_0_1",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      1.312,
+      2.793
+     ],
+     "facing": 271.545
+    },
+    {
+     "id": "tin_row_west_a_1_0",
+     "kit": "tin_row",
+     "at": [
+      16.476,
+      1.663,
+      2.211
+     ],
+     "facing": 269.7
+    },
+    {
+     "id": "tin_row_west_a_1_1",
+     "kit": "tin_row",
+     "at": [
+      16.476,
+      1.663,
+      2.809
+     ],
+     "facing": 271.46
+    },
+    {
+     "id": "box_row_west_a_2_0",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      2.013,
+      2.206
+     ],
+     "facing": 269.02
+    },
+    {
+     "id": "box_row_west_a_2_1",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      2.013,
+      2.802
+     ],
+     "facing": 271.99
+    },
+    {
+     "id": "box_row_flat_west_a_3_0",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      2.362,
+      2.211
+     ],
+     "facing": 269.34
+    },
+    {
+     "id": "box_row_flat_west_a_3_1",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      2.362,
+      2.79
+     ],
+     "facing": 270.045
+    },
+    {
+     "id": "tin_row_flat_west_a_4_0",
+     "kit": "tin_row_flat",
+     "at": [
+      16.476,
+      2.712,
+      2.204
+     ],
+     "facing": 270.29
+    },
+    {
+     "id": "tin_row_flat_west_a_4_1",
+     "kit": "tin_row_flat",
+     "at": [
+      16.476,
+      2.712,
+      2.803
+     ],
+     "facing": 270.96
+    },
+    {
+     "id": "case_row_west_a_top_0",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      2.203
+     ],
+     "facing": 270.265
+    },
+    {
+     "id": "case_row_west_a_top_1",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      2.793
+     ],
+     "facing": 267.665
+    },
+    {
+     "id": "boots_west_b_work_0",
+     "kit": "boot_row",
+     "at": [
+      16.506,
+      0.93,
+      4.01
+     ],
+     "facing": 268.616
+    },
+    {
+     "id": "boots_west_b_work_1",
+     "kit": "boot_row",
+     "at": [
+      16.506,
+      0.93,
+      4.65
+     ],
+     "facing": 268.728
+    },
+    {
+     "id": "boots_west_b_work_2",
+     "kit": "boot_row",
+     "at": [
+      16.506,
+      0.93,
+      5.29
+     ],
+     "facing": 267.36
+    },
+    {
+     "id": "box_row_flat_west_b_0_0",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      1.312,
+      4.045
+     ],
+     "facing": 271.06
+    },
+    {
+     "id": "box_row_flat_west_b_0_1",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      1.312,
+      4.657
+     ],
+     "facing": 271.14
+    },
+    {
+     "id": "box_row_flat_west_b_0_2",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      1.312,
+      5.244
+     ],
+     "facing": 270.605
+    },
+    {
+     "id": "box_row_west_b_3_0",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      2.362,
+      4.046
+     ],
+     "facing": 267.685
+    },
+    {
+     "id": "box_row_west_b_3_1",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      2.362,
+      4.641
+     ],
+     "facing": 268.96
+    },
+    {
+     "id": "box_row_west_b_3_2",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      2.362,
+      5.246
+     ],
+     "facing": 272.31
+    },
+    {
+     "id": "hats_west_b_4_0",
+     "kit": "hat_stack",
+     "at": [
+      16.476,
+      2.712,
+      3.96
+     ],
+     "facing": 269.856
+    },
+    {
+     "id": "hats_west_b_4_1",
+     "kit": "hat_single",
+     "at": [
+      16.476,
+      2.712,
+      4.416
+     ],
+     "facing": 270.64
+    },
+    {
+     "id": "hats_west_b_4_2",
+     "kit": "hat_stack",
+     "at": [
+      16.476,
+      2.712,
+      4.866
+     ],
+     "facing": 268.192
+    },
+    {
+     "id": "hats_west_b_4_3",
+     "kit": "hat_single",
+     "at": [
+      16.476,
+      2.712,
+      5.349
+     ],
+     "facing": 262.816
+    },
+    {
+     "id": "case_row_west_b_top_0",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      4.046
+     ],
+     "facing": 271.945
+    },
+    {
+     "id": "case_row_west_b_top_1",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      4.65
+     ],
+     "facing": 268.775
+    },
+    {
+     "id": "case_row_west_b_top_2",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      5.261
+     ],
+     "facing": 267.775
+    },
+    {
+     "id": "boots_west_c_work_0",
+     "kit": "boot_row",
+     "at": [
+      16.506,
+      0.93,
+      6.018
+     ],
+     "facing": 267.64
+    },
+    {
+     "id": "boots_west_c_work_1",
+     "kit": "boot_row",
+     "at": [
+      16.506,
+      0.93,
+      6.675
+     ],
+     "facing": 271.0
+    },
+    {
+     "id": "boots_west_c_work_2",
+     "kit": "boot_row",
+     "at": [
+      16.506,
+      0.93,
+      7.332
+     ],
+     "facing": 267.656
+    },
+    {
+     "id": "box_row_west_c_0_0",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      1.312,
+      6.064
+     ],
+     "facing": 267.78
+    },
+    {
+     "id": "box_row_west_c_0_1",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      1.312,
+      6.667
+     ],
+     "facing": 270.98
+    },
+    {
+     "id": "box_row_west_c_0_2",
+     "kit": "box_row",
+     "at": [
+      16.476,
+      1.312,
+      7.273
+     ],
+     "facing": 271.62
+    },
+    {
+     "id": "box_row_flat_west_c_3_0",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      2.362,
+      6.067
+     ],
+     "facing": 268.295
+    },
+    {
+     "id": "box_row_flat_west_c_3_1",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      2.362,
+      6.674
+     ],
+     "facing": 271.395
+    },
+    {
+     "id": "box_row_flat_west_c_3_2",
+     "kit": "box_row_flat",
+     "at": [
+      16.476,
+      2.362,
+      7.273
+     ],
+     "facing": 272.19
+    },
+    {
+     "id": "hats_west_c_4_0",
+     "kit": "hat_stack",
+     "at": [
+      16.476,
+      2.712,
+      5.92
+     ],
+     "facing": 276.608
+    },
+    {
+     "id": "hats_west_c_4_1",
+     "kit": "hat_single",
+     "at": [
+      16.476,
+      2.712,
+      6.451
+     ],
+     "facing": 275.6
+    },
+    {
+     "id": "hats_west_c_4_2",
+     "kit": "hat_stack",
+     "at": [
+      16.476,
+      2.712,
+      6.904
+     ],
+     "facing": 277.424
+    },
+    {
+     "id": "hats_west_c_4_3",
+     "kit": "hat_single",
+     "at": [
+      16.476,
+      2.712,
+      7.442
+     ],
+     "facing": 276.176
+    },
+    {
+     "id": "case_row_west_c_top_0",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      6.068
+     ],
+     "facing": 268.29
+    },
+    {
+     "id": "case_row_west_c_top_1",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      6.686
+     ],
+     "facing": 269.055
+    },
+    {
+     "id": "case_row_west_c_top_2",
+     "kit": "case_row",
+     "at": [
+      16.476,
+      3.2,
+      7.272
+     ],
+     "facing": 272.385
+    },
+    {
+     "id": "coffee_mill",
+     "kit": "coffee_mill",
+     "at": [
+      2.3,
+      0.94,
+      8.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "showcase_west",
+     "kit": "showcase",
+     "at": [
+      14.6,
+      0.94,
+      4.95
+     ],
+     "facing": 90
+    },
+    {
+     "id": "hats_counter",
+     "kit": "hat_stack",
+     "at": [
+      14.62,
+      0.94,
+      2.6
+     ],
+     "facing": 95
+    },
+    {
+     "id": "rope_counter",
+     "kit": "rope_coil",
+     "at": [
+      14.6,
+      0.94,
+      5.9
+     ],
+     "facing": 20
+    },
+    {
+     "id": "coffeepot_back",
+     "kit": "coffeepot",
+     "at": [
+      12.0,
+      0.94,
+      8.65
+     ],
+     "facing": 200
+    },
+    {
+     "id": "kettle_back",
+     "kit": "tea_kettle",
+     "at": [
+      12.3,
+      0.94,
+      8.7
+     ],
+     "facing": 160
+    },
+    {
+     "id": "pail_back",
+     "kit": "tin_pail",
+     "at": [
+      14.62,
+      0.94,
+      8.68
+     ],
+     "facing": 0
+    },
+    {
+     "id": "nail_keg_a",
+     "kit": "nail_keg",
+     "at": [
+      13.25,
+      0.0,
+      6.75
+     ],
+     "facing": 0
+    },
+    {
+     "id": "nail_keg_b",
+     "kit": "nail_keg",
+     "at": [
+      13.72,
+      0.0,
+      7.2
+     ],
+     "facing": 35
+    },
+    {
+     "id": "tool_keg",
+     "kit": "tool_keg",
+     "at": [
+      12.8,
+      0.0,
+      6.6
+     ],
+     "facing": 70
+    },
+    {
+     "id": "pail_floor",
+     "kit": "tin_pail",
+     "at": [
+      13.2,
+      0.0,
+      7.35
+     ],
+     "facing": 0
+    },
+    {
+     "id": "oil_can_a",
+     "kit": "oil_can",
+     "at": [
+      11.05,
+      0.0,
+      10.42
+     ],
+     "facing": 5
+    },
+    {
+     "id": "oil_can_b",
+     "kit": "oil_can",
+     "at": [
+      11.35,
+      0.0,
+      10.4
+     ],
+     "facing": 352
+    },
+    {
+     "id": "hanging_lamp_0",
+     "kit": "hanging_lamp",
+     "at": [
+      4.6,
+      2.56,
+      4.2
+     ],
+     "facing": 0,
+     "light": 0.33,
+     "shadows": false,
+     "energy": 1.0
+    },
+    {
+     "id": "hanging_lamp_1",
+     "kit": "hanging_lamp",
+     "at": [
+      8.4,
+      2.56,
+      6.2
+     ],
+     "facing": 0,
+     "light": 0.33,
+     "shadows": false,
+     "energy": 1.0
+    },
+    {
+     "id": "hanging_lamp_2",
+     "kit": "hanging_lamp",
+     "at": [
+      12.2,
+      2.56,
+      4.2
+     ],
+     "facing": 0,
+     "light": 0.33,
+     "shadows": false,
+     "energy": 1.0
+    }
+   ],
+   "G3": [
+    {
+     "id": "post_case",
+     "kit": "post_case",
+     "at": [
+      16.476,
+      0.0,
+      9.15
+     ],
+     "facing": 180
+    },
+    {
+     "id": "mail_0",
+     "kit": "mail_row_a",
+     "at": [
+      16.476,
+      1.258,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "mail_1",
+     "kit": "mail_row_b",
+     "at": [
+      16.476,
+      1.458,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "mail_2",
+     "kit": "mail_row_c",
+     "at": [
+      16.476,
+      1.657,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "mail_3",
+     "kit": "mail_row_d",
+     "at": [
+      16.476,
+      1.857,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "day_book",
+     "kit": "day_book",
+     "at": [
+      12.8,
+      0.94,
+      8.7
+     ],
+     "facing": 4
+    },
+    {
+     "id": "till_cash",
+     "kit": "till_cash",
+     "at": [
+      13.78,
+      0.94,
+      8.58
+     ],
+     "facing": 8
+    },
+    {
+     "id": "ink_back",
+     "kit": "ink_set",
+     "at": [
+      14.04,
+      0.94,
+      8.74
+     ],
+     "facing": 0
+    },
+    {
+     "id": "ledger_book",
+     "kit": "ledger_book",
+     "at": [
+      14.3,
+      0.94,
+      8.7
+     ],
+     "facing": 355
+    },
+    {
+     "id": "post_desk",
+     "kit": "owner_desk",
+     "at": [
+      15.6,
+      0.0,
+      10.28
+     ],
+     "facing": 180
+    },
+    {
+     "id": "post_stool",
+     "kit": "bar_stool",
+     "at": [
+      14.78,
+      0.0,
+      10.05
+     ],
+     "facing": 0
+    },
+    {
+     "id": "ink_post",
+     "kit": "ink_set",
+     "at": [
+      15.25,
+      0.76,
+      10.2
+     ],
+     "facing": 190
+    },
+    {
+     "id": "parcels_post",
+     "kit": "parcel_stack",
+     "at": [
+      15.95,
+      0.76,
+      10.3
+     ],
+     "facing": 15
+    },
+    {
+     "id": "hung_pails_w",
+     "kit": "hung_pails",
+     "at": [
+      13.7,
+      2.61,
+      2.9
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_pails_e",
+     "kit": "hung_pails",
+     "at": [
+      3.4,
+      2.61,
+      3.2
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_ham_a",
+     "kit": "hung_ham",
+     "at": [
+      3.2,
+      2.76,
+      8.4
+     ],
+     "facing": 20
+    },
+    {
+     "id": "hung_ham_b",
+     "kit": "hung_ham",
+     "at": [
+      14.4,
+      2.76,
+      8.2
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_lantern_a",
+     "kit": "hung_lantern",
+     "at": [
+      9.4,
+      2.91,
+      3.0
+     ],
+     "facing": 20
+    },
+    {
+     "id": "hung_lantern_b",
+     "kit": "hung_lantern",
+     "at": [
+      6.6,
+      2.91,
+      9.0
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_lantern_c",
+     "kit": "hung_lantern",
+     "at": [
+      11.2,
+      2.91,
+      5.6
+     ],
+     "facing": 0
+    }
+   ]
+  }
+ },
+ "light": {
+  "_doc": "the doctor's light (#824, #829) scaled for a room 16.8 x 10.7 m: more fill and window light than his 8 m office, less than saloon B's 22 m hall; judged by day in #1035 (the doctor's 0.1 and 7 left the shop near black): 0.55 and 26",
+  "fill": [
+   0.62,
+   0.6,
+   0.57
+  ],
+  "window_day": 26.0,
+  "day_fill": 0.55
+ },
+ "materials": {
+  "wear": {
+   "use": 0.8,
+   "dings": 0.0,
+   "_why": "#901: a busy store, a wagon's freight rolled in daily; dents off with the doctor's (Sean 2026-11-14)"
+  },
+  "floor": "wood:int_floor",
+  "wall_boards": "int_boards",
+  "woodwork": "wood:int_oak",
+  "timber": "wood:int_timber",
+  "trim_outside": "painted_green",
+  "roof": "weathered_pine",
+  "rough": "framing",
+  "finishes": {
+   "exterior": {
+    "want": {
+     "entry": "painted_buff_drop",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "Sean 2026-11-16: painted pale buff clapboard, the sheet; the merchant's pride, two years old"
+   },
+   "trim": {
+    "want": {
+     "entry": "painted_green_trim",
+     "age": "few"
+    },
+    "use": {
+     "entry": "common_pine_lap",
+     "age": "old",
+     "role": "wall"
+    }
+   },
+   "inside": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "ceiling": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "#1053: beaded boards painted pale under the loft's joists, the doctor's ceiling; the shop read black overhead (#1052)"
+   },
+   "floor": {
+    "want": {
+     "entry": "floor_fir_worn",
+     "age": "few",
+     "role": "floor"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "floor"
+    },
+    "_why": "oiled fir, worn on his ways (door to counter, counter to shelf), never a wall's or the trim's (#825)"
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "oak": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    }
+   },
+   "timber": {
+    "want": {
+     "entry": "painted_pale_tg",
+     "age": "few"
+    },
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "Sean 2026-11-18 (#1067): the shop's posts and beams painted pale, like the ceiling"
+   },
+   "joists": {
+    "use": {
+     "entry": "fine_walnut_tg",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the floor joists stay dark: hidden over the shop's ceiling, bare over the storeroom"
+   }
+  },
+  "surfaces": [
+   [
+    "/recess/ceiling",
+    "ceiling"
+   ],
+   [
+    "/recess/",
+    "trim"
+   ],
+   [
+    "ceiling/",
+    "ceiling"
+   ],
+   [
+    "front/sign",
+    "trim"
+   ],
+   [
+    "/casing",
+    "trim"
+   ],
+   [
+    "/skirt",
+    "trim"
+   ],
+   [
+    "/window_",
+    "trim"
+   ],
+   [
+    "/siding/",
+    "exterior"
+   ],
+   [
+    "/corner_",
+    "trim"
+   ],
+   [
+    "/trim_",
+    "trim"
+   ],
+   [
+    "/transom_bar",
+    "trim"
+   ],
+   [
+    "/cornice",
+    "trim"
+   ],
+   [
+    "front/cap",
+    "trim"
+   ],
+   [
+    "roof/ridge_cap",
+    "trim"
+   ],
+   [
+    "front/door_",
+    "trim"
+   ],
+   [
+    "back/door_",
+    "trim"
+   ],
+   [
+    "/door_",
+    "inside"
+   ],
+   [
+    "/in_ground/",
+    "inside"
+   ],
+   [
+    "/in_upper/",
+    "inside"
+   ],
+   [
+    "/m/board/",
+    "inside"
+   ],
+   [
+    "/p/board/",
+    "inside"
+   ],
+   [
+    "floor/ground/board",
+    "floor"
+   ],
+   [
+    "floor/loft/board",
+    "floor"
+   ],
+   [
+    "floor/family/board",
+    "floor"
+   ],
+   [
+    "floor/loft/joist",
+    "joists"
+   ],
+   [
+    "floor/family/joist",
+    "joists"
+   ],
+   [
+    "beam/",
+    "timber"
+   ],
+   [
+    "bracket/",
+    "-"
+   ],
+   [
+    "wall_post/",
+    "timber"
+   ],
+   [
+    "stair/main",
+    "oak"
+   ],
+   [
+    "roof/board",
+    "rough"
+   ],
+   [
+    "stoop/",
+    "rough"
+   ],
+   [
+    "stair/back",
+    "rough"
+   ],
+   [
+    "post/",
+    "timber"
+   ]
+  ]
+ },
+ "sources": [
+  "Saloon B's frame (#848): queen-post trusses, 3x12 joists broken over girders on posts, the stacked-opening rules.",
+  "William E. Bell, Carpentry Made Easy (1858), and George Woodward, Woodward's Country Homes (1865): the balloon frame, the false front's bracing.",
+  "Hodgson, Steel Square and its Uses (1884): the stair's rise and going."
+ ]
+}

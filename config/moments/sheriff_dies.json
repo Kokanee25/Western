@@ -6,7 +6,7 @@
   "building": "doctor",
   "cot": "cot_1",
   "bedside": "bedside",
-  "_local": "Points in the doctor's building's own space [x, z] (experiments/building_lab/doctor/doctor.json: x across from its east side, z back from its front; the floor at y 0.95): his door out on the walk, his way in through the front office, the hall and the sick room's door, his place by the cot's foot, yours by its side.",
+  "_local": "Points in the doctor's building's own space [x, z] (config/buildings/doctor.json: x across from its east side, z back from its front; the floor at y 0.95): his door out on the walk, his way in through the front office, the hall and the sick room's door, his place by the cot's foot, yours by its side.",
   "door_out": [4.71, -1.2],
   "lead": [[4.71, 0.6], [4.62, 3.2], [4.7, 4.5], [4.7, 9.5], [3.5, 9.5]],
   "doctor_spot": [3.3, 10.9],
@@ -27,6 +27,7 @@
   "wound": {"_doc": "His body on the cot: the road's wound (the_sheriff.json's), stopped bleeding (the doctor's work), what he'd lost by care (`loss`), his gut's clock held till he goes (Physiology's gut death is what takes him).", "loss": {"good": 0.27, "poor": 0.36, "left": 0.38}, "pain": 0.7},
   "lines": {
     "sent_for": {"any": ["Harlan! Doc's asking for you. Says the sheriff's sinking."]},
+    "body": {"any": ["He was dead when you knocked. I'd not have you think it was the door."]},
     "door": {
       "good": ["He's asking for you. He's clear this morning. It won't last."],
       "poor": ["He's asking for you. He comes and goes. Be quick."],

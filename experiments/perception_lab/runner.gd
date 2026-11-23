@@ -762,6 +762,15 @@ func _news(c: Dictionary) -> Dictionary:
 		people[pd.id] = _man(String(pd.id), String(pd.role), _v(pd.at), _v(pd.faces), String(pd.get("mind", "civilian")),
 				bool(pd.get("gun", false)))
 	_put_player(_v(c.player.at), _v(c.player.faces))
+	# The town's news (TownNews, townsfolk step 7, #1051): each townsman's version of what he sensed.
+	var news := TownNews.new()
+	for id: String in people:
+		var b := (people[id] as Node).get_node_or_null(^"Brain")
+		if b is CivilianBrain:
+			news.join(b as CivilianBrain)
+	var news_step := func() -> void: news.step(1.0 / Engine.physics_ticks_per_second)
+	lab.get_tree().physics_frame.connect(news_step)
+	_cleanups.append(func() -> void: lab.get_tree().physics_frame.disconnect(news_step))
 	await lab.seconds(1.5)
 	var p: Player = lab.player
 	var t0 := _now()
@@ -771,11 +780,14 @@ func _news(c: Dictionary) -> Dictionary:
 	var falls := []
 	var speech := []
 	var on_shot := func(origin: Vector3, _d: Vector3, shooter: Node) -> void:
-		var row := {"t": snappedf(_now() - t0, 0.01), "at": lab.arr(origin), "by": _id(shooter), "seen_by": []}
+		var row := {"t": snappedf(_now() - t0, 0.01), "at": lab.arr(origin), "by": _id(shooter), "seen_by": [], "glimpsed_by": []}
 		for id: String in people:
 			var s := _senses(people[id])
 			if s and s.sees(shooter):
 				row.seen_by.append(id)
+			# Senses' own rule for naming a noise's maker: seen, or in view at that moment (a glimpse).
+			if s and shooter is Node3D and (s.sees(shooter) or s._in_view(shooter as Node3D, s.eye())):
+				row.glimpsed_by.append(id)
 		shots.append(row)
 	var on_fell := func(who: Node, _conscious: bool) -> void:
 		var row := {"t": snappedf(_now() - t0, 0.01), "who": _id(who), "seen_by": []}
@@ -829,7 +841,7 @@ func _news(c: Dictionary) -> Dictionary:
 		var until := t0 + first + m
 		if _now() < until:
 			await lab.seconds(until - _now())
-		snaps[str(m)] = _news_snapshot(people, p, shots, falls, heard_gun, deeds_seen, c)
+		snaps[str(m)] = _news_snapshot(people, p, shots, falls, heard_gun, deeds_seen, c, news, leaks)
 	Events.shot_fired.disconnect(on_shot)
 	Events.person_fell.disconnect(on_fell)
 	Events.spoke.disconnect(on_spoke)
@@ -846,7 +858,8 @@ func _news(c: Dictionary) -> Dictionary:
 
 ## What each person knows of the deed now: heard a shot (and how near his guess of where), saw
 ## who fired, knows who fired (by any route), saw the man fall, and what his mind is doing.
-func _news_snapshot(people: Dictionary, p: Player, shots: Array, falls: Array, heard_gun: Dictionary, deeds_seen: Dictionary, c: Dictionary) -> Dictionary:
+func _news_snapshot(people: Dictionary, p: Player, shots: Array, falls: Array, heard_gun: Dictionary, deeds_seen: Dictionary, c: Dictionary,
+		news: TownNews = null, leaks: Array = []) -> Dictionary:
 	var out := {}
 	var victim: HumanBody = people.get(String(c.get("victim", "")))
 	for id: String in people:
@@ -886,6 +899,22 @@ func _news_snapshot(people: Dictionary, p: Player, shots: Array, falls: Array, h
 			k["heard_at_s"] = snappedf(float(heard_gun[id].t), 0.01)
 		# Who fired, known only from the shot's sound (Senses keys a noise by who made it).
 		k["who_by_sound_only"] = float(known_p.get("heard_time", -INF)) > -INF and not k.who_by_sight
+		# His news (TownNews): his version's slots, and any he holds that he neither sensed nor was
+		# told (a leak: who without seeing anyone fire, whom without seeing a man fall).
+		if news != null:
+			var vs: Dictionary = news.versions.get(StringName(id), {})
+			var v: Dictionary = vs.values()[0] if not vs.is_empty() else {}
+			k["news_kind"] = String(TownNews.kind_of(v))
+			k["news_how"] = String(v.get("how", ""))
+			k["news_who"] = String(v.get("who", "")) == "harlan"
+			k["news_whom"] = String(v.get("whom", ""))
+			k["news_shots"] = int(v.get("shots", 0))
+			k["glimpsed_shooter"] = shots.any(func(sh: Dictionary) -> bool: return id in sh.get("glimpsed_by", []))
+			if not v.is_empty() and v.how != &"told":
+				if v.who != &"" and not k.glimpsed_shooter:
+					leaks.append({"t": snappedf(_now(), 0.01), "who": id, "kind": "news_who_unseen", "has": String(v.who)})
+				if v.whom != &"" and not (k.saw_fall or k.knows_victim_hurt):
+					leaks.append({"t": snappedf(_now(), 0.01), "who": id, "kind": "news_whom_unseen", "has": String(v.whom)})
 		out[id] = k
 	return out
 

@@ -5,15 +5,16 @@ extends BridgeLab
 ## README.md beside it has the runs.
 ##
 ##   gh_man X Y Z [YAW] [MODEL]   him there, no brain (a MetaHuman: his GLB's own materials); a chair at his right front
-##   gh_dress               the glove on him (the game's GarmentHandoff, #917)
+##   gh_dress [NAME:VALUE ...]   the glove on him (the game's GarmentHandoff, #917), over its solver_tune
+##                          (`gh_dress self_thickness:0.002`: it meets itself, #997)
 ##   gh_cam NAME            hands | wide | chair | side: the free camera, set in his frame
 ##   gh_film DIR [SECONDS=11]   the handoff from its cue, every frame drawn to DIR; its measures back
 ##   gh_clear               him, the chair, the glove gone
 
-var MODEL := &"barkeep_s2_talking"  # (the lab's was sean_metahuman_s3, never committed; gh_man's 5th word)
+var MODEL := &"sean_metahuman_s3"  # (Sean, 2026-11-15: only the MetaHuman; his files copied in, never committed, #692; gh_man's 5th word)
 const HELP := {
 	"gh_man": "gh_man X Y Z [YAW] [MODEL] -> MetaHuman Sean there (no brain, his own materials), a chair by him (#895)",
-	"gh_dress": "gh_dress -> the long glove on his left arm, worn (the game's GarmentHandoff)",
+	"gh_dress": "gh_dress [NAME:VALUE ...] -> the long glove on his left arm, worn (the game's GarmentHandoff; our cloth's numbers over its own)",
 	"gh_cam": "gh_cam hands|wide|chair|side -> the free camera in his frame",
 	"gh_film": "gh_film DIR [SECONDS=11] -> the handoff from its cue, each frame to DIR/0000.png...",
 	"gh_clear": "gh_clear -> him, the chair and the glove gone",
@@ -68,6 +69,10 @@ func _cmd_gh_dress(a: Array) -> Dictionary:
 	handoff = load("res://experiments/garment_handoff/handoff.gd").new()
 	handoff.name = "GloveHandoff"
 	handoff.measure_skin = false  # (the bench counts it; here it would slow the film)
+	for kv: String in a:
+		var pair := kv.split(":")
+		if pair.size() == 2:
+			handoff.solver_tune[pair[0]] = float(pair[1])
 	street.add_child(handoff)
 	return handoff.dress(man, chair)
 

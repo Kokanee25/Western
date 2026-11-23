@@ -57,7 +57,7 @@ func _start(opts := {}) -> NoJusticeHideout:
 	valley = load("res://scenes/valley.tscn").instantiate()
 	holder.add_child(valley)
 	await physics_frames(5)
-	var o := {"set_up": true, "pace": 0.25}
+	var o := {"set_up": true, "pace": 0.25, "no_next": true}
 	o.merge(opts, true)
 	var m := Moment.start_named(&"no_justice_hideout", valley, null, o) as NoJusticeHideout
 	check(m != null and not m.done, "it starts (%s)" % (m.result() if m else {}))
@@ -251,3 +251,72 @@ func test_the_last_mans_nerve_breaks_in_the_scripts_words() -> void:
 	check(_lines_of(String(last.id)).has("I'm done! Don't shoot!"), "the last man quits in the script's words (%s)" % [_lines_of(String(last.id))])
 	var others := m.crew.slice(0, m.crew.size() - 1)
 	check(not others.any(func(g: Dictionary) -> bool: return _lines_of(String(g.id)).has("I'm done! Don't shoot!")), "and only he")
+
+
+## Shot down in the fight (#979's playtest: a dead end): you come round at the doctor's free to walk
+## off (not boxed in on the bedside chair), and the way to try it again is put to you.
+func test_down_in_the_fight_you_come_round_free_and_can_try_again() -> void:
+	var m := await _start({"arrive": true})
+	if m == null:
+		return
+	await physics_frames(10)
+	await _open_fire(m)
+	var p := _player()
+	var shown: Array = []
+	p.wounds.shown.connect(func(text: String) -> void: shown.append(text))
+	p.set_meta(&"last_hit_by", (m.crew[0] as Dictionary).man)
+	p.wounds.physiology._die(&"heart")
+	var down := await wait_until(func() -> bool: return m.done, 60 * 3)
+	check(down and m.state == &"you_down", "the act's lost (%s)" % m.result())
+	var up := await wait_until(func() -> bool: return p.wounds.physiology.is_conscious(), 60 * 10)
+	check(up, "you come round")
+	await physics_frames(10)
+	var doc: Node3D = valley.buildings.get("doctor")
+	check(doc != null and Vector2(p.global_position.x - doc.global_position.x, p.global_position.z - doc.global_position.z).length() < 15.0, "at the doctor's (%s)" % p.global_position)
+	check(p.can_stand(), "room to stand")
+	# Out across the floor (the chair's legs, the wall and the cot boxed you in): two ways of the four
+	# compass ones, a metre or more (the sick room's small, its door shut).
+	var start := p.global_position
+	var free := 0
+	for act: StringName in [&"move_forward", &"move_back", &"move_left", &"move_right"]:
+		p.global_position = start
+		p.velocity = Vector3.ZERO
+		p.rotation.y = 0.0
+		await physics_frames(2)
+		var ev := InputEventAction.new()
+		ev.action = act
+		ev.pressed = true
+		ev.strength = 1.0
+		Input.parse_input_event(ev)
+		await physics_frames(60)
+		var off := InputEventAction.new()
+		off.action = act
+		off.pressed = false
+		Input.parse_input_event(off)
+		await physics_frames(2)
+		if p.global_position.distance_to(start) > 1.0:
+			free += 1
+	check(free >= 2, "you walk off two ways of four (%d)" % free)
+	var told := await wait_until(func() -> bool: return shown.has(String(m.data.prompts.retry)), 60 * 25)
+	check(told, "the retry put to you (%s)" % [shown])
+	check(not NoJusticeHideout.retry_on_load, "not till you press it")
+
+
+## The retry's reload: the valley starts the hideout again on the slope above it, whatever mission
+## the game was started on, and only once.
+func test_the_retry_starts_it_again_on_the_slope() -> void:
+	NoJusticeHideout.retry_on_load = true
+	holder = Node.new()
+	holder.name = "Main"
+	add_child(holder)
+	valley = load("res://scenes/valley.tscn").instantiate()
+	holder.add_child(valley)
+	await physics_frames(12)
+	check(not NoJusticeHideout.retry_on_load, "the flag's spent")
+	var ms := get_tree().get_nodes_in_group(&"moment").filter(func(n: Node) -> bool: return n is NoJusticeHideout)
+	check(ms.size() == 1, "one hideout act (%d)" % ms.size())
+	if ms.size() == 1:
+		var m := ms[0] as NoJusticeHideout
+		check(m.state in [&"approach", &"watch"], "on the slope above it (%s)" % m.result())
+		check(m.crew.size() == 5 and m.kett != null and m.joe != null, "the crew, Kett and Joe")
+		m.opts["no_next"] = true

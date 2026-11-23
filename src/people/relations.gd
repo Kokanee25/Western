@@ -238,3 +238,18 @@ func to_dict() -> Dictionary:
 			var e: Dictionary = entries[who]
 			out[key] = {"pressure": e.pressure, "grudge": e.grudge, "fear": e.fear, "stance": e.stance}
 	return out
+
+
+## `to_dict`'s opinions put back (SaveGame, #1138): `find` gives the one a key names (a person's id,
+## "player"), or null if he isn't in the world (his line's left out).
+func from_dict(d: Dictionary, find: Callable) -> void:
+	for key: String in d:
+		var who: Node = find.call(key)
+		if who == null:
+			continue
+		var e := entry(who)
+		var saved: Dictionary = d[key]
+		e.pressure = float(saved.pressure)
+		e.grudge = float(saved.grudge)
+		e.fear = float(saved.fear)
+		e.stance = int(saved.stance)

@@ -131,6 +131,64 @@ Not checked here: the frame's deflection (the format's item 12), fire and blast 
   Jolt's 32,768.
 - **Goldens:** none change (the golden views are the old town's, not the valley's).
 
+## The stage, the wing and the dressing room (#902)
+
+Sean, 2026-11-13: put it where it fits best, 16 x 8 ft for now, backstage with a dressing room, a
+curtain that opens and a painted backdrop of Salt Creek as the Baron promises it; Payday Night's
+band plays there. The spec's `stage` (FORMAT.md "Saloon B's stage"):
+
+- **The stage:** against the dance hall's back partition, x 2.5 to 7.4 by z 10.9 to 13.3, 30 in
+  high: 15 legs under three bearers, 2x8 joists at 16 in front to back, the dance floor's boards, a
+  boarded skirt on its front and its open (+x) side; three steps down to the dance floor at the open
+  side (z 11.25 to 12.25, clear of the public door). Its nearest edge is at z 10.88, 0.8 m past the
+  sawn girder's panel (z 6.7 to 10.06), and the cut test holds every stage, step and wing member up
+  while the panel falls.
+- **The proscenium and curtain:** a walnut post at each front corner (0.45 m deep), a header over
+  them 2.2 m up, an iron rod between them 0.34 m back from the stage's front, and on it the red
+  `DrawCurtain` (`src/art/`, a part: two halves with a gold fringe, drawn open and shut in ~3 s;
+  `SpecBuilding.open_curtain` / `close_curtain`; `to_dict` / `from_dict`). It hangs shut.
+- **The backdrop:** a `PaintedDrop` (`src/art/`) 4.6 x 2.3 m (15 x 7.5 ft: the room is 2.59 m from
+  the stage to the trusses' ties, so no 9 ft drop) under a batten on the back wall, **plain canvas**
+  painted: Salt Creek as the Baron promises it (Sean's yes on #960; `tools/textures/materials.json`
+  `drop_baron`, the factory's new `painting` kind, FLUX.2 [max], $0.10 on People run 133).
+- **The wing:** the corner x 0.1 to 2.45, z 10.9 to 13.36, boarded off from the dance floor (the
+  `wing` partition), three steps up onto the stage's end, a lamp; its door through `dance_back` at
+  1.58, straight across the upper hall from room_6's, its leaf hung on the far jamb (`hinge: "end"`)
+  so it opens clear of the steps. The door at 3.56 went (it was behind the stage); the public door at
+  8.43 stays. The dance hall's back-wall lamp moved off the stage's wall to 9.85.
+- **The dressing room:** room_6 (three rooms let now): a dressing table against the yard wall between
+  the door and the window, a chair, an oil lamp on the table. **For the prop lab** (made in #903, not
+  placed): the dressing mirror over the table, the costume pegs across from it, the travelling trunk
+  (one shut here, one open in the wing), the dressing screen across the corner by the door, as
+  `experiments/prop_lab/README.md` "Saloon B, the stage and dressing room" says. The five footlights
+  are placed (its places, z 11.02), all five lit softly with no shadows (two shadowed lamps had cost ~1,600 draws).
+- **For gameplay (Payday Night):** the band's places are use points on the stage, behind the
+  curtain's line: `fiddler` (4.3, 12.6), `band_2` (5.5, 12.7), `band_3` (6.5, 12.4), the act out
+  front `stage_act` (4.9, 11.7), all at the stage's top (y 5.67); `wing_wait` in the wing; `dressing`
+  at the table. The fiddler's old place in the hall's back corner is the wing now.
+- **Walked:** `tests/test_building_saloon_b.gd` walks a man from the outside stair's landing into the
+  upper hall, into the dressing room, back to the wing's door, through the wing and up its steps,
+  across the stage behind the curtain and down its steps to the dance floor (Waypoints' own test, a
+  step at a time).
+- **Cost:** render CPU at Sean's (lavapipe x0.65, median): the `stage` view shut **3.48 ms** (3,887
+  draws), open on the drop **3.71 ms** (4,003), both under 4; main's spec without the stage, same view:
+  3.34 (3,583). The `dance` view **5.10 ms** (6,102 draws) against main's 5.19 without the stage: the hall
+  view was over 4 on main already (the valley's buildings behind it), the stage adds nothing to it.
+  Bodies: **31,688** in the valley (+175 on main's 31,513 with #886; **1,080 left** of Jolt's 32,768); 7,775
+  members (+141), 39 lamps (+7: the proscenium has none, five footlights, the wing's and the table's).
+- **Judged, one round** (`docs/screenshots/judge/2026-11-14_saloon_b_stage_r1`; renders in
+  `results/2026-11-14_stage/`): the cheap judge called the stage shut, the stage open on the drop and the
+  dance hall **cheap indie**, all three (open the best, then shut, then the hall). Tells: the hall empty
+  (nothing on the floor, nobody there); the five footlights read as tin buckets, two lit throwing hot
+  cones up the curtain (the critic: 8 to 12 small lamps in a hooded trough, all lit, one soft wash;
+  since judged, all five lit softly with no shadows);
+  the proscenium a bare dark box (no swag valance, painted frame, pilasters or lettered apron); the
+  curtain's pleats too even and too orange under the footlights, its fringe blocky; the drop lit flat,
+  short of the header, more a framed lithograph than a scene drop with wings; the public door's open
+  leaf by the dance view's camera a slab of big walnut grain; a light by the side steps' foot with no
+  lamp to it (a footlight's chimney seen past the step, most likely; not chased). Shared with the rest
+  of the building: the speckled board paint, no haze, blank windows.
+
 ## Step 3: the sign and the walks' lamps (#886)
 
 - **THE NEW OCCIDENTAL** (Sean's "pay", #885; his name for it, #886, 2026-11-13: "the new" for an

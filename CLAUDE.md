@@ -97,6 +97,9 @@ the history in `docs/status/`.
 - **Frame budget:** every system has a budget in milliseconds (table below, filled in by the
   gameplay session's performance benchmark); the frame must fit 60 fps on one 3.25 GHz core with
   headroom. A merge that pushes a system over its budget isn't done until it's back under.
+  **Performance never fakes the game** (Sean, 2026-10-25): cut waste, go native or wide, spread work over frames
+  or simplify what's unseen; never fake what the player sees or does (canned debris, men who stop sensing). If a
+  fix would, ask Sean.
 - **Art merges get a blind critic:** after every art merge, a fresh sub-agent that hasn't seen the
   work or its reasoning gets only the concept paintings and the new renders, and lists the five
   biggest differences a viewer would notice, with crops. Saved as
@@ -133,14 +136,8 @@ his own).
 | Everything else (day cycle, lamps, engine, untimed) | 1.0 | 0.1 | **1.5** | 0.2 |
 | **Total** | **≤ 14** | **6.0** | 6.6 + render | 4.7 + 6.4 |
 
-\* noisy: pausing the server also stops the rubble falling. Over budget now: the fire scene's fire
-(the per-member tick at town scale) and its untimed share (rubble landing, FireFX), and the wall
-scene's render CPU (lavapipe; carved members and chips draw on their own, smoke). The calm
-street's render CPU went over with Main Street's new buildings (2026-10-06: 12.5 at Sean's,
-lavapipe 19.2 ms, 15,400 draws) and is back under since 2026-10-13: **~2.9 at Sean's** (lavapipe
-4.5 ms, 2,700 draws). The saloon's 14 lamps were taking each other's shadow-atlas slots and so
-redrawing every frame (~4 ms); with every atlas quadrant one cell size (`GameViewport`) a lamp's
-shadow is drawn only when something in it moves. The sun's shadow is ~0.7 of what's left.
+\* noisy: pausing the server also stops the rubble falling. These columns are the old town's (2026-10);
+the valley's numbers are `docs/reviews/2026-11-valley-bench.md` (after the people cuts: 24 townsfolk fit).
 
 ## Tech decisions
 
@@ -212,6 +209,14 @@ paid on every turn of every session.
   read your issue's labels. If it has **`in progress`**, stop and tell Sean another session has it (its
   "Started" comment says which). Otherwise add the `in progress` label and comment "Started: <your session
   link>, branch <branch>, <time>". Remove the label when you stop (merged, handed over, or waiting on Sean).
+- **Post to the session log** (#951, a new one each week; Sean, 2026-11-14): one line when you start (`#N started:
+  <link>, branch <b>`), one when you're done (`#N done: PR #P, build B; next: #M` or `next: none`), one if you stop
+  or wait (`#N waiting on Sean: #Q` / `#N stopped: <why>`). Post only; never read it back.
+- **Only slice work gets a follow-up** (Sean, 2026-11-14): the slice list is #953. Open a next-step issue only for
+  `slice` or `stretch` work (stretch has a fixed session budget there); anything else you find gets an `after slice`
+  issue nobody runs now, or a line in your README.
+- **Size limits:** keep CLAUDE.md under 30 KB and each lane file under 10 KB: before merging, trim your own stale
+  lines (finished work, old traps) if you're over. `tests/test_docs_size.gd` fails the build at 32 KB and 12 KB.
 - **One task per session.** Start a fresh session (or `/clear`) for each piece of work; hand off
   through the status file and your lane's file, not through a long-running session.
 - **Stop at the end of your step** (Sean, 2026-10-22: long sessions burn the usage). A step ends
@@ -327,9 +332,10 @@ python3 tools/bridge.py stop
 - **src/fire** — FireSystem, FireFX (sheets, tongues), smoke, settle, buckets.
 - **src/bodies** — Anatomy, HumanBody, ragdoll, wounds, skin shaders, BodyMesh.
 - **src/people** — Senses, brains, deeds, opinions, the gang, town life, the bucket line.
-- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins.
+- **src/creatures (the horse)** — `Horse`, built by `tools/blender/horse.py`: tack, idle, collision, tied reins; "Ride there" (`RideThere`).
 - **src/train (the train)** — the 1D train, the track from a curve, cars on trucks (the train lab).
 - **src/missions (the farmhouse)** — the farmhouse out east (its spec, its places), the hills.
+- **src/save (the save)** — `SaveGame`: what a save holds, the file, each system's `to_dict`/`from_dict`.
 - **src/moments** — showcase moments from data (the card cheat), the bridge's `moment`; clips of
   motion (`MotionClip`, `play_clip`) are under src/bodies.
 - **src/audio** — SynthSounds, GameAudio (sound placed: delay, air, rooms, walls, slaps).
@@ -357,11 +363,11 @@ keeping it under ~10 KB: where things stand, what's open, the traps. No history 
 `docs/status/` and the PR. The roadmap (`docs/ROADMAP.md`) decides what each lane does next.
 
 - `docs/lanes/art.md`: the real look, the material library and judges, buildings in mission order (the jail done, #811; next its stone as rubble, #860, then the general store).
-- `docs/lanes/gameplay.md`: the slice's missions (next No Law step 4, #796), the valley, weapons, the soak.
+- `docs/lanes/gameplay.md`: the slice's missions (No Justice built to its four endings, #966), the townsfolk, the valley, weapons.
 - `docs/lanes/characters.md`: the Studio and recipe, Harlan (#692, #693), faces and motion.
 - `docs/lanes/props.md`: the kit and factory (saloon B's S1 and S2 made, not placed; next S3, #892).
 - `docs/lanes/sound.md`: GameAudio, the fiddler (#799), voiced lines (#807).
 
-Latest status entries: `docs/status/2026-11-11_onward.md` (the end of the file). The full Current state as
+Latest status entries: `docs/status/2026-11-16_onward.md` (the end of the file). The full Current state as
 it stood until 2026-11-11: `docs/status/current-state-2026-11-11.md` (only to trace history).
 DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are frozen until Sean names one.

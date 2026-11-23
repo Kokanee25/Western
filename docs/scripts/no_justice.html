@@ -130,20 +130,29 @@ button.on { border-color: var(--accent); color: var(--accent); }
   function workStrip(kind, id, takes) {
     const path = (kind === "cast" ? "cast/" : "lines/") + id;
     const work = el("div", "work");
-    const state = Object.assign({ note: "", pick: "" }, notes[path] || {});
+    const state = Object.assign({ note: "", pick: "", picks: {} }, notes[path] || {});
+    state.picks = Object.assign({}, state.picks);
     const saved = el("div", "saved");
-    const s = saver(path, () => ({ note: state.note, pick: state.pick }), saved);
+    const s = saver(path, () => ({ note: state.note, pick: state.pick, picks: state.picks }), saved);
 
     const tk = el("div", "takes");
     if (takes && takes.length) {
-      shuffled(takes, id).forEach((t, i) => {
-        const row = el("div", "take");
-        const lab = el("label");
-        const r = document.createElement("input"); r.type = "radio"; r.name = "pick-" + id; r.id = "pick-" + id + "-" + t.id; r.checked = state.pick === t.id; r.disabled = !db;
-        r.addEventListener("change", () => { state.pick = t.id; s.now(); });
-        lab.append(r, document.createTextNode(String.fromCharCode(65 + i)));
-        const au = document.createElement("audio"); au.controls = true; au.preload = "none"; au.src = t.url;
-        row.append(lab, au); tk.append(row);
+      // Takes are grouped by wording (t.w; a line with one wording has one group); one pick per wording.
+      const groups = {};
+      takes.forEach((t) => { (groups[t.w == null ? 0 : t.w] = groups[t.w == null ? 0 : t.w] || []).push(t); });
+      const keys = Object.keys(groups).sort((a, b) => a - b);
+      keys.forEach((g) => {
+        if (keys.length > 1) tk.append(el("div", "small", "Wording " + (Number(g) + 1) + (groups[g][0].text ? ": " + esc(groups[g][0].text) : "")));
+        shuffled(groups[g], id + g).forEach((t, i) => {
+          const row = el("div", "take");
+          const lab = el("label");
+          const r = document.createElement("input"); r.type = "radio"; r.name = "pick-" + id + "-" + g; r.id = "pick-" + id + "-" + t.id;
+          r.checked = keys.length > 1 || t.w != null ? state.picks[g] === t.id : state.pick === t.id; r.disabled = !db;
+          r.addEventListener("change", () => { state.picks[g] = t.id; if (keys.length === 1) state.pick = t.id; s.now(); });
+          lab.append(r, document.createTextNode(String.fromCharCode(65 + i)));
+          const au = document.createElement("audio"); au.controls = true; au.preload = "none"; au.src = t.url;
+          row.append(lab, au); tk.append(row);
+        });
       });
     } else {
       tk.append(el("div", "slot", kind === "cast" ? "Voice: candidates go here once casting starts." : "Takes: 3–4 go here once the script is OK and the cast is picked. Tap one to pick it."));
@@ -259,7 +268,7 @@ button.on { border-color: var(--accent); color: var(--accent); }
     const ok = el("section", "okbar");
     const okSaved = el("div", "saved");
     const btn = el("button"); btn.id = "ok"; btn.type = "button";
-    const isOk = () => !!(pageDoc && pageDoc.ok);
+    const isOk = () => !!(pageDoc && pageDoc.ok && !(script && script.rewritten_at && String(pageDoc.at || "") < script.rewritten_at)); // an OK from before a rewrite no longer counts
     const paint = () => { btn.textContent = isOk() ? "Script OK ✓ (tap to take it back)" : "Script OK"; btn.classList.toggle("done", isOk());
       okSaved.textContent = isOk() && pageDoc.at ? "Marked OK " + new Date(pageDoc.at).toLocaleString() : ""; };
     btn.disabled = !db;
@@ -269,7 +278,7 @@ button.on { border-color: var(--accent); color: var(--accent); }
       try { await db.doc("page/script").set(next); pageDoc = next; paint(); }
       catch (e) { okSaved.textContent = "Not saved: " + (e && e.code ? e.code : "the store refused it") + ". Try again."; }
     });
-    ok.append(el("p", "small", "When every line reads right (notes are fine: the next session works them in), tap it."));
+    ok.append(el("p", "small", (d.rewritten ? "Rewritten " + esc(d.rewritten) + ": an OK from before that no longer counts. " : "") + "When every line reads right (notes are fine: the next session works them in), tap it."));
     ok.append(btn, okSaved);
     sheet.append(ok);
     paint();

@@ -23,6 +23,12 @@ var spur: Node3D
 var loop: Node3D
 var sling: MeshInstance3D
 var hammer_deg := 0.0
+## In your hand: the in-hand albedo (GunParts.held_albedo). Set before it enters the tree.
+var held := false
+const HELD_ALBEDO := {"res://assets/weapons/winchester73_w73_action_albedo.jpg": "res://assets/weapons/winchester73_held_action_albedo.jpg",
+		"res://assets/weapons/winchester73_w73_long_albedo.jpg": "res://assets/weapons/winchester73_held_long_albedo.jpg",
+		"res://assets/weapons/winchester73_w73_action_orm.jpg": "res://assets/weapons/winchester73_held_action_orm.jpg",
+		"res://assets/weapons/winchester73_w73_long_orm.jpg": "res://assets/weapons/winchester73_held_long_orm.jpg"}
 
 var _gun: Node3D
 
@@ -53,6 +59,8 @@ func _build() -> void:
 	spur = _gun.find_child("HammerSpur", true, false) as Node3D
 	loop = _gun.find_child("LeverLoop", true, false) as Node3D
 	_build_sling()
+	if held:
+		GunParts.held_albedo(_gun, HELD_ALBEDO)
 	chamber("empty")
 	carrier_round("empty")
 	tube_round("loaded")

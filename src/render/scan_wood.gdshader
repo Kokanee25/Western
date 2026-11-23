@@ -108,6 +108,16 @@ uniform float edge_round_end = 0.6;
 // The fresh grain's contrast against its own neighbourhood (a high mip): 1 the scan's, less to lose a
 // figure that reads drawn on (Sean, #721: new pine "lose the drawn-on grain").
 uniform float grain_contrast = 1.0;
+// Shingles (#1142, the church's roof and spire): a course of sawn shingles drawn on one board (a roof
+// board, a spire's course): butt joints across it every `shingle_w` metres on average (each shingle
+// 0.65..1.35 of it, as a bundle's random widths, 3 to 10 in), each shingle its own place in the scan,
+// its grain turned down the slope, its own weathering and a hair's lift, a dark gap of `shingle_gap` between; the course's butt (its
+// lower edge as the panel and a roof lay it) a shade darker, its top edge (under the course above)
+// darker still; old shingles split with the grain up from the butt. 0: a plain board. (Shingle widths and exposures from
+// the USDA Wood Handbook ch. 15 and Hodgson's "Practical Carpentry" 1883: 16 in sawn shingles laid
+// 4 1/2 to 5 in to the weather, joints broken by 1 1/2 in course to course.)
+uniform float shingle_w = 0.0;
+uniform float shingle_gap = 0.004;
 // Weathering's shelter (Sean, #721: bare pine in desert sun goes silver-grey in a year or two; the
 // orange survives only where sheltered): under the eaves (the top `eaves_m` of a wall `wall_top` m
 // high) and beside battens and joints (`edge_shelter`), less of it as the years go on.
@@ -188,6 +198,13 @@ uniform float traffic_y = 0.0;
 // patches. Its scans are mapped smaller and straighter by the entry (its `metres`).
 uniform float furniture = 0.0;
 uniform vec3 furniture_dust : source_color = vec3(0.6, 0.56, 0.5);
+// Use and knocks (#901; wood_use.gdshaderinc): `use_wear` how hard the place is used (a saloon's 1, a
+// doctor's a half; a building's spec `materials.wear.use`), `dings` how knocked about its wood is (dents,
+// gouges, crushed arrises). Both grow with age; 0 draws none of it.
+uniform float use_wear : hint_range(0.0, 1.0) = 0.0;
+uniform float dings : hint_range(0.0, 1.0) = 0.0;
+
+#include "res://src/render/wood_use.gdshaderinc"
 
 // Flat: the seed is one number a board, and the fragment shader hashes it into the board's place in
 // each scan. Interpolated, its last bits differed from pixel to pixel (a perspective-interpolated
@@ -336,6 +353,36 @@ void fragment() {
 	}
 	float face = v_face;
 	vec2 m = v_m;
+	float shingle_joint = 0.0;
+	float shingle_lift = 0.0;
+	vec2 shingle_uv = vec2(0.0);  // across the shingle (m from its left edge), its width
+	if (shingle_w > 0.0 && face < 0.5) {
+		float k = floor(m.x / shingle_w);
+		float bk = (k + rnd(seed + k * 0.0137, 81.0) * 0.33) * shingle_w;
+		float i = k;
+		float lo = bk;
+		float hi = (k + 1.0 + rnd(seed + (k + 1.0) * 0.0137, 81.0) * 0.33) * shingle_w;
+		if (m.x < bk) {
+			i = k - 1.0;
+			hi = bk;
+			lo = (k - 1.0 + rnd(seed + (k - 1.0) * 0.0137, 81.0) * 0.33) * shingle_w;
+		} else if (m.x >= hi) {
+			i = k + 1.0;
+			lo = hi;
+			hi = (k + 2.0 + rnd(seed + (k + 2.0) * 0.0137, 81.0) * 0.33) * shingle_w;
+		}
+		// Each keyway its own width (a shingle laid tight or open a finger's width as it dried).
+		float gl = shingle_gap * (0.4 + 0.9 * (rnd(seed + i * 0.0137, 85.0) * 0.5 + 0.5));
+		float gh = shingle_gap * (0.4 + 0.9 * (rnd(seed + (i + 1.0) * 0.0137, 85.0) * 0.5 + 0.5));
+		shingle_joint = max(1.0 - smoothstep(gl * 0.5, gl * 0.5 + 0.0025, m.x - lo), 1.0 - smoothstep(gh * 0.5, gh * 0.5 + 0.0025, hi - m.x));
+		shingle_uv = vec2(m.x - lo, hi - lo);
+		seed = fract(seed * 7.13 + i * 0.6180339 + 0.31);
+		// A shingle's grain runs down the roof, across the course (rived and sawn along the log).
+		m = vec2(m.y + i * 0.83, m.x);
+		// Each weathered its own way: a split one new, some greyer.
+		ag = age > 0.6 && rnd(seed, 84.0) > 0.9 ? age * 0.45 : clamp(age + rnd(seed, 82.0) * 0.18, 0.0, 1.0);
+		shingle_lift = rnd(seed, 83.0);
+	}
 	// End grain: the scan squeezed along the grain to the ends' tight rings, darker and dry.
 	bool end_grain = face > 0.5 && face < 1.5;
 	if (end_grain) {
@@ -491,7 +538,7 @@ void fragment() {
 				rb2 = texture(rough_b, uvb2, detail_bias).r;
 			}
 			// Long grain lines and checks (drying cracks) along the board, faded before they alias.
-			if (face < 0.5 && weathered_grain > 0.0) {
+			if (face < 0.5 && weathered_grain > 0.0 && shingle_w <= 0.0) {
 				float fade = 1.0 - smoothstep(0.3, 1.0, fwidth(v_m.y) / 0.003);
 				float gl = texture(big_noise, vec2(v_m.x / 0.9 + seed * 7.0, v_m.y / 0.006)).r;
 				colb *= mix(1.0, 0.82 + 0.36 * gl, weathered_grain * fade);
@@ -635,7 +682,7 @@ void fragment() {
 	}
 
 	float old_k = smoothstep(0.6, 1.0, ag);
-	if (checks > 0.0 && old_k > 0.0 && face < 0.5 && bisect >= 9) {
+	if (checks > 0.0 && old_k > 0.0 && face < 0.5 && bisect >= 9 && shingle_w <= 0.0) {
 		float fw = fwidth(v_m.y);
 		for (int i = 0; i < 5; i++) {
 			float fi = float(i);
@@ -750,6 +797,204 @@ void fragment() {
 		rough = max(rough, 0.85);
 	}
 
+	// Use and knocks (#901; wood_use.gdshaderinc's note). `urub` the finish rubbed through (into the
+	// varnish's wear, below), `ugloss` polished by hands and seats, `ugrime` hands' and boots' dirt,
+	// `upale` bare wood worn pale, `ucut` a cut's or dent's dark; `use_tilt` their relief (tangent space)
+	// and `knock_r` the eased edge's radius grown where the arris is knocked.
+	float urub = 0.0;
+	float ugloss = 0.0;
+	float ugrime = 0.0;
+	float upale = 0.0;
+	float ucut = 0.0;
+	float uburn = 0.0;
+	vec2 use_tilt = vec2(0.0);
+	float knock_r = 1.0;
+	if ((use_wear > 0.0 || dings > 0.0) && face < 0.5 && bisect >= 9) {
+		float yrs = 0.25 + 0.75 * smoothstep(0.0, 1.0, ag);
+		float up = smoothstep(0.6, 0.9, v_wnormal.y);
+		float px = max(max(fwidth(v_m.x), fwidth(v_m.y)), 1e-5);  // metres a pixel
+		float has_ground = step(-500.0, v_ground);
+		float role = floor(v_role + 0.5);
+		vec2 c_mid = vec2(v_length * 0.5, 0.0);
+		// The arrises, worn uneven along their length (over tens of centimetres) and knocked here and
+		// there: one knock a 25 cm of arris at most, on one of the board's four long arrises.
+		float along_n = texture(big_noise, vec2(v_m.x / 0.35 + seed * 7.0, seed * 5.0 + 0.4)).r;
+		knock_r = max(0.4, 1.0 + 1.4 * use_wear * (along_n - 0.5) * yrs);
+		float dy_arris = v_width * 0.5 - abs(v_m.y);
+		if (dings > 0.0 && dy_arris < 0.02 && px < 0.008) {
+			float kc = floor(v_m.x / 0.25);
+			float key = sign(v_m.y) + 3.0 * v_side;
+			// (A thin rail or a drawer's divider less: on it a knock reads as a dash drawn along it.)
+			float kp = dings * yrs * (0.2 + 0.5 * use_wear) * smoothstep(0.03, 0.09, v_width);
+			if (wu_hash2(seed, vec2(kc, key), 1.0) < kp) {
+				float x0 = (kc + 0.25 + 0.5 * wu_hash2(seed, vec2(kc, key), 2.0)) * 0.25;
+				float hl = 0.008 + 0.025 * wu_hash2(seed, vec2(kc, key), 3.0);
+				float kd = 0.004 + 0.008 * wu_hash2(seed, vec2(kc, key), 4.0);
+				float ax = abs(v_m.x - x0) / hl;
+				// A notch: deepest in its middle, ragged along it.
+				float prof = (1.0 - smoothstep(0.5, 1.0, ax)) * (0.7 + 0.3 * texture(big_noise, vec2(v_m.x / 0.006, seed)).r);
+				float inside = prof * (1.0 - smoothstep(kd * 0.6, kd, dy_arris));
+				knock_r = max(knock_r, 1.0 + 3.0 * prof);
+				// Bruised fibre: dirty when old, a torn pale when fresh.
+				bool fresh = wu_hash2(seed, vec2(kc, key), 5.0) > 0.85;
+				ucut = max(ucut, fresh ? 0.0 : inside * 0.7);
+				upale = max(upale, fresh ? inside * 0.4 : 0.0);
+				urub = max(urub, inside);
+			}
+		}
+		// Dents and gouges: one cell in a 14 cm grid, a mark in some of them; floors and tops most.
+		if (dings > 0.0 && px < 0.006) {
+			// (Across a narrow board one row of cells its own width, so a mark is never placed off it.)
+			vec2 cell = vec2(0.14, min(v_width, 0.14));
+			vec2 m0 = v_m + vec2(0.0, v_width * 0.5);
+			vec2 cc = floor(m0 / cell);
+			float hp = wu_hash2(seed, cc, 11.0);
+			float dens = dings * yrs * mix(0.1, 0.42, up) * (0.5 + use_wear) * (role > 5.5 && role < 6.5 ? 2.5 : 1.0);
+			// Where the use is: a floor's dents and spur cuts on its ways (the traffic map's feet), few by the
+			// walls; a thin rail or divider hardly any (one row of cells along it reads as a dashed line).
+			if (traffic > 0.0 && up > 0.5) {
+				dens *= 0.15 + 2.2 * clamp(tr / max(traffic, 0.01), 0.0, 1.0);
+			}
+			dens *= smoothstep(0.03, 0.09, v_width);
+			if (hp < dens) {
+				vec2 ctr = (cc + 0.5 + 0.42 * (vec2(wu_hash2(seed, cc, 12.0), wu_hash2(seed, cc, 13.0)) - 0.5)) * cell;
+				float kind = wu_hash2(seed, cc, 14.0);
+				vec2 dv = m0 - ctr;
+				if (kind < 0.5) {
+					// A dent: a shallow bowl, its sides tilted to its middle, dirt packed in it.
+					float r = 0.004 + 0.007 * wu_hash2(seed, cc, 15.0);
+					float dn = length(dv) / r;
+					float vis = smoothstep(1.0, 2.5, r / px);
+					if (dn < 1.0) {
+						float rim = 1.0 - smoothstep(0.75, 1.0, dn);
+						vec2 t = -dv / r * 0.65 * rim * vis;
+						use_tilt += vec2(t.x, t.y * v_side);
+						ucut = max(ucut, (1.0 - dn * dn) * 0.6 * vis);
+					}
+				} else {
+					// A cut or a gouge: a V groove a few centimetres long, any way across the grain.
+					float an = wu_hash2(seed, cc, 16.0) * 3.14159;
+					vec2 dir = vec2(cos(an), sin(an));
+					float hl = 0.015 + 0.035 * wu_hash2(seed, cc, 17.0);
+					float hw = 0.0008 + 0.0016 * wu_hash2(seed, cc, 18.0);
+					float sa = dot(dv, dir);
+					float s = dot(dv, vec2(-dir.y, dir.x));
+					float taper = 1.0 - smoothstep(0.6, 1.0, abs(sa) / hl);
+					float w = hw * taper;
+					float vis = smoothstep(0.4, 1.5, hw / px) * step(abs(sa), hl);
+					// Under a pixel wide it's drawn as a faint line a pixel wide, never sparkling.
+					float wd = max(w, px * 0.75);
+					float g = (1.0 - smoothstep(wd * 0.6, wd, abs(s))) * taper * mix(0.35, 1.0, vis);
+					if (g > 0.0) {
+						vec2 nd = vec2(-dir.y, dir.x) * -sign(s) * 0.55 * vis;
+						use_tilt += vec2(nd.x, nd.y * v_side) * g;
+						bool fresh = wu_hash2(seed, cc, 19.0) > 0.65;
+						ucut = max(ucut, fresh ? 0.0 : g * 0.95);
+						upale = max(upale, fresh ? g * 0.45 : 0.0);
+						urub = max(urub, g);
+					}
+				}
+			}
+		}
+		if (use_wear > 0.0) {
+			float uw = use_wear * yrs;
+			if (role > 2.5 && role < 3.5) {
+				// A door's leaf (its latch at +Y): hands' grease round the push at 0.9-1.4 m by the latch
+				// edge, boots at its foot.
+				float hy = (v_width * 0.5 - v_m.y);
+				float hz = has_ground > 0.5 ? (v_world.y - v_ground) : v_m.x;
+				vec2 dp = vec2((hz - 1.1) / 0.32, (hy - 0.1) / 0.14);
+				float push = (1.0 - smoothstep(0.3, 1.0, length(dp))) * (0.75 + 0.5 * n2);
+				ugrime = max(ugrime, push * 0.8 * uw);
+				ugloss = max(ugloss, push * 0.6 * uw);
+				urub = max(urub, push * 0.7 * uw);
+				float foot = (1.0 - smoothstep(0.05, 0.32, hz)) * smoothstep(0.35, 0.65, texture(big_noise, v_m / vec2(0.12, 0.05) + seed * 3.0).r);
+				ugrime = max(ugrime, foot * 0.7 * uw);
+			} else if (role > 3.5 && role < 4.5 && up > 0.5) {
+				// A tread dished where every foot lands: the middle of its width, a little to its front.
+				vec2 e2 = (v_m - c_mid) / vec2(v_length * 0.34, v_width * 0.45);
+				float e = length(e2);
+				float dish = (1.0 - smoothstep(0.15, 1.0, e)) * uw;
+				upale = max(upale, dish * 0.8);
+				urub = max(urub, dish);
+				vec2 t = -e2 / max(e, 1e-3) * 0.22 * dish * smoothstep(0.1, 0.6, e);
+				use_tilt += vec2(t.x, t.y * v_side);
+				knock_r *= 1.0 + 1.5 * uw;
+			} else if (role > 4.5 && role < 5.5 && up > 0.5) {
+				// One of a walk's middle boards (the builder's): worn along it, ragged, less toward its ends.
+				float mid = smoothstep(0.0, 0.8, min(v_m.x, v_length - v_m.x)) * clamp(0.7 + 0.9 * (n2 - 0.5), 0.0, 1.0);
+				upale = max(upale, mid * 0.7 * uw);
+				urub = max(urub, mid * uw);
+				ugrime = max(ugrime, (1.0 - mid) * smoothstep(0.75, 1.0, abs(v_across)) * 0.4 * uw);
+			} else if (role > 5.5 && role < 6.5 && up < 0.5) {
+				// A kick board: boots' black heel marks, long smears along it.
+				vec2 sc = floor(v_m / vec2(0.09, 0.05));
+				float sh = wu_hash2(seed, sc, 31.0);
+				if (sh < 0.55 * uw) {
+					vec2 o = (v_m - (sc + 0.5) * vec2(0.09, 0.05)) / vec2(0.035 + 0.02 * wu_hash2(seed, sc, 32.0), 0.008 + 0.008 * sh);
+					float smear = (1.0 - smoothstep(0.4, 1.0, length(o))) * (0.6 + 0.4 * wu_hash2(seed, sc, 33.0));
+					ugrime = max(ugrime, smear);
+				}
+				ugrime = max(ugrime, 0.35 * uw * smoothstep(0.3, 0.7, n2));
+			} else if (role > 6.5 && role < 7.5) {
+				// A bar's top: its front's bullnose (the shaped top's curve) rubbed and dark with forearms,
+				// cigarettes left burning on that edge, a pair of initials cut in the top now and then.
+				float nose = smoothstep(0.2, 0.45, v_wnormal.y) * (1.0 - smoothstep(0.85, 0.97, v_wnormal.y));
+				ugrime = max(ugrime, nose * 0.55 * uw * (0.7 + 0.6 * n2));
+				ugloss = max(ugloss, nose * 0.8 * uw);
+				urub = max(urub, nose * 0.8 * uw);
+				float bc = floor(v_m.x / 0.4);
+				float bh = wu_hash2(seed, vec2(bc, 0.0), 41.0);
+				if (bh < 0.6 * uw && v_wnormal.y > 0.3) {
+					vec2 bctr = vec2((bc + 0.2 + 0.6 * wu_hash2(seed, vec2(bc, 0.0), 42.0)) * 0.4, 0.0);
+					// A burn: a short dark oval across the edge where the cigarette lay (the nose's curve).
+					float bl = 0.018 + 0.012 * bh;
+					float bo = abs(v_m.x - bctr.x) / bl;
+					float bn = nose * (1.0 - smoothstep(0.5, 1.0, bo));
+					uburn = max(uburn, bn * (0.6 + 0.4 * wu_hash2(seed, vec2(bc, 0.0), 43.0)));
+				}
+				// Initials: one pair a 1.5 m of top at most, on the top, cut and gone dark.
+				float ic = floor(v_m.x / 1.5);
+				if (v_wnormal.y > 0.95 && wu_hash2(seed, vec2(ic, 7.0), 51.0) < 0.5 * uw && px < 0.003) {
+					float lh = 0.028;
+					vec2 org = vec2((ic + 0.3 + 0.4 * wu_hash2(seed, vec2(ic, 7.0), 52.0)) * 1.5, 0.0);
+					vec2 lp = (v_m - org) / (lh / 1.4);
+					// Read from the customers' side: the letters' up is the top's -Y or +Y by the seed.
+					lp.y = wu_hash2(seed, vec2(ic, 7.0), 53.0) > 0.5 ? lp.y : -lp.y;
+					lp += vec2(1.2, 0.7);
+					if (lp.x > -0.3 && lp.x < 2.6 && lp.y > -0.3 && lp.y < 1.7) {
+						float k2 = step(1.2, lp.x);
+						int mask = wu_letter(wu_hash2(seed, vec2(ic, 8.0 + k2), 54.0));
+						float d = wu_letter_dist(lp - vec2(k2 * 1.4, 0.0), mask) * (lh / 1.4);
+						float wd = max(0.0008, px * 0.75);
+						float g = 1.0 - smoothstep(wd * 0.6, wd, d);
+						ucut = max(ucut, g * 0.85);
+						urub = max(urub, g);
+					}
+				}
+			} else if (role > 7.5 && role < 8.5 && up > 0.5) {
+				// A chair's seat: polished where you sit (its middle, toward the back), the front edge
+				// rubbed by legs.
+				vec2 so = (v_m - vec2(v_length * 0.5, -v_width * 0.06)) / vec2(v_length * 0.36, v_width * 0.34);
+				float sit = (1.0 - smoothstep(0.3, 1.0, length(so))) * uw;
+				ugloss = max(ugloss, sit * 0.8);
+				urub = max(urub, sit * 0.55);
+				float front = smoothstep(v_width * 0.5 - 0.03, v_width * 0.5, v_m.y) * uw;
+				urub = max(urub, front * 0.8);
+				ugrime = max(ugrime, front * 0.3);
+			} else if (role > 8.5) {
+				// A grip: polished all over (a chair's crest), or at the hand's height on a building's
+				// member (a door's jamb), and grimy there.
+				float band = has_ground > 0.5
+						? smoothstep(0.75, 0.95, v_world.y - v_ground) * (1.0 - smoothstep(1.35, 1.6, v_world.y - v_ground))
+						: 1.0;
+				ugloss = max(ugloss, band * 0.7 * uw);
+				ugrime = max(ugrime, band * (0.35 + 0.3 * n2) * uw * has_ground);
+				urub = max(urub, band * 0.5 * uw);
+			}
+		}
+	}
+
 	// Varnish: amber deepening with age, worn dull and then through where hands rub (the hand band,
 	// its edges most); old varnish darkened and crazed. A board's edge faces sit inside a tight joint:
 	// dark, no coat (they caught the sky as pale dashes, the judge 2026-11-08).
@@ -761,7 +1006,7 @@ void fragment() {
 		float edge = face < 0.5 ? smoothstep(0.8, 1.0, abs(v_across)) : 0.0;
 		wear = ag * band * (0.6 * (0.6 + 0.4 * n2) + 0.5 * edge);
 		// The bar's rail top: elbows every stool's width, and glass rings.
-		if (v_role > 0.5 && v_role < 1.5 && face < 0.5 && v_wnormal.y > 0.7) {
+		if (((v_role > 0.5 && v_role < 1.5) || (v_role > 6.5 && v_role < 7.5)) && face < 0.5 && v_wnormal.y > 0.7) {
 			float ek = fract(v_m.x / 0.75 + hash11(seed * 91.0));
 			float elbow = (1.0 - smoothstep(0.0, 0.3, abs(ek - 0.5))) * (0.7 + 0.3 * n2);
 			wear += elbow * (0.15 + 0.85 * ag);
@@ -773,7 +1018,7 @@ void fragment() {
 			float here = step(-0.2, rnd(seed, 84.0 + kr));
 			rings = here * arc * (1.0 - smoothstep(0.0012, 0.003, abs(length(dr) - rr))) * (0.25 + 0.75 * ag);
 		}
-		wear = max(wear, max(fwear, tr));
+		wear = max(wear, max(max(fwear, tr), urub));
 		wear = clamp(wear, 0.0, 1.0);
 		col *= mix(vec3(1.0), varnish_amber, varnish * (0.35 + 0.65 * ag) * (1.0 - wear * 0.6));
 		// Old varnish darkens, and crazes into fine cracks.
@@ -790,6 +1035,22 @@ void fragment() {
 		if (edge_face) {
 			col *= mix(0.55, 0.8, furniture);
 		}
+	}
+
+	// Use and knocks, drawn (the pass above): bare wood worn pale, polish warmer and lighter, grime and
+	// cuts dark, burns charred black-brown at their middle with a scorched halo.
+	if (upale + ugloss + ugrime + ucut + uburn > 0.0) {
+		float lw = dot(col, vec3(0.3, 0.59, 0.11));
+		col = mix(col, mix(col, vec3(lw), 0.35) * 1.35 + vec3(0.02, 0.017, 0.012), clamp(upale, 0.0, 1.0) * 0.75);
+		col = mix(col, col * vec3(1.12, 1.06, 0.98), ugloss);
+		col = mix(col, col * vec3(0.5, 0.45, 0.39), clamp(ugrime, 0.0, 1.0) * 0.75);
+		col = mix(col, col * vec3(0.42, 0.37, 0.32), clamp(ucut, 0.0, 1.0));
+		float char_ = smoothstep(0.45, 0.9, uburn);
+		col = mix(col, col * vec3(0.55, 0.42, 0.3), smoothstep(0.0, 0.5, uburn) * 0.7);
+		col = mix(col, vec3(0.035, 0.028, 0.022), char_ * 0.9);
+		rough = mix(rough, 0.32, ugloss * 0.8);
+		rough = mix(rough, 0.9, max(ucut, char_) * 0.7);
+		wear = max(wear, char_);
 	}
 
 	// Nails: heads not quite in a line (the studs' 16 in), rusting and streaking with ag.
@@ -839,13 +1100,40 @@ void fragment() {
 		dull = furniture * smoothstep(0.4, 0.75, texture(big_noise, q / 0.3 + 0.61).r) * smoothstep(0.3, 1.0, ag);
 		by_joint = 0.0;
 	}
+	if (shingle_w > 0.0 && face < 0.5) {
+		// The gap between shingles, the course's shadowed butt and its covered top, each shingle a
+		// hair lighter or darker by how it lies.
+		float across = v_across * v_side;
+		col *= 1.0 + 0.13 * shingle_lift;
+		col *= mix(vec3(1.0), vec3(1.07, 1.0, 0.9), rnd(seed, 86.0) * 0.5 + 0.5);
+		// (+across is the butt, the course's lower edge; -across runs up under the course above)
+		col *= mix(1.0, 0.72, smoothstep(-0.55, -1.0, across));
+		col *= mix(1.0, 0.9, smoothstep(0.7, 1.0, across));
+		// Splits with the grain, up from the butt, open and tapering, on old shingles.
+		float split = 0.0;
+		for (int j = 0; j < 2; j++) {
+			float fj = float(j);
+			if (rnd(seed, 87.0 + fj) * 0.5 + 0.5 > 0.25 * old_k) {
+				continue;
+			}
+			float sx = (0.2 + 0.6 * (rnd(seed, 89.0 + fj) * 0.5 + 0.5)) * shingle_uv.y;
+			float reach = 0.6 + 0.9 * (rnd(seed, 91.0 + fj) * 0.5 + 0.5);  // of the course's height (-1..1)
+			float t = clamp((1.0 - across) / reach, 0.0, 1.0);
+			float wob = (texture(big_noise, vec2(across * 0.7 + seed * 9.0, fj + seed)).r - 0.5) * 0.006;
+			float wd = 0.0018 * (1.0 - t) + 0.0003;
+			split = max(split, (1.0 - smoothstep(wd, wd + 0.0012, abs(shingle_uv.x - sx - wob))) * step(t, 0.999));
+		}
+		col = mix(col, col * 0.25, split);
+		col = mix(col, col * 0.32, shingle_joint);
+		rough = mix(rough, 1.0, shingle_joint);
+	}
 	ALBEDO = clamp(col, 0.0, 1.0);
 	ROUGHNESS = clamp(rough + (roughness_add + 0.18 * ag * (1.0 - varnish)) * (1.0 - pcov) - nail * 0.2, 0.05, 1.0);
 	SPECULAR = mix(edge_face && (varnish > 0.0 || traffic > 0.0) && furniture < 0.5 ? 0.15 : mix(specular_wood, 0.5, varnish) * (1.0 - 0.6 * by_joint * varnish), 0.5, pcov);
 	vec3 n = normalize(vec3(nrm.xy * normal_strength * (1.0 + 0.2 * ag * (1.0 - varnish)), max(nrm.z, 0.2)));
 	// The eased edges (`edge_round`), the scan's detail laid over the round by reoriented normal
 	// mapping (Barre-Brisebois and Hill, "Blending in Detail", 2012), so the grain follows the curve.
-	float rr = mix(edge_round.x, edge_round.y, smoothstep(0.0, 1.0, ag)) * (1.0 + 0.25 * rnd(seed, 80.0) * variety);
+	float rr = mix(edge_round.x, edge_round.y, smoothstep(0.0, 1.0, ag)) * (1.0 + 0.25 * rnd(seed, 80.0) * variety) * knock_r;
 	vec2 tilt = vec2(0.0);
 	if (rr > 0.0 && bisect >= 3 && v_shaped < 0.5) {
 		float rmax = 0.45 * min(v_width, v_thick);
@@ -868,6 +1156,9 @@ void fragment() {
 			tilt = eased_tilt(vec2(v_width * 0.5 - abs(v_m.x), v_thick * 0.5 - abs(v_m.y)), vec2(sign(v_m.x), sign(v_m.y) * v_side), vec2(re));
 		}
 	}
+	tilt += use_tilt;
+	float tl = length(tilt);
+	tilt = tl > 0.85 ? tilt * (0.85 / tl) : tilt;
 	if (dot(tilt, tilt) > 0.0) {
 		vec3 tb = vec3(tilt, sqrt(max(1.0 - dot(tilt, tilt), 0.0))) + vec3(0.0, 0.0, 1.0);
 		vec3 du = n * vec3(-1.0, -1.0, 1.0);

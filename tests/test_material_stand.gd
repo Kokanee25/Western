@@ -265,7 +265,7 @@ func test_the_interior_woods_are_in_the_game() -> void:
 
 func test_the_bar_is_a_kit_prop_drawn_as_woodwork() -> void:
 	# The saloon's bar (assets/props/kit/bar.json): members (so it breaks and burns), drawn with the
-	# woodwork shapes (profile, panel, cut), its top in the polished interior bar top.
+	# woodwork shapes (profile, panel, cut), its top in the library's oak as a bar's top (#901).
 	check(PropKit.has(&"bar"), "the bar's kit file")
 	var def := PropKit.definition(&"bar")
 	var members := PropKit.expand(def)
@@ -277,8 +277,9 @@ func test_the_bar_is_a_kit_prop_drawn_as_woodwork() -> void:
 	for s in ["profile", "panel", "cut"]:
 		check(shapes.has(s), "drawn with %s" % s)
 	var top: Dictionary = members.filter(func(x): return x.id == "top")[0]
-	check(String(top.look) == "wood:int_bar_top", "its top the polished bar top")
-	check(WoodMaterials.strip_count(&"int_bar_top") >= 3, "the bar top's wood in the game")
+	# (Since #901 the library's varnished oak, as a bar's top: its rubbed front, rings, burns, initials.)
+	check(String(top.look) == "lib:furniture_oak/few/bar", "its top the library's oak as a bar's top")
+	check(PropKit.lib_parts(String(top.look))[2] == 7.0, "its top drawn with the bar's wear (role 7)")
 	var m := StructureMember.new()
 	m.member_id = &"top"
 	m.size = PropKit.vec(top.size)

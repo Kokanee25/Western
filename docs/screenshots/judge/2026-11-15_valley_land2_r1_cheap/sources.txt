@@ -1,0 +1,12 @@
+a before_street_noon build/vg/r1/before_street_noon.png
+b after_street_noon build/vg/r1/after_street_noon.png
+c before_street_golden build/vg/r1/before_street_golden.png
+d after_street_golden build/vg/r1/after_street_golden.png
+e before_sheriff_road build/vg/r1/before_sheriff_road.png
+f after_sheriff_road build/vg/r1/after_sheriff_road.png
+g before_camp_approach build/vg/r1/before_camp_approach.png
+h after_camp_approach build/vg/r1/after_camp_approach.png
+i before_cabin build/vg/r1/before_cabin.png
+j after_cabin build/vg/r1/after_cabin.png
+k before_town_height build/vg/r1/before_town_height.png
+l after_town_height build/vg/r1/after_town_height.png

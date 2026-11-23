@@ -1,0 +1,18 @@
+{"command": "@start --size=960x540 --fps=60 --game-args=--real", "reply": "game up (pid 3854, port 8737)"}
+{"command": "time 16.2", "reply": "{\"clock\": \"16:12\", \"cmd\": \"time 16.2\", \"ok\": true, \"t\": 0.08}"}
+{"command": "clock off", "reply": "{\"clock\": \"16:12\", \"cmd\": \"clock off\", \"ok\": true, \"scale\": 0.0, \"t\": 0.1}"}
+{"command": "goto -3 0 0 180", "reply": "{\"at\": [-3.1, 0.38, 0.39], \"cmd\": \"goto -3 0 0 180\", \"facing\": 180.0, \"ok\": true, \"t\": 0.17}"}
+{"command": "cc_set -3 0 -9", "reply": "{\"at\": [-3.0, 0.0, -9.0], \"cmd\": \"cc_set -3 0 -9\", \"glove_area_m2\": 0.1572, \"glove_points\": 372, \"glove_triangles\": 700, \"ok\": true, \"sheet_points\": 256, \"t\": 0.6}"}
+{"command": "cc_cam front", "reply": "{\"at\": [-1.8, 1.25, -6.4], \"camera\": \"free\", \"cmd\": \"cc_cam front\", \"looking\": [0.0, -0.33, -0.94], \"ok\": true, \"t\": 0.63}"}
+{"command": "cc_film build/cc/front 7", "reply": "{\"cmd\": \"cc_film build/cc/front 7\", \"dir\": \"build/cc/front\", \"frames\": 420, \"jolt_glove_resting\": true, \"lowest_above_floor_m\": 0.002, \"max_strain\": 1.1395, \"ms_tick_glove\": 0.681, \"ms_tick_hung\": 0.27, \"ms_tick_sheet\": 0.242, \"ok\": true, \"resting\": [true, true], \"t\": 7.65}"}
+{"command": "cc_set -3 0 -9", "reply": "{\"at\": [-3.0, 0.0, -9.0], \"cmd\": \"cc_set -3 0 -9\", \"glove_area_m2\": 0.1572, \"glove_points\": 372, \"glove_triangles\": 700, \"ok\": true, \"sheet_points\": 256, \"t\": 8.12}"}
+{"command": "cc_cam low", "reply": "{\"at\": [-1.8, 0.45, -7.4], \"camera\": \"free\", \"cmd\": \"cc_cam low\", \"looking\": [0.0, -0.18, -0.98], \"ok\": true, \"t\": 8.15}"}
+{"command": "cc_film build/cc/low 7", "reply": "{\"cmd\": \"cc_film build/cc/low 7\", \"dir\": \"build/cc/low\", \"frames\": 420, \"jolt_glove_resting\": true, \"lowest_above_floor_m\": 0.002, \"max_strain\": 1.1395, \"ms_tick_glove\": 0.66, \"ms_tick_hung\": 0.265, \"ms_tick_sheet\": 0.222, \"ok\": true, \"resting\": [true, true], \"t\": 15.17}"}
+{"command": "@stop", "reply": "{\"cmd\": \"quit\", \"ok\": true, \"t\": 15.23}"}
+{"command": "@encode build/cc/front experiments/cloth_core/film/out/front.mp4 60", "reply": "{\"encoded\": \"experiments/cloth_core/film/out/front.mp4\", \"ok\": true, \"error\": \"\"}"}
+{"command": "@encode build/cc/low experiments/cloth_core/film/out/low_half_speed.mp4 30", "reply": "{\"encoded\": \"experiments/cloth_core/film/out/low_half_speed.mp4\", \"ok\": true, \"error\": \"\"}"}
+{"command": "@still build/cc/front 20 experiments/cloth_core/film/out/front_start.jpg", "reply": "{\"still\": \"experiments/cloth_core/film/out/front_start.jpg\", \"ok\": true}"}
+{"command": "@still build/cc/front 75 experiments/cloth_core/film/out/front_landing.jpg", "reply": "{\"still\": \"experiments/cloth_core/film/out/front_landing.jpg\", \"ok\": true}"}
+{"command": "@still build/cc/front 400 experiments/cloth_core/film/out/front_end.jpg", "reply": "{\"still\": \"experiments/cloth_core/film/out/front_end.jpg\", \"ok\": true}"}
+{"command": "@still build/cc/low 400 experiments/cloth_core/film/out/low_end.jpg", "reply": "{\"still\": \"experiments/cloth_core/film/out/low_end.jpg\", \"ok\": true}"}
+{"command": "@godot --headless --fixed-fps 60 -s res://experiments/cloth_core/bench.gd", "reply": "BENCH {\"frames\":240,\"kinds\":{\"jolt_glove\":{\"ms\":0.582,\"per_cloth_ms\":0.058},\"jolt_rag\":{\"ms\":0.613,\"per_cloth_ms\":0.061},\"none\":{\"ms\":0.005,\"per_cloth_ms\":0.0},\"none_again\":{\"ms\":0.006,\"per_cloth_ms\":0.0},\"our_glove\":{\"ms\":3.69,\"own\":0.348,\"per_cloth_ms\":0.368},\"our_sheet\":{\"ms\":0.853,\"own\":0.076,\"per_cloth_ms\":0.085}},\"n\":10,\"native\":true}"}

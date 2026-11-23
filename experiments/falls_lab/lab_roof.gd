@@ -1,6 +1,6 @@
 extends Structure
 ## The falls lab's roofs and floors (issue #759): a bay of the game's own members for a man to land
-## on, sized as the building lab's saloon has them (experiments/building_lab/saloon.json,
+## on, sized as the building lab's saloon has them (config/buildings/saloon.json,
 ## spec_building.gd), so they break as the game's timber does (BodyImpacts' from-above case).
 ## `kind`:
 ## - "roof": roof boards (1x8, 0.195 x 0.025 weathered pine) across rafters (0.05 x 0.15) 0.61 m

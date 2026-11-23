@@ -70,7 +70,7 @@ func test_people_fit_and_its_rooms_are_used() -> void:
 ## The lived-in pass (docs/briefs/lived-in.md): every use and past event in the spec marks members,
 ## every mark is on a member and of a kind the shader knows, and the wear is where its cause is.
 func test_every_mark_has_a_cause_and_lands_where_it_should() -> void:
-	const Marks := preload("res://experiments/building_lab/marks.gd")
+	const Marks := preload("res://src/structures/marks.gd")
 	var b: Structure = lab.building
 	var spec: Dictionary = lab.spec
 	var m: Dictionary = b.marks

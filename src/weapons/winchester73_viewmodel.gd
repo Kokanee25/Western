@@ -18,10 +18,10 @@ enum Pose { HIP, AIM, LOADING }
 ## The low ready (the gun lab's fp view, `win73_views.gd --only=fp`): the wrist low on the right out
 ## front, the muzzle down and in toward the middle of the view. Turned for the gate: the action up
 ## and round so its right side faces you.
-const HIP_ROT := Vector3(-7.0, 14.0, -8.0)
-const HIP_AT := Vector3(0.17, -0.17, -0.33)
+const HIP_ROT := Vector3(-6.0, 7.0, -8.0)
+const HIP_AT := Vector3(0.15, -0.145, -0.36)
 const LOADING_ROT := Vector3(8.0, 62.0, 10.0)
-const LOADING_AT := Vector3(0.02, -0.12, -0.36)
+const LOADING_AT := Vector3(0.04, -0.12, -0.44)
 ## Shouldered: on the line from the rear notch to the blade's top. The cheek on the comb puts a real
 ## eye ~15" (38 cm) behind the notch, the thumb a few inches in front of it; held there in first
 ## person the right wrist and forearm run back past the camera and fill the view (the lab's fp views,
@@ -45,6 +45,8 @@ const R_GRIP := {"middle": 72.0, "ring": 66.0, "little": 60.0}
 const R_INDEX_SPREAD := 28.0
 const R_INDEX_REST := 12.0
 const R_INDEX_PULL := 24.0
+## The index finger's rest, pull and spread (R_INDEX_*, or Harlan's hands' own `win73.r_index`).
+var _r_index := Vector3(R_INDEX_REST, R_INDEX_PULL, R_INDEX_SPREAD)
 ## The thumb over the top of the wrist (the coach gun's), laid low so it stays under the sights.
 const R_THUMB := [Vector3(-24.0, -36.0, 24.0), 55.0, 45.0]
 const HAND_RIDES := 0.8
@@ -68,6 +70,13 @@ const SHOULDER_R_AIM := Vector3(0.14, -0.2, 0.12)
 const SHOULDER_L_AIM := Vector3(-0.14, -0.22, -0.05)
 const ELBOW_POLE_R_AIM := Vector3(1.0, -0.35, 0.1)
 const ELBOW_POLE_L_AIM := Vector3(-0.15, -1.0, 0.1)
+## Harlan's cut-off left forearm aimed (HeldHand.elbow_drop, from the shoulder in the camera's space):
+## out to the lower left under the rifle, so the sleeve leaves the view's corner, not its middle.
+const L_ELBOW_AIM := Vector3(-0.25, -0.3, -0.2)
+var _l_elbow_aim := L_ELBOW_AIM
+## The right forearm aimed: the elbow out to the right, so its sleeve leaves by the view's right edge.
+const R_ELBOW_AIM := Vector3(0.3, -0.15, 0.0)
+var _r_elbow_aim := R_ELBOW_AIM
 
 @export var tuning: Winchester73Tuning
 
@@ -79,9 +88,13 @@ var left_hand: HeldHand
 var shoulder := 0.0
 
 var _hip_pos := Vector3.ZERO
+## The hip pose's turn (HIP_ROT, or Harlan's hands' own `win73.hip`).
+var _hip_rot := HIP_ROT
 var _aim_pos := Vector3.ZERO
 var _aim_rot := Vector3.ZERO
 var _loading_pos := Vector3.ZERO
+## The loading pose's turn (LOADING_ROT, or Harlan's hands' own `win73.loading`).
+var _loading_rot := LOADING_ROT
 var _lever := 0.0
 var _lever_closing := false
 var _lever_held := 0.0
@@ -101,20 +114,30 @@ var _fire_until := 0.0
 const TRIGGER_BUFFER := 0.2
 
 
+## The flash at the muzzle as you see it (#1019).
+var flash: MuzzleFlash
+
+
 func _ready() -> void:
 	add_to_group(&"rifle")
 	if tuning == null:
 		tuning = load("res://config/winchester73.tres")
 	sway_factor = tuning.sway_hip
+	view_fov = RevolverViewmodel.VIEW_FOV
 	state = Winchester73State.new(tuning, hash(get_path()) + 73)
 	_rng.seed = 73
 	model = Winchester73Model.new()
+	model.held = true
 	model.name = "Winchester"
 	add_child(model)
+	flash = MuzzleFlash.new(1.35, 1866)
+	model.muzzle.add_child(flash)
 	_poses()
 	_build_hands()
+	_l_elbow_aim = HeldHand.hold("win73.l_elbow_aim", L_ELBOW_AIM)
+	_r_elbow_aim = HeldHand.hold("win73.r_elbow_aim", R_ELBOW_AIM)
 	_pose_pos = _hip_pos
-	_pose_rot = HIP_ROT
+	_pose_rot = _hip_rot
 	_setup_common()
 	for id in [&"rifle", &"cock", &"dry_fire", &"break_open", &"close", &"insert", &"eject", &"gate"]:
 		_add_sound(id, id == &"rifle")
@@ -148,15 +171,29 @@ func _pose_local(p: Vector3) -> Vector3:
 ## The poses from the model's markers (the lab's first-person holds).
 func _poses() -> void:
 	var d := func(v: Vector3) -> Vector3: return Winchester73Model.design(v.x, v.y, v.z)
-	var bl := Basis.from_euler(HIP_ROT * (PI / 180.0))
-	_hip_pos = HIP_AT - bl * d.call(Vector3(-4.6, -1.8, 0.0))
-	var bi := Basis.from_euler(LOADING_ROT * (PI / 180.0))
-	_loading_pos = LOADING_AT - bi * d.call(Vector3(-1.2, -0.9, 0.0))
+	var hip: Array = HeldHand.hold("win73.hip", [HIP_AT, HIP_ROT])
+	_hip_rot = hip[1]
+	var bl := Basis.from_euler(_hip_rot * (PI / 180.0))
+	_hip_pos = hip[0] - bl * d.call(Vector3(-4.6, -1.8, 0.0))
+	var ld: Array = HeldHand.hold("win73.loading", [LOADING_AT, LOADING_ROT])
+	_loading_rot = ld[1]
+	var bi := Basis.from_euler(_loading_rot * (PI / 180.0))
+	_loading_pos = (ld[0] as Vector3) - bi * d.call(Vector3(-1.2, -0.9, 0.0))
 	var rear := model.marker("SightRear")
 	var front := model.marker("SightFront")
 	var b := Basis.looking_at((front - rear).normalized(), Vector3.UP).inverse()
-	_aim_rot = b.get_euler() * (180.0 / PI)
-	_aim_pos = -(b * rear) + Vector3(0.0, 0.0, -EYE_RELIEF)
+	# Canted a little about the line of sight (the sights stay on it, #1019): the stock comes in
+	# from the lower right instead of running up the screen's middle, the receiver's side shows.
+	var cant := Basis(Vector3.BACK, deg_to_rad(float(HeldHand.hold("win73.aim_cant", 0.0))))
+	var t := Transform3D(cant * b, cant * (-(b * rear) + Vector3(0.0, 0.0, -float(HeldHand.hold("win73.eye_relief", EYE_RELIEF)))))
+	# Turned and dropped about the front sight (#1031, as the Colt's `colt.aim_turn`): the blade stays
+	# centred, the receiver's top and side come into view and the right hand drops below the line.
+	var turn: Vector2 = HeldHand.hold("win73.aim_turn", Vector2.ZERO)
+	var f := t * front
+	var r := Basis.from_euler(Vector3(deg_to_rad(turn.y), deg_to_rad(turn.x), 0.0))
+	t = Transform3D(r, f - r * f) * t
+	_aim_rot = t.basis.get_euler() * (180.0 / PI)
+	_aim_pos = t.origin
 
 
 func _build_hands() -> void:
@@ -169,12 +206,20 @@ func _build_hands() -> void:
 	hand = _held(true, _hand_pivot, d.call(R_HAND_FUL) - _hand_pivot.position, R_WRIST_DIR, R_PALM_DIR, R_FOREARM)
 	for f: String in R_GRIP:
 		hand.grasp(f, R_GRIP[f])
-	hand.grasp("index", R_INDEX_REST, R_INDEX_SPREAD)
-	hand.thumb_pose(R_THUMB[0], R_THUMB[1], R_THUMB[2])
-	left_hand = _held(false, model, d.call(L_HAND_FUL), L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
-	for f: String in L_GRIP:
-		left_hand.grasp(f, L_GRIP[f])
-	left_hand.thumb_pose(L_THUMB[0], L_THUMB[1], L_THUMB[2])
+	_r_index = HeldHand.hold("win73.r_index", Vector3(R_INDEX_REST, R_INDEX_PULL, R_INDEX_SPREAD))
+	hand.grasp("index", _r_index.x, _r_index.z)
+	var r_thumb: Array = HeldHand.hold("win73.r_thumb", R_THUMB)
+	hand.thumb_pose(r_thumb[0], r_thumb[1], r_thumb[2])
+	left_hand = _held(false, model, d.call(HeldHand.hold("win73.l_hand_ful", L_HAND_FUL)), L_WRIST_DIR, L_PALM_DIR, L_FOREARM)
+	var roll: float = HeldHand.hold("win73.l_roll", 0.0)
+	if roll != 0.0:
+		left_hand.basis = left_hand.basis * Basis(Vector3(0.0, 0.0, 1.0), deg_to_rad(roll))
+		left_hand.aim_forearm(L_FOREARM)
+	var l_grip: Dictionary = HeldHand.hold("win73.l_grip", L_GRIP)
+	for f: String in l_grip:
+		left_hand.grasp(f, l_grip[f])
+	var l_thumb: Array = HeldHand.hold("win73.l_thumb", L_THUMB)
+	left_hand.thumb_pose(l_thumb[0], l_thumb[1], l_thumb[2])
 	hand.shoulder = ShotgunViewmodel.SHOULDER_R
 	hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R
 	left_hand.shoulder = ShotgunViewmodel.SHOULDER_L
@@ -372,8 +417,11 @@ func _fire() -> void:
 	bullet.blast = tuning.blast_joules
 	bullet.blast_reach = tuning.blast_reach
 	var world := ballistics.get_parent()
-	GunSmoke.spawn(world, origin, dir, 1.2)
-	ImpactEffects.muzzle_flash(world, origin)
+	GunSmoke.spawn(world, origin, dir, 1.2, true)  # your own shot (#1048)
+	# Your own gun: its light up and out from the muzzle (on it, it burned the barrel white) and no
+	# world puff over the held flash (#1031).
+	ImpactEffects.muzzle_flash(world, origin + dir * 0.15 + Vector3.UP * 0.1, false)
+	flash.fire()
 	if GameAudio.enabled():
 		GameAudio.gunshot(self, origin, false, &"report_rifle", &"rolling_rifle")
 	else:
@@ -408,7 +456,7 @@ func _animate(delta: float) -> void:
 	var loading := _loading()
 	var pose := Pose.LOADING if loading else (Pose.AIM if aiming else Pose.HIP)
 	var target_pos: Vector3 = [_hip_pos, _aim_pos, _loading_pos][pose]
-	var target_rot: Vector3 = [HIP_ROT, _aim_rot, LOADING_ROT][pose]
+	var target_rot: Vector3 = [_hip_rot, _aim_rot, _loading_rot][pose]
 	var k := 1.0 - exp(-delta * 3.0 / maxf(tuning.shoulder_time, 0.05))
 	_pose_pos = _pose_pos.lerp(target_pos, k)
 	_pose_rot = _pose_rot.lerp(target_rot, k)
@@ -420,6 +468,7 @@ func _animate(delta: float) -> void:
 	sway_factor = lerpf(tuning.sway_hip, tuning.sway_aimed, shoulder)
 	shake_factor = lerpf(1.0, tuning.shake_aimed, shoulder)
 	kick.step(delta)
+	flash.step(delta)
 	tuck = lerpf(tuck, _tuck_target, 1.0 - exp(-delta * (16.0 if _tuck_target > tuck else 8.0)))
 	_update_sway(delta)
 	_apply_pose(_draw)
@@ -481,12 +530,14 @@ func _animate_hands(delta: float, loading: bool) -> void:
 	hand.aim_forearm(R_FOREARM)
 	for f: String in R_GRIP:
 		hand.grasp(f, lerpf(R_GRIP[f], 20.0, a))
-	hand.grasp("index", lerpf(lerpf(R_INDEX_REST, R_INDEX_PULL, _trigger), 25.0, a), R_INDEX_SPREAD * (1.0 - a))
+	hand.grasp("index", lerpf(lerpf(_r_index.x, _r_index.y, _trigger), 25.0, a), _r_index.z * (1.0 - a))
 	var s := smoothstep(0.0, 1.0, shoulder)
 	hand.shoulder = ShotgunViewmodel.SHOULDER_R.lerp(SHOULDER_R_AIM, s)
 	hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_R.lerp(ELBOW_POLE_R_AIM, s)
+	hand.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_r_elbow_aim, s)
 	left_hand.shoulder = ShotgunViewmodel.SHOULDER_L.lerp(SHOULDER_L_AIM, s)
 	left_hand.elbow_pole = ShotgunViewmodel.ELBOW_POLE_L.lerp(ELBOW_POLE_L_AIM, s)
+	left_hand.elbow_drop = HeldHand.FP_ELBOW_DROP.lerp(_l_elbow_aim, s)
 
 
 func _apply_pose(drawn_amount: float) -> void:
@@ -496,5 +547,4 @@ func _apply_pose(drawn_amount: float) -> void:
 			+ _body_pos() * drawn_amount
 	var rot := PUT_AWAY_ROT.lerp(_pose_rot.lerp(TUCK_ROT, t), away) + Vector3(kick.pitch, -kick.yaw, -kick.roll) * (1.0 - t) \
 			+ _sway_rotation() * (1.0 - t) * (0.3 if _loading() else 1.0)
-	position = pos
-	rotation_degrees = rot
+	_set_view(pos, rot)

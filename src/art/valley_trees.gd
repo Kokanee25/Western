@@ -12,10 +12,10 @@ static var _cache := {}
 
 
 ## How many shapes of each kind there are (a tree drawn picks one).
-const VARIANTS := 3
+const VARIANTS := 5
 
 
-## {trunk: ArrayMesh, crown: ArrayMesh, height, trunk_r} of `kind` (&"pine", &"cottonwood"), its
+## {trunk: ArrayMesh, crown: ArrayMesh, height, trunk_r} of `kind` (&"pine", &"cottonwood", &"snag"), its
 ## shape `variant` (0 .. VARIANTS - 1), at `near` or far detail.
 ## Baked by tools/textures/scatter_meshes.gd (building them here takes seconds at load); built here
 ## when they aren't.
@@ -39,7 +39,7 @@ static func baked_path(kind: StringName, near: bool, variant: int) -> String:
 
 ## A tree made now (the tool bakes these).
 static func build(kind: StringName, near: bool, variant := 0) -> Dictionary:
-	var t := _pine(near, variant) if kind == &"pine" else _cottonwood(near, variant)
+	var t := _pine(near, variant) if kind == &"pine" else (_snag(near, variant) if kind == &"snag" else _cottonwood(near, variant))
 	(t.trunk as Mesh).set_meta(&"height", t.height)
 	(t.trunk as Mesh).set_meta(&"trunk_r", t.trunk_r)
 	return t
@@ -69,48 +69,111 @@ static func _foliage(a: Color, b: Color, fade_from: float, fade_to: float) -> Sh
 	return m
 
 
-## A ponderosa pine 18 m tall: a straight trunk bare to half way, a ragged rounded-conical crown.
+## A ponderosa pine 18 m tall: a straight trunk bare to half way or more, a ragged open crown of branch
+## sprays bunched at whorls with gaps between, heavier on one side (#962: the first ones read as
+## lollipops). Each variant its own height, width and lean of crown.
 static func _pine(near: bool, variant := 0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1873 + variant * 101
-	var h: float = 18.0 * [1.0, 0.85, 1.12][variant % 3]
+	var v := variant % 5
+	var h: float = 18.0 * [1.0, 0.82, 1.15, 0.68, 0.95][v]
+	var width: float = [1.0, 0.78, 1.15, 0.9, 1.25][v]
+	var bare: float = [0.42, 0.5, 0.55, 0.35, 0.46][v]
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	_limb(st, Vector3.ZERO, Vector3(0, h * 0.97, 0), 0.32, 0.06, 8 if near else 5, 5 if near else 2)
+	if near:
+		# Dead branch stubs on the bare trunk.
+		for k in rng.randi_range(2, 5):
+			var y := rng.randf_range(h * 0.18, h * bare)
+			var a := rng.randf() * TAU
+			var dir := Vector3(cos(a), rng.randf_range(-0.25, 0.1), sin(a)).normalized()
+			_limb(st, Vector3(0, y, 0), Vector3(0, y, 0) + dir * rng.randf_range(0.5, 1.4), 0.05, 0.015, 4, 1)
 	var trunk := st.commit()
 	trunk.surface_set_material(0, _bark(Color(0.36, 0.25, 0.18)))
 	var cs := SurfaceTool.new()
 	cs.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var blobs := 36 if near else 10
-	var centre := Vector3(0, h * 0.7, 0)
+	var blobs := 44 if near else 12
+	var centre := Vector3(0, h * 0.72, 0)
+	# The side the crown is heavier on (the light, the wind), and its whorls.
+	var heavy_a := rng.randf() * TAU
+	var heavy := Vector3(cos(heavy_a), 0, sin(heavy_a))
+	var tiers := rng.randi_range(5, 8)
 	for i in blobs:
-		var t := (float(i) + rng.randf() * 0.7) / blobs
-		var y := lerpf(h * 0.27, h * 0.99, t)
-		# Branch clumps standing out from the trunk, widest a third of the way up the crown.
-		var spread := (3.2 * pow(1.0 - t, 0.55) * (0.6 + 0.4 * sin(PI * minf(1.0, t * 1.6 + 0.3)))) + 0.3
+		var tier := i % tiers
+		var t := clampf((float(tier) + rng.randf() * 0.55) / tiers, 0.0, 1.0)
+		var y := lerpf(h * bare, h * 0.99, t)
+		# Gaps: a sixth of the sprays left out.
+		if rng.randf() < 0.16 and t < 0.85:
+			continue
 		var a := rng.randf() * TAU
-		var off := Vector3(cos(a), 0, sin(a)) * spread * rng.randf_range(0.55, 1.0)
-		var r := lerpf(1.35, 0.7, t) * rng.randf_range(0.8, 1.2) * (1.0 if near else 1.4)
-		_blob(cs, Vector3(off.x, y - 0.4 * t, off.z), Vector3(r * 1.35, r * rng.randf_range(0.8, 1.1), r * 1.35), centre, 2 if near else 1, rng)
+		var dir := Vector3(cos(a), 0, sin(a))
+		var spread := (3.0 * pow(1.0 - t, 0.6) * (0.55 + 0.45 * sin(PI * minf(1.0, t * 1.5 + 0.25)))) + 0.35
+		spread *= width * (1.0 + 0.4 * dir.dot(heavy)) * rng.randf_range(0.5, 1.05)
+		var off := dir * spread
+		var r := lerpf(1.15, 0.6, t) * rng.randf_range(0.75, 1.25) * (1.0 if near else 1.45)
+		# A spray: wider than tall, drooping a little at its tip.
+		_blob(cs, Vector3(off.x, y - 0.35 * spread * 0.3, off.z), Vector3(r * 1.5, r * rng.randf_range(0.45, 0.7), r * 1.5), centre, 2 if near else 1, rng)
 	var crown := cs.commit()
-	crown.surface_set_material(0, _foliage(Color(0.17, 0.23, 0.12), Color(0.32, 0.38, 0.19), 0.0, 0.0))
+	var dark: float = [1.0, 0.9, 1.05, 0.95, 0.85][v]
+	var fm := _foliage(Color(0.17, 0.23, 0.12) * dark, Color(0.32, 0.38, 0.19) * dark, 0.0, 0.0)
+	# More broken at the sprays' edges (#962's judge: pom-poms), finer needles.
+	fm.set_shader_parameter(&"hole", 0.58)
+	fm.set_shader_parameter(&"leaf_scale", 6.5)
+	crown.surface_set_material(0, fm)
 	return {"trunk": trunk, "crown": crown, "height": h, "trunk_r": 0.32}
+
+
+## A dead pine, a snag (#962): a grey trunk broken off, a few bare limbs, a last few tufts of dead
+## needles (their crown, so it's drawn as the others are).
+static func _snag(near: bool, variant := 0) -> Dictionary:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1880 + variant * 101
+	var h: float = 14.0 * [1.0, 0.75, 1.15, 0.6, 0.9][variant % 5]
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var top := Vector3(rng.randf_range(-0.3, 0.3), h, rng.randf_range(-0.3, 0.3))
+	_limb(st, Vector3.ZERO, top, 0.3, 0.1, 7 if near else 4, 4 if near else 1)
+	var tips: Array[Vector3] = []
+	for k in rng.randi_range(3, 6):
+		var y := rng.randf_range(h * 0.35, h * 0.92)
+		var a := rng.randf() * TAU
+		var dir := Vector3(cos(a), rng.randf_range(-0.1, 0.5), sin(a)).normalized()
+		var base := Vector3(top.x * y / h, y, top.z * y / h)
+		var tip := base + dir * rng.randf_range(1.0, 2.8)
+		_limb(st, base, tip, 0.09, 0.02, 5 if near else 3, 2 if near else 1)
+		tips.append(tip)
+	var trunk := st.commit()
+	trunk.surface_set_material(0, _bark(Color(0.34, 0.31, 0.28)))
+	var cs := SurfaceTool.new()
+	cs.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for tip in tips:
+		_blob(cs, tip, Vector3(0.45, 0.3, 0.45), Vector3(0, h * 0.6, 0), 1, rng)
+	var crown := cs.commit()
+	var m := _foliage(Color(0.30, 0.24, 0.16), Color(0.45, 0.36, 0.24), 0.0, 0.0)
+	m.set_shader_parameter(&"hole", 0.7)
+	crown.surface_set_material(0, m)
+	return {"trunk": trunk, "crown": crown, "height": h, "trunk_r": 0.3}
 
 
 ## A cottonwood 14 m tall: a stout trunk forking low into leaning limbs, a broad round crown.
 static func _cottonwood(near: bool, variant := 0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1878 + variant * 101
-	var h: float = 14.0 * [1.0, 0.9, 1.1][variant % 3]
+	var v := variant % 5
+	var h: float = 14.0 * [1.0, 0.85, 1.12, 0.7, 0.95][v]
+	var lean: Vector3 = Vector3(rng.randf_range(-1, 1), 0, rng.randf_range(-1, 1)).normalized() * float([0.4, 1.2, 0.2, 0.8, 1.6][v])
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var sides := 8 if near else 5
-	var fork := Vector3(0.2, 3.4, 0.1)
+	var fork: Vector3 = Vector3(0.2, 3.4 * float([1.0, 0.8, 1.2, 0.7, 1.0][v]), 0.1) + lean * 0.4
 	_limb(st, Vector3.ZERO, fork, 0.5, 0.36, sides, 3 if near else 1)
 	var tips: Array[Vector3] = []
-	for k in 3:
-		var a := TAU * k / 3.0 + rng.randf() * 0.8
-		var tip := fork + Vector3(cos(a) * 3.2, rng.randf_range(4.5, 6.5), sin(a) * 3.2)
+	var limbs: int = [3, 2, 4, 3, 2][v]
+	for k in limbs:
+		var a := TAU * k / limbs + rng.randf() * 0.8
+		var reach := rng.randf_range(2.2, 4.0)
+		var tip: Vector3 = fork + Vector3(cos(a) * reach, rng.randf_range(4.0, 6.5) * h / 14.0, sin(a) * reach) + lean
 		_limb(st, fork, tip, 0.3, 0.1, sides, 3 if near else 1)
 		tips.append(tip)
 	var trunk := st.commit()
@@ -120,7 +183,8 @@ static func _cottonwood(near: bool, variant := 0) -> Dictionary:
 	var centre := Vector3(0, h * 0.62, 0)
 	var blobs := 30 if near else 9
 	for i in blobs:
-		var tip: Vector3 = tips[i % tips.size()]
+		# Unevenly shared between the limbs: one carries more.
+		var tip: Vector3 = tips[0 if rng.randf() < 0.4 else i % tips.size()]
 		var dir := Vector3(rng.randf_range(-1, 1), rng.randf_range(-0.4, 0.8), rng.randf_range(-1, 1)).normalized()
 		var p := tip + dir * rng.randf_range(0.5, 3.0)
 		p.y = clampf(p.y, 5.5, h - 1.2)

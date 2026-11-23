@@ -26,6 +26,9 @@ var horse: Horse
 var phys: Physiology
 var site := Vector3.ZERO
 var gesture := HeadGesture.new()
+## The slow nod (a deliberate one, a swing a second or two apart): read as well as the plain one
+## (#1081). Only the nod: a slow shake is looking round.
+var slow_gesture := HeadGesture.new()
 
 ## What you've done.
 var found := false  ## been within found_m of him
@@ -41,6 +44,10 @@ var care := ""
 var loss_at_doctor := -1.0
 var trip_s := 0.0
 var trip_m := 0.0
+## Carried to the doctor's over your shoulder (PlayerCarry) and knocked (PlayerKnock): the knocks
+## there with him by the door, and whether the doctor came out to him (not the card's way in).
+var knocks := 0
+var carried_in := false
 
 var _wound_beat := -1.0  # when the nod's line was said (the red shirt follows)
 var _said_shot_by := false
@@ -51,6 +58,11 @@ var _closer_t := -9.0
 var _hail_t := -9.0
 var _wounds_seen: Array = []  # his wounds as they were on the road (drawn again at the doctor's)
 var _end_t := -1.0
+var _knock_t := 0.0
+var _said_picked_up := false
+var _e_down := 0.0  # how long E's been held (past a tap, it's your hand on his wound)
+var _carried_next := 0.0
+var _talk_rng := RandomNumberGenerator.new()
 ## Cards and the doctor's beats this many times as long (opts `pace`: the tests run them quicker).
 var pace := 1.0
 
@@ -60,7 +72,9 @@ func begin() -> void:
 	pace = float(opts.get("pace", 1.0))
 	set_hour()
 	if clock() and bool(data.get("clock_runs", true)):
-		clock().set_time_scale(1.0)  # the morning goes on while you're at it (the game holds it at noon)
+		# The morning goes on while you're at it, slower than the day's own rate (Sean, #1082: getting
+		# him in takes about an hour, not the morning); the day's rate again once it's over (_end).
+		clock().set_time_scale(clock_scale())
 	StoryState.clear("sheriff.")
 	StoryState.mark_checkpoint()  # its restart starts from the story as it is now (#864)
 	_place_player()
@@ -71,6 +85,12 @@ func begin() -> void:
 	_horse_place()
 	state = &"wounding"
 	add_to_group(&"claims_use")
+	var sg: Dictionary = data.get("slow_nod", {})
+	slow_gesture.swing_deg = float(sg.get("swing_deg", 4.0))
+	slow_gesture.window_s = float(sg.get("window_s", 8.0))
+	_talk_rng.seed = int((data.sheriff as Dictionary).get("seed", 746))
+	if valley and valley.folk and not valley.folk.knocked.is_connected(_on_knocked):
+		valley.folk.knocked.connect(_on_knocked)
 	_note("begin")
 
 
@@ -261,6 +281,8 @@ func _physics_process(delta: float) -> void:
 		&"trip":
 			if not card_up():
 				_at_doctor()
+		&"knocked":
+			_knocked_step()
 		&"doctor":
 			_doctor_step()
 		&"left":
@@ -302,10 +324,16 @@ func _road_step(delta: float) -> void:
 		asked = true
 		_ask_t = t
 		_say(line("ask", band))
-		prompt("Nod to help him, shake your head to leave him (move your view)", 5.0)
+		prompt(String(data.get("ask_prompt", "Nod to help him (look down, up, down), shake your head to leave him (look left, right, left)")), 8.0)
 	# Your answer: the view's nod or shake, while you're with him.
 	if found and dist < float(dd.get("hail_m", 25.0)):
 		var g := gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), delta)
+		var slow := slow_gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), delta)
+		if g == &"" and slow == &"nod":
+			g = slow  # (a slow shake is only looking round: not read)
+		if g != &"":
+			gesture = HeadGesture.new()
+			slow_gesture = _slow_gesture()
 		# Only a change of answer counts (turning away to leave reads as more shaking).
 		if g != &"" and asked and String(g) != answer:
 			_answer(String(g), band)
@@ -324,7 +352,9 @@ func _road_step(delta: float) -> void:
 		_say(line("walked_off", band))
 		_leave(false)
 		return
-	if found and dist < 10.0 and t - _say_t > float(data.get("say_gap_s", 14.0)) * 1.4 and band != "out":
+	if _have_him(p):
+		_carried_talk(band)
+	elif found and dist < 10.0 and t - _say_t > float(data.get("say_gap_s", 14.0)) * 1.4 and band != "out":
 		_say(line("idle", band))
 
 
@@ -335,7 +365,7 @@ func _answer(g: String, band: String) -> void:
 		_wound_beat = t
 		_said_shot_by = false
 		_say(line("nod", band))
-		prompt("Hold E on the wound to press it. E by his horse to take him in", 5.0)
+		prompt(String(data.get("nod_prompt", "Hold E on the wound to press it. E by his horse to take him in")), 6.0)
 	else:
 		_say(line("shake", band))
 
@@ -373,7 +403,13 @@ func _by_horse(p: Player) -> bool:
 
 func _press_step(p: Player, delta: float, band: String) -> void:
 	var e := Input.is_action_pressed(&"shove")
-	var now := e and _by_wound(p)
+	# Over your shoulder your hands are on him, not on his wound (#1081: held E at the doctor's door
+	# packed him as you knocked). A tap of E by him takes him up (PlayerCarry); held, it's the wound.
+	var have := _have_him(p)
+	# Held past a tap (a tap's the carry's: PlayerCarry.carry_tap_s), your hand's on his wound.
+	_e_down = _e_down + delta if e else 0.0
+	var tap_s := p.tuning.carry_tap_s if p.tuning else 0.35
+	var now := e and _e_down > tap_s and _by_wound(p) and not have
 	if now != pressing:
 		pressing = now
 		if not phys.bleeds.is_empty():
@@ -391,9 +427,10 @@ func _press_step(p: Player, delta: float, band: String) -> void:
 			_note("packed and bound")
 			_say(line("packed", band))
 			prompt("Packed and bound. E by his horse to take him in", 4.0)
-	if e and not pressing and _by_horse(p):
+	if e and not pressing and not have and _by_horse(p):
 		_take_him_in()
-	elif e and not pressing and _flat(p.global_position, _sheriff_at()) < 5.0 and t - _closer_t > 2.0:
+	elif e and not pressing and not have and _flat(p.global_position, _sheriff_at()) < 5.0 and t - _closer_t > 2.0 \
+			and (p.carry == null or p.carry.near_man() != sheriff):
 		_closer_t = t
 		prompt("Closer: kneel by his wound", 1.5)
 
@@ -463,7 +500,18 @@ static func run_body(p: Physiology, seconds: float) -> void:
 func _forward_clock(seconds: float) -> void:
 	var c := clock()
 	if c:
-		c.set_time(c.time_of_day + seconds / phys.tuning.game_hour_seconds)
+		c.set_time(c.time_of_day + seconds * clock_scale() / phys.tuning.game_hour_seconds)
+
+
+## How fast the prologue's clock runs, a share of the day's rate (`clock_scale`, #1082).
+func clock_scale() -> float:
+	return float(data.get("clock_scale", 0.25))
+
+
+func _day_clock() -> void:
+	var c := clock()
+	if c and bool(data.get("clock_runs", true)):
+		c.set_time_scale(1.0)
 
 
 ## At the doctor's: you, him (laid in the street before the steps), his horse to the livery, the
@@ -509,8 +557,11 @@ func _doctor_step() -> void:
 			phys.treated.emit(&"pressure", &"abdomen")
 		sheriff.go_limp()
 		_doc_said = 1
-	elif _doc_said == 1 and dt > 1.5:
+	elif _doc_said == 1 and dt > 1.5 and (not carried_in or dt > 8.0 or doctor == null or not is_instance_valid(doctor) \
+			or _flat(doctor.global_position, _sheriff_at()) < 1.8):
 		_doc_said = 2
+		if carried_in:
+			_doc_t = t - 1.5 * pace  # (the rest timed from his first word, however long he took to come)
 		speak(doctor, line("doctor", _doc_band))
 		_note("doctor: " + _doc_band)
 	elif _doc_said == 2 and dt > 7.5:
@@ -518,7 +569,8 @@ func _doctor_step() -> void:
 		speak(doctor, line("doctor_after", care))
 	elif _doc_said == 3 and dt > 12.0:
 		_doc_said = 4
-		card(String((data.get("cards", {}) as Dictionary).get("end", "%s")).replace("%s", care), 6.0 * pace)
+		var end := "end_carried" if carried_in else "end"
+		card(String((data.get("cards", {}) as Dictionary).get(end, "%s")).replace("%s", care), 6.0 * pace)
 		_end(care)
 
 
@@ -532,6 +584,156 @@ func _lot_front(id: String) -> Vector3:
 				var z := (front - 3.0) * (-1.0 if s == "north" else 1.0)
 				return _on_ground(Vector2((float(d.x0) + float(d.x1)) * 0.5, z))
 	return _on_ground(Vector2.ZERO)
+
+
+# --- Carried in and knocked (#1081) ----------------------------------------------------------------
+
+## Over your shoulder (#1081, the master chat): his word once as you take him up ("Don't let me lie
+## here."), then only a groan or a short word now and then, not his lying-there lines every 20 s.
+## Spread out (#1095: eight minutes of the same four mutters): each line of his band once, in a
+## shuffled order, before any again; the gaps grow by `grow` with each he's said, so the long carry
+## goes quiet; "How far?" (`late`) only once you've carried him `late_m`; a band's lines all said,
+## he's silent till he weakens into the next band (its own lines).
+func _carried_talk(band: String) -> void:
+	var cd: Dictionary = data.get("carried", {})
+	if not _said_picked_up:
+		_said_picked_up = true
+		_carried_next = t + float(cd.get("gap_s", 40.0))
+		if band != "out":
+			_say(line("picked_up", band))
+		return
+	if t < _carried_next:
+		return
+	var gap := float(cd.get("gap_s", 40.0)) * (1.0 + float(cd.get("grow", 0.5)) * carried_said.size())
+	_carried_next = t + gap * (0.75 + 0.5 * _talk_rng.randf())
+	if band == "out":
+		return
+	var text := _next_carried_line(band, cd)
+	if text != "" and text != "...":
+		carried_said.append(text)
+		_say(text)
+
+
+## What he's said over your shoulder, in order (the tests).
+var carried_said: Array[String] = []
+var _carried_deck: Array = []
+var _carried_band := ""
+
+
+func _next_carried_line(band: String, cd: Dictionary) -> String:
+	if band != _carried_band:
+		_carried_band = band
+		var all: Variant = (data.get("lines", {}) as Dictionary).get("carried", {})
+		var pool: Variant = (all as Dictionary).get(band, (all as Dictionary).get("any", [])) if all is Dictionary else []
+		_carried_deck = (pool as Array).duplicate() if pool is Array else []
+		# (a shuffle by the scene's own seed: the same carry says the same)
+		for i in range(_carried_deck.size() - 1, 0, -1):
+			var j := _talk_rng.randi() % (i + 1)
+			var x: Variant = _carried_deck[i]
+			_carried_deck[i] = _carried_deck[j]
+			_carried_deck[j] = x
+	var far := _have_him(player()) and player().carry.dragged_m >= float(cd.get("late_m", 150.0))
+	var late: Array = cd.get("late", [])
+	for i in _carried_deck.size():
+		var text := String(_carried_deck[i])
+		if late.has(text) and not far:
+			continue  # (not "How far?" a few steps from where he lay)
+		_carried_deck.remove_at(i)
+		return text
+	return ""
+
+
+## You have him over your shoulder (PlayerCarry, #1057).
+func _have_him(p: Player) -> bool:
+	return p != null and p.carry != null and sheriff != null and is_instance_valid(sheriff) and p.carry.carrying(sheriff)
+
+
+func _slow_gesture() -> HeadGesture:
+	var g := HeadGesture.new()
+	g.swing_deg = slow_gesture.swing_deg
+	g.window_s = slow_gesture.window_s
+	return g
+
+
+## A bang on a door (ValleyFolk.knocked): the doctor's, with the sheriff carried to it, by day as by
+## night. The doctor in (the town's book): a voice through the door, and he comes out to him. Out:
+## nobody answers, and you're told where he is.
+func _on_knocked(place: StringName, inside: Array, by: Node, at: Vector3) -> void:
+	if done or not by is Player or place != StringName(String(data.get("doctor_lot", "doctor"))):
+		return
+	if sheriff == null or not is_instance_valid(sheriff):
+		return
+	if _flat(_sheriff_at(), at) > float(data.get("door_body_m", 4.5)):
+		_note("a knock at the doctor's without the sheriff by it")
+		return
+	if valley and valley.folk:
+		valley.folk.claim_knock()  # his: the town doesn't answer it as well (#1095)
+	if state not in [&"road", &"knocked"]:
+		return
+	knocks += 1
+	var doc_id := StringName(String((data.get("doctor", {}) as Dictionary).get("folk_id", "doctor")))
+	if not inside.has(doc_id):
+		var where := ""
+		if valley and valley.folk and valley.folk.book:
+			var row: Dictionary = valley.folk.book.row(doc_id)
+			where = String(row.get("in", ""))
+			if where == "":
+				where = String(row.get("at", ""))
+		where = where.replace("_", " ")
+		_note("knocked (%d): the doctor's out (%s)" % [knocks, where])
+		var text := String(data.get("doctor_out", "Nobody answers. The doctor's out: at the %s."))
+		prompt(text.replace("%s", where) if where != "" else "Nobody answers.", 4.0)
+		return
+	_note("knocked (%d): inside %s" % [knocks, inside])
+	if state == &"road":
+		_knock_t = t
+		state = &"knocked"
+		var wait := line("door_wait", band_of(phys))
+		if wait != "":
+			prompt("Doctor, inside: \"%s\"" % wait, 3.0)
+
+
+func _knocked_step() -> void:
+	if t - _knock_t > float(data.get("answer_s", 4.0)) * pace:
+		_doctor_out()
+
+
+## He opens: out of his door to the sheriff where you've laid him (the town's doctor, ValleyFolk;
+## a stand-in at his door if the town has none). You let go; he's taken in.
+func _doctor_out() -> void:
+	taken = true
+	carried_in = true
+	pressing = false
+	if not phys.bleeds.is_empty():
+		phys.bleeds[0].hand = false
+	var p := player()
+	if p and p.carry:
+		trip_m = p.carry.dragged_m
+		p.carry.drop()
+	var to := _sheriff_at()
+	var doc_id := StringName(String((data.get("doctor", {}) as Dictionary).get("folk_id", "doctor")))
+	doctor = valley.folk.call_out(doc_id) if valley and valley.folk else null
+	if doctor != null:
+		var brain := doctor.get_node_or_null(^"Brain") as CivilianBrain
+		if brain:
+			if brain.reaction:
+				brain.reaction.forget()
+			brain.chores = []
+			brain.chore = null
+			var from := doctor.global_position - to
+			from.y = 0.0
+			brain.go_to(to + (from.normalized() if from.length() > 0.1 else Vector3.BACK) * 1.1, to)
+	else:
+		var door := _doctor_front()
+		doctor = _man(data.doctor, door, to)
+	loss_at_doctor = phys.blood_loss()
+	care = care_for(true, packed, loss_at_doctor, float((data.get("care", {}) as Dictionary).get("good_max_loss", 0.3)))
+	_record()
+	_note("the doctor opens: %s" % care)
+	_doc_band = band_of(phys)
+	_doc_t = t
+	_doc_said = 1  # (his body is the one you carried: nothing to lay down again)
+	state = &"doctor"
 
 
 # --- Leaving him -------------------------------------------------------------------------------------
@@ -567,6 +769,7 @@ func _end(final_care: String) -> void:
 		sheriff = null
 	if final_care == LEFT:
 		card(String((data.get("cards", {}) as Dictionary).get("end_left", "left him")), 5.0 * pace)
+	_day_clock()
 	_finish(&"done")
 
 
@@ -587,6 +790,9 @@ func _retry_step(delta: float) -> void:
 func restart() -> Moment:
 	var at := street
 	var opts_now := opts
+	var p := player()
+	if p and p.carry:
+		p.carry.start_over()  # (#1116: not the last run's metres and blood on your coat)
 	reset()
 	StoryState.restore(StoryState.checkpoint)
 	return Moment.start_named(&"the_sheriff", at, null, opts_now)
@@ -602,6 +808,8 @@ func result() -> Dictionary:
 	r["pressed_s"] = snappedf(pressed_s, 0.01)
 	r["packed"] = packed
 	r["taken"] = taken
+	r["knocks"] = knocks
+	r["carried_in"] = carried_in
 	r["left"] = left_him
 	r["blood_loss"] = snappedf(phys.blood_loss(), 0.001) if phys else -1.0
 	r["band"] = band_of(phys) if phys else ""
@@ -625,12 +833,15 @@ func result() -> Dictionary:
 
 
 func reset() -> void:
+	if valley and is_instance_valid(valley) and valley.folk and valley.folk.knocked.is_connected(_on_knocked):
+		valley.folk.knocked.disconnect(_on_knocked)
 	for n in [sheriff, doctor, horse]:
 		if is_instance_valid(n):
 			(n as Node).queue_free()
 	var p := player()
 	if p:
 		p.input_enabled = true
+	_day_clock()
 	sheriff = null
 	doctor = null
 	horse = null

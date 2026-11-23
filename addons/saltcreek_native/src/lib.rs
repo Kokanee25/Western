@@ -11,6 +11,7 @@
 //! The quit's last layer (issue #435): `QuitWatchdog` (watchdog.rs).
 //! The blast's face sums (issue #538): `BlastCore` (blast.rs).
 //! Crash and freeze reports (issue #624): `CrashGuard` (crash_guard.rs).
+//! Our own cloth (docs/briefs/garment-cloth.md, #973): `ClothCore` (cloth_core.rs over cloth.rs).
 
 use godot::classes::Node;
 use godot::prelude::*;
@@ -19,6 +20,8 @@ use std::thread::JoinHandle;
 
 pub mod blast;
 pub mod carve;
+pub mod cloth;
+pub mod cloth_core;
 pub mod crash_guard;
 pub mod fire;
 pub mod member;

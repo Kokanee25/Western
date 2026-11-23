@@ -24,7 +24,10 @@
   },
   {
    "id": "grass_medium_02",
-   "why": "dry grass clump"
+   "why": "dry grass clump (and its dry_diff map, #962)",
+   "extra": [
+    "dry_diff"
+   ]
   },
   {
    "id": "wild_rooibos_bush",
@@ -45,6 +48,13 @@
   {
    "id": "dead_tree_trunk_02",
    "why": "fallen log"
+  },
+  {
+   "id": "grass_medium_01",
+   "why": "a second grass clump, for variety (#962)",
+   "extra": [
+    "dry_diff"
+   ]
   }
  ]
 }

@@ -90,7 +90,7 @@ static func in_flight(tree: SceneTree) -> PackedStringArray:
 	for r: RubbleRest in tree.root.find_children("*", "RubbleRest", true, false):
 		if r.running():
 			out.append("a rubble cell")
-	var fire := FireSystem.find(tree)
+	var fire := SettleQueue.find(tree)
 	if fire and fire.check_running():
 		out.append("the fire's check")
 	var smoke := 0

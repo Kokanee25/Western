@@ -7,7 +7,7 @@ across the building; the ground floor's framing from above (sills, girders, pier
 the loft's. Every opening's clear area is outlined in red. Orthographic, to scale, north up on the
 plans; the street (south) at the bottom.
 
-    python3 tools/buildings/xray.py experiments/building_lab/doctor/doctor.json build/doctor_members.json OUT.png
+    python3 tools/buildings/xray.py config/buildings/doctor.json build/doctor_members.json OUT.png
 """
 import json
 import math
@@ -170,14 +170,19 @@ def main(spec_path, members_path, out):
     views.append(View("Back (north), siding on", lambda p: (p[0], p[1], -p[2]), lambda m: bz(m) or m["id"].startswith(("back_porch", "ladder/")), -0.5, W + 0.5, bot, top, []))
     side_top = lv["upper"] + 0.6
     yx = lambda m: in_slab(m, 0, -0.08, 0.11) and not m["id"].startswith(("floor/", "roof/board", "stoop", "fence/"))
-    yard_ops = wall_openings(spec, "yard", lv, lambda s, y: (s, y))
-    views.append(View("East side (the yard), siding off", lambda p: (p[2], p[1], p[0]), lambda m: yx(m) and bare(m) and not m["id"].startswith("roof/"), -0.3, D + 0.3, bot, side_top, yard_ops))
+    # The side walls are the doctor's "yard"/"lane" or the store's "alley"/"hardware" (x = 0 / x = W).
+    ids = {w["id"] for w in spec["walls"]}
+    east_id = "yard" if "yard" in ids else "alley"
+    west_id = "lane" if "lane" in ids else "hardware"
+    yard_ops = wall_openings(spec, east_id, lv, lambda s, y: (s, y))
+    views.append(View("East side (the %s), siding off" % east_id, lambda p: (p[2], p[1], p[0]), lambda m: yx(m) and bare(m) and not m["id"].startswith("roof/"), -0.3, D + 0.3, bot, side_top, yard_ops))
     lx = lambda m: in_slab(m, 0, W - 0.11, W + 0.08) and not m["id"].startswith(("floor/", "roof/board"))
-    lane_ops = wall_openings(spec, "lane", lv, lambda s, y: (D - s, y))
-    views.append(View("West side (the lane), siding off", lambda p: (D - p[2], p[1], -p[0]), lambda m: lx(m) and bare(m) and not m["id"].startswith("roof/"), -0.3, D + 0.3, bot, side_top, lane_ops))
+    lane_ops = wall_openings(spec, west_id, lv, lambda s, y: (D - s, y))
+    views.append(View("West side (the %s), siding off" % west_id, lambda p: (D - p[2], p[1], -p[0]), lambda m: lx(m) and bare(m) and not m["id"].startswith("roof/"), -0.3, D + 0.3, bot, side_top, lane_ops))
     # A section across the building through the surgery and the dispensary, looking north.
     cz = 6.3
-    views.append(View("Section across at %.1f m (surgery | hall | dispensary), looking north" % cz, lambda p: (W - p[0], p[1], p[2]),
+    names = " | ".join(r["id"] for r in sorted(spec["rooms"], key=lambda r: r["rect"][0]) if r["rect"][1] < cz < r["rect"][3] and r.get("level", "ground") != "upper")
+    views.append(View("Section across at %.1f m (%s), looking north" % (cz, names), lambda p: (W - p[0], p[1], p[2]),
                       lambda m: in_slab(m, 2, cz - 0.22, cz + 0.22) and (bare(m) or m["kind"] in ("floor_board", "roof_board")) and not m["id"].startswith("fence/"),
                       -0.6, W + 0.6, bot, top, []))
     # Plans from above (north up: v = z; east on the right).
@@ -186,6 +191,11 @@ def main(spec_path, members_path, out):
     views.append(View("Ground floor framing from above (sills, girders on piers, 2x10 joists)", lambda p: (W - p[0], p[2], -p[1]), below(lv["ground"] - 0.01), -0.6, W + 0.6, -0.4, D + 0.4, []))
     loft = lambda m: lv["ground"] + 2.5 < (sum(p[1] for p in corners(m)) / 8.0) < lv["upper"] and m["kind"] not in ("board", "floor_board", "trim", "glass", "door") and "/siding/" not in m["id"] and not m["id"].startswith(("back_porch", "ladder/", "stoop"))
     views.append(View("Loft framing from above (plates, summer beams, 2x10 joists, the scuttle, chimneys)", lambda p: (W - p[0], p[2], -p[1]), loft, -0.6, W + 0.6, -0.4, D + 0.4, []))
+
+    # A two-storey frame: the roof's framing from above too (rafters, trusses, the false front's ties).
+    if lv["upper"] > lv["ground"] + 3.5:
+        roof = lambda m: (sum(p[1] for p in corners(m)) / 8.0) > lv["upper"] + 2.0 and m["kind"] not in ("board", "floor_board", "roof_board", "trim", "glass", "door") and "/siding/" not in m["id"] and not m["id"].startswith(("back_porch", "ladder/", "stoop", "fence/"))
+        views.append(View("Roof framing from above (plates, trusses or rafters, the false front)", lambda p: (W - p[0], p[2], -p[1]), roof, -0.6, W + 0.6, -0.4, D + 0.4, []))
 
     ims = [v.draw(members) for v in views]
     cols = 2

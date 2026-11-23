@@ -1,5 +1,39 @@
 # The viewmodel rig lab: Harlan's first-person hands, option 2 (#896)
 
+**Promoted (#914, 2026-11-14):** Sean picked option 2 (#913). The hands are in the game through
+`HeldHand` (it cuts them from `assets/people/private/harlan_fp.glb` where that's built; holds in
+`config/fp_holds.json`): LAYOUT "src/weapons". This lab's `fp_arms.gd`/`fp_rig.gd` stay for posing
+by eye on the gun lab's own guns; the game's poses live with the viewmodels.
+
+**The Colt in hand and the view framed (#1014, 2026-11-16):** `game_views.gd` renders the *game's own*
+viewmodels (RevolverViewmodel with the approved Colt, Winchester73Viewmodel) on the plain stage, their state
+stepped in game seconds: idle, aimed, cocking, firing (the kick 50 ms in), reloading; `--close` adds the hand
+from the gun's right, left and above; `--variants=FILE` renders hold settings side by side (fp_holds keys);
+`--fov=0` the old field of view; `--world-layer` the gun off the held layer. ~40 s for two poses.
+The firing pose fires for real (#1019: the gun's own `_fire`, smoke, both flashes, the light) and is
+caught `--shot-at=` game seconds in (0.05) with time stood still; the view's kick is applied; each pose
+starts on a clean stage. `held_grade.py` makes the guns' in-hand albedo (the Colt `--dark=0.5 --grey=0.4`,
+the Winchester's two `--dark=0.6 --grey=0.75`, #1019) (the metal darker, less blue: seen from above a held gun
+mirrors the open sky). Judge rounds: `docs/screenshots/judge/2026-11-16_fp_colt_r1/`, `_r2/`.
+**#1031 (2026-11-17):** the aimed guns turned about the front sight (`colt.aim_turn`, `win73.aim_turn`:
+[yaw, pitch]); the held ORM (`held_grade.py --orm`: the metal's roughness lifted) and `GunParts.HELD_METALLIC`
+0.6; a glint light by the eye on the held layer (`WeaponViewmodel.GLINT_*`); the Colt's reload with a left
+hand pushing a round into the open gate (`colt.loading`, `colt.l_load*`); the rifle's turned to show its
+gate (`win73.loading`); the lab's rifle given rounds so its reload runs. Judge rounds `2026-11-17_fp_fps2_r1/`,
+`_r2/`: the reloads and the Colt's steel pass; the aimed framing, the flash (the cream blob at 50 ms is
+GunSmoke's puff in the shot's light) and the rifle's flat receiver don't.
+**#1048 (2026-11-18):** the shot's smoke is stepped by hand with the gun (its own `_process` switched off
+while time stands still) and the world's flash light put out at 0.07 s, as the game's timer does; `--fog` adds
+the valley's volumetric haze. Your own shot's cloud waits out the flash (`GunSmoke.spawn(..., own=true)`).
+Judge rounds `docs/screenshots/judge/2026-11-18_own_smoke_r1/`, `_r2/`.
+
+```sh
+xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver vulkan --resolution 1280x720 \
+    -s res://experiments/viewmodel_rig/game_views.gd -- --out=build/vmg [--guns=revolver] [--only=idle,aimed] \
+    [--light=both] [--close] [--variants=res://build/v.json] [--fov=0] [--painted-arms]
+python3 experiments/viewmodel_rig/held_grade.py ALBEDO ORM OUT     # e.g. assets/weapons/colt_saa_saa_*.jpg
+```
+
 Sean, 2026-11-13, on the arms' fallback (#890's comment, option 2): "I like 2 - can we start an
 experiment doing that". The usual first-person way: the MetaHuman's **hands cut at the wrist**, with
 **modelled sleeves** (his shirt's cuff and his coat's sleeve), on a **first-person rig of their own,

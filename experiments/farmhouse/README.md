@@ -1,7 +1,7 @@
 # The farmhouse (issue #520: the hostage rescue)
 
 Gameplay. The farmhouse out east of town on its knoll in the hills (`src/missions/farmhouse.gd`,
-spec `experiments/building_lab/farmhouse.json`), and the mission held in it.
+spec `config/buildings/farmhouse.json`), and the mission held in it.
 
 | File | What |
 | --- | --- |

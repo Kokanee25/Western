@@ -1,0 +1,9 @@
+front: render CPU median 3.67 ms here, 2.39 at Sean's (x0.65); 2652 draws
+dock: render CPU median 2.38 ms here, 1.54 at Sean's (x0.65); 935 draws
+rear: render CPU median 3.70 ms here, 2.41 at Sean's (x0.65); 2270 draws
+corner: render CPU median 3.53 ms here, 2.29 at Sean's (x0.65); 2362 draws
+shop: render CPU median 2.81 ms here, 1.82 at Sean's (x0.65); 1675 draws
+counter: render CPU median 3.39 ms here, 2.20 at Sean's (x0.65); 2066 draws
+loft: render CPU median 3.15 ms here, 2.05 at Sean's (x0.65); 1990 draws
+cellar: render CPU median 8.31 ms here, 5.40 at Sean's (x0.65); 7788 draws
+shop_night: render CPU median 2.28 ms here, 1.48 at Sean's (x0.65); 749 draws

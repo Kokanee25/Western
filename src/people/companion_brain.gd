@@ -59,11 +59,16 @@ var _said_up := true  # (set false when he goes down)
 var _stuck_t := 0.0
 var _go_last := Vector3.INF
 var _way: Array[Vector3] = []
-## Held by a scene (No Justice's camp, `NoJusticeCamp`): while it's quiet the scene walks him and
-## turns him, not his following; in a fight he's his own man again.
-var held := false
+## (`held`, OutlawBrain's: a scene walks him while it's quiet, SceneHold; in a fight he's his own man.)
 ## In the cowboy's hat and neckerchief (S12, No Justice step 2; his look is the Studio's).
 var costume := false
+## Your balls at him (#1116, the chaos playtest: shot twice by you at 2 m, he stood `calm`): each one
+## near him (`you_near_m`) or in him, he ducks (`duck_s`) and tells you to stop; `you_turn_after` of
+## them inside `you_window_s` and he's done telling you: `turned`, he fights you as any man would.
+## Held by a scene or not (a held man isn't deaf to a gun).
+var turned := false
+var _from_you: Array[float] = []
+var _duck_t := 0.0
 
 
 static var _shared := {}
@@ -85,6 +90,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	super._ready()
+	careful = true  # (with the law: he holds fire for anyone in his line, #1116)
 	body.add_to_group(&"companions")
 	if leader:
 		relations.friend_nodes = [leader]
@@ -230,13 +236,13 @@ func told(by: Node3D) -> String:
 # --- Never against you ------------------------------------------------------------------------
 
 func _provoked(by: Node) -> void:
-	if by == leader:
+	if by == leader and not turned:
 		return
 	super._provoked(by)
 
 
 func _on_deed(actor: Node, kind: StringName, deed_target: Node, at: Vector3) -> void:
-	if actor == leader:
+	if actor == leader and not turned:
 		if kind == &"shoot_at":
 			_you_fired = _now
 		if kind == &"shoot_at" and deed_target is Node and deed_target != body:
@@ -254,7 +260,7 @@ func _on_deed(actor: Node, kind: StringName, deed_target: Node, at: Vector3) -> 
 
 
 func _on_spotted(who: Node3D) -> void:
-	if who == leader:
+	if who == leader and not turned:
 		return
 	super._on_spotted(who)
 
@@ -359,6 +365,10 @@ func _can_go_about() -> bool:
 ## Who he fights: the one pressing him hardest, the one on him first, never the man in your sights or
 ## the one you've just hit unless that man is on him.
 func _pick_fight(delta: float) -> void:
+	if turned and leader != null and is_instance_valid(leader):
+		if target != leader:
+			_start_fight(leader)
+		return
 	_retarget -= delta
 	var t := _find_target()
 	if t != null and _done_with(t):
@@ -462,7 +472,42 @@ func _on_any_hit(info: Dictionary) -> void:
 			and shooter != body and senses and senses.sees(leader):
 		_call(&"you_hit", null, 10.0)
 	elif person == body and shooter == leader and body.physiology.is_conscious():
-		_call(&"your_shot", null, 6.0)
+		_your_ball(true)
+
+
+func _on_near_miss(person: Node, shooter: Node, distance: float, at: Vector3, speed: float, tumbling: bool) -> void:
+	super._on_near_miss(person, shooter, distance, at, speed, tumbling)
+	if person == body and shooter == leader and distance < float(tune.get("you_near_m", 1.5)):
+		_your_ball(false)
+
+
+## Your ball in him (`hit`) or close by him: down out of it, and a word; keep on and he answers.
+func _your_ball(hit: bool) -> void:
+	if not body.physiology.is_conscious():
+		return
+	_from_you.append(_now)
+	var window := float(tune.get("you_window_s", 20.0))
+	while not _from_you.is_empty() and _now - _from_you[0] > window:
+		_from_you.pop_front()
+	_duck_t = float(tune.get("duck_s", 2.0))
+	if turned:
+		return
+	if _from_you.size() >= int(tune.get("you_turn_after", 3)):
+		_turn_on_you()
+	else:
+		_say_line(&"your_shot" if hit else &"stop", _from_you.size() == 1)
+
+
+## Enough: he fights you (the scene's hold on him off: a held man still answers a gun).
+func _turn_on_you() -> void:
+	turned = true
+	held = false
+	_duck_t = 0.0
+	_say_line(&"turn", true)
+	_decide("fight", "you kept shooting at him: %d balls in %.0f s" % [_from_you.size(), float(tune.get("you_window_s", 20.0))])
+	relations.friend_nodes.erase(leader)
+	relations.side_with(leader)
+	_start_fight(leader)
 
 
 func _on_my_hit(info: Dictionary) -> void:
@@ -502,6 +547,10 @@ func _physics_step(delta: float) -> void:
 		_calm_t += delta
 	if mood != Mood.TENDING:
 		_tend_t = 0.0
+	if _duck_t > 0.0 and not turned and not body.limp and not body.prone and p.is_conscious():
+		_duck_t -= delta
+		body.set_pose(&"duck")  # (down out of your line, whatever the scene had him doing)
+		return
 	_watch_line(delta)
 	if p.is_conscious():
 		_watch_fight()
@@ -535,6 +584,7 @@ func _get_back_up(delta: float) -> void:
 			body.get_up()
 		elif not _said_cant_stand:
 			_said_cant_stand = true
+			_said_up = false  # (once he's up he says he can walk: your first aid, #1116)
 			_say_line(&"cant_stand", true)
 		return
 	# On his belly (fought from the floor): to a knee, then up.
@@ -604,6 +654,12 @@ func in_your_line() -> bool:
 
 
 func _watch_line(delta: float) -> void:
+	# Held by a scene, he stays where it puts him: a gun on him there is a thing you're saying to him
+	# (No Justice's cabin, #966: drawing on him with the knife out), not a line of fire to leave.
+	if held and not _fight_on:
+		_line_t = 0.0
+		_line_step = 0.0
+		return
 	if not body.physiology.is_conscious() or body.limp:
 		_line_t = 0.0
 		return

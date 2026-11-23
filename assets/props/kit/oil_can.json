@@ -1,0 +1,30 @@
+{
+  "_doc": "A five-gallon can of kerosene, full (#1172, G2): square tinplate with a screw cap and a wire handle, the way lamp oil came by rail from the 1870s. A loose rigid prop (LooseProp, as the tin cup): knocked off, it rolls; a ball holes it through both sides; a fall or a kick dents it. Modelled and baked in tools/blender/props/store_g2.py. Written by tools/props/store_g2.py.",
+  "id": "oil_can",
+  "kind": "loose",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:store_hardware",
+  "looks": {
+    "OilCan": "pbr:store_hardware"
+  },
+  "shape": "box",
+  "size": [
+    0.24,
+    0.36,
+    0.24
+  ],
+  "mass": 16.0,
+  "wall": 0.0005,
+  "hole_radius": 0.006,
+  "breaks_at": 1000.0,
+  "shatters_kpa": 1000000000.0,
+  "spills_below": 0.0,
+  "dent": {
+    "radius": 0.03,
+    "shot": 0.004,
+    "kick": 0.008,
+    "fall": 0.003
+  },
+  "factory": "tools/props/store_g2.py"
+}

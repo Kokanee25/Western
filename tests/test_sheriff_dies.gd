@@ -130,6 +130,7 @@ func test_the_morning_after() -> void:
 	if tm == null:
 		return
 	_put(tm.global_position + Vector3(1.5, 0.0, 1.0))
+	f.data["talk"]["first_s"] = 0.0  # (his first word at once, not a few seconds after you're by him: #1167)
 	f._spoke_at.clear()
 	f._look = 0.0
 	await physics_frames(4)
@@ -173,7 +174,7 @@ func _to_the_room(care: String) -> SheriffDies:
 	# To the doctor at his door: his line by care; he leads you in.
 	_put(m.doctor.global_position + (m._local([4.71, -4.0]) - m.doctor.global_position).normalized() * 2.0)
 	var led := await wait_until(func() -> bool: return m.state == &"lead", 60 * 3)
-	check(led and _lines_of("doc").size() == 1, "the doctor at his door (%s)" % [_lines_of("doc")])
+	check(led and _lines_of("doctor").size() == 1, "the doctor at his door (%s)" % [_lines_of("doctor")])
 	# You follow him in (put by the cot's side: walking the hall is the playtest's).
 	await physics_frames(60 * 4)
 	_put(m._local(m.data.you_spot))
@@ -221,7 +222,7 @@ func test_he_dies_and_you_nod() -> void:
 	check(not sl.has("That's not the way this works, son. ... Doc. Pin it on him."), "not the shake's")
 	check(sl.has("Sun's up. Ain't that something."), "his last words")
 	check(_lines_of("wife").has("He said it was you that brought him. I'm obliged to you, Mr. Harlan."), "his wife's thanks")
-	check(not _lines_of("doc").any(func(l: String) -> bool: return l.begins_with("Hold him")), "packed well: no holding him")
+	check(not _lines_of("doctor").any(func(l: String) -> bool: return l.begins_with("Hold him")), "packed well: no holding him")
 	_after(m)
 
 
@@ -234,7 +235,7 @@ func test_shake_your_head_and_you_get_it_anyway() -> void:
 	var sl := _lines_of("dying_sheriff")
 	check(sl.has("...not how it works... son."), "fading: that's not how it works (%s)" % [sl])
 	check(sl.has("...boot."), "his last word")
-	check(_lines_of("doc").any(func(l: String) -> bool: return l.begins_with("Hold him")), "Doc has you hold him")
+	check(_lines_of("doctor").any(func(l: String) -> bool: return l.begins_with("Hold him")), "Doc has you hold him")
 	_after(m)
 
 
@@ -250,7 +251,7 @@ func _after(m: SheriffDies) -> void:
 	var s := m.sheriff
 	check(s != null and not s.physiology.alive and s.physiology.cause_of_death == &"gut_wound", "he dies of his wound (%s)" % (s.physiology.cause_of_death if s else &""))
 	check(s != null and not s.limp and s.pose == &"on_back", "where he lay (%s)" % m.result().get("sheriff"))
-	check(_lines_of("doc").has("He's gone, ma'am."), "Doc: he's gone")
+	check(_lines_of("doctor").has("He's gone, ma'am."), "Doc: he's gone")
 	check(_lines_of("wife").has("I'll sit with him now. Go on, the both of you."), "his wife stays with him")
 	# The town knows: no more "the sheriff's dying", and the undertaker has him.
 	var f := m.folk
