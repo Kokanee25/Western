@@ -1,0 +1,124 @@
+{
+  "_doc": "The photographer's posing stand (#1181; the period note: iron stands held the living sitter still for a long exposure; never with a body): three splayed iron feet, a rod to 1.4 m, a clamp and a head rest at the back of the sitter's head. 6 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "posing_stand",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "iron",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "foot0",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.03,
+        0.3
+      ],
+      "at": [
+        0.14,
+        0.015,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "rot": [
+        0,
+        90,
+        0
+      ]
+    },
+    {
+      "id": "foot1",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.03,
+        0.3
+      ],
+      "at": [
+        -0.07,
+        0.015,
+        0.1212
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "rot": [
+        0,
+        -30,
+        0
+      ]
+    },
+    {
+      "id": "foot2",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.03,
+        0.3
+      ],
+      "at": [
+        -0.07,
+        0.015,
+        -0.1212
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "rot": [
+        0,
+        -150,
+        0
+      ]
+    },
+    {
+      "id": "rod",
+      "kind": "furniture_frame",
+      "size": [
+        0.03,
+        1.4,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.73,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron"
+    },
+    {
+      "id": "clamp",
+      "kind": "furniture_top",
+      "size": [
+        0.18,
+        0.04,
+        0.05
+      ],
+      "at": [
+        0.08,
+        1.35,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron"
+    },
+    {
+      "id": "rest",
+      "kind": "trim",
+      "size": [
+        0.03,
+        0.1,
+        0.14
+      ],
+      "at": [
+        0.17,
+        1.38,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron"
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

@@ -1,0 +1,137 @@
+{
+  "_doc": "Rags (#1181, Sean's add-on): three cotton cloths dropped in a heap by the embalming table's pail, one stained brown, one pink at the edge. 1 physics body. Written by tools/props/undertaker.py.",
+  "id": "rags",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "canvas",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "rags",
+      "kind": "post",
+      "size": [
+        0.4,
+        0.05,
+        0.3
+      ],
+      "at": [
+        0.0,
+        0.025,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.36,
+              0.024,
+              0.26
+            ],
+            "at": [
+              0.0,
+              0.012,
+              0.0
+            ],
+            "rot": [
+              0.0,
+              8.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.26,
+              0.02,
+              0.2
+            ],
+            "at": [
+              0.04,
+              0.034,
+              0.02
+            ],
+            "rot": [
+              0.0,
+              -22.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.16,
+              0.018,
+              0.12
+            ],
+            "at": [
+              -0.05,
+              0.048,
+              -0.02
+            ],
+            "rot": [
+              0.0,
+              35.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:hide_dark",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.1,
+                  0.003,
+                  0.08
+                ],
+                "at": [
+                  0.06,
+                  0.044,
+                  0.03
+                ],
+                "rot": [
+                  0.0,
+                  -22.0,
+                  0.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:hide_pale",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.1,
+                  0.003,
+                  0.07
+                ],
+                "at": [
+                  -0.09,
+                  0.058,
+                  -0.02
+                ],
+                "rot": [
+                  0.0,
+                  35.0,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

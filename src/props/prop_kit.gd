@@ -329,6 +329,8 @@ static func material(look: String, variant: int) -> Material:
 			return PropModels.brass()
 		"iron":
 			return PropModels.iron()
+		"tin":
+			return PropModels.tin()
 		"plate_iron":
 			return PropModels.plate_iron()
 		"mirror":

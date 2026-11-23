@@ -1,0 +1,184 @@
+{
+  "_doc": "The ice bin (#1181; ice cut in winter and kept in sawdust, the period note): a pine box 1.3 by 0.9 by 0.72, a bed of sawdust, blocks of ice 40 by 36 by 36 cm packed in it and a block on top; wet through the planks. The ice is members (they don't burn). 11 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "ice_bin",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "floor",
+      "kind": "post",
+      "size": [
+        1.3,
+        0.04,
+        0.9
+      ],
+      "at": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "wall_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.3,
+        0.72,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.4,
+        -0.43
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "wall_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.3,
+        0.72,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.4,
+        0.43
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "end_w",
+      "kind": "furniture_frame",
+      "size": [
+        0.04,
+        0.72,
+        0.82
+      ],
+      "at": [
+        -0.63,
+        0.4,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "end_e",
+      "kind": "furniture_frame",
+      "size": [
+        0.04,
+        0.72,
+        0.82
+      ],
+      "at": [
+        0.63,
+        0.4,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "sawdust",
+      "kind": "furniture_top",
+      "size": [
+        1.18,
+        0.2,
+        0.78
+      ],
+      "at": [
+        0.0,
+        0.14,
+        0.0
+      ],
+      "wood": "hay",
+      "look": "prop:straw"
+    },
+    {
+      "id": "block0",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.36,
+        0.36
+      ],
+      "at": [
+        -0.3,
+        0.42,
+        -0.2
+      ],
+      "wood": "stone",
+      "look": "glass:aqua"
+    },
+    {
+      "id": "block1",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.36,
+        0.36
+      ],
+      "at": [
+        0.15,
+        0.42,
+        -0.2
+      ],
+      "wood": "stone",
+      "look": "glass:aqua"
+    },
+    {
+      "id": "block2",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.36,
+        0.36
+      ],
+      "at": [
+        -0.3,
+        0.42,
+        0.2
+      ],
+      "wood": "stone",
+      "look": "glass:aqua"
+    },
+    {
+      "id": "block3",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.36,
+        0.36
+      ],
+      "at": [
+        0.15,
+        0.42,
+        0.2
+      ],
+      "wood": "stone",
+      "look": "glass:aqua"
+    },
+    {
+      "id": "chip",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.2,
+        0.3
+      ],
+      "at": [
+        0.2,
+        0.7,
+        0.0
+      ],
+      "wood": "stone",
+      "look": "glass:aqua"
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

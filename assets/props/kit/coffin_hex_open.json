@@ -1,0 +1,240 @@
+{
+  "_doc": "A toe-pincher coffin open for viewing (#1181): as `coffin_hex` with no lid (it stands beside on trestles: `coffin_lid`), a pleated white cotton lining and a pillow; for the parlour's bier. Nobody in it. 9 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "coffin_hex_open",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "walnut",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "base",
+      "kind": "post",
+      "size": [
+        1.95,
+        0.022,
+        0.58
+      ],
+      "at": [
+        0.0,
+        0.011,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -0.975,
+            -0.18
+          ],
+          [
+            -0.45,
+            -0.29
+          ],
+          [
+            0.975,
+            -0.09
+          ],
+          [
+            0.975,
+            0.09
+          ],
+          [
+            -0.45,
+            0.29
+          ],
+          [
+            -0.975,
+            0.18
+          ]
+        ]
+      }
+    },
+    {
+      "id": "wall0",
+      "kind": "furniture_frame",
+      "size": [
+        0.5584,
+        0.4,
+        0.022
+      ],
+      "at": [
+        -0.7125,
+        0.222,
+        -0.235
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        11.833645306160674,
+        0
+      ]
+    },
+    {
+      "id": "wall1",
+      "kind": "furniture_frame",
+      "size": [
+        1.461,
+        0.4,
+        0.022
+      ],
+      "at": [
+        0.2625,
+        0.222,
+        -0.19
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -7.989326766396895,
+        0
+      ]
+    },
+    {
+      "id": "wall2",
+      "kind": "furniture_frame",
+      "size": [
+        0.202,
+        0.4,
+        0.022
+      ],
+      "at": [
+        0.975,
+        0.222,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -90.0,
+        0
+      ]
+    },
+    {
+      "id": "wall3",
+      "kind": "furniture_frame",
+      "size": [
+        1.461,
+        0.4,
+        0.022
+      ],
+      "at": [
+        0.2625,
+        0.222,
+        0.19
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -172.01067323360311,
+        0
+      ]
+    },
+    {
+      "id": "wall4",
+      "kind": "furniture_frame",
+      "size": [
+        0.5584,
+        0.4,
+        0.022
+      ],
+      "at": [
+        -0.7125,
+        0.222,
+        0.235
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        168.16635469383934,
+        0
+      ]
+    },
+    {
+      "id": "wall5",
+      "kind": "furniture_frame",
+      "size": [
+        0.382,
+        0.4,
+        0.022
+      ],
+      "at": [
+        -0.975,
+        0.222,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        90.0,
+        0
+      ]
+    },
+    {
+      "id": "lining",
+      "kind": "trim",
+      "size": [
+        1.85,
+        0.02,
+        0.48
+      ],
+      "at": [
+        0.0,
+        0.034,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -0.9068,
+            -0.1476
+          ],
+          [
+            -0.4185,
+            -0.2378
+          ],
+          [
+            0.9068,
+            -0.0738
+          ],
+          [
+            0.9068,
+            0.0738
+          ],
+          [
+            -0.4185,
+            0.2378
+          ],
+          [
+            -0.9068,
+            0.1476
+          ]
+        ]
+      }
+    },
+    {
+      "id": "pillow",
+      "kind": "trim",
+      "size": [
+        0.34,
+        0.06,
+        0.3
+      ],
+      "at": [
+        -0.695,
+        0.074,
+        0.0
+      ],
+      "wood": "straw",
+      "look": "prop:canvas"
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}
