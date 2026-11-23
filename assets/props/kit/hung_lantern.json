@@ -1,0 +1,63 @@
+{
+  "_doc": "Goods hung from the store's beaded ceiling (#1182, G3): a tin barn lantern with its globe, hung by its bail from a hook (for sale: the oil unfilled). A prop that hangs by a hook (GlassProp, as the hanging lamp: it swings when pushed, and falls whole if the board it hangs from goes; its parts never shatter, but the globe does). Baked the gun way (tools/blender/props/store_g3.py: model hung_lantern). Written by tools/props/store_g3.py.",
+  "id": "hung_lantern",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "replaces": "",
+  "model": "glb:hung_lantern",
+  "looks": {
+    "Lantern": "pbr:hung_lantern",
+    "Globe": "glass:flint"
+  },
+  "size": [
+    0.3,
+    0.65,
+    0.3
+  ],
+  "mass": 1.6,
+  "wall": 0.0015,
+  "hangs": {
+    "hook": [
+      0.0,
+      0.65,
+      0.0
+    ]
+  },
+  "hit": {
+    "at": [
+      0.0,
+      0.26,
+      0.0
+    ],
+    "size": [
+      0.27,
+      0.325,
+      0.27
+    ]
+  },
+  "swing": {
+    "pivot": [
+      0.0,
+      0.65,
+      0.0
+    ],
+    "length": 0.455,
+    "damping": 0.4
+  },
+  "glass": [
+    "Globe"
+  ],
+  "whole": [
+    [
+      "Lantern"
+    ]
+  ],
+  "piece_mass": 1.28,
+  "shards": 8,
+  "breaks_at": 1.5,
+  "shatters_kpa": 15,
+  "heat_seconds": 30,
+  "cut_area": 0.04,
+  "factory": "tools/props/store_g3.py"
+}

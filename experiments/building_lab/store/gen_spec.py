@@ -236,7 +236,7 @@ def up(id_, use, who, at, look, level="ground", **kw):
 use_points = [
     up("serve_east", "serve", "storekeeper", (1.45, 4.0), (2.3, 4.0), _doc="behind the east counter (G1, #1139: its counter at x 2.0-2.6, z 2.0-5.3, in the light of the alley windows)"),
     up("ledger", "work", "storekeeper", (13.3, 9.5), (13.3, 8.7), _doc="the day-book on the back counter; the witness's place (OUTLINE: the handsaw sold to a stranger)"),
-    up("post_office", "work", "storekeeper", (15.5, 9.15), (16.3, 9.15), _doc="the pigeonholes bay, west_shelves_d (G3 fits it out)"),
+    up("post_office", "work", "storekeeper", (15.5, 9.15), (16.3, 9.15), _doc="the pigeonholes bay, west_shelves_d (G3, #1182: the case of pigeonholes; the postmaster's desk behind him at the back wall)"),
     up("buy_1", "buy", "anyone", (3.5, 3.2), (2.6, 3.2)),
     up("buy_2", "buy", "anyone", (13.5, 3.2), (14.9, 3.2)),
     up("browse_1", "stand", "anyone", (8.4, 2.6), (8.4, 6.0)),
@@ -317,10 +317,14 @@ DZ = 0.56  # the platforms' middle: their backs 0.21 in from the wall's line, cl
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "tools", "props"))
 import store_g1  # noqa: E402
 import store_g2  # noqa: E402  (#1172: G2, the shelves filled, boots, hats, hardware, the mill and showcase, hung lamps)
+import store_g3  # noqa: E402  (#1182: G3, the post office's case, the ledger and day-book, the till's cash, goods hung from the ceiling)
 
 dressing = {
-    "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth), #1172 batch G2 (the shelves' tins and boxes, boots, hats, hardware, tinware, the coffee mill and a showcase, hung lamps): PropDressing, written by tools/props/store_g1.py and store_g2.py",
-    "batches": {"windows": store_g1.dressing_windows(EAST_X, WEST_X, DZ), "G1": store_g1.dressing_g1(), "G2": store_g2.dressing_g2()},
+    "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth), #1172 batch G2 (the shelves' tins and boxes, boots, hats, hardware, tinware, the coffee mill and a showcase, hung lamps), #1182 batch G3 (the post office's pigeonholes and mail, the postmaster's desk, the ledger and day-book, the till's cash, hung pails, hams and lanterns): PropDressing, written by tools/props/store_g1.py, store_g2.py and store_g3.py",
+    "batches": {"windows": store_g1.dressing_windows(EAST_X, WEST_X, DZ),
+                # (G3's case stands in the last west bay: G1's shelving there is dropped)
+                "G1": [x for x in store_g1.dressing_g1() if x["id"] != store_g3.BAY_D[0]],
+                "G2": store_g2.dressing_g2(), "G3": store_g3.dressing_g3()},
 }
 
 spec = {

@@ -1,0 +1,36 @@
+{
+  "_doc": "The till's cash (#1182, G3): a tin tray of silver and copper coin in stacks and a bundle of greenbacks under a paper band, set on the counter by the till. One member. Drawn from glb:store_post (tools/blender/props/store_g3.py). Written by tools/props/store_g3.py.",
+  "id": "till_cash",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "iron",
+  "look": "pbr:store_post",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g3.py",
+  "members": [
+    {
+      "id": "body",
+      "kind": "post",
+      "size": [
+        0.22,
+        0.05,
+        0.14
+      ],
+      "at": [
+        0.0,
+        0.025,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:store_post",
+      "solid": 0.15,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_post",
+        "part": "Cash"
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "_doc": "The day-book (#1182, G3): the counter's daily record of sales, open at today's page, ruled in columns (date, article, quantity, price, cash or credit) and written down in a clerk's hand to the foot of the left page. 46 cm open. One member. Drawn from glb:store_post (tools/blender/props/store_g3.py). Written by tools/props/store_g3.py.",
+  "id": "day_book",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "paper",
+  "look": "pbr:store_post",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g3.py",
+  "members": [
+    {
+      "id": "body",
+      "kind": "post",
+      "size": [
+        0.46,
+        0.022,
+        0.3
+      ],
+      "at": [
+        0.0,
+        0.011,
+        0.0
+      ],
+      "wood": "paper",
+      "look": "pbr:store_post",
+      "solid": 0.9,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_post",
+        "part": "DayBook"
+      }
+    }
+  ]
+}

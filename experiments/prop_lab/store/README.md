@@ -28,8 +28,9 @@ Preservation Brief 11 for the front (already built, #1053). G2 saved four dated 
 | The show windows | the east one dry goods and groceries (a cracker barrel, blankets, bolts, scales, sacks), the west one housewares and hardware (lamps, basin and pitcher, saw, cups, a flour barrel) | G1 (what #1076 replaced); G2 completes (tins, boots, tinware, hardware) |
 | Behind the counter, on the shelves | tins, jars, lamp chimneys, boxes of ammunition, soap, tobacco | G2 |
 | Hardware | nail kegs, tools (axe, shovel), rope, lamp oil cans, a coffee mill, tinware (pail, coffeepot, kettle) | G2 |
-| The post office | the pigeonholes (west_shelves_d), the postmaster's desk | G3 |
-| The day-book | the ledger, the pen, the till's cash | G3 |
+| The post office | the pigeonholes (west_shelves_d), the postmaster's desk | G3 (#1182) |
+| The day-book | the ledger, the pen, the till's cash | G3 (#1182) |
+| The ceiling | pails, hams, lanterns hung from the beaded ceiling | G3 (#1182) |
 
 ## G1 (this batch): what's made, how, what's judged
 
@@ -135,3 +136,40 @@ west bays). Its other big differences aren't props: the room's plan (counters ag
 posts), the pale beaded ceiling and cool even light (the building's and art's). One round spent; the second kept for G3
 with the post office in. Next: G3 (the pigeonholes, the ledger and day-book), then for the room to read from the door:
 goods hung from the ceiling (pails, lanterns) and a camera from the clerk's place.
+
+
+## G3 (#1182): the post office, the ledger and day-book, goods from the ceiling
+
+**Made** (`tools/props/store_g3.py` numbers and kit files, written by `store_g2.py`'s main; `tools/blender/props/store_g3.py` models,
+~1 min of bakes; `build.py --only=store_g3`): `post_case` (1.7 m of oak: cupboards below, a 8 x 4 grid of cells 19 cm wide and
+18 cm clear, a cornice and a green and gilt POST OFFICE / SALT CREEK board, 2.45 m; **placed at its own size, no `fit`**: G1's squash)
+and `mail_row_a`..`_d` (one member a row of cells: letters on edge in cream, buff, blue and manila envelopes, tied bundles, brown-paper
+parcels, a lettered card at each cell: A to Z in groups, general delivery, registered, stamps, dead letters; every face printed on one
+2048 sheet, `glb:store_post`, as G2's goods); `ledger_book` (a folio, marbled cover, leather corners), `day_book` (open, ruled in
+columns, written down the left page), `ink_set` (glass inkwell, steel pen), `till_cash` (tin tray of silver and copper coin in stacks,
+a banded bundle of notes), `parcel_stack` (on the postmaster's desk); `hung_pails` (three tin pails on a cross-cord), `hung_ham` (two
+hams in muslin), `hung_lantern` (a tin barn lantern with a glass globe): each a `shatters` prop hung by the kit's hook, as the hanging
+lamp (3.56 m ceiling less its drop): swings when pushed, falls whole with its ceiling; nothing breaks but the lantern's globe. New
+finish `cured_ham` in `metal.py`. The postmaster's desk is the kit's `owner_desk` against the back wall and a `bar_stool` (the
+use point `post_office` 15.5/9.15 stays clear: `Checks.people_fit` green).
+
+**Placed** (`dressing_g3()`, batch G3; `gen_spec.py` drops G1's `west_shelves_d` shelving, G2's `STOCK` for it is empty): the case in the bay,
+a row of mail on each board (`probe_shelves.gd` now reads `post_case`'s boards: all four rows gap 0.000, nothing moved); on the back
+counter the day-book where the clerk stands (the `ledger` point 13.3/9.5), the till's cash, the ink and the ledger along it (G2's
+tinware moved to the counter's ends to make room: coffeepot 12.0, kettle 12.3, pail 14.62); hung pails over the west and east
+counters, hams over the east counter's back and the back counter, lanterns over the aisle. The case first took G1's painted pine and
+read nearly black in the room (the west wall is far from the windows): oak, as the counters.
+
+**Cost**: 13 kit files, 20 dressed props; the case 22 members; 5 mail rows of 1 each; 7 hung props frozen. About +60 member bodies
+on G2's 794 (+8%), +0.05 ms at the lane's rate. Not measured in the valley.
+
+**Rendering here**: the valley render takes ~14 GB and is killed on a 15 GB box without swap (8 GB `fallocate`d swap fixed it);
+`mesa-vulkan-drivers` was missing from the image (`apt-get update` first, 8 minutes through the proxy). A view ~10 min. The new
+`post` view in `render_valley.gd` (camera at 9.2/1.9/7.0, not in a column: round 1's view at 11.0/6.4 was inside one).
+
+**Judged blind in the room** (one round, `results/2026-11-23_store_g3/r2/`: shop, clerk and post views, by day; `critic.md`): the post
+office's case CLOSE (reads as a case with a lettered board and mail; small from the door); hung goods DIFFERENT (read as a few small red
+and grey specks: the ham and pail clusters are 0.4 to 0.7 m wide at 2.7 m up); the back counter's books, ink and cash NOT SEEN (no view
+looks down on the counter's top); the room from the door DIFFERENT (the critic's first three differences are the building's: the pale
+ceiling, the posts, the flat light). One of the two rounds spent. **For G4 or after**: hang bigger clusters lower over the aisle (5 to 7
+hams, a string of pails, lamps) and a counter view from the clerk's side looking down at the books; the room's ceiling and posts are art's.
