@@ -1,0 +1,30 @@
+{
+  "_doc": "A tin pail (#1172, G2): tinplate, 10 qt, a wire bail. A loose rigid prop (LooseProp, as the tin cup): knocked off, it rolls; a ball holes it through both sides; a fall or a kick dents it. Modelled and baked in tools/blender/props/store_g2.py. Written by tools/props/store_g2.py.",
+  "id": "tin_pail",
+  "kind": "loose",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:store_hardware",
+  "looks": {
+    "Pail": "pbr:store_hardware"
+  },
+  "shape": "cylinder",
+  "size": [
+    0.28,
+    0.25,
+    0.28
+  ],
+  "mass": 0.8,
+  "wall": 0.0005,
+  "hole_radius": 0.006,
+  "breaks_at": 1000.0,
+  "shatters_kpa": 1000000000.0,
+  "spills_below": 0.3,
+  "dent": {
+    "radius": 0.03,
+    "shot": 0.004,
+    "kick": 0.008,
+    "fall": 0.003
+  },
+  "factory": "tools/props/store_g2.py"
+}
