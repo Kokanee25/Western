@@ -45,7 +45,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   dead?"; `run_seed` varies each run (random; Engine meta `town_seed`, 0 in tests); the bridge logs a big break's
   breaker (`big_break`; the 214 still unreproduced). **Gate round 2 (#1180, `docs/playtests/2026-11-23-town-2.md`): not passed, much better** (regard moves, saloon open and
   laughing by day, men walk, store answers, runs differ). Left: day talk thin (1-4 lines in 10 min), 4+ men static all run,
-  few in view, the knock brings a line not the man (and a man in the doorway makes E a shove). Next: those four, #1187. Unjudged on screen: the
+  few in view, the knock brings a line not the man (and a man in the doorway makes E a shove). Next: those four, #1184. Unjudged on screen: the
   walks between spots, the store's door scene. Open: the room's sounds are synth stand-ins (#807); no argument,
   round bought or song called for; not in saloon B; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 
