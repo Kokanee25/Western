@@ -1,5 +1,5 @@
 {
- "_doc": "The Salt Creek Hotel's target sheet (#1146, the building lab's step 1), from docs/briefs/hotel.md (the design). Twelve views at ~$0.14, $2.50 cap. Not sent: waits on Sean's OK of the cost and his calls in hotel.md \u00a79 (the front's material, the gallery). On his OK it goes to experiments/building_lab/hotel/sheet/request.json on claude/art-building-hotel, painted by building_sheet.yml. The spec settles every size; the pictures are the look only.",
+ "_doc": "The Salt Creek Hotel's target sheet (#1146, the building lab's step 1), from docs/briefs/hotel.md (the design). Twelve views at ~$0.14, $2.50 cap. Sean OK'd the cost 2026-11-23 (in session, \"Let's do it\"); painted with the brief's recommendations (painted clapboard, two storeys) and B's drift in the cellar. It goes to experiments/building_lab/hotel/sheet/request.json on claude/art-building-hotel, painted by building_sheet.yml. The spec settles every size; the pictures are the look only.",
  "sheet_title": "Salt Creek, 1882: the Salt Creek Hotel (target sheet, #1146)",
  "cap": 2.5,
  "model": "google/gemini-3-pro-image-preview",
@@ -125,7 +125,7 @@
    "title": "The cellar",
    "aspect": "16:9",
    "size": "2K",
-   "view": "In the hotel's cellar at eye level, lit by a hanging iron lantern and a little daylight from the open bulkhead doors and steps up to the lane: rough fieldstone walls limed in their upper part, joists overhead, a flagged and earth floor; beer kegs on timber stillage, a locked plank door to a wine room with racks of bottles glimpsed through its grille, a thick door to the ice room, bins of potatoes, flour barrels, hams hanging, crates of canned oysters and peaches, a coal heap under a chute.",
+   "view": "In the hotel's cellar at eye level, lit by a hanging iron lantern and a little daylight from the open bulkhead doors and steps up to the lane: rough fieldstone walls limed in their upper part, joists overhead, a flagged and earth floor; beer kegs on timber stillage, a locked plank door to a wine room with racks of bottles glimpsed through its grille, a thick door to the ice room, bins of potatoes, flour barrels, hams hanging, crates of canned oysters and peaches, a coal heap under a chute. In the cellar's west wall, behind the kegs, a low round-arched doorway of old brick whose bricks have lately been knocked out and stacked on the floor, a dark passage beyond lined with mine timbers, fresh pale sawdust on the floor by it, a bucksaw leaning against the wall.",
    "refs": [
     "plan"
    ]
