@@ -21,7 +21,7 @@
         0.95,
         -0.985
       ],
-      "look": "wood:int_r1_framing"
+      "look": "lib:rough_pine_batten/few"
     },
     {
       "id": "upright_r",
@@ -37,11 +37,11 @@
         0.95,
         0.985
       ],
-      "look": "wood:int_r1_framing"
+      "look": "lib:rough_pine_batten/few"
     },
     {
       "id": "shelf0",
-      "kind": "furniture_top",
+      "kind": "furniture_top", "look": "lib:rough_pine_batten/few/top",
       "size": [
         0.38,
         0.025,
@@ -55,7 +55,7 @@
     },
     {
       "id": "shelf1",
-      "kind": "furniture_top",
+      "kind": "furniture_top", "look": "lib:rough_pine_batten/few/top",
       "size": [
         0.38,
         0.025,
@@ -69,7 +69,7 @@
     },
     {
       "id": "shelf2",
-      "kind": "furniture_top",
+      "kind": "furniture_top", "look": "lib:rough_pine_batten/few/top",
       "size": [
         0.38,
         0.025,
@@ -83,7 +83,7 @@
     },
     {
       "id": "shelf3",
-      "kind": "furniture_top",
+      "kind": "furniture_top", "look": "lib:rough_pine_batten/few/top",
       "size": [
         0.38,
         0.025,
@@ -96,5 +96,5 @@
       ]
     }
   ],
-  "look": "wood:int_r1_floor"
+  "look": "lib:rough_pine_batten/few"
 }
