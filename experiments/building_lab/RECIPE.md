@@ -372,3 +372,26 @@ Record: `church/README.md`. What it taught:
   `YardStructure` grounds each on the ground under it (`ground_y`), so a pipe down a hill doesn't fall.
 - **A dirt floor** (`levels.ground.dirt`): the checks take the ground as the floor for use points under the
   sills' level.
+
+## A cellar you walk down into (the undertaker's, #1174)
+
+- **The valley's ground is a height field: a cellar needs its ground dug.** `cellar.dig` (CellarDig) sets
+  Ground's dug tiles (5 cm points) under the cellar and the bulkhead's areaway to the cellar's floor, the
+  cut's edge 10 cm inside the walls' stone so its slope never shows. The lab's ground opens the same pits
+  (`lab.gd`). No pad needed: the lot keeps its slope, and `lot.ground.plane` (checked against the bake in
+  `tests/test_undertaker_valley.gd`, within 4 cm) stands the yard's things on it.
+- **A cellar's rooms are partitions on its flags** (walls of level `cellar`): put the bearing ones under
+  the girders (they carry them); a door in one needs 1.98 m under its header, so the cellar's floor goes
+  1.6 m under the street edge (2.41 m to the joists). Its openings and lamps count from the flags' top.
+- **A post on floor boards gives the boards its load** (StructuralAnalysis shares an upright's load evenly
+  among what it touches): a summer beam's post goes down through a slot in the floor onto its girder,
+  standing between two joists and 2 cm clear of the boards (CONTACT_EPSILON is 1.2 cm). Put the girders
+  on a floor board's middle so the slot cuts one row.
+- **Keep a partition off a summer beam's line** (its plate and the beam overlap: the settle drops both).
+- **A beam sits on a hatch's edges only if the hatch's sides are on the girders' faces** (boards beside a
+  hatch over a strip with no joist bent 2x with a crowd).
+- **An outward door in an outer wall has nothing under its leaf** (the floor's inside): open it inward.
+- **The walk test** (`Waypoints._foot_height`, `_walkable`, as saloon B's): sample every 0.2 m up a steep
+  stair (a 44 degree stair rises 0.27 in 0.3 m, over STEP_UP); the player's own limit is 46 degrees.
+- **Valley bodies:** 44,986 of Jolt's 65,536 with the undertaker in (his 4,079): no guard to raise.
+
