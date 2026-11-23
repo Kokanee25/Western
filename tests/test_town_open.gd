@@ -4,6 +4,8 @@ extends TestCase
 ##   rounds bring a drinker or two to it within a few minutes (the gate found it shut and empty);
 ## - a knock at the store's door in its hours brings the storekeeper out to it, facing you, with a
 ##   line; he goes back in once you've walked off. At night (shut) nobody comes.
+## - (#1184) the knock's own line, and again if you stand there; a man in the doorway makes E a knock,
+##   never a shove of him, and the keeper out on his walk answers it.
 
 var holder: Node
 var valley: ValleyWorld
@@ -95,6 +97,13 @@ func test_a_knock_at_the_store_in_its_hours() -> void:
 	await physics_frames(60 * 2)
 	print("  said: %s" % [f.heard.slice(said)])
 	check(f.heard.size() > said and String(f.heard[-1][0]) == "storekeeper", "and says a line (%s)" % [f.heard.slice(said)])
+	# The knock's own line, not his counter's (#1184: "There's others before you" with nobody there).
+	var ids := f.heard.slice(said).map(func(x: Array) -> String: return String(x[1]))
+	check(ids.has("day.store_open"), "the knock's answer: the store's open (%s)" % [ids])
+	# You stand there and say nothing: he asks again.
+	var asked := await wait_until(func() -> bool:
+		return f.heard.slice(said).any(func(x: Array) -> bool: return String(x[1]).begins_with("knock.wait")), 60 * 25)
+	check(asked, "stood at his door, he asks what you want (%s)" % [f.heard.slice(said)])
 	# Off up the street: he goes back to his day.
 	_put(stand + Vector3(0.0, 0.0, -30.0), stand + Vector3(0.0, 0.0, -60.0))
 	var back := await wait_until(func() -> bool: return f.state.get(keeper) != &"called", 60 * 10)
@@ -106,4 +115,44 @@ func test_a_knock_at_the_store_in_its_hours() -> void:
 	f.knock(&"general_store", p, door)
 	await physics_frames(60 * 3)
 	check(f.state.get(keeper) != &"called" and not f.answering.has(keeper), "shut at night: nobody comes")
+	_clock().time_scale = 1.0
+
+
+## #1184 (gate round 2, run 3): the storekeeper stood in his doorway, nobody in on the book, and E there
+## shoved him in the chest. A man at the door: E is the door's, and the keeper on his walk answers.
+func test_a_man_in_the_doorway_is_knocked_for_not_shoved() -> void:
+	var f := valley.folk
+	_put(Vector3(0.0, f.ground(0.0, 300.0), 300.0), Vector3(0.0, 0.0, 400.0))
+	await _at(14.0, 60 * 2)
+	var keeper := &"storekeeper"
+	# On his walk (his afternoon round's second leg, store_walk), the clock held.
+	f._legs[keeper] = {"base": 13.0, "i": 1, "until": 1.0e9, "since": f._ran, "n": 0}
+	f._key.erase(keeper)
+	f._look = 0.0
+	var spot := f.spot_point(f.spot("store_walk"))[0] as Vector3
+	var there := await wait_until(func() -> bool:
+		var m := f.folk_man(keeper)
+		return m != null and f.state.get(keeper) == &"in" and m.global_position.distance_to(spot) < 1.0, 60 * 40)
+	check(there, "the storekeeper's out on his walk")
+	var door := f.door(&"general_store")
+	var man := f.folk_man(keeper)
+	# Him right in the doorway, you at arm's length out on the walk facing it.
+	var out := spot - door
+	out.y = 0.0
+	out = out.normalized() if out.length() > 0.1 else Vector3.BACK
+	man.global_position = Vector3(door.x, man.global_position.y, door.z) + out * 0.5
+	var stand := door + out * 1.5
+	stand.y = f.ground(stand.x, stand.z)
+	_put(stand, door)
+	await physics_frames(2)
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	check(not p.knock.door_here(true).is_empty(), "a man at the door: the door's yours to bang on")
+	check(p.knock.claims_use(p), "E there is the door's, not a shove")
+	var said := f.heard.size()
+	p.knock.bang(p.knock.door_here(true))
+	await physics_frames(60 * 4)
+	check(f.answering.has(keeper) or f.heard.slice(said).any(func(x: Array) -> bool: return String(x[0]) == "storekeeper"),
+			"the keeper on his walk answers the knock (%s)" % [f.heard.slice(said)])
+	check(man.physiology.is_conscious() and not (man.get_node(^"Brain") as CivilianBrain).mood in [CivilianBrain.Mood.DOWN],
+			"and nobody's knocked down")
 	_clock().time_scale = 1.0

@@ -29,7 +29,10 @@ const LINES := {
 	&"beg": ["Take it! Take whatever you want!", "Don't shoot! I got a family!", "Please, mister..."],
 	&"cower": ["Lord almighty!", "Get down! Everybody down!"],
 	&"hat": ["My hat! Lord, my hat!", "He shot my hat clean off!"],
-	&"relief": ["...They gone?", "Lord. Lord, lord."],
+	# Widened (#1184: after one shot four men each said "...They gone?" and four "Lord, lord").
+	&"relief": ["...They gone?", "Lord. Lord, lord.", "Is it over?", "Anybody hurt?", "I'm too old for this.",
+			"Somebody tell me that's the end of it.", "My heart's going like a hammer.", "Who was it? Anybody see?",
+			"Well. That's my supper ruined.", "Damn fool, whoever it was."],
 	&"buckets": ["Buckets! Get the buckets!", "Water! From the trough, quick!", "Bring water, damn it!"],
 	&"lost": ["Let it go, she's gone!", "Too late. Let it burn.", "Nothing to be done now."],
 	&"out": ["That's got it!", "It's out. Lord.", "Keep an eye on it, it'll catch again."],
@@ -59,6 +62,9 @@ const BLAST_KINDS := [&"blow", &"splinter", &"gravel", &"blast", &"burn"]
 ## Another man's cower line this recently (ms): he's likelier to keep quiet, and never says the same.
 const CROWD_MS := 900
 const SAME_LINE_MS := 4000
+## Kinds whose lines nobody repeats in the town for longer than SAME_LINE_MS (ms; #1184: the relief
+## after a shot went round the room, the same two lines by four men each). All said: he keeps quiet.
+const SAME_LINE_LONG_MS := {&"relief": 300000, &"gawk_shot": 60000}
 ## Seen drawing within this (m), a gun makes him uneasy (not on him: `aim_at` is that).
 const GUN_SEEN := 9.0
 
@@ -252,7 +258,8 @@ func say(kind: StringName) -> void:
 			return  # someone's just cried out: he keeps it to himself
 		_cower_at = now
 	# Not a line another man's just said.
-	var fresh := lines.filter(func(l: String) -> bool: return now - int(_said_at.get(l, -100000)) > SAME_LINE_MS)
+	var gap := int(SAME_LINE_LONG_MS.get(kind, SAME_LINE_MS))
+	var fresh := lines.filter(func(l: String) -> bool: return not _said_at.has(l) or now - int(_said_at[l]) > gap)
 	if fresh.is_empty():
 		if not kind in SAY_ALWAYS:
 			return  # all of them just said by others: he's no need to say it again
