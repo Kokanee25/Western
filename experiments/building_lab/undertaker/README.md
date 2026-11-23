@@ -10,7 +10,7 @@ an 1882 undertaker and cabinetmaker with a period-true, walkable cellar. Sean's 
 settles each, never the pictures): the front's walk drawn low (it's 1.15 m) and the trim grey, not near-black;
 the plan puts the yard and shed inside the 32 ft (they're beside it, east); the cutaway digs the cellar under the
 front, not the back half; the back view's hearse is an open carriage, the yard's the glass box; the coffin
-store's safety coffin shows no bell frame. Waiting on Sean's OK of the sheet before step 2.
+store's safety coffin shows no bell frame. Sean OK'd the sheet 2026-11-23 (#1173); steps 2-6 are #1174.
 
 ## What the lot gives (probed 2026-11-23 from `config/valley_ground/heights.r16.gz`)
 
