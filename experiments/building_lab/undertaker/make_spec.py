@@ -267,7 +267,7 @@ spec["lamps"] = {
         {"room": "workroom", "kit": "reflector_lamp", "wall": "yard", "level": "ground", "at": 8.5, "height": 1.6, "energy": 1.0, "reach": 6.0, "lit": [17, 21]},
         {"room": "back_room", "kit": "reflector_lamp", "wall": "work_b", "side": "+", "level": "ground", "at": 7.6, "height": 1.5, "energy": 0.9, "lit": [19, 23]},
         {"room": "coffin_store", "kit": "reflector_lamp", "wall": "cel_cross", "side": "-", "level": "cellar", "at": 1.8, "height": 1.5, "energy": 1.0, "reach": 6.0, "shadows": True, "lit": [0, 24]},
-        {"room": "embalming", "kit": "reflector_lamp", "wall": "cel_cross", "side": "+", "level": "cellar", "at": 6.8, "height": 1.55, "energy": 1.2, "reach": 6.0, "shadows": True, "lit": [0, 24]},
+        {"room": "embalming", "kit": "reflector_lamp", "wall": "cel_cross", "side": "+", "level": "cellar", "at": 6.3, "height": 1.55, "energy": 1.2, "reach": 6.0, "shadows": True, "lit": [0, 24]},
         {"room": "ice_room", "kit": "reflector_lamp", "wall": "cel_ice", "side": "-", "level": "cellar", "at": 2.6, "height": 1.5, "energy": 0.7, "reach": 4.0, "lit": [0, 24]},
     ],
 }
@@ -310,7 +310,7 @@ U0 = [
     {"id": "chair", "kit": "chair", "at": [6.9, 0.0, 12.95], "facing": 0},
     {"id": "embalming_table", "kit": "table", "fit": [0.75, 0.85, 1.9], "at": [7.6, CY, 13.4], "facing": 0, "use": "the embalming table (its zinc top and drain: the next batch)"},
     {"id": "cooling_board", "kit": "table", "fit": [0.6, 0.7, 1.9], "at": [4.6, CY, 14.35], "facing": 90, "use": "the cooling board on its trestles against the back wall"},
-    {"id": "fluids", "kit": "shelves", "at": [8.6, CY, 11.4], "facing": 0, "use": "the embalmer's shelf: jars and carboys (the next batch)"},
+    {"id": "fluids", "kit": "shelves", "at": [8.25, CY, 11.4], "facing": 90, "use": "the embalmer's shelf: jars and carboys (the next batch)"},
     {"id": "meltwater", "kit": "barrel", "at": [0.9, CY, 14.3], "facing": 0, "use": "the ice room's meltwater barrel"},
     {"id": "rack_1", "kit": "table", "fit": [0.7, 0.45, 2.0], "at": [2.0, CY, 10.4], "facing": 90, "use": "a coffin rack along the cross wall"},
     {"id": "rack_2", "kit": "table", "fit": [0.7, 0.45, 1.6], "at": [8.45, CY, 10.4], "facing": 90, "use": "a coffin rack"},
