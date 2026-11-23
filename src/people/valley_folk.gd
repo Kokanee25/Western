@@ -183,9 +183,11 @@ func _ready() -> void:
 	_build_seats()
 	build_ms["set"] = (Time.get_ticks_usec() - u) / 1000.0
 	_build_band()
-	cards.hand_done.connect(func(_w: String, _p: int, _h: String) -> void:
+	cards.hand_done.connect(func(w: String, _p: int, _h: String) -> void:
 		if cards.report().get("seats", []).any(func(x: Dictionary) -> bool: return String(x.get("id", "")) == CardGame.YOU):
-			_your_hands += 1)
+			_your_hands += 1
+		if w == CardGame.YOU and regard != null:  # the table and the room saw you take it (#1167)
+			regard.saw_harlan("won_pot", cards._pot_at(), get_tree().get_first_node_in_group(&"player") as Node3D))
 	var mpath := "res://config/moments/%s.json" % MURDER
 	if FileAccess.file_exists(mpath):
 		_murder_data = JSON.parse_string(FileAccess.get_file_as_string(mpath))
@@ -2126,7 +2128,7 @@ func save_dict() -> Dictionary:
 	return {"state": state.duplicate(), "here": here, "book": book.rows.duplicate(true), "laid": lay,
 			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands,
 			"news": news.save_dict() if news else {}, "news_day": _news_day, "dead_out": dead,
-			"kept": kept.duplicate(true)}
+			"kept": kept.duplicate(true), "regard": regard.save_dict() if regard else {}}
 
 
 ## A save's town day put back on a fresh town, before its people's bodies are (`SaveGame.apply`):
@@ -2140,6 +2142,8 @@ func load_dict(d: Dictionary) -> void:
 	if news and not (d.get("news", {}) as Dictionary).is_empty():
 		news.load_dict(d.news)
 	_news_day = int(d.get("news_day", -1))
+	if regard:
+		regard.load_dict(d.get("regard", {}))
 	kept = (d.get("kept", {}) as Dictionary).duplicate(true)
 	dead_out.clear()
 	for id: StringName in d.get("dead_out", {}):

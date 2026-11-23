@@ -339,6 +339,19 @@
   "regard": {
     "_doc": "How the town treats Harlan (townsfolk step 9, #1152; TownRegard; docs/briefs/townsfolk.md §5): each man's trust, fear, liking, respect (DESIGN §9) from 0, nudged by his own news (`view`: his TownNews view of Harlan; `fear_each_more` for each further man he has Harlan shooting) and the story's facts (`facts`: `if` StoryState as `talk`'s, `all` everyone, `who` one man's, `split` the town halves by each man's seed). Band: fear at `afraid_at` afraid; else trust, liking, respect averaged: `warm_at` warm, `cold_at` cold, between wary. What he shows within `show_m` (looked every `look_s`), again once you're `show_clear_m` further off. PROPOSED numbers, to be felt in play.",
     "warm_at": 0.2, "cold_at": -0.2, "afraid_at": 0.55, "fear_each_more": 0.12,
+    "_deeds": "What a man saw Harlan do himself (#1167: a shot, a shove, a won pot used to move nothing). Each is what one seen adds; the man it was done to counts it as `to_him` seen; the nth of a kind adds `each_more`^(n-1). `fired`: each of his news versions (seen or told) with Harlan firing and nobody down. Seen: within `see_m` and his Senses see Harlan. PROPOSED numbers.",
+    "see_m": 20.0, "to_him": 2.0, "each_more": 0.5,
+    "deeds": {
+      "fired": {"trust": -0.12, "fear": 0.15, "respect": -0.08},
+      "shoot_at": {"trust": -0.3, "fear": 0.3, "liking": -0.2},
+      "aim_at": {"trust": -0.2, "fear": 0.18, "liking": -0.1},
+      "draw": {"trust": -0.06, "fear": 0.05},
+      "shove": {"liking": -0.2, "trust": -0.1, "respect": -0.05, "fear": 0.04},
+      "kick": {"liking": -0.35, "trust": -0.25, "fear": 0.12},
+      "kick_down": {"liking": -0.5, "trust": -0.35, "respect": -0.2, "fear": 0.15},
+      "won_pot": {"respect": 0.12, "liking": 0.04},
+      "carry": {"trust": 0.2, "liking": 0.2, "respect": 0.2}
+    },
     "show_m": 7.0, "show_clear_m": 5.0, "look_s": 0.25,
     "view": {
       "stopped_a_killer": {"trust": 0.25, "liking": 0.15, "respect": 0.45, "fear": 0.15},
