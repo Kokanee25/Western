@@ -117,3 +117,6 @@ store's safety coffin shows no bell frame. Sean OK'd the sheet 2026-11-23 (#1173
   cellar's close air a FogVolume (`light.cellar_haze`, CellarHaze) from the flags to the joists.
 - **Not done: damp on the walls.** The library's stone (`rubble_whitewash`) hasn't passed (#928), so damp on the game's
   placeholder stone waits on Sean (the issue opened for it).
+- **Judged once** (`docs/screenshots/judge/2026-11-23_undertaker_grim_r1/`, renders in `results/2026-11-23_grim/`): embalming
+  good indie (was cheap indie), stair cheap indie (the workroom's glossy floor). The critic: the walls boards, not stone; the
+  table plain (the judge: "spotless": its top now takes old splats, `props` splash; its zinc is the prop lab's look).

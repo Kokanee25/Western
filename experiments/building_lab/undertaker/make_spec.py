@@ -391,19 +391,20 @@ spec["past"] = [{
         {"what": "soak", "level": "cellar", "at": TABLE(0, 0.1), "r": 0.34, "ml": 45, "_doc": "through the table's seams"},
         {"what": "soak", "level": "cellar", "at": TABLE(-0.55, -0.2), "r": 0.28, "ml": 14, "_doc": "where he stands, trodden"},
         {"what": "soak", "level": "cellar", "at": TABLE(0.55, 0.3), "r": 0.26, "ml": 12},
-        {"what": "splash", "level": "cellar", "at": PAIL(0, 0), "r": [0.16, 0.5], "n": 6, "ml": [3.0, 14.0], "_doc": "slopped from the pail"},
-        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.72), "r": [0.0, 0.22], "n": 3, "ml": [15.0, 40.0], "_doc": "dried pools under the drain's end, beside the heap"},
-        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.05), "r": [0.05, 0.4], "n": 4, "ml": [6.0, 22.0], "_doc": "through the table's seams"},
+        {"what": "splash", "level": "cellar", "at": PAIL(0, 0), "r": [0.16, 0.5], "n": 6, "ml": [6.0, 25.0], "_doc": "slopped from the pail"},
+        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.72), "r": [0.0, 0.22], "n": 3, "ml": [40.0, 90.0], "_doc": "dried pools under the drain's end, beside the heap"},
+        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.1), "r": [0.0, 0.75], "n": 5, "ml": [8.0, 30.0], "props": True, "over": 1.1, "_doc": "on the table's zinc: scrubbed after every one and still stained (judge r1: 'the table is spotless')"},
+        {"what": "splash", "level": "cellar", "at": TABLE(0, 0.05), "r": [0.05, 0.4], "n": 4, "ml": [15.0, 45.0], "_doc": "through the table's seams"},
         {"what": "drips", "level": "cellar", "points": [TABLE(-0.42, -0.55), TABLE(-0.42, 0.75)], "every": [0.3, 0.6], "ml": [1.5, 8.0], "_doc": "off the table's edge, between the heaps"},
         {"what": "drips", "level": "cellar", "points": [TABLE(0.42, -0.4), TABLE(0.42, 0.75)], "every": [0.35, 0.7], "ml": [1.5, 7.0]},
         # The cooling board: the dead laid out before and after.
         {"what": "soak", "level": "cellar", "at": BOARD(0.2, 0), "r": 0.42, "ml": 50, "_doc": "under the board"},
         {"what": "soak", "level": "cellar", "at": BOARD(-0.65, 0), "r": 0.24, "ml": 18},
         {"what": "drips", "level": "cellar", "points": [BOARD(-0.8, -0.32), BOARD(0.85, -0.32)], "every": [0.35, 0.8], "ml": [1.5, 7.0], "_doc": "off its front edge"},
-        {"what": "splash", "level": "cellar", "at": BOARD(0.2, 0), "r": [0.1, 0.5], "n": 3, "ml": [6.0, 20.0], "_doc": "dried under it"},
+        {"what": "splash", "level": "cellar", "at": BOARD(0.2, 0), "r": [0.1, 0.5], "n": 3, "ml": [15.0, 45.0], "_doc": "dried under it"},
         # The plank wall behind the table (the cross wall's embalming side, between the lamp and the fluids' shelf):
         # wiped hands and the pump's spatter, run down the boards.
-        {"what": "smear", "level": "cellar", "points": [[7.15, 11.4], [8.15, 11.4]], "toward": [0, -1], "y": [0.75, 1.45], "n": 6, "ml": [6.0, 20.0]},
+        {"what": "smear", "level": "cellar", "points": [[7.15, 11.4], [8.15, 11.4]], "toward": [0, -1], "y": [0.7, 1.5], "n": 10, "ml": [10.0, 35.0]},
         # The carrying path: down the workroom's stair, across the coffin store, through the embalming room's door to the
         # table; and in from the bulkhead's passage.
         {"what": "drips", "level": "cellar", "points": [[r3(STAIR_HEAD[0] + 0.25), STAIR_Z, FLOOR - 0.2], [r3(STAIR_HEAD[0] + STAIR_RUN - 0.1), STAIR_Z, C_TOP]], "over": 0.35, "every": [0.4, 0.85], "ml": [1.0, 5.0], "carry": [1.0, 0], "_doc": "down the stair's treads"},

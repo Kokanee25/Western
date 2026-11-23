@@ -12,7 +12,8 @@ extends Node3D
 ##   metre); the flags' or treads' height found by a ray down.
 ## - `drips`: dried splats every `every` [min, max] m along `points` (`ml` [min, max] each), each
 ##   drawn long the way the dead were carried (`carry`: "path", or an [x, z] heading, or none).
-## - `splash`: `n` splats round `at` between `r` [min, max] m, thrown outward low.
+## - `splash`: `n` splats round `at` between `r` [min, max] m, thrown outward low (`props`: on a prop's top, as
+##   the table's zinc, looked for up to `over` m over the level).
 ## - `smear`: `n` splats run down a wall: rays from along `points` (inside the room) `toward` the wall,
 ##   at heights `y` [min, max] over the level.
 ## Lamps the spec calls `smoky` get soot up the boards over them (a dark decal: the lamp's own smoke).
@@ -106,7 +107,7 @@ func _dressed(id: String) -> Node3D:
 
 ## The surface under a building-space point: the world's point on it, or null (a prop's top, nothing
 ## there, or more than `over` above the point's height: a drip doesn't lie on the pail's rim).
-func _ground(p: Vector3, over := 0.12) -> Variant:
+func _ground(p: Vector3, over := 0.12, props := false) -> Variant:
 	if is_nan(p.x):
 		return null
 	var g := building.to_global(p)
@@ -122,7 +123,7 @@ func _ground(p: Vector3, over := 0.12) -> Variant:
 			tries += 1
 		if hit.is_empty() or not hit.collider is StructureMember or (hit.normal as Vector3).y < 0.8:
 			continue
-		if _on_prop(hit.collider as StructureMember):
+		if not props and _on_prop(hit.collider as StructureMember):
 			return null
 		return hit.position
 	return null
@@ -207,7 +208,7 @@ func _splash(e: Dictionary, rng: RandomNumberGenerator) -> void:
 		var a := rng.randf() * TAU
 		var d := rng.randf_range(float(e.r[0]), float(e.r[1]))
 		var out := Vector3(cos(a), 0, sin(a))
-		var hit: Variant = _ground(c + out * d)
+		var hit: Variant = _ground(c + out * d, float(e.get("over", 0.12)), bool(e.get("props", false)))
 		if hit == null:
 			continue
 		_splat(hit, Vector3.UP, rng.randf_range(float(e.ml[0]), float(e.ml[1])), building.global_basis * out * 2.5 + Vector3(0, -1.5, 0))
@@ -267,7 +268,7 @@ func _soot() -> void:
 		var d := Decal.new()
 		d.name = "Soot"
 		d.texture_albedo = _soot_texture()
-		d.modulate = Color(0.08, 0.07, 0.06, clampf(s, 0.0, 1.0))
+		d.modulate = Color(0.05, 0.045, 0.04, clampf(s * 1.4, 0.0, 1.0))
 		d.cull_mask = Layers.WORLD
 		d.upper_fade = 0.0
 		d.lower_fade = 0.0
@@ -294,7 +295,7 @@ static func _soot_texture() -> Texture2D:
 		for x in 16:
 			var u := absf((x + 0.5) / 16.0 - 0.5)
 			var a := clampf(1.0 - u / half, 0.0, 1.0)
-			a = a * a * lerpf(0.9, 0.35, up) * smoothstep(0.0, 0.12, up + 0.02)
+			a = sqrt(a) * lerpf(1.0, 0.45, up) * smoothstep(0.0, 0.1, up + 0.03)
 			img.set_pixel(x, y, Color(1, 1, 1, a))
 	_soot_tex = ImageTexture.create_from_image(img)
 	return _soot_tex

@@ -235,7 +235,7 @@ func test_the_cellar_is_stained_by_its_years_of_embalming() -> void:
 	var splats: Array[Decal] = []
 	for d in ps.find_children("*", "Decal", false, false).filter(func(x: Node) -> bool: return x.has_meta(&"past")):
 		splats.append(d as Decal)
-	check(splats.size() >= 30 and splats.size() <= Blood.MAX_SPLATS / 3, "dried splats, a third of Blood's cap at most (%d of %d)" % [splats.size(), Blood.MAX_SPLATS])
+	check(splats.size() >= 30 and splats.size() <= Blood.MAX_SPLATS * 2 / 5, "dried splats, two fifths of Blood's cap at most (%d of %d)" % [splats.size(), Blood.MAX_SPLATS])
 	check(int(ps.laid.cells) >= 60, "stains soaked into the flags (%d cells)" % ps.laid.cells)
 	check(int(ps.laid.soot) == 1, "soot over the embalming room's smoky lamp")
 	# Old: dark and dry (Blood's own drying, years of it), nothing wet to pick up.
@@ -249,7 +249,7 @@ func test_the_cellar_is_stained_by_its_years_of_embalming() -> void:
 	var drain: Vector3 = b.to_global(b.to_local(table.global_position) * Vector3(1, 0, 1) + Vector3(0, flags, 0.78))
 	check(Blood.wet_near(drain, 1.0) == 0.0, "none of it wet")
 	# Where the work was.
-	var where := {"table": 0, "stair": 0, "wall": 0, "board": 0, "path": 0, "ice": 0}
+	var where := {"table": 0, "top": 0, "stair": 0, "wall": 0, "board": 0, "path": 0, "ice": 0}
 	var board: Vector3 = b.to_local(((b.dressed.U1 as Dictionary).cooling_board as Node3D).global_position)
 	var t: Vector3 = b.to_local(table.global_position)
 	for d in splats:
@@ -257,8 +257,10 @@ func test_the_cellar_is_stained_by_its_years_of_embalming() -> void:
 		var up := d.global_basis.y.normalized().dot(Vector3.UP)
 		if up < 0.5:
 			where.wall += 1
-		elif p.y > flags + 0.1 and p.y < float(lab.spec.levels.ground.top):
+		elif p.y > flags + 0.1 and p.y < float(lab.spec.levels.ground.top) and p.x < 6.2 and p.z > 9.3 and p.z < 10.3:
 			where.stair += 1
+		elif p.y > flags + 0.6 and Vector2(p.x - t.x, p.z - t.z).length() < 1.0:
+			where.top += 1
 		elif Vector2(p.x - t.x, p.z - t.z).length() < 1.4:
 			where.table += 1
 		elif Vector2(p.x - board.x, p.z - board.z).length() < 1.2:
@@ -269,7 +271,7 @@ func test_the_cellar_is_stained_by_its_years_of_embalming() -> void:
 			where.path += 1
 	print("  splats by place: %s" % [where])
 	for k: String in where:
-		check(int(where[k]) >= (1 if k == "ice" else 3), "old blood at the %s (%d)" % [k, where[k]])
+		check(int(where[k]) >= (1 if k in ["ice", "top"] else 3), "old blood at the %s (%d)" % [k, where[k]])
 	var fm := FloorMarks.find(get_tree())
 	check(fm != null, "the floor's marks are the world's")
 	var at_pail := pail.global_position

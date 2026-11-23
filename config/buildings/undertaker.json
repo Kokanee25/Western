@@ -2447,8 +2447,8 @@
 					],
 					"n": 6,
 					"ml": [
-						3.0,
-						14.0
+						6.0,
+						25.0
 					],
 					"_doc": "slopped from the pail"
 				},
@@ -2468,10 +2468,33 @@
 					],
 					"n": 3,
 					"ml": [
-						15.0,
-						40.0
+						40.0,
+						90.0
 					],
 					"_doc": "dried pools under the drain's end, beside the heap"
+				},
+				{
+					"what": "splash",
+					"level": "cellar",
+					"at": {
+						"by": "embalming_table",
+						"off": [
+							0,
+							0.1
+						]
+					},
+					"r": [
+						0.0,
+						0.75
+					],
+					"n": 5,
+					"ml": [
+						8.0,
+						30.0
+					],
+					"props": true,
+					"over": 1.1,
+					"_doc": "on the table's zinc: scrubbed after every one and still stained (judge r1: 'the table is spotless')"
 				},
 				{
 					"what": "splash",
@@ -2489,8 +2512,8 @@
 					],
 					"n": 4,
 					"ml": [
-						6.0,
-						22.0
+						15.0,
+						45.0
 					],
 					"_doc": "through the table's seams"
 				},
@@ -2623,8 +2646,8 @@
 					],
 					"n": 3,
 					"ml": [
-						6.0,
-						20.0
+						15.0,
+						45.0
 					],
 					"_doc": "dried under it"
 				},
@@ -2646,13 +2669,13 @@
 						-1
 					],
 					"y": [
-						0.75,
-						1.45
+						0.7,
+						1.5
 					],
-					"n": 6,
+					"n": 10,
 					"ml": [
-						6.0,
-						20.0
+						10.0,
+						35.0
 					]
 				},
 				{
