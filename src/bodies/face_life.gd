@@ -242,7 +242,8 @@ func _pick(fear: float) -> void:
 	var best_score := -INF
 	if _senses != null:
 		for who: Variant in _senses.known.keys():
-			if not is_instance_valid(who) or not (who is Node3D) or who == body or not _senses.sees(who):
+			if not is_instance_valid(who) or not (who is Node3D) or who == body or not (who as Node3D).is_inside_tree() \
+					or not _senses.sees(who):  # (a man given back to wait is out of the world, #1167)
 				continue
 			var n := who as Node3D
 			if n is HumanBody and not (n as HumanBody).physiology.alive:

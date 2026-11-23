@@ -1,0 +1,68 @@
+{
+  "_doc": "A keg of cut nails, its head knocked out (#1172, G2): a 100 lb keg (11 in across, 16 high), the nails heaped in it to be weighed out by the pound. Modelled and baked in tools/blender/props/store_g2.py. Written by tools/props/store_g2.py.",
+  "id": "nail_keg",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "weathered_pine",
+  "look": "pbr:store_hardware",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.4,
+  "factory": "tools/props/store_g2.py",
+  "members": [
+    {
+      "id": "keg",
+      "kind": "post",
+      "size": [
+        0.34,
+        0.36,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.18,
+        0.0
+      ],
+      "wood": "weathered_pine",
+      "look": "pbr:store_hardware",
+      "solid": 0.25,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_hardware",
+        "part": "KegStaves"
+      },
+      "dress": [
+        {
+          "look": "pbr:store_hardware",
+          "draw": {
+            "shape": "mesh",
+            "model": "store_hardware",
+            "part": "KegHoops"
+          }
+        }
+      ]
+    },
+    {
+      "id": "nails",
+      "kind": "post",
+      "size": [
+        0.27,
+        0.04,
+        0.27
+      ],
+      "at": [
+        0.0,
+        0.38,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:store_hardware",
+      "solid": 0.5,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_hardware",
+        "part": "Nails"
+      }
+    }
+  ]
+}

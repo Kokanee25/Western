@@ -29,25 +29,23 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`; down in the fight, Enter retries it (`retry_on_load`).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest faults (#1095, #1106, #1111, #1116, #1125):** one doctor (`ValleyFolk.seize`, `lends`); a knock brings a
-  hurt man's doctor (`FetchHelp.at_door`); the shack's `kick_share`; Joe down: held E binds and splints him
-  (`NoJusticeCabin._aid_step`); the office a `SceneHold` your shot breaks, Joe turns on you after 3 (`CompanionBrain.turned`);
-  hurt townsfolk go, get up or call (`CivilianBrain.hurt`); `OutlawBrain.careful` (DESIGN §7). #1125: `--mission=no_law`
-  (`ValleyFolk.set_up_no_law`; a story `--mission=` picks the valley, the bridge too); the black-out moves the world on
-  (`Events.person_left`, `Physiology.pass_time`, `CivilianBrain._hurt_spent`); you mend in a day (`PlayerWounds.mend_hours`,
-  `Physiology.mend`/`heal_all`, Sean's #1093); `JoeLost` (Joe turned and gone or dead: a card, Enter again).
-  Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds; the bridge's `tend` on an unhurt man kicks,
-  `goto PLACE YAW` ignores the yaw carrying; the slowdown after dynamite and fire; two townsmen on one spot.
+- **Playtest faults (#1095-#1125)**, built: one doctor (`ValleyFolk.seize`, `lends`), a knock brings a hurt man's doctor
+  (`FetchHelp.at_door`), Joe bound and splinted, `SceneHold`, `CompanionBrain.turned`, `CivilianBrain.hurt`, `--mission=no_law`,
+  the black-out moving the world on, mending in a day, `JoeLost`. Open: one stick at 1.2-1.7 m takes a foot, a hand,
+  15-19 wounds; the bridge's `tend` on an unhurt man kicks; the slowdown after dynamite and fire.
 - Story: #744, STORY.md; the bible #809.
 - **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-10: day and book, roster,
   spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
   the barks (`TownRegard`, `TownBarks`), **the saloon as a room** (#1157: `SaloonRoom` on No Law's yard set, bridge
   `read room`; mood, the director's bits, the hush, the band's shaky restart; 11-12 in at 20:30).
-  **Next: step 11, the gate.** Open: the room's laugh, cough and glass sounds are synth stand-ins (#807's takes), no
-  walla bed; the second "table" stands (no sat talk); no argument, round bought, song called for, porch smoker;
-  the glass can't be drunk; mood numbers unfelt; not in saloon B (No Law's set unmoved); the store's blind, doors
-  shutting; react.fight*, body_child, freight, kett.meal, uneasy.heeled untriggered; Senses names a shooter on a
-  glimpse; nobody carries the body; the noon street is thin.
+  **Step 11, the gate: not passed** (#1162; `docs/playtests/2026-11-22-town.md`, headless). **Its faults fixed (#1167):**
+  regard moves on what a man saw (`TownRegard.deeds`, `fired`; a shot, shove, won pot); errand `round`s put
+  5 / 5 / 7 / 10 out at 07 / 12 / 14 / 17:30, most moving (`tests/test_town_streets.gd`); the saloon open from 10, a
+  knock at the open store brings the storekeeper (`shops`); gawkers at a shot with nobody down don't say "Is he
+  dead?"; `run_seed` varies each run (random; Engine meta `town_seed`, 0 in tests); the bridge logs a big break's
+  breaker (`big_break`; the 214 still unreproduced). Next: the gate's blind runs again. Unjudged on screen: the
+  walks between spots, the store's door scene. Open: the room's sounds are synth stand-ins (#807); no argument,
+  round bought or song called for; not in saloon B; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's

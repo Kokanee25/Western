@@ -245,3 +245,16 @@ func test_a_kick_after_a_miss_answers() -> void:
 	for i: int in [1, 3, 5, 6]:
 		check(replies[i].get("ok", true) != false and String(replies[i].get("did", "")) != "",
 				"%s answers what it did (%s)" % [["", "the kick", "", "the second", "", "the third", "a shove after"][i], replies[i]])
+
+
+## The breaker's watch (#1167, the town gate's unreproduced "214 members broke"): a big break is
+## logged with the last shot before it and where you stood.
+func test_a_big_break_names_its_breaker() -> void:
+	await _ask(["weapon revolver", "shoot 1"])
+	for i in DevBridge.BIG_BREAK:
+		Events.member_broken.emit(StringName("watch_test/m%d" % i))
+	var replies := await _ask(["events 10"])
+	var big: Array = replies[0].events.filter(func(e: Dictionary) -> bool: return e.kind == "big_break")
+	check_eq(big.size(), 1, "one big_break line (%s)" % str(replies[0].events))
+	if big.size() == 1:
+		check("the last shot" in String(big[0].text) and "you at" in String(big[0].text), "with the shot and you (%s)" % big[0].text)

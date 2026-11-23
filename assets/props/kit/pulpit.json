@@ -1,0 +1,63 @@
+{
+  "_doc": "The church's pulpit, a plain white-painted lectern with a sloped reading desk.",
+  "id": "pulpit",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "body",
+      "kind": "post",
+      "size": [
+        0.62,
+        1.0,
+        0.5
+      ],
+      "at": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "desk",
+      "kind": "furniture_top",
+      "size": [
+        0.7,
+        0.04,
+        0.5
+      ],
+      "at": [
+        0.0,
+        1.03,
+        0.02
+      ],
+      "look": "lib:furniture_painted_pine/few/top",
+      "rot": [
+        -12.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "lip",
+      "kind": "furniture_frame",
+      "size": [
+        0.7,
+        0.05,
+        0.03
+      ],
+      "at": [
+        0.0,
+        1.0,
+        0.27
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    }
+  ],
+  "factory": "tools/props/church.py"
+}

@@ -130,6 +130,7 @@ func test_the_morning_after() -> void:
 	if tm == null:
 		return
 	_put(tm.global_position + Vector3(1.5, 0.0, 1.0))
+	f.data["talk"]["first_s"] = 0.0  # (his first word at once, not a few seconds after you're by him: #1167)
 	f._spoke_at.clear()
 	f._look = 0.0
 	await physics_frames(4)

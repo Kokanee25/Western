@@ -1,0 +1,88 @@
+{
+  "_doc": "The hymn board (numbers slid into its slots) on a plain stand.",
+  "id": "hymn_stand",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "oak",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg_l",
+      "kind": "post",
+      "size": [
+        0.04,
+        1.5,
+        0.04
+      ],
+      "at": [
+        -0.27,
+        0.75,
+        -0.04
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "leg_r",
+      "kind": "post",
+      "size": [
+        0.04,
+        1.5,
+        0.04
+      ],
+      "at": [
+        0.27,
+        0.75,
+        -0.04
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "foot",
+      "kind": "furniture_frame",
+      "size": [
+        0.62,
+        0.04,
+        0.3
+      ],
+      "at": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "look": "lib:furniture_oak/few"
+    },
+    {
+      "id": "board",
+      "kind": "furniture_top",
+      "size": [
+        0.5,
+        0.62,
+        0.035
+      ],
+      "at": [
+        0.0,
+        1.2,
+        -0.03
+      ],
+      "look": "lib:furniture_oak/old/top"
+    },
+    {
+      "id": "ledge",
+      "kind": "furniture_frame",
+      "size": [
+        0.5,
+        0.03,
+        0.08
+      ],
+      "at": [
+        0.0,
+        0.885,
+        0.02
+      ],
+      "look": "lib:furniture_oak/few"
+    }
+  ],
+  "factory": "tools/props/church.py"
+}

@@ -157,6 +157,9 @@ func test_by_his_dials_hide_look_or_carry_on() -> void:
 	var runner := _man("runner", 54, Vector3(0.0, 0.0, 8.0), Vector3(0.0, 1.5, 15.0), {"nerve": 0.1, "nosy": 0.5, "duty": 0.2})
 	runner.refuges = [Vector3(0.0, 0.0, 25.0), Vector3(0.0, 0.0, -10.0)]
 	await physics_frames(60)
+	var said: Array[String] = []
+	var heard := func(_who: Node, text: String) -> void: said.append(text)
+	Events.spoke.connect(heard)
 	Events.noise.emit(Vector3(0.0, 1.5, 0.0), DeedWatch.GUNSHOT, &"gunshot", null)
 	await physics_frames(int(3.5 * 60))
 	check_eq(timid.reaction.choice, &"hide", "the faint heart hides (%s)" % timid.reaction.describe())
@@ -172,6 +175,12 @@ func test_by_his_dials_hide_look_or_carry_on() -> void:
 	var nd := nosy.body.global_position.distance_to(Vector3.ZERO)
 	check(nd < 39.0 and nd >= 8.0, "the nosy man came nearer, but not up to it (%.1f m)" % nd)
 	check(nosy.reaction.describe().contains("gawk"), "and stands watching (%s)" % nosy.reaction.describe())
+	await physics_frames(60)
+	Events.spoke.disconnect(heard)
+	# A shot with nobody down (the town gate, #1167): nobody talks of a man down.
+	var dead_talk := said.filter(func(t: String) -> bool: return "dead" in t or "give him air" in t)
+	check(dead_talk.is_empty(), "no talk of a man down when nobody is (%s)" % [said])
+	check(said.any(func(t: String) -> bool: return t in CivilianBrain.LINES[&"gawk_shot"]), "the gawker asks what it was (%s)" % [said])
 
 
 func test_a_gun_drawn_near_the_timid_back_off_the_steady_watch() -> void:

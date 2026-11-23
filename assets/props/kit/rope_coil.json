@@ -1,0 +1,36 @@
+{
+  "_doc": "A coil of manila rope for sale (#1172, G2), 3/4 in, about 30 m laid in turns. One member (canvas's rules: it burns, a ball goes through). Modelled and baked in tools/blender/props/store_g2.py. Written by tools/props/store_g2.py.",
+  "id": "rope_coil",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "canvas",
+  "look": "pbr:store_dry",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g2.py",
+  "members": [
+    {
+      "id": "coil",
+      "kind": "post",
+      "size": [
+        0.36,
+        0.1,
+        0.36
+      ],
+      "at": [
+        0.0,
+        0.05,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "pbr:store_dry",
+      "solid": 1.0,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_dry",
+        "part": "Rope"
+      }
+    }
+  ]
+}

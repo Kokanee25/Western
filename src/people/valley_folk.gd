@@ -164,6 +164,10 @@ func _ready() -> void:
 	add_to_group(&"valley_folk")
 	add_to_group(&"knock_doors")  # its places' doors (PlayerKnock)
 	add_to_group(&"timed_beats")  # what comes due while you ride (RideThere, #1120)
+	run_seed = int(Engine.get_meta(&"town_seed")) if Engine.has_meta(&"town_seed") else randi() % 1000000
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--town-seed="):
+			run_seed = int(a.substr(12))
 	fetch = FetchHelp.new(self)
 	news = TownNews.new(self)
 	if layout == null:
@@ -172,6 +176,9 @@ func _ready() -> void:
 	regard = TownRegard.new(self, data.get("regard", {}))
 	barks = TownBarks.new(data.get("barks", {}))
 	room = SaloonRoom.new(self, data.get("room", {}))
+	# The run's own town (fault 4): the news' slips and the room's bits by it (0: as they always were).
+	news._rng.seed = 1051 + run_seed
+	room.rng.seed = 1157 + run_seed
 	var u := Time.get_ticks_usec()
 	places = Waypoints.new()
 	if town:
@@ -183,9 +190,11 @@ func _ready() -> void:
 	_build_seats()
 	build_ms["set"] = (Time.get_ticks_usec() - u) / 1000.0
 	_build_band()
-	cards.hand_done.connect(func(_w: String, _p: int, _h: String) -> void:
+	cards.hand_done.connect(func(w: String, _p: int, _h: String) -> void:
 		if cards.report().get("seats", []).any(func(x: Dictionary) -> bool: return String(x.get("id", "")) == CardGame.YOU):
-			_your_hands += 1)
+			_your_hands += 1
+		if w == CardGame.YOU and regard != null:  # the table and the room saw you take it (#1167)
+			regard.saw_harlan("won_pot", cards._pot_at(), get_tree().get_first_node_in_group(&"player") as Node3D))
 	var mpath := "res://config/moments/%s.json" % MURDER
 	if FileAccess.file_exists(mpath):
 		_murder_data = JSON.parse_string(FileAccess.get_file_as_string(mpath))
@@ -811,6 +820,9 @@ func _gone(id: StringName, cut := false) -> void:
 					var sc: SitChore = (c as SpotChore).sit
 					if sc and sc.chair and is_instance_valid(sc.chair):
 						Seating.stand_up(man, sc.chair)
+		# (Out of his name first: brought again this frame, the new body takes it, not an @Node3D@ one
+		# the save would see as another man.)
+		man.name = String(man.name) + "_gone"
 		man.queue_free()
 
 
@@ -911,11 +923,112 @@ func block_now(p: Dictionary, h: float, kind := &"") -> Dictionary:
 	for b: Dictionary in bl:
 		if float(b.from) <= h:
 			best = b
+	if best.has("round"):
+		return _leg_block(p, best)
 	return best
 
 
 static func block_key(b: Dictionary) -> String:
-	return "%s|%s|%s" % [String(b.get("in", "")), str(b.get("at", "")), String(b.get("do", ""))]
+	return "%s|%s|%s|%s" % [String(b.get("in", "")), str(b.get("at", "")), String(b.get("do", "")), str(b.get("leg", ""))]
+
+
+# --- Errands (the town gate's fault 2, #1167) -------------------------------------------------------
+## A block with `round`: [{at | in, do, stay: [s, s]}, ...] walks him from leg to leg for the block's
+## hours, staying at each `stay` real seconds (picked by his seed, the leg, the visit and the run's
+## `run_seed`), so the day street is people going about errands (the store, the doctor's, a word on
+## a walk, back to work), not one man on one spot for the hour. Each leg is the block as an `at` or
+## an `in`, so he walks it as any block change: out of a door only unseen, in at one, to a spot.
+## id -> {"base": the round block's from, "i": his leg, "until": _ran he moves on at (-1: not there
+## yet), "since": _ran the leg began, "n": legs walked}.
+var _legs := {}
+## The run's own seed (the gate's fault 4: the same hour played the same every run): mixed into each
+## leg's stay and the barks' timing. Random as the valley loads, unless Engine's meta `town_seed` is
+## set (the tests' runner: 0; a bug report's replay: its own) or `--town-seed=N` is given.
+var run_seed := 0
+## A leg not reached in this long (stuck on the way) is given up for the next.
+const LEG_GIVE_UP_S := 180.0
+
+
+## Someone other than `id` at spot `name`, or on his way to it.
+func _spot_taken(name: String, id: StringName) -> bool:
+	for o: StringName in people:
+		if o == id or not state.get(o) in [&"coming", &"in"]:
+			continue
+		var op := _person(o)
+		if op.has("act") or not op.has("day"):
+			continue
+		var ob := block_now(op, hour())
+		if str(ob.get("at", "")) == name:
+			return true
+	return false
+
+
+func _leg_block(p: Dictionary, b: Dictionary) -> Dictionary:
+	var id := StringName(p.id)
+	var legs: Array = b.round
+	var base := float(b.from)
+	var lg: Dictionary = _legs.get(id, {})
+	if lg.is_empty() or float(lg.base) != base:
+		# Where in the round he is when the block begins: by his seed and the run's, so men sent
+		# the same round are spread along it.
+		lg = {"base": base, "i": TownScript.seed_of(String(id), "leg:%s:%d" % [base, run_seed]) % legs.size(),
+				"until": -1.0, "since": _ran, "n": 0}
+		_legs[id] = lg
+	var leg: Dictionary = legs[int(lg.i) % legs.size()]
+	var out := {"from": b.from, "do": leg.get("do", b.get("do", "stand")), "leg": int(lg.i)}
+	if leg.has("in"):
+		out["in"] = leg.in
+	else:
+		out["at"] = leg.at
+	return out
+
+
+## On a round: there (at his spot, or in at the leg's door) for its stay, then on to the next leg.
+## True when he's moved on (his block's key is new).
+func _leg_step(id: StringName, p: Dictionary, b: Dictionary) -> bool:
+	if not b.has("leg") or not _legs.has(id):
+		return false
+	var lg: Dictionary = _legs[id]
+	var st: StringName = state.get(id, &"out")
+	var there: bool = (b.has("at") and st == &"in") or (b.has("in") and st == &"out"
+			and String(book.row(id).get("in", "")) == String(b.in))
+	if not there:
+		if _ran - float(lg.since) < LEG_GIVE_UP_S:
+			return false
+	elif float(lg.until) < 0.0:
+		var bl := blocks_of(p, day_kind(town_day()))
+		var round: Array = []
+		for x: Dictionary in bl:
+			if float(x.from) == float(lg.base) and x.has("round"):
+				round = x.round
+		var leg: Dictionary = round[int(lg.i) % maxi(round.size(), 1)] if not round.is_empty() else {}
+		var stay: Array = leg.get("stay", [60.0, 150.0])
+		var t := float(TownScript.seed_of(String(id), "stay:%d:%d:%d" % [int(lg.i), int(lg.n), run_seed]) % 1000) / 1000.0
+		lg.until = _ran + lerpf(float(stay[0]), float(stay[1]), t)
+		return false
+	elif _ran < float(lg.until):
+		return false
+	var round: Array = []
+	for x: Dictionary in blocks_of(p, day_kind(town_day())):
+		if float(x.from) == float(lg.base) and x.has("round"):
+			round = x.round
+	var n := maxi(round.size(), 1)
+	# The next leg whose spot nobody else holds (one man to a spot); none free: he stays a while yet.
+	var next := -1
+	for k in range(1, n + 1):
+		var j := (int(lg.i) + k) % n
+		var leg: Dictionary = round[j] if not round.is_empty() else {}
+		if not leg.has("at") or not _spot_taken(String(leg.at), id):
+			next = j
+			break
+	if next < 0 or next == int(lg.i) and n > 1:
+		lg.until = _ran + 20.0
+		return false
+	lg.i = next
+	lg.n = int(lg.n) + 1
+	lg.until = -1.0
+	lg.since = _ran
+	return true
 
 
 ## Lines said on the next physics frame (`say_soon`): a line is a noise (DeedWatch's speech), and the
@@ -956,6 +1069,7 @@ func _step(delta: float) -> void:
 	if news:
 		news.step(delta)
 	_regard_step(delta)
+	_answer_step(delta)
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -990,6 +1104,8 @@ func _step(delta: float) -> void:
 		var b := block_now(p, h, kind)
 		if b.is_empty():
 			continue
+		if _leg_step(id, p, b):
+			b = block_now(p, h, kind)  # on to his round's next leg
 		var here: HumanBody = people.get(id)
 		if here != null and is_instance_valid(here) and not here.physiology.alive and state.get(id) in [&"coming", &"in", &"going", &"called"]:
 			state[id] = &"dead"
@@ -1082,8 +1198,8 @@ func _place(p: Dictionary, b: Dictionary) -> void:
 		var man: HumanBody = people.get(id)
 		var brain := man.get_node_or_null(^"Brain") as CivilianBrain if man else null
 		var pf := post_of(p)
-		if brain != null and brain.post.distance_to(pf[0]) > 0.3:
-			_gone(id, true)  # another spot: there at once
+		if brain != null and (brain.post.distance_to(pf[0]) > 0.3 or st == &"coming"):
+			_gone(id, true)  # another spot, or still on his way to it: there at once (the clock's cut)
 			_bring(p, false)
 		elif brain != null:
 			_new_doing(man, brain, p, b)
@@ -1152,8 +1268,9 @@ func buildings() -> Array:
 		var d: Variant = p.day
 		for bl: Array in ((d as Dictionary).values() if d is Dictionary else [d]):
 			for b: Dictionary in bl:
-				if b.has("in"):
-					all.append(StringName(String(b.in)))
+				for leg: Dictionary in (b.get("round", [b]) as Array):  # (an errand round's doors too)
+					if leg.has("in"):
+						all.append(StringName(String(leg.in)))
 		for x: StringName in all:
 			if not out.has(x):
 				out.append(x)
@@ -1680,6 +1797,15 @@ func line_for(set_id: String) -> Array:
 	return []
 
 
+## Lines each man's said (his gaps' seeds).
+var _said_by := {}
+
+
+## 0..1 by his id, `what` and the run.
+func _jit(id: StringName, what: String) -> float:
+	return float(TownScript.seed_of(String(id), "%s:%d" % [what, run_seed]) % 1000) / 1000.0
+
+
 func _talk_step() -> void:
 	var talk: Dictionary = data.get("talk", {})
 	if talk.is_empty():
@@ -1697,7 +1823,12 @@ func _talk_step() -> void:
 			continue
 		if man.global_position.distance_to(p.global_position) > float(talk.get("near_m", 4.0)):
 			continue
-		if _spoke_at.has(id) and _talk_clock() - float(_spoke_at[id]) < float(talk.get("gap_s", 20.0)):
+		# His gaps and his first word once you're by him, by his seed and the run's (the gate's fault 4:
+		# two noon runs said the same lines at the same seconds): `gap_s` give or take `gap_jitter`.
+		var gap := float(talk.get("gap_s", 20.0)) * (1.0 + float(talk.get("gap_jitter", 0.4)) * (2.0 * _jit(id, "gap:%d" % int(_said_by.get(id, 0))) - 1.0))
+		if not _spoke_at.has(id):
+			_spoke_at[id] = _talk_clock() - gap + float(talk.get("first_s", 8.0)) * _jit(id, "first")
+		if _talk_clock() - float(_spoke_at[id]) < gap:
 			continue
 		# What he saw or was told himself first (TownNews: his own version, once), else his set's line
 		# (No Law's own, which win where both fit), else a bark (TownBarks, step 9): the most specific
@@ -1724,6 +1855,7 @@ func _talk_step() -> void:
 		if barks:
 			barks.block(man.global_position)  # one line at you a group as you pass
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
+		_said_by[id] = int(_said_by.get(id, 0)) + 1
 		_spoke_at[id] = _talk_clock()
 		man.face(p.global_position + Vector3.UP * 1.5)
 		say_soon(man, String(l[1]))
@@ -1940,8 +2072,60 @@ func knock(place: StringName, by: Node, at: Vector3) -> Array:
 			var said := fetch.at_door(hurt, places.at(place), inside.has(FetchHelp.DOCTOR) or book.inside(place).has(FetchHelp.DOCTOR))
 			if said != "" and by is Player and (by as Player).wounds:
 				(by as Player).wounds.say(said, 4.0)
+	if not knock_claimed:
+		_shop_answers(place, by)
 	knock_claimed = false
 	return inside
+
+
+# --- Shops (the town gate's fault 3, #1167) --------------------------------------------------------
+## Keepers out at their door for a knock: id -> {"shop", "by", "t"}.
+var answering := {}
+
+
+## Is `place` a shop (data `shops`) open now?
+func shop_open(place: StringName) -> bool:
+	var sh: Dictionary = (data.get("shops", {}) as Dictionary).get(String(place), {})
+	return not sh.is_empty() and in_hours(hour(), sh.get("hours", [7.0, 18.0])) and day_kind(town_day()) != &"sunday"
+
+
+## A knock at an open shop with its keeper in: he comes out to the door, facing whoever knocked, and
+## says a line by his regard of him.
+func _shop_answers(place: StringName, by: Node) -> void:
+	if not shop_open(place) or not by is Node3D:
+		return
+	var sh: Dictionary = data.shops[String(place)]
+	var keeper := StringName(String(sh.keeper))
+	if answering.has(keeper) or not book.inside(place).has(keeper):
+		return
+	var man := call_out(keeper)
+	if man == null:
+		return
+	var b := man.get_node_or_null(^"Brain") as CivilianBrain
+	var pf := spot_point(spot(String(sh.spot)))
+	if b != null:
+		b.go_to(pf[0], (by as Node3D).global_position + Vector3.UP * 1.5)
+	answering[keeper] = {"shop": place, "by": by, "t": 0.0, "said": false}
+
+
+func _answer_step(delta: float) -> void:
+	for keeper: StringName in answering.keys():
+		var a: Dictionary = answering[keeper]
+		var sh: Dictionary = data.shops[String(a.shop)]
+		var man := folk_man(keeper)
+		a.t = float(a.t) + delta
+		if man == null or state.get(keeper) != &"called" or not man.physiology.alive:
+			answering.erase(keeper)
+			continue
+		var by: Node3D = a.by as Node3D if is_instance_valid(a.by) else null
+		var b := man.get_node_or_null(^"Brain") as CivilianBrain
+		if not a.said and b != null and by != null and man.global_position.distance_to(spot_point(spot(String(sh.spot)))[0]) < 1.2:
+			man.face(by.global_position + Vector3.UP * 1.5)
+			a.said = bark_for(b, "pass") or bark_for(b, "knock") or true  # (his wary or cold line first)
+		if float(a.t) > float(sh.get("answer_s", 45.0)) or by == null \
+				or by.global_position.distance_to(man.global_position) > float(sh.get("leave_m", 8.0)) and a.said:
+			answering.erase(keeper)
+			call_over(keeper)
 
 
 ## An act answering the knock it's being told of (in its `knocked` handler): the town leaves it be.
@@ -2126,7 +2310,7 @@ func save_dict() -> Dictionary:
 	return {"state": state.duplicate(), "here": here, "book": book.rows.duplicate(true), "laid": lay,
 			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands,
 			"news": news.save_dict() if news else {}, "news_day": _news_day, "dead_out": dead,
-			"kept": kept.duplicate(true)}
+			"kept": kept.duplicate(true), "regard": regard.save_dict() if regard else {}}
 
 
 ## A save's town day put back on a fresh town, before its people's bodies are (`SaveGame.apply`):
@@ -2140,6 +2324,8 @@ func load_dict(d: Dictionary) -> void:
 	if news and not (d.get("news", {}) as Dictionary).is_empty():
 		news.load_dict(d.news)
 	_news_day = int(d.get("news_day", -1))
+	if regard:
+		regard.load_dict(d.get("regard", {}))
 	kept = (d.get("kept", {}) as Dictionary).duplicate(true)
 	dead_out.clear()
 	for id: StringName in d.get("dead_out", {}):

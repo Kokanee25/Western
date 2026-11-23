@@ -145,7 +145,9 @@ func test_attended() -> void:
 	_put(f.lot_point("hotel", 4.0, -12.0), f.lot_point("hotel", 4.0, -40.0))  # in the street, your back to the hill
 	var gone := await wait_until(func() -> bool: return m.men.is_empty() and m.filled.visible, 60 * 30)
 	check(gone, "the hill's empty and the grave filled (%s)" % m.result())
-	check(f._waiting.has(&"barkeep") and f._waiting.has(&"wife") and f._waiting.has(&"baron"), "the borrowed and the act's men are back waiting, not freed")
+	# (The barkeep's day has him at his bar from ten (#1167): given back, he's straight out on it again.)
+	var bk_back: bool = f._waiting.has(&"barkeep") or (f.folk_man(&"barkeep") != null and f.state[&"barkeep"] in [&"coming", &"in"])
+	check(bk_back and f._waiting.has(&"wife") and f._waiting.has(&"baron"), "the borrowed and the act's men are back waiting (or on their day), not freed")
 	# That night the barkeep's behind his bar as ever.
 	await _at(2, 21.0, 30)
 	var bk := f.folk_man(&"barkeep")

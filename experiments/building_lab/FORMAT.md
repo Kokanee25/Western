@@ -138,6 +138,18 @@ inside. A chimney outside the walls cuts no floor. The site round them (`harlan_
 `trough`, a `woodpile`, a `chopping_block`, the repair `stock`, a `stall`, a `spring` and its pipe to the
 trough, in the pad's space.
 
+**The undertaker's parts** (`undertaker.json`, #1174; all optional, the other specs build as before):
+walls of `level: "cellar"` (partitions on the cellar's flags, from them up to the girders' underside;
+their openings from the flags' top, `levels.cellar.top`); `cellar.dig` (the valley digs it: CellarDig);
+`bulkhead` {wall, z [s0, s1] the passage along the wall, out, grade, cheek, risers, going, high, low,
+lintel, open, wood} (Bulkhead, the part: the areaway, its steps, the passage under a stone lintel in the
+foundation, the doors); `side_ramp` {wall, at, width, run, wood} (a plank ramp from a side door's sill
+to the yard); a door's `leaves: 2` (a pair, each on its own jamb) and `thick` (its leaf's thickness);
+`outbuildings` kind `shed` {id, rect, eave, pitch, door {at, width, height}, stall {x, z}, wood};
+`lot.ground.plane` on a framed building (the yard's ground: the side fence, the shed, the ramp's foot
+and a stair with `ground_block` stand on it; `SpecBuilding.ground_y`); a summer beam's post as
+`{z, girder: true, size}` (down through a slot in the floor onto its girder).
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers

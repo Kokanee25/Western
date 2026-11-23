@@ -335,6 +335,25 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
   order moves the chairs' pieces): the jail's shorter walk failed both chair tests in every full CI run. Run
   `--only=card_game` after any valley.json walk or lot change; the jail's walk waits on #834.
 
+## A church (#1142, the building lab's fourth practice building after the saloons: a tower and a steeple)
+
+Record: `church/README.md`. What it taught:
+
+- **A new kind of structure goes in its own file, hooked in at three places** (`church_tower.gd`, called from `SpecBuilding.build`): the
+  tower's walls are ordinary spec walls (a numeric `top`, `ribbon: false`), its footing, floor, belfry and spire are the module's.
+- **Tilted members rest only where their oriented boxes meet** (12 mm): a hip rafter lifted 5 cm off the ring it should land on had
+  no load path, so did a spire's whole skin (90 shingle courses). Centre a hip on its line; sit courses on it, not above it.
+- **A 28 ft span is the ceiling joists' job** (3 x 15 in at 16 in; 2x10 failed at 1.11 with a crowd); keep the doctor's rafters (a 2x8 and a 10/12 roof stopped touching the ridge board).
+- **A belfry's ring of plates carrying a spire needs posts at the middle of each face** (the commons' feet land mid-span) and a deep section
+  (0.15 x 0.25); boards run across joists, never with them (a board along its joist read 1.04 in bending).
+- **A hatch goes between two joists**, never cutting one (a cut joist is two cantilevers: "joint" 5.4).
+- **A pointed (or any shaped) head is the window's, not a decoration over it** (`SashWindow`'s `rise`): cut the opening to the apex so the
+  studs, siding and finish all stop round it, then fill the corners beside the point with short stepped boards (the slanted lining covers the
+  steps). A V of trim and glass stuck on the siding over a square sash read as a sticker.
+- **A bell is a kit prop on four posts** (`solid` 0.035 for its weight); hung bells aren't supported by the member rules.
+- **Use points on a platform fail the "used" check** (it wants the floor's height): put the room's point on the floor by it.
+- Blocks the place's old grey box and `bell_tower` blocks in valley.json (they drew a box where the building stands).
+
 ## A log building and its yard (Harlan's homestead, #1126)
 
 - **One session can take a small building through every step** when the sheet runs while the code is
@@ -353,3 +372,26 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
   `YardStructure` grounds each on the ground under it (`ground_y`), so a pipe down a hill doesn't fall.
 - **A dirt floor** (`levels.ground.dirt`): the checks take the ground as the floor for use points under the
   sills' level.
+
+## A cellar you walk down into (the undertaker's, #1174)
+
+- **The valley's ground is a height field: a cellar needs its ground dug.** `cellar.dig` (CellarDig) sets
+  Ground's dug tiles (5 cm points) under the cellar and the bulkhead's areaway to the cellar's floor, the
+  cut's edge 10 cm inside the walls' stone so its slope never shows. The lab's ground opens the same pits
+  (`lab.gd`). No pad needed: the lot keeps its slope, and `lot.ground.plane` (checked against the bake in
+  `tests/test_undertaker_valley.gd`, within 4 cm) stands the yard's things on it.
+- **A cellar's rooms are partitions on its flags** (walls of level `cellar`): put the bearing ones under
+  the girders (they carry them); a door in one needs 1.98 m under its header, so the cellar's floor goes
+  1.6 m under the street edge (2.41 m to the joists). Its openings and lamps count from the flags' top.
+- **A post on floor boards gives the boards its load** (StructuralAnalysis shares an upright's load evenly
+  among what it touches): a summer beam's post goes down through a slot in the floor onto its girder,
+  standing between two joists and 2 cm clear of the boards (CONTACT_EPSILON is 1.2 cm). Put the girders
+  on a floor board's middle so the slot cuts one row.
+- **Keep a partition off a summer beam's line** (its plate and the beam overlap: the settle drops both).
+- **A beam sits on a hatch's edges only if the hatch's sides are on the girders' faces** (boards beside a
+  hatch over a strip with no joist bent 2x with a crowd).
+- **An outward door in an outer wall has nothing under its leaf** (the floor's inside): open it inward.
+- **The walk test** (`Waypoints._foot_height`, `_walkable`, as saloon B's): sample every 0.2 m up a steep
+  stair (a 44 degree stair rises 0.27 in 0.3 m, over STEP_UP); the player's own limit is 46 degrees.
+- **Valley bodies:** 44,986 of Jolt's 65,536 with the undertaker in (his 4,079): no guard to raise.
+

@@ -1,0 +1,90 @@
+{
+  "_doc": "The store's coffee mill (#1172, G2; refs/store/grocery_left_hand_view_1895: the two-wheel counter mill of the 1870s-90s): cast iron enamelled red, a brass hopper with an eagle-less lid, two spoked flywheels 50 cm across turned by a handle, the grounds' drawer under. Stands on the counter. ~75 kg of iron (the big two-wheel kind: an Enterprise No. 12 was 160 lb). Modelled and baked in tools/blender/props/store_g2.py. Written by tools/props/store_g2.py.",
+  "id": "coffee_mill",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "iron",
+  "look": "pbr:coffee_mill",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.3,
+  "factory": "tools/props/store_g2.py",
+  "members": [
+    {
+      "id": "body",
+      "kind": "post",
+      "size": [
+        0.22,
+        0.6,
+        0.2
+      ],
+      "at": [
+        0.0,
+        0.3,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:coffee_mill",
+      "solid": 0.0,
+      "draw": {
+        "shape": "mesh",
+        "model": "coffee_mill",
+        "part": "Body"
+      },
+      "dress": [
+        {
+          "look": "pbr:coffee_mill",
+          "draw": {
+            "shape": "mesh",
+            "model": "coffee_mill",
+            "part": "Hopper"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wheel_l",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.56,
+        0.5
+      ],
+      "at": [
+        -0.14,
+        0.28,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:coffee_mill",
+      "solid": 0.0,
+      "draw": {
+        "shape": "mesh",
+        "model": "coffee_mill",
+        "part": "WheelL"
+      }
+    },
+    {
+      "id": "wheel_r",
+      "kind": "post",
+      "size": [
+        0.04,
+        0.56,
+        0.5
+      ],
+      "at": [
+        0.14,
+        0.28,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:coffee_mill",
+      "solid": 0.0,
+      "draw": {
+        "shape": "mesh",
+        "model": "coffee_mill",
+        "part": "WheelR"
+      }
+    }
+  ]
+}

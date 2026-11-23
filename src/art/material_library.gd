@@ -37,7 +37,7 @@ const DIALS := ["weathering", "value_jitter", "hue_jitter", "rough_jitter", "rou
 		"age_split", "checks", "end_rot", "contact", "arris",
 		"paint", "paint_inside", "paint_chalk", "paint_fade", "paint_peel", "paint_crack", "paint_thin_new",
 		"paint_thin", "paint_relief", "paint_brush", "paint_rough_new", "paint_yellow", "bead",
-		"traffic", "furniture", "use_wear", "dings"]
+		"traffic", "furniture", "use_wear", "dings", "shingle_w", "shingle_gap"]
 ## The eased edges (#873; scan_wood.gdshader's `edge_round`): each class's arris radius new and old, in
 ## metres. Planed common boards a couple of millimetres from the plane and handling, round as a
 ## thumb's edge after years of weather and hands; rough-sawn boards leave the saw near square, then

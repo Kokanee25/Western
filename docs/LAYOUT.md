@@ -870,6 +870,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   spec's `stage`, `SpecBuilding._stage`): a platform of members in the dance hall, the wing, the
   `DrawCurtain` (`src/art/draw_curtain.gd`: `building.open_curtain()` / `close_curtain()`, `to_dict`)
   and the `PaintedDrop` (`src/art/painted_drop.gd`, the backdrop; `art` its painting).
+  **The undertaker's** (#1174, `experiments/building_lab/undertaker/`) has the first cellar a man walks down
+  into: `CellarDig` (`src/structures/cellar_dig.gd`, called from `_make_buildings` for a spec's `cellar.dig`) lowers
+  the valley's ground (Ground's dug tiles) under the cellar and its `Bulkhead`'s areaway to its floor.
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -964,6 +967,7 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/structures
 
+- `church_tower.gd` (#1142): the church's bell tower, belfry, louvres, spire and pointed window heads, called from `SpecBuilding.build` when the spec has a `tower`; the cemetery is `src/world/cemetery.gd` (`config/cemetery.json`), placed by `ValleyWorld._make_church` and `_make_cemetery`.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
   (loads down the graph, compression/buckling/bending/joint checks; `config/timber.tres` via
@@ -1914,6 +1918,12 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
   past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
   (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  **Errands** (#1167): a block with `round` `[{at|in, do, stay: [s, s]}...]` walks him leg to leg (`_leg_block`,
+  `_leg_step`; a leg is the block as an `at` or `in`, stays in real seconds, never to a spot another holds);
+  `run_seed` (random a run; Engine meta `town_seed` fixes it: the tests' runner 0, replay the report's) spreads
+  the legs, the barks' gaps (`talk.gap_jitter`, `first_s`), the news' slips and the room's bits.
+  **Shops** (`shops`, #1167): a knock at an open shop with its keeper in brings him to its `spot` with a line
+  (`_shop_answers`; `on` pass, then knock). `tests/test_town_streets.gd`, `test_town_open.gd`.
   **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
   `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
   only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
@@ -1979,7 +1989,8 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   **Regard and the barks** (townsfolk step 9, #1152; `TownRegard` `src/people/town_regard.gd`, `TownBarks`
   `src/people/town_barks.gd`, `tests/test_town_barks.gd`, `_valley`; bridge `read regard`): each man's trust, fear,
   liking, respect of Harlan worked out when asked from his own `view_of_harlan` and StoryState facts (data `regard`:
-  `view`, `facts` with `all`/`who`/`split`); band afraid / warm / wary / cold, the town's the average. Within
+  `view`, `facts` with `all`/`who`/`split`), and what he saw Harlan do himself (#1167: `deeds`, from Events.deed
+  and a won pot, `saw_harlan`; `fired`, his versions with Harlan firing and nobody down; kept in the save); band afraid / warm / wary / cold, the town's the average. Within
   `show_m` a calm man at his post who sees you shows it (`CivilianBrain.show_regard`: nod, look_away, turn, clear;
   the head through `FaceGaze.nod`). The barks: town.json lines with an `if` (`on` pass / react.* / undertaker;
   keys in TownBarks' head), `fitting` most specific first (`specificity`), `pick` with the limits (once a day a
