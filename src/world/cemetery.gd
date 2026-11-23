@@ -17,6 +17,9 @@ var cfg: Dictionary = {}
 var graves: Array[Dictionary] = []
 var fence_posts := 0
 var pickets := 0
+## The plots left empty for the game's own dead (#1170, Sean: "we're going to be filling it up"): world x/z, from the
+## old graves' side toward the gate. `claim_plot` hands out the next.
+var free_plots: Array[Vector2] = []
 
 
 static func load_config() -> Dictionary:
@@ -145,17 +148,21 @@ func _graves() -> void:
 	var z := at.y - float(half[1]) + float(rows.margin)
 	var row := 0
 	var most := int(cfg.get("graves_max", 70))
-	while z < at.y + float(half[1]) - float(rows.margin) and spots.size() < most:
+	free_plots.clear()
+	while z < at.y + float(half[1]) - float(rows.margin):
 		var x := at.x - float(half[0]) + float(rows.margin) + 1.1 + (0.0 if row % 2 == 0 else float(rows.along) * 0.35)
-		while x < at.x + float(half[0]) - 1.2 and spots.size() < most:
+		while x < at.x + float(half[0]) - 1.2:
 			var p := Vector2(x + rng.randf_range(-0.2, 0.2), z + rng.randf_range(-0.12, 0.12))
-			var ok := rng.randf() < float(rows.fill) and p.distance_to(mid) > 3.0 and absf(p.x - gate_x) > 1.9
+			var site := p.distance_to(mid) > 3.0 and absf(p.x - gate_x) > 1.9
 			for q in spots:
 				if absf(q.x - p.x) < 2.4 and absf(q.y - p.y) < 1.2:
-					ok = false
+					site = false
 					break
-			if ok:
+			# The old rows (north, from the back fence) take `graves_max`; every other site is left for the game's dead.
+			if site and spots.size() < most and rng.randf() < float(rows.fill):
 				spots.append(p)
+			elif site and spots.size() >= most:
+				free_plots.append(p)
 			x += float(rows.along)
 		z += float(rows.apart)
 		row += 1
@@ -202,3 +209,10 @@ static func _kind(rng: RandomNumberGenerator, kinds: Dictionary) -> StringName:
 		if roll <= acc:
 			return StringName(id)
 	return &"wood_cross"
+
+
+## The next empty plot (world x/z) for a burial, taken off the list; Vector2.INF when the yard is full.
+func claim_plot() -> Vector2:
+	if free_plots.is_empty():
+		return Vector2.INF
+	return free_plots.pop_front()

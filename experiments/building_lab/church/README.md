@@ -19,7 +19,7 @@ a **flared skirt** (45 then 15 degrees, the lower pitch on a ledger laid on the 
 **the side wall** boxed eaves (fascia, soffit, frieze), wide casings (0.14 m) with a drip cap on each arch and thick stools,
 the lap course over each apex filled (the dark strip); **inside** a period pew (scrolled ends, two-board seat, panelled back,
 book rail; painted), a white box pulpit, a plain rail, the hymn board's cards, the stove pipe to the ceiling; **the cemetery**
-in close rows (up to 72 graves), heavy crosses with name boards, arched headstones, round-topped headboards, 1.3 m
+in close rows (34 graves in the old rows at the back; the rest of the sites left free for the game's dead, `Cemetery.free_plots`, `claim_plot`), heavy crosses with name boards, arched headstones, round-topped headboards, 1.3 m
 pickets at 0.15 m (square-topped: cut points made each its own mesh and the view ran past 30 min), the mounds low and dry. Renders `results/2026-11-23_r6/`, judged in `docs/screenshots/judge/2026-11-23_church_r3/`.
 Not done (the judge's wall notes 2, 3, 5): patchy paint, lapped clapboards' shadow lines and wavy old glass are the shared siding
 (`LAP_BOARD_H`, every lap-sided building) and the shared glass shader: a material-library job of their own.
