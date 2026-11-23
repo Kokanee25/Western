@@ -46,6 +46,8 @@ func _at(h: float) -> void:
 ## The night's five (the saloon yard's set; the day folk on the walks, #796, the band's players,
 ## test_band, and the roster's street folk, #936, are others).
 const NIGHT := [&"barkeep", &"miner", &"rancher", &"earl", &"drifter"]
+## The night's men with day hours too (#1167): the saloon open from ten, the drifter's errands.
+const DAY_TOO := [&"barkeep", &"drifter"]
 
 
 ## Who of the night's five is in the world.
@@ -75,12 +77,13 @@ func test_by_day_nobody_s_there_but_they_re_built() -> void:
 	await _empty()
 	var f := _folk()
 	check(f != null, "the valley has its folk")
-	check_eq(_night_in().size(), 0, "none of the night's folk in town at noon")
+	# (Since #1167 the barkeep keeps his bar from ten and the drifter has his day's errands.)
+	check_eq(_night_in().filter(func(id: StringName) -> bool: return not id in DAY_TOO).size(), 0, "none of the night's other folk in town at noon")
 	for p: Dictionary in f.data.people:
-		if not p.has("says"):
+		if not p.has("says") and not StringName(p.id) in DAY_TOO:
 			check_eq(String(f.state[StringName(p.id)]), "out", "%s out" % p.id)
 	# By day the day folk at their posts on the walks (No Law's morning after, #796).
-	for id: StringName in [&"townsman", &"loudmouth", &"undertaker"]:
+	for id: StringName in [&"townsman", &"loudmouth"]:  # (the undertaker's round takes him indoors at times, #1167)
 		check(f.state.get(id) in [&"in", &"coming"], "%s in town by day (%s)" % [id, f.state.get(id)])
 	check(f.build_ms.has("men"), "built while the valley loaded (%s)" % f.build_ms)
 	# The set stands in the saloon's yard (Sean's B on #755: the saloon a grey block for now).
@@ -147,9 +150,10 @@ func test_each_finds_his_way_in() -> void:
 	# The barkeep out of the saloon's door and down its walk's steps; the rancher from Back Street
 	# down the North-South Street; Earl from Back Street up the yard; the drifter from the hotel.
 	await _empty()
-	await _at(16.9)
-	await _at(17.01)
-	check_eq(String(_folk().state[&"barkeep"]), "coming", "the barkeep walking in at five")
+	await _at(9.9)
+	await _at(10.01)
+	check_eq(String(_folk().state[&"barkeep"]), "coming", "the barkeep walking in at ten (the saloon's day hours, #1167)")
+	await _at(19.0)  # (the drifter in from his day's errands: on the book at the hotel)
 	await _at(19.61)
 	var f := _folk()
 	for id: StringName in [&"rancher", &"earl", &"drifter"]:

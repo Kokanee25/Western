@@ -91,6 +91,8 @@ func test_one_doctor() -> void:
 	var man := f.take(&"doctor", _doctor_in(3.0), _doctor_in(5.0))
 	check(man != null and man == f.folk_man(&"doctor"), "an act takes the town's doctor off his day")
 	check(f.state.get(&"doctor") == &"act" and not f.book.inside(&"doctor").has(&"doctor"), "his day waits (%s)" % f.state.get(&"doctor"))
+	# (His morning is a round of calls since #1167: held on its leg in at his own door for this.)
+	f._legs[&"doctor"] = {"base": 7.0, "i": 0, "until": 1.0e9, "since": f._ran, "n": 0}
 	f.release(&"doctor")
 	check(f.state.get(&"doctor") == &"out", "given back to his day, not freed (%s)" % f.state.get(&"doctor"))
 	f._look = 0.0

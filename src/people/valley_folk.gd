@@ -820,6 +820,9 @@ func _gone(id: StringName, cut := false) -> void:
 					var sc: SitChore = (c as SpotChore).sit
 					if sc and sc.chair and is_instance_valid(sc.chair):
 						Seating.stand_up(man, sc.chair)
+		# (Out of his name first: brought again this frame, the new body takes it, not an @Node3D@ one
+		# the save would see as another man.)
+		man.name = String(man.name) + "_gone"
 		man.queue_free()
 
 

@@ -170,6 +170,12 @@ func test_the_valley_s_blocks_name_their_chores() -> void:
 		f._look = 0.0
 		await physics_frames(90)
 		for id: StringName in want[h]:
+			# On an errand round (#1167) his leg says it: in at a door (no body to ask), or its own spot's.
+			var b := f.block_now(f._person(id), h)
+			if b.has("leg") and b.has("in"):
+				continue
+			if b.has("leg"):
+				want[h][id] = StringName(String(b.do))
 			var man: HumanBody = f.people.get(id)
 			var brain := man.get_node_or_null(^"Brain") as CivilianBrain if man else null
 			var c: SpotChore = null
