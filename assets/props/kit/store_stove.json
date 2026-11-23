@@ -1,0 +1,383 @@
+{
+  "_doc": "The shop's stove (#1139, G1): the saloon's box stove (box_stove.json) with a fifth length of pipe cut to run up under the shop's beaded ceiling (3.56 m over its floor), the sand box, the draught and the coals as the saloon's. The chairs and the barrels by it are the clue of the store (\"barrels of crackers and pickles by the stove\"). Written by tools/props/store_g1.py.",
+  "id": "store_stove",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "iron",
+  "look": "pbr:box_stove",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.3,
+  "stove": {
+    "member": "body",
+    "door": [
+      0.47,
+      0.37,
+      0.0
+    ],
+    "glow_at": [
+      0.46,
+      0.437,
+      0.0
+    ],
+    "radius": 0.45,
+    "seconds": 300.0,
+    "heating": 1.4,
+    "lit_from": 17,
+    "lit_until": 7,
+    "glow": 0.7
+  },
+  "members": [
+    {
+      "id": "sand_box0",
+      "kind": "sill",
+      "size": [
+        1.2,
+        0.11,
+        0.035
+      ],
+      "at": [
+        0.0,
+        0.055,
+        0.4325
+      ],
+      "wood": "oak",
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "sand_box1",
+      "kind": "sill",
+      "size": [
+        1.2,
+        0.11,
+        0.035
+      ],
+      "at": [
+        0.0,
+        0.055,
+        -0.4325
+      ],
+      "wood": "oak",
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "sand_box2",
+      "kind": "sill",
+      "size": [
+        0.035,
+        0.11,
+        0.83
+      ],
+      "at": [
+        0.5825,
+        0.055,
+        0.0
+      ],
+      "wood": "oak",
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "sand_box3",
+      "kind": "sill",
+      "size": [
+        0.035,
+        0.11,
+        0.83
+      ],
+      "at": [
+        -0.5825,
+        0.055,
+        0.0
+      ],
+      "wood": "oak",
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "sand",
+      "kind": "sill",
+      "size": [
+        1.13,
+        0.09,
+        0.83
+      ],
+      "at": [
+        0.0,
+        0.045,
+        0.0
+      ],
+      "wood": "stone",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Sand"
+      },
+      "solid": 0.7
+    },
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.2,
+        0.05
+      ],
+      "at": [
+        -0.36,
+        0.19,
+        -0.18
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Leg0"
+      },
+      "solid": 0.5
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.2,
+        0.05
+      ],
+      "at": [
+        0.36,
+        0.19,
+        -0.18
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Leg1"
+      },
+      "solid": 0.5
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.2,
+        0.05
+      ],
+      "at": [
+        -0.36,
+        0.19,
+        0.18
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Leg2"
+      },
+      "solid": 0.5
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.05,
+        0.2,
+        0.05
+      ],
+      "at": [
+        0.36,
+        0.19,
+        0.18
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Leg3"
+      },
+      "solid": 0.5
+    },
+    {
+      "id": "body",
+      "kind": "furniture_frame",
+      "size": [
+        0.84,
+        0.42,
+        0.46
+      ],
+      "at": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Body"
+      },
+      "solid": 0.12
+    },
+    {
+      "id": "door",
+      "kind": "trim",
+      "size": [
+        0.03,
+        0.3,
+        0.34
+      ],
+      "at": [
+        0.435,
+        0.5,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Door"
+      },
+      "solid": 0.35
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        0.88,
+        0.03,
+        0.5
+      ],
+      "at": [
+        0.0,
+        0.725,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Top"
+      },
+      "solid": 0.35
+    },
+    {
+      "id": "pipe0",
+      "kind": "trim",
+      "size": [
+        0.152,
+        0.62,
+        0.152
+      ],
+      "at": [
+        -0.27,
+        1.05,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Pipe0"
+      },
+      "solid": 0.013
+    },
+    {
+      "id": "pipe1",
+      "kind": "trim",
+      "size": [
+        0.152,
+        0.62,
+        0.152
+      ],
+      "at": [
+        -0.27,
+        1.67,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Pipe1"
+      },
+      "solid": 0.013
+    },
+    {
+      "id": "pipe2",
+      "kind": "trim",
+      "size": [
+        0.152,
+        0.62,
+        0.152
+      ],
+      "at": [
+        -0.27,
+        2.29,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Pipe2"
+      },
+      "solid": 0.013
+    },
+    {
+      "id": "pipe3",
+      "kind": "trim",
+      "size": [
+        0.152,
+        0.62,
+        0.152
+      ],
+      "at": [
+        -0.27,
+        2.91,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Pipe3"
+      },
+      "solid": 0.013
+    },
+    {
+      "id": "pipe4",
+      "kind": "trim",
+      "size": [
+        0.152,
+        0.3,
+        0.152
+      ],
+      "at": [
+        -0.27,
+        3.37,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "pbr:box_stove",
+      "draw": {
+        "shape": "mesh",
+        "model": "box_stove",
+        "part": "Pipe3"
+      },
+      "solid": 0.013
+    }
+  ],
+  "factory": "tools/props/store_g1.py"
+}

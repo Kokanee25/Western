@@ -25,6 +25,8 @@ const VIEWS := {
 	"corner": [Vector3(-12.0, 1.75, -12.0), Vector3(6.0, 4.5, 4.0), 55.0, 17.5, false],
 	"shop": [Vector3(8.4, 2.75, 1.0), Vector3(8.4, 2.6, 10.0), 72.0, 10.5, true],
 	"counter": [Vector3(8.4, 2.75, 10.3), Vector3(8.4, 2.7, 0.5), 72.0, 10.5, true],
+	"clerk": [Vector3(1.3, 2.7, 3.2), Vector3(8.0, 2.2, 6.0), 72.0, 10.5, true],
+	"stove": [Vector3(5.5, 2.75, 5.0), Vector3(11.0, 2.2, 9.0), 70.0, 10.5, true],
 	"loft": [Vector3(8.4, 6.65, 10.4), Vector3(8.4, 6.2, 0.5), 72.0, 10.5, true],
 	"cellar": [Vector3(13.0, 0.35, 8.6), Vector3(7.0, 0.0, 0.6), 74.0, 12.0, true],
 	"shop_night": [Vector3(8.4, 2.75, 1.0), Vector3(8.4, 2.6, 10.0), 72.0, 20.5, true],

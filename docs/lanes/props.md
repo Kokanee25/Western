@@ -14,6 +14,12 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   judged blind in its room (`experiments/prop_lab/doctor/dress.gd`).
 
 ## Open
+- **The general store, G1 is placed** (#1139; `tools/props/store_g1.py`, its plan and the G2/G3 list in
+  `experiments/prop_lab/store/README.md`, results `results/2026-11-22_store_g1/`): counters, shelving, ladder, stove,
+  barrels, sacks, scales, bolts, in the store spec's `dressing` (`gen_spec.py` imports `store_g1`; edit there, re-run both).
+  Two blind rounds: shelf stock doesn't read, counters/bolts/windows DIFFERENT. **Next G2**: stock on the shelves (tins,
+  boxes, boots, hats), hardware, baked metal, hanging lamps and goods, dated refs. `PropDressing` `on` = a fitted
+  fixture's top: shelf goods take an explicit y.
 - **Saloon B's S1, S2 and S3 are placed** (#950): its spec's `dressing`, written by `tools/props/saloon_b_dress.py`
   (edit there, re-run; it also moves the bar to x 2.25 and the use points it touches). What was decided: README
   "Saloon B, S1 to S3 placed". Kit files `tools/props/saloon.py`, `saloon_s2.py`, `saloon_s3.py`. **Judged by lamplight** (#987, `results/2026-11-15_saloon_b_placed/`): placement and lamps stand; kit faults in the README's "Judged by lamplight", for S4.
