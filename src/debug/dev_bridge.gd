@@ -18,7 +18,7 @@ const HELP := {
 	"look": "look TX TY TZ | look PERSON [PART] | look PLACE -> turn to face a point, a person (his chest, or PART: head, abdomen, pelvis, upper_arm_l...) or a place (eye height); at a person it says what stands in the line (and whether a ball goes through it) and which of him you can see",
 	"ride": "ride [PLACE] -> \"ride there\" (#1120) from the tied horse you're at, as E and the list do: the fade, the clock on, you by your horse at PLACE's rail; answers the ride (or why not). Alone: what's offered from here and why not (goto horse_PLACE: by the horse there)",
 	"turn": "turn DEGREES [PITCH] -> turn right by DEGREES, pitch up by PITCH",
-	"walk": "walk X Z [run] | walk PLACE [run] | walk SPOT [run] | walk PERSON [run] -> walk there (SPOT: a folk spot, e.g. saloon_porch; `saloon`: the town's saloon room; PERSON: within a shove's reach, facing his chest) (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
+	"walk": "walk X Z [run] | walk PLACE [run] | walk SPOT [run] | walk PERSON [run] -> walk there (SPOT: a folk spot, e.g. saloon_porch; `saloon_room`: the town's saloon room (`saloon` is its door); PERSON: within a shove's reach, facing his chest) (to a place or a point it routes round buildings, furniture and posts by the places, steps aside when caught; stops if stuck 4 s). It lets go in time to stop there and answers once you've stopped. A walk keeps your crouch; a run stands you up from it, as the run key does",
 	"key": "key NAME [SECONDS] -> a keyboard key down and up (8, F12, Backspace...: Godot's key names), as typed: for the keys no action names (the labs')",
 	"crawl": "crawl [on|off] -> down flat and crawl (as holding C), or back up when there's room; no word: on",
 	"press": "press ACTION [SECONDS] -> hold an input action (fire, aim, cock, reload, holster, jump, crouch_toggle, shout, weapon_revolver...) then let go",
@@ -415,12 +415,12 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var run := "run" in a
 	var points: Array[Vector3] = []
 	var place := StringName(a[0])
-	# The town's saloon room is No Law's yard set (#1194: `walk saloon` stopped at saloon B's door, 17 m
-	# short of the bar and the card table): to the room's middle while that set stands.
+	# `saloon_room`: the town's saloon room, No Law's yard set (#1194: `walk saloon` stops at saloon B's
+	# door, 17 m short of the bar and the card table; the door it stays, test_valley_town walks to it).
 	# (The set's places are the folk's own, not the valley's: routed by theirs.)
 	var vf := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
 	var man: HumanBody = null
-	if place == &"saloon" and vf != null and vf.places != null and vf.places.has(&"nolaw_yard_mid"):
+	if place == &"saloon_room" and vf != null and vf.places != null and vf.places.has(&"nolaw_yard_mid"):
 		points = vf.places.route(World.space(player), player.global_position, &"nolaw_yard_mid", [player.get_rid()])
 		if points.is_empty():
 			points = [vf.places.at(&"nolaw_yard_mid")]

@@ -35,7 +35,8 @@ whenever something is worth showing: good or bad.
   `read places` (named spots you can walk to) for one part.
 - `events 20` — the last things that happened: who said what, shots, hits, falls, deaths,
   timber breaking, explosions. People talk: their words are the best clue to what they think.
-- `walk PLACE` (from `read places`), `walk NAME` (to a person), `walk X Z`, add `run` to run.
+- `walk PLACE` (from `read places`), `walk NAME` (to a person), `walk X Z`, add `run` to run. In the valley,
+  `walk saloon_room` takes you into the saloon's room (`walk saloon` stops at its street door).
 - `look NAME` / `look PLACE` / `look X Y Z` — turn to face it. `turn DEGREES [PITCH]`. `look NAME`
   faces his chest; `look NAME head` (or `abdomen`, `upper_arm_l`, `thigh_r`...) a part of him. At a
   man it also says what stands in the line and stops a ball (`in_the_way`), what's in it a ball

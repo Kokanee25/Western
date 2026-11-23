@@ -43,7 +43,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   round's faults wait on Sean (#1208). #1184: day talk (`street`, `chat`, `_chat_step`), rounds, the knock, loops. #1194:
   stuck walks (`ValleyFolk._door_step`: in at his door after 6 s watched; `_stuck_step`: still 40 s, placed unseen or
   re-routed; `CivilianBrain._far_from_post`, `_route_home`, day walks sidestep), one man to a spot (`_leg_block`),
-  `relief_saw`; bridge `walk saloon` to the room, `walk PERSON` to shove reach. Left (#1208): E at the store's glass
+  `relief_saw`; bridge `walk saloon_room` to the room, `walk PERSON` to shove reach. Left (#1208): E at the store's glass
   shoves (`past_door` 0.9 m), card lines repeat, noon bar unreachable, witnesses' words, men left out after the shot
   (a man "in" off his post isn't watched), crates break at load. Unjudged on screen: the
   walks between spots, the store's door scene. Open: the room's sounds are synth stand-ins (#807); no argument,
