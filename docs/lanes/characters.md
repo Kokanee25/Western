@@ -48,6 +48,11 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
   `HeldHand._canonical_fingers` reframes them (from #919, closed unmerged; its Studio branch kept).
 - Talking face: four men's jaws go back more than down (#247).
+- **Harlan's sewn clothes** (Studio, private; its `docs/METAHUMAN.md`): shirt and trousers from period patterns
+  (w8, #1013), our own vest (`sew_vest.py`, Hecklinger 1883) recut to his figure in round 2 (w11, #1198: his own
+  arcs, the armhole from his armpit; the blind critic ranks it second to w8's Tripo vest, first close up). Waiting
+  on Sean (#1209): which vest, and whether the shirt and trousers are cut to his measures that way. Studio branch
+  `claude/studio-vest-round2` (unmerged). Store empty in a new container: rebuild w8/b2/w11 (free, 4 min each).
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
 - **Joe's people's clothes** (#1096): brief `docs/briefs/ute-dress.md` (plain, no beads etc.); waiting on Sean's OK of
