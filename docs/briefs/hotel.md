@@ -261,6 +261,29 @@ in painted boards (the town's carpentry, which the builder has).
 rooms and the stair's dark oak (`dark_oak`, in the game). Brass on every hand: rails, door furniture,
 lamp founts, numbers, the bed.
 
+### 7.1 How the opulence is made in the game (Sean, 2026-11-23: "how will we do the opulence?")
+
+Opulence is layers, each one cheap alone; the hotel has all of them where the street has none.
+
+| Layer | What it is here | In the game today | New for the hotel |
+|---|---|---|---|
+| **1. Surfaces** | Three-band wallpaper (dado, filling, frieze) a scheme a room; **red Brussels carpet** wall to wall in the lobby, the parlour and the suite, a red runner up the stair and the halls; plaster ceilings with a cornice and a rose; figured walnut | `stair_runner` (oxblood with a black and gold border, made for this stair), `dark_oak`, `int_oak`, the material library and its judge | Wallpapers (our own patterns, drawn on the period's rules, not copied: a damask filling, a floral, a stripe), a Brussels carpet (a red ground, a gold and green medallion repeat, sewn strips, worn paler in the traffic), `plaster_painted` and its ceiling rose, `furniture_walnut` FN3 unparked with real figure; each a swatch through the library's judge |
+| **2. Mouldings** | Wainscot with raised panels and a moulded cap, a deep ceiling cornice, a picture rail, door casings with corner blocks, panelled doors under transoms, the stair's turned balusters | Wainscot, casings and picture rail as members (`PropKit.dress`), the profiles (ogee, bead, handrail) | A crown cornice profile, corner blocks, the four-panel door |
+| **3. Lamplight on things that shine** | Kerosene chandeliers of cut glass, brass founts and gasoliers' shapes, a newel lamp; brass everywhere a hand goes; gilt frames, mirrors over mantels and behind the bar, the polished bar top | Hanging lamps (saloon S1), oil lamps, the back bar's mirrors, `RoomReflections`, brass (`prop_brass`), the bar top's polish | A four-lamp chandelier with prisms, the newel lamp, gilt frames, a pier mirror |
+| **4. Cloth** | Velvet drapes on brass poles over lace, velvet settees with fringe, white table linen, the bed's counterpane | `DrawCurtain` (heavy red cloth with a gold fringe), `ClothCore` | Lace (sheer), velvet upholstery, linen: the prop lab's |
+| **5. Things, densely** | Pictures, a clock, ferns and an aspidistra in jardinieres, a whatnot of china, the album, antimacassars, spittoons, the piano | The kit (spittoon, lamp, bottles, the piano drawn) | The parlour's and the suite's batch (prop lab) |
+| **6. Contrast** | The street's dust stops at the door mat; the saloon across the lane is planks and sawdust | the street, saloon B | nothing: it's the layout |
+
+**The colours, room by room:** the lobby deep red and gold (red damask paper, the red carpet, walnut);
+the bar dark green and gold; the ladies' parlour lighter, a cream and rose floral with green velvet; the
+dining room light (a buff stripe) so the linen glows; the suite crimson and gold; the halls a quiet
+brown-gold paper with the red runner. Faded and a little worn, not new: the house is a year old and well used.
+
+**And they break differently** (#1146's first comment): plaster on lath cracks in a web, then falls in
+chunks with the paper torn along the cracks; carpet takes the blood (`FloorMarks`) and the oil from a
+smashed chandelier burns on it; mirrors and the chandelier's prisms shatter. The plaster is the one big
+new system (a wall finish that breaks as plaster, gameplay's structures with art's look).
+
 ## 8. Who works there (#1207's list)
 
 Every one a person you can walk up to (#1207: unique), so each gets a sheet when the town's people do:
