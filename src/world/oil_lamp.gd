@@ -12,6 +12,8 @@ extends Node3D
 @export var show_mesh := true
 ## How much its light shows in the air (smoke, haze): the halo round a lamp in a smoky room.
 @export var haze := 1.2
+## Its light's colour (a smoky wick burns deeper: a spec's `smoky` lamp, #1187).
+@export var colour := Color(1.0, 0.74, 0.48)
 ## Render layers this lamp's light leaves alone (the art session's staged shots: the saloon shot's
 ## lamps leave the seated man's head to its side key, ShotMatch.FACE_LAYER).
 var cull_out := 0:
@@ -245,7 +247,7 @@ func _build() -> void:
 		model.visible = false
 		_flame.visible = false
 	_light = OmniLight3D.new()
-	_light.light_color = Color(1.0, 0.74, 0.48)
+	_light.light_color = colour
 	_light.light_volumetric_fog_energy = haze
 	_light.light_energy = energy
 	_light.omni_range = light_range

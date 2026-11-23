@@ -220,6 +220,7 @@ static func _apply_section(tree: SceneTree, world: Node3D, section: String, sd: 
 				floor.load_dict(sd)
 		"blood":
 			if world:
+				Blood.clear()  # (the save's list is all of it: a fresh world's old blood (PastStains) is in it)
 				Blood.load_list(world, sd)
 		"dynamite":
 			if world and not (sd as Array).is_empty():
