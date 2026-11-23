@@ -1914,6 +1914,12 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   an `if` on StoryState facts for the story's days; the town's day starts at `starts_h` 5, so a night
   past midnight is the day before's; day 0 is ordinary). **A new person is one entry in `people`**
   (model, seed, colours, `home`, `day`; `says` for lines), and a new spot one in `spots`.
+  **Errands** (#1167): a block with `round` `[{at|in, do, stay: [s, s]}...]` walks him leg to leg (`_leg_block`,
+  `_leg_step`; a leg is the block as an `at` or `in`, stays in real seconds, never to a spot another holds);
+  `run_seed` (random a run; Engine meta `town_seed` fixes it: the tests' runner 0, replay the report's) spreads
+  the legs, the barks' gaps (`talk.gap_jitter`, `first_s`), the news' slips and the room's bits.
+  **Shops** (`shops`, #1167): a knock at an open shop with its keeper in brings him to its `spot` with a line
+  (`_shop_answers`; `on` pass, then knock). `tests/test_town_streets.gd`, `test_town_open.gd`.
   **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
   `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
   only, nothing reads them till step 5), a `home` and an ordinary day (`sunday` for the store, the smithy).
@@ -1979,7 +1985,8 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   **Regard and the barks** (townsfolk step 9, #1152; `TownRegard` `src/people/town_regard.gd`, `TownBarks`
   `src/people/town_barks.gd`, `tests/test_town_barks.gd`, `_valley`; bridge `read regard`): each man's trust, fear,
   liking, respect of Harlan worked out when asked from his own `view_of_harlan` and StoryState facts (data `regard`:
-  `view`, `facts` with `all`/`who`/`split`); band afraid / warm / wary / cold, the town's the average. Within
+  `view`, `facts` with `all`/`who`/`split`), and what he saw Harlan do himself (#1167: `deeds`, from Events.deed
+  and a won pot, `saw_harlan`; `fired`, his versions with Harlan firing and nobody down; kept in the save); band afraid / warm / wary / cold, the town's the average. Within
   `show_m` a calm man at his post who sees you shows it (`CivilianBrain.show_regard`: nod, look_away, turn, clear;
   the head through `FaceGaze.nod`). The barks: town.json lines with an `if` (`on` pass / react.* / undertaker;
   keys in TownBarks' head), `fitting` most specific first (`specificity`), `pick` with the limits (once a day a

@@ -1195,8 +1195,8 @@ func _place(p: Dictionary, b: Dictionary) -> void:
 		var man: HumanBody = people.get(id)
 		var brain := man.get_node_or_null(^"Brain") as CivilianBrain if man else null
 		var pf := post_of(p)
-		if brain != null and brain.post.distance_to(pf[0]) > 0.3:
-			_gone(id, true)  # another spot: there at once
+		if brain != null and (brain.post.distance_to(pf[0]) > 0.3 or st == &"coming"):
+			_gone(id, true)  # another spot, or still on his way to it: there at once (the clock's cut)
 			_bring(p, false)
 		elif brain != null:
 			_new_doing(man, brain, p, b)
