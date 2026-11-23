@@ -164,6 +164,10 @@ func _ready() -> void:
 	add_to_group(&"valley_folk")
 	add_to_group(&"knock_doors")  # its places' doors (PlayerKnock)
 	add_to_group(&"timed_beats")  # what comes due while you ride (RideThere, #1120)
+	run_seed = int(Engine.get_meta(&"town_seed")) if Engine.has_meta(&"town_seed") else randi() % 1000000
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--town-seed="):
+			run_seed = int(a.substr(12))
 	fetch = FetchHelp.new(self)
 	news = TownNews.new(self)
 	if layout == null:
@@ -913,11 +917,112 @@ func block_now(p: Dictionary, h: float, kind := &"") -> Dictionary:
 	for b: Dictionary in bl:
 		if float(b.from) <= h:
 			best = b
+	if best.has("round"):
+		return _leg_block(p, best)
 	return best
 
 
 static func block_key(b: Dictionary) -> String:
-	return "%s|%s|%s" % [String(b.get("in", "")), str(b.get("at", "")), String(b.get("do", ""))]
+	return "%s|%s|%s|%s" % [String(b.get("in", "")), str(b.get("at", "")), String(b.get("do", "")), str(b.get("leg", ""))]
+
+
+# --- Errands (the town gate's fault 2, #1167) -------------------------------------------------------
+## A block with `round`: [{at | in, do, stay: [s, s]}, ...] walks him from leg to leg for the block's
+## hours, staying at each `stay` real seconds (picked by his seed, the leg, the visit and the run's
+## `run_seed`), so the day street is people going about errands (the store, the doctor's, a word on
+## a walk, back to work), not one man on one spot for the hour. Each leg is the block as an `at` or
+## an `in`, so he walks it as any block change: out of a door only unseen, in at one, to a spot.
+## id -> {"base": the round block's from, "i": his leg, "until": _ran he moves on at (-1: not there
+## yet), "since": _ran the leg began, "n": legs walked}.
+var _legs := {}
+## The run's own seed (the gate's fault 4: the same hour played the same every run): mixed into each
+## leg's stay and the barks' timing. Random as the valley loads, unless Engine's meta `town_seed` is
+## set (the tests' runner: 0; a bug report's replay: its own) or `--town-seed=N` is given.
+var run_seed := 0
+## A leg not reached in this long (stuck on the way) is given up for the next.
+const LEG_GIVE_UP_S := 180.0
+
+
+## Someone other than `id` at spot `name`, or on his way to it.
+func _spot_taken(name: String, id: StringName) -> bool:
+	for o: StringName in people:
+		if o == id or not state.get(o) in [&"coming", &"in"]:
+			continue
+		var op := _person(o)
+		if op.has("act") or not op.has("day"):
+			continue
+		var ob := block_now(op, hour())
+		if str(ob.get("at", "")) == name:
+			return true
+	return false
+
+
+func _leg_block(p: Dictionary, b: Dictionary) -> Dictionary:
+	var id := StringName(p.id)
+	var legs: Array = b.round
+	var base := float(b.from)
+	var lg: Dictionary = _legs.get(id, {})
+	if lg.is_empty() or float(lg.base) != base:
+		# Where in the round he is when the block begins: by his seed and the run's, so men sent
+		# the same round are spread along it.
+		lg = {"base": base, "i": TownScript.seed_of(String(id), "leg:%s:%d" % [base, run_seed]) % legs.size(),
+				"until": -1.0, "since": _ran, "n": 0}
+		_legs[id] = lg
+	var leg: Dictionary = legs[int(lg.i) % legs.size()]
+	var out := {"from": b.from, "do": leg.get("do", b.get("do", "stand")), "leg": int(lg.i)}
+	if leg.has("in"):
+		out["in"] = leg.in
+	else:
+		out["at"] = leg.at
+	return out
+
+
+## On a round: there (at his spot, or in at the leg's door) for its stay, then on to the next leg.
+## True when he's moved on (his block's key is new).
+func _leg_step(id: StringName, p: Dictionary, b: Dictionary) -> bool:
+	if not b.has("leg") or not _legs.has(id):
+		return false
+	var lg: Dictionary = _legs[id]
+	var st: StringName = state.get(id, &"out")
+	var there: bool = (b.has("at") and st == &"in") or (b.has("in") and st == &"out"
+			and String(book.row(id).get("in", "")) == String(b.in))
+	if not there:
+		if _ran - float(lg.since) < LEG_GIVE_UP_S:
+			return false
+	elif float(lg.until) < 0.0:
+		var bl := blocks_of(p, day_kind(town_day()))
+		var round: Array = []
+		for x: Dictionary in bl:
+			if float(x.from) == float(lg.base) and x.has("round"):
+				round = x.round
+		var leg: Dictionary = round[int(lg.i) % maxi(round.size(), 1)] if not round.is_empty() else {}
+		var stay: Array = leg.get("stay", [60.0, 150.0])
+		var t := float(TownScript.seed_of(String(id), "stay:%d:%d:%d" % [int(lg.i), int(lg.n), run_seed]) % 1000) / 1000.0
+		lg.until = _ran + lerpf(float(stay[0]), float(stay[1]), t)
+		return false
+	elif _ran < float(lg.until):
+		return false
+	var round: Array = []
+	for x: Dictionary in blocks_of(p, day_kind(town_day())):
+		if float(x.from) == float(lg.base) and x.has("round"):
+			round = x.round
+	var n := maxi(round.size(), 1)
+	# The next leg whose spot nobody else holds (one man to a spot); none free: he stays a while yet.
+	var next := -1
+	for k in range(1, n + 1):
+		var j := (int(lg.i) + k) % n
+		var leg: Dictionary = round[j] if not round.is_empty() else {}
+		if not leg.has("at") or not _spot_taken(String(leg.at), id):
+			next = j
+			break
+	if next < 0 or next == int(lg.i) and n > 1:
+		lg.until = _ran + 20.0
+		return false
+	lg.i = next
+	lg.n = int(lg.n) + 1
+	lg.until = -1.0
+	lg.since = _ran
+	return true
 
 
 ## Lines said on the next physics frame (`say_soon`): a line is a noise (DeedWatch's speech), and the
@@ -992,6 +1097,8 @@ func _step(delta: float) -> void:
 		var b := block_now(p, h, kind)
 		if b.is_empty():
 			continue
+		if _leg_step(id, p, b):
+			b = block_now(p, h, kind)  # on to his round's next leg
 		var here: HumanBody = people.get(id)
 		if here != null and is_instance_valid(here) and not here.physiology.alive and state.get(id) in [&"coming", &"in", &"going", &"called"]:
 			state[id] = &"dead"
@@ -1154,8 +1261,9 @@ func buildings() -> Array:
 		var d: Variant = p.day
 		for bl: Array in ((d as Dictionary).values() if d is Dictionary else [d]):
 			for b: Dictionary in bl:
-				if b.has("in"):
-					all.append(StringName(String(b.in)))
+				for leg: Dictionary in (b.get("round", [b]) as Array):  # (an errand round's doors too)
+					if leg.has("in"):
+						all.append(StringName(String(leg.in)))
 		for x: StringName in all:
 			if not out.has(x):
 				out.append(x)

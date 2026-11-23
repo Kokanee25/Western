@@ -79,7 +79,7 @@
     "_doc": "The book (townsfolk brief \u00a73 \"Three ways of being present\"): a man indoors or asleep behind a front is a row here, not a body: no cost. A day's block with `in` (a place: a building's door, its lot id, or a way out of town such as `back@0`) puts him on it, doing `do`; he goes in and comes out at that place's door, never while you can see the last step (`seen_m`: past this far off nothing's seen). `doings`: what each shows from the street: `lamp` a lit window while it's `dark` [from, to] by the clock, `smoke` chimney smoke. A building shows them only while someone's in it doing one (BookLights; only buildings, not ways out).",
     "seen_m": 120.0,
     "dark": [18.0, 6.0],
-    "doings": {"sleep": {}, "away": {}, "home": {"lamp": true}, "work": {"lamp": true}, "breakfast": {"lamp": true, "smoke": true}, "dinner": {"lamp": true, "smoke": true}, "supper": {"lamp": true, "smoke": true}, "drink": {"lamp": true}}
+    "doings": {"sleep": {}, "away": {}, "home": {"lamp": true}, "work": {"lamp": true}, "breakfast": {"lamp": true, "smoke": true}, "dinner": {"lamp": true, "smoke": true}, "supper": {"lamp": true, "smoke": true}, "drink": {"lamp": true}, "errand": {"lamp": true}}
   },
   "calendar": {
     "_doc": "The town's day kinds (townsfolk brief \u00a73 \"The data\"): a person's `day` is a list of blocks (every kind) or one list a kind (`ordinary` the default for any kind he hasn't). The town's day runs from `starts_h` to the next (a night's blocks past midnight belong to the day before). Each kind: `week_day` (the town's day number mod 7; day 1 a Monday) or `every` days from `first`, and an optional `if` (StoryState facts, as `talk`'s), the first that holds wins. PROPOSED: Sunday and a fortnight's payday on the Saturday; the story's kinds (mourning, uneasy) go here as `if` entries when the funeral and the news are built. `uneasy` (#1051, PROPOSED): the day after a killing or a shooting the town holds (TownNews sets StoryState news.yesterday at the day's turn; a story act's isn't counted, its day is the story's): the storekeeper keeps in, the loudmouth's out on the walk telling it.",
@@ -120,8 +120,10 @@
     {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "dials": {"nerve": 0.4, "nosy": 0.6, "duty": 0.2}, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0], "home": "hotel",
      "day": [
        {"from": 2.0, "in": "hotel", "do": "sleep"},
+       {"from": 6.0, "do": "work", "round": [{"at": "livery_lean", "do": "lean", "stay": [60, 150]}, {"in": "livery", "do": "work", "stay": [90, 180]}]},
        {"from": 9.0, "in": "hotel", "do": "breakfast"},
-       {"from": 10.0, "in": "hotel", "do": "home"},
+       {"from": 10.0, "do": "stand", "round": [{"at": "saloon_porch", "do": "lean", "stay": [60, 150]}, {"at": "hotel_walk", "do": "stand", "stay": [40, 90]}, {"in": "hotel", "do": "home", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}]},
+       {"from": 17.0, "in": "hotel", "do": "home"},
        {"from": 19.6, "at": "card_e", "do": "play"}],
      "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
     {"id": "fiddler", "name": "Fiddler", "model": "oldtimer_factory", "seed": 799, "dials": {"nerve": 0.4, "nosy": 0.5, "duty": 0.2}, "shirt": [0.72, 0.66, 0.52], "vest": [0.32, 0.22, 0.16], "home": "saloon", "plays": "fiddle",
@@ -146,9 +148,9 @@
      "day": {
        "ordinary": [
          {"from": 6.0, "in": "doctor", "do": "breakfast"},
-         {"from": 7.0, "in": "doctor", "do": "work"},
-         {"from": 14.0, "at": "doctor_walk", "do": "stand"},
-         {"from": 15.0, "in": "doctor", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"in": "doctor", "do": "work", "stay": [90, 200]}, {"at": "doctor_walk", "do": "stand", "stay": [30, 70]}, {"in": "hotel", "do": "errand", "stay": [60, 120]}, {"at": "hotel_walk", "do": "stand", "stay": [20, 40]}]},
+         {"from": 12.0, "in": "doctor", "do": "dinner"},
+         {"from": 13.0, "do": "work", "round": [{"in": "doctor", "do": "work", "stay": [120, 240]}, {"at": "doctor_walk", "do": "stand", "stay": [40, 80]}, {"in": "general_store", "do": "errand", "stay": [40, 90]}]},
          {"from": 18.0, "in": "doctor", "do": "supper"},
          {"from": 19.0, "in": "doctor", "do": "home"},
          {"from": 22.0, "in": "doctor", "do": "sleep"}]},
@@ -166,9 +168,9 @@
        "ordinary": [
          {"from": 5.0, "in": "general_store", "do": "breakfast"},
          {"from": 6.0, "at": "store_walk", "do": "sweep"},
-         {"from": 7.0, "in": "general_store", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"in": "general_store", "do": "work", "stay": [120, 240]}, {"at": "store_walk", "do": "stand", "stay": [30, 70]}, {"at": "store_freight", "do": "carry", "stay": [40, 90]}]},
          {"from": 12.0, "in": "general_store", "do": "dinner"},
-         {"from": 13.0, "in": "general_store", "do": "work"},
+         {"from": 13.0, "do": "work", "round": [{"in": "general_store", "do": "work", "stay": [120, 240]}, {"at": "store_walk", "do": "stand", "stay": [30, 70]}]},
          {"from": 17.5, "at": "store_walk", "do": "stand"},
          {"from": 18.5, "in": "general_store", "do": "supper"},
          {"from": 19.5, "at": "room_talk_b", "do": "talk"},
@@ -187,9 +189,10 @@
        "ordinary": [
          {"from": 6.0, "in": "general_store", "do": "breakfast"},
          {"from": 7.0, "in": "general_store", "do": "work"},
-         {"from": 10.0, "at": "store_bench", "do": "sit"},
+         {"from": 9.0, "do": "work", "round": [{"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"in": "general_store", "do": "work", "stay": [60, 120]}, {"at": "bakery_walk", "do": "stand", "stay": [30, 60]}, {"at": "butcher_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "in": "general_store", "do": "dinner"},
          {"from": 13.0, "in": "general_store", "do": "work"},
+         {"from": 15.0, "do": "work", "round": [{"in": "general_store", "do": "work", "stay": [90, 180]}, {"at": "store_bench", "do": "sit", "stay": [60, 120]}, {"at": "hotel_porch2", "do": "talk", "stay": [40, 90]}]},
          {"from": 18.0, "in": "general_store", "do": "supper"},
          {"from": 19.0, "in": "general_store", "do": "home"},
          {"from": 22.0, "in": "general_store", "do": "sleep"}],
@@ -205,10 +208,9 @@
      "day": {
        "ordinary": [
          {"from": 5.0, "at": "livery_lean", "do": "lean"},
-         {"from": 7.0, "in": "livery", "do": "work"},
-         {"from": 9.0, "at": "livery_door", "do": "stand"},
-         {"from": 12.0, "in": "livery", "do": "dinner"},
-         {"from": 13.0, "in": "livery", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"in": "livery", "do": "work", "stay": [90, 180]}, {"at": "livery_door", "do": "stand", "stay": [40, 90]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "wagonwright_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 12.0, "do": "dinner", "round": [{"at": "livery_door", "do": "stand", "stay": [60, 120]}, {"in": "livery", "do": "dinner", "stay": [60, 120]}]},
+         {"from": 13.0, "do": "work", "round": [{"in": "livery", "do": "work", "stay": [90, 180]}, {"at": "livery_door", "do": "stand", "stay": [40, 90]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "smith_door", "do": "talk", "stay": [30, 60]}]},
          {"from": 17.0, "at": "livery_lean", "do": "lean"},
          {"from": 18.0, "in": "livery", "do": "supper"},
          {"from": 19.0, "at": "room_talk_a", "do": "talk"},
@@ -218,8 +220,9 @@
      "day": {
        "ordinary": [
          {"from": 5.0, "at": "smith_door", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"at": "smith_door", "do": "work", "stay": [150, 300]}, {"in": "blacksmith", "do": "work", "stay": [40, 80]}, {"at": "hardware_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "in": "blacksmith", "do": "dinner"},
-         {"from": 13.0, "at": "smith_door", "do": "work"},
+         {"from": 13.0, "do": "work", "round": [{"at": "smith_door", "do": "work", "stay": [150, 300]}, {"in": "blacksmith", "do": "work", "stay": [40, 80]}, {"at": "livery_lean", "do": "talk", "stay": [30, 60]}]},
          {"from": 18.0, "in": "blacksmith", "do": "supper"},
          {"from": 19.0, "in": "blacksmith", "do": "home"},
          {"from": 22.0, "in": "blacksmith", "do": "sleep"}],
@@ -234,8 +237,10 @@
          {"from": 5.5, "in": "hotel", "do": "breakfast"},
          {"from": 6.0, "at": "hotel_rug", "do": "sweep"},
          {"from": 7.0, "in": "hotel", "do": "work"},
+         {"from": 9.0, "do": "work", "round": [{"in": "hotel", "do": "work", "stay": [120, 240]}, {"at": "hotel_rug", "do": "sweep", "stay": [40, 80]}, {"in": "general_store", "do": "errand", "stay": [40, 90]}, {"at": "bakery_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "in": "hotel", "do": "dinner"},
          {"from": 13.0, "in": "hotel", "do": "work"},
+         {"from": 15.0, "do": "work", "round": [{"in": "hotel", "do": "work", "stay": [120, 240]}, {"at": "hotel_porch2", "do": "sit", "stay": [60, 120]}]},
          {"from": 18.0, "in": "hotel", "do": "supper"},
          {"from": 19.0, "at": "hotel_porch2", "do": "talk"},
          {"from": 20.0, "in": "hotel", "do": "home"},
@@ -245,8 +250,8 @@
      "day": {
        "ordinary": [
          {"from": 5.0, "in": "ns@-61", "do": "away"},
-         {"from": 8.0, "at": "main_corner", "do": "stand"},
-         {"from": 9.0, "in": "ns@-61", "do": "away"}]},
+         {"from": 8.0, "do": "stand", "round": [{"at": "main_corner", "do": "stand", "stay": [40, 90]}, {"at": "jail_walk", "do": "stand", "stay": [30, 60]}, {"at": "bank_walk", "do": "stand", "stay": [30, 60]}, {"at": "land_office_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 10.0, "in": "ns@-61", "do": "away"}]},
      "_doc": "Roster 9: the church is off the ground (up Church Lane, past the North-South Street's end): he walks down Main Street once, 8-9, and back. His own id because `preacher` is the funeral's act man (no hours): he's off the street before its ten o'clock. A stand-in: the undertaker's model in black."},
     {"id": "saloon_girl", "name": "Saloon woman", "model": "working_girl_s3_talking", "seed": 908, "dials": {"nerve": 0.6, "nosy": 0.6, "duty": 0.4}, "shirt": [0.7, 0.25, 0.3], "vest": [0, 0, 0, 0], "home": "saloon",
      "day": {
@@ -265,8 +270,9 @@
      "day": {
        "ordinary": [
          {"from": 6.0, "in": "hotel", "do": "breakfast"},
-         {"from": 7.0, "at": "hotel_walk", "do": "stand"},
-         {"from": 12.0, "at": "hotel_walk", "do": "lean"},
+         {"from": 7.0, "do": "stand", "round": [{"at": "hotel_walk", "do": "stand", "stay": [60, 150]}, {"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"at": "saloon_walk", "do": "stand", "stay": [40, 90]}, {"in": "general_store", "do": "errand", "stay": [40, 90]}, {"at": "bank_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 12.0, "do": "lean", "round": [{"at": "hotel_walk", "do": "lean", "stay": [90, 200]}, {"at": "store_bench", "do": "sit", "stay": [90, 200]}]},
+         {"from": 13.0, "do": "stand", "round": [{"at": "hotel_walk", "do": "lean", "stay": [60, 150]}, {"at": "barber_walk", "do": "stand", "stay": [40, 90]}, {"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "talk", "stay": [30, 60]}]},
          {"from": 18.0, "in": "hotel", "do": "supper"},
          {"from": 19.0, "at": "hotel_porch3", "do": "talk"},
          {"from": 20.0, "in": "hotel", "do": "home"},
@@ -288,10 +294,10 @@
          {"from": 23.0, "in": "saloon", "do": "sleep"}],
        "ordinary": [
          {"from": 2.0, "in": "saloon", "do": "sleep"},
-         {"from": 8.0, "at": "store_freight", "do": "carry"},
-         {"from": 10.0, "at": "store_bench2", "do": "sit"},
+         {"from": 8.0, "do": "carry", "round": [{"at": "store_freight", "do": "carry", "stay": [90, 200]}, {"at": "saloon_walk", "do": "stand", "stay": [30, 60]}]},
+         {"from": 10.0, "do": "sit", "round": [{"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "saloon_walk", "do": "stand", "stay": [40, 90]}, {"at": "hotel_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "at": "saloon_walk", "do": "lean"},
-         {"from": 13.0, "at": "saloon_walk", "do": "stand"},
+         {"from": 13.0, "do": "stand", "round": [{"at": "saloon_walk", "do": "stand", "stay": [60, 150]}, {"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "barber_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 18.0, "in": "saloon", "do": "supper"},
          {"from": 19.0, "at": "bar_far", "do": "drink"}],
        "sunday": [
@@ -303,7 +309,7 @@
      "day": {
        "ordinary": [
          {"from": 6.0, "in": "undertaker", "do": "breakfast"},
-         {"from": 7.0, "at": "undertaker_walk", "do": "work"},
+         {"from": 7.0, "do": "work", "round": [{"at": "undertaker_walk", "do": "work", "stay": [150, 300]}, {"in": "undertaker", "do": "work", "stay": [40, 90]}, {"at": "carpenter_walk", "do": "stand", "stay": [30, 60]}, {"in": "general_store", "do": "errand", "stay": [30, 70]}]},
          {"from": 18.0, "in": "undertaker", "do": "supper"},
          {"from": 19.0, "in": "undertaker", "do": "home"},
          {"from": 20.0, "at": "bar_near", "do": "drink"},

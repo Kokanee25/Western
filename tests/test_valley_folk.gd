@@ -424,10 +424,14 @@ func test_the_roster_sixteen_with_homes_days_and_dials() -> void:
 			var blocks: Array = ValleyFolk.blocks_of(p, StringName(kind))
 			for i in blocks.size():
 				var b: Dictionary = blocks[i]
-				if b.has("in"):
-					check(f.places.has(StringName(String(b["in"]))), "%s %s: a place %s" % [id, kind, b["in"]])
-				else:
-					check(not f.spot(b.at).is_empty(), "%s %s: a spot %s" % [id, kind, b.at])
+				for leg: Dictionary in (b.get("round", [b]) as Array):  # an errand round's legs (#1167), each a block's own
+					if leg.has("in"):
+						check(f.places.has(StringName(String(leg["in"]))), "%s %s: a place %s" % [id, kind, leg["in"]])
+					else:
+						check(not f.spot(leg.at).is_empty(), "%s %s: a spot %s" % [id, kind, leg.at])
+					if b.has("round"):
+						var st: Array = leg.get("stay", [])
+						check(st.size() == 2 and float(st[0]) > 0.0 and float(st[1]) >= float(st[0]), "%s %s: a leg's stay %s" % [id, kind, st])
 				var span := fposmod(float(blocks[(i + 1) % blocks.size()].from) - float(b.from), 24.0)
 				check(span >= 0.5 or blocks.size() == 1, "%s %s: the block at %s lasts %.1f h" % [id, kind, b.from, span])
 	check_eq(ROSTER.size(), 16, "sixteen townsfolk")

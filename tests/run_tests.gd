@@ -34,6 +34,7 @@ var _settings_at_start := {}
 
 
 func _initialize() -> void:
+	Engine.set_meta(&"town_seed", 0)  # the town's run seed fixed (ValleyFolk.run_seed, #1167): the same town every run
 	OS.add_logger(_catcher)
 	# Budgets by count, not the clock: a test's world doesn't depend on how busy the machine is.
 	World.deterministic = true

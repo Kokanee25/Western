@@ -54,6 +54,8 @@ func _initialize() -> void:
 	if String(_report.get("build", "")) != load("res://src/debug/debug_overlay.gd").build_label():
 		print("  note: recorded on %s, replaying on %s" % [_report.get("build"), load("res://src/debug/debug_overlay.gd").build_label()])
 	root.get_node(^"Settings").autosave = false
+	if _report.has("town_seed"):
+		Engine.set_meta(&"town_seed", int(_report.town_seed))  # the same town's run (ValleyFolk.run_seed, #1167)
 	_main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(_main)
 	await process_frame
