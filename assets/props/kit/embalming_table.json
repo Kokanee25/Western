@@ -1,0 +1,418 @@
+{
+  "_doc": "The embalming table (#1181; the period note: 1880s tables were wood, porcelain is 1890s on): 1.9 m by 0.62, 0.84 high, planed pine boards, a top lined with sheet zinc and sloped a degree to a drain at the foot (+x), a zinc rim along the sides and head (the zinc dull, streaked dark and pale: it has been used),  a drain pipe down to where a pail stands (`zinc_pail`). Head at -x. 9 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "embalming_table",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.79,
+        0.07
+      ],
+      "at": [
+        -0.87,
+        0.395,
+        -0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.79,
+        0.07
+      ],
+      "at": [
+        0.87,
+        0.395,
+        -0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.79,
+        0.07
+      ],
+      "at": [
+        -0.87,
+        0.395,
+        0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.79,
+        0.07
+      ],
+      "at": [
+        0.87,
+        0.395,
+        0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "apron_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.7,
+        0.11,
+        0.025
+      ],
+      "at": [
+        0.0,
+        0.72,
+        -0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "apron_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.7,
+        0.11,
+        0.025
+      ],
+      "at": [
+        0.0,
+        0.72,
+        0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "stretcher_b",
+      "kind": "furniture_frame",
+      "size": [
+        1.74,
+        0.05,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.22,
+        -0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "stretcher_f",
+      "kind": "furniture_frame",
+      "size": [
+        1.74,
+        0.05,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.22,
+        0.25
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        1.9,
+        0.05,
+        0.62
+      ],
+      "at": [
+        0.0,
+        0.815,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top",
+      "dress": [
+        {
+          "look": "prop:tin",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  1.84,
+                  0.006,
+                  0.56
+                ],
+                "at": [
+                  0.0,
+                  0.03,
+                  0.0
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  1.86,
+                  0.03,
+                  0.014
+                ],
+                "at": [
+                  0.0,
+                  0.045,
+                  -0.29
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  1.86,
+                  0.03,
+                  0.014
+                ],
+                "at": [
+                  0.0,
+                  0.045,
+                  0.29
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.014,
+                  0.04,
+                  0.58
+                ],
+                "at": [
+                  -0.92,
+                  0.05,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.014,
+                  0.02,
+                  0.58
+                ],
+                "at": [
+                  0.92,
+                  0.035,
+                  0.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:plate_iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.03
+                ],
+                "at": [
+                  -0.5,
+                  0.037,
+                  -0.2
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.054
+                ],
+                "at": [
+                  -0.06,
+                  0.037,
+                  0.06
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.042
+                ],
+                "at": [
+                  0.38,
+                  0.037,
+                  -0.2
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.03
+                ],
+                "at": [
+                  0.82,
+                  0.037,
+                  0.06
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:hide_pale",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.042
+                ],
+                "at": [
+                  -0.28,
+                  0.037,
+                  -0.07
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.03
+                ],
+                "at": [
+                  0.16,
+                  0.037,
+                  0.19
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.054
+                ],
+                "at": [
+                  0.6,
+                  0.037,
+                  -0.07
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.0,
+                -0.04
+              ],
+              [
+                0.04,
+                -0.04
+              ],
+              [
+                0.04,
+                0.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "segments": 8,
+            "at": [
+              0.87,
+              0.036,
+              0.0
+            ]
+          }
+        },
+        {
+          "look": "prop:tin",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.045,
+                  0.3,
+                  0.045
+                ],
+                "at": [
+                  0.87,
+                  -0.17,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

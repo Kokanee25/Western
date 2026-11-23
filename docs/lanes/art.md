@@ -47,7 +47,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
 - **The church (#1142, #1170)**: `church/` README, round 6. Left: patchy paint, lap shadows, wavy glass (shared code);
   trusses for the nave's post are Sean's call. The valley render needs a swapfile on a 16 GB box.
 - **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
-- **The undertaker's** (#1174, `undertaker/` README; PR on `claude/art-undertaker-steps-2-6-5uz4k2`): built, on its lot, its cellar dug (`CellarDig`) and walked (stair and `Bulkhead`, tests). Judged twice: cheap indie but the workroom (empty rooms, placeholder stone, the neighbours' grey blocks). Next: his props by the prop lab (#1141's list, the box hearse); the black trim wants `painted_black_trim` in the library.
+- **The undertaker's** (#1174, `undertaker/` README; PR on `claude/art-undertaker-steps-2-6-5uz4k2`): built, on its lot, its cellar dug (`CellarDig`) and walked (stair and `Bulkhead`, tests). Judged twice: cheap indie but the workroom (empty rooms, placeholder stone, the neighbours' grey blocks). His props are in (U1, #1181, the prop lab: coffins, embalming room, ice, hearse; placed, tests green, not yet judged in a render). Next: judge the rooms again; the black trim wants `painted_black_trim` in the library.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
   failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.

@@ -111,7 +111,13 @@ it; every line has a note under it, and each mission has one for the whole of it
   `where` the mission and section. The id says where it sits: `m.<mission>` (the whole mission),
   `m.<mission>.<section>.<n>` (a line), `t.<list>.<n>` (a line of a cross-mission list). They are his: never
   overwrite or delete one. When a note is acted on, write the answer into `MISSIONS.md` and the bible, not the page.
-- **Updating the page** after `MISSIONS.md` or `missions/` change: `python3 docs/story/board/build_board.py /tmp/missions.json`,
+- **The scripts are in it too** (Sean, 2026-11-19: "You didn't put the full scripts in the pinned board"): the sheriff's,
+  No Law's and No Justice's missions each have "The script, line by line", built from `docs/scripts/<mission>.json`:
+  every line, who says it, when, the condition and the delivery. A note on a script line has the id
+  `s.<script>.<line id>` (a scene's setting: `s.<script>.scene.<scene id>`), so it stays on its line however the
+  script is reordered; No Law's copy of the sheriff's last day uses the sheriff's ids, so one note shows in both.
+  **Script OK and the takes stay on the three script pages** (`docs/scripts/README.md`): read notes from both places.
+- **Updating the page** after `MISSIONS.md`, `missions/` or a script changes: `python3 docs/story/board/build_board.py /tmp/missions.json`,
   then publish `docs/story/board/missions_board.html` with `url` (read it first), `files`
   `{"missions.json": "/tmp/missions.json"}`; `capabilities` carries forward (`db`). The JSON is built, not committed.
   A line's note is keyed by its place in its section, so adding lines at the end of a section keeps his notes on

@@ -1,0 +1,70 @@
+{
+  "_doc": "A heap of sawdust on the cellar floor (#1181, Sean's add-on): pale, swept into a corner 0.55 by 0.40 m, three flat layers of loose sawdust, not a pile. 1 physics body. Written by tools/props/undertaker.py.",
+  "id": "sawdust_pale",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "hay",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "heap",
+      "kind": "post",
+      "size": [
+        0.55,
+        0.05,
+        0.4
+      ],
+      "at": [
+        0.0,
+        0.025,
+        0.0
+      ],
+      "wood": "hay",
+      "look": "prop:straw",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.55,
+              0.024,
+              0.4
+            ],
+            "at": [
+              0.0,
+              0.012,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.385,
+              0.03,
+              0.28
+            ],
+            "at": [
+              0.02,
+              0.032,
+              -0.01
+            ]
+          },
+          {
+            "size": [
+              0.22,
+              0.02,
+              0.16
+            ],
+            "at": [
+              -0.03,
+              0.047,
+              0.01
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

@@ -1,0 +1,340 @@
+{
+  "_doc": "The parlour's bier (#1181): two trestles carrying two boards, a black cloth over them hanging a hand's breadth short of the floor either side and a quarter way down the ends, weighted at the hem (the period's bier cloth was a black or purple wool or crepe). The coffin is `coffin_hex_open`, set on top (y 0.59). 9 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "bier",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "beam_w",
+      "kind": "furniture_top",
+      "size": [
+        0.1,
+        0.07,
+        0.56
+      ],
+      "at": [
+        -0.7,
+        0.525,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg_wa",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        -0.7,
+        0.26,
+        -0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_wb",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        -0.7,
+        0.26,
+        0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        -14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "beam_e",
+      "kind": "furniture_top",
+      "size": [
+        0.1,
+        0.07,
+        0.56
+      ],
+      "at": [
+        0.7,
+        0.525,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few"
+    },
+    {
+      "id": "leg_ea",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        0.7,
+        0.26,
+        -0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "leg_eb",
+      "kind": "post",
+      "size": [
+        0.07,
+        0.56,
+        0.05
+      ],
+      "at": [
+        0.7,
+        0.26,
+        0.2
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        -14.0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "board0",
+      "kind": "furniture_top",
+      "size": [
+        2.1,
+        0.03,
+        0.38
+      ],
+      "at": [
+        0.0,
+        0.575,
+        -0.2
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "board1",
+      "kind": "furniture_top",
+      "size": [
+        2.1,
+        0.03,
+        0.38
+      ],
+      "at": [
+        0.0,
+        0.575,
+        0.2
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "drape",
+      "kind": "trim",
+      "size": [
+        2.3,
+        0.012,
+        0.86
+      ],
+      "at": [
+        0.0,
+        0.596,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:hide_dark",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              2.3,
+              0.012,
+              0.86
+            ],
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              2.3,
+              0.4,
+              0.012
+            ],
+            "at": [
+              0.0,
+              -0.2,
+              -0.43
+            ]
+          },
+          {
+            "size": [
+              2.3,
+              0.4,
+              0.012
+            ],
+            "at": [
+              0.0,
+              -0.2,
+              0.43
+            ]
+          },
+          {
+            "size": [
+              0.012,
+              0.26,
+              0.84
+            ],
+            "at": [
+              -1.15,
+              -0.13,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.012,
+              0.26,
+              0.84
+            ],
+            "at": [
+              1.15,
+              -0.13,
+              0.0
+            ]
+          }
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  -1.15,
+                  -0.27,
+                  -0.36
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  -1.15,
+                  -0.27,
+                  -0.12
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  -1.15,
+                  -0.27,
+                  0.12
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  -1.15,
+                  -0.27,
+                  0.36
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  1.15,
+                  -0.27,
+                  -0.36
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  1.15,
+                  -0.27,
+                  -0.12
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  1.15,
+                  -0.27,
+                  0.12
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.016,
+                  0.03
+                ],
+                "at": [
+                  1.15,
+                  -0.27,
+                  0.36
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

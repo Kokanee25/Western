@@ -267,7 +267,7 @@ spec["lamps"] = {
         {"room": "workroom", "kit": "reflector_lamp", "wall": "yard", "level": "ground", "at": 8.5, "height": 1.6, "energy": 1.0, "reach": 6.0, "lit": [17, 21]},
         {"room": "back_room", "kit": "reflector_lamp", "wall": "work_b", "side": "+", "level": "ground", "at": 7.6, "height": 1.5, "energy": 0.9, "lit": [19, 23]},
         {"room": "coffin_store", "kit": "reflector_lamp", "wall": "cel_cross", "side": "-", "level": "cellar", "at": 1.8, "height": 1.5, "energy": 1.0, "reach": 6.0, "shadows": True, "lit": [0, 24]},
-        {"room": "embalming", "kit": "reflector_lamp", "wall": "cel_cross", "side": "+", "level": "cellar", "at": 6.8, "height": 1.55, "energy": 1.2, "reach": 6.0, "shadows": True, "lit": [0, 24]},
+        {"room": "embalming", "kit": "reflector_lamp", "wall": "cel_cross", "side": "+", "level": "cellar", "at": 6.3, "height": 1.55, "energy": 1.2, "reach": 6.0, "shadows": True, "lit": [0, 24]},
         {"room": "ice_room", "kit": "reflector_lamp", "wall": "cel_ice", "side": "-", "level": "cellar", "at": 2.6, "height": 1.5, "energy": 0.7, "reach": 4.0, "lit": [0, 24]},
     ],
 }
@@ -294,28 +294,75 @@ extra = [["cel_cross/", "rough"], ["cel_ice/", "rough"], ["floor/attic/board", "
 mt["surfaces"] = [e for e in extra if e[0] not in ("floor/attic/board",)] + mt["surfaces"] + [["floor/attic/board", "floor"]]
 mt["stone"] = {"want": {"entry": "rubble_whitewash", "age": "few"}, "inside_age": "few", "_why": "the cellar's walls lime-washed rubble (the sheet's)"}
 CY = r3(CELLAR_FLOOR + 0.08 - FLOOR)  # the cellar's flags, over the ground floor
+# U0: what the kit already had, kept (his desk, bed, stove, table and chair, the mourners' bench); everything of the trade's own is U1, the prop lab's batch (tools/props/undertaker.py, #1181).
 U0 = [
     {"id": "desk", "kit": "roll_top_desk", "at": [9.25, 0.0, 4.4], "facing": 270, "use": "his desk in the office"},
-    {"id": "display_1", "kit": "table", "fit": [0.6, 0.55, 1.9], "at": [4.3, 0.0, 2.2], "facing": 0, "use": "a coffin trestle in the showroom (the coffin is the prop lab's next batch)"},
-    {"id": "display_2", "kit": "table", "fit": [0.6, 0.55, 1.9], "at": [6.0, 0.0, 1.4], "facing": 0, "use": "a coffin trestle"},
-    {"id": "bier", "kit": "table", "fit": [0.7, 0.75, 2.0], "at": [1.6, 0.0, 2.9], "facing": 0, "use": "the parlour's bier (its black drape and the coffin: the next batch)"},
     {"id": "mourners", "kit": "wall_bench", "at": [0.35, 0.0, 3.2], "facing": 90, "use": "the mourners' bench along the yard wall"},
-    {"id": "bench", "kit": "table", "fit": [2.4, 0.86, 0.7], "at": [7.8, 0.0, 5.92], "facing": 0, "use": "his long workbench against the workroom's front wall (its vise and planes: the next batch)"},
-    {"id": "lid", "kit": "table", "fit": [0.7, 0.75, 2.0], "at": [1.0, 0.0, 7.6], "facing": 0, "use": "a coffin lid on trestles under the yard window"},
-    {"id": "glue_stove", "kit": "box_stove", "at": [8.9, 0.0, 11.3], "facing": 0, "use": "the workroom's stove (the glue pot)"},
-    {"id": "planks", "kit": "crate", "at": [9.2, 0.0, 7.6], "facing": 0},
     {"id": "bed", "kit": "plank_bed", "at": [8.6, 0.0, 14.55], "facing": 90, "use": "his bed along the back wall"},
     {"id": "cookstove", "kit": "cookstove", "at": [5.6, 0.0, 14.6], "facing": 180, "use": "his cookstove against the back wall"},
     {"id": "table", "kit": "table", "fit": [0.9, 0.75, 0.6], "at": [6.9, 0.0, 13.6], "facing": 0},
     {"id": "chair", "kit": "chair", "at": [6.9, 0.0, 12.95], "facing": 0},
-    {"id": "embalming_table", "kit": "table", "fit": [0.75, 0.85, 1.9], "at": [7.6, CY, 13.4], "facing": 0, "use": "the embalming table (its zinc top and drain: the next batch)"},
-    {"id": "cooling_board", "kit": "table", "fit": [0.6, 0.7, 1.9], "at": [4.6, CY, 14.35], "facing": 90, "use": "the cooling board on its trestles against the back wall"},
-    {"id": "fluids", "kit": "shelves", "at": [8.6, CY, 11.4], "facing": 0, "use": "the embalmer's shelf: jars and carboys (the next batch)"},
-    {"id": "meltwater", "kit": "barrel", "at": [0.9, CY, 14.3], "facing": 0, "use": "the ice room's meltwater barrel"},
-    {"id": "rack_1", "kit": "table", "fit": [0.7, 0.45, 2.0], "at": [2.0, CY, 10.4], "facing": 90, "use": "a coffin rack along the cross wall"},
-    {"id": "rack_2", "kit": "table", "fit": [0.7, 0.45, 1.6], "at": [8.45, CY, 10.4], "facing": 90, "use": "a coffin rack"},
 ]
-spec["dressing"] = {"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit has today, standing in for the trade's own (a plain table fitted as his bench, the bier, the cooling board and trestles; his bed, stove, desk and chairs). The trade's props (coffins, the hearse, the embalming table and pump, ice and sawdust, the safety coffin, the posing stand) are the prop lab's next batch (#1174's handover).", "batches": {"U0": U0}}
+TR = 0.56   # a trestle's top: what a coffin stands on
+LANTERN_Y = r3(CY + 2.26 - 0.52 - 0.0)   # hung on a hook in the east girder's underside (2.26 over the flags), its ring at its top
+YARD = lambda x, z: r3(gy(x, z) - FLOOR)  # the yard's dirt, in the dressing's y (over the floor)
+U1 = [
+    # The parlour: the bier with its black drape, the open coffin on it, the hair wreath on the wall.
+    {"id": "bier", "kit": "bier", "at": [1.6, 0.0, 2.9], "facing": 90, "use": "the parlour's bier, its black drape"},
+    {"id": "bier_coffin", "kit": "coffin_hex_open", "at": [1.6, r3(TR + 0.03), 2.9], "facing": 90, "use": "the coffin open for viewing (nobody in it)"},
+    {"id": "wreath", "kit": "hair_wreath", "at": [3.19, 1.5, 2.0], "facing": 270, "use": "a hair wreath under glass on the parlour's wall"},
+    # The showroom: coffins on trestles for the bereaved to choose, a child's white one.
+    {"id": "display_1", "kit": "trestles", "at": [4.3, 0.0, 2.2], "facing": 90},
+    {"id": "display_1_coffin", "kit": "coffin_rect", "at": [4.3, TR, 2.2], "facing": 90, "use": "a casket on its trestles"},
+    {"id": "display_2", "kit": "trestles", "at": [6.0, 0.0, 1.5], "facing": 90},
+    {"id": "display_2_coffin", "kit": "coffin_hex", "at": [6.0, TR, 1.5], "facing": 90, "use": "a toe-pincher on its trestles"},
+    {"id": "display_3", "kit": "trestles_short", "at": [8.9, 0.0, 2.0], "facing": 90},
+    {"id": "display_3_coffin", "kit": "coffin_child", "at": [8.9, TR, 2.0], "facing": 90, "use": "a child's coffin, white"},
+    # The workroom: the bench, its tools on the wall, a lid on trestles, planks, the glue pot on the stove.
+    {"id": "bench", "kit": "workbench", "at": [7.8, 0.0, 5.92], "facing": 0, "use": "his long bench with its vise, against the workroom's front wall"},
+    {"id": "tool_rack", "kit": "tool_rack", "at": [7.8, 1.6, 5.5], "facing": 0, "use": "his saws, planes and square on the wall over the bench"},
+    {"id": "lid_trestles", "kit": "trestles", "at": [1.0, 0.0, 7.6], "facing": 90},
+    {"id": "lid", "kit": "coffin_lid", "at": [1.0, TR, 7.6], "facing": 90, "use": "a coffin lid on trestles under the yard window"},
+    {"id": "planks", "kit": "plank_stack", "at": [9.3, 0.0, 8.2], "facing": 90, "use": "his seasoning boards"},
+    {"id": "glue_stove", "kit": "box_stove", "at": [8.9, 0.0, 11.3], "facing": 0, "use": "the workroom's stove (the glue pot stands on it)"},
+    {"id": "glue_pot", "kit": "glue_pot", "at": [8.9, 0.0, 11.3], "facing": 0, "on": "glue_stove", "use": "the glue pot on the stove"},
+    # The cellar, embalming room: the table and its pail, the pump, the carboys, the fluids' and shrouds' shelves, a body under a sheet.
+    {"id": "embalming_table", "kit": "embalming_table", "at": [7.6, CY, 13.4], "facing": 270, "use": "the embalming table, its drain to the pail at the back"},
+    # Used and grim (Sean's add-on): wet sawdust at the table's feet and under its drain, pale in the corners, rags by the
+    # pail, a mop in pinkish water. Small and few: the building's history (#1187) lays the stains and splats round them.
+    {"id": "sawdust_a", "kit": "sawdust_wet", "at": [7.35, CY, 12.5], "facing": 0, "use": "soaked sawdust at the table's foot"},
+    {"id": "sawdust_b", "kit": "sawdust_wet", "at": [7.85, CY, 12.55], "facing": 30},
+    {"id": "sawdust_c", "kit": "sawdust_wet", "at": [7.1, CY, 14.15], "facing": 70, "use": "soaked sawdust under the drain's end"},
+    {"id": "sawdust_d", "kit": "sawdust_pale", "at": [9.0, CY, 14.5], "facing": 10, "use": "sawdust swept into the corner"},
+    {"id": "sawdust_e", "kit": "sawdust_pale", "at": [0.8, CY, 11.5], "facing": 80, "use": "sawdust swept into the ice room's corner"},
+    {"id": "rags", "kit": "rags", "at": [8.05, CY, 14.5], "facing": 20, "use": "rags beside the pail"},
+    {"id": "mop_pail", "kit": "mop_pail", "at": [6.9, CY, 13.3], "facing": 0, "use": "a mop in a bucket of pinkish water by the table"},
+    {"id": "pail", "kit": "zinc_pail", "at": [7.6, CY, 14.42], "facing": 0},
+    {"id": "pump", "kit": "embalming_pump", "at": [8.6, CY, 11.95], "facing": 0, "use": "the hand pump, its tubes and jars on a stand"},
+    {"id": "carboy_1", "kit": "carboy", "at": [9.05, CY, 12.8], "facing": 0, "use": "a carboy of fluid"},
+    {"id": "carboy_2", "kit": "carboy", "at": [9.05, CY, 13.4], "facing": 0},
+    {"id": "fluids", "kit": "fluids_shelf", "at": [8.6, CY, 11.32], "facing": 0, "use": "the embalmer's shelf: jars and bottles of fluids"},
+    {"id": "shrouds", "kit": "shroud_shelf", "at": [6.3, CY, 14.55], "facing": 180, "use": "shrouds folded on a shelf"},
+    {"id": "cooling_board", "kit": "sheeted_board", "at": [4.6, CY, 14.35], "facing": 0, "use": "the cooling board on its legs against the back wall, a body under a sheet"},
+    # The cellar, ice room: the bin of blocks in sawdust and the corpse cooler.
+    {"id": "ice_bin", "kit": "ice_bin", "at": [2.25, CY, 14.3], "facing": 0, "use": "the ice bin, blocks packed in sawdust"},
+    {"id": "cooler", "kit": "corpse_cooler", "at": [0.85, CY, 13.2], "facing": 90, "use": "the corpse cooler along the east wall"},
+    # The cellar, coffin store: the rack with coffins on it, the safety coffin, the posing stand and its chair, the lantern.
+    {"id": "rack", "kit": "coffin_rack", "at": [1.9, CY, 10.4], "facing": 0, "use": "a coffin rack along the cross wall"},
+    {"id": "rack_low", "kit": "coffin_hex", "at": [1.9, r3(CY + 0.34), 10.4], "facing": 0},
+    {"id": "rack_high", "kit": "coffin_rect", "at": [1.9, r3(CY + 1.04), 10.4], "facing": 0},
+    {"id": "safety", "kit": "safety_coffin", "at": [8.85, CY, 8.7], "facing": 90, "use": "the safety coffin with its bell on a frame (a sample)"},
+    {"id": "posing_stand", "kit": "posing_stand", "at": [7.75, CY, 10.7], "facing": 0, "use": "the photographer's posing stand by the stair"},
+    {"id": "posing_chair", "kit": "posing_chair", "at": [8.35, CY, 10.7], "facing": 0},
+    {"id": "lantern", "kit": "iron_lantern", "at": [6.47, LANTERN_Y, 7.95], "facing": 0, "use": "the iron lantern on a hook in the east girder"},
+    # The hearse shed: the box hearse, the horse's harness in the stall.
+    # The box hearse (`hearse`, made and standing on a flat floor) is NOT placed: the yard falls 3.4 cm a metre and a kit prop's
+    # feet are looked for at one height (KitProp._find_footing), so its four wheels, 2.4 m by 1.45 m apart, can't all meet the
+    # ground and it tips loose (CI's test_save_game found it). It wants a level pad under the shed (the valley's ground, like
+    # CellarDig) before this line can come back: {"id": "hearse", "kit": "hearse", "at": [-9.4, YARD(-9.4, 15.85), 15.85], "facing": 270}
+    {"id": "harness", "kit": "harness_rack", "at": [-5.9, r3(YARD(-5.9, 17.55) + 1.5), 17.58], "facing": 180, "use": "the stall's harness"},
+]
+spec["dressing"] = {"_doc": "His furniture and props, placed by the building's own build (SpecBuilding._dressing, PropDressing). U0: what the kit already had (his desk, bed, stoves, table and chair, the mourners' bench). U1: the trade's own, the prop lab's batch (#1181, tools/props/undertaker.py, refs experiments/prop_lab/undertaker/README.md): coffins on trestles and racks, the bier and its drape, the bench and tool rack, the embalming table, pump, carboys, shelves, cooling board, ice bin and corpse cooler, the safety coffin, the posing stand, the hair wreath, the lantern, the box hearse and the stall's harness.", "batches": {"U0": U0, "U1": U1}}
 spec["furniture"] = []
 spec["fixtures"] = []
 spec["sources"] = DOC["sources"][:5] + [
