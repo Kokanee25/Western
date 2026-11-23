@@ -1,5 +1,5 @@
 {
- "_doc": "The Salt Creek Hotel's target sheet (#1146, the building lab's step 1), from docs/briefs/hotel.md (the design). Twelve views at ~$0.14, $2.50 cap. Sean OK'd the cost 2026-11-23 (in session, \"Let's do it\"); painted with the brief's recommendations (painted clapboard, two storeys) and B's drift in the cellar. It goes to experiments/building_lab/hotel/sheet/request.json on claude/art-building-hotel, painted by building_sheet.yml. The spec settles every size; the pictures are the look only.",
+ "_doc": "The Salt Creek Hotel's target sheet (#1146, the building lab's step 1), from docs/briefs/hotel.md (the design). Twelve views at ~$0.14, $2.50 cap. Sean OK'd the cost 2026-11-23 (in session, \"Let's do it\"); painted with the brief's recommendations (painted clapboard, two storeys) and B's drift in the cellar. It goes to experiments/building_lab/hotel/sheet/request.json on claude/art-building-hotel, painted by building_sheet.yml. The spec settles every size; the pictures are the look only. (Pushed again 2026-11-23: the branch's first push didn't start building_sheet.yml.)",
  "sheet_title": "Salt Creek, 1882: the Salt Creek Hotel (target sheet, #1146)",
  "cap": 2.5,
  "model": "google/gemini-3-pro-image-preview",
