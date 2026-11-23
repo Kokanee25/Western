@@ -23,3 +23,17 @@ in close rows (34 graves in the old rows at the back; the rest of the sites left
 pickets at 0.15 m (square-topped: cut points made each its own mesh and the view ran past 30 min), the mounds low and dry. Renders `results/2026-11-23_r6/`, judged in `docs/screenshots/judge/2026-11-23_church_r3/`.
 Not done (the judge's wall notes 2, 3, 5): patchy paint, lapped clapboards' shadow lines and wavy old glass are the shared siding
 (`LAP_BOARD_H`, every lap-sided building) and the shared glass shader: a material-library job of their own.
+
+Round 7 (2026-11-23, #1203, Sean on #1202: "an open ceiling with trusses, see how it looks"): **the nave open to its roof**.
+The loft and its 3x15 in ceiling joists are gone (their ends poked through the 45 degree roof at the eaves: the wall judge's
+orange row). Four **queen-post trusses** at 2.68 m bays (`frame.trusses`, `SpecBuilding._queen_trusses`): a 6x8 tie on the
+side walls' plates (its ends under the boards), 6x8 principals, 6x6 queen posts at the thirds and a straining beam; two 4x6
+purlins a side carry the commons (none where a truss stands, no collars). The gables boarded on up to the roof inside
+(`inside_finish.gables`); the roof's boards butted (`roof_tight`: the 5 mm rows showed the sky). **Lamps**: the nave's four
+wall brackets replaced by three `hanging_lamp`s on chains from the ties over the aisle (`lamps.kit` `hang`; 17-23 h, they
+fall with their tie). The stove pipe now turns at an elbow into the chimney (no ceiling to go through). Renders
+`results/2026-11-23_r7/` (with `nave_lit`, the nave at 20:30), judged in `docs/screenshots/judge/2026-11-23_church_r4/`:
+critic 0 SAME, 3 CLOSE (nave, pulpit, side); the wall judge 6/10, the joist ends gone. The critic reads the target's nave
+as a flat white board ceiling with white tie beams under it: the open dark roof is a difference too (Sean's call, see the
+status entry's issue).
+
