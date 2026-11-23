@@ -1651,6 +1651,30 @@
 		},
 		"surfaces": [
 			[
+				"cel_cross/",
+				"rough"
+			],
+			[
+				"cel_ice/",
+				"rough"
+			],
+			[
+				"bulkhead/",
+				"rough"
+			],
+			[
+				"side_ramp/",
+				"rough"
+			],
+			[
+				"hearse_shed/",
+				"rough"
+			],
+			[
+				"cellar/",
+				"rough"
+			],
+			[
 				"/casing",
 				"trim"
 			],
@@ -1697,14 +1721,6 @@
 			[
 				"alley/door_",
 				"trim"
-			],
-			[
-				"cel_cross/",
-				"rough"
-			],
-			[
-				"cel_ice/",
-				"rough"
 			],
 			[
 				"/in_ground/",
@@ -1765,22 +1781,6 @@
 			[
 				"floor/attic/board",
 				"floor"
-			],
-			[
-				"bulkhead/",
-				"rough"
-			],
-			[
-				"side_ramp/",
-				"rough"
-			],
-			[
-				"hearse_shed/",
-				"rough"
-			],
-			[
-				"cellar/",
-				"rough"
 			]
 		],
 		"floor": "wood:int_floor",

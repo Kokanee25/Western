@@ -290,7 +290,8 @@ mt["finishes"]["exterior"]["_why"] = "white lead on narrow clapboard, two years 
 mt["surfaces"] = [s for s in mt["surfaces"] if s[0] not in ("lane/door_", "floor/attic/board", "back_porch/board", "back_porch/roof_board")]
 mt["surfaces"][mt["surfaces"].index(["yard/door_", "trim"]) + 1:mt["surfaces"].index(["yard/door_", "trim"]) + 1] = [["alley/door_", "trim"]]
 extra = [["cel_cross/", "rough"], ["cel_ice/", "rough"], ["floor/attic/board", "floor"], ["bulkhead/", "rough"], ["side_ramp/", "rough"], ["hearse_shed/", "rough"], ["cellar/", "rough"]]
-mt["surfaces"] = mt["surfaces"][:mt["surfaces"].index(["/in_ground/", "inside"])] + extra[:2] + mt["surfaces"][mt["surfaces"].index(["/in_ground/", "inside"]):] + extra[2:]
+# (the yard's and cellar's own first: their doors' leaves would else take "/door_"'s pale inside paint)
+mt["surfaces"] = [e for e in extra if e[0] not in ("floor/attic/board",)] + mt["surfaces"] + [["floor/attic/board", "floor"]]
 mt["stone"] = {"want": {"entry": "rubble_whitewash", "age": "few"}, "inside_age": "few", "_why": "the cellar's walls lime-washed rubble (the sheet's)"}
 CY = r3(CELLAR_FLOOR + 0.08 - FLOOR)  # the cellar's flags, over the ground floor
 U0 = [

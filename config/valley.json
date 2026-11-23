@@ -218,7 +218,7 @@
 	],
 	"viewpoints": [
 		{"id": "vp_depot", "name": "Depot platform", "at": [80, -70], "eye": 1.7, "status": "PROPOSED"},
-		{"id": "vp_main_east", "name": "Main Street's east end (the boardwalk)", "at": [126, -8.9], "eye": 2.4, "status": "PROPOSED (G5: on the undertaker's boardwalk, was z -12 inside his lot)"},
+		{"id": "vp_main_east", "name": "Main Street's east end (the boardwalk)", "at": [114.2, -8.9], "eye": 2.4, "status": "PROPOSED (G5: on the undertaker's boardwalk, was z -12 inside his lot; #1174: x 126 to 114.2, his walk stops at his building)"},
 		{"id": "vp_saloon_balcony", "name": "The saloon's upstairs balcony", "at": [20, -8.9], "eye": 5.6, "status": "PROPOSED (G5: over the saloon's boardwalk, was z -12 inside its lot; the height waits on the saloon)"},
 		{"id": "vp_cemetery", "name": "The cemetery hill", "at": [-95, -205], "eye": 1.7, "status": "PROPOSED"},
 		{"id": "vp_bridge_a", "name": "Bridge A, looking down the canyon", "at": [975, 291], "eye": 2.4, "status": "PROPOSED"},

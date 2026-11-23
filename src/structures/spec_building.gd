@@ -494,9 +494,18 @@ func _add_interior_ambient() -> void:
 	if probe == null or light.is_empty():
 		return
 	probe.size = Vector3(width, probe.size.y, depth)
+	var cel: Dictionary = spec.get("cellar", {})
+	if cel.get("dig", false):
+		# A cellar a man walks in (#1174): the fill reaches down to its floor (below the building's 0 the
+		# sky's ambient lit its stone blue, and the box's edge drew a dark band across it at that height).
+		var lo := float(_lv.cellar)
+		var hi := probe.position.y + probe.size.y * 0.5
+		probe.size.y = hi - lo
+		probe.position.y = (hi + lo) * 0.5
 	probe.blend_distance = 0.05
 	if haze:
 		haze.size = probe.size
+		haze.position = probe.position
 	if light.has("window_day"):
 		set_meta(&"room_window_gain", float(light.window_day))
 	if light.has("day_fill"):

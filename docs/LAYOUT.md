@@ -870,6 +870,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   spec's `stage`, `SpecBuilding._stage`): a platform of members in the dance hall, the wing, the
   `DrawCurtain` (`src/art/draw_curtain.gd`: `building.open_curtain()` / `close_curtain()`, `to_dict`)
   and the `PaintedDrop` (`src/art/painted_drop.gd`, the backdrop; `art` its painting).
+  **The undertaker's** (#1174, `experiments/building_lab/undertaker/`) has the first cellar a man walks down
+  into: `CellarDig` (`src/structures/cellar_dig.gd`, called from `_make_buildings` for a spec's `cellar.dig`) lowers
+  the valley's ground (Ground's dug tiles) under the cellar and its `Bulkhead`'s areaway to its floor.
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
