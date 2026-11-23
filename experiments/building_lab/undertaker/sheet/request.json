@@ -1,5 +1,5 @@
 {
- "_doc": "The undertaker's target sheet (#1141, the building lab's step 1). Sean 2026-11-21 (#1141): an 1882 undertaker and cabinetmaker, a false-front shop on Main Street, a workroom where coffins are built, a front parlour for viewing, the hearse's shed behind, and a creepy, period-true cellar walkable by the player. Twelve views at ~$0.14, $2.50 cap. Not painted until Sean confirms the cost (#1141's waiting-on-Sean issue). The spec settles every size; the pictures are the look only.",
+ "_doc": "The undertaker's target sheet (#1141, the building lab's step 1). Sean 2026-11-21 (#1141): an 1882 undertaker and cabinetmaker, a false-front shop on Main Street, a workroom where coffins are built, a front parlour for viewing, the hearse's shed behind, and a creepy, period-true cellar walkable by the player. Twelve views at ~$0.14, $2.50 cap. Sean 2026-11-23 on #1171: the cost yes; white clapboard with near-black trim; a 32 x 50 ft shop on the lot's west half, the yard and hearse shed east; into the cellar both by the workroom's stair and the yard's bulkhead. The spec settles every size; the pictures are the look only.",
  "sheet_title": "Salt Creek, 1882: the undertaker and cabinetmaker (target sheet, #1141)",
  "cap": 2.5,
  "model": "google/gemini-3-pro-image-preview",

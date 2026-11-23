@@ -3,7 +3,7 @@
 14 Undertaker, the east end of Main Street's north side (`config/valley.json` town.north `undertaker`):
 an 1882 undertaker and cabinetmaker with a period-true, walkable cellar. Sean's brief is #1141's body.
 
-## Step 1: the target sheet (waiting on Sean's OK of the cost)
+## Step 1: the target sheet (Sean OK, 2026-11-23, #1171: cost yes; white with black trim; 32 ft shop west, yard east; stair and bulkhead)
 
 `sheet/request.json`: twelve views (front, plan with the cellar's, the east yard with the side door and
 bulkhead, the back and hearse shed, the cutaway with the cellar, showroom, parlour, workroom, the cellar
