@@ -1,98 +1,122 @@
 {
-  "_doc": "A grocer's counter scale (#1139, G1): a cast base, a pillar, a brass beam on its knife edge, a tin scoop on one side (the staples weighed) and a brass pan of weights on the other. ~4 kg of iron and brass. Stands on the counter. Written by tools/props/store_g1.py.",
+  "_doc": "A grocer's even-balance counter scale (#1139 G1, rebuilt baked in G2 #1172; refs/store/grocery_interior_georgia_1899: the pans hung from the beam): a black-japanned cast base and pillar, a brass beam on its knife edge with a pointer down to a scale plate, two brass pans hung from the beam's ends on three wires each. ~6 kg. Stands on the counter; the pillar shot out drops the beam. Modelled and baked in tools/blender/props/store_g2.py. Written by tools/props/store_g2.py (in place of G1's bare boxes).",
   "id": "store_scales",
   "kind": "members",
   "fixture": true,
   "in_game": false,
   "wood": "iron",
-  "look": "prop:iron",
+  "look": "pbr:store_scales",
   "splits_below": 0.3,
   "blow_wood_share": 0.3,
+  "factory": "tools/props/store_g2.py",
   "members": [
     {
       "id": "base",
       "kind": "post",
       "size": [
-        0.3,
-        0.04,
-        0.22
+        0.36,
+        0.05,
+        0.2
       ],
       "at": [
         0.0,
-        0.02,
+        0.025,
         0.0
       ],
       "wood": "iron",
-      "look": "prop:iron",
-      "solid": 0.05
+      "look": "pbr:store_scales",
+      "solid": 0.02,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_scales",
+        "part": "Base"
+      }
     },
     {
       "id": "pillar",
       "kind": "furniture_frame",
       "size": [
-        0.045,
-        0.4,
-        0.045
+        0.05,
+        0.36,
+        0.05
       ],
       "at": [
         0.0,
-        0.24,
+        0.225,
         0.0
       ],
       "wood": "iron",
-      "look": "prop:iron",
-      "solid": 0.05
+      "look": "pbr:store_scales",
+      "solid": 0.1,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_scales",
+        "part": "Pillar"
+      }
     },
     {
       "id": "beam",
       "kind": "trim",
       "size": [
-        0.5,
-        0.02,
-        0.015
+        0.54,
+        0.03,
+        0.03
       ],
       "at": [
         0.0,
-        0.45,
+        0.43,
         0.0
       ],
       "wood": "iron",
-      "look": "prop:brass"
+      "look": "pbr:store_scales",
+      "solid": 0.4,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_scales",
+        "part": "Beam"
+      }
     },
     {
-      "id": "scoop",
-      "kind": "furniture_top",
+      "id": "pan_l",
+      "kind": "trim",
       "size": [
-        0.2,
-        0.03,
-        0.17
+        0.004,
+        0.365,
+        0.004
       ],
       "at": [
-        -0.16,
-        0.06,
+        -0.17,
+        0.2325,
         0.0
       ],
       "wood": "iron",
-      "look": "prop:plate_iron",
-      "solid": 0.05
+      "look": "pbr:store_scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "store_scales",
+        "part": "PanL"
+      }
     },
     {
-      "id": "weights",
-      "kind": "furniture_top",
+      "id": "pan_r",
+      "kind": "trim",
       "size": [
-        0.12,
-        0.03,
-        0.12
+        0.004,
+        0.365,
+        0.004
       ],
       "at": [
-        0.16,
-        0.06,
+        0.17,
+        0.2325,
         0.0
       ],
       "wood": "iron",
-      "look": "prop:brass",
-      "solid": 0.05
+      "look": "pbr:store_scales",
+      "draw": {
+        "shape": "mesh",
+        "model": "store_scales",
+        "part": "PanR"
+      }
     }
-  ],
-  "factory": "tools/props/store_g1.py"
+  ]
 }

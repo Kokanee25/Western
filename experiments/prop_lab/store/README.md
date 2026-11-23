@@ -13,10 +13,8 @@ crackers in barrels, pickles in brine, tinware, lamp oil, nail kegs, ammunition)
 Library of Congress and Colorado Historical Society collections (long counters down both walls, shelving to the
 ceiling with a rolling ladder on a rail, a box stove in the middle of the floor with chairs and a cracker barrel
 round it, the scales on the counter, the post office pigeonholes at the back, the till and ledger by the door);
-Preservation Brief 11 for the front (already built, #1053). **No photographs are saved in `refs/store/` this
-session** (none were fetched: the batch is judged against the sources above in words and the building's own target
-sheet, not against a photograph of the real thing, which the recipe asks for). G2 should save three or four dated
-interiors there first and say which G1 piece they'd change.
+Preservation Brief 11 for the front (already built, #1053). G2 saved four dated interiors (LoC, 1895-1900) in
+`refs/store/` and what each would change (its README).
 
 | Where | What | Batch |
 | --- | --- | --- |
@@ -61,8 +59,8 @@ z 5.95 to 8.7, is in that aisle); the use points moved with it (`gen_spec.py`: `
 `buy_1` and `buy_2` in front of the counters, `ledger` behind the back counter, `post_office` at the pigeonholes' bay).
 `Checks.people_fit` passes (the test above, `tests/test_building_store.gd`).
 
-**Cost** (counted from the dressing, not measured in the valley): 14 kit files; 86 dressed props, about 530 member bodies
-standing (shop and windows). The lane's rate (the doctor's ~390 resting bodies: ~0.3 ms at Sean's) puts it near 0.4 ms. The barrels
+**Cost** (counted from the dressing, not measured in the valley): 14 kit files; 203 dressed props and 659 member bodies
+standing in G1, 49 more in the windows (recounted in G2: G1's own count, 86 and ~530, missed the rows). The lane's rate (the doctor's ~390 resting bodies: ~0.3 ms at Sean's) puts it near 0.4 ms. The barrels
 (21 bodies each, 9 of them) and the shelving (18 each, 7 bays) are the largest shares; G2 should keep barrels few.
 
 ## G1 judged blind in the room (two rounds, `results/2026-11-22_store_g1/`; `sheet.jpg` is r2: shop from the door, the clerk's side, the stove, the street windows from the back; by day)
@@ -85,3 +83,55 @@ stove if Sean wants one, baked metal, and the three or four dated interiors in `
 the oak's**; if Sean wants them painted, that's the library's painted finish (#721), not G1's.
 
 **CI found (#1158):** a counter running to z 8.9 and a ladder over the cellar's trap were moved by the valley's settle (`test_save_game`): the second counter now ends at z 8.6 (the girder at 8.8) and the east ladder stands in the last bay, z 9.65.
+
+## G2 (#1172): the shelves filled, boots and hats, hardware, the mill and showcase, baked metal
+
+**The shelf stock's fault was placement, not only size.** `experiments/prop_lab/store/probe_shelves.gd` (headless: builds
+the store, runs physics 3 s, reports every good's foot against the board it should stand on) found all 172 of G1's shelf
+goods 4 to 9 cm over their boards or dropped onto them, and the bolts through the board over them: `bay()` fitted the
+shelving to [0.36, 3.1] where its members' own box is [0.46, 3.2] (the cornice, the cupboards' top and the ladder rail
+stand proud), so PropKit.fit squashed it and every board came down from `SHELF_YS`. Fixed in `store_g1.bay()` (fitted to
+its own box across and up, stretched only along its wall); the bolts cut to 0.30 (0.325 clear between boards); the till
+moved off the back counter's edge (it dropped 0.19 m). After: every shelf good's gap 0.000, nothing moved or loose.
+
+**Made** (`tools/props/store_g2.py` numbers and kit files; `tools/blender/props/store_g2.py` models, ~1 min of bakes):
+
+| Prop | What it is |
+| --- | --- |
+| `tin_row`, `tin_row_flat`, `box_row`, `box_row_flat`, `case_row` (+ `_half`) | a 0.6 m row of goods as two members (blocks of 0.3), drawn from `glb:store_goods`: tall cans (tomatoes, peaches, corn, condensed milk...) two high and two deep, flat cans (oysters, salmon, sardines) three high, cartons (soap, starch, baking powder, tea), flat boxes in stacks (cartridges, matches, collars, thread), stencilled packing cases with a carton on each for the shelving's top. Every label printed on one 2048 sheet (Pillow), a column one line of goods as a clerk stocks a facing, a few gone from the top tier |
+| `boot_row` | two pairs (blacked and russet) on the working shelf, 33 cm |
+| `hat_stack`, `hat_single` | three wide-brimmed felts nested (black, brown, buff); one buff hat |
+| `rope_coil`, `nail_keg`, `tool_keg`, `oil_can` | manila rope; a 100 lb keg of cut nails, open; an axe, shovel and hoe in a keg; a 5 gal kerosene can |
+| `tin_pail`, `coffeepot`, `tea_kettle` | tinware |
+| `showcase` | oak base and posts, `glass:clear` on four sides, spools, pocket knives on a card, pipes, combs in it |
+| `coffee_mill` | the two-wheel counter mill, red enamel, a brass hopper, 50 cm spoked wheels |
+| `store_scales` (G1's, rebuilt) | an even balance: japanned base and pillar, a brass beam and pointer, two pans hung on three wires each |
+| `pbr:store_brass`, `pbr:store_iron` | G1's yardstick, pulls, ladder rail, arms and hooks: a fitted box can't take a mesh (it doesn't stretch with the fit), so each metal is baked onto one plate filling its atlas and tiles as a look |
+
+New finishes in `metal.py`: `boot_leather`, `russet_leather`, `felt_buff`, `felt_brown`, `hemp`, `mill_red`, `kraft`.
+
+**Placed** (`dressing_g2()`, batch G2; `STOCK` names what's on each board of each bay): the grocery's east wall all rows of
+cans, cartons and boxes on every board, the cases on top; the dry goods' west wall boots on the working shelf, G1's bolts
+on boards 1 and 2, boxes, hats on the top board; the post office's bay (G3's) only cases on top. The coffee mill at the
+grocery counter's back end, the showcase, a hat stack and the rope on the dry goods counter, tinware either side of the
+till, the hardware corner on the floor at the dry goods counter's back end (two nail kegs, the tools, a pail), two oil
+cans by the back wall, three hanging lamps down the room (lit by the clock, no shadows). Counter goods take the counter's
+top as y (`on` only names an entry of its own batch). G1 gave up its shelf rows of jars, bottles and cups to G2 (it keeps
+the patent medicines and lamps on the grocery's top boards and the post office's jars).
+
+**Cost**: G1 + G2 + windows 242 props and 794 member bodies standing (was 225 and 708: +12%), at the lane's rate ~0.6 ms
+at Sean's for the whole store (barrels and shelving still the largest shares). Not measured in the valley.
+
+**Rodin**: the sacks (G1's "lumpy urns") and boots quoted on #1175 (~$2.02 each; the Studio's ledger $64.89 of $66 with
+the doctor's bag counted, so neither fits without Sean raising the cap). Nothing paid sent.
+
+**Judged blind in the room** (one round, `results/2026-11-23_store_g2/r1/critic.md`; `sheet.jpg` G1 before against G2, from
+the door and from behind the back counter, by day; the clerk's view didn't finish in the render's hour): shelf stock
+DIFFERENT -> CLOSE ("tins and boxes on the right-hand units"), coffee mill, showcase, scales, hanging lamps CLOSE; boots
+and hats NOT SEEN (on the working shelf behind the counters and the top boards: neither camera sees them), tinware NOT
+SEEN (on the back counter, small), hardware DIFFERENT (the kegs far off by the back counter). The critic's "left wall
+bare" from the door is the post office's bay (west_shelves_d: G3's pigeonholes; the post at the door hides the stocked
+west bays). Its other big differences aren't props: the room's plan (counters against the walls, a wide floor, the
+posts), the pale beaded ceiling and cool even light (the building's and art's). One round spent; the second kept for G3
+with the post office in. Next: G3 (the pigeonholes, the ledger and day-book), then for the room to read from the door:
+goods hung from the ceiling (pails, lanterns) and a camera from the clerk's place.
