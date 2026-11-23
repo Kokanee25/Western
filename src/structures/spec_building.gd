@@ -235,13 +235,20 @@ func build() -> void:
 		return
 	band = 0
 	_foundation()
+	var church_tower: ChurchTower = ChurchTower.new(self, spec.tower) if spec.has("tower") else null
+	if church_tower:
+		church_tower.foundation()  # the church's bell tower (#1142): src/structures/church_tower.gd
 	_cellar()
 	_posts_and_beams()
 	# A cellar's rooms (#1174, the undertaker's): partitions on its flags, under the girders.
 	_partitions("cellar", 0)
 	band = 1
 	_ground_floor()
+	if church_tower:
+		church_tower.floor()
 	_outer_walls()
+	if church_tower:
+		church_tower.belfry()
 	if spec.has("corner"):
 		_corner_entrance()
 	_bulkhead()
@@ -1122,7 +1129,9 @@ func _openings(w: Dictionary, level := "") -> Array:
 			continue
 		# (a cellar's openings from its flags' top, #1174)
 		var y0 := (_lv[lvl] as float) + (0.08 if lvl == "cellar" else 0.0) + float(o.get("sill", 0.0))
-		out.append([Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), float(o.height)), o, lvl])
+		# A pointed window's opening runs on up to its apex (SashWindow.pointed_head; `height` is to the springing).
+		var h := float(o.height) + (float(o.get("rise", 0.0)) if o.get("pointed", false) and o.type == "window" else 0.0)
+		out.append([Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), h), o, lvl])
 	return out
 
 
@@ -1228,13 +1237,18 @@ func _outer_walls() -> void:
 				_opening_trim(wall, o[0], false)
 				Storefront.recess(self, wall, o[0], _recess_spec(spec_o), StringName(spec.materials.get("trim_outside", "dark_trim")))
 				continue
-			_opening_trim(wall, o[0], window or spec_o.type == "hatch")
+			var rise := float(spec_o.get("rise", 0.0)) if window and spec_o.get("pointed", false) else 0.0
+			var sq: Rect2 = o[0]
+			sq.size.y -= rise
+			# (a pointed head's casing is the window's own, slanted to the point: SashWindow)
+			_opening_trim(wall, sq, window or spec_o.type == "hatch", rise <= 0.0)
 			if window and spec_o.get("show", false):
 				# A storefront's show window (#1053): plate glass, a transom row, a panelled bulkhead.
 				Storefront.show_window(self, wall, o[0], spec_o, StringName(spec.materials.get("trim_outside", "dark_trim")))
 			elif window and spec_o.has("lights"):
 				# A sash window (#826): lined, two sashes, a pane a light (SashWindow, the part).
-				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim"))})
+				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim")),
+						"rise": rise, "face_wood": wood, "level": String(o[2])})
 			elif window:
 				_glass(wall, o[0])
 			if spec_o.get("bars", false):
@@ -3327,7 +3341,7 @@ func _ladders() -> void:
 		foot.y = float(l.from)
 		var h := float(l.to) - float(l.from)
 		var lw := float(l.width)
-		band = 1
+		band = int(l.get("band", 1))  # (the church's ladder stands on the porch's floor: band 2)
 		for e in 2:
 			var c := foot + along * (lw * 0.5 * (1 if e == 0 else -1)) + Vector3.UP * (h * 0.5 + 0.45)
 			add_member("ladder/%s/stile_%d" % [l.id, e], &"post", &"framing", along.abs() * 0.05 + Vector3.UP * (h + 0.9) + out.abs() * 0.07, c)

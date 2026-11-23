@@ -63,7 +63,8 @@ func test_the_landforms_are_in_the_bake() -> void:
 
 func test_each_laddered_height_has_a_ladder_to_its_top() -> void:
 	var mk := _markers()
-	var want := ["stage_station", "burned_homestead", "windmill_homestead", "water_tower", "headframe", "ore_chute", "bell_tower"]
+	# (The bell tower's is the real church's own, inside its porch: test_valley_church, #1142.)
+	var want := ["stage_station", "burned_homestead", "windmill_homestead", "water_tower", "headframe", "ore_chute"]
 	var have := {}
 	for l: Dictionary in mk.ladders:
 		have[l.id] = l

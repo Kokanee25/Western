@@ -1,0 +1,126 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.139,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795302906.7475674
+  },
+  {
+   "what": "plan",
+   "cost": 0.1398,
+   "ok": true,
+   "size": [
+    1696,
+    2528
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795302925.5747838
+  },
+  {
+   "what": "side",
+   "cost": 0.139,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795302947.5740888
+  },
+  {
+   "what": "rear",
+   "cost": 0.1403,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795302975.6541224
+  },
+  {
+   "what": "tower",
+   "cost": 0.1392,
+   "ok": true,
+   "size": [
+    1696,
+    2528
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795302997.1771276
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1402,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795303031.005061
+  },
+  {
+   "what": "nave",
+   "cost": 0.1402,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795303057.7682729
+  },
+  {
+   "what": "pulpit",
+   "cost": 0.1403,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795303086.4586499
+  },
+  {
+   "what": "porch",
+   "cost": 0.1401,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795303114.2568636
+  },
+  {
+   "what": "graveyard",
+   "cost": 0.1402,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795303147.6442795
+  },
+  {
+   "what": "grave",
+   "cost": 0.1388,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795303177.8970807
+  }
+ ],
+ "total": 1.537
+}

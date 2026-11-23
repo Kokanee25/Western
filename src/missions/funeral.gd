@@ -194,7 +194,10 @@ func _make_place() -> void:
 	var dirt := Color(0.33, 0.25, 0.18)
 	# The graves already here: a low mound and a headboard each.
 	var i := 0
-	for xz: Array in data.get("old_graves", []):
+	# (The valley's cemetery lays these itself since #1142, real crosses and headboards at the same places:
+	# the stand-in blocks only where there's no Cemetery, the old street.)
+	var real_graves := street.get_tree().root.find_child("Cemetery", true, false) != null
+	for xz: Array in ([] if real_graves else data.get("old_graves", [])):
 		_block("OldGrave%d" % i, Vector3(1.9, 0.18, 0.75), spot(xz), dirt.lightened(0.08), false)
 		_block("OldHeadboard%d" % i, Vector3(0.05, 0.75 + 0.1 * float(i % 3), 0.42), spot([float(xz[0]) - 1.1, float(xz[1])]), old_wood)
 		i += 1

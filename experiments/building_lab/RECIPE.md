@@ -335,6 +335,25 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
   order moves the chairs' pieces): the jail's shorter walk failed both chair tests in every full CI run. Run
   `--only=card_game` after any valley.json walk or lot change; the jail's walk waits on #834.
 
+## A church (#1142, the building lab's fourth practice building after the saloons: a tower and a steeple)
+
+Record: `church/README.md`. What it taught:
+
+- **A new kind of structure goes in its own file, hooked in at three places** (`church_tower.gd`, called from `SpecBuilding.build`): the
+  tower's walls are ordinary spec walls (a numeric `top`, `ribbon: false`), its footing, floor, belfry and spire are the module's.
+- **Tilted members rest only where their oriented boxes meet** (12 mm): a hip rafter lifted 5 cm off the ring it should land on had
+  no load path, so did a spire's whole skin (90 shingle courses). Centre a hip on its line; sit courses on it, not above it.
+- **A 28 ft span is the ceiling joists' job** (3 x 15 in at 16 in; 2x10 failed at 1.11 with a crowd); keep the doctor's rafters (a 2x8 and a 10/12 roof stopped touching the ridge board).
+- **A belfry's ring of plates carrying a spire needs posts at the middle of each face** (the commons' feet land mid-span) and a deep section
+  (0.15 x 0.25); boards run across joists, never with them (a board along its joist read 1.04 in bending).
+- **A hatch goes between two joists**, never cutting one (a cut joist is two cantilevers: "joint" 5.4).
+- **A pointed (or any shaped) head is the window's, not a decoration over it** (`SashWindow`'s `rise`): cut the opening to the apex so the
+  studs, siding and finish all stop round it, then fill the corners beside the point with short stepped boards (the slanted lining covers the
+  steps). A V of trim and glass stuck on the siding over a square sash read as a sticker.
+- **A bell is a kit prop on four posts** (`solid` 0.035 for its weight); hung bells aren't supported by the member rules.
+- **Use points on a platform fail the "used" check** (it wants the floor's height): put the room's point on the floor by it.
+- Blocks the place's old grey box and `bell_tower` blocks in valley.json (they drew a box where the building stands).
+
 ## A log building and its yard (Harlan's homestead, #1126)
 
 - **One session can take a small building through every step** when the sheet runs while the code is
