@@ -691,7 +691,11 @@ func _joe_go(to: Vector3, speed: float, delta: float) -> bool:
 		_walk(joe, _joe_way[0], speed, delta)
 		_over_the_wreck(delta)
 		return false
-	return _walk(joe, to, speed, delta)
+	# Already over the sill (in, by in_shack) but held on the wreck's pieces: the same step over.
+	var there := _walk(joe, to, speed, delta)
+	if not there:
+		_over_the_wreck(delta)
+	return there
 
 
 ## The broken door lies in the doorway in pieces, and a man's walk_to stops short of them (you push
@@ -1057,6 +1061,15 @@ func result() -> Dictionary:
 	if p and joe and is_instance_valid(joe):
 		r["joe"] = {"held": joe_brain.held, "to_kett_m": snappedf(_flat(joe.global_position, kett.global_position), 0.1) if kett else -1.0,
 				"to_you_m": snappedf(_flat(joe.global_position, p.global_position), 0.1)}
+		if shack:
+			# Where he is in the shack's space (x along its front, z in from the door) and on his way (#1041).
+			var l := shack.global_transform.affine_inverse() * joe.global_position
+			r["joe"]["in_shack_at"] = [snappedf(l.x, 0.01), snappedf(l.z, 0.01)]
+			r["joe"]["in_shack"] = hideout.in_shack(joe.global_position) if hideout else false
+			r["joe"]["way"] = _joe_way.size()
+			if kett:
+				var k := shack.global_transform.affine_inverse() * kett.global_position
+				r["kett"]["in_shack_at"] = [snappedf(k.x, 0.01), snappedf(k.z, 0.01)]
 	r["story"] = StoryState.to_dict().facts
 	r["timeline"] = timeline.slice(-16)
 	return r

@@ -92,6 +92,11 @@ func _ready() -> void:
 		var sf := StoveFire.new()
 		sf.name = "StoveFire"
 		add_child(sf)
+	if definition.has("clock") and get_node_or_null(^"WallClock") == null:
+		# A clock (#1030, #789): its hands show DayCycle's time, its pendulum swings and ticks.
+		var wc := WallClock.new()
+		wc.name = "WallClock"
+		add_child(wc)
 
 
 ## Every kit prop by its structure id (KitProp ids have no "/": "chair_3").

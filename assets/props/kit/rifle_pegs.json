@@ -1,0 +1,89 @@
+{
+  "_doc": "a Winchester 1873 laid on two square oak pegs driven into the wall, its right side to the room and its muzzle to the right, where the bartender can reach up for it (the saloon keeper's gun, as the period's photographs of bars show one hung over the back bar or the door). The gun is the gun lab's model with its own painted sheets (assets/weapons/winchester73*: `pbr:@winchester73_w73_long`), not a copy; the pegs are the material library's oak. Hung by the pegs (KitProp `hangs`: a nail through each into the wall): a peg shot out drops the gun's end, the board going drops it all. The gun is a prop, not a weapon: taking it down to use is gameplay's (a `use` later). The wall's face z = 0, the gun toward +z, the origin the lower peg's top (hang it ~3.25 m up over the back bar). ~4.4 kg. Written by tools/props/saloon_walls.py.",
+  "id": "rifle_pegs",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "oak",
+  "anchor": "wall",
+  "drawn_bounds": true,
+  "splits_below": 0.4,
+  "hangs": {
+    "nails": [
+      [
+        -0.36,
+        -0.013,
+        0.004
+      ],
+      [
+        0.3,
+        0.0972,
+        0.004
+      ]
+    ]
+  },
+  "factory": "tools/props/saloon_walls.py",
+  "members": [
+    {
+      "id": "peg0",
+      "kind": "post",
+      "size": [
+        0.026,
+        0.026,
+        0.12
+      ],
+      "at": [
+        -0.36,
+        -0.013,
+        0.06
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "peg1",
+      "kind": "post",
+      "size": [
+        0.026,
+        0.026,
+        0.12
+      ],
+      "at": [
+        0.3,
+        0.0972,
+        0.06
+      ],
+      "look": "lib:furniture_oak/old"
+    },
+    {
+      "id": "rifle",
+      "kind": "trim",
+      "size": [
+        1.08,
+        0.1,
+        0.04
+      ],
+      "at": [
+        0.0,
+        0.05,
+        0.075
+      ],
+      "wood": "walnut",
+      "look": "pbr:@winchester73_w73_long",
+      "draw": {
+        "shape": "mesh",
+        "model": "rifle_pegs",
+        "part": "RifleLong"
+      },
+      "dress": [
+        {
+          "look": "pbr:@winchester73_w73_action",
+          "draw": {
+            "shape": "mesh",
+            "model": "rifle_pegs",
+            "part": "RifleAction"
+          }
+        }
+      ]
+    }
+  ]
+}
