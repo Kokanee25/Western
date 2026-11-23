@@ -16,7 +16,7 @@ const VERSION := 1
 const DIR := "user://saves"
 const MAGIC := "SALTCREEK-SAVE"
 ## The sections, in the order they're put back.
-const SECTIONS: Array[String] = ["story", "clock", "structures", "ground", "floor", "blood", "dynamite", "folk", "people", "player"]
+const SECTIONS: Array[String] = ["story", "clock", "structures", "ground", "floor", "blood", "dynamite", "folk", "people", "player", "horse"]
 
 ## Bringing an old save up: version -> a Callable(Dictionary) -> Dictionary giving the next
 ## version's shape. `read` runs them in turn until the save is this build's; a save from a newer
@@ -96,6 +96,8 @@ static func capture(tree: SceneTree) -> Dictionary:
 	d["people"] = people
 	var player := tree.get_first_node_in_group(&"player") as Player
 	d["player"] = _player(player) if player else {}
+	var ride := tree.get_first_node_in_group(&"ride_there") as RideThere
+	d["horse"] = ride.save_dict() if ride else {}
 	return d
 
 
@@ -232,6 +234,10 @@ static func _apply_section(tree: SceneTree, world: Node3D, section: String, sd: 
 			var player := tree.get_first_node_in_group(&"player") as Player
 			if player and not (sd as Dictionary).is_empty():
 				_apply_player(player, sd)
+		"horse":
+			var ride := tree.get_first_node_in_group(&"ride_there") as RideThere
+			if ride and not (sd as Dictionary).is_empty():
+				ride.load_dict(sd)
 
 
 static func _apply_people(tree: SceneTree, world: Node3D, sd: Dictionary, missed: Array[String]) -> void:

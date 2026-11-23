@@ -1,0 +1,896 @@
+{
+ "_doc": "Thomas Harlan's cabin (#1126, Sean 2026-11-21): one room of hewn logs, worn and half fixed. Written by experiments/building_lab/homestead/gen_spec.py; FORMAT.md 'A log building's parts'.",
+ "format": 1,
+ "id": "harlan_cabin",
+ "identity": {
+  "owner": "Thomas Harlan, ex-army hospital steward, forties, alone",
+  "trade": "his homestead: he sleeps, cooks, washes and keeps his kit here; the claim's worth is the spring",
+  "means": "a man with a little saved: bought the place worn from its last owner this spring",
+  "age_and_repair": "the last owner raised it about 1874: the logs silver-grey, the chinking cracked and patched, the shakes curled; Harlan has started on it (a new log at the east wall's foot, a patch of new shakes) and left the rest for later: a patch of shakes missing, a porch board sprung, a rotten step",
+  "clues": [
+   "his army trunk at the bed's foot",
+   "a shaving mirror and basin on the porch",
+   "boards and shakes bought and stacked in the barn",
+   "one chair",
+   "a new pale log among grey ones"
+  ]
+ },
+ "lot": {
+  "_doc": "Placed by the site (config/buildings/harlan_homestead.json) on the harlan_homestead pad (valley.json), its door gable to the yard (north).",
+  "at": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "facing": 0,
+  "width": 4.607,
+  "depth": 5.217
+ },
+ "levels": {
+  "_doc": "One storey: the floor a step up on the sills, nine courses of logs to the plate (2.4 m clear), the loft's joists on the side walls' top logs, a 10/12 roof gabled front to back, its rakes 0.35 m past the gables.",
+  "ground": {
+   "top": 0.63
+  },
+  "upper": {
+   "top": 3.287
+  },
+  "plate": 3.03,
+  "false_front": 0.0,
+  "roof_pitch": 39.8,
+  "roof_from": -0.35,
+  "roof_to": 5.567
+ },
+ "frame": {
+  "_doc": "Hewn logs on hewn sills on a fieldstone footing; the floor's joists between the sills on a girder down the middle; the loft's joists across on the side walls' top logs; common rafters on them, skip sheathing, split shakes.",
+  "foundation": {
+   "wood": "stone",
+   "thick": 0.17,
+   "bottom": -0.35,
+   "top": 0.4,
+   "piece": 1.2,
+   "_doc": "dry fieldstone under the sills, a foot into the ground"
+  },
+  "sill": {
+   "section": [
+    0.17,
+    0.2
+   ],
+   "wood": "framing",
+   "_doc": "hewn sill logs, the front and back's through the corners"
+  },
+  "log_wall": {
+   "thick": 0.17,
+   "course": 0.27,
+   "chink": 0.06,
+   "inset": 0.012,
+   "over": 0.14,
+   "piece": 6.5,
+   "buck": 0.05,
+   "wood": "framing",
+   "chink_wood": "painted_white",
+   "lap": 0.06,
+   "gable_wood": "weathered_pine",
+   "_doc": "LogWall (src/structures/log_wall.gd): 6 1/2 in hewn faces, 9 in logs, 2 1/2 in of lime chinking (whitewash pale) set 1/2 in back, the ends 5 1/2 in past the corners"
+  },
+  "pier": {
+   "size": 0.3,
+   "wood": "stone"
+  },
+  "girder": {
+   "section": [
+    0.15,
+    0.15
+   ],
+   "wood": "framing",
+   "pier_every": 1.5
+  },
+  "joist": {
+   "section": [
+    0.05,
+    0.14
+   ],
+   "spacing": 0.61,
+   "wood": "framing",
+   "_doc": "2x6 at 24 in, 7 ft spans either side of the girder"
+  },
+  "floor_board": {
+   "width": 0.2,
+   "thick": 0.022,
+   "wood": "floor"
+  },
+  "stud": {
+   "section": [
+    0.05,
+    0.1
+   ],
+   "spacing": 0.61,
+   "wood": "framing"
+  },
+  "plate": {
+   "height": 0.1
+  },
+  "ribbon": {
+   "section": [
+    0.025,
+    0.15
+   ]
+  },
+  "header": {
+   "height": 0.15
+  },
+  "post": {
+   "section": [
+    0.12,
+    0.12
+   ],
+   "wood": "framing"
+  },
+  "beam": {
+   "section": [
+    0.12,
+    0.15
+   ],
+   "wood": "framing"
+  },
+  "bracket": {
+   "reach": 0.3,
+   "thick": 0.08
+  },
+  "wall_post": {
+   "section": [
+    0.15,
+    0.1
+   ]
+  },
+  "ceiling_joist": {
+   "section": [
+    0.1,
+    0.235
+   ],
+   "spacing": 0.406,
+   "wood": "framing",
+   "lap": 0.6,
+   "_doc": "hewn 4 x 9 in at 16 in on the side walls' top logs, each spiked to a rafter's foot"
+  },
+  "rafters": {
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "spacing": 0.61,
+   "ridge": [
+    0.025,
+    0.185
+   ],
+   "collar": [
+    0.025,
+    0.14
+   ],
+   "collar_every": 2,
+   "collar_down": 0.25,
+   "eave": 0.3
+  },
+  "truss": {
+   "tie": [
+    0.05,
+    0.14
+   ],
+   "principal": [
+    0.0,
+    0.0
+   ],
+   "queen": [
+    0.0,
+    0.0
+   ],
+   "purlin": [
+    0.0,
+    0.0
+   ],
+   "rafter": [
+    0.05,
+    0.14
+   ],
+   "rafter_spacing": 0.61,
+   "at": [
+    0.0,
+    5.217
+   ],
+   "purlins": []
+  }
+ },
+ "girders": {
+  "x": [
+   2.304
+  ]
+ },
+ "ceilings": [],
+ "floors": [
+  {
+   "id": "ground",
+   "level": "ground",
+   "rect": [
+    0.17500000000000002,
+    0.17500000000000002,
+    4.432,
+    5.042
+   ],
+   "joists": "x",
+   "look": "wood:int_floor"
+  },
+  {
+   "id": "loft",
+   "level": "upper",
+   "rect": [
+    0.02,
+    0.18000000000000002,
+    4.587,
+    5.037
+   ],
+   "joists": "x",
+   "joist": "ceiling_joist",
+   "_doc": "the loft over the room on the side walls' top logs: its boards the room's ceiling (storage; a ladder later)"
+  }
+ ],
+ "shakes": {
+  "exposure": 0.25,
+  "width": 0.8,
+  "strip": 0.16,
+  "thick": 0.016,
+  "lift": 0.012,
+  "skip": 0.3,
+  "new_share": 0.04,
+  "missing": [
+   {
+    "side": 0,
+    "s": [
+     1.05,
+     1.85
+    ],
+    "z": [
+     1.6,
+     2.7
+    ],
+    "repair": "roof_patch"
+   }
+  ],
+  "new": [
+   {
+    "side": 0,
+    "s": [
+     0.55,
+     1.05
+    ],
+    "z": [
+     1.4,
+     3.1
+    ]
+   },
+   {
+    "side": 0,
+    "s": [
+     1.85,
+     2.3
+    ],
+    "z": [
+     1.4,
+     2.9
+    ]
+   }
+  ],
+  "_doc": "split pine shakes, 10 in to the weather, on 1x6 boards a foot apart; the patch he's started round the hole"
+ },
+ "walls": [
+  {
+   "id": "front",
+   "_doc": "the chimney gable (east): the stone chimney outside it, the stove against it",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     4.607,
+     0
+    ]
+   ],
+   "out": "-z",
+   "top": "gable",
+   "log": true,
+   "openings": []
+  },
+  {
+   "id": "back",
+   "_doc": "the west gable: the woodpile against it",
+   "line": [
+    [
+     0,
+     5.217
+    ],
+    [
+     4.607,
+     5.217
+    ]
+   ],
+   "out": "+z",
+   "top": "gable",
+   "log": true,
+   "openings": []
+  },
+  {
+   "id": "west",
+   "_doc": "the door's long side (Sean, 2026-11-21: the door on the long side, under the eave), to the yard and the lane (north): the door, a small window either side, the porch",
+   "line": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     5.217
+    ]
+   ],
+   "out": "-x",
+   "top": "plate",
+   "log": true,
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 2.208,
+     "width": 0.81,
+     "height": 1.98,
+     "leaf": "inward"
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.0,
+     "width": 0.6,
+     "height": 0.75,
+     "sill": 0.9,
+     "lights": 4
+    },
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 4.217,
+     "width": 0.6,
+     "height": 0.75,
+     "sill": 0.9,
+     "lights": 4
+    }
+   ]
+  },
+  {
+   "id": "east",
+   "_doc": "the back long side (south): its window over the trunk; a new log at its foot (Harlan's first repair)",
+   "line": [
+    [
+     4.607,
+     0
+    ],
+    [
+     4.607,
+     5.217
+    ]
+   ],
+   "out": "+x",
+   "top": "plate",
+   "log": true,
+   "new": [
+    [
+     1,
+     0
+    ]
+   ],
+   "openings": [
+    {
+     "type": "window",
+     "level": "ground",
+     "at": 1.7,
+     "width": 0.6,
+     "height": 0.75,
+     "sill": 0.9,
+     "lights": 4
+    }
+   ]
+  }
+ ],
+ "side_porch": {
+  "_doc": "the porch along the door's long side, a step down from the floor, its shed roof on three hewn posts under the main roof's eave",
+  "rect": [
+   -1.8,
+   0.0,
+   0.0,
+   5.217
+  ],
+  "deck_top": 0.53,
+  "roof_height": 1.98,
+  "rise": 0.24,
+  "posts": [
+   [
+    -1.75,
+    0.12
+   ],
+   [
+    -1.75,
+    3.358
+   ],
+   [
+    -1.75,
+    5.097
+   ]
+  ]
+ },
+ "stairs": [
+  {
+   "id": "porch",
+   "_doc": "three plank steps from the yard up to the porch before the door",
+   "head": [
+    -1.8,
+    1.708
+   ],
+   "dir": "+x",
+   "width": 1.0,
+   "from": 0.0,
+   "to": 0.53,
+   "risers": 3,
+   "going": 0.28,
+   "wood": "weathered_pine"
+  }
+ ],
+ "chimneys": {
+  "wood": "stone",
+  "list": [
+   {
+    "id": "stove",
+    "at": [
+     2.754,
+     -0.42
+    ],
+    "size": 0.8,
+    "over_ridge": 0.6,
+    "fieldstone": {
+     "course": 0.22,
+     "stack": 0.62,
+     "from": 1.9
+    },
+    "_doc": "rough fieldstone up the outside of the east gable, the stove's pipe in through the logs"
+   }
+  ]
+ },
+ "hung": [
+  {
+   "id": "mirror",
+   "wall": "west",
+   "side": "out",
+   "at": 4.767,
+   "y": 1.45,
+   "size": [
+    0.3,
+    0.38
+   ],
+   "over": "porch",
+   "_doc": "his shaving mirror on a nail beside the west window, over the washstand"
+  }
+ ],
+ "front": {
+  "sign": ""
+ },
+ "rooms": [
+  {
+   "id": "cabin",
+   "level": "ground",
+   "rect": [
+    0.17,
+    0.17,
+    4.437,
+    5.047
+   ],
+   "use": "he sleeps, cooks, eats and keeps his kit in the one room"
+  }
+ ],
+ "use_points": [
+  {
+   "id": "bed",
+   "prop": "bed",
+   "use": "sleep",
+   "who": "harlan",
+   "at": [
+    3.94,
+    0.63,
+    4.0
+   ],
+   "look": [
+    3.94,
+    2.0
+   ],
+   "_doc": "the bed the save uses (sleeping, later)"
+  },
+  {
+   "id": "bedside",
+   "use": "stand",
+   "who": "harlan",
+   "at": [
+    3.0,
+    0.63,
+    4.1
+   ],
+   "look": [
+    3.94,
+    4.1
+   ],
+   "_doc": "the clear spot beside the bed: where you stand to lie down"
+  },
+  {
+   "id": "stove",
+   "use": "cook",
+   "who": "harlan",
+   "at": [
+    2.75,
+    0.63,
+    1.45
+   ],
+   "look": [
+    2.75,
+    0.4
+   ]
+  },
+  {
+   "id": "table",
+   "prop": "chair",
+   "use": "eat",
+   "who": "harlan",
+   "at": [
+    1.25,
+    0.63,
+    1.12
+   ],
+   "look": [
+    0.5,
+    1.12
+   ]
+  },
+  {
+   "id": "trunk",
+   "use": "kneel",
+   "who": "harlan",
+   "at": [
+    3.94,
+    0.63,
+    2.05
+   ],
+   "look": [
+    3.94,
+    2.7
+   ],
+   "_doc": "at his army trunk (the steward's kit, the photograph: later)"
+  },
+  {
+   "id": "wash",
+   "use": "wash",
+   "who": "harlan",
+   "at": [
+    -0.9,
+    0.53,
+    4.767
+   ],
+   "look": [
+    0.0,
+    4.767
+   ],
+   "_doc": "at the basin on the porch (washing the blood off: later)"
+  }
+ ],
+ "light": {
+  "fill": [
+   0.62,
+   0.6,
+   0.57
+  ],
+  "window_day": 9.0,
+  "day_fill": 0.14
+ },
+ "lamps": {
+  "kit": []
+ },
+ "dressing": {
+  "batches": {
+   "H1": [
+    {
+     "id": "bed",
+     "kit": "plank_bed",
+     "at": [
+      3.94,
+      0.0,
+      4.03
+     ],
+     "facing": 0,
+     "use": "bed: its head against the west gable, in the back corner from the door"
+    },
+    {
+     "id": "blanket",
+     "kit": "folded_blanket",
+     "on": "bed",
+     "at": [
+      3.94,
+      0.0,
+      3.5
+     ],
+     "facing": 90
+    },
+    {
+     "id": "trunk",
+     "kit": "travelling_trunk",
+     "at": [
+      3.94,
+      0.0,
+      2.72
+     ],
+     "facing": 0,
+     "use": "his army trunk at the bed's foot"
+    },
+    {
+     "id": "stove",
+     "kit": "cookstove",
+     "at": [
+      2.75,
+      0.0,
+      0.62
+     ],
+     "facing": 0
+    },
+    {
+     "id": "table",
+     "kit": "table",
+     "fit": [
+      1.1,
+      0.74,
+      0.7
+     ],
+     "at": [
+      0.55,
+      0.0,
+      1.12
+     ],
+     "facing": 90,
+     "use": "under the window by the door, clear of its leaf"
+    },
+    {
+     "id": "chair",
+     "kit": "chair",
+     "at": [
+      1.25,
+      0.0,
+      1.12
+     ],
+     "facing": 270
+    },
+    {
+     "id": "lamp",
+     "kit": "oil_lamp",
+     "on": "table",
+     "at": [
+      0.5,
+      0.0,
+      1.45
+     ],
+     "facing": 0,
+     "light": 0.2,
+     "energy": 0.9,
+     "reach": 5.0,
+     "shadows": true
+    },
+    {
+     "id": "cup",
+     "kit": "tin_cup",
+     "on": "table",
+     "at": [
+      0.6,
+      0.0,
+      0.9
+     ],
+     "facing": 30
+    },
+    {
+     "id": "shelves",
+     "kit": "shelves",
+     "fit": [
+      0.32,
+      1.6,
+      1.0
+     ],
+     "at": [
+      1.25,
+      0.0,
+      0.37
+     ],
+     "facing": 90,
+     "use": "along the chimney gable, their depth off the logs (facing 0 put them into the wall: they moved at load)"
+    },
+    {
+     "id": "washstand",
+     "kit": "washstand",
+     "at": [
+      -0.3,
+      -0.09999999999999998,
+      4.767
+     ],
+     "facing": 270,
+     "use": "on the porch, under the mirror"
+    },
+    {
+     "id": "basin",
+     "kit": "wash_basin",
+     "on": "washstand",
+     "at": [
+      -0.3,
+      -0.09999999999999998,
+      4.767
+     ],
+     "facing": 0
+    },
+    {
+     "id": "pitcher",
+     "kit": "wash_pitcher",
+     "on": "washstand",
+     "at": [
+      -0.25,
+      -0.09999999999999998,
+      4.967
+     ],
+     "facing": 200
+    }
+   ]
+  }
+ },
+ "repairs": [
+  {
+   "id": "roof_patch",
+   "what": "a patch of shakes off the west slope over the bed (the boards show; it lets the rain in)",
+   "kind": "missing",
+   "fix": "shakes",
+   "members": "roof/shake_0/",
+   "_doc": "shakes.missing's patch: no members; the fix lays them (the bundles in the barn)"
+  },
+  {
+   "id": "porch_board",
+   "what": "a porch board sprung up at one end",
+   "kind": "loose",
+   "member": "side_porch/board_9",
+   "lift": 0.07
+  },
+  {
+   "id": "rotten_step",
+   "what": "the bottom porch step rotten through and broken",
+   "kind": "rotten",
+   "member": "stair/porch/tread/00",
+   "break": true
+  }
+ ],
+ "materials": {
+  "wear": {
+   "use": 0.4,
+   "dings": 0.0,
+   "_why": "one man, a few months, careful; the last owner's eight years under it"
+  },
+  "finishes": {
+   "logs": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "hewn pine gone silver-grey (R1 a few years: old read near black on the logs, round 0) until a hewn-log entry is judged"
+   },
+   "new_wood": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "new",
+     "role": "wall"
+    },
+    "_why": "what Harlan has put in: pale and new"
+   },
+   "rough": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "old",
+     "role": "wall"
+    }
+   },
+   "floor": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "old",
+     "role": "floor"
+    },
+    "_why": "rough wide pine boards (the recipe's rough class)"
+   },
+   "framing": {
+    "use": {
+     "entry": "rough_pine_batten",
+     "age": "few",
+     "role": "wall"
+    }
+   }
+  },
+  "surfaces": [
+   [
+    "_new",
+    "new_wood"
+   ],
+   [
+    "/chink/",
+    "-"
+   ],
+   [
+    "/log/",
+    "logs"
+   ],
+   [
+    "/buck/",
+    "logs"
+   ],
+   [
+    "/gable/",
+    "rough"
+   ],
+   [
+    "roof/shake",
+    "rough"
+   ],
+   [
+    "roof/board",
+    "rough"
+   ],
+   [
+    "/window_",
+    "rough"
+   ],
+   [
+    "/door_",
+    "rough"
+   ],
+   [
+    "side_porch/",
+    "rough"
+   ],
+   [
+    "stair/",
+    "rough"
+   ],
+   [
+    "floor/ground/board",
+    "floor"
+   ],
+   [
+    "floor/loft/board",
+    "rough"
+   ],
+   [
+    "sill/",
+    "logs"
+   ],
+   [
+    "hung/",
+    "-"
+   ]
+  ],
+  "trim_outside": "weathered_pine",
+  "roof": "weathered_pine",
+  "deck": "weathered_pine",
+  "floor": "wood:int_floor",
+  "wall_boards": "int_boards",
+  "woodwork": "wood:int_timber",
+  "timber": "wood:int_timber"
+ },
+ "sources": [
+  "C. A. Weslager, The Log Cabin in America (1969): hewn logs, chinking and daubing, openings sawn and bucked, shake roofs on skip boards.",
+  "Fred Kniffen and Henry Glassie, 'Building in Wood in the Eastern United States' (Geographical Review, 1966): corner timbering, hewn logs.",
+  "Fred T. Hodgson, Practical Carpentry (1883): common rafters, shingle lath.",
+  "USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021): spans."
+ ],
+ "furniture": [],
+ "fixtures": []
+}

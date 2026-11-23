@@ -272,6 +272,7 @@ func build() -> void:
 		band = 1
 		_gable_sign()
 		_back_porch()
+		_side_porch()
 		_stoops()
 		band = 0
 		_yard_front()
@@ -296,12 +297,155 @@ func build() -> void:
 	_lamps()
 	_kit()
 	_dressing()
+	band = 1
+	_hung()
 	_use_points()
 	_add_interior_ambient()
 	_dust()
+	_repairs()
 	marks = Marks.place(self, spec)
 	_library_finishes()
 	_stone_finish()
+
+
+# --- things hung on a wall, and the repair jobs left in a building (#1126, Harlan's) ---------------
+
+## Small things hung on a wall's face (spec `hung`: {id, wall, side "in"/"out", at along it, y over
+## `over` (a level, or "porch": the back porch's deck), size [w, h]}): a frame of four strips and a
+## pane (a shaving mirror) standing off the face 2 cm, each a member resting on the wall it's nailed to.
+func _hung() -> void:
+	for h: Dictionary in spec.get("hung", []):
+		if not walls.has(h.wall):
+			continue
+		var wall: Dictionary = walls[h.wall].dict
+		var lw := LogWall.numbers(_fr)
+		var inside := String(h.get("side", "out")) == "in"
+		var face := -float(lw.thick) if inside and walls[h.wall].spec.get("log", false) else (-STUD_D if inside else 0.0)
+		var over := String(h.get("over", "ground"))
+		var porch_d: Dictionary = spec.get("side_porch", spec.get("back_porch", {}))
+		var y0 := float(porch_d.get("deck_top", 0.0)) if over == "porch" else float(_lv.get(over, floor_top))
+		y0 += float(h.y)
+		var sz: Array = h.size
+		var x0 := float(h.at) - float(sz[0]) * 0.5
+		var x1 := float(h.at) + float(sz[0]) * 0.5
+		var y1 := y0 + float(sz[1])
+		var d0 := face - 0.02 if inside else face
+		var d1 := face if inside else face + 0.02
+		var f := 0.03
+		var id := "hung/%s" % h.id
+		_wall_member(id + "/frame_b", &"trim", &"dark_trim", wall, x0, x1, y0, y0 + f, d0, d1)
+		_wall_member(id + "/frame_t", &"trim", &"dark_trim", wall, x0, x1, y1 - f, y1, d0, d1)
+		_wall_member(id + "/frame_0", &"trim", &"dark_trim", wall, x0, x0 + f, y0 + f, y1 - f, d0, d1)
+		_wall_member(id + "/frame_1", &"trim", &"dark_trim", wall, x1 - f, x1, y0 + f, y1 - f, d0, d1)
+		var dm := (d0 + d1) * 0.5
+		_wall_member(id + "/glass", &"glass", &"glass", wall, x0 + f, x1 - f, y0 + f, y1 - f, dm - 0.002, dm + 0.002)
+
+
+## The jobs left to do on the building (spec `repairs`), as real broken or missing pieces: a later
+## repair action reads `repair_jobs` (id -> {what, kind, members}) and each member's meta `repair`.
+## `missing` (nothing to make: the pieces were never put back, e.g. shakes.missing's patch), `loose`
+## (`member` lifted `lift` m at its start end, pivoting on its other: a sprung board), `off_hinge` (a
+## door's leaf dropped `drop` m at its free end, hanging from its bottom hinge), `rotten` (`member`
+## marked rotten and weak; with `break`, snapped in the middle, the halves sagging).
+var repair_jobs := {}
+
+
+func _repairs() -> void:
+	repair_jobs.clear()
+	for r: Dictionary in spec.get("repairs", []):
+		var job := {"what": String(r.get("what", "")), "kind": String(r.kind), "members": []}
+		repair_jobs[String(r.id)] = job
+		var found: Array[StructureMember] = []
+		var pat := "%s/%s" % [structure_id, r.get("member", r.get("members", "-"))]
+		for m: StructureMember in get_members():
+			if String(m.member_id).begins_with(pat):
+				found.append(m)
+		match String(r.kind):
+			"missing":
+				pass
+			"loose":
+				for m in found.slice(0, 1):
+					_tilt_member(m, float(r.get("lift", 0.04)))
+			"off_hinge":
+				for m in found.slice(0, 1):
+					_drop_leaf(m, float(r.get("drop", 0.15)))
+			"rotten":
+				var made: Array[StructureMember] = []
+				for m in found.slice(0, 1):
+					if r.get("break", false):
+						made = _snap_member(m)
+					else:
+						made = [m]
+				found = made
+		for m in found:
+			m.set_meta(&"repair", StringName(r.id))
+			if String(r.kind) == "rotten":
+				m.set_meta(&"rotten", true)
+			(job.members as Array).append(m.member_id)
+
+
+## A member lifted `lift` at its -long end, pivoting on its +long end (a board sprung off its nails).
+func _tilt_member(m: StructureMember, lift: float) -> void:
+	var ax := m.axis_index()
+	var length: float = m.size[ax]
+	var a := asin(clampf(lift / length, -1.0, 1.0))
+	var long_dir: Vector3 = m.transform.basis[ax].normalized()
+	var side := long_dir.cross(Vector3.UP).normalized()
+	var pivot := m.transform.origin + long_dir * (length * 0.5)
+	var rot := Basis(side, -a)
+	if (rot * -long_dir).y < 0.0:
+		rot = Basis(side, a)
+	m.transform = Transform3D(rot * m.transform.basis, pivot + rot * (m.transform.origin - pivot))
+
+
+## A door's leaf off its top hinge: turned in its own plane about its bottom hinge so its free end
+## drops `drop` (the corner on the ground).
+func _drop_leaf(m: StructureMember, drop: float) -> void:
+	var into: Vector3 = (m.get_meta(&"latch", Vector3.ZERO) as Vector3)
+	if into == Vector3.ZERO:
+		return
+	var reach := absf(m.size.dot(into.abs()))
+	var hinge := m.transform.origin - into * (reach * 0.5) - Vector3.UP * (m.size.y * 0.5)
+	var axis := into.cross(Vector3.UP).normalized()
+	var a := asin(clampf(drop / reach, -1.0, 1.0))
+	var rot := Basis(axis, a)
+	if (rot * into).y > 0.0:
+		rot = Basis(axis, -a)
+	m.transform = Transform3D(rot * m.transform.basis, hinge + rot * (m.transform.origin - hinge))
+
+
+## A member snapped in its middle: two halves, each pivoting down on its outer end (a rotten tread
+## broken through), the old member gone. Returns the halves.
+func _snap_member(m: StructureMember) -> Array[StructureMember]:
+	var ax := m.axis_index()
+	var length: float = m.size[ax]
+	var dir: Vector3 = m.transform.basis[ax].normalized()
+	var half := m.size
+	half[ax] = length * 0.46
+	var out: Array[StructureMember] = []
+	var id := String(m.member_id).trim_prefix(String(structure_id) + "/")
+	var b0 := int(m.get_meta(&"band", band))
+	var kind := m.kind
+	var wood := m.wood
+	var basis := m.transform.basis
+	var c := m.transform.origin
+	members.erase(m.member_id)
+	_order.erase(m)
+	m.free()
+	band = b0
+	for e in 2:
+		var k := -1.0 if e == 0 else 1.0
+		var outer := c + dir * (k * length * 0.5)
+		var drop := 0.06
+		var a := asin(drop / (length * 0.46))
+		var side := dir.cross(Vector3.UP).normalized()
+		var rot := Basis(side, a)
+		if (rot * (-dir * k)).y > 0.0:
+			rot = Basis(side, -a)
+		var hc := outer - dir * (k * length * 0.23)
+		var piece := add_member("%s/%s" % [id, "a" if e == 0 else "b"], kind, wood, half, outer + rot * (hc - outer), rot * basis)
+		out.append(piece)
+	return out
 
 
 ## Dust sifting through an upper floor's boards (FloorDust; saloon B's dance floor over the bar,
@@ -885,6 +1029,9 @@ func _outer_walls() -> void:
 			rects.append(o[0])
 			if (o[1] as Dictionary).has("header"):
 				_header_h[o[0]] = float(o[1].header)
+		if w.get("log", false):
+			_log_wall(w, wall, ops, rects, sill_top, tanp)
+			continue
 		var top_at: Callable
 		var board_top: Callable
 		var top_kind: String = w.top if w.top is String else ("slope" if w.top is Array else "height")
@@ -1029,6 +1176,33 @@ func _outer_walls() -> void:
 					if leaf:
 						leaf.collision_layer = Layers.DEBRIS
 		band = 1
+
+
+## A hewn log wall (#1126; `log: true`, frame.log_wall: LogWall, the part): its courses from the sill's
+## top to the plate, notched at the corners (the walls along z run through them on the even courses),
+## its openings bucked, a board gable over a `gable` wall; then its doors' leaves and its sashes in the
+## openings, at the logs' inner face. No studs, siding or inside boards: the logs are both.
+func _log_wall(w: Dictionary, wall: Dictionary, ops: Array, rects: Array[Rect2], sill_top: float, tanp: float) -> void:
+	var lw := LogWall.numbers(_fr)
+	var t := float(lw.thick)
+	var gable: Variant = null
+	if String(w.get("top", "plate")) == "gable":
+		var under := _roof_under()
+		var wl := width
+		gable = func(x: float) -> float: return under + maxf(minf(x, wl - x), 0.0) * tanp
+	band = 1
+	var passes := absf((wall.along as Vector3).z) > 0.5
+	LogWall.lay(self, wall, w, rects, lw, sill_top, wall_height, passes, gable)
+	var trim := StringName(spec.materials.get("trim_outside", "dark_trim"))
+	for o in ops:
+		var so: Dictionary = o[1]
+		if so.type == "window":
+			if so.has("lights"):
+				SashWindow.build(self, wall, o[0], int(so.lights), {"wood": trim, "outer": 0.0, "inner": -t})
+			else:
+				_glass(wall, o[0])
+		elif so.type == "door":
+			_leaf(wall, o[0], String(so.get("leaf", "inward")) == "outward", -t)
 
 
 ## A wall's run of one member kind along it (plates, ribbons) in stock lengths, each joint over a
@@ -2232,6 +2406,8 @@ func _chimney_openings() -> void:
 			var jw := float(jf.section[0])
 			var along_z: bool = f.joists == "z"
 			var fr: Array = f.rect
+			if float(c.at[0]) < float(fr[0]) or float(c.at[0]) > float(fr[2]) or float(c.at[1]) < float(fr[1]) or float(c.at[1]) > float(fr[3]):
+				continue  # a chimney outside the walls (Harlan's, up the gable, #1126): no hole in this floor
 			var a0 := float(fr[0]) if along_z else float(fr[1])
 			var cc := float(c.at[0]) if along_z else float(c.at[1])
 			var line0 := a0 + jw * 0.5 + 0.02
@@ -2379,12 +2555,83 @@ func _rafter_roof() -> void:
 					k += 1
 					at = nx
 					cut += 4.9
-			s += 0.15
+			# Under shakes, skip sheathing: the boards spaced (the shakes span the gaps, #1126).
+			s += float((spec.get("shakes", {}) as Dictionary).get("skip", 0.15))
 			row += 1
+	if spec.has("shakes"):
+		band = 9
+		_shakes(over, slope, r0, r1, holes, float(rf[1]))
 	var ridge_y := top_y + BOARD_T / cos(ang)
 	var cap_drop := 0.17 * tan(ang) * 0.5
 	band = 9
 	add_member("roof/ridge_cap", &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), Vector3(0.34, BOARD_T, r1 - r0), Vector3(half, ridge_y + BOARD_T * 0.5 - 0.005 - cap_drop, (r0 + r1) * 0.5))
+
+
+## Split shakes over the roof's boards (#1126, Harlan's cabin; spec `shakes`): rows up each slope at
+## `exposure` from the eave, each row of members `width` along the building drawn as shakes `strip`
+## wide (strips_mesh: one member, several shakes), staggered half a shake row to row, each row's butt
+## lifted (`lift`) so the courses read; cut round the chimneys. `missing` [{side, s: [a, b], z: [a, b]}]
+## leaves a patch off (the boards show: a repair job, `repairs`), `new` [{side, s, z}] a patch of new
+## pale ones (their ids end `_new`), and `new_share` of the rest new here and there. Ids
+## `roof/shake_<side>/<row>_<k>`.
+func _shakes(over: float, slope: float, r0: float, r1: float, holes: Array, rafter_d: float) -> void:
+	var sh: Dictionary = spec.shakes
+	var ex := float(sh.get("exposure", 0.25))
+	var wz := float(sh.get("width", 0.8))
+	var strip := float(sh.get("strip", 0.16))
+	var th := float(sh.get("thick", 0.016))
+	var lift := float(sh.get("lift", 0.012))
+	var share := float(sh.get("new_share", 0.0))
+	var wood := StringName(spec.materials.get("roof", "weathered_pine"))
+	var tilt := atan2(lift, ex)
+	for side in 2:
+		var sl := _slope(side)
+		var dir: Vector3 = sl.dir
+		var normal: Vector3 = sl.normal
+		# Each shake turned about the row's line (the building's z) so its butt stands off the boards.
+		var bas := (sl.basis as Basis) * Basis(Vector3.BACK, -tilt if side == 0 else -tilt)
+		var base: Vector3 = (sl.eave as Vector3) + Vector3(0, wall_height, 0) - dir * over
+		var row := 0
+		var s := 0.0
+		while s < slope - 0.03:
+			var e := minf(ex, slope - s)
+			var sa := s - over
+			var z := r0 - (strip * 0.5 if row % 2 == 1 else 0.0)
+			var k := 0
+			while z < r1 - 0.02:
+				var za := maxf(z, r0)
+				var zb := minf(z + wz, r1)
+				z += wz
+				if zb - za < 0.04:
+					continue
+				var skip := false
+				for hl: Dictionary in holes:
+					if hl.side == side and sa + e > float(hl.s0) and sa < float(hl.s1) and zb > float(hl.z0) and za < float(hl.z1):
+						skip = true
+				for mp: Dictionary in sh.get("missing", []):
+					if _in_patch(mp, side, sa + e * 0.5, (za + zb) * 0.5):
+						skip = true
+				if skip:
+					k += 1
+					continue
+				var fresh := hash("shake%d_%d_%d" % [side, row, k]) % 1000 < int(share * 1000.0)
+				for np: Dictionary in sh.get("new", []):
+					if _in_patch(np, side, sa + e * 0.5, (za + zb) * 0.5):
+						fresh = true
+				var c := base + dir * (s + e * 0.5) + normal * (rafter_d + BOARD_T + th * 0.5 + lift * 0.5)
+				c.z = (za + zb) * 0.5
+				var m := add_member("roof/shake_%d/%02d_%d%s" % [side, row, k, "_new" if fresh else ""], &"roof_board", wood, Vector3(e, th, zb - za - 0.004), c, bas)
+				m.set_meta(&"strips", strip)
+				m.set_meta(&"strips_across", 2)
+				k += 1
+			s += ex
+			row += 1
+
+
+## Whether a point on a slope (`side`, `s` along it from the wall's face, `z` along the building) is
+## in a patch {side, s: [a, b], z: [a, b]}.
+static func _in_patch(p: Dictionary, side: int, s: float, z: float) -> bool:
+	return int(p.get("side", 0)) == side and s >= float(p.s[0]) and s <= float(p.s[1]) and z >= float(p.z[0]) and z <= float(p.z[1])
 
 
 ## Where each chimney comes through the roof: its slope (0 the -x side), its stretch along the slope
@@ -2414,11 +2661,46 @@ func _chimneys() -> void:
 		var sz := float(c.size)
 		var y0 := float(_fr.foundation.bottom)
 		var y1 := ridge + float(c.get("over_ridge", 0.6))
+		if c.has("fieldstone"):
+			_fieldstone_chimney(c, y0, y1, StringName(ch.get("wood", "stone")))
+			continue
 		var n := maxi(1, ceili((y1 - y0) / 1.2))
 		for k in n:
 			var a := y0 + (y1 - y0) * k / n
 			var b := y0 + (y1 - y0) * (k + 1) / n
 			add_member("chimney/%s/%d" % [c.id, k], &"post", StringName(ch.get("wood", "stone")), Vector3(sz, b - a - 0.002, sz), Vector3(c.at[0], (a + b) * 0.5, c.at[1]))
+
+
+## A chimney of rough fieldstone (#1126, Harlan's: a chimney's `fieldstone` {course, stack, from}): laid
+## in courses `course` high, four stones a course round a flue (the long pair across x and the short pair
+## between them, swapped course to course so the corners bond), each stone set out a little from the
+## face and a little long or short by its own hash, so the stack's edges are ragged; `size` wide to
+## `from` (over the ground: the firebox's base), narrowing to `stack` wide above. Each stone a member
+## (kind `sill`: it rests on the course under it); a blast takes stones, not lengths.
+func _fieldstone_chimney(c: Dictionary, y0: float, y1: float, wood: StringName) -> void:
+	var fs: Dictionary = c.fieldstone
+	var course := float(fs.get("course", 0.22))
+	var n := maxi(1, roundi((y1 - y0) / course))
+	var h := (y1 - y0) / n
+	var cx := float(c.at[0])
+	var cz := float(c.at[1])
+	for k in n:
+		var y := y0 + h * k
+		var wide := float(c.size) if y < float(fs.get("from", 1.8)) else float(fs.get("stack", c.size))
+		var t := minf(0.24, wide * 0.32)  # the stones' depth round the flue
+		var half := wide * 0.5
+		for e in 4:
+			var key := hash("%s_%d_%d" % [c.id, k, e])
+			var out := float(key % 25) / 1000.0  # 0-2.5 cm proud
+			var grow := float((key / 25) % 40) / 1000.0 - 0.02
+			var on_z := e < 2  # e 0/1: the +z/-z faces; 2/3: the +x/-x faces
+			var sgn := 1.0 if e % 2 == 0 else -1.0
+			var long := on_z == (k % 2 == 0)  # the long pair swaps course to course: the corners bond
+			var span := (wide + grow) if long else (wide - 2.0 * t + grow * 0.5)
+			var d := half - t * 0.5 + out
+			var size := Vector3(span, h - 0.002, t) if on_z else Vector3(t, h - 0.002, span)
+			var at := Vector3(cx, y + h * 0.5, cz + sgn * d) if on_z else Vector3(cx + sgn * d, y + h * 0.5, cz)
+			add_member("chimney/%s/%02d_%d" % [c.id, k, e], &"sill", wood, size, at)
 
 
 ## Ceilings: beaded boards nailed up under the loft's joists across every ground-floor room, run
@@ -2625,6 +2907,57 @@ func _back_porch() -> void:
 		j += 1
 
 
+## A porch along the west wall (spec `side_porch`, #1126: Harlan's door on his cabin's long side, under
+## the eave): its deck (`rect` [x0, z0, 0, z1] west of the wall, `deck_top`) on `posts` along its outer
+## edge and a ledger on the wall, a shed roof over it on the same posts: rafters from a ledger on the
+## logs `rise` m over the beam (under the main roof's eave) down over a beam on the posts and 0.3 m past.
+func _side_porch() -> void:
+	var sp: Dictionary = spec.get("side_porch", {})
+	if sp.is_empty():
+		return
+	var r: Array = sp.rect
+	var top := float(sp.deck_top)
+	band = 1
+	_deck("side_porch", r, top, "yard", sp.posts)
+	band = 3
+	var rh := top + float(sp.roof_height)
+	var hi := rh + float(sp.get("rise", 0.25))
+	var x0 := float(r[0])
+	var z0 := float(r[1])
+	var z1 := float(r[3])
+	for k in (sp.posts as Array).size():
+		var p: Array = sp.posts[k]
+		add_member("side_porch/roof_post_%d" % k, &"post", &"framing", Vector3(0.1, rh - 0.12 - top, 0.1), Vector3(p[0], (top + rh - 0.12) * 0.5, p[1]))
+	var bx := float(sp.posts[0][0])
+	add_member("side_porch/roof_beam", &"beam", &"framing", Vector3(0.1, 0.12, z1 - z0 + 0.3), Vector3(bx, rh - 0.06, (z0 + z1) * 0.5))
+	add_member("side_porch/roof_ledger", &"ledger", &"framing", Vector3(0.05, 0.14, z1 - z0 + 0.3), Vector3(-0.025, hi - 0.07, (z0 + z1) * 0.5))
+	# The rafters' underside from the ledger's top at the wall down over the beam's top, 0.3 m past it.
+	var p0 := Vector2(-0.05, hi)  # (x, y)
+	var p1 := Vector2(bx, rh)
+	var dv := (p1 - p0).normalized()
+	var run := p0.distance_to(p1) + 0.3
+	var xa := Vector3(dv.x, dv.y, 0.0).normalized()
+	var ya := Vector3.UP.slide(xa).normalized()
+	var bas := Basis(xa, ya, xa.cross(ya))
+	band = 4
+	var z := z0 - 0.1
+	var i := 0
+	while z <= z1 + 0.15:
+		var mid := Vector3(p0.x, p0.y, z) + xa * (run * 0.5) + ya * 0.05
+		add_member("side_porch/rafter_%d" % i, &"rafter", &"framing", Vector3(run, 0.1, 0.05), mid, bas)
+		z += 0.61
+		i += 1
+	band = 5
+	var s := 0.0
+	var j := 0
+	while s < run:
+		var w := minf(0.145, run - s)
+		var q := Vector3(p0.x, p0.y, (z0 + z1) * 0.5) + xa * (s + w * 0.5) + ya * (0.1 + BOARD_T * 0.5)
+		add_member("side_porch/roof_board_%d" % j, &"roof_board", StringName(spec.materials.get("roof", "weathered_pine")), Vector3(w - 0.003, BOARD_T, z1 - z0 + 0.5), q, bas)
+		s += 0.15
+		j += 1
+
+
 ## Each stair's stoop (`stoop`: a small deck at the floor's top by its door, against the wall).
 func _stoops() -> void:
 	for st: Dictionary in spec.get("stairs", []):
@@ -2708,6 +3041,10 @@ func _ladders() -> void:
 		var out: Vector3 = wall.out
 		var along: Vector3 = wall.along
 		var foot: Vector3 = wall.origin + along * float(l.at) + out * (BOARD_T + 0.08)
+		if String(l.get("side", "out")) == "in":
+			# Up the wall's inside (the barn's loft, #1126): on the studs' inner face, facing out into the room.
+			foot = wall.origin + along * float(l.at) - out * (STUD_D + 0.08)
+			out = -out
 		foot.y = float(l.from)
 		var h := float(l.to) - float(l.from)
 		var lw := float(l.width)

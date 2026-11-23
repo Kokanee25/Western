@@ -1980,6 +1980,269 @@
      "takes": []
     }
    ]
+  },
+  {
+   "id": "saloon",
+   "title": "The saloon at night",
+   "when": "Any night, 19:00 to 02:00, in the room",
+   "built": true,
+   "reads": "Step 10 (SaloonRoom, src/people/saloon_room.gd): the room's director gives a bit to a man who's there and he says its line (`on` room.toast, room.hail, room.leave, room.answer, room.glass), by the barks' rules (once a day a person, not a line another said within the minute). Laughs, coughs and talk have no words.",
+   "setting": "The brief's §6: every distinct sound in the room comes from a person, and he does it. A toast: he lifts his glass and the bar lifts theirs. A hail: a man at the bar to one coming in. Night 1 (No Law) the room is a little bold; the night the sheriff dies it is louder than ever (Sean's pick 4 C, #851).",
+   "lines": [
+    {
+     "id": "room.hail_name",
+     "speaker": "townsman",
+     "trigger": "A man at the bar, to a named man coming in (Earl)",
+     "when": "any night",
+     "if": {
+      "on": "room.hail",
+      "whom": true,
+      "who_you": false
+     },
+     "condition": "",
+     "delivery": "Across the room, glad of him.",
+     "words": [
+      {
+       "text": "Hey, {whom}!",
+       "status": "new"
+      },
+      {
+       "text": "{whom}! Get in here.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.hail",
+     "speaker": "townsman",
+     "trigger": "A man at the bar, to anyone else coming in",
+     "when": "any night",
+     "if": {
+      "on": "room.hail",
+      "whom": false,
+      "who_you": false
+     },
+     "condition": "",
+     "delivery": "Loud, friendly.",
+     "words": [
+      {
+       "text": "Hey, you old thief!",
+       "status": "new"
+      },
+      {
+       "text": "Look what the wind blew in.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.hail_deputy",
+     "speaker": "townsman",
+     "trigger": "Harlan comes in, the town warm to him, the badge on",
+     "when": "nolaw.deputy, regard warm",
+     "if": {
+      "on": "room.hail",
+      "who_you": true,
+      "regard": "warm",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "One word and a lifted hand. The brief's third night: the town's answer in one doorway.",
+     "words": [
+      {
+       "text": "Deputy.",
+       "status": "new"
+      },
+      {
+       "text": "Evening, Deputy.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.hail_you",
+     "speaker": "townsman",
+     "trigger": "Harlan comes in, the town warm to him, no badge yet",
+     "when": "regard warm",
+     "if": {
+      "on": "room.hail",
+      "who_you": true,
+      "regard": "warm"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Evening.",
+       "status": "new"
+      },
+      {
+       "text": "Come in out of the dark, mister.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.toast",
+     "speaker": "townsman",
+     "trigger": "A man at the bar lifts his glass; the bar lifts theirs",
+     "when": "any night, the room lively",
+     "if": {
+      "on": "room.toast"
+     },
+     "condition": "",
+     "delivery": "Short. Said to the glass as much as the room.",
+     "words": [
+      {
+       "text": "Here's how.",
+       "status": "new"
+      },
+      {
+       "text": "Here's luck.",
+       "status": "new"
+      },
+      {
+       "text": "To the last one. And the next.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.bold",
+     "speaker": "loudmouth",
+     "trigger": "The loudmouth's toast, night 1 (No Law, before the murder)",
+     "when": "the sheriff shot and lying at Doc's, nobody killed yet",
+     "if": {
+      "on": "room.toast",
+      "fact": {
+       "!nolaw.murder": true,
+       "!nolaw.sheriff": true
+      }
+     },
+     "condition": "",
+     "delivery": "No Law's town.bold (no_law.json), said here as his toast: the same words, kept in step with that line.",
+     "words": [
+      {
+       "text": "Ain't no sheriff tonight, boys!",
+       "status": "new"
+      },
+      {
+       "text": "Who's going to fine me? Doc?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.sheriff_dead",
+     "speaker": "loudmouth",
+     "trigger": "The loudmouth's toast, the night the sheriff dies",
+     "when": "nolaw.sheriff = dead, before the funeral",
+     "if": {
+      "on": "room.toast",
+      "fact": {
+       "nolaw.sheriff": "dead",
+       "!nolaw.funeral": true
+      }
+     },
+     "condition": "",
+     "delivery": "Too loud. Half the bar drinks to it, half looks at its boots.",
+     "words": [
+      {
+       "text": "To the sheriff. He ain't here to mind the noise.",
+       "status": "new"
+      },
+      {
+       "text": "Sheriff's dead, boys. Who's going to tell us it's late?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.leave",
+     "speaker": "townsman",
+     "trigger": "A man going home: drains it, hat on",
+     "when": "any night",
+     "if": {
+      "on": "room.leave"
+     },
+     "condition": "",
+     "delivery": "Over his shoulder.",
+     "words": [
+      {
+       "text": "Night, all.",
+       "status": "new"
+      },
+      {
+       "text": "That's me. Night.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.answer",
+     "speaker": "townsman",
+     "trigger": "One man answers him",
+     "when": "any night",
+     "if": {
+      "on": "room.answer"
+     },
+     "condition": "",
+     "delivery": "Not looking up.",
+     "words": [
+      {
+       "text": "Night.",
+       "status": "new"
+      },
+      {
+       "text": "Mind the step.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "room.glass",
+     "speaker": "barkeep",
+     "trigger": "He sets a glass down before Harlan unasked",
+     "when": "his own regard warm, Harlan at the bar, once a night",
+     "if": {
+      "on": "room.glass"
+     },
+     "condition": "",
+     "delivery": "Aggrieved even when he's being kind: he's counted what it costs him.",
+     "words": [
+      {
+       "text": "On the house. Just the one, mind.",
+       "status": "new"
+      },
+      {
+       "text": "That one's mine. The next is yours.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-22 (#1157)",
+     "takes": []
+    }
+   ]
   }
  ]
 }

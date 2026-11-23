@@ -26,8 +26,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   Joe's knife and ask; nod / between / gun on either / a shove at Joe / binding Kett = arrest (a card, then Kett bound
   to the jail's door); shake / walking out / silence = revenge (`take_knife`); your ball in him = murder. Facts
   nojustice.ending, answer, joe_trust, camp_trust, joe_saw, bodies, jail.
-  **Played whole (#979):** `tests/test_no_justice_whole.gd`, the doctor's to each ending at pace 1, by keys and
-  balls; down in the fight, Enter retries it on the slope (`NoJusticeHideout.retry_on_load`, its checkpoint).
+  **Played whole (#979):** `tests/test_no_justice_whole.gd`; down in the fight, Enter retries it (`retry_on_load`).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
 - **Playtest faults (#1095, #1106, #1111, #1116, #1125):** one doctor (`ValleyFolk.seize`, `lends`); a knock brings a
@@ -36,26 +35,28 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   hurt townsfolk go, get up or call (`CivilianBrain.hurt`); `OutlawBrain.careful` (DESIGN §7). #1125: `--mission=no_law`
   (`ValleyFolk.set_up_no_law`; a story `--mission=` picks the valley, the bridge too); the black-out moves the world on
   (`Events.person_left`, `Physiology.pass_time`, `CivilianBrain._hurt_spent`); you mend in a day (`PlayerWounds.mend_hours`,
-  `Physiology.mend`/`heal_all`, Sean's #1093); `JoeLost` (Joe turned and gone or dead: a card, Enter again); `slow_why`;
-  blast lines (`hurt_blast`); `SEARCH_NEAR_M`.
-  Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds (round 2's #1, not in #1125); the bridge's `tend`
-  on an unhurt man kicks, `goto PLACE YAW` ignores the yaw carrying; the slowdown after dynamite and fire; two townsmen on one spot.
+  `Physiology.mend`/`heal_all`, Sean's #1093); `JoeLost` (Joe turned and gone or dead: a card, Enter again).
+  Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds; the bridge's `tend` on an unhurt man kicks,
+  `goto PLACE YAW` ignores the yaw carrying; the slowdown after dynamite and fire; two townsmen on one spot.
 - Story: #744, STORY.md; the bible #809.
-- **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-9: day and book, roster,
-  spots, `Reaction`, `FetchHelp`, `TownNews` (bridge `read news`), the script (`TownScript`, docs/scripts/town.json;
-  Script OK waiting on Sean, #1150), regard and the barks (#1152: `TownRegard`, `TownBarks`, bridge `read regard`).
-  **Next: step 10, the saloon as a room.** Open: the store's blind, doors shutting, the barkeep's glass (no blind
-  prop; step 10); react.fight*, body_child, freight, kett.meal, uneasy.heeled have no trigger; "drunk" is the hour;
-  regard numbers unfelt; Senses names a shooter on a glimpse; nobody carries the body; outlaws and act men killed
-  aren't taken; the noon street is thin; no talk sound.
+- **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-10: day and book, roster,
+  spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
+  the barks (`TownRegard`, `TownBarks`), **the saloon as a room** (#1157: `SaloonRoom` on No Law's yard set, bridge
+  `read room`; mood, the director's bits, the hush, the band's shaky restart; 11-12 in at 20:30).
+  **Next: step 11, the gate.** Open: the room's laugh, cough and glass sounds are synth stand-ins (#807's takes), no
+  walla bed; the second "table" stands (no sat talk); no argument, round bought, song called for, porch smoker;
+  the glass can't be drunk; mood numbers unfelt; not in saloon B (No Law's set unmoved); the store's blind, doors
+  shutting; react.fight*, body_child, freight, kett.meal, uneasy.heeled untriggered; Senses names a shooter on a
+  glimpse; nobody carries the body; the noon street is thin.
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
-  rail; bridge `ride [PLACE]`. Open: unjudged on screen; SaveGame doesn't keep where your horse is tied.
-- **Saving by sleeping** (#1138, #1148 steps 1-2 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame`;
+  rail; bridge `ride [PLACE]`; saved where he's tied (#1154). Open: unjudged on screen.
+- **Saving by sleeping** (#1138, #1148, #1154 steps 1-3 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame`;
   E at a bed (group `beds`: spec `use: sleep` points) sleeps to 06:00 and saves (`PlayerSleep`); `ContinueCard` at a
-  plain start; `load_slot` reloads with it. Open: the town mends overnight (a man gone indoors comes out unhurt), the
-  brief's "Not yet"; no start in play for No Justice; Harlan's bed once #1126's spec has a `sleep` point.
+  plain start; `load_slot` reloads with it. A hurt man indoors stays hurt (`ValleyFolk.kept`, run on by the clock;
+  can't stand: laid up; dead in there: `died_indoors`). Open: the doctor doesn't tend a laid-up man; the brief's
+  "Not yet"; no start in play for No Justice; Harlan's bed once #1126's spec has a `sleep` point.
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
   **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).

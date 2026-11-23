@@ -178,6 +178,8 @@ func _horse_soon() -> void:
 			if dd < d:
 				d = dd
 				best = id
+	if _load_at != &"" and spots.has(_load_at):
+		best = _load_at  # (a save put him there before he was made)
 	horse = Horse.new()
 	horse.name = "YourHorse"
 	add_child(horse)
@@ -616,6 +618,26 @@ func _show_fade(a: float) -> void:
 	_fade.color.a = a
 	_card.text = ""
 	_fade_layer.visible = true
+
+
+## What a save keeps (SaveGame, #1154): where your horse is tied. The places you know are story facts.
+func save_dict() -> Dictionary:
+	return {"horse_at": String(horse_at)}
+
+
+## A save's horse put back: tied at the rail you left him at (now, or once he's made).
+func load_dict(d: Dictionary) -> void:
+	var at := StringName(String(d.get("horse_at", "")))
+	if at == &"" or not spots.has(at):
+		return
+	_load_at = at
+	if horse != null and is_instance_valid(horse):
+		stand_horse(at)
+	else:
+		horse_at = at
+
+
+var _load_at := &""
 
 
 ## For the bridge and the tests.

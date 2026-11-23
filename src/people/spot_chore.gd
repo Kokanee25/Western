@@ -92,6 +92,11 @@ var _on := false
 var _hands := false
 var _keys := {}
 var _life: FaceLife
+var _brain: CivilianBrain
+## In a room with a director (SaloonRoom): his talk's own laugh is the director's to give.
+var directed := false
+## His glass raised by a bit (0-1: a toast's, the bar's lift), over his own drinking.
+var glass_up := 0.0
 var _speech: FaceSpeech
 var _looked := false
 var _wall := Vector3.INF
@@ -156,6 +161,7 @@ func step_chore(delta: float, free: bool) -> bool:
 		_looked = true
 		_life = man.get_node_or_null(^"FaceLife") as FaceLife
 		_speech = man.get_node_or_null(^"FaceSpeech") as FaceSpeech
+		_brain = man.get_node_or_null(^"Brain") as CivilianBrain
 	if not free or not wanted or man.limp or man.prone or not man.physiology.is_conscious() or man.grab_side() != "" \
 			or _sent_elsewhere():
 		stop()
@@ -243,6 +249,8 @@ func _next() -> void:
 	else:
 		var breaks: Array = (KINDS[kind].breaks as Array).filter(func(b: StringName) -> bool: return b != _last_break)
 		doing = breaks[_rng.randi() % breaks.size()]
+		if directed and doing == &"laugh":
+			doing = &"nod"  # (a laugh in the room has a sound and a source: the director's)
 		_last_break = doing
 		taken[doing] = int(taken.get(doing, 0)) + 1
 	longest = maxf(longest, _t)
@@ -540,6 +548,15 @@ func _drink(_delta: float) -> void:
 	var fwd := _forward()
 	var right := _right()
 	var rest := Vector3(man.global_position.x, top.y, man.global_position.z) + fwd * 0.38 + right * 0.12
+	if glass_up > 0.0:
+		# A toast (the room's bit): the glass up before him, the other hand on the bar.
+		var high := man.global_transform * Vector3(0.24, 1.84, -0.3)
+		var at := rest.lerp(high, glass_up)
+		_glass(at)
+		_hand_w("r", at + Vector3.UP * 0.03, right, 1.0)
+		man.curl_hand("r", 0.8)
+		_hand_w("l", rest - right * 0.32, Vector3.UP, 1.0)
+		return
 	match doing:
 		&"drink":
 			# Up, a sip, down; a while between.
@@ -657,6 +674,10 @@ func _wipe_brow() -> void:
 ## His mouth going, low (no words heard: the walla is sound's), every `gap` s or so; true while it is.
 func _mouth(gap: float, text := "") -> bool:
 	if _speech == null:
+		return false
+	if _brain != null and _brain.quiet > 0.0:
+		if _speech.speaking():
+			_speech.hush()  # the room's talk has dropped
 		return false
 	if not _speech.speaking() and (_t > _say_in or gap == 0.0):
 		var lines := ["well I told him he could keep it", "that's what she said to me", "no sir not this year",

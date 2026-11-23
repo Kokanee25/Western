@@ -6,7 +6,8 @@ bed**; "Persistent rubble": the save records only the difference from the origin
 
 **Step 1 (built):** what a save holds, written to one file and read back whole into a valley built
 fresh. **Step 2 (built, #1148):** sleeping in a bed ends the day, saves, wakes you at dawn; Continue at
-the start. **Step 3 (not yet):** the "Not yet" list's slice items (a townsman's wounds once indoors).
+the start. **Step 3 (built, #1154):** a hurt townsman stays hurt indoors, overnight and across a load;
+your horse where you tied him.
 
 ## Step 2: sleeping, Continue (#1148)
 
@@ -37,8 +38,33 @@ the start. **Step 3 (not yet):** the "Not yet" list's slice items (a townsman's 
   your own shot now refuses a sleep; who died in the night is said on waking. Not fixed: the valley
   jail's bed couldn't be walked to (art's building); under the bridge the world is the old town unless
   `--world=valley` (it has no beds).
-- **The town overnight:** a townsman who goes indoors overnight comes back out unhurt (ValleyFolk frees
-  his body: the "Not yet" list). Until step 3 **the town mends overnight**; the dead stay dead.
+- **The town overnight:** see step 3: a hurt man stays hurt; the dead stay dead.
+
+## Step 3: hurt men indoors, the horse (#1154)
+
+- **A hurt man indoors** (`ValleyFolk.kept`): a day man alive and hurt (a wound on him, bleeding, blood lost,
+  out cold) as he goes in (`_gone`) leaves his body's state on the book (`HumanBody.save_dict`, his model and
+  seed, `since`: the absolute clock hour his wounds have run to). His wounds run on by the clock while he's in
+  (a `Physiology` of his made from the book's, `pass_time`): on every `hours_passed` (a sleep, a ride, you out
+  cold) and when he's brought, so a clock jump never skips them. Brought out (`_bring`, `seize`, `borrow`:
+  `_put_back`), his state goes on the new body (`load_dict`, standing where he's brought, not limp), his brain
+  told he's been hurt all along (no fresh fright). Saved with the book (`save_dict`'s `kept`).
+- **A bad wound, decided:** a man who **can't stand** when his day would bring him out (`Physiology.can_stand`:
+  a broken pelvis, a leg that won't hold, out cold, deep shock) **stays in**, laid up where he went, his row
+  on the book unchanged, till he can. One whose wounds **kill him in there is dead by morning**: never
+  brought out (`buried`, `gone_for_good`), the story's `death.<id>` ("dead of his wounds at ..."),
+  `ValleyFolk.died_indoors`, and a sleep names him on waking. Not done: the doctor doesn't come to him or
+  take him in (his doctor's cot); nobody carries his body; the news isn't told of it.
+- **Your horse** (`RideThere.save_dict`/`load_dict`, SaveGame's `horse` section): the rail he's tied at. A
+  load stands him there (at once, or when he's made, `_horse_soon`). The places you know are story facts.
+- **Mission casts across a sleep:** none to do. No slice mission can be slept across with its cast alive:
+  every mission's living cast is inside a Moment (sleep refused) or is started only by a `--mission=` flag
+  or the act before it (the list below).
+- **Beds on foot** (the playtest: the valley jail's couldn't be reached, art's building): walked through the
+  bridge from the front doors, the doctor's two cots and his own bed (by the hall's doors) and saloon B's
+  lodgers' beds (up the stair hall's stair) are all reachable. Saloon B's plank beds were taken as chairs (E
+  sat you on them, no sleep offered): `PlayerSeat.chair_here` now passes over a bed prop;
+  `test_every_bed_offers_the_sleep` holds it.
 
 ### The missions across a sleep (what a load brings back from the story's facts alone)
 
@@ -98,6 +124,8 @@ from data, so not saved.
 | Blood on the ground | `Blood` (static, 160 at most) | place, ml, length, how dry | ~100 bytes a mark | changed |
 | Dynamite lying, planted or wired | `DynamiteStick.save_all` | as it was | small | changed |
 | The town's day: who's a body and who's on the book, the dead, the buried, who's laid out, who an act sent off, your hands at cards | `ValleyFolk.save_dict` | ids and rows | ~1 KB | changed; the schedule itself is authored |
+| A hurt man indoors: his body as he went in, his wounds run to when | `ValleyFolk.kept` | `HumanBody.save_dict` a man, `since` | ~4 KB a man | changed |
+| Where your horse is tied | `RideThere.save_dict` | the rail's id | bytes | changed |
 | The town's news (#1051): every record, everyone's version, what's been said; the dead not yet taken away | `TownNews.save_dict`, `ValleyFolk.dead_out` | as they are; frames as how long ago | ~200 bytes a record and version | changed |
 | Each person in the world: where, his body (blood, bleeds, bones, infections, dead or alive), every wound, the holes in him and his clothes, dressings, limbs off, and limp, how every part of him lies | `HumanBody.save_dict` | per person, by `person_id` | ~3 KB alive and unhurt, ~8 KB shot dead | changed; who he is and what he wears are authored (a dead man no roster makes keeps `made`, enough to make his body again) |
 | His dropped gun | `HumanBody.dropped_gun` | where it lies | bytes | changed |
@@ -125,9 +153,7 @@ from data, so not saved.
   save keeps them (dead ones are made again from `made` and lie where they fell); a living one the
   fresh world hasn't got is reported in `apply`'s `missed`. Resuming a mission's cast from the story's
   facts is step 2 or 3's, per mission (`retry_on_load` is the existing shape).
-- **A townsman's wounds once he's gone indoors.** `ValleyFolk._gone` frees his body and `_make`s him
-  new: he comes back out unhurt, save or no save. The book needs to keep a hurt man's body state.
-- **Horses** have no id, no health and no state to save.
+- **Horses** beyond yours (a mission's) have no id, no health and no state to save; yours keeps only his rail.
 - **Loose and glass props, oil lamps smashed, fallen fittings** (`LooseProp`, `GlassProp`, `OilLamp`,
   group `fallen`) have no ids. Kit props (chairs, tables, the bar) are structures and are saved.
 - **Kit prop hinges and contents** (a door open, a trough's water).
@@ -170,5 +196,8 @@ The same holds for rubble only loosely (it rests on the ground, not on its own j
 - Step 2's own test (`tests/test_sleep.gd`): sleep in a bed, the file there and the clock at dawn;
   the world freed, a fresh valley built with the save pending (as Continue's reload), and the capture
   taken as you slept compared with the loaded world's; a sleep refused shooting and bleeding;
-  Continue offered only with a save.
+  Continue offered only with a save. Step 3's: a townsman shot in the shin and bound, sent in, slept on,
+  loaded onto a fresh valley: he's still on the book and comes out with his wounds and his splinted leg;
+  the horse at the rail you tied him; and one kept man laid up (broken pelvis), one dead of a gut wound in
+  the night (`died_indoors`, `death.<id>`, buried).
 - ROADMAP 6.6: the soak saves and loads as it goes (`SaveGame.differences` is its check).
