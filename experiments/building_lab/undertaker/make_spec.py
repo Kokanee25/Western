@@ -328,6 +328,15 @@ U1 = [
     {"id": "glue_pot", "kit": "glue_pot", "at": [8.9, 0.0, 11.3], "facing": 0, "on": "glue_stove", "use": "the glue pot on the stove"},
     # The cellar, embalming room: the table and its pail, the pump, the carboys, the fluids' and shrouds' shelves, a body under a sheet.
     {"id": "embalming_table", "kit": "embalming_table", "at": [7.6, CY, 13.4], "facing": 270, "use": "the embalming table, its drain to the pail at the back"},
+    # Used and grim (Sean's add-on): wet sawdust at the table's feet and under its drain, pale in the corners, rags by the
+    # pail, a mop in pinkish water. Small and few: the building's history (#1187) lays the stains and splats round them.
+    {"id": "sawdust_a", "kit": "sawdust_wet", "at": [7.35, CY, 12.5], "facing": 0, "use": "soaked sawdust at the table's foot"},
+    {"id": "sawdust_b", "kit": "sawdust_wet", "at": [7.85, CY, 12.55], "facing": 30},
+    {"id": "sawdust_c", "kit": "sawdust_wet", "at": [7.1, CY, 14.15], "facing": 70, "use": "soaked sawdust under the drain's end"},
+    {"id": "sawdust_d", "kit": "sawdust_pale", "at": [9.0, CY, 14.5], "facing": 10, "use": "sawdust swept into the corner"},
+    {"id": "sawdust_e", "kit": "sawdust_pale", "at": [0.8, CY, 11.5], "facing": 80, "use": "sawdust swept into the ice room's corner"},
+    {"id": "rags", "kit": "rags", "at": [8.05, CY, 14.5], "facing": 20, "use": "rags beside the pail"},
+    {"id": "mop_pail", "kit": "mop_pail", "at": [6.9, CY, 13.3], "facing": 0, "use": "a mop in a bucket of pinkish water by the table"},
     {"id": "pail", "kit": "zinc_pail", "at": [7.6, CY, 14.42], "facing": 0},
     {"id": "pump", "kit": "embalming_pump", "at": [8.6, CY, 11.95], "facing": 0, "use": "the hand pump, its tubes and jars on a stand"},
     {"id": "carboy_1", "kit": "carboy", "at": [9.05, CY, 12.8], "facing": 0, "use": "a carboy of fluid"},

@@ -62,3 +62,12 @@ The first placement of the safety coffin stood across the walk from the bulkhead
   `GlassProp`: it breaks as a member, doesn't spill what it holds.
 - The sheeted board is a sheet shape over slats: a body is gameplay's (the bier and the board are where one lies).
 - No upholstery on the bier's coffin lining, no ice melt, no drip from the drain.
+
+## Used and grim (Sean's add-on, 2026-11-23)
+
+Wet sawdust heaps (`sawdust_wet`, dark) at the embalming table's feet and under its drain, pale ones (`sawdust_pale`)
+swept into two corners, `rags` by the pail, `mop_pail` (a mop in pinkish water) by the table; the pail stained inside
+(tide-line, dregs), the sheeted board stained through in patches (the shroud shelf stays clean), the table's zinc dulled
+with dark and pale streaks. Heaps are small and few, the floor between left clear: **no blood splats or floor stains**,
+those come from the building's history (#1187). Looks only (no new texture): the stains are the kit's dark and pale
+hide looks drawn as thin boxes, so how they read is for the judge.

@@ -6,7 +6,7 @@ extends TestCase
 const STANDING := [&"coffin_hex", &"coffin_hex_open", &"coffin_lid", &"coffin_rect", &"coffin_child", &"trestles", &"bier",
 		&"workbench", &"glue_pot", &"plank_stack", &"embalming_table", &"zinc_pail", &"cooling_board", &"sheeted_board",
 		&"embalming_pump", &"carboy", &"fluids_shelf", &"shroud_shelf", &"ice_bin", &"corpse_cooler", &"coffin_rack",
-		&"safety_coffin", &"posing_stand", &"posing_chair", &"hearse"]
+		&"safety_coffin", &"posing_stand", &"posing_chair", &"hearse", &"sawdust_wet", &"sawdust_pale", &"rags", &"mop_pail"]
 const HUNG := [&"tool_rack", &"hair_wreath", &"iron_lantern", &"harness_rack"]
 var world: Node3D
 
@@ -58,6 +58,6 @@ func test_the_batch_is_few_bodies_and_every_look_is_known() -> void:
 		for m: Dictionary in def.members:
 			var look := String(m.get("look", def.get("look", "")))
 			check(not look.begins_with("prop:") or look.get_slice(":", 1) in [
-					"iron", "plate_iron", "brass", "tin", "canvas", "leather", "hide_dark", "ebony", "straw", "burl", "ivory", "dark_wood", "mid_wood"],
+					"iron", "plate_iron", "brass", "tin", "canvas", "leather", "hide_dark", "ebony", "straw", "burl", "ivory", "dark_wood", "mid_wood", "dung", "hide_pale"],
 					"%s.%s: look %s is one the kit knows" % [id, m.id, look])
 	check(bodies < 520, "the batch is %d members, under 520 (the valley's room)" % bodies)

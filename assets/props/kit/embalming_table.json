@@ -1,5 +1,5 @@
 {
-  "_doc": "The embalming table (#1181; the period note: 1880s tables were wood, porcelain is 1890s on): 1.9 m by 0.62, 0.84 high, planed pine boards, a top lined with sheet zinc and sloped a degree to a drain at the foot (+x), a zinc rim along the sides and head, a drain pipe down to where a pail stands (`zinc_pail`). Head at -x. 9 physics bodies. Written by tools/props/undertaker.py.",
+  "_doc": "The embalming table (#1181; the period note: 1880s tables were wood, porcelain is 1890s on): 1.9 m by 0.62, 0.84 high, planed pine boards, a top lined with sheet zinc and sloped a degree to a drain at the foot (+x), a zinc rim along the sides and head (the zinc dull, streaked dark and pale: it has been used),  a drain pipe down to where a pail stands (`zinc_pail`). Head at -x. 9 physics bodies. Written by tools/props/undertaker.py.",
   "id": "embalming_table",
   "kind": "members",
   "fixture": true,
@@ -221,6 +221,141 @@
                   0.92,
                   0.035,
                   0.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:plate_iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.03
+                ],
+                "at": [
+                  -0.5,
+                  0.037,
+                  -0.2
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.054
+                ],
+                "at": [
+                  -0.06,
+                  0.037,
+                  0.06
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.042
+                ],
+                "at": [
+                  0.38,
+                  0.037,
+                  -0.2
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.03
+                ],
+                "at": [
+                  0.82,
+                  0.037,
+                  0.06
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:hide_pale",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.042
+                ],
+                "at": [
+                  -0.28,
+                  0.037,
+                  -0.07
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.03
+                ],
+                "at": [
+                  0.16,
+                  0.037,
+                  0.19
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
+                ]
+              },
+              {
+                "size": [
+                  0.7,
+                  0.002,
+                  0.054
+                ],
+                "at": [
+                  0.6,
+                  0.037,
+                  -0.07
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -1.0
                 ]
               }
             ]

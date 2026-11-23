@@ -277,11 +277,15 @@ def embalming_table():
     liner = [box([0, 0.03, 0], [L - 0.06, 0.006, W - 0.06], [0, 0, slope])]
     rim = [box([0, 0.045, s * (W * 0.5 - 0.02)], [L - 0.04, 0.03, 0.014], [0, 0, slope]) for s in (-1, 1)] + \
           [box([-L * 0.5 + 0.03, 0.05, 0], [0.014, 0.04, W - 0.04]), box([L * 0.5 - 0.03, 0.035, 0], [0.014, 0.02, W - 0.04])]
+    streaks = [box([-0.5 + 0.22 * k, 0.037, -0.2 + 0.13 * (k % 4)], [0.7, 0.002, 0.03 + 0.012 * (k % 3)], [0, 0, slope]) for k in range(7)]
     top["dress"] = [dress(TIN, liner + rim),
+                    dress("prop:plate_iron", streaks[::2]),    # dark streaks where the fluids ran to the drain
+                    dress("prop:hide_pale", streaks[1::2]),    # pale bloom where it dried
+
                     lathe(IRON, [[0.0, -0.04], [0.04, -0.04], [0.04, 0.0], [0.0, 0.0]], at=[L * 0.5 - 0.08, 0.036, 0], seg=8),  # the drain's rose
                     dress(TIN, [box([L * 0.5 - 0.08, -0.17, 0.0], [0.045, 0.3, 0.045])])]  # the drain pipe down to the pail
     ms.append(top)
-    return prop("embalming_table", "The embalming table (#1181; the period note: 1880s tables were wood, porcelain is 1890s on): 1.9 m by 0.62, 0.84 high, planed pine boards, a top lined with sheet zinc and sloped a degree to a drain at the foot (+x), a zinc rim along the sides and head, a drain pipe down to where a pail stands (`zinc_pail`). Head at -x. 10 physics bodies. Written by tools/props/undertaker.py.",
+    return prop("embalming_table", "The embalming table (#1181; the period note: 1880s tables were wood, porcelain is 1890s on): 1.9 m by 0.62, 0.84 high, planed pine boards, a top lined with sheet zinc and sloped a degree to a drain at the foot (+x), a zinc rim along the sides and head (the zinc dull, streaked dark and pale: it has been used),  a drain pipe down to where a pail stands (`zinc_pail`). Head at -x. 10 physics bodies. Written by tools/props/undertaker.py.",
                 ms, wood="weathered_pine", splits_below=0.4)
 
 
@@ -289,8 +293,10 @@ def zinc_pail():
     p = member("pail", "post", [0.28, 0.26, 0.28], [0, 0.13, 0], look=TIN, wood="iron")
     p["draw"] = {"shape": "lathe", "profile": [[0.0, 0.0], [0.11, 0.0], [0.14, 0.26], [0.125, 0.26], [0.0, 0.01]], "segments": 12}
     p["dress"] = [lathe(IRON, [[0.145, 0.25], [0.145, 0.265], [0.13, 0.265], [0.13, 0.25]], seg=12),
+                  lathe("prop:hide_dark", [[0.0, 0.03], [0.1, 0.035], [0.128, 0.2], [0.13, 0.215], [0.12, 0.215], [0.0, 0.07]], seg=12),  # stained inside: a dark tide-line and a brown skin at the bottom
+                  lathe("prop:hide_pale", [[0.0, 0.075], [0.105, 0.075], [0.105, 0.08], [0.0, 0.08]], seg=12),  # the pinkish dregs
                   dress(IRON, [stick([-0.14, 0.26, 0], [0.0, 0.36, 0], 0.01), stick([0.0, 0.36, 0], [0.14, 0.26, 0], 0.01)])]
-    return prop("zinc_pail", "A zinc pail (#1181) under the embalming table's drain, a bail over its rim. 1 physics body. Written by tools/props/undertaker.py.",
+    return prop("zinc_pail", "A zinc pail (#1181) under the embalming table's drain, a bail over its rim, stained brown inside with a tide-line and a pinkish dregs at the bottom (Sean's add-on). 1 physics body. Written by tools/props/undertaker.py.",
                 [p], wood="iron")
 
 
@@ -317,10 +323,13 @@ def cooling_board(sheet=False, tag="cooling_board"):
         s["draw"] = {"shape": "boxes", "boxes": [box([-0.78, 0.09, 0], [0.26, 0.15, 0.24]), box([-0.45, 0.1, 0], [0.42, 0.16, 0.46]),
                                                   box([0.02, 0.08, 0], [0.5, 0.11, 0.34]), box([0.5, 0.09, 0], [0.5, 0.13, 0.28]),
                                                   box([0.92, 0.08, 0], [0.24, 0.1, 0.22]), box([0, 0.005, 0], [1.9, 0.01, 0.56])]}
+        s["dress"] = [dress("prop:hide_dark", [box([-0.45, 0.185, 0.0], [0.16, 0.004, 0.14]), box([0.05, 0.145, 0.06], [0.2, 0.004, 0.12]),
+                                                box([0.5, 0.165, -0.03], [0.12, 0.004, 0.16]), box([-0.1, 0.17, -0.12], [0.07, 0.004, 0.1])]),
+                      dress("prop:hide_pale", [box([-0.42, 0.188, 0.02], [0.3, 0.003, 0.26]), box([0.52, 0.168, 0.0], [0.26, 0.003, 0.24])])]  # stained through in patches, pinkish at the edges
         ms.append(s)
     doc = "The cooling board (#1181; the period's: a board of slats on folding legs a body lay on to be cooled and washed before the coffin; refs Renouard 1878): %.1f m by %.2f, %.2f high, thirteen slats of pine on four splayed legs, a head block. " % (L, W, H)
     if sheet:
-        doc += "A body under a sheet: only the sheet, a form of lumps over the slats (nothing under it). "
+        doc += "A body under a sheet, the sheet stained through in patches: only the sheet, a form of lumps over the slats (nothing under it). "
     return prop(tag, doc + "%d physics bodies. Written by tools/props/undertaker.py." % len(ms), ms, wood="weathered_pine")
 
 
@@ -569,7 +578,45 @@ def harness_rack():
                 [back, collar, bridle], wood="weathered_pine", hangs={"nails": [[-0.4, 0.4, 0.004], [0.4, 0.4, 0.004]]}, drawn_bounds=True)
 
 
-BATCH_U1 = [coffin_hex, coffin_hex_open, coffin_lid, coffin_rect, coffin_child, trestles, bier, workbench, tool_rack, glue_pot,
+def sawdust(tag, size, look, wet):
+    """A heap of sawdust on the cellar's flags: a low flat mound (members of kind post lie flat like a floor board),
+    pale where swept into a corner, dark where fluids were soaked up. Small: the building's history (#1187) lays
+    stains round the props, so the table's feet get a heap each and the floor between is left clear."""
+    w, d = size
+    m = member("heap", "post", [w, 0.05, d], [0, 0.025, 0], wood="hay", look=look)
+    m["draw"] = {"shape": "boxes", "boxes": [box([0, 0.012, 0], [w, 0.024, d]), box([0.02, 0.032, -0.01], [w * 0.7, 0.03, d * 0.7]),
+                                              box([-0.03, 0.047, 0.01], [w * 0.4, 0.02, d * 0.4])]}
+    return prop(tag, "A heap of sawdust on the cellar floor (#1181, Sean's add-on): %s %.2f by %.2f m, %s. 1 physics body. Written by tools/props/undertaker.py." % (
+        "dark and soaked, where fluids were mopped up under the table" if wet else "pale, swept into a corner", w, d, "three flat layers of loose sawdust, not a pile"), [m], wood="hay")
+
+
+def sawdust_wet():
+    return sawdust("sawdust_wet", (0.42, 0.42), "prop:dung", True)
+
+
+def sawdust_pale():
+    return sawdust("sawdust_pale", (0.55, 0.4), "prop:straw", False)
+
+
+def rags():
+    m = member("rags", "post", [0.4, 0.05, 0.3], [0, 0.025, 0], wood="canvas", look=CLOTH)
+    m["draw"] = {"shape": "boxes", "boxes": [box([0, 0.012, 0], [0.36, 0.024, 0.26], [0, 8, 0]), box([0.04, 0.034, 0.02], [0.26, 0.02, 0.2], [0, -22, 0]), box([-0.05, 0.048, -0.02], [0.16, 0.018, 0.12], [0, 35, 0])]}
+    m["dress"] = [dress("prop:hide_dark", [box([0.06, 0.044, 0.03], [0.1, 0.003, 0.08], [0, -22, 0])]), dress("prop:hide_pale", [box([-0.09, 0.058, -0.02], [0.1, 0.003, 0.07], [0, 35, 0])])]
+    return prop("rags", "Rags (#1181, Sean's add-on): three cotton cloths dropped in a heap by the embalming table's pail, one stained brown, one pink at the edge. 1 physics body. Written by tools/props/undertaker.py.", [m], wood="canvas")
+
+
+def mop_pail():
+    p = member("pail", "post", [0.34, 0.3, 0.34], [0, 0.15, 0], look="prop:dark_wood", wood="oak")
+    p["draw"] = {"shape": "lathe", "profile": [[0.0, 0.0], [0.13, 0.0], [0.16, 0.3], [0.145, 0.3], [0.0, 0.015]], "segments": 12}
+    p["dress"] = [lathe("prop:hide_pale", [[0.0, 0.2], [0.15, 0.2], [0.15, 0.205], [0.0, 0.205]], seg=12),  # the water, pinkish
+                  dress(IRON, [box([0, 0.08, 0], [0.34, 0.012, 0.34]), box([0, 0.24, 0], [0.33, 0.012, 0.33])]),  # two hoops
+                  dress("prop:dark_wood", [stick([0.02, 0.1, 0.0], [0.05, 1.3, 0.02], 0.026)]),  # the mop's handle, standing in it
+                  dress(CLOTH, [box([0.015 + 0.02 * k, 0.17, 0.0 + 0.02 * k], [0.03, 0.22, 0.03], [0, 30 * k, 0]) for k in range(-2, 3)])]  # its head's strands in the water
+    return prop("mop_pail", "A mop standing in a bucket of pinkish water (#1181, Sean's add-on): a hooped oak pail, the water pale rose-brown (the mop's been through the embalming room's floor), a mop's handle upright in it and its cloth strands under the surface. Stands by the embalming table. 1 physics body. Written by tools/props/undertaker.py.",
+                [p], wood="oak")
+
+
+BATCH_U1 = [sawdust_wet, sawdust_pale, rags, mop_pail, coffin_hex, coffin_hex_open, coffin_lid, coffin_rect, coffin_child, trestles, bier, workbench, tool_rack, glue_pot,
             plank_stack, embalming_table, zinc_pail, cooling_board, sheeted_board, embalming_pump, carboy, fluids_shelf,
             shroud_shelf, ice_bin, corpse_cooler, coffin_rack, safety_coffin, posing_stand, posing_chair, hair_wreath,
             iron_lantern, hearse, harness_rack]

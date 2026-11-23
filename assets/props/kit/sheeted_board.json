@@ -1,5 +1,5 @@
 {
-  "_doc": "The cooling board (#1181; the period's: a board of slats on folding legs a body lay on to be cooled and washed before the coffin; refs Renouard 1878): 1.9 m by 0.42, 0.70 high, thirteen slats of pine on four splayed legs, a head block. A body under a sheet: only the sheet, a form of lumps over the slats (nothing under it). 9 physics bodies. Written by tools/props/undertaker.py.",
+  "_doc": "The cooling board (#1181; the period's: a board of slats on folding legs a body lay on to be cooled and washed before the coffin; refs Renouard 1878): 1.9 m by 0.42, 0.70 high, thirteen slats of pine on four splayed legs, a head block. A body under a sheet, the sheet stained through in patches: only the sheet, a form of lumps over the slats (nothing under it). 9 physics bodies. Written by tools/props/undertaker.py.",
   "id": "sheeted_board",
   "kind": "members",
   "fixture": true,
@@ -401,7 +401,97 @@
             ]
           }
         ]
-      }
+      },
+      "dress": [
+        {
+          "look": "prop:hide_dark",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.16,
+                  0.004,
+                  0.14
+                ],
+                "at": [
+                  -0.45,
+                  0.185,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.2,
+                  0.004,
+                  0.12
+                ],
+                "at": [
+                  0.05,
+                  0.145,
+                  0.06
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.004,
+                  0.16
+                ],
+                "at": [
+                  0.5,
+                  0.165,
+                  -0.03
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.004,
+                  0.1
+                ],
+                "at": [
+                  -0.1,
+                  0.17,
+                  -0.12
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:hide_pale",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.3,
+                  0.003,
+                  0.26
+                ],
+                "at": [
+                  -0.42,
+                  0.188,
+                  0.02
+                ]
+              },
+              {
+                "size": [
+                  0.26,
+                  0.003,
+                  0.24
+                ],
+                "at": [
+                  0.52,
+                  0.168,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
     }
   ],
   "factory": "tools/props/undertaker.py"
