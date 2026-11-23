@@ -1,5 +1,5 @@
 {
-  "_doc": "A rolling ladder (#1139, G1): two oak rails and nine rungs, 2.75 m, an iron hook at the top of each rail that hangs it on the shelving's rail (the store's clue). Built upright (a kit prop is held by what's under its own bottom): it stands against the shelves' front, its hooks over the rail, the way it is when the clerk's done. Its rungs face +x. Written by tools/props/store_g1.py.",
+  "_doc": "A rolling ladder (#1139, G1): two oak rails and nine rungs, 2.75 m, an iron hook at the top of each rail that hangs it on the shelving's rail (the store's clue). Built upright (a kit prop is held by what's under its own bottom): it stands against the shelves' front, its hooks over the rail, the way it is when the clerk's done. Its rungs face +x. Written by tools/props/store_g1.py. Its brass and iron baked by tools/props/store_g2.py (G2, #1172).",
   "id": "rolling_ladder",
   "kind": "members",
   "in_game": false,
@@ -187,7 +187,7 @@
         -0.21
       ],
       "wood": "iron",
-      "look": "prop:iron"
+      "look": "pbr:store_iron"
     },
     {
       "id": "hook_r",
@@ -203,7 +203,7 @@
         0.21
       ],
       "wood": "iron",
-      "look": "prop:iron"
+      "look": "pbr:store_iron"
     }
   ],
   "factory": "tools/props/store_g1.py"

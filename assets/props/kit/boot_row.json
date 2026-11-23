@@ -1,0 +1,58 @@
+{
+  "_doc": "Two pairs of men's boots for sale (#1172, G2; Ward's 1875 catalogue's calf boots), standing on the working shelf toes out: a blacked pair and a russet pair, 33 cm (a stovepipe boot's 16 in leg cut down to the shelf's clearance). Each pair a member (leather: ~2.5 kg). Modelled and baked in tools/blender/props/store_g2.py (code-built stand-ins: Rodin's quoted on #1175). Written by tools/props/store_g2.py.",
+  "id": "boot_row",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "leather",
+  "look": "pbr:store_dry",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.4,
+  "factory": "tools/props/store_g2.py",
+  "members": [
+    {
+      "id": "pair0",
+      "kind": "post",
+      "size": [
+        0.22,
+        0.33,
+        0.27
+      ],
+      "at": [
+        -0.13,
+        0.165,
+        0.0
+      ],
+      "wood": "leather",
+      "look": "pbr:store_dry",
+      "solid": 0.15,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_dry",
+        "part": "Boots0"
+      }
+    },
+    {
+      "id": "pair1",
+      "kind": "post",
+      "size": [
+        0.22,
+        0.33,
+        0.27
+      ],
+      "at": [
+        0.13,
+        0.165,
+        0.0
+      ],
+      "wood": "leather",
+      "look": "pbr:store_dry",
+      "solid": 0.15,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_dry",
+        "part": "Boots1"
+      }
+    }
+  ]
+}

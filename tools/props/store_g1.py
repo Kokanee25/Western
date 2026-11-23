@@ -2,7 +2,7 @@
 ladder, the stove and its chairs, the barrels, the sacks, the counter scales, bolts of cloth. Written from the
 numbers here, so a change is one number and a re-run:
 
-    python3 tools/props/store_g1.py     # writes assets/props/kit/<id>.json and prints the dressing's size
+    python3 tools/props/store_g2.py     # writes G1's and G2's assets/props/kit/<id>.json (G2 bakes G1's metal)
 
 The placement (`dressing_g1()`, `dressing_windows()`) is read by experiments/building_lab/store/gen_spec.py
 into config/buildings/store.json's `dressing` (PropDressing, #844). What an 1882 Colorado general store held,
@@ -198,32 +198,20 @@ def flour_sack():
             "_doc": "A sack of flour (#1139, G1): the feed sack's shape in white canvas, a 50 lb sack. Written by tools/props/store_g1.py."}
 
 
-# --- The counter scales ---------------------------------------------------------------------------------
-# A grocer's counter scale (the Hanson/Chatillon's era): an iron base, a pillar, a brass beam on its knife edge,
-# a tin scoop one side and a brass weight pan the other. Stands on the counter; the pillar shot out drops the beam.
-def store_scales():
-    ms = [member("base", "post", [0.30, 0.04, 0.22], [0, 0.02, 0], "prop:iron", wood="iron", solid=0.05),
-          member("pillar", "furniture_frame", [0.045, 0.40, 0.045], [0.0, 0.24, 0.0], "prop:iron", wood="iron", solid=0.05),
-          member("beam", "trim", [0.50, 0.02, 0.015], [0.0, 0.45, 0.0], "prop:brass", wood="iron"),
-          member("scoop", "furniture_top", [0.20, 0.03, 0.17], [-0.16, 0.06, 0.0], "prop:plate_iron", wood="iron", solid=0.05),
-          member("weights", "furniture_top", [0.12, 0.03, 0.12], [0.16, 0.06, 0.0], "prop:brass", wood="iron", solid=0.05)]
-    return {
-        "_doc": "A grocer's counter scale (#1139, G1): a cast base, a pillar, a brass beam on its knife edge, a tin scoop on one side (the staples weighed) and a brass pan of weights on the other. ~4 kg of iron and brass. Stands on the counter. Written by tools/props/store_g1.py.",
-        "id": "store_scales", "kind": "members", "fixture": True, "in_game": False, "wood": "iron", "look": "prop:iron",
-        "splits_below": 0.3, "blow_wood_share": 0.3, "members": ms,
-    }
+# --- The counter scales: G2's since #1172 (tools/props/store_g2.py store_scales, baked with hung pans) ----------
 
 
 # --- Bolts of cloth ----------------------------------------------------------------------------------------
 def _bolt(id_, look, doc):
-    ms = [member("board", "post", [0.085, 0.36, 0.035], [0, 0.18, 0], "prop:dark_wood"),
-          member("cloth", "trim", [0.11, 0.34, 0.085], [0, 0.18, 0], look, wood="canvas")]
+    # 0.30 tall: under the board over it (the boards are 0.325 apart clear; G1's 0.36 ran 3.5 cm into it, #1172).
+    ms = [member("board", "post", [0.085, 0.30, 0.035], [0, 0.15, 0], "prop:dark_wood"),
+          member("cloth", "trim", [0.11, 0.285, 0.085], [0, 0.15, 0], look, wood="canvas")]
     return {"_doc": doc, "id": id_, "kind": "members", "fixture": True, "in_game": False, "wood": "canvas", "look": look,
             "splits_below": 0.3, "blow_wood_share": 0.5, "members": ms, "factory": "tools/props/store_g1.py"}
 
 
 def bolt_calico():
-    return _bolt("bolt_calico", "prop:canvas", "A bolt of calico (#1139, G1): cloth wound on a flat board, 14 in tall, standing on its end. Written by tools/props/store_g1.py.")
+    return _bolt("bolt_calico", "prop:canvas", "A bolt of calico (#1139, G1): cloth wound on a flat board, 12 in tall, standing on its end. Written by tools/props/store_g1.py.")
 
 
 def bolt_felt():
@@ -235,7 +223,7 @@ def bolt_plaid():
 
 
 BATCH_G1 = [store_counter, store_shelving, rolling_ladder, store_stove, cracker_barrel, flour_barrel, sugar_barrel, pickle_barrel,
-            coffee_sack, flour_sack, store_scales, bolt_calico, bolt_felt, bolt_plaid]
+            coffee_sack, flour_sack, bolt_calico, bolt_felt, bolt_plaid]
 
 
 # === Where each goes: the store's `dressing` ====================================================================
@@ -252,8 +240,22 @@ def e(id_, kit, at, facing=0, **kw):
     return d
 
 
+def shelving_box():
+    """The shelving's members' own box (x: back -0.18 to the cupboard top's and rail's front 0.28; y: to
+    the cornice's top 3.2): a bay is fitted to it across and up and only stretched along its wall. G1
+    fitted it to [0.36, 3.1] and squashed it (#1172: the boards came out 4 to 9 cm under SHELF_YS, every
+    shelf good floating over its board or dropped onto it, the bolts through the board over them)."""
+    lo, hi = [1e9] * 3, [-1e9] * 3
+    for m in store_shelving()["members"]:
+        for a in range(3):
+            lo[a] = min(lo[a], m["at"][a] - m["size"][a] * 0.5)
+            hi[a] = max(hi[a], m["at"][a] + m["size"][a] * 0.5)
+    return round(hi[0] - lo[0], 4), round(hi[1] - lo[1], 4)
+
+
 def bay(id_, x, z, length, facing):
-    return e(id_, "store_shelving", [x, 0.0, z], facing, fit=[SHELF_DEPTH, SHELF_H, round(length, 3)])
+    bx, by = shelving_box()
+    return e(id_, "store_shelving", [x, 0.0, z], facing, fit=[bx, by, round(length, 3)])
 
 
 def dressing_g1():
@@ -276,7 +278,7 @@ def dressing_g1():
     out.append(e("scales_west", "store_scales", [14.6, 0.0, 3.6], 90, on="west_counter"))
     out.append(e("candy_jars", "drug_jar", [2.3, 0.0, 4.4], 270, on="east_counter_a",
                  row={"kits": ["drug_jar"], "count": 3, "step": [0, 0, 0.16], "jitter": [0.01, 0.01, 30]}))
-    out.append(e("till", "till_drawer", [13.3, 0.0, 9.0], 0, on="back_counter"))
+    out.append(e("till", "till_drawer", [13.3, 0.0, 8.75], 0, on="back_counter"))  # (#1172: at 9.0 its middle was over the top's back edge and it dropped 0.19 m)
     # The stove, its chairs, the barrels about it. The stove's door to the room (facing 90), its pipe behind.
     out.append(e("stove", "store_stove", [10.2, 0.0, 9.0], 90, use="the shop's stove (the use point 'stove' stands 1.4 m in front of it)"))
     out.append(e("stove_chair_a", "chair", [9.0, 0.0, 8.9], 90))
@@ -298,16 +300,15 @@ def dressing_g1():
         out.append({"id": id_, "kit": kits[0], "at": [x, y, z0], "facing": facing,
                     "row": {"kits": kits, "count": n, "step": [0, 0, step], "jitter": list(jit)}})
     bolts = ["bolt_calico", "bolt_felt", "bolt_plaid", "bolt_calico", "bolt_plaid"]
+    # G2 (#1172) fills the rest of the boards with rows of tins and boxes, boots and hats
+    # (tools/props/store_g2.py STOCK): G1 keeps the bolts on the dry goods' boards 1 and 2, the post office
+    # bay's jars, and on the grocery's top boards the patent medicines and the lamps for sale.
     for bid, z0 in (("b", 3.75), ("c", 5.8)):
-        for k in (1, 2, 3, 4):
+        for k in (1, 2):
             row("bolts_%s_%d" % (bid, k), bolts, SH_W - 0.02, SHELF_YS[k] + 0.0125, z0, 9, 0.215, 180)
-    row("jars_west_a", ["drug_jar"], SH_W - 0.05, SHELF_YS[2] + 0.0125, 2.0, 5, 0.22, 180, (0.01, 0.01, 20))
     row("jars_west_d", ["drug_jar", "medicine_bottle"], SH_W - 0.05, SHELF_YS[1] + 0.0125, 8.4, 7, 0.22, 180, (0.01, 0.01, 20))
-    for bid, z0, n in (("a", 4.95, 8), ("b", 6.9, 8), ("c", 8.85, 8)):
-        row("east_jars_%s" % bid, ["drug_jar", "medicine_bottle", "medicine_bottle_round"], SH + 0.0, SHELF_YS[1] + 0.0125, z0, n, 0.22, 0, (0.01, 0.01, 20))
-        row("east_bottles_%s" % bid, ["medicine_bottle", "whiskey_bottle", "medicine_bottle_round"], SH + 0.0, SHELF_YS[3] + 0.0125, z0, n, 0.22, 0, (0.01, 0.01, 20))
-        row("east_cups_%s" % bid, ["tin_cup"], SH + 0.0, SHELF_YS[0] + 0.0125, z0, 6, 0.28, 0, (0.015, 0.02, 40))
-        row("east_lamps_%s" % bid, ["oil_lamp"], SH + 0.0, SHELF_YS[2] + 0.0125, z0 + 0.3, 3, 0.6, 0, (0.01, 0.02, 30))
+    row("east_bottles_a", ["medicine_bottle", "whiskey_bottle", "medicine_bottle_round"], SH + 0.0, SHELF_YS[4] + 0.0125, 4.95, 8, 0.22, 0, (0.01, 0.01, 20))
+    row("east_lamps_b", ["oil_lamp"], SH + 0.0, SHELF_YS[4] + 0.0125, 7.2, 3, 0.6, 0, (0.01, 0.02, 30))
     # The middle of the floor, a dense one (the critic: a dance hall): two display tables of dry goods and a
     # stack of crates and sacks on the grocery side, clear of the use points (browse 8.4/2.6 and 8.4/7.4, wait 6.6/4.4).
     out.append(e("table_dry", "table", [11.2, 0.0, 4.9], 0, fit=[1.8, 0.8, 0.9], use="a display table of dry goods, off the browse and buy points"))
