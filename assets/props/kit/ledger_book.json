@@ -1,0 +1,36 @@
+{
+  "_doc": "The storekeeper's ledger (#1182, G3): a folio account book laid on the counter, 26 by 36 cm and 5 cm thick, a marbled-paper cover with leather corners and spine, LEDGER on its label, the page edges cream. One member. Drawn from glb:store_post (tools/blender/props/store_g3.py). Written by tools/props/store_g3.py.",
+  "id": "ledger_book",
+  "kind": "members",
+  "fixture": true,
+  "in_game": false,
+  "wood": "paper",
+  "look": "pbr:store_post",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "factory": "tools/props/store_g3.py",
+  "members": [
+    {
+      "id": "body",
+      "kind": "post",
+      "size": [
+        0.26,
+        0.05,
+        0.36
+      ],
+      "at": [
+        0.0,
+        0.025,
+        0.0
+      ],
+      "wood": "paper",
+      "look": "pbr:store_post",
+      "solid": 0.9,
+      "draw": {
+        "shape": "mesh",
+        "model": "store_post",
+        "part": "Ledger"
+      }
+    }
+  ]
+}

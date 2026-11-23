@@ -317,7 +317,7 @@ STOCK = {
     "west_shelves_a": {"work": "box_row", 0: "box_row_flat", 1: "tin_row", 2: "box_row", 3: "box_row_flat", 4: "tin_row_flat", "top": "case_row"},
     "west_shelves_b": {"work": "boot_row", 0: "box_row_flat", 3: "box_row", 4: "hats", "top": "case_row"},
     "west_shelves_c": {"work": "boot_row", 0: "box_row", 3: "box_row_flat", 4: "hats", "top": "case_row"},
-    "west_shelves_d": {"top": "case_row"},
+    "west_shelves_d": {},   # G3's post office case stands here (store_g3.py)
 }
 
 
@@ -378,9 +378,9 @@ def dressing_g2():
     out.append(e("showcase_west", "showcase", [14.6, COUNTER_H, 4.95], 90))
     out.append(e("hats_counter", "hat_stack", [14.62, COUNTER_H, 2.6], 95))
     out.append(e("rope_counter", "rope_coil", [14.6, COUNTER_H, 5.9], 20))
-    out.append(e("coffeepot_back", "coffeepot", [12.25, COUNTER_H, 8.65], 200))
-    out.append(e("kettle_back", "tea_kettle", [12.7, COUNTER_H, 8.7], 160))
-    out.append(e("pail_back", "tin_pail", [14.3, COUNTER_H, 8.68], 0))
+    out.append(e("coffeepot_back", "coffeepot", [12.0, COUNTER_H, 8.65], 200))
+    out.append(e("kettle_back", "tea_kettle", [12.3, COUNTER_H, 8.7], 160))
+    out.append(e("pail_back", "tin_pail", [14.62, COUNTER_H, 8.68], 0))
     # The hardware's corner on the floor, by the dry goods counter's back end (clear of buy_2 at 13.5/3.2 and
     # the stove's chairs and barrels round 10-12/7.5-9): nail kegs, the keg of tools, a pail; lamp oil by the
     # back wall (the stove's at 10.2: the cans 0.9 m off it, as a careless clerk would set them).
@@ -412,6 +412,8 @@ def main():
             f.write("\n")
         print("wrote", os.path.relpath(path, store_g1.ROOT), "(%d members)" % len(d.get("members", [])))
     print("dressing G2: %d entries" % len(dressing_g2()))
+    import store_g3  # G3's kit files (the post office, the hung goods)
+    store_g3.main()
 
 
 if __name__ == "__main__":

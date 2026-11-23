@@ -41,10 +41,10 @@ func _run() -> void:
 		for id: String in b.dressed[batch]:
 			var n: Node3D = b.dressed[batch][id]
 			start[id] = b.to_local(n.global_position)
-			if String(id).contains("shelves"):
+			if String(id).contains("shelves") or String(id) == "post_case":   # (#1182: G3's case of pigeonholes, boards `board<k>`)
 				var tops := []
 				for m in n.get_members():
-					if String(m.name).contains("shelf") or String(m.name).contains("cupboard_top"):
+					if String(m.name).contains("shelf") or String(m.name).contains("board") or String(m.name).contains("cupboard_top"):
 						var c: Vector3 = b.to_local(m.global_position)
 						var h: Vector3 = m.size * 0.5
 						# (the bays face 0 or 180: the member's x/z extents swap no further)
