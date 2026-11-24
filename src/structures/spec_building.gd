@@ -3651,13 +3651,16 @@ func finish(name: String) -> Dictionary:
 ## first that matches; then `framing` for timber, none for stone, glass and the sign).
 func _finish_of(m: StructureMember) -> String:
 	var id := String(m.member_id).trim_prefix(String(structure_id) + "/")
-	if m.kind == &"glass" or m.wood in [&"stone", &"brick", &"sign", &"glass"]:
+	if m.kind == &"glass" or m.wood in [&"brick", &"sign", &"glass"]:
 		return ""
+	# Stone takes a library finish only by a surfaces entry that names it (#1160: Harlan's fieldstone chimney
+	# in the library's `fieldstone_rubble`, not the game's `stone`); `-` and no match leave it as it was.
+	var stone := m.wood == &"stone"
 	for s: Array in spec.materials.get("surfaces", []):
 		if id.contains(String(s[0])):
 			# "-": the member keeps its own drawn shape and wood (a dressed bracket's cove).
 			return "" if String(s[1]) == "-" else String(s[1])
-	return "framing"
+	return "" if stone else "framing"
 
 
 ## Every member drawn as a board of its finish's library wood (the library's shader, a board mesh

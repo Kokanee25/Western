@@ -1,0 +1,4 @@
+a yard build/hrf/yard.png
+b cabin_back build/hrf/cabin_back.png
+c barn build/hrf/barn.png
+d spring build/hrf/spring.png
