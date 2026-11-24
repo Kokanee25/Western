@@ -251,3 +251,49 @@ func test_at_the_store_s_glass_e_knocks_and_broken_glass_is_noticed() -> void:
 	var br := f.folk_man(keeper).get_node(^"Brain") as CivilianBrain
 	check(not br.showing.is_empty() or br.fear > 0.0, "he turns to it")
 	_clock().time_scale = 1.0
+
+
+## #1213 (gate 4, run 4): after the shot three men were left 25-80 m from their posts for minutes, "in" and
+## so never watched for being stuck. A man in at his spot, his fright over, left far off it and not getting
+## nearer, is put back unseen; seen, sent again.
+func test_a_man_left_far_off_after_a_fright_goes_back() -> void:
+	var f := valley.folk
+	_put(Vector3(0.0, f.ground(0.0, 300.0), 300.0), Vector3(0.0, 0.0, 400.0))
+	await _at(14.0, 60 * 3)
+	var id := &""
+	for pid: StringName in f.people:
+		var m := f.folk_man(pid)
+		var b := m.get_node_or_null(^"Brain") as CivilianBrain if m else null
+		if f.state.get(pid) == &"in" and b != null and b.post != Vector3.INF and not f._person(pid).has("act") \
+				and b.mood == CivilianBrain.Mood.CALM and f.block_now(f._person(pid), f.hour()).has("at"):
+			id = pid
+			break
+	check(id != &"", "a man in at his spot")
+	if id == &"":
+		return
+	var man := f.folk_man(id)
+	var brain := man.get_node(^"Brain") as CivilianBrain
+	var post := brain.post
+	# Left 30 m off, his reaction over, not nearer for longer than a stuck walk's wait, you far off.
+	f._away_from[id] = [30.0, f._ran - ValleyFolk.WALK_STUCK_S - 1.0]
+	var away := post + Vector3(30.0, 0.0, 0.0)
+	away.y = f.ground(away.x, away.z)
+	man.global_position = away
+	f._away_step(id, man, f._person(id))
+	check(f.away_fixed.any(func(x: Array) -> bool: return x[1] == id), "taken in hand (%s)" % [f.away_fixed])
+	await physics_frames(30)
+	var back := f.folk_man(id)
+	check(back != null and Vector2(back.global_position.x - post.x, back.global_position.z - post.z).length() < 2.0,
+			"unseen: back at his spot (%s, his post %s)" % [back.global_position if back else Vector3.INF, post])
+	# Seen: sent back by a fresh route, not put there.
+	back = f.folk_man(id)
+	brain = back.get_node(^"Brain") as CivilianBrain
+	var far := brain.post + Vector3(20.0, 0.0, 0.0)
+	far.y = f.ground(far.x, far.z)
+	back.global_position = far
+	_put(far + Vector3(0.0, 0.0, 4.0), far)
+	await physics_frames(5)
+	f._away_from[id] = [20.0, f._ran - ValleyFolk.WALK_STUCK_S - 1.0]
+	f._away_step(id, back, f._person(id))
+	check(back.global_position.distance_to(far) < 1.0 and brain.returning, "seen: sent back on his feet")
+	_clock().time_scale = 1.0

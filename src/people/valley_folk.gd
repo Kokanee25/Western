@@ -1223,6 +1223,10 @@ func _door_step(id: StringName, man: HumanBody, door_at: Vector3, delta: float) 
 func _stuck_step(id: StringName, p: Dictionary) -> void:
 	var st: StringName = state.get(id, &"out")
 	var man: HumanBody = people.get(id)
+	if st == &"in":
+		_away_step(id, man, p)
+		return
+	_away_from.erase(id)
 	if not st in [&"coming", &"going"] or man == null or not is_instance_valid(man) or man.dragged_by != null \
 			or man.limp or not man.physiology.alive:
 		_walk_from.erase(id)
@@ -1249,6 +1253,46 @@ func _stuck_step(id: StringName, p: Dictionary) -> void:
 				_bring(p, false)
 		return
 	brain.reroute()
+
+
+## A man "in" (at his spot by the book) left far off it once a fright's over (#1213, gate 4 run 4: after
+## the shot the liveryman stood 25-28 m from his post for 2.5 min, the storekeeper and the loudmouth 50-80
+## m east): his Reaction ended and calm or shaken, not nearer his post by a metre in `WALK_STUCK_S`, he's
+## put back unseen, or seen, sent again by a fresh route. (Within `AWAY_M` his chores' own reach.)
+func _away_step(id: StringName, man: HumanBody, p: Dictionary) -> void:
+	if man == null or not is_instance_valid(man) or man.dragged_by != null or man.limp or not man.physiology.alive:
+		_away_from.erase(id)
+		return
+	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+	if brain == null or brain.held or brain.post == Vector3.INF or answering.has(id) \
+			or (brain.chore != null and brain.chore.call(&"busy")) \
+			or not brain.mood in [CivilianBrain.Mood.CALM, CivilianBrain.Mood.SHAKEN] \
+			or (brain.reaction != null and brain.reaction.stage != Reaction.Stage.NONE):
+		_away_from.erase(id)
+		return
+	var d := Vector2(man.global_position.x - brain.post.x, man.global_position.z - brain.post.z).length()
+	if d < AWAY_M:
+		_away_from.erase(id)
+		return
+	var w: Array = _away_from.get(id, [])
+	if w.is_empty() or d < float(w[0]) - 1.0:
+		_away_from[id] = [d, _ran]
+		return
+	if _ran - float(w[1]) < WALK_STUCK_S:
+		return
+	_away_from.erase(id)
+	away_fixed.append([Engine.get_physics_frames(), id, snappedf(d, 0.1)])
+	if not seen_man_at(man.global_position) and not seen_man_at(brain.post) and not p.has("act"):
+		_gone(id, true)  # (as a day's walk stuck unseen: brought again, at his spot)
+		_bring(p, false)
+		return
+	brain.reroute()
+	brain.returning = true
+## Further from his post than this (m, across) is left out, not at his chores.
+const AWAY_M := 8.0
+var _away_from := {}
+## [frame, id, how far he'd been left (m)] each time a man left out was put back or sent again (tests).
+var away_fixed: Array = []
 
 
 ## Harlan as he passes (townsfolk step 9): what each shows him by his regard; the groups he's left.
