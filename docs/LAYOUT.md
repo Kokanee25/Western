@@ -875,9 +875,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   the valley's ground (Ground's dug tiles) under the cellar and its `Bulkhead`'s areaway to its floor.
   **The hotel** (#1220, `experiments/building_lab/hotel/`, `config/buildings/hotel.json` by its `make_spec.py`): a flat
   roof (`frame.flat_roof`), the gallery a beam and a deck a bay, and the drift (`Drift`, `src/structures/drift.gd`) to
-  saloon B's cellar; CellarDig digs a drift's trench and covers it (`DriftCover_<building>` under the Ground). Its cellar
-  isn't dug in the valley yet: a dug tile re-cuts ValleyGround's whole 128 m chunk, and the first one holds the saloon
-  yard's card set (`cellar._dig`).
+  saloon B's cellar; CellarDig digs a drift's trench and covers it (`DriftCover_<building>` under the Ground). Not on its valley
+  lot until #1227 (its bodies slowed every valley frame); its cellar not dug there either: a dug tile re-cuts ValleyGround's
+  whole 128 m chunk, and the first one holds the saloon yard's card set (`cellar._dig`).
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,

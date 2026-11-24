@@ -63,8 +63,13 @@ rises 0.5-0.6 m to the back wall, so the lot is dug level at the street edge's h
 gallery, the game's settle drops nothing); built right; people fit every door, stair and use point; the gallery's middle
 post blown (`break_member`) drops exactly bays 3 and 4, the others standing; a man walks down the trap's stair into the
 beer cellar and the whole drift crouched (a standing man doesn't fit); a man climbs the grand stair to the upper hall.
-`tests/test_hotel_valley.gd`: on its lot and its pad, the gallery's posts on the street edge's ground, saloon B with the
-drift's door in its cellar wall.
+**Not on its valley lot yet** (Sean, 2026-11-24): placed, its 12.5k members (each a Jolt body) made every valley test's
+physics frame heavier (a ten-minute street test 2 -> 20 min; CI shards past 75 min even at 8 shards), which players would
+feel too. It goes onto its lot when #1227 merges a standing building's members into fewer bodies. What placing it needs is
+worked out and was tested: valley.json's lot `spec`, a `pad` (y -0.08, x 41.8-66.7, z -9.75 to -26.0, blend 2.5: the bake
+rises 0.5-0.6 m to the back wall), `walk.awning` 0 and `door_x` 53.0, the `cellar` entry, a re-bake of the heights and the
+ground map, Jolt's `max_bodies` (the save test's second valley passed 65,536), and tests/test_valley_markers.gd's sample
+block (it used the hotel's). The test of it on its lot is in PR #1224's history (tests/test_hotel_valley.gd).
 
 **The valley doesn't dig the cellar or the drift yet** (`hotel.json` `cellar._dig`). ValleyGround collides the valley in
 128 m chunks; a dug tile anywhere in one re-cuts the whole chunk's collision into squares, and the first chunk (x -30 to
@@ -91,3 +96,14 @@ white (P7 blue-grey not judged yet), the name board's letters not legible at thi
 dark. Each view is ~25 min under lavapipe here (the gallery view ran out of its 50 min box with the front); the judge's
 round (the sheet's views beside the game's, the cheap judge) is the next step's.
 
+
+## The grand stair: Sean wants it grand (2026-11-24)
+
+The built stair is a placeholder: one plain straight flight up the lobby's back wall, its well's posts and beam
+standing in the room (the brief's two flights round OakStair's newel came out as one; see "Settled here" 3). Sean
+(in session, with a picture of a lobby's dark oak stair, red runner and statue newel): "more central ... wider at the
+base ... we're going for opulence". `docs/briefs/hotel/stair_options.png` (by `draw_stairs.py`) draws three ways on
+the lobby's plan: 1 imperial (a 6 ft flight up the axis splitting in two to a gallery round a double-height void),
+2 central with a return (recommended: 5 ft up the axis from curtail steps to a landing, a 4 ft return to the upper
+hall), 3 along the back wall, dressed. All: OakStair's dark oak, the red runner on brass rods, turned balusters, a
+statue newel lamp, curtail steps, no posts in the room. Sean's pick goes into #1226.
