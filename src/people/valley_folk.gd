@@ -1224,6 +1224,7 @@ func _stuck_step(id: StringName, p: Dictionary) -> void:
 	var st: StringName = state.get(id, &"out")
 	var man: HumanBody = people.get(id)
 	if st == &"in":
+		_walk_from.erase(id)  # (a walk's wait from his last walk is not this one's)
 		_away_step(id, man, p)
 		return
 	_away_from.erase(id)

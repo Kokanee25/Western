@@ -297,8 +297,10 @@ func test_a_man_left_far_off_after_a_fright_goes_back() -> void:
 	back.global_position = far
 	if brain.chore != null and brain.chore.has_method(&"stop"):
 		brain.chore.call(&"stop")
-	_put(far + Vector3(0.0, 0.0, 4.0), far)
-	await physics_frames(5)
+	# You at his shoulder (your eye within a metre of his head: in sight whatever stands about), and no
+	# frame run, so nothing shoves you off him.
+	_put(far + Vector3(0.4, 0.0, 0.0), far + Vector3(0.0, 0.0, -4.0))
+	check(f.seen_man_at(far), "seen: in your sight (eye %s)" % [get_viewport().get_camera_3d().global_position])
 	f._away_from[id] = [20.0, f._ran - ValleyFolk.WALK_STUCK_S - 1.0]
 	f._away_step(id, back, f._person(id))
 	check(back.global_position.distance_to(far) < 1.0 and brain.returning, "seen: sent back on his feet")
