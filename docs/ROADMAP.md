@@ -211,6 +211,8 @@ All lanes, one at a time. **Gate F: the demo ships.**
 
 ## ▶ Now
 
+The missions' cards, map and judge (planning, 2026-11-09) are in `docs/missions/` (`README.md` is the index; the order is `BUILD_ORDER.md`). Where a card and the story bible (`docs/story/`) disagree, the bible wins.
+
 **Sean, 2026-11-04: the look goes realistic, in Red Dead Redemption 2's direction** (DESIGN.md §4;
 the plan `docs/briefs/red-dead.md`; "not that level, just that direction"). The painted look is
 retired. Its steps, by lane, each judged by the cheap judge with the AAA references:

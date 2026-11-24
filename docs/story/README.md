@@ -1,8 +1,8 @@
 # The story bible: one page for Sean
 
 Written 2026-11-11 for #809, before any lines are scripted, so that foreshadowing can be planted.
-Docs only: no game code, no paid calls. The mission cards it points at (`docs/missions/`) are on PR
-#743's branch until that PR merges.
+Docs only: no game code, no paid calls. The mission cards it points at (`docs/missions/`, index `README.md`, order `BUILD_ORDER.md`) were
+written 2026-11-09; each has a line at the top saying what this bible changed. Where they differ, the bible wins.
 
 | File | What it is |
 |---|---|
@@ -12,6 +12,7 @@ Docs only: no game code, no paid calls. The mission cards it points at (`docs/mi
 | [`VOICES.md`](VOICES.md) | A sheet for each speaking character: how they talk, what they call Harlan, what they know and from when, five lines |
 | [`DIALOGUE.md`](DIALOGUE.md) | **How people talk** (#1056): what the period's own record shows, the craft of a game line, the AI tells banned by name, the blind read-through. The one place for it |
 | [`WORDS.md`](WORDS.md) | 1880s speech: what to say, what to avoid, how each kind of person talks, with sources |
+| [`../missions/README.md`](../missions/README.md) | The mission cards, the map, the AAA shelf and the mission judge (docs/missions/) |
 | [`CONTRADICTIONS.md`](CONTRADICTIONS.md) | Everything that doesn't fit: #744's six, the 15 you picked on 2026-11-11 (#830), 27 small ones (7 new, opened by the picks) |
 
 **How the scripts use it** (#807): one mission at a time. Each script is checked against the outline
