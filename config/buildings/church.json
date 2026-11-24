@@ -41,22 +41,23 @@
   ]
  },
  "levels": {
-  "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the ceiling joists, 3 x 15 in at 16 in, are the roof's ties across the 28 ft span and carry the boarded loft above; 12/12 roof (45 degrees, #1170: the sheet's steep roof).",
+  "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the nave open to its roof on four queen-post trusses (#1203); 12/12 roof (45 degrees, #1170: the sheet's steep roof).",
   "ground": {
    "top": 0.95
   },
   "upper": {
-   "top": 5.702,
-   "_doc": "the loft's floor, on the ceiling joists over the plates"
+   "top": 5.2,
+   "_doc": "no floor: where the walls' inside boards stop, under the plates (the gables boarded on up to the roof)"
   },
   "plate": 5.3,
   "false_front": 0.0,
   "roof_pitch": 45.0,
   "roof_from": -0.35,
-  "roof_to": 13.76
+  "roof_to": 13.76,
+  "roof_tight": true
  },
  "frame": {
-  "_doc": "The doctor's balloon frame (Bell 1858; Woodward 1865) raised to a church: 2x4 studs at 16 in from the sill to the plate (a 15 ft wall), girders at the thirds under the floor's joists, the ceiling joists 3 x 15 in across the 28 ft span as the roof's ties, 2x6 rafters at 24 in, 9/12.",
+  "_doc": "The doctor's balloon frame (Bell 1858; Woodward 1865) raised to a church: 2x4 studs at 16 in from the sill to the plate (a 15 ft wall), girders at the thirds under the floor's joists; the nave open to its roof (#1203): four queen-post trusses on the plates carry purlins, the 2x6 common rafters at 24 in on the purlins and the plates, 12/12.",
   "foundation": {
    "_doc": "rubble stone laid in lime mortar, 18 in thick, 2 ft into the pad (below the worst of the frost a fine builder bothered with)",
    "wood": "stone",
@@ -143,18 +144,8 @@
     0.1
    ]
   },
-  "ceiling_joist": {
-   "_doc": "the ties: 3x15 in at 16 in across the span, spiked to every rafter's foot",
-   "section": [
-    0.08,
-    0.38
-   ],
-   "spacing": 0.406,
-   "wood": "framing",
-   "lap": 0.6
-  },
   "rafters": {
-   "_doc": "NEW (the builder's trusses replaced by a common-rafter roof): 2x6 at 24 in, 9/12, birdsmouthed on the plates, against a 1x8 ridge board; a 1x6 collar tie on every second pair a quarter of the rise down from the ridge (head room in the loft); the gables' studs up to the end rafters; 1x6 boards across them (shingle lath laid close), wood shingles drawn on them; 12 in eaves.",
+   "_doc": "2x6 commons at 24 in, 12/12, birdsmouthed on the plates, on two purlins a side and a 1x8 ridge board; none where a truss stands; boards across them, shingles drawn on them; 12 in eaves, boxed (ChurchTower._boxed_eaves)",
    "rafter": [
     0.05,
     0.14
@@ -168,7 +159,7 @@
     0.025,
     0.14
    ],
-   "collar_every": 2,
+   "collar_every": 0,
    "collar_down": 0.25,
    "eave": 0.3
   },
@@ -200,6 +191,40 @@
     14.63
    ],
    "purlins": []
+  },
+  "trusses": {
+   "_doc": "Queen-post trusses (Hodgson 1883, 'Practical Carpentry'; Tredgold's 'Elements of Carpentry' for 25-30 ft spans), the nave's 28 ft: a 6x8 tie beam on the side walls' plates (its ends under the commons' tails), 6x8 principals from it to the ridge line under the purlins, 6x6 queen posts at the thirds, a 6x6 straining beam between their heads; 4x6 purlins at 5 and 9 ft in from each wall carry the commons. Five bays of 8 ft 10 in. A lamp hangs from each of the nave's ties (lamps.kit `hang`). SpecBuilding._queen_trusses.",
+   "at": [
+    2.682,
+    5.364,
+    8.046,
+    10.728
+   ],
+   "tie": [
+    0.14,
+    0.19
+   ],
+   "principal": [
+    0.14,
+    0.19
+   ],
+   "queen": [
+    0.14,
+    0.14
+   ],
+   "straining": [
+    0.14,
+    0.14
+   ],
+   "purlin": [
+    0.09,
+    0.14
+   ],
+   "purlins": [
+    1.5,
+    2.75
+   ],
+   "clear": 0.2
   }
  },
  "girders": {
@@ -221,29 +246,12 @@
    ],
    "joists": "x",
    "look": "wood:int_floor"
-  },
-  {
-   "id": "attic",
-   "level": "upper",
-   "rect": [
-    0.02,
-    0.1,
-    8.51,
-    13.31
-   ],
-   "joists": "x",
-   "joist": "ceiling_joist",
-   "breaks": [],
-   "_doc": "the loft over the nave: the ceiling's joists, boarded"
   }
  ],
- "ceilings": {
-  "finish": "beaded",
-  "rooms": "all"
- },
  "inside_finish": {
   "boards": "judged",
   "skirting": 0.2,
+  "gables": true,
   "regions": [
    {
     "rect": [
@@ -288,12 +296,6 @@
      "from": 0.1,
      "to": 8.43,
      "finish": "boards"
-    },
-    {
-     "level": "upper",
-     "from": 0.1,
-     "to": 8.43,
-     "finish": "rough"
     }
    ],
    "openings": [
@@ -357,12 +359,6 @@
      "from": 0.1,
      "to": 8.43,
      "finish": "boards"
-    },
-    {
-     "level": "upper",
-     "from": 0.1,
-     "to": 8.43,
-     "finish": "rough"
     }
    ],
    "openings": [
@@ -406,12 +402,6 @@
      "from": 0.1,
      "to": 13.31,
      "finish": "boards"
-    },
-    {
-     "level": "upper",
-     "from": 0.1,
-     "to": 13.31,
-     "finish": "rough"
     }
    ],
    "openings": [
@@ -488,12 +478,6 @@
      "from": 0.1,
      "to": 13.31,
      "finish": "boards"
-    },
-    {
-     "level": "upper",
-     "from": 0.1,
-     "to": 13.31,
-     "finish": "rough"
     }
    ],
    "openings": [
@@ -839,7 +823,7 @@
   ]
  },
  "lamps": {
-  "_doc": "oil lamps on brackets down both walls, hung by the clock (#824); the pulpit's, over the platform, casts shadows.",
+  "_doc": "the nave's oil lamps hung on chains from the trusses' ties over the aisle (#1203, the target's lanterns), lit by the clock (#824); the pulpit's two on the back wall, one casting shadows.",
   "kit": [
    {
     "room": "chancel",
@@ -872,13 +856,13 @@
    },
    {
     "room": "nave",
-    "kit": "reflector_lamp",
-    "wall": "yard",
-    "level": "ground",
-    "at": 4.0,
-    "height": 2.0,
-    "energy": 1.2,
-    "reach": 6.0,
+    "kit": "hanging_lamp",
+    "hang": [
+     4.265,
+     0
+    ],
+    "energy": 1.4,
+    "reach": 7.5,
     "lit": [
      17,
      23
@@ -886,13 +870,13 @@
    },
    {
     "room": "nave",
-    "kit": "reflector_lamp",
-    "wall": "lane",
-    "level": "ground",
-    "at": 4.0,
-    "height": 2.0,
-    "energy": 1.2,
-    "reach": 6.0,
+    "kit": "hanging_lamp",
+    "hang": [
+     4.265,
+     1
+    ],
+    "energy": 1.4,
+    "reach": 7.5,
     "lit": [
      17,
      23
@@ -900,27 +884,13 @@
    },
    {
     "room": "nave",
-    "kit": "reflector_lamp",
-    "wall": "yard",
-    "level": "ground",
-    "at": 9.6,
-    "height": 2.0,
-    "energy": 1.2,
-    "reach": 6.0,
-    "lit": [
-     17,
-     23
-    ]
-   },
-   {
-    "room": "nave",
-    "kit": "reflector_lamp",
-    "wall": "lane",
-    "level": "ground",
-    "at": 9.6,
-    "height": 2.0,
-    "energy": 1.2,
-    "reach": 6.0,
+    "kit": "hanging_lamp",
+    "hang": [
+     4.265,
+     2
+    ],
+    "energy": 1.4,
+    "reach": 7.5,
     "lit": [
      17,
      23
@@ -1325,8 +1295,8 @@
       3.2,
       11.879999999999999
      ],
-     "facing": 0,
-     "_doc": "the stove's pipe on up through the ceiling (#1170), over the box stove's last joint"
+     "facing": -17.3,
+     "_doc": "the stove's pipe over the box stove's last joint, an elbow and a run back into the chimney (#1203: no ceiling to go through)"
     }
    ]
   }
@@ -1580,10 +1550,6 @@
    [
     "ladder/",
     "rough"
-   ],
-   [
-    "floor/attic/board",
-    "floor"
    ]
   ],
   "floor": "wood:int_floor",

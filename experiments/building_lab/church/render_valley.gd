@@ -24,6 +24,8 @@ const VIEWS := {
 	"side": [Vector3(30.0, 3.0, 5.0), Vector3(4.2, 4.2, 6.5), 52.0, 17.0, false],
 	"tower": [Vector3(4.265, 3.0, -15.0), Vector3(4.265, 11.0, -1.5), 42.0, 17.0, false],
 	"nave": [Vector3(4.265, 2.4, 1.0), Vector3(4.265, 2.6, 13.0), 72.0, 14.0, true],
+	# The nave by lamplight, its lamps hung from the trusses' ties (#1203).
+	"nave_lit": [Vector3(4.265, 2.4, 1.0), Vector3(4.265, 3.2, 13.0), 72.0, 20.5, true],
 	"pulpit": [Vector3(4.265, 2.2, 7.0), Vector3(4.265, 1.9, 13.3), 60.0, 14.0, true],
 	# A lane-side window close, in the late light from the west (its pointed head, #1142 round 4).
 	"window": [Vector3(12.8, 2.6, 2.4), Vector3(8.53, 3.7, 5.4), 38.0, 17.0, false],

@@ -982,7 +982,9 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   **`SpecBuilding`** (`spec_building.gd`, with `stair.gd`, `marks.gd`, `stone.gd`; R1, #975: the one
   builder of every spec building, in the game, not a lab's; its specs are `config/buildings/*.json`,
   which the export ships by `*.json` and which must never sit under a `.gdignore`, #1003; the
-  gunfight lab's `extra_furniture` is a var on the one building, set before it enters the tree),
+  gunfight lab's `extra_furniture` is a var on the one building, set before it enters the tree;
+  a common-rafter roof (`frame.rafters`) is tied by a loft's ceiling joists, or with `frame.trusses`
+  by queen-post trusses on the plates with purlins under the commons and the room open to them, #1203),
   `Boardwalk`, `HitchingRail`, `WaterTrough`, `Well` and the windpump's tank (group
   `water_source`, as the trough: a bucket fills there), `Windpump` (its wheel turns; drawn, not
   members), `Corral`. Wood `iron` (the bank's safe, the windpump's rod and pump): a ball stops on

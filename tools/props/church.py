@@ -127,14 +127,20 @@ def hymn_stand():
 
 
 def stove_pipe():
-    # The church stove's pipe on up from the box stove's last joint (3.22 m) through the ceiling (#1170): one more
-    # joint, iron, as long as the nave's ceiling is high over it (church_spec.py's PLATE 5.3 less the floor's 0.95).
-    L = 5.3 - 0.95 - 3.22 + 0.06
-    p = m("pipe", "post", (0.15, L, 0.15), (0.0, L / 2, 0.0), look="prop:iron", wood="iron")
-    p["draw"] = {"shape": "lathe", "profile": [[0.0, 0.0], [0.075, 0.0], [0.075, L], [0.0, L]], "segments": 14}
-    return {"_doc": "The church stove's pipe up through the ceiling (one joint over the box stove's own).", "id": "church_stove_pipe",
-            "kind": "members", "fixture": True, "in_game": True, "wood": "iron", "splits_below": 0.5, "blow_wood_share": 0.5,
-            "members": [p], "factory": "tools/props/church.py"}
+    # The church stove's pipe on up from the box stove's last joint (3.22 m), then an elbow and a run back into the
+    # chimney's thimble (#1203: the nave open to its trusses, no ceiling to go through). The run is along the prop's
+    # +Z; the spec turns the prop to point it at the chimney (church_spec.py's RUN).
+    rise = 0.3
+    run = 0.98
+    p = m("pipe", "post", (0.15, rise, 0.15), (0.0, rise / 2, 0.0), look="prop:iron", wood="iron")
+    p["draw"] = {"shape": "lathe", "profile": [[0.0, 0.0], [0.075, 0.0], [0.075, rise], [0.0, rise]], "segments": 14}
+    y = rise + 0.075
+    r = m("run", "furniture_frame", (0.15, 0.15, run), (0.0, y, run / 2 + 0.075), look="prop:iron", wood="iron")
+    r["draw"] = {"shape": "lathe", "profile": [[0.0, 0.0], [0.075, 0.0], [0.075, run + 0.075], [0.0, run + 0.075]], "segments": 14,
+                 "at": [0.0, y, 0.0], "rot": [90.0, 0.0, 0.0]}
+    return {"_doc": "The church stove's pipe: one joint up over the box stove's own, an elbow, and a run back into the chimney (#1203).",
+            "id": "church_stove_pipe", "kind": "members", "fixture": True, "in_game": True, "wood": "iron", "splits_below": 0.5,
+            "blow_wood_share": 0.5, "members": [p, r], "factory": "tools/props/church.py"}
 
 
 def wood_cross():
