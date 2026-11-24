@@ -82,3 +82,12 @@ Not done (the next steps): the kitchen wing; plaster on lath that breaks as plas
 carpet (the library); turned posts and balusters on the gallery (square, chamfered); the three paints judged (P7-P9:
 `painted_bluegrey_lap`, `painted_cream_trim`, `painted_red_trim`, in the library unjudged, so the hotel draws the passed
 white, buff and ox-blood till they pass); props (the prop lab's batches).
+
+## Step 5, begun: the first render (2026-11-24)
+
+`render_valley.gd` (the undertaker's, with the sheet's views): `results/2026-11-24_r1/front.jpg`, the front at 15:30 in
+the valley. It stands: two storeys, the open gallery on its nine posts, the bracketed cornice. Against the sheet: the walls
+white (P7 blue-grey not judged yet), the name board's letters not legible at this distance, the walk under the gallery
+dark. Each view is ~25 min under lavapipe here (the gallery view ran out of its 50 min box with the front); the judge's
+round (the sheet's views beside the game's, the cheap judge) is the next step's.
+
