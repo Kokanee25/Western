@@ -77,12 +77,12 @@ func _by(man: HumanBody) -> void:
 	for k in 8:
 		var o := Vector3(0.9, 0.0, 0.0).rotated(Vector3.UP, TAU * k / 8.0)
 		var try := c + o
-		try.y = _folk().ground(try.x, try.z) + 0.05
+		try.y = _folk().floor_under(try.x, try.z, c.y - 0.3) + 0.05  # (#1230: saloon B's floor, not the ground under it)
 		if not _overlaps(p, try):
 			off = o
 			break
 	var at := c + off
-	at.y = _folk().ground(at.x, at.z) + 0.05
+	at.y = _folk().floor_under(at.x, at.z, c.y - 0.3) + 0.05
 	p.global_position = at
 	p.velocity = Vector3.ZERO
 	p.rotation.y = atan2(off.x, off.z)  # facing back along -off: at his collar
