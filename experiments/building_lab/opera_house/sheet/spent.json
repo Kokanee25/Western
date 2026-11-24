@@ -1,0 +1,115 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.1399,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562672.631611
+  },
+  {
+   "what": "plan",
+   "cost": 0.1401,
+   "ok": true,
+   "size": [
+    2528,
+    1696
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562699.0425205
+  },
+  {
+   "what": "flank",
+   "cost": 0.1412,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562730.3172116
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1425,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562760.3401527
+  },
+  {
+   "what": "lobby",
+   "cost": 0.1407,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562788.3705506
+  },
+  {
+   "what": "hall",
+   "cost": 0.141,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562817.1744487
+  },
+  {
+   "what": "house",
+   "cost": 0.1405,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562845.28885
+  },
+  {
+   "what": "box",
+   "cost": 0.1402,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562871.8704233
+  },
+  {
+   "what": "backstage",
+   "cost": 0.1414,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562900.2913888
+  },
+  {
+   "what": "night",
+   "cost": 0.1395,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795562925.9967396
+  }
+ ],
+ "total": 1.407
+}
