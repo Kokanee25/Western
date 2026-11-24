@@ -7,7 +7,7 @@ extends TestCase
 ## - regard: each man's band from his own view of Harlan and the story's facts, the town's the average;
 ## - what you see by band (a man in a plain world): a nod, a look away, a turned shoulder, a step aside.
 
-const ONS := ["pass", "knock", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "undertaker", "room.toast", "room.hail", "room.leave", "room.answer", "room.glass"]
+const ONS := ["pass", "chat", "chat.reply", "knock", "knock.wait", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "undertaker", "room.toast", "room.hail", "room.leave", "room.answer", "room.glass"]
 const KNOWN := ["on", "once", "regard", "view", "fact", "day", "hour", "spot", "at", "whom", "who_you", "shaken", "opinion"]
 const FACTS := ["news.", "nolaw.", "sheriff.", "nojustice.", "kett."]
 
@@ -115,6 +115,12 @@ func test_one_bark_a_group() -> void:
 	check(b.blocked(Vector3(1.0, 0, 0)), "you're still by them")
 	b.clear_far(Vector3(20.0, 0, 0))
 	check(not b.blocked(Vector3(1.0, 0, 0)), "you've gone on: next time they may")
+	# #1184: you stand by a group a while, it speaks again (the gate stood minutes by men who'd said one line).
+	var c := TownBarks.new({"group_again_s": 45.0})
+	c.block(Vector3.ZERO, 100.0)
+	check(c.blocked(Vector3(1.0, 0, 0), 130.0), "half a minute on, still quiet")
+	check(not c.blocked(Vector3(1.0, 0, 0), 150.0), "you're still there after 45 s: another word")
+	check(c.blocked(Vector3(1.0, 0, 0)), "(no clock given: as before)")
 
 
 ## §8's barks row: a 10-minute walk past a dozen men, each passed every 20 s: no line id twice from
@@ -249,3 +255,20 @@ func test_what_you_see_by_band() -> void:
 		await physics_frames(2)
 	check(seen.warm[0] > seen.cold[0] + 0.4, "warm and cold don't look the same (%s)" % [seen])
 	check(seen.afraid[1] > seen.warm[1] + 0.8, "only the afraid one gets out of the way (%s)" % [seen])
+
+
+## #1184: an ordinary wary day has lines for every man by his job, and men have things to say to each other.
+func test_an_ordinary_day_has_talk_for_every_man() -> void:
+	var pools: Dictionary = _data().barks.pools
+	for pid: String in ["storekeeper", "liveryman", "smith", "doctor", "drifter", "landlady", "saloon_girl", "barkeep", "loudmouth", "undertaker", "miner"]:
+		var pl: Array = pools.get(pid, pools._default)
+		var n := 0
+		for h: float in [7.0, 12.0, 17.5]:
+			for spot: String in ["stand", "lean", "work"]:
+				n += TownBarks.fitting("pass", _ctx(pid, {"pools": pl, "hour": h, "spot": spot, "at": ["saloon", "store"]})).size()
+		check(n >= 6, "%s has day lines on a wary day (%d)" % [pid, n])
+		check(TownBarks.fitting("chat", _ctx(pid, {"pools": pl, "at": ["saloon"]})).size() >= 3, "%s has things to say to a neighbour" % pid)
+	check(TownBarks.fitting("chat.reply", _ctx("x")).size() >= 8, "and answers for them")
+	check(not TownBarks.fitting("knock", _ctx("s", {"pools": pools.storekeeper, "at": ["store"]})).is_empty(), "a knock's answer at the store, wary")
+	for w: String in TownScript.words("day.store_last"):
+		check(not w.contains("others before you"), "no 'others before you' with nobody there (%s)" % w)

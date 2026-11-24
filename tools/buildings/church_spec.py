@@ -12,6 +12,7 @@ Space: x along the front from its EAST corner (the lot faces south, facing 180),
 outer face; the tower's front is at z -3.05.
 """
 import copy
+import math
 import json
 import os
 
@@ -23,12 +24,14 @@ CX = W / 2
 TH = 1.83  # the tower's half width: 12 ft square
 TX0, TX1, TZ = CX - TH, CX + TH, -2 * TH
 FLOOR = 0.95
-PLATE = 5.55
-JOIST = [0.08, 0.38]
-UPPER = round(PLATE + JOIST[1] + 0.022, 3)
+PLATE = 5.3  # (#1170: lower, the critic's "too tall for its tower"; the windows reach near it)
+# The nave open to its roof (#1203, Sean on #1202: "see how it looks"): queen-post trusses at five bays, no loft.
+# `levels.upper` is where the walls' inside boards stop: the plate's underside.
+UPPER = round(PLATE - 0.1, 3)
+TRUSS_AT = [round(D * k / 5, 3) for k in range(1, 5)]
 BELFRY_FLOOR = 7.4
 BELFRY_TOP = 10.6
-SPIRE = 5.2
+SPIRE = 7.0  # (#1170: taller, bell-cast at its foot)
 
 s = {}
 s["_doc"] = ("The church of Salt Creek (#1142, the building lab; tools/buildings/church_spec.py writes this file): a white frame "
@@ -48,22 +51,31 @@ s["lot"] = {
     "valley_place": "church", "side": "north", "at": [-57.735, 7.5, -135.5], "facing": 180, "width": W, "depth": D,
     "yard": [-3.0, -6.0, W + 3.0, D + 3.0], "footprint_with_stair": [0.0, -5.0, W, D]}
 s["levels"] = {
-    "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the ceiling joists, 3 x 15 in at 16 in, are the roof's ties across the 28 ft span and carry the boarded loft above; 9/12 roof (36.9 degrees, the doctor's).",
-    "ground": {"top": FLOOR}, "upper": {"top": UPPER, "_doc": "the loft's floor, on the ceiling joists over the plates"},
-    "plate": PLATE, "false_front": 0.0, "roof_pitch": 36.87, "roof_from": -0.35, "roof_to": D + 0.35}
+    "_doc": "The floor 3 ft up (three steps); 15 ft of wall to the plate (a church's); the nave open to its roof on four queen-post trusses (#1203); 12/12 roof (45 degrees, #1170: the sheet's steep roof).",
+    "ground": {"top": FLOOR}, "upper": {"top": UPPER, "_doc": "no floor: where the walls' inside boards stop, under the plates (the gables boarded on up to the roof)"},
+    "plate": PLATE, "false_front": 0.0, "roof_pitch": 45.0, "roof_from": -0.35, "roof_to": D + 0.35,
+    "roof_tight": True}  # (the boards butted: seen from the open nave the 3 mm gaps were sky, #867's fault)
 
 fr = copy.deepcopy(d["frame"])
 fr["_doc"] = ("The doctor's balloon frame (Bell 1858; Woodward 1865) raised to a church: 2x4 studs at 16 in from the sill to the plate (a 15 ft wall), "
-              "girders at the thirds under the floor's joists, the ceiling joists 3 x 15 in across the 28 ft span as the roof's ties, 2x6 rafters at 24 in, 9/12.")
-fr["ceiling_joist"] = {"_doc": "the ties: 3x15 in at 16 in across the span, spiked to every rafter's foot", "section": JOIST, "spacing": 0.406, "wood": "framing", "lap": 0.6}
+              "girders at the thirds under the floor's joists; the nave open to its roof (#1203): four queen-post trusses on the plates carry purlins, "
+              "the 2x6 common rafters at 24 in on the purlins and the plates, 12/12.")
+del fr["ceiling_joist"]
+fr["rafters"]["collar_every"] = 0  # (the trusses tie the roof: no collars in the open nave)
+fr["rafters"]["_doc"] = ("2x6 commons at 24 in, 12/12, birdsmouthed on the plates, on two purlins a side and a 1x8 ridge board; none where a truss stands; "
+                         "boards across them, shingles drawn on them; 12 in eaves, boxed (ChurchTower._boxed_eaves)")
+fr["trusses"] = {
+    "_doc": ("Queen-post trusses (Hodgson 1883, 'Practical Carpentry'; Tredgold's 'Elements of Carpentry' for 25-30 ft spans), the nave's 28 ft: "
+             "a 6x8 tie beam on the side walls' plates (its ends under the commons' tails), 6x8 principals from it to the ridge line under the purlins, "
+             "6x6 queen posts at the thirds, a 6x6 straining beam between their heads; 4x6 purlins at 5 and 9 ft in from each wall carry the commons. "
+             "Five bays of 8 ft 10 in. A lamp hangs from each of the nave's ties (lamps.kit `hang`). SpecBuilding._queen_trusses."),
+    "at": TRUSS_AT, "tie": [0.14, 0.19], "principal": [0.14, 0.19], "queen": [0.14, 0.14], "straining": [0.14, 0.14],
+    "purlin": [0.09, 0.14], "purlins": [1.5, 2.75], "clear": 0.2}
 s["frame"] = fr
 s["girders"] = {"_doc": "At the thirds of the 28 ft width, under the floor's joists (spans of 2.8 m), on stone piers at 6 ft.", "x": [round(W / 3, 3), round(2 * W / 3, 3)]}
 s["floors"] = [
-    {"id": "ground", "level": "ground", "rect": [0.1, 0.1, W - 0.1, D - 0.1], "joists": "x", "look": "wood:int_floor"},
-    {"id": "attic", "level": "upper", "rect": [0.02, 0.1, W - 0.02, D - 0.1], "joists": "x", "joist": "ceiling_joist", "breaks": [],
-     "_doc": "the loft over the nave: the ceiling's joists, boarded"}]
-s["ceilings"] = {"finish": "beaded", "rooms": "all"}
-s["inside_finish"] = {"boards": "judged", "skirting": 0.2,
+    {"id": "ground", "level": "ground", "rect": [0.1, 0.1, W - 0.1, D - 0.1], "joists": "x", "look": "wood:int_floor"}]
+s["inside_finish"] = {"boards": "judged", "skirting": 0.2, "gables": True,
                       "regions": [{"rect": [0.1, 0.1, W - 0.1, D - 0.1], "y": [FLOOR, PLATE], "finish": "plaster_whitewash", "_why": "the chimney's breast"}]}
 
 
@@ -72,13 +84,10 @@ def outside():
 
 
 def inside(a, b, level_up=True):
-    out = [{"level": "ground", "from": a, "to": b, "finish": "boards"}]
-    if level_up:
-        out.append({"level": "upper", "from": a, "to": b, "finish": "rough"})
-    return out
+    return [{"level": "ground", "from": a, "to": b, "finish": "boards"}]
 
 
-def win(at, w=0.92, h=2.6, sill=1.0, lights=8, pointed=True, rise=0.55):
+def win(at, w=0.95, h=2.4, sill=0.85, lights=8, pointed=True, rise=0.8):
     o = {"type": "window", "level": "ground", "at": at, "width": w, "height": h, "sill": sill, "lights": lights}
     if pointed:
         o["pointed"] = True
@@ -94,7 +103,7 @@ walls = [
                   win(1.3), win(W - 1.3)], "ribbon": False},
     {"_doc": "The back, behind the pulpit: one tall pointed window over it, the gable above.",
      "id": "back", "line": [[0, D], [W, D]], "out": "+z", "top": "gable", "outside": outside(), "inside": inside(0.1, W - 0.1),
-     "openings": [win(CX, 0.92, 2.4, 1.3)], "ribbon": False},
+     "openings": [win(CX, 0.92, 2.1, 1.2, rise=0.75)], "ribbon": False},
     {"_doc": "The east side, to the yard: four pointed windows.", "id": "yard", "line": [[0, 0], [0, D]], "out": "-x", "top": "plate",
      "outside": outside(), "inside": inside(0.1, D - 0.1), "openings": [win(z) for z in side_z], "ribbon": False},
     {"_doc": "The west side, to the lane: four pointed windows (the weather side: the paint is worst here).", "id": "lane", "line": [[W, 0], [W, D]], "out": "+x",
@@ -102,19 +111,26 @@ walls = [
     {"_doc": "The tower's front: its double doors onto the steps, clapboard to the belfry's floor.",
      "id": "tower_front", "line": [[TX0, TZ], [TX1, TZ]], "out": "-z", "top": BELFRY_FLOOR, "outside": outside(),
      "inside": inside(0.1, 2 * TH - 0.1, False),
-     "openings": [{"type": "door", "level": "ground", "at": TH, "width": 1.5, "height": 2.7, "leaf": "inward"}], "ribbon": False},
+     "openings": [{"type": "door", "level": "ground", "at": TH, "width": 1.5, "height": 2.25, "pointed": True, "rise": 0.75, "leaves": 2, "leaf": "inward",
+                   "_doc": "pointed double doors (#1170): the leaves to the springing, a glazed pointed head over them"}], "ribbon": False},
     {"_doc": "The tower's east side: a small window to the porch.", "id": "tower_e", "line": [[TX0, TZ], [TX0, 0.1]], "out": "-x", "top": BELFRY_FLOOR,
      "outside": outside(), "inside": inside(0.1, -TZ - 0.1 + 0.1, False), "openings": [win(TH, 0.6, 1.2, 1.4, 2, False)], "ribbon": False},
     {"_doc": "The tower's west side.", "id": "tower_w", "line": [[TX1, TZ], [TX1, 0.1]], "out": "+x", "top": BELFRY_FLOOR,
      "outside": outside(), "inside": inside(0.1, -TZ - 0.1 + 0.1, False), "openings": [win(TH, 0.6, 1.2, 1.4, 2, False)], "ribbon": False}]
 s["walls"] = walls
 s["tower"] = {
-    "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (10 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, four posts, louvres, the bell beams, a pyramidal spire of shingles on hip rafters, an iron cross. The top about 15.6 m over the ground (valley.json's bell_tower: 15 m).",
+    "_doc": "src/structures/church_tower.gd: the tower against the front gable over the porch (12 ft square): footing, sills, floor, its walls above, the belfry floor at 7.4 m, its corner posts, a pointed bell opening on each face between jamb posts with a louvred panel either side, a flared skirt, a pyramidal spire of shingles on hip rafters bell-cast at its foot, a tall iron finial (#1170); the hood over the doors and the steps' handrails. The cross about 19.5 m over the ground.",
     "x": [TX0, TX1], "z": TZ, "belfry_floor": BELFRY_FLOOR, "belfry_top": BELFRY_TOP, "spire": SPIRE, "post": 0.15,
     "louvre": {"from": BELFRY_FLOOR + 0.6, "to": BELFRY_TOP - 0.3, "step": 0.13, "gap": [CX - 0.55, CX + 0.55, BELFRY_FLOOR + 0.85, BELFRY_TOP - 0.4]},
-    "shingle": 0.22, "finial": 0.9}
+    "shingle": 0.22, "finial": 1.8, "opening": 1.0, "spring_down": 1.0,
+    "hood": {"_doc": "a small shingled gable over the doors on two brackets (#1170)", "width": 2.2, "out": 0.75, "y": FLOOR + 2.25 + 0.75 + 0.2, "pitch": 40.0},
+    "handrails": {"_doc": "an iron pipe rail either side of the three steps, set in the ground (#1170)", "half": 1.2, "run": 0.95, "top": FLOOR, "height": 0.85}}
+s["trim"] = {"_doc": "wide flat casings (5 1/2 in), a drip cap over each pointed head, thick sloped stools standing out (#1170; the blind judge's fourth note)",
+             "width": 0.14, "hood": 0.05, "sill": 0.065, "sill_out": 0.09}
+s["eaves"] = {"_doc": "boxed eaves on the side walls (#1170): fascia, soffit and frieze, white (ChurchTower._boxed_eaves)", "walls": ["yard", "lane"],
+              "fascia": 0.24, "frieze": 0.22, "past": 0.3}
 s["stairs"] = [{"_doc": "the three plank steps to the tower's door (7 in risers, 11 in treads), as wide as the doors with room on either side", "id": "front",
-                "head": [CX - 1.1, TZ], "dir": "+z", "width": 2.2, "from": 0.0, "to": "ground", "risers": 3, "going": 0.28, "wood": "painted_white"}]
+                "head": [CX - 1.1, TZ], "dir": "+z", "width": 2.2, "from": 0.0, "to": "ground", "risers": 3, "going": 0.28, "wood": "painted_white", "rail": "none"}]
 s["stage"] = {
     "_doc": "the chancel's platform, a step up (a foot) across the back, with a step down at its front: legs, bearers and joists, the boards, a boarded skirt.",
     "level": "ground", "rect": [CX - 2.6, D - 2.7, CX + 2.6, D - 0.12], "height": 0.3, "leg": 0.1, "bearer": [0.1, 0.1], "joist": [0.05, 0.1],
@@ -125,18 +141,22 @@ s["rooms"] = [
     {"id": "nave", "level": "ground", "rect": [0.1, 0.1, W - 0.1, 9.4], "use": "services: twelve pews either side of the aisle, the stove in the corner; weddings and funerals; the school's classes"},
     {"id": "chancel", "level": "ground", "rect": [CX - 2.6, 9.5, CX + 2.6, D - 0.12], "use": "the preacher at the pulpit on the platform, the hymn board beside it, the altar rail across the front"}]
 s["chimneys"] = {"_doc": "one brick (the game's stone until a brick is made) chimney in the nave's rear east corner for the stove; its top a metre over the roof beside it.",
-                 "wood": "stone", "list": [{"id": "stove", "at": [0.72, D - 0.46], "size": 0.34, "over_ridge": -1.95}]}
-s["lamps"] = {"_doc": "oil lamps on brackets down both walls, hung by the clock (#824); the pulpit's, over the platform, casts shadows.",
+                 "wood": "stone", "list": [{"id": "stove", "at": [0.72, D - 0.46], "size": 0.34, "over_ridge": -1.2}]}
+s["lamps"] = {"_doc": "the nave's oil lamps hung on chains from the trusses' ties over the aisle (#1203, the target's lanterns), lit by the clock (#824); the pulpit's two on the back wall, one casting shadows.",
               "kit": [
                   {"room": "chancel", "kit": "reflector_lamp", "wall": "back", "level": "ground", "at": CX - 1.7, "height": 2.0, "energy": 1.6, "reach": 7.0, "shadows": True, "lit": [17, 23]},
                   {"room": "chancel", "kit": "reflector_lamp", "wall": "back", "level": "ground", "at": CX + 1.7, "height": 2.0, "energy": 1.4, "reach": 6.0, "lit": [17, 23]},
-                  {"room": "nave", "kit": "reflector_lamp", "wall": "yard", "level": "ground", "at": 4.0, "height": 2.0, "energy": 1.2, "reach": 6.0, "lit": [17, 23]},
-                  {"room": "nave", "kit": "reflector_lamp", "wall": "lane", "level": "ground", "at": 4.0, "height": 2.0, "energy": 1.2, "reach": 6.0, "lit": [17, 23]},
-                  {"room": "nave", "kit": "reflector_lamp", "wall": "yard", "level": "ground", "at": 9.6, "height": 2.0, "energy": 1.2, "reach": 6.0, "lit": [17, 23]},
-                  {"room": "nave", "kit": "reflector_lamp", "wall": "lane", "level": "ground", "at": 9.6, "height": 2.0, "energy": 1.2, "reach": 6.0, "lit": [17, 23]}]}
+                  {"room": "nave", "kit": "hanging_lamp", "hang": [CX, 0], "energy": 1.4, "reach": 7.5, "lit": [17, 23]},
+                  {"room": "nave", "kit": "hanging_lamp", "hang": [CX, 1], "energy": 1.4, "reach": 7.5, "lit": [17, 23]},
+                  {"room": "nave", "kit": "hanging_lamp", "hang": [CX, 2], "energy": 1.4, "reach": 7.5, "lit": [17, 23]}]}
 s["light"] = {"_doc": "A tall room of eight long windows: the daylight comes in at them (RoomLight's window spots); the fill low and near neutral.",
               "fill": [0.62, 0.6, 0.57], "window_day": 16.0, "day_fill": 0.22}
 s["ladders"] = [{"_doc": "in the tower's porch on the nave front wall's face (its outside, the porch's inside) up to the belfry's hatch", "id": "belfry", "wall": "front", "at": round(CX + 0.875, 3), "from": FLOOR, "to": BELFRY_FLOOR + 0.26, "width": 0.45, "band": 2}]
+
+# The stove pipe's run, from over the stove to the chimney's face (the chimney's `at` and `size` below).
+_px, _pz = 1.0, D - 1.8 + 0.27
+_cx, _cz = 0.72, D - 0.46 - 0.17
+PIPE_FACING = round(math.degrees(math.atan2(_cx - _px, _cz - _pz)), 1)
 
 # Pews: two blocks of six, facing the back (+z), the aisle between.
 pews = []
@@ -168,7 +188,9 @@ dress = pews + [
     {"id": "rail_a", "kit": "altar_rail", "at": [CX - 1.25, 0.0, 9.7], "facing": 0},
     {"id": "rail_b", "kit": "altar_rail", "at": [CX + 1.25, 0.0, 9.7], "facing": 0},
     {"id": "bell", "kit": "church_bell", "at": [CX, BELFRY_FLOOR + 0.26 - FLOOR, TZ * 0.5], "facing": 0, "use": "the church bell on its stand in the belfry, over the porch"},
-    {"id": "stove", "kit": "box_stove", "at": [1.0, 0.0, D - 1.8], "facing": 90, "use": "tend_stove"}]
+    {"id": "stove", "kit": "box_stove", "at": [1.0, 0.0, D - 1.8], "facing": 90, "use": "tend_stove"},
+    {"id": "stove_pipe", "kit": "church_stove_pipe", "at": [1.0, 3.2, D - 1.8 + 0.27], "facing": PIPE_FACING,
+     "_doc": "the stove's pipe over the box stove's last joint, an elbow and a run back into the chimney (#1203: no ceiling to go through)"}]
 s["dressing"] = {"_doc": "the prop lab's church batch (tools/props/church.py): pews in two blocks of six, the pulpit and hymn stand on the chancel's platform, the altar rail in two halves with the gate between, the stove; placed by the build (SpecBuilding._dressing).",
                  "batches": {"C1": dress}}
 mat = copy.deepcopy(d["materials"])
@@ -188,8 +210,15 @@ surf = [["floor/tower/board", "floor"], ["tower_front/door_", "trim"], ["front/d
 surf.insert(0, ["tower/belfry/louvre", "trim"])
 surf.insert(0, ["tower/spire/shingle", "roof"])
 surf.insert(0, ["tower/belfry/skirt", "roof"])
+surf.insert(0, ["tower/spire/kick", "roof"])
+surf.insert(0, ["/eave/", "trim"])
+surf.insert(0, ["tower/handrail", "-"])
+surf.insert(0, ["tower/spire/finial", "-"])
+surf.insert(0, ["tower/hood/roof", "roof"])
+surf.insert(0, ["tower/belfry/skirt_ledger", "rough"])
+surf.insert(0, ["tower/belfry/opening", "trim"])
+surf.insert(0, ["tower/belfry/panel", "trim"])
 surf.insert(0, ["roof/board", "roof"])
-surf += [["floor/attic/board", "floor"]]
 mat["surfaces"] = surf
 s["materials"] = mat
 s["sources"] = d["sources"]

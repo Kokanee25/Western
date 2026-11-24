@@ -1,0 +1,148 @@
+{
+  "_doc": "The sitter's chair (#1181; the photographer's): a walnut parlour chair with a dark cloth thrown over its back, set before the posing stand. Empty. 7 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "posing_chair",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "walnut",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.45,
+        0.045
+      ],
+      "at": [
+        0.2,
+        0.225,
+        -0.2
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.45,
+        0.045
+      ],
+      "at": [
+        0.2,
+        0.225,
+        0.2
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "back_post0",
+      "kind": "post",
+      "size": [
+        0.045,
+        1.05,
+        0.045
+      ],
+      "at": [
+        -0.2,
+        0.525,
+        -0.2
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "back_post1",
+      "kind": "post",
+      "size": [
+        0.045,
+        1.05,
+        0.045
+      ],
+      "at": [
+        -0.2,
+        0.525,
+        0.2
+      ],
+      "look": "lib:furniture_walnut/old"
+    },
+    {
+      "id": "seat",
+      "kind": "furniture_top",
+      "size": [
+        0.5,
+        0.05,
+        0.5
+      ],
+      "at": [
+        0.0,
+        0.475,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old/top"
+    },
+    {
+      "id": "back_rail",
+      "kind": "furniture_frame",
+      "size": [
+        0.04,
+        0.16,
+        0.36
+      ],
+      "at": [
+        -0.2,
+        0.92,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old/top"
+    },
+    {
+      "id": "drape",
+      "kind": "trim",
+      "size": [
+        0.26,
+        0.46,
+        0.46
+      ],
+      "at": [
+        -0.19,
+        0.84,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:hide_dark",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.04,
+              0.46,
+              0.44
+            ],
+            "at": [
+              -0.0,
+              0.1,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.2,
+              0.025,
+              0.4
+            ],
+            "at": [
+              0.06,
+              -0.1,
+              0.0
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

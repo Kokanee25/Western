@@ -1,0 +1,296 @@
+{
+  "_doc": "The embalmer's stand (#1181; arterial embalming by hand pump spread after the Civil War, Renouard 1878): a small pine table 0.64 high with a hand force-pump on it (an iron barrel, a lever handle, red rubber tubes), a glass jar of fluid and an amber bottle. The glass breaks as a member. 8 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "embalming_pump",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "leg0",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.62,
+        0.045
+      ],
+      "at": [
+        -0.22,
+        0.31,
+        -0.17
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg1",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.62,
+        0.045
+      ],
+      "at": [
+        0.22,
+        0.31,
+        -0.17
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg2",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.62,
+        0.045
+      ],
+      "at": [
+        -0.22,
+        0.31,
+        0.17
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "leg3",
+      "kind": "post",
+      "size": [
+        0.045,
+        0.62,
+        0.045
+      ],
+      "at": [
+        0.22,
+        0.31,
+        0.17
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "top",
+      "kind": "furniture_top",
+      "size": [
+        0.56,
+        0.03,
+        0.44
+      ],
+      "at": [
+        0.0,
+        0.635,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top"
+    },
+    {
+      "id": "pump",
+      "kind": "trim",
+      "size": [
+        0.09,
+        0.3,
+        0.09
+      ],
+      "at": [
+        -0.12,
+        0.8,
+        0.02
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            -0.15
+          ],
+          [
+            0.045,
+            -0.15
+          ],
+          [
+            0.045,
+            0.1
+          ],
+          [
+            0.03,
+            0.15
+          ],
+          [
+            0.0,
+            0.15
+          ]
+        ],
+        "segments": 10
+      },
+      "dress": [
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "from": [
+                  -0.12,
+                  0.2,
+                  0.02
+                ],
+                "to": [
+                  0.0,
+                  0.23,
+                  0.02
+                ],
+                "thick": 0.014
+              },
+              {
+                "from": [
+                  0.0,
+                  0.23,
+                  0.02
+                ],
+                "to": [
+                  0.12,
+                  0.36,
+                  0.02
+                ],
+                "thick": 0.014
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:leather",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "from": [
+                  -0.06,
+                  -0.12,
+                  0.04
+                ],
+                "to": [
+                  0.1,
+                  -0.15,
+                  0.1
+                ],
+                "thick": 0.016
+              },
+              {
+                "from": [
+                  0.1,
+                  -0.15,
+                  0.1
+                ],
+                "to": [
+                  0.2,
+                  -0.1,
+                  0.1
+                ],
+                "thick": 0.016
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "jar",
+      "kind": "glass",
+      "size": [
+        0.16,
+        0.26,
+        0.16
+      ],
+      "at": [
+        0.14,
+        0.78,
+        0.0
+      ],
+      "wood": "glass",
+      "look": "glass:aqua",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            -0.13
+          ],
+          [
+            0.07,
+            -0.13
+          ],
+          [
+            0.08,
+            -0.08
+          ],
+          [
+            0.08,
+            0.08
+          ],
+          [
+            0.05,
+            0.12
+          ],
+          [
+            0.045,
+            0.13
+          ],
+          [
+            0.0,
+            0.13
+          ]
+        ],
+        "segments": 12
+      }
+    },
+    {
+      "id": "bottle",
+      "kind": "glass",
+      "size": [
+        0.1,
+        0.22,
+        0.1
+      ],
+      "at": [
+        0.2,
+        0.75,
+        0.16
+      ],
+      "wood": "glass",
+      "look": "glass:amber",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            -0.11
+          ],
+          [
+            0.045,
+            -0.11
+          ],
+          [
+            0.05,
+            0.02
+          ],
+          [
+            0.02,
+            0.07
+          ],
+          [
+            0.02,
+            0.11
+          ],
+          [
+            0.0,
+            0.11
+          ]
+        ],
+        "segments": 10
+      }
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

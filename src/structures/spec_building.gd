@@ -191,6 +191,10 @@ func build() -> void:
 	depth = float(lot.depth)
 	floor_top = float(lv.ground.top)
 	wall_height = float(lv.plate)
+	var tr_: Dictionary = spec.get("trim", {})
+	trim_w = float(tr_.get("width", TRIM_W))
+	sill_t = float(tr_.get("sill", sill_t))
+	sill_out = float(tr_.get("sill_out", sill_out))
 	front_height = float(lv.false_front)
 	roof_pitch_degrees = float(lv.roof_pitch)
 	var front: Dictionary = spec.get("front", {})
@@ -214,7 +218,7 @@ func build() -> void:
 	walls.clear()
 	# What the last build made that isn't a member (Structure.rebuild frees only those).
 	for c in get_children():
-		if c == _furnish or String(c.name).begins_with("Ramp_") or c.name in [&"InteriorAmbient", &"RoomHaze"]:
+		if c == _furnish or String(c.name).begins_with("Ramp_") or c.name in [&"InteriorAmbient", &"RoomHaze", &"CellarHaze", &"PastStains"]:
 			c.free()
 	_furnish = Node3D.new()
 	_furnish.name = "Furnishings"
@@ -275,10 +279,15 @@ func build() -> void:
 		# A common-rafter roof tied by the loft's joists (the doctor's), then what a small building has.
 		band = 1
 		_braces()
+		if _fr.has("trusses"):
+			# Open to the roof (#1203, the church's nave): trusses at its bays under the commons.
+			band = 4
+			_queen_trusses()
 		band = 6
 		_rafter_roof()
-		band = 4
-		_ceilings()
+		if spec.has("ceilings"):
+			band = 4
+			_ceilings()
 		band = 0
 		_chimneys()
 		band = 1
@@ -318,6 +327,24 @@ func build() -> void:
 	marks = Marks.place(self, spec)
 	_library_finishes()
 	_stone_finish()
+	_past_stains()
+
+
+## The building's old blood by its `past` (#1187, the undertaker's cellar): PastStains lays it through
+## Blood and FloorMarks once the building is in a world (src/art/past_stains.gd).
+func _past_stains() -> void:
+	var any := false
+	for ev: Dictionary in spec.get("past", []):
+		any = any or not (ev.get("blood", []) as Array).is_empty()
+	for lamp: OilLamp in lamps:
+		any = any or lamp.has_meta(&"smoky")
+	if not any:
+		return
+	var ps := PastStains.new()
+	ps.name = "PastStains"
+	ps.spec = spec
+	ps.building = self
+	add_child(ps)
 
 
 # --- things hung on a wall, and the repair jobs left in a building (#1126, Harlan's) ---------------
@@ -513,6 +540,24 @@ func _add_interior_ambient() -> void:
 	if haze:
 		haze.size = probe.size
 		haze.position = probe.position
+	if light.has("cellar_haze") and cel.has("rect") and GunSmoke.supports_fog_volumes():
+		# The cellar's close air (#1187): damp and the lamps' smoke, a box over its rooms from the flags to the joists.
+		var ch: Dictionary = light.cellar_haze
+		var r: Array = cel.rect
+		var lo := float(_lv.cellar)
+		var hi := float(_lv.ground_joist_bottom)
+		var fog := FogVolume.new()
+		fog.name = "CellarHaze"
+		fog.shape = RenderingServer.FOG_VOLUME_SHAPE_BOX
+		fog.size = Vector3(float(r[2]) - float(r[0]), hi - lo, float(r[3]) - float(r[1]))
+		fog.position = Vector3((float(r[0]) + float(r[2])) * 0.5, (hi + lo) * 0.5, (float(r[1]) + float(r[3])) * 0.5)
+		var fm := FogMaterial.new()
+		fm.density = float(ch.get("density", 0.04))
+		var al: Array = ch.get("albedo", [0.6, 0.6, 0.6])
+		fm.albedo = Color(al[0], al[1], al[2])
+		fm.height_falloff = 0.3
+		fog.material = fm
+		add_child(fog)
 	if light.has("window_day"):
 		set_meta(&"room_window_gain", float(light.window_day))
 	if light.has("day_fill"):
@@ -1130,7 +1175,7 @@ func _openings(w: Dictionary, level := "") -> Array:
 		# (a cellar's openings from its flags' top, #1174)
 		var y0 := (_lv[lvl] as float) + (0.08 if lvl == "cellar" else 0.0) + float(o.get("sill", 0.0))
 		# A pointed window's opening runs on up to its apex (SashWindow.pointed_head; `height` is to the springing).
-		var h := float(o.height) + (float(o.get("rise", 0.0)) if o.get("pointed", false) and o.type == "window" else 0.0)
+		var h := float(o.height) + (float(o.get("rise", 0.0)) if o.get("pointed", false) and o.type in ["window", "door"] else 0.0)
 		out.append([Rect2(float(o.at) - float(o.width) * 0.5, y0, float(o.width), h), o, lvl])
 	return out
 
@@ -1237,18 +1282,23 @@ func _outer_walls() -> void:
 				_opening_trim(wall, o[0], false)
 				Storefront.recess(self, wall, o[0], _recess_spec(spec_o), StringName(spec.materials.get("trim_outside", "dark_trim")))
 				continue
-			var rise := float(spec_o.get("rise", 0.0)) if window and spec_o.get("pointed", false) else 0.0
+			var rise := float(spec_o.get("rise", 0.0)) if (window or spec_o.type == "door") and spec_o.get("pointed", false) else 0.0
 			var sq: Rect2 = o[0]
 			sq.size.y -= rise
 			# (a pointed head's casing is the window's own, slanted to the point: SashWindow)
 			_opening_trim(wall, sq, window or spec_o.type == "hatch", rise <= 0.0)
+			if spec_o.type == "door" and rise > 0.0:
+				# A pointed door (#1170, the church): the leaves stand to the springing, under a transom bar,
+				# and the head over them is a pointed window's fixed head sash (SashWindow.pointed_head).
+				SashWindow.pointed_head(self, wall, o[0], rise, {"wood": StringName(spec.materials.get("trim_outside", "dark_trim")),
+						"face_wood": wood, "level": String(o[2]), "hood": float(spec.get("trim", {}).get("hood", 0.0))})
 			if window and spec_o.get("show", false):
 				# A storefront's show window (#1053): plate glass, a transom row, a panelled bulkhead.
 				Storefront.show_window(self, wall, o[0], spec_o, StringName(spec.materials.get("trim_outside", "dark_trim")))
 			elif window and spec_o.has("lights"):
 				# A sash window (#826): lined, two sashes, a pane a light (SashWindow, the part).
 				SashWindow.build(self, wall, o[0], int(spec_o.lights), {"wood": StringName(spec.materials.get("trim_outside", "dark_trim")),
-						"rise": rise, "face_wood": wood, "level": String(o[2])})
+						"rise": rise, "face_wood": wood, "level": String(o[2]), "hood": float(spec.get("trim", {}).get("hood", 0.0))})
 			elif window:
 				_glass(wall, o[0])
 			if spec_o.get("bars", false):
@@ -1275,6 +1325,8 @@ func _outer_walls() -> void:
 					seg += 1
 			var fid := "%s/in_%s" % [w.id, lvl] if seg == 0 else "%s/in_%s/s%d" % [w.id, lvl, seg]
 			_finish(face, fid, float(fin.from), float(fin.to), y0, y1, String(fin.finish), _rects_on(ops, lvl), 1)
+		if top_kind == "gable" and bool(spec.get("inside_finish", {}).get("gables", false)):
+			_gable_lining(w, wall, tanp)
 		# Doors in it.
 		for o in ops:
 			var so: Dictionary = o[1]
@@ -1282,6 +1334,10 @@ func _outer_walls() -> void:
 				band = 4 if o[2] == "upper" else clad  # a leaf stands on the floor it opens on
 				var lr: Rect2 = o[0]
 				var tr := float(so.get("transom", 0.0))
+				if so.get("pointed", false):
+					# (its pointed head's glass is the transom: the bar at the springing, the leaves under it)
+					lr.size.y -= float(so.get("rise", 0.0)) + 0.05
+					_wall_member("%s/transom_bar_%d" % [w.id, int(lr.position.x * 100)], &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), wall, lr.position.x, lr.end.x, lr.end.y, lr.end.y + 0.05, -STUD_D, BOARD_T)
 				if tr > 0.0:
 					# A transom light over the leaf: its bar and its glass in the one opening.
 					lr.size.y -= tr
@@ -1301,6 +1357,47 @@ func _outer_walls() -> void:
 					if leaf:
 						leaf.collision_layer = Layers.DEBRIS
 		band = 1
+
+
+## A gable wall's inside boarded up to the roof (spec `inside_finish.gables`: a room open to its roof,
+## the church's nave, #1203): from where its ground floor's finish stops (`levels.upper`) up the
+## triangle, upright boards each cut to the commons' underside, on nailers cut to the slope. Ids
+## `<wall>/in_upper/gable/...` (the inside's finish).
+func _gable_lining(w: Dictionary, wall: Dictionary, tanp: float) -> void:
+	var face := _face(wall, -STUD_D, -1.0)
+	var y0 := _lv.upper as float
+	var under := _roof_under()
+	var L := float(wall.length)
+	var roof_at := func(x: float) -> float: return under + maxf(minf(x, L - x), 0.0) * tanp - 0.03
+	var id := "%s/in_upper/gable" % w.id
+	var s0 := STUD_D
+	var s1 := L - STUD_D
+	var ny := y0 + 0.1
+	var ni := 0
+	while ny < under + L * 0.5 * tanp - 0.4:
+		# The nailer's run: where the roof is over it by a board's width.
+		var reach := (ny + 0.15 - under) / tanp
+		var a := maxf(s0, reach)
+		var b := minf(s1, L - reach)
+		if b - a > 0.1:
+			_on_face(face, "%s/nailer/%d" % [id, ni], &"cripple", &"framing", a, b - 0.003, ny - 0.045, ny + 0.045, -0.025, 0.0)
+		ny += 0.8
+		ni += 1
+	var strip := _judged_board_w(id + "/board/")
+	var bw := strip * maxi(1, roundi(0.24 / strip)) if strip > 0.0 else 0.24
+	var s := s0
+	var i := 0
+	while s < s1 - 0.02:
+		var e := minf(s + bw, s1)
+		var top := minf(roof_at.call(s), roof_at.call(e))
+		if top - y0 > 0.05:
+			var m := _on_face(face, "%s/board/%03d" % [id, i], &"board", &"framing", s + 0.0005, e - 0.0005, y0, top, 0.0, 0.02)
+			(m.get_child(0) as MeshInstance3D).material_override = WoodMaterials.get_material(StringName(spec.materials.wall_boards), hash(m.member_id))
+			if strip > 0.0:
+				m.set_meta(&"strips", strip)
+				m.set_meta(&"strips_across", 0 if absf((face.along as Vector3).x) > 0.5 else 2)
+		s = e
+		i += 1
 
 
 ## A hewn log wall (#1126; `log: true`, frame.log_wall: LogWall, the part): its courses from the sill's
@@ -1787,7 +1884,7 @@ func _stair(st: Dictionary, lower: float, upper: float) -> void:
 		var q := Vector3(p[0], 0, p[1]) - Vector3(foot.x, 0, foot.z)
 		posts.append([q.dot(up), q.dot(across)])
 	var made := Stair.build(self, "stair/" + String(st.id), head, up, across, float(st.width), risers, rise, float(st.going),
-			{"rail": 1 if _axis(String(st.get("rail", "+x"))).dot(across) > 0.0 else -1, "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
+			{"rail": 0 if String(st.get("rail", "+x")) == "none" else (1 if _axis(String(st.get("rail", "+x"))).dot(across) > 0.0 else -1), "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
 			"stringer_look": st.get("stringer_look", st.get("look", "")), "ground_block": st.get("ground_block", false)})
 	ramps.append([made.ramp, made.stringers])
 
@@ -2484,6 +2581,18 @@ func _lamps() -> void:
 ## carries its OilLamp (the flame's light, lit by the clock; GlassProp takes it as its hitbox).
 func _kit_lamps(L: Dictionary) -> void:
 	for e: Dictionary in L.get("kit", []):
+		if e.has("hang"):
+			# Hung on its hook from a truss's tie (#1203, the church's nave: `hang` [x, truss index]):
+			# its hook at the tie's underside (it falls when the tie goes: GlassProp's hook).
+			var hd := PropKit.definition(StringName(e.kit))
+			var hook := PropKit.vec(hd.get("hangs", {}).get("hook", [0, 1.0, 0]))
+			var hz := float(_fr.trusses.at[int(e.hang[1])])
+			var hp := PropKit.make(StringName(e.kit))
+			hp.name = "KitLamp%02d" % lamps.size()
+			hp.transform = Transform3D(Basis(), Vector3(float(e.hang[0]), wall_height - hook.y - 0.004, hz) - Vector3(hook.x, 0, hook.z))
+			_furnish.add_child(hp)
+			_kit_lamp_light(hp, e, [0.0, float(hd.get("light_height", 0.3)), 0.0])
+			continue
 		var wl: Dictionary = walls[e.wall]
 		var wall: Dictionary = wl.dict
 		var partition: bool = wl.spec.get("partition", false)
@@ -2508,20 +2617,32 @@ func _kit_lamps(L: Dictionary) -> void:
 		prop.name = "KitLamp%02d" % lamps.size()
 		prop.transform = Transform3D(Basis(Vector3.UP, atan2(into.x, into.z)), Vector3(p.x, foot, p.z) + into * back)
 		_furnish.add_child(prop)
-		var lamp := OilLamp.new()
-		lamp.name = "Light"
-		lamp.show_mesh = false
-		var lit: Array = e.get("lit", [17, 23])
-		lamp.lit_from_hour = int(lit[0])
-		lamp.lit_until_hour = int(lit[1])
-		lamp.energy = float(e.get("energy", 1.2))
-		lamp.light_range = float(e.get("reach", 6.0))
-		lamp.casts_shadows = bool(e.get("shadows", false))
 		# The flame: over the fount, in front of the reflector.
-		var flame: Array = e.get("flame", [0.0, 0.24, 0.04])
-		lamp.position = Vector3(flame[0], flame[1], flame[2])
-		prop.add_child(lamp)
-		lamps.append(lamp)
+		_kit_lamp_light(prop, e, [0.0, 0.24, 0.04])
+
+
+## A kit lamp's light (an OilLamp at its flame, `flame` or the kit's), lit by the clock (`lit`).
+func _kit_lamp_light(prop: Node3D, e: Dictionary, flame_at: Array) -> void:
+	var lamp := OilLamp.new()
+	lamp.name = "Light"
+	lamp.show_mesh = false
+	var lit: Array = e.get("lit", [17, 23])
+	lamp.lit_from_hour = int(lit[0])
+	lamp.lit_until_hour = int(lit[1])
+	lamp.energy = float(e.get("energy", 1.2))
+	lamp.light_range = float(e.get("reach", 6.0))
+	lamp.casts_shadows = bool(e.get("shadows", false))
+	if e.has("smoky"):
+		# A wick turned high and smoking (#1187, the embalming room's): a deeper flame, a halo in the air,
+		# soot up the boards over it (PastStains).
+		var sm := float(e.smoky)
+		lamp.colour = Color(1.0, 0.74, 0.48).lerp(Color(1.0, 0.56, 0.27), sm)
+		lamp.haze = 1.2 + 2.0 * sm
+		lamp.set_meta(&"smoky", sm)
+	var flame: Array = e.get("flame", flame_at)
+	lamp.position = Vector3(flame[0], flame[1], flame[2])
+	prop.add_child(lamp)
+	lamps.append(lamp)
 
 
 ## The kit's fixtures and furniture, and the lamps that stand on them.
@@ -2709,10 +2830,24 @@ func _chimney_openings() -> void:
 
 
 ## The rafters' lines along the building: one over each gable wall, and one beside each of the
-## loft's joists (so every rafter's foot is spiked to a joist: the joists are the roof's ties).
+## loft's joists (so every rafter's foot is spiked to a joist: the joists are the roof's ties). With
+## trusses (`frame.trusses`, no loft) they're at the rafters' `spacing`, none where a truss stands.
 func _rafter_lines() -> Array[float]:
 	var rf: Array = _fr.rafters.rafter
 	var out: Array[float] = [float(rf[0]) * 0.5 + 0.025]
+	if _fr.has("trusses"):
+		var last := depth - float(rf[0]) * 0.5 - 0.025
+		var n := maxi(1, roundi((last - out[0]) / float(_fr.rafters.spacing)))
+		var clear := float(_fr.trusses.get("clear", 0.2))
+		for k in range(1, n):
+			var z := lerpf(out[0], last, float(k) / n)
+			var near := false
+			for tz: float in _fr.trusses.at:
+				near = near or absf(z - tz) < clear
+			if not near:
+				out.append(z)
+		out.append(last)
+		return out
 	var cj: Dictionary = _fr.get("ceiling_joist", _fr.joist)
 	var js: Array = cj.section
 	for f: Dictionary in spec.floors:
@@ -2728,6 +2863,66 @@ func _rafter_lines() -> Array[float]:
 		break
 	out.append(depth - float(rf[0]) * 0.5 - 0.025)
 	return out
+
+
+## Queen-post trusses under a common-rafter roof (spec `frame.trusses`, the church's open nave, #1203;
+## Hodgson 1883 and Tredgold's "Carpentry" on a 28-30 ft span: a tie beam, two principals, two queen
+## posts at the thirds and a straining beam between their heads; purlins on the principals carry the
+## commons). At each of `at` (z): the tie across the walls' plates (its ends under the commons' tails,
+## no deeper than the boards over them), the principals from the tie up to the ridge line, a purlin's
+## depth under the commons' underside; the queen posts from the tie to them; the straining beam
+## across under the principals at the posts' heads. The purlins run along each slope at `purlins`
+## (x in from the wall's face) from the gable walls' studs over every truss. A tie's underside is
+## what a lamp hangs from (`lamps.kit`'s `hang`). Ids `truss/<k>/...`, `truss/purlin_<side>_<x>/<k>`.
+func _queen_trusses() -> void:
+	var t: Dictionary = _fr.trusses
+	var tie: Array = t.tie
+	var pr: Array = t.principal
+	var qp: Array = t.queen
+	var sb: Array = t.straining
+	var pu: Array = t.purlin
+	var ang := deg_to_rad(roof_pitch_degrees)
+	var half := width * 0.5
+	var y0 := wall_height
+	var yt := y0 + float(tie[1])
+	# The principal's top a purlin's depth under the commons' underside, its underside a principal's under that.
+	var n_top := float(pu[1])
+	var n_bot := n_top + float(pr[1])
+	var under := func(x: float) -> float: return y0 + minf(x, width - x) * tan(ang) - n_bot / cos(ang)
+	var s_foot := (float(tie[1]) + n_bot * cos(ang)) / sin(ang) - 0.03  # (let into the tie a little)
+	var s_top := (half - (n_top + float(pr[1]) * 0.5) * sin(ang)) / cos(ang)
+	var zs: Array = t.at
+	for k in zs.size():
+		var z := float(zs[k])
+		var id := "truss/%d" % k
+		add_member(id + "/tie", &"beam", &"framing", Vector3(width, tie[1], tie[0]), Vector3(half, (y0 + yt) * 0.5, z))
+		for side in 2:
+			var sl := _slope(side)
+			var c := (sl.eave as Vector3) + Vector3(0, y0, z) + (sl.dir as Vector3) * ((s_foot + s_top) * 0.5) - (sl.normal as Vector3) * ((n_top + n_bot) * 0.5)
+			add_member("%s/principal_%d" % [id, side], &"rafter", &"framing", Vector3(s_top - s_foot, pr[1], pr[0]), c, sl.basis)
+		var qx: Array = [width / 3.0, width * 2.0 / 3.0]
+		var head: float = under.call(qx[0]) + 0.01
+		for e in 2:
+			add_member("%s/queen_%d" % [id, e], &"board", &"framing", Vector3(qp[0], head - yt, qp[1]), Vector3(qx[e], (head + yt) * 0.5, z))
+		var sx := float(qx[0]) - float(qp[0]) * 0.5
+		var sy: float = under.call(qx[0] + float(qp[0]) * 0.5)
+		add_member(id + "/straining", &"trim", &"framing", Vector3(width - 2.0 * sx, sb[1], sb[0]), Vector3(half, sy - float(sb[1]) * 0.5 + 0.005, z))
+	# The purlins over the principals' backs, from the gables' studs, butted over each truss.
+	var stops: Array = [STUD_D]
+	for z: float in zs:
+		stops.append(z)
+	stops.append(depth - STUD_D)
+	for side in 2:
+		var sl := _slope(side)
+		for px: float in t.purlins:
+			var s := px / cos(ang) - n_top * 0.5 * tan(ang)
+			# (a few mm into the principals under and the commons over: what it rests on, what rests on it)
+			var p := (sl.eave as Vector3) + Vector3(0, y0, 0) + (sl.dir as Vector3) * s - (sl.normal as Vector3) * (n_top * 0.5)
+			for k in stops.size() - 1:
+				var a := float(stops[k]) + 0.001
+				var b := float(stops[k + 1]) - 0.001
+				p.z = (a + b) * 0.5
+				add_member("truss/purlin_%d_%d/%d" % [side, int(px * 100), k], &"ridge", &"framing", Vector3(pu[0], float(pu[1]) + 0.006, b - a), p, sl.basis)
 
 
 ## The roof (Hodgson 1883): common rafters from the plates (their feet spiked to the loft's joists)
@@ -2794,7 +2989,7 @@ func _rafter_roof() -> void:
 	var xc := half * (1.0 - float(r.collar_down))
 	var ct: Array = r.collar
 	for i in range(1, zs.size() - 1):
-		if i % int(r.collar_every) != 0:
+		if int(r.collar_every) <= 0 or i % int(r.collar_every) != 0:
 			continue
 		add_member("roof/collar/%02d" % i, &"rafter", &"framing", Vector3(width - 2.0 * xc, ct[1], ct[0]),
 				Vector3(half, yc + float(ct[1]) * 0.5, zs[i] + (float(rf[0]) + float(ct[0])) * 0.5))
@@ -2812,9 +3007,12 @@ func _rafter_roof() -> void:
 		var s := 0.0
 		# `levels.roof_tight`: the boards butted (a big roof seen from inside shows the 3 mm gaps as
 		# specks of sky, #867).
-		var roof_gap := 0.0 if bool(spec.levels.get("roof_tight", false)) else 0.003
+		var tight := bool(spec.levels.get("roof_tight", false))
+		var roof_gap := 0.0 if tight else 0.003
+		var step := float((spec.get("shakes", {}) as Dictionary).get("skip", 0.15))
 		while s < slope - 0.02:
-			var bw := minf(0.145, slope - s)
+			# (tight, a board fills its row: the church's open nave saw the sky between them, #1203)
+			var bw := minf(step if tight and not spec.has("shakes") else 0.145, slope - s)
 			var sa := s - over  # along the slope from the wall's face
 			var spans: Array = [[r0, r1]]
 			for hl: Dictionary in holes:
@@ -2839,7 +3037,7 @@ func _rafter_roof() -> void:
 					at = nx
 					cut += 4.9
 			# Under shakes, skip sheathing: the boards spaced (the shakes span the gaps, #1126).
-			s += float((spec.get("shakes", {}) as Dictionary).get("skip", 0.15))
+			s += step
 			row += 1
 	if spec.has("shakes"):
 		band = 9

@@ -1,0 +1,249 @@
+{
+  "_doc": "His tool rack (#1181): a pine board with pegs hung on the workroom's wall, two panel saws, a jointer and a smoothing plane, a try square (drawn on). Hung on a nail at each end. 1 physics body. Written by tools/props/undertaker.py.",
+  "id": "tool_rack",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "board",
+      "kind": "post",
+      "size": [
+        1.3,
+        0.55,
+        0.03
+      ],
+      "at": [
+        0.0,
+        0.0,
+        0.015
+      ],
+      "wood": "weathered_pine",
+      "look": "lib:furniture_painted_pine/few",
+      "dress": [
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.06,
+                  0.34,
+                  0.004
+                ],
+                "at": [
+                  -0.5,
+                  -0.02,
+                  0.05
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.09,
+                  0.1,
+                  0.03
+                ],
+                "at": [
+                  -0.5,
+                  0.19,
+                  0.055
+                ]
+              },
+              {
+                "size": [
+                  0.06,
+                  0.34,
+                  0.004
+                ],
+                "at": [
+                  -0.3,
+                  -0.02,
+                  0.05
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.09,
+                  0.1,
+                  0.03
+                ],
+                "at": [
+                  -0.3,
+                  0.19,
+                  0.055
+                ]
+              },
+              {
+                "size": [
+                  0.22,
+                  0.012,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  -0.05,
+                  0.05
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "wood:framing",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.07,
+                  0.06,
+                  0.4
+                ],
+                "at": [
+                  0.28,
+                  -0.04,
+                  0.06
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              {
+                "size": [
+                  0.07,
+                  0.06,
+                  0.3
+                ],
+                "at": [
+                  0.46,
+                  -0.04,
+                  0.06
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "wood:framing",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.025,
+                  0.02,
+                  0.025
+                ],
+                "at": [
+                  -0.5,
+                  0.2,
+                  0.04
+                ]
+              },
+              {
+                "size": [
+                  0.025,
+                  0.02,
+                  0.025
+                ],
+                "at": [
+                  -0.3,
+                  0.2,
+                  0.04
+                ]
+              },
+              {
+                "size": [
+                  0.025,
+                  0.02,
+                  0.025
+                ],
+                "at": [
+                  0.28,
+                  0.2,
+                  0.04
+                ]
+              },
+              {
+                "size": [
+                  0.025,
+                  0.02,
+                  0.025
+                ],
+                "at": [
+                  0.46,
+                  0.2,
+                  0.04
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.02,
+                  0.3,
+                  0.012
+                ],
+                "at": [
+                  0.6,
+                  0.0,
+                  0.05
+                ]
+              },
+              {
+                "size": [
+                  0.14,
+                  0.012,
+                  0.012
+                ],
+                "at": [
+                  0.6,
+                  0.15,
+                  0.05
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "hangs": {
+    "nails": [
+      [
+        -0.55,
+        0.0,
+        0.004
+      ],
+      [
+        0.55,
+        0.0,
+        0.004
+      ]
+    ]
+  },
+  "drawn_bounds": true,
+  "factory": "tools/props/undertaker.py"
+}

@@ -1,0 +1,231 @@
+{
+  "_doc": "The shroud shelf (#1181): pine uprights and four boards, shrouds of white muslin folded in pairs on the middle two (the burial shroud was the undertaker's stock: a plain white gown folded flat). 14 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "shroud_shelf",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "side_l",
+      "kind": "post",
+      "size": [
+        0.04,
+        1.9,
+        0.34
+      ],
+      "at": [
+        -0.48,
+        0.95,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "side_r",
+      "kind": "post",
+      "size": [
+        0.04,
+        1.9,
+        0.34
+      ],
+      "at": [
+        0.48,
+        0.95,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "shelf0",
+      "kind": "furniture_top",
+      "size": [
+        0.96,
+        0.03,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.1,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "shelf1",
+      "kind": "furniture_top",
+      "size": [
+        0.96,
+        0.03,
+        0.34
+      ],
+      "at": [
+        0.0,
+        0.65,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "shelf2",
+      "kind": "furniture_top",
+      "size": [
+        0.96,
+        0.03,
+        0.34
+      ],
+      "at": [
+        0.0,
+        1.2,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "shelf3",
+      "kind": "furniture_top",
+      "size": [
+        0.96,
+        0.03,
+        0.34
+      ],
+      "at": [
+        0.0,
+        1.75,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "shroud0_0_0",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        -0.2,
+        0.7,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    },
+    {
+      "id": "shroud0_0_1",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        -0.2,
+        0.77,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    },
+    {
+      "id": "shroud0_1_0",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        0.22,
+        0.7,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    },
+    {
+      "id": "shroud0_1_1",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        0.22,
+        0.77,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    },
+    {
+      "id": "shroud1_0_0",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        -0.2,
+        1.25,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    },
+    {
+      "id": "shroud1_0_1",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        -0.2,
+        1.32,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    },
+    {
+      "id": "shroud1_1_0",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        0.22,
+        1.25,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    },
+    {
+      "id": "shroud1_1_1",
+      "kind": "trim",
+      "size": [
+        0.4,
+        0.07,
+        0.3
+      ],
+      "at": [
+        0.22,
+        1.32,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas"
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

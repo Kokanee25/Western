@@ -1277,7 +1277,7 @@
     16.3,
     9.15
    ],
-   "_doc": "the pigeonholes bay, west_shelves_d (G3 fits it out)"
+   "_doc": "the pigeonholes bay, west_shelves_d (G3, #1182: the case of pigeonholes; the postmaster's desk behind him at the back wall)"
   },
   {
    "id": "buy_1",
@@ -1682,7 +1682,7 @@
   ]
  },
  "dressing": {
-  "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth), #1172 batch G2 (the shelves' tins and boxes, boots, hats, hardware, tinware, the coffee mill and a showcase, hung lamps): PropDressing, written by tools/props/store_g1.py and store_g2.py",
+  "_doc": "#1074 the show windows' goods, #1139 batch G1 (the counters, wall shelving and ladders, the stove and its chairs, the barrels, sacks, scales and bolts of cloth), #1172 batch G2 (the shelves' tins and boxes, boots, hats, hardware, tinware, the coffee mill and a showcase, hung lamps), #1182 batch G3 (the post office's pigeonholes and mail, the postmaster's desk, the ledger and day-book, the till's cash, hung pails, hams and lanterns): PropDressing, written by tools/props/store_g1.py, store_g2.py and store_g3.py",
   "batches": {
    "windows": [
     {
@@ -2047,21 +2047,6 @@
       0.46,
       3.2,
       2.05
-     ]
-    },
-    {
-     "id": "west_shelves_d",
-     "kit": "store_shelving",
-     "at": [
-      16.476,
-      0.0,
-      9.15
-     ],
-     "facing": 180,
-     "fit": [
-      0.46,
-      3.2,
-      1.7
      ]
     },
     {
@@ -3615,36 +3600,6 @@
      "facing": 272.385
     },
     {
-     "id": "case_row_west_d_top_0",
-     "kit": "case_row",
-     "at": [
-      16.476,
-      3.2,
-      8.704
-     ],
-     "facing": 268.645
-    },
-    {
-     "id": "case_row_west_d_top_1",
-     "kit": "case_row",
-     "at": [
-      16.476,
-      3.2,
-      9.31
-     ],
-     "facing": 268.005
-    },
-    {
-     "id": "case_row_west_d_top_end",
-     "kit": "case_row_half",
-     "at": [
-      16.476,
-      3.2,
-      9.9
-     ],
-     "facing": 270
-    },
-    {
      "id": "coffee_mill",
      "kit": "coffee_mill",
      "at": [
@@ -3688,7 +3643,7 @@
      "id": "coffeepot_back",
      "kit": "coffeepot",
      "at": [
-      12.25,
+      12.0,
       0.94,
       8.65
      ],
@@ -3698,7 +3653,7 @@
      "id": "kettle_back",
      "kit": "tea_kettle",
      "at": [
-      12.7,
+      12.3,
       0.94,
       8.7
      ],
@@ -3708,7 +3663,7 @@
      "id": "pail_back",
      "kit": "tin_pail",
      "at": [
-      14.3,
+      14.62,
       0.94,
       8.68
      ],
@@ -3812,6 +3767,208 @@
      "light": 0.33,
      "shadows": false,
      "energy": 1.0
+    }
+   ],
+   "G3": [
+    {
+     "id": "post_case",
+     "kit": "post_case",
+     "at": [
+      16.476,
+      0.0,
+      9.15
+     ],
+     "facing": 180
+    },
+    {
+     "id": "mail_0",
+     "kit": "mail_row_a",
+     "at": [
+      16.476,
+      1.258,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "mail_1",
+     "kit": "mail_row_b",
+     "at": [
+      16.476,
+      1.458,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "mail_2",
+     "kit": "mail_row_c",
+     "at": [
+      16.476,
+      1.657,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "mail_3",
+     "kit": "mail_row_d",
+     "at": [
+      16.476,
+      1.857,
+      9.15
+     ],
+     "facing": 270
+    },
+    {
+     "id": "day_book",
+     "kit": "day_book",
+     "at": [
+      12.8,
+      0.94,
+      8.7
+     ],
+     "facing": 4
+    },
+    {
+     "id": "till_cash",
+     "kit": "till_cash",
+     "at": [
+      13.78,
+      0.94,
+      8.58
+     ],
+     "facing": 8
+    },
+    {
+     "id": "ink_back",
+     "kit": "ink_set",
+     "at": [
+      14.04,
+      0.94,
+      8.74
+     ],
+     "facing": 0
+    },
+    {
+     "id": "ledger_book",
+     "kit": "ledger_book",
+     "at": [
+      14.3,
+      0.94,
+      8.7
+     ],
+     "facing": 355
+    },
+    {
+     "id": "post_desk",
+     "kit": "owner_desk",
+     "at": [
+      15.6,
+      0.0,
+      10.28
+     ],
+     "facing": 180
+    },
+    {
+     "id": "post_stool",
+     "kit": "bar_stool",
+     "at": [
+      14.78,
+      0.0,
+      10.05
+     ],
+     "facing": 0
+    },
+    {
+     "id": "ink_post",
+     "kit": "ink_set",
+     "at": [
+      15.25,
+      0.76,
+      10.2
+     ],
+     "facing": 190
+    },
+    {
+     "id": "parcels_post",
+     "kit": "parcel_stack",
+     "at": [
+      15.95,
+      0.76,
+      10.3
+     ],
+     "facing": 15
+    },
+    {
+     "id": "hung_ham_a",
+     "kit": "hung_ham",
+     "at": [
+      7.0,
+      2.36,
+      4.7
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_ham_b",
+     "kit": "hung_ham",
+     "at": [
+      9.9,
+      2.36,
+      7.9
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_pails_a",
+     "kit": "hung_pails",
+     "at": [
+      9.9,
+      2.41,
+      4.3
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_pails_b",
+     "kit": "hung_pails",
+     "at": [
+      6.9,
+      2.41,
+      8.3
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_boots_a",
+     "kit": "hung_boots",
+     "at": [
+      7.0,
+      2.46,
+      2.7
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_lantern_a",
+     "kit": "hung_lantern",
+     "at": [
+      9.9,
+      2.51,
+      2.6
+     ],
+     "facing": 0
+    },
+    {
+     "id": "hung_lantern_b",
+     "kit": "hung_lantern",
+     "at": [
+      7.4,
+      2.51,
+      6.3
+     ],
+     "facing": 0
     }
    ]
   }

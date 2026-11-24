@@ -1,0 +1,267 @@
+{
+  "_doc": "A child's coffin (#1181): white-painted pine, 1.04 m long, a plain lid, two small brass handles a side; a child's was often white (the undertaker's own notes). 6 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "coffin_child",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "base",
+      "kind": "post",
+      "size": [
+        1.04,
+        0.022,
+        0.32
+      ],
+      "at": [
+        0.0,
+        0.011,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -0.52,
+            -0.16
+          ],
+          [
+            0.52,
+            -0.16
+          ],
+          [
+            0.52,
+            0.16
+          ],
+          [
+            -0.52,
+            0.16
+          ]
+        ]
+      }
+    },
+    {
+      "id": "wall0",
+      "kind": "furniture_frame",
+      "size": [
+        1.062,
+        0.26,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.152,
+        -0.16
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        0,
+        -0.0,
+        0
+      ],
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  -0.3224,
+                  0.152,
+                  -0.18
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.3224,
+                  0.152,
+                  -0.18
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  -0.3224,
+                  0.152,
+                  0.18
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.3224,
+                  0.152,
+                  0.18
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wall1",
+      "kind": "furniture_frame",
+      "size": [
+        0.342,
+        0.26,
+        0.022
+      ],
+      "at": [
+        0.52,
+        0.152,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        0,
+        -90.0,
+        0
+      ]
+    },
+    {
+      "id": "wall2",
+      "kind": "furniture_frame",
+      "size": [
+        1.062,
+        0.26,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.152,
+        0.16
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        0,
+        -180.0,
+        0
+      ]
+    },
+    {
+      "id": "wall3",
+      "kind": "furniture_frame",
+      "size": [
+        0.342,
+        0.26,
+        0.022
+      ],
+      "at": [
+        -0.52,
+        0.152,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few",
+      "rot": [
+        0,
+        90.0,
+        0
+      ]
+    },
+    {
+      "id": "lid",
+      "kind": "furniture_top",
+      "size": [
+        1.08,
+        0.026,
+        0.36
+      ],
+      "at": [
+        0.0,
+        0.295,
+        0.0
+      ],
+      "look": "lib:furniture_painted_pine/few/top",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -0.54,
+            -0.18
+          ],
+          [
+            0.54,
+            -0.18
+          ],
+          [
+            0.54,
+            0.18
+          ],
+          [
+            -0.54,
+            0.18
+          ]
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.572,
+                  0.012,
+                  0.176
+                ],
+                "at": [
+                  0.0,
+                  0.313,
+                  0.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.18,
+                  0.004,
+                  0.07
+                ],
+                "at": [
+                  0.0,
+                  0.322,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

@@ -1,0 +1,137 @@
+{
+  "_doc": "The glue pot (#1181; the cabinetmaker's hide glue: a cast iron pot in a water jacket, a bail, a brush in it) for the bench or the stove. 1 physics body. Written by tools/props/undertaker.py.",
+  "id": "glue_pot",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "iron",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "pot",
+      "kind": "post",
+      "size": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "at": [
+        0.0,
+        0.1,
+        0.0
+      ],
+      "wood": "iron",
+      "look": "prop:iron",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.085,
+            0.0
+          ],
+          [
+            0.1,
+            0.1
+          ],
+          [
+            0.095,
+            0.18
+          ],
+          [
+            0.07,
+            0.2
+          ],
+          [
+            0.0,
+            0.2
+          ]
+        ],
+        "segments": 12
+      },
+      "dress": [
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.115,
+                0.19
+              ],
+              [
+                0.115,
+                0.2
+              ],
+              [
+                0.07,
+                0.2
+              ],
+              [
+                0.07,
+                0.19
+              ]
+            ],
+            "segments": 12,
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "from": [
+                  0.1,
+                  0.17,
+                  0.0
+                ],
+                "to": [
+                  0.17,
+                  0.12,
+                  0.0
+                ],
+                "thick": 0.012
+              }
+            ]
+          }
+        },
+        {
+          "look": "wood:framing",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.014,
+                  0.1,
+                  0.014
+                ],
+                "at": [
+                  0.0,
+                  0.22,
+                  0.0
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  22.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}

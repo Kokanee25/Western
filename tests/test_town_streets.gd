@@ -119,3 +119,145 @@ func test_another_run_another_town() -> void:
 	f.run_seed = 0
 	check_eq(same, first.size(), "the same run seed: the same legs and times")
 	check(other >= first.size() / 2, "another: most men's legs or first words elsewhere (%d of %d)" % [other, first.size()])
+
+
+## #1184 (gate round 2: the loudmouth, the saloon girl, the liveryman, the storekeeper, the smith on
+## one spot all run, `from_post` 0.0 every look): no man out of doors stands still for ten minutes.
+## The data, every hour: a day block that has a man at a spot out of doors (on a lot's walk) either
+## walks a round (no leg's stay ten minutes or more), or ends within ten minutes at the gate's clock.
+const STILL_S := 600.0
+## The gate's clock (the bridge's `clock 0.03`: 1 is 45 minutes a day): real seconds a game hour.
+const GATE_HOUR_S := 45.0 * 60.0 / 0.03 / 24.0
+
+
+func test_no_block_keeps_a_man_on_one_spot_outdoors() -> void:
+	var f := valley.folk
+	var bad := []
+	for p: Dictionary in f.data.people:
+		var day: Variant = p.get("day", null)
+		if day == null:
+			continue
+		var kinds: Dictionary = day if day is Dictionary else {"ordinary": day}
+		for kind: String in kinds:
+			var bl: Variant = kinds[kind]
+			if not bl is Array:
+				continue
+			for i in (bl as Array).size():
+				var b: Dictionary = bl[i]
+				if b.has("round"):
+					for leg: Dictionary in b.round:
+						if float((leg.get("stay", [60, 150]) as Array)[1]) >= STILL_S:
+							bad.append("%s %s %.1f: a leg's stay of %s" % [p.id, kind, b.from, leg.stay])
+					continue
+				if not b.has("at") or not _out_of_doors(f, String(b.at)):
+					continue
+				var to: float = float(bl[i + 1].from) if i + 1 < bl.size() else 24.0 + float(bl[0].from)
+				if (to - float(b.from)) * GATE_HOUR_S >= STILL_S:
+					bad.append("%s %s %.1f-%.1f at %s" % [p.id, kind, b.from, to, b.at])
+	check(bad.is_empty(), "every man out of doors moves within ten minutes (%s)" % [bad])
+
+
+func _out_of_doors(f: ValleyFolk, name: String) -> bool:
+	var sp := f.spot(name)
+	return sp.has("lot") and float((sp.at as Array)[1]) < 0.0
+
+
+## And played: 17:30 (the worst hour of round 2, four men still), the clock at the gate's rate, you on
+## the walk by the store and the saloon: nobody out of doors stays within 1.5 m of one place ten minutes.
+func test_nobody_out_of_doors_is_still_ten_minutes() -> void:
+	var f := valley.folk
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 2
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	p.global_position = Vector3(0.0, f.ground(0.0, 300.0) + 0.2, 300.0)
+	clock.set_time(17.5)
+	clock.time_scale = 0.03
+	await physics_frames(1)
+	f._look = 0.0
+	await physics_frames(60 * 5)
+	var anchor := {}  # id -> [where, since (s)]
+	var longest := {}
+	var t := 0.0
+	while t < STILL_S + 30.0:
+		await physics_frames(60 * 5)
+		t += 5.0
+		var now := _outdoors(f)
+		for id: StringName in anchor.keys():
+			if not now.has(id):
+				anchor.erase(id)
+		for id: StringName in now:
+			var at: Vector3 = now[id]
+			if not anchor.has(id) or (at - (anchor[id][0] as Vector3)).length() > 1.5:
+				anchor[id] = [at, t]
+			longest[id] = maxf(float(longest.get(id, 0.0)), t - float(anchor[id][1]))
+	print("  17:30, ten minutes: the longest each stood still out of doors %s" % [longest])
+	check(not longest.is_empty(), "men out of doors at 17:30 (%d)" % longest.size())
+	for id: StringName in longest:
+		check(float(longest[id]) < STILL_S, "%s not still ten minutes out of doors (%.0f s)" % [id, longest[id]])
+	clock.time_scale = 1.0
+
+
+## The gate's third round (#1194): men listed walking ("coming", "going") who never moved: at their door
+## with you watching it, under a porch bench they were walking straight at, against the saloon yard's
+## wall. Played at the gate's clock with you on the street looking along the store's front (its door
+## in view): nobody walking stays within a metre of one place a minute.
+const WALK_STILL_S := 60.0
+
+
+func _no_stuck_walks(hour: float, seed: int, secs: float) -> void:
+	var f := valley.folk
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 2
+	f.run_seed = seed
+	f._legs.clear()
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	p.global_position = Vector3(-28.0, f.ground(-28.0, 2.0) + 0.2, 2.0)
+	p.look_at(Vector3(-60.0, p.global_position.y, -4.0))
+	clock.set_time(hour)
+	clock.time_scale = 0.03
+	await physics_frames(1)
+	f._look = 0.0
+	await physics_frames(5)
+	# One man to a spot as the hour's put in place (#1194: the townsman and the loudmouth in one).
+	var at := {}
+	for id: StringName in f.people:
+		var man := f.folk_man(id)
+		if man == null or f.state.get(id) != &"in":
+			continue
+		for o: StringName in at:
+			check(man.global_position.distance_to(at[o]) > 0.3, "%s and %s not on one spot at %.1f" % [id, o, hour])
+		at[id] = man.global_position
+	var anchor := {}
+	var worst := {}
+	var t := 0.0
+	while t < secs:
+		await physics_frames(60 * 5)
+		t += 5.0
+		for id: StringName in f.people:
+			var man := f.folk_man(id)
+			var st: StringName = f.state.get(id, &"")
+			if man == null or not st in [&"coming", &"going"]:
+				anchor.erase(id)
+				continue
+			if not anchor.has(id) or man.global_position.distance_to(anchor[id][0]) > 1.0 or anchor[id][2] != st:
+				anchor[id] = [man.global_position, t, st]
+			worst[id] = maxf(float(worst.get(id, 0.0)), t - float(anchor[id][1]))
+			if t - float(anchor[id][1]) == WALK_STILL_S + 5.0:
+				var b := man.get_node_or_null(^"Brain") as CivilianBrain
+				print("    still: %s %s at %s, post %s, seen %s, %s, chore %s, route %s" % [id, st, man.global_position,
+						b.post if b else Vector3.INF, f.seen_man_at(man.global_position), b.describe() if b else "",
+						b.chore if b else null, b._home_route if b else []])
+	print("  %.1f, seed %d: the longest each walking man stood still %s" % [hour, seed, worst])
+	check(not worst.is_empty(), "men walked at %.1f" % hour)
+	for id: StringName in worst:
+		check(float(worst[id]) <= WALK_STILL_S, "%s walking but still under %.0f s at %.1f (%.0f s)" % [id, WALK_STILL_S, hour, worst[id]])
+	clock.time_scale = 1.0
+	f.run_seed = 0
+
+
+func test_no_stuck_walks_morning() -> void:
+	await _no_stuck_walks(7.0, 51, 420.0)
+
+
+func test_no_stuck_walks_evening() -> void:
+	await _no_stuck_walks(17.5, 53, 420.0)

@@ -29,7 +29,14 @@ const LINES := {
 	&"beg": ["Take it! Take whatever you want!", "Don't shoot! I got a family!", "Please, mister..."],
 	&"cower": ["Lord almighty!", "Get down! Everybody down!"],
 	&"hat": ["My hat! Lord, my hat!", "He shot my hat clean off!"],
-	&"relief": ["...They gone?", "Lord. Lord, lord."],
+	# Widened (#1184: after one shot four men each said "...They gone?" and four "Lord, lord").
+	&"relief": ["...They gone?", "Lord. Lord, lord.", "Is it over?", "Anybody hurt?", "I'm too old for this.",
+			"Somebody tell me that's the end of it.", "My heart's going like a hammer.", "Who was it? Anybody see?",
+			"Well. That's my supper ruined.", "Damn fool, whoever it was."],
+	# The relief of a man who saw who fired (#1194: the rancher, 4 m off, asked "Who was it?").
+	&"relief_saw": ["Lord. Is he done?", "I'm too old for this.", "My heart's going like a hammer.",
+			"Damn fool, firing off like that.", "Somebody take that iron off him.", "Is it over?",
+			"Well. That's my supper ruined.", "Anybody hurt?"],
 	&"buckets": ["Buckets! Get the buckets!", "Water! From the trough, quick!", "Bring water, damn it!"],
 	&"lost": ["Let it go, she's gone!", "Too late. Let it burn.", "Nothing to be done now."],
 	&"out": ["That's got it!", "It's out. Lord.", "Keep an eye on it, it'll catch again."],
@@ -59,6 +66,9 @@ const BLAST_KINDS := [&"blow", &"splinter", &"gravel", &"blast", &"burn"]
 ## Another man's cower line this recently (ms): he's likelier to keep quiet, and never says the same.
 const CROWD_MS := 900
 const SAME_LINE_MS := 4000
+## Kinds whose lines nobody repeats in the town for longer than SAME_LINE_MS (ms; #1184: the relief
+## after a shot went round the room, the same two lines by four men each). All said: he keeps quiet.
+const SAME_LINE_LONG_MS := {&"relief": 300000, &"relief_saw": 300000, &"gawk_shot": 60000}
 ## Seen drawing within this (m), a gun makes him uneasy (not on him: `aim_at` is that).
 const GUN_SEEN := 9.0
 
@@ -252,7 +262,8 @@ func say(kind: StringName) -> void:
 			return  # someone's just cried out: he keeps it to himself
 		_cower_at = now
 	# Not a line another man's just said.
-	var fresh := lines.filter(func(l: String) -> bool: return now - int(_said_at.get(l, -100000)) > SAME_LINE_MS)
+	var gap := int(SAME_LINE_LONG_MS.get(kind, SAME_LINE_MS))
+	var fresh := lines.filter(func(l: String) -> bool: return not _said_at.has(l) or now - int(_said_at[l]) > gap)
 	if fresh.is_empty():
 		if not kind in SAY_ALWAYS:
 			return  # all of them just said by others: he's no need to say it again
@@ -285,7 +296,8 @@ func hush(seconds: float) -> void:
 ## "...They gone?", once it's gone quiet (#607: not with shots still flying).
 func say_relief() -> void:
 	if not _still_over_me() and senses.last_sound([&"gunshot"], RELIEF_QUIET).is_empty():
-		say(&"relief")
+		var saw := reaction != null and reaction.who != null and is_instance_valid(reaction.who)
+		say(&"relief_saw" if saw else &"relief")
 
 
 func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void:
@@ -887,9 +899,9 @@ func _physics_step(delta: float) -> void:
 		if _home_detour != Vector3.INF:
 			if body.walk_to(_home_detour, walk_speed, delta):
 				_home_detour = Vector3.INF
-		elif body.global_position.distance_to(post) > 1.5 and _places() != null:
+		elif _far_from_post() and _places() != null:
 			if _home_route.is_empty():
-				_home_route = FireFlight.route(_places(), body, post)
+				_home_route = _route_home()
 			if body.walk_to(_home_route[0], walk_speed, delta) and _home_route.size() > 1:
 				_home_route.pop_front()
 		else:
@@ -898,11 +910,11 @@ func _physics_step(delta: float) -> void:
 		# Caught on something (a table's corner, a rail, a porch's edge): a sidestep round it, one
 		# way then the other (as running from a fire); then on past that point of the way, or, the
 		# last of it, as near as he'll get (his chore takes him from there).
-		# (Only coming back from a reaction: his day's own walks are as they were.)
-		_home_stuck = _home_stuck + delta if returning and body.global_position.distance_to(was) < 0.2 * delta else 0.0
+		# (His day's walks too since #1194: the loudmouth walked into the saloon yard's wall for minutes.)
+		_home_stuck = _home_stuck + delta if body.global_position.distance_to(was) < 0.2 * delta else 0.0
 		if _home_stuck > 1.0:
 			_home_stuck = 0.0
-			var goal := _home_route[0] if not _home_route.is_empty() and body.global_position.distance_to(post) > 1.5 else post
+			var goal := _home_route[0] if not _home_route.is_empty() and _far_from_post() else post
 			var to := goal - body.global_position
 			to.y = 0.0
 			if _home_detour != Vector3.INF:
@@ -913,8 +925,10 @@ func _physics_step(delta: float) -> void:
 				_home_detours += 1
 			elif _home_route.size() > 1:
 				_home_route.pop_front()
-			else:
+			elif returning:
 				returning = false
+			else:
+				reroute()  # his day's walk, still caught: a fresh route from here, the sidesteps again
 		return
 	_home_stuck = 0.0
 	_home_detours = 0
@@ -926,6 +940,48 @@ func _physics_step(delta: float) -> void:
 		body.face(_gun_seen.global_position + Vector3.UP * 1.4)
 	elif faces != Vector3.INF and not (helped_by and not thanked):
 		body.face(faces)
+
+
+## Far enough from his post to walk there by the town's places: over 1.5 m across, or a step up or down
+## he can't just take (#1194: the townsman stood under the store porch's bench, 0.1 m across and 1.1 m
+## below it, walking straight at the porch's side for minutes).
+func _far_from_post() -> bool:
+	var to := post - body.global_position
+	return Vector2(to.x, to.z).length() > 1.5 or absf(to.y) > 0.5
+
+
+## The way to his post by the town's places. A post up a step that no place has a straight walk to
+## (#1194: the store porch's bench, the bench itself in the sweep's way) and he'd walk straight at the
+## porch's side: by the nearest place at the post's own height (the store's door on its porch), then on.
+func _route_home() -> Array[Vector3]:
+	var r := FireFlight.route(_places(), body, post)
+	if r.size() > 1 or absf(post.y - body.global_position.y) <= 0.5:
+		return r
+	var pl := _places()
+	var best := &""
+	var best_d := 8.0
+	for n: StringName in pl.points:
+		var at: Vector3 = pl.points[n]
+		var d := Vector2(at.x - post.x, at.z - post.z).length()
+		if absf(at.y - post.y) < 0.4 and d < best_d:
+			best_d = d
+			best = n
+	if best == &"":
+		return r
+	var via := pl.route(World.space(body), body.global_position, best, FireFlight.exclude(body))
+	if via.is_empty():
+		return r
+	via.append(post)
+	return via
+
+
+## His walk to his post started again from where he stands (a fresh route, the sidesteps again):
+## ValleyFolk's stuck walks (#1194).
+func reroute() -> void:
+	_home_route.clear()
+	_home_detour = Vector3.INF
+	_home_detours = 0
+	_home_stuck = 0.0
 
 
 ## His chores: the one at it has him while it's busy; else each in turn may start (the first that

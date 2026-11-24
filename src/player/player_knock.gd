@@ -36,7 +36,11 @@ func _ready() -> void:
 ## someone in there on the town's book (`heard`), a hurt man by it (`hurt`), or you've a man by the
 ## collar to bring in; never
 ## from inside it, nor at a place with no door (the owner's `door_near` leaves those out).
-func door_here() -> Dictionary:
+## `any`: any of the town's doors you're at, worth it or not: E there is the door's, never a shove
+## (#1184: a man in the store's doorway, nobody inside on the book, took the knock as a shove; in gate 3
+## the keeper out on his walk, the shove broke the door's glass). The prompt still only where it's worth it.
+## (No Justice's shack isn't one of the folk's doors: its door is still kicked in.)
+func door_here(any := false) -> Dictionary:
 	if player == null or not player.is_inside_tree() or player.is_crawling or player.ladder != null:
 		return {}
 	if player.seat != null and player.seat.seated():
@@ -46,7 +50,7 @@ func door_here() -> Dictionary:
 	for n: Node in player.get_tree().get_nodes_in_group(&"knock_doors"):
 		var d: Dictionary = n.call(&"door_near", player.global_position, fwd.normalized(), player.tuning.knock_reach)
 		if not d.is_empty():
-			if not bool(d.get("heard", true)) and not bool(d.get("hurt", false)) and not (player.carry != null and player.carry.carrying()):
+			if not any and not bool(d.get("heard", true)) and not bool(d.get("hurt", false)) and not (player.carry != null and player.carry.carrying()):
 				continue
 			d["by"] = n
 			return d
@@ -54,7 +58,7 @@ func door_here() -> Dictionary:
 
 
 func claims_use(p: Player) -> bool:
-	return p == player and not door_here().is_empty()
+	return p == player and not door_here(true).is_empty()
 
 
 func _physics_process(delta: float) -> void:
@@ -78,8 +82,10 @@ func _physics_process(delta: float) -> void:
 			player.wounds.say("E: bang on the door", 1.5)
 		if place != &"":
 			_said_at[place] = now
-	if not d.is_empty() and pressed:
-		bang(d)
+	if pressed:
+		var any := d if not d.is_empty() else door_here(true)
+		if not any.is_empty():
+			bang(any)
 
 
 ## Bang on the door `d` (door_here's): the blows, the deed, the inside told. Who heard it.

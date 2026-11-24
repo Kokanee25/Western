@@ -85,5 +85,62 @@ func test_the_tower_the_spire_and_the_pointed_heads_are_there() -> void:
 	check(posts == 4, "four belfry posts (%d)" % posts)
 	check(shingles > 60, "the spire's shingle courses (%d)" % shingles)
 	check(top > 12.0, "the spire stands over 12 m (%.1f)" % top)
-	check(heads == 11, "a pointed head over each of the eleven nave windows (%d)" % heads)
-	check(head_panes >= 11 * 6, "each glazed to its point, a pane a step either side of its bar (%d)" % head_panes)
+	check(heads == 12, "a pointed head over each of the eleven nave windows and the tower's doors (%d)" % heads)
+	check(head_panes >= 12 * 6, "each glazed to its point, a pane a step either side of its bar (%d)" % head_panes)
+
+
+func test_the_nave_is_open_to_its_trusses() -> void:
+	# #1203 (Sean on #1202: "see how it looks"): queen-post trusses at the bays, the ties on the side walls'
+	# plates, the commons on the purlins; no loft over the nave and no ceiling under it; the nave's lamps
+	# hang from the ties.
+	var b: Structure = lab.building
+	var ties := 0
+	var on_plates := 0
+	var principals := 0
+	var queens := 0
+	var purlins := 0
+	var commons_on_purlins := 0
+	var loft := 0
+	var tie_ids := {}
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id)
+		if id.contains("/truss/") and id.ends_with("/tie"):
+			ties += 1
+			tie_ids[m.member_id] = true
+			var plates := 0
+			for s: StringName in m.supported_by:
+				if String(s).contains("/plate"):
+					plates += 1
+			if plates >= 2:
+				on_plates += 1
+		elif id.contains("/truss/") and id.contains("/principal_"):
+			principals += 1
+		elif id.contains("/truss/") and id.contains("/queen_"):
+			queens += 1
+		elif id.contains("/truss/purlin_"):
+			purlins += 1
+		elif id.contains("/roof/rafter_"):
+			for s: StringName in m.supported_by:
+				if String(s).contains("/truss/purlin_"):
+					commons_on_purlins += 1
+					break
+		elif id.contains("floor/attic") or id.contains("/ceiling/"):
+			loft += 1
+	check(ties == 4, "four tie beams (%d)" % ties)
+	check(on_plates == ties, "each on both side walls' plates (%d of %d)" % [on_plates, ties])
+	check(principals == 8 and queens == 8, "two principals and two queen posts a truss (%d, %d)" % [principals, queens])
+	check(purlins == 2 * 2 * 5, "two purlins a side over the five bays (%d)" % purlins)
+	check(commons_on_purlins > 30, "the commons rest on the purlins (%d)" % commons_on_purlins)
+	check(loft == 0, "no loft and no ceiling over the nave (%d members)" % loft)
+	var hung := 0
+	for lamp: OilLamp in b.get("lamps"):
+		var prop := lamp.get_parent() as Node3D
+		while prop and not prop is GlassProp:
+			prop = prop.get_parent() as Node3D  # (a hung lamp's light swings on its pivot)
+		if prop is GlassProp and (prop as GlassProp).definition.get("hangs", {}).has("hook"):
+			hung += 1
+			var q := PhysicsRayQueryParameters3D.create(prop.global_position + Vector3.UP * 0.9, prop.global_position + Vector3.UP * 1.1)
+			var hit: Dictionary = b.get_world_3d().direct_space_state.intersect_ray(q)
+			var over := hit.get("collider") as StructureMember
+			check(over != null and tie_ids.has(over.member_id), "a nave lamp hangs under a tie (%s)" % [over.member_id if over else "nothing"])
+	check(hung == 3, "three lamps hung down the nave (%d)" % hung)

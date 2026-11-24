@@ -1,0 +1,291 @@
+{
+  "_doc": "A rectangular casket, closed (#1181; the new fashion of the 1880s, Habenstein and Lamers): walnut, 2.00 m by 0.56, 0.44 deep, a lid with a raised moulded panel and brass plate, three brass bar handles a side. 6 physics bodies. Written by tools/props/undertaker.py.",
+  "id": "coffin_rect",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "walnut",
+  "splits_below": 0.5,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "base",
+      "kind": "post",
+      "size": [
+        2.0,
+        0.022,
+        0.56
+      ],
+      "at": [
+        0.0,
+        0.011,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -1.0,
+            -0.28
+          ],
+          [
+            1.0,
+            -0.28
+          ],
+          [
+            1.0,
+            0.28
+          ],
+          [
+            -1.0,
+            0.28
+          ]
+        ]
+      }
+    },
+    {
+      "id": "wall0",
+      "kind": "furniture_frame",
+      "size": [
+        2.022,
+        0.44,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.242,
+        -0.28
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -0.0,
+        0
+      ],
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  -0.62,
+                  0.242,
+                  -0.3
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  0.242,
+                  -0.3
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.62,
+                  0.242,
+                  -0.3
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  -0.62,
+                  0.242,
+                  0.3
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  0.242,
+                  0.3
+                ]
+              },
+              {
+                "size": [
+                  0.12,
+                  0.02,
+                  0.012
+                ],
+                "at": [
+                  0.62,
+                  0.242,
+                  0.3
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wall1",
+      "kind": "furniture_frame",
+      "size": [
+        0.582,
+        0.44,
+        0.022
+      ],
+      "at": [
+        1.0,
+        0.242,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -90.0,
+        0
+      ]
+    },
+    {
+      "id": "wall2",
+      "kind": "furniture_frame",
+      "size": [
+        2.022,
+        0.44,
+        0.022
+      ],
+      "at": [
+        0.0,
+        0.242,
+        0.28
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        -180.0,
+        0
+      ]
+    },
+    {
+      "id": "wall3",
+      "kind": "furniture_frame",
+      "size": [
+        0.582,
+        0.44,
+        0.022
+      ],
+      "at": [
+        -1.0,
+        0.242,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old",
+      "rot": [
+        0,
+        90.0,
+        0
+      ]
+    },
+    {
+      "id": "lid",
+      "kind": "furniture_top",
+      "size": [
+        2.04,
+        0.026,
+        0.6
+      ],
+      "at": [
+        0.0,
+        0.475,
+        0.0
+      ],
+      "look": "lib:furniture_walnut/old/top",
+      "draw": {
+        "shape": "cut",
+        "plane": "xz",
+        "outline": [
+          [
+            -1.02,
+            -0.3
+          ],
+          [
+            1.02,
+            -0.3
+          ],
+          [
+            1.02,
+            0.3
+          ],
+          [
+            -1.02,
+            0.3
+          ]
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  1.1,
+                  0.012,
+                  0.308
+                ],
+                "at": [
+                  0.0,
+                  0.493,
+                  0.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.18,
+                  0.004,
+                  0.07
+                ],
+                "at": [
+                  0.0,
+                  0.502,
+                  0.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/undertaker.py"
+}
