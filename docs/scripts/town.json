@@ -572,6 +572,75 @@
      "takes": []
     },
     {
+     "id": "news.shots.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: shots, nobody hit, and he saw it was Harlan (#1213)",
+     "when": "shots only; who Harlan; told to him",
+     "condition": "uneasy",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You let that iron off {at}. {shots}.",
+       "status": "new"
+      },
+      {
+       "text": "That was you, firing {at}. {shots}. I saw you.",
+       "status": "new"
+      },
+      {
+       "text": "You. Shooting {at}, like a damn fool. {shots}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.shots.who",
+     "speaker": "townsman",
+     "trigger": "His version: shots, nobody hit, and he saw who fired (#1213: witnesses said 'whoever it was')",
+     "when": "shots only; who seen",
+     "condition": "uneasy",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} let off his iron {at}. {shots}.",
+       "status": "new"
+      },
+      {
+       "text": "It was {who}, shooting {at}. {shots}. I saw him.",
+       "status": "new"
+      },
+      {
+       "text": "{who} fired, {at}. {shots}, and nobody hurt, thank God.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.shots.here",
+     "speaker": "townsman",
+     "trigger": "His version, told where it happened: shots, nobody seen hit, the shooter unseen (#1213: 'down by the saloon' from inside it)",
+     "when": "shots only; who empty; at the place",
+     "condition": "uneasy",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Shooting, right here. {shots}.",
+       "status": "new"
+      },
+      {
+       "text": "Somebody fired, right here. {shots}.",
+       "status": "new"
+      },
+      {
+       "text": "There was shooting right here. {shots}. Never saw who.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
      "id": "news.first.saw",
      "speaker": "townsman",
      "trigger": "Tail: the man hit drew first, and he saw it",
@@ -1485,6 +1554,58 @@
       },
       {
        "text": "Is he gone?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.back.saw",
+     "speaker": "townsman",
+     "trigger": "Coming out after (stage 4), having seen who fired (#1213: 'Is he gone?' with the shooter 6 m off)",
+     "when": "any",
+     "if": {
+      "on": "react.back.saw"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Damn fool, firing off like that.",
+       "status": "new"
+      },
+      {
+       "text": "Somebody take that iron off him.",
+       "status": "new"
+      },
+      {
+       "text": "Is he done, you reckon?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.back.you",
+     "speaker": "townsman",
+     "trigger": "Coming out after (stage 4), the man who fired right there and in his sight (#1213)",
+     "when": "any",
+     "if": {
+      "on": "react.back.you"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You done? Lord.",
+       "status": "new"
+      },
+      {
+       "text": "Put that thing away, mister. Please.",
+       "status": "new"
+      },
+      {
+       "text": "What'd you go and do that for?",
        "status": "new"
       }
      ],

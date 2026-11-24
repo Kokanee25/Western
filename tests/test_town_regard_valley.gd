@@ -56,7 +56,8 @@ func _two_men() -> Array[HumanBody]:
 	var out: Array[HumanBody] = []
 	for id: StringName in f.people:
 		var man := f.folk_man(id)
-		if man != null and not f._person(id).has("act") and f._person(id).has("day") and f.state.get(id) == &"in":
+		if man != null and not f._person(id).has("act") and f._person(id).has("day") and f.state.get(id) == &"in" \
+				and not f.spot_of(f._person(id)).has("hall"):  # out of doors (#1213: the barkeep's inside by day)
 			out.append(man)
 		if out.size() == 2:
 			break

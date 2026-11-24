@@ -13,7 +13,7 @@ const READ := ["run_doc", "run_law", "runner", "runner.shot", "runner_dead", "ru
 		"runner_you.shot", "news.killing", "news.killing.you", "news.killing.nobody", "news.shooting",
 		"news.shooting.you", "news.shooting.nobody", "news.down", "news.shots", "news.first.saw",
 		"news.first.heard", "news.first.told", "news.count", "news.count.told", "news.told_by"]
-const SLOTS := ["who", "whom", "where", "shots", "teller"]
+const SLOTS := ["who", "Who", "whom", "where", "at", "shots", "teller"]
 
 var news: TownNews
 

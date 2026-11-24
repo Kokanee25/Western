@@ -265,7 +265,9 @@ func test_a_man_left_far_off_after_a_fright_goes_back() -> void:
 		var m := f.folk_man(pid)
 		var b := m.get_node_or_null(^"Brain") as CivilianBrain if m else null
 		if f.state.get(pid) == &"in" and b != null and b.post != Vector3.INF and not f._person(pid).has("act") \
-				and b.mood == CivilianBrain.Mood.CALM and f.block_now(f._person(pid), f.hour()).has("at"):
+				and b.mood == CivilianBrain.Mood.CALM and f.block_now(f._person(pid), f.hour()).has("at") \
+				and not b.held and not f.answering.has(pid) and not m.limp and m.dragged_by == null \
+				and (b.reaction == null or b.reaction.stage == Reaction.Stage.NONE):
 			id = pid
 			break
 	check(id != &"", "a man in at his spot")
@@ -279,6 +281,8 @@ func test_a_man_left_far_off_after_a_fright_goes_back() -> void:
 	var away := post + Vector3(30.0, 0.0, 0.0)
 	away.y = f.ground(away.x, away.z)
 	man.global_position = away
+	if brain.chore != null and brain.chore.has_method(&"stop"):
+		brain.chore.call(&"stop")  # (as the fright stopped it: up from his work, his body his own)
 	f._away_step(id, man, f._person(id))
 	check(f.away_fixed.any(func(x: Array) -> bool: return x[1] == id), "taken in hand (%s)" % [f.away_fixed])
 	await physics_frames(30)
@@ -291,6 +295,8 @@ func test_a_man_left_far_off_after_a_fright_goes_back() -> void:
 	var far := brain.post + Vector3(20.0, 0.0, 0.0)
 	far.y = f.ground(far.x, far.z)
 	back.global_position = far
+	if brain.chore != null and brain.chore.has_method(&"stop"):
+		brain.chore.call(&"stop")
 	_put(far + Vector3(0.0, 0.0, 4.0), far)
 	await physics_frames(5)
 	f._away_from[id] = [20.0, f._ran - ValleyFolk.WALK_STUCK_S - 1.0]
