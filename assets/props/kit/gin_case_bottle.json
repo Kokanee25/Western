@@ -1,0 +1,51 @@
+{
+  "_doc": "A bottle of the game's own booze (#1222, docs/briefs/booze.md): a Holland gin case bottle, square and wider at the shoulder, olive-green glass, a cork. Its labels the brands of its shape (Van Oorst): the Nth made wears label N mod 1 (`variants`), or the one its dressing entry names (`variant`; tools/props/booze.py variant_of). A prop that shatters (GlassProp): a fall onto boards at 4.4 m/s or 60 kPa breaks it and what's in it goes on the floor. Drawn from glb:booze_bottles (tools/blender/props/booze.py): the glass the kit's `glass:` look, every label printed on one sheet (pbr:booze_labels), cork and contents baked the gun way. Written by tools/props/booze.py.",
+  "id": "gin_case_bottle",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:booze_bottles",
+  "looks": {
+    "LabelGin%d": "pbr:booze_labels",
+    "CorkGin": "pbr:booze_bottles",
+    "GlassGin": "glass:green",
+    "LiquidGin": "pbr:booze_bottles"
+  },
+  "variants": 1,
+  "brands": [
+    "van_oorst"
+  ],
+  "size": [
+    0.074,
+    0.258,
+    0.074
+  ],
+  "mass": 1.3,
+  "wall": 0.004,
+  "glass": [
+    "GlassGin",
+    "LiquidGin",
+    "LabelGin"
+  ],
+  "whole": [
+    [
+      "CorkGin"
+    ]
+  ],
+  "shards": 12,
+  "piece_mass": 0.04,
+  "breaks_at": 4.4,
+  "shatters_kpa": 60,
+  "heat_seconds": 25,
+  "cut_area": 0.05,
+  "contents": {
+    "liquid": "whiskey",
+    "litres": 0.637,
+    "colour": [
+      0.8,
+      0.8,
+      0.72
+    ]
+  },
+  "factory": "tools/props/booze.py"
+}

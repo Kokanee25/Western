@@ -64,7 +64,10 @@ adds its own lines.
 - **Liberation Serif** (Red Hat; SIL Open Font License 1.1), as installed with the workspace's fonts:
   the medicine bottles' printed labels (#805, `tools/blender/props/doctor_d2.py`) are set in it and
   saved as a picture (`assets/props/models/medicine_labels_albedo.png`); the font itself isn't in this
-  repo or the game.
+  repo or the game. The booze labels and cask stencils (#1222, `tools/blender/props/booze.py`,
+  `assets/props/models/booze_labels_albedo.png`) are set the same way in Liberation Serif and Liberation Sans
+  (SIL OFL 1.1) and **GNU FreeSerif** Bold Italic (GNU FreeFont, GPL v3 with the font exception), saved as a
+  picture; no font file is in the repo or the game.
 
 ## Motion (the gameplay session)
 
