@@ -5677,5 +5677,16 @@
 				}
 			]
 		}
-	}
+	},
+	"foundation_passages": [
+		{
+			"_doc": "#1220: the hotel's drift's door in the yard wall's foundation (the cellar's secret B: the landlady's husband's keg road to the saloon he had a share in), under a timber lintel; dug in the valley with the hotel's drift (#1220: both wait on the card set's ground)",
+			"wall": "yard",
+			"z": [
+				9.0,
+				9.9
+			],
+			"height": 1.64
+		}
+	]
 }

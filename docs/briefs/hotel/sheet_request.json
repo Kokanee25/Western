@@ -1,0 +1,134 @@
+{
+ "_doc": "The Salt Creek Hotel's target sheet (#1146, the building lab's step 1), from docs/briefs/hotel.md (the design). Twelve views at ~$0.14, $2.50 cap. Sean OK'd the cost 2026-11-23 (in session, \"Let's do it\"); painted with the brief's recommendations (painted clapboard, two storeys) and B's drift in the cellar. It goes to experiments/building_lab/hotel/sheet/request.json on claude/art-building-hotel, painted by building_sheet.yml. The spec settles every size; the pictures are the look only.",
+ "sheet_title": "Salt Creek, 1882: the Salt Creek Hotel (target sheet, #1146)",
+ "cap": 2.5,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light and lamplight, real worn materials (painted clapboard, planed boards, plaster, wallpaper, walnut, oak, brass, cut glass, velvet, Brussels carpet, iron, stone), period-accurate in every object: kerosene lamps only (no gas, no electric light), plaster ceilings (no pressed tin). Opulent for a frontier town, yet a frontier town: dust on the walk, a little wear at the doors. No people unless the view asks for them. No modern objects. No text, no signs. No border, no frame, no watermark, no captions.",
+ "building": "The best hotel in Salt Creek, a two-year-old Colorado silver-mining and railroad town of about a thousand people, in 1882: the town's pride, built in 1881 by a man now dead and run by his widow. Everything fine in it came out on the railroad cars (walnut furniture, plate glass, mirrors, brass, carpets, wallpaper, the iron range); the walls are local lumber. It stands on the NORTH side of the dirt Main Street, so its FRONT faces SOUTH; a wagon-wide dirt lane runs along its WEST side (a saloon's yard beyond it) and a narrow lane along its EAST side (a doctor's small house beyond). IN PLAN: a MAIN BLOCK 80 ft wide across the front and 50 ft deep, TWO STOREYS, with a two-storey KITCHEN WING 42 ft wide and 24 ft deep behind the west half of it (an L in plan, the wing at the back only); a dirt yard behind with privies, a wash house, a woodshed and a pump. THE FRONT: smooth, narrow, planed clapboard painted a soft blue-grey, cream trim (wide corner boards, window casings, posts), deep red on the cornice brackets and the sash; a bracketed CORNICE across the top with a long NAME BOARD above it, deep red with gilt letters (left blank), and a small pediment in the middle; the ground floor tall plate-glass windows with round-arched heads, a pair of glazed double doors with etched glass and a fanlight in the middle, the bar's own single door at the west end and a ladies' entrance door at the east end; upper floor tall two-over-two sash windows with green louvred shutters folded back and lace curtains, a pair of French doors in the middle. A LONG GALLERY across the whole 80 ft front at the upper floor, 8 ft deep, over a plank boardwalk 2 ft 6 in above the street, carried on NINE white factory-turned posts 10 ft apart standing at the walk's street edge; a railing of turned balusters along the gallery; four wide easy plank steps up from the street at the main doors; chairs, a rocking chair and a bench on the walk under the gallery, a boot scraper, a dried-out flower box. THE ROOMS, ground floor: the LOBBY and office in the middle (a carved walnut desk facing the door with the register and a bell, a key board of pigeonholes behind it, a grand dark-oak stair with a turned newel and a red runner rising along the lobby's back wall to a landing), a SMALL FINE BAR at the west front, the LADIES' PARLOUR at the east front, a long DINING ROOM across the back, the KITCHEN, scullery and pantry in the wing. Upstairs: a hall down the middle, guest rooms off it, the best suite at the front middle behind the French doors. Inside walls are plaster with three-band wallpaper over walnut wainscot, ceilings plaster with a cornice and a plaster rose round each kerosene chandelier (NOT pressed tin), carpets, brass. A stone CELLAR under the west half: beer, stores, ice, coal, wine.",
+ "views": [
+  {
+   "id": "front",
+   "title": "The front, from Main Street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the dirt of Main Street at eye level, a little to the south-east, in clear late-afternoon light from the south-west: the whole 80 ft two-storey blue-grey front, its cream trim and red brackets, the cornice and the blank deep-red name board, the long gallery on its nine turned posts with the turned-baluster railing, the arched ground-floor windows and the etched-glass double doors, the four wide steps, chairs and a rocker on the walk; the west lane on the left with the saloon's yard fence beyond, the east lane and the doctor's small gabled house on the right. A slightly long lens."
+  },
+  {
+   "id": "plan",
+   "title": "Ground and upper floor plans",
+   "aspect": "3:2",
+   "size": "2K",
+   "view": "A clean architect's drawing in black ink on off-white paper, seen from above, two plans side by side at the same scale, the street at the bottom of the sheet. LEFT, the ground floor: the 80 x 50 ft main block, the gallery's nine posts along the walk at the front; across the front, the bar (west), the lobby with the desk and the stair along its back wall (middle), the ladies' parlour (east); behind them the sample room and the office (west) and the long dining room across the rest; behind the west half the kitchen wing with the back hall, serving pantry, scullery, kitchen, store pantry and cook's room. RIGHT, the upper floor: a hall across the middle, five guest rooms and the two-room best suite along the front over the gallery, guest rooms and the landlady's two rooms along the back, the back stair, a bath and linen room, and over the kitchen wing three small rooms and the maids' room. Rooms labelled in small lettering.",
+   "refs": [
+    "front"
+   ]
+  },
+  {
+   "id": "cutaway",
+   "title": "The cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "An architectural cutaway, a bird's-eye three-quarter view from the south-east with the east wall, half the roof and the front of the upper floor cut away: the gallery and its posts, the lobby with the grand stair, the ladies' parlour, the dining room laid for supper, the kitchen wing with the range, the upper hall and guest rooms furnished, the best suite; the floor joists and plastered walls in section; and below the west half the stone cellar cut open with its barrels, racks and ice. Lamps lit.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "gallery",
+   "title": "The gallery at dusk",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "On the boardwalk under the gallery's far west end, looking east along the front at dusk, the street on the right: the turned posts in a row, the gallery's underside and its fascia beam overhead, the lit ground-floor windows; and seen from the street side in a second glance up: the gallery deck above with its railing, four rough men in hats and shirtsleeves drinking on it, bottles and a lamp on the railing, the warm-lit French doors and windows behind them. The wide steps, a rocking chair on the walk.",
+   "refs": [
+    "front"
+   ]
+  },
+  {
+   "id": "lobby",
+   "title": "The lobby and the grand stair",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the lobby at eye level from just inside the double doors, morning light through the arched windows: the carved walnut desk with the open register, the brass bell and an inkstand, the key board of pigeonholes with brass-tagged keys behind it and a wall clock, the grand dark-oak stair rising along the back wall to a landing with a turned newel post topped by a bronze figure holding a lamp, the red runner on brass rods, walnut wainscot and a deep red and gold wallpaper above, a plaster ceiling with a rose round a four-lamp kerosene chandelier, a settee and armchairs, a brass spittoon, a framed railroad timetable.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "parlour",
+   "title": "The ladies' parlour",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the ladies' parlour at eye level, afternoon light through lace and velvet curtains: an upright rosewood piano, settees and chairs in red velvet, a marble-topped centre table with a photograph album and a lamp with a painted globe, a whatnot of shells and china, a gilt mirror over a marble mantel, framed engravings, a big-patterned Brussels carpet wall to wall, pale floral wallpaper over a painted dado with a gilt picture rail, a plaster ceiling rose and a small chandelier.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "bar",
+   "title": "The small bar",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the hotel's small, fine bar at eye level from the street door, evening lamplight: a carved black-walnut bar about 16 ft long with a brass foot rail, a walnut back bar with a big mirror in three arches between columns, cut-glass decanters and good bottles, a few round tables with chairs, dark green and gold wallpaper over walnut wainscot, two hanging kerosene lamps with shades, a door through to the lobby. A gentlemen's room, quiet and polished, not a rough saloon.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "dining",
+   "title": "The dining room laid for supper",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the long dining room at eye level from the lobby's door, early evening: eight tables of six laid with white linen, silver-plated castors and napkins in rings, bentwood and walnut chairs, two walnut sideboards with china and a carving set, oak boards on the floor, light wallpaper above an oak wainscot, framed prints and a stag's head, two kerosene chandeliers lit, swing doors at the far end to the pantry.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "kitchen",
+   "title": "The kitchen",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the hotel kitchen at eye level, morning: a long black cast-iron hotel range with six to eight holes, two ovens and a hot-water reservoir under a hood, copper pans and iron pots, a big scrubbed deal table with dough and a joint of beef, a dresser of tin and crockery, a flour barrel, limewashed board walls, a door through to the scullery with its sinks and pump, steam and the glow of the firebox.",
+   "refs": [
+    "plan"
+   ]
+  },
+  {
+   "id": "room",
+   "title": "A guest room",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside an ordinary front guest room upstairs at eye level, morning light through a tall window with lace curtains (the gallery's railing seen outside): a brass bedstead with a white counterpane, an ash washstand with a bowl and pitcher and a towel, a slop jar, a plain wardrobe, a cane chair, an ingrain carpet, a cheaper floral wallpaper, a kerosene lamp, a small framed motto on the wall, a trunk at the foot of the bed.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "suite",
+   "title": "The best suite",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the best suite's parlour and bedroom seen through a wide doorway, at eye level, late-afternoon light through the French doors to the gallery: a carved black-walnut bedstead with a very high headboard, a marble-topped dresser and washstand, a wardrobe with a mirror, a velvet settee, a writing table with the hotel's notepaper, an inkstand and a pen, a Brussels carpet wall to wall, rich wallpaper with a frieze, a plaster ceiling rose and a hanging lamp.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "cellar",
+   "title": "The cellar",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "In the hotel's cellar at eye level, lit by a hanging iron lantern and a little daylight from the open bulkhead doors and steps up to the lane: rough fieldstone walls limed in their upper part, joists overhead, a flagged and earth floor; beer kegs on timber stillage, a locked plank door to a wine room with racks of bottles glimpsed through its grille, a thick door to the ice room, bins of potatoes, flour barrels, hams hanging, crates of canned oysters and peaches, a coal heap under a chute. In the cellar's west wall, behind the kegs, a low round-arched doorway of old brick whose bricks have lately been knocked out and stacked on the floor, a dark passage beyond lined with mine timbers, fresh pale sawdust on the floor by it, a bucksaw leaning against the wall.",
+   "refs": [
+    "plan"
+   ]
+  }
+ ]
+}

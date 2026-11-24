@@ -1,0 +1,137 @@
+{
+ "calls": [
+  {
+   "what": "front",
+   "cost": 0.1392,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477555.6620092
+  },
+  {
+   "what": "plan",
+   "cost": 0.1415,
+   "ok": true,
+   "size": [
+    2528,
+    1696
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477582.193103
+  },
+  {
+   "what": "cutaway",
+   "cost": 0.1426,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477610.09642
+  },
+  {
+   "what": "gallery",
+   "cost": 0.1394,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477633.308911
+  },
+  {
+   "what": "lobby",
+   "cost": 0.1411,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477660.6198366
+  },
+  {
+   "what": "parlour",
+   "cost": 0.1399,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477687.3023539
+  },
+  {
+   "what": "bar",
+   "cost": 0.1403,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477714.6315491
+  },
+  {
+   "what": "dining",
+   "cost": 0.1399,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477741.973665
+  },
+  {
+   "what": "kitchen",
+   "cost": 0.1401,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477764.123807
+  },
+  {
+   "what": "room",
+   "cost": 0.1403,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477791.9354386
+  },
+  {
+   "what": "suite",
+   "cost": 0.1394,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477820.7330253
+  },
+  {
+   "what": "cellar",
+   "cost": 0.1401,
+   "ok": true,
+   "size": [
+    2752,
+    1536
+   ],
+   "model": "google/gemini-3-pro-image-preview",
+   "at": 1795477844.15096
+  }
+ ],
+ "total": 1.684
+}

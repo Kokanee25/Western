@@ -6,6 +6,7 @@ extends Node3D
 ## The ground is boxes round the cellar's pit (the game's ground is one plane: a cellar needs a hole
 ## in it, FORMAT.md "What using it for real needs").
 
+const CellarDig := preload("res://src/structures/cellar_dig.gd")
 const SpecBuilding := preload("res://src/structures/spec_building.gd")
 
 var building: FalseFrontBuilding
@@ -148,13 +149,26 @@ func _ground_cells() -> void:
 	var bk: Dictionary = spec.get("bulkhead", {})
 	if not bk.is_empty():
 		var cheek := float(bk.get("cheek", 0.3))
-		# (the yard wall at x 0, out -x: the areaway from it to its end wall)
-		pits.append(Rect2(-float(bk.out) - cheek, float(bk.z[0]) - cheek, float(bk.out) + cheek, float(bk.z[1]) - float(bk.z[0]) + cheek * 2.0))
+		if CellarDig._wall_x(spec, String(bk.wall)) > 0.01:
+			# (the hotel's lane wall at the building's width, out +x, #1220)
+			var w := float(spec.lot.width)
+			pits.append(Rect2(w - 0.3, float(bk.z[0]) - cheek, float(bk.out) + cheek + 0.3, float(bk.z[1]) - float(bk.z[0]) + cheek * 2.0))
+		else:
+			# (the yard wall at x 0, out -x: the areaway from it to its end wall)
+			pits.append(Rect2(-float(bk.out) - cheek, float(bk.z[0]) - cheek, float(bk.out) + cheek, float(bk.z[1]) - float(bk.z[0]) + cheek * 2.0))
+	# The hotel's drift (#1220): its trench open to the sky here (the valley covers it).
+	var dr := CellarDig.drift_rect(spec)
+	if dr.has_area():
+		pits.append(dr)
+	var hi_x := maxi(12, ceili(float(spec.lot.width) + 2.0))
+	var hi_z := maxi(24, ceili(float(spec.lot.depth) + 8.0))
+	for r in pits:
+		hi_x = maxi(hi_x, ceili(r.end.x + 2.0))
 	var xs := [-16.0]
 	var zs := [-6.0]
-	for x in range(-15, 13):
+	for x in range(-15, hi_x + 1):
 		xs.append(float(x))
-	for z in range(-5, 25):
+	for z in range(-5, hi_z + 1):
 		zs.append(float(z))
 	for r in pits:
 		xs.append_array([r.position.x, r.end.x])
@@ -183,6 +197,8 @@ func _ground_cells() -> void:
 			var y := float(pl[0]) + float(pl[1]) * mid.x + float(pl[2]) * mid.y
 			add.call(Vector3(x0, -3.0, z0), Vector3(x1, y, z1))
 	var big := 60.0
-	for s: Array in [[Vector3(-big, -1.0, -big), Vector3(-16.0, 0.0, big)], [Vector3(12.0, -1.0, -big), Vector3(big, 0.0, big)],
-			[Vector3(-16.0, -1.0, -big), Vector3(12.0, 0.0, -6.0)], [Vector3(-16.0, -1.0, 24.0), Vector3(12.0, 0.0, big)]]:
+	var hx := float(hi_x)
+	var hz := float(hi_z)
+	for s: Array in [[Vector3(-big, -1.0, -big), Vector3(-16.0, 0.0, big)], [Vector3(hx, -1.0, -big), Vector3(big + hx, 0.0, big)],
+			[Vector3(-16.0, -1.0, -big), Vector3(hx, 0.0, -6.0)], [Vector3(-16.0, -1.0, hz), Vector3(hx, 0.0, big)]]:
 		add.call(s[0], s[1])

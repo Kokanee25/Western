@@ -331,6 +331,9 @@ What the corner saloon's frame taught (its record: `saloon_b/README.md`):
 - A lot's `spec` builds its building in place of its block (`ValleyWorld._make_buildings`); tests
   that counted a block a lot or a walk a whole frontage were told so.
 - An alley beside an open yard is no alley: fence the yard (the doctor's side fence).
+- **A cellar dug in the valley's first ground chunk (x -30 to 98) fails the card-game tests** (#1220): ValleyGround
+  re-cuts a chunk's collision into squares round any dug tile, and the saloon yard's card set stands in that chunk.
+  The hotel's and saloon B's cellars wait for it (`cellar._dig`); the undertaker's is in the next chunk.
 - **A change to the valley's static bodies can tip the card-game tests** (they share one valley; Jolt's contact
   order moves the chairs' pieces): the jail's shorter walk failed both chair tests in every full CI run. Run
   `--only=card_game` after any valley.json walk or lot change; the jail's walk waits on #834.
@@ -406,4 +409,25 @@ Record: `church/README.md`. What it taught:
   prop's top (a ray finds the floor; a kit prop's hit is refused) and beside a heap, not under it. Keep it under two fifths of
   Blood's cap (160 a world); Blood's cull spares it (`past`). A save holds it all (SaveGame clears Blood before loading).
   A `smoky` lamp burns deeper and sooty (soot up the boards over it); `light.cellar_haze` the cellar's close air.
+
+## A big two-storey hotel (#1220, the Salt Creek Hotel's main block)
+
+- **Past 60 ft wide, a flat roof behind the parapet** (`frame.flat_roof`): a queen-post truss won't span 80 ft, and the
+  period's blocks were flat behind their fronts. The roof is a floor on the plates, a ribbon on the false front's
+  studs and the upper bearing partitions (those full height, the rest 2 cm short); its boards take no crowd.
+- **A bearing wall across the joists needs a sole** (a floor's `blocking` {z, sole}): the analysis bends a board under
+  studs however well it's carried (blocks under it still failed 2x). Lay the wall's line on one board row over the
+  girder, and the sole replaces that row.
+- **Keep every joist line 1.2 cm clear of a wall's studs and of every post** (CONTACT_EPSILON): 5 mm from the lane
+  wall's studs, a ground joist carried two storeys of wall; a well's post through the floor stood a joist on it. Floors
+  stop 0.12 short of a 4x4 wall; posts go where the joists' lines (0.145 + 0.406 k) aren't.
+- **A stair's stringer stops clear of the partition at its head** (its boards rest on the stringer), and the leaves of
+  doors near a stair's foot open away from it. A back stair is easiest with its head at the outer wall (the stringers
+  on its ribbon, the well wall to wall: no tail joists).
+- **A balcony to be blown down: a beam a bay ending on the posts, and a deck a bay** (its boards cut at the post lines,
+  or the fallen bays hang on their neighbours' boards). The decks end at the posts' centres, the rails' ends over them.
+  Measured by physics: blow the post (`break_member`), settle, and count the broken joists bay by bay.
+- **A drift (a tunnel) under the valley's height field**: dig its trench and lay a cover of the ground's own material
+  over its lagging (CellarDig: the cover's top where the ground was, sampled before the dig; skipped on a re-dig).
+  Measure its head room with a man's box, not a ray (rays up from the planks found nothing).
 
