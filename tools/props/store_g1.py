@@ -19,6 +19,9 @@ import math
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import booze  # noqa: E402  (the game's own brands, #1222)
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 KIT = os.path.join(ROOT, "assets", "props", "kit")
 
@@ -296,9 +299,9 @@ def dressing_g1():
     # (an explicit y, not `on`: `on` is a fitted fixture's top, 3.1 m). West (dry goods): bolts of cloth on four
     # boards of the two long bays, notions' jars on the third; east (grocery): jars, patent-medicine bottles,
     # tin cups and lamps along the boards. The cupboards' working shelf carries crockery.
-    def row(id_, kits, x, y, z0, n, step, facing, jit=(0.004, 0.004, 6)):
+    def row(id_, kits, x, y, z0, n, step, facing, jit=(0.004, 0.004, 6), variants=None):
         out.append({"id": id_, "kit": kits[0], "at": [x, y, z0], "facing": facing,
-                    "row": {"kits": kits, "count": n, "step": [0, 0, step], "jitter": list(jit)}})
+                    "row": dict({"kits": kits, "count": n, "step": [0, 0, step], "jitter": list(jit)}, **({"variants": variants} if variants else {}))})
     bolts = ["bolt_calico", "bolt_felt", "bolt_plaid", "bolt_calico", "bolt_plaid"]
     # G2 (#1172) fills the rest of the boards with rows of tins and boxes, boots and hats
     # (tools/props/store_g2.py STOCK): G1 keeps the bolts on the dry goods' boards 1 and 2, the post office
@@ -307,7 +310,13 @@ def dressing_g1():
         for k in (1, 2):
             row("bolts_%s_%d" % (bid, k), bolts, SH_W - 0.02, SHELF_YS[k] + 0.0125, z0, 9, 0.215, 180)
     row("jars_west_d", ["drug_jar", "medicine_bottle"], SH_W - 0.05, SHELF_YS[1] + 0.0125, 8.4, 7, 0.22, 180, (0.01, 0.01, 20))
-    row("east_bottles_a", ["medicine_bottle", "whiskey_bottle", "medicine_bottle_round"], SH + 0.0, SHELF_YS[4] + 0.0125, 4.95, 8, 0.22, 0, (0.01, 0.01, 20))
+    # The grocery's top board: the patent medicines and bitters a store sold by the bottle, and the cheap
+    # goods (#1222, docs/briefs/booze.md: the dumb ones are the store's and the Railroad Saloon's).
+    stock = [("square", "bottoms"), ("cabin", "hearthstone"), ("panel", "tolliver"), ("square", "aunt_fanny"), ("panel", "windham"),
+             ("quart", "ball"), ("panel", "boner"), ("square", "pruett"), ("panel", "pemberly"), ("stone", "bumstead"),
+             ("panel", "dingle"), ("square", "amazon"), ("beer", "twin_buttes")]
+    row("east_bottles_a", [booze.kit_of(sh) for sh, _ in stock], SH + 0.0, SHELF_YS[4] + 0.0125, 4.95, len(stock), 0.145, 0, (0.008, 0.01, 20),
+        variants=[booze.variant_of(sh, b) for sh, b in stock])
     row("east_lamps_b", ["oil_lamp"], SH + 0.0, SHELF_YS[4] + 0.0125, 7.2, 3, 0.6, 0, (0.01, 0.02, 30))
     # The middle of the floor, a dense one (the critic: a dance hall): two display tables of dry goods and a
     # stack of crates and sacks on the grocery side, clear of the use points (browse 8.4/2.6 and 8.4/7.4, wait 6.6/4.4).
