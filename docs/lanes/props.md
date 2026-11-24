@@ -46,6 +46,10 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   bottles CLOSE; spittoons DIFFERENT (the old drawn one reads as rocks: S4). **Steps 7-8 wait for #1032** (pictures and ads);
   the pronghorn is bought (up to $2, Sean #1042; no elk). No arm rail on the bar's top (Sean): the foot rail is the brass.
 - **Next:** S5's steps 7-8 once #1032's `assets/props/paintings/` is on main (PR #1041 landed 2026-11-23); then S4 (the chair and strongbox, the spittoon, the CLOSE notes).
+- **The booze, steps 1-3** (#1222; `docs/briefs/booze.md` on branch `claude/game-booze-brands-labels-l2bsng`, unmerged, docs only):
+  31 invented brands by grade (R the Railroad Saloon, S the saloon, F the hotel and the Baron's), two blind checks (11 real
+  names replaced), plus 8 double meanings and 14 dumb ones (store, Railroad Saloon). **Sean approved all 53 (#1223)**;
+  next step 4 (labels, bottle shapes, barrel heads, placed; handover on #1222): merge the brief with it.
 - **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
   (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
   `folded_blankets`, and `doctors_bag` (Rodin, Sean's A on #823). All his wooden kits are now
