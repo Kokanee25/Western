@@ -55,7 +55,7 @@ jobs:
     env:
       TEST_SHARDS: 6
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 75  # (#1220: the hotel's 12.5k members slow every valley test; a shard ran past 60)
     steps:
       - uses: actions/checkout@v4
 
