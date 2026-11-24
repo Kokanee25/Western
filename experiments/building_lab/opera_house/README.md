@@ -1,11 +1,12 @@
-# McCready's Opera House (#1143): the design
+# McCready's Opera House (#1143): the design and the spec
 
-The building lab's steps 1 and 2 as a design only (Sean, 2026-11-24 on #1143: "design only ... then stop for
-Sean's OK"; the build waits for after the slice, behind the line shack #1091). Nothing here is built.
+The building lab's steps 1 and 2 (Sean, 2026-11-24: "design only", then on the sheet and plan "Looks good let's spec
+it out"). Nothing here is built: the build (step 3) waits for after the slice, behind the line shack (#1091).
 
 - **The sheet** (step 1): `sheet/` (ten views, `sheet/request.json`; painted by `building_sheet.yml`).
 - **The spec** (step 2): `config/buildings/opera_house.json`, written by `tools/buildings/opera_house_spec.py`
-  (edit the script, re-run it); `status: "design"`, not on any valley lot, so nothing loads it.
+  (edit the script, re-run it; `--sizing` prints the frame's checks); `status: "spec"`, on no valley lot, so
+  nothing loads it. Its trial load in the lab is below.
 - **The plans**: `plans.png` (ground floor and the balcony level, drawn from the spec by the same script).
 
 ## Sean's answers (2026-11-24, this session)
@@ -14,12 +15,14 @@ Sean's OK"; the build waits for after the slice, behind the line shack #1091). N
 2. **The front:** red brick with dressed stone quoins, base, sills and keystones.
 3. **The name:** MCCREADY'S OPERA HOUSE, 1881 (the cornice's frieze, the pediment's roundel).
 4. **The balcony:** a horseshoe.
+5. **The sheet and plan: OK** ("Looks good let's spec it out", #1242). Taken with it, as recommended there: **three
+   tiers on the front** and **the lot kept** (say so on #1143 if either is wrong).
 
 **A correction about the light (my mistake when I asked):** I said the front would catch sun all day. In the game
 the sun stands over valley north (-Z) at noon (DayCycle's `sun_tilt_degrees`, `sun_azimuth_degrees` 0; the art
 lane's trap), so **every north-side front (this one, the hotel's, saloon B's, the store's) is in shade by day**
 and lit from the sky; the low evening sun comes from the west, grazing. At show time (dusk) the front is lit by
-its own lamps either way. Put to Sean on the design's issue.
+its own lamps either way. Sean kept the lot (#1242, the recommendation).
 
 ## The lot
 
@@ -38,15 +41,50 @@ The walk 0.45 m high (three steps), no awning; the building's floor its top.
 | | |
 | --- | --- |
 | Building | 60 x 110 ft (18.29 x 33.53 m), one plain rectangle, a 15 ft yard to Back Street |
-| Walls | brick, 17 in outside (Kidder: public halls to 40 ft), the proscenium a 13 in fire wall full height, 12 in lobby and dressing walls; stone base, quoins, sills, keystones |
+| Walls | brick (Kidder): 17 in outside to the upper floor, 13 in above (a set-off for the joists), 13 in the lobby's back wall, the proscenium (a fire wall through the roof) and the dressing block; 9 in the vestibule's; footings 8 in wider, 4 ft down; stone base, quoins, sills, keystones. Each side wall in four parts by its height: the front block (14 m, the cornice returns), the hall (11.45 m, pilasters under the trusses), the stage house (13.96 m), the dressing block (8.17 m) |
 | Front | 46 ft to the cornice's top, the pediment 52 ft; three arched doorways (pairs of glazed doors, fanlights, outward-opening), an arched window each side; five tall arched foyer windows, five small attic windows; two kerosene lamp standards on the walk, poster boards on the piers |
-| Front block | vestibule (8 ft) with the **box office** (ticket window with a brass grille onto the vestibule) and the cloak room; the **lobby** (15 ft) with two dog-leg stairs (26 risers to the foyer, 5 m) in an open well; upstairs the **foyer** and McCready's office |
-| Hall | 57 x 41 ft clear to the pit, level floor (a dance floor too: the front four rows on runners), 32 ft to a plaster ceiling with a rose and the brass chandelier; four tall arched windows a side, iron shutters; exits: the front, a pair each side by the boxes, one each side at the back |
-| Seats | **parquet 312** (12 rows of 6-14-6, 32 in rows, 20 in chairs), **balcony 152** (4 back rows, 2 down each side), **boxes 16** (four, 4 chairs): **480** (Central City's, 1878: ~550) |
-| Balcony | a horseshoe: back arm 11 ft deep (4 rows rising 0.3 m each to the foyer's level), side arms 7.5 ft (2 rows) running to the boxes, corners on a 10.5 ft radius; ten 6 in cast-iron columns under its rail |
+| Front block | vestibule (8.5 ft) with the **box office** (ticket window with a brass grille onto the vestibule) and the cloak room; the **lobby** (14.5 ft, 16 ft high) with two straight stairs of 26 risers along its back wall, rising from the middle outward to the foyer (the builder makes straight runs; the sheet's dog-legs read the same from the doors); the hall's doors in the middle and under the stairs' high ends; upstairs the **foyer** (its floor on a beam along the stairs' wells, on six posts cased as columns), McCready's office, and over it all the **scene loft** (the attic windows) |
+| Hall | 57 x 41 ft clear to the pit, a level floor on five girder lines (a dance floor too: the front four rows on runners), 32 ft to a plaster ceiling with a rose and the 24-lamp chandelier; three bays a side of arched windows in two tiers (under and over the balcony's side arm), iron shutters; exits: the front, a pair each side by the boxes, one each side at the back |
+| Seats | **parquet 355** (12 rows of 4-22-4, the two aisles under the balcony's side columns; five seats give way to the back columns), **balcony 152** (4 back rows of 26, 2 rows of 12 down each side), **boxes 16**: **523** (Central City's, 1878: ~550). Re-laid from the design's 480 so no column stands in a seat block's middle |
+| Balcony | a horseshoe: back arm 14.5 ft deep (a cross aisle at the foyer's level and 4 rows stepping down 0.3 m), side arms 8.2 ft (a passage and 2 rows) to the boxes, corners on a 10.5 ft radius; nine 6 in cast-iron columns under an 8x12 rail beam, 3.45 m clear under it; the carriages 3x12 at 16 in into pockets in the brick |
 | Stage | 3 ft 6 in up; proscenium 28 x 20 ft; 22 ft deep plus a 4 ft apron with 14 kerosene footlights; a 6 ft pit for the band; a trap; the drop curtain and three roll drops (a small town's stage rolled its scenery, so no fly tower: the stage house 44 ft); a pin rail; the scenery door in the east wall at the stage's height (a wagon's bed) |
 | Back | four dressing rooms down, four up, a corridor and the stage door to the yard |
-| Roof | Howe trusses (timber chords and braces, iron rods) at 12 ft over the 57 ft hall, 3/12 behind parapets |
+| Roof | four Howe trusses (59 ft, 6.6 ft deep, 8 panels; 8x12 top chord, two 6x12 bottom, iron rods 1 5/8 to 1 in) at 12 ft over the hall, two over the stage house; purlins, 2x8 rafters, boards, tin; 3/12. The front block and the dressing block flat behind their parapets. The hall's ceiling hung from the bottom chords |
+
+## The frame's checks (`opera_house_spec.py --sizing`)
+
+Yellow pine at 1,200 lb/in2 in bending (the Wood Handbook's working stress), deflection under the live load against
+L/360; 100 lb/ft2 where a crowd stands (Kidder, theatres), 70 the dance floor, 40 roofs and lofts; cast iron by
+Gordon's formula; the truss by the method of sections. Every member passes; the tightest is the foyer's 3x14s (0.88).
+
+| Member | Size, span, load | Stress | Deflection (live) | |
+| --- | --- | --- | --- | --- |
+| hall floor | 2x12 at 16 in, 9.5 ft, 70 lb/ft2 | 468 lb/in2 (0.39) | 0.06 in of 0.32 | ok |
+| lobby, dressing floors | 2x10 at 16 in, 9.8 ft, 100 lb/ft2 | 995 lb/in2 (0.83) | 0.17 in of 0.33 | ok |
+| foyer | 3x14 at 12 in, 21.5 ft, 100 lb/ft2 | 1062 lb/in2 (0.88) | 0.62 in of 0.72 | ok |
+| balcony carriage, back arm | 3x12 at 16 in, 14.5 ft, 100 lb/ft2 | 893 lb/in2 (0.74) | 0.28 in of 0.48 | ok |
+| balcony side arm | 3x12 at 16 in, 8.2 ft, 100 lb/ft2 | 286 lb/in2 (0.24) | 0.03 in of 0.27 | ok |
+| box floor | 3x10 at 16 in, 6.6 ft, 100 lb/ft2 | 274 lb/in2 (0.23) | 0.02 in of 0.22 | ok |
+| dressing roof | 2x10 at 16 in, 9.8 ft, 40 lb/ft2 | 462 lb/in2 (0.39) | 0.07 in of 0.33 | ok |
+| hall ceiling (hung) | 2x8 at 16 in, 12.0 ft, 10 lb/ft2 | 482 lb/in2 (0.40) | 0.08 in of 0.40 | ok |
+| roof rafter | 2x8 at 24 in, 7.4 ft, 40 lb/ft2 | 650 lb/in2 (0.54) | 0.07 in of 0.25 | ok |
+| rail beam, side bay | 8x12, 14.6 ft, 100 lb/ft2 | 994 lb/in2 (0.83) | 0.29 in of 0.49 | ok |
+| rail beam, back bay | 8x12, 9.9 ft, 100 lb/ft2 | 808 lb/in2 (0.67) | 0.11 in of 0.33 | ok |
+| wells' beam (a bay) | 8x12, 10.2 ft, 100 lb/ft2 | 974 lb/in2 (0.81) | 0.15 in of 0.34 | ok |
+| cast-iron column | 6 in, 3/4 in metal, 12.5 ft, 10613 lb | 1528 lb/in2 (0.15 of 10,000 working) |  | ok |
+| Howe truss, chords | 59 ft span, 6.6 ft deep, 39540 lb a truss | 44452 lb: bottom 2-6x12 359 lb/in2, top 8x12 527 lb/in2 |  | ok (the joints govern: keyed and bolted) |
+| Howe truss, end rods | 1 5/8 in wrought, 17299 lb | 8341 lb/in2 (of 10,000) |  | ok |
+
+## The trial load (the lab's builder, today)
+
+The spec loaded into `experiments/building_lab/lab.gd` (a throwaway test, not committed): **every part the builder
+already has takes it** (the brick walls as the jail's stone walls with their profiles, set-offs and openings; the
+floors on ground and upper; the stairs; the partitions; the lamps). It stops only at the new parts: the levels
+`stage`, `attic`, `dress_upper`, `dress_roof`, `front_roof` (the builder knows cellar, ground and upper), and so the
+stage, the balcony, the boxes, the trusses and the roof aren't built. What it built: **6,414 members, 3,797 of them
+brick lifts** (the walls alone are near twice the 2,000 I estimated: 0.6 m x 1.2 m lifts). With the floors, balcony,
+stage and roof the whole will be **~11-13k, like the hotel's 12.5k**, which already slowed every valley load
+(#1227, #1237). So the BrickWall's lifts should be bigger (1.2 x 2.4 m: ~1,000) or rest batched until hit.
 
 ## Where the sheet differs from the spec (the spec wins)
 
@@ -66,7 +104,8 @@ quoins and keystones, the bracketed cornice and pediment, gilt and red plush ins
 
 | Part | What it is | Shared with |
 | --- | --- | --- |
-| **BrickWall** | bricks in common bond, members as lifts of courses (~0.6 m, the jail's stone courses' size, to keep the count near 2,000 not 12,000), chipped by voxel carving, a charge drops courses; stone dressings from the jail's stone pieces | the bank, the Baron's house, chimneys |
+| **New levels** | `stage`, `attic`, `dress_upper`, `dress_roof`, `front_roof`: floors at any named height (the builder's cellar/ground/upper made a list) | every building after |
+| **BrickWall** | the jail's stone walls with `masonry: brick` (they build today as stone pieces): the brick shader (common bond), lifts big enough to keep the count down (above), chipped by voxel carving, a charge drops lifts; stone dressings; a `set_off`'s thinner wall | the bank, the Baron's house, chimneys |
 | **Round-arched openings** | a gauged-brick arch with a stone keystone; `SashWindow`'s head (the church's `rise`) as a semicircle; arched doorways with fanlights | the hotel (arched ground-floor windows), the bank |
 | **Cornice** | bracketed, galvanized iron on a timber frame; a frieze for the gilt name; a pediment with a roundel | the hotel, the bank, saloon B's (one part) |
 | **Cast-iron column** | hollow, 6 in: shatters rather than bends; saloon B's corner column made a part | the hotel's storefront, the bank, storefronts |
@@ -78,8 +117,11 @@ quoins and keystones, the bracketed cornice and pediment, gilt and red plush ins
 | **Theatre chairs** (prop lab) | folding seats on cast-iron standards in rows, plush | the church's pews later? |
 | **Lamp standard, poster boards, gilt letters** (prop lab, sign art) | kerosene street lamps, show bills, gold leaf on the frieze and glass | the hotel |
 
-**Cost to measure before building:** the hotel's 12.5k members already slowed every valley load (#1227, #1237);
-an opera house is bigger. The BrickWall's lifts and resting members (`rest_batched`) decide whether it fits.
+**Cost to measure before building:** the trial's numbers above; the BrickWall's lifts and resting members
+(`rest_batched`) decide whether it fits beside the hotel.
+
+**For the prop lab** (`props_wanted` in the spec): the opera chair (and the boxes' gilt chairs), the pit's upright
+piano, McCready's safe, the foyer's settees, the lamp standard; then the posters (texture factory) and the drops.
 
 ## References that matter (the recipe's blocked hosts: Sean to check)
 
@@ -87,9 +129,10 @@ Central City Opera House (1878) and the Tabor Opera House, Leadville (1879): siz
 Kidder's *Building Construction and Superintendence* (brick walls); Haupt and Hatfield (Howe trusses);
 A. H. Andrews & Co.'s opera-chair catalogues; the Wright Opera House, Ouray (1888, a cast-iron front: a little late).
 
-## What this session read
+## What this session read (both steps)
 
 CLAUDE.md; `docs/lanes/art.md`; RECIPE.md ("Before step 1", steps 1-2, "two-storey building under trusses",
 "The valley", "A church", "A big two-storey hotel"); FORMAT.md's parts table; `docs/PARTS.md`'s structures;
 `config/valley.json` town.north, roads, places; the hotel's `sheet_request.json` and brief §9-11 (branch
-`claude/salt-creek-hotel-design-olzd6z`); `src/world/day_cycle.gd` (the sun).
+`claude/salt-creek-hotel-design-olzd6z`); `src/world/day_cycle.gd` (the sun); for the spec: the jail's, saloon B's and the
+hotel's specs (stone walls, stage, balconies, floors, posts, beams, stairs), `stone.gd`'s profile, `marks.gd`'s use paths.
