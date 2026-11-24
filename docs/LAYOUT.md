@@ -972,6 +972,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/structures
 
+- The support graph (#1239): `Structure.infer_from_geometry`, Structure's and SpecBuilding's both:
+  the pairs from `near_lists` (a sweep over the boxes, native `BoxPairs` or the script's), each
+  member's tier and kind worked out once; `tests/test_support_graph.gd` holds the old ways and
+  checks the graph is identical, in order.
 - `church_tower.gd` (#1142): the church's bell tower, belfry, louvres, spire and pointed window heads, called from `SpecBuilding.build` when the spec has a `tower`; the cemetery is `src/world/cemetery.gd` (`config/cemetery.json`), placed by `ValleyWorld._make_church` and `_make_cemetery`.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`

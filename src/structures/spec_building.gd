@@ -14,15 +14,14 @@ extends FalseFrontBuilding
 ##   within its band by the usual ladder. 0 the foundation, posts and beams; 1 the ground floor and
 ##   the outer walls; 2 what stands on the ground floor; 3 the upper floor and balconies; 4 what
 ##   stands on that; 5 the trusses; 6 the roof's covering (FORMAT.md "Bands").
-## - **A broadphase.** Structure.infer_supports tries every pair (977 members, 0.4 s; this saloon
-##   has ~6000); this one tries the pairs that share a 2 m cell, with the same rules and order.
+## - **A broadphase.** Structure.infer_supports once tried every pair (977 members, 0.4 s; this saloon
+##   has ~6000); both now try only the pairs a sweep over the boxes finds (#1239), in the same order.
 ## - **Ramps that go with their stair** (a stair's walking ramp is freed once its stringers break).
 
 const Stair := preload("res://src/structures/stair.gd")
 const Marks := preload("res://src/structures/marks.gd")
 const StoneBuilder := preload("res://src/structures/stone.gd")
 const Bulkhead := preload("res://src/structures/bulkhead.gd")
-const CELL := 2.0
 const SPEC := "res://config/buildings/saloon.json"
 
 var spec_path := SPEC
@@ -77,104 +76,12 @@ func _place_in_stack(m: StructureMember, box: AABB) -> void:
 	m.stack_key = _tier(m) * 100.0 + box.position.y
 
 
-func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AABB) -> void:
-	var grown := box.grow(CONTACT_EPSILON)
-	if not grown.intersects(other_box):
-		return
-	# In a common-rafter roof a tilted member's box is far bigger than it is (a rafter's spans the
-	# loft): it touches only what its oriented box truly meets.
-	if _tilted_test and (_tilted(m) or _tilted(other)) and not _boxes_meet(m, other):
-		return
-	m.touching.append(other.member_id)
-	var tier := _tier(m)
-	var other_tier := _tier(other)
-	# (A pane rests on its sash's rail and bars as one trim on another: SashWindow, #826.)
-	var same := other.kind == m.kind or (m.kind == &"glass" and other.kind == &"trim")
-	var beneath := other_tier == tier and same and other_box.end.y <= box.position.y + CONTACT_EPSILON \
-			and other_box.position.y < box.position.y - CONTACT_EPSILON
-	if other_tier < tier or beneath:
-		m.supported_by.append(other.member_id)
-		other.dependents.append(m.member_id)
-		var contact := grown.intersection(other_box)
-		m.support_points[other.member_id] = contact.get_center()
-		m.support_boxes[other.member_id] = contact
-
-
-var _tilted_test := false
-
-
-static func _tilted(m: StructureMember) -> bool:
-	var b := m.transform.basis
-	return absf(b.x.y) > 0.01 or absf(b.y.x) > 0.01 or absf(b.y.z) > 0.01 or absf(b.z.y) > 0.01
-
-
-## Whether two members' oriented boxes overlap (within the contact distance), by the separating
-## axes of both boxes' faces (6 of the 15: enough for timber meeting timber).
-static func _boxes_meet(a: StructureMember, b: StructureMember) -> bool:
-	var ta := a.transform
-	var tb := b.transform
-	var ha := a.size * 0.5 + Vector3.ONE * CONTACT_EPSILON
-	var hb := b.size * 0.5
-	var d := tb.origin - ta.origin
-	for pair in [[ta.basis, ha, tb.basis, hb], [tb.basis, hb + Vector3.ONE * CONTACT_EPSILON, ta.basis, a.size * 0.5]]:
-		var ba: Basis = pair[0]
-		var h1: Vector3 = pair[1]
-		var bb: Basis = pair[2]
-		var h2: Vector3 = pair[3]
-		for i in 3:
-			var ax := ba[i].normalized()
-			var r2 := absf(ax.dot(bb[0].normalized())) * h2.x + absf(ax.dot(bb[1].normalized())) * h2.y + absf(ax.dot(bb[2].normalized())) * h2.z
-			if absf(ax.dot(d)) > h1[i] + r2:
-				return false
-	return true
-
-
-## Structure.infer_supports with a grid: the same links in the same order, from the pairs that
-## share a cell.
+## Structure's support graph (Structure.infer_from_geometry, #1239), with this building's bands
+## (`_tier`), its kinds stacking only on their own kind, and rafters by their oriented boxes.
 func infer_supports() -> void:
 	_tilted_test = _fr.has("rafters")
-	invalidate_analysis()
-	_by_stack.clear()
-	var boxes := {}
-	var grid := {}
-	for i in _order.size():
-		var m := _order[i]
-		var b := m.structure_aabb()
-		boxes[m] = b
-		m.dependents.clear()  # before any linking: the others' links fill it
-		for c in _cells(b.grow(CONTACT_EPSILON)):
-			if not grid.has(c):
-				grid[c] = []
-			(grid[c] as Array).append(i)
-	for i in _order.size():
-		var m := _order[i]
-		m.supported_by.clear()
-		m.support_points.clear()
-		m.support_boxes.clear()
-		m.touching.clear()
-		m.analysis_cache = {}
-		var box: AABB = boxes[m]
-		_place_in_stack(m, box)
-		var seen := {}
-		for c in _cells(box.grow(CONTACT_EPSILON)):
-			for j: int in grid.get(c, []):
-				seen[j] = true
-		var near: Array = seen.keys()
-		near.sort()
-		for j: int in near:
-			if j != i:
-				_link(m, box, _order[j], boxes[_order[j]])
-
-
-static func _cells(b: AABB) -> Array[Vector3i]:
-	var out: Array[Vector3i] = []
-	var lo := Vector3i((b.position / CELL).floor())
-	var hi := Vector3i((b.end / CELL).floor())
-	for x in range(lo.x, hi.x + 1):
-		for y in range(lo.y, hi.y + 1):
-			for z in range(lo.z, hi.z + 1):
-				out.append(Vector3i(x, y, z))
-	return out
+	_stacks_by_kind = true
+	infer_from_geometry()
 
 
 # --- the build ------------------------------------------------------------------------------------

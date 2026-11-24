@@ -40,7 +40,8 @@
       "test_destruction_data.gd", "test_static_batch.gd", "test_openings.gd", "test_railing.gd",
       "test_stair_ramp.gd", "test_trestle.gd", "test_inside_woods.gd", "test_wood_use.gd",
       "test_town_buildings.gd", "test_cemetery.gd", "test_valley.gd", "test_valley_town.gd",
-      "test_valley_church.gd", "test_undertaker_valley.gd", "test_valley_farmhouse.gd", "test_farmhouse.gd"
+      "test_valley_church.gd", "test_undertaker_valley.gd", "test_valley_farmhouse.gd", "test_farmhouse.gd",
+      "test_support_graph.gd"
     ],
     "blast": [
       "test_blast_*", "test_dynamite*", "test_rubble*", "test_settle_incremental.gd", "test_breakage_lab.gd",
