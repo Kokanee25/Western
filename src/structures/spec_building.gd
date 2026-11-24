@@ -211,6 +211,9 @@ func build() -> void:
 		"ground_joist_bottom": floor_top - float(_fr.floor_board.thick) - float(joist[1]),
 		"upper_joist_bottom": float(lv.upper.top) - float(_fr.floor_board.thick) - float(up_joist[1]),
 	}
+	# A flat roof's boards (#1220, the hotel: `frame.flat_roof`, a floor of level "roof" on the plates).
+	if lv.has("roof"):
+		_lv["roof"] = float(lv.roof.top)
 	ramps.clear()
 	lamps.clear()
 	kit_props.clear()
@@ -243,6 +246,8 @@ func build() -> void:
 	if church_tower:
 		church_tower.foundation()  # the church's bell tower (#1142): src/structures/church_tower.gd
 	_cellar()
+	if spec.has("drift"):
+		Drift.build(self, spec.drift, _lv.cellar)  # (#1220, the hotel's: under the lane to saloon B's cellar)
 	_posts_and_beams()
 	# A cellar's rooms (#1174, the undertaker's): partitions on its flags, under the girders.
 	_partitions("cellar", 0)
@@ -275,7 +280,19 @@ func build() -> void:
 	band = 1
 	if spec.has("porch"):
 		_porch()
-	if _fr.has("rafters"):
+	if _fr.has("flat_roof"):
+		# A flat roof behind the parapet (#1220, the hotel): its joists on the plates, the front's roof
+		# ribbon and the upper bearing partitions, boarded; ceilings nailed up under both floors.
+		band = 5
+		for f: Dictionary in spec.floors:
+			if f.level == "roof":
+				_floor(f, f.get("breaks", []))
+		band = 1
+		_stoops()
+		if spec.has("ceilings"):
+			band = 4
+			_ceilings()
+	elif _fr.has("rafters"):
 		# A common-rafter roof tied by the loft's joists (the doctor's), then what a small building has.
 		band = 1
 		_braces()
@@ -632,6 +649,8 @@ func _foundation() -> void:
 	for r in runs:
 		var a: Vector2 = r[1]
 		var e: Vector2 = r[2]
+		if absf(a.x - e.x) < 0.001 and _passage_run(String(r[0]), a, e, t, top, cel, floor, bk):
+			continue
 		if not bk.is_empty() and absf(a.x - e.x) < 0.001:
 			# The bulkhead's passage (#1174) through a side wall along z: the wall either side, jambs
 			# under a stone lintel (its ends bearing 0.25 m on them), the gap from the cellar's floor up.
@@ -664,6 +683,42 @@ func _foundation() -> void:
 	if c1.x < w - 0.01:
 		_stone_run("cellar/wall_x1", Vector2(c1.x - t * 0.5, za), Vector2(c1.x - t * 0.5, zb), t, top, [], floor)
 	_sills()
+
+
+## A side wall's foundation run (along z) with openings through it (#1220, the hotel's drift door; spec
+## `foundation_passages` [{wall, z [z0, z1], height}]: from the cellar's floor up `height`, under a timber
+## lintel bearing 0.25 m each side, the stone on over it), the bulkhead's passage among them if it's on
+## this wall. Returns false (nothing built) when no passage is on this run, so the old path builds it.
+func _passage_run(name: String, a: Vector2, e: Vector2, t: float, top: float, cel: Array, floor: float, bk: Dictionary) -> bool:
+	var gaps: Array = []
+	var on_run := func(wall_id: String) -> bool:
+		var wl: Array = _wall_line(wall_id)
+		return not wl.is_empty() and absf(float(wl[0][0]) - (a.x if a.x < 0.01 else a.x + t)) < 0.01
+	for ps: Dictionary in spec.get("foundation_passages", []):
+		if on_run.call(String(ps.wall)):
+			var lb := floor + float(ps.height)
+			gaps.append({"z0": float(ps.z[0]), "z1": float(ps.z[1]), "lb": lb, "lt": minf(top, lb + 0.25), "kind": "drift"})
+	if gaps.is_empty():
+		return false
+	if not bk.is_empty() and on_run.call(String(bk.wall)):
+		var lt := top - float(bk.get("lintel", 0.2))
+		gaps.append({"z0": float(bk.z[0]), "z1": float(bk.z[1]), "lb": lt, "lt": top, "kind": "bulkhead"})
+	gaps.sort_custom(func(p: Dictionary, q: Dictionary) -> bool: return float(p.z0) < float(q.z0))
+	var z := a.y
+	for k in gaps.size():
+		var g: Dictionary = gaps[k]
+		var z0 := float(g.z0)
+		var z1 := float(g.z1)
+		var id := "foundation/%s_%s%d" % [name, g.kind, k]
+		_stone_run("%s_before" % id, Vector2(a.x, z), Vector2(a.x, z0 - 0.25), t, top, cel, floor)
+		_stone_run("%s_jamb_a" % id, Vector2(a.x, z0 - 0.25), Vector2(a.x, z0), t, float(g.lb), cel, floor)
+		add_member("%s_lintel" % id, &"sill", &"stone" if g.kind == "bulkhead" else &"framing", Vector3(t, float(g.lt) - float(g.lb), z1 - z0 + 0.5), Vector3(a.x + t * 0.5, (float(g.lt) + float(g.lb)) * 0.5, (z0 + z1) * 0.5))
+		if float(g.lt) < top - 0.01:
+			_stone_run("%s_over" % id, Vector2(a.x, z0 - 0.25), Vector2(a.x, z1 + 0.25), t, top, [], float(g.lt))
+		_stone_run("%s_jamb_b" % id, Vector2(a.x, z1), Vector2(a.x, z1 + 0.25), t, float(g.lb), cel, floor)
+		z = z1 + 0.25
+	_stone_run("foundation/%s_after" % name, Vector2(a.x, z), e, t, top, cel, floor)
+	return true
 
 
 ## A wall's line in the spec ([[x, z], [x, z]]), or [] if there's none by that id.
@@ -955,8 +1010,10 @@ func _ground_floor() -> void:
 		var z := z0 + 0.3
 		var k := 0
 		while z < z1:
-			band = 0
-			add_member("pier/u%d_%02d" % [int(ux * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(ux, (top - 0.3) * 0.5, z))
+			# Over a cellar (the hotel's, #1220) its walls and posts carry it, not piers.
+			if not (ux > float(cel[0]) - 0.3 and ux < float(cel[2]) + 0.3 and z > float(cel[1]) - 0.35 and z < float(cel[3]) + 0.2):
+				band = 0
+				add_member("pier/u%d_%02d" % [int(ux * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(ux, (top - 0.3) * 0.5, z))
 			band = 1
 			z += every
 			k += 1
@@ -1003,6 +1060,8 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 	var along_z: bool = f.joists == "z"
 	var openings: Array = f.get("openings", [])
 	var id: String = "floor/" + f.id
+	# A flat roof's boards (#1220) take no crowd: `board`, not `floor_board`.
+	var board_kind := StringName((_fr.get("flat_roof", {}) as Dictionary).get("board_kind", "floor_board")) if f.level == "roof" else &"floor_board"
 	var a0 := x0 if along_z else z0  # across the joists
 	var a1 := x1 if along_z else z1
 	var l0 := z0 if along_z else x0  # along them
@@ -1052,6 +1111,43 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 				# A joist cut short at an opening rests on its header (a tail: hung on it).
 				add_member("%s/joist/%03d" % [id, n], &"rafter" if cut else &"joist", &"framing", size, c)
 				n += 1
+	# Solid blocking between the joists along a bearing wall's line over their support (#1220, the hotel's
+	# 28 ft wall: its studs stand on boards over blocks, not on a board spanning between two joists).
+	# `blocking` [[l0, l1], ...]: the stretch along the joists each block takes. {"z": [l0, l1], "sole": true}:
+	# a sole the wall stands on instead (StructuralAnalysis bends a board under a bearing wall's studs,
+	# however it's carried): full depth to the floor's top, continuous across the joists, the boards
+	# stopped either side of it.
+	var soles: Array = []
+	for be: Variant in f.get("blocking", []):
+		if be is Dictionary and (be as Dictionary).get("sole", false):
+			var sz: Array = be.z
+			soles.append(sz)
+			var n_s := maxi(1, ceili((a1 - a0) / 2.4))
+			for k in n_s:
+				# (its ends 3 cm clear of the walls' studs: they'd stand on it)
+				var sa := lerpf(a0 + 0.03, a1 - 0.03, float(k) / n_s) + 0.002
+				var sb := lerpf(a0 + 0.03, a1 - 0.03, float(k + 1) / n_s) - 0.002
+				var size := Vector3(sb - sa, top - jb, float(sz[1]) - float(sz[0]))
+				var c := Vector3((sa + sb) * 0.5, (top + jb) * 0.5, (float(sz[0]) + float(sz[1])) * 0.5)
+				if not along_z:
+					size = Vector3(size.z, size.y, size.x)
+					c = Vector3(c.z, c.y, c.x)
+				add_member("%s/sole/%d_%d" % [id, int(float(sz[0]) * 100), k], &"joist", &"framing", size, c)
+	for be: Variant in f.get("blocking", []):
+		if be is Dictionary:
+			continue
+		var bl: Array = be
+		for li in lines.size() - 1:
+			var qa := lines[li] + float(js[0]) * 0.5 + 0.003
+			var qb := lines[li + 1] - float(js[0]) * 0.5 - 0.003
+			if qb - qa < 0.05:
+				continue
+			var size := Vector3(qb - qa, js[1], float(bl[1]) - float(bl[0]))
+			var c := Vector3((qa + qb) * 0.5, (jt + jb) * 0.5, (float(bl[0]) + float(bl[1])) * 0.5)
+			if not along_z:
+				size = Vector3(size.z, size.y, size.x)
+				c = Vector3(c.z, c.y, c.x)
+			add_member("%s/block/%d_%03d" % [id, int(float(bl[0]) * 100), li], &"joist", &"framing", size, c)
 	# Headers across each opening's ends, on the trimmers either side.
 	for o: Dictionary in openings:
 		if o.get("slot", false):
@@ -1089,6 +1185,13 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 	var row := 0
 	while b < l1 - 0.02:
 		var b1 := minf(b + bw, l1)
+		var on_sole := false
+		for sz: Array in soles:
+			on_sole = on_sole or (b > float(sz[0]) - 0.005 and b1 < float(sz[1]) + 0.005)
+		if on_sole:
+			b = b1
+			row += 1
+			continue
 		var spans: Array = [[a0, a1]]
 		for o: Dictionary in openings:
 			var orr: Array = o.rect
@@ -1128,7 +1231,7 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 				if not along_z:
 					size = Vector3(size.z, size.y, size.x)
 					c = Vector3(c.z, c.y, c.x)
-				var m := add_member("%s/board/%03d_%d" % [id, row, piece], &"floor_board", &"floor", size, c)
+				var m := add_member("%s/board/%03d_%d" % [id, row, piece], board_kind, &"floor", size, c)
 				piece += 1
 				var is_rough := false
 				for rr: Array in rough:
@@ -1250,6 +1353,9 @@ func _outer_walls() -> void:
 		var rs: Array = _fr.ribbon.section
 		if w.get("ribbon", true):
 			_wall_run(wall, "%s/ribbon" % w.id, &"ledger", x0, x1, rb - float(rs[1]), rb, -STUD_D - float(rs[0]), -STUD_D, rects, x0 + sw * 0.5)
+		if top_kind == "height" and _fr.has("flat_roof"):
+			# The flat roof's joists on a ribbon let into the false front's studs (#1220, the hotel).
+			_wall_run(wall, "%s/roof_ribbon" % w.id, &"ledger", x0, x1, wall_height - float(rs[1]), wall_height, -STUD_D - float(rs[0]), -STUD_D, rects, x0 + sw * 0.5)
 		# Outside: siding, cut round the openings and where a balcony's ledger is nailed to the studs.
 		var cut := rects.duplicate()
 		for b: Dictionary in spec.get("balconies", []):
@@ -1824,7 +1930,10 @@ func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float, at_end := false,
 	c.y = o.position.y + 0.01 + lh * 0.5
 	c += along * (thick - 0.04) * 0.5 * k
 	var size := into.abs() * lw + Vector3.UP * lh + along.abs() * thick
-	var leaf := add_member("%s/door_%d" % [wall.name, int(o.position.x * 100)], &"door", &"painted_rust", size, c)
+	var lid := "%s/door_%d" % [wall.name, int(o.position.x * 100)]
+	if get_member(StringName(String(structure_id) + "/" + lid)) != null:
+		lid += "_up"  # (a pair over a pair whose leaves meet on the same line: the hotel's French doors, #1220)
+	var leaf := add_member(lid, &"door", &"painted_rust", size, c)
 	# Its use (#901): hands at the latch, the edge away from the hinge.
 	if leaf:
 		leaf.set_meta(&"use_role", 3.0)
@@ -1846,6 +1955,11 @@ func _partitions(level: String, b: int) -> void:
 		# A ground-floor partition carries the joists over it; one upstairs stops short of the
 		# trusses' ties (they span wall to wall: a tie on a partition would load the floor under it).
 		var top := (_lv.upper_joist_bottom as float) - PLATE_H if level == "ground" else wall_height - PLATE_H - 0.02
+		if level == "upper" and _fr.has("flat_roof") and w.get("bearing", false):
+			top = wall_height - PLATE_H  # (a flat roof's joists rest on it, #1220)
+		# `gap`: a partition that carries nothing over it stops short (the hotel's office front, across the
+		# joists between two girders: under the upper floor it would load the boards it stands on, #1220).
+		top -= float(w.get("gap", 0.0))
 		if level == "cellar":
 			# A cellar's (#1174): from its flags to the girders' underside (it carries them where it crosses them).
 			foot += 0.08
@@ -1855,7 +1969,8 @@ func _partitions(level: String, b: int) -> void:
 		for o in ops:
 			rects.append(o[0])
 		var top_at := func(_x: float) -> float: return top
-		_studs(wall, foot, top_at, rects, -STUD_D * 0.5, STUD_D * 0.5)
+		# (`stud`: a heavier stud for a partition that carries two floors, the hotel's 28 ft wall, #1220)
+		_studs(wall, foot, top_at, rects, -STUD_D * 0.5, STUD_D * 0.5, float(w.get("stud", STUD_W)))
 		_wall_run(wall, "%s/plate" % w.id, &"plate", 0.0, wall.length, top, top + PLATE_H, -STUD_D * 0.5, STUD_D * 0.5, rects, STUD_W * 0.5)
 		for fin: Dictionary in w.inside:
 			var plus: bool = fin.side == "+"
@@ -2043,6 +2158,8 @@ func _side_cornice(id: String, cn: Dictionary) -> void:
 
 ## The height of the common rafters' underside over the wall's outer face.
 func _roof_under() -> float:
+	if _fr.has("flat_roof"):
+		return float(_lv.roof) + 0.05  # (the siding past the flat roof's boards: the eave's cornice covers it)
 	if _fr.has("rafters"):
 		return wall_height
 	var t: Dictionary = _fr.truss
@@ -3210,11 +3327,22 @@ func _ceilings() -> void:
 			var e := Vector2(bm.to[0], bm.to[1])
 			var hb := float(bs[0]) * 0.5
 			holes.append({"rect": [minf(a.x, e.x) - hb, minf(a.y, e.y) - hb, maxf(a.x, e.x) + hb, maxf(a.y, e.y) + hb]})
+	# `holes`: gaps in the floor over that aren't its openings (the hotel's stair well between floors, #1220).
+	for hr: Array in cs.get("holes", []):
+		holes.append({"rect": hr})
 	var look := StringName(spec.materials.wall_boards)
 	var only: Array = cs.get("rooms", []) if cs.get("rooms") is Array else []
+	# `levels`: the rooms of which floors get a ceiling (default the ground's); an upper room's goes under
+	# a flat roof's joists (the hotel, #1220).
+	var lvls: Array = cs.get("levels", ["ground"])
+	var ground_holes := holes
 	for rm: Dictionary in spec.rooms:
-		if rm.level != "ground" or (not only.is_empty() and not only.has(rm.id)):
+		if not lvls.has(rm.level) or (not only.is_empty() and not only.has(rm.id)):
 			continue
+		if rm.level != "ground" and rm.level != "upper":
+			continue
+		y1 = _lv.upper_joist_bottom if rm.level == "ground" else wall_height
+		holes = ground_holes if rm.level == "ground" else []
 		var r: Array = rm.rect
 		var x := float(r[0])
 		var i := 0

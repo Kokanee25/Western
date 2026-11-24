@@ -1,0 +1,3899 @@
+{
+	"_doc": "The Salt Creek Hotel (#1146 the design, docs/briefs/hotel.md; #1220 steps 2-6; Sean's calls on #1215: painted clapboard in three colours, two storeys, an open railed gallery to be blown up, the cellar's secret B). Format 1 (../../experiments/building_lab/FORMAT.md) with what a big two-storey hotel needs (each marked NEW). Target sheet: experiments/building_lab/hotel/sheet/ (Sean OK 2026-11-24): build the OPEN deck, not the sheet's roofed gallery. Sizes from this spec only, never off the pictures. Written by make_spec.py. SPACE: on its north-side lot the building faces south (facing 180), so its x runs from its EAST corner westward and its z back (north) from the front wall's outer stud face; the side walls are named by what they face, 'lane' (west, the saloon lane) and 'alley' (east). THE MAIN BLOCK ONLY: the two-storey kitchen wing behind its west half (42 x 24 ft) is the next step (README).",
+	"format": 1,
+	"id": "hotel",
+	"identity": {
+		"owner": "the landlady, a widow in her forties: her late husband built it in 1881 on the best lot on Main Street's north side and died the next winter; she runs it with a clerk, a cook, two chambermaids, a waitress and a boy",
+		"trade": "the town's best hotel: eleven rooms and a suite over a lobby, a small fine bar, the ladies' parlour and a dining room laid for supper; where the railroad's men, the mine's, drummers and the Army's officers stay, and where the Baron gives his suppers",
+		"means": "a frame building dressed as well as money freighted on the railroad could dress it: local walls, and the millwork, plate glass, carpets, paper and brass all off the cars",
+		"age_and_repair": "a year old and well kept: the paint fresh, the walk swept at six, the lobby's carpet paler on the way to the desk and the stair; the gallery's deck already grey",
+		"clues": [
+			"SALT CREEK HOTEL in gilt on a red board over the cornice, 1881 in the pediment",
+			"lace at every upper window: the only curtains on the street",
+			"chairs and a rocker under the gallery, a boot scraper by the main doors",
+			"the bar's own door on the lane side, the ladies' at the east",
+			"a brewery's dray at the bulkhead on the saloon lane"
+		],
+		"class": "best",
+		"built": 1881,
+		"now": 1882
+	},
+	"lot": {
+		"_doc": "valley.json town.north 'hotel' (x 42.0-67.2, 25.2 m): the building's west wall 3 cm inside the lot's line on the saloon lane (world x 42.03), its east corner (the origin) at world x 66.414, 0.79 m short of the east lane; the front wall's face on the town's front line (z -10.05). Its floor at its walk's top (walk.h 0.75 over the ground at the walk's street edge, ValleyTown); `at`'s y the street edge's ground (the bake: -0.16 east to -0.01 west). The lot is dug level at that height under the building (valley.json's pad): the bake rises 0.5-0.6 m to the back wall, which would bury the sills.",
+		"valley_lot": "hotel",
+		"side": "north",
+		"at": [
+			66.414,
+			-0.08,
+			-10.05
+		],
+		"facing": 180,
+		"width": 24.384,
+		"depth": 15.24,
+		"yard": [
+			0.0,
+			15.24,
+			24.384,
+			28.0
+		],
+		"ground": {
+			"plane": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"_doc": "the pad: level at the building's y 0"
+		},
+		"footprint_with_stair": [
+			0.0,
+			-2.44,
+			24.384,
+			16.64
+		],
+		"walk_h": 0.75,
+		"walk_x": [
+			0.0,
+			24.384
+		],
+		"yard_name": "YARD"
+	},
+	"levels": {
+		"_doc": "The floor at the walk's top (0.75: four easy steps). 13 ft 6 in floor to floor below (the lobby's height, the tall plate glass), 11 ft 6 in above to the flat roof's joists; the roof's boards at 8.70, the parapet's cornice and the name board to 9.9 (32 1/2 ft over the street, the brief's front). The cellar's floor 2.0 m under the street edge (its flags 1.92: 2.2 m clear under the girders).",
+		"cellar": {
+			"floor": -2.0,
+			"top": -1.92
+		},
+		"ground": {
+			"top": 0.75
+		},
+		"upper": {
+			"top": 4.865
+		},
+		"roof": {
+			"top": 8.695,
+			"_doc": "NEW: the flat roof's boards (`frame.flat_roof`)"
+		},
+		"plate": 8.37,
+		"false_front": 9.9,
+		"roof_pitch": 0.0,
+		"roof_tight": true
+	},
+	"frame": {
+		"_doc": "A balloon frame (Bell 1858; Woodward 1865): 4x4 studs sill to plate through both storeys (saloon B's, under a crowd), the upper joists on a 1x6 ribbon let into them. The ground floor's 2x10 joists front to back on four lines of girders, broken over each; the upper floor's 3x14 at 12 in front to back over the 28 ft rooms (Kidder: no wood joist over 25 ft without a reason; Hatfield 1880 for the sizes), broken over the long bearing wall at 28 ft; a flat roof of 2x12 at 16 in on the plates, the bearing partitions and a ribbon on the front's studs, boarded and tinned (terne plate on boards, the period's flat roof behind a parapet), falling to the back (drawn level). Dressed sizes, metres [width, depth]; spans to checks.gd's sizing.",
+		"stacked": true,
+		"foundation": {
+			"wood": "stone",
+			"thick": 0.45,
+			"bottom": -0.3,
+			"top": 0.275,
+			"piece": 1.5,
+			"_doc": "rubble stone in lime, 18 in, 0.3 m under the pad; where it walls the cellar, down to its floor"
+		},
+		"sill": {
+			"section": [
+				0.2,
+				0.2
+			],
+			"wood": "framing"
+		},
+		"pier": {
+			"size": 0.45,
+			"wood": "stone"
+		},
+		"girder": {
+			"section": [
+				0.15,
+				0.2
+			],
+			"wood": "framing",
+			"pier_every": 1.9
+		},
+		"joist": {
+			"section": [
+				0.05,
+				0.25
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"long_joist": {
+			"_doc": "4x14 at 12 in (3x14 bent 1.12 of its limit under a crowd): the upper floor over the front rooms' 28 ft and the back's 22 (Kidder; L/360 at 40 lb/ft2)",
+			"section": [
+				0.1,
+				0.35
+			],
+			"spacing": 0.305,
+			"wood": "framing"
+		},
+		"floor_board": {
+			"width": 0.15,
+			"thick": 0.025,
+			"wood": "floor"
+		},
+		"stud": {
+			"section": [
+				0.05,
+				0.1
+			],
+			"spacing": 0.406,
+			"wood": "framing",
+			"tall": {
+				"_doc": "the balloon studs run 7.9 m sill to plate (8.37 under the false front's 9.9): 4x4, as saloon B's",
+				"section": [
+					0.1,
+					0.1
+				],
+				"walls": [
+					"front",
+					"back",
+					"lane",
+					"alley"
+				]
+			}
+		},
+		"plate": {
+			"height": 0.1
+		},
+		"ribbon": {
+			"section": [
+				0.025,
+				0.15
+			]
+		},
+		"header": {
+			"height": 0.15
+		},
+		"post": {
+			"_doc": "8x8 posts (the lobby's stair well), chamfered (saloon B's)",
+			"section": [
+				0.2,
+				0.2
+			],
+			"wood": "framing",
+			"look": "wood:int_timber",
+			"chamfer": 0.035
+		},
+		"beam": {
+			"_doc": "the stair well's beams: 6x12",
+			"section": [
+				0.15,
+				0.3
+			],
+			"wood": "framing",
+			"look": "wood:int_timber",
+			"chamfer": 0.03
+		},
+		"bracket": {
+			"reach": 0.55,
+			"thick": 0.1,
+			"look": "wood:int_timber"
+		},
+		"wall_post": {
+			"section": [
+				0.15,
+				0.1
+			]
+		},
+		"roof_joist": {
+			"_doc": "2x12 at 16 in: the flat roof's, front wall to the 28 ft wall to the back wall",
+			"section": [
+				0.05,
+				0.3
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"flat_roof": {
+			"_doc": "NEW (spec_building.gd): no trusses or rafters; the roof is a floor of its own (`floors` level 'roof') on the outer walls' plates, the front's roof ribbon (on the false front's studs) and the upper bearing partitions (full height; the others stop 2 cm short); its boards kind `board` (no crowd on them).",
+			"board_kind": "board"
+		}
+	},
+	"girders": {
+		"_doc": "Four lines under the ground floor's joists (spans 3.0-3.4 m), on stone piers at 6 ft; in the cellar on its posts and its bearing walls. Under each partition that runs with the joists a girder of its own (saloon B's `under`), its piers left out where it is over the cellar (NEW): there the cellar's walls and posts carry it.",
+		"z": [
+			2.29,
+			5.49,
+			8.53,
+			11.89
+		],
+		"under": [
+			{
+				"_doc": "the bar's wall",
+				"x": 17.68,
+				"z": [
+					0.1,
+					8.525
+				]
+			},
+			{
+				"_doc": "the ladies' parlour's wall",
+				"x": 9.14,
+				"z": [
+					0.1,
+					8.525
+				]
+			},
+			{
+				"_doc": "the office's side",
+				"x": 14.63,
+				"z": [
+					0.1,
+					3.0
+				]
+			},
+			{
+				"_doc": "the sample room's wall",
+				"x": 20.12,
+				"z": [
+					8.625,
+					15.14
+				]
+			},
+			{
+				"_doc": "the dining room's west wall",
+				"x": 17.07,
+				"z": [
+					8.625,
+					15.14
+				]
+			}
+		]
+	},
+	"cellar": {
+		"_doc": "Under the west and middle of the main block (the drawing's 0-48 ft from the west, 10 ft back to the back wall): 48 x 40 ft inside the house's foundation, rubble walls lime-washed, stone flags, 2.2 m under the girders. Its rooms are partitions on its flags: the beer cellar under the bar (kegs on stillage; the bulkhead to the lane; the trap up behind the bar; THE DRIFT out of its west wall), the stores beside it, a passage across, the coal, the ice room and the locked wine room behind. The east third is unexcavated, the floor over it on piers.",
+		"rect": [
+			9.754,
+			3.048,
+			24.384,
+			15.24
+		],
+		"posts": [
+			[
+				21.0,
+				5.49
+			],
+			[
+				12.4,
+				5.49
+			],
+			[
+				15.0,
+				5.49
+			],
+			[
+				21.0,
+				8.53
+			],
+			[
+				20.12,
+				9.75
+			],
+			[
+				13.4,
+				11.89
+			],
+			[
+				22.3,
+				11.89
+			]
+		],
+		"flag": 1.0,
+		"dig": true,
+		"trap": {
+			"rect": [
+				22.6,
+				5.565,
+				23.6,
+				8.455
+			]
+		},
+		"stair": {
+			"head": [
+				22.65,
+				5.565
+			],
+			"dir": "-z",
+			"width": 0.9,
+			"risers": 14,
+			"going": 0.2
+		}
+	},
+	"bulkhead": {
+		"_doc": "The beer cellar's outside door on the saloon lane, where the brewery's dray rolls the kegs down (the undertaker's Bulkhead: a stone areaway, its steps, the passage under a lintel, slanted doors standing open).",
+		"wall": "lane",
+		"z": [
+			3.6,
+			4.6
+		],
+		"out": 2.45,
+		"grade": 0.0,
+		"cheek": 0.3,
+		"risers": 10,
+		"going": 0.24,
+		"high": 0.255,
+		"low": 0.2,
+		"lintel": 0.2,
+		"open": true,
+		"wood": "rough"
+	},
+	"drift": {
+		"_doc": "NEW (Drift, src/structures/drift.gd; Sean, #1215: 'b is awesome'): the landlady's husband's keg road of 1881 to the saloon he had a share in, bricked up when he died and opened again lately by the foreman's men. A timbered drift as a mine's: sets every 4 ft (a sill on the floor, two legs, a cap), lagging boards over the caps and behind the legs, a walk of planks on the sills; through an opening under a timber lintel in the hotel's foundation and in saloon B's (`foundation.passages`). 4 ft 7 in clear under the caps (the brief's 4 ft raised so a man walks it crouched: the player crouches to 1.3 m), 3 ft between the legs. It falls toward the hotel by the two cellars' floors (`fall`). In the valley the ground over it is dug to its floor and covered over again (CellarDig: the cover flush with the lane's dirt).",
+		"wall": "lane",
+		"x": [
+			23.934,
+			42.804
+		],
+		"z": [
+			8.85,
+			10.05
+		],
+		"fall": 0.23,
+		"clear": 1.4,
+		"every": 1.219,
+		"leg": 0.15,
+		"cap": 0.15,
+		"sill": 0.1,
+		"plank": 0.04,
+		"lagging": 0.04,
+		"wood": "rough",
+		"clues": {
+			"_doc": "the brief's: fresh oak sawdust on the beer cellar's floor, a bucksaw left in the drift, the arch's bricks stacked aside (props: the prop lab's batch)"
+		}
+	},
+	"foundation_passages": [
+		{
+			"_doc": "NEW: the drift's arched door in the lane wall (built as a timber lintel over the gap)",
+			"wall": "lane",
+			"z": [
+				9.0,
+				9.9
+			],
+			"height": 1.64
+		}
+	],
+	"floors": [
+		{
+			"_doc": "to 0.12 short of the lane wall: its last joist 2.5 cm clear of the wall's studs (at 5 mm they stood on it)",
+			"id": "ground",
+			"level": "ground",
+			"rect": [
+				0.1,
+				0.1,
+				24.264,
+				15.14
+			],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"blocking": [
+				{
+					"z": [
+						8.5,
+						8.65
+					],
+					"sole": true,
+					"_doc": "the 28 ft wall's sole: one board row's width, on the girder at 8.53"
+				}
+			],
+			"openings": [
+				{
+					"id": "trap",
+					"rect": [
+						22.6,
+						5.565,
+						23.6,
+						8.455
+					],
+					"hatch": 2,
+					"_doc": "behind the bar, girder to girder: kegs down to the beer cellar"
+				}
+			]
+		},
+		{
+			"_doc": "the upper floor east of the stair's well, front to the 28 ft wall",
+			"id": "up_e",
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				0.1,
+				0.1,
+				10.1,
+				8.575
+			],
+			"joists": "z",
+			"look": "wood:int_floor"
+		},
+		{
+			"_doc": "over the well's front: its joists end on the well's beam",
+			"id": "up_well",
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				10.1,
+				0.1,
+				14.15,
+				7.2
+			],
+			"joists": "z",
+			"look": "wood:int_floor"
+		},
+		{
+			"id": "up_w",
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				14.15,
+				0.1,
+				24.264,
+				8.575
+			],
+			"joists": "z",
+			"look": "wood:int_floor"
+		},
+		{
+			"_doc": "the back half, 28 ft wall to the back wall; the back stair's well cut wall to wall (no tail joists)",
+			"id": "up_back",
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				0.1,
+				8.575,
+				24.264,
+				15.14
+			],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"blocking": [
+				[
+					8.575,
+					8.65
+				]
+			],
+			"openings": [
+				{
+					"id": "back_stair",
+					"rect": [
+						17.12,
+						8.575,
+						18.42,
+						15.14
+					]
+				}
+			]
+		},
+		{
+			"_doc": "NEW: the flat roof (frame.flat_roof), its joists broken over the upper hall's back wall",
+			"id": "roof",
+			"level": "roof",
+			"joist": "roof_joist",
+			"rect": [
+				0.1,
+				0.1,
+				24.284,
+				15.14
+			],
+			"joists": "z",
+			"breaks": [
+				8.575
+			]
+		}
+	],
+	"posts": {
+		"_doc": "6x6 posts under the stair well's beams, through the lobby's floor on piers down to the stores' flags.",
+		"free": [
+			[
+				10.1,
+				7.2
+			],
+			[
+				14.15,
+				7.2
+			],
+			[
+				10.1,
+				8.405
+			]
+		],
+		"wall": []
+	},
+	"beams": [
+		{
+			"_doc": "the well's front edge: the upper hall's floor over it ends here",
+			"id": "well",
+			"from": [
+				10.1,
+				7.2
+			],
+			"to": [
+				14.15,
+				7.2
+			],
+			"brackets": false
+		},
+		{
+			"_doc": "the stair's head: its stringers land on it",
+			"id": "stair_head",
+			"from": [
+				10.1,
+				7.2
+			],
+			"to": [
+				10.1,
+				8.515
+			],
+			"brackets": false
+		}
+	],
+	"ceilings": {
+		"_doc": "Boards nailed up under the joists in every room, both floors (NEW: `levels` upper under the flat roof's joists; `holes` the stair's well, which is a gap between floors, not an opening). Plaster on lath is the next system (#1220's slice issue): these are its lath's place.",
+		"levels": [
+			"ground",
+			"upper"
+		],
+		"holes": [
+			[
+				10.1,
+				7.2,
+				14.15,
+				8.525
+			]
+		],
+		"width": 0.14
+	},
+	"inside_finish": {
+		"_doc": "#826's rules: the inside boards at their paint's judged width, a skirting on every boarded wall.",
+		"boards": "judged",
+		"skirting": 0.2
+	},
+	"walls": [
+		{
+			"_doc": "Main Street: the ground floor reads as glass (the brief's section 3): the bar's tall window and its own door at the west, the lobby's two windows either side of the main doors (a glazed pair under a fanlight), the ladies' parlour's two windows and the ladies' door at the east; above, the front rooms' low sash windows onto the gallery and the suite's French doors on the axis over the main doors. The false front's studs run to the cornice (9.9).",
+			"id": "front",
+			"line": [
+				[
+					0,
+					0
+				],
+				[
+					24.384,
+					0
+				]
+			],
+			"out": "-z",
+			"top": 9.9,
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 24.284,
+					"finish": "wainscot",
+					"to_y": 4.47
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 24.284,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 22.86,
+					"width": 1.22,
+					"height": 2.74,
+					"sill": 0.6,
+					"lights": 2,
+					"_doc": "the bar's window"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 19.81,
+					"width": 0.91,
+					"height": 2.44,
+					"glazed": true,
+					"transom": 0.45,
+					"_doc": "the bar's own street door"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 16.76,
+					"width": 1.22,
+					"height": 2.74,
+					"sill": 0.6,
+					"lights": 2,
+					"_doc": "the lobby's west window (the office behind the desk)"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 13.41,
+					"width": 1.83,
+					"height": 2.74,
+					"glazed": true,
+					"transom": 0.55,
+					"leaves": 2,
+					"_doc": "the main doors: a glazed pair, the fanlight with the name in gold leaf"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 10.06,
+					"width": 1.22,
+					"height": 2.74,
+					"sill": 0.6,
+					"lights": 2,
+					"_doc": "the lobby's east window"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 5.94,
+					"width": 1.22,
+					"height": 2.74,
+					"sill": 0.6,
+					"lights": 2,
+					"_doc": "the ladies' parlour"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 3.6,
+					"width": 1.22,
+					"height": 2.74,
+					"sill": 0.6,
+					"lights": 2
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 1.98,
+					"width": 1.07,
+					"height": 2.44,
+					"glazed": true,
+					"transom": 0.45,
+					"_doc": "the ladies' entrance, to their own parlour"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 22.86,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "room 1: a low sash onto the gallery (the ambush men come out of the front rooms)"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 19.81,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "room 2"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 16.76,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "room 3"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 13.41,
+					"width": 1.22,
+					"height": 2.3,
+					"glazed": true,
+					"leaves": 2,
+					"_doc": "the suite's French doors onto the gallery"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 10.06,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "the suite's bedroom"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 5.94,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "room 4"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 1.98,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "room 5"
+				}
+			]
+		},
+		{
+			"_doc": "The back, to the yard (the kitchen wing's place behind its west half is the next step): the back stair hall's door, the dining room's four windows; above, the back rooms'.",
+			"id": "back",
+			"line": [
+				[
+					0,
+					15.24
+				],
+				[
+					24.384,
+					15.24
+				]
+			],
+			"out": "+z",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 24.284,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 24.284,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 19.3,
+					"width": 0.91,
+					"height": 2.13,
+					"leaf": "inward",
+					"_doc": "the back door: the servants' way from the yard"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 2.5,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 6.4,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 10.2,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 13.6,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 22.2,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "room 6"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 19.3,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "the back stair"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 16.3,
+					"width": 0.76,
+					"height": 1.37,
+					"sill": 1.0,
+					"lights": 4,
+					"_doc": "the bath"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 13.6,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "room 7"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 10.2,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "room 8"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 6.4,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "the landlady's sitting room"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 2.5,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "the landlady's bedroom"
+				}
+			]
+		},
+		{
+			"_doc": "The west side, to the saloon lane: the bar's window behind the trap, the sample room's window and its door for trunks off a wagon; above, room 1, the hall's end window, room 6. The bulkhead against its foundation; the drift's door through it under the lane.",
+			"id": "lane",
+			"line": [
+				[
+					24.384,
+					0
+				],
+				[
+					24.384,
+					15.24
+				]
+			],
+			"out": "+x",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "wainscot",
+					"to_y": 4.47
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.3,
+					"width": 1.22,
+					"height": 2.3,
+					"sill": 1.05,
+					"lights": 2,
+					"_doc": "the bar's, over the trap (its sill over the wainscot's cap)"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 10.2,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2,
+					"_doc": "the sample room"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 13.6,
+					"width": 1.07,
+					"height": 2.44,
+					"leaves": 2,
+					"_doc": "the sample room's lane door (a drummer's trunks)"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 3.9,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 7.3,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "the hall's end"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 10.2,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4
+				}
+			]
+		},
+		{
+			"_doc": "The east side, to the lane by the doctor's: the parlour's two windows, the dining room's two; above, room 5, the hall's end window, the landlady's bedroom.",
+			"id": "alley",
+			"line": [
+				[
+					0,
+					0
+				],
+				[
+					0,
+					15.24
+				]
+			],
+			"out": "-x",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "wainscot",
+					"to_y": 4.47
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 15.14,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 3.9,
+					"width": 1.22,
+					"height": 2.74,
+					"sill": 0.6,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.3,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 10.2,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 13.6,
+					"width": 1.22,
+					"height": 2.44,
+					"sill": 0.75,
+					"lights": 2
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 3.9,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 7.3,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 10.2,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4
+				}
+			]
+		},
+		{
+			"id": "g_back",
+			"line": [
+				[
+					0.1,
+					8.575
+				],
+				[
+					24.284,
+					8.575
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "wainscot"
+				},
+				{
+					"side": "+",
+					"finish": "wainscot"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 4.47,
+					"width": 0.91,
+					"height": 2.29,
+					"_doc": "the parlour to the dining room"
+				},
+				{
+					"type": "door",
+					"at": 16.25,
+					"width": 0.91,
+					"height": 2.29,
+					"leaf": "outward",
+					"_doc": "the lobby to the dining room, past the grand stair's foot (its leaf into the dining room)"
+				},
+				{
+					"type": "door",
+					"at": 19.2,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the bar to the back stair hall (the barman's way)"
+				}
+			],
+			"_doc": "the long bearing wall at 28 ft, on the girder: it carries the upper floor's joists over the front rooms and the back",
+			"stud": 0.1
+		},
+		{
+			"id": "g_bar",
+			"line": [
+				[
+					17.68,
+					0.1
+				],
+				[
+					17.68,
+					8.525
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "wainscot"
+				},
+				{
+					"side": "+",
+					"finish": "wainscot"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 3.9,
+					"width": 0.91,
+					"height": 2.29,
+					"_doc": "the bar to the lobby"
+				}
+			],
+			"_doc": "the bar's wall, on its girder"
+		},
+		{
+			"id": "g_parlour",
+			"line": [
+				[
+					9.14,
+					0.1
+				],
+				[
+					9.14,
+					8.525
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "wainscot"
+				},
+				{
+					"side": "+",
+					"finish": "wainscot"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 3.8,
+					"width": 1.37,
+					"height": 2.44,
+					"leaves": 2,
+					"_doc": "the lobby to the ladies' parlour"
+				}
+			],
+			"_doc": "the parlour's wall, on its girder"
+		},
+		{
+			"id": "g_office_e",
+			"line": [
+				[
+					14.63,
+					0.1
+				],
+				[
+					14.63,
+					3.0
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "the office's corner behind the desk (the landlady's desk, the ledger, the safe)"
+		},
+		{
+			"id": "g_office_f",
+			"line": [
+				[
+					14.63,
+					3.05
+				],
+				[
+					17.63,
+					3.05
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.6,
+					"width": 0.86,
+					"height": 2.13,
+					"leaf": "outward"
+				}
+			],
+			"gap": 0.02
+		},
+		{
+			"id": "g_stair",
+			"line": [
+				[
+					17.07,
+					8.625
+				],
+				[
+					17.07,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 5.5,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the back stair hall to the dining room: the waitress's door, under the stair's high end"
+				}
+			],
+			"_doc": "the dining room's west wall, on its girder"
+		},
+		{
+			"id": "g_sample",
+			"line": [
+				[
+					20.12,
+					8.625
+				],
+				[
+					20.12,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.5,
+					"width": 0.86,
+					"height": 2.13,
+					"leaf": "outward"
+				}
+			],
+			"_doc": "the sample room's wall, on its girder"
+		},
+		{
+			"id": "c_beer",
+			"line": [
+				[
+					17.68,
+					3.298
+				],
+				[
+					17.68,
+					10.92
+				]
+			],
+			"partition": true,
+			"level": "cellar",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "rough"
+				},
+				{
+					"side": "+",
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 6.8,
+					"width": 0.91,
+					"height": 1.98,
+					"leaf": "outward",
+					"_doc": "the beer cellar to the passage"
+				}
+			],
+			"_doc": "the beer cellar's wall under the bar's (it carries its girder)"
+		},
+		{
+			"id": "c_stores",
+			"line": [
+				[
+					10.004,
+					8.575
+				],
+				[
+					17.63,
+					8.575
+				]
+			],
+			"partition": true,
+			"level": "cellar",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "rough"
+				},
+				{
+					"side": "+",
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.2,
+					"width": 0.91,
+					"height": 1.98
+				}
+			],
+			"_doc": "the stores' back wall under the 28 ft girder"
+		},
+		{
+			"id": "c_back",
+			"line": [
+				[
+					10.004,
+					10.97
+				],
+				[
+					23.914,
+					10.97
+				]
+			],
+			"partition": true,
+			"level": "cellar",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "rough"
+				},
+				{
+					"side": "+",
+					"finish": "rough"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 2.4,
+					"width": 0.86,
+					"height": 1.98,
+					"_doc": "the wine room's door (locked: the landlady's key)"
+				},
+				{
+					"type": "door",
+					"at": 8.2,
+					"width": 0.86,
+					"height": 1.98,
+					"thick": 0.1,
+					"_doc": "the ice room's thick door"
+				},
+				{
+					"type": "door",
+					"at": 12.3,
+					"width": 0.86,
+					"height": 1.98,
+					"_doc": "the coal"
+				}
+			],
+			"_doc": "the back rooms' wall, from the passage and the beer cellar"
+		},
+		{
+			"id": "c_coal",
+			"line": [
+				[
+					20.12,
+					11.02
+				],
+				[
+					20.12,
+					14.77
+				]
+			],
+			"partition": true,
+			"level": "cellar",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "rough"
+				},
+				{
+					"side": "+",
+					"finish": "rough"
+				}
+			],
+			"openings": [],
+			"_doc": "the coal | the ice room, under the sample room's girder"
+		},
+		{
+			"id": "c_ice",
+			"line": [
+				[
+					17.07,
+					11.02
+				],
+				[
+					17.07,
+					14.77
+				]
+			],
+			"partition": true,
+			"level": "cellar",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "rough"
+				},
+				{
+					"side": "+",
+					"finish": "rough"
+				}
+			],
+			"openings": [],
+			"_doc": "the ice room | the wine room, under the dining room's wall's girder: planked both sides, sawdust between"
+		},
+		{
+			"id": "u_front",
+			"line": [
+				[
+					0.1,
+					6.1
+				],
+				[
+					24.284,
+					6.1
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.9,
+					"width": 0.86,
+					"height": 2.13
+				},
+				{
+					"type": "door",
+					"at": 5.84,
+					"width": 0.86,
+					"height": 2.13
+				},
+				{
+					"type": "door",
+					"at": 13.3,
+					"width": 0.91,
+					"height": 2.13,
+					"_doc": "the suite's parlour"
+				},
+				{
+					"type": "door",
+					"at": 16.66,
+					"width": 0.86,
+					"height": 2.13
+				},
+				{
+					"type": "door",
+					"at": 19.71,
+					"width": 0.86,
+					"height": 2.13
+				},
+				{
+					"type": "door",
+					"at": 22.76,
+					"width": 0.86,
+					"height": 2.13
+				}
+			],
+			"_doc": "the hall's front wall: a door each front room, transoms over (the brief: air)"
+		},
+		{
+			"id": "u_back",
+			"line": [
+				[
+					0.1,
+					8.575
+				],
+				[
+					24.284,
+					8.575
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 6.3,
+					"width": 0.86,
+					"height": 2.13
+				},
+				{
+					"type": "door",
+					"at": 9.4,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "room 8, short of the well"
+				},
+				{
+					"type": "door",
+					"at": 14.95,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "room 7, beside the well's end"
+				},
+				{
+					"type": "door",
+					"at": 16.25,
+					"width": 0.76,
+					"height": 2.03,
+					"_doc": "the bath"
+				},
+				{
+					"type": "door",
+					"at": 19.2,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the back stair"
+				},
+				{
+					"type": "door",
+					"at": 22.1,
+					"width": 0.86,
+					"height": 2.13
+				}
+			],
+			"_doc": "the hall's back wall over the 28 ft wall: it carries the roof's joists",
+			"stud": 0.1
+		},
+		{
+			"id": "u_f2134",
+			"line": [
+				[
+					21.34,
+					0.1
+				],
+				[
+					21.34,
+					6.05
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_f1829",
+			"line": [
+				[
+					18.29,
+					0.1
+				],
+				[
+					18.29,
+					6.05
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_f1524",
+			"line": [
+				[
+					15.24,
+					0.1
+				],
+				[
+					15.24,
+					6.05
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_f1158",
+			"line": [
+				[
+					11.58,
+					0.1
+				],
+				[
+					11.58,
+					6.05
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 3.0,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the suite's parlour to its bedroom"
+				}
+			]
+		},
+		{
+			"id": "u_f792",
+			"line": [
+				[
+					7.92,
+					0.1
+				],
+				[
+					7.92,
+					6.05
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_f396",
+			"line": [
+				[
+					3.96,
+					0.1
+				],
+				[
+					3.96,
+					6.05
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_b2012",
+			"line": [
+				[
+					20.12,
+					8.625
+				],
+				[
+					20.12,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_b1707",
+			"line": [
+				[
+					17.07,
+					8.625
+				],
+				[
+					17.07,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_b1560",
+			"line": [
+				[
+					15.6,
+					8.625
+				],
+				[
+					15.6,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_b1189",
+			"line": [
+				[
+					11.89,
+					8.625
+				],
+				[
+					11.89,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_b852",
+			"line": [
+				[
+					8.53,
+					8.625
+				],
+				[
+					8.53,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "u_b426",
+			"line": [
+				[
+					4.27,
+					8.625
+				],
+				[
+					4.27,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 3.4,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "her sitting room to her bedroom"
+				}
+			]
+		}
+	],
+	"stairs": [
+		{
+			"_doc": "THE GRAND STAIR (the brief's 4.1: OakStair's painted dark oak, Sean's B): one flight of 22 risers of 7 3/8 in on 10 5/8 in treads up the lobby's back wall, rising east to the upper hall; its open side railed. (The brief's two flights with a landing are one here: the builder's stairs are straight runs.)",
+			"id": "grand",
+			"head": [
+				10.25,
+				7.32
+			],
+			"dir": "-x",
+			"width": 1.15,
+			"from": "ground",
+			"to": "upper",
+			"risers": 22,
+			"going": 0.25,
+			"rail": "-z",
+			"look": "wood:int_oak",
+			"stringer_look": "wood:int_timber"
+		},
+		{
+			"_doc": "The back stair (the servants'): 22 risers up the dining room's west wall from the back door's hall, rising to the back wall, to the upper back stair hall",
+			"id": "back",
+			"head": [
+				17.17,
+				15.0
+			],
+			"dir": "+z",
+			"width": 1.15,
+			"from": "ground",
+			"to": "upper",
+			"risers": 22,
+			"going": 0.28,
+			"rail": "+x",
+			"look": "wood:int_timber"
+		},
+		{
+			"_doc": "the back door's steps to the yard",
+			"id": "back_door",
+			"head": [
+				18.7,
+				16.44
+			],
+			"dir": "-z",
+			"width": 1.2,
+			"from": 0.0,
+			"to": "ground",
+			"risers": 4,
+			"going": 0.28,
+			"wood": "weathered_pine",
+			"stoop": [
+				18.7,
+				15.24,
+				19.9,
+				16.44
+			]
+		}
+	],
+	"galleries": {
+		"_doc": "The rails round the two wells upstairs (saloon B's gallery rail: a 36 in turned rail, square newels)",
+		"well": [
+			10.1,
+			7.2,
+			14.15,
+			8.525
+		],
+		"rails": [
+			[
+				[
+					10.35,
+					7.14
+				],
+				[
+					14.21,
+					7.14
+				]
+			],
+			[
+				[
+					14.21,
+					7.14
+				],
+				[
+					14.21,
+					8.475
+				]
+			],
+			[
+				[
+					18.48,
+					8.725
+				],
+				[
+					18.48,
+					14.94
+				]
+			]
+		],
+		"height": 0.915,
+		"look": "wood:int_oak"
+	},
+	"balconies": [
+		{
+			"_doc": "THE GALLERY (Sean, #1215: an exterior balcony to be blown up later, an open railed deck): 80 x 8 ft over the walk, its deck at the upper floor (16 ft over the street), on nine 6x6 posts 10 ft apart at the walk's street edge; ONE BEAM A BAY ending on the posts (not spliced through), so a post blown out drops exactly the two bays it carries; 2x10 joists at 16 in from a ledger through the siding into the studs to the beam; a deck a bay (its boards cut at the post lines, so the fallen bays tear free); a turned-baluster rail in spans of 1.2 m. The joists hinge on the ledger and the deck tips the men down to the walk.",
+			"id": "street",
+			"wood": "weathered_pine",
+			"post": [
+				0.15,
+				0.15
+			],
+			"beam": [
+				0.15,
+				0.25
+			],
+			"posts": [
+				[
+					0.08,
+					-2.36
+				],
+				[
+					3.108,
+					-2.36
+				],
+				[
+					6.136,
+					-2.36
+				],
+				[
+					9.164,
+					-2.36
+				],
+				[
+					12.192,
+					-2.36
+				],
+				[
+					15.22,
+					-2.36
+				],
+				[
+					18.248,
+					-2.36
+				],
+				[
+					21.276,
+					-2.36
+				],
+				[
+					24.304,
+					-2.36
+				]
+			],
+			"beams": [
+				[
+					[
+						0.08,
+						-2.36
+					],
+					[
+						3.108,
+						-2.36
+					]
+				],
+				[
+					[
+						3.108,
+						-2.36
+					],
+					[
+						6.136,
+						-2.36
+					]
+				],
+				[
+					[
+						6.136,
+						-2.36
+					],
+					[
+						9.164,
+						-2.36
+					]
+				],
+				[
+					[
+						9.164,
+						-2.36
+					],
+					[
+						12.192,
+						-2.36
+					]
+				],
+				[
+					[
+						12.192,
+						-2.36
+					],
+					[
+						15.22,
+						-2.36
+					]
+				],
+				[
+					[
+						15.22,
+						-2.36
+					],
+					[
+						18.248,
+						-2.36
+					]
+				],
+				[
+					[
+						18.248,
+						-2.36
+					],
+					[
+						21.276,
+						-2.36
+					]
+				],
+				[
+					[
+						21.276,
+						-2.36
+					],
+					[
+						24.304,
+						-2.36
+					]
+				]
+			],
+			"ledgers": [
+				{
+					"wall": "front",
+					"from": 0.0,
+					"to": 24.384
+				}
+			],
+			"decks": [
+				{
+					"rect": [
+						0.08,
+						-2.44,
+						3.108,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						3.108,
+						-2.44,
+						6.136,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						6.136,
+						-2.44,
+						9.164,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						9.164,
+						-2.44,
+						12.192,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						12.192,
+						-2.44,
+						15.22,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						15.22,
+						-2.44,
+						18.248,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						18.248,
+						-2.44,
+						21.276,
+						-0.05
+					],
+					"joists": "z"
+				},
+				{
+					"rect": [
+						21.276,
+						-2.44,
+						24.304,
+						-0.05
+					],
+					"joists": "z"
+				}
+			],
+			"rails": [
+				[
+					[
+						0.13,
+						-2.4
+					],
+					[
+						24.254,
+						-2.4
+					]
+				],
+				[
+					[
+						0.13,
+						-2.4
+					],
+					[
+						0.13,
+						-0.05
+					]
+				],
+				[
+					[
+						24.254,
+						-2.4
+					],
+					[
+						24.254,
+						-0.05
+					]
+				]
+			]
+		}
+	],
+	"front": {
+		"_doc": "The parapet over the upper windows: a frieze, the cornice on paired scroll brackets, the name board SALT CREEK HOTEL (gilt on deep red; the game's own letters). The side walls' eaves take the same cornice and brackets (`sides`), at the roof's edge.",
+		"sign": "SALT CREEK HOTEL",
+		"sign_from": 8.55,
+		"sign_to": 9.45,
+		"sign_width": 9.5,
+		"brackets": {
+			"spacing": 0.6,
+			"drop": 0.38,
+			"reach": 0.18,
+			"width": 0.08,
+			"sides": [
+				"lane",
+				"alley"
+			],
+			"side_top": 8.995
+		}
+	},
+	"rooms": [
+		{
+			"id": "bar",
+			"level": "ground",
+			"rect": [
+				17.73,
+				0.1,
+				24.284,
+				8.525
+			],
+			"use": "small and fine: the walnut bar down the lane wall, the back bar's mirror, a few tables; its own street door; the trap to the beer cellar behind the bar"
+		},
+		{
+			"id": "lobby",
+			"level": "ground",
+			"rect": [
+				9.19,
+				0.1,
+				17.63,
+				8.525
+			],
+			"use": "the walnut desk facing the main doors, the register, the key board behind it in the office's wall; settee and armchairs, spittoons; the grand stair up the back wall"
+		},
+		{
+			"id": "office",
+			"level": "ground",
+			"rect": [
+				14.68,
+				0.1,
+				17.63,
+				3.0
+			],
+			"use": "the landlady's desk, the ledger, the safe (guests' valuables)"
+		},
+		{
+			"id": "parlour",
+			"level": "ground",
+			"rect": [
+				0.1,
+				0.1,
+				9.09,
+				8.525
+			],
+			"use": "the ladies' parlour: the piano, settees and chairs in velvet, the centre table, the best carpet; the ladies' own door"
+		},
+		{
+			"id": "dining",
+			"level": "ground",
+			"rect": [
+				0.1,
+				8.625,
+				17.02,
+				15.14
+			],
+			"use": "eight tables of six on white linen, two sideboards, laid for supper ('Supper's at six. Late is cold.')"
+		},
+		{
+			"id": "stair_hall",
+			"level": "ground",
+			"rect": [
+				17.12,
+				8.625,
+				20.07,
+				15.14
+			],
+			"use": "the back stair, the back door from the yard, the way to the bar"
+		},
+		{
+			"id": "sample",
+			"level": "ground",
+			"rect": [
+				20.17,
+				8.625,
+				24.284,
+				15.14
+			],
+			"use": "drummers' trunks open on long tables for the town's storekeepers; the lane door"
+		},
+		{
+			"id": "hall",
+			"level": "upper",
+			"rect": [
+				0.1,
+				6.15,
+				24.284,
+				8.525
+			],
+			"use": "the upper hall, 80 ft: a runner, a lamp every few doors, the grand stair's well railed"
+		},
+		{
+			"id": "room_1",
+			"level": "upper",
+			"rect": [
+				21.39,
+				0.1,
+				24.284,
+				6.05
+			],
+			"use": "a front room onto the gallery"
+		},
+		{
+			"id": "room_2",
+			"level": "upper",
+			"rect": [
+				18.34,
+				0.1,
+				21.29,
+				6.05
+			],
+			"use": "a front room onto the gallery"
+		},
+		{
+			"id": "room_3",
+			"level": "upper",
+			"rect": [
+				15.29,
+				0.1,
+				18.24,
+				6.05
+			],
+			"use": "a front room onto the gallery"
+		},
+		{
+			"id": "suite_parlour",
+			"level": "upper",
+			"rect": [
+				11.63,
+				0.1,
+				15.19,
+				6.05
+			],
+			"use": "the best suite's parlour: the French doors to the gallery, the writing table (Rourke's letter)"
+		},
+		{
+			"id": "suite_bed",
+			"level": "upper",
+			"rect": [
+				7.97,
+				0.1,
+				11.53,
+				6.05
+			],
+			"use": "the suite's bedroom: the carved walnut bedstead"
+		},
+		{
+			"id": "room_4",
+			"level": "upper",
+			"rect": [
+				4.01,
+				0.1,
+				7.87,
+				6.05
+			],
+			"use": "room 4, dressed: a brass bed, washstand, wardrobe"
+		},
+		{
+			"id": "room_5",
+			"level": "upper",
+			"rect": [
+				0.1,
+				0.1,
+				3.91,
+				6.05
+			],
+			"use": "a front room onto the gallery"
+		},
+		{
+			"id": "room_6",
+			"level": "upper",
+			"rect": [
+				20.17,
+				8.625,
+				24.284,
+				15.14
+			],
+			"use": "a back room: an iron bed, washstand, chair"
+		},
+		{
+			"id": "back_stair_up",
+			"level": "upper",
+			"rect": [
+				17.12,
+				8.625,
+				20.07,
+				15.14
+			],
+			"use": "the back stair's head"
+		},
+		{
+			"id": "bath",
+			"level": "upper",
+			"rect": [
+				15.65,
+				8.625,
+				17.02,
+				15.14
+			],
+			"use": "the bath room: a tin tub, water carried up; the linen press"
+		},
+		{
+			"id": "room_7",
+			"level": "upper",
+			"rect": [
+				11.94,
+				8.625,
+				15.55,
+				15.14
+			],
+			"use": "a back room"
+		},
+		{
+			"id": "room_8",
+			"level": "upper",
+			"rect": [
+				8.58,
+				8.625,
+				11.84,
+				15.14
+			],
+			"use": "a back room"
+		},
+		{
+			"id": "landlady_sit",
+			"level": "upper",
+			"rect": [
+				4.32,
+				8.625,
+				8.48,
+				15.14
+			],
+			"use": "her sitting room: her husband's photograph, the sewing machine, the account books"
+		},
+		{
+			"id": "landlady_bed",
+			"level": "upper",
+			"rect": [
+				0.1,
+				8.625,
+				4.22,
+				15.14
+			],
+			"use": "her bedroom"
+		},
+		{
+			"id": "beer_cellar",
+			"level": "cellar",
+			"rect": [
+				17.73,
+				3.298,
+				23.914,
+				10.92
+			],
+			"use": "kegs on stillage, the bulkhead to the lane, the trap's stair down from behind the bar; the drift's door in the west wall"
+		},
+		{
+			"id": "stores",
+			"level": "cellar",
+			"rect": [
+				10.004,
+				3.298,
+				17.63,
+				8.525
+			],
+			"use": "potatoes and onions in bins, flour in barrels, hams hung, crocks, canned goods by the case"
+		},
+		{
+			"id": "passage",
+			"level": "cellar",
+			"rect": [
+				10.004,
+				8.625,
+				17.63,
+				10.92
+			],
+			"use": "the passage across to the back rooms"
+		},
+		{
+			"id": "coal",
+			"level": "cellar",
+			"rect": [
+				20.17,
+				11.02,
+				23.914,
+				14.77
+			],
+			"use": "coal off the railroad for the range and the stoves"
+		},
+		{
+			"id": "ice_room",
+			"level": "cellar",
+			"rect": [
+				17.12,
+				11.02,
+				20.07,
+				14.77
+			],
+			"use": "ice cut on the creek in winter in sawdust, meat hung, the milk and butter"
+		},
+		{
+			"id": "wine_room",
+			"level": "cellar",
+			"rect": [
+				10.004,
+				11.02,
+				17.02,
+				14.77
+			],
+			"use": "locked, racked: claret, champagne, port, brandy, whisky in the wood; the Baron's own bin"
+		}
+	],
+	"use_points": [
+		{
+			"id": "barman_a",
+			"use": "serve",
+			"who": "barman",
+			"at": [
+				23.1,
+				0.75,
+				2.2
+			],
+			"look": [
+				21.0,
+				2.2
+			]
+		},
+		{
+			"id": "barman_b",
+			"use": "serve",
+			"who": "barman",
+			"at": [
+				23.1,
+				0.75,
+				4.4
+			],
+			"look": [
+				21.0,
+				4.4
+			]
+		},
+		{
+			"id": "drinker_1",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				21.2,
+				0.75,
+				2.0
+			],
+			"look": [
+				22.2,
+				2.0
+			]
+		},
+		{
+			"id": "drinker_2",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				21.2,
+				0.75,
+				4.6
+			],
+			"look": [
+				22.2,
+				4.6
+			]
+		},
+		{
+			"id": "clerk",
+			"use": "serve",
+			"who": "clerk",
+			"at": [
+				15.6,
+				0.75,
+				3.6
+			],
+			"look": [
+				15.6,
+				6.0
+			],
+			"_doc": "behind the desk, in front of the office"
+		},
+		{
+			"id": "register",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				15.6,
+				0.75,
+				5.0
+			],
+			"look": [
+				15.6,
+				3.6
+			],
+			"_doc": "a guest at the desk"
+		},
+		{
+			"id": "lobby_settee",
+			"use": "sit",
+			"who": "anyone",
+			"at": [
+				10.0,
+				0.75,
+				2.0
+			],
+			"look": [
+				12.5,
+				4.0
+			]
+		},
+		{
+			"id": "office_desk",
+			"use": "work",
+			"who": "landlady",
+			"at": [
+				16.6,
+				0.75,
+				1.4
+			],
+			"look": [
+				16.6,
+				0.4
+			]
+		},
+		{
+			"id": "parlour_piano",
+			"use": "sit",
+			"who": "anyone",
+			"at": [
+				2.0,
+				0.75,
+				7.6
+			],
+			"look": [
+				2.0,
+				8.4
+			]
+		},
+		{
+			"id": "parlour_window",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				5.94,
+				0.75,
+				0.7
+			],
+			"look": [
+				5.94,
+				-8.0
+			]
+		},
+		{
+			"id": "dining_1",
+			"use": "eat",
+			"who": "anyone",
+			"at": [
+				4.0,
+				0.75,
+				11.0
+			],
+			"look": [
+				4.0,
+				12.0
+			]
+		},
+		{
+			"id": "dining_2",
+			"use": "eat",
+			"who": "anyone",
+			"at": [
+				11.0,
+				0.75,
+				13.0
+			],
+			"look": [
+				11.0,
+				12.0
+			]
+		},
+		{
+			"id": "waitress",
+			"use": "serve",
+			"who": "waitress",
+			"at": [
+				16.0,
+				0.75,
+				14.3
+			],
+			"look": [
+				13.0,
+				12.0
+			]
+		},
+		{
+			"id": "back_door",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				19.3,
+				0.75,
+				13.8
+			],
+			"look": [
+				19.3,
+				9.0
+			]
+		},
+		{
+			"id": "drummer",
+			"use": "work",
+			"who": "anyone",
+			"at": [
+				22.2,
+				0.75,
+				11.5
+			],
+			"look": [
+				22.2,
+				13.0
+			]
+		},
+		{
+			"id": "hall_end",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				23.6,
+				4.865,
+				7.3
+			],
+			"look": [
+				30.0,
+				7.3
+			]
+		},
+		{
+			"id": "hall_stair",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				10.0,
+				4.865,
+				7.0
+			],
+			"look": [
+				13.0,
+				7.0
+			]
+		},
+		{
+			"id": "room_1",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				22.86,
+				4.865,
+				4.0
+			],
+			"look": [
+				22.86,
+				1.0
+			]
+		},
+		{
+			"id": "room_2",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				19.81,
+				4.865,
+				4.0
+			],
+			"look": [
+				19.81,
+				1.0
+			]
+		},
+		{
+			"id": "room_3",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				16.76,
+				4.865,
+				4.0
+			],
+			"look": [
+				16.76,
+				1.0
+			]
+		},
+		{
+			"id": "suite_desk",
+			"use": "work",
+			"who": "anyone",
+			"at": [
+				13.4,
+				4.865,
+				3.0
+			],
+			"look": [
+				14.8,
+				3.0
+			],
+			"_doc": "the writing table: Rourke's letter (S7)"
+		},
+		{
+			"id": "suite_window",
+			"use": "shoot",
+			"who": "anyone",
+			"at": [
+				13.41,
+				4.865,
+				1.3
+			],
+			"look": [
+				13.41,
+				-10.0
+			],
+			"_doc": "at the French doors onto the gallery"
+		},
+		{
+			"id": "suite_bed",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				9.7,
+				4.865,
+				4.0
+			],
+			"look": [
+				9.7,
+				1.0
+			]
+		},
+		{
+			"id": "room_4",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				5.94,
+				4.865,
+				4.0
+			],
+			"look": [
+				5.94,
+				1.0
+			]
+		},
+		{
+			"id": "room_5",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				1.98,
+				4.865,
+				4.0
+			],
+			"look": [
+				1.98,
+				1.0
+			]
+		},
+		{
+			"id": "room_6",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				22.2,
+				4.865,
+				12.5
+			],
+			"look": [
+				22.2,
+				14.0
+			]
+		},
+		{
+			"id": "back_stair_up",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				19.3,
+				4.865,
+				9.4
+			],
+			"look": [
+				19.3,
+				12.0
+			]
+		},
+		{
+			"id": "bath",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				16.3,
+				4.865,
+				12.0
+			],
+			"look": [
+				16.3,
+				14.0
+			]
+		},
+		{
+			"id": "room_7",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				13.6,
+				4.865,
+				12.5
+			],
+			"look": [
+				13.6,
+				14.0
+			]
+		},
+		{
+			"id": "room_8",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				10.2,
+				4.865,
+				12.5
+			],
+			"look": [
+				10.2,
+				14.0
+			]
+		},
+		{
+			"id": "landlady_sit",
+			"use": "sit",
+			"who": "landlady",
+			"at": [
+				6.4,
+				4.865,
+				11.5
+			],
+			"look": [
+				6.4,
+				14.0
+			]
+		},
+		{
+			"id": "landlady_bed",
+			"use": "sleep",
+			"who": "landlady",
+			"at": [
+				2.2,
+				4.865,
+				12.5
+			],
+			"look": [
+				2.2,
+				14.0
+			]
+		},
+		{
+			"id": "gallery_1",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				20.0,
+				4.865,
+				-1.4
+			],
+			"look": [
+				20.0,
+				-9.0
+			],
+			"_doc": "the girder men's night: on the gallery (the Balcony Ambush)"
+		},
+		{
+			"id": "gallery_2",
+			"use": "drink",
+			"who": "anyone",
+			"at": [
+				12.0,
+				4.865,
+				-1.4
+			],
+			"look": [
+				12.0,
+				-9.0
+			]
+		},
+		{
+			"id": "gallery_3",
+			"use": "shoot",
+			"who": "anyone",
+			"at": [
+				6.0,
+				4.865,
+				-1.6
+			],
+			"look": [
+				6.0,
+				-12.0
+			]
+		},
+		{
+			"id": "kegs",
+			"use": "work",
+			"who": "barman",
+			"at": [
+				21.0,
+				-1.92,
+				6.5
+			],
+			"look": [
+				22.6,
+				6.5
+			],
+			"_doc": "at the stillage"
+		},
+		{
+			"id": "drift_door",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				23.2,
+				-1.92,
+				9.45
+			],
+			"look": [
+				25.0,
+				9.45
+			],
+			"_doc": "the drift's door in the west wall: a lamp's flame leans"
+		},
+		{
+			"id": "stores",
+			"use": "work",
+			"who": "cook",
+			"at": [
+				13.0,
+				-1.92,
+				6.0
+			],
+			"look": [
+				13.0,
+				4.0
+			]
+		},
+		{
+			"id": "passage",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				13.0,
+				-1.92,
+				9.7
+			],
+			"look": [
+				18.0,
+				9.7
+			]
+		},
+		{
+			"id": "coal",
+			"use": "work",
+			"who": "anyone",
+			"at": [
+				22.2,
+				-1.92,
+				13.0
+			],
+			"look": [
+				22.2,
+				14.5
+			]
+		},
+		{
+			"id": "ice",
+			"use": "work",
+			"who": "cook",
+			"at": [
+				18.6,
+				-1.92,
+				13.0
+			],
+			"look": [
+				18.6,
+				14.5
+			]
+		},
+		{
+			"id": "wine",
+			"use": "stand",
+			"who": "landlady",
+			"at": [
+				13.0,
+				-1.92,
+				13.0
+			],
+			"look": [
+				13.0,
+				14.5
+			]
+		}
+	],
+	"lamps": {
+		"_doc": "#824's rules: a lamp each room, kit lamps on the walls, lit by the clock (the chandeliers, the newel lamp and the brackets are the prop lab's: the brief's 7.1 layer 3). Kerosene only (the brief's section 2). Only the rooms a player is likely in cast shadows. The cellar's lit day and night.",
+		"kit": [
+			{
+				"room": "bar",
+				"kit": "reflector_lamp",
+				"wall": "g_bar",
+				"level": "ground",
+				"at": 2.0,
+				"height": 1.7,
+				"lit": [
+					16,
+					1
+				],
+				"side": "+",
+				"energy": 1.3,
+				"reach": 7.0,
+				"shadows": true
+			},
+			{
+				"room": "lobby",
+				"kit": "reflector_lamp",
+				"wall": "g_parlour",
+				"level": "ground",
+				"at": 6.4,
+				"height": 1.7,
+				"lit": [
+					16,
+					24
+				],
+				"side": "+",
+				"energy": 1.4,
+				"reach": 8.0,
+				"shadows": true
+			},
+			{
+				"room": "office",
+				"kit": "reflector_lamp",
+				"wall": "g_office_e",
+				"level": "ground",
+				"at": 1.5,
+				"height": 1.6,
+				"lit": [
+					17,
+					23
+				],
+				"side": "+",
+				"energy": 0.8,
+				"reach": 4.0
+			},
+			{
+				"room": "parlour",
+				"kit": "reflector_lamp",
+				"wall": "g_parlour",
+				"level": "ground",
+				"at": 6.4,
+				"height": 1.6,
+				"lit": [
+					17,
+					23
+				],
+				"side": "-",
+				"energy": 1.2,
+				"reach": 7.0
+			},
+			{
+				"room": "dining",
+				"kit": "reflector_lamp",
+				"wall": "g_back",
+				"level": "ground",
+				"at": 8.0,
+				"height": 1.7,
+				"lit": [
+					17,
+					21
+				],
+				"side": "+",
+				"energy": 1.4,
+				"reach": 8.0,
+				"shadows": true
+			},
+			{
+				"room": "stair_hall",
+				"kit": "reflector_lamp",
+				"wall": "g_stair",
+				"level": "ground",
+				"at": 2.0,
+				"height": 1.7,
+				"lit": [
+					17,
+					23
+				],
+				"side": "+",
+				"energy": 0.8,
+				"reach": 5.0
+			},
+			{
+				"room": "sample",
+				"kit": "reflector_lamp",
+				"wall": "g_sample",
+				"level": "ground",
+				"at": 4.0,
+				"height": 1.7,
+				"lit": [
+					17,
+					23
+				],
+				"side": "+",
+				"energy": 0.9,
+				"reach": 6.0
+			},
+			{
+				"room": "hall",
+				"kit": "reflector_lamp",
+				"wall": "u_front",
+				"level": "upper",
+				"at": 8.0,
+				"height": 1.7,
+				"lit": [
+					17,
+					24
+				],
+				"side": "+",
+				"energy": 0.9,
+				"reach": 7.0,
+				"shadows": true
+			},
+			{
+				"room": "hall",
+				"kit": "reflector_lamp",
+				"wall": "u_front",
+				"level": "upper",
+				"at": 18.0,
+				"height": 1.7,
+				"lit": [
+					17,
+					24
+				],
+				"side": "+",
+				"energy": 0.9,
+				"reach": 7.0
+			},
+			{
+				"room": "suite_parlour",
+				"kit": "reflector_lamp",
+				"wall": "u_front",
+				"level": "upper",
+				"at": 14.6,
+				"height": 1.6,
+				"lit": [
+					18,
+					24
+				],
+				"side": "-",
+				"energy": 1.0,
+				"reach": 5.0,
+				"shadows": true
+			},
+			{
+				"room": "room_4",
+				"kit": "reflector_lamp",
+				"wall": "u_front",
+				"level": "upper",
+				"at": 4.6,
+				"height": 1.6,
+				"lit": [
+					20,
+					23
+				],
+				"side": "-",
+				"energy": 0.8,
+				"reach": 4.0
+			},
+			{
+				"room": "landlady_sit",
+				"kit": "reflector_lamp",
+				"wall": "u_back",
+				"level": "upper",
+				"at": 7.6,
+				"height": 1.6,
+				"lit": [
+					19,
+					23
+				],
+				"side": "+",
+				"energy": 0.8,
+				"reach": 4.0
+			},
+			{
+				"room": "beer_cellar",
+				"kit": "reflector_lamp",
+				"wall": "c_beer",
+				"level": "cellar",
+				"at": 3.0,
+				"height": 1.5,
+				"lit": [
+					0,
+					24
+				],
+				"side": "+",
+				"energy": 1.0,
+				"reach": 6.0,
+				"shadows": true
+			},
+			{
+				"room": "stores",
+				"kit": "reflector_lamp",
+				"wall": "c_beer",
+				"level": "cellar",
+				"at": 3.0,
+				"height": 1.5,
+				"lit": [
+					0,
+					24
+				],
+				"side": "-",
+				"energy": 0.8,
+				"reach": 6.0
+			},
+			{
+				"room": "passage",
+				"kit": "reflector_lamp",
+				"wall": "c_back",
+				"level": "cellar",
+				"at": 6.0,
+				"height": 1.5,
+				"lit": [
+					0,
+					24
+				],
+				"side": "-",
+				"energy": 0.6,
+				"reach": 5.0
+			}
+		]
+	},
+	"light": {
+		"_doc": "saloon B's dials for a big two-storey frame (#867): the windows light the front rooms, the fill lifts the far walls",
+		"fill": [
+			0.62,
+			0.6,
+			0.57
+		],
+		"window_day": 14.0,
+		"day_fill": 0.32
+	},
+	"fixtures": [
+		{
+			"_doc": "The small fine bar (Sean: 'a nice small bar'): two 3 m kit sections down the lane wall, the back bar's two sections with their mirrors against it (the brief's walnut bar and back bar are the prop lab's: J. M. Brunswick & Balke on the back bar's crest)",
+			"kit": "bar",
+			"at": [
+				22.134,
+				2.0
+			],
+			"facing": 270,
+			"repeat": {
+				"count": 2,
+				"step": [
+					0,
+					3.0
+				]
+			}
+		},
+		{
+			"kit": "back_bar",
+			"at": [
+				23.904,
+				1.75
+			],
+			"facing": 270,
+			"repeat": {
+				"count": 2,
+				"step": [
+					0,
+					2.5
+				]
+			}
+		}
+	],
+	"furniture": [],
+	"materials": {
+		"wear": {
+			"use": 0.5,
+			"dings": 0.0,
+			"_why": "#901: a hotel a year old and kept: swept every morning, the lobby and the stair the most walked"
+		},
+		"_doc": "Finishes by name from the material library (spec_building.gd finish()): a finish's `want` the moment the library has it passed at that age, until then its `use` (a passed entry). Outside, Sean's three colours (#1215, the sheet): a soft blue-grey body on narrow planed lap (`painted_bluegrey_lap`), cream trim (`painted_cream_trim`: corner boards, casings, cornice, the gallery's posts, beams and rail), a deep red on the brackets, the name board and the sash (`painted_red_trim`): each NEW, a colour of an approved paint, judged in step 4; until they pass, the approved white, buff and ox-blood. Inside: walnut wainscot in the public rooms with pale boards over (wallpaper and plaster are the next system), oak for the stair, doors and rails, the worn fir floor.",
+		"floor": "wood:int_floor",
+		"wall_boards": "int_boards",
+		"woodwork": "wood:int_oak",
+		"timber": "wood:int_timber",
+		"trim_outside": "dark_trim",
+		"roof": "weathered_pine",
+		"rough": "framing",
+		"deck": "weathered_pine",
+		"finishes": {
+			"exterior": {
+				"want": {
+					"entry": "painted_bluegrey_lap",
+					"age": "few"
+				},
+				"use": {
+					"entry": "painted_white_lap",
+					"age": "few"
+				},
+				"_why": "the soft blue-grey body (the set-direction brief, the sheet)"
+			},
+			"trim": {
+				"want": {
+					"entry": "painted_cream_trim",
+					"age": "few"
+				},
+				"use": {
+					"entry": "painted_buff_drop",
+					"age": "few"
+				},
+				"_why": "cream trim"
+			},
+			"inside": {
+				"want": {
+					"entry": "painted_buff_drop",
+					"age": "few"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"floor": {
+				"want": {
+					"entry": "floor_fir_worn",
+					"age": "few",
+					"role": "floor"
+				},
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "floor"
+				}
+			},
+			"framing": {
+				"use": {
+					"entry": "rough_pine_batten",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"rough": {
+				"use": {
+					"entry": "rough_pine_batten",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"oak": {
+				"_doc": "the wainscot, the well's rail, the hall stair, the doors: dark varnished wood (the library's walnut; furniture_oak drew a flat fresh orange the judges called plastic, round 1 of #867)",
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"timber": {
+				"_doc": "the posts, girders and the open joists over the bar: dark dressed timber (the library's walnut; R1 read as bark or concrete to the round 1 critic, oak a flat orange, planed pine a weathered grey: no dressed-timber entry yet)",
+				"use": {
+					"entry": "fine_walnut_tg",
+					"age": "few",
+					"role": "wall"
+				}
+			},
+			"red": {
+				"want": {
+					"entry": "painted_red_trim",
+					"age": "few"
+				},
+				"use": {
+					"entry": "painted_oxblood_batten",
+					"age": "few",
+					"role": "wall"
+				},
+				"_why": "the deep red picked out: brackets, the name board, the sash"
+			}
+		},
+		"surfaces": [
+			[
+				"front/sign",
+				"red"
+			],
+			[
+				"/cornice_bracket",
+				"red"
+			],
+			[
+				"/sash",
+				"red"
+			],
+			[
+				"floor/roof/board",
+				"rough"
+			],
+			[
+				"floor/roof/joist",
+				"framing"
+			],
+			[
+				"drift/",
+				"rough"
+			],
+			[
+				"foundation/",
+				"-"
+			],
+			[
+				"street/post",
+				"trim"
+			],
+			[
+				"street/beam",
+				"trim"
+			],
+			[
+				"street/rail",
+				"trim"
+			],
+			[
+				"street/ledger",
+				"trim"
+			],
+			[
+				"floor/street_",
+				"rough"
+			],
+			[
+				"ceiling/",
+				"inside"
+			],
+			[
+				"bulkhead/",
+				"rough"
+			],
+			[
+				"c_",
+				"rough"
+			],
+			[
+				"/wainscot",
+				"oak"
+			],
+			[
+				"/picture_rail",
+				"oak"
+			],
+			[
+				"/casing",
+				"trim"
+			],
+			[
+				"/skirt",
+				"trim"
+			],
+			[
+				"/window_",
+				"trim"
+			],
+			[
+				"/siding/",
+				"exterior"
+			],
+			[
+				"/corner_",
+				"trim"
+			],
+			[
+				"/trim_",
+				"trim"
+			],
+			[
+				"/transom_bar",
+				"trim"
+			],
+			[
+				"/cornice",
+				"trim"
+			],
+			[
+				"front/cap",
+				"trim"
+			],
+			[
+				"roof/ridge_cap",
+				"trim"
+			],
+			[
+				"/door_",
+				"oak"
+			],
+			[
+				"/in_ground/",
+				"inside"
+			],
+			[
+				"/in_upper/",
+				"inside"
+			],
+			[
+				"/m/board/",
+				"inside"
+			],
+			[
+				"/p/board/",
+				"inside"
+			],
+			[
+				"floor/ground/board",
+				"floor"
+			],
+			[
+				"beam/",
+				"timber"
+			],
+			[
+				"bracket/",
+				"-"
+			],
+			[
+				"wall_post/",
+				"timber"
+			],
+			[
+				"gallery/",
+				"oak"
+			],
+			[
+				"stair/hall",
+				"oak"
+			],
+			[
+				"roof/board",
+				"rough"
+			],
+			[
+				"stoop/",
+				"rough"
+			],
+			[
+				"stair/back",
+				"rough"
+			],
+			[
+				"post/",
+				"timber"
+			],
+			[
+				"floor/up_e/board",
+				"floor"
+			],
+			[
+				"floor/up_well/board",
+				"floor"
+			],
+			[
+				"floor/up_w/board",
+				"floor"
+			],
+			[
+				"floor/up_back/board",
+				"floor"
+			],
+			[
+				"floor/up_e/joist",
+				"framing"
+			],
+			[
+				"floor/up_well/joist",
+				"framing"
+			],
+			[
+				"floor/up_w/joist",
+				"framing"
+			],
+			[
+				"floor/up_back/joist",
+				"framing"
+			],
+			[
+				"stair/grand",
+				"oak"
+			],
+			[
+				"stair/back_door",
+				"rough"
+			],
+			[
+				"stair/back",
+				"oak"
+			]
+		]
+	},
+	"sources": [
+		"docs/briefs/hotel.md (#1146, the design; its section 11 the period sources: the Teller House and Hotel de Paris NRHP nominations, NPS on metal ceilings and wallpaper)",
+		"docs/briefs/hotel/draw_plans.py (the plans in feet) and experiments/building_lab/hotel/sheet/ (the target: the look)",
+		"saloon_b.json's frame (Hatfield 1877/1880, Kidder 1895, Bell 1858, Woodward 1869, How to Build Houses 1889)",
+		"Flat roofs of tin (terne plate) on boards behind a parapet: the period's commercial blocks (Hodgson 1883, 'Tin roofing'); the fall to the back drawn level",
+		"Mine timbering (the drift): three-piece sets of a cap and two legs on a sill, lagged (Peele, Mining Engineers' Handbook's 1918 summary of 1870s-80s practice; Colorado's 'drift sets' 4-5 ft apart)"
+	]
+}
