@@ -23,6 +23,9 @@ extends Resource
 ## the street's stones and clods), `squash` (its height, a share: a clod), `appear` [from, to] (a far
 ## layer only, near_m 0, dithered in), and in `plant`: `albedo` (another map of the scan's, its dry
 ## one), `translucency`, `bend` (normals toward a dome), `foot_dark`.
+## #1160 added `place` {rect: [x0, z0, x1, z1], inner, outer, side: [x, z], side_min}: a place's surrounds (Harlan's
+## pad): grows only from `inner` m off the rect's edge, thinning to nothing at `outer`; `side` (a direction from the
+## rect's middle) favours that half, down to `side_min` (0..1) opposite. The pad itself stays clear (kept_clear).
 
 @export var species: Array[Dictionary] = [
 	{"name": "grass", "dir": "res://assets/props/scans/grass_medium_02/",
@@ -106,6 +109,25 @@ extends Resource
 	 "slope": [0.0, 40.0], "wet": 0.0, "dry": 0.0, "high": [28.0, 200.0], "clear": 4.0, "town": 120.0,
 	 "patch": 0.85, "patch_m": 70.0},
 	# (A big cell: their trunks are one body a cell, and the town is near Jolt's body limit.)
+	# Harlan's homestead (#1160, `place`): ponderosas close behind the buildings (south, thinning round the flanks) and
+	# tall dry grass up to the pad's edges. The rect is valley.json's harlan_homestead pad.
+	{"name": "homestead_pines", "tree": "pine",
+	 "place": {"rect": [417.0, 458.0, 447.0, 482.0], "inner": 5.0, "outer": 70.0, "side": [0.0, 1.0], "side_min": 0.15},
+	 "cell": 64.0, "per_100m2": 0.9, "range": 900.0, "near_m": 140.0, "fade": 0.0, "scale": [0.7, 1.3],
+	 "cluster": [3, 9.0, 1], "cluster_scale": 0.8,
+	 "sink": 0.0, "tilt": 0.0, "lean": 0.06, "shadows": true, "collide": "trunk",
+	 "slope": [0.0, 40.0], "wet": 0.0, "dry": 0.0, "high": [-40.0, 200.0], "clear": 3.0, "town": 0.0,
+	 "patch": 0.5, "patch_m": 18.0},
+	{"name": "homestead_grass", "dir": "res://assets/props/scans/grass_medium_01/",
+	 "place": {"rect": [417.0, 458.0, 447.0, 482.0], "inner": 0.0, "outer": 26.0},
+	 "meshes": ["grass_medium_01_tall_a_lod0", "grass_medium_01_tall_b_lod0", "grass_medium_01_tall_c_lod0"],
+	 "cell": 32.0, "per_100m2": 42.0, "range": 90.0, "near_m": 90.0, "fade": 20.0, "scale": [2.4, 3.6],
+	 "cluster": [5, 0.45, 2], "cluster_scale": 0.9,
+	 "sink": 0.06, "tilt": 0.6, "shadows": false, "tint": [0.98, 0.86, 0.62],
+	 "plant": {"saturation": 0.75, "brightness": 1.0, "vary": 0.28, "translucency": 0.5, "bend": 0.5, "foot_dark": 0.3,
+		"albedo": "res://assets/props/scans/grass_medium_01/textures/grass_medium_01_dry_diff_1k_alpha.png"},
+	 "slope": [0.0, 35.0], "wet": 0.0, "dry": 0.0, "high": [-40.0, 200.0], "clear": 0.4, "town": 0.0,
+	 "patch": 0.3, "patch_m": 7.0},
 	{"name": "snags", "tree": "snag",
 	 "cell": 384.0, "per_100m2": 0.008, "range": 1400.0, "near_m": 140.0, "fade": 0.0, "scale": [0.7, 1.2],
 	 "sink": 0.0, "tilt": 0.0, "lean": 0.1, "shadows": true, "collide": "trunk",

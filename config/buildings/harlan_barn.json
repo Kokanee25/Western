@@ -490,12 +490,20 @@
    "dings": 0.0
   },
   "finishes": {
-   "rough": {
+   "fieldstone": {
     "use": {
-     "entry": "rough_pine_batten",
-     "age": "old",
+     "entry": "fieldstone_rubble",
+     "age": "few",
      "role": "wall"
     }
+   },
+   "rough": {
+    "use": {
+     "entry": "hewn_pine_log",
+     "age": "old",
+     "role": "wall"
+    },
+    "_why": "weathered silver-tan, not R1 old (dark blue-grey): #1160"
    },
    "framing": {
     "use": {
@@ -506,6 +514,14 @@
    }
   },
   "surfaces": [
+   [
+    "foundation/",
+    "fieldstone"
+   ],
+   [
+    "pier/",
+    "fieldstone"
+   ],
    [
     "/siding/",
     "rough"
