@@ -51,6 +51,9 @@ rises 0.5-0.6 m to the back wall, so the lot is dug level at the street edge's h
 7. **The drift is 4 ft 7 in clear** (the brief's 4 ft): the player crouches to 1.3 m. Its floor rises 0.23 m to saloon B's
    (the two cellars' floors).
 8. **The office is in the lobby's front-west corner** behind the desk, the sample room the full depth of the back-west.
+10. **The bar has no street door** (the brief's "the bar's own street door at the west"): townsmen walking the walk
+   west from the main doors were pushed in at it and stuck in the bar (`test_valley_folk`). It's a window; the bar is
+   entered from the lobby. Its own door could come on the lane side with steps.
 9. **The ground floor's windows are tall one-over-one sashes** (plate glass in two lights), not round-arched (the builder
    frames square heads).
 

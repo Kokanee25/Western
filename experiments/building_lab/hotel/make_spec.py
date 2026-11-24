@@ -278,7 +278,7 @@ spec["walls"] = [
      "id": "front", "line": [[0, 0], [W, 0]], "out": "-z", "top": FALSE_FRONT, "outside": LAP, "inside": outer_inside(0.1, r3(W - 0.1)),
      "openings": [
          win(22.86, 1.22, 2.74, 0.6, _doc="the bar's window"),
-         door(19.81, 0.91, 2.44, glazed=True, transom=0.45, _doc="the bar's own street door"),
+         win(19.81, 1.22, 2.74, 0.6, _doc="the bar's second window (#1220: its street door left out: a townsman walking the walk west from the main doors was pushed in at it and stuck in the bar, tests/test_valley_folk.gd; the bar's own door can come on the lane side, with steps)"),
          win(16.76, 1.22, 2.74, 0.6, _doc="the lobby's west window (the office behind the desk)"),
          door(13.41, 1.83, 2.74, glazed=True, transom=0.55, leaves=2, _doc="the main doors: a glazed pair, the fanlight with the name in gold leaf"),
          win(10.06, 1.22, 2.74, 0.6, _doc="the lobby's east window"),

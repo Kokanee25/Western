@@ -613,14 +613,14 @@
 					"_doc": "the bar's window"
 				},
 				{
-					"type": "door",
+					"type": "window",
 					"level": "ground",
 					"at": 19.81,
-					"width": 0.91,
-					"height": 2.44,
-					"glazed": true,
-					"transom": 0.45,
-					"_doc": "the bar's own street door"
+					"width": 1.22,
+					"height": 2.74,
+					"sill": 0.6,
+					"lights": 2,
+					"_doc": "the bar's second window (#1220: its street door left out: a townsman walking the walk west from the main doors was pushed in at it and stuck in the bar, tests/test_valley_folk.gd; the bar's own door can come on the lane side, with steps)"
 				},
 				{
 					"type": "window",
