@@ -215,3 +215,28 @@ func test_what_the_town_makes_of_harlan() -> void:
 	check(line.contains("drew first"), "and that the other drew first (%s)" % line)
 	news.overnight()
 	check_eq(String(StoryState.get_fact("news.harlan", "")), "stopped_a_killer", "the next day's word on him")
+
+
+## #1213 (gate 4, run 4): a shot in the air in the saloon, nobody hit. A man who saw who fired says so ("you"
+## to his face), not "whoever it was"; a man who only heard it says shooting, as before; saw_fire holds who
+## he saw, for his relief.
+func test_shots_nobody_hit_who_fired_if_he_saw() -> void:
+	var rid := _seen(&"p1", &"shots", TownNews.HARLAN, &"", &"", 1, false)
+	var to_him := news.line_of(&"p1", rid, TownNews.HARLAN)
+	check(to_him.begins_with("You") or to_him.begins_with("That was you"), "to his face: you (%s)" % to_him)
+	var to_other := news.line_of(&"p1", rid, &"p2")
+	check(to_other.to_lower().contains("the new man") and not to_other.to_lower().contains("whoever"), "of him: the new man (%s)" % to_other)
+	StoryState.set_fact("nolaw.deputy", true, 1, 12.0)
+	var dep := news.line_of(&"p1", rid, &"p2")
+	check(dep.to_lower().contains("the deputy"), "once he's the deputy (%s)" % dep)
+	StoryState.clear("nolaw.")
+	check_eq(String(news.saw_fire(&"p1")), "harlan", "he saw Harlan fire")
+	# Heard only: no who.
+	var r2 := news._new_record(&"shots", Vector3(200, 0, 0))
+	r2.shots = 1
+	var v := news._version(&"p3", r2, &"heard")
+	v.shots = 1
+	v.where = "the saloon"
+	var heard := news.line_of(&"p3", int(r2.id), &"p2")
+	check(heard.to_lower().contains("shooting") or heard.to_lower().contains("somebody"), "heard only: shooting (%s)" % heard)
+	check_eq(String(news.saw_fire(&"p3")), "", "heard, not seen")
