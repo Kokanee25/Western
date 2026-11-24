@@ -46,7 +46,7 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   bottles CLOSE; spittoons DIFFERENT (the old drawn one reads as rocks: S4). **Steps 7-8 wait for #1032** (pictures and ads);
   the pronghorn is bought (up to $2, Sean #1042; no elk). No arm rail on the bar's top (Sean): the foot rail is the brass.
 - **Next:** S5's steps 7-8 once #1032's `assets/props/paintings/` is on main (PR #1041 landed 2026-11-23); then S4 (the chair and strongbox, the spittoon, the CLOSE notes).
-- **The booze, step 4 merged** (#1222; `docs/briefs/booze.md`, `tools/props/booze.py` brands/shapes/kits, `tools/blender/props/booze.py`
+- **The booze, step 4 merged** (#1222, PR #1228, build 5335; `docs/briefs/booze.md`, `tools/props/booze.py` brands/shapes/kits, `tools/blender/props/booze.py`
   model + the one label sheet `pbr:booze_labels`): 50 bottled brands on 10 bottle kits (`variants`; a dressing entry's `variant`
   names the brand, `booze.variant_of`), 5 stencilled casks. Placed: saloon B (back bar, bar, No Law's table, Riedl's kegs, a Burnt
   Hollow barrel), the store's top grocery board, the doctor's three. **Not yet placed:** the hotel's F brands and the Railroad
