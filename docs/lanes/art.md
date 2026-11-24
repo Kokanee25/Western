@@ -43,7 +43,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   (`experiments/building_lab/store/` README: bodies 38,185 of 65,536; render CPU 1.5-2.4 ms (cellar 5.4, over); the rear's gabled wing is Sean's call). **Lit** (#1053): a `Storefront` (show windows, recessed entry; PARTS.md), RoomLight's cap 12 m², RealLook `exposure_indoor` 1.7, a pale beaded ceiling; back wall card 0.110 -> 0.193. **Hollis's** (#1074): pale posts and beams, A. P. HOLLIS gilded on the show windows (`Storefront.gilt`), kit goods in the windows (real stock #1076); the dark brackets are Sean's call;
   saloon B is Fable's (#848: step 1 done, below).
 - **The church** (#1203, `church/` README r7): open truss nave. Open: #1217 (ceiling), #1202 q2 (pews). Render: swap + lavapipe.
-- **The hotel** (#1220): designed and its sheet OK'd (`docs/briefs/hotel.md`, `experiments/building_lab/hotel/`); the build, steps 2-6, in progress.
+- **The hotel** (#1220, `hotel/` README, `make_spec.py`): main block built and tested (12.5k members; a blown gallery post drops two bays; the drift walked crouched in the lab), on its lot on a pad. Not yet: the kitchen wing, P7-P9 paints judged, the valley dig (`cellar._dig`: a dig in the first ground chunk tips the card tests), plaster (slice issue), props.
 - **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
 - **The undertaker's** (#1174, `undertaker/` README): built, on its lot, its cellar dug (`CellarDig`) and walked. Props in (U1, #1181). **Grim** (#1187): old blood by its `past` (`PastStains`: Blood splats, FloorMarks stains), a smoky lamp, CellarHaze; embalming good indie. Damp waits on Sean (#1197); the black trim wants `painted_black_trim`.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
@@ -55,9 +55,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   from valley.json (re-bake `tools/textures/valley_ground_map.gd` when it changes); ruts with parallax depth, berms and
   the sun's shadow in them; a tufted grassland; dry bunch grass (two scans' `dry_diff`) to 105 m, sage lit through,
   stones and clods in the streets, clumped pines (five shapes, open crowns), cottonwoods, snags. Cheap judge
-  (`2026-11-15_valley_land2_r2_cheap`): roads good indie, streets cheap (stone wall, greybox, empty). Left: tree clumps
-  read as dark bonsai pads at camp, the shrubs evenly sprinkled, the far ground still pale, a faint zip on low-sun
-  ruts.
+  (`2026-11-15_valley_land2_r2_cheap`): roads good indie, streets cheap (stone wall, greybox, empty). Left: bonsai-pad clumps, even shrubs, pale far ground, a zip on low-sun ruts.
 - **Saloon B, the corner saloon** (#772; #848, #884, the stage #902): `experiments/building_lab/saloon_b/` README,
   `tests/test_building_saloon_b.gd`. 7,775 members; 31,688 valley bodies, **1,080 left** of Jolt's 32,768 (the prop
   lab's sets, ~550, fit once; the jail and store need the guard raised or members put to rest). Look judged good indie
@@ -66,9 +64,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   PARTS); the Baron's drop `drop_baron`. Band use points in the README for gameplay. Judged once (`2026-11-14_saloon_b_stage_r1`):
   cheap indie (empty hall, bare proscenium box, tin-bucket footlights, even pleats). Render CPU 3.48 shut / 3.71 open.
   Open with Sean: the roof. Step 3 (#886) merged: THE NEW OCCIDENTAL on a walnut board, four walk lamps; reads by day, weakly at dusk, not at night. Wants: a dressed-timber entry, a matt floor. Not done: the cellar in the valley (#695), No Law's set.
-  Traps: a `void` opening must reach the wall's end; rerun `b.settle()` after a frame change; name every surface (`-`
-  keeps a dressed member's shape); a stage member's band sits over what it rests on; `reduce.py` rewrites the vram
-  signs' `.import` files short: restore them from git.
+  Traps (saloon B): RECIPE "A two-storey building under trusses"; `reduce.py` rewrites the vram signs' `.import` files short (restore from git).
 - **Floors and furniture, still open:** FL1's path a milky haze, FN1 laminate-looking (no pores, ray fleck): #964 (slice, week 3).
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.

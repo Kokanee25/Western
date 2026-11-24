@@ -150,6 +150,21 @@ to the yard); a door's `leaves: 2` (a pair, each on its own jamb) and `thick` (i
 and a stair with `ground_block` stand on it; `SpecBuilding.ground_y`); a summer beam's post as
 `{z, girder: true, size}` (down through a slot in the floor onto its girder).
 
+**The hotel's parts** (`hotel.json`, #1220; all optional, the other specs build as before): `frame.flat_roof`
+{board_kind} (no trusses or rafters: a floor of level `roof`, `levels.roof.top`, on the outer walls' plates, a
+`<wall>/roof_ribbon` let into a false front's studs and the upper bearing partitions, which then run full height;
+its boards kind `board`, so the crowd check leaves them; the siding to the roof's edge and the side cornices at
+`front.brackets.side_top`); a floor's `blocking` [[l0, l1]] (blocks between its joists over a support) or
+{z, sole: true} (a sole as deep as the joists and a board, continuous across them, the boards stopped either side:
+a bearing wall's studs stand on it); a partition's `stud` (its studs' width) and `gap` (it stops that much short of
+what's over it); `ceilings.levels` (["ground", "upper"]: an upper room's under a flat roof's joists) and
+`ceilings.holes` (gaps between floors that aren't openings); `girders.under` over a cellar (its piers left out:
+the cellar's walls and posts carry it); `foundation_passages` [{wall, z, height}] (an opening through a side
+wall's foundation from the cellar's floor under a timber lintel, the stone on over it; the bulkhead's passage
+built with it when on the same wall); `drift` {wall, x, z, fall, clear, every, leg, cap, sill, plank, lagging,
+wood} (Drift, `src/structures/drift.gd`: a timbered passage out of the cellar, CellarDig digging its trench and
+covering it in the valley); a bulkhead on the `width` side wall (out +x).
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers

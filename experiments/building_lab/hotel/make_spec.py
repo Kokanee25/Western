@@ -196,7 +196,8 @@ spec["cellar"] = {
     "rect": CEL,
     "posts": [[21.0, GZ[1]], [12.4, GZ[1]], [15.0, GZ[1]], [21.0, GZ[2]], [SAMPLE_X, 9.75], [13.4, GZ[3]], [22.3, GZ[3]]],
     "flag": 1.0,
-    "dig": True,
+    "dig": False,
+    "_dig": "NOT YET in the valley (#1220): any dug tile in the valley's first ground chunk (x -30 to 98: ValleyGround re-cuts a chunk's collision into squares round a dug tile) moves the ground under the saloon yard's card set and fails the card-game tests (saloon B's dig alone does it too). The cellar and the drift are walked in the lab (tests/test_building_hotel.gd); CellarDig digs both and covers the drift the moment this is true, once the set is inside saloon B or the re-cut leaves the squares without a tile as they were.",
     "trap": {"rect": TRAP},
     "stair": {"head": [22.65, TRAP[1]], "dir": "-z", "width": 0.9, "risers": 14, "going": 0.2},
 }

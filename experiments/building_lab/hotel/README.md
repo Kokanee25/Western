@@ -23,3 +23,59 @@ pictures differ from the words (the spec settles each, never the pictures):
   kitchen's range, the suite's walnut bed and French doors to the balcony, the cellar's stone and kegs.
 
 **Sean OK'd the sheet 2026-11-24** (in session, "Looks great"): the look to match; steps 2-6 next.
+
+## Step 2: the spec on its lot (#1220)
+
+`make_spec.py` writes `config/buildings/hotel.json` (RECIPE: a script while the numbers move). The lot: valley.json
+town.north `hotel` (x 42.0-67.2), the west wall 3 cm inside the lot's line on the saloon lane (world x 42.03), the east
+corner (the origin: a north-side lot's x runs from its EAST corner) at 66.414, 0.79 m short of the east lane. The bake
+rises 0.5-0.6 m to the back wall, so the lot is dug level at the street edge's height (-0.08) under the building
+(valley.json's `pad`). The floor is the walk's top (0.75); 13 ft 6 in floor to floor, 11 ft 6 in above; a flat roof at
+8.70 behind the parapet's cornice and name board (9.9, 32 1/2 ft over the street).
+
+**Settled here (each a choice the brief left open, or a change from its drawings; Sean may overrule any):**
+1. **The main block only.** The two-storey kitchen wing (42 x 24 ft behind the west half) is the next step: the builder
+   makes one rectangle, and a wing wants its own walls, floors and roof (the jail's cell wing is stone). The back
+   wall's door at the back stair hall is where the wing's back hall will meet it.
+2. **A flat tin roof behind the parapet** (not a low gable on trusses): an 80 ft span is past a queen-post truss, and the
+   period's commercial blocks were flat behind their fronts. NEW in the builder (`frame.flat_roof`).
+3. **The grand stair is one straight flight of 22 risers** (7 3/8 in on 10 in treads) up the lobby's back wall, rising
+   east, not the brief's 13 + 9 with a landing: the builder's stairs are straight runs. Its well's posts stand in the
+   lobby (8x8, as saloon B's) over piers in the stores.
+4. **The upper hall is at 20-28 ft**, not 28-34: the front rooms 20 ft deep (no closets), the hall 8 ft wide over the
+   grand stair's well, the back rooms 22 ft. The 28 ft wall carries both floors' joists and the roof's.
+5. **The cellar's stair is the bar's trap** (the brief's "a trap to the beer cellar behind the bar"); the brief's cellar
+   stair from the kitchen's back hall comes with the wing. The back stair goes ground to upper only.
+6. **The beer cellar runs back to 36 ft** (the drawing's 30), so the drift's line (27-33 ft back) meets saloon B's cellar
+   (from 26 ft back) inside both.
+7. **The drift is 4 ft 7 in clear** (the brief's 4 ft): the player crouches to 1.3 m. Its floor rises 0.23 m to saloon B's
+   (the two cellars' floors).
+8. **The office is in the lobby's front-west corner** behind the desk, the sample room the full depth of the back-west.
+9. **The ground floor's windows are tall one-over-one sashes** (plate glass in two lights), not round-arched (the builder
+   frames square heads).
+
+## Step 3: the build and its checks
+
+`tests/test_building_hotel.gd` (all pass): 12.5k members; stands (dead, a crowd on every floor and 60 lb/ft2 on the
+gallery, the game's settle drops nothing); built right; people fit every door, stair and use point; the gallery's middle
+post blown (`break_member`) drops exactly bays 3 and 4, the others standing; a man walks down the trap's stair into the
+beer cellar and the whole drift crouched (a standing man doesn't fit); a man climbs the grand stair to the upper hall.
+`tests/test_hotel_valley.gd`: on its lot and its pad, the gallery's posts on the street edge's ground, saloon B with the
+drift's door in its cellar wall.
+
+**The valley doesn't dig the cellar or the drift yet** (`hotel.json` `cellar._dig`). ValleyGround collides the valley in
+128 m chunks; a dug tile anywhere in one re-cuts the whole chunk's collision into squares, and the first chunk (x -30 to
+98) holds the saloon yard's card set: the hotel's dig, the drift's, and saloon B's alone each failed the card-game tests
+(every chair test; main and the hotel undug pass all eight). CellarDig is ready for both (the lane-side bulkhead, the
+drift's trench with its fall, the cover flush with the lane at the ground's old height): set `cellar.dig` and saloon B's
+once the set is inside saloon B, or ValleyGround's re-cut leaves the squares without a tile as they were.
+
+What the checks found (each fixed; RECIPE "A big two-storey hotel"): a joist 5 mm from a wall's studs carries the
+wall; a bearing wall's studs on boards bend them however they're carried (a sole); a post through the floor stands a
+joist on it (posts off the joists' lines); a stair's stringer into a partition takes its boards; a door's leaf into a
+stair's foot; a deck that spans past its beam's end; a stacked pair of doors' leaves with the same id.
+
+Not done (the next steps): the kitchen wing; plaster on lath that breaks as plaster (a slice issue); wallpaper and
+carpet (the library); turned posts and balusters on the gallery (square, chamfered); the three paints judged (P7-P9:
+`painted_bluegrey_lap`, `painted_cream_trim`, `painted_red_trim`, in the library unjudged, so the hotel draws the passed
+white, buff and ox-blood till they pass); props (the prop lab's batches).

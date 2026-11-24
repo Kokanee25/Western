@@ -298,7 +298,8 @@
 			]
 		],
 		"flag": 1.0,
-		"dig": true,
+		"dig": false,
+		"_dig": "NOT YET in the valley (#1220): any dug tile in the valley's first ground chunk (x -30 to 98: ValleyGround re-cuts a chunk's collision into squares round a dug tile) moves the ground under the saloon yard's card set and fails the card-game tests (saloon B's dig alone does it too). The cellar and the drift are walked in the lab (tests/test_building_hotel.gd); CellarDig digs both and covers the drift the moment this is true, once the set is inside saloon B or the re-cut leaves the squares without a tile as they were.",
 		"trap": {
 			"rect": [
 				22.6,
