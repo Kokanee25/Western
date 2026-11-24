@@ -137,7 +137,7 @@ def s1():
         out.append(e("chips_%d" % i, "chip_stacks", [x + 0.18, CARD_TOP, z + 0.14], 10 * i))
     out.append(e("no_law_glass_0", "shot_glass", [12.82, CARD_TOP, 7.5], 0))
     out.append(e("no_law_glass_1", "shot_glass", [13.38, CARD_TOP, 7.05], 0))
-    out.append(bottle("no_law_bottle", Q, "pettibone", [13.12, CARD_TOP, 7.38], 200))
+    out.append(bottle("no_law_bottle", Q, "pettibone", [13.12, CARD_TOP, 7.38], 0))
     return out
 
 
