@@ -12,6 +12,7 @@
 //! The blast's face sums (issue #538): `BlastCore` (blast.rs).
 //! Crash and freeze reports (issue #624): `CrashGuard` (crash_guard.rs).
 //! Our own cloth (docs/briefs/garment-cloth.md, #973): `ClothCore` (cloth_core.rs over cloth.rs).
+//! The support graph's broadphase (#1239): `BoxPairs` (box_pairs.rs).
 
 use godot::classes::Node;
 use godot::prelude::*;
@@ -19,6 +20,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
 pub mod blast;
+pub mod box_pairs;
 pub mod carve;
 pub mod cloth;
 pub mod cloth_core;

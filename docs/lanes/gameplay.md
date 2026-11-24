@@ -65,8 +65,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The chaos bench** (`docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
   [--spikes=MS]`. Valley: brain frames < 33 ms (#1119, #1123: `Cover.Pick`); a blast's settle sliced by its own
   `SettleQueue` (#1128). Open: `kit_blast` ~130 ms the tick after saloon B's sticks, the blast's own frame ~110 ms; Jolt.
-- **Building bodies** (#1227, `docs/reviews/2026-11-building-bodies.md`): bodies ~1% of a building's load and memory; the hotel
-  slows loads (+7 s, +1.1 GB a valley), not frames. Compound bodies wait on Sean (#1237); the hotel's lot waits on that.
+- **Building loads** (#1227's review, #1239): the support graph is one sweep (`infer_from_geometry`; valley 6.8 -> 1.0 s,
+  identical: `test_support_graph`). Next: shared board meshes (art); the hotel's lot is the hotel session's (#1239's notes).
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
