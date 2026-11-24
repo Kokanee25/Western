@@ -50,7 +50,8 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   model + the one label sheet `pbr:booze_labels`): 50 bottled brands on 10 bottle kits (`variants`; a dressing entry's `variant`
   names the brand, `booze.variant_of`), 5 stencilled casks. Placed: saloon B (back bar, bar, No Law's table, Riedl's kegs, a Burnt
   Hollow barrel), the store's top grocery board, the doctor's three. **Not yet placed:** the hotel's F brands and the Railroad
-  Saloon's R and dumb ones (Lowry's barrel, Wiener's, Uranus...): place them when those buildings are dressed.
+  Saloon's R and dumb ones (Lowry's barrel, Wiener's, Uranus...): place them when those buildings are dressed. Critic r2
+  (`results/2026-11-24_booze/r2/`): `glass:amber` reads opaque maroon under lamps; labels too alike (one layout, tone).
 - **The doctor's office is furnished** (D1-D3 merged, #788/#805/#819; no D4). Coat and bookcase DIFFERENT, waiting on
   Sean (#871); don't re-judge the rest. The Studio's `claude/studio-doctor-bag` branch is unmerged (Sean's OK needed).
 - **In the game since #844:** a building's props are its spec's `dressing` (`{"batches": {"D1": [...]}}`),

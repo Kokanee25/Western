@@ -101,7 +101,7 @@ def uv(px, py):
 
 # === The model ======================================================================================
 
-def label_patch(name, sections, y0, y1, half, rect, nu=16, nv=6, lift=0.0006):
+def label_patch(name, sections, y0, y1, half, rect, nu=16, nv=6, lift=0.0006, turn=0.0):
     """A paper label on the bottle between y0..y1, round the front (+z) from angle pi/2 + half (the
     viewer's left) to pi/2 - half, `lift` off the glass, its UVs the sheet's rectangle `rect`."""
     verts, uvs, faces = [], [], []
@@ -110,7 +110,7 @@ def label_patch(name, sections, y0, y1, half, rect, nu=16, nv=6, lift=0.0006):
         y = y0 + (y1 - y0) * j / nv
         sec = section_at(sections, y)
         for i in range(nu + 1):
-            th = math.pi * 0.5 + half - 2 * half * i / nu
+            th = math.pi * 0.5 + turn + half - 2 * half * i / nu
             x, z = section_point(sec, th)
             rr = max(1e-6, math.hypot(x, z))
             verts.append((x + x / rr * lift, y, z + z / rr * lift))
@@ -171,10 +171,16 @@ def bottles():
                 foil = label_patch("Foil" + k, fsec, 0.236, sy1 + 0.001, math.pi, cell(("foil",)), nu=20, nv=6, lift=0.0)
                 parts.append((foil, None))
         y0, y1, half = s["label"]
+        jr = random.Random(sum(map(ord, shape)) + 7)   # (not hash(): Python salts it per run)
         for n, _ in enumerate(booze.brands_of(shape)):
             lift = 0.0 if s.get("stone") else 0.0006
             nu, nv = (32, 10) if s.get("stone") else (16, 6)
-            parts.append((label_patch("Label%s%d" % (lk, n), secs, y0, y1, half, cell(("label", shape, n)), nu=nu, nv=nv, lift=lift), None))
+            # Pasted on by hand: each a little higher or lower and off centre (round 1: every label at one
+            # height, dead centre). Not the stoneware's: its skin is the bottle.
+            dy = 0.0 if s.get("stone") else jr.uniform(-0.008, 0.008)
+            turn = 0.0 if s.get("stone") else jr.uniform(-0.12, 0.12)
+            p = label_patch("Label%s%d" % (lk, n), secs, y0 + dy, y1 + dy, half, cell(("label", shape, n)), nu=nu, nv=nv, lift=lift, turn=turn)
+            parts.append((p, None))
     parts += heads()
     metal.export_baked("booze_bottles", parts, size=256)
 
@@ -359,11 +365,16 @@ def mix(a, b, t):
     return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
-def label(b, w, h, rng, metal_mask):
+def label(b, w, h, rng, metal_mask, front=1.0):
     """Brand `b`'s label, w x h pixels (RGB), drawing gold into `metal_mask` (an "L" image the same size)."""
     from PIL import Image, ImageDraw
     chromo = b["style"] == "chromo"
     paper, ink, ink2 = b["paper"], b["ink"], b["ink2"] or b["ink"]
+    # Paper gone yellow-brown with age and the bar's smoke, each label its own (round 1: a row of identical
+    # bright cream squares, the brightest thing on the back bar).
+    if sum(paper) > 450:
+        k = rng.uniform(0.72, 0.86)
+        paper = (int(paper[0] * k), int(paper[1] * k * 0.95), int(paper[2] * k * 0.82))
     img = Image.new("RGB", (w, h), paper)
     d = ImageDraw.Draw(img)
     md = ImageDraw.Draw(metal_mask)
@@ -410,18 +421,25 @@ def label(b, w, h, rng, metal_mask):
     # The name: as big as the label takes, two lines if it won't go in one at a readable size.
     name = b["name"]
     fs = h * 0.15
-    f = fit(d, name, "bold", fs, inner)
+    # A round bottle turns its label's ends away from the eye: the name kept to the front's share (round 1's
+    # critic: "BELLE OF LAR.." ran off), set heavy so the pixels don't break it up ("VAN DORST").
+    inner_name = inner * front
+    f = fit(d, name, "bold", fs, inner_name)
     lines = [name]
     if f.size < h * 0.095 and " " in name:
         words = name.split()
         best = min(range(1, len(words)), key=lambda i: abs(len(" ".join(words[:i])) - len(" ".join(words[i:]))))
         lines = [" ".join(words[:best]), " ".join(words[best:])]
-        f = min((fit(d, l, "bold", h * 0.12, inner) for l in lines), key=lambda ff: ff.size)
+        f = min((fit(d, l, "bold", h * 0.12, inner_name) for l in lines), key=lambda ff: ff.size)
     for line in lines:
-        centred(d, line, cx, y, f, text_ink if chromo else ink2 if b["ink2"] and b["grade"] != "R" else ink, shadow=sh)
+        col = text_ink if chromo else ink2 if b["ink2"] and b["grade"] != "R" else ink
+        if sh:
+            centred(d, line, cx + 1, y + 1, f, sh)
+        tw = d.textlength(line, font=f)
+        d.text((cx - tw * 0.5, y), line, font=f, fill=col, stroke_width=1 if f.size >= 22 else 0, stroke_fill=col)
         y += f.size * 1.05
     # The kind, in italic (the period's script line).
-    f = fit(d, b["kind"], "bolditalic" if chromo else "italic", h * 0.075, inner)
+    f = fit(d, b["kind"], "bolditalic" if chromo else "italic", h * 0.075, inner_name)
     centred(d, b["kind"], cx, y, f, text_ink)
     y += f.size * 1.15
     d.line([(cx - inner * 0.3, y), (cx + inner * 0.3, y)], fill=ink2 if not chromo else gold, width=1)
@@ -605,7 +623,9 @@ def labels():
                 rough.paste(110, (x0, y0, x1, y1))
             else:
                 mm = Image.new("L", (w, h), 0)
-                img = age(label(b, w, h, rng, mm), rng, b["grade"], b["style"] == "chromo")
+                sec = booze.SHAPES[shape]["sections"]
+                flat = sec[2][3] >= 4   # a square or panel bottle's front is flat: all of it faces you
+                img = age(label(b, w, h, rng, mm, front=1.0 if flat else 0.72), rng, b["grade"], b["style"] == "chromo")
                 metalm.paste(mm, (x0, y0))
                 rough.paste(Image.eval(mm, lambda v: 205 - int(v * 0.5)), (x0, y0))
             sheet.paste(img, (x0, y0))

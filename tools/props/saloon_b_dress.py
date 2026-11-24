@@ -54,15 +54,17 @@ def e(id_, kit, at, facing=0, **kw):
 # shelf (its bottles refilled from the barrel: the label warns about it), bitters by the glass, a few
 # bottled lagers, Riedl's kegs and a Burnt Hollow barrel. Each bottle a shape's kit and its brand's label.
 Q, F, BIT, GIN, BEER, STONE = "quart", "quart_flint", "square", "gin", "beer", "stone"
-LOWER = [  # the back bar's lower shelves, a row of five a bay (S1's left bays, then S5's right ones)
-    [(Q, "burnt_hollow"), (Q, "pettibone"), (Q, "belle_of_larue"), (Q, "tinderbox"), (Q, "burnt_hollow")],
-    [(Q, "cuthbert"), (Q, "carriere"), (GIN, "van_oorst"), (Q, "burnt_hollow"), (Q, "stoner_blunt")],
-    [(BIT, "quill"), (BIT, "corlew"), (Q, "pettibone"), (Q, "belle_of_larue"), (Q, "burnt_hollow")],
-    [(BEER, "zeitler"), (BEER, "zeitler"), (STONE, "holcombe"), (BEER, "riedl"), (Q, "burnt_hollow")],
-    [(Q, "pettibone"), (Q, "burnt_hollow"), (Q, "tinderbox"), (Q, "carriere"), (BIT, "quill")],
-    [(Q, "belle_of_larue"), (Q, "stoner_blunt"), (Q, "burnt_hollow"), (GIN, "van_oorst"), (Q, "cuthbert")],
-    [(Q, "burnt_hollow"), (Q, "pettibone"), (BIT, "corlew"), (Q, "belle_of_larue"), (Q, "tinderbox")],
-    [(BEER, "riedl"), (Q, "carriere"), (Q, "burnt_hollow"), (STONE, "holcombe"), (Q, "pettibone")],
+FL = "flask"
+LOWER = [  # the back bar's lower shelves, a row of five a bay (S1's left bays, then S5's right ones); round 1's
+    # critic: "every bottle is the same bottle": quarts mixed with pints, bitters, gin, beer and clear glass
+    [(Q, "burnt_hollow"), (FL, "burnt_hollow"), (Q, "belle_of_larue"), (BIT, "quill"), (F, "ashby")],
+    [(Q, "cuthbert"), (BEER, "zeitler"), (GIN, "van_oorst"), (Q, "carriere"), (FL, "burnt_hollow")],
+    [(BIT, "quill"), (Q, "pettibone"), (BIT, "corlew"), (F, "ashby"), (Q, "tinderbox")],
+    [(BEER, "zeitler"), (BEER, "riedl"), (STONE, "holcombe"), (Q, "burnt_hollow"), (FL, "burnt_hollow")],
+    [(Q, "pettibone"), (FL, "burnt_hollow"), (GIN, "van_oorst"), (Q, "carriere"), (BIT, "quill")],
+    [(Q, "belle_of_larue"), (BEER, "riedl"), (Q, "stoner_blunt"), (STONE, "holcombe"), (Q, "cuthbert")],
+    [(F, "ashby"), (Q, "burnt_hollow"), (BIT, "corlew"), (FL, "burnt_hollow"), (Q, "tinderbox")],
+    [(BEER, "riedl"), (Q, "carriere"), (GIN, "van_oorst"), (Q, "pettibone"), (BIT, "quill")],
 ]
 UPPER = [(F, "ashby"), (F, "ashby"), (Q, "burnt_hollow"), (F, "ashby"), (Q, "pettibone"), (F, "ashby"),
          (Q, "belle_of_larue"), (F, "ashby")]   # the top shelves, two at a time round each decanter

@@ -3774,17 +3774,17 @@
 					"row": {
 						"kits": [
 							"liquor_quart",
+							"liquor_flask",
 							"liquor_quart",
-							"liquor_quart",
-							"liquor_quart",
-							"liquor_quart"
+							"bitters_bottle",
+							"liquor_quart_flint"
 						],
 						"variants": [
 							0,
-							1,
+							3,
 							2,
-							8,
-							0
+							0,
+							1
 						],
 						"count": 5,
 						"step": [
@@ -3810,17 +3810,17 @@
 					"row": {
 						"kits": [
 							"liquor_quart",
-							"liquor_quart",
+							"beer_bottle",
 							"gin_case_bottle",
 							"liquor_quart",
-							"liquor_quart"
+							"liquor_flask"
 						],
 						"variants": [
 							5,
+							1,
+							0,
 							6,
-							0,
-							0,
-							10
+							3
 						],
 						"count": 5,
 						"step": [
@@ -3846,17 +3846,17 @@
 					"row": {
 						"kits": [
 							"bitters_bottle",
+							"liquor_quart",
 							"bitters_bottle",
-							"liquor_quart",
-							"liquor_quart",
+							"liquor_quart_flint",
 							"liquor_quart"
 						],
 						"variants": [
 							0,
 							1,
 							1,
-							2,
-							0
+							1,
+							8
 						],
 						"count": 5,
 						"step": [
@@ -3884,15 +3884,15 @@
 							"beer_bottle",
 							"beer_bottle",
 							"ginger_beer_bottle",
-							"beer_bottle",
-							"liquor_quart"
+							"liquor_quart",
+							"liquor_flask"
 						],
 						"variants": [
 							1,
-							1,
 							0,
 							0,
-							0
+							0,
+							3
 						],
 						"count": 5,
 						"step": [
@@ -4823,15 +4823,15 @@
 					"row": {
 						"kits": [
 							"liquor_quart",
-							"liquor_quart",
-							"liquor_quart",
+							"liquor_flask",
+							"gin_case_bottle",
 							"liquor_quart",
 							"bitters_bottle"
 						],
 						"variants": [
 							1,
+							3,
 							0,
-							8,
 							6,
 							0
 						],
@@ -4999,15 +4999,15 @@
 					"row": {
 						"kits": [
 							"liquor_quart",
+							"beer_bottle",
 							"liquor_quart",
-							"liquor_quart",
-							"gin_case_bottle",
+							"ginger_beer_bottle",
 							"liquor_quart"
 						],
 						"variants": [
 							2,
-							10,
 							0,
+							10,
 							0,
 							5
 						],
@@ -5174,17 +5174,17 @@
 					"id": "bottles_r2",
 					"row": {
 						"kits": [
-							"liquor_quart",
+							"liquor_quart_flint",
 							"liquor_quart",
 							"bitters_bottle",
-							"liquor_quart",
+							"liquor_flask",
 							"liquor_quart"
 						],
 						"variants": [
+							1,
 							0,
 							1,
-							1,
-							2,
+							3,
 							8
 						],
 						"count": 5,
@@ -5352,16 +5352,16 @@
 						"kits": [
 							"beer_bottle",
 							"liquor_quart",
+							"gin_case_bottle",
 							"liquor_quart",
-							"ginger_beer_bottle",
-							"liquor_quart"
+							"bitters_bottle"
 						],
 						"variants": [
 							0,
 							6,
 							0,
-							0,
-							1
+							1,
+							0
 						],
 						"count": 5,
 						"step": [
