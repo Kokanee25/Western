@@ -73,8 +73,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
 - **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
-- **CI's tests in six shards** (#1015): `config/test_times.json` (`tools/test_times.py`); locally one shard at a time.
-- **Flaky in shard order:** `test_town_day`'s fight tests (physics luck; one fails now and then on shard 3).
+- **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
+  tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
+- **Flaky in shard order:** `test_town_day`'s fights; `test_settle_incremental` in main's shard 2 (red, build 5335).
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
