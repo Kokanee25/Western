@@ -430,4 +430,16 @@ Record: `church/README.md`. What it taught:
 - **A drift (a tunnel) under the valley's height field**: dig its trench and lay a cover of the ground's own material
   over its lagging (CellarDig: the cover's top where the ground was, sampled before the dig; skipped on a re-dig).
   Measure its head room with a man's box, not a ray (rays up from the planks found nothing).
+- **A wing behind the main block** (#1226, the kitchen wing; `wings`): its own foundation, sills and balloon walls on
+  three sides, against the main block's back wall: no siding there, the wing's joists on ledgers spiked to that wall's
+  outer face, its ground floor's first girder right under their ends.
+- **Tail joists carry no boards** (a tail is a rafter on its header, a tier over the boards): frame an opening girder
+  to girder or wall to wall, and a gallery as joists running on past their support (a cantilever over two supports).
+- **Nothing wider than 10 cm under a joist that runs on past it** (an arch's girder, a partition's plate and boards):
+  StructuralAnalysis bears it at both edges and reads the overhang as lifting the inner one ("joint"). Nor a beam
+  overhanging its posts: put the posts at its ends.
+- **A post standing on a sole is 3 cm narrower than it**, and slots for posts 2.5 cm clear: touching a board's edge, it
+  stands on the board.
+- **A wing's partitions on its joists' lines** (0.145 + 0.406 k), and floors in 12 ft stock (`board_length`): the
+  crowd check bears a board piece's whole crowd at its middle.
 
