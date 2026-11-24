@@ -375,6 +375,6 @@ keeping it under ~10 KB: where things stand, what's open, the traps. No history 
 - `docs/lanes/props.md`: the kit and factory (saloon B's S1 and S2 made, not placed; next S3, #892).
 - `docs/lanes/sound.md`: GameAudio, the fiddler (#799), voiced lines (#807).
 
-Latest status entries: `docs/status/2026-11-16_onward.md` (the end of the file). The full Current state as
+Latest status entries: `docs/status/2026-11-24_onward.md` (the end of the file). The full Current state as
 it stood until 2026-11-11: `docs/status/current-state-2026-11-11.md` (only to trace history).
 DESIGN.md's backlog (§11) and the prompt library (`docs/prompts/`) are frozen until Sean names one.
