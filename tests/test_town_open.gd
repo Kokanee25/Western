@@ -156,3 +156,31 @@ func test_a_man_in_the_doorway_is_knocked_for_not_shoved() -> void:
 	check(man.physiology.is_conscious() and not (man.get_node(^"Brain") as CivilianBrain).mood in [CivilianBrain.Mood.DOWN],
 			"and nobody's knocked down")
 	_clock().time_scale = 1.0
+
+
+## #1213 (gate 4, run 2): at noon the barkeep stood behind the yard's bar, beyond saloon B's wall from its
+## own bar and below its floor, where you couldn't reach him. By day he serves behind saloon B's bar: you
+## at its customers' side are in the room, on his floor, across the bar from him.
+func test_at_noon_the_barkeep_is_behind_saloon_b_s_bar() -> void:
+	var f := valley.folk
+	_put(Vector3(0.0, f.ground(0.0, 300.0), 300.0), Vector3(0.0, 0.0, 400.0))
+	await _at(12.0, 60 * 3)
+	var bar := f.folk_man(&"barkeep")
+	check(bar != null and f.state.get(&"barkeep") == &"in", "the barkeep's at his post at noon")
+	var serve := f.hall_use("saloon", "barman_a")
+	check(not serve.is_empty(), "saloon B's bar has its barman's place")
+	if bar == null or serve.is_empty():
+		return
+	check(bar.global_position.distance_to(serve[0]) < 1.0, "behind saloon B's bar (%s, its place %s)" % [bar.global_position, serve[0]])
+	var drink := f.hall_use("saloon", "drinker_1")
+	var stand: Vector3 = drink[0]
+	_put(stand, bar.global_position)
+	await physics_frames(30)
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	check(absf(p.global_position.y - bar.global_position.y) < 0.3, "on his floor (you %.2f, him %.2f)" % [p.global_position.y, bar.global_position.y])
+	var flat := Vector2(p.global_position.x - bar.global_position.x, p.global_position.z - bar.global_position.z).length()
+	check(flat < 2.8, "across the bar from him (%.2f m)" % flat)
+	check(f.room.inside(p.global_position) and f.room.inside(bar.global_position), "both in the room")
+	# He walks out to the yard's bar for the night's room at five.
+	check_eq(String(f.spot_of(f._person(&"barkeep")).get("behind", "")), "", "by day not the yard's bar")
+	_clock().time_scale = 1.0
