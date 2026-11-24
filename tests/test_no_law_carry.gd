@@ -259,8 +259,8 @@ func test_by_a_chair_e_takes_the_man_not_the_seat() -> void:
 		return
 	var p := _player()
 	await _by(earl)
-	var chair := Seating.free_chair_near(get_tree(), Vector3(30.6, 0.3, -15.0), 20.0)
-	check(chair != null, "a free chair in the yard")
+	var chair := Seating.free_chair_near(get_tree(), earl.global_position, 6.0)
+	check(chair != null, "a free chair in the room by him")
 	if chair == null:
 		return
 	# The chair at your elbow, in view, and the carry's look not yet round to him.

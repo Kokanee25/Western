@@ -127,6 +127,29 @@ func test_each_kind_on_a_body() -> void:
 	check(other.busy(), "talk: the other talking too")
 
 
+## #1230 (#1213's gate: men stood there talking to nobody): two talking, then one goes in (out of the
+## world): the other's mouth stops, he waits looking about, and `alone_s` counts (the folk move a round
+## on by it); his company back, he talks again.
+func test_talk_with_nobody_there_falls_quiet() -> void:
+	var a := _man("t1", 611, Vector3(4.0, 0, 0), Vector3(5.1, 1.5, 0.0), &"talk")
+	var b := _man("t2", 612, Vector3(5.1, 0, 0), Vector3(4.0, 1.5, 0.0), &"talk")
+	await physics_frames(60 * 3)
+	check(a.alone_s == 0.0, "with company: not alone")
+	world.remove_child(b.man)  # gone in (the folk take a man in out of the world)
+	var spoke := false
+	for i in 60 * 12:
+		await physics_frames(1)
+		var sp := a.man.get_node_or_null(^"FaceSpeech") as FaceSpeech
+		if i > 30 and sp != null and sp.speaking():
+			spoke = true
+	check(not spoke, "nobody there: his mouth still")
+	check(a.alone_s > 10.0, "and he knows he's alone (%.1f s)" % a.alone_s)
+	world.add_child(b.man)
+	b.man.global_position = Vector3(5.1, 0, 0)
+	await physics_frames(60 * 2)
+	check(a.alone_s == 0.0, "his company back: talking again")
+
+
 ## Trouble (a shot close by): it lets him go at once; the broom goes down on the boards, the sack he
 ## had at his feet; calm again, he goes back to it.
 func test_trouble_stops_it_and_puts_things_down() -> void:

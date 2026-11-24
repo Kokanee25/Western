@@ -1,7 +1,7 @@
 class_name NoLawMurder
 extends CardCheat
 ## No Law, beat 3 (docs/missions/no-law.md; issue #773; data config/moments/no_law_murder.json): at
-## night in the saloon's yard, the card game going. A stranger walks in and sits in the free chair
+## night in the saloon (saloon B's bar room since #1230), the card game going. A stranger walks in and sits in the free chair
 ## you're not in ("Evening. Mind if I sit in a while?"). A minute on, Cody (one of the Baron's hired
 ## guns; not the red shirt, Kett, who raids Joe's camp that night; the stranger, the Baron's foreman, shot the sheriff: #905) comes in off the street already
 ## shouting at Earl ("Earl, you cheating son of a bitch!", Sean's note 2026-11-12: as he walks into
@@ -116,15 +116,19 @@ func _points(names: Array) -> Array[Vector3]:
 	return out
 
 
-## A point of the set's lot ([a, b] as config/valley_folk.json's), on the ground.
+## A point of the set ([x, z] on saloon B's floor in its space, #1230; [a, b] on the set's lot in a
+## valley without it).
 func _lot(ab: Array) -> Vector3:
-	return folk.lot_point(String(folk.data.set.lot), float(ab[0]), float(ab[1]))
+	var st: Dictionary = folk.data.set
+	if folk.halls.has(String(st.get("hall", ""))):
+		return folk.hall_point(String(st.hall), [float(ab[0]), float(st.get("floor", 0.95)), float(ab[1])])
+	return folk.lot_point(String(st.lot), float(ab[0]), float(ab[1]))
 
 
 ## Behind a chair (its back), on the way in to sit in it.
 func _behind(c: KitProp) -> Vector3:
 	var p := Seating.spot(c) - c.global_basis.z * 0.75
-	p.y = folk.ground(p.x, p.z)
+	p.y = folk.floor_under(p.x, p.z, c.global_position.y)
 	return p
 
 
@@ -150,11 +154,11 @@ func _start_stranger() -> void:
 	var way := _points(_str.get("in", []))
 	_str_approach.clear()
 	if stranger_chair:
-		var k := String(stranger_chair.name).get_slice("_", 1)
+		var k := String(stranger_chair.get_meta(&"compass", String(stranger_chair.name).get_slice("_", 1)))
 		for ab: Array in (_str.get("approach", {}) as Dictionary).get(k, []):
 			_str_approach.append(_lot(ab))
 	way.append_array(_str_approach)
-	var end := _behind(stranger_chair) if stranger_chair else _lot([5.6, 3.6])
+	var end := _behind(stranger_chair) if stranger_chair else _lot(_str.get("stand", [14.6, 5.6]))
 	way.append(end)
 	Events.deed.connect(_on_deed)
 	stranger = folk.take(StringName(_str.get("id", "stranger")), way[0], way[1] if way.size() > 1 else end)
@@ -347,7 +351,7 @@ func _barkeep_to_body() -> void:
 	var from := barkeep.global_position - body
 	from.y = 0.0
 	var spot := body + from.normalized() * 1.0
-	spot.y = folk.ground(spot.x, spot.z) + 0.05
+	spot.y = folk.floor_under(spot.x, spot.z, barkeep.global_position.y) + 0.05
 	brain.go_to(spot, body)
 	_barkeep_go = 0.0
 	_note("the barkeep goes to Earl")

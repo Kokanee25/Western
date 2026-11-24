@@ -259,6 +259,26 @@ func ground(x: float, z: float) -> float:
 	return surface_of(town, x, z)
 
 
+## What a man stands on at (x, z) near height `near_y`: a building's floor under it (a ray down from a
+## little over `near_y`: #1230, No Law's night in saloon B), else `ground`.
+func floor_under(x: float, z: float, near_y: float) -> float:
+	var space := get_world_3d().direct_space_state if is_inside_tree() else null
+	var best := -INF
+	if space != null:
+		# Five rays a hand apart: one may go down a gap between the boards.
+		for o: Vector2 in [Vector2.ZERO, Vector2(0.07, 0.0), Vector2(-0.07, 0.0), Vector2(0.0, 0.07), Vector2(0.0, -0.07)]:
+			var q := PhysicsRayQueryParameters3D.create(Vector3(x + o.x, near_y + 1.2, z + o.y), Vector3(x + o.x, near_y - 1.5, z + o.y), Layers.WORLD)
+			for k in 4:  # (through a chair or a table over it: their members are no floor)
+				var hit := space.intersect_ray(q)
+				if hit.is_empty():
+					break
+				if not ((hit.collider as Node).get_parent() is KitProp):
+					best = maxf(best, (hit.position as Vector3).y)
+					break
+				q.exclude = q.exclude + [hit.rid]
+	return best if best > -INF else ground(x, z)
+
+
 static func surface_of(t: ValleyTown, x: float, z: float) -> float:
 	if t:
 		return t.surface(x, z)
@@ -337,65 +357,99 @@ func hall_use(lot_id: String, id: String) -> Array:
 	return []
 
 
-# --- The set: the bar, the card table, the lamps -----------------------------------------------
+# --- The set: the bar, the card table, the piano ------------------------------------------------
 
+## The night's set is saloon B's own (#1230, Sean on #755: the evening moved in off the yard): its
+## bar (`bar`: the kit bar section nearest `hall_bar` [x, z] in the building's space), No Law's card
+## table (`table`: the kit card table nearest `hall_table`) and its four chairs (`chair_n` .. `chair_w`
+## by compass from the table, each with meta `compass`), the bar room's upright and its stool (`piano`,
+## `chair_piano`: the building's dressing). The building lights itself (its lamps, lit 17-4); the set
+## puts `cups` on the table. Payday Night's second upright on the stage is the folk's own (#938).
 func _build_set() -> void:
 	var s: Dictionary = data.set
-	var bar := PropKit.make(&"bar")
-	bar.name = "FolkBar"
-	bar.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(s.bar.get("yaw", 90.0)))), _set_point(s.bar.at))
-	add_child(bar)
-	props["bar"] = bar
-	var table := PropKit.make(&"card_table")
-	table.name = "FolkCardTable"
-	var tc := _set_point(s.table.at)
-	table.transform = Transform3D(Basis(), tc)
-	add_child(table)
-	props["table"] = table
-	var dirs := {"n": Vector3(0, 0, -1), "e": Vector3(1, 0, 0), "s": Vector3(0, 0, 1), "w": Vector3(-1, 0, 0)}
-	for c: String in s.get("chairs", []):
-		var d: Vector3 = dirs[c]
-		var at := tc + d * float(s.get("chair_out", 0.78))
-		at.y = ground(at.x, at.z)
-		var chair := PropKit.make(&"chair")
-		chair.name = "FolkChair_%s" % c
-		# A chair faces +Z (you sit looking +Z): to the table.
-		chair.transform = Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.z)), at)
-		add_child(chair)
-		props["chair_" + c] = chair
-	# The card game at the table (#766): whoever's sat in its chairs, the player dealt in.
 	cards = CardGame.new()
-	cards.table = table
-	for c: String in s.get("chairs", []):
-		cards.chairs.append(props["chair_" + c])
 	cards.rng.seed = int(s.get("cards_seed", 766))
+	var hall := String(s.get("hall", ""))
+	if halls.has(hall) and is_instance_valid(halls[hall]):
+		_bind_hall_set(s)
+	else:
+		push_error("ValleyFolk: no %s to hold the night's set (the bar, the card table)" % hall)
+	if props.has("table"):
+		cards.table = props.table
+		for c: String in ["n", "e", "s", "w"]:
+			if props.has("chair_" + c):
+				cards.chairs.append(props["chair_" + c])
 	add_child(cards)
-	# The band's piano (#799; config/band.json): the kit's upright against the saloon's east wall,
-	# its keys to the yard, a chair before it for the pianist ("chair_piano").
-	# Payday Night's second upright on saloon B's stage (#938, Sean on #938: the dance hall keeps its
-	# own piano), `hall` + `local` in the building's space, `yaw` its own.
-	for key: String in ["piano", "stage_piano"]:
-		_build_piano(key, s.get(key, {}))
+	_build_piano("stage_piano", s.get("stage_piano", {}))
 	var i := 0
-	for l: Dictionary in s.get("lamps", []):
-		var lamp := OilLamp.new()
-		lamp.name = "FolkLamp%d" % i
-		lamp.lit_from_hour = 17
-		lamp.lit_until_hour = 4
-		lamp.energy = 1.2
-		lamp.light_range = 7.0
-		lamp.position = top_point(String(l.on), float(l.get("along", 0.0)), l.get("off", [0.0, 0.0]))
-		add_child(lamp)
-		props["lamp_%d" % i] = lamp
-		i += 1
-	i = 0
 	for c: Dictionary in s.get("cups", []):
+		if not props.has(String(c.on)):
+			continue
 		var cup := PropKit.make(&"tin_cup")
 		cup.name = "FolkCup%d" % i
 		cup.transform = Transform3D(Basis(Vector3.UP, float(i) * 1.3), top_point(String(c.on), float(c.get("along", 0.0)), c.get("off", [0.0, 0.0])) + Vector3.UP * 0.005)
 		add_child(cup)
 		props["cup_%d" % i] = cup
 		i += 1
+
+
+func _bind_hall_set(s: Dictionary) -> void:
+	var hall := String(s.hall)
+	var b: Node3D = halls[hall]
+	var fl := float(s.get("floor", 0.95))
+	var kit: Array = b.get(&"kit_props")
+	var ba: Array = s.get("hall_bar", [2.25, 6.9])
+	var bar := _nearest_kit(kit, &"bar", hall_point(hall, [ba[0], fl, ba[1]]), 1.5)
+	if bar:
+		props["bar"] = bar
+	var ta: Array = s.get("hall_table", [13.1, 7.3])
+	var table := _nearest_kit(kit, &"card_table", hall_point(hall, [ta[0], fl, ta[1]]), 1.0)
+	if table == null:
+		return
+	props["table"] = table
+	# Its chairs (the building puts four round each card table) by compass from it: north is -z.
+	var dirs := {"n": Vector3(0, 0, -1), "e": Vector3(1, 0, 0), "s": Vector3(0, 0, 1), "w": Vector3(-1, 0, 0)}
+	for k: Node in kit:
+		var c := k as KitProp
+		if c == null or c.kit_id != &"chair":
+			continue
+		var to := c.global_position - table.global_position
+		to.y = 0.0
+		if to.length() > float(s.get("chair_m", 1.3)):
+			continue
+		var best := ""
+		var best_dot := -INF
+		for d: String in dirs:
+			var dd := to.normalized().dot(dirs[d])
+			if dd > best_dot:
+				best_dot = dd
+				best = d
+		if not props.has("chair_" + best):
+			c.set_meta(&"compass", best)
+			props["chair_" + best] = c
+	var pd: Dictionary = s.get("hall_piano", {})
+	var dressed: Dictionary = (b.get(&"dressed") as Dictionary).get(String(pd.get("batch", "S1")), {})
+	if dressed.get(String(pd.get("id", "piano"))) is Node3D:
+		props["piano"] = dressed[String(pd.get("id", "piano"))]
+	if dressed.get(String(pd.get("chair", "piano_stool"))) is KitProp:
+		var stool: KitProp = dressed[String(pd.get("chair", "piano_stool"))]
+		stool.set_meta(&"compass", "piano")
+		props["chair_piano"] = stool
+
+
+## The kit prop of `id` among `kit` nearest `at` (across the ground), within `within` m; null if none.
+static func _nearest_kit(kit: Array, id: StringName, at: Vector3, within: float) -> KitProp:
+	var best: KitProp = null
+	var best_d := within
+	for k: Node in kit:
+		var p := k as KitProp
+		if p == null or p.kit_id != id:
+			continue
+		var d := Vector2(p.global_position.x - at.x, p.global_position.z - at.z).length()
+		if d < best_d:
+			best_d = d
+			best = p
+	return best
 
 
 ## A piano (the kit's upright) and its player's chair `chair_out` before its keys: on the set's lot
@@ -454,7 +508,7 @@ static func _bounds(prop: Node3D) -> AABB:
 func top_point(on: String, along: float, off: Array) -> Vector3:
 	var prop: Node3D = props[on]
 	var b := _bounds(prop)
-	var t := prop.transform
+	var t := prop.global_transform
 	if on == "bar":
 		# The top's middle across its depth, a hand in from the customers' edge.
 		return t * Vector3(along * -1.0 if t.basis.x.z > 0.0 else along, b.end.y, b.get_center().z + 0.05)
@@ -496,7 +550,7 @@ func spot_point(post: Dictionary) -> Array:
 		return [at, look]
 	var bar: Node3D = props[String(post.get("behind", post.get("at_bar", "bar")))]
 	var b := _bounds(bar)
-	var t := bar.transform
+	var t := bar.global_transform
 	# The bar's length is its own x; along + runs north (as top_point).
 	var along := float(post.get("along", 0.0)) * (-1.0 if t.basis.x.z > 0.0 else 1.0)
 	var behind := post.has("behind")
@@ -723,6 +777,14 @@ func spot_extras(sp: Dictionary) -> Dictionary:
 	out.erase("_seat")
 	if (sp.has("behind") or sp.has("at_bar")) and props.has(String(sp.get("behind", sp.get("at_bar", "bar")))):
 		out["top"] = top_point(String(sp.get("behind", sp.get("at_bar", "bar"))), float(sp.get("along", 0.0)), [0.0, 0.0])
+	if sp.get("bar_top", false) and props.has("bar"):
+		# A use point at saloon B's bar (#1230): the top before him, a hand over its edge.
+		var pf := spot_point(sp)
+		var ahead: Vector3 = pf[1] - pf[0]
+		ahead.y = 0.0
+		var top: Vector3 = (pf[0] as Vector3) + ahead.normalized() * float(sp.get("reach", 0.5))
+		top.y = top_point("bar", 0.0, [0.0, 0.0]).y
+		out["top"] = top
 	if sp.has("lot") and sp.has("to"):
 		var to: Array = sp.to
 		out["to_at"] = lot_point(String(sp.lot), float(to[0]), float(to[1]), 0.05)
@@ -1031,7 +1093,7 @@ func _leg_step(id: StringName, p: Dictionary, b: Dictionary) -> bool:
 		var t := float(TownScript.seed_of(String(id), "stay:%d:%d:%d" % [int(lg.i), int(lg.n), run_seed]) % 1000) / 1000.0
 		lg.until = _ran + lerpf(float(stay[0]), float(stay[1]), t)
 		return false
-	elif _ran < float(lg.until):
+	elif _ran < float(lg.until) and not _talking_alone(id):
 		return false
 	var round: Array = []
 	for x: Dictionary in blocks_of(p, day_kind(town_day())):
@@ -1054,6 +1116,14 @@ func _leg_step(id: StringName, p: Dictionary, b: Dictionary) -> bool:
 	lg.until = -1.0
 	lg.since = _ran
 	return true
+
+
+## Sent somewhere to talk and nobody to talk with there for `chat.alone_s` (#1230: the other gone
+## in, #1213's gate: "stood there talking to nobody"): his round moves him on.
+func _talking_alone(id: StringName) -> bool:
+	var man := folk_man(id)
+	var c := SpotChore._chore_of(man) if man != null else null
+	return c != null and c.kind == &"talk" and c.alone_s > float((data.get("chat", {}) as Dictionary).get("alone_s", 20.0))
 
 
 ## Lines said on the next physics frame (`say_soon`): a line is a noise (DeedWatch's speech), and the
@@ -1647,9 +1717,9 @@ func _maybe_murder(h: float) -> void:
 
 
 ## `-- --mission=no_law` (#1125): the first night set up, the clock at `hour` (before the murder's),
-## you in the yard by the bar (`nolaw_yard_mid`) facing the card table: off the act's ways (on
-## its front, the stranger's way in, the scene's hold broke on its first frame). The murder then comes by
-## the clock or your hands at the table, as on any first night.
+## you in saloon B's bar room by the bar (the set's `you_at`, #1230) facing the card table: off the
+## act's ways (on them, the stranger's way in, the scene's hold broke on its first frame). The murder
+## then comes by the clock or your hands at the table, as on any first night.
 func set_up_no_law(hour: float) -> void:
 	if _clock == null and get_parent():
 		_clock = get_parent().find_child("DayCycle", false, false) as DayCycle
@@ -1657,14 +1727,21 @@ func set_up_no_law(hour: float) -> void:
 		_clock.set_time(hour)
 	var p := get_tree().get_first_node_in_group(&"player") as Player
 	var table := props.get("table") as Node3D
-	if p == null or table == null or not places.has(&"nolaw_yard_mid"):
+	var you := room_place()
+	if p == null or table == null or you == &"":
 		return
-	var at := places.at(&"nolaw_yard_mid")
-	at.y = ground(at.x, at.z) + 0.1
+	var at := places.at(you)
+	at.y = floor_under(at.x, at.z, at.y) + 0.1
 	p.global_position = at
 	p.velocity = Vector3.ZERO
 	var to := table.global_position - at
 	p.rotation.y = atan2(-to.x, -to.z)
+
+
+## The saloon room's place you're put or walked to (the set's `you_at`), or &"" if there's none.
+func room_place() -> StringName:
+	var n := StringName(String((data.get("set", {}) as Dictionary).get("you_at", "")))
+	return n if places != null and places.has(n) else &""
 
 
 ## No Law's murder now (the clock, the card game, or the bridge's `moment no_law_murder`).
@@ -2074,7 +2151,7 @@ func _chat_step() -> void:
 			heard.append([String(a[0]), String(l[0]), String(l[1])])
 			var r := barks.pick("chat.reply", bark_ctx(b[0], bm), day, _ran)
 			if not r.is_empty():
-				_later.append([_ran + float(c.get("reply_s", 2.5)), bm, String(r[1])])
+				_later.append([_ran + float(c.get("reply_s", 2.5)), bm, String(r[1]), am, float(c.get("chat_m", 4.0)) + 2.0])
 				_spoke_at[b[0]] = _ran  # nothing of his own before his answer (gate 3 run 2)
 				heard.append([String(b[0]), String(r[0]), String(r[1])])
 			return  # one exchange a look
@@ -2106,7 +2183,11 @@ func _later_step() -> void:
 	for x: Array in _later:
 		if _ran < float(x[0]):
 			keep.append(x)
-		elif is_instance_valid(x[1]) and (x[1] as HumanBody).physiology.is_conscious():
+		elif is_instance_valid(x[1]) and (x[1] as Node).is_inside_tree() and (x[1] as HumanBody).physiology.is_conscious():
+			# An answer to a man (`x[3]`) still there to hear it (#1230: no reply to one gone in).
+			if x.size() > 3 and (not is_instance_valid(x[3]) or not (x[3] as Node).is_inside_tree()
+					or (x[3] as Node3D).global_position.distance_to((x[1] as Node3D).global_position) > float(x[4])):
+				continue
 			var br := (x[1] as Node).get_node_or_null(^"Brain") as CivilianBrain
 			if br == null or br.may_speak():
 				say_soon(x[1], String(x[2]))
@@ -2434,6 +2515,8 @@ var damaged: Array = []
 # --- Shops (the town gate's fault 3, #1167) --------------------------------------------------------
 ## Keepers out at their door for a knock: id -> {"shop", "by", "t"}.
 var answering := {}
+## Keepers on their way from inside to the door (#1230): id -> {"shop", "by", "at": _ran he's there}.
+var coming_to_door := {}
 
 
 ## Is `place` a shop (data `shops`) open now?
@@ -2457,17 +2540,56 @@ func _shop_answers(place: StringName, by: Node) -> void:
 			and folk_man(keeper).global_position.distance_to(places.at(place)) < float(sh.get("by_door_m", 6.0))
 	if not book.inside(place).has(keeper) and not by_door:
 		return
+	if not by_door and coming_to_door.has(keeper):
+		return
+	var wait := 0.0 if by_door else door_walk_s(place)
+	if wait > 0.0:
+		# In: he comes from where he is in there (`inside`, his counter), at a walk, and out at the
+		# door once he's had time to get to it (#1230: he was at the door the instant you knocked).
+		coming_to_door[keeper] = {"shop": place, "by": by, "at": _ran + wait}
+		return
+	_answer_door(keeper, place, by)
+
+
+## Seconds from the keeper's place inside (`shops.<place>.inside`: a use point of its building, by
+## `hall` + `use`) to its door at his walk (`walk_mps`), and `ready_s` to put down what he's at.
+func door_walk_s(place: StringName) -> float:
+	var sh: Dictionary = (data.get("shops", {}) as Dictionary).get(String(place), {})
+	var ins: Dictionary = sh.get("inside", {})
+	var from := Vector3.INF
+	if ins.has("hall") and ins.has("use"):
+		var u := hall_use(String(ins.hall), String(ins.use))
+		if not u.is_empty():
+			from = u[0]
+	if from == Vector3.INF or not places.has(place):
+		return 0.0
+	var to := places.at(place)
+	return float(sh.get("ready_s", 1.5)) + Vector2(from.x - to.x, from.z - to.z).length() / maxf(float(sh.get("walk_mps", 1.2)), 0.1)
+
+
+## He's out at the door (called out of the book, or from where he stood on his walk) and on to the
+## shop's spot facing whoever knocked.
+func _answer_door(keeper: StringName, place: StringName, by: Node) -> void:
+	var sh: Dictionary = data.shops[String(place)]
 	var man := call_out(keeper)
 	if man == null:
 		return
 	var b := man.get_node_or_null(^"Brain") as CivilianBrain
 	var pf := spot_point(spot(String(sh.spot)))
 	if b != null:
-		b.go_to(pf[0], (by as Node3D).global_position + Vector3.UP * 1.5)
+		b.go_to(pf[0], (by as Node3D).global_position + Vector3.UP * 1.5 if is_instance_valid(by) else pf[1])
 	answering[keeper] = {"shop": place, "by": by, "t": 0.0, "said": false}
 
 
 func _answer_step(delta: float) -> void:
+	for keeper: StringName in coming_to_door.keys():
+		var c: Dictionary = coming_to_door[keeper]
+		if _ran < float(c.at):
+			continue
+		coming_to_door.erase(keeper)
+		# Still in, the shop still open, whoever knocked still about: out he comes.
+		if shop_open(c.shop) and book.inside(c.shop).has(keeper) and is_instance_valid(c.by) and not answering.has(keeper):
+			_answer_door(keeper, c.shop, c.by)
 	for keeper: StringName in answering.keys():
 		var a: Dictionary = answering[keeper]
 		var sh: Dictionary = data.shops[String(a.shop)]

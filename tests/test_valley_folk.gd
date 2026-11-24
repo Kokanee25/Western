@@ -1,6 +1,6 @@
 extends TestCase
 ## The valley town's people (#756, No Law step 1; ValleyFolk, config/valley_folk.json): built while
-## the valley loads and out of the world by day; at night the barkeep behind the saloon yard's bar,
+## the valley loads and out of the world by day; at night the barkeep behind saloon B's bar (#1230),
 ## two men drinking at it and two at the card table, sat in its chairs (two left free), the lamps
 ## lit; with the clock running into their hours they walk in from their way in by the town's ways
 ## (the folk's own Waypoints: the town's and the set's, not the valley's thousand), and out again
@@ -19,8 +19,21 @@ func before_each() -> void:
 	holder.name = "Main"
 	add_child(holder)
 	valley = load("res://scenes/valley.tscn").instantiate()
+	_load_frame = Engine.get_physics_frames()
+	if not Events.member_broken.is_connected(_on_broken):
+		Events.member_broken.connect(_on_broken)
 	holder.add_child(valley)
 	await physics_frames(5)
+
+
+## What broke in the valley's first two seconds (#1230: the store's crates, the embalming table).
+var _load_broken: Array[StringName] = []
+var _load_frame := 0
+
+
+func _on_broken(id: StringName) -> void:
+	if Engine.get_physics_frames() - _load_frame < 120:
+		_load_broken.append(id)
 
 
 func after_each() -> void:
@@ -43,7 +56,7 @@ func _at(h: float) -> void:
 	await physics_frames(2)
 
 
-## The night's five (the saloon yard's set; the day folk on the walks, #796, the band's players,
+## The night's five (saloon B's bar and card table; the day folk on the walks, #796, the band's players,
 ## test_band, and the roster's street folk, #936, are others).
 const NIGHT := [&"barkeep", &"miner", &"rancher", &"earl", &"drifter"]
 ## The night's men with day hours too (#1167): the saloon open from ten, the drifter's errands.
@@ -73,6 +86,24 @@ func _empty() -> void:
 	await physics_frames(2)
 
 
+## #1230 (#1213's gate: at t 0.1, before anything was done, the store's crates and the undertaker's
+## embalming table "went loose (fell whole)", 39 members): a crate placed overlapping its neighbour
+## was set down onto its edge, the table onto the sawdust heaps under two legs, each lifted off its
+## floor and left standing on one or two feet. Nothing of the valley breaks as it loads, and every
+## building's props stand.
+func test_nothing_breaks_as_the_valley_loads() -> void:
+	while Engine.get_physics_frames() - _load_frame < 125:
+		await physics_frames(5)
+	Events.member_broken.disconnect(_on_broken)
+	check(_load_broken.is_empty(), "nothing broke in the first two seconds (%d: %s)" % [_load_broken.size(), _load_broken.slice(0, 4)])
+	var loose: Array = []
+	for b: Node3D in (valley.get(&"buildings") as Dictionary).values():
+		for k: Node in b.get(&"kit_props"):
+			if k is KitProp and is_instance_valid(k) and (k as KitProp).loose:
+				loose.append(String(k.name))
+	check(loose.is_empty(), "every building's props standing (loose: %s)" % [loose])
+
+
 func test_by_day_nobody_s_there_but_they_re_built() -> void:
 	await _empty()
 	var f := _folk()
@@ -86,12 +117,17 @@ func test_by_day_nobody_s_there_but_they_re_built() -> void:
 	for id: StringName in [&"townsman", &"loudmouth"]:  # (the undertaker's round takes him indoors at times, #1167)
 		check(f.state.get(id) in [&"in", &"coming"], "%s in town by day (%s)" % [id, f.state.get(id)])
 	check(f.build_ms.has("men"), "built while the valley loaded (%s)" % f.build_ms)
-	# The set stands in the saloon's yard (Sean's B on #755: the saloon a grey block for now).
-	var yard := ValleyLayout.main().lot("saloon_annex")
-	for k in ["bar", "table", "chair_n", "chair_e", "chair_s", "chair_w"]:
-		var p: Node3D = f.props[k]
-		check(p.global_position.x > float(yard.x0) and p.global_position.x < float(yard.x1) and p.global_position.z < -10.0,
-				"the %s in the saloon's yard (%s)" % [k, p.global_position])
+	# The set is saloon B's own (#1230, Sean on #755): its bar, No Law's card table and its four
+	# chairs, the bar room's piano, all in its bar room (its spec's bar_room) on its ground floor.
+	var hall: Node3D = f.halls["saloon"]
+	for k in ["bar", "table", "chair_n", "chair_e", "chair_s", "chair_w", "piano", "chair_piano"]:
+		var p: Node3D = f.props.get(k)
+		check(p != null and hall.is_ancestor_of(p), "the %s is saloon B's own" % k)
+		if p != null:
+			var q := hall.to_local(p.global_position)
+			check(q.x > 0.1 and q.x < 16.36 and q.z > 0.1 and q.z < 13.36 and absf(q.y - 0.95) < 0.1, "the %s in its bar room (%s)" % [k, q])
+	check((f.props.chair_w.global_position - f.props.table.global_position).dot(Vector3.LEFT) > 0.6, "the west chair west of the table")
+	check(f.cards.chairs.size() == 4 and f.cards.table == f.props.table, "the card game at its table, its four chairs")
 
 
 func test_at_night_the_barkeep_the_drinkers_and_the_card_table() -> void:
@@ -115,13 +151,65 @@ func test_at_night_the_barkeep_the_drinkers_and_the_card_table() -> void:
 	check((f.props.chair_e as KitProp).seated == _man(&"drifter"), "the drifter sat in the east chair")
 	check((f.props.chair_n as KitProp).seated == null and (f.props.chair_s as KitProp).seated == null, "two chairs free")
 	check_eq(_man(&"earl").pose, &"sit_back", "Earl sat back")
-	# The lamps lit at night.
-	for k in ["lamp_0", "lamp_1"]:
-		check((f.props[k] as OilLamp).lit, "%s lit" % k)
+	# The bar room's own lamps lit at night (the building's, lit 17-4).
+	var lamps: Array = (f.halls["saloon"].get(&"lamps") as Array).filter(func(l: Node) -> bool: return l is OilLamp)
+	check(not lamps.is_empty() and lamps.any(func(l: OilLamp) -> bool: return l.lit), "the saloon's lamps lit (%d)" % lamps.size())
 	# Each faces his way: the barkeep his customers, the drinkers the bar.
 	var fwd := func(id: StringName) -> Vector3: return -_man(id).global_basis.z
 	check(fwd.call(&"barkeep").dot(bar.global_basis.z) > 0.7, "the barkeep facing his customers")
 	check(fwd.call(&"miner").dot(bar.global_basis.z) < -0.7, "the miner facing the bar")
+
+
+## #1230: saloon B's room at its fullest (an ordinary night at 20:15: twelve in it, the undertaker's one
+## drink): every one at his post in its bar room, none of them inside a prop (the bar, the tables and
+## chairs, the stove, the piano; a man sat in his chair is in it), and no two in one place.
+func test_the_room_at_its_fullest_fits_saloon_b() -> void:
+	_clock().day = 2
+	await _empty()
+	await _at(20.25)
+	await physics_frames(60 * 4)
+	var f := _folk()
+	var ids: Array[StringName] = []
+	for p: Dictionary in f.data.people:
+		var sp := f.spot(f.block_now(p, 20.25).get("at", ""))
+		if String(sp.get("hall", "")) == "saloon" or sp.has("chair"):
+			ids.append(StringName(p.id))
+	check(ids.size() >= 12, "twelve of the town's in the room at its fullest (%d: %s)" % [ids.size(), ids])
+	# (The undertaker's block began at eight: the clock set past it inside `walk_in_h`, he walks in.)
+	var all_in := await wait_until(func() -> bool:
+		return ids.all(func(id: StringName) -> bool: return f.state.get(id) == &"in" and _off_post(id) < 0.6), 60 * 120)
+	check(all_in, "all of them in at their posts within two minutes")
+	await physics_frames(60)
+	var space := valley.get_world_3d().direct_space_state
+	for id in ids:
+		var m := _man(id)
+		check(m != null and f.state.get(id) == &"in", "%s in (%s)" % [id, f.state.get(id)])
+		if m == null:
+			continue
+		check(_off_post(id) < 0.6, "%s at his post (%.2f m off)" % [id, _off_post(id)])
+		check(f.room.inside(m.global_position), "%s in the bar room" % id)
+		for o in ids:
+			if o != id and _man(o) != null and String(o) < String(id):
+				var d := Vector2(m.global_position.x - _man(o).global_position.x, m.global_position.z - _man(o).global_position.z).length()
+				check(d > 0.5, "%s and %s not in one place (%.2f m)" % [id, o, d])
+		# Nothing of a kit prop's within his body (a capsule from his knees to his head), but his seat.
+		var seat: KitProp = null
+		var sc := f.spot_of(f._person(id))
+		if sc.has("chair"):
+			seat = f.props.get("chair_" + String(sc.chair))
+		var q := PhysicsShapeQueryParameters3D.new()
+		var cap := CapsuleShape3D.new()
+		cap.radius = 0.17
+		cap.height = 1.1
+		q.shape = cap
+		q.transform = Transform3D(Basis(), m.global_position + Vector3.UP * 1.0)
+		q.collision_mask = Layers.WORLD
+		var inside: Array = []
+		for hit: Dictionary in space.intersect_shape(q, 16):
+			var kp := (hit.collider as Node).get_parent() as KitProp
+			if kp != null and kp != seat and not (seat != null and kp == f.props.get("table")) and not (sc.has("chair") and kp.kit_id == &"chair"):
+				inside.append(String(kp.name))
+		check(inside.is_empty(), "%s inside no prop (%s)" % [id, inside])
 
 
 func test_they_walk_in_by_the_town_s_ways() -> void:
@@ -176,13 +264,14 @@ func test_and_out_at_the_end_of_their_hours() -> void:
 	check(_man(&"miner") != null and _man(&"earl") != null, "the miner and Earl in at 1.30")
 	await physics_frames(60)
 	check((f.props.chair_w as KitProp).seated == _man(&"earl"), "Earl sat")
-	# Earl's hours end at 2: the clock running past it, he gets up and walks out the back of the yard.
+	# Earl's hours end at 2: the clock running past it, he gets up and walks out (#1230: from saloon B's
+	# card table, out at its corner door and round to Back Street: a longer walk than the yard's was).
 	await _at(2.05)
 	check_eq(String(f.state[&"earl"]), "going", "Earl going (%s)" % f.report())
 	await physics_frames(30)
 	check((f.props.chair_w as KitProp).seated == null, "up out of his chair")
-	var gone := await wait_until(func() -> bool: return f.state[&"earl"] == &"out", 60 * 60)
-	check(gone, "out of town by Back Street within 60 s (%s)" % f.report().get("earl"))
+	var gone := await wait_until(func() -> bool: return f.state[&"earl"] == &"out", 60 * 120)
+	check(gone, "out of town by Back Street within 120 s (%s)" % f.report().get("earl"))
 	check(not f.people.has(&"earl"), "and gone from the world")
 	# The clock jumped well past (a night slept through): the rest gone at once.
 	await _at(9.0)

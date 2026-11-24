@@ -1,7 +1,7 @@
 class_name NoLawCarry
 extends Act
 ## No Law, the night after the murder (#1057; data config/moments/no_law_carry.json, its _doc has the
-## whole beat). Earl down and bleeding in the saloon's yard (Cody's ball, the body's own wound); the
+## whole beat). Earl down and bleeding in the saloon (Cody's ball, the body's own wound); the
 ## barkeep sends you to Doc's with him; you carry him there over your shoulder (PlayerCarry), bang on the
 ## doctor's door (PlayerKnock, ValleyFolk.knocked: the doctor inside hears it), the doctor answers
 ## (out of his door: ValleyFolk.call_out) and says he wants burying; Earl's laid in the front room
