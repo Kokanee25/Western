@@ -121,6 +121,29 @@ each innocent sense is older than 1882, none of the modern ones existed yet.
 Avoided: "gay" (cheap), "Trump" (political), "Molly" (the Molly Maguires, hanged 1877-79), "lit"
 and "hammered" (both drunk senses are after 1882). Not Vin Mariani or "French Wine Coca" (real).
 
+### The dumb ones (Sean, 2026-11-24: "silly jokes like Anus ... make it dumb")
+
+Schoolboy jokes, on labels printed dead straight in 1882 type. Checked by a sub-agent with web
+searches: none is a real brand or a famous existing gag (none of the Simpsons' prank names). The
+innocent word was in use by 1882 for each ("wiener" only just: 1880). Candidates for Sean's pick on #1223.
+
+| # | Brand | Kind | Grade | Maker and place | Slogan | Where |
+|---|---|---|---|---|---|---|
+| 40 | **Uranus** Anisette | anise cordial | F | P. Anus et Fils, Bordeaux | "The Far-Off Spirit." | the hotel |
+| 41 | **Twin Buttes** Lager | lager | S | Twin Buttes Brewery, Pueblo, Colo. | "Two Fine Buttes, One Fine Beer." | the saloon |
+| 42 | **Dr. Bottoms'** Loosening Bitters | bitters | store | Bottoms & Co., Cincinnati, O. | "Opens The Bowels Like A Church Door." | the store |
+| 43 | **Wiener's** Vienna Lager | lager | S | Otto Wiener, Brewer, Denver | "Every Man Enjoys A Wiener." | the saloon |
+| 44 | **Dr. Pemberly's** Tonic | tonic | store | Pemberly & Son, Boston | "Keep Your Pecker Up!" (an 1845 British saying: keep your courage up) | the store |
+| 45 | **Dr. Ferrell's Cock Ale** | ale (a real 1600s recipe, brewed with a cockerel) | S | Ferrell Bros., Philadelphia | "A Cock In Every Cask." | the saloon |
+| 46 | **Aunt Fanny's** Rhubarb Bitters | bitters | store | Fanny Gorse & Co., Albany, N.Y. | "Gentle On The Fanny." | the store |
+| 47 | **Dr. Windham's** Wind Expeller | patent medicine | store | Windham & Gale, New Haven, Conn. | "Expels The Wind Promptly And Without Shame." | the store, the doctor |
+| 48 | **Dingle's Berry** Cordial | blackberry cordial | store | Dingle & Co., Louisville, Ky. | "Picked Fresh From The Bottom Of The Bush." | the store |
+| 49 | **Old Seaman's** Navy Rum | rum | R | Gosling Wharf Distillers, Boston | "For The Thirsty Seaman." | the Railroad Saloon |
+| 50 | **Dr. Boner's** Stiffening Elixir | tonic | store | Boner Medicine Co., St. Louis | "For Want Of Vigor. Results In Twenty Minutes." | the store |
+| 51 | **Ball's** Old Sour Mash | bourbon | S | J. T. Ball & Sons, Bardstown, Ky. | "Aged In The Wood. Hand Made." | the saloon |
+| 52 | **Long & Hardy**, Distillers (the maker of a rye) | rye | R | Long & Hardy, Pittsburgh, Pa. | "Satisfaction For The Whole Evening." | the Railroad Saloon |
+| 53 | **Bumstead's** Stone Ginger Beer | ginger beer | store | H. Bumstead, Denver | "Return This Bottle To Bumstead." | the store |
+
 ## 3. The blind check
 
 A fresh sub-agent that hadn't seen the reasoning judged every name for period feel, wit and
