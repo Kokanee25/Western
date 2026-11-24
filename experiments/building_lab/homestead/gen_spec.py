@@ -149,13 +149,14 @@ cabin = {
     "materials": {
         "wear": {"use": 0.4, "dings": 0.0, "_why": "one man, a few months, careful; the last owner's eight years under it"},
         "finishes": {
-            "logs": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}, "_why": "hewn pine gone silver-grey (R1 a few years: old read near black on the logs, round 0) until a hewn-log entry is judged"},
+            "logs": {"use": {"entry": "hewn_pine_log", "age": "few", "role": "wall"}, "_why": "hewn pine gone silver-tan (R3, #1160: R1 read dark blue-grey on the logs)"},
+            "fieldstone": {"use": {"entry": "fieldstone_rubble", "age": "few", "role": "wall"}, "_why": "the chimney's dry fieldstone, warm grey-tan (R4, #1160: the game's `stone` drew blue and checkered)"},
             "new_wood": {"use": {"entry": "rough_pine_batten", "age": "new", "role": "wall"}, "_why": "what Harlan has put in: pale and new"},
-            "rough": {"use": {"entry": "rough_pine_batten", "age": "old", "role": "wall"}},
+            "rough": {"use": {"entry": "hewn_pine_log", "age": "old", "role": "wall"}, "_why": "weathered silver-tan, not R1 old (dark blue-grey): #1160"},
             "floor": {"use": {"entry": "rough_pine_batten", "age": "old", "role": "floor"}, "_why": "rough wide pine boards (the recipe's rough class)"},
             "framing": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
         },
-        "surfaces": [["_new", "new_wood"], ["/chink/", "-"], ["/log/", "logs"], ["/buck/", "logs"], ["/gable/", "rough"], ["roof/shake", "rough"],
+        "surfaces": [["chimney/", "fieldstone"], ["foundation/", "fieldstone"], ["pier/", "fieldstone"], ["_new", "new_wood"], ["/chink/", "-"], ["/log/", "logs"], ["/buck/", "logs"], ["/gable/", "rough"], ["roof/shake", "rough"],
                      ["roof/board", "rough"], ["/window_", "rough"], ["/door_", "rough"], ["side_porch/", "rough"], ["stair/", "rough"],
                      ["floor/ground/board", "floor"], ["floor/loft/board", "rough"], ["sill/", "logs"], ["hung/", "-"]],
         "trim_outside": "weathered_pine", "roof": "weathered_pine", "deck": "weathered_pine",
@@ -242,10 +243,11 @@ barn = {
     "materials": {
         "wear": {"use": 0.4, "dings": 0.0},
         "finishes": {
-            "rough": {"use": {"entry": "rough_pine_batten", "age": "old", "role": "wall"}},
+            "fieldstone": {"use": {"entry": "fieldstone_rubble", "age": "few", "role": "wall"}},
+            "rough": {"use": {"entry": "hewn_pine_log", "age": "old", "role": "wall"}, "_why": "weathered silver-tan, not R1 old (dark blue-grey): #1160"},
             "framing": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
         },
-        "surfaces": [["/siding/", "rough"], ["roof/", "rough"], ["/door_", "rough"], ["/trim_", "rough"], ["floor/loft/board", "rough"], ["ladder/", "rough"]],
+        "surfaces": [["foundation/", "fieldstone"], ["pier/", "fieldstone"], ["/siding/", "rough"], ["roof/", "rough"], ["/door_", "rough"], ["/trim_", "rough"], ["floor/loft/board", "rough"], ["ladder/", "rough"]],
         "trim_outside": "weathered_pine", "roof": "weathered_pine",
         "floor": "wood:int_floor", "wall_boards": "int_boards", "woodwork": "wood:int_timber", "timber": "wood:int_timber",
     },

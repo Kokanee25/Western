@@ -58,6 +58,15 @@ func _ready() -> void:
 	_gather_jobs()
 
 
+## Still water (pool_water.gdshader): the spring's pool and the trough's.
+static var _pool_water: ShaderMaterial
+static func pool_water() -> ShaderMaterial:
+	if _pool_water == null:
+		_pool_water = ShaderMaterial.new()
+		_pool_water.shader = load("res://src/world/pool_water.gdshader")
+	return _pool_water
+
+
 ## The ground's height at a point of the pad's space, over the pad (0 on the pad).
 func ground_at(x: float, z: float) -> float:
 	if not ground.is_valid():
@@ -116,6 +125,9 @@ func _trough() -> void:
 	trough.length = float(td.get("length", 2.4))
 	trough.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(td.get("yaw", 0.0)))), Vector3(td.at[0], 0.0, td.at[1]))
 	add_child(trough)
+	var tw := trough.find_child("Water", true, false) as MeshInstance3D
+	if tw != null:
+		tw.material_override = pool_water()
 
 
 ## A piece for the yard: `at` its centre, its foot's ground under it (`gy`).
@@ -232,9 +244,11 @@ func _stall(pieces: Array) -> void:
 		_piece(pieces, "stall/manger", &"post", &"weathered_pine", Vector3(m[2], 0.75, m[3]), Vector3(m[0], 0.375, m[1]))
 
 
-## The spring up the slope: a box of planks round its pool, stones on its rim; and the pipe of bored
-## logs from it down the ground to the trough, each length on the ground under it (tilted with it),
-## the last on a crotch post over the trough's end.
+## The spring up the slope: a plank box round its pool packed round with fieldstone, and the pipe of
+## bored logs from it down the slope on short posts (a post at each joint, the logs' ends on them, so
+## it runs above the grass and the dips), the last length over the trough's end at the spout.
+## (#1160: it was laid on the ground, a plank in the dirt; the painting has it up on posts.)
+const PIPE_RISE := 0.42  # the pipe's underside over the ground at a joint
 func _spring_and_pipe(pieces: Array) -> void:
 	var sp: Dictionary = site.get("spring", {})
 	if sp.is_empty():
@@ -242,64 +256,74 @@ func _spring_and_pipe(pieces: Array) -> void:
 	var sc := Vector3(sp.at[0], 0.0, sp.at[1])
 	var gy := ground_at(sc.x, sc.z)
 	var bw := float(sp.get("size", 1.1))
-	var bh := 0.4
+	var bh := 0.5
+	var lib := {"box": "hewn_pine_log", "stone": "fieldstone_rubble", "pipe": "hewn_pine_log"}
 	for e in 4:
 		var along_x := e < 2
 		var off := (bw * 0.5) * (1.0 if e % 2 == 0 else -1.0)
 		var c := sc + (Vector3(0, 0, off) if along_x else Vector3(off, 0, 0))
 		var g := ground_at(c.x, c.z)
-		var size := Vector3(bw + 0.05, bh, 0.05) if along_x else Vector3(0.05, bh, bw - 0.05)
-		_piece(pieces, "spring/box_%d" % e, &"sill", &"framing", size, Vector3(c.x, g - 0.15 + bh * 0.5, c.z), g - 0.15)
-	for i in 6:
-		var a := TAU * i / 6.0 + 0.3
-		var c := sc + Vector3(cos(a), 0, sin(a)) * (bw * 0.5 + 0.28)
+		var size := Vector3(bw + 0.05, bh, 0.06) if along_x else Vector3(0.06, bh, bw - 0.05)
+		_piece(pieces, "spring/box_%d" % e, &"sill", &"framing", size, Vector3(c.x, g - 0.15 + bh * 0.5, c.z), g - 0.15, Basis(), {"lib": lib.box})
+	# Stones packed round the box, two rings: big ones at the foot, small between, half sunk.
+	for i in 14:
+		var ring := i % 2
+		var a := TAU * i / 14.0 + 0.3 + float(hash("sa%d" % i) % 40) / 100.0
+		var c := sc + Vector3(cos(a), 0, sin(a)) * (bw * 0.5 + 0.22 + 0.3 * ring)
 		var g := ground_at(c.x, c.z)
-		var s := 0.25 + float(hash("sst%d" % i) % 20) / 100.0
-		_piece(pieces, "spring/stone_%d" % i, &"sill", &"stone", Vector3(s, s * 0.7, s * 0.9), Vector3(c.x, g + s * 0.3, c.z), g - s * 0.05, Basis(Vector3.UP, a))
+		var s := (0.42 if ring == 0 else 0.3) + float(hash("sst%d" % i) % 22) / 100.0
+		_piece(pieces, "spring/stone_%d" % i, &"sill", &"stone", Vector3(s, s * 0.65, s * 0.85), Vector3(c.x, g + s * 0.2, c.z), g - s * 0.15, Basis(Vector3.UP, a), {"lib": lib.stone})
 	var water := MeshInstance3D.new()
 	water.name = "SpringWater"
 	var pm := PlaneMesh.new()
 	pm.size = Vector2(bw - 0.1, bw - 0.1)
 	water.mesh = pm
-	var wm := StandardMaterial3D.new()
-	wm.albedo_color = Color(0.16, 0.2, 0.18, 0.85)
-	wm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	wm.roughness = 0.05
-	wm.metallic_specular = 0.8
-	water.material_override = wm
-	water.position = Vector3(sc.x, gy + 0.12, sc.z)
+	water.material_override = pool_water()
+	water.position = Vector3(sc.x, gy + 0.2, sc.z)
 	add_child(water)
 	# The pipe: from the box's downhill side to over the trough's end, lengths of `piece`.
 	var td: Dictionary = site.get("trough", {})
 	if td.is_empty():
 		return
 	var end := Vector3(float(sp.pipe_to[0]), 0.0, float(sp.pipe_to[1]))
-	var start := sc + (end - sc).normalized() * (bw * 0.5 + 0.05)
+	var dir := (end - sc).normalized()
+	var start := sc + dir * (bw * 0.5 + 0.05)
 	var run := Vector2(start.x, start.z).distance_to(Vector2(end.x, end.z))
 	var piece := float(sp.get("piece", 3.0))
 	var n := maxi(1, ceili(run / piece))
 	var d := float(sp.get("pipe", 0.18))
 	var spout_y := float(sp.get("spout_y", 0.85))
-	for i in n:
-		var a := start.lerp(end, float(i) / n)
-		var b := start.lerp(end, float(i + 1) / n)
-		var ya := ground_at(a.x, a.z) + d * 0.5
-		var yb := (spout_y if i == n - 1 else ground_at(b.x, b.z) + d * 0.5)
+	# The joints' heights: the underside PIPE_RISE over the ground (the first at the box's lip, the last the spout).
+	var joint: Array[Vector3] = []
+	for i in n + 1:
+		var q := start.lerp(end, float(i) / n)
+		var y := ground_at(q.x, q.z) + PIPE_RISE + d * 0.5
 		if i == 0:
-			ya = gy + 0.12
-		var pa := Vector3(a.x, ya, a.z)
-		var pb := Vector3(b.x, yb, b.z)
+			y = maxf(y, gy + 0.2)
+		if i == n:
+			y = spout_y
+		joint.append(Vector3(q.x, y, q.z))
+	for i in n:
+		var pa: Vector3 = joint[i]
+		var pb: Vector3 = joint[i + 1]
 		var xa := (pb - pa).normalized()
 		var yv := Vector3.UP.slide(xa).normalized()
-		var foot := minf(ya, yb) - d * 0.5
-		var m := {"pipe": i}
+		var foot := minf(pa.y, pb.y) - d * 0.5
+		var m := {"pipe": i, "lib": lib.pipe}
 		if i == n - 1:
 			m["spout"] = true
-		_piece(pieces, "pipe/%02d" % i, &"sill" if i < n - 1 else &"beam", &"framing", Vector3(pa.distance_to(pb) + 0.04, d, d), (pa + pb) * 0.5,
+		_piece(pieces, "pipe/%02d" % i, &"beam", &"framing", Vector3(pa.distance_to(pb) + 0.04, d, d), (pa + pb) * 0.5,
 				foot, Basis(xa, yv, xa.cross(yv)), m)
-	# A crotch post under the last length's end, by the trough.
-	var g := ground_at(end.x, end.z)
-	_piece(pieces, "pipe/post", &"post", &"framing", Vector3(0.1, spout_y - d * 0.5 - g, 0.1), Vector3(end.x - (end - start).normalized().x * 0.3, (spout_y - d * 0.5 + g) * 0.5, end.z - (end - start).normalized().z * 0.3), g)
+	# A short post under each joint but the first (the box holds that), its top at the logs' underside.
+	for i in range(1, n + 1):
+		var q: Vector3 = joint[i]
+		var g := ground_at(q.x, q.z)
+		var top := q.y - d * 0.5
+		var h := top - g + 0.02
+		if h < 0.1:
+			continue
+		var post_at := Vector3(q.x, g + h * 0.5 - 0.02, q.z)
+		_piece(pieces, "pipe/post_%02d" % i, &"post", &"framing", Vector3(0.12, h, 0.12), post_at, g - 0.02, Basis(), {"lib": lib.pipe})
 
 
 func _gather_jobs() -> void:

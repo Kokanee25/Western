@@ -778,11 +778,19 @@
   "finishes": {
    "logs": {
     "use": {
-     "entry": "rough_pine_batten",
+     "entry": "hewn_pine_log",
      "age": "few",
      "role": "wall"
     },
-    "_why": "hewn pine gone silver-grey (R1 a few years: old read near black on the logs, round 0) until a hewn-log entry is judged"
+    "_why": "hewn pine gone silver-tan (R3, #1160: R1 read dark blue-grey on the logs)"
+   },
+   "fieldstone": {
+    "use": {
+     "entry": "fieldstone_rubble",
+     "age": "few",
+     "role": "wall"
+    },
+    "_why": "the chimney's dry fieldstone, warm grey-tan (R4, #1160: the game's `stone` drew blue and checkered)"
    },
    "new_wood": {
     "use": {
@@ -794,10 +802,11 @@
    },
    "rough": {
     "use": {
-     "entry": "rough_pine_batten",
+     "entry": "hewn_pine_log",
      "age": "old",
      "role": "wall"
-    }
+    },
+    "_why": "weathered silver-tan, not R1 old (dark blue-grey): #1160"
    },
    "floor": {
     "use": {
@@ -816,6 +825,18 @@
    }
   },
   "surfaces": [
+   [
+    "chimney/",
+    "fieldstone"
+   ],
+   [
+    "foundation/",
+    "fieldstone"
+   ],
+   [
+    "pier/",
+    "fieldstone"
+   ],
    [
     "_new",
     "new_wood"
