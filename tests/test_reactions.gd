@@ -277,6 +277,7 @@ func test_whatever_he_chose_off_his_spot_he_comes_back() -> void:
 ## #1184 (gate round 2, run 4): after one shot "...They gone?" was said by four men and "Lord, lord" by
 ## four more. The relief goes round the town in other words, or not at all.
 func test_the_relief_is_not_said_twice() -> void:
+	CivilianBrain._said_at.clear()  # (the town's memory of lines is static: a file run in the 5 min before used them up, #1220)
 	var said := []
 	var hook := func(_by: Node, text: String) -> void: said.append(text)
 	Events.spoke.connect(hook)
