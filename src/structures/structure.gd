@@ -427,23 +427,249 @@ func remove_built(m: StructureMember) -> void:
 
 ## Work out supports from geometry: a member rests on every lower-tier member it touches.
 func infer_supports() -> void:
+	infer_from_geometry()
+
+
+## The support graph from the members' boxes (Structure's and SpecBuilding's, #1239). A member
+## touches every member whose box its own (grown by CONTACT_EPSILON) overlaps, and rests on each one
+## of those in a lower tier (`_tier`), or of its own tier lying wholly beneath it: the same kind only
+## where `_stacks_by_kind` (timbers in a pile; a pane on its sash's trim, #826). Each member, in build
+## order, takes its neighbours in build order too, so `supported_by`, `touching` and `dependents`
+## come out in exactly the order trying every pair did (StructuralAnalysis, the settle and the blast
+## read them in order). The pairs come from a sweep over the boxes (`near_lists`); the rules are
+## tested here, per pair, from each member's tier and kind worked out once.
+func infer_from_geometry() -> void:
 	invalidate_analysis()
 	_by_stack.clear()
-	var boxes := {}
-	for m in _order:
-		boxes[m] = m.structure_aabb()
+	var n := _order.size()
+	var boxes: Array[AABB] = []
+	boxes.resize(n)
+	var tiers := PackedInt32Array()
+	tiers.resize(n)
+	var kinds: Array[StringName] = []
+	kinds.resize(n)
+	var ids: Array[StringName] = []
+	ids.resize(n)
+	var tilted := PackedByteArray()
+	tilted.resize(n)
+	var obbs: Array[PackedVector3Array] = []
+	obbs.resize(n)
+	for i in n:
+		var m := _order[i]
+		boxes[i] = m.structure_aabb()
+		tiers[i] = _tier(m)
+		kinds[i] = m.kind
+		ids[i] = m.member_id
+		tilted[i] = 1 if _tilted_test and _tilted(m) else 0
+		if _tilted_test:
+			obbs[i] = _obb(m)
 		m.dependents.clear()  # before any linking: the others' links fill it
-	for m in _order:
+	var near := near_lists(boxes, CONTACT_EPSILON)
+	var eps := CONTACT_EPSILON
+	var by_kind := _stacks_by_kind
+	for i in n:
+		var m := _order[i]
 		m.supported_by.clear()
 		m.support_points.clear()
 		m.support_boxes.clear()
 		m.touching.clear()
 		m.analysis_cache = {}
-		var box: AABB = boxes[m]
+		var box := boxes[i]
 		_place_in_stack(m, box)
-		for other in _order:
-			if other != m:
-				_link(m, box, other, boxes[other])
+		var grown := box.grow(eps)
+		var tier := tiers[i]
+		var kind := kinds[i]
+		var top := box.position.y + eps
+		var under := box.position.y - eps
+		var id := ids[i]
+		var touching := m.touching
+		var supported_by := m.supported_by
+		var points := m.support_points
+		var contacts := m.support_boxes
+		for j in near[i]:
+			var other_box := boxes[j]
+			if not grown.intersects(other_box):
+				continue
+			# In a common-rafter roof a tilted member's box is far bigger than it is (a rafter's
+			# spans the loft): it touches only what its oriented box truly meets.
+			if (tilted[i] or tilted[j]) and not _obbs_meet(obbs[i], obbs[j]):
+				continue
+			var other_id := ids[j]
+			touching.append(other_id)
+			var other_tier := tiers[j]
+			if other_tier < tier or (other_tier == tier and other_box.end.y <= top and other_box.position.y < under \
+					and (not by_kind or _same_stack(kind, kinds[j]))):
+				supported_by.append(other_id)
+				_order[j].dependents.append(id)
+				var contact := grown.intersection(other_box)
+				points[other_id] = contact.get_center()
+				contacts[other_id] = contact
+
+
+## One pair of infer_from_geometry's (the same rules, for `_relink`'s few): `m` notes the touch, and
+## rests on `other` if that's a lower tier, or its own tier wholly beneath it.
+func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AABB) -> void:
+	var grown := box.grow(CONTACT_EPSILON)
+	if not grown.intersects(other_box):
+		return
+	if _tilted_test and (_tilted(m) or _tilted(other)) and not _boxes_meet(m, other):
+		return
+	m.touching.append(other.member_id)
+	var tier := _tier(m)
+	var other_tier := _tier(other)
+	if other_tier < tier or (other_tier == tier and other_box.end.y <= box.position.y + CONTACT_EPSILON \
+			and other_box.position.y < box.position.y - CONTACT_EPSILON \
+			and (not _stacks_by_kind or _same_stack(m.kind, other.kind))):
+		m.supported_by.append(other.member_id)
+		other.dependents.append(m.member_id)
+		var contact := grown.intersection(other_box)
+		m.support_points[other.member_id] = contact.get_center()
+		m.support_boxes[other.member_id] = contact
+
+
+## Where kinds stack only on their own (`_stacks_by_kind`): a pane rests on its sash's rail and bars
+## as one trim on another (SashWindow, #826).
+static func _same_stack(kind: StringName, other_kind: StringName) -> bool:
+	return other_kind == kind or (kind == &"glass" and other_kind == &"trim")
+
+
+## A member's rung on the support ladder (StructureMember's tiers; SpecBuilding adds its bands).
+func _tier(m: StructureMember) -> int:
+	return StructureMember.tier_of(m.kind)
+
+
+## Whether a member rests on one of its own tier beneath it only when they're the same kind.
+var _stacks_by_kind := false
+## Whether tilted members touch only what their oriented boxes meet (SpecBuilding's rafters).
+var _tilted_test := false
+
+
+static func _tilted(m: StructureMember) -> bool:
+	var b := m.transform.basis
+	return absf(b.x.y) > 0.01 or absf(b.y.x) > 0.01 or absf(b.y.z) > 0.01 or absf(b.z.y) > 0.01
+
+
+## Whether two members' oriented boxes overlap (within the contact distance), by the separating
+## axes of both boxes' faces (6 of the 15: enough for timber meeting timber).
+static func _boxes_meet(a: StructureMember, b: StructureMember) -> bool:
+	var fa := _obb(a)
+	var fb := _obb(b)
+	return _obbs_meet(fa, fb)
+
+
+## A member's oriented box for `_obbs_meet`: its three axes (unit), its half size with and without
+## the contact distance, its centre (structure space).
+static func _obb(m: StructureMember) -> PackedVector3Array:
+	var t := m.transform
+	return PackedVector3Array([t.basis[0].normalized(), t.basis[1].normalized(), t.basis[2].normalized(),
+			m.size * 0.5 + Vector3.ONE * CONTACT_EPSILON, m.size * 0.5, t.origin])
+
+
+static func _obbs_meet(a: PackedVector3Array, b: PackedVector3Array) -> bool:
+	var d := b[5] - a[5]
+	# a's faces, a grown by the contact distance; then b's, b grown.
+	for k in 2:
+		var p := a if k == 0 else b
+		var q := b if k == 0 else a
+		var h1 := p[3]
+		var h2 := q[4]
+		for i in 3:
+			var ax := p[i]
+			var r2 := absf(ax.dot(q[0])) * h2.x + absf(ax.dot(q[1])) * h2.y + absf(ax.dot(q[2])) * h2.z
+			if absf(ax.dot(d)) > h1[i] + r2:
+				return false
+	return true
+
+
+## For each box, the others (their indices, ascending) whose box comes within `reach` of it: every
+## pair `box.grow(reach).intersects(other)` holds for, and perhaps a few that miss by a hair (the
+## caller tests each). The native plugin's `BoxPairs` when it's there; else a sweep in script.
+## Neither keeps a box as its own neighbour.
+static func near_lists(boxes: Array[AABB], reach: float) -> Array[PackedInt32Array]:
+	var n := boxes.size()
+	# (A little over the reach, so float rounding never drops a pair the exact test would keep.)
+	var slack := reach + 0.001
+	var lo := PackedVector3Array()
+	var hi := PackedVector3Array()
+	lo.resize(n)
+	hi.resize(n)
+	for i in n:
+		lo[i] = boxes[i].position
+		hi[i] = boxes[i].end
+	if native_pairs and n > 1:
+		var core: Object = ClassDB.instantiate(&"BoxPairs")
+		var flat: PackedInt32Array = core.near(lo, hi, slack)
+		var lists: Array[PackedInt32Array] = []
+		lists.resize(n)
+		# `flat` is CSR: n + 1 offsets, then the neighbours.
+		for i in n:
+			lists[i] = flat.slice(n + 1 + flat[i], n + 1 + flat[i + 1])
+		return lists
+	return _near_lists_script(lo, hi, slack)
+
+
+## Whether `near_lists` uses the native plugin (tests turn it off to check the script's sweep).
+static var native_pairs := ClassDB.class_exists(&"BoxPairs")
+
+
+## The script's sweep: the boxes sorted along the axis they overlap least on, each one paired with
+## those after it that start before it ends there, then checked on the other two axes.
+static func _near_lists_script(lo: PackedVector3Array, hi: PackedVector3Array, slack: float) -> Array[PackedInt32Array]:
+	var n := lo.size()
+	var lists: Array[PackedInt32Array] = []
+	lists.resize(n)
+	if n == 0:
+		return lists
+	var axis := _sweep_axis(lo, hi)
+	var b := (axis + 1) % 3
+	var c := (axis + 2) % 3
+	var keys: Array[Vector2] = []
+	keys.resize(n)
+	for i in n:
+		keys[i] = Vector2(lo[i][axis], i)
+	keys.sort()
+	var order := PackedInt32Array()
+	order.resize(n)
+	var a0 := PackedFloat64Array()
+	a0.resize(n)
+	for k in n:
+		order[k] = int(keys[k].y)
+		a0[k] = lo[order[k]][axis]
+	for k in n:
+		var i := order[k]
+		var li := lo[i]
+		var hi_i := hi[i]
+		var stop := hi_i[axis] + slack
+		var bl := li[b] - slack
+		var bh := hi_i[b] + slack
+		var cl := li[c] - slack
+		var ch := hi_i[c] + slack
+		for q in range(k + 1, n):
+			if a0[q] > stop:
+				break
+			var j := order[q]
+			var lj := lo[j]
+			var hj := hi[j]
+			if lj[b] <= bh and hj[b] >= bl and lj[c] <= ch and hj[c] >= cl:
+				lists[i].append(j)
+				lists[j].append(i)
+	for i in n:
+		lists[i].sort()
+	return lists
+
+
+## The axis the boxes overlap least along: their summed lengths over the whole span, smallest.
+static func _sweep_axis(lo: PackedVector3Array, hi: PackedVector3Array) -> int:
+	var sum := Vector3.ZERO
+	var mn := lo[0]
+	var mx := hi[0]
+	for i in lo.size():
+		sum += hi[i] - lo[i]
+		mn = mn.min(lo[i])
+		mx = mx.max(hi[i])
+	var span := (mx - mn).max(Vector3.ONE * 0.001)
+	var d := sum / span
+	return 0 if d.x <= d.y and d.x <= d.z else (1 if d.y <= d.z else 2)
 
 
 ## Where a member sits in the stack (its tier, then its height), and whether it's on the ground.
@@ -451,25 +677,6 @@ func _place_in_stack(m: StructureMember, box: AABB) -> void:
 	var tier := StructureMember.tier_of(m.kind)
 	m.grounded = tier <= 1 and box.position.y <= GROUND_EPSILON
 	m.stack_key = tier * 100.0 + box.position.y
-
-
-## `m` touching `other` (their boxes, structure space): it notes the touch, and rests on `other` if
-## that's a lower tier, or the same kind stacked underneath it (timbers in a pile).
-func _link(m: StructureMember, box: AABB, other: StructureMember, other_box: AABB) -> void:
-	var grown := box.grow(CONTACT_EPSILON)
-	if not grown.intersects(other_box):
-		return
-	m.touching.append(other.member_id)
-	var tier := StructureMember.tier_of(m.kind)
-	var other_tier := StructureMember.tier_of(other.kind)
-	var beneath := other_tier == tier and other_box.end.y <= box.position.y + CONTACT_EPSILON \
-			and other_box.position.y < box.position.y - CONTACT_EPSILON
-	if other_tier < tier or beneath:
-		m.supported_by.append(other.member_id)
-		other.dependents.append(m.member_id)
-		var contact := grown.intersection(other_box)
-		m.support_points[other.member_id] = contact.get_center()
-		m.support_boxes[other.member_id] = contact
 
 
 ## True if a chain of supports leads from this member down to the ground.
