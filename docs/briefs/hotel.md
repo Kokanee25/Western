@@ -6,9 +6,7 @@ find**, nice rooms, carpet and wallpaper. This is the design only: no game code 
 its own sessions (#1146's first prompt; the fancy-building parts list in its first comment).
 
 **For Sean, in one look:** the drawings in `hotel/` (ground, upper, cellar, the front, the gallery's
-section, the balcony; `hotel/draw_plans.py` draws them from one set of numbers). **Your calls are §9**: the front's
-material, a third storey or not, the cellar's secret (§5: B, decided), and the
-landlady's "fifty cents" line.
+section, the balcony; `hotel/draw_plans.py` draws them from one set of numbers). **§9's calls are all decided** but the landlady's "fifty cents" line.
 
 ## 1. What it is, in a paragraph
 
@@ -301,16 +299,13 @@ Every one a person you can walk up to (#1207: unique), so each gets a sheet when
 
 ## 9. Sean's calls
 
-1. **The front:** painted clapboard in three colours (recommended: brick stays the bank's across the
-   street) or a brick front with stone at the corners and heads.
+1. **The front: DECIDED**, painted clapboard in three colours (Sean OK'd the sheet that shows it, 2026-11-24).
 2. **The gallery: DECIDED** (Sean, 2026-11-23): an exterior balcony on the upper floor, an open railed deck, to be blown up later (`hotel/balcony.png`).
-3. **Two storeys** (recommended: the town's size and §2's hotels; the third would be a mansard) **or three**.
+3. **Two storeys: DECIDED** (the sheet, OK'd 2026-11-24).
 4. **The cellar's secret: DECIDED, B** (the way under the lane; Sean, 2026-11-23).
 5. **The landlady's line "Rooms are fifty cents"** (#1184): a $3 room at the Teller House (§2); a small town's best charged dollars, not cents. Change it to "Two dollars a day, with board. Clean sheets are worth it." or keep fifty
    cents and make the hotel humbler.
-6. **The target sheet** (the building lab's step 1): twelve views, about **$1.70** (the undertaker's twelve cost $1.69) (one picture a view
-   ~$0.14 at 2K, the cap $2.50), painted by `building_sheet.yml` on a `claude/art-building-hotel`
-   branch. The views are in `hotel/sheet_request.json` (ready, not sent).
+6. **The target sheet: painted and OK'd** (twelve views, $1.68; Sean 2026-11-24 "Looks great"): `experiments/building_lab/hotel/` README lists where the pictures differ (the gallery's roof: build the open deck).
 
 ## 10. Then: the build (#1146's first prompt)
 

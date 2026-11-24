@@ -21,3 +21,5 @@ pictures differ from the words (the spec settles each, never the pictures):
 - Good as targets: the blue-grey front with red frieze and green shutters, the lobby's red runner and red-and-
   gold paper, the parlour's red velvet and drapes, the bar's walnut and green paper, the dining room, the
   kitchen's range, the suite's walnut bed and French doors to the balcony, the cellar's stone and kegs.
+
+**Sean OK'd the sheet 2026-11-24** (in session, "Looks great"): the look to match; steps 2-6 next.
