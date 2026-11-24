@@ -77,7 +77,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
-- **Flaky in shard order:** `test_town_day`'s fights; `test_settle_incremental` in main's shard 2 (red, build 5335).
+- **Flaky in shard order:** `test_town_day`'s fights.
+- **Comparing two collapses** (#1214): rubble landing breaks boards by the engine's body order, which earlier test files change; compare with impacts off (`test_settle_incremental._no_impact_breaks`).
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
