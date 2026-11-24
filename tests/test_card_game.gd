@@ -335,3 +335,44 @@ func test_the_table_does_not_repeat_itself() -> void:
 			if said[i][1] == said[j][1]:
 				check(float(said[j][0]) - float(said[i][0]) >= gap, "\"%s\" not again within %.0f s (%.0f, %.0f)" % [said[i][1], gap, said[i][0], said[j][0]])
 	check(said.size() >= 8, "the table still talks (%d lines in eight minutes)" % said.size())
+
+
+## #1213 (gate round 4, run 4): "Nobody? Then that's mine." four times in about twelve minutes, Earl's
+## wins three and four times: a win took the stalest line once all were said. Now a win's line is
+## once in `same_line_s` too, or nothing; and the table greets you when you sit, and says something
+## when you're cleaned out.
+func test_a_win_is_said_once_in_ten_minutes_or_not_at_all() -> void:
+	var g := _game()
+	var men: Array[HumanBody] = []
+	for m: Node in get_tree().get_nodes_in_group(&"people"):
+		if m is HumanBody and not m is Player:
+			men.append(m)
+	check(men.size() >= 2, "men to win")
+	var said := []
+	var hook := func(by: Node, text: String) -> void:
+		said.append([g._clock, text])
+	Events.spoke.connect(hook)
+	# An evening's worth of hands: one every 30 s for an hour, each won (shown or not).
+	for i in 120:
+		g._clock += 30.0
+		g._say(men[i % men.size()], "win" if i % 3 else "win_quiet", {"hand": "Two pair"}, true)
+		g._say(men[(i + 1) % men.size()], "lose", {}, true)
+	Events.spoke.disconnect(hook)
+	var gap := float(g.data.get("same_line_s", 0.0))
+	check(gap >= 600.0, "a line once in ten minutes at most (%.0f s)" % gap)
+	var bad := 0
+	for i in said.size():
+		for j in range(i + 1, said.size()):
+			if said[i][1] == said[j][1] and float(said[j][0]) - float(said[i][0]) < gap:
+				bad += 1
+	check_eq(bad, 0, "no line again within ten minutes (%d lines)" % said.size())
+	# Wide enough that the table isn't mute: most of an hour's ten-minute windows hear a win.
+	check(said.size() >= 40, "the table still talks over an hour (%d lines)" % said.size())
+	# Sat down: a greeting. Cleaned out: a word.
+	for kind: String in ["greet", "you_broke"]:
+		var before := said.size()
+		Events.spoke.connect(hook)
+		g._clock += 30.0
+		g._say(men[0], kind, {}, true)
+		Events.spoke.disconnect(hook)
+		check(said.size() == before + 1, "a line for %s" % kind)

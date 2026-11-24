@@ -339,6 +339,8 @@ func _watch_you() -> void:
 			now = true
 	if now and not _you_seated and state not in [&"idle", &"stopped", &"between", &"shuffle"]:
 		_prompt(String(data.you.next_hand), 2.5)
+	if now and not _you_seated:
+		_say(_a_man(), "greet", {}, true)  # (#1213: nobody greeted you at the table)
 	_you_seated = now
 
 
@@ -378,6 +380,7 @@ func _start_hand() -> void:
 			if not _broke_told:
 				_broke_told = true
 				_prompt(String(data.you.broke), 3.0)
+				_say(_a_man(), "you_broke", {}, true)  # (#1213: nothing was said when you went bust)
 			continue
 		seats.append({"id": id, "who": x[1], "chair": x[0], "cards": [], "in": true, "put": 0})
 	if seats.size() < 2 or seats.filter(func(s: Dictionary) -> bool: return s.id != YOU).is_empty():
@@ -717,27 +720,29 @@ func _say(who: Variant, kind: String, fill := {}, always := false) -> void:
 	if pick.is_empty():
 		return
 	# Not a line the table's said within `same_line_s` (#1184: "Same game, gents." and "My deal. Ante up,
-	# boys." came round every few hands in ten minutes); all said lately: he says nothing, but a win
-	# (said whatever) takes the stalest.
-	var gap := float(data.get("same_line_s", 240.0))
+	# boys." came round every few hands in ten minutes); all said lately: he says nothing. A win's the
+	# same (#1213: the stalest win line, said whatever, made "Nobody? Then that's mine." four times in
+	# twelve minutes): his own spent, the table's own words, then silence; the chips say who won.
+	var gap := float(data.get("same_line_s", 600.0))
 	var fresh := pick.filter(func(l: Variant) -> bool: return _clock - float(_line_at.get(String(l), -INF)) >= gap)
 	if fresh.is_empty() and kind.begins_with("win"):
-		# His own spent: the table's own words (gate 3 run 4: Earl's "Two pair... Don't look at me like
-		# that." three times in eight minutes).
 		var common: Array = (data.get("lines", {}) as Dictionary).get(kind, [])
 		pick = pick + common.filter(func(l: Variant) -> bool: return not pick.has(l))
 		fresh = pick.filter(func(l: Variant) -> bool: return _clock - float(_line_at.get(String(l), -INF)) >= gap)
 	if fresh.is_empty():
-		if not kind.begins_with("win"):
-			return
-		fresh = [pick.reduce(func(a: Variant, b: Variant) -> Variant:
-				return a if float(_line_at.get(String(a), -INF)) <= float(_line_at.get(String(b), -INF)) else b)]
+		return
 	var text := String(fresh[rng.randi() % fresh.size()])
 	_line_at[text] = _clock
 	for k: String in fill:
 		text = text.replace("{%s}" % k, String(fill[k]))
 	_said[id] = _clock
 	Events.spoke.emit(who, text)
+
+
+## One of the men sat at the table (not you), at random; null if none.
+func _a_man() -> Variant:
+	var men := sat().filter(func(x: Array) -> bool: return id_of(x[1]) != YOU)
+	return men[rng.randi() % men.size()][1] if not men.is_empty() else null
 
 
 func _prompt(text: String, seconds: float) -> void:
