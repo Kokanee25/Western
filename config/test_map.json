@@ -1,0 +1,128 @@
+{
+  "_doc": "Which tests a change needs (#1234; tools/test_select.py, docs/LAYOUT.md 'CI'). A PR runs 'core' plus the tests every rule matching a changed file names (globs on tests/test_*.gd, '@group' a group below, 'all' everything, [] nothing), plus the tests that name the file (its res:// path or class_name), plus a changed test itself. A file no rule matches runs everything. Main runs everything after the merge. Add a rule when a new folder or kind of file appears; keep the groups honest when a test moves into the valley.",
+  "per_shard_seconds": 420,
+  "max_shards": 8,
+  "all_shards": 8,
+  "core": [
+    "test_project.gd",
+    "test_valley.gd",
+    "test_save_game.gd",
+    "test_game_reset.gd",
+    "test_native.gd",
+    "test_test_shards.gd",
+    "test_test_map.gd",
+    "test_docs_size.gd"
+  ],
+  "groups": {
+    "missions": [
+      "test_no_justice_*", "test_no_law_*", "test_sheriff*", "test_funeral.gd", "test_card_game.gd",
+      "test_card_cheat.gd", "test_coach*", "test_cabin_faults.gd", "test_chaos_faults.gd",
+      "test_playtest_faults.gd", "test_farmhouse*", "test_valley_farmhouse.gd", "test_ride_there.gd",
+      "test_hurt_townsfolk.gd", "test_runner.gd", "test_companion.gd", "test_catch_up.gd"
+    ],
+    "valley": [
+      "test_valley*", "test_world_places.gd", "test_town_*_valley.gd", "test_town_open.gd",
+      "test_town_streets.gd", "test_undertaker_valley.gd", "test_save_game.gd", "test_saloon_room.gd",
+      "test_band.gd", "test_sleep.gd", "test_spot_chore.gd", "test_scene_hold.gd", "test_wall_clock.gd"
+    ],
+    "town": [
+      "test_town_day.gd", "test_town_layout.gd", "test_town_buildings.gd", "test_town_barks.gd",
+      "test_town_news.gd", "test_town_script.gd", "test_street.gd", "test_places.gd", "test_gang.gd",
+      "test_gunfight.gd", "test_standoff.gd", "test_outlaw_*", "test_chaos.gd", "test_senses.gd",
+      "test_reactions.gd", "test_bucket_line.gd", "test_flee_fire.gd", "test_hands_up.gd",
+      "test_mop_floor.gd", "test_seating.gd", "test_people_*", "test_sight_world.gd",
+      "test_perception_lab.gd", "test_barkeep_rag.gd", "test_come_round.gd", "test_commit.gd"
+    ],
+    "people": ["@missions", "@valley", "@town"],
+    "structures": [
+      "test_structures.gd", "test_loads.gd", "test_rubble*", "test_masonry.gd", "test_voxel*",
+      "test_settle_incremental.gd", "test_breakage_lab.gd", "test_batch_rebuild.gd", "test_building_*",
+      "test_destruction_data.gd", "test_static_batch.gd", "test_openings.gd", "test_railing.gd",
+      "test_stair_ramp.gd", "test_trestle.gd", "test_inside_woods.gd", "test_wood_use.gd",
+      "test_town_buildings.gd", "test_cemetery.gd", "test_valley.gd", "test_valley_town.gd",
+      "test_valley_church.gd", "test_undertaker_valley.gd", "test_valley_farmhouse.gd", "test_farmhouse.gd"
+    ],
+    "blast": [
+      "test_blast_*", "test_dynamite*", "test_rubble*", "test_settle_incremental.gd", "test_breakage_lab.gd",
+      "test_voxel*", "test_drop.gd"
+    ],
+    "fire": [
+      "test_fire*", "test_smoke*", "test_flee_fire.gd", "test_bucket*", "test_muzzle_flash.gd"
+    ],
+    "bodies": [
+      "test_anatomy.gd", "test_bodies.gd", "test_body_*", "test_skeleton.gd", "test_injuries.gd",
+      "test_wound_*", "test_falls.gd", "test_seated_falls.gd", "test_get_up.gd", "test_clip_clavicles.gd",
+      "test_face_*", "test_hat.gd", "test_held_*", "test_studio_*", "test_garment_handoff.gd",
+      "test_library_motion.gd", "test_post_pose.gd", "test_cloth_core.gd", "test_pinned_soft.gd",
+      "test_come_round.gd", "test_kick_shove.gd", "test_hands_up.gd", "test_people_lod.gd",
+      "test_walk_steps.gd", "test_hit_words.gd", "test_gunfight.gd", "test_town_day.gd",
+      "test_valley_folk.gd"
+    ],
+    "weapons": [
+      "test_revolver.gd", "test_shotgun.gd", "test_winchester.gd", "test_gun_*", "test_muzzle_flash.gd",
+      "test_ricochet.gd", "test_ballistics.gd", "test_body_impacts.gd", "test_bucket.gd", "test_mop*",
+      "test_dynamite*", "test_held_*", "test_feel.gd", "test_player.gd", "test_gunfight.gd", "test_standoff.gd",
+      "test_eased_edges.gd"
+    ],
+    "player": [
+      "test_player.gd", "test_movement.gd", "test_composure.gd", "test_walk_steps.gd", "test_steps.gd",
+      "test_stair_ramp.gd", "test_kick_shove.gd", "test_falls.gd", "test_outlaw_climb.gd", "test_feel.gd",
+      "test_gun_feel.gd", "test_ground.gd", "test_come_round.gd", "test_tone_fade.gd", "test_sleep.gd"
+    ],
+    "props": [
+      "test_props*", "test_prop_*", "test_*_props.gd", "test_barrel_contents.gd", "test_booze.gd",
+      "test_fixtures.gd", "test_fittings.gd", "test_seating.gd", "test_signs.gd", "test_card_game.gd",
+      "test_wood_use.gd", "test_valley_town.gd", "test_saloon_room.gd"
+    ],
+    "look": [
+      "test_pixel_art.gd", "test_real_*", "test_light_looks.gd", "test_look_panel.gd", "test_material_*",
+      "test_room_light.gd", "test_saloon_light.gd", "test_lamp_shadows.gd", "test_shot_match.gd",
+      "test_street.gd", "test_signs.gd", "test_tone_fade.gd", "test_probe_mosaic.gd", "test_inside_woods.gd",
+      "test_valley_ground_art.gd", "test_wood_use.gd", "test_eased_edges.gd", "test_building_age.gd",
+      "test_day_cycle.gd"
+    ],
+    "sound": [
+      "test_sounds.gd", "test_game_audio.gd", "test_sound_lab.gd", "test_train_sound.gd", "test_band.gd",
+      "test_face_speech.gd", "test_town_barks*"
+    ],
+    "train": [
+      "test_train*", "test_track.gd", "test_trestle.gd", "test_valley_railway.gd", "test_coach*"
+    ],
+    "debug": [
+      "test_dev_bridge.gd", "test_bug_report.gd", "test_crash_reports.gd", "test_perf.gd", "test_soak_rules.gd",
+      "test_game_quit.gd", "test_scene_hold.gd", "test_chaos.gd", "test_playtest_faults.gd", "test_look_panel.gd"
+    ]
+  },
+  "rules": [
+    {"name": "notes", "paths": ["docs/**", "**/*.md", "LICENSE*", "icon.svg*", ".gitignore", ".gitattributes"], "tests": []},
+    {"name": "tools", "paths": ["tools/**"], "tests": []},
+    {"name": "other workflows", "paths": [".github/**"], "tests": []},
+    {"name": "the build itself", "paths": [".github/workflows/build.yml", ".github/actions/**"], "tests": "all"},
+    {"name": "the runner", "paths": ["tests/run_tests.gd", "tests/run_tests.gd.uid", "tests/test_case.gd", "tests/test_case.gd.uid"], "tests": "all"},
+    {"name": "test helpers", "paths": ["tests/feel.gd", "tests/feel.gd.uid", "tests/labs/**"], "tests": []},
+    {"name": "the map", "paths": ["config/test_map.json", "config/test_times.json", "tools/test_select.py", "tools/test_times.py"], "tests": ["test_test_shards.gd", "test_test_map.gd"]},
+    {"name": "the game's frame", "paths": ["project.godot", "export_presets.cfg", "src/autoload/**", "src/main/**", "scenes/main.tscn", "scenes/player.tscn", "default_bus_layout.tres"], "tests": "all"},
+    {"name": "the native plugin", "paths": ["addons/**"], "tests": ["test_native.gd", "@structures", "@blast", "test_voxel*", "test_ballistics.gd"]},
+
+    {"name": "the world", "paths": ["src/world/**", "scenes/valley.tscn", "scenes/test_street.tscn", "config/valley*", "config/valley_ground/**", "config/town.json", "config/ground*.tres", "config/day_cycle.tres", "config/cemetery.json", "config/floor_marks.tres"], "except": ["**/*.gdshader", "**/*.gdshader.uid", "**/*.gdshaderinc", "**/*.gdshaderinc.uid"], "tests": ["@people", "@look", "test_ground.gd", "test_day_cycle.gd", "test_floor_marks.gd", "test_cemetery.gd"]},
+    {"name": "people", "paths": ["src/people/**", "config/sight.tres", "config/speech.tres", "config/gaze.tres", "config/people_tick.tres", "config/town_script.json", "config/walks.json", "config/street_wear.json", "config/private_cast.json", "config/card_game.json", "config/companion_joe.json", "config/mop.tres", "config/wipe.tres", "config/band.json"], "tests": ["@people"]},
+    {"name": "missions and moments", "paths": ["src/missions/**", "src/moments/**", "config/moments/**", "config/farmhouse.tres", "config/coach_fight.tres", "config/ride_there.json"], "tests": ["@missions", "test_game_reset.gd"]},
+    {"name": "a building", "paths": ["config/buildings/{b}.json"], "tests": ["test_building_{b}*", "test_{b}*", "test_valley_{b}*", "test_{b}_*", "test_valley.gd", "test_valley_town.gd", "test_town_buildings.gd", "test_building_lab.gd"]},
+    {"name": "structures", "paths": ["src/structures/**", "config/destruction/**", "config/timber.tres", "config/voxel_damage.tres", "config/dents.tres", "config/building_age.tres", "config/trestle.tres"], "tests": ["@structures"]},
+    {"name": "blast", "paths": ["src/blast/**", "config/blast.tres"], "tests": ["@blast"]},
+    {"name": "fire and effects", "paths": ["src/fire/**", "src/effects/**", "config/fire.tres", "config/smoke.tres"], "tests": ["@fire"]},
+    {"name": "bodies", "paths": ["src/bodies/**", "assets/animations/**", "experiments/mocap_walk/**", "config/anatomy.json", "config/physiology.tres", "config/skeleton.tres", "config/falls.tres", "config/face_life.tres", "config/post_step.tres", "config/shove.tres", "config/climb.tres"], "tests": ["@bodies"]},
+    {"name": "people's looks", "paths": ["assets/people/**"], "tests": ["test_studio_*", "test_garment_handoff.gd", "test_hat.gd", "test_people_lod.gd", "test_bodies.gd", "test_face_*", "test_valley_folk.gd", "test_valley_town.gd"]},
+    {"name": "weapons", "paths": ["src/weapons/**", "src/ballistics/**", "assets/weapons/**", "config/revolver.tres", "config/shotgun.tres", "config/winchester73.tres", "config/gun_hand.tres", "config/fp_holds.json", "config/ballistics.tres"], "tests": ["@weapons"]},
+    {"name": "the player", "paths": ["src/player/**", "config/player_tuning.tres", "config/movement/**", "config/feel_ranges.json"], "tests": ["@player"]},
+    {"name": "dressing (what's placed in the valley, where the missions play)", "paths": ["src/props/prop_dressing.gd*", "src/art/*_dressing.gd*", "src/art/valley_scatter*.gd*"], "tests": ["@missions", "@valley"]},
+    {"name": "props", "paths": ["src/props/**", "assets/props/**"], "tests": ["@props"]},
+    {"name": "the look", "paths": ["src/render/**", "src/art/**", "src/ui/**", "assets/textures/**", "config/looks/**", "config/material_library.json", "config/room_light.tres", "config/look_panel.json", "config/valley_ground_art.tres", "**/*.gdshader", "**/*.gdshaderinc", "**/*.gdshader.uid", "**/*.gdshaderinc.uid"], "tests": ["@look"]},
+    {"name": "sound", "paths": ["src/audio/**", "assets/audio/**", "config/sound.tres", "config/train_sound.tres"], "tests": ["@sound"]},
+    {"name": "the train", "paths": ["src/train/**", "assets/train/**", "config/train.tres"], "tests": ["@train"]},
+    {"name": "the horse", "paths": ["src/creatures/**", "assets/creatures/**"], "tests": ["test_horse.gd", "test_ride_there.gd"]},
+    {"name": "the save", "paths": ["src/save/**"], "tests": ["test_save_game.gd", "test_sleep.gd", "test_game_reset.gd"]},
+    {"name": "debug", "paths": ["src/debug/**", "config/frame_budget.tres"], "tests": ["@debug"]},
+    {"name": "a lab", "paths": ["experiments/{lab}/**"], "tests": ["test_{lab}*"]}
+  ]
+}
