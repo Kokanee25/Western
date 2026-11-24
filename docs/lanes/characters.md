@@ -43,6 +43,9 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   the stage's lamp glows cream-yellow, the cloud is a disc round the muzzle. `game_views.gd` steps the smoke
   by hand and puts the world's flash light out at 0.07 s; `--fog` for the valley's haze.
   No Hunt pictures reachable from a session: the judge works from memory.
+- **Hair library** (#1212, waiting on Sean #1218): the Studio's `mh_groom` moves card grooms between MetaHuman heads
+  by UV (bundle haircuts on Sean, his beard onto a blended head), hair under the hat pulled into the crown. Faults
+  open: beards thin by 10 m, orange specks 6-20 m, long hair speckles. Sean's export list is in #1218.
 - **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
