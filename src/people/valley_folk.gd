@@ -56,6 +56,16 @@ const LOOK_EVERY := 0.5
 const GONE_AT := 1.6
 ## A man sent off who hasn't got out in this long (s) is taken out anyway (stuck on something).
 const GONE_ANYWAY := 240.0
+## At his door with you watching (#1194: six men stood "going" at their doors as long as anyone looked):
+## he waits this long (s) for you to look away, then goes in at it anyway, through the doorway
+## (DOOR_IN m in), as a man does; gone once he's in or DOOR_GO s on.
+const DOOR_SEEN_S := 6.0
+const DOOR_IN := 1.4
+const DOOR_GO := 5.0
+## A man walking (coming or going) who's not moved a metre in this long (s) is stuck (#1194: the
+## townsman under the store's porch, the loudmouth at the saloon yard's wall): out of view he's
+## where he was going at once; in view he's sent on again by a fresh route.
+const WALK_STUCK_S := 40.0
 
 var layout: ValleyLayout
 var town: ValleyTown
@@ -78,6 +88,10 @@ var _waiting := {}
 ## id -> &"out", &"coming", &"in", &"going".
 var state := {}
 var _going_for := {}
+## id -> seconds at his door in your view, going (DOOR_SEEN_S); then -1 - seconds on his way in.
+var _at_door := {}
+## id -> [where, _ran]: the last a walking man moved a metre from (WALK_STUCK_S).
+var _walk_from := {}
 ## Going in at a place's door: id -> [place, what he'll do there].
 var _going_to := {}
 ## The book (TownBook): who's indoors, asleep or out of town, not bodies; and the street's show of
@@ -800,6 +814,8 @@ func _gone(id: StringName, cut := false) -> void:
 	people.erase(id)
 	state[id] = &"out"
 	_going_for.erase(id)
+	_at_door.erase(id)
+	_walk_from.erase(id)
 	var to: Array = _going_to.get(id, [])
 	_going_to.erase(id)
 	var p := _person(id)
@@ -973,7 +989,15 @@ func _leg_block(p: Dictionary, b: Dictionary) -> Dictionary:
 		# the same round are spread along it.
 		lg = {"base": base, "i": TownScript.seed_of(String(id), "leg:%s:%d" % [base, run_seed]) % legs.size(),
 				"until": -1.0, "since": _ran, "n": 0}
-		_legs[id] = lg
+		_legs[id] = lg  # (kept before the look below: another man's block, worked out there, sees this one)
+		# One man to a spot (#1194: two started on one): the first leg from his seed's on whose spot
+		# nobody else is or is going.
+		for k in legs.size():
+			var j := (int(lg.i) + k) % legs.size()
+			var l: Dictionary = legs[j]
+			if not l.has("at") or not _spot_taken(str(l.at), id):
+				lg.i = j
+				break
 	var leg: Dictionary = legs[int(lg.i) % legs.size()]
 	var out := {"from": b.from, "do": leg.get("do", b.get("do", "stand")), "leg": int(lg.i)}
 	if leg.has("in"):
@@ -1082,6 +1106,10 @@ func _step(delta: float) -> void:
 		# In at his door (or, stuck on the way, off where he stands) once you can't see him go.
 		if (there or _going_for[id] > GONE_ANYWAY) and not seen_man_at(man.global_position):
 			_gone(id)
+		elif there or float(_at_door.get(id, 0.0)) < 0.0:
+			_door_step(id, man, out, delta)
+		else:
+			_at_door.erase(id)
 	_look -= delta
 	if _look > 0.0 or _waiting.is_empty() and people.is_empty() and not _ready_once():
 		return
@@ -1150,6 +1178,7 @@ func _step(delta: float) -> void:
 			var man: HumanBody = people.get(id)
 			if man != null and is_instance_valid(man) and man.global_position.distance_to(post_of(p)[0]) < 1.0:
 				state[id] = &"in"
+		_stuck_step(id, p)
 	_last_hour = h
 	if lights:
 		var also: Array[StringName] = []
@@ -1163,6 +1192,62 @@ func _step(delta: float) -> void:
 	_dead_step(h)
 	_talk_step()
 	_chat_step()
+
+
+## Going in at his door with you watching (DOOR_SEEN_S): a while for you to look away, then in through
+## the doorway (away from Main Street, into the building) and gone, seen or not, as a man going in is.
+func _door_step(id: StringName, man: HumanBody, door_at: Vector3, delta: float) -> void:
+	var w := float(_at_door.get(id, 0.0))
+	if w >= 0.0:
+		w += delta
+		_at_door[id] = w
+		if w < DOOR_SEEN_S:
+			return
+		var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+		# Main Street's lots face the street (z 0): in is on away from it. A door elsewhere: where he is.
+		var inward := Vector3(0.0, 0.0, signf(door_at.z)) if absf(door_at.z) > 4.0 and absf(door_at.z) < 20.0 else Vector3.ZERO
+		if brain != null and inward != Vector3.ZERO:
+			brain.go_to(door_at + inward * DOOR_IN)
+		_at_door[id] = -0.001
+		return
+	w -= delta
+	_at_door[id] = w
+	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+	if -w > DOOR_GO or brain == null or man.global_position.distance_to(brain.post) < 0.4:
+		_gone(id)
+
+
+## A walking man who's not got on (WALK_STUCK_S): unseen, where he was going at once (coming: at his
+## spot; going: in); seen, a fresh route there. A man at his door going in is _door_step's.
+func _stuck_step(id: StringName, p: Dictionary) -> void:
+	var st: StringName = state.get(id, &"out")
+	var man: HumanBody = people.get(id)
+	if not st in [&"coming", &"going"] or man == null or not is_instance_valid(man) or man.dragged_by != null \
+			or man.limp or not man.physiology.alive:
+		_walk_from.erase(id)
+		return
+	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+	if brain == null or brain.held or brain.mood != CivilianBrain.Mood.CALM and brain.mood != CivilianBrain.Mood.SHAKEN \
+			or (brain.reaction != null and brain.reaction.stage != Reaction.Stage.NONE) or _at_door.has(id) \
+			or (st == &"coming" and brain.chore != null and brain.chore.call(&"busy")):  # (there: at his chore)
+		_walk_from.erase(id)
+		return
+	var w: Array = _walk_from.get(id, [])
+	if w.is_empty() or man.global_position.distance_to(w[0]) > 1.0:
+		_walk_from[id] = [man.global_position, _ran]
+		return
+	if _ran - float(w[1]) < WALK_STUCK_S:
+		return
+	_walk_from.erase(id)
+	if not seen_man_at(man.global_position):
+		if st == &"going":
+			_gone(id)
+		else:
+			_gone(id, true)
+			if not p.has("act"):
+				_bring(p, false)
+		return
+	brain.reroute()
 
 
 ## Harlan as he passes (townsfolk step 9): what each shows him by his regard; the groups he's left.
@@ -1218,6 +1303,7 @@ func _move(p: Dictionary, b: Dictionary) -> bool:
 		if st in [&"coming", &"in", &"going"]:
 			_going_to[id] = [place, doing]
 			if st == &"going":
+				_at_door.erase(id)
 				var brain := (people[id] as HumanBody).get_node_or_null(^"Brain") as CivilianBrain
 				if brain:
 					brain.go_to(door(place, p))
@@ -1241,6 +1327,7 @@ func _move(p: Dictionary, b: Dictionary) -> bool:
 		var brain := man.get_node_or_null(^"Brain") as CivilianBrain
 		_going_to.erase(id)
 		_going_for.erase(id)
+		_at_door.erase(id)
 		if brain and brain.post.distance_to(pf[0]) > 0.3:
 			_stand_up(brain)
 			brain.go_to(pf[0], pf[1])

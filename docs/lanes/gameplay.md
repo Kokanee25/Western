@@ -38,16 +38,14 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
   the barks (`TownRegard`, `TownBarks`), **the saloon as a room** (#1157: `SaloonRoom` on No Law's yard set, bridge
   `read room`; mood, the director's bits, the hush, the band's shaky restart; 11-12 in at 20:30).
-  **Step 11, the gate: not passed** (#1162; `docs/playtests/2026-11-22-town.md`, headless). **Its faults fixed (#1167):**
-  regard moves on what a man saw (`TownRegard.deeds`, `fired`; a shot, shove, won pot); errand `round`s put
-  5 / 5 / 7 / 10 out at 07 / 12 / 14 / 17:30, most moving (`tests/test_town_streets.gd`); the saloon open from 10, a
-  knock at the open store brings the storekeeper (`shops`); gawkers at a shot with nobody down don't say "Is he
-  dead?"; `run_seed` varies each run (random; Engine meta `town_seed`, 0 in tests); the bridge logs a big break's
-  breaker (`big_break`; the 214 still unreproduced). **Gate rounds 2 and 3** (`docs/playtests/2026-11-23-town-2.md`, `-town-3.md`): not passed. #1184 fixed day talk (`street`
-and `chat` scenes, `ValleyFolk._chat_step`; 13 / 7 / 25 lines in 10 min at 07 / 12 / 17:30), men still an hour
-(rounds; `test_town_streets.gd`), the knock (`knock` line first, `knock.wait`; E at a town door never a shove),
-loops (card `same_line_s`, relief, news told you once in 10 min). Left: stuck walks ("going" minutes without moving),
-night repetition fixes unseen blind, witnesses not naming you. Next: #1194. Unjudged on screen: the
+  **Step 11, the gate** (#1162, `docs/playtests/2026-11-22-town.md`; #1167: `TownRegard.deeds`, errand `round`s,
+  `shops`, `run_seed` / `--town-seed`, the bridge's `big_break`). **Gate rounds 2-4** (`docs/playtests/2026-11-23-town-2.md`, `-3`, `-4`): not passed; the last
+  round's faults wait on Sean (#1208). #1184: day talk (`street`, `chat`, `_chat_step`), rounds, the knock, loops. #1194:
+  stuck walks (`ValleyFolk._door_step`: in at his door after 6 s watched; `_stuck_step`: still 40 s, placed unseen or
+  re-routed; `CivilianBrain._far_from_post`, `_route_home`, day walks sidestep), one man to a spot (`_leg_block`),
+  `relief_saw`; bridge `walk saloon_room` to the room, `walk PERSON` to shove reach. Left (#1208): E at the store's glass
+  shoves (`past_door` 0.9 m), card lines repeat, noon bar unreachable, witnesses' words, men left out after the shot
+  (a man "in" off his post isn't watched), crates break at load. Unjudged on screen: the
   walks between spots, the store's door scene. Open: the room's sounds are synth stand-ins (#807); no argument,
   round bought or song called for; not in saloon B; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 

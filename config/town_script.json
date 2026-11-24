@@ -2995,6 +2995,41 @@
      "takes": []
     },
     {
+     "id": "town.noon",
+     "speaker": "townsman",
+     "trigger": "Noon",
+     "when": "any day",
+     "if": {
+      "on": "pass",
+      "hour": [
+       11.5,
+       14.0
+      ],
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Dinner bell's gone. Too hot to eat.",
+       "status": "new"
+      },
+      {
+       "text": "Sun's straight up. Not a lick of shade.",
+       "status": "new"
+      },
+      {
+       "text": "Half the town's at its dinner. The other half wants to be.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-23 (#1194: noon had only the job lines and the weather)",
+     "takes": []
+    },
+    {
      "id": "town.afternoon",
      "speaker": "townsman",
      "trigger": "Afternoon",

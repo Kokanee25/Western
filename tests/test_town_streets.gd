@@ -195,3 +195,69 @@ func test_nobody_out_of_doors_is_still_ten_minutes() -> void:
 	for id: StringName in longest:
 		check(float(longest[id]) < STILL_S, "%s not still ten minutes out of doors (%.0f s)" % [id, longest[id]])
 	clock.time_scale = 1.0
+
+
+## The gate's third round (#1194): men listed walking ("coming", "going") who never moved: at their door
+## with you watching it, under a porch bench they were walking straight at, against the saloon yard's
+## wall. Played at the gate's clock with you on the street looking along the store's front (its door
+## in view): nobody walking stays within a metre of one place a minute.
+const WALK_STILL_S := 60.0
+
+
+func _no_stuck_walks(hour: float, seed: int, secs: float) -> void:
+	var f := valley.folk
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 2
+	f.run_seed = seed
+	f._legs.clear()
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	p.global_position = Vector3(-28.0, f.ground(-28.0, 2.0) + 0.2, 2.0)
+	p.look_at(Vector3(-60.0, p.global_position.y, -4.0))
+	clock.set_time(hour)
+	clock.time_scale = 0.03
+	await physics_frames(1)
+	f._look = 0.0
+	await physics_frames(5)
+	# One man to a spot as the hour's put in place (#1194: the townsman and the loudmouth in one).
+	var at := {}
+	for id: StringName in f.people:
+		var man := f.folk_man(id)
+		if man == null or f.state.get(id) != &"in":
+			continue
+		for o: StringName in at:
+			check(man.global_position.distance_to(at[o]) > 0.3, "%s and %s not on one spot at %.1f" % [id, o, hour])
+		at[id] = man.global_position
+	var anchor := {}
+	var worst := {}
+	var t := 0.0
+	while t < secs:
+		await physics_frames(60 * 5)
+		t += 5.0
+		for id: StringName in f.people:
+			var man := f.folk_man(id)
+			var st: StringName = f.state.get(id, &"")
+			if man == null or not st in [&"coming", &"going"]:
+				anchor.erase(id)
+				continue
+			if not anchor.has(id) or man.global_position.distance_to(anchor[id][0]) > 1.0 or anchor[id][2] != st:
+				anchor[id] = [man.global_position, t, st]
+			worst[id] = maxf(float(worst.get(id, 0.0)), t - float(anchor[id][1]))
+			if t - float(anchor[id][1]) == WALK_STILL_S + 5.0:
+				var b := man.get_node_or_null(^"Brain") as CivilianBrain
+				print("    still: %s %s at %s, post %s, seen %s, %s, chore %s, route %s" % [id, st, man.global_position,
+						b.post if b else Vector3.INF, f.seen_man_at(man.global_position), b.describe() if b else "",
+						b.chore if b else null, b._home_route if b else []])
+	print("  %.1f, seed %d: the longest each walking man stood still %s" % [hour, seed, worst])
+	check(not worst.is_empty(), "men walked at %.1f" % hour)
+	for id: StringName in worst:
+		check(float(worst[id]) <= WALK_STILL_S, "%s walking but still under %.0f s at %.1f (%.0f s)" % [id, WALK_STILL_S, hour, worst[id]])
+	clock.time_scale = 1.0
+	f.run_seed = 0
+
+
+func test_no_stuck_walks_morning() -> void:
+	await _no_stuck_walks(7.0, 51, 420.0)
+
+
+func test_no_stuck_walks_evening() -> void:
+	await _no_stuck_walks(17.5, 53, 420.0)
