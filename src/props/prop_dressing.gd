@@ -11,8 +11,11 @@ extends RefCounted
 ##   `cloth_over` a cloth hung over that entry's `towel_bar` member (ClothProp.hang_over);
 ##   `light`      an OilLamp at that height in it, lit by the clock (`energy`, `reach`, `shadows` its own);
 ##   `open`       a hinge opened (KitProp.open_hinge: a trunk's "lid", #1030);
-##   `row`        {kits, count, step, skip, jitter}: a row along `step` from `at`, the kits in turn
-##                (a shelf of bottles), `skip` leaving gaps, each set down a little off by its id.
+##   `row`        {kits, count, step, skip, jitter, variants}: a row along `step` from `at`, the kits in
+##                turn (a shelf of bottles), `skip` leaving gaps, each set down a little off by its id;
+##                `variants` in turn as the kits are (a row of bottles' brands, #1222);
+##   `variant`    a glass prop's variant (which of its kit's labels it wears: a brand, #1222), else
+##                the Nth made's.
 ## Member props (KitProp) get the building's structure id and the entry's (`<building>_dress_<id>`),
 ## the same every build; at rest they join the street's PropBatch by themselves.
 
@@ -33,6 +36,8 @@ static func expand(entries: Array) -> Array:
 			one.erase("row")
 			one.id = "%s_%d" % [e.id, k]
 			one.kit = (row.kits as Array)[k % (row.kits as Array).size()]
+			if row.has("variants") and not (row.variants as Array).is_empty():
+				one.variant = (row.variants as Array)[k % (row.variants as Array).size()]
 			one.at = [float(e.at[0]) + float(row.step[0]) * k, float(e.at[1]) + float(row.step[1]) * k, float(e.at[2]) + float(row.step[2]) * k]
 			# Set down by hand, not on a ruler (the prop lab's round 1 critic: rows like wallpaper):
 			# each a little off its place and turned, by its id (the same every run).
@@ -72,6 +77,8 @@ static func place(parent: Node3D, entries: Array, floor_y: float, structure_id :
 			node = PropKit.spawn(id, sid)
 		else:
 			node = PropKit.make(id)
+			if e.has("variant") and node is GlassProp:
+				(node as GlassProp).variant = int(e.variant)
 		var y := floor_y + float(e.at[1]) + float(e.get("lift", 0.0))
 		if e.has("on"):
 			y = float(tops[e.on]) + float(e.get("lift", 0.0))

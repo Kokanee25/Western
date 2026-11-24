@@ -1,0 +1,51 @@
+{
+  "_doc": "A bottle of the game's own booze (#1222, docs/briefs/booze.md): a log-cabin bitters bottle (figural, its logs and roof moulded in the amber glass), a paper label on its front, a cork. Its labels the brands of its shape (Hearthstone): the Nth made wears label N mod 1 (`variants`), or the one its dressing entry names (`variant`; tools/props/booze.py variant_of). A prop that shatters (GlassProp): a fall onto boards at 4.4 m/s or 60 kPa breaks it and what's in it goes on the floor. Drawn from glb:booze_bottles (tools/blender/props/booze.py): the glass the kit's `glass:` look, every label printed on one sheet (pbr:booze_labels), cork and contents baked the gun way. Written by tools/props/booze.py.",
+  "id": "bitters_cabin",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:booze_bottles",
+  "looks": {
+    "LabelCabin%d": "pbr:booze_labels",
+    "CorkCabin": "pbr:booze_bottles",
+    "GlassCabin": "glass:amber",
+    "LiquidCabin": "pbr:booze_bottles"
+  },
+  "variants": 1,
+  "brands": [
+    "hearthstone"
+  ],
+  "size": [
+    0.072,
+    0.228,
+    0.072
+  ],
+  "mass": 1.1,
+  "wall": 0.004,
+  "glass": [
+    "GlassCabin",
+    "LiquidCabin",
+    "LabelCabin"
+  ],
+  "whole": [
+    [
+      "CorkCabin"
+    ]
+  ],
+  "shards": 12,
+  "piece_mass": 0.04,
+  "breaks_at": 4.4,
+  "shatters_kpa": 60,
+  "heat_seconds": 25,
+  "cut_area": 0.05,
+  "contents": {
+    "liquid": "whiskey",
+    "litres": 0.51,
+    "colour": [
+      0.42,
+      0.18,
+      0.06
+    ]
+  },
+  "factory": "tools/props/booze.py"
+}

@@ -1,0 +1,54 @@
+{
+  "_doc": "A bottle of the game's own booze (#1222, docs/briefs/booze.md): a heavy dark-green wine bottle (champagne or claret), a punt, its cork under gilt foil. Its labels the brands of its shape (Veuve Morandiere, Chateau Larcenac): the Nth made wears label N mod 2 (`variants`), or the one its dressing entry names (`variant`; tools/props/booze.py variant_of). A prop that shatters (GlassProp): a fall onto boards at 5.0 m/s or 70 kPa breaks it and what's in it goes on the floor. Drawn from glb:booze_bottles (tools/blender/props/booze.py): the glass the kit's `glass:` look, every label printed on one sheet (pbr:booze_labels), cork and contents baked the gun way. Written by tools/props/booze.py.",
+  "id": "wine_bottle",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:booze_bottles",
+  "looks": {
+    "LabelWine%d": "pbr:booze_labels",
+    "CorkWine": "pbr:booze_bottles",
+    "GlassWine": "glass:green",
+    "LiquidWine": "pbr:booze_bottles",
+    "FoilWine": "pbr:booze_labels"
+  },
+  "variants": 2,
+  "brands": [
+    "morandiere",
+    "larcenac"
+  ],
+  "size": [
+    0.09,
+    0.305,
+    0.09
+  ],
+  "mass": 1.6,
+  "wall": 0.004,
+  "glass": [
+    "GlassWine",
+    "LiquidWine",
+    "LabelWine",
+    "FoilWine"
+  ],
+  "whole": [
+    [
+      "CorkWine"
+    ]
+  ],
+  "shards": 12,
+  "piece_mass": 0.04,
+  "breaks_at": 5.0,
+  "shatters_kpa": 70,
+  "heat_seconds": 25,
+  "cut_area": 0.05,
+  "contents": {
+    "liquid": "whiskey",
+    "litres": 0.637,
+    "colour": [
+      0.42,
+      0.08,
+      0.1
+    ]
+  },
+  "factory": "tools/props/booze.py"
+}
