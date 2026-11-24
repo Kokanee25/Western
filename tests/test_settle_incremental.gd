@@ -214,6 +214,17 @@ func test_a_stick_in_the_spec_saloon_doesnt_freeze_the_frame() -> void:
 ## The fire's load checks on a worker (more-cores step 8): its results come on a tick fixed by the
 ## count of members, so the spec saloon's stick comes down the same with the worker as without
 ## (`--analysis-worker=off`: the same work on the main thread, on the same ticks).
+## What the analysis decides, not where the rubble lands (#1214): a piece falling on a standing member
+## breaks it (Structure._on_rubble_hit), and which pieces hit which boards, and how hard, follows the
+## engine's body order, which the files run before this one change (shard 2 after the suite's earlier
+## files: two ground-floor boards broken on the main thread's run and not the worker's, both before the
+## settle finished). Here no impact is hard enough to break timber, on a copy of the saloon's tuning
+## (the rest the same); rubble breaking what it lands on is test_rubble's.
+static func _no_impact_breaks(s: Structure) -> void:
+	s.tuning = s.tuning.duplicate()
+	s.tuning.impact_toughness = INF
+
+
 static func _broken_ids(s: Structure) -> Array:
 	var out: Array = []
 	for m in s.get_members():
@@ -236,6 +247,7 @@ func test_the_worker_brings_it_down_the_same_as_the_main_thread() -> void:
 		add_child(lab)
 		await physics_frames(10)
 		var saloon: Structure = lab.building
+		_no_impact_breaks(saloon)
 		Blast.detonate(lab, Vector3(6.0, 0.8, 6.0), 0.15)
 		var settled_at := -1
 		var settled: Array = []  # what the analysis brought down, as it finished
@@ -280,6 +292,7 @@ func test_a_settle_queue_without_the_fire_slices_the_same_collapse() -> void:
 		add_child(lab)
 		await physics_frames(10)
 		var saloon: Structure = lab.building
+		_no_impact_breaks(saloon)
 		var q := SettleQueue.find(get_tree())
 		var t0 := Time.get_ticks_usec()
 		Blast.detonate(lab, Vector3(6.0, 0.8, 6.0), 0.15)
