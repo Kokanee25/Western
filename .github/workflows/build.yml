@@ -4,7 +4,8 @@ name: Test and build
 # minutes):
 # - every push to main: tests, then Windows, Linux and Web exported, the desktop builds
 #   released and the web build published to Pages, so each merge gets its build number;
-# - a pull request, when it opens and on every push to it after: tests and the native plugin;
+# - a pull request, when it opens and on every push to it after: the tests its changes need (the
+#   select job, #1234) and the native plugin;
 # - a branch push whose last commit's message says [build]: the same, for a session that wants CI
 #   before its PR;
 # - by hand (workflow_dispatch).
@@ -36,30 +37,94 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  # The tests, split over parallel jobs (#1015; Sean, 2026-11-16: "I don't want it to become a 4 hour
-  # wait"): each runs `--shard=K/N`, its share of the test files by config/test_times.json's seconds
-  # per file (refresh it with tools/test_times.py when one shard runs long). To change N, change the
-  # list and TEST_SHARDS together. Each job builds the plugin itself (cached; its Rust tests run once,
-  # in the native job) and starts from main's last import (.godot, cached), so setup isn't paid in full
-  # every time.
-  test:
-    # Builds unless it's a plain branch push (see the top).
+  # Which tests this run needs (#1234; Sean, 2026-11-24: sessions waited 50-80 min a PR run, and again
+  # each time main moved under them). Main and by hand: everything. A pull
+  # request ("[full]" in its last commit's message: everything): the core set plus the tests mapped from the files it changes against main
+  # (config/test_map.json, tools/test_select.py), as many shards as that needs; after merging main in,
+  # if the PR's last run was green, only what that push changed in the PR's own files, and the PR's
+  # tests main's files also touch. Main's full run after every merge is the net for what the map misses.
+  select:
     if: >-
       github.event_name != 'push' || github.ref == 'refs/heads/main'
       || contains(github.event.head_commit.message, '[build]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      files: ${{ steps.pick.outputs.files }}
+      shards: ${{ steps.pick.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            config
+            src
+            tests
+            tools
+      - name: The PR's last run green?
+        id: last
+        if: github.event_name == 'pull_request' && github.event.action == 'synchronize'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          n=$(gh api "repos/${{ github.repository }}/actions/workflows/build.yml/runs?head_sha=$BEFORE&event=pull_request" \
+              --jq '[.workflow_runs[] | select(.conclusion == "success")] | length' || echo 0)
+          echo "green runs for ${BEFORE:0:10}: $n"
+          [ "$n" -gt 0 ] && echo "since=$BEFORE" >> "$GITHUB_OUTPUT" || true
+      - name: Pick the tests
+        id: pick
+        env:
+          EVENT: ${{ github.event_name }}
+          FULL: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+            || contains(github.event.head_commit.message, '[full]') }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SINCE: ${{ steps.last.outputs.since }}
+        run: |
+          python3 tools/test_select.py --check > check.log || { cat check.log; exit 1; }
+          git log -1 --format=%B "$HEAD" | grep -qF '[full]' && FULL=true
+          if [ "$FULL" = true ]; then
+            python3 tools/test_select.py --all --github
+          else
+            [ -n "$BASE" ] || { git fetch -q origin main; BASE=$(git rev-parse origin/main); }
+            python3 tools/test_select.py --base="$BASE" --head="$HEAD" ${SINCE:+--since=$SINCE} --github
+          fi
+
+  # The tests, split over parallel jobs (#1015; Sean, 2026-11-16: "I don't want it to become a 4 hour
+  # wait"): each runs `--shard=K/N`, its share of the chosen files (all of them on main) by
+  # config/test_times.json's seconds per file (refresh it with tools/test_times.py when one shard runs
+  # long). The matrix is the most shards a run can use (test_map.json's max_shards and all_shards);
+  # a job past what the selection needs does nothing. Each job builds the plugin itself (cached; its
+  # Rust tests run once, in the native job) and starts from main's last import (.godot, cached), so
+  # setup isn't paid in full every time.
+  test:
+    needs: select
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
-    name: test (${{ matrix.shard }}/6)
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    name: test (${{ matrix.shard }}/8)
     env:
-      TEST_SHARDS: 6
+      TEST_SHARDS: ${{ needs.select.outputs.shards }}
+      TEST_FILES: ${{ needs.select.outputs.files }}
+      ACTIVE: ${{ matrix.shard <= fromJSON(needs.select.outputs.shards) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 75
     steps:
+      - name: Not needed
+        if: env.ACTIVE != 'true'
+        run: echo "This run needs ${TEST_SHARDS} shard(s); this is ${{ matrix.shard }}."
+
       - uses: actions/checkout@v4
+        if: env.ACTIVE == 'true'
 
       - name: Cache Godot
+        if: env.ACTIVE == 'true'
         id: cache-godot
         uses: actions/cache@v4
         with:
@@ -67,7 +132,7 @@ jobs:
           key: godot-${{ env.GODOT_VERSION }}
 
       - name: Download Godot
-        if: steps.cache-godot.outputs.cache-hit != 'true'
+        if: env.ACTIVE == 'true' && steps.cache-godot.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/godot && cd ~/godot
           curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
@@ -76,6 +141,7 @@ jobs:
           rm ./*.zip
 
       - name: Build the native plugin (Linux)
+        if: env.ACTIVE == 'true'
         uses: ./.github/actions/native-build
         with:
           target: x86_64-unknown-linux-gnu
@@ -87,6 +153,7 @@ jobs:
       # Keyed by the .import files (a new or changed asset's import makes a new one; a source edited
       # in place is just reimported from the last), so main saves one only when those change.
       - name: Restore the last import
+        if: env.ACTIVE == 'true'
         id: import-cache
         uses: actions/cache/restore@v4
         with:
@@ -95,9 +162,11 @@ jobs:
           restore-keys: godot-import-${{ env.GODOT_VERSION }}-
 
       - name: Import project
+        if: env.ACTIVE == 'true'
         run: ~/godot/godot --headless --import || true
 
       - name: Import files committed
+        if: env.ACTIVE == 'true'
         # Every asset's .import file must be committed as Godot writes it (a new character, texture
         # or prop included), or every session's import shows it as a change it didn't make.
         # Fix: run `godot --headless --import` and commit the .import files it lists here.
@@ -114,7 +183,7 @@ jobs:
       # so the cache holds a few, not one per push). One shard saves it, when its key is new.
       - name: Keep the import (main)
         if: >-
-          github.ref == 'refs/heads/main' && matrix.shard == 1
+          env.ACTIVE == 'true' && github.ref == 'refs/heads/main' && matrix.shard == 1
           && steps.import-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
@@ -122,12 +191,15 @@ jobs:
           key: godot-import-${{ env.GODOT_VERSION }}-${{ hashFiles('**/*.import') }}
 
       - name: Run tests
-        run: ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- --shard=${{ matrix.shard }}/${{ env.TEST_SHARDS }}
+        if: env.ACTIVE == 'true'
+        run: |
+          ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- \
+              --shard=${{ matrix.shard }}/${TEST_SHARDS} ${TEST_FILES:+--files=$TEST_FILES}
 
       - name: The feel numbers
         # What tests/test_feel.gd and friends measured, against the ranges in config/feel_ranges.json
         # (this shard's tests only).
-        if: always()
+        if: always() && env.ACTIVE == 'true'
         run: |
           f="$HOME/.local/share/godot/app_userdata/Salt Creek/feel_measured.json"
           if [ -f "$f" ]; then

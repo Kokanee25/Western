@@ -65,6 +65,13 @@ the history in `docs/status/`.
   so does every push to it after. Need CI before the PR? Put `[build]` in the commit message.
   Merge on the PR's own "Test and build" run (the `pull_request` one) being green. Tour, visual
   checks and soak run once a night, only if main changed.
+- **A PR runs the tests its changes need; main runs them all** (Sean, #1234): a PR's run is a core set
+  plus what `config/test_map.json` maps from its files (the run's summary lists them;
+  `python3 tools/test_select.py --base=origin/main` shows it locally); merging main in after a green run
+  reruns only what that push touched (docs clashes: the core set). `[full]` in the last commit runs
+  everything. Merge on that run green; main's full run after the merge is the net: watch it and give
+  Sean its build number. A red main is fixed first by the next session (as now). A new folder or kind
+  of file runs everything until a rule maps it.
 - **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
   commit) and give Sean the build number. A red main is fixed before anything else.
 - **Never edit the other session's files without saying so**: in the commit message and in your

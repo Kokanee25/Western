@@ -3321,16 +3321,27 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   the latest green build's video is already on the `tour` release). A skipped night shows green
   with "unchanged" in its summary; the last real result is the run before it. By hand they always
   run.
-  The tests are a matrix of six jobs, `test (K/6)` (#1015; ~100 min in one job before), each running
-  `--shard=K/6` (see "tests"); `export` needs all six. Refresh `config/test_times.json` with
+  The tests are a matrix of eight jobs, `test (K/8)` (#1015, #1220; ~100 min in one job before), each
+  running `--shard=K/N` of the chosen files (see "Which tests a run needs"); `export` needs them all. Refresh `config/test_times.json` with
   `tools/test_times.py` when one shard's "Run tests" runs well over the others; change the matrix
-  list and `TEST_SHARDS` together. Each shard restores main's newest `.godot` import from the cache
+  list and `test_map.json`'s shard counts together. Each shard restores main's newest `.godot` import from the cache
   (`godot-import-<version>-<hash of the .import files>`, saved by main's shard 1 when that's new;
   PRs only read it; an asset edited in place is reimported from the last), so the import takes
   seconds, not ~10 min; it builds the plugin itself (rust-cache) and skips the plugin's Rust tests,
   which the `native` job's Linux leg runs.
   The test job fails if Godot's import writes any `.import` file that isn't committed as it
   writes them ("Import files committed"): run `godot --headless --import` and commit them.
+- **Which tests a run needs** (#1234): the `select` job runs `tools/test_select.py`. Main and by hand:
+  all, 8 shards. A PR: `config/test_map.json`'s `core` plus, per changed file, the rules its path
+  matches (globs; `except`; `{x}` captures, `@group`s, `"all"`, `[]`), the tests naming it (its
+  `res://` path or class_name) and a changed test itself; a file no rule matches runs all. Shards:
+  the table's seconds / `per_shard_seconds`, at most `max_shards`; matrix jobs past that only echo
+  (names stay `test (K/8)`). On a push to an open PR whose previous head had a green run
+  (`--since`): what the push changed in the PR's own files, plus the PR's tests main's files also
+  touch. The runner takes the list as `--files=` (before `--shard`). `--check` (in the job and
+  `test_test_map.gd`) fails on a pattern matching no test; `--replay=N` puts main's last N merges
+  through the map with estimated minutes (table x1.5 + 4 min setup). Trap: a test that moves into the
+  valley belongs in the `valley` or `missions` group, or valley changes stop running it.
 - **A lab's film on a runner** (`lab_film.yml`, `tools/lab_film.py`; #973): a `claude/` branch push whose
   last commit changes `experiments/<lab>/film/request.txt` (dev bridge commands, plus `@start`, `@stop`,
   `@encode`, `@still`, `@godot`) builds the native plugin, renders under software Vulkan and commits

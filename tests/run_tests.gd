@@ -2,7 +2,9 @@ extends SceneTree
 ## Headless test runner: loads every tests/test_*.gd, runs its test_* methods, and exits with
 ## status 1 if any check fails or any script error is logged while a test runs.
 ##   godot --headless --fixed-fps 60 -s res://tests/run_tests.gd [-- --only=<file or method>[,<another>...]]
-##       [--shard=K/N]
+##       [--shard=K/N] [--files=test_a.gd,test_b.gd]
+## `--files=` (#1234) runs only those files (whole names; CI's pull requests pass
+## tools/test_select.py's choice), before any `--shard` splits them.
 ## `--shard=K/N` (#1015) runs only the K-th of N shares of the files (CI's parallel test jobs),
 ## split by config/test_times.json's seconds per file: longest first, each to the lightest share.
 ## A file not in the table counts as 30 s; refresh it with tools/test_times.py from CI's logs.
@@ -83,6 +85,18 @@ static func shard_files(files: Array, times: Dictionary, k: int, n: int) -> Arra
 	return mine
 
 
+## The suite's files that `--files=` names (whole names, commas between), in the suite's order. A
+## name that isn't a test file is an error, not a quiet skip: a renamed test must not drop out of CI.
+static func pick_files(files: Array, chosen: String) -> Array:
+	var want := {}
+	for name: String in chosen.split(",", false):
+		want[name.strip_edges()] = true
+	for name: String in want:
+		if not files.has(name):
+			push_error("--files: no test file %s" % name)
+	return files.filter(func(f: String) -> bool: return want.has(f))
+
+
 static func load_times() -> Dictionary:
 	var text := FileAccess.get_file_as_string(TIMES_PATH)
 	var parsed: Variant = JSON.parse_string(text) if text != "" else null
@@ -110,9 +124,12 @@ func _fresh_start() -> void:
 func _run() -> void:
 	var only := ""
 	var shard := ""
+	var chosen := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			only = arg.substr(7)
+		elif arg.begins_with("--files="):
+			chosen = arg.substr(8)
 		elif arg.begins_with("--shard="):
 			shard = arg.substr(8)
 	var settings := root.get_node_or_null(^"Settings")
@@ -129,6 +146,9 @@ func _run() -> void:
 	var files := Array(DirAccess.get_files_at("res://tests")).filter(
 			func(f: String) -> bool: return f.begins_with("test_") and f.ends_with(".gd") and f != "test_case.gd")
 	files.sort()
+	if chosen != "":
+		files = pick_files(files, chosen)
+		print("files: %d chosen (--files)" % files.size())
 	if shard != "":
 		var parts := shard.split("/")
 		var k := int(parts[0]) if parts.size() == 2 else 0
