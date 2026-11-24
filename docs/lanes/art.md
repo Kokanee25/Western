@@ -44,7 +44,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   saloon B is Fable's (#848: step 1 done, below).
 - **The church** (#1203, `church/` README r7): open truss nave. Open: #1217 (ceiling), #1202 q2 (pews). Render: swap + lavapipe.
 - **The hotel** (#1220, PR #1224; `hotel/` README, `make_spec.py`): main block built and tested (12.5k members), on its lot on a pad. Next #1226 (kitchen wing, P7-P9 judged, the judge's round); plaster #1225. Its cellar and drift aren't dug in the valley (`cellar._dig`: a dig in the first ground chunk tips the card tests).
-- **Harlan's homestead** (#1126, `homestead/` README): cheap indie; wants stone, warmer logs, trees, the spring's water.
+- **Harlan's homestead** (#1126, #1160, `homestead/` README): look pass 1 merged: R3 `hewn_pine_log`, R4 `fieldstone_rubble` (unapproved: no yardstick for the materials judge), pines and grass by ValleyScatter's `place` rule, the spring on posts. Left: golden light, thinner pines, chimney courses, yard props.
 - **The undertaker's** (#1174, `undertaker/` README): built, on its lot, its cellar dug (`CellarDig`) and walked. Props in (U1, #1181). **Grim** (#1187): old blood by its `past` (`PastStains`: Blood splats, FloorMarks stains), a smoky lamp, CellarHaze; embalming good indie. Damp waits on Sean (#1197); the black trim wants `painted_black_trim`.
 - **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
   `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")

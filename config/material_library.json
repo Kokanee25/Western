@@ -219,6 +219,25 @@
    "id": "rubble_whitewash", "code": "PL2", "family": "plaster", "class": "plaster", "panel_class": "common", "approved": [], "inside": true,
    "name": "Bare rubble whitewashed: the cell wing inside (#857 pick 1a)",
    "shader": "rubble_stone", "_doc": "The rubble's stones and joints under the same whitewash as PL1 (its colours): the coat pooled in the joints, thin on the stones' high spots."
+  },
+  {
+   "id": "hewn_pine_log", "code": "R3", "family": "wood", "class": "rough", "approved": [],
+   "name": "Hewn pine logs gone silver-tan (Harlan's cabin, #1160)", "grain_contrast": 0.55, "edge_shelter": 0.0,
+   "layout": "board_batten", "board_w": 4.0, "board_t": 0.022, "nails": 0, "nail_at": 0.0,
+   "scans": {"a": {"id": "Wood047", "grain": "u", "metres": [1.8, 0.9]}, "a2": {"id": "Wood048", "grain": "u", "metres": [1.6, 1.6]},
+             "b": {"id": "Wood047", "grain": "u", "metres": [1.8, 0.9]}},
+   "tint_new": [0.95, 0.88, 0.78], "tint_mid": [0.8, 0.72, 0.6], "tint_old": [0.76, 0.7, 0.62], "weathering": 0.6,
+   "roughness_add": 0.15, "specular_wood": 0.2, "saw_marks": 0.0, "grime": 0.5, "layer_new": 0.4, "sun_fade": 0.6, "streaks": 0.4, "joint_dirt": 0.2,
+   "normal_strength": 0.6, "value_jitter": 0.12, "hue_jitter": 0.06
+  },
+  {
+   "id": "fieldstone_rubble", "code": "R4", "family": "wood", "class": "rough", "approved": [],
+   "name": "Dry fieldstone, warm grey-tan (Harlan's chimney, #1160)", "grain_contrast": 1.0, "edge_shelter": 0.0,
+   "layout": "board_batten", "board_w": 4.0, "board_t": 0.022, "nails": 0, "nail_at": 0.0,
+   "scans": {"a": {"id": "Rock023", "grain": "u", "metres": [0.9, 0.9]}, "a2": {"id": "Rock023", "grain": "u", "metres": [0.9, 0.9]},
+             "b": {"id": "Rock023", "grain": "u", "metres": [0.9, 0.9]}},
+   "tint_new": [1.18, 1.02, 0.82], "tint_mid": [1.18, 1.02, 0.82], "tint_old": [1.18, 1.02, 0.82], "weathering": 0.0,
+   "roughness_add": 0.2, "specular_wood": 0.1, "grime": 0.2, "streaks": 0.2, "joint_dirt": 0.0, "normal_strength": 0.9, "value_jitter": 0.14, "hue_jitter": 0.04
   }
  ]
 }
