@@ -1,0 +1,50 @@
+{
+  "_doc": "A bottle of the game's own booze (#1222, docs/briefs/booze.md): a salt-glazed stoneware ginger beer bottle, tan dipped over cream, its maker's name stamped in, a cork. Its labels the brands of its shape (Holcombe'S, Bumstead'S): the Nth made wears label N mod 2 (`variants`), or the one its dressing entry names (`variant`; tools/props/booze.py variant_of). A prop that shatters (GlassProp): a fall onto boards at 4.8 m/s or 70 kPa breaks it and what's in it goes on the floor. Drawn from glb:booze_bottles (tools/blender/props/booze.py): the glass the kit's `glass:` look, every label printed on one sheet (pbr:booze_labels), cork and contents baked the gun way. Written by tools/props/booze.py.",
+  "id": "ginger_beer_bottle",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:booze_bottles",
+  "looks": {
+    "LabelStone%d": "pbr:booze_labels",
+    "CorkStone": "pbr:booze_bottles",
+    "BaseStone": "pbr:booze_bottles"
+  },
+  "variants": 2,
+  "brands": [
+    "holcombe",
+    "bumstead"
+  ],
+  "size": [
+    0.072,
+    0.2,
+    0.072
+  ],
+  "mass": 0.7,
+  "wall": 0.004,
+  "glass": [
+    "LabelStone",
+    "BaseStone"
+  ],
+  "whole": [
+    [
+      "CorkStone"
+    ]
+  ],
+  "shards": 12,
+  "piece_mass": 0.04,
+  "breaks_at": 4.8,
+  "shatters_kpa": 70,
+  "heat_seconds": 25,
+  "cut_area": 0.05,
+  "contents": {
+    "liquid": "water",
+    "litres": 0.255,
+    "colour": [
+      0.8,
+      0.72,
+      0.5
+    ]
+  },
+  "factory": "tools/props/booze.py"
+}

@@ -2406,7 +2406,7 @@
     },
     {
      "id": "east_bottles_a",
-     "kit": "medicine_bottle",
+     "kit": "bitters_bottle",
      "at": [
       0.28400000000000003,
       2.7125000000000004,
@@ -2415,20 +2415,45 @@
      "facing": 0,
      "row": {
       "kits": [
-       "medicine_bottle",
-       "whiskey_bottle",
-       "medicine_bottle_round"
+       "bitters_bottle",
+       "bitters_cabin",
+       "patent_medicine_bottle",
+       "bitters_bottle",
+       "patent_medicine_bottle",
+       "liquor_quart",
+       "patent_medicine_bottle",
+       "bitters_bottle",
+       "patent_medicine_bottle",
+       "ginger_beer_bottle",
+       "patent_medicine_bottle",
+       "bitters_bottle",
+       "beer_bottle"
       ],
-      "count": 8,
+      "count": 13,
       "step": [
        0,
        0,
-       0.22
+       0.145
       ],
       "jitter": [
-       0.01,
+       0.008,
        0.01,
        20
+      ],
+      "variants": [
+       6,
+       0,
+       1,
+       7,
+       4,
+       13,
+       6,
+       2,
+       3,
+       1,
+       5,
+       5,
+       4
       ]
      }
     },

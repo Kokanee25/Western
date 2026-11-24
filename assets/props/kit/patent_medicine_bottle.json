@@ -1,0 +1,57 @@
+{
+  "_doc": "A bottle of the game's own booze (#1222, docs/briefs/booze.md): a tall aqua patent-medicine panel bottle, a flat front for its label, a cork. Its labels the brands of its shape (Dr. Felder'S, Dr. Tolliver'S, Dr. Pellow'S, Dr. Pemberly'S, Dr. Windham'S, Dingle'S Berry, Dr. Boner'S): the Nth made wears label N mod 7 (`variants`), or the one its dressing entry names (`variant`; tools/props/booze.py variant_of). A prop that shatters (GlassProp): a fall onto boards at 3.6 m/s or 50 kPa breaks it and what's in it goes on the floor. Drawn from glb:booze_bottles (tools/blender/props/booze.py): the glass the kit's `glass:` look, every label printed on one sheet (pbr:booze_labels), cork and contents baked the gun way. Written by tools/props/booze.py.",
+  "id": "patent_medicine_bottle",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:booze_bottles",
+  "looks": {
+    "LabelPanel%d": "pbr:booze_labels",
+    "CorkPanel": "pbr:booze_bottles",
+    "GlassPanel": "glass:aqua",
+    "LiquidPanel": "pbr:booze_bottles"
+  },
+  "variants": 7,
+  "brands": [
+    "felder",
+    "tolliver",
+    "pellow",
+    "pemberly",
+    "windham",
+    "dingle",
+    "boner"
+  ],
+  "size": [
+    0.076,
+    0.232,
+    0.044
+  ],
+  "mass": 0.6,
+  "wall": 0.004,
+  "glass": [
+    "GlassPanel",
+    "LiquidPanel",
+    "LabelPanel"
+  ],
+  "whole": [
+    [
+      "CorkPanel"
+    ]
+  ],
+  "shards": 12,
+  "piece_mass": 0.04,
+  "breaks_at": 3.6,
+  "shatters_kpa": 50,
+  "heat_seconds": 25,
+  "cut_area": 0.05,
+  "contents": {
+    "liquid": "tincture",
+    "litres": 0.297,
+    "colour": [
+      0.4,
+      0.15,
+      0.08
+    ]
+  },
+  "factory": "tools/props/booze.py"
+}
