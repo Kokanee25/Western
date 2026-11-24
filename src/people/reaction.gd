@@ -333,8 +333,14 @@ func step(delta: float) -> bool:
 			var y := deg_to_rad(50.0 * sin(_t * 1.7))
 			body.face(body.global_position + (p - body.global_position).rotated(Vector3.UP, y))
 			if _t >= _wait:
-				if choice in [&"hide", &"flee"] and not _bark("react.back"):
-					brain.say_relief()
+				if choice in [&"hide", &"flee"]:
+					# Who fired, if he saw (#1213: "Is he gone?" with the man 6 m off): to his face, or of him.
+					var by := brain.saw_shooter()
+					var on := "react.back"
+					if by != null:
+						on = "react.back.you" if brain._to_his_face(by) else "react.back.saw"
+					if not _bark(on):
+						brain.say_relief()
 				# Come back to himself, a man down he saw and nobody gone for help: he goes now.
 				if choice != &"run" and _try_run():
 					_enter(Stage.ACT)

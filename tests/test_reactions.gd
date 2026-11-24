@@ -294,3 +294,21 @@ func test_the_relief_is_not_said_twice() -> void:
 		check(not seen.has(t), "\"%s\" once" % t)
 		seen[t] = true
 	check(said.size() >= 5, "most of them said something (%s)" % [said])
+
+
+## #1213 (gate 4, run 4): men who'd watched the shooter fire still said "Damn fool, whoever it was". A man
+## whose fright had a shooter he saw says a line about him, never one asking who it was.
+func test_his_relief_knows_who_he_saw_fire() -> void:
+	var said := []
+	var hook := func(_by: Node, text: String) -> void: said.append(text)
+	var shooter := _man("shooter", 300, Vector3(0.0, 0.0, 40.0), Vector3(0.0, 1.5, 0.0))
+	var b := _man("witness", 301, Vector3(0.0, 0.0, 46.0), Vector3(0.0, 1.5, 40.0))
+	await physics_frames(int(CivilianBrain.SAY_GAP * 60) + 10)
+	b.reaction.who = shooter.body
+	check(b.saw_shooter() == shooter.body, "he saw who it was")
+	Events.spoke.connect(hook)
+	b.say_relief()
+	Events.spoke.disconnect(hook)
+	check(said.size() == 1 and CivilianBrain.LINES[&"relief_saw"].has(said[0]), "a line of the man he saw (%s)" % [said])
+	for t: String in CivilianBrain.LINES[&"relief_saw"] + CivilianBrain.LINES[&"relief_you"]:
+		check(not t.to_lower().contains("whoever") and not t.to_lower().contains("who was it"), "\"%s\" fits a man who saw" % t)

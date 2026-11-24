@@ -309,6 +309,22 @@ func _version(pid: StringName, r: Dictionary, how: StringName) -> Dictionary:
 	return mine[r.id]
 
 
+## Who he saw fire the latest shots he has a version of (within `SAW_FIRE_S`), or &"" (#1213).
+func saw_fire(pid: StringName) -> StringName:
+	var mine: Dictionary = versions.get(pid, {})
+	var best := -1
+	for rid: Variant in mine:
+		best = maxi(best, int(rid))
+	if best < 0:
+		return &""
+	var v: Dictionary = mine[best]
+	var r := record(best)
+	if r.is_empty() or Engine.get_physics_frames() - int(r.get("last_frame", 0)) > SAW_FIRE_S * Engine.physics_ticks_per_second:
+		return &""
+	return v.who if v.how == &"saw" else &""
+const SAW_FIRE_S := 600.0
+
+
 ## His version of record `rid`, or {}.
 func version_of(pid: StringName, rid: int) -> Dictionary:
 	return (versions.get(pid, {}) as Dictionary).get(rid, {})
@@ -676,19 +692,31 @@ func line_of(pid: StringName, rid: int, to := &"") -> String:
 	var v := version_of(pid, rid)
 	if v.is_empty():
 		return ""
+	var here := _here(pid, rid)
 	var slots := {"who": "you" if v.who == HARLAN and to == HARLAN else name_of(v.who), "whom": _whom(v),
 			"where": v.where if v.where != "" else "the street", "shots": _count(int(v.shots)).to_lower(),
-			"teller": name_of(v.by) if v.by != &"" else "somebody"}
+			"teller": name_of(v.by) if v.by != &"" else "somebody",
+			"at": "right here" if here else "by " + (v.where if v.where != "" else "the street"),
+			"Who": _cap(name_of(v.who))}
 	var parts: Array[String] = []
 	var k := kind_of(v)
 	var head: Array = []
 	if k == &"killing" or k == &"shooting":
 		var base := "news." + String(k)
 		head = [base + ".you"] if v.who == HARLAN and to == HARLAN else ([base] if v.who != &"" else [base + ".nobody"])
-	elif k == &"down" or k == &"shots":
-		head = ["news." + String(k)]
+	elif k == &"down":
+		head = ["news.down"]
+	elif k == &"shots":
+		# Who fired, if he saw it (#1213: the liveryman, in the room, said "Damn fool, whoever it was"; the
+		# barkeep told "Shooting, down by the saloon" from inside it): "you" to his face; "right here" at it.
+		if v.who == HARLAN and to == HARLAN:
+			head = ["news.shots.you"]
+		elif v.who != &"":
+			head = ["news.shots.who"]
+		else:
+			head = ["news.shots.here"] if here else ["news.shots"]
 	if not head.is_empty():
-		parts.append(_worded(pid, rid, head, slots, _built_head(v, to)))
+		parts.append(_worded(pid, rid, head, slots, _built_head(v, to, here)))
 	if v.first != &"" and v.first == v.whom and v.who != &"":
 		var how := "saw" if v.how == &"saw" else ("told" if v.how == &"told" else "heard")
 		parts.append(_worded(pid, rid, ["news.first." + how, "news.first.heard"], slots,
@@ -708,8 +736,9 @@ func _worded(pid: StringName, rid: int, ids: Array, slots: Dictionary, built: St
 
 
 ## The built head line (no script).
-func _built_head(v: Dictionary, to: StringName) -> String:
+func _built_head(v: Dictionary, to: StringName, here := false) -> String:
 	var where: String = v.where if v.where != "" else "the street"
+	var at := "right here" if here else "by " + where
 	match kind_of(v):
 		&"killing":
 			if v.who != &"":
@@ -721,7 +750,22 @@ func _built_head(v: Dictionary, to: StringName) -> String:
 			return "%s's been shot, by %s." % [_cap(_whom(v)), where]
 		&"down":
 			return "There's a man down by %s." % where
+	if v.who == HARLAN and to == HARLAN:
+		return "You let that iron off %s. %s." % [at, _count(int(v.shots))]
+	if v.who != &"":
+		return "%s let off his iron %s. %s." % [_cap(name_of(v.who)), at, _count(int(v.shots))]
+	if here:
+		return "Shooting, right here. %s." % _count(int(v.shots))
 	return "Shooting, down by %s. %s." % [where, _count(int(v.shots))]
+
+
+## The teller's where it happened (within `HERE_M` of record `rid`'s place): "right here", not "by the
+## saloon" (#1213).
+func _here(pid: StringName, rid: int) -> bool:
+	var r := record(rid)
+	var man := folk.folk_man(pid) if folk != null else null
+	return not r.is_empty() and man != null and man.global_position.distance_to(r.at as Vector3) < HERE_M
+const HERE_M := 15.0
 
 
 ## Who did it, said to `to` ("You" to Harlan's face).

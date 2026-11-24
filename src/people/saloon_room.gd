@@ -65,6 +65,11 @@ var _o := Vector3.ZERO
 var _ax := Vector3.RIGHT
 var _bx := Vector3.BACK
 var _built := false
+## A second box (#1213): saloon B's bar room, where the barkeep serves by day (data `hall_rect`
+## {hall, rect [x0, z0, x1, z1] in its space}); its corner and sides, or none.
+var _ho := Vector3.INF
+var _hax := Vector3.ZERO
+var _hbx := Vector3.ZERO
 
 
 func _init(f: ValleyFolk = null, data: Dictionary = {}) -> void:
@@ -87,6 +92,14 @@ func _build() -> void:
 	_o = folk.lot_point(lot, float(r[0]), float(r[1]))
 	_ax = folk.lot_point(lot, float(r[2]), float(r[1])) - _o
 	_bx = folk.lot_point(lot, float(r[0]), float(r[3])) - _o
+	var hr: Dictionary = d.get("hall_rect", {})
+	if not hr.is_empty() and folk.halls.has(String(hr.get("hall", ""))):
+		var h := String(hr.hall)
+		var q: Array = hr.rect
+		var y := float(hr.get("y", 0.95))
+		_ho = folk.hall_point(h, [q[0], y, q[1]])
+		_hax = folk.hall_point(h, [q[2], y, q[1]]) - _ho
+		_hbx = folk.hall_point(h, [q[0], y, q[3]]) - _ho
 	if bool((d.get("sounds", {}) as Dictionary).get("on", true)) and GameAudio.enabled():
 		SynthSounds.warm([&"laugh_0", &"laugh_1", &"laugh_2", &"cough", &"glass_down"])
 
@@ -95,10 +108,14 @@ func _build() -> void:
 func inside(at: Vector3, margin := 0.0) -> bool:
 	if not _built:
 		return false
-	var v := at - _o
-	var a := v.dot(_ax.normalized())
-	var b := v.dot(_bx.normalized())
-	return a >= -margin and a <= _ax.length() + margin and b >= -margin and b <= _bx.length() + margin \
+	return _in_box(at, _o, _ax, _bx, margin) or (_ho != Vector3.INF and _in_box(at, _ho, _hax, _hbx, margin))
+
+
+static func _in_box(at: Vector3, o: Vector3, ax: Vector3, bx: Vector3, margin: float) -> bool:
+	var v := at - o
+	var a := v.dot(ax.normalized())
+	var b := v.dot(bx.normalized())
+	return a >= -margin and a <= ax.length() + margin and b >= -margin and b <= bx.length() + margin \
 			and absf(v.y) < 4.0
 
 

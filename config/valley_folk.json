@@ -17,6 +17,10 @@
   "places": {
     "_doc": "The set's own places, added to the town's ways for the folk: each [a, b] in the set's lot (or in `lot`'s) and what it links to (another of these, or the nearest of the town's places with `nearest`).",
     "nolaw_yard_front": {"at": [5.2, 1.6], "links": ["saloon_annex"], "nearest": true},
+    "saloonb_corner_out": {"hall": "saloon", "local": [17.3, 0.95, 1.22], "links": ["saloon"], "nearest": true, "_doc": "#1213: in at saloon B's corner door (its side wall's void) to its own bar, the barkeep's by day: out on the side walk, in the doorway, along the room's front to the bar's front end (the customers' side), round it behind."},
+    "saloonb_corner_in": {"hall": "saloon", "local": [15.2, 0.95, 1.22], "links": ["saloonb_corner_out"]},
+    "saloonb_bar_front": {"hall": "saloon", "local": [3.5, 0.95, 1.3], "links": ["saloonb_corner_in"]},
+    "saloonb_bar_end": {"hall": "saloon", "local": [1.1, 0.95, 1.3], "links": ["saloonb_bar_front"]},
     "nolaw_yard_mid": {"at": [4.9, 8.0], "links": ["nolaw_yard_front"], "nearest": true},
     "nolaw_bar_north": {"at": [1.0, 7.2], "links": ["nolaw_yard_mid"]},
     "saloonb_yard_back": {"hall": "saloon", "local": [-2.6, 0.0, 22.6], "links": ["nolaw_yard_mid"], "_doc": "#938: up saloon B's outside stair to the upper hall, through the wing onto the stage (Payday Night's band; the walk saloon B's test walks). `hall` + `local` [x, y, z] in the building's space (y under 0.05: the ground there); `stair_to` a link up a stair. Round the stair's foot by the yard's back."},
@@ -35,6 +39,11 @@
   "spots": {
     "_doc": "Named spots (townsfolk brief \u00a73 \"Spots\"): where a man stands or sits and what he faces, belonging to the place, not the man, so anyone sent there fits. A spot is one of: `behind` a bar (`along` it, + north), `at_bar` (its customers' side), `chair` (the set's card table's, by compass: sat in it by a SitChore), or `lot` + `at` [a, b] (lot_point's) facing `faces` [a, b] (else the street). A day's block names one with `at` (or gives one inline) and says with `do` what he does there (SpotChore, townsfolk step 4, #957): stand, lean, sit, counter, sweep, carry, talk, drink, work, each a loop with its breaks; a spot may give `seat` (a kit prop stood there for `sit`), `tool` (`rug` for sweep: shaken, not swept; `anvil`, `bench` for work), `to` [a, b] (where carry takes the pile), `reach` (how far along sweep goes, m).",
     "bar_back": {"behind": "bar", "along": 0.0},
+    "bar_back_day": {"hall": "saloon", "use": "barman_a", "_doc": "#1213 (gate 4 run 2: at noon the barkeep stood behind the yard's bar, beyond saloon B's wall from its own bar, where you couldn't reach him): by day he serves behind saloon B's bar, over it from its customers' side; the day's drinkers at its drinker points (`bar_day_*`). The night's room is still the yard set (till it moves in, #755)."},
+    "bar_day_1": {"hall": "saloon", "use": "drinker_1"},
+    "bar_day_2": {"hall": "saloon", "use": "drinker_2"},
+    "bar_day_3": {"hall": "saloon", "use": "drinker_3"},
+    "bar_day_4": {"hall": "saloon", "use": "drinker_4"},
     "bar_south": {"at_bar": "bar", "along": -0.6},
     "bar_north": {"at_bar": "bar", "along": 0.7},
     "bar_far": {"at_bar": "bar", "along": 1.75, "_doc": "Step 10 (the saloon as a room, #1157): the bar's north end, the loudmouth's; `bar_near` its south end, the undertaker's one drink."},
@@ -90,7 +99,8 @@
     {"id": "barkeep", "name": "Barkeep", "model": "barkeep_s2_talking", "seed": 761, "dials": {"nerve": 0.7, "nosy": 0.4, "duty": 0.6}, "shirt": [0.85, 0.84, 0.8], "vest": [0.15, 0.14, 0.13], "home": "saloon",
      "day": [
        {"from": 3.0, "in": "saloon", "do": "sleep"},
-       {"from": 10.0, "at": "bar_back", "do": "counter"}],
+       {"from": 10.0, "at": "bar_back_day", "do": "counter"},
+       {"from": 17.0, "at": "bar_back", "do": "counter"}],
      "_doc": "The barman behind the bar (No Law: \"Jesus, Cody, my chair!\"). Comes out of the saloon's door."},
     {"id": "miner", "name": "Miner", "model": "miner_s4_talking", "seed": 762, "dials": {"nerve": 0.6, "nosy": 0.5, "duty": 0.4}, "shirt": [0.3, 0.42, 0.6], "vest": [0, 0, 0, 0], "home": "hotel",
      "day": {
@@ -98,7 +108,7 @@
          {"from": 1.5, "in": "hotel", "do": "sleep"},
          {"from": 6.0, "in": "hotel", "do": "breakfast"},
          {"from": 7.0, "in": "hotel", "do": "home"},
-         {"from": 13.0, "do": "drink", "round": [{"in": "hotel", "do": "home", "stay": [120, 240]}, {"at": "bar_near", "do": "drink", "stay": [90, 200]}]},
+         {"from": 13.0, "do": "drink", "round": [{"in": "hotel", "do": "home", "stay": [120, 240]}, {"at": "bar_day_1", "do": "drink", "stay": [90, 200]}]},
          {"from": 18.0, "in": "hotel", "do": "supper"},
          {"from": 19.0, "at": "bar_south", "do": "drink"}],
        "payday": [
@@ -122,7 +132,7 @@
        {"from": 2.0, "in": "hotel", "do": "sleep"},
        {"from": 6.0, "do": "work", "round": [{"at": "livery_lean", "do": "lean", "stay": [60, 150]}, {"in": "livery", "do": "work", "stay": [90, 180]}]},
        {"from": 9.0, "in": "hotel", "do": "breakfast"},
-       {"from": 10.0, "do": "stand", "round": [{"at": "saloon_porch", "do": "lean", "stay": [60, 150]}, {"at": "hotel_walk", "do": "stand", "stay": [40, 90]}, {"in": "hotel", "do": "home", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "bar_north", "do": "drink", "stay": [60, 150]}]},
+       {"from": 10.0, "do": "stand", "round": [{"at": "saloon_porch", "do": "lean", "stay": [60, 150]}, {"at": "hotel_walk", "do": "stand", "stay": [40, 90]}, {"in": "hotel", "do": "home", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "bar_day_2", "do": "drink", "stay": [60, 150]}]},
        {"from": 17.0, "in": "hotel", "do": "home"},
        {"from": 19.6, "at": "card_e", "do": "play"}],
      "_doc": "Across the card table from Earl. The north and south chairs stay free (the seated player's, the next step)."},
@@ -272,7 +282,7 @@
          {"from": 6.0, "in": "hotel", "do": "breakfast"},
          {"from": 7.0, "do": "stand", "round": [{"at": "hotel_walk", "do": "stand", "stay": [60, 150]}, {"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"at": "saloon_walk", "do": "stand", "stay": [40, 90]}, {"in": "general_store", "do": "errand", "stay": [40, 90]}, {"at": "bank_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "do": "lean", "round": [{"at": "hotel_walk", "do": "lean", "stay": [90, 200]}, {"at": "store_bench", "do": "sit", "stay": [90, 200]}]},
-         {"from": 13.0, "do": "stand", "round": [{"at": "hotel_walk", "do": "lean", "stay": [60, 150]}, {"at": "barber_walk", "do": "stand", "stay": [40, 90]}, {"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "talk", "stay": [30, 60]}, {"at": "bar_south", "do": "drink", "stay": [90, 200]}]},
+         {"from": 13.0, "do": "stand", "round": [{"at": "hotel_walk", "do": "lean", "stay": [60, 150]}, {"at": "barber_walk", "do": "stand", "stay": [40, 90]}, {"at": "store_bench", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "talk", "stay": [30, 60]}, {"at": "bar_day_3", "do": "drink", "stay": [90, 200]}]},
          {"from": 18.0, "in": "hotel", "do": "supper"},
          {"from": 19.0, "do": "talk", "round": [{"at": "hotel_porch3", "do": "talk", "stay": [90, 200]}, {"at": "hotel_walk", "do": "stand", "stay": [40, 90]}]},
          {"from": 20.0, "in": "hotel", "do": "home"},
@@ -297,7 +307,7 @@
          {"from": 8.0, "do": "carry", "round": [{"at": "store_freight", "do": "carry", "stay": [90, 200]}, {"at": "saloon_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 10.0, "do": "sit", "round": [{"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "saloon_walk", "do": "stand", "stay": [40, 90]}, {"at": "hotel_walk", "do": "stand", "stay": [30, 60]}]},
          {"from": 12.0, "do": "lean", "round": [{"at": "saloon_walk", "do": "lean", "stay": [60, 150]}, {"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "barber_walk", "do": "stand", "stay": [30, 60]}]},
-         {"from": 13.0, "do": "stand", "round": [{"at": "saloon_walk", "do": "stand", "stay": [60, 150]}, {"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "barber_walk", "do": "stand", "stay": [30, 60]}, {"at": "bar_far", "do": "drink", "stay": [90, 200]}]},
+         {"from": 13.0, "do": "stand", "round": [{"at": "saloon_walk", "do": "stand", "stay": [60, 150]}, {"at": "store_bench2", "do": "sit", "stay": [60, 150]}, {"at": "livery_lean", "do": "lean", "stay": [40, 90]}, {"at": "barber_walk", "do": "stand", "stay": [30, 60]}, {"at": "bar_day_4", "do": "drink", "stay": [90, 200]}]},
          {"from": 18.0, "in": "saloon", "do": "supper"},
          {"from": 19.0, "at": "bar_far", "do": "drink"}],
        "sunday": [
@@ -356,6 +366,7 @@
       "shove": {"liking": -0.2, "trust": -0.1, "respect": -0.05, "fear": 0.04},
       "kick": {"liking": -0.35, "trust": -0.25, "fear": 0.12},
       "kick_down": {"liking": -0.5, "trust": -0.35, "respect": -0.2, "fear": 0.15},
+      "damage": {"liking": -0.15, "trust": -0.12, "respect": -0.05},
       "won_pot": {"respect": 0.12, "liking": 0.04},
       "carry": {"trust": 0.2, "liking": 0.2, "respect": 0.2}
     },
@@ -403,6 +414,7 @@
   "room": {
     "_doc": "The saloon at night as a room (townsfolk step 10, #1157; SaloonRoom, src/people/saloon_room.gd; docs/briefs/townsfolk.md \u00a76). Built on No Law's yard set (`set`: the bar, the card table, the piano), which is where the night's people are till the set moves into saloon B; `rect` [a0, b0, a1, b1] is the room on the set's lot (move the set and this with it). **Mood** 0 hushed to 1 roaring, once `every_s`: `people` x (how many are in of `full`) + `drink` x (their drink, 0-1: `drink_per_h` an hour at a drinking spot, `drinks` the doings that count) + `music` while the band sounds + the night's `add` (`nights`: the first whose `if` the story holds, else the day kind's in `kinds`) + Harlan's (`regard`: the town's band of him, only while he's in the room), times how many of the room are calm, times the climb back after trouble (nothing for `hold_s`, then up over `recover_s`). Names: under `hushed_under` hushed; under `calm_at` with trouble not yet lived down or Harlan in and the town cold or afraid: tense; under `lively_at` calm; else lively. **The director** (once `every_s`, only with you within `live_m`): a bit every `gap` seconds by the mood ([mood, least, most] rows, between them by the mood; none under `none_under`), picked by `weight` among `bits` whose `from` (his block's `do`, or `seated`) fits a calm man in the room at his chore who may speak; the same bit from the same man not within `again_s`. laugh: his table (`table_m`) grins, one laughs `second_s` late. toast: glass up and a `room.toast` line (the town's script), the bar lifts theirs. The events: a man coming in is hailed (`room.hail`) and lifts a hand; a man going says `room.leave` and one answers (`room.answer`); you coming in (not again within `enter_again_s`): the town warm, a hail from a warm man who sees you; cold or afraid, the talk drops (`drop`: the mood times `to`, easing back over `s`; mouths shut `quiet_s`; the `looks` nearest look round at you); the barkeep, warm, sets a glass down before you unasked once a night when you've stood `glass.wait_s` within `glass.m` of him (`room.glass`). **The hush** (`trouble`): a deed of `deeds` or a shot within `margin_m` of the room: each man who hasn't sensed it himself (Reaction) looks round `look` = base + per_m x his distance + nerve x his nerve seconds after (0.15 to 1.2), a man with `ducks` (the piano player) ducks instead. `sounds`: stand-ins (SynthSounds) till #807's takes: each one placed at its man. PROPOSED numbers, to be felt in play.",
     "rect": [0.0, 0.0, 10.4, 12.5],
+    "hall_rect": {"hall": "saloon", "rect": [0.1, 0.1, 16.36, 13.36], "_doc": "#1213: saloon B's bar room (its spec's `bar_room`) is the room too: the barkeep serves there by day (`bar_back_day`)."},
     "lights": "saloon", "_lights": "The building whose window is lit (BookLights) while the room's open after dark with someone in: the saloon's, the yard set standing in for its room.",
     "hours": [10.0, 3.0],
     "every_s": 1.0,

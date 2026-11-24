@@ -41,7 +41,7 @@
     "broke": "You're cleaned out"
   },
   "lines": {
-    "_doc": "What the men say (Events.spoke: his mouth and the subtitle), one picked at random, at most one a man every say_gap_s and each only say_chance of the time (a win always). {hand} the hand's name, {n} cards. `by` a man's own lines over these. No line the table said within the game's `same_line_s` (#1184); all said lately, he keeps quiet (a win takes the stalest).",
+    "_doc": "What the men say (Events.spoke: his mouth and the subtitle), one picked at random, at most one a man every say_gap_s and each only say_chance of the time (a win always). {hand} the hand's name, {n} cards. `by` a man's own lines over these. No line the table said within the game's `same_line_s` (#1184); all said lately, he keeps quiet, a win too (#1213). `greet` when you sit down, `you_broke` when you're cleaned out.",
     "shuffle": ["Five-card draw. Ante up.", "Same game, gents.", "Cut 'em thin, deal 'em true.", "Ante.",
       "Another, then.", "Somebody cut.", "Let's see if these are any kinder.", "Ante up. You know the price."],
     "your_turn": ["Your bet, mister.", "Up to you, friend.", "Mister?", "You in or out?"],
@@ -54,20 +54,30 @@
     "draw_1": ["One.", "Just the one.", "One card. That's all I ask."],
     "draw_2": ["Two.", "Give me two.", "Two, if you'd be so good."],
     "draw_3": ["Three. And make 'em good.", "Three.", "Three, and quit smiling.", "Three. Don't spare me."],
-    "win": ["{hand}. Thank you kindly.", "{hand}. Read 'em.", "{hand}."],
-    "win_quiet": ["Mine, I reckon.", "Nobody? Then that's mine."],
-    "lose": ["Again.", "Hell.", "That's a hand."],
+    "win": ["{hand}. Thank you kindly.", "{hand}. Read 'em.", "{hand}.", "{hand}. Read 'em and weep.",
+      "{hand}. Come to papa.", "{hand}. I'll take that.", "{hand}. Pay the man. That's me.", "{hand}, gents.",
+      "{hand}. Don't all thank me at once.", "{hand}. Sorry, boys. No I ain't."],
+    "win_quiet": ["Mine, I reckon.", "Nobody? Then that's mine.", "Nobody wants it? I'll mind it for you.",
+      "Scared off, the lot of you.", "I'll not show you these.", "Obliged."],
+    "lose": ["Again.", "Hell.", "That's a hand.", "Figures.", "Should've stayed in bed.", "Damn the luck.",
+      "That's a lot of hand for this table."],
     "rebuy": ["Hold on, I've got more.", "Spot me a minute."],
     "you_fold": ["Smart.", "Can't win 'em all, mister."],
-    "you_win": ["Well, look at the new fella.", "Beginner's luck."],
+    "you_win": ["Well, look at the new fella.", "Beginner's luck.", "Don't get used to it, mister.", "Huh."],
+    "greet": ["Pull up a chair. Your money's as good as anybody's.", "Evening. Game's five-card draw.",
+      "Sit, if you're sitting.", "Room for one more fool.", "You play? We'll see."],
+    "you_broke": ["That's the lot of it, mister.", "Table thanks you.", "Come back when you're flush.",
+      "Cleaned out. Happens to the best of us. Happened to you."],
     "by": {
       "earl": {
-        "win": ["{hand}. Lady's been kind tonight.", "{hand}. Don't look at me like that."],
+        "win": ["{hand}. Lady's been kind tonight.", "{hand}. Don't look at me like that.",
+          "{hand}. Clean deck, boys. Clean as Sunday.", "{hand}. Now ain't that something.",
+          "{hand}. Read 'em out loud, boys, if you can."],
         "shuffle": ["My deal. Ante up, boys.", "Five-card. Same as ever.", "Come on, come on. Ante.",
           "These cards have been against me since Christmas.", "Deal's mine. Watch my hands, if you like."]
       },
       "drifter": {
-        "lose": ["Every damn hand.", "You're a lucky old man, Earl."]
+        "lose": ["Every damn hand.", "You're a lucky old man, Earl.", "Funny how it goes, Earl."]
       }
     }
   }

@@ -336,6 +336,9 @@ func _on_member(m: StructureMember, at: Vector3, flat: Vector3, kick: bool, m_e:
 	if s is Structure and m.kind == &"glass":
 		(s as Structure).break_member(m, flat * v)
 		info.result = &"broke"
+		# Heard and seen (#1213: the store's door glass broke and nobody turned).
+		Events.noise.emit(at, 14.0, &"crash", player)
+		Events.deed.emit(player, &"damage", null, at)
 		_tell(info)
 		return
 	if kick and s is Structure and e > BodyImpacts.capacity(s as Structure, m):
@@ -345,6 +348,7 @@ func _on_member(m: StructureMember, at: Vector3, flat: Vector3, kick: bool, m_e:
 		info.joules = e
 		GameAudio.play(player, &"timber_crack", at, {"volume_db": -4.0})
 		Events.noise.emit(at, 14.0, &"crash", player)
+		Events.deed.emit(player, &"damage", null, at)
 		player.motion.thump(0.3)
 		_tell(info)
 		return

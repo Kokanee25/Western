@@ -34,6 +34,9 @@ const LINES := {
 			"Somebody tell me that's the end of it.", "My heart's going like a hammer.", "Who was it? Anybody see?",
 			"Well. That's my supper ruined.", "Damn fool, whoever it was."],
 	# The relief of a man who saw who fired (#1194: the rancher, 4 m off, asked "Who was it?").
+	# To the face of the man who fired, right there (#1213).
+	&"relief_you": ["You done? Lord.", "Put that thing away, mister. Please.", "What'd you go and do that for?",
+			"Easy. Easy, now. Nobody's hurt."],
 	&"relief_saw": ["Lord. Is he done?", "I'm too old for this.", "My heart's going like a hammer.",
 			"Damn fool, firing off like that.", "Somebody take that iron off him.", "Is it over?",
 			"Well. That's my supper ruined.", "Anybody hurt?"],
@@ -43,6 +46,9 @@ const LINES := {
 	&"fire": ["Fire! FIRE!", "Fire! Get out, get out!", "Lord, it's burning!", "Fire! Somebody get water!",
 			"It's going up! Clear out!"],
 	&"thanks": ["Obliged to you, mister. Truly.", "Thank God you came along.", "I owe you one, friend."],
+	&"damage": ["Hey! What the hell was that?", "That's somebody's property, mister.", "Easy, now. Who's paying for that?"],
+	&"damage_mine": ["My glass! You'll pay for that, mister.", "Hey! That's my window! What in God's name—",
+			"That's come all the way from St. Louis, that glass!", "You break it, you bought it. That's the rule here."],
 	&"gun_out": ["Whoa, now. Easy with that iron.", "Put that away, mister.", "Hey now. There's no call for that."],
 	&"chair": ["What the hell?!", "Who kicked my damn chair?", "Son of a...!"],
 	&"help": ["Somebody get the doc!", "Easy, friend. Easy. Lie still.", "He's hit! Get the doctor!"],
@@ -68,7 +74,17 @@ const CROWD_MS := 900
 const SAME_LINE_MS := 4000
 ## Kinds whose lines nobody repeats in the town for longer than SAME_LINE_MS (ms; #1184: the relief
 ## after a shot went round the room, the same two lines by four men each). All said: he keeps quiet.
-const SAME_LINE_LONG_MS := {&"relief": 300000, &"relief_saw": 300000, &"gawk_shot": 60000}
+const SAME_LINE_LONG_MS := {&"relief": 300000, &"relief_saw": 300000, &"relief_you": 300000, &"gawk_shot": 60000}
+## Something broken by a man (`damage`, #1213): seen within DAMAGE_SEEN, or heard within DAMAGE_HEARD, he
+## looks round.
+const DAMAGE_SEEN := 15.0
+const DAMAGE_HEARD := 10.0
+var _mine_frame := -1
+
+
+func _damage_say(frame: int) -> void:
+	if _mine_frame != frame and is_instance_valid(body):
+		say(&"damage")
 ## Seen drawing within this (m), a gun makes him uneasy (not on him: `aim_at` is that).
 const GUN_SEEN := 9.0
 
@@ -296,8 +312,33 @@ func hush(seconds: float) -> void:
 ## "...They gone?", once it's gone quiet (#607: not with shots still flying).
 func say_relief() -> void:
 	if not _still_over_me() and senses.last_sound([&"gunshot"], RELIEF_QUIET).is_empty():
-		var saw := reaction != null and reaction.who != null and is_instance_valid(reaction.who)
-		say(&"relief_saw" if saw else &"relief")
+		var by := saw_shooter()
+		if by != null and _to_his_face(by):
+			say(&"relief_you")
+		else:
+			say(&"relief_saw" if by != null else &"relief")
+
+
+## Who he saw fire in the trouble he's coming back from (#1213: men who watched the player fire said
+## "Damn fool, whoever it was"): his reaction's man, else the shooter his own news has him seeing
+## (TownNews: a version he saw, of the latest shots); null if he saw nobody.
+func saw_shooter() -> Node3D:
+	if reaction != null and reaction.who != null and is_instance_valid(reaction.who) \
+			and (reaction.who is Player or reaction.who is HumanBody):
+		return reaction.who
+	if news != null:
+		var who := news.saw_fire(body.person_id)
+		if who == TownNews.HARLAN:
+			return get_tree().get_first_node_in_group(&"player") as Node3D if is_inside_tree() else null
+		if who != &"" and news.folk != null:
+			return news.folk.folk_man(who)
+	return null
+
+
+## `who` near and in his sight: said to him, not of him.
+func _to_his_face(who: Node3D) -> bool:
+	return who is Player and who.global_position.distance_to(body.global_position) < FACE_M and senses != null and senses.sees(who)
+const FACE_M := 6.0
 
 
 func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void:
@@ -332,6 +373,13 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 			_gun_watch = 6.0
 			say(&"gun_out")
 			reaction.sense(&"gun", (actor as Node3D).global_position, actor as Node3D)
+		elif kind == &"damage" and actor is Node3D and _at.distance_to(body.global_position) < DAMAGE_SEEN \
+				and (senses.sees(actor) or _at.distance_to(body.global_position) < DAMAGE_HEARD):
+			# Something broken near him (#1213: the store's glass, and nobody turned): he looks at it and
+			# at who did it, and says so (its owner has his own say: `damaged_mine`).
+			fear += 0.05
+			show_look(_at, actor as Node3D, 4.0)
+			_damage_say.call_deferred(Engine.get_physics_frames())  # (after the owner's had his, if it's his)
 		elif kind == &"holster" and actor == _gun_seen:
 			_gun_watch = 0.0
 		return
@@ -1153,6 +1201,18 @@ const SHOW_FOR := {&"nod": 1.6, &"look_away": 1.8, &"turn": 3.0, &"clear": 6.0, 
 ## The room's gone quiet and he looks round to see why (SaloonRoom's hush, townsfolk step 10): at
 ## `who` (or the point `at`) for `seconds`; on his feet he turns to it, his chore stopped; sat, his
 ## head and eyes only. Not his regard: nothing's kept of it.
+## His own place's glass or boards broken (ValleyFolk._on_damage, #1213): he turns to it and whoever did
+## it, and has his say, the owner's, not a bystander's.
+func damaged_mine(at: Vector3, who: Node3D) -> void:
+	if not body.physiology.is_conscious():
+		return
+	fear += 0.05
+	show_look(at, who, 5.0)
+	_since_said = SAY_GAP  # his own glass: he speaks up, whatever he was saying
+	say(&"damage_mine")
+	_mine_frame = Engine.get_physics_frames()
+
+
 func show_look(at: Vector3, who: Node3D = null, seconds := 4.0) -> void:
 	showing = {"what": &"look", "who": who, "at": at, "for": seconds, "t": 0.0, "aside": Vector3.INF}
 

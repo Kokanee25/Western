@@ -36,18 +36,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - Story: #744, STORY.md; the bible #809.
 - **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-10: day and book, roster,
   spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
-  the barks (`TownRegard`, `TownBarks`), **the saloon as a room** (#1157: `SaloonRoom` on No Law's yard set, bridge
-  `read room`; mood, the director's bits, the hush, the band's shaky restart; 11-12 in at 20:30).
-  **Step 11, the gate** (#1162, `docs/playtests/2026-11-22-town.md`; #1167: `TownRegard.deeds`, errand `round`s,
-  `shops`, `run_seed` / `--town-seed`, the bridge's `big_break`). **Gate rounds 2-4** (`docs/playtests/2026-11-23-town-2.md`, `-3`, `-4`): not passed; the last
-  round's faults wait on Sean (#1208). #1184: day talk (`street`, `chat`, `_chat_step`), rounds, the knock, loops. #1194:
-  stuck walks (`ValleyFolk._door_step`: in at his door after 6 s watched; `_stuck_step`: still 40 s, placed unseen or
-  re-routed; `CivilianBrain._far_from_post`, `_route_home`, day walks sidestep), one man to a spot (`_leg_block`),
-  `relief_saw`; bridge `walk saloon_room` to the room, `walk PERSON` to shove reach. Left (#1208): E at the store's glass
-  shoves (`past_door` 0.9 m), card lines repeat, noon bar unreachable, witnesses' words, men left out after the shot
-  (a man "in" off his post isn't watched), crates break at load. Unjudged on screen: the
-  walks between spots, the store's door scene. Open: the room's sounds are synth stand-ins (#807); no argument,
-  round bought or song called for; not in saloon B; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
+  the barks (`TownRegard`, `TownBarks`), the saloon as a room (#1157: `SaloonRoom`, bridge `read room`).
+  **Step 11, the gate** (#1162; rounds 2-4: `docs/playtests/2026-11-23-town-4.md`): not passed blind; #1213 fixed
+  its last five faults, then Sean plays it himself (#1208, no more rounds). #1213: E at the store's glass knocks
+  (`ValleyFolk._leaf_depth`: past the door is past its leaf), broken glass a `damage` deed (`_on_damage`, keeper's
+  `damaged_mine`); card lines once in 10 min or silence, `greet`, `you_broke`; the barkeep by day behind saloon B's own
+  bar (`bar_back_day`, the room's `hall_rect`), the yard's from 17:00 (the night's room still the yard set, #755);
+  witnesses' words (`TownNews.saw_fire`, `news.shots.who/you/here`, `react.back.saw/you`, `relief_you`); a man "in"
+  left far off his post after a fright put back (`_away_step`). Left: crates and the embalming table break at load;
+  men talk to nobody; the keeper's at the door the instant you knock. Unjudged on screen: the walks, saloon B's day bar. Open: the room's sounds are synth stand-ins (#807); no argument, round bought or song
+  called for; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
