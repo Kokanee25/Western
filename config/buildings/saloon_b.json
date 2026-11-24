@@ -3773,7 +3773,18 @@
 					"id": "bottles_0",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart",
+							"liquor_quart",
+							"liquor_quart",
+							"liquor_quart"
+						],
+						"variants": [
+							0,
+							1,
+							2,
+							8,
+							0
 						],
 						"count": 5,
 						"step": [
@@ -3798,7 +3809,18 @@
 					"id": "bottles_1",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart",
+							"gin_case_bottle",
+							"liquor_quart",
+							"liquor_quart"
+						],
+						"variants": [
+							5,
+							6,
+							0,
+							0,
+							10
 						],
 						"count": 5,
 						"step": [
@@ -3823,7 +3845,18 @@
 					"id": "bottles_2",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"bitters_bottle",
+							"bitters_bottle",
+							"liquor_quart",
+							"liquor_quart",
+							"liquor_quart"
+						],
+						"variants": [
+							0,
+							1,
+							1,
+							2,
+							0
 						],
 						"count": 5,
 						"step": [
@@ -3848,7 +3881,18 @@
 					"id": "bottles_3",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"beer_bottle",
+							"beer_bottle",
+							"ginger_beer_bottle",
+							"beer_bottle",
+							"liquor_quart"
+						],
+						"variants": [
+							1,
+							1,
+							0,
+							0,
+							0
 						],
 						"count": 5,
 						"step": [
@@ -3921,13 +3965,14 @@
 				},
 				{
 					"id": "bar_bottle",
-					"kit": "whiskey_bottle",
+					"kit": "liquor_quart",
 					"at": [
 						2.4,
 						1.095,
 						9.15
 					],
-					"facing": 0
+					"facing": 0,
+					"variant": 0
 				},
 				{
 					"id": "hanging_lamp_0",
@@ -4267,13 +4312,14 @@
 				},
 				{
 					"id": "no_law_bottle",
-					"kit": "whiskey_bottle",
+					"kit": "liquor_quart",
 					"at": [
 						13.12,
 						0.77,
 						7.38
 					],
-					"facing": 0
+					"facing": 200,
+					"variant": 1
 				}
 			],
 			"S2": [
@@ -4405,7 +4451,7 @@
 				},
 				{
 					"id": "keg_0",
-					"kit": "beer_keg",
+					"kit": "beer_keg_riedl",
 					"at": [
 						4.6,
 						0.0,
@@ -4416,7 +4462,7 @@
 				},
 				{
 					"id": "keg_1",
-					"kit": "beer_keg",
+					"kit": "beer_keg_riedl",
 					"at": [
 						5.0,
 						0.0,
@@ -4426,7 +4472,7 @@
 				},
 				{
 					"id": "keg_2",
-					"kit": "beer_keg",
+					"kit": "beer_keg_riedl",
 					"at": [
 						4.6,
 						0.0,
@@ -4449,7 +4495,7 @@
 				},
 				{
 					"id": "rack_store_keg_0",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.4,
 						0.16,
@@ -4459,7 +4505,7 @@
 				},
 				{
 					"id": "rack_store_keg_1",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.4,
 						0.16,
@@ -4469,7 +4515,7 @@
 				},
 				{
 					"id": "rack_store_keg_2",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.4,
 						0.16,
@@ -4479,7 +4525,7 @@
 				},
 				{
 					"id": "rack_store_keg_3",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.4,
 						0.16,
@@ -4500,7 +4546,7 @@
 				},
 				{
 					"id": "rack_cellar_keg_0",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.76,
 						-2.71,
@@ -4510,7 +4556,7 @@
 				},
 				{
 					"id": "rack_cellar_keg_1",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.76,
 						-2.71,
@@ -4520,7 +4566,7 @@
 				},
 				{
 					"id": "rack_cellar_keg_2",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.76,
 						-2.71,
@@ -4530,7 +4576,7 @@
 				},
 				{
 					"id": "rack_cellar_keg_3",
-					"kit": "beer_keg_side",
+					"kit": "beer_keg_side_riedl",
 					"at": [
 						0.76,
 						-2.71,
@@ -4721,7 +4767,7 @@
 				},
 				{
 					"id": "whiskey_barrel_0",
-					"kit": "whiskey_barrel",
+					"kit": "whiskey_barrel_burnt_hollow",
 					"at": [
 						5.5,
 						0.0,
@@ -4776,7 +4822,18 @@
 					"id": "bottles_r0",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart",
+							"liquor_quart",
+							"liquor_quart",
+							"bitters_bottle"
+						],
+						"variants": [
+							1,
+							0,
+							8,
+							6,
+							0
 						],
 						"count": 5,
 						"step": [
@@ -4801,7 +4858,12 @@
 					"id": "bottles_upl0",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart_flint",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -4836,7 +4898,12 @@
 					"id": "bottles_upl0_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							0,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -4861,7 +4928,12 @@
 					"id": "bottles_upr0",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							0,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -4896,7 +4968,12 @@
 					"id": "bottles_upr0_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -4921,7 +4998,18 @@
 					"id": "bottles_r1",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart",
+							"liquor_quart",
+							"gin_case_bottle",
+							"liquor_quart"
+						],
+						"variants": [
+							2,
+							10,
+							0,
+							0,
+							5
 						],
 						"count": 5,
 						"step": [
@@ -4946,7 +5034,12 @@
 					"id": "bottles_upl1",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -4981,7 +5074,12 @@
 					"id": "bottles_upl1_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							2,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5006,7 +5104,12 @@
 					"id": "bottles_upr1",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							2,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5041,7 +5144,12 @@
 					"id": "bottles_upr1_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart_flint",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5066,7 +5174,18 @@
 					"id": "bottles_r2",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart",
+							"bitters_bottle",
+							"liquor_quart",
+							"liquor_quart"
+						],
+						"variants": [
+							0,
+							1,
+							1,
+							2,
+							8
 						],
 						"count": 5,
 						"step": [
@@ -5091,7 +5210,12 @@
 					"id": "bottles_upl2",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart_flint",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5126,7 +5250,12 @@
 					"id": "bottles_upl2_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							0,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5151,7 +5280,12 @@
 					"id": "bottles_upr2",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							0,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5186,7 +5320,12 @@
 					"id": "bottles_upr2_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5211,7 +5350,18 @@
 					"id": "bottles_r3",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"beer_bottle",
+							"liquor_quart",
+							"liquor_quart",
+							"ginger_beer_bottle",
+							"liquor_quart"
+						],
+						"variants": [
+							0,
+							6,
+							0,
+							0,
+							1
 						],
 						"count": 5,
 						"step": [
@@ -5236,7 +5386,12 @@
 					"id": "bottles_upl3",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5271,7 +5426,12 @@
 					"id": "bottles_upl3_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							2,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5296,7 +5456,12 @@
 					"id": "bottles_upr3",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							2,
+							1
 						],
 						"count": 2,
 						"step": [
@@ -5331,7 +5496,12 @@
 					"id": "bottles_upr3_b",
 					"row": {
 						"kits": [
-							"whiskey_bottle"
+							"liquor_quart_flint",
+							"liquor_quart_flint"
+						],
+						"variants": [
+							1,
+							1
 						],
 						"count": 2,
 						"step": [

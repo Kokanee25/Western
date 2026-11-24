@@ -1,0 +1,57 @@
+{
+  "_doc": "A bottle of the game's own booze (#1222, docs/briefs/booze.md): an amber beer quart with a blob top, its cork wired down (no crown caps until 1892). Its labels the brands of its shape (Riedl'S, Zeitler'S, Ebner'S, Fothergill'S, Twin Buttes, Wiener'S, Dr. Ferrell'S): the Nth made wears label N mod 7 (`variants`), or the one its dressing entry names (`variant`; tools/props/booze.py variant_of). A prop that shatters (GlassProp): a fall onto boards at 4.5 m/s or 60 kPa breaks it and what's in it goes on the floor. Drawn from glb:booze_bottles (tools/blender/props/booze.py): the glass the kit's `glass:` look, every label printed on one sheet (pbr:booze_labels), cork and contents baked the gun way. Written by tools/props/booze.py.",
+  "id": "beer_bottle",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:booze_bottles",
+  "looks": {
+    "LabelBeer%d": "pbr:booze_labels",
+    "CorkBeer": "pbr:booze_bottles",
+    "GlassBeer": "glass:amber",
+    "LiquidBeer": "pbr:booze_bottles"
+  },
+  "variants": 7,
+  "brands": [
+    "riedl",
+    "zeitler",
+    "ebner",
+    "fothergill",
+    "twin_buttes",
+    "wiener",
+    "ferrell"
+  ],
+  "size": [
+    0.082,
+    0.29,
+    0.082
+  ],
+  "mass": 1.25,
+  "wall": 0.004,
+  "glass": [
+    "GlassBeer",
+    "LiquidBeer",
+    "LabelBeer"
+  ],
+  "whole": [
+    [
+      "CorkBeer"
+    ]
+  ],
+  "shards": 12,
+  "piece_mass": 0.04,
+  "breaks_at": 4.5,
+  "shatters_kpa": 60,
+  "heat_seconds": 25,
+  "cut_area": 0.05,
+  "contents": {
+    "liquid": "beer",
+    "litres": 0.595,
+    "colour": [
+      0.72,
+      0.5,
+      0.16
+    ]
+  },
+  "factory": "tools/props/booze.py"
+}

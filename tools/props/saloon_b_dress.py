@@ -13,6 +13,10 @@ drinkers, the bar's lamps and the use points that stood on a prop move with it (
 """
 import json
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import booze  # noqa: E402  (the game's own brands, #1222)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SPEC = os.path.join(ROOT, "config/buildings/saloon_b.json")
@@ -46,6 +50,33 @@ def e(id_, kit, at, facing=0, **kw):
     return d
 
 
+# --- The booze on it (#1222, docs/briefs/booze.md): the saloon's own brands (grade S), Ashby's on the top
+# shelf (its bottles refilled from the barrel: the label warns about it), bitters by the glass, a few
+# bottled lagers, Riedl's kegs and a Burnt Hollow barrel. Each bottle a shape's kit and its brand's label.
+Q, F, BIT, GIN, BEER, STONE = "quart", "quart_flint", "square", "gin", "beer", "stone"
+LOWER = [  # the back bar's lower shelves, a row of five a bay (S1's left bays, then S5's right ones)
+    [(Q, "burnt_hollow"), (Q, "pettibone"), (Q, "belle_of_larue"), (Q, "tinderbox"), (Q, "burnt_hollow")],
+    [(Q, "cuthbert"), (Q, "carriere"), (GIN, "van_oorst"), (Q, "burnt_hollow"), (Q, "stoner_blunt")],
+    [(BIT, "quill"), (BIT, "corlew"), (Q, "pettibone"), (Q, "belle_of_larue"), (Q, "burnt_hollow")],
+    [(BEER, "zeitler"), (BEER, "zeitler"), (STONE, "holcombe"), (BEER, "riedl"), (Q, "burnt_hollow")],
+    [(Q, "pettibone"), (Q, "burnt_hollow"), (Q, "tinderbox"), (Q, "carriere"), (BIT, "quill")],
+    [(Q, "belle_of_larue"), (Q, "stoner_blunt"), (Q, "burnt_hollow"), (GIN, "van_oorst"), (Q, "cuthbert")],
+    [(Q, "burnt_hollow"), (Q, "pettibone"), (BIT, "corlew"), (Q, "belle_of_larue"), (Q, "tinderbox")],
+    [(BEER, "riedl"), (Q, "carriere"), (Q, "burnt_hollow"), (STONE, "holcombe"), (Q, "pettibone")],
+]
+UPPER = [(F, "ashby"), (F, "ashby"), (Q, "burnt_hollow"), (F, "ashby"), (Q, "pettibone"), (F, "ashby"),
+         (Q, "belle_of_larue"), (F, "ashby")]   # the top shelves, two at a time round each decanter
+
+
+def booze_row(pairs):
+    """A row's `kits` and `variants` from (shape, brand) pairs."""
+    return {"kits": [booze.kit_of(sh) for sh, _ in pairs], "variants": [booze.variant_of(sh, b) for sh, b in pairs]}
+
+
+def bottle(id_, shape, brand, at, facing=0, **kw):
+    return e(id_, booze.kit_of(shape), at, facing, variant=booze.variant_of(shape, brand), **kw)
+
+
 def s1():
     out = []
     for i, z in enumerate(BAR_Z):
@@ -66,12 +97,12 @@ def s1():
     out.append({"id": "schooners_back", "row": {"kits": ["schooner"], "count": 6, "step": [0, 0, 0.11], "jitter": [0.008, 0.008, 0]},
                 "at": [0.55, COUNTER, 10.2], "facing": 0})
     for i, c in enumerate(BACK_BAR_Z):
-        out.append({"id": "bottles_%d" % i, "row": {"kits": ["whiskey_bottle"], "count": 5, "step": [0, 0, 0.17], "jitter": [0.01, 0.02, 30]},
+        out.append({"id": "bottles_%d" % i, "row": dict(booze_row(LOWER[i]), count=5, step=[0, 0, 0.17], jitter=[0.01, 0.02, 30]),
                     "at": [0.3, SHELF0, c - 0.95], "facing": 90})
     # On the bar's top, where the drinkers stand (glasses on the bar for Payday Night's dust).
     for i, (kit, z) in enumerate([("shot_glass", 3.4), ("schooner", 5.0), ("schooner", 7.4), ("shot_glass", 9.0), ("shot_glass", 10.6)]):
         out.append(e("bar_glass_%d" % i, kit, [2.5, BAR_TOP, z], 0))
-    out.append(e("bar_bottle", "whiskey_bottle", [2.4, BAR_TOP, 9.15], 0))
+    out.append(bottle("bar_bottle", Q, "burnt_hollow", [2.4, BAR_TOP, 9.15], 0))
     # The hanging lamps: two rows of three under the dance floor's joists (they swing when it works and
     # fall with it: the sawn girder's panel is z 6.7-10.1), lit by the clock, no shadows (the room's
     # reflector lamps cast them).
@@ -104,7 +135,7 @@ def s1():
         out.append(e("chips_%d" % i, "chip_stacks", [x + 0.18, CARD_TOP, z + 0.14], 10 * i))
     out.append(e("no_law_glass_0", "shot_glass", [12.82, CARD_TOP, 7.5], 0))
     out.append(e("no_law_glass_1", "shot_glass", [13.38, CARD_TOP, 7.05], 0))
-    out.append(e("no_law_bottle", "whiskey_bottle", [13.12, CARD_TOP, 7.38], 0))
+    out.append(bottle("no_law_bottle", Q, "pettibone", [13.12, CARD_TOP, 7.38], 200))
     return out
 
 
@@ -123,13 +154,14 @@ def s5_back_bar():
     out = []
     for i, c in enumerate(BACK_BAR_Z):
         # The right bay's lower shelf (S1's row is the left's).
-        out.append({"id": "bottles_r%d" % i, "row": {"kits": ["whiskey_bottle"], "count": 5, "step": [0, 0, 0.17], "jitter": [0.012, 0.02, 40]},
+        out.append({"id": "bottles_r%d" % i, "row": dict(booze_row(LOWER[4 + i]), count=5, step=[0, 0, 0.17], jitter=[0.012, 0.02, 40]),
                     "at": [0.3, SHELF0, c + 0.24], "facing": 90})
         for side, z0 in (("l", c - 0.95), ("r", c + 0.24)):
-            out.append({"id": "bottles_up%s%d" % (side, i), "row": {"kits": ["whiskey_bottle"], "count": 2, "step": [0, 0, 0.15], "jitter": [0.012, 0.02, 40]},
+            k = (2 * i + (side == "r")) * 2
+            out.append({"id": "bottles_up%s%d" % (side, i), "row": dict(booze_row(UPPER[k % 8:k % 8 + 2]), count=2, step=[0, 0, 0.15], jitter=[0.012, 0.02, 40]),
                         "at": [0.29, SHELF1, z0], "facing": 90})
             out.append(e("decanter_up%s%d" % (side, i), "decanter", [0.3, SHELF1, z0 + 0.36], 0))
-            out.append({"id": "bottles_up%s%d_b" % (side, i), "row": {"kits": ["whiskey_bottle"], "count": 2, "step": [0, 0, 0.15], "jitter": [0.012, 0.02, 40]},
+            out.append({"id": "bottles_up%s%d_b" % (side, i), "row": dict(booze_row(UPPER[(k + 2) % 8:(k + 2) % 8 + 2]), count=2, step=[0, 0, 0.15], jitter=[0.012, 0.02, 40]),
                         "at": [0.29, SHELF1, z0 + 0.53], "facing": 90})
     return out
 
@@ -187,7 +219,7 @@ def s2():
     out.append(e("handsaw", "handsaw", [3.6, 0.02, 20.9], 15, use="Payday Night's saw, in the store room till it's carried up the outside stair"))
     out.append(e("cookstove", "cookstove", [7.5, 0.0, 21.38], 180, use="the kitchen's range, its back to the back wall"))
     for i, (x, z) in enumerate([(4.6, 17.0), (5.0, 17.4), (4.6, 17.8)]):
-        out.append(e("keg_%d" % i, "beer_keg", [x, 0.0, z], 20 * i, use="full kegs up from the cellar" if i == 0 else None))
+        out.append(e("keg_%d" % i, "beer_keg_riedl", [x, 0.0, z], 20 * i, use="full kegs up from the cellar" if i == 0 else None))
     for d in out:
         if d.get("use") is None:
             d.pop("use", None)
@@ -203,7 +235,7 @@ def s3():
         # The lower tier real kegs (12 bodies each), the rack's slots turned with it (facing 90:
         # its x along -z).
         for k, (sx, sy) in enumerate(rack_slots):
-            out.append(e("%s_keg_%d" % (rid, k), "beer_keg_side", [x, y + sy, z - sx], 90))
+            out.append(e("%s_keg_%d" % (rid, k), "beer_keg_side_riedl", [x, y + sy, z - sx], 90))
     out.append(e("keg_floor_0", "beer_keg_side", [1.0, CELLAR, 13.0], 85))
     out.append(e("keg_floor_1", "beer_keg_side", [1.0, CELLAR, 13.7], 95))
     # The rented rooms (room_6 is the dressing room, #902): a bed each, its head to the back wall.
@@ -223,7 +255,7 @@ def s3():
     out.append(e("basin_office", "wash_basin", [11.42, 0.0, 4.3], 0, on="wash_office"))
     out.append(e("pitcher_office", "wash_pitcher", [11.42, 0.0, 4.3], 160, on="basin_office", lift=0.014))
     # Storage filled (#821): barrels and crates in the store room.
-    out.append(e("whiskey_barrel_0", "whiskey_barrel", [5.5, 0.0, 14.2], 0))
+    out.append(e("whiskey_barrel_0", "whiskey_barrel_burnt_hollow", [5.5, 0.0, 14.2], 0))
     out.append(e("whiskey_barrel_1", "whiskey_barrel", [5.5, 0.0, 14.9], 40))
     out.append(e("water_barrel", "water_barrel", [5.5, 0.0, 21.2], 0))
     out.append(e("crate_0", "crate", [1.0, 0.0, 20.9], 5))

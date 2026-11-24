@@ -46,21 +46,13 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   bottles CLOSE; spittoons DIFFERENT (the old drawn one reads as rocks: S4). **Steps 7-8 wait for #1032** (pictures and ads);
   the pronghorn is bought (up to $2, Sean #1042; no elk). No arm rail on the bar's top (Sean): the foot rail is the brass.
 - **Next:** S5's steps 7-8 once #1032's `assets/props/paintings/` is on main (PR #1041 landed 2026-11-23); then S4 (the chair and strongbox, the spittoon, the CLOSE notes).
-- **The booze, steps 1-3** (#1222; `docs/briefs/booze.md` on branch `claude/game-booze-brands-labels-l2bsng`, unmerged, docs only):
-  31 invented brands by grade (R the Railroad Saloon, S the saloon, F the hotel and the Baron's), two blind checks (11 real
-  names replaced), plus 8 double meanings and 14 dumb ones (store, Railroad Saloon). **Sean approved all 53 (#1223)**;
-  next step 4 (labels, bottle shapes, barrel heads, placed; handover on #1222): merge the brief with it.
-- **The doctor's office is furnished: D1, D2 and D3 merged** (#788 PR #802; #805 PR #817; #819). D3: his books
-  (`book_row_a/b/c`, `book_stack`), `bookcase`, `coat_pegs` (coat and hat hung), `chamber_pot`,
-  `folded_blankets`, and `doctors_bag` (Rodin, Sean's A on #823). All his wooden kits are now
-  `lib:furniture_oak/few` or `lib:furniture_painted_pine/few` (#825). No D4. Blind critic, two rounds
-  (`experiments/prop_lab/results/2026-11-12_doctor_d3/r2/critic.md`): peg rail SAME; books, hat, bag, pot,
-  blankets CLOSE; **coat and bookcase DIFFERENT** (the coat hangs stiff as on a hanger: code-built cloth
-  doesn't drape; the bookcase is a low open oak shelf where the panel shows a tall dark glazed case on a
-  cupboard base). Those two wait on Sean's pick (#871); don't
-  re-judge the rest. Since #844 they're in his spec's `dressing`, placed in play.
-  The Studio's branch `claude/studio-doctor-bag` (the bag's card, pictures, model, ledger at $64.89 of $66)
-  is unmerged: Sean's OK needed.
+- **The booze, step 4 merged** (#1222; `docs/briefs/booze.md`, `tools/props/booze.py` brands/shapes/kits, `tools/blender/props/booze.py`
+  model + the one label sheet `pbr:booze_labels`): 50 bottled brands on 10 bottle kits (`variants`; a dressing entry's `variant`
+  names the brand, `booze.variant_of`), 5 stencilled casks. Placed: saloon B (back bar, bar, No Law's table, Riedl's kegs, a Burnt
+  Hollow barrel), the store's top grocery board, the doctor's three. **Not yet placed:** the hotel's F brands and the Railroad
+  Saloon's R and dumb ones (Lowry's barrel, Wiener's, Uranus...): place them when those buildings are dressed.
+- **The doctor's office is furnished** (D1-D3 merged, #788/#805/#819; no D4). Coat and bookcase DIFFERENT, waiting on
+  Sean (#871); don't re-judge the rest. The Studio's `claude/studio-doctor-bag` branch is unmerged (Sean's OK needed).
 - **In the game since #844:** a building's props are its spec's `dressing` (`{"batches": {"D1": [...]}}`),
   placed by its build (`SpecBuilding._dressing` -> `PropDressing`); `dress.gd` only reads `building.dressed`.
   D3 moved there too, the sick room rearranged so no cot blocks a door; the jail's (#811) and the store's the same way.

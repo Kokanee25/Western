@@ -1,0 +1,65 @@
+{
+  "_doc": "A bottle of the game's own booze (#1222, docs/briefs/booze.md): a round amber glass quart (the trade's 'fifth'), an applied lip, a cork. Its labels the brands of its shape (Burnt Hollow, Col. Pettibone'S, Belle Of Larue, South Platte, Pioneer Rye, Cuthbert'S, Carriere'S, Crack Shot, Tinderbox, Cougar Brand, Pure Rye, Uranus, Old Seaman'S, Ball'S, Pure Rye): the Nth made wears label N mod 15 (`variants`), or the one its dressing entry names (`variant`; tools/props/booze.py variant_of). A prop that shatters (GlassProp): a fall onto boards at 4.5 m/s or 60 kPa breaks it and what's in it goes on the floor. Drawn from glb:booze_bottles (tools/blender/props/booze.py): the glass the kit's `glass:` look, every label printed on one sheet (pbr:booze_labels), cork and contents baked the gun way. Written by tools/props/booze.py.",
+  "id": "liquor_quart",
+  "kind": "shatters",
+  "fixture": true,
+  "in_game": false,
+  "model": "glb:booze_bottles",
+  "looks": {
+    "LabelQuart%d": "pbr:booze_labels",
+    "CorkQuart": "pbr:booze_bottles",
+    "GlassQuart": "glass:amber",
+    "LiquidQuart": "pbr:booze_bottles"
+  },
+  "variants": 15,
+  "brands": [
+    "burnt_hollow",
+    "pettibone",
+    "belle_of_larue",
+    "south_platte",
+    "brandauer",
+    "cuthbert",
+    "carriere",
+    "crack_shot",
+    "tinderbox",
+    "cougar",
+    "stoner_blunt",
+    "uranus",
+    "old_seaman",
+    "ball",
+    "long_hardy"
+  ],
+  "size": [
+    0.088,
+    0.3,
+    0.088
+  ],
+  "mass": 1.2,
+  "wall": 0.004,
+  "glass": [
+    "GlassQuart",
+    "LiquidQuart",
+    "LabelQuart"
+  ],
+  "whole": [
+    [
+      "CorkQuart"
+    ]
+  ],
+  "shards": 12,
+  "piece_mass": 0.04,
+  "breaks_at": 4.5,
+  "shatters_kpa": 60,
+  "heat_seconds": 25,
+  "cut_area": 0.05,
+  "contents": {
+    "liquid": "whiskey",
+    "litres": 0.51,
+    "colour": [
+      0.55,
+      0.32,
+      0.1
+    ]
+  },
+  "factory": "tools/props/booze.py"
+}

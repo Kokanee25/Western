@@ -29,6 +29,10 @@ const VIEWS := {
 	"back_wall_day": [Vector3(6.6, 2.5, 6.4), Vector3(4.6, 2.55, 13.36), 70.0, 14.0],
 	# The back bar stocked, the rifle over it, the nude's corner (its front end) beyond.
 	"back_bar_night": [Vector3(5.6, 2.35, 9.8), Vector3(0.3, 2.7, 4.0), 66.0, 21.5],
+	# The booze (#1222): the back bar's labelled bottles by lamplight at 1 m (the bartender in his aisle) and
+	# at 3 m (a drinker across the bar): the labels legible close, a blur of colour across the bar.
+	"booze_1m_night": [Vector3(1.32, 2.5, 6.15), Vector3(0.3, 2.5, 6.0), 50.0, 21.5],
+	"booze_3m_night": [Vector3(3.25, 2.6, 6.6), Vector3(0.3, 2.5, 6.0), 50.0, 21.5],
 	# The clock close, from the bar's end (a man reading the time).
 	"clock_night": [Vector3(3.3, 2.6, 11.6), Vector3(2.9, 2.75, 13.36), 50.0, 21.5],
 	# The dressing room (room 6, the upper floor at 4.91): the mirror, the pegs and trunk, the screen.
