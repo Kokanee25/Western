@@ -223,6 +223,7 @@ func _ready() -> void:
 	add_child(lights)
 	lights.build(buildings())
 	Events.hours_passed.connect(_on_hours_passed)
+	Events.deed.connect(_on_damage)
 	_prebuild.call_deferred()
 
 
@@ -2223,10 +2224,15 @@ func door_near(at: Vector3, fwd: Vector3, reach: float) -> Dictionary:
 		if absf(to.y) > 1.6:
 			continue
 		to.y = 0.0
-		var d := to.length()
+		# Its leaf (#1213: in the store's recess, 1.2 m in from the point; at its glass the point's
+		# behind you): near and in front of you, either.
+		var leaf := _leaf_point(pn)
+		var to_leaf := leaf - at
+		to_leaf.y = 0.0
+		var d := minf(to.length(), to_leaf.length())
 		if d > best_d:
 			continue
-		if d > 0.6 and fwd.length() > 0.01 and rad_to_deg(fwd.angle_to(to / d)) > 75.0:
+		if d > 0.6 and fwd.length() > 0.01 and _off_ahead(fwd, to) and _off_ahead(fwd, to_leaf):
 			continue
 		if past_door(pn, at):
 			continue  # in at it already (#1095: the prompt showed in the doorway)
@@ -2253,10 +2259,61 @@ func past_door(place: StringName, at: Vector3) -> bool:
 		return false
 	var into := b.global_basis.z
 	into.y = 0.0
+	if into.length() <= 0.01:
+		return false
+	into = into.normalized()
 	var off := at - places.at(place)
 	off.y = 0.0
-	return into.length() > 0.01 and off.dot(into.normalized()) > PAST_DOOR
+	return off.dot(into) > maxf(PAST_DOOR, _leaf_depth(place, b, into) + PAST_LEAF)
 const PAST_DOOR := 0.9
+## Past the door's own leaf by this (m): in its doorway (#1213).
+const PAST_LEAF := 0.35
+
+
+## How far in from `place`'s door point its door's leaf hangs (m along `into`): a door in a recess (the
+## store's, 1.2 m back from its front, #1213: at its glass you were "past the door" and E shoved and
+## broke it) is further in than the point out on the walk. The nearest door member (kind `door`, or a
+## piece of an `entry_leaf`) within `LEAF_NEAR` of the point; 0 if none. Found once a place.
+func _leaf_depth(place: StringName, b: Node3D, into: Vector3) -> float:
+	if _leaf.has(place):
+		return _leaf[place]
+	var p0 := places.at(place)
+	var best := 0.0
+	var best_d := LEAF_NEAR
+	for n: Node in b.find_children("*", "StructureMember", true, false):
+		var m := n as StructureMember
+		if m.kind != &"door" and not String(m.member_id).contains("entry_leaf"):
+			continue
+		var off := m.global_position - p0
+		off.y = 0.0
+		var d := off.length()
+		if d < best_d:
+			best_d = d
+			best = off.dot(into)
+	_leaf[place] = best
+	return best
+var _leaf := {}
+const LEAF_NEAR := 3.0
+
+
+## `place`'s door leaf on the ground (its door point moved in by `_leaf_depth`); the point if none.
+func _leaf_point(place: StringName) -> Vector3:
+	var p0 := places.at(place)
+	var bs: Variant = get_parent().get(&"buildings") if get_parent() else null
+	var b: Node3D = (bs as Dictionary).get(String(place)) if bs is Dictionary else null
+	if b == null or not is_instance_valid(b):
+		return p0
+	var into := b.global_basis.z
+	into.y = 0.0
+	if into.length() <= 0.01:
+		return p0
+	into = into.normalized()
+	return p0 + into * _leaf_depth(place, b, into)
+
+
+## More than 75 degrees off straight ahead (or right at it: not).
+static func _off_ahead(fwd: Vector3, to: Vector3) -> bool:
+	return to.length() > 0.6 and rad_to_deg(fwd.angle_to(to.normalized())) > 75.0
 
 
 ## A bang on `place`'s door: whoever the book has inside hears it (their ids), and it's told
@@ -2281,6 +2338,52 @@ func knock(place: StringName, by: Node, at: Vector3) -> Array:
 		_shop_answers(place, by)
 	knock_claimed = false
 	return inside
+
+
+## Something of a building's broken by the player (`damage`, #1213: the store's glass broke and its
+## keeper, 1.7 m off, talked about the weather): whoever's it is, near enough to hear it, has his say
+## (his brain's `damage_mine`); the others near it look round on their own (CivilianBrain).
+func _on_damage(actor: Node, kind: StringName, _target: Node, at: Vector3) -> void:
+	if kind != &"damage" or not actor is Player:
+		return
+	var place := &""
+	var best := DAMAGE_PLACE_M
+	for pn: StringName in door_places():
+		var d := Vector2(places.at(pn).x - at.x, places.at(pn).z - at.z).length()
+		if d < best:
+			best = d
+			place = pn
+	if place == &"":
+		return
+	# Small talk still to be said by men near it is dropped (it was picked before the crash).
+	var near_it := func(x: Array) -> bool:
+		var m: Variant = x[1] if x.size() == 3 else x[0]
+		return not (is_instance_valid(m) and m is HumanBody and (m as HumanBody).global_position.distance_to(at) < DAMAGE_HEARD_M)
+	_to_say = _to_say.filter(near_it)
+	_later = _later.filter(near_it)
+	for id: StringName in people:
+		var p := _person(id)
+		var near := folk_man(id)
+		if near != null and near.global_position.distance_to(at) < DAMAGE_HEARD_M:
+			# Not straight back to the weather (the test's keeper: "You'll pay for that", then calico).
+			_chat_at[id] = _ran + DAMAGE_QUIET_S
+			_spoke_at[id] = _talk_clock() + DAMAGE_QUIET_S
+		if home_of(p) != place:
+			continue
+		var man := folk_man(id)
+		if man == null or not man.physiology.is_conscious() or man.global_position.distance_to(at) > DAMAGE_HEARD_M:
+			continue
+		var br := man.get_node_or_null(^"Brain") as CivilianBrain
+		if br != null:
+			br.damaged_mine(at, actor as Node3D)
+		damaged.append([Engine.get_physics_frames(), place, id])
+## Within this of a door point, damage is that place's (m); its people within `DAMAGE_HEARD_M` hear it.
+const DAMAGE_PLACE_M := 8.0
+const DAMAGE_HEARD_M := 30.0
+## The day's small talk held off this long after (s).
+const DAMAGE_QUIET_S := 60.0
+## [frame, place, who answered] for each damage a place's own man had his say about (tests).
+var damaged: Array = []
 
 
 # --- Shops (the town gate's fault 3, #1167) --------------------------------------------------------

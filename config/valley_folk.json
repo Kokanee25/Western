@@ -366,6 +366,7 @@
       "shove": {"liking": -0.2, "trust": -0.1, "respect": -0.05, "fear": 0.04},
       "kick": {"liking": -0.35, "trust": -0.25, "fear": 0.12},
       "kick_down": {"liking": -0.5, "trust": -0.35, "respect": -0.2, "fear": 0.15},
+      "damage": {"liking": -0.15, "trust": -0.12, "respect": -0.05},
       "won_pot": {"respect": 0.12, "liking": 0.04},
       "carry": {"trust": 0.2, "liking": 0.2, "respect": 0.2}
     },

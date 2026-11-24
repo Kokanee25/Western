@@ -184,3 +184,70 @@ func test_at_noon_the_barkeep_is_behind_saloon_b_s_bar() -> void:
 	# He walks out to the yard's bar for the night's room at five.
 	check_eq(String(f.spot_of(f._person(&"barkeep")).get("behind", "")), "", "by day not the yard's bar")
 	_clock().time_scale = 1.0
+
+
+## The store's pane: its door's glass leaf (a StructureMember "…entry_leaf/pane").
+func _store_pane() -> StructureMember:
+	var b: Node3D = valley.get(&"buildings").get("general_store")
+	for n: Node in b.find_children("*", "StructureMember", true, false):
+		if String((n as StructureMember).member_id).ends_with("entry_leaf/pane"):
+			return n as StructureMember
+	return null
+
+
+## #1213 (gate 4, run 3): stood at the store door's glass from 0.7 m, the knock wasn't offered (you were
+## "past the door", 0.9 m in from its point out on the walk; the door's 1.2 m back in its recess), so E
+## shoved and broke the glass, and nobody turned. Now E there is the door's; and glass broken in a shop
+## is noticed: its keeper has his say, the men near look round.
+func test_at_the_store_s_glass_e_knocks_and_broken_glass_is_noticed() -> void:
+	var f := valley.folk
+	_put(Vector3(0.0, f.ground(0.0, 300.0), 300.0), Vector3(0.0, 0.0, 400.0))
+	await _at(14.0, 60 * 2)
+	var pane := _store_pane()
+	check(pane != null, "the store's door has its glass")
+	if pane == null:
+		return
+	var door := f.door(&"general_store")
+	var out := door - pane.global_position
+	out.y = 0.0
+	out = out.normalized()
+	var stand := pane.global_position + out * 0.7
+	stand.y = door.y - 0.1
+	_put(stand, pane.global_position)
+	await physics_frames(10)
+	var p := get_tree().get_first_node_in_group(&"player") as Player
+	print("  at the glass: you %s, the pane %s, the door point %s" % [p.global_position, pane.global_position, door])
+	check(not f.past_door(&"general_store", p.global_position), "at the glass isn't past the door")
+	check(not p.knock.door_here(true).is_empty(), "the door's yours to bang on")
+	check(p.knock.claims_use(p), "E there is the door's, not a shove")
+	# In the doorway past the leaf: in at it, no knock.
+	check(f.past_door(&"general_store", pane.global_position - out * 0.6), "past the leaf: in at it")
+	# The glass broken (as a shove did it): the keeper out on his walk has his say, and men near look.
+	var keeper := &"storekeeper"
+	f._legs[keeper] = {"base": 13.0, "i": 1, "until": 1.0e9, "since": f._ran, "n": 0}
+	f._key.erase(keeper)
+	f._look = 0.0
+	var there := await wait_until(func() -> bool:
+		var m := f.folk_man(keeper)
+		return m != null and f.state.get(keeper) == &"in" and m.global_position.distance_to(door) < 6.0, 60 * 40)
+	check(there, "the storekeeper's out by his door")
+	var said := f.heard.size()
+	var lines := []
+	var hook := func(by: Node, text: String) -> void:
+		if by is HumanBody:
+			lines.append([String((by as HumanBody).person_id), text])
+	Events.spoke.connect(hook)
+	(pane.get_parent() as Structure).break_member(pane, -out)
+	Events.noise.emit(pane.global_position, 14.0, &"crash", p)
+	Events.deed.emit(p, &"damage", null, pane.global_position)
+	await physics_frames(60 * 2)
+	Events.spoke.disconnect(hook)
+	print("  said: %s; %s" % [lines, f.heard.slice(said)])
+	check(f.damaged.any(func(x: Array) -> bool: return x[1] == &"general_store" and x[2] == keeper), "the keeper takes it as his")
+	check(lines.any(func(x: Array) -> bool: return x[0] == "storekeeper" and CivilianBrain.LINES[&"damage_mine"].has(x[1])),
+			"and says so (%s)" % [lines])
+	check(not lines.any(func(x: Array) -> bool: return x[0] == "storekeeper" and not CivilianBrain.LINES[&"damage_mine"].has(x[1])),
+			"and not straight back to his small talk (%s)" % [lines])
+	var br := f.folk_man(keeper).get_node(^"Brain") as CivilianBrain
+	check(not br.showing.is_empty() or br.fear > 0.0, "he turns to it")
+	_clock().time_scale = 1.0
