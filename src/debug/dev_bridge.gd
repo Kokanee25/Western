@@ -461,8 +461,15 @@ func _cmd_walk(a: Array) -> Dictionary:
 	var arrived := true
 	if run:
 		_act(true, &"run")
-	for target in points:
-		var last_leg: bool = target == points[-1]
+	# Stuck on a leg (#1194's merge: from the crossroads to lane_n6 the leg up onto the hotel's walk cut
+	# its end steps' corner and caught on the fascia): once, plan the way again from where you are and
+	# go on by that.
+	var replanned := false
+	var leg_i := 0
+	while leg_i < points.size():
+		var target: Vector3 = points[leg_i]
+		leg_i += 1
+		var last_leg: bool = leg_i == points.size()
 		var limit := _game_seconds() + Vector2(target.x - player.global_position.x, target.z - player.global_position.z).length() / 0.8 + 4.0
 		var stuck_since := _game_seconds()
 		var last := player.global_position
@@ -471,6 +478,8 @@ func _cmd_walk(a: Array) -> Dictionary:
 		var side_until := -1.0
 		var side := 1.0
 		var next_side := 0.8
+		var best := INF  # the nearest he's come to the target, and when
+		var best_at := _game_seconds()
 		while true:
 			var flat := Vector2(target.x - player.global_position.x, target.z - player.global_position.z)
 			# On the last leg let go in time to stop there: running, you carry on ~1.3 m after
@@ -485,6 +494,17 @@ func _cmd_walk(a: Array) -> Dictionary:
 				else:
 					break
 			var now := _game_seconds()
+			if flat.length() < best - 0.3:
+				best = flat.length()
+				best_at = now
+			# (Not nearer in 3 s: the sidesteps move him, so a corner holds him till the leg's time is up.)
+			if not replanned and (now - stuck_since > 2.5 or now - best_at > 3.0) and not _knocked_out():
+				replanned = true
+				var again := _replan(place, man, points[-1])
+				if not again.is_empty():
+					points = again
+					leg_i = 0
+					break
 			if now > limit or now - stuck_since > 4.0 or _knocked_out():
 				arrived = false
 				break
@@ -515,6 +535,18 @@ func _cmd_walk(a: Array) -> Dictionary:
 	return {"arrived": arrived, "at": _arr(player.global_position), "walked_m": snappedf(start.distance_to(player.global_position), 0.1),
 			"facing": _facing(), "legs": points.size(), "crouching": player.is_crouching,
 			"slowed": player.wounds.slow_why if player.wounds else "", "carrying": player.carry != null and player.carry.carrying()}
+
+
+## The way from where you stand to a walk's end (`_cmd_walk`'s replan): a place by the places' route,
+## anything else as a point. Empty if there's none.
+func _replan(place: StringName, man: HumanBody, end: Vector3) -> Array[Vector3]:
+	var from := player.global_position
+	var out: Array[Vector3] = []
+	if man == null and _places().has(place):
+		out = _places().route(World.space(player), from, place, [player.get_rid()])
+	if out.is_empty():
+		out = _places().route_to_point(World.space(player), from, end, [player.get_rid()])
+	return out
 
 
 ## The last of `walk PERSON` (#1194: it stopped 1.5-2 m off, past a shove's reach, and shoves went at
