@@ -116,7 +116,7 @@ each innocent sense is older than 1882, none of the modern ones existed yet.
 | 36 | **Amazon Restorative** | tonic bitters | store | (to name) | "For Female Weakness." | a warrior woman (classical) | the store |
 | 37 | **Cougar Brand Rye** (rye only: a Cougar gin and bourbon are sold today) | rye | R | (to name) | - | the mountain lion (1774) | the Railroad Saloon |
 | 38 | **Stoner & Blunt**, Distillers (the maker of a sour mash; one name or both) | - | S | Stoner & Blunt, Lancaster Co., Pa. | - | two ordinary surnames | the saloon |
-| 39 | **Dr. Laird's Coca Cordial** (coca wine was sold openly from ~1880) | coca wine | store | (to name), New York | "For Fatigue And Low Spirits." | true, not a pun | the doctor, the store |
+| 39 | **Dr. Pellow's Coca Cordial** (coca wine was sold openly from ~1880) | coca wine | store | (to name), New York | "For Fatigue And Low Spirits." | true, not a pun | the doctor, the store |
 
 Avoided: "gay" (cheap), "Trump" (political), "Molly" (the Molly Maguires, hanged 1877-79), "lit"
 and "hammered" (both drunk senses are after 1882). Not Vin Mariani or "French Wine Coca" (real).
