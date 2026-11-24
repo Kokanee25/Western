@@ -100,6 +100,27 @@ over the springs; Ashby's warns about refilled bottles, and the saloon's back ba
 bottles with South Platte in them; the Temperance bitters are as strong as whiskey; Dr. Bramwell's
 dose ends "or as required"; Quill's list is printed in full, small, down the whole label.
 
+### Double meanings (optional, Sean's pick on #1223)
+
+Sean asked (2026-11-24) for names that read straight in 1882 and carry a meaning they've gained
+since. These bend the "no wink" rule on purpose, so they're candidates, not in the list until he
+picks them; kept to small print and the cheap shelves. Checked by a sub-agent with web searches:
+each innocent sense is older than 1882, none of the modern ones existed yet.
+
+| # | Brand or line | Kind | Grade | Maker and place | Slogan | 1882 sense | Where |
+|---|---|---|---|---|---|---|---|
+| 32 | **Crack Shot Rye** | rye | R | Jas. Dunleavy & Co., Denver | "The Choice Of Crack Shots." | crack = first-rate (1793), crack shot (1830s) | the Railroad Saloon |
+| 33 | "**Nervous Twitter**", a line on Mrs. Haskett's (#19) and in Quill's list (#16) | - | store | - | "For Hysterics, Sleeplessness And Nervous Twitter." | twitter = a nervous flutter (1670s) | the store, the doctor |
+| 34 | **Tinderbox** Bourbon (or the Burnt Hollow distillery's own street) | bourbon | S | Ezra Tullis & Sons, Burnt Hollow, Ky. | - | anything easily set alight (1590s) | the saloon |
+| 35 | "**Rectified From High Wines**", on Brandauer's barrel head (#5) | - | R | - | - | a distiller's term for the second run | the Railroad Saloon |
+| 36 | **Amazon Restorative** | tonic bitters | store | (to name) | "For Female Weakness." | a warrior woman (classical) | the store |
+| 37 | **Cougar Brand Rye** (rye only: a Cougar gin and bourbon are sold today) | rye | R | (to name) | - | the mountain lion (1774) | the Railroad Saloon |
+| 38 | **Stoner & Blunt**, Distillers (the maker of a sour mash; one name or both) | - | S | Stoner & Blunt, Lancaster Co., Pa. | - | two ordinary surnames | the saloon |
+| 39 | **Dr. Laird's Coca Cordial** (coca wine was sold openly from ~1880) | coca wine | store | (to name), New York | "For Fatigue And Low Spirits." | true, not a pun | the doctor, the store |
+
+Avoided: "gay" (cheap), "Trump" (political), "Molly" (the Molly Maguires, hanged 1877-79), "lit"
+and "hammered" (both drunk senses are after 1882). Not Vin Mariani or "French Wine Coca" (real).
+
 ## 3. The blind check
 
 A fresh sub-agent that hadn't seen the reasoning judged every name for period feel, wit and
