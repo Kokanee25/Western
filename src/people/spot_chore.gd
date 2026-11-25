@@ -28,7 +28,7 @@ extends RefCounted
 ##   the next; the pile all moved, back the other way; breaks: a hand to his back, his brow wiped.
 ## - `talk`: facing the others talking near him (a `talk` chore within TALK_NEAR), his mouth going
 ##   when it's his turn (his FaceSpeech, no line heard: the walla is sound's), a hand moving as he
-##   talks; breaks: a laugh, a nod, a look away.
+##   talks; breaks: a laugh, a nod, a look away. With nobody near, he waits looking about (`alone_s`).
 ## - `drink`: a glass (stand-in) on the bar before him, up to his mouth, down; breaks: a look round,
 ##   both forearms on the bar, the glass turned in his fingers.
 ## - `work`: at the spot's `tool` (`anvil` the smith's hammer, `bench` the undertaker's plane: drawn
@@ -89,6 +89,8 @@ var _t := 0.0
 var _left := 0.0
 var _last_break := &""
 var _on := false
+## Seconds a `talk` has had nobody near to talk with (0 while he has company).
+var alone_s := 0.0
 var _hands := false
 var _keys := {}
 var _life: FaceLife
@@ -508,9 +510,19 @@ func _carry(delta: float) -> void:
 				_carry_step = &"to_pile"
 
 
-func _talk(_delta: float) -> void:
+func _talk(delta: float) -> void:
 	man.set_pose(&"stand")
 	var company := _company()
+	# Nobody to talk with (#1230, #1213's fault: the other gone in, or not come yet): he waits and looks
+	# about, no mouth going, no laugh at nobody; `alone_s` says how long (ValleyFolk moves a round on).
+	if company.is_empty():
+		alone_s += delta
+		if _speech != null and _speech.speaking():
+			_speech.hush()
+		_face(faces)
+		_look_about(0.8)
+		return
+	alone_s = 0.0
 	var mid := faces
 	if not company.is_empty():
 		mid = Vector3.ZERO

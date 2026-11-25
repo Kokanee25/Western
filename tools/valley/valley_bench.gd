@@ -20,9 +20,9 @@ extends SceneTree
 ## `--no-farm-mission`: the valley without them). The opening (#746): `harlan_home`, `sheriff_site`
 ## (`--mission=sheriff`: the sheriff and his horse there). The places with height (#736 B):
 ## `height_<id>` on each high spot looking at its first target. The valley's folk (#756):
-## `saloon_yard`, Main Street before the saloon's yard at nine at night, looking at its bar and card
-## table with the barkeep, two drinkers and two card players there (ValleyFolk; `--no-folk`, a game
-## arg: the yard empty, the before). `card_seat` (#766): sat in the card table's north chair, the
+## `saloon_room`, in saloon B's bar room by its bar at nine at night (#1230; was the yard's set),
+## looking at No Law's card table with the barkeep, the drinkers and two card players there (ValleyFolk;
+## `--no-folk`, a game arg: the room empty, the before). `card_seat` (#766): sat in the card table's north chair, the
 ## card game going (CardGame; Prof `card_game`). `murder_seat` (#773): sat there as No Law's murder
 ## plays (NoLawMurder: the stranger sat, Cody kicking Earl's chair out and drawing; Prof
 ## `valley_folk`, `people_*`). `ute_camp` (#859): No Justice's camp, Joe and the raid's damage
@@ -111,11 +111,12 @@ func _spots(world: StringName) -> Array:
 		var h := Vector2(hp.high.at[0], hp.high.at[1])
 		var t := Vector2(hp.targets[0].at[0], hp.targets[0].at[1])
 		out.append(["height_%s" % hp.id, Vector3(h.x, 0.0, h.y), _heading(h, t), String(hp.id)])
-	# The valley's folk at night (#756): from Main Street's north edge before the saloon's yard,
-	# looking up the yard at the bar and the card table (the clock set to nine, then back).
+	# The valley's folk at night (#756; #1230 in saloon B): in its bar room by the bar, looking at
+	# the card table (the clock set to nine, then back; where you stand is the room's place, set once
+	# the folk are in).
 	var yard: Dictionary = lay.lot("saloon_annex")
 	var mouth := Vector2((float(yard.x0) + float(yard.x1)) * 0.5, -8.0)
-	out.append(["saloon_yard", Vector3(mouth.x, 0.0, mouth.y), _heading(mouth, mouth + Vector2(-0.6, -7.0))])
+	out.append(["saloon_room", Vector3(mouth.x, 0.0, mouth.y), 270.0])
 	# Sat at its card table (#766): in the north chair, the game going with you dealt in (where you
 	# stand is the chair's, set once the folk are in).
 	out.append(["card_seat", Vector3(mouth.x, 0.0, mouth.y), 180.0])
@@ -199,10 +200,15 @@ func _run() -> void:
 		var folk = world_root.get("folk")
 		var murder := String(s[0]) == "murder_seat"
 		var at_table := String(s[0]) == "card_seat" or murder
-		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+		if (String(s[0]) == "saloon_room" or at_table) and clock:
 			clock.set_time(21.0)
 			if folk:
 				folk._look = 0.0
+		if String(s[0]) == "saloon_room" and folk and folk.room_place() != &"":
+			var ra: Vector3 = folk.places.at(folk.room_place())
+			player.global_position = ra + Vector3.UP * 0.1
+			var to: Vector3 = folk.props.table.global_position - ra
+			player.rotation.y = atan2(-to.x, -to.z)
 		if at_table and folk:
 			for i in 30:
 				await process_frame
@@ -252,7 +258,7 @@ func _run() -> void:
 		if camp_act != null:
 			m["camp"] = {"state": String(camp_act.state), "props": camp_act.props.size(), "holes": camp_act.holes}
 			camp_act.reset()
-		if (String(s[0]) == "saloon_yard" or at_table) and clock:
+		if (String(s[0]) == "saloon_room" or at_table) and clock:
 			m["folk"] = folk.people.size() if folk else 0
 			if at_table:
 				m["cards"] = folk.cards.report().state

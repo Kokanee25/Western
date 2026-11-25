@@ -1,17 +1,18 @@
 {
-  "_doc": "The valley town's people (#756, No Law step 1; docs/missions/BUILD_ORDER.md 0.3): who's in town when, where they stand or sit, and the few props they need, read by ValleyFolk (src/people/valley_folk.gd). A point is `lot` + `at` [a, b]: a metres east of the lot's west side (its x0), b metres back from the street front (north lots: -z, south lots: +z); y the ground's (plus `up`). Each townsman's `day` (townsfolk step 2, #870; docs/briefs/townsfolk.md \u00a73): blocks by the hour, each `from` an hour to the next block's (the last runs round to the first), `at` a named spot (`spots`) or `in` a place (on the book: indoors, asleep, out of town), `do` what he does there; a `home` (where he's built and goes when nothing says otherwise). A new person is one entry here. With the clock running into a block (within `walk_in_h`) he walks there by the town's ways (ValleyTown.add_ways plus this file's `places`): out of the last block's door, along, in at the next one's; the clock set past it (a jump, a load at night) and he's there already. Nobody comes out of a door or goes in at one while you can see it (the book's `seen_m`). Sean's B on #755 (unanswered: B by default): the saloon stays a grey block, so the bar, the card table and the drinking are in the saloon's yard (saloon_annex, Sean #700) for now; when the spec saloon goes onto its lot (A, or #695's week) the set moves inside and the people with it.",
+  "_doc": "The valley town's people (#756, No Law step 1; docs/missions/BUILD_ORDER.md 0.3): who's in town when, where they stand or sit, and the few props they need, read by ValleyFolk (src/people/valley_folk.gd). A point is `lot` + `at` [a, b]: a metres east of the lot's west side (its x0), b metres back from the street front (north lots: -z, south lots: +z); y the ground's (plus `up`). Each townsman's `day` (townsfolk step 2, #870; docs/briefs/townsfolk.md \u00a73): blocks by the hour, each `from` an hour to the next block's (the last runs round to the first), `at` a named spot (`spots`) or `in` a place (on the book: indoors, asleep, out of town), `do` what he does there; a `home` (where he's built and goes when nothing says otherwise). A new person is one entry here. With the clock running into a block (within `walk_in_h`) he walks there by the town's ways (ValleyTown.add_ways plus this file's `places`): out of the last block's door, along, in at the next one's; the clock set past it (a jump, a load at night) and he's there already. Nobody comes out of a door or goes in at one while you can see it (the book's `seen_m`). The night's bar, card table and drinking are in saloon B's bar room (#1230, Sean on #755; till then a stand-in set in the saloon's yard).",
   "status": "PROPOSED (#756): who and where are this session's stand-ins; No Law's card (docs/missions/no-law.md) names the barman, the card player and Cody.",
   "walk_in_h": 0.5,
   "set": {
-    "_doc": "The saloon yard's stand-in bar and card table. `bar`: the kit bar's middle, running along the yard (b) with its customers' side east (+x, `yaw` 90); `table`: the card table's middle, `chairs` its four chairs by compass round it (each facing the table); `lamps` lit oil lamps (OilLamp, lit 17-4) on the bar's and the table's tops.",
+    "_doc": "#1230 (Sean on #755, 2026-11-24: the evening into saloon B): the night's set is saloon B's own (ValleyFolk._bind_hall_set): `hall` the building (its lot), `floor` its ground floor's top in its space; `hall_bar` [x, z] the bar (the kit section nearest: the middle of three, the customers to the west), `hall_table` [x, z] No Law's card table (its spec's `no_law_table`, under the well by the side street's windows) and its four chairs by compass (the building turns them 15 degrees, so near enough), `hall_piano` the bar room's upright and its stool (the building's dressing). `cups` the folk's own tin cups on the table. The yard's stand-in bar, table and piano (from before saloon B was built) are gone; `lot` is the yard's, for the yard's own places (the way round to the outside stair).",
     "lot": "saloon_annex",
-    "bar": {"at": [1.9, 5.0], "yaw": 90.0},
-    "table": {"at": [7.4, 5.0]},
-    "chair_out": 0.78,
-    "chairs": ["n", "e", "s", "w"],
-    "lamps": [{"on": "bar", "along": -0.9}, {"on": "table"}, {"on": "piano", "off": [0.55, -0.12]}],
-    "cups": [{"on": "bar", "along": 0.2}, {"on": "bar", "along": 0.9}, {"on": "table", "off": [0.25, 0.15]}, {"on": "table", "off": [-0.2, -0.2]}],
-    "piano": {"at": [0.6, 10.4], "yaw": 90.0, "chair_out": 0.75, "_doc": "The band's piano (#799, config/band.json): the kit's upright, its back to the saloon's east wall (yaw 90: its keys to +x, the yard), a kit chair `chair_out` before its middle for the pianist (props chair_piano)."},
+    "hall": "saloon",
+    "floor": 0.95,
+    "hall_bar": [2.25, 6.9],
+    "hall_table": [13.1, 7.3],
+    "chair_m": 1.3,
+    "hall_piano": {"batch": "S1", "id": "piano", "chair": "piano_stool"},
+    "cups": [{"on": "table", "off": [0.25, 0.15]}, {"on": "table", "off": [-0.2, -0.2]}],
+    "you_at": "saloonb_room", "_you_at": "Where `--mission=no_law` and the bridge's `walk saloon_room` put you: by the bar facing the card table, off the act's ways (they come in at the corner door and round the room's front).",
     "stage_piano": {"hall": "saloon", "local": [3.25, 5.67, 12.95], "yaw": 180.0, "chair_out": 0.72, "_doc": "#938 (Sean on #938): Payday Night's second upright on saloon B's stage (the kit's upright_piano; the dance hall keeps its own, nobody hauls one up): in the building's space, its back to the stage's back partition at the west end, its keys to the curtain (yaw 180 in its space), clear of the wing's steps; the pianist's chair before it (props stage_piano, chair_stage_piano)."}
   },
   "places": {
@@ -21,8 +22,12 @@
     "saloonb_corner_in": {"hall": "saloon", "local": [15.2, 0.95, 1.22], "links": ["saloonb_corner_out"]},
     "saloonb_bar_front": {"hall": "saloon", "local": [3.5, 0.95, 1.3], "links": ["saloonb_corner_in"]},
     "saloonb_bar_end": {"hall": "saloon", "local": [1.1, 0.95, 1.3], "links": ["saloonb_bar_front"]},
+    "saloonb_cards": {"hall": "saloon", "local": [15.0, 0.95, 4.8], "links": ["saloonb_corner_in"], "_doc": "#1230: inside the corner door, up the side street's windows to the card tables (No Law's at [13.1, 7.3]): the card players' and No Law's way in."},
+    "saloonb_cards_e": {"hall": "saloon", "local": [11.3, 0.95, 5.9], "links": ["saloonb_cards", "saloonb_room"], "_doc": "south-east of No Law's table, past its south chair: the way to its east chair and round to its north one (a straight line from the door to the east chair went by the south chair's back)"},
+    "saloonb_cards_n": {"hall": "saloon", "local": [11.6, 0.95, 9.0], "links": ["saloonb_cards_e", "saloonb_room"], "_doc": "between the two card tables' chairs, the way round No Law's table to its far side and on to the piano corner"},
+    "saloonb_room": {"hall": "saloon", "local": [5.2, 0.95, 7.6], "links": ["saloonb_bar_front", "saloonb_cards"], "_doc": "#1230: the room's floor by the bar, between its drinkers and the middle card table: the talkers' and the band's way, where you're put for No Law's night"},
+    "saloonb_piano": {"hall": "saloon", "local": [11.0, 0.95, 11.6], "links": ["saloonb_cards_n", "saloonb_room"], "_doc": "before the piano corner (the upright at [12.4, 12.98]), the fiddler's and the pianist's way"},
     "nolaw_yard_mid": {"at": [4.9, 8.0], "links": ["nolaw_yard_front"], "nearest": true},
-    "nolaw_bar_north": {"at": [1.0, 7.2], "links": ["nolaw_yard_mid"]},
     "saloonb_yard_back": {"hall": "saloon", "local": [-2.6, 0.0, 22.6], "links": ["nolaw_yard_mid"], "_doc": "#938: up saloon B's outside stair to the upper hall, through the wing onto the stage (Payday Night's band; the walk saloon B's test walks). `hall` + `local` [x, y, z] in the building's space (y under 0.05: the ground there); `stair_to` a link up a stair. Round the stair's foot by the yard's back."},
     "saloonb_stair_foot": {"hall": "saloon", "local": [-0.65, 0.0, 23.0], "links": ["saloonb_yard_back"]},
     "saloonb_landing": {"hall": "saloon", "local": [-0.6, 4.91, 14.43], "stair_to": ["saloonb_stair_foot"]},
@@ -38,26 +43,26 @@
   },
   "spots": {
     "_doc": "Named spots (townsfolk brief \u00a73 \"Spots\"): where a man stands or sits and what he faces, belonging to the place, not the man, so anyone sent there fits. A spot is one of: `behind` a bar (`along` it, + north), `at_bar` (its customers' side), `chair` (the set's card table's, by compass: sat in it by a SitChore), or `lot` + `at` [a, b] (lot_point's) facing `faces` [a, b] (else the street). A day's block names one with `at` (or gives one inline) and says with `do` what he does there (SpotChore, townsfolk step 4, #957): stand, lean, sit, counter, sweep, carry, talk, drink, work, each a loop with its breaks; a spot may give `seat` (a kit prop stood there for `sit`), `tool` (`rug` for sweep: shaken, not swept; `anvil`, `bench` for work), `to` [a, b] (where carry takes the pile), `reach` (how far along sweep goes, m).",
-    "bar_back": {"behind": "bar", "along": 0.0},
-    "bar_back_day": {"hall": "saloon", "use": "barman_a", "_doc": "#1213 (gate 4 run 2: at noon the barkeep stood behind the yard's bar, beyond saloon B's wall from its own bar, where you couldn't reach him): by day he serves behind saloon B's bar, over it from its customers' side; the day's drinkers at its drinker points (`bar_day_*`). The night's room is still the yard set (till it moves in, #755)."},
-    "bar_day_1": {"hall": "saloon", "use": "drinker_1"},
-    "bar_day_2": {"hall": "saloon", "use": "drinker_2"},
-    "bar_day_3": {"hall": "saloon", "use": "drinker_3"},
-    "bar_day_4": {"hall": "saloon", "use": "drinker_4"},
-    "bar_south": {"at_bar": "bar", "along": -0.6},
-    "bar_north": {"at_bar": "bar", "along": 0.7},
-    "bar_far": {"at_bar": "bar", "along": 1.75, "_doc": "Step 10 (the saloon as a room, #1157): the bar's north end, the loudmouth's; `bar_near` its south end, the undertaker's one drink."},
-    "bar_near": {"at_bar": "bar", "along": -1.65},
-    "room_talk_a": {"lot": "saloon_annex", "at": [8.2, 8.9], "faces": [9.1, 8.3], "_doc": "Step 10: the room's second group (the brief's second table: standing talkers till sat talk is built), at the yard's back east of the way through, clear of the card table's chairs and the stranger's way round it."},
-    "room_talk_b": {"lot": "saloon_annex", "at": [9.1, 8.3], "faces": [8.2, 8.9]},
-    "room_talk_c": {"lot": "saloon_annex", "at": [9.2, 9.4], "faces": [8.6, 8.7]},
-    "room_bar_end": {"lot": "saloon_annex", "at": [3.5, 7.6], "faces": [2.6, 6.4], "_doc": "Step 10: the saloon woman by the bar's north end, late."},
+    "bar_back": {"hall": "saloon", "use": "barman_a", "bar_top": true, "_doc": "#1230: by night as by day, behind saloon B's bar (the barkeep never leaves it)."},
+    "bar_back_day": {"hall": "saloon", "use": "barman_a", "bar_top": true, "_doc": "#1213 (gate 4 run 2: at noon the barkeep stood behind the yard's bar, beyond saloon B's wall from its own bar, where you couldn't reach him): by day he serves behind saloon B's bar, over it from its customers' side; the day's drinkers at its drinker points (`bar_day_*`). By night too since #1230."},
+    "bar_day_1": {"hall": "saloon", "use": "drinker_1", "bar_top": true},
+    "bar_day_2": {"hall": "saloon", "use": "drinker_2", "bar_top": true},
+    "bar_day_3": {"hall": "saloon", "use": "drinker_3", "bar_top": true},
+    "bar_day_4": {"hall": "saloon", "use": "drinker_4", "bar_top": true},
+    "bar_south": {"hall": "saloon", "use": "drinker_2", "bar_top": true, "_doc": "#1230: the night's drinkers at saloon B's bar, its drinker points: the miner's"},
+    "bar_north": {"hall": "saloon", "use": "drinker_3", "bar_top": true},
+    "bar_far": {"hall": "saloon", "use": "drinker_5", "bar_top": true, "_doc": "Step 10 (the saloon as a room, #1157): the bar's north end, the loudmouth's; `bar_near` its south end, the undertaker's one drink."},
+    "bar_near": {"hall": "saloon", "use": "drinker_1", "bar_top": true},
+    "room_talk_a": {"hall": "saloon", "local": [5.3, 0.95, 9.4], "faces": [6.2, 10.0], "_doc": "Step 10: the room's second group (the brief's second table: standing talkers till sat talk is built); #1230: in saloon B, on the floor between the bar's north end and the middle card table, clear of the drinkers' backs and the way round to the piano."},
+    "room_talk_b": {"hall": "saloon", "local": [6.2, 0.95, 10.0], "faces": [5.3, 9.4]},
+    "room_talk_c": {"hall": "saloon", "local": [5.5, 0.95, 10.7], "faces": [5.75, 9.7]},
+    "room_bar_end": {"hall": "saloon", "local": [3.9, 0.95, 11.8], "faces": [3.2, 10.6], "_doc": "Step 10: the saloon woman by the bar's north end, late."},
     "card_w": {"chair": "w"},
     "card_e": {"chair": "e"},
     "hotel_walk": {"lot": "hotel", "at": [4.0, -1.0], "faces": [9.0, -6.0]},
     "saloon_walk": {"lot": "saloon", "at": [3.0, -1.0], "faces": [3.0, -8.0]},
     "undertaker_walk": {"lot": "undertaker", "at": [5.0, -1.2], "faces": [5.0, -8.0], "tool": "bench"},
-    "band_fiddle": {"lot": "saloon_annex", "at": [3.4, 10.8], "faces": [5.0, 5.0]},
+    "band_fiddle": {"hall": "saloon", "local": [11.0, 0.95, 12.6], "faces": [9.5, 8.0], "_doc": "#1230: the fiddler by the bar room's upright (the piano corner, #990), facing the room."},
     "piano_chair": {"chair": "piano"},
     "stage_fiddle": {"hall": "saloon", "use": "fiddler", "shift": [0.15, -0.05], "_doc": "#938: Payday Night on saloon B's stage, the fiddler at its use point (#902), a hand off it clear of the stage's upright (a man's way to it is swept 0.3 m wide: at the point itself the upright's corner is 0.26 m off); the pianist at the stage's own upright."},
     "stage_piano_chair": {"chair": "stage_piano", "instrument": "stage_piano"},
@@ -126,7 +131,7 @@
      "day": [
        {"from": 2.0, "in": "saloon_annex_back", "do": "away"},
        {"from": 19.5, "at": "card_w", "do": "play"}],
-     "_doc": "At the card table (the card cheat's Earl: No Law's card player). In from Back Street through the yard."},
+     "_doc": "At the card table (the card cheat's Earl: No Law's card player). In from Back Street, round by the corner door (#1230)."},
     {"id": "drifter", "name": "Drifter", "model": "young_drifter_s3_talking", "seed": 765, "dials": {"nerve": 0.4, "nosy": 0.6, "duty": 0.2}, "shirt": [0.62, 0.62, 0.56], "vest": [0, 0, 0, 0], "home": "hotel",
      "day": [
        {"from": 2.0, "in": "hotel", "do": "sleep"},
@@ -144,7 +149,7 @@
        "payday": [
          {"from": 1.5, "in": "saloon", "do": "sleep"},
          {"from": 19.0, "at": "stage_fiddle", "do": "play"}]},
-     "_doc": "PROPOSED (#799, #938): the band's fiddler (config/band.json), stood at the back of the yard; Payday Night on saloon B's stage; a stand-in body till the Studio makes him. His part sounds while he's at his post and calm (PlayChore)."},
+     "_doc": "PROPOSED (#799, #938): the band's fiddler (config/band.json), stood by the bar room's upright (#1230); Payday Night on saloon B's stage; a stand-in body till the Studio makes him. His part sounds while he's at his post and calm (PlayChore)."},
     {"id": "pianist", "name": "Piano player", "model": "heavy_factory", "seed": 800, "dials": {"nerve": 0.2, "nosy": 0.5, "duty": 0.2, "ducks": 1}, "shirt": [0.82, 0.8, 0.74], "vest": [0.12, 0.12, 0.14], "home": "saloon", "plays": "piano", "instrument": "piano",
      "day": {
        "ordinary": [
@@ -271,7 +276,7 @@
          {"from": 17.0, "do": "lean", "round": [{"at": "saloon_porch", "do": "lean", "stay": [90, 200]}, {"at": "saloon_walk", "do": "stand", "stay": [40, 90]}, {"in": "saloon", "do": "home", "stay": [60, 120]}]},
          {"from": 19.0, "at": "room_talk_c", "do": "talk"},
          {"from": 22.0, "at": "room_bar_end", "do": "stand"}]},
-     "_doc": "Roster 16: asleep over the saloon till noon, on its porch for the lamps' hour, then in the room (on the book: the saloon's room is step 10's, and the yard's is No Law's). Her own face (working_girl_s3)."},
+     "_doc": "Roster 16: asleep over the saloon till noon, on its porch for the lamps' hour, then in the room (on the book: the saloon's room is step 10's). Her own face (working_girl_s3)."},
     {"id": "cody", "name": "Cody", "model": "blacksmith_s1_talking", "seed": 773, "gun": true, "shirt": [0.42, 0.45, 0.5], "vest": [0, 0, 0, 0], "act": "no_law_murder", "from": "saloon_annex",
      "_doc": "Cody, who kills Earl (No Law beat 3, #773): one of the Baron's hired guns, a rough man. Not the red shirt (Sean on #796, 2026-11-11: the red shirt (Kett) is another man and isn't in the saloon; the stranger shot the sheriff, #905), so no red shirt on him. No hours: built with the rest and kept out till the act (NoLawMurder) takes him. A stand-in: the blacksmith's model (grey-blue work shirt) till the characters lane makes Cody."},
     {"id": "stranger", "name": "Stranger", "model": "bold_cowboy_s3_talking", "seed": 774, "shirt": [0.7, 0.66, 0.58], "vest": [0.2, 0.17, 0.14], "act": "no_law_murder", "from": "saloon_annex",
@@ -331,7 +336,7 @@
          {"from": 18.0, "in": "undertaker", "do": "supper"},
          {"from": 19.0, "in": "undertaker", "do": "home"},
          {"from": 22.0, "in": "undertaker", "do": "sleep"}]},
-     "_doc": "On his walk by day. The morning after, Earl's laid out with him (ValleyFolk's morning: the body taken from the yard, a recorded death)."},
+     "_doc": "On his walk by day. The morning after, Earl's laid out with him (ValleyFolk's morning: the body taken from the saloon, a recorded death)."},
     {"id": "runner", "name": "Townsman", "model": "young_factory", "seed": 791, "shirt": [0.7, 0.62, 0.5], "vest": [0, 0, 0, 0], "act": "sheriff_dies", "from": "doctor",
      "_doc": "The young man the doctor sends to find you on day 2 (SheriffDies: \"Harlan! Doc's asking for you.\")."},
     {"id": "dying_sheriff", "name": "Sheriff", "model": "sean_s3_talking", "seed": 746, "shirt": [0.72, 0.68, 0.6], "vest": [0.22, 0.18, 0.14], "act": "sheriff_dies", "from": "doctor",
@@ -347,9 +352,9 @@
     {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1], "act": "no_justice", "from": "doctor",
      "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."}
   ],
-  "shops": {"_doc": "The town gate's fault 3 (#1167): a shop's open hours and its keeper. A knock at its door while it's open and he's in (on the book at it) brings him out to `spot` facing you, with a line by his regard (TownBarks `knock`, else `pass`, `at` the shop); he goes back to his day once you're `leave_m` off or after `answer_s`. Shut, or him out: nobody comes.", "general_store": {"hours": [7.0, 18.0], "keeper": "storekeeper", "spot": "store_walk", "answer_s": 45.0, "leave_m": 8.0, "by_door_m": 6.0, "again_s": 12.0, "again_m": 4.0}, "_1184": "#1184: the knock's own line (`knock`) first, then his `pass`; out on his walk within `by_door_m` of the door he answers too; you still within `again_m` `again_s` after his line, he asks again (`knock.wait`)."},
+  "shops": {"_doc": "The town gate's fault 3 (#1167): a shop's open hours and its keeper. A knock at its door while it's open and he's in (on the book at it) brings him out to `spot` facing you, with a line by his regard (TownBarks `knock`, else `pass`, `at` the shop); he goes back to his day once you're `leave_m` off or after `answer_s`. Shut, or him out: nobody comes.", "general_store": {"hours": [7.0, 18.0], "keeper": "storekeeper", "spot": "store_walk", "inside": {"hall": "general_store", "use": "serve_east"}, "walk_mps": 1.2, "ready_s": 1.5, "_inside": "#1230: in on the book, he comes from here (his counter) at `walk_mps`, `ready_s` to put down what he's at: out at the door that long after the knock, not the instant of it.", "answer_s": 45.0, "leave_m": 8.0, "by_door_m": 6.0, "again_s": 12.0, "again_m": 4.0}, "_1184": "#1184: the knock's own line (`knock`) first, then his `pass`; out on his walk within `by_door_m` of the door he answers too; you still within `again_m` `again_s` after his line, he asks again (`knock.wait`)."},
   "no_knock": ["saloon", "saloon_annex"],
-  "_no_knock": "#1095: places with no door to bang on (PlayerKnock): the saloon's set is its open yard. Elsewhere E at a door bangs on it only from outside it (ValleyFolk.past_door).",
+  "_no_knock": "#1095: places with no door to bang on (PlayerKnock): the saloon (its corner door stands open in its hours; #1230: the night's in its bar room, no longer the open yard). Elsewhere E at a door bangs on it only from outside it (ValleyFolk.past_door).",
   "doctor_room": [6.7, 0.95, 2.6],
   "_doctor_room": "#1095: where the doctor has a hurt man laid in his front room when he answers his door to him (FetchHelp.at_door, ValleyFolk.take_in): the doctor's building's own space [x, floor y, z] (config/moments/no_law_carry.json's laid spot, a step back).",
   "dead": {"_doc": "The dead taken away (#1051; ValleyFolk._dead_step): a townsman killed in town and seen down (anyone holds it in TownNews), the undertaker comes for him within `seen_h` clock hours; unseen, from `morning_h` the next morning. He walks out to him (at most `walk_at_most_s`), and the body goes once you're `unseen_m` off it or it's out of your view. No Law's Earl keeps his own (`morning`).", "seen_h": 0.75, "morning_h": 6.0, "undertaker": "undertaker", "walk_at_most_s": 240.0, "unseen_m": 30.0},
@@ -409,13 +414,13 @@
   },
   "chat": {
     "_doc": "Men talking to each other (#1184; ValleyFolk._chat_step): two calm day men within `chat_m` of each other and you within `hear_m` of them; a man once a `gap_s` (give or take `jitter` of it, by his seed and the run's), a pair once a `pair_gap_s`; one says a `chat` line of the town's script (TownBarks, his pools), the other answers a `chat.reply` `reply_s` on. Not a man at play or asleep.",
-    "chat_m": 6.0, "hear_m": 22.0, "gap_s": 50.0, "jitter": 0.4, "pair_gap_s": 120.0, "reply_s": 2.5
+    "chat_m": 6.0, "hear_m": 22.0, "gap_s": 50.0, "jitter": 0.4, "pair_gap_s": 120.0, "reply_s": 2.5,
+    "alone_s": 20.0, "_alone_s": "#1230: a man sent somewhere to `talk` (an errand round's leg) with nobody there to talk with this long moves on to his next leg; till then he waits, looking about (SpotChore), his mouth still."
   },
   "room": {
-    "_doc": "The saloon at night as a room (townsfolk step 10, #1157; SaloonRoom, src/people/saloon_room.gd; docs/briefs/townsfolk.md \u00a76). Built on No Law's yard set (`set`: the bar, the card table, the piano), which is where the night's people are till the set moves into saloon B; `rect` [a0, b0, a1, b1] is the room on the set's lot (move the set and this with it). **Mood** 0 hushed to 1 roaring, once `every_s`: `people` x (how many are in of `full`) + `drink` x (their drink, 0-1: `drink_per_h` an hour at a drinking spot, `drinks` the doings that count) + `music` while the band sounds + the night's `add` (`nights`: the first whose `if` the story holds, else the day kind's in `kinds`) + Harlan's (`regard`: the town's band of him, only while he's in the room), times how many of the room are calm, times the climb back after trouble (nothing for `hold_s`, then up over `recover_s`). Names: under `hushed_under` hushed; under `calm_at` with trouble not yet lived down or Harlan in and the town cold or afraid: tense; under `lively_at` calm; else lively. **The director** (once `every_s`, only with you within `live_m`): a bit every `gap` seconds by the mood ([mood, least, most] rows, between them by the mood; none under `none_under`), picked by `weight` among `bits` whose `from` (his block's `do`, or `seated`) fits a calm man in the room at his chore who may speak; the same bit from the same man not within `again_s`. laugh: his table (`table_m`) grins, one laughs `second_s` late. toast: glass up and a `room.toast` line (the town's script), the bar lifts theirs. The events: a man coming in is hailed (`room.hail`) and lifts a hand; a man going says `room.leave` and one answers (`room.answer`); you coming in (not again within `enter_again_s`): the town warm, a hail from a warm man who sees you; cold or afraid, the talk drops (`drop`: the mood times `to`, easing back over `s`; mouths shut `quiet_s`; the `looks` nearest look round at you); the barkeep, warm, sets a glass down before you unasked once a night when you've stood `glass.wait_s` within `glass.m` of him (`room.glass`). **The hush** (`trouble`): a deed of `deeds` or a shot within `margin_m` of the room: each man who hasn't sensed it himself (Reaction) looks round `look` = base + per_m x his distance + nerve x his nerve seconds after (0.15 to 1.2), a man with `ducks` (the piano player) ducks instead. `sounds`: stand-ins (SynthSounds) till #807's takes: each one placed at its man. PROPOSED numbers, to be felt in play.",
-    "rect": [0.0, 0.0, 10.4, 12.5],
-    "hall_rect": {"hall": "saloon", "rect": [0.1, 0.1, 16.36, 13.36], "_doc": "#1213: saloon B's bar room (its spec's `bar_room`) is the room too: the barkeep serves there by day (`bar_back_day`)."},
-    "lights": "saloon", "_lights": "The building whose window is lit (BookLights) while the room's open after dark with someone in: the saloon's, the yard set standing in for its room.",
+    "_doc": "The saloon at night as a room (townsfolk step 10, #1157; SaloonRoom, src/people/saloon_room.gd; docs/briefs/townsfolk.md \u00a76). Saloon B's bar room (`hall_rect`; #1230, Sean on #755: the night's set, its bar, No Law's card table and the piano corner, are the building's own). **Mood** 0 hushed to 1 roaring, once `every_s`: `people` x (how many are in of `full`) + `drink` x (their drink, 0-1: `drink_per_h` an hour at a drinking spot, `drinks` the doings that count) + `music` while the band sounds + the night's `add` (`nights`: the first whose `if` the story holds, else the day kind's in `kinds`) + Harlan's (`regard`: the town's band of him, only while he's in the room), times how many of the room are calm, times the climb back after trouble (nothing for `hold_s`, then up over `recover_s`). Names: under `hushed_under` hushed; under `calm_at` with trouble not yet lived down or Harlan in and the town cold or afraid: tense; under `lively_at` calm; else lively. **The director** (once `every_s`, only with you within `live_m`): a bit every `gap` seconds by the mood ([mood, least, most] rows, between them by the mood; none under `none_under`), picked by `weight` among `bits` whose `from` (his block's `do`, or `seated`) fits a calm man in the room at his chore who may speak; the same bit from the same man not within `again_s`. laugh: his table (`table_m`) grins, one laughs `second_s` late. toast: glass up and a `room.toast` line (the town's script), the bar lifts theirs. The events: a man coming in is hailed (`room.hail`) and lifts a hand; a man going says `room.leave` and one answers (`room.answer`); you coming in (not again within `enter_again_s`): the town warm, a hail from a warm man who sees you; cold or afraid, the talk drops (`drop`: the mood times `to`, easing back over `s`; mouths shut `quiet_s`; the `looks` nearest look round at you); the barkeep, warm, sets a glass down before you unasked once a night when you've stood `glass.wait_s` within `glass.m` of him (`room.glass`). **The hush** (`trouble`): a deed of `deeds` or a shot within `margin_m` of the room: each man who hasn't sensed it himself (Reaction) looks round `look` = base + per_m x his distance + nerve x his nerve seconds after (0.15 to 1.2), a man with `ducks` (the piano player) ducks instead. `sounds`: stand-ins (SynthSounds) till #807's takes: each one placed at its man. PROPOSED numbers, to be felt in play.",
+    "hall_rect": {"hall": "saloon", "rect": [0.1, 0.1, 16.36, 13.36], "_doc": "Saloon B's bar room (its spec's `bar_room`): the room by day and night (#1213, #1230)."},
+    "lights": "saloon", "_lights": "The building whose window is lit (BookLights) while the room's open after dark with someone in: saloon B's.",
     "hours": [10.0, 3.0],
     "every_s": 1.0,
     "live_m": 80.0,
@@ -606,13 +611,13 @@
     }
   },
   "morning": {
-    "_doc": "No Law's morning after (#796): once the murder's done (nolaw.murder done) and the clock's in `hours` (it can only get there through the night), nolaw.morning is set. Earl's body, if he's dead, is taken to the undertaker's once you're `unseen_m` off it or it's out of your view: gone from the yard for good, StoryState nolaw.earl = undertaker and death.earl his record. From `sheriff_from` (the clock) the dying sheriff's scene (SheriffDies, config/moments/sheriff_dies.json) starts, once.",
+    "_doc": "No Law's morning after (#796): once the murder's done (nolaw.murder done) and the clock's in `hours` (it can only get there through the night), nolaw.morning is set. Earl's body, if he's dead, is taken to the undertaker's once you're `unseen_m` off it or it's out of your view: gone from the saloon for good, StoryState nolaw.earl = undertaker and death.earl his record. From `sheriff_from` (the clock) the dying sheriff's scene (SheriffDies, config/moments/sheriff_dies.json) starts, once.",
     "hours": [
       5.0,
       19.5
     ],
     "unseen_m": 30.0,
     "sheriff_from": 7.5,
-    "earl_death_doctor": "Earl, the card player. Shot by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Dead on the way to the doctor's; laid out in his front room overnight, then at the undertaker's.", "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a yard full of witnesses, and nobody stopped him. Laid out at the undertaker's."
+    "earl_death_doctor": "Earl, the card player. Shot by Cody at the saloon's card table, the night after the sheriff was shot; a room full of witnesses, and nobody stopped him. Dead on the way to the doctor's; laid out in his front room overnight, then at the undertaker's.", "earl_death": "Earl, the card player. Shot through the head by Cody at the saloon's card table, the night after the sheriff was shot; a room full of witnesses, and nobody stopped him. Laid out at the undertaker's."
   }
 }

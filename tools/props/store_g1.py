@@ -326,8 +326,8 @@ def dressing_g1():
     out.append(e("table_dry_blankets", "folded_blankets", [11.5, 0.0, 5.1], 10, on="table_dry"))
     out.append(e("table_dry_bolt_stack", "folded_blanket", [11.95, 0.0, 4.7], 355, on="table_dry"))
     out.append(e("crates_a", "crate", [6.0, 0.0, 6.4], 10))
-    out.append(e("crates_b", "crate", [6.65, 0.0, 6.45], 350))
-    out.append(e("crates_c", "crate", [6.35, 0.0, 7.05], 30))
+    out.append(e("crates_b", "crate", [6.8, 0.0, 6.45], 350))  # #1230: 0.8 m from crates_a (0.65 overlapped: set down onto it, it fell at load)
+    out.append(e("crates_c", "crate", [6.4, 0.0, 7.3], 30))
     out.append(e("grain_sacks_a", "grain_sacks", [4.9, 0.0, 6.5], 80))
     return out
 

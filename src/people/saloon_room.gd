@@ -1,7 +1,7 @@
 class_name SaloonRoom
 extends RefCounted
 ## The saloon at night as a room (townsfolk step 10, #1157; docs/briefs/townsfolk.md §6; data
-## `room` of config/valley_folk.json, its _doc the dials). ValleyFolk owns one, on the set's lot.
+## `room` of config/valley_folk.json, its _doc the dials). ValleyFolk owns one: saloon B's bar room (#1230).
 ##
 ## - **The mood**: one number, 0 hushed to 1 roaring, from what's really there (who's in, their
 ##   drink, the band sounding, the night, the town's regard of Harlan while he's in the room, how
@@ -60,16 +60,11 @@ var _drop_at := -INF
 var _by_bar := 0.0
 var _glass_day := -1
 var glass: MeshInstance3D
-## The room's box on the ground: its corner and two sides (world).
+## The room's box on its floor: its corner and two sides (world); saloon B's bar room.
 var _o := Vector3.ZERO
 var _ax := Vector3.RIGHT
 var _bx := Vector3.BACK
 var _built := false
-## A second box (#1213): saloon B's bar room, where the barkeep serves by day (data `hall_rect`
-## {hall, rect [x0, z0, x1, z1] in its space}); its corner and sides, or none.
-var _ho := Vector3.INF
-var _hax := Vector3.ZERO
-var _hbx := Vector3.ZERO
 
 
 func _init(f: ValleyFolk = null, data: Dictionary = {}) -> void:
@@ -87,19 +82,23 @@ func _n(k: String, dflt: float) -> float:
 
 func _build() -> void:
 	_built = true
-	var r: Array = d.get("rect", [0.0, 0.0, 10.0, 12.0])
-	var lot := String((folk.data.get("set", {}) as Dictionary).get("lot", ""))
-	_o = folk.lot_point(lot, float(r[0]), float(r[1]))
-	_ax = folk.lot_point(lot, float(r[2]), float(r[1])) - _o
-	_bx = folk.lot_point(lot, float(r[0]), float(r[3])) - _o
+	# Saloon B's bar room (`hall_rect` {hall, rect [x0, z0, x1, z1] in its space, y its floor}): the
+	# room, by day and night since #1230 (the night's set moved in off the yard, Sean on #755).
 	var hr: Dictionary = d.get("hall_rect", {})
 	if not hr.is_empty() and folk.halls.has(String(hr.get("hall", ""))):
 		var h := String(hr.hall)
 		var q: Array = hr.rect
 		var y := float(hr.get("y", 0.95))
-		_ho = folk.hall_point(h, [q[0], y, q[1]])
-		_hax = folk.hall_point(h, [q[2], y, q[1]]) - _ho
-		_hbx = folk.hall_point(h, [q[0], y, q[3]]) - _ho
+		_o = folk.hall_point(h, [q[0], y, q[1]])
+		_ax = folk.hall_point(h, [q[2], y, q[1]]) - _o
+		_bx = folk.hall_point(h, [q[0], y, q[3]]) - _o
+	elif d.has("rect"):
+		# (A room on a lot, [a0, b0, a1, b1] on the set's: a valley without saloon B.)
+		var r: Array = d.rect
+		var lot := String((folk.data.get("set", {}) as Dictionary).get("lot", ""))
+		_o = folk.lot_point(lot, float(r[0]), float(r[1]))
+		_ax = folk.lot_point(lot, float(r[2]), float(r[1])) - _o
+		_bx = folk.lot_point(lot, float(r[0]), float(r[3])) - _o
 	if bool((d.get("sounds", {}) as Dictionary).get("on", true)) and GameAudio.enabled():
 		SynthSounds.warm([&"laugh_0", &"laugh_1", &"laugh_2", &"cough", &"glass_down"])
 
@@ -108,7 +107,7 @@ func _build() -> void:
 func inside(at: Vector3, margin := 0.0) -> bool:
 	if not _built:
 		return false
-	return _in_box(at, _o, _ax, _bx, margin) or (_ho != Vector3.INF and _in_box(at, _ho, _hax, _hbx, margin))
+	return _in_box(at, _o, _ax, _bx, margin)
 
 
 static func _in_box(at: Vector3, o: Vector3, ax: Vector3, bx: Vector3, margin: float) -> bool:
@@ -116,7 +115,7 @@ static func _in_box(at: Vector3, o: Vector3, ax: Vector3, bx: Vector3, margin: f
 	var a := v.dot(ax.normalized())
 	var b := v.dot(bx.normalized())
 	return a >= -margin and a <= ax.length() + margin and b >= -margin and b <= bx.length() + margin \
-			and absf(v.y) < 4.0
+			and absf(v.y) < 3.0  # (its floor, not the dance hall 3.96 over it)
 
 
 func centre() -> Vector3:
@@ -552,6 +551,8 @@ func _goes(id: StringName) -> void:
 	var man := folk.folk_man(id)
 	if b == null or man == null or not b.may_speak() or b.mood != CivilianBrain.Mood.CALM or mood < 0.2:
 		return
+	if folk._story_on():
+		return  # a story's scene has the room (#1230: the barkeep's "Night." before his lines in No Law's)
 	var l := folk.room_line(id, "room.leave")
 	if l.is_empty():
 		return

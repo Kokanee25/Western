@@ -39,12 +39,24 @@ func _player() -> Player:
 	return get_tree().get_first_node_in_group(&"player") as Player
 
 
-## The player stood at [a, b] of the yard, looking at `look` [a, b].
+## The player stood at [x, z] on saloon B's floor (its space; #1230: the room is its bar room),
+## looking at `look` [x, z].
 func _stand(a: float, b: float, look_a: float, look_b: float) -> void:
 	var f := valley.folk
 	var p := _player()
-	var at := f.lot_point("saloon_annex", a, b)
-	var to := f.lot_point("saloon_annex", look_a, look_b)
+	var at := f.hall_point("saloon", [a, 0.95, b])
+	var to := f.hall_point("saloon", [look_a, 0.95, look_b])
+	_put(p, at, to)
+
+
+## Out in the street, 30 m off the saloon.
+func _out() -> void:
+	var f := valley.folk
+	var at := f.lot_point("saloon_annex", 5.2, -30.0)
+	_put(_player(), at, f.lot_point("saloon_annex", 5.2, 0.0))
+
+
+func _put(p: Player, at: Vector3, to: Vector3) -> void:
 	p.global_position = at + Vector3.UP * 0.1
 	p.velocity = Vector3.ZERO
 	p.rotation.y = atan2(-(to.x - at.x), -(to.z - at.z))
@@ -84,7 +96,7 @@ func test_the_gap_between_bits_follows_the_mood() -> void:
 
 
 func test_the_mood_and_the_bits() -> void:
-	_stand(5.2, -30.0, 5.2, 0.0)  # out in the street
+	_out()  # out in the street
 	var room: SaloonRoom = await _night(20.4)
 	var f := valley.folk
 	print("  in the room: %s" % [room.ins])
@@ -106,7 +118,7 @@ func test_the_mood_and_the_bits() -> void:
 	await physics_frames(70)
 
 	# In at the door: the director's own bits for two minutes, and two asked for.
-	_stand(5.0, 2.0, 5.0, 8.0)
+	_stand(14.6, 2.6, 8.0, 7.0)  # in at the corner door
 	await physics_frames(30)
 	var spoke := []
 	var on_spoke := func(who: Node, text: String) -> void: spoke.append([who, text])
@@ -172,7 +184,7 @@ func test_the_mood_and_the_bits() -> void:
 
 
 func test_the_hush() -> void:
-	_stand(5.0, 2.2, 5.0, 8.0)
+	_stand(14.4, 2.8, 8.0, 7.0)
 	var room: SaloonRoom = await _night(20.4)
 	var f := valley.folk
 	var band := f.band
@@ -247,14 +259,14 @@ func test_the_hush() -> void:
 
 
 func test_harlan_through_the_door() -> void:
-	_stand(5.2, -30.0, 5.2, 0.0)
+	_out()
 	var room: SaloonRoom = await _night(20.4)
 	var f := valley.folk
 	StoryState.set_fact("nolaw.deputy", true)
 	for id: StringName in f.regard.people():
 		f.regard.view_of[id] = "stopped_a_killer"
 	check(f.regard.town_band() == &"warm", "the town's warm (%s)" % f.regard.town_band())
-	_stand(5.0, 2.4, 5.0, 8.0)
+	_stand(14.2, 3.0, 8.0, 7.0)
 	await physics_frames(60 * 6)
 	var hails := room.log.filter(func(b: Dictionary) -> bool: return b.what == &"hail" and (b.others as Array).has("you"))
 	print("  warm: %s" % [room.log.map(func(b: Dictionary) -> String: return "%s %s '%s'" % [b.what, b.get("by", ""), b.get("say", "")])])
@@ -264,7 +276,7 @@ func test_harlan_through_the_door() -> void:
 		check(room.ins.has(StringName(String(hails[0].by))), "from a man who's there (%s)" % hails[0].by)
 	# At the bar by the barkeep: a glass set down unasked.
 	var bk := f.folk_man(&"barkeep")
-	var at := f.lot_point("saloon_annex", 3.1, 5.0)
+	var at := f.hall_point("saloon", [3.3, 0.95, 4.0])  # before him at the bar (his barman_a)
 	_player().global_position = at + Vector3.UP * 0.1
 	_player().rotation.y = atan2(-(bk.global_position.x - at.x), -(bk.global_position.z - at.z))
 	await physics_frames(60 * 8)
@@ -278,14 +290,14 @@ func test_harlan_through_the_door() -> void:
 	check(room.log.filter(func(b: Dictionary) -> bool: return b.what == &"glass").size() == n and n == 1, "once a night (%d)" % n)
 
 	# Out, and the town turned cold: back in, the talk drops.
-	_stand(5.2, -30.0, 5.2, 0.0)
+	_out()
 	for id: StringName in f.regard.people():
 		f.regard.view_of[id] = "shot_a_man"
 	room._entered_at = -INF
 	await physics_frames(60 * 3)
 	check(f.regard.town_band() in [&"cold", &"afraid"], "the town's cold (%s)" % f.regard.town_band())
 	var before := room.mood
-	_stand(5.0, 2.4, 5.0, 8.0)
+	_stand(14.2, 3.0, 8.0, 7.0)
 	await physics_frames(60 * 2)
 	var drops := room.log.filter(func(b: Dictionary) -> bool: return b.what == &"drop")
 	print("  cold: mood %.2f from %.2f (%s) %s" % [room.mood, before, room.mood_name(), drops])

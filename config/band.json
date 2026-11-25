@@ -1,6 +1,6 @@
 {
   "_doc": "The band (#799; Band, src/audio/band.gd): who plays where, when, and what. `lot` and each player's `at` [a, b] as ValleyFolk's points (a m east of the lot's west side, b m back from the street front), `up` m over the ground (where the sound is when no man holds it). A player with a `man` (a ValleyFolk man with `plays`, config/valley_folk.json) sounds only while he's at his instrument and calm (PlayChore: his hands follow the note data); one without is placed sound only. `tunes` in turn (assets/audio/band/<tune>/: tools/band/render_band.py), `between_s` [min, max] between them. `stop_s` the bow lifted (a part fades that long), `start_s` a part coming in at a phrase's top. `hush`: a shot within `shot_m` of the band's middle (a blast within `blast_m`) stops them dead; `quiet_s` after the last they start again at the top of the phrase they stopped in; a man killed within `death_m` and they're done for the night. `sound`: each part's AudioStreamPlayer3D (the sound lab's music scenarios: unit_size 2, 0 dB, max 3; the parts' levels are baked in, the fiddle at -20 LUFS).",
-  "status": "PROPOSED (#799, #938): ordinary nights the fiddler and the piano player in No Law's yard set (saloon_annex: config/valley_folk.json's set), at its back, the piano against the saloon's east wall, till saloon B's bar-room piano is placed (#984: then the piano's corner downstairs, Sean on #938); Payday Night the full band on saloon B's stage (#902's use points), the stage's own upright.",
+  "status": "PROPOSED (#799, #938): ordinary nights the fiddler and the piano player in saloon B's bar room, at its upright in the piano corner (#1230, Sean on #755 and #938); Payday Night the full band on saloon B's stage (#902's use points), the stage's own upright.",
   "lot": "saloon_annex",
   "hours": [
     19.0,
@@ -49,9 +49,11 @@
   "nights": {
     "_doc": "#938 (Sean's decision on #938, 2026-11-14): where they play by the town's day kind (config/valley_folk.json calendar). An entry's `players` names who plays that night, each a point: `use` (a use point of the `hall`'s spec), `local` [x, y, z] in its space, or `at` [a, b] on the band's lot; `up` the sound over it; {} the player's own point. `curtain: open`: the stage's curtain drawn open while they play. No entry: every player at his own point.",
     "ordinary": {
+      "_doc": "#1230 (Sean on #755): in saloon B's bar room, the piano corner (#990): the pianist at the room's upright (its use point `piano`, on its stool), the fiddler beside it (valley_folk.json's `band_fiddle`).",
+      "hall": "saloon",
       "players": {
-        "fiddle": {},
-        "piano": {}
+        "fiddle": {"local": [11.0, 0.95, 12.6], "up": 1.45},
+        "piano": {"use": "piano", "up": 1.0}
       }
     },
     "payday": {

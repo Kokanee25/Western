@@ -31,7 +31,7 @@ extends SceneTree
 ##
 ## THE VALLEY (#865, the review's R4): `-- --world=valley` runs the valley instead, its scenes
 ## `day` (Main Street at two in the afternoon, you by the saloon's yard looking west down it), `night`
-## (nine at night before the saloon's yard: the folk's bar and card table, the lamps lit), `gunfight`
+## (nine at night in saloon B's bar room, #1230: its bar and card table, the lamps lit), `gunfight`
 ## (the day's street, two crews of three shooting it out 20 to 40 m from you) and `blast` (the day's
 ## street, a stick in the saloon's front and one in the doctor's, measured from 3 s after), each
 ## after the valley's load; `chaos` (#1117, only by --scene=chaos, here or in the town): the gunfight,
@@ -627,7 +627,7 @@ func _print(s: String, e: Dictionary) -> void:
 # --- The valley (#865) ----------------------------------------------------------------------------
 
 ## Where you stand by day: Main Street by the saloon's yard, looking west down the street (the
-## saloon, the store's row, the crossroads); at night: before the yard, looking up it at the bar.
+## saloon, the store's row, the crossroads); at night: in saloon B's bar room (the folk's room place).
 const DAY_AT := Vector3(40.0, 0.0, 2.0)
 const DAY_HEADING := 270.0
 const NIGHT_AT := Vector3(29.2, 0.0, -8.0)
@@ -672,6 +672,12 @@ func _run_valley() -> void:
 			clock.set_time(21.0 if night else 14.0)
 		if folk:
 			folk._look = 0.0  # (the folk read the clock now, not in half a second)
+		if night and folk and folk.room_place() != &"":
+			# In saloon B's bar room by its bar, looking at the card table (#1230: the night moved in).
+			var ra: Vector3 = folk.places.at(folk.room_place())
+			player.global_position = ra + Vector3.UP * 0.1
+			var to: Vector3 = folk.props.table.global_position - ra
+			player.rotation.y = atan2(-to.x, -to.z)
 		await _frames(60)
 		var made: Array = []
 		var lay_ms := 0.0

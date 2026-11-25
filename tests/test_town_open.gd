@@ -90,10 +90,18 @@ func test_a_knock_at_the_store_in_its_hours() -> void:
 	var p := get_tree().get_first_node_in_group(&"player") as Player
 	var said := f.heard.size()
 	f.knock(&"general_store", p, door)
+	# #1230 (#1213's gate: at the door the instant you knocked): he comes from his counter at a walk.
+	var walk := f.door_walk_s(&"general_store")
+	check(walk > 3.0, "his counter's a walk from the door (%.1f s)" % walk)
+	await physics_frames(60)
+	check(f.coming_to_door.has(keeper) and f.state.get(keeper) != &"called" and f.folk_man(keeper) == null,
+			"a second after the knock he's still on his way to the door (%s)" % f.state.get(keeper))
+	var t0 := f._ran
 	var out := await wait_until(func() -> bool:
 		var m := f.folk_man(keeper)
 		return m != null and m.global_position.distance_to(f.spot_point(f.spot("store_walk"))[0]) < 1.2, 60 * 30)
 	check(out, "he comes out to his door")
+	check(f._ran - t0 > walk - 1.5, "out once he's had time to walk it (%.1f s, %.1f s walk)" % [f._ran - t0 + 1.0, walk])
 	await physics_frames(60 * 2)
 	print("  said: %s" % [f.heard.slice(said)])
 	check(f.heard.size() > said and String(f.heard[-1][0]) == "storekeeper", "and says a line (%s)" % [f.heard.slice(said)])
@@ -181,8 +189,9 @@ func test_at_noon_the_barkeep_is_behind_saloon_b_s_bar() -> void:
 	var flat := Vector2(p.global_position.x - bar.global_position.x, p.global_position.z - bar.global_position.z).length()
 	check(flat < 2.8, "across the bar from him (%.2f m)" % flat)
 	check(f.room.inside(p.global_position) and f.room.inside(bar.global_position), "both in the room")
-	# He walks out to the yard's bar for the night's room at five.
-	check_eq(String(f.spot_of(f._person(&"barkeep")).get("behind", "")), "", "by day not the yard's bar")
+	# And by night the same bar (#1230: the night's room is saloon B's, the yard's stand-in bar gone).
+	var night := f.spot(String(f.block_now(f._person(&"barkeep"), 21.0).get("at", "")))
+	check_eq(String(night.get("hall", "")) + "/" + String(night.get("use", "")), "saloon/barman_a", "at night behind the same bar")
 	_clock().time_scale = 1.0
 
 
