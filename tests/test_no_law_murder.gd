@@ -136,6 +136,10 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	check(shot, "Cody shoots (%s)" % m.result())
 	var r := m.result()
 	check(r.chair_loose and r.earl_fell, "Earl's chair kicked out from under him (%s)" % r)
+	# #1248 (the blind playtest, 2026-11-25): the card table went over with Earl's chair, and in saloon B
+	# it lay on the way out. The table stands, and the other chairs (the stranger's, yours) with it.
+	var table := f.props.table as KitProp
+	check(table != null and not table.loose, "the card table still standing after the kick (%s)" % (table.global_position if table else Vector3.INF))
 	# Down and bleeding, not shot dead (Sean, 2026-11-17, #1057): the ball through his collarbone,
 	# what it does the body's.
 	await physics_frames(20)
