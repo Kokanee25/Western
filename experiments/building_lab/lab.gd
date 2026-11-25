@@ -160,6 +160,12 @@ func _ground_cells() -> void:
 	var dr := CellarDig.drift_rect(spec)
 	if dr.has_area():
 		pits.append(dr)
+	# A wing's pit (#1226, the hotel's cellar stair behind the back wall), on through the passage.
+	for wg: Dictionary in spec.get("wings", []):
+		for p: Dictionary in wg.get("pits", []):
+			var pr: Array = p.rect
+			var t := float(spec.frame.foundation.thick)
+			pits.append(Rect2(float(pr[0]), float(pr[1]) - t, float(pr[2]) - float(pr[0]), float(pr[3]) - float(pr[1]) + t))
 	var hi_x := maxi(12, ceili(float(spec.lot.width) + 2.0))
 	var hi_z := maxi(24, ceili(float(spec.lot.depth) + 8.0))
 	for r in pits:

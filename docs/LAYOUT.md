@@ -877,7 +877,7 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   roof (`frame.flat_roof`), the gallery a beam and a deck a bay, and the drift (`Drift`, `src/structures/drift.gd`) to
   saloon B's cellar; CellarDig digs a drift's trench and covers it (`DriftCover_<building>` under the Ground). Not on its valley
   lot until #1227 (its bodies slowed every valley frame); its cellar not dug there either: a dug tile re-cuts ValleyGround's
-  whole 128 m chunk, and the first one holds the saloon yard's card set (`cellar._dig`).
+  whole 128 m chunk, and the first one holds the saloon's card set (`cellar._dig`).
 - **The walks at each owner's height** (G7 walks, #737): each building lot's `walk` in valley.json
   (`h` over the ground at its street edge, `door` steps|ramp, `w`/`e` steps|ramp|drop, `awning`,
   `door_w`, `none`; the rules in `town.walks`: `riser_max` 0.2, `ramp_slope` 8, `posts_at` 0.8,
@@ -908,9 +908,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   loss (you at `farm_start`); its men made as the riders (`TownLife.make_rider`), routed by the farm's
   own places (`FarmhouseMission.places()`, not the valley's thousand).
 - **The valley's townsfolk** (#756, No Law step 1; BUILD_ORDER 0.3): see "src/people" (`ValleyFolk`):
-  ValleyWorld's `Folk`, from `config/valley_folk.json` (`-- --no-folk` leaves them out). On Sean's B
-  (#755: the saloon waits for #695's week) the set is in the saloon's yard (`saloon_annex`): a kit bar
-  (its customers east), the card table and its four chairs, two lit oil lamps, tin cups.
+  ValleyWorld's `Folk`, from `config/valley_folk.json` (`-- --no-folk` leaves them out). The night's set
+  is saloon B's own (#1230, Sean on #755; `set.hall`, `ValleyFolk._bind_hall_set`): its bar, No Law's card
+  table (`no_law_table`) and its four chairs by compass (meta `compass`), the bar room's upright and stool;
+  the folk's tin cups on the table. The yard's stand-in set is gone.
 - **The places with height** (#736 A+B, #752; `heights` in valley.json, `docs/briefs/valley-heights.md`,
   `docs/concept/valley-heights.png`; `tests/test_valley_heights.gd`): each a `landform` that
   `valley_plan.py` adds to the natural ground before the pads (`landforms_height`: knoll, ridge,
@@ -972,6 +973,10 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/structures
 
+- The support graph (#1239): `Structure.infer_from_geometry`, Structure's and SpecBuilding's both:
+  the pairs from `near_lists` (a sweep over the boxes, native `BoxPairs` or the script's), each
+  member's tier and kind worked out once; `tests/test_support_graph.gd` holds the old ways and
+  checks the graph is identical, in order.
 - `church_tower.gd` (#1142): the church's bell tower, belfry, louvres, spire and pointed window heads, called from `SpecBuilding.build` when the spec has a `tower`; the cemetery is `src/world/cemetery.gd` (`config/cemetery.json`), placed by `ValleyWorld._make_church` and `_make_cemetery`.
 - `src/structures/` — `Structure` + `StructureMember` (members with IDs, kinds, support tiers and an
   inferred support graph; `settle()` breaks/drops what can't stand, rubble), `StructuralAnalysis`
@@ -1931,7 +1936,8 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   the legs, the barks' gaps (`talk.gap_jitter`, `first_s`), the news' slips and the room's bits.
   **Shops** (`shops`, #1167): a knock at an open shop with its keeper in (or out on his walk within `by_door_m`,
   #1184) brings him to its `spot` with a line (`_shop_answers`; `on` knock, then pass; `knock.wait` if you stand
-  there `again_s`). A man at a door makes E the door's (`PlayerKnock.door_here(any)`), never a shove.
+  there `again_s`); in on the book, he's out after the walk from his `inside` use point (`coming_to_door`,
+  #1230). A man at a door makes E the door's (`PlayerKnock.door_here(any)`), never a shove.
   `tests/test_town_streets.gd` (also: no man out of doors still ten minutes, by the data and played), `test_town_open.gd`.
   **The roster** (townsfolk step 3, #936): the brief's sixteen are in `people` (`ROSTER` in
   `tests/test_valley_folk.gd`), each with `dials` `{nerve, nosy, duty}` 0-1 (`ValleyFolk.dials_of`; data
@@ -1940,7 +1946,9 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   second id for their day (`doctor` on the book except 14-15; `churchman` on the street 8-9, off by the
   funeral's ten). `places` entries take a `lot` (the livery's door, its lot having no walk). Spots on the
   street are `<lot>_walk` entries, `lot` + `at` [a, -1] (b under 0: on the walk). The saloon at night (step 10): the
-  night's people are at the yard set's spots (the room, `SaloonRoom` below), the saloon's window lit by it (`room.lights`).
+  night's people are at saloon B's bar room's spots (use points: `bar_*`, `room_*`, `band_fiddle`; the room,
+  `SaloonRoom` below; ways in `saloonb_cards`, `saloonb_room`, `saloonb_piano`), its window lit (`room.lights`).
+  `floor_under` (a building's floor, not the town's ground) for points inside.
   **Spots** (townsfolk step 4, #957; `SpotChore`, `src/people/spot_chore.gd`, `tests/test_spot_chore.gd`):
   a block `at` a spot gets its `do` as the man's chore (`_chores_for`: a card chair stays SitChore, a
   band player PlayChore): `stand`, `lean` (back to the wall a ray finds behind him, a boot up; none, a
@@ -2006,11 +2014,12 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   person, `once: ever`, no line another said within `same_line_s`), one at you a group (`blocked`/`block`/
   `clear_far`; again after `group_again_s` if you stay, #1184). `_talk_step`: his news, else No Law's set (wins;
   the same limits; from `near_m`), else a `pass` bark (from `bark_m`). `_chat_step` (#1184, data `chat`): two calm
-  day men by each other in your hearing: a `chat` line, a `chat.reply` a beat on (`_later`). Reaction's
+  day men by each other in your hearing: a `chat` line, a `chat.reply` a beat on (`_later`; none if the first's gone). A `talk` with nobody near
+  waits looking about (`SpotChore.alone_s`); a round moves on after `chat.alone_s` (#1230). Reaction's
   stages call `brain.bark` (ValleyFolk.bark_for); the undertaker's at the body (`_undertaker_says`). Pools in data
   `barks.pools`.
   **The saloon as a room** (townsfolk step 10, #1157; `SaloonRoom` `src/people/saloon_room.gd`, data `room`,
-  `tests/test_saloon_room.gd`; bridge `read room`): on No Law's yard set (`room.rect` on the set's lot; the night's
+  `tests/test_saloon_room.gd`; bridge `read room`): saloon B's bar room (`room.hall_rect`, #1230; the night's
   people at its spots: `bar_far`, `bar_near`, `room_talk_a/b/c`, `room_bar_end`). `mood` 0-1 once a second from who's
   in, their drink (hours at a drinking spot), the band sounding, the night (`nights`: bold / after_murder /
   sheriff_dead, else the day kind), the town's band of Harlan while he's in, times the calm share of the room and
@@ -2043,10 +2052,10 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   sent off: up out of it). Built while the valley loads and kept out of the tree (TownLife's riders,
   #488): ~4.3 s the first time a process builds these models, ~12 ms a man after. Tonight: the barkeep
   17-3 (the saloon), the miner 19-1.5 and the drifter 19.6-2 (the hotel), the rancher 19.3-1 (Back
-  Street), Earl 19.5-2 (the yard's back), the band's fiddler and piano player 19-1.5 (#799, `plays`: PlayChore at
+  Street), Earl 19.5-2 (round by the corner door), the band's fiddler and piano player 19-1.5 (#799, `plays`: PlayChore at
   their spot); by day the townsman, the loudmouth and the undertaker on their
   walks. `report()` (state, block, book, where, seated; `_day`: number, kind, the windows and smoke);
-  Prof `valley_folk`; valley_bench spot `saloon_yard`.
+  Prof `valley_folk`; valley_bench spot `saloon_room`.
   A man with `act` (No Law's Cody and the stranger, #773) has no hours: prebuilt with the rest, the
   act `take`s him (no brain) and `release`s him. A dead man stays (state `dead`); `send_off(id)` walks
   a man home for the rest of his block (`kept_out`). It starts No Law's murder (`_maybe_murder`,
@@ -2154,7 +2163,7 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   the prop lab's `fiddle.glb`, held. Bridge: `band [hush]`. Tests `tests/test_band.gd`.
   #938: `nights` by the town's day kind: Payday Night all six on saloon B's stage (`hall` saloon:
   its spec's use points or `local` points; the curtain drawn open), the stage's own upright
-  (valley_folk.json `set.stage_piano`); other nights the fiddle and piano in the yard set. Folk
+  (valley_folk.json `set.stage_piano`); other nights the fiddle and piano in the bar room's piano corner (#1230). Folk
   places, spots and props can be in a spec building (`hall` + `local`/`use`, `ValleyFolk.halls`
   = ValleyWorld.buildings; `stair_to` marks a stair link): `saloonb_*` up the outside stair, the
   upper hall, the wing and its steps. Two tunes (Payday Night, Turkey in the Straw), each with a

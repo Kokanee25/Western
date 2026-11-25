@@ -29,22 +29,20 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`; down in the fight, Enter retries it (`retry_on_load`).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest faults (#1095-#1125)**, built: one doctor (`ValleyFolk.seize`, `lends`), a knock brings a hurt man's doctor
-  (`FetchHelp.at_door`), Joe bound and splinted, `SceneHold`, `CompanionBrain.turned`, `CivilianBrain.hurt`, `--mission=no_law`,
-  the black-out moving the world on, mending in a day, `JoeLost`. Open: one stick at 1.2-1.7 m takes a foot, a hand,
+- **Playtest faults (#1095-#1125)** built (LAYOUT "src/people"). Open: one stick at 1.2-1.7 m takes a foot, a hand,
   15-19 wounds; the bridge's `tend` on an unhurt man kicks; the slowdown after dynamite and fire.
 - Story: #744, STORY.md; the bible #809.
 - **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-10: day and book, roster,
   spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
   the barks (`TownRegard`, `TownBarks`), the saloon as a room (#1157: `SaloonRoom`, bridge `read room`).
-  **Step 11, the gate** (#1162; rounds 2-4: `docs/playtests/2026-11-23-town-4.md`): not passed blind; #1213 fixed
-  its last five faults, then Sean plays it himself (#1208, no more rounds). #1213: E at the store's glass knocks
-  (`ValleyFolk._leaf_depth`: past the door is past its leaf), broken glass a `damage` deed (`_on_damage`, keeper's
-  `damaged_mine`); card lines once in 10 min or silence, `greet`, `you_broke`; the barkeep by day behind saloon B's own
-  bar (`bar_back_day`, the room's `hall_rect`), the yard's from 17:00 (the night's room still the yard set, #755);
-  witnesses' words (`TownNews.saw_fire`, `news.shots.who/you/here`, `react.back.saw/you`, `relief_you`); a man "in"
-  left far off his post after a fright put back (`_away_step`). Left: crates and the embalming table break at load;
-  men talk to nobody; the keeper's at the door the instant you knock. Unjudged on screen: the walks, saloon B's day bar. Open: the room's sounds are synth stand-ins (#807); no argument, round bought or song
+  **Step 11, the gate** (#1162; `docs/playtests/2026-11-23-town-4.md`): not passed blind; #1213 fixed its last
+  faults, then Sean plays it himself (#1208). **#1230: the evening is in saloon B** (Sean on #755): the set is the
+  building's own (`set.hall`, `_bind_hall_set`: its bar, `no_law_table` and chairs by compass, the piano corner; the
+  band's ordinary nights there), the barkeep behind its bar day and night, the spots its use points, ways
+  `saloonb_cards*`/`_room`/`_piano`; No Law in by the corner door, out down the front steps; twelve fit. Faults
+  fixed: overlapping dressing broke at load; a `talk` alone falls quiet (`alone_s`); a keeper's out after his walk
+  (`door_walk_s`). Played blind (2026-11-25): the card table falls with Earl's kicked chair, the doctor called after he's dead (#1248). Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the
+  room. Open: the room's sounds are synth stand-ins (#807); no argument, round bought or song
   called for; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 
 ## Systems the slice leans on
@@ -58,23 +56,19 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
   **Saloon B's frame is on its lot** (art, #848: `experiments/building_lab/saloon_b/` README).
-  No Law's set is still in the yard: to move it in, `valley_folk.json`'s `set` to saloon B's floor
-  (`ValleyFolk.ground`), its own `no_law_table` and bar, ways in by the corner door. Payday Night: `SpecBuilding.saw_girder()` with the dancers' weight on the dance floor's boards.
+  No Law's night is in saloon B's bar room (#1230; `ValleyFolk.floor_under` for its floor). Payday Night: `SpecBuilding.saw_girder()` with the dancers' weight on the dance floor's boards.
 - **Scenes that hold their cast** (#1050, `SceneHold`; LAYOUT "src/people"): an act claims its men, marks, chairs and
   a quiet zone; your shot, drawn gun, hit or step onto a mark lets go on that frame. On it: No Law's murder (the
   stranger, Cody), the cabin (Joe, no breaks), a card hand's chairs. Not yet: No Justice's camp and hideout (Joe's
   `held` set by hand), the sheriff's scenes, the funeral (#1050's handover).
-- **Winchester 1873 in the game** (#792; key 6, `Rope`, the rope range at F5's last stop). Waiting on Sean's
-  play. Parked: men carrying it (#800).
-- **The Colt** (#693 step 1 approved). **Gunfight D+** (#633; difficulty #349 is Sean's).
+- **Winchester** (#792, key 6; waiting on Sean's play, #801). **The Colt** (#693). **Gunfight D+** (#633; #349 is Sean's).
 - **The chaos bench** (`docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
   [--spikes=MS]`. Valley: brain frames < 33 ms (#1119, #1123: `Cover.Pick`); a blast's settle sliced by its own
   `SettleQueue` (#1128). Open: `kit_blast` ~130 ms the tick after saloon B's sticks, the blast's own frame ~110 ms; Jolt.
-- **Building bodies** (#1227, `docs/reviews/2026-11-building-bodies.md`): bodies ~1% of a building's load and memory; the hotel
-  slows loads (+7 s, +1.1 GB a valley), not frames. Compound bodies wait on Sean (#1237); the hotel's lot waits on that.
+- **Building loads** (#1227's review, #1239): the support graph is one sweep (`infer_from_geometry`; valley 6.8 -> 1.0 s,
+  identical: `test_support_graph`). Next: shared board meshes (art); the hotel's lot is the hotel session's (#1239's notes).
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
-- **The garment handoff** (#917-#1029; LAYOUT "src/bodies"): `GarmentHandoff`, `GloveAct` on `SolverCloth`.
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
 - **Flaky in shard order:** `test_town_day`'s fights.

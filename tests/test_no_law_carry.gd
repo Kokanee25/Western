@@ -77,12 +77,12 @@ func _by(man: HumanBody) -> void:
 	for k in 8:
 		var o := Vector3(0.9, 0.0, 0.0).rotated(Vector3.UP, TAU * k / 8.0)
 		var try := c + o
-		try.y = _folk().ground(try.x, try.z) + 0.05
+		try.y = _folk().floor_under(try.x, try.z, c.y - 0.3) + 0.05  # (#1230: saloon B's floor, not the ground under it)
 		if not _overlaps(p, try):
 			off = o
 			break
 	var at := c + off
-	at.y = _folk().ground(at.x, at.z) + 0.05
+	at.y = _folk().floor_under(at.x, at.z, c.y - 0.3) + 0.05
 	p.global_position = at
 	p.velocity = Vector3.ZERO
 	p.rotation.y = atan2(off.x, off.z)  # facing back along -off: at his collar
@@ -259,8 +259,8 @@ func test_by_a_chair_e_takes_the_man_not_the_seat() -> void:
 		return
 	var p := _player()
 	await _by(earl)
-	var chair := Seating.free_chair_near(get_tree(), Vector3(30.6, 0.3, -15.0), 20.0)
-	check(chair != null, "a free chair in the yard")
+	var chair := Seating.free_chair_near(get_tree(), earl.global_position, 6.0)
+	check(chair != null, "a free chair in the room by him")
 	if chair == null:
 		return
 	# The chair at your elbow, in view, and the carry's look not yet round to him.
