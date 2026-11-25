@@ -486,3 +486,47 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 	await _walk([c._local([4.71, 0.6]), c._local([4.62, 2.0])], 15.0)
 	var word := await wait_until(func() -> bool: return said.any(func(x: Array) -> bool: return x[1].begins_with("He was dead when you knocked")), 60 * 10)
 	check(word, "the doctor's word by the body (%s)" % [s.timeline])
+
+
+## #1248 (the blind playtest, 2026-11-25): you didn't carry Earl, he bled out on the floor, and two
+## seconds after he died the liveryman and the barkeep called "Somebody fetch Doc!" / "He's hit! Get
+## the doctor!", the barkeep's "Ain't nobody left to fetch" said. While the carry holds the room's
+## answer to him, nobody calls for the doctor or runs; dead, he's no man to call the doctor to.
+func test_earl_left_to_die_nobody_calls_the_doctor_over_the_carry_or_to_the_dead() -> void:
+	ValleyFolk.murder_auto = true
+	await _at(21.0)
+	var f := _folk()
+	f.start_murder()
+	var m := f.murder as NoLawMurder
+	check(m != null, "the murder starts")
+	if m == null:
+		return
+	var shot := await wait_until(func() -> bool: return m.shots > 0, 60 * 120)
+	check(shot, "Cody fires (%s)" % [m.events])
+	await physics_frames(30)
+	var earl := m.cheater
+	_known_wound(earl)
+	var started := await wait_until(func() -> bool: return f.carry_act != null, 60 * 60)
+	check(started, "the carry starts (%s)" % [m.result().get("events")])
+	if not started:
+		return
+	var c := f.carry_act as NoLawCarry
+	check(f.fetch.answered(earl), "the carry has the room's answer to him")
+	check(not f.fetch.wants_help(earl), "so he's no man for the town to call the doctor to")
+	# He bleeds faster (the playtest's death, sooner): you stay where you are.
+	earl.physiology.bleeds[0].rate = 60.0
+	var trail_from := f.fetch.trail.size()
+	var doc_lines: Array = CivilianBrain.LINES[&"help"] + ["Somebody fetch Doc!"] + FetchHelp.LINES[&"run_doc"]
+	var from := said.size()
+	var died := await wait_until(func() -> bool: return not earl.physiology.alive, 60 * 120)
+	check(died, "Earl dies where he lies (%s)" % earl.physiology.describe())
+	await physics_frames(60 * 8)
+	var calls := said.slice(from).filter(func(s: Array) -> bool: return s[1] in doc_lines)
+	check(calls.is_empty(), "nobody calls for the doctor, before he dies or after (%s)" % [calls])
+	for man: Node in f.people.values():
+		var cb := man.get_node_or_null(^"Brain") as CivilianBrain if is_instance_valid(man) else null
+		if cb != null and cb.reaction != null and cb.reaction.down == earl:
+			check(cb.reaction.choice != &"help" and cb.reaction.choice != &"run",
+					"%s doesn't go to help him or run (%s)" % [cb.body.person_id, cb.reaction.describe()])
+	var ran := f.fetch.trail.slice(trail_from).filter(func(e: Array) -> bool: return e[1] == "runs")
+	check(ran.is_empty(), "nobody runs for him (%s)" % [ran])

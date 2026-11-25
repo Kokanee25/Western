@@ -99,6 +99,8 @@ static func is_doctor(man: HumanBody) -> bool:
 ## Where a runner for this man down would go, and to whom: {to: &"doctor"/&"harlan", at, man (the
 ## doctor's or Harlan's body if he's out in the world, else null)}, or {} (nobody to run to).
 func errand_for(down: HumanBody) -> Dictionary:
+	if answered(down):
+		return {}  # the scene's (No Law's carry): the barkeep's sent you with him
 	var dead := down == null or not down.physiology.alive
 	if dead:
 		if not _law_now():
@@ -113,6 +115,22 @@ func errand_for(down: HumanBody) -> Dictionary:
 		return {}
 	doc["to"] = &"doctor"
 	return doc
+
+
+## The room's answer to this man down is a scene's (#1248: No Law's carry, `ValleyFolk.carry_act`,
+## while it plays: the barkeep's sent you to Doc's with him): the town doesn't run or call over it.
+func answered(down: HumanBody) -> bool:
+	if folk == null or not is_instance_valid(folk) or down == null:
+		return false
+	var act: Moment = folk.carry_act
+	return act != null and is_instance_valid(act) and not act.done and act.get(&"earl") == down
+
+
+## A man down to call the doctor to, or go to and help: alive, and not a scene's to answer (#1248:
+## "He's hit! Get the doctor!" two seconds after Earl bled out, with the carry's barkeep's "Ain't
+## nobody left to fetch" said).
+func wants_help(down: HumanBody) -> bool:
+	return down != null and is_instance_valid(down) and down.physiology.alive and not answered(down)
 
 
 ## A Reaction's man would run for this man down: is he the one? True and it's his (one runner an

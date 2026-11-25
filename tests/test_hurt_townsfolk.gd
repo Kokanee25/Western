@@ -158,3 +158,21 @@ func _line(careful: bool) -> bool:
 func test_an_outlaw_fires_past_a_townsman_and_a_careful_man_doesnt() -> void:
 	check(not await _line(false), "an outlaw: a townsman in his line takes his chance (Sean, #1116)")
 	check(await _line(true), "a careful man (Joe, lawmen, armed townsfolk) holds fire")
+
+
+## #1248: Earl's fall off his kicked chair bruised him (a blow, no harm past a bruise), and that made
+## him a hurt man: "I'm hit!" and off to a door, so he didn't take the free chair (main red, 5436). A
+## bruise isn't a wound he's hurt by; a ball is.
+func test_a_bruise_isnt_a_hurt() -> void:
+	var b := _townsman("earl", Vector3.ZERO, Vector3(0.0, 1.5, 2.0))
+	var man := b.body
+	await physics_frames(10)
+	var harm := man.physiology.blow(&"chest", 21.0, RandomNumberGenerator.new())
+	check_eq(Array(harm), ["bruised"], "21 J on the chest: a bruise")
+	check_eq(man.physiology.injuries(), 0, "no injury in it")
+	await physics_frames(30)
+	check(not b.hurt, "not a hurt man (%s)" % b.describe())
+	check(not _said("earl", &"hurt"), "no cry of being hit (%s)" % [said])
+	_ball(man, &"forearm_l", man)
+	await physics_frames(5)
+	check(b.hurt, "a ball in him is (%s)" % b.describe())

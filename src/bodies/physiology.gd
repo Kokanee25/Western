@@ -63,6 +63,9 @@ var burns := 0.0
 var alive := true
 var cause_of_death := &""
 var wounds := 0
+## Of `wounds`, the blows that only bruised (a fall off a kicked chair, a knock): no harm a man cries
+## "I'm hit!" over, or makes for a door with (#1248: Earl's fall made him a hurt man).
+var bruises := 0
 ## Can't die of an ordinary wound (the companion, Joe: "the only full companion", DESIGN.md; #843).
 ## A wound that would kill him puts him down instead (`_spare`): out cold, the killing part of it
 ## made a wound a man lives through, his bleeding stopped short of the loss that kills. The rope
@@ -392,6 +395,7 @@ func heal_all() -> void:
 	oxygen = 1.0
 	blood_ml = tuning.blood_ml
 	wounds = 0
+	bruises = 0
 
 
 # --- Infection (the gore lab; the Medical and Surgical History of the War of the Rebellion) -----
@@ -475,6 +479,11 @@ const NOSE_BLEED_SECONDS := 150.0
 const SCALP_BLIND_SECONDS := 180.0
 
 
+## Wounds that did more than bruise (`wounds` less `bruises`): a ball, a cut, a break, a nosebleed.
+func injuries() -> int:
+	return wounds - bruises
+
+
 func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
 	var out: PackedStringArray = []
 	if not alive or joules <= 0.0:
@@ -545,6 +554,8 @@ func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> Pac
 				out.append("%s broken" % region.replace("_", " "))
 	if out.is_empty():
 		out.append("bruised")
+		if not (region == "head" and joules > NOSE_BLOW_J):
+			bruises += 1
 	return out
 
 
@@ -881,7 +892,7 @@ func to_dict() -> Dictionary:
 			"severed": severed_segments.keys(), "eardrums": eardrums_burst.keys(), "wound_pain": wound_pain, "pain": pain,
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
-			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "burns": burns,
+			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "bruises": bruises, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
 			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys(),
 			"spared": spared, "spared_times": spared_times, "spared_cause": spared_cause, "splinted": splinted.keys()}
@@ -929,6 +940,7 @@ func from_dict(d: Dictionary) -> void:
 	alive = d.alive
 	cause_of_death = d.cause_of_death
 	wounds = d.wounds
+	bruises = int(d.get("bruises", 0))
 	burns = d.get("burns", 0.0)
 	concussion = d.get("concussion", 0.0)
 
