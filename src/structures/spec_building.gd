@@ -4066,7 +4066,8 @@ func _library_finishes() -> void:
 		elif strip > 0.0:
 			mi.mesh = strips_mesh(length, s[order[1]], s[order[2]], strip, rng, warp, nails, ground)
 		else:
-			mi.mesh = PropKit.board_mesh(length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground, role)
+			# One mesh a board's shape, its own seed, warp and nails on its node (#1246: PropKit.shared_board).
+			PropKit.shared_board(mi, length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground, role)
 		mi.transform = Transform3D(Basis(ex, ey, ez), -ex * length * 0.5)
 		mi.material_override = _lib_material(f, gy)
 
