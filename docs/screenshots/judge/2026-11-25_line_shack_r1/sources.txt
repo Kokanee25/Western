@@ -1,0 +1,4 @@
+a front build/shack_after/front.png
+b back build/shack_after/back.png
+c inside build/shack_after/inside.png
+d inside_door build/shack_after/inside_door.png

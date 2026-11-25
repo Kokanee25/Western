@@ -77,3 +77,12 @@ its parts, the door's planks), `tests/test_no_justice_shack_walk.gd` (#1091's mu
 - **Stand-ins** (gen_spec.py `STAND_IN`, `PLACE`; each keeps `wants`): plank_bed for the bunks,
   wall_bench (scaled) for the plank benches, folded_blanket for the bedrolls, trestles_short for the
   saddle rack; skillet, tin_plate, tin_cans, gun_belt, saddle and bridle wait (`dressing.waiting`).
+
+## The look (#1250, 2026-11-25)
+
+`render_lab.gd` draws it in the street's desert in the game's light (the valley version, `render_valley.gd`,
+is killed for memory under lavapipe on a 15 GB box). `results/2026-11-25/before_after.jpg`: the stand-in box
+beside the shack. Cheap judge `2026-11-25_line_shack_r1`: front, back, inside cheap indie; inside to the door
+good indie. Its reasons: the lab's bare sand and cut backdrop (not the shack's); the inside's flat sourceless
+light; the stand-in bunks and coat pegs identical, a bed's frame through its blanket (the kit, #1263); no
+contact shadow under benches and table. Braces stood through the storeroom's sloped roof: fixed in `_braces`.
