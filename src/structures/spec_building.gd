@@ -4064,7 +4064,8 @@ func _library_finishes() -> void:
 			mi.mesh = PropKit.lib_profile_mesh(m.get_meta(&"draw"), m.size, Transform3D(Basis(ex, ey, ez), -ex * length * 0.5),
 					float(rng % 100000) / 100000.0, Vector3(length, s[order[1]], s[order[2]]), warp * 0.3, ground, role)
 		elif strip > 0.0:
-			mi.mesh = strips_mesh(length, s[order[1]], s[order[2]], strip, rng, warp, nails, ground)
+			# One mesh a shape here too, its own seeds, warp and nails on its node (#1259: PropKit.shared_strips).
+			PropKit.shared_strips(mi, length, s[order[1]], s[order[2]], strip, rng, warp, nails, ground)
 		else:
 			# One mesh a board's shape, its own seed, warp and nails on its node (#1246: PropKit.shared_board).
 			PropKit.shared_board(mi, length, s[order[1]], s[order[2]], float(rng % 100000) / 100000.0, warp, nails, ground, role)
@@ -4192,66 +4193,9 @@ static func _board_mesh(length: float, width: float, thick: float, seed: float, 
 	return PropKit.board_mesh(length, width, thick, seed, warp, nails, ground_y)  # (shared with the kit's props, #788)
 
 
-## A member drawn as boards `strip` wide side by side across its width (#826: a wall cut 27 cm a
-## member, drawn as the three 9 cm beaded boards its paint was judged at), the last one ripped to
-## what's left; each a library board of its own (its own seed, grain, bead and nails), one mesh in
-## the board frame (`_board_mesh`'s), so it batches as one board does.
+## A member drawn as boards `strip` wide side by side (PropKit.strips_mesh, where it lives since #1259).
 static func strips_mesh(length: float, width: float, thick: float, strip: float, rng: int, warp: float, nails: Vector2, ground_y: float) -> ArrayMesh:
-	var widths: Array[float] = []
-	var left := width
-	while left > 0.0005:
-		var w := minf(strip, left)
-		if left - w < 0.03 and widths.size() > 0 and left - w > 0.0005:
-			w = left  # (no sliver: the last board takes it)
-		widths.append(w)
-		left -= w
-	var parts: Array = []
-	var y := -width * 0.5
-	for i in widths.size():
-		var wi: float = widths[i]
-		var seed := float(hash(rng + i * 7919) % 100000) / 100000.0
-		var arr: Array = PropKit.board_mesh(length, wi, thick, seed, warp, nails, ground_y).get_meta(&"arrays")
-		parts.append([arr, y + wi * 0.5])
-		y += wi
-	var out := []
-	out.resize(Mesh.ARRAY_MAX)
-	var v := PackedVector3Array()
-	var n := PackedVector3Array()
-	var uv := PackedVector2Array()
-	var c0 := PackedFloat32Array()
-	var c1 := PackedFloat32Array()
-	var c2 := PackedFloat32Array()
-	var idx := PackedInt32Array()
-	for p: Array in parts:
-		var a: Array = p[0]
-		var off := Vector3(0.0, float(p[1]), 0.0)
-		var base := v.size()
-		for q: Vector3 in a[Mesh.ARRAY_VERTEX]:
-			v.append(q + off)
-		n.append_array(a[Mesh.ARRAY_NORMAL])
-		uv.append_array(a[Mesh.ARRAY_TEX_UV])
-		c0.append_array(a[Mesh.ARRAY_CUSTOM0])
-		c1.append_array(a[Mesh.ARRAY_CUSTOM1])
-		c2.append_array(a[Mesh.ARRAY_CUSTOM2])
-		for k: int in a[Mesh.ARRAY_INDEX]:
-			idx.append(base + k)
-	out[Mesh.ARRAY_VERTEX] = v
-	out[Mesh.ARRAY_NORMAL] = n
-	out[Mesh.ARRAY_TEX_UV] = uv
-	out[Mesh.ARRAY_CUSTOM0] = c0
-	out[Mesh.ARRAY_CUSTOM1] = c1
-	out[Mesh.ARRAY_CUSTOM2] = c2
-	out[Mesh.ARRAY_INDEX] = idx
-	var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
-			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
-			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, out, [], {}, fmt)
-	mesh.custom_aabb = AABB(Vector3(-0.02, -width * 0.5 - 0.02, -thick * 0.5 - 0.02), Vector3(length + 0.04, width + 0.04, thick + 0.04))
-	mesh.set_meta(&"arrays", out)
-	mesh.set_meta(&"board_frame", true)
-	mesh.set_meta(&"strip_widths", widths)
-	return mesh
+	return PropKit.strips_mesh(length, width, thick, strip, rng, warp, nails, ground_y)
 
 
 
