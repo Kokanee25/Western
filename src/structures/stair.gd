@@ -88,11 +88,13 @@ static func build(s: Structure, id: String, head: Vector3, up: Vector3, across: 
 			out.append(m)
 	# The rail up the open side, on balusters standing on the stringer's top edge, from a newel at the foot.
 	var rail_side: int = spec.get("rail", 1)
-	if rail_side != 0:
-		var off := width - STRINGER.x * 0.5 if rail_side > 0 else STRINGER.x * 0.5
+	# (`rail` 2: both sides, a stair standing free: the hotel's grand stair's centre flight, #1226)
+	for rside: int in ([1, -1] if rail_side == 2 else ([rail_side] if rail_side != 0 else [])):
+		var off := width - STRINGER.x * 0.5 if rside > 0 else STRINGER.x * 0.5
+		var nid := "" if rail_side != 2 else ("_a" if rside > 0 else "_b")
 		var newel_at := foot - up * (going * 0.6) + side * off
 		# On a floor it stands as furniture does; on the ground it's set in it, as a post.
-		var newel := s.add_member("%s/newel" % id, &"post" if foot.y <= Structure.GROUND_EPSILON else &"furniture_frame", wood, Vector3(0.11, 1.1, 0.11), newel_at + Vector3.UP * 0.55)
+		var newel := s.add_member("%s/newel%s" % [id, nid], &"post" if foot.y <= Structure.GROUND_EPSILON else &"furniture_frame", wood, Vector3(0.11, 1.1, 0.11), newel_at + Vector3.UP * 0.55)
 		out.append(newel)
 		var posts: Array = []
 		for i in risers - 1:
@@ -101,7 +103,7 @@ static func build(s: Structure, id: String, head: Vector3, up: Vector3, across: 
 			posts.append(p)
 		var ra := newel_at + Vector3.UP * 1.1
 		var rb := head + side * off + Vector3.UP * 0.95
-		var rails := Railing.build(s, id + "/rail", ra, rb, {"height": 0.0, "posts": posts, "baluster": 0.035,
+		var rails := Railing.build(s, id + "/rail" + nid, ra, rb, {"height": 0.0, "posts": posts, "baluster": 0.035,
 				"rail": Vector2(0.065, 0.06), "overhang": 0.0, "wood": wood})
 		out.append_array(rails)
 		if look != "":

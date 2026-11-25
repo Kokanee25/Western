@@ -171,6 +171,9 @@ func build() -> void:
 	_side_ramp()
 	band = 2
 	_partitions("ground", 2)
+	_arches("ground")
+	_ledgers()
+	band = 2
 	_stairs_inside()
 	_summer_beams()
 	band = 3
@@ -179,6 +182,8 @@ func build() -> void:
 	_gallery_rails()
 	band = 4
 	_partitions("upper", 4)
+	_arches("upper")
+	band = 4
 	_outside_stair()
 	_stage()
 	band = 2 if _fr.get("stacked", false) else 1
@@ -558,6 +563,8 @@ func _foundation() -> void:
 		var e: Vector2 = r[2]
 		if absf(a.x - e.x) < 0.001 and _passage_run(String(r[0]), a, e, t, top, cel, floor, bk):
 			continue
+		if absf(a.y - e.y) < 0.001 and _passage_run_x(String(r[0]), a, e, t, top, cel, floor):
+			continue
 		if not bk.is_empty() and absf(a.x - e.x) < 0.001:
 			# The bulkhead's passage (#1174) through a side wall along z: the wall either side, jambs
 			# under a stone lintel (its ends bearing 0.25 m on them), the gap from the cellar's floor up.
@@ -589,6 +596,7 @@ func _foundation() -> void:
 		_stone_run("cellar/wall_x0", Vector2(c0.x - t * 0.5, za), Vector2(c0.x - t * 0.5, zb), t, top, [], floor)
 	if c1.x < w - 0.01:
 		_stone_run("cellar/wall_x1", Vector2(c1.x - t * 0.5, za), Vector2(c1.x - t * 0.5, zb), t, top, [], floor)
+	_wing_foundations()
 	_sills()
 
 
@@ -602,7 +610,7 @@ func _passage_run(name: String, a: Vector2, e: Vector2, t: float, top: float, ce
 		var wl: Array = _wall_line(wall_id)
 		return not wl.is_empty() and absf(float(wl[0][0]) - (a.x if a.x < 0.01 else a.x + t)) < 0.01
 	for ps: Dictionary in spec.get("foundation_passages", []):
-		if on_run.call(String(ps.wall)):
+		if ps.has("z") and on_run.call(String(ps.wall)):
 			var lb := floor + float(ps.height)
 			gaps.append({"z0": float(ps.z[0]), "z1": float(ps.z[1]), "lb": lb, "lt": minf(top, lb + 0.25), "kind": "drift"})
 	if gaps.is_empty():
@@ -628,12 +636,186 @@ func _passage_run(name: String, a: Vector2, e: Vector2, t: float, top: float, ce
 	return true
 
 
+## A front or back foundation run (along x) with passages through it (#1226, the hotel's cellar stair from the
+## kitchen wing's pit into the wine room; spec `foundation_passages` [{wall, x [x0, x1], height}]): from the
+## cellar's floor up `height` under a timber lintel bearing 0.25 m each side, the stone on over it. Returns
+## false (nothing built) when no passage is on this run.
+func _passage_run_x(name: String, a: Vector2, e: Vector2, t: float, top: float, cel: Array, floor: float) -> bool:
+	var gaps: Array = []
+	for ps: Dictionary in spec.get("foundation_passages", []):
+		if not ps.has("x"):
+			continue
+		var wl: Array = _wall_line(String(ps.wall))
+		if wl.is_empty() or absf(float(wl[0][1]) - float(wl[1][1])) > 0.001:
+			continue
+		if absf(float(wl[0][1]) - (a.y if a.y < 0.01 else a.y + t)) > 0.01:
+			continue
+		var lb := floor + float(ps.height)
+		gaps.append([float(ps.x[0]), float(ps.x[1]), lb, minf(top, lb + 0.25)])
+	if gaps.is_empty():
+		return false
+	gaps.sort_custom(func(p: Array, q: Array) -> bool: return float(p[0]) < float(q[0]))
+	var x := a.x
+	for k in gaps.size():
+		var g: Array = gaps[k]
+		var x0 := float(g[0])
+		var x1 := float(g[1])
+		var lb := float(g[2])
+		var lt := float(g[3])
+		var id := "foundation/%s_passage%d" % [name, k]
+		_stone_run("%s_before" % id, Vector2(x, a.y), Vector2(x0 - 0.25, a.y), t, top, cel, floor)
+		_stone_run("%s_jamb_a" % id, Vector2(x0 - 0.25, a.y), Vector2(x0, a.y), t, lb, cel, floor)
+		add_member("%s_lintel" % id, &"sill", &"framing", Vector3(x1 - x0 + 0.5, lt - lb, t), Vector3((x0 + x1) * 0.5, (lt + lb) * 0.5, a.y + t * 0.5))
+		if lt < top - 0.01:
+			_stone_run("%s_over" % id, Vector2(x0 - 0.25, a.y), Vector2(x1 + 0.25, a.y), t, top, [], lt)
+		_stone_run("%s_jamb_b" % id, Vector2(x1, a.y), Vector2(x1 + 0.25, a.y), t, lb, cel, floor)
+		x = x1 + 0.25
+	_stone_run("foundation/%s_after" % name, Vector2(x, a.y), e, t, top, cel, floor)
+	return true
+
+
+## A wing behind the main block (#1226, the hotel's kitchen wing; spec `wings` [{id, rect [x0, z0, x1, z1],
+## pits}]: z0 the main block's depth, its front the main's back wall): its own foundation on its three free
+## sides, down to a pit's floor where it walls one. A pit (`pits` [{rect}], one a wing: a stair's well down
+## into the main block's cellar through the passage in its back foundation) is walled in stone on its other
+## sides down to the cellar's floor and flagged, its flags on through the passage. Its sills are `_sills`'.
+func _wing_foundations() -> void:
+	var t := float(_fr.foundation.thick)
+	var top := float(_fr.foundation.top)
+	var floor: float = _lv.cellar
+	for wg: Dictionary in spec.get("wings", []):
+		var r: Array = wg.rect
+		var x0 := float(r[0])
+		var z0 := float(r[1])
+		var x1 := float(r[2])
+		var z1 := float(r[3])
+		var pits: Array = wg.get("pits", [])
+		# (a run's piece whose middle is within a wall's thickness of the pit goes down to its floor)
+		var deep: Array = []
+		var low := float(_fr.foundation.bottom)
+		if not pits.is_empty():
+			var pr: Array = pits[0].rect
+			deep = [float(pr[0]) - t - 0.1, float(pr[1]) - t - 0.1, float(pr[2]) + t + 0.1, float(pr[3]) + t + 0.1]
+			low = floor
+		for rn: Array in [["back", Vector2(x0, z1 - t), Vector2(x1, z1 - t)], ["x0", Vector2(x0, z0), Vector2(x0, z1 - t)],
+				["x1", Vector2(x1 - t, z0), Vector2(x1 - t, z1 - t)]]:
+			if deep.is_empty():
+				_stone_run("foundation/%s_%s" % [wg.id, rn[0]], rn[1], rn[2], t, top, [], low)
+			else:
+				_stone_run("foundation/%s_%s" % [wg.id, rn[0]], rn[1], rn[2], t, top, deep, low)
+		for p: Dictionary in pits:
+			var pr: Array = p.rect
+			var px0 := float(pr[0])
+			var pz0 := float(pr[1])
+			var px1 := float(pr[2])
+			var pz1 := float(pr[3])
+			var id := "foundation/%s_pit" % wg.id
+			if px0 > x0 + t + 0.01:
+				_stone_run(id + "_x0", Vector2(px0 - t, pz0), Vector2(px0 - t, pz1 + t), t, top, [], floor)
+			if px1 < x1 - t - 0.01:
+				_stone_run(id + "_x1", Vector2(px1, pz0), Vector2(px1, pz1 + t), t, top, [], floor)
+			if pz1 < z1 - t - 0.01:
+				_stone_run(id + "_back", Vector2(px0, pz1), Vector2(px1, pz1), t, top, [], floor)
+			# Its flags, on through the passage under the main block's back wall to the cellar's.
+			var fz0 := pz0 - t
+			var n := maxi(1, ceili((pz1 - fz0) / 1.0))
+			for k in n:
+				var a := lerpf(fz0, pz1, float(k) / n)
+				var b := lerpf(fz0, pz1, float(k + 1) / n)
+				add_member("%s_flags/%d" % [id, k], &"sill", &"stone", Vector3(px1 - px0 - 0.004, 0.08, b - a - 0.004), Vector3((px0 + px1) * 0.5, floor + 0.04, (a + b) * 0.5))
+
+
 ## A wall's line in the spec ([[x, z], [x, z]]), or [] if there's none by that id.
 func _wall_line(id: String) -> Array:
 	for w: Dictionary in spec.walls:
 		if w.id == id:
 			return w.line
 	return []
+
+
+## A wide opening in a bearing wall (#1226, the hotel's 18 ft arch from the lobby into the stair hall): spec
+## `arches` [{id, z (the wall's line, along x), from, to (its posts' centres along it), post [along, across],
+## beam [across, depth], beam_x}]: two posts standing on the floor's sole at its ends and a beam on them under the
+## joists the wall carried (the partitions either side stop at the posts). Band 2, as the ground floor's partitions;
+## `level` "upper": on the upper floor's boards under the flat roof's joists, band 4 (the upper partitions').
+func _arches(level: String) -> void:
+	for ar: Dictionary in spec.get("arches", []):
+		if String(ar.get("level", "ground")) != level:
+			continue
+		var foot := _lv[level] as float
+		# (upstairs, under a flat roof's joists: their bottom at the plates, #1226)
+		var top := (_lv.upper_joist_bottom as float) if level == "ground" else wall_height
+		var b0 := 2 if level == "ground" else 4
+		var ps: Array = ar.post
+		var bm: Array = ar.beam
+		var bb := top - float(bm[1])
+		var z := float(ar.z)
+		var a := float(ar.from)
+		var e := float(ar.to)
+		band = b0
+		for k in 2:
+			var s := a if k == 0 else e
+			var m := add_member("arch/%s/post_%d" % [ar.id, k], &"post", &"framing", Vector3(ps[0], bb - foot, ps[1]), Vector3(s, (foot + bb) * 0.5, z))
+			PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "y", "up": "z", "args": [float(_fr.post.chamfer)]}, String(ar.get("look", _fr.post.look)))
+		# (`beam_x` [x0, x1]: the beam on past its posts, the wall's ends under it stopped short of it)
+		var bx: Array = ar.get("beam_x", [a - float(ps[0]) * 0.5, e + float(ps[0]) * 0.5])
+		var x0 := float(bx[0])
+		var x1 := float(bx[1])
+		var bmm := add_member("arch/%s/beam" % ar.id, &"beam", &"framing", Vector3(x1 - x0, bm[1], bm[0]), Vector3((x0 + x1) * 0.5, (top + bb) * 0.5, z))
+		PropKit.dress_member(bmm, {"shape": "profile", "profile": "chamfered", "along": "x", "up": "y", "args": [float(_fr.beam.chamfer)]}, String(ar.get("look", _fr.beam.look)))
+
+
+## Ledgers nailed to a wall's face for joists to rest on (#1226, the hotel's kitchen wing: its upper floor's and
+## roof's joists on the main block's back wall's outer face). Spec `ledgers` [{id, wall, side ("out" its outer
+## face; "in" its inner), from, to (along the wall), top, section [thick, depth]}]: band 2, on the studs.
+func _ledgers() -> void:
+	for l: Dictionary in spec.get("ledgers", []):
+		var wall: Dictionary = walls[l.wall].dict
+		var sec: Array = l.get("section", [0.05, 0.15])
+		var top := float(l.top)
+		var d0 := 0.0
+		var d1 := float(sec[0])
+		if String(l.get("side", "out")) == "in":
+			d1 = -STUD_D
+			d0 = d1 - float(sec[0])
+		band = 2
+		_wall_member("ledger/" + String(l.id), &"ledger", &"framing", wall, float(l.from), float(l.to), top - float(sec[1]), top, d0, d1)
+
+
+## A stair's landing between floors (#1226, the hotel's grand stair's half landing across the back): spec
+## `landings` [{id, rect [x0, z0, x1, z1] (its joists'), top, z (its beam's line, over a girder), post [w, w],
+## beam [width, depth], posts [x, ...], wall (the one its back edge hangs on, a ledger on its inner face),
+## joist (the frame's section)}]: posts down through the ground floor's slots onto the girder, a beam on them,
+## the joists front to back on the beam and the ledger, boards across. Posts and beam band 2, the rest 3.
+func _landings() -> void:
+	for ld: Dictionary in spec.get("landings", []):
+		var r: Array = ld.rect
+		var x0 := float(r[0])
+		var x1 := float(r[2])
+		var top := float(ld.top)
+		var jf: Dictionary = _fr[String(ld.get("joist", "joist"))]
+		var jd := float(jf.section[1])
+		var jb := top - float(_fr.floor_board.thick) - jd
+		var bm: Array = ld.beam
+		var bb := jb - float(bm[1])
+		var z := float(ld.z)
+		var foot := float(_fr.foundation.top) + float(_fr.girder.section[1])
+		var id := "landing/" + String(ld.id)
+		var ps: Array = ld.post
+		band = 2
+		var posts: Array = ld.posts
+		for k in posts.size():
+			var m := add_member("%s/post_%d" % [id, k], &"post", &"framing", Vector3(ps[0], bb - foot, ps[1]), Vector3(float(posts[k]), (bb + foot) * 0.5, z))
+			PropKit.dress_member(m, {"shape": "profile", "profile": "chamfered", "along": "y", "up": "z", "args": [0.02]}, String(_fr.post.look))
+		var bmm := add_member("%s/beam" % id, &"beam", &"framing", Vector3(x1 - x0, bm[1], bm[0]), Vector3((x0 + x1) * 0.5, (jb + bb) * 0.5, z))
+		PropKit.dress_member(bmm, {"shape": "profile", "profile": "chamfered", "along": "x", "up": "y", "args": [0.02]}, String(_fr.beam.look))
+		var wall: Dictionary = walls[ld.wall].dict
+		_wall_member("%s/ledger" % id, &"ledger", &"framing", wall, x0, x1, jb - 0.15, jb, -STUD_D - 0.05, -STUD_D)
+		band = 3
+		var f := {"id": "landing_" + String(ld.id), "level": "upper", "top": top, "joist": String(ld.get("joist", "joist")), "rect": r, "joists": "z"}
+		if ld.has("look"):
+			f["look"] = ld.look
+		_floor(f, [])
 
 
 ## The yard's ground under (x, z), building space (`lot.ground.plane` [a, b, c]: y = a + b x + c z;
@@ -709,6 +891,14 @@ func _sills() -> void:
 	_pieces("sill/back", Vector3(0, sy, d - float(sill[0]) * 0.5), Vector3.RIGHT, w, Vector2(sill[1], sill[0]), &"sill", &"framing")
 	_pieces("sill/west", Vector3(float(sill[0]) * 0.5, sy, float(sill[0])), Vector3.BACK, d - float(sill[0]) * 2.0, Vector2(sill[1], sill[0]), &"sill", &"framing")
 	_pieces("sill/east", Vector3(w - float(sill[0]) * 0.5, sy, float(sill[0])), Vector3.BACK, d - float(sill[0]) * 2.0, Vector2(sill[1], sill[0]), &"sill", &"framing")
+	# A wing's (#1226): on its three free sides, from the main block's back wall.
+	for wg: Dictionary in spec.get("wings", []):
+		var r: Array = wg.rect
+		var s0 := float(sill[0])
+		_pieces("sill/%s_back" % wg.id, Vector3(float(r[0]), sy, float(r[3]) - s0 * 0.5), Vector3.RIGHT, float(r[2]) - float(r[0]), Vector2(sill[1], sill[0]), &"sill", &"framing")
+		for e in 2:
+			var sx := float(r[0]) + s0 * 0.5 if e == 0 else float(r[2]) - s0 * 0.5
+			_pieces("sill/%s_x%d" % [wg.id, e], Vector3(sx, sy, float(r[1])), Vector3.BACK, float(r[3]) - float(r[1]) - s0, Vector2(sill[1], sill[0]), &"sill", &"framing")
 
 
 ## A stone wall along x or z from a to b (its near edge on the line), `t` thick, in pieces; where it
@@ -904,6 +1094,31 @@ func _ground_floor() -> void:
 			x += every
 			k += 1
 		_pieces("girder/%d" % int(z * 100), Vector3(0.2, top + float(g[1]) * 0.5, z), Vector3.RIGHT, width - 0.4, Vector2(g[1], g[0]), &"sill", &"framing")
+	# Girders along x over part of the width (`girders.runs` [{z, x [x0, x1]}], #1226: the hotel's kitchen wing's),
+	# on piers, none inside a wing's pit (its walls carry it).
+	var pit_rects: Array = []
+	for wg: Dictionary in spec.get("wings", []):
+		for p: Dictionary in wg.get("pits", []):
+			var t := float(_fr.foundation.thick)
+			pit_rects.append([float(p.rect[0]) - t - 0.25, float(p.rect[1]) - 0.25, float(p.rect[2]) + t + 0.25, float(p.rect[3]) + t + 0.25])
+	for gr: Dictionary in spec.girders.get("runs", []):
+		var z := float(gr.z)
+		var xa := float(gr.x[0])
+		var xb := float(gr.x[1])
+		var xs: Array[float] = []
+		var x := xa + 0.25
+		while x < xb - 0.3:
+			xs.append(x)
+			x += every
+		xs.append(xb - 0.25)
+		for k in xs.size():
+			var px := xs[k]
+			if pit_rects.any(func(pr: Array) -> bool: return px > float(pr[0]) and px < float(pr[2]) and z > float(pr[1]) and z < float(pr[3])):
+				continue
+			band = 0
+			add_member("pier/r%d_%02d" % [int(z * 100), k], &"sill", &"stone", Vector3(pier, top + 0.3, pier), Vector3(px, (top - 0.3) * 0.5, z))
+			band = 1
+		_pieces("girder/run%d_%d" % [int(z * 100), int(xa * 100)], Vector3(xa, top + float(g[1]) * 0.5, z), Vector3.RIGHT, xb - xa, Vector2(g[1], g[0]), &"sill", &"framing")
 	# A girder under a bearing partition that runs with the joists (`girders.under`: saloon B's stair
 	# hall and store room walls): from the piers to the floor's top, the joists beside it and the
 	# boards butted to it each side, so the wall's studs stand on the girder and not on a board.
@@ -932,13 +1147,20 @@ func _ground_floor() -> void:
 				var h := float(pe.get("size", 0.1)) * 0.5 + 0.035
 				slots.append({"id": "post_%s_%d" % [sb.id, int(float(pe.z) * 100)], "slot": true,
 						"rect": [float(sb.x) - h + 0.035, float(pe.z) - h, float(sb.x) + h - 0.035, float(pe.z) + h]})
+	# A landing's posts down onto their girder (#1226, the hotel's grand stair) go through the floor in slots.
+	for ld: Dictionary in spec.get("landings", []):
+		var h := float((ld.post as Array)[0]) * 0.5 + 0.025  # (2.5 cm clear: a post touching a board's end stands on it)
+		for px: float in ld.get("posts", []):
+			slots.append({"id": "landing_%s_%d" % [ld.id, int(px * 100)], "slot": true,
+					"rect": [px - h, float(ld.z) - h, px + h, float(ld.z) + h]})
 	for f: Dictionary in spec.floors:
 		if f.level == "ground":
 			var fl := f
 			if not slots.is_empty():
 				fl = f.duplicate()
 				fl.openings = (f.get("openings", []) as Array) + slots
-			_floor(fl, spec.girders.get("x", []) if spec.girders.has("x") else gz)
+			# (`breaks`: a floor's own girder lines, a wing's: #1226)
+			_floor(fl, f.get("breaks", spec.girders.get("x", []) if spec.girders.has("x") else gz))
 
 
 func _upper_floors() -> void:
@@ -946,6 +1168,7 @@ func _upper_floors() -> void:
 		if f.level == "upper":
 			# `breaks`: where its joists are cut over a bearing wall under them (along them).
 			_floor(f, f.get("breaks", []))
+	_landings()
 
 
 ## A floor: joists along its `joists` axis at their spacing across `rect` (cut at `breaks` along
@@ -960,7 +1183,7 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 	var jf: Dictionary = _fr[f.get("joist", "joist")]
 	var js: Array = jf.section
 	var spacing := float(jf.spacing)
-	var top := _lv[f.level] as float
+	var top := float(f.top) if f.has("top") else (_lv[f.level] as float)
 	var bt := float(_fr.floor_board.thick)
 	var jt := top - bt
 	var jb := jt - float(js[1])
@@ -1085,6 +1308,28 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 			var ll := ol / leaves - 0.02
 			var c := Vector3(float(orr[2]) + ow * 0.5 + 0.01, top + 0.02, float(orr[1]) + (ll + 0.02) * (k + 0.5))
 			add_member("%s/%s/leaf_%d" % [id, o.id, k], &"door", &"floor", Vector3(ow - 0.02, 0.04, ll), c)
+		# A skylight over it (#1226, the hotel's over the grand stair: `skylight` its curb's height): a plank curb
+		# on the headers and trimmers round it, a frame of bars and the glass laid on it.
+		var sk := float(o.get("skylight", 0.0))
+		if sk > 0.0:
+			var cx0 := float(orr[0])
+			var cz0 := float(orr[1])
+			var cx1 := float(orr[2])
+			var cz1 := float(orr[3])
+			var ct := 0.05
+			var cy := jb + (top + sk - jb) * 0.5
+			var ch := top + sk - jb
+			add_member("%s/%s/curb_0" % [id, o.id], &"trim", &"framing", Vector3(cx1 - cx0 + ct * 2.0, ch, ct), Vector3((cx0 + cx1) * 0.5, cy, cz0 - ct * 0.5))
+			add_member("%s/%s/curb_1" % [id, o.id], &"trim", &"framing", Vector3(cx1 - cx0 + ct * 2.0, ch, ct), Vector3((cx0 + cx1) * 0.5, cy, cz1 + ct * 0.5))
+			add_member("%s/%s/curb_2" % [id, o.id], &"trim", &"framing", Vector3(ct, ch, cz1 - cz0), Vector3(cx0 - ct * 0.5, cy, (cz0 + cz1) * 0.5))
+			add_member("%s/%s/curb_3" % [id, o.id], &"trim", &"framing", Vector3(ct, ch, cz1 - cz0), Vector3(cx1 + ct * 0.5, cy, (cz0 + cz1) * 0.5))
+			var gy := top + sk + 0.01
+			var nb := maxi(1, roundi((cx1 - cx0) / 0.6))
+			for k in range(1, nb):
+				var bx := lerpf(cx0, cx1, float(k) / nb)
+				add_member("%s/%s/bar_%d" % [id, o.id, k], &"trim", &"dark_trim", Vector3(0.04, 0.03, cz1 - cz0 + ct * 2.0), Vector3(bx, top + sk + 0.015, (cz0 + cz1) * 0.5))
+			var gl := add_member("%s/%s/glass" % [id, o.id], &"glass", &"glass", Vector3(cx1 - cx0 + ct, 0.008, cz1 - cz0 + ct), Vector3((cx0 + cx1) * 0.5, gy + 0.025, (cz0 + cz1) * 0.5))
+			gl.get_child(0).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# The boards, across the joists, in stock lengths, round the openings.
 	var bw := float(_fr.floor_board.width)
 	var rough: Array = f.get("rough", [])
@@ -1117,7 +1362,8 @@ func _floor(f: Dictionary, breaks: Array) -> void:
 		var piece := 0
 		for sp: Array in spans:
 			var length := float(sp[1]) - float(sp[0])
-			var cuts := maxi(1, ceili(length / 4.9))
+			# (`board_length`: the stock the floor's laid in, 4.9 m unless the spec says shorter, #1226)
+			var cuts := maxi(1, ceili(length / float(f.get("board_length", 4.9))))
 			# Each joint on a joist (half the joist's width each side), staggered row to row.
 			var joints: Array[float] = [float(sp[0])]
 			for k in range(1, cuts):
@@ -1271,6 +1517,10 @@ func _outer_walls() -> void:
 					# (the balcony's own joists: 2x10s under a floor of deeper ones, saloon B's)
 					var bj := float(_fr.joist.section[1])
 					cut.append(Rect2(float(l.from), (_lv.upper as float) - float(_fr.floor_board.thick) - bj, float(l.to) - float(l.from), bj))
+		# A wing's span of the wall it's built against (#1226): inside the wing, no siding.
+		for wg: Dictionary in spec.get("wings", []):
+			if String(wg.get("against", "back")) == w.id:
+				cut.append(Rect2(float(wg.rect[0]) - 0.01, -5.0, float(wg.rect[2]) - float(wg.rect[0]) + 0.02, 30.0))
 		# Where the porch roof's ledger and a lean-to's are nailed to the studs.
 		if w.id == "front" and spec.has("porch"):
 			cut.append(Rect2(-1.0, float(spec.porch.height) + 0.21, width + 2.0, 0.17))
@@ -1340,6 +1590,26 @@ func _outer_walls() -> void:
 			_finish(face, fid, float(fin.from), float(fin.to), y0, y1, String(fin.finish), _rects_on(ops, lvl), 1)
 		if top_kind == "gable" and bool(spec.get("inside_finish", {}).get("gables", false)):
 			_gable_lining(w, wall, tanp)
+		# The wing's rooms' finish on this wall's outer face where a wing is built against it (#1226): `finish`
+		# [{level, from, to, finish}], as `inside`.
+		for wg: Dictionary in spec.get("wings", []):
+			if String(wg.get("against", "back")) != w.id:
+				continue
+			for fin: Dictionary in wg.get("finish", []):
+				var lvl: String = fin.level
+				var y0 := _lv[lvl] as float
+				var y1 := (_lv.upper_joist_bottom as float) if lvl == "ground" else (wall_height - PLATE_H)
+				y1 = minf(y1, float(fin.get("to_y", y1)))
+				_finish(_face(wall, 0.0, 1.0), "%s/%s_%s" % [w.id, wg.id, lvl], float(fin.from), float(fin.to), y0, y1, String(fin.finish), _rects_on(ops, lvl), 1)
+		# A ground floor door through the wall a wing's built against (#1226): a threshold over the wall's
+		# depth from the sill to the floor's top, flush with the wing's floor on the far side.
+		var wing_wall := false
+		for wg: Dictionary in spec.get("wings", []):
+			wing_wall = wing_wall or String(wg.get("against", "back")) == w.id
+		for o in ops if wing_wall else []:
+			var r: Rect2 = o[0]
+			if String((o[1] as Dictionary).type) == "door" and String(o[2]) == "ground":
+				_wall_member("%s/threshold_%d" % [w.id, int(r.position.x * 100)], &"header", &"framing", wall, r.position.x, r.end.x, sill_top, floor_top, -STUD_D, 0.03)
 		# Doors in it.
 		for o in ops:
 			var so: Dictionary = o[1]
@@ -1875,6 +2145,8 @@ func _partitions(level: String, b: int) -> void:
 		var rects: Array[Rect2] = []
 		for o in ops:
 			rects.append(o[0])
+			if (o[1] as Dictionary).has("header"):
+				_header_h[o[0]] = float(o[1].header)  # (a wide arch's deeper header, #1226)
 		var top_at := func(_x: float) -> float: return top
 		# (`stud`: a heavier stud for a partition that carries two floors, the hotel's 28 ft wall, #1220)
 		_studs(wall, foot, top_at, rects, -STUD_D * 0.5, STUD_D * 0.5, float(w.get("stud", STUD_W)))
@@ -1905,16 +2177,52 @@ func _stair(st: Dictionary, lower: float, upper: float) -> void:
 		var foot := head - up * run
 		var q := Vector3(p[0], 0, p[1]) - Vector3(foot.x, 0, foot.z)
 		posts.append([q.dot(up), q.dot(across)])
+	var rs := String(st.get("rail", "+x"))
 	var made := Stair.build(self, "stair/" + String(st.id), head, up, across, float(st.width), risers, rise, float(st.going),
-			{"rail": 0 if String(st.get("rail", "+x")) == "none" else (1 if _axis(String(st.get("rail", "+x"))).dot(across) > 0.0 else -1), "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
+			{"rail": 0 if rs == "none" else (2 if rs == "both" else (1 if _axis(rs).dot(across) > 0.0 else -1)), "posts": posts, "wood": StringName(st.get("wood", "framing")), "look": st.get("look", ""),
 			"stringer_look": st.get("stringer_look", st.get("look", "")), "ground_block": st.get("ground_block", false)})
 	ramps.append([made.ramp, made.stringers])
+	if st.has("curtail"):
+		_curtail(st, head, up, across, risers, rise, lower)
+
+
+## A grand stair's flared bottom steps (#1226, the hotel's: spec `curtail` {steps, flare}): each of its lowest
+## steps run out past the stringers either side, the lowest the farthest, the ends rounded by a short block in
+## front, as the brief's curtail steps; solid blocks on the floor in the stair's look.
+func _curtail(st: Dictionary, head: Vector3, up: Vector3, across: Vector3, risers: int, rise: float, lower: float) -> void:
+	var cu: Dictionary = st.curtail
+	var n := int(cu.get("steps", 3))
+	var flare := float(cu.get("flare", 0.45))
+	var going := float(st.going)
+	var width := float(st.width)
+	var foot := head - up * (going * (risers - 1))
+	var look := String(st.get("look", ""))
+	for i in n:
+		var out := flare * float(n - i) / n
+		var top := lower + rise * (i + 1)
+		var front := foot + up * (going * i) - up * 0.025
+		var depth := going + 0.025 if i < n - 1 else going * 0.5
+		for side in 2:
+			var edge := head + across * (-out * 0.5 if side == 0 else width + out * 0.5) + up * ((front - head).dot(up) + depth * 0.5)
+			var c := Vector3(edge.x, (lower + top) * 0.5, edge.z)
+			var size := up.abs() * depth + Vector3.UP * (top - lower) + across.abs() * out
+			var m := add_member("stair/%s/curtail_%d_%d" % [st.id, i, side], &"furniture_frame", StringName(st.get("wood", "framing")), size, c)
+			if look != "":
+				PropKit.dress_member(m, {}, look)
+			if i == 0:
+				# (the round of the scroll: a half-width block in front of its end)
+				var rc := c - up * (depth * 0.5 + 0.06) + across * ((-1.0 if side == 0 else 1.0) * out * 0.25)
+				var rm := add_member("stair/%s/curtail_%d_%d_round" % [st.id, i, side], &"furniture_frame", StringName(st.get("wood", "framing")),
+						up.abs() * 0.12 + Vector3.UP * (top - lower) + across.abs() * (out * 0.5), rc)
+				if look != "":
+					PropKit.dress_member(rm, {}, look)
 
 
 func _stairs_inside() -> void:
 	for st: Dictionary in spec.stairs:
 		if st.from is String and st.from == "ground":
-			_stair(st, _lv.ground, _lv[st.to])
+			# (`to` a height: a landing's, #1226)
+			_stair(st, _lv.ground, _lv[st.to] if st.to is String else float(st.to))
 	if not spec.has("cellar"):
 		return
 	var c: Dictionary = spec.cellar.stair

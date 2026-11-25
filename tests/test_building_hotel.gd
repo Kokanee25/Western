@@ -188,19 +188,10 @@ func test_a_man_walks_down_behind_the_bar_and_along_the_drift() -> void:
 	check(fits == 12 and stands == 0, "a man walks it crouched, not upright (%d, %d)" % [fits, stands])
 
 
-## The grand stair (the brief's 4.1): from the lobby up the back wall to the upper hall.
-func test_a_man_climbs_the_grand_stair_to_the_upper_hall() -> void:
-	var b = lab.building
-	var spec: Dictionary = lab.spec
+## Walks `route` (building-space points, each on a floor or a stair's line) in 0.2 m steps on the walkers'
+## floor: [] if a man gets along every stretch, else where he's stopped.
+func _walk(b: Structure, route: Array, names: Array) -> Array:
 	var space: PhysicsDirectSpaceState3D = b.get_world_3d().direct_space_state
-	var st: Dictionary = spec.stairs[0]
-	var g := float(spec.levels.ground.top)
-	var u := float(spec.levels.upper.top)
-	var z := float(st.head[1]) + float(st.width) * 0.5
-	var run := (float(st.risers) - 1.0) * float(st.going)
-	var foot_x := float(st.head[0]) + run
-	var route: Array = [Vector3(13.0, g, 5.5), Vector3(foot_x + 0.7, g, 5.5), Vector3(foot_x + 0.7, g, z), Vector3(foot_x, g, z),
-			Vector3(float(st.head[0]) - 0.05, u, z), Vector3(9.6, u, z), Vector3(9.6, u, 6.7), Vector3(20.0, u, 6.7)]
 	var feet := func(p: Vector3) -> Vector3:
 		var at: Vector3 = b.to_global(p)
 		var y := Waypoints._foot_height(space, at, at.y + 0.6, at.y - 0.6, [])
@@ -214,7 +205,73 @@ func test_a_man_climbs_the_grand_stair_to_the_upper_hall() -> void:
 		for k in range(1, n + 1):
 			var here: Vector3 = feet.call(a.lerp(e, float(k) / n))
 			if prev.y == -INF or here.y == -INF or not Waypoints._walkable(space, prev, here, []):
-				bad.append("%d -> %d at %d/%d (%s to %s)" % [i, i + 1, k, n, b.to_local(prev).snappedf(0.01), b.to_local(here).snappedf(0.01)])
+				bad.append("%s -> %s at %d/%d (%s to %s)" % [names[i], names[i + 1], k, n, b.to_local(prev).snappedf(0.01), b.to_local(here).snappedf(0.01)])
 				break
 			prev = here
-	check(bad.is_empty(), "up the grand stair and along the hall: %s" % [bad])
+	return bad
+
+
+func _stair(spec: Dictionary, id: String) -> Dictionary:
+	for st: Dictionary in spec.stairs:
+		if st.id == id:
+			return st
+	return {}
+
+
+## The grand stair (#1226, layout A, the deep hall): from the lobby through the arch, up the centre flight
+## to the half landing, along it and up the east return to the gallery, along the gallery and through the
+## upper arch into the upper hall.
+func test_a_man_climbs_the_imperial_stair_to_the_gallery() -> void:
+	var b = lab.building
+	var spec: Dictionary = lab.spec
+	var g := float(spec.levels.ground.top)
+	var u := float(spec.levels.upper.top)
+	var c: Dictionary = _stair(spec, "grand")
+	var r: Dictionary = _stair(spec, "grand_e")
+	var land := float(c.to)
+	var cx := float(c.head[0]) + float(c.width) * 0.5
+	var foot_z := float(c.head[1]) - (float(c.risers) - 1.0) * float(c.going)
+	var rx := float(r.head[0]) + float(r.width) * 0.5
+	var r_foot := float(r.head[1]) + (float(r.risers) - 1.0) * float(r.going)
+	var route: Array = [Vector3(cx, g, 5.5), Vector3(cx, g, foot_z - 0.5), Vector3(cx, land, float(c.head[1]) + 0.3),
+			Vector3(cx, land, r_foot + 0.6), Vector3(rx, land, r_foot + 0.6), Vector3(rx, u, float(r.head[1]) - 0.15),
+			Vector3(rx, u, 9.1), Vector3(cx, u, 9.1), Vector3(cx, u, 7.2), Vector3(20.0, u, 7.0)]
+	var names := ["the lobby", "the stair's foot", "the half landing", "the landing's middle", "the east return's foot", "the gallery",
+			"off the stair", "the gallery's middle", "through the upper arch", "the upper hall"]
+	var bad := _walk(b, route, names)
+	check(bad.is_empty(), "up the imperial stair, round the gallery and into the hall: %s" % [bad])
+	# The staff way under the landing: a man walks from the back stair hall's door under it to the back hall's.
+	var staff := _walk(b, [Vector3(18.5, g, 14.1), Vector3(16.5, g, 14.1), Vector3(10.45, g, 14.6), Vector3(10.45, g, 16.0)],
+			["the back stair hall", "under the landing", "the back hall's door", "the back hall"])
+	check(staff.is_empty(), "the staff way under the landing to the kitchen wing: %s" % [staff])
+
+
+## The kitchen wing (#1226): a dish's way from the range through the serving pantry's swing doors into the
+## dining room, and the cellar stair from the back hall down its well and through the back foundation into
+## the wine room.
+func test_a_man_walks_from_the_kitchen_to_the_dining_room_and_down_to_the_wine_room() -> void:
+	var b = lab.building
+	var spec: Dictionary = lab.spec
+	var g := float(spec.levels.ground.top)
+	var c := float(spec.levels.cellar.top)
+	var dish := _walk(b, [Vector3(4.0, g, 20.6), Vector3(5.03, g, 19.4), Vector3(5.03, g, 16.6), Vector3(5.03, g, 13.5), Vector3(4.0, g, 12.0)],
+			["the range", "the kitchen's swing doors", "the serving pantry", "the dining room's swing doors", "the dining room"])
+	check(dish.is_empty(), "kitchen -> serving pantry -> dining room: %s" % [dish])
+	var st: Dictionary = _stair(spec, "cellar_wing")
+	var sx := float(st.head[0]) + float(st.width) * 0.5
+	var head := float(st.head[1])
+	var foot := head - (float(st.risers) - 1.0) * float(st.going)
+	var down := _walk(b, [Vector3(10.4, g, 21.6), Vector3(10.4, g, head + 0.45), Vector3(sx, g, head + 0.45), Vector3(sx, g, head + 0.05),
+			Vector3(sx, c, foot - 0.3), Vector3(sx, c, 15.6), Vector3(sx, c, 14.4), Vector3(13.0, c, 13.0)],
+			["the back hall", "by the stair", "the stair's head", "the top step", "the stair's foot", "the well", "the passage", "the wine room"])
+	check(down.is_empty(), "back hall -> cellar stair -> wine room: %s" % [down])
+	# What carries the wing: its own foundation, sills and walls, its floors on its girders and the back wall's ledgers.
+	var sid := String(b.structure_id) + "/"
+	var have := {}
+	for m: StructureMember in b.get_members():
+		var id := String(m.member_id).trim_prefix(sid)
+		for k in ["foundation/wing_", "sill/wing_", "wing_back/stud/", "floor/wing_ground/joist/", "floor/wing_up/joist/", "floor/wing_roof/joist/", "ledger/wing_", "foundation/back_passage0_lintel"]:
+			if id.begins_with(k):
+				have[k] = int(have.get(k, 0)) + 1
+	print("  the wing's parts: %s" % [have])
+	check(have.size() == 8, "the wing has its own foundation, sills, walls, floors, roof and ledgers, and the passage: %s" % [have])
