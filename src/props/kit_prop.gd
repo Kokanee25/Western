@@ -271,6 +271,11 @@ func _instanced_boards() -> bool:
 	return false
 
 
+## Its members' nodes stay at rest (their dress layers hang on them; PropBatch reads them).
+func _frees_rest_nodes() -> bool:
+	return false
+
+
 func _rebuild_dirty_batches() -> void:
 	super._rebuild_dirty_batches()
 	_batch_dress()
