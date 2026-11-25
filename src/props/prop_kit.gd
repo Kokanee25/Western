@@ -470,8 +470,9 @@ static func dress_lib(m: StructureMember, look: String, cut := {}) -> void:
 ## (MemberMesh.arrays_of: the batch merges them without a read back) and marked `board_frame` for
 ## Structure's batching. The doctor's builder's (#765), shared here so props and buildings draw
 ## their boards one way.
-static func board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails: Vector2, ground_y: float, role := 0.0) -> ArrayMesh:
-	var nx := clampi(ceili(length / 0.4), 2, 14)
+static func board_mesh(length: float, width: float, thick: float, seed: float, warp: float, nails: Vector2, ground_y: float, role := 0.0,
+		segments := 0) -> ArrayMesh:
+	var nx := segments if segments > 0 else board_segments(length)
 	var ny := 2
 	var v := PackedVector3Array()
 	var n := PackedVector3Array()
@@ -526,6 +527,54 @@ static func board_mesh(length: float, width: float, thick: float, seed: float, w
 	mesh.set_meta(&"arrays", arrays)
 	mesh.set_meta(&"board_frame", true)
 	return mesh
+
+
+## How many lengths a board's long faces are cut into (its bow and twist bend at them): board_mesh's.
+static func board_segments(length: float) -> int:
+	return clampi(ceili(length / 0.4), 2, 14)
+
+
+## A board one metre each way (#1262, Structure's board instances): board_mesh's vertices for `segments`
+## lengths with its length, width and thickness 1, its CUSTOM1 (-1, -1, -1, 0) marking it for
+## scan_wood.gdshader, which scales it by each instance's own (INSTANCE_CUSTOM: L, W, T, seed; COLOR:
+## warp, nails, ground y) and works out its UV from that, as board_mesh would have made them. One mesh
+## per (segments, role), made once.
+static var _unit_boards := {}
+
+
+static func unit_board(segments: int, role := 0.0) -> ArrayMesh:
+	var key := Vector2(segments, role)
+	_shared_lock.lock()
+	var mesh: ArrayMesh = _unit_boards.get(key)
+	if mesh == null:
+		var arrays: Array = board_mesh(1.0, 1.0, 1.0, 0.0, 0.0, Vector2.ZERO, 0.0, role, segments).get_meta(&"arrays")
+		var n: int = (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+		var c1 := PackedFloat32Array()
+		for i in n:
+			c1.append_array([-1.0, -1.0, -1.0, 0.0])
+		arrays[Mesh.ARRAY_CUSTOM1] = c1
+		var white := PackedColorArray()
+		white.resize(n)
+		white.fill(Color.WHITE)  # (the instance's colour is multiplied into COLOR: here by exactly 1)
+		arrays[Mesh.ARRAY_COLOR] = white
+		var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
+				| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
+				| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+		mesh = ArrayMesh.new()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
+		_unit_boards[key] = mesh
+	_shared_lock.unlock()
+	return mesh
+
+
+## Where each of a shared strips mesh's strips sits across it (its centre's y), from its widths.
+static func strip_centres(width: float, widths: Array) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	var y := -width * 0.5
+	for wi: float in widths:
+		out.append(y + wi * 0.5)
+		y += wi
+	return out
 
 
 ## Boards shared by their shape (#1246; docs/reviews/2026-11-building-bodies.md: a board's own mesh

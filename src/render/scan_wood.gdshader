@@ -244,11 +244,24 @@ float rnd(float seed, float i) {
 
 void vertex() {
 	float seed = CUSTOM0.x;
+	vec4 c1 = CUSTOM1;
+	vec4 c2 = CUSTOM2;
+	if (CUSTOM1.x < 0.0) {
+		// A board drawn as an instance (#1262, Structure's board instances; PropKit.unit_board): its mesh
+		// is one metre each way, its own length, width, thickness and seed in INSTANCE_CUSTOM, its warp,
+		// nails and ground in COLOR (the mesh's white times the instance's). Scaled here, and its UV the
+		// metres board_mesh gives it, it's the board its own mesh would have been.
+		seed = INSTANCE_CUSTOM.w;
+		c1 = vec4(INSTANCE_CUSTOM.xyz, COLOR.x);
+		c2 = vec4(COLOR.yzw, CUSTOM2.w);
+		VERTEX *= c1.xyz;
+		UV = CUSTOM0.w < 0.5 ? VERTEX.xy : (CUSTOM0.w < 1.5 ? VERTEX.yz : VERTEX.xz);
+	}
 	float a = CUSTOM0.y * 2.0 - 1.0;  // -1..1 along
 	float w = clamp(CUSTOM0.z, -1.0, 1.0);
-	float L = max(CUSTOM1.x, 0.01);
-	float W = max(CUSTOM1.y, 0.01);
-	float warp = CUSTOM1.w * warp_gain;
+	float L = max(c1.x, 0.01);
+	float W = max(c1.y, 0.01);
+	float warp = c1.w * warp_gain;
 	// Part 5: a few millimetres of bow (along), cup (across), twist and crook (the edge's curve),
 	// longer boards bowing more; now and then a corner lifted where a nail let go.
 	float bow = warp * 0.0035 * rnd(seed, 1.0) * clamp(L / 2.0, 0.3, 2.0);
@@ -266,7 +279,7 @@ void vertex() {
 	VERTEX.z += dz;
 	VERTEX.y += dy;
 	// The long faces' normals from the displacement's slope (z = f(x, y)); a shaped board keeps its own.
-	v_shaped = step(9.5, CUSTOM2.w);
+	v_shaped = step(9.5, c2.w);
 	if (CUSTOM0.w < 0.5 && v_shaped < 0.5) {
 		float fx = (bow * -2.0 * a + twist * w) * 2.0 / L;
 		float fy = (cup * 2.0 * w + twist * a) * 2.0 / W;
@@ -284,12 +297,12 @@ void vertex() {
 	v_yaxis = normalize((MODEL_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
 	v_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	v_wnormal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
-	v_ground = CUSTOM2.z;
-	v_nails = CUSTOM2.xy;
-	v_role = CUSTOM2.w - 10.0 * v_shaped;
+	v_ground = c2.z;
+	v_nails = c2.xy;
+	v_role = c2.w - 10.0 * v_shaped;
 	v_cover = UV2;
 	v_length = L;
-	v_thick = max(CUSTOM1.z, 0.001);
+	v_thick = max(c1.z, 0.001);
 }
 
 // A scan sampled at metres `m` (along the grain, across it) with this board's offset and flips;
