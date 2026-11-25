@@ -504,3 +504,5 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-23_undertaker_r1 | embalming | **cheap indie** | 2, 3, 5, 6, 7, 9 | A black band across the picture | 38% / 0.0 / 1.29 / 0.18 | #1174 the undertaker's first renders (U0 props) |
 | 2026-11-23_undertaker_r2 | stair | **cheap indie** | 2, 3, 4, 6, 7 | A vast bare floor | 35% / 0.1 / 1.10 / 0.24 | #1174 the cellar's fill to its floor |
 | 2026-11-23_undertaker_r2 | embalming | **cheap indie** | 2, 3, 4, 5, 6, 7 | Nothing in the room | 89% / 0.0 / 1.34 / 0.38 | #1174 the cellar's fill to its floor |
+| 2026-11-25_r1 | saloon | 0.264 | 25/3/67 vs 33/12/66 | 13%/1.3% vs 3%/1.3% | 36/0.70 vs 36/0.71 | 0.24/3.3/0.35 vs 0.19/4.7/0.34 | 7.3/6.9 vs 7.6/6.5 | 3.2 | too much deep shadow (0.13 vs 0.03) | #1246: library boards share meshes (no look change intended) |  |
+| 2026-11-25_r1 | street | 0.915 | 27/4/70 vs 43/15/76 | 16%/0.9% vs 2%/2.5% | 14/0.42 vs 31/0.35 | 0.23/2.4/0.47 vs 0.15/5.8/0.39 | 3.3/5.5 vs 5.7/6.2 | 5.7 | too blue/grey (b*) (6 vs 24) | #1246: library boards share meshes (no look change intended) |  |
