@@ -165,6 +165,20 @@ built with it when on the same wall); `drift` {wall, x, z, fall, clear, every, l
 wood} (Drift, `src/structures/drift.gd`: a timbered passage out of the cellar, CellarDig digging its trench and
 covering it in the valley); a bulkhead on the `width` side wall (out +x).
 
+**Layout A and the kitchen wing** (`hotel.json`, #1226; optional): `wings` [{id, against, rect [x0, z0, x1, z1], pits
+[{rect}], finish}] (a wing behind the main block: its foundation and sills on its three free sides, its outer walls
+ordinary `walls` lines; no siding on `against`'s span, the wing's rooms' `finish` on its outer face, a threshold in each
+ground floor door through it; a pit walled in stone down to the cellar's floor and flagged on through a back
+foundation passage); `foundation_passages` [{wall, x, height}] (through a front or back run); `girders.runs` [{z, x
+[x0, x1]}] (part-width girders on piers, none in a pit); a floor's `breaks` (its own girder lines), `top` (a height
+of its own) and `board_length` (the stock its boards come in; the crowd check bears each piece's crowd at its
+middle, so shorter pieces spread it); an opening's `skylight` (its curb's height: a curb, bars and glass);
+`ledgers` [{id, wall, side out|in, from, to, top, section}] (on a wall's face, band 2: joists on them); `landings`
+[{id, rect, top, z, post, beam, posts, wall, joist}] (posts through slots in the ground floor onto a girder, a beam,
+a ledger on `wall`, joists, boards); `arches` [{id, level, z, from, to, post, beam, beam_x}] (a wide opening in a
+bearing wall: two posts on its sole and a beam under the joists it carried; upstairs under the roof's joists); a
+stair's `to` as a height (inside), `rail: "both"` and `curtail` {steps, flare} (flared bottom steps).
+
 ## Bands: a second storey on the support ladder
 
 A member rests on what it touches in a lower band, and within its band by StructureMember's tiers

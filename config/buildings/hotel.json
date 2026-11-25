@@ -1,5 +1,5 @@
 {
-	"_doc": "The Salt Creek Hotel (#1146 the design, docs/briefs/hotel.md; #1220 steps 2-6; Sean's calls on #1215: painted clapboard in three colours, two storeys, an open railed gallery to be blown up, the cellar's secret B). Format 1 (../../experiments/building_lab/FORMAT.md) with what a big two-storey hotel needs (each marked NEW). Target sheet: experiments/building_lab/hotel/sheet/ (Sean OK 2026-11-24): build the OPEN deck, not the sheet's roofed gallery. Sizes from this spec only, never off the pictures. Written by make_spec.py. SPACE: on its north-side lot the building faces south (facing 180), so its x runs from its EAST corner westward and its z back (north) from the front wall's outer stud face; the side walls are named by what they face, 'lane' (west, the saloon lane) and 'alley' (east). THE MAIN BLOCK ONLY: the two-storey kitchen wing behind its west half (42 x 24 ft) is the next step (README).",
+	"_doc": "The Salt Creek Hotel (#1146 the design, docs/briefs/hotel.md; #1220 steps 2-6; Sean's calls on #1215: painted clapboard in three colours, two storeys, an open railed gallery to be blown up, the cellar's secret B). Format 1 (../../experiments/building_lab/FORMAT.md) with what a big two-storey hotel needs (each marked NEW). Target sheet: experiments/building_lab/hotel/sheet/ (Sean OK 2026-11-24): build the OPEN deck, not the sheet's roofed gallery. Sizes from this spec only, never off the pictures. Written by make_spec.py. SPACE: on its north-side lot the building faces south (facing 180), so its x runs from its EAST corner westward and its z back (north) from the front wall's outer stud face; the side walls are named by what they face, 'lane' (west, the saloon lane) and 'alley' (east). LAYOUT A, THE DEEP HALL (#1226, Sean's pick; docs/briefs/hotel/plan_a_kitchen.png): the 28 ft wall opens on an arch into a stair hall to the back wall, the imperial stair in it (a centre flight to a half landing, two returns to a gallery), a skylight over it; the two-storey kitchen wing (42 x 24 ft) behind the EAST half (`wings`), its serving pantry into the dining room, its cellar stair down into the wine room.",
 	"format": 1,
 	"id": "hotel",
 	"identity": {
@@ -147,7 +147,10 @@
 					"front",
 					"back",
 					"lane",
-					"alley"
+					"alley",
+					"wing_lane",
+					"wing_back",
+					"wing_alley"
 				]
 			}
 		},
@@ -250,11 +253,44 @@
 				]
 			},
 			{
-				"_doc": "the dining room's west wall",
+				"_doc": "the stair hall's west wall (the back stair hall's)",
 				"x": 17.07,
 				"z": [
 					8.625,
 					15.14
+				]
+			},
+			{
+				"_doc": "the stair hall's east wall (the dining room's): on the cellar's east wall",
+				"x": 9.754,
+				"z": [
+					8.625,
+					15.14
+				]
+			}
+		],
+		"runs": [
+			{
+				"_doc": "the kitchen wing's ground floor's: along the main block's back wall, its piers clear of the main's foundation",
+				"z": 15.345,
+				"x": [
+					0.2,
+					12.602
+				]
+			},
+			{
+				"_doc": "short of the cellar stair's well",
+				"z": 17.4,
+				"x": [
+					0.2,
+					10.9
+				]
+			},
+			{
+				"z": 19.85,
+				"x": [
+					0.2,
+					12.602
 				]
 			}
 		]
@@ -370,6 +406,80 @@
 				9.9
 			],
 			"height": 1.64
+		},
+		{
+			"_doc": "NEW (#1226): the kitchen wing's cellar stair comes down in its well behind the back wall and through the foundation here into the wine room",
+			"wall": "back",
+			"x": [
+				11.1,
+				12.352
+			],
+			"height": 1.95
+		}
+	],
+	"wings": [
+		{
+			"_doc": "NEW (#1226, spec_building.gd `wings`): THE KITCHEN WING, 42 x 24 ft behind the main block's east half (Sean's pick: the serving pantry opens straight into the dining room A moves east). Two storeys on the main block's levels under its own flat roof; its foundation, sills and outer walls on its three free sides, built against the main block's back wall (no siding there: the wing's rooms' boards on its outer face). Its floors' and roof's joists run front to back, from ledgers on the back wall's outer face (`ledgers`) to its back wall; the ground floor's on its own girders (`girders.runs`). The cellar stair's well (`pits`) walled in stone down to the cellar's floor, through the back foundation into the wine room.",
+			"id": "wing",
+			"against": "back",
+			"rect": [
+				0.0,
+				15.24,
+				12.802,
+				22.555
+			],
+			"pits": [
+				{
+					"rect": [
+						11.1,
+						15.24,
+						12.352,
+						19.85
+					]
+				}
+			],
+			"finish": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 12.702,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 12.702,
+					"finish": "boards"
+				}
+			]
+		}
+	],
+	"ledgers": [
+		{
+			"_doc": "the wing's upper floor's joists on the back wall's outer face (a 2x6 spiked to the studs)",
+			"id": "wing_upper",
+			"wall": "back",
+			"side": "out",
+			"from": 0.1,
+			"to": 12.702,
+			"top": 4.49,
+			"section": [
+				0.05,
+				0.15
+			]
+		},
+		{
+			"_doc": "the wing's roof's joists",
+			"id": "wing_roof",
+			"wall": "back",
+			"side": "out",
+			"from": 0.1,
+			"to": 12.702,
+			"top": 8.37,
+			"section": [
+				0.05,
+				0.15
+			]
 		}
 	],
 	"floors": [
@@ -392,7 +502,7 @@
 						8.65
 					],
 					"sole": true,
-					"_doc": "the 28 ft wall's sole: one board row's width, on the girder at 8.53"
+					"_doc": "the 28 ft wall's sole: one board row's width, on the girder at 8.53 (the arch's posts stand on it too)"
 				}
 			],
 			"openings": [
@@ -410,39 +520,80 @@
 			]
 		},
 		{
-			"_doc": "the upper floor east of the stair's well, front to the 28 ft wall",
-			"id": "up_e",
+			"_doc": "NEW (#1226): the kitchen wing's, on its own girders (`breaks`), from the main block's back wall to its own; the cellar stair's opening framed (its far header on the wing's lane wall's studs)",
+			"id": "wing_ground",
+			"board_length": 3.66,
+			"level": "ground",
+			"rect": [
+				0.1,
+				15.27,
+				12.68,
+				22.455
+			],
+			"joists": "z",
+			"breaks": [
+				15.345,
+				17.4,
+				19.85
+			],
+			"look": "wood:int_floor",
+			"openings": [
+				{
+					"id": "cellar_stair",
+					"rect": [
+						11.1,
+						15.32,
+						12.68,
+						19.85
+					],
+					"_doc": "girder to girder: tail joists carry no boards"
+				}
+			]
+		},
+		{
+			"_doc": "the upper floor's front half east of the stair hall, front wall to the 28 ft wall",
+			"id": "up_front_e",
+			"board_length": 3.66,
 			"level": "upper",
 			"joist": "long_joist",
 			"rect": [
 				0.1,
 				0.1,
-				10.1,
+				9.83,
 				8.575
 			],
 			"joists": "z",
 			"look": "wood:int_floor"
 		},
 		{
-			"_doc": "over the well's front: its joists end on the well's beam",
-			"id": "up_well",
+			"_doc": "NEW (#1226): over the lobby and the arch, the gallery: its joists in one length from the front wall over the arch's girder and on 3 ft 10 in past it to the gallery's edge (a cantilever over two supports: tail joists on a header carry no boards); none behind it, the stair hall open to the roof",
+			"id": "up_mid",
+			"board_length": 3.66,
 			"level": "upper",
 			"joist": "long_joist",
 			"rect": [
-				10.1,
+				9.83,
 				0.1,
-				14.15,
-				7.2
+				16.97,
+				9.75
 			],
 			"joists": "z",
-			"look": "wood:int_floor"
+			"look": "wood:int_floor",
+			"blocking": [
+				[
+					8.575,
+					8.65
+				]
+			]
 		},
 		{
-			"id": "up_w",
+			"_doc": "the front half west of the stair hall",
+			"id": "up_front_w",
+			"board_length": 3.66,
 			"level": "upper",
 			"joist": "long_joist",
 			"rect": [
-				14.15,
+				17.0,
 				0.1,
 				24.264,
 				8.575
@@ -451,12 +602,34 @@
 			"look": "wood:int_floor"
 		},
 		{
-			"_doc": "the back half, 28 ft wall to the back wall; the back stair's well cut wall to wall (no tail joists)",
-			"id": "up_back",
+			"_doc": "the back half east of the stair hall, its last joist under the passage's west wall",
+			"id": "up_back_e",
+			"board_length": 3.66,
 			"level": "upper",
 			"joist": "long_joist",
 			"rect": [
 				0.1,
+				8.575,
+				9.83,
+				15.14
+			],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"blocking": [
+				[
+					8.575,
+					8.65
+				]
+			]
+		},
+		{
+			"_doc": "the back half west of the stair hall: its first joist under the back stair hall's wall; the back stair's well cut wall to wall",
+			"id": "up_back_w",
+			"board_length": 3.66,
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				17.0,
 				8.575,
 				24.264,
 				15.14
@@ -482,7 +655,22 @@
 			]
 		},
 		{
-			"_doc": "NEW: the flat roof (frame.flat_roof), its joists broken over the upper hall's back wall",
+			"_doc": "NEW (#1226): the wing's upper floor, 4x14 front to back from the back wall's ledger to the wing's back wall's ribbon",
+			"id": "wing_up",
+			"board_length": 3.66,
+			"level": "upper",
+			"joist": "long_joist",
+			"rect": [
+				0.1,
+				15.26,
+				12.68,
+				22.455
+			],
+			"joists": "z",
+			"look": "wood:int_floor"
+		},
+		{
+			"_doc": "NEW: the flat roof (frame.flat_roof), its joists broken over the upper hall's back wall; the skylight over the stair's well (#1226)",
 			"id": "roof",
 			"level": "roof",
 			"joist": "roof_joist",
@@ -495,70 +683,157 @@
 			"joists": "z",
 			"breaks": [
 				8.575
+			],
+			"openings": [
+				{
+					"id": "skylight",
+					"rect": [
+						11.2,
+						10.4,
+						15.6,
+						14.4
+					],
+					"skylight": 0.3
+				}
 			]
+		},
+		{
+			"_doc": "the wing's flat roof, from the back wall's ledger to the wing's back wall's plate",
+			"id": "wing_roof",
+			"level": "roof",
+			"joist": "roof_joist",
+			"rect": [
+				0.1,
+				15.26,
+				12.702,
+				22.455
+			],
+			"joists": "z"
+		}
+	],
+	"arches": [
+		{
+			"_doc": "NEW (#1226, spec_building.gd `arches`): the 28 ft wall's 18 ft opening from the lobby into the stair hall: two 8x6 oak posts on the wall's sole (each between the ground floor's joist lines) and a 6x16 girder on them under the upper floor's joists and the upper hall's back wall (the 28 ft wall's partitions stop at the posts). The arch's casing and columns' turning are the dressing's.",
+			"id": "lobby",
+			"z": 8.575,
+			"from": 9.94,
+			"to": 16.86,
+			"post": [
+				0.2,
+				0.12
+			],
+			"beam": [
+				0.075,
+				0.6
+			],
+			"look": "wood:int_oak",
+			"_beam": "3x24 (a flitch: the upper floor's 28 ft joists and the gallery on it): no wider, nor overhanging its posts, or each joist over it bears at its two edges and the gallery's overhang reads as lifting the inner one (StructuralAnalysis groups supports 3 cm apart); the posts 3 cm narrower than the sole they stand on, clear of the boards either side"
+		},
+		{
+			"_doc": "the same upstairs (#1226): the upper hall's back wall opens onto the gallery between two posts on the floor over the ground floor's, a 3x18 girder on them under the roof's joists",
+			"id": "gallery",
+			"level": "upper",
+			"z": 8.575,
+			"from": 9.94,
+			"to": 16.86,
+			"post": [
+				0.2,
+				0.12
+			],
+			"beam": [
+				0.075,
+				0.45
+			],
+			"look": "wood:int_oak"
+		}
+	],
+	"landings": [
+		{
+			"_doc": "NEW (#1226, spec_building.gd `landings`): the grand stair's half landing across the stair hall's back (13 risers up: the staff way under it 7 ft clear): four 6x6 posts through the floor onto the girder at 11.89, a 6x12 beam on them along its front edge, a ledger on the back wall's studs, 2x10 joists front to back, boards. The gilt mirror on the back wall over it is the dressing's.",
+			"id": "grand",
+			"rect": [
+				9.81,
+				11.815,
+				17.02,
+				15.128
+			],
+			"top": 3.182,
+			"z": 11.89,
+			"post": [
+				0.15,
+				0.15
+			],
+			"beam": [
+				0.15,
+				0.3
+			],
+			"posts": [
+				10.092,
+				12.122,
+				14.558,
+				16.588
+			],
+			"wall": "back",
+			"joist": "joist",
+			"look": "wood:int_oak"
 		}
 	],
 	"posts": {
-		"_doc": "6x6 posts under the stair well's beams, through the lobby's floor on piers down to the stores' flags.",
-		"free": [
-			[
-				10.1,
-				7.2
-			],
-			[
-				14.15,
-				7.2
-			],
-			[
-				10.1,
-				8.405
-			]
-		],
+		"_doc": "none in the lobby (Sean): the arch's posts are `arches`', the landing's `landings`'",
+		"free": [],
 		"wall": []
 	},
-	"beams": [
-		{
-			"_doc": "the well's front edge: the upper hall's floor over it ends here",
-			"id": "well",
-			"from": [
-				10.1,
-				7.2
-			],
-			"to": [
-				14.15,
-				7.2
-			],
-			"brackets": false
-		},
-		{
-			"_doc": "the stair's head: its stringers land on it",
-			"id": "stair_head",
-			"from": [
-				10.1,
-				7.2
-			],
-			"to": [
-				10.1,
-				8.515
-			],
-			"brackets": false
-		}
-	],
+	"beams": [],
 	"ceilings": {
-		"_doc": "Boards nailed up under the joists in every room, both floors (NEW: `levels` upper under the flat roof's joists; `holes` the stair's well, which is a gap between floors, not an opening). Plaster on lath is the next system (#1220's slice issue): these are its lath's place.",
+		"_doc": "Boards nailed up under the joists in every room, both floors (NEW: `levels` upper under the flat roof's joists). The stair hall is open to the skylight behind the gallery (the upper floor's well). Plaster on lath is the next system (#1220's slice issue): these are its lath's place.",
 		"levels": [
 			"ground",
 			"upper"
 		],
 		"holes": [
 			[
-				10.1,
-				7.2,
-				14.15,
-				8.525
+				9.83,
+				9.75,
+				17.0,
+				15.14
 			]
 		],
-		"width": 0.14
+		"width": 0.14,
+		"rooms": [
+			"bar",
+			"lobby",
+			"office",
+			"parlour",
+			"dining",
+			"grand_hall",
+			"stair_hall",
+			"sample",
+			"hall",
+			"passage",
+			"room_1",
+			"room_2",
+			"room_3",
+			"suite_parlour",
+			"suite_bed",
+			"room_4",
+			"room_5",
+			"room_6",
+			"back_stair_up",
+			"landlady_sit",
+			"landlady_bed",
+			"back_hall",
+			"store",
+			"cook",
+			"serving",
+			"scullery",
+			"kitchen",
+			"room_9",
+			"bath",
+			"corridor",
+			"room_10",
+			"room_11",
+			"room_12"
+		]
 	},
 	"inside_finish": {
 		"_doc": "#826's rules: the inside boards at their paint's judged width, a skirting on every boarded wall.",
@@ -755,7 +1030,7 @@
 			]
 		},
 		{
-			"_doc": "The back, to the yard (the kitchen wing's place behind its west half is the next step): the back stair hall's door, the dining room's four windows; above, the back rooms'.",
+			"_doc": "The back: to the yard behind the west half (the back stair hall's door; the stair hall's windows over the landing and the west return), and from x 0 to 12.8 the kitchen wing built against it (#1226: the wing's rooms' boards on its outer face there, no siding): the serving pantry's swing doors into the dining room, the staff way's low door under the landing into the back hall; upstairs the passage's door into the wing's corridor.",
 			"id": "back",
 			"line": [
 				[
@@ -801,38 +1076,31 @@
 				{
 					"type": "window",
 					"level": "ground",
-					"at": 2.5,
-					"width": 1.22,
-					"height": 2.44,
-					"sill": 0.75,
-					"lights": 2
-				},
-				{
-					"type": "window",
-					"level": "ground",
-					"at": 6.4,
-					"width": 1.22,
-					"height": 2.44,
-					"sill": 0.75,
-					"lights": 2
-				},
-				{
-					"type": "window",
-					"level": "ground",
-					"at": 10.2,
-					"width": 1.22,
-					"height": 2.44,
-					"sill": 0.75,
-					"lights": 2
-				},
-				{
-					"type": "window",
-					"level": "ground",
 					"at": 13.6,
 					"width": 1.22,
-					"height": 2.44,
-					"sill": 0.75,
-					"lights": 2
+					"height": 1.6,
+					"sill": 0.3,
+					"lights": 2,
+					"_doc": "the staff way's, under the landing"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 5.029,
+					"width": 1.22,
+					"height": 2.29,
+					"leaves": 2,
+					"leaf": "inward",
+					"_doc": "the serving pantry's swing doors into the dining room (#1226: a dish carried about 20 ft from the range)"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 10.45,
+					"width": 0.86,
+					"height": 1.98,
+					"leaf": "outward",
+					"_doc": "the staff way to the wing's back hall, under the landing (6 ft 6 in: its joists are 7 ft up)"
 				},
 				{
 					"type": "window",
@@ -858,51 +1126,299 @@
 					"type": "window",
 					"level": "upper",
 					"at": 16.3,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "the stair hall's, over the west return"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 13.6,
+					"width": 1.22,
+					"height": 2.13,
+					"sill": 0.3,
+					"lights": 4,
+					"_doc": "the stair hall's, over the landing's mirror"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 9.144,
+					"width": 0.86,
+					"height": 2.13,
+					"leaf": "outward",
+					"_doc": "the passage into the wing's corridor"
+				}
+			]
+		},
+		{
+			"_doc": "NEW (#1226): the kitchen wing's lane side, to the yard behind the main block's west half: the back hall's window; above, room 9's and the bath's.",
+			"id": "wing_lane",
+			"line": [
+				[
+					12.802,
+					15.24
+				],
+				[
+					12.802,
+					22.555
+				]
+			],
+			"out": "+x",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 7.215,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 7.215,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 5.6,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.9,
+					"lights": 2,
+					"_doc": "the back hall's"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 2.0,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "room 9"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 5.6,
 					"width": 0.76,
-					"height": 1.37,
+					"height": 1.22,
+					"sill": 1.1,
+					"lights": 4,
+					"_doc": "the bath"
+				}
+			]
+		},
+		{
+			"_doc": "NEW (#1226): the kitchen wing's back, to the yard: the back hall's yard door, the cook's room's window, the kitchen's two either side of the range; above, the bath's, the corridor's end, room 12's two.",
+			"id": "wing_back",
+			"line": [
+				[
+					0,
+					22.555
+				],
+				[
+					12.802,
+					22.555
+				]
+			],
+			"out": "+z",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 12.702,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 12.702,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 10.9,
+					"width": 0.91,
+					"height": 2.13,
+					"leaf": "inward",
+					"_doc": "the yard door: wood, ice and the brewery's men by the back hall"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 8.3,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.9,
+					"lights": 2,
+					"_doc": "the cook's room"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 1.1,
+					"width": 0.91,
+					"height": 1.83,
 					"sill": 1.0,
+					"lights": 2,
+					"_doc": "the kitchen's, east of the range"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 5.791,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 1.0,
+					"lights": 2,
+					"_doc": "the kitchen's, west of the range"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 11.3,
+					"width": 0.76,
+					"height": 1.22,
+					"sill": 1.1,
 					"lights": 4,
 					"_doc": "the bath"
 				},
 				{
 					"type": "window",
 					"level": "upper",
-					"at": 13.6,
-					"width": 0.91,
-					"height": 1.83,
+					"at": 9.144,
+					"width": 0.76,
+					"height": 1.52,
 					"sill": 0.75,
 					"lights": 4,
-					"_doc": "room 7"
+					"_doc": "the corridor's end"
 				},
 				{
 					"type": "window",
 					"level": "upper",
-					"at": 10.2,
+					"at": 2.4,
 					"width": 0.91,
 					"height": 1.83,
 					"sill": 0.75,
 					"lights": 4,
-					"_doc": "room 8"
+					"_doc": "room 12"
 				},
 				{
 					"type": "window",
 					"level": "upper",
-					"at": 6.4,
+					"at": 6.2,
 					"width": 0.91,
 					"height": 1.83,
 					"sill": 0.75,
 					"lights": 4,
-					"_doc": "the landlady's sitting room"
+					"_doc": "room 12"
+				}
+			]
+		},
+		{
+			"_doc": "NEW (#1226): the kitchen wing's east side, to the lane by the doctor's: the scullery's window, the kitchen's door to the lane (the slops, the ashes) and its window; above, room 11's, room 12's.",
+			"id": "wing_alley",
+			"line": [
+				[
+					0,
+					15.24
+				],
+				[
+					0,
+					22.555
+				]
+			],
+			"out": "-x",
+			"top": "plate",
+			"outside": {
+				"siding": "lap",
+				"wood": "painted_white",
+				"exposure": 0.1
+			},
+			"inside": [
+				{
+					"level": "ground",
+					"from": 0.1,
+					"to": 7.215,
+					"finish": "boards"
+				},
+				{
+					"level": "upper",
+					"from": 0.1,
+					"to": 7.215,
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 1.6,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 1.0,
+					"lights": 2,
+					"_doc": "the scullery, over the sink"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 4.3,
+					"width": 0.91,
+					"height": 2.13,
+					"leaf": "inward",
+					"_doc": "the kitchen's lane door"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 6.0,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 1.0,
+					"lights": 2,
+					"_doc": "the kitchen's"
 				},
 				{
 					"type": "window",
 					"level": "upper",
-					"at": 2.5,
+					"at": 1.6,
 					"width": 0.91,
 					"height": 1.83,
 					"sill": 0.75,
 					"lights": 4,
-					"_doc": "the landlady's bedroom"
+					"_doc": "room 11"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 5.6,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 0.75,
+					"lights": 4,
+					"_doc": "room 12"
 				}
 			]
 		},
@@ -1103,14 +1619,14 @@
 			]
 		},
 		{
-			"id": "g_back",
+			"id": "g_back_e",
 			"line": [
 				[
 					0.1,
 					8.575
 				],
 				[
-					24.284,
+					9.825,
 					8.575
 				]
 			],
@@ -1134,25 +1650,84 @@
 					"width": 0.91,
 					"height": 2.29,
 					"_doc": "the parlour to the dining room"
+				}
+			],
+			"_doc": "the long bearing wall at 28 ft, on its sole over the girder: it carries the upper floor's joists over the front rooms and the back; east of the arch",
+			"stud": 0.1
+		},
+		{
+			"id": "g_back_w",
+			"line": [
+				[
+					16.98,
+					8.575
+				],
+				[
+					24.284,
+					8.575
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "wainscot"
 				},
 				{
-					"type": "door",
-					"at": 16.25,
-					"width": 0.91,
-					"height": 2.29,
-					"leaf": "outward",
-					"_doc": "the lobby to the dining room, past the grand stair's foot (its leaf into the dining room)"
-				},
+					"side": "+",
+					"finish": "wainscot"
+				}
+			],
+			"openings": [
 				{
 					"type": "door",
-					"at": 19.2,
+					"at": 2.32,
 					"width": 0.86,
 					"height": 2.13,
 					"_doc": "the bar to the back stair hall (the barman's way)"
 				}
 			],
-			"_doc": "the long bearing wall at 28 ft, on the girder: it carries the upper floor's joists over the front rooms and the back",
+			"_doc": "the 28 ft wall west of the stair hall",
 			"stud": 0.1
+		},
+		{
+			"id": "g_hall_e",
+			"line": [
+				[
+					9.754,
+					8.625
+				],
+				[
+					9.754,
+					15.14
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "wainscot"
+				},
+				{
+					"side": "+",
+					"finish": "wainscot"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.3,
+					"width": 1.37,
+					"height": 2.44,
+					"leaves": 2,
+					"_doc": "the stair hall to the dining room: the guests' way in to supper"
+				}
+			],
+			"_doc": "NEW (#1226): the stair hall | the dining room, on its girder over the cellar's east wall"
 		},
 		{
 			"id": "g_bar",
@@ -1321,11 +1896,11 @@
 					"type": "door",
 					"at": 5.5,
 					"width": 0.86,
-					"height": 2.13,
-					"_doc": "the back stair hall to the dining room: the waitress's door, under the stair's high end"
+					"height": 1.98,
+					"_doc": "the back stair hall to the staff way under the landing (6 ft 6 in: the landing's joists 7 ft up)"
 				}
 			],
-			"_doc": "the dining room's west wall, on its girder"
+			"_doc": "the stair hall's west wall (the back stair hall's), on its girder"
 		},
 		{
 			"id": "g_sample",
@@ -1609,14 +2184,14 @@
 			"_doc": "the hall's front wall: a door each front room, transoms over (the brief: air)"
 		},
 		{
-			"id": "u_back",
+			"id": "u_back_e",
 			"line": [
 				[
 					0.1,
 					8.575
 				],
 				[
-					24.284,
+					9.825,
 					8.575
 				]
 			],
@@ -1641,41 +2216,57 @@
 					"height": 2.13
 				},
 				{
-					"type": "door",
-					"at": 9.4,
-					"width": 0.86,
+					"type": "arch",
+					"at": 9.044,
+					"width": 0.96,
 					"height": 2.13,
-					"_doc": "room 8, short of the well"
+					"_doc": "the passage's mouth (#1226)"
+				}
+			],
+			"_doc": "the hall's back wall over the 28 ft wall: it carries the roof's joists (#1226: open onto the gallery between the upper arch's posts)",
+			"stud": 0.1
+		},
+		{
+			"id": "u_back_w",
+			"line": [
+				[
+					16.98,
+					8.575
+				],
+				[
+					24.284,
+					8.575
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
 				},
 				{
-					"type": "door",
-					"at": 14.95,
-					"width": 0.86,
-					"height": 2.13,
-					"_doc": "room 7, beside the well's end"
-				},
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
 				{
 					"type": "door",
-					"at": 16.25,
-					"width": 0.76,
-					"height": 2.03,
-					"_doc": "the bath"
-				},
-				{
-					"type": "door",
-					"at": 19.2,
+					"at": 2.32,
 					"width": 0.86,
 					"height": 2.13,
 					"_doc": "the back stair"
 				},
 				{
 					"type": "door",
-					"at": 22.1,
+					"at": 5.22,
 					"width": 0.86,
 					"height": 2.13
 				}
 			],
-			"_doc": "the hall's back wall over the 28 ft wall: it carries the roof's joists",
+			"_doc": "the hall's back wall west of the gallery",
 			"stud": 0.1
 		},
 		{
@@ -1903,14 +2494,14 @@
 			"openings": []
 		},
 		{
-			"id": "u_b1560",
+			"id": "u_b975",
 			"line": [
 				[
-					15.6,
+					9.754,
 					8.625
 				],
 				[
-					15.6,
+					9.754,
 					15.14
 				]
 			],
@@ -1927,17 +2518,18 @@
 					"finish": "boards"
 				}
 			],
-			"openings": []
+			"openings": [],
+			"_doc": "the passage's west wall over the stair hall's well (#1226), on the well's trimmer"
 		},
 		{
-			"id": "u_b1189",
+			"id": "u_b853",
 			"line": [
 				[
-					11.89,
+					8.534,
 					8.625
 				],
 				[
-					11.89,
+					8.534,
 					15.14
 				]
 			],
@@ -1954,34 +2546,8 @@
 					"finish": "boards"
 				}
 			],
-			"openings": []
-		},
-		{
-			"id": "u_b852",
-			"line": [
-				[
-					8.53,
-					8.625
-				],
-				[
-					8.53,
-					15.14
-				]
-			],
-			"partition": true,
-			"level": "upper",
-			"bearing": false,
-			"inside": [
-				{
-					"side": "-",
-					"finish": "boards"
-				},
-				{
-					"side": "+",
-					"finish": "boards"
-				}
-			],
-			"openings": []
+			"openings": [],
+			"_doc": "the passage | the landlady's sitting room"
 		},
 		{
 			"id": "u_b426",
@@ -2017,28 +2583,502 @@
 					"_doc": "her sitting room to her bedroom"
 				}
 			]
+		},
+		{
+			"id": "w_hall",
+			"line": [
+				[
+					9.889,
+					15.27
+				],
+				[
+					9.889,
+					22.445
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.5,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the back hall to the store pantry"
+				},
+				{
+					"type": "door",
+					"at": 5.6,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "to the cook's room"
+				}
+			],
+			"_doc": "the back hall | the store pantry and the cook's room",
+			"gap": 0.02
+		},
+		{
+			"id": "w_serv",
+			"line": [
+				[
+					7.047,
+					15.27
+				],
+				[
+					7.047,
+					22.445
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.5,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the store pantry to the serving pantry"
+				},
+				{
+					"type": "door",
+					"at": 4.6,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the cook's room to the kitchen"
+				}
+			],
+			"_doc": "the store and the cook's room | the serving pantry and the kitchen",
+			"gap": 0.02
+		},
+		{
+			"id": "w_scul",
+			"line": [
+				[
+					2.987,
+					15.27
+				],
+				[
+					2.987,
+					18.268
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.6,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the serving pantry to the scullery"
+				}
+			],
+			"_doc": "the serving pantry | the scullery",
+			"gap": 0.02
+		},
+		{
+			"id": "w_kit",
+			"line": [
+				[
+					0.1,
+					18.318
+				],
+				[
+					6.997,
+					18.318
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 4.929,
+					"width": 1.07,
+					"height": 2.13,
+					"leaves": 2,
+					"_doc": "the kitchen's swing doors into the serving pantry"
+				},
+				{
+					"type": "door",
+					"at": 1.4,
+					"width": 0.86,
+					"height": 2.13,
+					"_doc": "the scullery to the kitchen"
+				}
+			],
+			"_doc": "the serving pantry and the scullery | the kitchen",
+			"gap": 0.02
+		},
+		{
+			"id": "w_cook",
+			"line": [
+				[
+					7.097,
+					18.9
+				],
+				[
+					9.839,
+					18.9
+				]
+			],
+			"partition": true,
+			"level": "ground",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "the store pantry | the cook's room",
+			"gap": 0.02
+		},
+		{
+			"id": "wu_hall",
+			"line": [
+				[
+					9.754,
+					15.27
+				],
+				[
+					9.754,
+					22.445
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 1.6,
+					"width": 0.86,
+					"height": 2.13,
+					"leaf": "outward",
+					"_doc": "room 9"
+				},
+				{
+					"type": "door",
+					"at": 5.6,
+					"width": 0.76,
+					"height": 2.03,
+					"leaf": "outward",
+					"_doc": "the bath"
+				}
+			],
+			"_doc": "the corridor | room 9 and the bath"
+		},
+		{
+			"id": "wu_pass_a",
+			"line": [
+				[
+					8.534,
+					15.27
+				],
+				[
+					8.534,
+					18.35
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "the corridor | room 10"
+		},
+		{
+			"id": "wu_pass_b",
+			"line": [
+				[
+					8.534,
+					19.45
+				],
+				[
+					8.534,
+					22.445
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "the corridor | room 12"
+		},
+		{
+			"id": "wu_10",
+			"line": [
+				[
+					4.27,
+					15.27
+				],
+				[
+					4.27,
+					18.35
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "room 10 | room 11"
+		},
+		{
+			"id": "wu_row",
+			"line": [
+				[
+					0.1,
+					18.4
+				],
+				[
+					8.484,
+					18.4
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 2.0,
+					"width": 0.76,
+					"height": 2.03,
+					"_doc": "room 11"
+				},
+				{
+					"type": "door",
+					"at": 6.0,
+					"width": 0.76,
+					"height": 2.03,
+					"_doc": "room 10"
+				}
+			],
+			"_doc": "rooms 10 and 11 | the cross passage"
+		},
+		{
+			"id": "wu_12",
+			"line": [
+				[
+					0.1,
+					19.4
+				],
+				[
+					8.484,
+					19.4
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"at": 4.0,
+					"width": 0.76,
+					"height": 2.03,
+					"leaf": "outward",
+					"_doc": "room 12"
+				}
+			],
+			"_doc": "the cross passage | room 12, over the range"
+		},
+		{
+			"id": "wu_bath",
+			"line": [
+				[
+					9.804,
+					18.9
+				],
+				[
+					12.702,
+					18.9
+				]
+			],
+			"partition": true,
+			"level": "upper",
+			"bearing": false,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "room 9 | the bath"
 		}
 	],
 	"stairs": [
 		{
-			"_doc": "THE GRAND STAIR (the brief's 4.1: OakStair's painted dark oak, Sean's B): one flight of 22 risers of 7 3/8 in on 10 5/8 in treads up the lobby's back wall, rising east to the upper hall; its open side railed. (The brief's two flights with a landing are one here: the builder's stairs are straight runs.)",
+			"_doc": "THE GRAND STAIR's centre flight (#1226, layout A: the imperial stair; OakStair's painted dark oak, Sean's B): 7 ft wide on the arch's axis, 13 risers of 7 3/8 in on 10 in treads up to the half landing across the back, railed both sides; its three lowest steps flared and rounded out past the stringers (`curtail`), the statue newel lamps on them the dressing's.",
 			"id": "grand",
 			"head": [
-				10.25,
-				7.32
+				12.345,
+				11.815
 			],
-			"dir": "-x",
-			"width": 1.15,
+			"dir": "+z",
+			"width": 2.13,
 			"from": "ground",
-			"to": "upper",
-			"risers": 22,
+			"to": 3.182,
+			"risers": 13,
 			"going": 0.25,
-			"rail": "-z",
+			"rail": "both",
+			"curtail": {
+				"steps": 3,
+				"flare": 0.45
+			},
 			"look": "wood:int_oak",
 			"stringer_look": "wood:int_timber"
 		},
 		{
-			"_doc": "The back stair (the servants'): 22 risers up the dining room's west wall from the back door's hall, rising to the back wall, to the upper back stair hall",
+			"_doc": "the grand stair's east return: 4 ft, 9 risers from the landing forward to the gallery along the stair hall's east wall, railed on the well's side",
+			"id": "grand_e",
+			"head": [
+				9.86,
+				9.75
+			],
+			"dir": "-z",
+			"width": 1.22,
+			"from": 3.182,
+			"to": "upper",
+			"risers": 9,
+			"going": 0.27,
+			"rail": "+x",
+			"look": "wood:int_oak",
+			"stringer_look": "wood:int_timber"
+		},
+		{
+			"_doc": "the grand stair's west return, along the back stair hall's wall",
+			"id": "grand_w",
+			"head": [
+				15.77,
+				9.75
+			],
+			"dir": "-z",
+			"width": 1.2,
+			"from": 3.182,
+			"to": "upper",
+			"risers": 9,
+			"going": 0.27,
+			"rail": "-x",
+			"look": "wood:int_oak",
+			"stringer_look": "wood:int_timber"
+		},
+		{
+			"_doc": "The back stair (the servants'): 22 risers up the stair hall's west wall from the back door's hall, rising to the back wall, to the upper back stair hall",
 			"id": "back",
 			"head": [
 				17.17,
@@ -2073,35 +3113,77 @@
 				19.9,
 				16.44
 			]
+		},
+		{
+			"_doc": "NEW (#1226): the wing's yard door's steps",
+			"id": "yard_door",
+			"head": [
+				10.3,
+				23.755
+			],
+			"dir": "-z",
+			"width": 1.2,
+			"from": 0.0,
+			"to": "ground",
+			"risers": 4,
+			"going": 0.28,
+			"wood": "weathered_pine",
+			"stoop": [
+				10.3,
+				22.555,
+				11.5,
+				23.755
+			]
+		},
+		{
+			"_doc": "NEW (#1226): the kitchen's lane door's steps",
+			"id": "lane_door",
+			"head": [
+				-1.2,
+				19.0
+			],
+			"dir": "+x",
+			"width": 1.2,
+			"from": 0.0,
+			"to": "ground",
+			"risers": 4,
+			"going": 0.28,
+			"wood": "weathered_pine",
+			"stoop": [
+				-1.2,
+				19.0,
+				0.0,
+				20.2
+			]
+		},
+		{
+			"_doc": "NEW (#1226): the cellar stair (the brief's, from the back hall): 14 risers down its well behind the back wall, then through the foundation's passage into the wine room; railed on the back hall's side",
+			"id": "cellar_wing",
+			"head": [
+				11.15,
+				19.85
+			],
+			"dir": "+z",
+			"width": 1.15,
+			"from": -1.92,
+			"to": "ground",
+			"risers": 14,
+			"going": 0.24,
+			"rail": "-x",
+			"wood": "rough"
 		}
 	],
 	"galleries": {
-		"_doc": "The rails round the two wells upstairs (saloon B's gallery rail: a 36 in turned rail, square newels)",
-		"well": [
-			10.1,
-			7.2,
-			14.15,
-			8.525
-		],
+		"_doc": "The rails upstairs (saloon B's gallery rail: a 36 in turned rail, square newels): the gallery's edge over the stair's well between the returns' heads (#1226; the returns' own rails run on down them), and the back stair's well",
 		"rails": [
 			[
 				[
-					10.35,
-					7.14
+					11.1,
+					9.71
 				],
 				[
-					14.21,
-					7.14
-				]
-			],
-			[
-				[
-					14.21,
-					7.14
-				],
-				[
-					14.21,
-					8.475
+					15.75,
+					9.71
 				]
 			],
 			[
@@ -2403,9 +3485,9 @@
 				9.19,
 				0.1,
 				17.63,
-				8.525
+				8.54
 			],
-			"use": "the walnut desk facing the main doors, the register, the key board behind it in the office's wall; settee and armchairs, spittoons; the grand stair up the back wall"
+			"use": "the walnut desk facing the main doors, the register, the key board behind it in the office's wall; settee and armchairs, spittoons; the arch on its two columns into the stair hall"
 		},
 		{
 			"id": "office",
@@ -2435,10 +3517,21 @@
 			"rect": [
 				0.1,
 				8.625,
+				9.704,
+				15.14
+			],
+			"use": "six tables of six on white linen, two sideboards, laid for supper ('Supper's at six. Late is cold.'); the serving pantry's swing doors in the back wall"
+		},
+		{
+			"id": "grand_hall",
+			"level": "ground",
+			"rect": [
+				9.804,
+				8.625,
 				17.02,
 				15.14
 			],
-			"use": "eight tables of six on white linen, two sideboards, laid for supper ('Supper's at six. Late is cold.')"
+			"use": "the stair hall (#1226): the imperial stair up the middle to the half landing and its gilt mirror, the returns to the gallery, the skylight two floors up; under the landing the staff way from the back stair hall to the kitchen wing"
 		},
 		{
 			"id": "stair_hall",
@@ -2449,7 +3542,7 @@
 				20.07,
 				15.14
 			],
-			"use": "the back stair, the back door from the yard, the way to the bar"
+			"use": "the back stair, the back door from the yard, the way to the bar and through the staff way to the kitchen"
 		},
 		{
 			"id": "sample",
@@ -2471,7 +3564,29 @@
 				24.284,
 				8.525
 			],
-			"use": "the upper hall, 80 ft: a runner, a lamp every few doors, the grand stair's well railed"
+			"use": "the upper hall, 80 ft: a runner, a lamp every few doors, open on the gallery over the arch"
+		},
+		{
+			"id": "gallery",
+			"level": "upper",
+			"rect": [
+				9.81,
+				8.625,
+				17.02,
+				9.65
+			],
+			"use": "the gallery over the arch (#1226): the returns arrive at its ends, its rail over the well; the chandelier hung from the skylight's curb"
+		},
+		{
+			"id": "passage",
+			"level": "upper",
+			"rect": [
+				8.584,
+				8.625,
+				9.704,
+				15.14
+			],
+			"use": "the passage back into the wing (the old bath's strip)"
 		},
 		{
 			"id": "room_1",
@@ -2573,48 +3688,15 @@
 			"use": "the back stair's head"
 		},
 		{
-			"id": "bath",
-			"level": "upper",
-			"rect": [
-				15.65,
-				8.625,
-				17.02,
-				15.14
-			],
-			"use": "the bath room: a tin tub, water carried up; the linen press"
-		},
-		{
-			"id": "room_7",
-			"level": "upper",
-			"rect": [
-				11.94,
-				8.625,
-				15.55,
-				15.14
-			],
-			"use": "a back room"
-		},
-		{
-			"id": "room_8",
-			"level": "upper",
-			"rect": [
-				8.58,
-				8.625,
-				11.84,
-				15.14
-			],
-			"use": "a back room"
-		},
-		{
 			"id": "landlady_sit",
 			"level": "upper",
 			"rect": [
 				4.32,
 				8.625,
-				8.48,
+				8.484,
 				15.14
 			],
-			"use": "her sitting room: her husband's photograph, the sewing machine, the account books"
+			"use": "her sitting room: her husband's photograph, the sewing machine, the account books (#1226: its back window now looks into the wing; lit from the hall's transom)"
 		},
 		{
 			"id": "landlady_bed",
@@ -2691,7 +3773,139 @@
 				17.02,
 				14.77
 			],
-			"use": "locked, racked: claret, champagne, port, brandy, whisky in the wood; the Baron's own bin"
+			"use": "locked, racked: claret, champagne, port, brandy, whisky in the wood; the Baron's own bin; (#1226) the kitchen wing's cellar stair comes in through its back wall"
+		},
+		{
+			"id": "back_hall",
+			"level": "ground",
+			"rect": [
+				9.939,
+				15.29,
+				12.702,
+				22.455
+			],
+			"use": "the back hall: the yard door, the cellar stair down to the wine room, the staff way's door into the main block; boots, the woodbox, the ice tongs"
+		},
+		{
+			"id": "store",
+			"level": "ground",
+			"rect": [
+				7.097,
+				15.29,
+				9.839,
+				18.85
+			],
+			"use": "the store pantry: flour and sugar barrels, the coffee mill, crocks, the day's meat on hooks"
+		},
+		{
+			"id": "cook",
+			"level": "ground",
+			"rect": [
+				7.097,
+				18.95,
+				9.839,
+				22.455
+			],
+			"use": "the cook's room: a cot, his chest, his Sunday coat on a nail"
+		},
+		{
+			"id": "serving",
+			"level": "ground",
+			"rect": [
+				3.037,
+				15.29,
+				6.997,
+				18.268
+			],
+			"use": "the serving pantry: the china and glass in glazed cupboards, the hot closet, the swing doors either side"
+		},
+		{
+			"id": "scullery",
+			"level": "ground",
+			"rect": [
+				0.1,
+				15.29,
+				2.937,
+				18.268
+			],
+			"use": "the scullery: the pump and the stone sink, the dish tubs, the slop pail"
+		},
+		{
+			"id": "kitchen",
+			"level": "ground",
+			"rect": [
+				0.1,
+				18.368,
+				6.997,
+				22.455
+			],
+			"use": "the kitchen: the hotel range on the back wall, the deal table, the dresser, copper on the wall; its lane door"
+		},
+		{
+			"id": "room_9",
+			"level": "upper",
+			"rect": [
+				9.804,
+				15.29,
+				12.702,
+				18.85
+			],
+			"use": "room 9, a cheap room"
+		},
+		{
+			"id": "bath",
+			"level": "upper",
+			"rect": [
+				9.804,
+				18.95,
+				12.702,
+				22.455
+			],
+			"use": "the bath room: a tin tub, water carried up the back stair; the linen press"
+		},
+		{
+			"id": "corridor",
+			"level": "upper",
+			"rect": [
+				8.584,
+				15.29,
+				9.704,
+				22.455
+			],
+			"use": "the wing's corridor, on from the passage; the cross passage to rooms 10 to 12"
+		},
+		{
+			"id": "room_10",
+			"level": "upper",
+			"rect": [
+				4.32,
+				15.29,
+				8.484,
+				18.35
+			],
+			"use": "room 10, a cheap room"
+		},
+		{
+			"id": "room_11",
+			"level": "upper",
+			"rect": [
+				0.1,
+				15.29,
+				4.22,
+				18.35
+			],
+			"use": "room 11, a cheap room"
+		},
+		{
+			"id": "room_12",
+			"level": "upper",
+			"rect": [
+				0.1,
+				19.45,
+				8.484,
+				22.455
+			],
+			"use": "room 12, over the range: warm and cheap"
 		}
 	],
 	"use_points": [
@@ -2894,6 +4108,36 @@
 			]
 		},
 		{
+			"id": "stair_foot",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				13.41,
+				0.75,
+				7.9
+			],
+			"look": [
+				13.41,
+				12.0
+			],
+			"_doc": "in the arch, looking up the grand stair"
+		},
+		{
+			"id": "staff_way",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				13.0,
+				0.75,
+				14.0
+			],
+			"look": [
+				10.0,
+				14.0
+			],
+			"_doc": "under the landing"
+		},
+		{
 			"id": "drummer",
 			"use": "work",
 			"who": "anyone",
@@ -3078,45 +4322,32 @@
 			]
 		},
 		{
-			"id": "bath",
+			"id": "gallery",
+			"use": "watch",
+			"who": "anyone",
+			"at": [
+				13.41,
+				4.865,
+				9.2
+			],
+			"look": [
+				13.41,
+				13.0
+			],
+			"_doc": "at the gallery's rail over the stair (the chandelier, the landing's mirror)"
+		},
+		{
+			"id": "passage",
 			"use": "stand",
 			"who": "anyone",
 			"at": [
-				16.3,
+				9.14,
 				4.865,
 				12.0
 			],
 			"look": [
-				16.3,
-				14.0
-			]
-		},
-		{
-			"id": "room_7",
-			"use": "sleep",
-			"who": "anyone",
-			"at": [
-				13.6,
-				4.865,
-				12.5
-			],
-			"look": [
-				13.6,
-				14.0
-			]
-		},
-		{
-			"id": "room_8",
-			"use": "sleep",
-			"who": "anyone",
-			"at": [
-				10.2,
-				4.865,
-				12.5
-			],
-			"look": [
-				10.2,
-				14.0
+				9.14,
+				15.0
 			]
 		},
 		{
@@ -3289,6 +4520,191 @@
 				13.0,
 				14.5
 			]
+		},
+		{
+			"id": "back_hall",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				10.3,
+				0.75,
+				20.4
+			],
+			"look": [
+				10.3,
+				16.0
+			]
+		},
+		{
+			"id": "store",
+			"use": "work",
+			"who": "cook",
+			"at": [
+				8.3,
+				0.75,
+				16.2
+			],
+			"look": [
+				8.3,
+				15.5
+			]
+		},
+		{
+			"id": "cook_bed",
+			"use": "sleep",
+			"who": "cook",
+			"at": [
+				8.3,
+				0.75,
+				21.4
+			],
+			"look": [
+				8.3,
+				22.3
+			]
+		},
+		{
+			"id": "serving",
+			"use": "serve",
+			"who": "waitress",
+			"at": [
+				5.0,
+				0.75,
+				16.9
+			],
+			"look": [
+				5.0,
+				15.3
+			],
+			"_doc": "at the swing doors, the dish in her hands"
+		},
+		{
+			"id": "scullery",
+			"use": "work",
+			"who": "anyone",
+			"at": [
+				1.6,
+				0.75,
+				16.1
+			],
+			"look": [
+				1.6,
+				15.3
+			],
+			"_doc": "at the sink"
+		},
+		{
+			"id": "range",
+			"use": "work",
+			"who": "cook",
+			"at": [
+				4.1,
+				0.75,
+				21.3
+			],
+			"look": [
+				4.1,
+				22.5
+			],
+			"_doc": "at the hotel range"
+		},
+		{
+			"id": "deal_table",
+			"use": "work",
+			"who": "cook",
+			"at": [
+				4.0,
+				0.75,
+				19.5
+			],
+			"look": [
+				4.0,
+				20.5
+			]
+		},
+		{
+			"id": "room_9",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				11.3,
+				4.865,
+				16.4
+			],
+			"look": [
+				11.3,
+				15.4
+			]
+		},
+		{
+			"id": "wing_bath",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				11.3,
+				4.865,
+				21.0
+			],
+			"look": [
+				11.3,
+				22.4
+			]
+		},
+		{
+			"id": "corridor",
+			"use": "stand",
+			"who": "anyone",
+			"at": [
+				9.14,
+				4.865,
+				20.5
+			],
+			"look": [
+				9.14,
+				22.4
+			]
+		},
+		{
+			"id": "room_10",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				6.4,
+				4.865,
+				16.4
+			],
+			"look": [
+				6.4,
+				15.4
+			]
+		},
+		{
+			"id": "room_11",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				2.2,
+				4.865,
+				16.4
+			],
+			"look": [
+				2.2,
+				15.4
+			]
+		},
+		{
+			"id": "room_12",
+			"use": "sleep",
+			"who": "anyone",
+			"at": [
+				4.2,
+				4.865,
+				21.0
+			],
+			"look": [
+				4.2,
+				22.4
+			]
 		}
 	],
 	"lamps": {
@@ -3359,9 +4775,9 @@
 			{
 				"room": "dining",
 				"kit": "reflector_lamp",
-				"wall": "g_back",
+				"wall": "g_back_e",
 				"level": "ground",
-				"at": 8.0,
+				"at": 6.0,
 				"height": 1.7,
 				"lit": [
 					17,
@@ -3371,6 +4787,37 @@
 				"energy": 1.4,
 				"reach": 8.0,
 				"shadows": true
+			},
+			{
+				"room": "grand_hall",
+				"kit": "reflector_lamp",
+				"wall": "g_hall_e",
+				"level": "ground",
+				"at": 0.6,
+				"height": 2.2,
+				"lit": [
+					16,
+					24
+				],
+				"side": "+",
+				"energy": 1.3,
+				"reach": 8.0,
+				"shadows": true
+			},
+			{
+				"room": "grand_hall",
+				"kit": "reflector_lamp",
+				"wall": "g_stair",
+				"level": "ground",
+				"at": 4.6,
+				"height": 1.8,
+				"lit": [
+					0,
+					24
+				],
+				"side": "-",
+				"energy": 0.6,
+				"reach": 4.0
 			},
 			{
 				"room": "stair_hall",
@@ -3467,7 +4914,7 @@
 			{
 				"room": "landlady_sit",
 				"kit": "reflector_lamp",
-				"wall": "u_back",
+				"wall": "u_back_e",
 				"level": "upper",
 				"at": 7.6,
 				"height": 1.6,
@@ -3478,6 +4925,218 @@
 				"side": "+",
 				"energy": 0.8,
 				"reach": 4.0
+			},
+			{
+				"room": "gallery",
+				"kit": "reflector_lamp",
+				"wall": "u_b1707",
+				"level": "upper",
+				"at": 0.4,
+				"height": 1.8,
+				"lit": [
+					17,
+					24
+				],
+				"side": "-",
+				"energy": 0.9,
+				"reach": 7.0,
+				"shadows": true
+			},
+			{
+				"room": "passage",
+				"kit": "reflector_lamp",
+				"wall": "u_b975",
+				"level": "upper",
+				"at": 3.5,
+				"height": 1.7,
+				"lit": [
+					18,
+					23
+				],
+				"side": "-",
+				"energy": 0.5,
+				"reach": 4.0
+			},
+			{
+				"room": "back_hall",
+				"kit": "reflector_lamp",
+				"wall": "w_hall",
+				"level": "ground",
+				"at": 3.4,
+				"height": 1.8,
+				"lit": [
+					5,
+					22
+				],
+				"side": "+",
+				"energy": 0.8,
+				"reach": 5.0
+			},
+			{
+				"room": "store",
+				"kit": "reflector_lamp",
+				"wall": "w_hall",
+				"level": "ground",
+				"at": 2.6,
+				"height": 1.7,
+				"lit": [
+					5,
+					20
+				],
+				"side": "-",
+				"energy": 0.5,
+				"reach": 3.0
+			},
+			{
+				"room": "cook",
+				"kit": "reflector_lamp",
+				"wall": "w_hall",
+				"level": "ground",
+				"at": 6.4,
+				"height": 1.7,
+				"lit": [
+					20,
+					22
+				],
+				"side": "-",
+				"energy": 0.5,
+				"reach": 3.0
+			},
+			{
+				"room": "serving",
+				"kit": "reflector_lamp",
+				"wall": "w_serv",
+				"level": "ground",
+				"at": 0.6,
+				"height": 1.8,
+				"lit": [
+					5,
+					21
+				],
+				"side": "-",
+				"energy": 0.8,
+				"reach": 4.0
+			},
+			{
+				"room": "scullery",
+				"kit": "reflector_lamp",
+				"wall": "w_scul",
+				"level": "ground",
+				"at": 0.6,
+				"height": 1.8,
+				"lit": [
+					5,
+					21
+				],
+				"side": "-",
+				"energy": 0.5,
+				"reach": 3.0
+			},
+			{
+				"room": "kitchen",
+				"kit": "reflector_lamp",
+				"wall": "w_kit",
+				"level": "ground",
+				"at": 3.0,
+				"height": 1.9,
+				"lit": [
+					5,
+					21
+				],
+				"side": "+",
+				"energy": 1.2,
+				"reach": 6.0,
+				"shadows": true
+			},
+			{
+				"room": "room_9",
+				"kit": "reflector_lamp",
+				"wall": "wu_hall",
+				"level": "upper",
+				"at": 0.8,
+				"height": 1.6,
+				"lit": [
+					20,
+					23
+				],
+				"side": "+",
+				"energy": 0.6,
+				"reach": 3.0
+			},
+			{
+				"room": "bath",
+				"kit": "reflector_lamp",
+				"wall": "wu_hall",
+				"level": "upper",
+				"at": 6.6,
+				"height": 1.6,
+				"lit": [
+					19,
+					23
+				],
+				"side": "+",
+				"energy": 0.6,
+				"reach": 3.0
+			},
+			{
+				"room": "corridor",
+				"kit": "reflector_lamp",
+				"wall": "wu_hall",
+				"level": "upper",
+				"at": 3.6,
+				"height": 1.7,
+				"lit": [
+					18,
+					23
+				],
+				"side": "-",
+				"energy": 0.5,
+				"reach": 4.0
+			},
+			{
+				"room": "room_10",
+				"kit": "reflector_lamp",
+				"wall": "wu_row",
+				"level": "upper",
+				"at": 7.2,
+				"height": 1.6,
+				"lit": [
+					20,
+					23
+				],
+				"side": "-",
+				"energy": 0.6,
+				"reach": 3.0
+			},
+			{
+				"room": "room_11",
+				"kit": "reflector_lamp",
+				"wall": "wu_row",
+				"level": "upper",
+				"at": 3.2,
+				"height": 1.6,
+				"lit": [
+					20,
+					23
+				],
+				"side": "-",
+				"energy": 0.6,
+				"reach": 3.0
+			},
+			{
+				"room": "room_12",
+				"kit": "reflector_lamp",
+				"wall": "wu_12",
+				"level": "upper",
+				"at": 2.0,
+				"height": 1.6,
+				"lit": [
+					20,
+					23
+				],
+				"side": "+",
+				"energy": 0.6,
+				"reach": 3.0
 			},
 			{
 				"room": "beer_cellar",
@@ -3845,35 +5504,67 @@
 				"timber"
 			],
 			[
-				"floor/up_e/board",
+				"floor/up_front_e/board",
 				"floor"
 			],
 			[
-				"floor/up_well/board",
-				"floor"
-			],
-			[
-				"floor/up_w/board",
-				"floor"
-			],
-			[
-				"floor/up_back/board",
-				"floor"
-			],
-			[
-				"floor/up_e/joist",
+				"floor/up_front_e/joist",
 				"framing"
 			],
 			[
-				"floor/up_well/joist",
+				"floor/up_mid/board",
+				"floor"
+			],
+			[
+				"floor/up_mid/joist",
 				"framing"
 			],
 			[
-				"floor/up_w/joist",
+				"floor/up_front_w/board",
+				"floor"
+			],
+			[
+				"floor/up_front_w/joist",
 				"framing"
 			],
 			[
-				"floor/up_back/joist",
+				"floor/up_back_e/board",
+				"floor"
+			],
+			[
+				"floor/up_back_e/joist",
+				"framing"
+			],
+			[
+				"floor/up_back_w/board",
+				"floor"
+			],
+			[
+				"floor/up_back_w/joist",
+				"framing"
+			],
+			[
+				"floor/wing_ground/board",
+				"floor"
+			],
+			[
+				"floor/wing_ground/joist",
+				"framing"
+			],
+			[
+				"floor/wing_up/board",
+				"floor"
+			],
+			[
+				"floor/wing_up/joist",
+				"framing"
+			],
+			[
+				"floor/landing_grand/board",
+				"oak"
+			],
+			[
+				"floor/landing_grand/joist",
 				"framing"
 			],
 			[
@@ -3885,8 +5576,52 @@
 				"rough"
 			],
 			[
+				"stair/yard_door",
+				"rough"
+			],
+			[
+				"stair/lane_door",
+				"rough"
+			],
+			[
+				"stair/cellar_wing",
+				"rough"
+			],
+			[
 				"stair/back",
 				"oak"
+			],
+			[
+				"arch/",
+				"oak"
+			],
+			[
+				"landing/",
+				"oak"
+			],
+			[
+				"ledger/",
+				"framing"
+			],
+			[
+				"floor/wing_roof/board",
+				"rough"
+			],
+			[
+				"floor/wing_roof/joist",
+				"framing"
+			],
+			[
+				"floor/roof/skylight",
+				"trim"
+			],
+			[
+				"w_",
+				"inside"
+			],
+			[
+				"wu_",
+				"inside"
 			]
 		]
 	},

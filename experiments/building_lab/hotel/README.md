@@ -34,12 +34,10 @@ rises 0.5-0.6 m to the back wall, so the lot is dug level at the street edge's h
 8.70 behind the parapet's cornice and name board (9.9, 32 1/2 ft over the street).
 
 **Settled here (each a choice the brief left open, or a change from its drawings; Sean may overrule any):**
-1. **The main block only.** The two-storey kitchen wing (42 x 24 ft behind the west half) is the next step: the builder
-   makes one rectangle, and a wing wants its own walls, floors and roof (the jail's cell wing is stone). The back
-   wall's door at the back stair hall is where the wing's back hall will meet it.
+1. ~~The main block only.~~ The kitchen wing came with #1226, behind the EAST half (below).
 2. **A flat tin roof behind the parapet** (not a low gable on trusses): an 80 ft span is past a queen-post truss, and the
    period's commercial blocks were flat behind their fronts. NEW in the builder (`frame.flat_roof`).
-3. **The grand stair is one straight flight of 22 risers** (7 3/8 in on 10 in treads) up the lobby's back wall, rising
+3. ~~**The grand stair is one straight flight of 22 risers**~~ (#1226: the imperial stair, below) (7 3/8 in on 10 in treads) up the lobby's back wall, rising
    east, not the brief's 13 + 9 with a landing: the builder's stairs are straight runs. Its well's posts stand in the
    lobby (8x8, as saloon B's) over piers in the stores.
 4. **The upper hall is at 20-28 ft**, not 28-34: the front rooms 20 ft deep (no closets), the hall 8 ft wide over the
@@ -107,3 +105,39 @@ the lobby's plan: 1 imperial (a 6 ft flight up the axis splitting in two to a ga
 2 central with a return (recommended: 5 ft up the axis from curtail steps to a landing, a 4 ft return to the upper
 hall), 3 along the back wall, dressed. All: OakStair's dark oak, the red runner on brass rods, turned balusters, a
 statue newel lamp, curtail steps, no posts in the room. Sean's pick goes into #1226.
+
+
+## Layout A and the kitchen wing (#1226)
+
+Sean's pick on #1226: layout A, the deep hall, with the kitchen wing behind the EAST half (`docs/briefs/hotel/plan_a_kitchen.png`,
+`draw_plan_a_kitchen.py`). Built by `make_spec.py` with the builder's new parts (FORMAT.md "Layout A and the kitchen wing"):
+- **The arch**: the 28 ft wall opens into the stair hall on two oak posts and a 3x24 girder (`arches`), and upstairs the
+  upper hall onto the gallery the same way under the roof's joists.
+- **The imperial stair**: a 7 ft centre flight of 13 risers up the arch's axis from three flared curtail steps to a half
+  landing across the back (`landings`: four posts through the floor onto the girder at 11.89, a beam, a ledger on the back
+  wall), then two 4 ft returns of 9 risers forward along the stair hall's walls to the gallery; a skylight in the roof
+  over the well (`skylight`); the staff way under the landing from the back stair hall to the wing's back hall.
+- **The kitchen wing**, 42 x 24 ft, two storeys (`wings`): its own foundation, sills and balloon walls on three sides,
+  against the back wall (its joists on ledgers spiked to its outer face). Ground: the back hall (the yard door, the cellar
+  stair down a stone well and through the back foundation into the wine room), the store pantry, the cook's room, the
+  serving pantry (swing doors into the dining room and the kitchen), the scullery, the kitchen (the range on the back
+  wall, a lane door). Upstairs from the passage (the old bath's strip): rooms 9-12 and the bath.
+
+**Settled here (Sean may overrule any):**
+1. **13 + 9 risers, not the plan's 11 + 11**: at 11 the landing's joists left the staff way 1.68 m (5 ft 6 in); at 13 it's
+   2.16 m, its doors 6 ft 6 in. The returns climb from the landing's front edge (the plan's 41 ft) to a 3 ft 10 in gallery.
+2. **The arch spans the stair hall wall to wall** (22 ft clear, the plan's 18): its girder over the posts' tops ending on
+   them; the 18 ft one's girder overhanging its posts failed the checks (StructuralAnalysis's uplift, RECIPE).
+3. **No floor over the stair hall behind the gallery**: the gallery's joists run on 3 ft 10 in past the arch's girder (tail
+   joists on a header carry no boards); the well open from the gallery to the back wall.
+4. **The dining room is 31 ft** (the stair hall's east wall at 48 ft over the cellar's east wall, not 50).
+5. **Upstairs in the wing a cross passage** runs east from the corridor to rooms 10, 11 and 12 (room 11 had no door in the
+   plan); room 12 over the range is 10 ft deep.
+6. **The wing's ground floor partitions on its joists' lines** (the back hall's at 47.5 ft, the serving pantry's 57 and 70).
+7. **The landlady's sitting room has no window** now (its back window faced into the wing): its door's transom lights it.
+8. **The kitchen has a lane door** (the alley side), so the kitchen isn't reached only through the pantries.
+
+Renders: `render_lab.gd` (the hotel in the street out in the desert, while it isn't on its lot; `export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json` after `apt-get install mesa-vulkan-drivers`, and ~11 GB: the container restarted after two views): `results/2026-11-24_layout_a/lobby.jpg`, the stair through the arch.
+Not done: the arch's casing and turned columns, the statue newel lamps, the gilt mirror and the chandelier (the dressing's,
+the prop lab's); the range's chimney (the builder's chimneys are for rafter roofs); the three paints (P7-P9) judged; the
+lot (#1227).
