@@ -130,3 +130,16 @@ func test_the_kicked_door_falls_as_flat_planks() -> void:
 	check(worst < 0.45, "every piece in the lane lies under a man's knee: nothing he must climb (%.2f m)" % worst)
 	check(worst_any < 1.0, "none stands up anywhere (%.2f m)" % worst_any)
 
+
+
+## Built and dressed, it's quiet: nothing falls or breaks in its first ten seconds (the hideout's crew
+## hear a falling prop and the fight starts before you're there: #1250 found the coffee mill on a shelf
+## that hung in the air).
+func test_nothing_falls_once_built() -> void:
+	var heard: Array = []
+	var on_noise := func(at: Vector3, _r: float, kind: StringName, _who: Node) -> void: heard.append([kind, at])
+	Events.noise.connect(on_noise)
+	await _open(SHACK)
+	await physics_frames(600)
+	Events.noise.disconnect(on_noise)
+	check(heard.is_empty(), "no noise from it (%s)" % [heard.slice(0, 5)])

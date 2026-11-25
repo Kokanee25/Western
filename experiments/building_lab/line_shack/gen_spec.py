@@ -253,7 +253,7 @@ PLACE = {"bunks": {"at": [0.55, 0.0, 1.35]}, "bunk_east": {"at": [3.65, 0.0, 1.3
          "bench_w": {"at": [2.0, 0.0, 2.92], "facing": 90, "fit": [1.3, 1.0, 0.36]},
          "bench_e": {"at": [3.2, 0.0, 2.92], "facing": 90, "fit": [1.3, 1.0, 0.36]},
          "stove": {"at": [3.65, 0.0, 4.25]}, "coffeepot": {"at": [3.6, 0.0, 4.15]},
-         "shelf": {"at": [2.6, 1.0, 4.72], "facing": 90}, "coffee_mill": {"at": [2.5, 1.0, 4.72]},
+         "shelf": {"at": [2.6, 0.0, 4.72], "facing": 90}, "coffee_mill": {"at": [2.5, 0.0, 4.72]},
          "cans": {"at": [4.65, 0.0, 1.3], "out": "lean_to", "use": "a crate of empty cans and bottles out under the lean-to (the stand-ins left no room by the stove)"},
          "keg": {"at": [2.3, 0.0, round(D + 0.35, 3)]}, "store_crate": {"at": [2.85, 0.0, round(D + 0.45, 3)]},
          "grain": {"at": [3.68, 0.0, round(D + 0.55, 3)], "facing": 0}}
