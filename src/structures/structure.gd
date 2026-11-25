@@ -721,7 +721,8 @@ func _batch_all() -> void:
 	_clear_batches()
 	if not batch_meshes:
 		for m in _order:
-			PropKit.own_board(m.drawn_node())  # (drawn on its own: its own mesh, #1246)
+			if m.resting() or m.get_child_count() > 0:
+				PropKit.own_board(m.drawn_node())  # (drawn on its own: its own mesh, #1246)
 		return
 	var groups := {}
 	for m in _order:
@@ -990,7 +991,8 @@ func unbatch(m: StructureMember, soon := false, aside := false) -> void:
 	RubbleRest.touch(m)  # (its pieces lying at rest in a cell are their bodies' own again)
 	if not aside:
 		m.realise()
-	PropKit.own_board(m.drawn_node())  # (drawn on its own from now: its own mesh, not its shape's, #1246)
+	if m.resting() or m.get_child_count() > 0:
+		PropKit.own_board(m.drawn_node())  # (drawn on its own from now: its own mesh, not its shape's, #1246)
 	if not _batched.has(m):
 		return
 	var key: Array = _batched[m]
