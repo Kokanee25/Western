@@ -37,7 +37,7 @@ extends Resource
 @export var valley_peak_mb := 4096.0
 ## What the suite holds a building to until the cuts reach `kb_per_member` (#1259's handover): the
 ## measured cost with a little headroom, so a change that adds memory a member fails the build.
-@export var kb_per_member_held := 40.0
+@export var kb_per_member_held := 28.0
 ## This workspace's core against Sean's (2.1 / 3.25 GHz): the bench scales its wall-clock numbers
 ## by this before comparing them with the budgets.
 @export var clock_scale := 0.65

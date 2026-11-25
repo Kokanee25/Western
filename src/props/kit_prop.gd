@@ -266,6 +266,11 @@ func _batch_all() -> void:
 	_batch_dress()
 
 
+## Its batches stay meshes (PropBatch joins them with its neighbours' at rest), not board instances.
+func _instanced_boards() -> bool:
+	return false
+
+
 func _rebuild_dirty_batches() -> void:
 	super._rebuild_dirty_batches()
 	_batch_dress()
