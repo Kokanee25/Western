@@ -10,13 +10,17 @@ extends SceneTree
 ## Minutes a view under lavapipe; never two runs at once.
 
 const SPEC := "res://config/buildings/hotel.json"
+## Its y is set from the ground at this spot in _run: the spec's origin is the street edge's ground (the floor is
+## 0.75 above it), so at y 0 the hotel stood ~0.2 m under the sand here (the ground is ~0.96 m).
 const ORIGIN := Vector3(-40.0, 0.0, -60.0)
+const WALK_TOP := 0.75
+const WALK_LEN := 24.4
 ## name -> [camera, look at (the building's space: x from its EAST corner westward, z back from the front),
 ## fov, hour, inside (the doors' leaves hidden)].
 const VIEWS := {
 	"lobby": [Vector3(13.41, 1.9, 1.3), Vector3(13.41, 3.6, 12.0), 70.0, 15.0, true],
 	# From the gallery, standing on the upper deck (floor 0.75 + 4.11 = 4.86 m) at eye height, looking down the well at the landing.
-	"stair_hall": [Vector3(13.41, 6.45, 2.6), Vector3(13.41, 3.0, 14.5), 74.0, 15.0, true],
+	"stair_hall": [Vector3(13.41, 6.4, 8.6), Vector3(13.41, 3.4, 15.5), 80.0, 15.0, true],
 	# The front from the street, 16 m out (the sheet's front view), doors' leaves shown.
 	"front": [Vector3(12.1, 2.4, -16.0), Vector3(12.1, 4.6, 0.0), 60.0, 15.5, false],
 	"wing": [Vector3(19.5, 2.0, 30.0), Vector3(6.0, 4.0, 17.5), 55.0, 15.5, false],
@@ -62,7 +66,20 @@ func _run() -> void:
 	building.spec_path = SPEC
 	building.name = "Hotel"
 	building.position = ORIGIN
+	building.position.y = float(load("res://src/world/town_layout.gd").ground_height(ORIGIN.x, ORIGIN.z))
 	street.add_child(building)
+	# The walk across the front at the floor's height with the flight of steps to the street at the main doors
+	# (as ValleyTown builds it: the building's own transform, x from the east corner).
+	var walk = load("res://src/structures/boardwalk.gd").new()
+	walk.name = "HotelWalk"
+	walk.structure_id = &"hotel_lab_walk"
+	walk.length = WALK_LEN
+	walk.top = WALK_TOP
+	walk.riser = 0.2
+	walk.max_riser = true
+	walk.steps = [Vector2(13.41, 3.6)]
+	walk.transform = building.transform
+	street.add_child(walk)
 	var leaves: Array = []
 	for m in building.get_members():
 		if String(m.member_id).contains("/door_"):
