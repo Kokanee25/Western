@@ -110,6 +110,21 @@ func test_a_walk_down_the_town() -> void:
 	check(shows.has("cold turn"), "a cold man turned his shoulder (%s)" % [shows.keys()])
 
 
+## #1240: a man at a spot in a building's own room (`hall`: the barkeep behind saloon B's bar by day,
+## #1213) is at that building for his lines: noon's street went thin with the barkeep's bar lines lost.
+func test_the_barkeep_behind_saloon_bs_bar_is_at_the_saloon() -> void:
+	var f := valley.folk
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 2
+	clock.set_time(12.0)
+	await physics_frames(1)
+	check(String(f.block_now(f._person(&"barkeep"), f.hour()).get("at", "")) == "bar_back_day", "at noon the barkeep's at saloon B's bar")
+	var ctx := f.bark_ctx(&"barkeep", f.folk_man(&"barkeep"))
+	check((ctx.at as Array).has("saloon"), "behind saloon B's bar he's at the saloon (%s)" % [ctx.at])
+	var ids: Array = TownBarks.fitting("pass", ctx)
+	check(ids.has("bar.day"), "his bar's lines are his to say by day (%s)" % [ids])
+
+
 ## #1184 (gate round 2: 1 line in ten minutes at 07:00, 2 at noon, 4 at 17:30): you stood about the
 ## store and the saloon's walks for ten minutes of an ordinary day, the clock at the gate's rate:
 ## about a dozen lines, men to you and to each other, no man saying one line twice, no wording heard

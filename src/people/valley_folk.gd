@@ -2130,9 +2130,12 @@ func bark_ctx(id: StringName, man: HumanBody) -> Dictionary:
 		if b.has(k):
 			at.append(String(b[k]))
 	var sp := spot_of(p) if p.has("day") else {}
-	if sp.has("behind") or sp.has("at_bar") or sp.has("chair") or String(b.get("in", "")).begins_with("saloon") or String(b.get("at", "")).begins_with("saloon"):
+	# A spot in a building's own room (`hall`, #1213's `bar_back_day` and `bar_day_*`) is that building's
+	# (#1240: behind saloon B's bar by day the barkeep lost his bar lines, and noon's street went thin).
+	var hall := String(sp.get("hall", ""))
+	if sp.has("behind") or sp.has("at_bar") or sp.has("chair") or hall.begins_with("saloon") or String(b.get("in", "")).begins_with("saloon") or String(b.get("at", "")).begins_with("saloon"):
 		at.append("saloon")
-	if "store" in String(b.get("in", "")) or "store" in String(b.get("at", "")):
+	if "store" in hall or "store" in String(b.get("in", "")) or "store" in String(b.get("at", "")):
 		at.append("store")
 	var brain := man.get_node_or_null(^"Brain") as CivilianBrain if man else null
 	var o := regard.opinions(id) if regard else {}
