@@ -141,3 +141,17 @@ Renders: `render_lab.gd` (the hotel in the street out in the desert, while it is
 Not done: the arch's casing and turned columns, the statue newel lamps, the gilt mirror and the chandelier (the dressing's,
 the prop lab's); the range's chimney (the builder's chimneys are for rafter roofs); the three paints (P7-P9) judged; the
 lot (#1227).
+
+## The paints and the judge's round 1 (#1247, 2026-11-25)
+
+**P7-P9** went through the materials judge (`docs/screenshots/judge/2026-11-25_hotel_paints_r1/material.md`), blind and **without the
+AAA yardstick** (the Studio's `references/` isn't in the checkout, so `--refs` was an empty directory: re-judge when it is). All
+three grade "game". Approved at the ages the hotel uses: P7 `painted_bluegrey_lap` new, few (old: tile tells); P8 `painted_cream_trim`
+new, few; P9 `painted_red_trim` few, old (new is near black, fake). The spec's `want`s are all "few", so the hotel draws them with no
+spec change. Faults the judge found on all three: the 5 m crop drifts in hue (P7 to khaki, P8 to tan-peach, P9 red to orange); old
+cracks are black hairlines, chips are dabs rather than film edges at the lap's foot.
+**Round 1** (`results/2026-11-25_r1`: front from z -16, lobby, stair_hall from the upper deck at 6.45 m, wing; `render_lab.gd`): the cheap
+judge (`docs/screenshots/judge/2026-11-25_hotel_r1/cheap.md`) gave every view cheap indie: empty rooms and yard, uniform saturated blue
+walls (the sheet's is a softer blue-grey: the render reads bluer), speckle wear, a ceiling seam in the lobby, floating grass cards.
+Not judged beside the sheet by the blind judge (it sees renders only); the sheet's front has green shutters and a roofed gallery
+(the build is Sean's open deck). One round used; the second waits on the dressing and the P7 hue.
