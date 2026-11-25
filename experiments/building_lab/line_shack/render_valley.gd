@@ -117,6 +117,13 @@ func _run() -> void:
 func _old_box(h, shack: Node3D) -> void:
 	var at := shack.global_transform
 	shack.get_parent().remove_child(shack)
+	var box = old_box_node()
+	h.street.add_child(box)
+	box.global_transform = at
+
+
+## The old box itself (render_lab.gd draws it too).
+static func old_box_node() -> Node3D:
 	var box = load("res://src/structures/false_front_building.gd").new()
 	box.name = "OldShack"
 	box.structure_id = &"old_shack"
@@ -134,5 +141,4 @@ func _old_box(h, shack: Node3D) -> void:
 	box.furnished = false
 	box.sign_text = ""
 	box.roof_pitch_degrees = 24.0
-	h.street.add_child(box)
-	box.global_transform = at
+	return box

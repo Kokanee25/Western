@@ -49,7 +49,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
 - **The church** (#1203, `church/` README r7): open truss nave. Open: #1217 (ceiling), #1202 q2 (pews). Render: swap + lavapipe.
 - **The hotel** (#1220, #1226, #1247; `hotel/` README, `make_spec.py`): layout A and the kitchen wing built and tested in the lab (15.7k members, test cap 16k); P7-P9 approved (blue-grey and cream new+few, red few+old, judged without the yardstick: it isn't in the Studio checkout) so it draws them; judge round 1 `hotel/results/2026-11-25_r1`: round 1 cheap indie all four (the lab stood the hotel ~0.2 m under the sand: fixed, a walk and steps added); round 2 (`results/2026-11-25_r2`): stair hall good indie, the rest cheap indie (flat blue siding, empty rooms, no haze). Two rounds used. Not on its lot till #1227. Next: P7's far hue, the dressing (arch casing, newel lamps, mirror, chandelier: the prop lab's), plaster #1225.
 - **Harlan's homestead** (#1126, #1160, `homestead/` README): look pass 1 merged: R3 `hewn_pine_log`, R4 `fieldstone_rubble` (unapproved: no yardstick for the materials judge), pines and grass by ValleyScatter's `place` rule, the spring on posts. Left: golden light, thinner pines, chimney courses, yard props.
-- **The line shack** (#1091 sheet and spec, branch `claude/art-building-line-shack-b03f5n`, not merged; `line_shack/` README): vertical boards, a back storeroom for Kett, Joe's lane. Next #1250: the build and No Justice's swap.
+- **The line shack** (#1250, PR #1267; `line_shack/` README): in No Justice from its spec (861 members); Joe reaches Kett 10/10. Not built: patches, shutter, guys. Kit: #1263.
 - **The undertaker's** (#1174, `undertaker/` README): built, on its lot, its cellar dug (`CellarDig`) and walked. Props in (U1, #1181). **Grim** (#1187): old blood by its `past` (`PastStains`: Blood splats, FloorMarks stains), a smoky lamp, CellarHaze; embalming good indie. Damp waits on Sean (#1197); the black trim wants `painted_black_trim`.
 - **Stone and lime, not approved** (#928): S1 `rubble_stone`, PL1, PL2 (`rubble_stone.gdshader`, `stone_finish.gd`; LAYOUT
   "Stone and lime") failed two judge rounds (an outline round every stone from `real_bump`). Drawn only once approved; never
@@ -79,7 +79,8 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
 - One lavapipe render at a time (~10-13 GB each; two OOM; the store's views need swap on a 15 GB box). On an 8 GB box: swap (`fallocate -l 6G`, `mkswap`, `swapon`) or the valley is killed; nothing else heavy beside it. A real-look view ~10 min; a full golden render
   ~2.5 h (batches of 24-25 with `--only=`); a material lab shot ~1 min after ~1.5 min of load.
 - Start with `--game-args=--real`: switching the real look on at runtime crashes lavapipe. Needs
-  `mesa-vulkan-drivers`, or Vulkan silently falls back to OpenGL.
+  `mesa-vulkan-drivers` (or `VK_ICD_FILENAMES=/opt/lavapipe/lvp_icd.json`), or Vulkan falls back to OpenGL.
+  The valley under lavapipe OOMs a 15 GB box alone: draw a building in the street's desert (`line_shack/render_lab.gd`).
 - Moving the clock re-blends the look (a bridge `set` before `time` is lost); wait ~5 s after a clock jump
   before a screenshot. Try dials with `screenshots.gd --variants=` (one load).
 - `pgrep -f`/`pkill -f` match their own command; `pkill -x godot` stops every render.

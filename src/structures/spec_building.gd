@@ -3975,10 +3975,17 @@ func _braces() -> void:
 		var length: float = wall.length
 		var rects := _rects_on(_openings(w), "ground") + _rects_on(_openings(w), "upper")
 		var y1 := wall_height - PLATE_H - 0.02
+		# A wall with its own top (a lean-to's, sloping [start, end]): the brace ends under it there
+		# (#1250: the storeroom's braces stood through its roof at the main walls' height).
+		var own_top: Variant = w.get("top", null)
 		for e in 2:
 			for run: float in [2.0, 1.6, 1.2, 0.9, 0.6]:
 				var a := Vector2(0.15 if e == 0 else length - 0.15, sill_top + 0.02)
-				var b := Vector2(a.x + run * (1 if e == 0 else -1), y1)
+				var bx := a.x + run * (1 if e == 0 else -1)
+				var by := y1
+				if own_top is Array and (own_top as Array).size() == 2:
+					by = lerpf(float(own_top[0]), float(own_top[1]), clampf(bx / length, 0.0, 1.0)) - PLATE_H - 0.02
+				var b := Vector2(bx, by)
 				var clear := true
 				for o in rects:
 					var g := o.grow(0.06)
