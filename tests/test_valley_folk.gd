@@ -185,7 +185,8 @@ func test_saloon_b_s_ways_in_are_walkable() -> void:
 		for i in way.size() - 1:
 			var a := StringName(String(way[i]))
 			var b := StringName(String(way[i + 1]))
-			if a in names and b in names:
+			check(f.places.has(a) and f.places.has(b), "No Law's %s and %s places" % [a, b])
+			if f.places.has(a) and f.places.has(b):
 				check(Waypoints._walkable(space, f.places.at(a), f.places.at(b), ex), "No Law's way %s to %s walkable" % [a, b])
 
 
