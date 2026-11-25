@@ -160,6 +160,36 @@ func test_at_night_the_barkeep_the_drinkers_and_the_card_table() -> void:
 	check(fwd.call(&"miner").dot(bar.global_basis.z) < -0.7, "the miner facing the bar")
 
 
+## #1230 (main red, build 5393): the ways into saloon B's bar room are each walkable straight (a man's
+## width swept along it). The corner door's leaves stand open into the room either side of the doorway;
+## `saloonb_corner_in` to the card tables went by the far leaf's end, and on CI Cody (and then you,
+## carrying Earl) stuck there. Each link between these places, both ways.
+func test_saloon_b_s_ways_in_are_walkable() -> void:
+	var f := _folk()
+	var space := valley.get_world_3d().direct_space_state
+	var ex: Array[RID] = []
+	var names: Array[StringName] = [&"saloon", &"saloonb_corner_in", &"saloonb_corner_inside", &"saloonb_front_in", &"saloonb_cards", &"saloonb_cards_e",
+			&"saloonb_cards_n", &"saloonb_room", &"saloonb_piano", &"saloonb_bar_front", &"saloonb_bar_end"]
+	var n := 0
+	for a in names:
+		check(f.places.has(a), "%s a place" % a)
+		for b: StringName in f.places.links.get(a, []):
+			if not b in names:
+				continue
+			n += 1
+			check(Waypoints._walkable(space, f.places.at(a), f.places.at(b), ex), "%s to %s walkable" % [a, b])
+	check(n >= 10, "the room's ways linked (%d links)" % n)
+	# No Law's men walk their `in` and `out` in straight lines: each step of them walkable too.
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://config/moments/no_law_murder.json"))
+	for way: Array in [d.cody["in"], d.cody.out, d.stranger["in"]]:
+		for i in way.size() - 1:
+			var a := StringName(String(way[i]))
+			var b := StringName(String(way[i + 1]))
+			check(f.places.has(a) and f.places.has(b), "No Law's %s and %s places" % [a, b])
+			if f.places.has(a) and f.places.has(b):
+				check(Waypoints._walkable(space, f.places.at(a), f.places.at(b), ex), "No Law's way %s to %s walkable" % [a, b])
+
+
 ## #1230: saloon B's room at its fullest (an ordinary night at 20:15: twelve in it, the undertaker's one
 ## drink): every one at his post in its bar room, none of them inside a prop (the bar, the tables and
 ## chairs, the stove, the piano; a man sat in his chair is in it), and no two in one place.
