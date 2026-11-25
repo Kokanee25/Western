@@ -1,0 +1,4 @@
+a front experiments/building_lab/hotel/results/2026-11-25_r2/front.jpg
+b lobby experiments/building_lab/hotel/results/2026-11-25_r2/lobby.jpg
+c stair_hall experiments/building_lab/hotel/results/2026-11-25_r2/stair_hall.jpg
+d wing experiments/building_lab/hotel/results/2026-11-25_r2/wing.jpg

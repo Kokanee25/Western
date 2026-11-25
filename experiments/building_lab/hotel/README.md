@@ -155,3 +155,11 @@ judge (`docs/screenshots/judge/2026-11-25_hotel_r1/cheap.md`) gave every view ch
 walls (the sheet's is a softer blue-grey: the render reads bluer), speckle wear, a ceiling seam in the lobby, floating grass cards.
 Not judged beside the sheet by the blind judge (it sees renders only); the sheet's front has green shutters and a roofed gallery
 (the build is Sean's open deck). One round used; the second waits on the dressing and the P7 hue.
+
+**Round 2 (2026-11-25, Sean's ask after "why's it so low"):** round 1's lab stood the hotel at y 0 where the authored ground is 0.96 m, so
+the 0.75 m floor sat ~0.2 m under the sand (no foundation, no steps). `render_lab.gd` now sets its origin y from `TownLayout.ground_height`
+(the spec's origin is the street edge's ground) and builds a `Boardwalk` (top 0.75, the flight at the doors, loaded by path: a named
+`Boardwalk` in an `-s` script fails on `Events`); `stair_hall` now stands on the gallery at 6.4 m looking over the rail into the well.
+Cheap judge (`docs/screenshots/judge/2026-11-25_hotel_r2/cheap.md`, renders `results/2026-11-25_r2`): stair hall **good indie**, front, lobby and
+wing cheap indie (flat saturated blue siding with no streaks or grimy base, empty rooms and yard, repeated chip flecks, the lobby ceiling seam,
+no haze on the far rocks, stamped grass). Two rounds used; the next move is the dressing and a wear pass on P7 (and its far hue), then Sean's look.
