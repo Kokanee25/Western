@@ -137,7 +137,7 @@ Sean's pick on #1226: layout A, the deep hall, with the kitchen wing behind the 
 7. **The landlady's sitting room has no window** now (its back window faced into the wing): its door's transom lights it.
 8. **The kitchen has a lane door** (the alley side), so the kitchen isn't reached only through the pantries.
 
-Renders: `render_lab.gd` (the hotel in the street out in the desert, while it isn't on its lot): `results/2026-11-24_layout_a/`.
+Renders: `render_lab.gd` (the hotel in the street out in the desert, while it isn't on its lot; `export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json` after `apt-get install mesa-vulkan-drivers`, and ~11 GB: the container restarted after two views): `results/2026-11-24_layout_a/lobby.jpg`, the stair through the arch.
 Not done: the arch's casing and turned columns, the statue newel lamps, the gilt mirror and the chandelier (the dressing's,
 the prop lab's); the range's chimney (the builder's chimneys are for rafter roofs); the three paints (P7-P9) judged; the
 lot (#1227).
