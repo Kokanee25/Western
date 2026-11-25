@@ -528,6 +528,59 @@ static func board_mesh(length: float, width: float, thick: float, seed: float, w
 	return mesh
 
 
+## Boards shared by their shape (#1246; docs/reviews/2026-11-building-bodies.md: a board's own mesh
+## was 26.5 KB, ~60% of a member, and 37,000 boards across the valley came in ~4,000 shapes). A
+## building's plain boards take one mesh per (length, width, thickness, role), its seed, warp and
+## nails 0; the board's own (seed, warp, nails, nail place) and ground y ride on its node (metas
+## `board`, `board_ground`). In a batch, Structure's merge writes them into each board's vertices
+## (CUSTOM0.x, CUSTOM1, CUSTOM2: what board_mesh would have put there, float for float), so the
+## shader draws every board as before; a board drawn on its own (unbatched: hit, burning, falling)
+## gets its own mesh back first (own_board). Kept by weak reference: a shape no board uses is freed.
+static var _shared_boards := {}
+static var _shared_lock := Mutex.new()
+
+
+static func shared_board(mi: MeshInstance3D, length: float, width: float, thick: float, seed: float, warp: float,
+		nails: Vector2, ground_y: float, role := 0.0) -> void:
+	var key := [length, width, thick, role]
+	_shared_lock.lock()
+	var ref: WeakRef = _shared_boards.get(key)
+	var mesh: ArrayMesh = ref.get_ref() if ref else null
+	if mesh == null:
+		mesh = board_mesh(length, width, thick, 0.0, 0.0, Vector2.ZERO, 0.0, role)
+		mesh.set_meta(&"board_shared", key)
+		if _shared_boards.size() > 8192:  # (shapes nothing uses any more, gone)
+			for k: Array in _shared_boards.keys():
+				if (_shared_boards[k] as WeakRef).get_ref() == null:
+					_shared_boards.erase(k)
+		_shared_boards[key] = weakref(mesh)
+	_shared_lock.unlock()
+	mi.mesh = mesh
+	mi.set_meta(&"board", Vector4(seed, warp, nails.x, nails.y))
+	mi.set_meta(&"board_ground", ground_y)
+
+
+## A shared board's own values for the batch's merge: [seed, CUSTOM1, CUSTOM2] (board_mesh's layout),
+## or null for any other mesh.
+static func board_values(mi: MeshInstance3D) -> Variant:
+	if mi == null or mi.mesh == null or not mi.mesh.has_meta(&"board_shared"):
+		return null
+	var k: Array = mi.mesh.get_meta(&"board_shared")
+	var b: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
+	return [b.x, Vector4(k[0], k[1], k[2], b.y), Vector4(b.z, b.w, float(mi.get_meta(&"board_ground", 0.0)), k[3])]
+
+
+## A shared board given its own mesh (board_mesh's, as it was before #1246), to be drawn on its own.
+static func own_board(mi: MeshInstance3D) -> void:
+	if mi == null or mi.mesh == null or not mi.mesh.has_meta(&"board_shared"):
+		return
+	var k: Array = mi.mesh.get_meta(&"board_shared")
+	var b: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
+	mi.mesh = board_mesh(k[0], k[1], k[2], b.x, b.y, Vector2(b.z, b.w), float(mi.get_meta(&"board_ground", 0.0)), k[3])
+	mi.remove_meta(&"board")
+	mi.remove_meta(&"board_ground")
+
+
 ## A library board cut to an outline (#805: a roll-top desk's S-curved sides; a bracket, a crest):
 ## the kit's "cut" draw ({"outline", "plane"}, as woodwork_mesh's) made in the member's own space,
 ## then laid into the board's frame (`frame`: the board's X along the member's longest side, as
