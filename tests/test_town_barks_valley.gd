@@ -110,11 +110,27 @@ func test_a_walk_down_the_town() -> void:
 	check(shows.has("cold turn"), "a cold man turned his shoulder (%s)" % [shows.keys()])
 
 
+## #1240: a man at a spot in a building's own room (`hall`: the barkeep behind saloon B's bar by day,
+## #1213) is at that building for his lines: noon's street went thin with the barkeep's bar lines lost.
+func test_the_barkeep_behind_saloon_bs_bar_is_at_the_saloon() -> void:
+	var f := valley.folk
+	var clock := valley.get_node(^"DayCycle") as DayCycle
+	clock.day = 2
+	clock.set_time(12.0)
+	await physics_frames(1)
+	check(String(f.block_now(f._person(&"barkeep"), f.hour()).get("at", "")) == "bar_back_day", "at noon the barkeep's at saloon B's bar")
+	var ctx := f.bark_ctx(&"barkeep", f.folk_man(&"barkeep"))
+	check((ctx.at as Array).has("saloon"), "behind saloon B's bar he's at the saloon (%s)" % [ctx.at])
+	var ids: Array = TownBarks.fitting("pass", ctx)
+	check(ids.has("bar.day"), "his bar's lines are his to say by day (%s)" % [ids])
+
+
 ## #1184 (gate round 2: 1 line in ten minutes at 07:00, 2 at noon, 4 at 17:30): you stood about the
 ## store and the saloon's walks for ten minutes of an ordinary day, the clock at the gate's rate:
 ## about a dozen lines, men to you and to each other, no man saying one line twice, no wording heard
 ## more than twice.
 func test_ten_minutes_on_the_street_by_day() -> void:
+	var total := 0
 	for h: float in [7.0, 12.0, 17.5]:
 		var f := valley.folk
 		var clock := valley.get_node(^"DayCycle") as DayCycle
@@ -156,7 +172,12 @@ func test_ten_minutes_on_the_street_by_day() -> void:
 		clock.time_scale = 1.0
 		var lines := f.heard.slice(from)
 		print("  %05.2f, ten minutes: %d lines heard: %s" % [h, said.size(), said])
-		check(said.size() >= 10, "%.1f h: about a dozen lines in ten minutes (%d)" % [h, said.size()])
+		# #1240: noon's ten minutes (dinner: two to five men out) say 10 or 11 by the run's timing (main before
+		# #1233: 10; the town seed's fixed, the rest is the machine's speed), so a floor of 10 an hour sat on
+		# the count itself. Each hour at least 8 (the gate's thin street said 1 to 4), and the day's
+		# half hour about a dozen every ten minutes (below).
+		check(said.size() >= 8, "%.1f h: the street talks in ten minutes (%d)" % [h, said.size()])
+		total += said.size()
 		var by := {}
 		for e: Array in lines:
 			var key := "%s %s" % [e[0], e[1]]
@@ -170,3 +191,4 @@ func test_ten_minutes_on_the_street_by_day() -> void:
 		if h < 17.0:
 			# The next hour afresh: a new valley would cost a minute; the day moves on instead.
 			f.barks.said.clear()
+	check(total >= 36, "about a dozen lines every ten minutes by day (%d in thirty)" % total)

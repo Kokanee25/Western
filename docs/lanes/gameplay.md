@@ -44,6 +44,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (`door_walk_s`). #1248: a knee under the rim doesn't throw the table (`KitProp.lifted_over`); bruises aren't hurts (`Physiology.injuries`); indoors a room's own door's no refuge; no doctor called to the dead or over the carry (`FetchHelp.answered`). Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the
   room. Open: the room's sounds are synth stand-ins (#807); no argument, round bought or song
   called for; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
+  A spot's `hall` is its building for the barks (`bark_ctx`, #1240: hall spots had lost the saloon's lines).
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
