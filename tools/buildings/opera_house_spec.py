@@ -10,7 +10,7 @@ the cornice; a horseshoe balcony; the sheet and plan OK'd ("Looks good let's spe
 the lot kept. `status: "spec"`: written to the format, NOT BUILT (the build waits for after the slice); keys marked
 NEW in their `_doc` are parts the builder doesn't have yet (experiments/building_lab/opera_house/README.md).
 
-Sizes: 60 x 110 ft (18.29 x 33.53 m), 523 seats. The frame from period books (`sources`; `--sizing` prints each
+Sizes: 60 x 110 ft (18.29 x 33.53 m), about 300 seats (Sean, 2026-11-24). The frame from period books (`sources`; `--sizing` prints each
 member's check): brick walls by Kidder's rule for public halls, joists and beams by the Wood Handbook's working
 stresses for yellow pine (1,200 lb/in2 in bending) at 100 lb/ft2 under a crowd standing (balcony, foyer, stairs;
 Kidder's for theatres) and 70 lb/ft2 for the dance floor (saloon B's, Hatfield's hall), cast-iron columns by
@@ -56,8 +56,12 @@ DRESS_UP = r3(STAGE + 10 * FT)                      # 4.565: the dressing block'
 DRESS_TOP = r3(DRESS_UP + 3.6)                      # 8.165: its flat roof's parapet
 
 # Lines along z (back from the front's outer face).
-Z_VEST = 2.6                     # the vestibule's back partition (9 in brick)
-Z_LOBBY = 7.0                    # the lobby's back wall (13 in brick: the balcony's back bears on it)
+Z_VEST = 2.6                     # the vestibule's back wall (13 in brick to the roof: the front block's middle bearing)
+Z_VEST1 = r3(Z_VEST + T_IN)      # 2.93: the lobby's front face
+Z_LOBBY = 10.2                   # the lobby's back wall (13 in brick: the balcony's back bears on it). Sean, 2026-11-24:
+                                 # "push the lobby forward ... a bar and something else" (the ladies' parlour): 33 ft
+X_BAR = 5.6                      # the bar's partition (the bar east of it, x 0.43-5.6: 17 x 24 ft)
+X_PARL = r3(W - 5.6)             # the parlour's partition (the ladies' parlour west of it, the same size)
 Z_HALL0 = r3(Z_LOBBY + T_IN)     # 7.33
 Z_PIT0 = 19.8                    # the orchestra pit's rail
 Z_APRON = 21.64                  # the apron's edge (4 ft out of the proscenium), the footlights
@@ -67,32 +71,38 @@ Z_DRESS = 29.9                   # the dressing block's front wall (13 in: it ca
 Z_DRESS0 = r3(Z_DRESS + T_IN)    # 30.23
 Z_BACK = r3(D - T_UP)            # 33.198
 
-# The lobby's stairs: straight flights of 26 along the lobby's back wall from the middle outward; the foyer's wells
-# over them, a beam along their front edge (z WELL_Z) on posts at the flights' ends and middles.
+# The lobby's stairs: straight flights of 26 against the bar's and the parlour's partitions, rising from the
+# vestibule's side to a landing at the lobby's back wall, a door there straight into the balcony; the foyer's wells
+# over them, each well's inner edge a trimmer beam (z) on two posts.
 ST_N, ST_GO, ST_W = 26, 0.25, 1.37
 ST_RUN = r3((ST_N - 1) * ST_GO)                     # 6.25
-WELL_Z = r3(Z_LOBBY - ST_W)                         # 5.63
-WELL_E = [r3(CX - 0.7 - ST_RUN), r3(CX - 0.7)]      # 2.194 .. 8.444
-WELL_W = [r3(CX + 0.7), r3(CX + 0.7 + ST_RUN)]      # 9.844 .. 16.094
-WELL_POSTS = [WELL_E[0], r3(sum(WELL_E) / 2), WELL_E[1], WELL_W[0], r3(sum(WELL_W) / 2), WELL_W[1]]
+ST_TOP = r3(Z_LOBBY - 1.0)                          # 9.2: the flights' heads (a 1 m landing behind)
+ST_FOOT = r3(ST_TOP - ST_RUN)                       # 2.95
+WELL_E = [r3(X_BAR + 0.06), r3(X_BAR + 0.06 + ST_W)]        # 5.66 .. 7.03
+WELL_W = [r3(X_PARL - 0.06 - ST_W), r3(X_PARL - 0.06)]      # 11.258 .. 12.628
+WELL_POSTS_Z = [6.0, ST_TOP]
 
 # The parquet, the balcony, the boxes.
 SEAT = r3(20 / 12 * FT)          # 0.508
 ROW = r3(32 / 12 * FT)           # 0.813
 BAL_ROW = r3(34 / 12 * FT)       # 0.864: a balcony row (its riser leaves less knee room)
 BAL_RISE = 0.3
-BAL_BACK_ROWS = 4
+BAL_BACK_ROWS = 3
+BAL_SIDE_ROWS = 1
 BAL_AISLE = 1.0                  # the balcony's back cross aisle at the foyer's level
 BAL_FRONT = r3(Z_HALL0 + BAL_AISLE + BAL_BACK_ROWS * BAL_ROW)      # the back arm's rail
-BAL_SIDE = r3(0.76 + 2 * BAL_ROW)                                   # the side arms (a passage, two rows)
+BAL_SIDE = r3(0.76 + BAL_SIDE_ROWS * BAL_ROW)                       # the side arms (a passage, a row)
 BAL_R = 3.2                      # the corners' radius on the rail's line
 BAL_END = 19.4                   # the side arms stop at the boxes
-BAL_LOW = r3(FOYER - BAL_BACK_ROWS * BAL_RISE)                      # 4.25: the front row's floor
+BAL_LOW = r3(FOYER - BAL_BACK_ROWS * BAL_RISE)                      # 4.55: the front row's floor
+BAL_PASS = r3(BAL_LOW + BAL_SIDE_ROWS * BAL_RISE)                   # the side passages and the upper boxes
+PAR_ROWS = 8
+SIDE_SEATS = 4                   # a side arm's row between the corner's curve and the boxes
 BOX_Z = [r3(BAL_END + 0.2), r3(Z_PROSC - 0.1)]
 
 # Hall bays: the trusses on the side walls' pilasters, the windows between them.
-TRUSS_Z = [r3(Z_HALL0 + 1.83 + 3.66 * k) for k in range(4)]        # 9.16 .. 20.14
-WIN_Z = [r3(z + 1.83) for z in TRUSS_Z[:3]]                        # mid-bay
+TRUSS_Z = [r3(Z_HALL0 + 1.83 + 3.66 * k) for k in range(3)]        # 12.36 .. 19.68
+WIN_Z = [r3(z + 1.83) for z in TRUSS_Z[:2]]                        # mid-bay (the third bay is the boxes')
 
 
 def window(at, sill, h, w=1.07, level="ground", arch=True, **kw):
@@ -169,9 +179,14 @@ def walls():
                                   _doc="the scenery door at the stage's height: flats and trunks off a wagon's bed"))
         segs = [
             brick("%s_front" % id_, (x, 0), (x, Z_LOBBY), out, CORNICE, set_off={"y": FOYER, "thick": T_UP},
-                  openings=[window(4.6, FOYER + 0.9, 2.4, w=0.91, level="upper"),
-                            window(4.6, ATTIC + 0.6, 1.3, w=0.91, level="attic")],
-                  _doc="the front block's side: the cornice returns along it (a three-storey block)"),
+                  openings=([door(9.45, 1.07, 2.44, leaf="inward", glazed=True,
+                                  _doc="the bar's own door, onto the open ground: a drink without a ticket")] if e else
+                            [window(9.3, FLOOR + 0.9, 2.4, w=0.91)])
+                           + [window(4.5, FLOOR + 0.9, 2.4, w=0.91), window(6.9, FLOOR + 0.9, 2.4, w=0.91)]
+                           + [window(z, FOYER + 0.9, 2.4, w=0.91, level="upper") for z in (4.5, 8.2)]
+                           + [window(z, ATTIC + 0.6, 1.3, w=0.91, level="attic") for z in (4.5, 8.2)],
+                  _doc="the front block's side: the cornice returns along it (a three-storey block); "
+                       + ("the bar's windows and its own door" if e else "the parlour's windows on the lane")),
             brick("%s_hall" % id_, (x, Z_LOBBY), (x, Z_PROSC), out, HALL_TOP,
                   pilasters={"at": [r3(z - Z_LOBBY) for z in TRUSS_Z], "proj": 0.11, "width": 0.56,
                              "_doc": "NEW: brick piers under the trusses' bearings (the wall's stiffening)"},
@@ -202,11 +217,17 @@ def walls():
 
     ie = IN_E
     parts = [
-        brick("vestibule", (ie, Z_VEST), (IN_W, Z_VEST), "-z", r3(FOYER - FLOOR - 0.35), thick=T_PART, partition=True,
-              level="ground",
+        brick("vestibule", (ie, Z_VEST), (IN_W, Z_VEST), "-z", FRONT_ROOF, thick=T_IN, partition=True,
+              level="ground", bearing=True,
               openings=[door(CX - ie, 3.05, 2.9, leaves=2, leaf="swing", arch="round",
-                             _doc="into the lobby: two pairs of swing doors under one arch")],
-              _doc="The vestibule's back (9 in brick, plastered): the box office's and the cloak room's back walls."),
+                             _doc="into the lobby: two pairs of swing doors under one arch"),
+                        {"type": "void", "level": "upper", "at": r3(CX - ie), "width": 3.66, "height": 3.0, "arch": "round",
+                         "_doc": "the foyer's arch: the front promenade (the five tall windows) to the gallery over the lobby"},
+                        door(3.0 - ie, 0.91, 2.13, level="upper", _doc="McCready's office"),
+                        door(W - 3.0 - ie, 0.91, 2.13, level="upper", _doc="the committee room"),
+                        door(CX - ie, 0.91, 2.0, level="attic", _doc="through the scene loft")],
+              _doc="The vestibule's back, 13 in brick to the roof: the front block's middle bearing line (its floors "
+                   "span 2.2 m in front of it and 7.3 m behind); the box office's and the cloak room's back walls."),
         {"id": "box_office", "line": [[4.6, ie], [4.6, Z_VEST]], "out": "-x", "partition": True, "level": "ground", "inside": PLASTER,
          "openings": [window(0.9, 1.0, 0.6, w=0.6, grille="brass", shelf="marble",
                              _doc="the ticket window, onto the vestibule"),
@@ -216,15 +237,12 @@ def walls():
                                           "_doc": "the cloak counter"}, door(1.75, 0.76, 2.03)]},
         brick("lobby_back", (ie, Z_LOBBY), (IN_W, Z_LOBBY), "-z", HALL_TOP, thick=T_IN, partition=True, level="ground",
               bearing=True,
-              openings=[door(CX - ie, 1.22, 2.29, leaves=2, leaf="swing", _doc="the middle doors, between the stairs' feet"),
-                        door(CX - ie - 5.6, 1.52, 2.44, leaves=2, leaf="swing",
-                             _doc="under the east stair's high end (3.4 m clear over the passage)"),
-                        door(CX - ie + 5.6, 1.52, 2.44, leaves=2, leaf="swing"),
-                        door(CX - ie, 1.22, 2.29, leaves=2, leaf="swing", level="upper",
-                             _doc="foyer to the balcony's back aisle, over the bridge between the wells"),
-                        door(1.1 - ie, 1.07, 2.29, leaf="swing", level="upper",
-                             _doc="at the east stair's head: up the stair and straight into the balcony"),
-                        door(W - 1.1 - ie, 1.07, 2.29, leaf="swing", level="upper")],
+              openings=[door(CX - ie, 2.44, 2.44, leaves=2, leaf="swing", _doc="the hall's doors, between the stairs"),
+                        door(CX - ie, 1.52, 2.29, leaves=2, leaf="swing", level="upper",
+                             _doc="the foyer's gallery to the balcony's back aisle"),
+                        door(sum(WELL_E) / 2 - ie, 1.07, 2.29, leaf="swing", level="upper",
+                             _doc="at the east stair's landing: up the stair and straight into the balcony"),
+                        door(sum(WELL_W) / 2 - ie, 1.07, 2.29, leaf="swing", level="upper")],
               _doc="The lobby's back wall, 13 in brick to the roof: the foyer's and the scene loft's joists, the "
                    "balcony's carriages and the hall's first purlins bear on it; doors into the hall's cross aisle "
                    "below, the balcony's back aisle above."),
@@ -252,8 +270,18 @@ def walls():
          "out": "-z", "partition": True, "level": "ground", "inside": PLASTER, "openings": []},
         {"id": "dressing_split_w", "line": [[r3(CX + 0.76), r3(Z_DRESS0 + 1.45)], [IN_W, r3(Z_DRESS0 + 1.45)]],
          "out": "-z", "partition": True, "level": "ground", "inside": PLASTER, "openings": []},
-        {"id": "office", "line": [[4.6, ie], [4.6, r3(Z_LOBBY - 1.4)]], "out": "-x", "partition": True, "level": "upper", "inside": PLASTER,
-         "openings": [door(4.0, 0.91, 2.13, level="upper")], "_doc": "McCready's office off the foyer"},
+        {"id": "bar", "line": [[X_BAR, Z_VEST1], [X_BAR, Z_LOBBY]], "out": "-x", "partition": True, "level": "ground",
+         "bearing": True, "stud": 0.1, "inside": PLASTER,
+         "openings": [door(r3(ST_TOP + 0.5 - Z_VEST1), 0.91, 2.13, _doc="from the lobby, past the east stair's head")],
+         "_doc": "the bar's wall: 4x4 studs (it carries the east landing's joists), the east stair against it"},
+        {"id": "parlour", "line": [[X_PARL, Z_VEST1], [X_PARL, Z_LOBBY]], "out": "+x", "partition": True, "level": "ground",
+         "bearing": True, "stud": 0.1, "inside": PLASTER,
+         "openings": [door(r3(ST_TOP + 0.5 - Z_VEST1), 0.91, 2.13, _doc="from the lobby, past the west stair's head")],
+         "_doc": "the ladies' parlour's wall, as the bar's"},
+        {"id": "office", "line": [[X_BAR, Z_VEST1], [X_BAR, Z_LOBBY]], "out": "-x", "partition": True, "level": "upper",
+         "inside": PLASTER, "openings": [], "_doc": "McCready's office over the bar (its door through the vestibule wall)"},
+        {"id": "committee", "line": [[X_PARL, Z_VEST1], [X_PARL, Z_LOBBY]], "out": "+x", "partition": True, "level": "upper",
+         "inside": PLASTER, "openings": [], "_doc": "the committee room over the parlour: the town's and the Miners' Union's meetings"},
     ]
     return [front] + side("east", 0.0, "-x") + side("west", W, "+x") + [back] + parts
 
@@ -269,17 +297,24 @@ def floors():
          "look": "wood:int_floor",
          "_doc": "the parquet and the pit, level (a dance floor: the front four rows on runners), 2x12 at 16 in on "
                  "five girder lines (70 lb/ft2)"},
-        {"id": "foyer", "level": "upper", "rect": [IN_E, IN_E, IN_W, WELL_Z], "joists": "z", "joist": "long_joist",
-         "look": "wood:int_floor",
-         "_doc": "the foyer: 3x14 at 12 in front to back, from the front wall's set-off to the wells' beam (`beams` "
-                 "well), 100 lb/ft2. Behind the beam the two stairs' wells (no floor), and three short floors: "
-                 "the landings at the stairs' heads and the bridge between the wells (the recipe: split floors, no tail joists)"},
-        {"id": "foyer_head_e", "level": "upper", "rect": [IN_E, WELL_Z, WELL_E[0], Z_LOBBY], "joists": "z", "look": "wood:int_floor"},
-        {"id": "foyer_bridge", "level": "upper", "rect": [WELL_E[1], WELL_Z, WELL_W[0], Z_LOBBY], "joists": "z", "look": "wood:int_floor"},
-        {"id": "foyer_head_w", "level": "upper", "rect": [WELL_W[1], WELL_Z, IN_W, Z_LOBBY], "joists": "z", "look": "wood:int_floor"},
+        {"id": "foyer", "level": "upper", "rect": [IN_E, IN_E, IN_W, Z_VEST], "joists": "z", "look": "wood:int_floor",
+         "_doc": "the foyer's front promenade behind the five tall windows: 2x10 from the front wall's set-off to the "
+                 "vestibule wall (2.2 m)"},
+        {"id": "office", "level": "upper", "rect": [IN_E, Z_VEST1, X_BAR, Z_LOBBY], "joists": "z", "joist": "long_joist",
+         "look": "wood:int_floor", "openings": [{"id": "loft_stair", "rect": [r3(IN_E + 0.1), 5.3, r3(IN_E + 1.0), 9.9]}],
+         "_doc": "over the bar: 4x14 at 12 in, vestibule wall to the lobby's back wall (24 ft), 100 lb/ft2"},
+        {"id": "gallery", "level": "upper", "rect": [WELL_E[1], Z_VEST1, WELL_W[0], Z_LOBBY], "joists": "z",
+         "joist": "long_joist", "look": "wood:int_floor",
+         "_doc": "the foyer's gallery over the lobby, between the stairs' wells, to the balcony's middle doors"},
+        {"id": "committee", "level": "upper", "rect": [X_PARL, Z_VEST1, IN_W, Z_LOBBY], "joists": "z", "joist": "long_joist",
+         "look": "wood:int_floor"},
+        {"id": "landing_e", "level": "upper", "rect": [WELL_E[0], ST_TOP, WELL_E[1], Z_LOBBY], "joists": "x",
+         "look": "wood:int_floor", "_doc": "the east stair's landing: 2x10 across, from the bar's stud wall to the well's trimmer"},
+        {"id": "landing_w", "level": "upper", "rect": [WELL_W[0], ST_TOP, WELL_W[1], Z_LOBBY], "joists": "x",
+         "look": "wood:int_floor"},
         {"id": "scene_loft", "level": "attic", "rect": [IN_E, IN_E, IN_W, Z_LOBBY], "joists": "z",
          "joist": "long_joist", "look": "wood:int_rough",
-         "_doc": "the scene painter's loft and the stores over the foyer: the attic windows' floor (40 lb/ft2)"},
+         "_doc": "the scene painter's loft and the stores over the whole front block (40 lb/ft2), on the vestibule wall"},
         {"id": "dress_ground", "level": "stage", "rect": [IN_E, Z_DRESS0, IN_W, Z_BACK], "joists": "z",
          "look": "wood:int_floor",
          "_doc": "the dressing block's floor at the stage's height, 2x10 front to back over 2.97 m on the walls' ledges"},
@@ -289,7 +324,7 @@ def floors():
         {"id": "dress_roof", "level": "dress_roof", "rect": [IN_E, Z_DRESS0, IN_W, Z_BACK], "joists": "z",
          "joist": "roof_joist", "_doc": "flat, tin on boards, behind its parapet"},
         {"id": "front_roof", "level": "front_roof", "rect": [IN_E, IN_E, IN_W, Z_LOBBY], "joists": "z",
-         "joist": "roof_joist", "_doc": "the front block's flat roof behind the cornice's parapet, tin on boards"},
+         "joist": "long_joist", "_doc": "the front block's flat roof behind the cornice's parapet, tin on boards"},
     ]
 
 
@@ -301,17 +336,20 @@ def girders():
 
 
 def beams():
-    xs = [IN_E] + WELL_POSTS + [IN_W]
-    return [{"id": "well_%d" % k, "from": [r3(xs[k]), WELL_Z], "to": [r3(xs[k + 1]), WELL_Z], "level": "upper",
-             "_doc": "the wells' beam, 8x12 a bay (cut over each post): the foyer's joists end on it, the landings' and "
-                     "the bridge's start; ends in pockets in the side walls" if k == 0 else ""}
-            for k in range(len(xs) - 1)]
+    out = []
+    for side, x in (("e", WELL_E[1]), ("w", WELL_W[0])):
+        zs = [Z_VEST1] + WELL_POSTS_Z + [Z_LOBBY]
+        for k in range(len(zs) - 1):
+            out.append({"id": "trimmer_%s%d" % (side, k), "from": [x, r3(zs[k])], "to": [x, r3(zs[k + 1])], "level": "upper",
+                        "_doc": "the well's inner edge, 8x12 a bay (cut over each post), ends in pockets in the brick: "
+                                "the gallery's edge joist beside it, the landing's joists on it" if k == 0 else ""})
+    return out
 
 
 def posts():
-    return {"_doc": "6x6 posts under the wells' beam, cased as fluted columns, from the lobby's floor (on piers): at "
-                    "each flight's foot and head (its newels) and its middle (spans 3.1 m)",
-            "free": [[x, WELL_Z] for x in WELL_POSTS], "wall": []}
+    return {"_doc": "6x6 posts under the wells' trimmers, cased as fluted columns, from the lobby's floor (on piers): "
+                    "at each flight's middle and its head (its newel)",
+            "free": [[x, z] for x in (WELL_E[1], WELL_W[0]) for z in WELL_POSTS_Z], "wall": []}
 
 
 # ---------------------------------------------------------------------------------------------- the balcony
@@ -341,13 +379,13 @@ def balcony():
     tiers.append({"id": "back_aisle", "y": FOYER, "rect": [IN_E, Z_HALL0, IN_W, r3(Z_HALL0 + BAL_AISLE)], "seats": 0})
     for side, x_in, x_wall in (("east", xr_e, IN_E), ("west", xr_w, IN_W)):
         sgn = 1 if side == "east" else -1
-        for k in range(2):
+        for k in range(BAL_SIDE_ROWS):
             xa = r3(x_in - sgn * k * BAL_ROW)
             xb = r3(x_in - sgn * (k + 1) * BAL_ROW)
             tiers.append({"id": "%s_%d" % (side, k + 1), "y": r3(BAL_LOW + k * BAL_RISE),
-                          "rect": [min(xa, xb), zr, max(xa, xb), BAL_END], "seats": 12})
-        xp = r3(x_in - sgn * 2 * BAL_ROW)
-        tiers.append({"id": "%s_passage" % side, "y": r3(BAL_LOW + 2 * BAL_RISE),
+                          "rect": [min(xa, xb), zr, max(xa, xb), BAL_END], "seats": SIDE_SEATS})
+        xp = r3(x_in - sgn * BAL_SIDE_ROWS * BAL_ROW)
+        tiers.append({"id": "%s_passage" % side, "y": BAL_PASS,
                       "rect": [min(xp, x_wall), zr, max(xp, x_wall), BAL_END], "seats": 0,
                       "_doc": "the passage along the wall from the back aisle (down three steps at the corner) to the upper box"})
     return {
@@ -363,14 +401,14 @@ def balcony():
         "carriage": {"section": [0.076, 0.29], "spacing": 0.406, "wood": "framing"},
         "front": {"height": 0.75, "fascia": "panelled, gilt mouldings", "rail": "velvet-padded"},
         "tiers": tiers,
-        "seats": {"back": 26 * BAL_BACK_ROWS, "sides": 12 * 4},
+        "seats": {"back": 26 * BAL_BACK_ROWS, "sides": SIDE_SEATS * 2 * BAL_SIDE_ROWS},
     }
 
 
 def boxes():
     out = []
     for side, x0, x1 in (("east", IN_E, r3(IN_E + 2.0)), ("west", r3(IN_W - 2.0), IN_W)):
-        for tier, y in (("lower", STAGE), ("upper", r3(BAL_LOW + 2 * BAL_RISE))):
+        for tier, y in (("lower", STAGE), ("upper", BAL_PASS)):
             out.append({"id": "box_%s_%s" % (side, tier), "rect": [x0, BOX_Z[0], x1, BOX_Z[1]], "y": y, "chairs": 4,
                         "front": {"curve": 0.3, "height": 0.75, "fascia": "gilt", "drapes": "red velvet, tied back"}})
     return {"_doc": "NEW (`Balcony` kind `box`): four boxes, two a side, one over the other, between the side arms' "
@@ -382,21 +420,24 @@ def boxes():
 
 
 def seats():
-    z0 = r3(Z_HALL0 + 1.22)
-    aisle = 1.0
-    blocks = []
-    x = IN_E + 0.05
-    for n in (4, 22, 4):
-        blocks.append([r3(x), r3(x + n * SEAT), n])
-        x += n * SEAT + aisle
-    return {"_doc": "The parquet: twelve rows of 30 (4-22-4), 32 in rows, 20 in folding opera chairs on cast-iron "
-                    "standards (A. H. Andrews & Co.'s), screwed down; the front four rows on runners (cleared for a "
-                    "ball). The two aisles run under the balcony's side columns; the back arm's five columns each "
-                    "take a seat's place (`out`: the period's 'obstructed by a post'). A kit prop by the prop lab "
-                    "(`opera_chair`, NEW), placed as fixtures in rows.",
-            "kit": "opera_chair", "rows": 12, "row_pitch": ROW, "seat_width": SEAT, "first_row_z": z0,
-            "last_row_z": r3(z0 + 11 * ROW), "blocks": blocks, "out": "a seat under each of the back arm's five columns",
-            "count": 12 * 30 - 5, "runners": 4, "facing": 0}
+    # The rows from the pit's rail back (0.9 m before it); behind the last row a standing-room aisle under the balcony.
+    z0 = r3(Z_PIT0 - 0.9 - 0.45 - (PAR_ROWS - 1) * ROW)
+    blocks = [[r3(CX - 13 * SEAT), r3(CX + 13 * SEAT), 26]]
+    # The balcony's columns that stand in a row take that seat's place.
+    out = 0
+    for cx, cz in balcony()["columns"]["at"]:
+        for k in range(PAR_ROWS):
+            za = z0 + k * ROW
+            if za - 0.05 <= cz <= za + 0.5 and blocks[0][0] <= cx <= blocks[0][1]:
+                out += 1
+    return {"_doc": "The parquet (Sean, 2026-11-24: about 300 in all): eight rows of 26 in one block, 32 in rows, "
+                    "20 in folding opera chairs on cast-iron standards (A. H. Andrews & Co.'s), screwed down; the "
+                    "front four rows on runners (cleared for a ball); behind them standing room under the balcony. Side aisles along the walls under the balcony's "
+                    "side arms (its side columns in them); a column that stands in a row takes a seat's place "
+                    "(`out`: the period's 'obstructed by a post'). A kit prop by the prop lab (`opera_chair`, NEW).",
+            "kit": "opera_chair", "rows": PAR_ROWS, "row_pitch": ROW, "seat_width": SEAT, "first_row_z": z0,
+            "last_row_z": r3(z0 + (PAR_ROWS - 1) * ROW), "blocks": blocks, "out": out,
+            "count": PAR_ROWS * 26 - out, "runners": 4, "facing": 0}
 
 
 # ---------------------------------------------------------------------------------------------- the stage
@@ -455,7 +496,7 @@ def roof():
                           "angle blocks); the bottom chord two 6x12 bolted with keys (Haupt)"},
         "purlin": [0.09, 0.24], "rafter": [0.04, 0.19], "rafter_spacing": 0.61, "boards": 0.025, "tin": True,
         "ceiling": {"y": CEILING, "joist": [0.04, 0.19], "spacing": 0.406, "finish": "plaster on lath",
-                    "rose": {"at": [CX, 14.65], "dia": 1.5}, "cove": 0.6},
+                    "rose": {"at": [CX, TRUSS_Z[1]], "dia": 1.5}, "cove": 0.6},
     }
 
 
@@ -468,10 +509,16 @@ def rooms():
         {"id": "box_office", "level": g, "rect": [IN_E, IN_E, 4.6, Z_VEST],
          "use": "the ticket seller behind the grille, the cash box, the seating chart, the night's takings"},
         {"id": "cloak_room", "level": g, "rect": [r3(W - 4.6), IN_E, IN_W, Z_VEST], "use": "coats, hats and guns checked"},
-        {"id": "lobby", "level": g, "rect": [IN_E, Z_VEST, IN_W, Z_LOBBY],
-         "use": "the two stairs up to the foyer, the inner doors to the hall; waiting, smoking, the interval"},
+        {"id": "lobby", "level": g, "rect": [X_BAR, Z_VEST1, X_PARL, Z_LOBBY],
+         "use": "the two stairs up to the foyer, the hall's doors; waiting, smoking, the interval"},
+        {"id": "bar", "level": g, "rect": [IN_E, Z_VEST1, X_BAR, Z_LOBBY],
+         "use": "the opera house's bar (Sean, 2026-11-24): two bar sections and the back bar along its west wall, "
+                "its own door onto the open ground (a drink without a ticket), the interval's crush; the men's"},
+        {"id": "parlour", "level": g, "rect": [X_PARL, Z_VEST1, IN_W, Z_LOBBY],
+         "use": "the ladies' parlour (the retiring room, Sean's pick): settees, a pier glass, a washstand, a stove; "
+                "the windows on the lane"},
         {"id": "hall", "level": g, "rect": [IN_E, Z_HALL0, IN_W, Z_PIT0],
-         "use": "the parquet: 355 seats; the crowd's place; a ball with the front rows cleared"},
+         "use": "the parquet: %d seats; the crowd's place; a ball with the front rows cleared" % seats()["count"]},
         {"id": "pit", "level": g, "rect": [r3(CX - 5.0), Z_PIT0, r3(CX + 5.0), Z_APRON], "use": "the band"},
         {"id": "stage", "level": "stage", "rect": [IN_E, Z_STAGE0, IN_W, Z_DRESS],
          "use": "the acts (#1143's later shows); the wings, the pin rail, roll drops and flats; a trap"},
@@ -483,11 +530,17 @@ def rooms():
          "use": "the stage door to the stage; the stair to the upper dressing rooms"},
         {"id": "dressing_3", "level": "stage", "rect": [r3(CX + 0.76), Z_DRESS0, IN_W, r3(Z_DRESS0 + 1.45)], "use": "the company's women"},
         {"id": "dressing_4", "level": "stage", "rect": [r3(CX + 0.76), r3(Z_DRESS0 + 1.45), IN_W, Z_BACK], "use": "trunks and costumes"},
-        {"id": "foyer", "level": "upper", "rect": [4.6, IN_E, IN_W, Z_LOBBY],
-         "use": "the balcony's foyer: the five tall windows over Main Street, settees, the interval's promenade"},
-        {"id": "office", "level": "upper", "rect": [IN_E, IN_E, 4.6, r3(Z_LOBBY - 1.4)],
-         "use": "McCready's office over the box office: the safe, the bookings, the window on the street"},
-        {"id": "balcony", "level": "upper", "rect": [IN_E, Z_HALL0, IN_W, BAL_END], "use": "the horseshoe: 152 seats, the cheap ones at the back"},
+        {"id": "foyer", "level": "upper", "rect": [IN_E, IN_E, IN_W, Z_VEST],
+         "use": "the foyer's promenade behind the five tall windows over Main Street, settees; through its arch the "
+                "gallery over the lobby to the balcony"},
+        {"id": "gallery", "level": "upper", "rect": [WELL_E[1], Z_VEST1, WELL_W[0], Z_LOBBY],
+         "use": "the foyer's gallery between the stairs' wells, railed, looking down into the lobby"},
+        {"id": "office", "level": "upper", "rect": [IN_E, Z_VEST1, X_BAR, Z_LOBBY],
+         "use": "McCready's office over the bar: the safe, the bookings, the side windows; the loft stair"},
+        {"id": "committee", "level": "upper", "rect": [X_PARL, Z_VEST1, IN_W, Z_LOBBY],
+         "use": "the committee room over the parlour: a long table, the town's meetings and the Miners' Union's"},
+        {"id": "balcony", "level": "upper", "rect": [IN_E, Z_HALL0, IN_W, BAL_END],
+         "use": "the horseshoe: %d seats, the cheap ones at the back" % (26 * BAL_BACK_ROWS + SIDE_SEATS * 2 * BAL_SIDE_ROWS)},
         {"id": "boxes", "level": "upper", "rect": [IN_E, BOX_Z[0], IN_W, BOX_Z[1]], "use": "the four boxes: McCready's, the Baron's, the mine's, the bank's"},
         {"id": "dressing_upper", "level": "dress_upper", "rect": [IN_E, Z_DRESS0, IN_W, Z_BACK],
          "use": "four more dressing rooms, the wardrobe; the door onto the fly gallery"},
@@ -497,19 +550,19 @@ def rooms():
 
 
 def stairs():
-    n, going, run, zs = ST_N, ST_GO, ST_RUN, WELL_Z
+    n, going = ST_N, ST_GO
     return [
-        {"id": "lobby_east", "head": [r3(CX - 0.7 - run), zs], "dir": "+x", "width": 1.37, "from": "ground", "to": "upper",
-         "risers": n, "going": going, "rail": "-z", "look": "wood:int_oak", "stringer_look": "wood:int_timber",
-         "_doc": "the lobby's two stairs: straight flights of 26 risers (7.6 in on 10 in treads) along its back wall, "
-                 "rising from the middle outward to the foyer at its ends (straight runs the builder makes; the "
-                 "sheet's read the same from the doors); turned walnut newels at the foot, a red runner on brass rods. "
-                 "Head room under the foyer's well edge: the wells run the flights' length."},
-        {"id": "lobby_west", "head": [r3(CX + 0.7 + run), zs], "dir": "-x", "width": 1.37, "from": "ground", "to": "upper",
-         "risers": n, "going": going, "rail": "-z", "look": "wood:int_oak", "stringer_look": "wood:int_timber"},
+        {"id": "lobby_east", "head": [WELL_E[0], ST_TOP], "dir": "+z", "width": ST_W, "from": "ground", "to": "upper",
+         "risers": n, "going": going, "rail": "+x", "look": "wood:int_oak", "stringer_look": "wood:int_timber",
+         "_doc": "the lobby's two stairs: straight flights of 26 risers (7.6 in on 10 in treads) against the bar's and "
+                 "the parlour's walls, rising from the vestibule's side to a landing at the lobby's back wall, its "
+                 "door straight into the balcony (the gallery's to the foyer); turned walnut newels at the foot, a red "
+                 "runner on brass rods; their open sides railed. The wells over them the flights' length."},
+        {"id": "lobby_west", "head": [WELL_W[0], ST_TOP], "dir": "+z", "width": ST_W, "from": "ground", "to": "upper",
+         "risers": n, "going": going, "rail": "-x", "look": "wood:int_oak", "stringer_look": "wood:int_timber"},
         {"id": "dressing", "head": [r3(CX - 0.6), r3(Z_BACK - 0.1)], "dir": "+z", "width": 1.2, "from": "stage",
          "to": "dress_upper", "risers": 16, "going": 0.2, "_doc": "a steep boxed stair at the corridor's end"},
-        {"id": "loft", "head": [r3(IN_E + 0.1), 1.5], "dir": "+z", "width": 0.9, "from": "upper", "to": "attic",
+        {"id": "loft", "head": [r3(IN_E + 0.1), 9.9], "dir": "+z", "width": 0.9, "from": "upper", "to": "attic",
          "risers": 24, "going": 0.2, "_doc": "a closed stair in McCready's office's corner up to the scene loft"},
         {"id": "stage_door", "head": [r3(CX - 0.75), r3(D + 0.95)], "dir": "-z", "width": 1.5, "from": "yard", "to": "stage",
          "risers": 3, "going": 0.3, "_doc": "three stone steps up from the yard to the stage door"},
@@ -519,7 +572,9 @@ def stairs():
 def lamps():
     sconces = []
     for room, wall, at, h in (("vestibule", "vestibule", 4.5, 2.2), ("vestibule", "vestibule", 12.9, 2.2),
-                              ("lobby", "lobby_back", 0.5, 2.4), ("lobby", "lobby_back", 16.9, 2.4),
+                              ("lobby", "lobby_back", r3(sum(WELL_E) / 2 - IN_E), 2.4), ("lobby", "lobby_back", r3(sum(WELL_W) / 2 - IN_E), 2.4),
+                              ("bar", "east_front", 3.4, 2.2), ("bar", "east_front", 8.2, 2.2),
+                              ("parlour", "west_front", 3.4, 2.0), ("parlour", "west_front", 8.2, 2.0),
                               ("hall", "east_hall", 3.0, 2.6), ("hall", "east_hall", 10.3, 2.6),
                               ("hall", "west_hall", 3.0, 2.6), ("hall", "west_hall", 10.3, 2.6)):
         sconces.append({"room": room, "kit": "reflector_lamp", "wall": wall, "level": "ground", "at": at, "height": h,
@@ -528,7 +583,7 @@ def lamps():
                     "ceiling's rose on a chain to the middle truss's bottom chord (lowered on a rope to be lit: the "
                     "Rope part), 24 lamps in two tiers; brackets on the walls; the footlights (the stage's); two lamp "
                     "standards on the walk (prop lab's `lamp_standard`, NEW).",
-            "chandelier": {"at": [CX, 14.65], "y": r3(CEILING - 1.6), "radius": 1.1, "lamps": 24, "truss": TRUSS_Z[1],
+            "chandelier": {"at": [CX, TRUSS_Z[1]], "y": r3(CEILING - 1.6), "radius": 1.1, "lamps": 24, "truss": TRUSS_Z[1],
                            "tiers": 2},
             "kit": sconces,
             "standards": [{"kit": "lamp_standard", "at": [r3(CX + s * 4.6), -1.6], "lit": [18, 24],
@@ -552,9 +607,16 @@ def use_points():
         {"id": "flyman", "use": "work", "who": "stagehand", "at": [r3(IN_W - 0.5), DRESS_UP, 26.0], "look": [IN_W, 26.0]},
         {"id": "lamp_lighter", "use": "work", "who": "stagehand", "at": [r3(CX - 4.0), ys, 21.9], "look": [CX, 21.7]},
         {"id": "standing_room", "use": "watch", "who": "crowd", "at": [CX, y0, r3(Z_HALL0 + 0.7)], "look": [CX, 23.0]},
-        {"id": "box_baron", "use": "sit", "who": "baron", "at": [1.4, r3(BAL_LOW + 2 * BAL_RISE), 21.0], "look": [CX, 24.0]},
-        {"id": "box_mccready", "use": "sit", "who": "mccready", "at": [r3(W - 1.4), r3(BAL_LOW + 2 * BAL_RISE), 21.0], "look": [CX, 24.0]},
-        {"id": "office_desk", "use": "work", "who": "mccready", "at": [2.4, FOYER, 3.0], "look": [2.4, 1.0]},
+        {"id": "box_baron", "use": "sit", "who": "baron", "at": [1.4, BAL_PASS, 21.0], "look": [CX, 24.0]},
+        {"id": "box_mccready", "use": "sit", "who": "mccready", "at": [r3(W - 1.4), BAL_PASS, 21.0], "look": [CX, 24.0]},
+        {"id": "office_desk", "use": "work", "who": "mccready", "at": [2.4, FOYER, 4.0], "look": [0.43, 4.0]},
+        {"id": "bartender", "use": "serve", "who": "bartender", "at": [4.3, y0, 6.4], "look": [1.5, 6.4]},
+        {"id": "bar_rail_1", "use": "drink", "who": "any", "at": [2.6, y0, 4.4], "look": [4.3, 4.4]},
+        {"id": "bar_rail_2", "use": "drink", "who": "any", "at": [2.6, y0, 6.0], "look": [4.3, 6.0]},
+        {"id": "bar_rail_3", "use": "drink", "who": "any", "at": [2.6, y0, 7.6], "look": [4.3, 7.6]},
+        {"id": "parlour_settee", "use": "sit", "who": "lady", "at": [r3(W - 2.0), y0, 5.5], "look": [r3(W - 4.0), 5.5]},
+        {"id": "parlour_glass", "use": "dress", "who": "lady", "at": [r3(W - 1.0), y0, 8.4], "look": [IN_W, 8.4]},
+        {"id": "committee_chair", "use": "sit", "who": "chairman", "at": [r3(W - 3.0), FOYER, 9.6], "look": [r3(W - 3.0), 4.0]},
         {"id": "dressing_mirror", "use": "dress", "who": "act", "at": [2.0, ys, r3(Z_DRESS0 + 0.6)], "look": [2.0, Z_DRESS0]},
         {"id": "balcony_cover", "use": "cover", "who": "any", "at": [CX, BAL_LOW, r3(BAL_FRONT - 0.5)], "look": [CX, 23.0],
          "_doc": "behind the balcony's front: a gunman's place over the house"},
@@ -572,7 +634,7 @@ def spec():
         "identity": {
             "owner": "Ezra McCready, who sold his share in the Argentine lode in 1880 and built the town something to be proud of (and a stage for his wife's sister)",
             "trade": "an opera house: travelling companies, melodrama, a singer with the band, lectures, the magic lantern, the Fourth of July ball, the Miners' Union meetings",
-            "means": "the only brick building in Salt Creek but the bank: freighted-in brick, plate glass, iron, 523 opera chairs from Chicago, scenery painted in Denver",
+            "means": "the only brick building in Salt Creek but the bank: freighted-in brick, plate glass, iron, three hundred opera chairs from Chicago, scenery painted in Denver",
             "age_and_repair": "1 year: the brick new and sharp, the walk already worn at the doors; one lane window boarded where a drunk put a bottle through",
             "clues": ["a stack of old show bills behind the box office", "cigar ash ground into the foyer's carpet",
                       "a banjo case and a pair of dancing shoes left in a dressing room", "chalk seat numbers on the backs of the chairs",
@@ -657,7 +719,7 @@ def spec():
                              "its lath, the paper tearing with it) in every room, the hall's under the trusses (the "
                              "roof's `ceiling`), the lobby's and foyer's with a cornice and a rose.",
                      "levels": ["ground", "upper", "stage", "dress_upper"], "finish": "plaster",
-                     "holes": [[WELL_E[0], WELL_Z, WELL_E[1], Z_LOBBY], [WELL_W[0], WELL_Z, WELL_W[1], Z_LOBBY]]},
+                     "holes": [[WELL_E[0], ST_FOOT, WELL_E[1], ST_TOP], [WELL_W[0], ST_FOOT, WELL_W[1], ST_TOP]]},
         "inside_finish": {"_doc": "NEW finishes: walnut wainscot to 3 ft (the lobby, the foyer, the hall), wallpaper "
                                   "over plaster above (deep red and gold, three bands), plain plaster and whitewash "
                                   "backstage and in the dressing rooms; the brick bare in the stage house.",
@@ -687,12 +749,18 @@ def spec():
         "light": {"_doc": "saloon B's dials for a big room (#867): the windows light the hall by day, the fill lifts the far walls",
                   "fill": [0.62, 0.6, 0.57], "window_day": 14.0, "day_fill": 0.32},
         "furniture": [],
-        "fixtures": [],
+        "fixtures": [
+            {"kit": "bar", "at": [r3(X_BAR - 0.06 - 2.13), 3.6], "facing": 270, "repeat": {"count": 2, "step": [0, 3.0]},
+             "_doc": "the bar's counter, two 3 m kit sections (the hotel's), the customers east of it by the windows"},
+            {"kit": "back_bar", "at": [r3(X_BAR - 0.06 - 0.36), 3.4], "facing": 270, "repeat": {"count": 2, "step": [0, 2.5]},
+             "_doc": "the back bar against the bar's wall (the east stair behind it)"}],
         "props_wanted": [{"kit": "piano", "at": [r3(CX - 3.5), 20.9], "facing": 0, "_doc": "the pit's upright (prop lab, NEW)"},
                      {"kit": "safe", "at": [1.0, 4.5], "level": "upper", "facing": 90, "_doc": "McCready's (prop lab, NEW)"},
                      {"kit": "settee", "at": [r3(CX - 3.05), 1.2], "level": "upper", "facing": 0,
                       "repeat": {"count": 3, "step": [3.05, 0]}, "_doc": "the foyer's (prop lab, NEW)"},
-                     {"kit": "opera_chair", "_doc": "the seats' rows (`seats`): 355 + 152 + 16 in the boxes (gilt chairs)"},
+                     {"kit": "opera_chair", "_doc": "the seats' rows (`seats`, the balcony's tiers) and the boxes' gilt chairs"},
+                     {"kit": "settee", "room": "parlour", "_doc": "the ladies' parlour: two settees, a pier glass, a washstand (prop lab, NEW)"},
+                     {"kit": "long_table", "room": "committee", "_doc": "the committee room's table and chairs (prop lab)"},
                      {"kit": "lamp_standard", "_doc": "the two on the walk (`lamps.kit`)"}],
         "_props_doc": "`props_wanted`: kit props the prop lab makes before they go in `fixtures` (none exist yet)",
         "use": {"years": 1, "paths": [
@@ -743,7 +811,9 @@ def sizing():
 
     joist("hall floor", "2x12 at 16 in", 1.5, 11.25, 16, 9.5, 70)
     joist("lobby, dressing floors", "2x10 at 16 in", 1.5, 9.25, 16, 9.75, 100)
-    joist("foyer", "3x14 at 12 in", 2.5, 13.25, 12, 21.5, 100)
+    joist("office, gallery, committee", "4x14 at 12 in", 3.5, 13.25, 12, 23.9, 100)
+    joist("scene loft, front roof", "4x14 at 12 in", 3.5, 13.25, 12, 23.9, 40)
+    joist("stair landing", "2x10 at 16 in", 1.5, 9.25, 16, 4.5, 100)
     joist("balcony carriage, back arm", "3x12 at 16 in", 2.5, 11.25, 16, 14.5, 100)
     joist("balcony side arm", "3x12 at 16 in", 2.5, 11.25, 16, 8.2, 100)
     joist("box floor", "3x10 at 16 in", 2.5, 9.25, 16, 6.6, 100)
@@ -752,7 +822,7 @@ def sizing():
     joist("roof rafter", "2x8 at 24 in", 1.5, 7.25, 24, 7.4, 40)
     joist("rail beam, side bay", "8x12", 7.5, 11.25, 8.2 / 2 * 12, 14.6, 100, dead=20)
     joist("rail beam, back bay", "8x12", 7.5, 11.25, 14.5 / 2 * 12, 9.9, 100, dead=20)
-    joist("wells' beam (a bay)", "8x12", 7.5, 11.25, 17.0 / 2 * 12, 10.25, 100, dead=15)
+    joist("well trimmer (a bay)", "8x12", 7.5, 11.25, 4.5 / 2 * 12 + 12, 10.5, 100, dead=15)
     # A cast-iron column: the back arm's middle one, 9.9 ft of rail by 7.25 ft of deck at 120 lb/ft2 all in; 12.5 ft.
     P = 9.9 * 7.25 * 120 + 2000
     A = math.pi / 4 * (6 ** 2 - 4.5 ** 2)
@@ -824,11 +894,11 @@ def draw_plans(sp, out):
                 if s["id"].startswith("lobby"):
                     hx, hz = s["head"]
                     run = (s["risers"] - 1) * s["going"]
-                    x0, x1 = (hx, hx + run) if s["dir"] == "+x" else (hx - run, hx)
-                    box(ox, [x0, hz, x1, hz + s["width"]], outline=ink, fill=(236, 228, 210))
+                    z0 = hz - run
+                    box(ox, [hx, z0, hx + s["width"], hz], outline=ink, fill=(236, 228, 210))
                     for k in range(1, s["risers"] - 1):
-                        x = x0 + k * s["going"]
-                        d.line([P(ox, x, hz), P(ox, x, hz + s["width"])], fill=ink)
+                        z = z0 + k * s["going"]
+                        d.line([P(ox, hx, z), P(ox, hx + s["width"], z)], fill=ink)
             for gx in sp["girders"]["x"]:
                 z = IN_E
                 while z < Z_PROSC:
@@ -853,7 +923,7 @@ def draw_plans(sp, out):
                 box(ox, hole, outline=ink, fill=(236, 228, 210))
             c = P(ox, CX, (Z_STAGE0 + Z_DRESS) / 2)
             d.text((c[0] - 60, c[1] - 8), "OPEN OVER THE STAGE", fill=(120, 110, 95), font=font(12, True))
-            c = P(ox, CX, 16.0)
+            c = P(ox, CX, 18.3)
             d.text((c[0] - 60, c[1]), "OPEN TO THE HALL\n(the chandelier)", fill=(120, 110, 95), font=font(12, True))
         for r in sp["rooms"]:
             if (level == "ground") != (r["level"] in ("ground", "stage")) or r["level"] == "attic":
