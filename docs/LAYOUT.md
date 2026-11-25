@@ -973,6 +973,11 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 
 ## src/structures
 
+- Memory (#1259; `docs/reviews/2026-11-member-memory.md`): `tools/member_memory.gd -- --spec=...` builds one
+  spec alone and takes it apart a part at a time (KB a member by part); `tests/test_member_memory.gd` holds
+  the hotel to `FrameBudget.kb_per_member_held`; perf_bench `--world=valley --scene=load` prints the valley's
+  `memory` line against `valley_peak_mb`. Strips share a mesh a shape (`PropKit.shared_strips`, as boards,
+  #1246); a board batch's shadow is merged from its members' arrays and places (`Structure._shadow_source`).
 - The support graph (#1239): `Structure.infer_from_geometry`, Structure's and SpecBuilding's both:
   the pairs from `near_lists` (a sweep over the boxes, native `BoxPairs` or the script's), each
   member's tier and kind worked out once; `tests/test_support_graph.gd` holds the old ways and

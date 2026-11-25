@@ -28,6 +28,16 @@ extends Resource
 ## own tick, #434). By prefix, and by name; `people_prep_sum` is the workers' summed time.
 @export var inside_prefixes: Array[String] = ["fire_", "smoke_", "blast_", "cut_", "settle_", "bu_", "analysis_", "rr_"]
 @export var inside: Array[StringName] = [&"lines_senses", &"civ_fire_look", &"people_prep_sum"]
+## Memory (#1259, Sean 2026-11-25: "the buildings are taking too much memory"): what a building may cost a
+## member, in KB of Godot's static memory (tools/member_memory.gd builds one alone and takes it apart;
+## tests/test_member_memory.gd holds the hotel to it), and the valley's peak RSS on load with every
+## building placed, in MB (perf_bench's `memory` line after the valley's load). Headless the rendering
+## server keeps each mesh's arrays in RAM (a GPU keeps them in video memory): both count them.
+@export var kb_per_member := 15.0
+@export var valley_peak_mb := 4096.0
+## What the suite holds a building to until the cuts reach `kb_per_member` (#1259's handover): the
+## measured cost with a little headroom, so a change that adds memory a member fails the build.
+@export var kb_per_member_held := 40.0
 ## This workspace's core against Sean's (2.1 / 3.25 GHz): the bench scales its wall-clock numbers
 ## by this before comparing them with the budgets.
 @export var clock_scale := 0.65
