@@ -41,7 +41,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   band's ordinary nights there), the barkeep behind its bar day and night, the spots its use points, ways
   `saloonb_cards*`/`_room`/`_piano`; No Law in by the corner door, out down the front steps; twelve fit. Faults
   fixed: overlapping dressing broke at load; a `talk` alone falls quiet (`alone_s`); a keeper's out after his walk
-  (`door_walk_s`). Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the
+  (`door_walk_s`). Played blind (2026-11-25): the card table falls with Earl's kicked chair, the doctor called after he's dead (#1248). Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the
   room. Open: the room's sounds are synth stand-ins (#807); no argument, round bought or song
   called for; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
 
