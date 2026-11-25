@@ -39,7 +39,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   faults, then Sean plays it himself (#1208). **#1230: the evening is in saloon B** (Sean on #755): the set is the
   building's own (`set.hall`, `_bind_hall_set`: its bar, `no_law_table` and chairs by compass, the piano corner; the
   band's ordinary nights there), the barkeep behind its bar day and night, the spots its use points, ways
-  `saloonb_cards*`/`_room`/`_piano`; No Law in by the corner door, out down the front steps; twelve fit. Faults
+  `saloonb_corner_inside`/`_front_in`/`_cards*`/`_room`/`_piano` (each swept straight: a test); No Law in by the corner door, out down the front steps; twelve fit. Faults
   fixed: overlapping dressing broke at load; a `talk` alone falls quiet (`alone_s`); a keeper's out after his walk
   (`door_walk_s`). Played blind (2026-11-25): the card table falls with Earl's kicked chair, the doctor called after he's dead (#1248). Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the
   room. Open: the room's sounds are synth stand-ins (#807); no argument, round bought or song
