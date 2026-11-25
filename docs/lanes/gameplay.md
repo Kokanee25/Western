@@ -67,6 +67,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `SettleQueue` (#1128). Open: `kit_blast` ~130 ms the tick after saloon B's sticks, the blast's own frame ~110 ms; Jolt.
 - **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
   --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
+- **Building memory** (#1259, `docs/reviews/2026-11-member-memory.md`): `tools/member_memory.gd` (KB a member by part);
+  hotel 50 -> 37.8 KB, valley + hotel 5,090 -> 4,571 MB. Budget 15 KB / 4 GB not met: next #1262 (instanced batches,
+  members as data). `test_member_memory` holds the hotel to `kb_per_member_held` (40).
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
 - **Flaky in shard order:** `test_town_day`'s fights.
