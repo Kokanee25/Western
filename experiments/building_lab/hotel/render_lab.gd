@@ -15,7 +15,10 @@ const ORIGIN := Vector3(-40.0, 0.0, -60.0)
 ## fov, hour, inside (the doors' leaves hidden)].
 const VIEWS := {
 	"lobby": [Vector3(13.41, 1.9, 1.3), Vector3(13.41, 3.6, 12.0), 70.0, 15.0, true],
-	"stair_hall": [Vector3(15.2, 5.6, 8.0), Vector3(12.0, 2.4, 13.5), 74.0, 15.0, true],
+	# From the gallery, standing on the upper deck (floor 0.75 + 4.11 = 4.86 m) at eye height, looking down the well at the landing.
+	"stair_hall": [Vector3(13.41, 6.45, 2.6), Vector3(13.41, 3.0, 14.5), 74.0, 15.0, true],
+	# The front from the street, 16 m out (the sheet's front view), doors' leaves shown.
+	"front": [Vector3(12.1, 2.4, -16.0), Vector3(12.1, 4.6, 0.0), 60.0, 15.5, false],
 	"wing": [Vector3(19.5, 2.0, 30.0), Vector3(6.0, 4.0, 17.5), 55.0, 15.5, false],
 	"kitchen": [Vector3(6.6, 2.0, 18.7), Vector3(3.0, 1.3, 22.4), 72.0, 15.0, true],
 }
