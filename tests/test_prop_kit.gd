@@ -181,6 +181,31 @@ func test_when_the_floor_under_it_goes_so_does_the_table() -> void:
 	check(table.loose, "the boards gone from under its feet, it falls")
 
 
+## #1248 (No Law in saloon B, the blind playtest): Earl going over backwards off his kicked chair
+## brought a knee and a shin up under the card table's rim, and the table went over with the deck and
+## chips (3 of 8 kicks). The blows as they came (BodyImpacts' kit blows, logged then): it's lifted and
+## drops back on its feet, all four, footed; struck up hard enough to lift it over, it goes.
+func test_a_knee_up_under_the_rim_doesnt_throw_the_table_over() -> void:
+	var table := await _place(&"card_table")
+	var rim := _m(table, "rim2")
+	var at := rim.global_position + Vector3(0, -0.03, 0)
+	# Trial 3's: thigh and shin (11.7 kg), up and out along the rim's underside; trial 6's: straight up.
+	check_eq(table.take_blow(rim, at, Vector3(-19.4, 54.5, -24.9), 11.7), &"held", "a knee up under the rim lifts it a little, no more")
+	check_eq(table.take_blow(_m(table, "rim1"), at, Vector3(0, 53.8, 0), 11.7), &"held", "straight up, the same")
+	await physics_frames(int(KitProp.CHECK_EVERY * 60.0) + 4)
+	check(not table.loose, "the table stands")
+	var feet := 0
+	for i in 4:
+		if table._has_footing(_m(table, "foot%d" % i)):
+			feet += 1
+	check_eq(feet, 4, "on its four feet")
+	# A man's whole weight driven up under it (a fall from a balcony onto a leg's end, a stick under
+	# it is a blast's): over it goes.
+	check(table.lifted_over(at, 400.0, 80.0), "lifted hard enough, it goes over its far feet")
+	table.take_blow(rim, at, Vector3(0, 400.0, 0), 80.0)
+	check(table.loose, "and goes loose (the rim it struck broken)")
+
+
 func test_a_blast_close_by_knocks_the_chair_over() -> void:
 	var chair := await _place(&"chair")
 	# Far enough that the blast breaks nothing of it, close enough to throw it.

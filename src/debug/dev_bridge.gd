@@ -1353,6 +1353,9 @@ func _listen_to_events() -> void:
 		if info.get("kind") == &"blast":  # what the blast did to him, not a "hit" in the chest (#488)
 			_log("hit", "%s caught by the blast: %s" % [_who(info.get("person")), ", ".join(info.get("harm", []))])
 			return
+		if info.get("kind") == &"blow" and not info.has("pushed"):  # a fall, a knock: not a "hit" before any shot (#1248)
+			_log("knock", "%s took a knock on the %s: %s" % [_who(info.get("person")), info.get("segment", "?"), ", ".join(info.get("harm", []))])
+			return
 		var how := " (graze)" if info.get("graze", false) else (" (a push: %s)" % info.pushed if info.has("pushed") else "")
 		_log("hit", "%s hit in the %s%s" % [_who(info.get("person")), info.get("segment", "?"), how]))
 	_hook(Events.person_fell, func(p: Node, conscious: bool) -> void: _log("fell", "%s went down%s" % [_who(p), "" if conscious else ", out cold"]))

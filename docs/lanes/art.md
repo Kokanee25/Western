@@ -19,6 +19,10 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   drifting cloud (`coverage`; `RealSky.set_coverage` for weather) and in the valley the far land (the
   bake past 800 m and the ranges to 45 km, over the sky only). Dials `config/looks/real_sky.json`.
   Weather (#947) is after the slice.
+- **Shared board meshes** (#1246, PR #1254): a SpecBuilding's plain library boards take one mesh per (length, width,
+  thickness, role) (`PropKit.shared_board`); seed, warp, nails and ground ride on the node (`board_values`) and the batch
+  writes them into the vertex channels; a board drawn alone gets its own back (`own_board`). Valley load -2.2 s, -480 MB.
+  Tests reading CUSTOM1/2 off one board read `board_values`. Next cut: the batches' per-vertex copies (and shadow mesh).
 - **Eased edges** (#873): every library board's arrises and ends rounded in `scan_wood.gdshader`'s normal
   (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
   normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
@@ -43,28 +47,20 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   (`experiments/building_lab/store/` README: bodies 38,185 of 65,536; render CPU 1.5-2.4 ms (cellar 5.4, over); the rear's gabled wing is Sean's call). **Lit** (#1053): a `Storefront` (show windows, recessed entry; PARTS.md), RoomLight's cap 12 m², RealLook `exposure_indoor` 1.7, a pale beaded ceiling; back wall card 0.110 -> 0.193. **Hollis's** (#1074): pale posts and beams, A. P. HOLLIS gilded on the show windows (`Storefront.gilt`), kit goods in the windows (real stock #1076); the dark brackets are Sean's call;
   saloon B is Fable's (#848: step 1 done, below).
 - **The church** (#1203, `church/` README r7): open truss nave. Open: #1217 (ceiling), #1202 q2 (pews). Render: swap + lavapipe.
-- **The hotel** (#1220, #1226, PRs #1224, #1243; `hotel/` README, `make_spec.py`): layout A (the arch, the imperial stair, the gallery, the skylight) and the kitchen wing built and tested in the lab (15.7k members, the test's cap 16k). Not on its lot till #1227. Next: P7-P9 judged and the judge's round (`render_lab.gd` till it's on its lot); the dressing (arch casing, newel lamps, mirror, chandelier) the prop lab's; plaster #1225.
+- **The hotel** (#1220, #1226, #1247; `hotel/` README, `make_spec.py`): layout A and the kitchen wing built and tested in the lab (15.7k members, test cap 16k); P7-P9 approved (blue-grey and cream new+few, red few+old, judged without the yardstick: it isn't in the Studio checkout) so it draws them; judge round 1 `hotel/results/2026-11-25_r1`: round 1 cheap indie all four (the lab stood the hotel ~0.2 m under the sand: fixed, a walk and steps added); round 2 (`results/2026-11-25_r2`): stair hall good indie, the rest cheap indie (flat blue siding, empty rooms, no haze). Two rounds used. Not on its lot till #1227. Next: P7's far hue, the dressing (arch casing, newel lamps, mirror, chandelier: the prop lab's), plaster #1225.
 - **Harlan's homestead** (#1126, #1160, `homestead/` README): look pass 1 merged: R3 `hewn_pine_log`, R4 `fieldstone_rubble` (unapproved: no yardstick for the materials judge), pines and grass by ValleyScatter's `place` rule, the spring on posts. Left: golden light, thinner pines, chimney courses, yard props.
 - **The undertaker's** (#1174, `undertaker/` README): built, on its lot, its cellar dug (`CellarDig`) and walked. Props in (U1, #1181). **Grim** (#1187): old blood by its `past` (`PastStains`: Blood splats, FloorMarks stains), a smoky lamp, CellarHaze; embalming good indie. Damp waits on Sean (#1197); the black trim wants `painted_black_trim`.
-- **Stone and lime, not approved** (#928, Sean's pick of method): S1 `rubble_stone`, PL1 `plaster_whitewash`, PL2
-  `rubble_whitewash` (`src/render/rubble_stone.gdshader`, `src/art/stone_finish.gd`; LAYOUT "Stone and lime")
-  failed two judge rounds: a procedural height field through `real_bump` draws an outline round every stone.
-  Drawn only once `materials.stone.want` is approved; never `"trial": true` committed. Its dials reusable (#928 (a)).
-  The rooms wait on the prop lab's furniture.
-- **The valley's ground and scatter** (#891, #962; LAYOUT "src/world/town_layout.gd"): scanned ground by a map baked
-  from valley.json (re-bake `tools/textures/valley_ground_map.gd` when it changes); ruts with parallax depth, berms and
-  the sun's shadow in them; a tufted grassland; dry bunch grass (two scans' `dry_diff`) to 105 m, sage lit through,
-  stones and clods in the streets, clumped pines (five shapes, open crowns), cottonwoods, snags. Cheap judge
-  (`2026-11-15_valley_land2_r2_cheap`): roads good indie, streets cheap (stone wall, greybox, empty). Left: bonsai-pad clumps, even shrubs, pale far ground, a zip on low-sun ruts.
-- **Saloon B, the corner saloon** (#772; #848, #884, the stage #902): `experiments/building_lab/saloon_b/` README,
-  `tests/test_building_saloon_b.gd`. 7,775 members; 31,688 valley bodies, **1,080 left** of Jolt's 32,768 (the prop
-  lab's sets, ~550, fit once; the jail and store need the guard raised or members put to rest). Look judged good indie
-  (bar room) / cheap indie (corner). **The stage**: 30 in, of members, clear of the sawn panel; the wing; room_6 the
-  dressing room (mirror, pegs, trunk, screen are the prop lab's to place); `DrawCurtain` and `PaintedDrop` (src/art,
-  PARTS); the Baron's drop `drop_baron`. Band use points in the README for gameplay. Judged once (`2026-11-14_saloon_b_stage_r1`):
-  cheap indie (empty hall, bare proscenium box, tin-bucket footlights, even pleats). Render CPU 3.48 shut / 3.71 open.
-  Open with Sean: the roof. Step 3 (#886) merged: THE NEW OCCIDENTAL on a walnut board, four walk lamps; reads by day, weakly at dusk, not at night. Wants: a dressed-timber entry, a matt floor. Not done: the cellar in the valley (#695), No Law's set.
-  Traps (saloon B): RECIPE "A two-storey building under trusses"; `reduce.py` rewrites the vram signs' `.import` files short (restore from git).
+- **Stone and lime, not approved** (#928): S1 `rubble_stone`, PL1, PL2 (`rubble_stone.gdshader`, `stone_finish.gd`; LAYOUT
+  "Stone and lime") failed two judge rounds (an outline round every stone from `real_bump`). Drawn only once approved; never
+  `"trial": true` committed.
+- **The valley's ground and scatter** (#891, #962; LAYOUT "src/world/town_layout.gd"): scanned ground from a map baked from
+  valley.json (re-bake `tools/textures/valley_ground_map.gd` when it changes), ruts, bunch grass, sage, pines, cottonwoods. Cheap
+  judge `2026-11-15_valley_land2_r2_cheap`: roads good indie, streets cheap. Left: bonsai-pad clumps, pale far ground.
+- **Saloon B, the corner saloon** (#772, #848, #884, the stage #902, step 3 #886): `experiments/building_lab/saloon_b/` README,
+  `tests/test_building_saloon_b.gd`. 7,775 members; valley bodies near Jolt's 32,768 (the jail and store need the guard raised or
+  members put to rest). Judged good indie (bar room) / cheap indie (corner, the stage: empty hall, bare proscenium). Open with Sean:
+  the roof. Wants: a dressed-timber entry, a matt floor; the cellar in the valley (#695). Traps: RECIPE "A two-storey building under
+  trusses"; `reduce.py` rewrites the vram signs' `.import` files short (restore from git).
 - **Floors and furniture, still open:** FL1's path a milky haze, FN1 laminate-looking (no pores, ray fleck): #964 (slice, week 3).
 - Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
 - Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
@@ -89,7 +85,5 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
 - A per-board hashed value must be a flat varying (the weave). Check a scan's grain with the test, not by eye.
 - A data texture with alpha needs `process/fix_alpha_border=false`. After a local import the Studio men's
   `.import` stubs fill in: keep them out of commits but filled locally, or the men draw white.
-- The valley's views: `tools/textures/valley_ground_shots.sh OUT` (~10 min, one game). A drawn perf_bench
-  run's first load compiles every shader under lavapipe (the scatter's "4 s" load is that; headless 0.2 s).
-- Poly Haven's scanned trees are millions of triangles (the fetch's `max_tris` skips them); its plants' glTF
-  diffuse is a JPEG without alpha (the fetch bakes their `Alpha` map in). Never LOD-cut card foliage.
+- The valley's views: `tools/textures/valley_ground_shots.sh OUT`. A drawn perf_bench's first load compiles every shader.
+- Poly Haven's scanned trees are millions of triangles (`max_tris` skips them); its plants' diffuse has no alpha (the fetch bakes `Alpha` in). Never LOD-cut card foliage.

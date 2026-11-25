@@ -602,6 +602,33 @@ func _print_budget(b: Dictionary) -> void:
 	print("   budget (ms at 3.25 GHz%s): %s" % ["" if render else ", no render", "  ".join(bits)])
 
 
+## The valley's memory after its load against the budget (#1259): Godot's static memory, peak and
+## current RSS, the structures' members and what they come to a member.
+func _memory_report() -> void:
+	var fb = load("res://config/frame_budget.tres")
+	var hwm := 0.0
+	var now := 0.0
+	var f := FileAccess.open("/proc/self/status", FileAccess.READ)
+	while f and not f.eof_reached():
+		var line := f.get_line()
+		if line.begins_with("VmHWM:"):
+			hwm = float(line.split(":")[1].strip_edges().split(" ")[0]) / 1024.0
+		elif line.begins_with("VmRSS:"):
+			now = float(line.split(":")[1].strip_edges().split(" ")[0]) / 1024.0
+	var members := 0
+	var biggest := {}
+	for st in root.get_tree().get_nodes_in_group(&"structures"):
+		var n: int = st.member_count()
+		members += n
+		if n > 2000:
+			biggest[String(st.name)] = n
+	var static_mb := OS.get_static_memory_usage() / 1048576.0
+	report["memory"] = {"static_mb": static_mb, "peak_rss_mb": hwm, "rss_mb": now, "members": members, "big": biggest}
+	print("   memory: static %.0f MB, RSS %.0f MB, peak RSS %.0f MB; %d members in structures (over 2,000: %s)" % [
+			static_mb, now, hwm, members, JSON.stringify(biggest)])
+	print("   memory budget: peak RSS %.0f/%.0f MB%s" % [hwm, fb.valley_peak_mb, " OVER" if hwm > fb.valley_peak_mb else ""])
+
+
 func _print(s: String, e: Dictionary) -> void:
 	var f: Dictionary = e.frames
 	if f.has("charges"):
@@ -726,6 +753,8 @@ func _run_valley() -> void:
 			if is_instance_valid(man):
 				man.queue_free()
 		await _frames(2)
+	if only == "load":
+		_memory_report()
 	if only == "load" and bodies:
 		await _frames(60)
 		report["bodies"] = _bodies_census()

@@ -315,7 +315,7 @@ func step(delta: float) -> bool:
 			elif _run_later:
 				if _try_run():
 					return true
-				if not _run_later and choice != &"help" and _duty() >= 0.6 and _duty() >= _nosy():
+				if not _run_later and choice != &"help" and _duty() >= 0.6 and _duty() >= _nosy() and _may_help():
 					_help()  # another's gone for help: he goes to the man
 			_act(delta)
 			if quiet >= _calm_need and choice == &"carry_on":
@@ -442,7 +442,7 @@ func _decide() -> void:
 				brain.say(&"cower")
 	elif _runner_kind() and not shots_lately and not _on_errand() and _try_run():
 		pass  # off for help (the one runner)
-	elif down != null and duty >= 0.6 and duty >= nosy and not shots_lately and body.physiology.can_run():
+	elif down != null and duty >= 0.6 and duty >= nosy and not shots_lately and body.physiology.can_run() and _may_help():
 		_help()
 	elif down != null and nosy >= 0.5:
 		choice = &"gawk"
@@ -587,9 +587,20 @@ func _give_up_run() -> void:
 		brain.fetch.gave_up(patient, brain)
 
 
+## The man down is one to go to and call the doctor for: alive, and not a scene's to answer
+## (FetchHelp.wants_help, #1248: not a dead man, nor Earl while No Law's carry has the room's answer).
+func _may_help() -> bool:
+	var man := down as HumanBody if down != null and is_instance_valid(down) else null
+	if man == null:
+		return false
+	if brain.fetch != null:
+		return brain.fetch.wants_help(man)
+	return man.physiology.alive
+
+
 ## To the man down, down beside him.
 func _help() -> void:
-	if down == null or not is_instance_valid(down) or not body.physiology.can_run():
+	if not _may_help() or not body.physiology.can_run():
 		return
 	choice = &"help"
 	_calm_need = CALM_WATCH + CALM_WATCH_NOSY * _nosy()
@@ -598,6 +609,10 @@ func _help() -> void:
 	_go(down.global_position + (from.normalized() if from.length() > 0.1 else Vector3.FORWARD) * 0.9, HURRY)
 	if not _bark("react.doc"):
 		brain.say(&"help")
+
+
+## A refuge this near the saloon's room (m) is its own door (its place stands on the walk outside it).
+const ROOM_DOOR := 3.0
 
 
 ## Where he'd run: the nearest of his refuges (his door, the store, the saloon) that isn't toward
@@ -609,9 +624,16 @@ func _refuge() -> Vector3:
 		threat = who.global_position
 	var best := Vector3.INF
 	var best_d := REFUGE_REACH
+	# In the saloon's room, its own door's no refuge: he's indoors already (#1248: the barkeep, the
+	# storekeeper, the miner and Earl ran to saloon B's door and cowered in it, and you with Earl on
+	# your shoulder were held there).
+	var room: SaloonRoom = brain.fetch.folk.room if brain.fetch != null and brain.fetch.folk != null and is_instance_valid(brain.fetch.folk) else null
+	var indoors := room != null and room.inside(me)
 	for r: Vector3 in brain.refuges:
 		var d := me.distance_to(r)
 		if d >= best_d:
+			continue
+		if indoors and room.inside(r, ROOM_DOOR):
 			continue
 		# Not by way of it: the way there passes no nearer the threat than most of his distance now.
 		var a := Vector2(me.x, me.z)

@@ -128,7 +128,10 @@ func test_the_doctors_rooms_have_their_own_light() -> void:
 			var c2: PackedFloat32Array = arrays[Mesh.ARRAY_CUSTOM2]
 			if c2.size() >= 4:
 				var gy: float = b.global_position.y
-				check(absf(c2[2] - (gy + b.floor_top)) < 0.01, "an inside board's wear from the floor (%.2f, floor %.2f)" % [c2[2] - gy, b.floor_top])
+				# (A board of a shared shape carries its own on its node: the batch writes it in, #1246.)
+				var own: Variant = PropKit.board_values(m.drawn_node())
+				var ground: float = (own[2] as Vector4).z if own != null else c2[2]
+				check(absf(ground - (gy + b.floor_top)) < 0.01, "an inside board's wear from the floor (%.2f, floor %.2f)" % [ground - gy, b.floor_top])
 				found = true
 				break
 	check(found, "an inside board found to read")
