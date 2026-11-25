@@ -41,9 +41,11 @@ DOOR = [0.95, 1.95]          # the stand-in's door [width, height]
 WIN_Z = 1.55                 # the east window, over the single bunk, clear of the lean-to's roof
 
 # --- the cabin's points (no_justice_cabin.json), kept as they are ---------------------------------
-KETT_CORNER = [0.75, 4.3]    # where Kett backs into (the SW corner, kept bare)
+STORE_D = 1.5                # the back storeroom (Sean, 2026-11-25: "somewhere for Kett to hide at the back"): a closed lean-to on the south gable
+BACK_DOOR_X = 1.15           # its door in the back wall, at the west lane's end
+KETT_CORNER = [0.75, round(D + STORE_D - 0.55, 2)]  # where Kett hides: the storeroom's west end, behind its door's leaf (was the room's SW corner [0.75, 4.3])
 JOE_IN = [3.3, 1.5]          # the cabin's joe_in: PROPOSED here to move to the west lane (below)
-WALK = [[2.1, -0.5], [2.1, 0.35], [1.35, 1.3], [1.3, 3.0], [1.25, 3.7]]  # Joe's walk, the door to Kett
+WALK = [[2.1, -0.5], [2.1, 0.35], [1.35, 1.3], [1.3, 3.0], [1.15, 4.6], [1.15, 5.35], [1.1, 5.75]]  # Joe's walk: the door, the lane, the storeroom's door, Kett
 
 shack = {
     "_doc": "The hideout's line shack (#1091, Sean 2026-11-25): Kett's cabin in No Justice. Written by experiments/building_lab/line_shack/gen_spec.py (never by hand); its plan and the walk are that folder's README.",
@@ -60,6 +62,7 @@ shack = {
     "lot": {
         "_doc": "The hideout's pad (valley.json `hideout`: at [-450, 2020], 30 x 20 m, y 86). `at` the west front corner's world point: the moment's `shack.at` [7, 5] off the pad's at, less half the shack. The mission (no_justice_hideout.gd `_build_shack`) loads this spec and sets it on the ground's high corner as now.",
         "at": [round(-450 + 7 - W / 2, 3), 86.0, round(2020 + 5 - D / 2, 3)], "facing": 0, "width": W, "depth": D,
+        "footprint": [[0, 0, W, D], [0, D, W, round(D + STORE_D, 3)]], "_footprint": "the room and the storeroom behind it (6.5 m deep in all; its back 9.0 m south of the pad's at, inside the pad's 10)",
         "pad": "hideout", "moment": "res://config/moments/no_justice_hideout.json#shack",
     },
     "levels": {
@@ -102,9 +105,12 @@ shack = {
          "openings": [{"type": "door", "level": "ground", "at": DOOR_X, "width": DOOR[0], "height": DOOR[1], "leaf": "inward",
                        "bar": {"height": 1.05, "brackets": True}, "breaks": "planks",
                        "_doc": "a batten door (four 1x10 planks on two battens and a Z-brace, strap hinges on the west jamb, swinging in to the west wall); the bar a 2x4 dropped into two iron brackets on the jambs (the cabin's `front/door_bar`); kicked in it breaks along its planks: flat 25 mm boards, nothing a man must climb (#1091's must: Joe never stalls on the sill)"}]},
-        {"id": "back", "_doc": "the south gable, against the canyon side: no openings; tin patches over two holes",
+        {"id": "back", "_doc": "the south gable, toward the canyon side: the storeroom's door at the lane's end, the storeroom built against it; tin patches over two holes (the storeroom's walls)",
          "line": [[0, D], [W, D]], "out": "+z", "top": "gable", "ribbon": True,
-         "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [], "openings": [],
+         "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [],
+         "openings": [{"type": "door", "level": "ground", "at": BACK_DOOR_X, "width": 0.75, "height": 1.8, "leaf": "outward", "hinge": "west",
+                       "latch": "wood", "breaks": "planks",
+                       "_doc": "into the storeroom: a low plank door on leather hinges, a wooden latch, no bar (he pulls it to behind him; a kick or E opens it); swinging into the storeroom against its west wall, so Kett crouches behind its leaf"}],
          "patches": [{"at": 1.1, "y": 0.6, "size": [0.3, 0.25]}, {"at": 3.2, "y": 1.5, "size": [0.25, 0.25]}]},
         {"id": "west", "_doc": "the long side to the slope (where you come down from): no openings", "line": [[0, 0], [0, D]], "out": "-x", "top": "plate", "ribbon": True,
          "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [], "openings": []},
@@ -114,6 +120,9 @@ shack = {
                        "cracked": [1], "shutter": "open_north", "_doc": "four dirty lights, one cracked; a plank shutter hung open beside it"}]},
     ],
     "outbuildings": [
+        {"id": "store", "kind": "lean_to", "wall": "back", "rect": [0.0, D, W, round(D + STORE_D, 3)], "high": 2.15, "low": 1.75, "floor_look": "wood:int_floor",
+         "windows": 0, "siding": {"siding": "vertical", "battens": True, "wood": "weathered_pine"},
+         "_doc": "the back storeroom (Sean, 2026-11-25): a closed lean-to across the south gable, its shed roof falling south from a ledger under the gable, its floor the shack's level, no window (dark: light only through the board gaps and its door). Sacks, crates, a keg, spare tack. Kett hides here. The builder's lean_to as the farmhouse's (closed), its siding the shack's."},
         {"id": "lean_to", "kind": "lean_to", "open": True, "wall": "east", "rect": [W, 0.6, round(W + 1.8, 3), round(D - 0.4, 3)],
          "high": 2.15, "low": 1.75, "floor": "dirt", "posts": [[round(W + 1.75, 3), 0.65], [round(W + 1.75, 3), round(D - 0.45, 3)]],
          "post_wood": "juniper", "roof": "poles_and_boards",
@@ -126,16 +135,18 @@ shack = {
         {"id": "stovepipe", "kind": "stovepipe", "at": [3.55, 4.35], "size": 0.15, "over_ridge": -0.3, "over_roof": 0.9, "cap": True, "guys": 3,
          "_doc": "a 6 in tin pipe up from the box stove through a tin plate in the east slope near the ridge's back, a coolie cap, three guy wires"}]},
     "front": {"sign": ""},
-    "rooms": [{"id": "shack", "level": "ground", "rect": [STUD, STUD, round(W - STUD, 3), round(D - STUD, 3)],
+    "rooms": [{"id": "store", "level": "ground", "rect": [STUD, round(D + 0.03, 3), round(W - STUD, 3), round(D + STORE_D - STUD, 3)],
+               "use": "the crew's stores and spare tack; where Kett hides when the door is forced (#1091, Sean 2026-11-25)"},
+              {"id": "shack", "level": "ground", "rect": [STUD, STUD, round(W - STUD, 3), round(D - STUD, 3)],
                "use": "five men sleep, eat, drink and keep their kit in the one room; Kett is barred in here at the end (No Justice, #966)"}],
     "kept_clear": [
-        {"id": "kett_corner", "rect": [STUD, 3.55, 1.6, round(D - STUD, 3)], "_doc": "Kett's corner (the cabin's `corner` [0.75, 4.3]) bare to 0.8 m round: nothing he or Joe or the knife can catch on"},
-        {"id": "west_lane", "rect": [0.85, 0.15, 1.75, 4.3], "_doc": "the lane from the door to Kett: 0.9 m wide between the stacked bunks and the table's west bench; nothing stands in it"},
+        {"id": "kett_corner", "rect": [STUD, round(D + 0.03, 3), 2.0, round(D + STORE_D - STUD, 3)], "_doc": "the storeroom's west half bare: Kett's hiding place behind its door's leaf, nothing he or Joe or the knife can catch on (the stores stand in its east half)"},
+        {"id": "west_lane", "rect": [0.75, 0.15, 1.75, round(D - STUD, 3)], "_doc": "the lane from the door to the storeroom's door: 0.9-1.0 m between the stacked bunks and the table's west bench, to the back wall; nothing stands in it"},
         {"id": "door_fall", "rect": [1.5, STUD, 2.7, 1.25], "_doc": "where the kicked-in door's planks fall (`door_falls_mps` 0.8 inward): flat boards only, the floor otherwise bare"},
     ],
     "use_points": [
-        {"id": "kett_corner", "use": "cornered", "who": "kett", "at": [KETT_CORNER[0], FLOOR, KETT_CORNER[1]], "look": [DOOR_X, 0.0],
-         "_doc": "no_justice_cabin.json `corner`: where Kett backs into, facing the door"},
+        {"id": "kett_corner", "use": "cornered", "who": "kett", "at": [KETT_CORNER[0], FLOOR, KETT_CORNER[1]], "look": [BACK_DOOR_X, D],
+         "_doc": "PROPOSED for no_justice_cabin.json `corner` (now [0.75, 4.3]): where Kett hides, in the storeroom behind its door's leaf, facing the door. `in_shack` must count the storeroom (the shack's depth 6.5 m, or the spec's rooms)"},
         {"id": "joe_in", "use": "stand", "who": "joe", "at": [1.35, FLOOR, 1.4], "look": [KETT_CORNER[0], KETT_CORNER[1]],
          "_doc": "PROPOSED for the cabin's `joe_in` (now [3.3, 1.5], east of the door: the table and the single bunk would stand in his way to Kett); in the west lane, past the door's fall"},
         {"id": "joe_back", "use": "stand", "who": "joe", "at": [1.6, FLOOR, 0.8], "look": [KETT_CORNER[0], KETT_CORNER[1]],
@@ -146,7 +157,7 @@ shack = {
         {"id": "bunk_low", "prop": "bunk", "use": "sleep", "who": "crew", "at": [0.45, FLOOR, 1.4], "look": [0.45, 0.0]},
         {"id": "bunk_east", "prop": "bunk", "use": "sleep", "who": "crew", "at": [3.75, FLOOR, 1.4], "look": [3.75, 0.0]},
     ],
-    "walk": {"_doc": "Joe's walk from the doorstep to Kett (the cabin's revenge): the shack's own space [x, z]; every leg clear of `kept_clear`'s furniture and over nothing but the door's flat planks. The build's test walks it ten times with the door kicked in (#1091's must).",
+    "walk": {"_doc": "Joe's walk from the doorstep to Kett in the storeroom (the cabin's revenge): the shack's own space [x, z]; every leg clear of `kept_clear`'s furniture and over nothing but the door's flat planks. The build's test walks it ten times with the door kicked in (#1091's must).",
              "joe_to_kett": WALK, "clear_width": 0.7},
     "light": {"fill": [0.6, 0.56, 0.5], "window_day": 6.0, "day_fill": 0.1,
               "_doc": "dim: the one small window, the door and the cracks between the boards (the boards' gaps let light through: `siding` gaps)"},
@@ -169,8 +180,7 @@ shack = {
         {"id": "stove", "kit": "box_stove", "at": [3.65, 0.0, 4.45], "facing": 270, "use": "the sheet-iron box stove in the SE corner on flat stones, its pipe up through the roof"},
         {"id": "coffeepot", "kit": "coffeepot", "on": "stove", "at": [3.6, 0.0, 4.35], "facing": 0},
         {"id": "skillet", "kit": "skillet", "on": "stove", "at": [3.75, 0.0, 4.6], "facing": 90},
-        {"id": "shelf", "kit": "shelves", "fit": [0.3, 0.9, 1.0], "at": [2.6, 1.0, 4.75], "facing": 0, "use": "a board shelf on the back wall between Kett's corner and the stove (high: over the corner's clear floor)"},
-        {"id": "flour", "kit": "flour_sack", "at": [2.3, 0.0, 4.65], "facing": 10},
+        {"id": "shelf", "kit": "shelves", "fit": [0.3, 0.9, 1.0], "at": [2.6, 1.0, 4.75], "facing": 0, "use": "a board shelf on the back wall east of the storeroom's door (high)"},
         {"id": "coffee_mill", "kit": "coffee_mill", "on": "shelf", "at": [2.4, 1.0, 4.75], "facing": 0},
         {"id": "cans", "kit": "crate", "at": [3.0, 0.0, 4.6], "facing": 15, "use": "a crate of empty cans and bottles by the stove"},
         {"id": "cans_floor", "kit": "tin_cans", "at": [3.1, 0.0, 3.9], "facing": 0, "scatter": 5},
@@ -178,6 +188,13 @@ shack = {
         {"id": "gun_belt", "kit": "gun_belt", "on": "pegs_e", "at": [4.1, 1.5, 3.3], "facing": 270},
         {"id": "saddle_in", "kit": "saddle", "at": [3.8, 0.0, 2.65], "facing": 90, "use": "one saddle on the floor at the single bunk's foot (a pillow)"},
         {"id": "pegs_w", "kit": "coat_pegs", "at": [0.1, 1.6, 3.0], "facing": 90, "use": "clothes on the west wall past the bunks (high, over the lane)"},
+    ], "S1": [
+        {"id": "store_shelves", "kit": "shelves", "fit": [0.35, 1.4, 1.6], "at": [3.2, 0.0, round(D + STORE_D - 0.3, 3)], "facing": 90, "use": "the storeroom's back wall, east half: tins, ammunition boxes, a lantern"},
+        {"id": "flour", "kit": "flour_sack", "at": [2.3, 0.0, round(D + 0.9, 3)], "facing": 10},
+        {"id": "grain", "kit": "grain_sacks", "at": [3.75, 0.0, round(D + 0.4, 3)], "facing": 90},
+        {"id": "keg", "kit": "nail_keg", "at": [2.55, 0.0, round(D + 0.35, 3)], "facing": 0, "use": "a keg (powder or whiskey)"},
+        {"id": "store_crate", "kit": "crate", "at": [3.05, 0.0, round(D + 0.45, 3)], "facing": 10},
+        {"id": "harness", "kit": "harness_rack", "at": [4.05, 1.4, round(D + 0.9, 3)], "facing": 270, "use": "spare tack on the east wall"},
     ], "L2": [
         {"id": "rack", "kit": "saddle_rack", "out": "lean_to", "at": [5.2, 0.0, 2.6], "facing": 0, "use": "in the lean-to: a pole rail with three saddles and blankets"},
         {"id": "saddle_1", "kit": "saddle", "on": "rack", "at": [5.2, 0.0, 1.9], "facing": 90},

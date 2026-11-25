@@ -27,8 +27,9 @@ def font(size, bold=False):
 def main(out):
     sp = json.load(open(os.path.join(ROOT, "config", "buildings", "line_shack.json")))
     W, D = sp["lot"]["width"], sp["lot"]["depth"]
-    lt = sp["outbuildings"][0]
-    x0, x1, z0, z1 = -0.6, lt["rect"][2] + 0.4, -1.2, D + 0.5
+    lt = [o for o in sp["outbuildings"] if o["id"] == "lean_to"][0]
+    st = [o for o in sp["outbuildings"] if o["id"] == "store"][0]["rect"]
+    x0, x1, z0, z1 = -0.6, lt["rect"][2] + 0.4, -1.2, st[3] + 0.5
     img = Image.new("RGB", (int((x1 - x0) * S) + 2 * M, int((z1 - z0) * S) + 2 * M + 150), (248, 245, 236))
     d = ImageDraw.Draw(img)
     P = lambda x, z: (M + (x - x0) * S, M + (z - z0) * S)
@@ -49,6 +50,13 @@ def main(out):
     t = 0.1
     for rr in ([0, 0, W, t], [0, D - t, W, D], [0, 0, t, D], [W - t, 0, W, D]):
         d.rectangle(R(rr), fill=(60, 55, 50))
+    for rr in ([0, st[3] - t, W, st[3]], [0, st[1], t, st[3]], [W - t, st[1], W, st[3]]):
+        d.rectangle(R(rr), fill=(90, 80, 70))
+    bd = sp["walls"][1]["openings"][0]
+    bx0, bx1 = bd["at"] - bd["width"] / 2, bd["at"] + bd["width"] / 2
+    d.rectangle(R([bx0, D - t - 0.02, bx1, D + 0.02]), fill=(248, 245, 236))
+    d.line([P(bx0, D), P(bx0, D + bd["width"])], fill=(60, 55, 50), width=3)
+    d.text(P(2.15, st[1] + 0.62), "STOREROOM (no window)", font=fs, fill=(60, 50, 40))
     door = sp["walls"][0]["openings"][0]
     dx0, dx1 = door["at"] - door["width"] / 2, door["at"] + door["width"] / 2
     d.rectangle(R([dx0, -0.02, dx1, t + 0.02]), fill=(248, 245, 236))
@@ -63,7 +71,7 @@ def main(out):
     # Furniture
     for b in sp["dressing"]["batches"].values():
         for it in b:
-            if it.get("on") or it.get("y", 0) or it["at"][1] > 0.5:
+            if it.get("on") or it["at"][1] > 0.5:
                 continue
             fx, fy, fz = it.get("fit", [0.35, 0.3, 0.35])
             if it.get("facing", 0) in (90, 270):
@@ -93,13 +101,13 @@ def main(out):
     d.line([sx, sy, sx + S, sy], fill=(0, 0, 0), width=3)
     d.text((sx, sy + 4), "1 m", font=fs, fill=(0, 0, 0))
     d.text(P(x1 - 0.4, z0 + 0.05), "N ^", font=fb, fill=(0, 0, 0))
-    d.text((M, 18), "The line shack (#1091): plan, Kett's corner, Joe's walk", font=fb, fill=(0, 0, 0))
+    d.text((M, 18), "The line shack (#1091): plan, Kett's hiding place, Joe's walk", font=fb, fill=(0, 0, 0))
     y = img.size[1] - 140
-    for line in ["4.2 x 5.0 m (the stand-in's), door north (x 2.1), floor 0.32 m, one window east, lean-to east.",
-                 "Red: Kett's corner kept bare. Green: the lane, 0.9 m, nothing stands in it. Yellow: where the",
-                 "kicked-in door falls (it breaks along its planks: flat 25 mm boards only). Blue: Joe's walk,",
-                 "door -> joe_in -> down the lane -> Kett. Joe's stands move west of the door (grey x: the old",
-                 "joe_in, now behind the table and bunk). Shelf, pegs and lamp hang over the clear floor."]:
+    for line in ["4.2 x 5.0 m (the stand-in's) + a 1.5 m storeroom south; door north (x 2.1), floor 0.32 m,",
+                 "one window east, an open lean-to east. Red: the storeroom's west half, Kett's hiding place,",
+                 "kept bare (Sean, 2026-11-25). Green: the lane, 0.9 m, nothing stands in it. Yellow: where",
+                 "the kicked-in door falls (flat 25 mm planks only). Blue: Joe's walk, door -> joe_in -> the",
+                 "lane -> the storeroom's door -> Kett. Grey x: the old joe_in (now behind table and bunk)."]:
         d.text((M, y), line, font=f, fill=(40, 40, 40))
         y += 24
     img.save(out)

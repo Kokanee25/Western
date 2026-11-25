@@ -25,6 +25,21 @@
   "facing": 0,
   "width": 4.2,
   "depth": 5.0,
+  "footprint": [
+   [
+    0,
+    0,
+    4.2,
+    5.0
+   ],
+   [
+    0,
+    5.0,
+    4.2,
+    6.5
+   ]
+  ],
+  "_footprint": "the room and the storeroom behind it (6.5 m deep in all; its back 9.0 m south of the pad's at, inside the pad's 10)",
   "pad": "hideout",
   "moment": "res://config/moments/no_justice_hideout.json#shack"
  },
@@ -274,7 +289,7 @@
   },
   {
    "id": "back",
-   "_doc": "the south gable, against the canyon side: no openings; tin patches over two holes",
+   "_doc": "the south gable, toward the canyon side: the storeroom's door at the lane's end, the storeroom built against it; tin patches over two holes (the storeroom's walls)",
    "line": [
     [
      0,
@@ -294,7 +309,20 @@
     "wood": "weathered_pine"
    },
    "inside": [],
-   "openings": [],
+   "openings": [
+    {
+     "type": "door",
+     "level": "ground",
+     "at": 1.15,
+     "width": 0.75,
+     "height": 1.8,
+     "leaf": "outward",
+     "hinge": "west",
+     "latch": "wood",
+     "breaks": "planks",
+     "_doc": "into the storeroom: a low plank door on leather hinges, a wooden latch, no bar (he pulls it to behind him; a kick or E opens it); swinging into the storeroom against its west wall, so Kett crouches behind its leaf"
+    }
+   ],
    "patches": [
     {
      "at": 1.1,
@@ -380,6 +408,27 @@
  ],
  "outbuildings": [
   {
+   "id": "store",
+   "kind": "lean_to",
+   "wall": "back",
+   "rect": [
+    0.0,
+    5.0,
+    4.2,
+    6.5
+   ],
+   "high": 2.15,
+   "low": 1.75,
+   "floor_look": "wood:int_floor",
+   "windows": 0,
+   "siding": {
+    "siding": "vertical",
+    "battens": true,
+    "wood": "weathered_pine"
+   },
+   "_doc": "the back storeroom (Sean, 2026-11-25): a closed lean-to across the south gable, its shed roof falling south from a ledger under the gable, its floor the shack's level, no window (dark: light only through the board gaps and its door). Sacks, crates, a keg, spare tack. Kett hides here. The builder's lean_to as the farmhouse's (closed), its siding the shack's."
+  },
+  {
    "id": "lean_to",
    "kind": "lean_to",
    "open": true,
@@ -446,6 +495,17 @@
  },
  "rooms": [
   {
+   "id": "store",
+   "level": "ground",
+   "rect": [
+    0.1,
+    5.03,
+    4.1,
+    6.4
+   ],
+   "use": "the crew's stores and spare tack; where Kett hides when the door is forced (#1091, Sean 2026-11-25)"
+  },
+  {
    "id": "shack",
    "level": "ground",
    "rect": [
@@ -462,21 +522,21 @@
    "id": "kett_corner",
    "rect": [
     0.1,
-    3.55,
-    1.6,
-    4.9
+    5.03,
+    2.0,
+    6.4
    ],
-   "_doc": "Kett's corner (the cabin's `corner` [0.75, 4.3]) bare to 0.8 m round: nothing he or Joe or the knife can catch on"
+   "_doc": "the storeroom's west half bare: Kett's hiding place behind its door's leaf, nothing he or Joe or the knife can catch on (the stores stand in its east half)"
   },
   {
    "id": "west_lane",
    "rect": [
-    0.85,
+    0.75,
     0.15,
     1.75,
-    4.3
+    4.9
    ],
-   "_doc": "the lane from the door to Kett: 0.9 m wide between the stacked bunks and the table's west bench; nothing stands in it"
+   "_doc": "the lane from the door to the storeroom's door: 0.9-1.0 m between the stacked bunks and the table's west bench, to the back wall; nothing stands in it"
   },
   {
    "id": "door_fall",
@@ -497,13 +557,13 @@
    "at": [
     0.75,
     0.32,
-    4.3
+    5.95
    ],
    "look": [
-    2.1,
-    0.0
+    1.15,
+    5.0
    ],
-   "_doc": "no_justice_cabin.json `corner`: where Kett backs into, facing the door"
+   "_doc": "PROPOSED for no_justice_cabin.json `corner` (now [0.75, 4.3]): where Kett hides, in the storeroom behind its door's leaf, facing the door. `in_shack` must count the storeroom (the shack's depth 6.5 m, or the spec's rooms)"
   },
   {
    "id": "joe_in",
@@ -516,7 +576,7 @@
    ],
    "look": [
     0.75,
-    4.3
+    5.95
    ],
    "_doc": "PROPOSED for the cabin's `joe_in` (now [3.3, 1.5], east of the door: the table and the single bunk would stand in his way to Kett); in the west lane, past the door's fall"
   },
@@ -531,7 +591,7 @@
    ],
    "look": [
     0.75,
-    4.3
+    5.95
    ],
    "_doc": "PROPOSED for `joe_back` (now [2.9, 0.8]): the same, back by the door"
   },
@@ -611,7 +671,7 @@
   }
  ],
  "walk": {
-  "_doc": "Joe's walk from the doorstep to Kett (the cabin's revenge): the shack's own space [x, z]; every leg clear of `kept_clear`'s furniture and over nothing but the door's flat planks. The build's test walks it ten times with the door kicked in (#1091's must).",
+  "_doc": "Joe's walk from the doorstep to Kett in the storeroom (the cabin's revenge): the shack's own space [x, z]; every leg clear of `kept_clear`'s furniture and over nothing but the door's flat planks. The build's test walks it ten times with the door kicked in (#1091's must).",
   "joe_to_kett": [
    [
     2.1,
@@ -630,8 +690,16 @@
     3.0
    ],
    [
-    1.25,
-    3.7
+    1.15,
+    4.6
+   ],
+   [
+    1.15,
+    5.35
+   ],
+   [
+    1.1,
+    5.75
    ]
   ],
   "clear_width": 0.7
@@ -878,17 +946,7 @@
       4.75
      ],
      "facing": 0,
-     "use": "a board shelf on the back wall between Kett's corner and the stove (high: over the corner's clear floor)"
-    },
-    {
-     "id": "flour",
-     "kit": "flour_sack",
-     "at": [
-      2.3,
-      0.0,
-      4.65
-     ],
-     "facing": 10
+     "use": "a board shelf on the back wall east of the storeroom's door (high)"
     },
     {
      "id": "coffee_mill",
@@ -966,6 +1024,76 @@
      ],
      "facing": 90,
      "use": "clothes on the west wall past the bunks (high, over the lane)"
+    }
+   ],
+   "S1": [
+    {
+     "id": "store_shelves",
+     "kit": "shelves",
+     "fit": [
+      0.35,
+      1.4,
+      1.6
+     ],
+     "at": [
+      3.2,
+      0.0,
+      6.2
+     ],
+     "facing": 90,
+     "use": "the storeroom's back wall, east half: tins, ammunition boxes, a lantern"
+    },
+    {
+     "id": "flour",
+     "kit": "flour_sack",
+     "at": [
+      2.3,
+      0.0,
+      5.9
+     ],
+     "facing": 10
+    },
+    {
+     "id": "grain",
+     "kit": "grain_sacks",
+     "at": [
+      3.75,
+      0.0,
+      5.4
+     ],
+     "facing": 90
+    },
+    {
+     "id": "keg",
+     "kit": "nail_keg",
+     "at": [
+      2.55,
+      0.0,
+      5.35
+     ],
+     "facing": 0,
+     "use": "a keg (powder or whiskey)"
+    },
+    {
+     "id": "store_crate",
+     "kit": "crate",
+     "at": [
+      3.05,
+      0.0,
+      5.45
+     ],
+     "facing": 10
+    },
+    {
+     "id": "harness",
+     "kit": "harness_rack",
+     "at": [
+      4.05,
+      1.4,
+      5.9
+     ],
+     "facing": 270,
+     "use": "spare tack on the east wall"
     }
    ],
    "L2": [
