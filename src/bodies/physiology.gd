@@ -66,6 +66,9 @@ var wounds := 0
 ## Of `wounds`, the blows that only bruised (a fall off a kicked chair, a knock): no harm a man cries
 ## "I'm hit!" over, or makes for a door with (#1248: Earl's fall made him a hurt man).
 var bruises := 0
+## Of `wounds`, flying glass's slices (a few mm: a glass knocked off the card table as Earl went over
+## nicked him, 0.02 ml/s, and he cried "I'm hit!" and ran, #1248). Bled and tended like any cut.
+var scratches := 0
 ## Can't die of an ordinary wound (the companion, Joe: "the only full companion", DESIGN.md; #843).
 ## A wound that would kill him puts him down instead (`_spare`): out cold, the killing part of it
 ## made a wound a man lives through, his bleeding stopped short of the loss that kills. The rope
@@ -92,6 +95,8 @@ func apply_trace(tr: Dictionary) -> Array:
 	var track: float = tr.track_cm
 	var seg: StringName = tr.segment
 	var shallow: bool = tr.get("graze", false) or tr.get("cut", false)
+	if tr.get("glass", false):
+		scratches += 1
 	if shallow:
 		# A furrow or a slice: bleeds from the length of it, stings, doesn't go deep.
 		adrenaline = minf(adrenaline, maxf(adrenaline - tuning.adrenaline_per_wound * 0.6, 0.2))
@@ -396,6 +401,7 @@ func heal_all() -> void:
 	blood_ml = tuning.blood_ml
 	wounds = 0
 	bruises = 0
+	scratches = 0
 
 
 # --- Infection (the gore lab; the Medical and Surgical History of the War of the Rebellion) -----
@@ -479,9 +485,10 @@ const NOSE_BLEED_SECONDS := 150.0
 const SCALP_BLIND_SECONDS := 180.0
 
 
-## Wounds that did more than bruise (`wounds` less `bruises`): a ball, a cut, a break, a nosebleed.
+## Wounds a man's hurt by (`wounds` less `bruises` and glass's `scratches`): a ball, a stab, a break, a
+## nosebleed.
 func injuries() -> int:
-	return wounds - bruises
+	return wounds - bruises - scratches
 
 
 func blow(segment: StringName, joules: float, rng: RandomNumberGenerator) -> PackedStringArray:
@@ -892,7 +899,7 @@ func to_dict() -> Dictionary:
 			"severed": severed_segments.keys(), "eardrums": eardrums_burst.keys(), "wound_pain": wound_pain, "pain": pain,
 			"adrenaline": adrenaline, "oxygen": oxygen, "lung_damage": lung_damage.duplicate(),
 			"gut_seconds": gut_seconds, "neck_seconds": neck_seconds, "brain_dead": brain_dead,
-			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "bruises": bruises, "burns": burns,
+			"alive": alive, "cause_of_death": cause_of_death, "wounds": wounds, "bruises": bruises, "scratches": scratches, "burns": burns,
 			"concussion": concussion, "nose_bleed": nose_bleed, "blood_in_eye": blood_in_eye.duplicate(),
 			"infections": infections.duplicate(true), "gangrene_hours": gangrene_hours, "lost_parts": lost_parts.keys(),
 			"spared": spared, "spared_times": spared_times, "spared_cause": spared_cause, "splinted": splinted.keys()}
@@ -941,6 +948,7 @@ func from_dict(d: Dictionary) -> void:
 	cause_of_death = d.cause_of_death
 	wounds = d.wounds
 	bruises = int(d.get("bruises", 0))
+	scratches = int(d.get("scratches", 0))
 	burns = d.get("burns", 0.0)
 	concussion = d.get("concussion", 0.0)
 

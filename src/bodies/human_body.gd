@@ -4151,6 +4151,7 @@ func take_cut(collider: Node3D, pos: Vector3, dir: Vector3, depth: float, embedd
 	var o := inv * pos + center - d * 0.02
 	var tr := anatomy.trace(seg, o, d, depth * 100.0 * anatomy.flesh_resistance, 0.002, _rng)
 	tr.cut = true
+	tr.glass = true  # (a scratch, not a wound he's hurt by: Physiology.scratches)
 	var bleeds := physiology.apply_trace(tr)
 	var wound := {"segment": seg, "entry": tr.entry - center, "exit": null, "lodged": embedded,
 			"stop": (tr.stop - center) if tr.stop != null else tr.entry - center,

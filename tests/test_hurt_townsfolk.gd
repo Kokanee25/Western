@@ -160,10 +160,10 @@ func test_an_outlaw_fires_past_a_townsman_and_a_careful_man_doesnt() -> void:
 	check(await _line(true), "a careful man (Joe, lawmen, armed townsfolk) holds fire")
 
 
-## #1248: Earl's fall off his kicked chair bruised him (a blow, no harm past a bruise), and that made
-## him a hurt man: "I'm hit!" and off to a door, so he didn't take the free chair (main red, 5436). A
-## bruise isn't a wound he's hurt by; a ball is.
-func test_a_bruise_isnt_a_hurt() -> void:
+## #1248: Earl's fall off his kicked chair bruised him (a blow, no harm past a bruise), or a glass off
+## the table nicked him, and that made him a hurt man: "I'm hit!" and off to a door, so he didn't take
+## the free chair (main red, 5436). A bruise or a scratch isn't a wound he's hurt by; a ball is.
+func test_a_bruise_or_a_scratch_isnt_a_hurt() -> void:
 	var b := _townsman("earl", Vector3.ZERO, Vector3(0.0, 1.5, 2.0))
 	var man := b.body
 	await physics_frames(10)
@@ -173,6 +173,13 @@ func test_a_bruise_isnt_a_hurt() -> void:
 	await physics_frames(30)
 	check(not b.hurt, "not a hurt man (%s)" % b.describe())
 	check(not _said("earl", &"hurt"), "no cry of being hit (%s)" % [said])
+	# Nor a nick from flying glass (a glass knocked off the table: 0.02 ml/s, the same run's other fault).
+	var chest := man.parts[&"chest"] as Node3D
+	man.take_cut(chest, chest.global_position + chest.global_basis.z * 0.12, -chest.global_basis.z, 0.004)
+	check_eq(man.physiology.scratches, 1, "a scratch")
+	check_eq(man.physiology.injuries(), 0, "no injury in it")
+	await physics_frames(30)
+	check(not b.hurt, "not hurt by it (%s)" % b.describe())
 	_ball(man, &"forearm_l", man)
 	await physics_frames(5)
 	check(b.hurt, "a ball in him is (%s)" % b.describe())
