@@ -140,6 +140,15 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	# it lay on the way out. The table stands, and the other chairs (the stranger's, yours) with it.
 	var table := f.props.table as KitProp
 	check(table != null and not table.loose, "the card table still standing after the kick (%s)" % (table.global_position if table else Vector3.INF))
+	if table != null:
+		var feet := 0
+		for i in 4:
+			if table._has_footing(table.get_member(StringName("%s/foot%d" % [table.structure_id, i]))):
+				feet += 1
+		check_eq(feet, 4, "on its four feet")
+		check(int(f.cards.report().cards_on_table) > 0, "the cards still on it (%s)" % f.cards.report())
+	# His fall off the chair bruised him, no more (#1248: logged as four "hits" before the shot).
+	check(earl.physiology.injuries() <= 1, "no injury but Cody's ball (%d wounds, %d bruises)" % [earl.physiology.wounds, earl.physiology.bruises])
 	# Down and bleeding, not shot dead (Sean, 2026-11-17, #1057): the ball through his collarbone,
 	# what it does the body's.
 	await physics_frames(20)

@@ -2929,7 +2929,7 @@ func _put_back(man: HumanBody) -> void:
 	man.load_dict(d)
 	var brain := man.get_node_or_null(^"Brain") as CivilianBrain
 	if brain:
-		brain._wounds_seen = man.physiology.wounds  # (not hurt anew: he's been hurt all night)
+		brain._wounds_seen = man.physiology.injuries()  # (not hurt anew: he's been hurt all night)
 		brain._hurt_spent = true
 
 

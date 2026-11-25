@@ -557,7 +557,7 @@ func _on_hours_passed(hours: float, _why: StringName) -> void:
 	var p := body.physiology
 	if p.alive:
 		p.pass_time(hours * p.tuning.game_hour_seconds)
-	_wounds_seen = p.wounds
+	_wounds_seen = p.injuries()
 	_hurt_spent = hurt
 	_stop_bucket()
 	fear = 0.0
@@ -861,8 +861,9 @@ func _physics_step(delta: float) -> void:
 	if not p.alive:
 		mood = Mood.DEAD
 		return
-	if p.wounds > _wounds_seen:
-		_wounds_seen = p.wounds
+	# (A bruise, a fall off a kicked chair, isn't a wound he's hurt by: #1248.)
+	if p.injuries() > _wounds_seen:
+		_wounds_seen = p.injuries()
 		if p.is_conscious() and not held:
 			_on_hurt()
 	if body.limp:

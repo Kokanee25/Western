@@ -40,6 +40,10 @@ const MOVED := 0.05
 ## Slower than this after a blow or a blast it hardly moves (it'd slide under 2 cm on the floor,
 ## sqrt(2 x FLOOR_FRICTION x g x 0.02)): it stays where it stands, a fixed thing (m/s).
 const LOOSE_FROM := 0.4
+## Lifted from under its middle, it leaves its feet past this much (m): less, it drops back on them.
+const LIFT_FROM := 0.05
+## Its turning weight about an edge, over a point mass's at its centre (its top and feet spread out).
+const SPREAD := 1.3
 ## Wood on a wooden floor (dry, sliding): what a seated man's chair slides against.
 const FLOOR_FRICTION := 0.4
 
@@ -723,6 +727,12 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 			take_blow(next[0], next[1], impulse.normalized() * sqrt(2.0 * left_j / blow_mass) * blow_mass, blow_mass)
 			return result
 		big_m = mass() + load_kg
+	# From below (a knee coming up under a card table's rim as its man goes over backwards off his
+	# kicked chair, #1248): it lifts that side about its far feet against its weight, and drops back
+	# on them unless it's lifted over. The level part is the slope of what was struck from under (the
+	# rim's underside), not a shove: it threw the table over in 3 of 8 of No Law's kicks.
+	if impulse.y > Vector2(impulse.x, impulse.z).length() and not hung() and not lifted_over(at, impulse.y, blow_mass):
+		return result if result == &"broke" else &"held"
 	var v := impulse / (blow_mass + big_m)
 	if seated:
 		# His weight holds it to the floor: does it slide far enough to leave him?
@@ -733,6 +743,36 @@ func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8
 		return result if result == &"broke" else &"held"
 	go_loose(Vector3.ZERO, v * mass(), at)
 	return result
+
+
+## A blow of `up` N·s straight up at `at` (world), from something of `blow_mass` kg: does it lift
+## it over its far feet? It turns about the edge of its footprint furthest from the blow (its centre's
+## side), as a rigid body (I about that edge ~ M (a² + h²), a little more for its spread), and goes
+## over if what the blow gives it is more than raising its centre over that edge takes. Struck under
+## its middle, it rises whole and goes loose once it would leave its feet by LIFT_FROM.
+func lifted_over(at: Vector3, up: float, blow_mass: float) -> bool:
+	var hull := footprint()
+	var c4 := centre_of_weight()
+	var kg := c4.w / 9.81
+	if hull.size() < 3 or kg <= 0.0:
+		return true
+	var c := Vector2(c4.x, c4.z)
+	var hit3 := to_local(at)
+	var u := c - Vector2(hit3.x, hit3.z)
+	if u.length() < 0.05:
+		var v_whole := up / (blow_mass + kg)
+		return v_whole * v_whole / (2.0 * 9.81) > LIFT_FROM
+	var arm := u.length()
+	u = u.normalized()
+	var a := 0.0
+	for p: Vector2 in hull:
+		a = maxf(a, (p - c).dot(u))
+	var h := maxf(c4.y, 0.05)
+	var rise := sqrt(a * a + h * h) - h
+	var r := arm + a
+	var m_eff := kg * (a * a + h * h) * SPREAD / maxf(r * r, 0.01)
+	var v := up / (blow_mass + m_eff)
+	return 0.5 * m_eff * v * v > kg * 9.81 * rise
 
 
 ## The next of its standing members a blow going `dir` from `at` meets (within its size), and where:
