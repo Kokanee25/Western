@@ -12,7 +12,7 @@
   "watch_m": 7.0,
   "close_s": 2.0,
   "warn_s": 8.0,
-  "shack": {"_doc": "A line shack: FalseFrontBuilding as a gable shack, its front (and door) to the north; `at` its middle.", "at": [7.0, 5.0], "width": 4.2, "depth": 5.0, "wall_height": 2.3, "floor_top": 0.32, "door": [0.95, 1.95], "in": [0.0, 1.6], "doorstep": [1.1, 0.5], "_doorstep": "A flat stone [width, depth] before the door, half the floor's height: you step 0.3 m at most (#966)."},
+  "shack": {"_doc": "The line shack (#1091, #1250): the building lab's, built from `spec` (config/buildings/line_shack.json: board-and-batten, a back storeroom where Kett hides, an open lean-to east), its front (and door) to the north; `at` the room's middle (the storeroom 1.5 m behind it). width..door are the old box's, read by nothing now but `in` and `doorstep` (the spec has its own).", "spec": "res://config/buildings/line_shack.json", "at": [7.0, 5.0], "width": 4.2, "depth": 5.0, "wall_height": 2.3, "floor_top": 0.32, "door": [0.95, 1.95], "in": [0.0, 1.6], "doorstep": [1.1, 0.5], "_doorstep": "A flat stone [width, depth] before the door, half the floor's height: you step 0.3 m at most (#966)."},
   "fire": [-2.0, -1.0],
   "props": [
     {"id": "covered_wagon", "at": [-11.0, 4.0], "yaw": 80, "call": "By the wagon! Get him!"},

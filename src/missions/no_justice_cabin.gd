@@ -133,6 +133,8 @@ func _set_up() -> void:
 		var sd: Dictionary = h.data.get("shack", {})
 		var inn: Array = sd.get("in", [0.0, 1.6])
 		h.kett.global_position = h.shack.global_transform * Vector3(h.shack.width * 0.5 + float(inn[0]), h.shack.floor_top + 0.05, float(inn[1]) + 0.6)
+		if not h.kett_corner().is_empty():
+			h.kett.global_position = h.shack_point(h.kett_corner(), 0.05)  # (in the storeroom, #1250)
 		h._holed_up()
 	fact("nojustice.started", "opened")
 	fact("nojustice.crew", {"dead": h.crew.size(), "down": 0, "quit": 0, "fled": 0})
@@ -202,6 +204,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if answer == "" and state in [&"barred", &"down", &"in", &"knife"]:
 		_aid_step(p, delta)
+	_store_step(p)
 	match state:
 		&"barred":
 			_barred_step(p)
@@ -259,6 +262,9 @@ func _on_kick(info: Dictionary) -> void:
 	if String(info.get("what", "")) == "man" and StringName(info.get("who", &"")) == joe.person_id and answer == "" \
 			and state in [&"in", &"knife", &"ask"]:
 		_answered("shoved_joe")
+		return
+	if String(info.get("move", "")) == "kick" and info.has("at") and _by_store_door(info.at, 0.8):
+		_open_store("kicked")
 		return
 	if state != &"barred" or String(info.get("move", "")) != "kick":
 		return
@@ -323,7 +329,7 @@ func takes_kick(_p: Player, at: Vector3, _info: Dictionary) -> bool:
 ## nothing): which way the door is from you.
 func _wrong_wall(at: Vector3) -> void:
 	var l := shack.global_transform.affine_inverse() * at
-	if l.x < -0.4 or l.x > shack.width + 0.4 or l.z < -0.6 or l.z > shack.depth + 0.4 or l.y > 3.5:
+	if l.x < -0.4 or l.x > shack.width + 0.4 or l.z < -0.6 or l.z > hideout.shack_depth + 0.4 or l.y > 3.5:
 		return  # (not the shack)
 	var p := player()
 	var words := String(_prompts().get("wall_round", "That's the wall. The door's round the front."))
@@ -631,7 +637,7 @@ func _kett_cornered(p: Player, delta: float) -> void:
 			kett.get_up()  # (knocked over in there: back up, hands up)
 		return
 	kett.set_pose(&"hands_up")
-	var c := _local(data.get("corner", [0.75, 4.3]))
+	var c := _local(data.get("corner", [0.65, 6.1]))
 	if _flat(kett.global_position, c) > 0.25:
 		kett.walk_to(c, float(data.get("kett_walk", 0.9)), delta, false)
 	kett.face(p.camera.global_position)
@@ -691,11 +697,50 @@ func _joe_go(to: Vector3, speed: float, delta: float) -> bool:
 		_walk(joe, _joe_way[0], speed, delta)
 		_over_the_wreck(delta)
 		return false
+	# In, and Kett in the storeroom (#1250): down the lane, its door opened on the way (his hand on the
+	# latch), then on to him.
+	if _lane_step(to, speed, delta):
+		return false
 	# Already over the sill (in, by in_shack) but held on the wreck's pieces: the same step over.
 	var there := _walk(joe, to, speed, delta)
 	if not there:
 		_over_the_wreck(delta)
 	return there
+
+
+## Joe in the room and `to` in the storeroom (or the other way): along the spec's lane (its walk) from
+## the point he's nearest on, through the storeroom's doorway. True while he's on it.
+func _lane_step(to: Vector3, speed: float, delta: float) -> bool:
+	if forced_by == "down" or not hideout.in_shack(joe.global_position):
+		_lane.clear()
+		return false
+	var lj := shack.global_transform.affine_inverse() * joe.global_position
+	var lt := shack.global_transform.affine_inverse() * to
+	if (lj.z > shack.depth) == (lt.z > shack.depth):
+		_lane.clear()
+		return false
+	if _lane.is_empty():
+		var pts: Array = hideout.shack_lane()
+		if lt.z < shack.depth:
+			pts.reverse()
+		# From the point he's nearest to that's on his way.
+		var best := 0
+		for i in pts.size():
+			if _flat(_local(pts[i]), joe.global_position) < _flat(_local(pts[best]), joe.global_position):
+				best = i
+		for i in range(best, pts.size()):
+			_lane.append(_local(pts[i]))
+	while not _lane.is_empty() and _flat(joe.global_position, _lane[0]) < 0.3:
+		_lane.pop_front()
+	if _lane.is_empty():
+		return false
+	if store_shut() and _flat(joe.global_position, _store_door(0.4)) < 0.9:
+		_open_store("lifted by Joe")
+	_walk(joe, _lane[0], speed, delta)
+	return true
+
+
+var _lane: Array[Vector3] = []
 
 
 ## The broken door lies in the doorway in pieces, and a man's walk_to stops short of them (you push
@@ -758,9 +803,52 @@ func joe_down() -> bool:
 	return joe.physiology.alive and (joe.limp or joe.prone) and not joe.rising
 
 
-## E is your hands on Joe's wound while he's down and you're by it (PlayerShove: no kick on letting go).
+## E is your hands on Joe's wound while he's down and you're by it (PlayerShove: no kick on letting go),
+## or your hand on the storeroom's latch by its shut door (#1250).
 func claims_use(p: Player) -> bool:
+	if not done and store_shut() and _by_store_door(p.global_position, 1.1):
+		return true
 	return not done and answer == "" and joe != null and is_instance_valid(joe) and joe_down() and _by_joe(p)
+
+
+# --- The storeroom's door (#1250: the line shack's back storeroom, Kett behind it) ---------------
+
+## Its door shut (he pulled it to behind him: NoJusticeHideout._holed_up).
+func store_shut() -> bool:
+	return shack != null and is_instance_valid(shack) and shack.has_method(&"leaf_shut") and bool(shack.call(&"leaf_shut", "back"))
+
+
+## The storeroom's doorway, on the room's side [x, z] of the shack's space; `out_m` back from it.
+func _store_door(out_m := 0.0) -> Vector3:
+	var r: Rect2 = shack.call(&"latched_door", "back") if shack.has_method(&"latched_door") else Rect2()
+	return _local([r.get_center().x, shack.depth - out_m])
+
+
+func _by_store_door(at: Vector3, reach: float) -> bool:
+	if not store_shut():
+		return false
+	return _flat(at, _store_door(0.0)) <= reach and absf(at.y - _store_door(0.0).y - 0.9) < 1.6
+
+
+## Opened: E on the latch, a kick (the latch gives) or Joe's hand on it.
+func _open_store(how: String) -> void:
+	if not store_shut():
+		return
+	shack.call(&"open_leaf", "back")
+	if how == "kicked":
+		GameAudio.play(player(), &"timber_crack", _store_door(0.0) + Vector3.UP * 1.0, {"volume_db": -6.0})
+	_note("the storeroom's door %s open" % how)
+
+
+var _e_was := false
+
+
+## E pressed (not held) by its shut door: you lift the latch.
+func _store_step(p: Player) -> void:
+	var e := p.input_enabled and Input.is_action_pressed(&"shove")
+	if e and not _e_was and _by_store_door(p.global_position, 1.1):
+		_open_store("latched")
+	_e_was = e
 
 
 func _by_joe(p: Player) -> bool:

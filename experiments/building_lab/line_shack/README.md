@@ -1,7 +1,7 @@
 # The hideout's line shack (Kett's cabin, No Justice; #1091)
 
-The building lab's treatment of No Justice's stand-in shack (a FalseFrontBuilding gable box built by
-`no_justice_hideout.gd` `_build_shack`). Steps 1-2 done here; the build (step 3 on) is the next issue.
+The building lab's treatment of No Justice's stand-in shack (was a FalseFrontBuilding gable box built by
+`no_justice_hideout.gd` `_build_shack`). Steps 1-2 #1091; the build (step 3) #1250: No Justice now builds it.
 
 ## Sean's answers (2026-11-25, in the session)
 
@@ -51,3 +51,29 @@ draws `plan.png` from the spec: furniture, the kept-clear areas and Joe's walk.
 
 bunk_stacked, bunk, plank_bench, saddle, saddle_rack, bedroll, skillet, tin_plate, tin_cans,
 gun_belt, bridle (the rest exist: box_stove, coffeepot, table, whiskey_bottle, card_deck, crate...).
+
+## Step 3: the build (#1250)
+
+Built from the spec by `SpecBuilding`; `tests/test_building_line_shack.gd` (stands, built right, fits,
+its parts, the door's planks), `tests/test_no_justice_shack_walk.gd` (#1091's must), the X-ray
+`xray/xray.png` (`tools/buildings/xray.py`). **861 members.**
+
+- **New in the builder** (`spec_building.gd`, "the line shack's parts"): `outside.battens`; an `open`
+  lean_to (juniper posts on flat stones, a pole beam, pole rafters, boards; no walls or floor; on any
+  wall, falling along its `out`); the closed storeroom is the farmhouse's lean_to with its own three
+  walls (`store_west/back/east`); `chimneys` `kind: "stovepipe"` (joints standing on the floor inside the
+  stove, through the roof, a cap; no floor hole); `doorstep`; a door's `bar` (two iron brackets; the
+  building's `door_rect`) and `breaks: "planks"` (a threshold under it; `shut_door` makes the shut leaf
+  and bar; `break_member` drops the leaf as separate planks); `latch` doors (`shut_leaf`, `open_leaf`,
+  `leaf_shut`, `latched_door`). A building with no loft gets its rafters at their spacing (`_rafter_lines`).
+- **Changed from the plan** (each to pass the checks): the walls to 2.6 m (2.3 left no room for the
+  storeroom's ledger over its door); both doors 1.98 m (a man through them: the back one isn't low);
+  the front door hinged on the east jamb (its open leaf was in the lane); 2x6 sleepers, 2x6 rafters and a
+  deeper ridge (the 2x4s failed the crowd and the joints); no girt (the `ribbon` crossed both doors);
+  Kett's corner [0.65, 6.1] (clear of the storeroom door's open leaf).
+- **The door's fall** (10 kicks, the lab): four planks and the bar's halves, in the lane under 0.45 m;
+  without the threshold the planks' feet jammed in the gap under the door and they stood at 45 degrees.
+- **Not built yet:** `walls[].patches`, the window's `shutter` and `cracked`, the stovepipe's guys.
+- **Stand-ins** (gen_spec.py `STAND_IN`, `PLACE`; each keeps `wants`): plank_bed for the bunks,
+  wall_bench (scaled) for the plank benches, folded_blanket for the bedrolls, trestles_short for the
+  saddle rack; skillet, tin_plate, tin_cans, gun_belt, saddle and bridle wait (`dressing.waiting`).

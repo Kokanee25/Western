@@ -243,6 +243,7 @@ func build() -> void:
 	band = 2
 	_furniture_members()
 	band = 0
+	_doorstep()
 	_outbuildings()
 	_lamps()
 	_kit()
@@ -1526,7 +1527,10 @@ func _outer_walls() -> void:
 			cut.append(Rect2(-1.0, float(spec.porch.height) + 0.21, width + 2.0, 0.17))
 		for o: Dictionary in spec.get("outbuildings", []):
 			if o.kind == "lean_to" and o.get("wall", "") == w.id:
-				cut.append(Rect2(float(o.rect[0]) - 0.01, float(o.high) - 0.16, float(o.rect[2]) - float(o.rect[0]) + 0.02, 0.17))
+				# (along the wall: a lean-to on a side wall's rect runs along z, #1250)
+				var ax := 0 if absf((wall.along as Vector3).x) > 0.5 else 1
+				var a0 := float(o.rect[ax]) - float(w.line[0][ax])
+				cut.append(Rect2(a0 - 0.01, float(o.high) - 0.16, float(o.rect[ax + 2]) - float(o.rect[ax]) + 0.02, 0.17))
 		var wood := StringName(w.outside.wood)
 		if w.outside.siding == "lap" and w.outside.has("exposure"):
 			_lap_courses(wall, board_top, cut, wood, float(w.outside.exposure))
@@ -1535,6 +1539,8 @@ func _outer_walls() -> void:
 			_lap_siding(wall, float(w.top) if w.top is float else wall_height, cut, wood)
 		else:
 			_vertical_siding(wall, board_top, cut, -BOARD_T, length + BOARD_T if absf((wall.along as Vector3).x) > 0.5 else length, wood)
+			if w.outside.get("battens", false):
+				_battens(wall, wood)
 		for o in ops:
 			var spec_o: Dictionary = o[1]
 			var window: bool = spec_o.type == "window"
@@ -1628,6 +1634,14 @@ func _outer_walls() -> void:
 					_wall_member("%s/transom_bar_%d" % [w.id, int(lr.position.x * 100)], &"trim", StringName(spec.materials.get("trim_outside", "dark_trim")), wall, bar.position.x, bar.end.x, bar.position.y, bar.end.y, -STUD_D, BOARD_T)
 					_glass(wall, Rect2(lr.position.x, lr.end.y + 0.05, lr.size.x, tr - 0.05))
 				_leaves(wall, lr, so, -STUD_D)
+				if so.has("bar"):
+					_bar_brackets(wall, w.id, lr, so)
+				elif so.has("latch") and String(o[2]) == "ground":
+					_latched[w.id] = [wall, lr, so]
+				if so.has("breaks") and String(o[2]) == "ground" and floor_top > sill_top + 0.02:
+					# A threshold across the wall's depth from the sill to the floor's top (#1250): a door
+					# kicked in falls on it, not into the gap under it.
+					_wall_member("%s/threshold_%d" % [w.id, int(lr.position.x * 100)], &"header", &"framing", wall, lr.position.x, lr.end.x, sill_top, floor_top, -STUD_D, 0.0)
 				band = clad
 			elif so.type == "batwings":
 				door_rect = o[0]
@@ -2574,6 +2588,9 @@ func _furniture_members() -> void:
 
 func _outbuildings() -> void:
 	for o: Dictionary in spec.get("outbuildings", []):
+		if o.kind == "lean_to" and o.get("open", false):
+			_open_lean_to(o)
+			continue
 		if o.kind == "lean_to":
 			_lean_to(o)
 			continue
@@ -3135,6 +3152,8 @@ func _corner_boards(wall: Dictionary, board_top: Callable) -> void:
 ## of the floor rests on the brick; a chimney carries only itself).
 func _chimney_openings() -> void:
 	for c: Dictionary in (spec.get("chimneys", {}) as Dictionary).get("list", []):
+		if String(c.get("kind", "")) == "stovepipe":
+			continue  # (a stove's pipe stands on the floor, in the stove: no hole in it, #1250)
 		var h := float(c.size) * 0.5 + 0.05
 		for f: Dictionary in spec.floors:
 			# Across the joists the hole runs from trimmer to trimmer: out to the joist lines either side.
@@ -3179,6 +3198,17 @@ func _rafter_lines() -> Array[float]:
 			if not near:
 				out.append(z)
 		out.append(last)
+		return out
+	var loft := false
+	for f: Dictionary in spec.floors:
+		loft = loft or f.level == "upper"
+	if not loft:
+		# No loft (#1250, the line shack: open to the shakes): the rafters at their spacing on the plates,
+		# tied by their collars.
+		var last := depth - float(rf[0]) * 0.5 - 0.025
+		var n := maxi(1, roundi((last - out[0]) / float(_fr.rafters.spacing)))
+		for k in range(1, n + 1):
+			out.append(lerpf(out[0], last, float(k) / n))
 		return out
 	var cj: Dictionary = _fr.get("ceiling_joist", _fr.joist)
 	var js: Array = cj.section
@@ -3476,6 +3506,9 @@ func _chimneys() -> void:
 		var y1 := ridge + float(c.get("over_ridge", 0.6))
 		if c.has("fieldstone"):
 			_fieldstone_chimney(c, y0, y1, StringName(ch.get("wood", "stone")))
+			continue
+		if String(c.get("kind", "")) == "stovepipe":
+			_stovepipe(c, wall_height + (float(c.at[0]) if float(c.at[0]) < width * 0.5 else width - float(c.at[0])) * tan(ang), StringName(ch.get("wood", "iron")))
 			continue
 		var n := maxi(1, ceili((y1 - y0) / 1.2))
 		for k in n:
@@ -4609,3 +4642,290 @@ func refresh_stone_space() -> void:
 	var regions: Array = (spec.get("inside_finish", {}) as Dictionary).get("regions", [])
 	var plane: Array = (spec.lot.get("ground", {}) as Dictionary).get("plane", [-1000.0, 0.0, 0.0])
 	StoneFinish.set_space(stone_material, gt.affine_inverse(), plane, regions, get_meta(&"stone_corners", []), get_meta(&"stone_drips", []))
+
+
+# --- the line shack's parts (#1250, Kett's cabin) -------------------------------------------------
+
+## Battens over the joints of a wall's vertical boards (`outside.battens`, board-and-batten: Hodgson
+## 1883; Sloane, An Age of Barns): a 1x3 nailed over each joint, cut where either board is (round the
+## openings), proud of the boards. Ids `<wall>/batten/<col>_<piece>`; they bear on the boards.
+func _battens(wall: Dictionary, wood: StringName) -> void:
+	var n: String = wall.name
+	var origin: Vector3 = wall.origin
+	var along: Vector3 = wall.along
+	var pre := "%s/%s/siding/c" % [structure_id, n]
+	var cols := {}  # col -> [x0, x1, [Vector2 y spans]]
+	for m in get_members():
+		var id := String(m.member_id)
+		if not id.begins_with(pre):
+			continue
+		var parts := id.substr(pre.length()).split("_")
+		var col := int(parts[0])
+		var mid := (m.position - origin).dot(along)
+		var half := absf(m.size.dot(along.abs())) * 0.5
+		var span := Vector2(m.position.y - m.size.y * 0.5, m.position.y + m.size.y * 0.5)
+		if not cols.has(col):
+			cols[col] = [mid - half, mid + half, []]
+		(cols[col][2] as Array).append(span)
+	var keys := cols.keys()
+	keys.sort()
+	var bw := 0.07
+	band += 1
+	for i in keys.size() - 1:
+		var a: Array = cols[keys[i]]
+		var b: Array = cols[keys[i + 1]]
+		var x := (float(a[1]) + float(b[0])) * 0.5
+		var k := 0
+		for sa: Vector2 in a[2]:
+			for sb: Vector2 in b[2]:
+				var y0 := maxf(sa.x, sb.x)
+				var y1 := minf(sa.y, sb.y)
+				if y1 - y0 > 0.1:
+					_wall_member("%s/batten/%02d_%d" % [n, i, k], &"board", wood, wall, x - bw * 0.5, x + bw * 0.5, y0, y1, BOARD_T, BOARD_T + 0.019)
+					k += 1
+	band -= 1
+
+
+## An open lean-to (`outbuildings[] open`, #1250: the line shack's saddle shed): no walls, no floor
+## (`floor: "dirt"`), its shed roof from a ledger on the house wall's studs at `high` falling away from
+## the wall to a pole beam on juniper posts (`posts` [[x, z]], each on a flat stone), pole rafters
+## over the beam, old boards across them. Any house wall: its fall is the wall's `out`.
+func _open_lean_to(o: Dictionary) -> void:
+	var id := String(o.id)
+	var house: Dictionary = walls[String(o.wall)].dict
+	var hs: Dictionary = walls[String(o.wall)].spec
+	var along: Vector3 = house.along
+	var out: Vector3 = house.out
+	var r: Array = o.rect
+	var ax := 0 if absf(along.x) > 0.5 else 1
+	var a0 := float(r[ax]) - float(hs.line[0][ax])
+	var a1 := float(r[ax + 2]) - float(hs.line[0][ax])
+	var high := float(o.high)
+	var low := float(o.low)
+	var wood := StringName(o.get("post_wood", "framing"))
+	if not WoodMaterials.PALETTES.has(wood):
+		wood = &"framing"
+	var posts: Array = o.get("posts", [])
+	var ps := 0.14  # a juniper post's thickness
+	var bh := 0.14  # the pole beam's
+	var rf := Vector2(0.09, 0.09)  # pole rafters
+	var reach := 0.0  # from the wall's face to the posts' line
+	for p: Array in posts:
+		reach = maxf(reach, (Vector3(float(p[0]), 0.0, float(p[1])) - (house.origin as Vector3)).dot(out))
+	band = 0
+	var beam_top := low
+	for i in posts.size():
+		var p: Array = posts[i]
+		var at := Vector3(float(p[0]), 0.0, float(p[1]))
+		add_member("%s/post_stone/%d" % [id, i], &"sill", &"stone", Vector3(0.3, 0.08, 0.3), at + Vector3.UP * 0.04)
+		var ph := beam_top - bh - 0.08
+		add_member("%s/post/%d" % [id, i], &"post", wood, Vector3(ps, ph, ps), at + Vector3.UP * (0.08 + ph * 0.5))
+	band = 1
+	# The beam along the posts' line (under the rafters' foot), its ends a little past the posts.
+	var bline: Vector3 = (house.origin as Vector3) + out * reach
+	var bc := bline + along * ((a0 + a1) * 0.5) + Vector3.UP * (beam_top - bh * 0.5)
+	add_member("%s/beam" % id, &"beam", wood, along.abs() * (a1 - a0) + Vector3.UP * bh + out.abs() * bh, bc)
+	# The ledger on the house's studs (its boards are cut for it: `_outer_walls`).
+	_wall_member("%s/ledger" % id, &"ledger", &"framing", house, a0, a1, high - 0.15, high, 0.0, 0.05)
+	band = 2
+	var run := reach - 0.05
+	var ang := atan2(high - beam_top, run)
+	var dir := (out * cos(ang) - Vector3.UP * sin(ang)).normalized()
+	var normal := (out * sin(ang) + Vector3.UP * cos(ang)).normalized()
+	var over := 0.3
+	var length := (run + over) / cos(ang)
+	var start: Vector3 = (house.origin as Vector3) + out * 0.05 + Vector3.UP * high
+	# (the rafter's own axes: x along the wall, y its normal, z down the slope)
+	var basis := Basis(along.normalized(), normal, dir)
+	var r0 := a0 + rf.x * 0.5 + 0.03
+	var r1 := a1 - rf.x * 0.5 - 0.03
+	var nr := maxi(2, ceili((r1 - r0) / 0.6) + 1)
+	for i in nr:
+		var x := lerpf(r0, r1, float(i) / (nr - 1))
+		var c := start + along * x + dir * (length * 0.5) + normal * (rf.y * 0.5)
+		add_member("%s/rafter/%02d" % [id, i], &"rafter", wood, Vector3(rf.x, rf.y, length), c, basis)
+	band = 3
+	var row := 0
+	var sl := 0.0
+	while sl < length - 0.02:
+		var bw := minf(0.25, length - sl)
+		var c := start + along * ((a0 + a1) * 0.5) + dir * (sl + bw * 0.5) + normal * (rf.y + BOARD_T * 0.5)
+		add_member("%s/roof/%02d" % [id, row], &"roof_board", StringName(o.get("roof_wood", "weathered_pine")),
+				Vector3(a1 - a0 + 0.2, BOARD_T, bw - 0.006), c, basis)
+		sl += bw
+		row += 1
+	band = 0
+
+
+## A tin stovepipe (`chimneys.list[] kind "stovepipe"`, #1250): up from the stove (standing on the
+## floor inside the stove's box, where it's hidden) through its hole in the roof (the rafters headered
+## round it, no shakes over it) to `over_roof` above the roof's skin there, in joints, with a coolie
+## cap on short legs (`cap`). `roof_y` the roof's top over the pipe's line.
+func _stovepipe(c: Dictionary, roof_y: float, wood: StringName) -> void:
+	var sz := float(c.size)
+	var was := band
+	band = 2  # (on the floor, as the furniture's members)
+	var y0 := floor_top
+	var y1 := roof_y + float(_fr.rafters.rafter[1]) + float(c.get("over_roof", 0.9))
+	var n := maxi(1, ceili((y1 - y0) / 0.9))
+	for k in n:
+		var a := y0 + (y1 - y0) * k / n
+		var b := y0 + (y1 - y0) * (k + 1) / n
+		add_member("chimney/%s/%d" % [c.id, k], &"post", wood, Vector3(sz, b - a - 0.002, sz), Vector3(c.at[0], (a + b) * 0.5, c.at[1]))
+	if c.get("cap", false):
+		add_member("chimney/%s/cap" % c.id, &"trim", wood, Vector3(sz * 2.2, 0.03, sz * 2.2), Vector3(c.at[0], y1 + 0.08, c.at[1]))
+		add_member("chimney/%s/cap_leg" % c.id, &"post", wood, Vector3(sz * 0.3, 0.062, sz * 0.3), Vector3(c.at[0], y1 + 0.032, c.at[1]))
+	band = was
+
+
+## A flat stone before the front door (`doorstep` {at [x, z], size [w, d], top}, #966: half the floor's
+## height, so you step 0.3 m at most), on the ground. Id `doorstep`.
+func _doorstep() -> void:
+	var ds: Dictionary = spec.get("doorstep", {})
+	if ds.is_empty():
+		return
+	var top := float(ds.top)
+	var sz: Array = ds.size
+	add_member("doorstep", &"sill", StringName(ds.get("wood", "stone")), Vector3(float(sz[0]), top, float(sz[1])),
+			Vector3(float(ds.at[0]), top * 0.5, float(ds.at[1])))
+
+
+## A door's bar's iron brackets (`openings[] bar` {height, brackets}), one on each jamb's inside face,
+## the bar (when it's dropped in: `shut_door`) resting across them. The front's barred door is the
+## building's `door_rect` (the No Justice cabin's kicks, #1250).
+var _barred := {}
+
+
+func _bar_brackets(wall: Dictionary, wall_id: String, o: Rect2, so: Dictionary) -> void:
+	var bar: Dictionary = so.bar
+	var y := o.position.y + float(bar.get("height", 1.05)) - 0.045  # the bar's underside
+	if wall_id == "front":
+		door_rect = o
+	_barred = {"wall": wall_id, "rect": o, "y": y, "planks": so.get("breaks", "") == "planks", "dict": wall}
+	if not bar.get("brackets", false):
+		return
+	for k in 2:
+		var x := o.position.x - 0.13 if k == 0 else o.end.x + 0.05
+		_wall_member("%s/bar_bracket_%d" % [wall_id, k], &"trim", &"iron", wall, x, x + 0.08, y - 0.06, y, -STUD_D - 0.09, -STUD_D)
+
+
+## Shut the barred door (No Justice's cabin, #934, #1250): its open leaf taken out, a shut batten leaf
+## in the opening and, `barred`, the bar dropped into its brackets across the inside. A door that
+## `breaks: "planks"` breaks along its planks when it gives (`break_member`). Already shut, nothing.
+func shut_door(barred := true) -> void:
+	if _barred.is_empty():
+		super.shut_door(barred)
+		return
+	if get_member(StringName("%s/front/door_shut" % structure_id)) != null:
+		return
+	wait_analysis()
+	var o: Rect2 = _barred.rect
+	var wall: Dictionary = _barred.dict
+	var open := get_member(StringName("%s/%s/door_%d" % [structure_id, _barred.wall, int(o.position.x * 100)]))
+	if open != null and not open.broken and open.get_parent() == self:
+		unbatch(open)
+		remove_built(open)
+	var leaf := _wall_member("%s/door_shut" % _barred.wall, &"door", &"weathered_pine", wall, o.position.x + 0.01, o.end.x - 0.01,
+			o.position.y + 0.01, o.end.y - 0.01, -STUD_D, -STUD_D + 0.04)
+	if leaf and _barred.planks:
+		leaf.set_meta(&"planks", maxi(2, roundi(o.size.x / 0.24)))
+	if barred:
+		_wall_member("%s/door_bar" % _barred.wall, &"bar", &"framing", wall, o.position.x - 0.15, o.end.x + 0.15,
+				float(_barred.y), float(_barred.y) + 0.09, -STUD_D - 0.08, -STUD_D - 0.002)
+	infer_supports()
+	door_shut = true
+
+
+## A batten door (meta `planks`) gives along its planks: each falls on its own, flat boards a man
+## walks over (#1091's must: Joe never stalls on the sill). Anything else breaks as any member.
+func break_member(m: StructureMember, push := Vector3.ZERO) -> Array[StringName]:
+	if m == null or not is_instance_valid(m) or m.broken or not m.has_meta(&"planks") or not collapses:
+		return super.break_member(m, push)
+	unbatch(m)
+	m.broken = true
+	mark_dirty(m.member_id)
+	var n := int(m.get_meta(&"planks"))
+	# Its width: the leaf's longer horizontal side.
+	var across := m.global_basis.x if m.size.x >= m.size.z else m.global_basis.z
+	var w := maxf(m.size.x, m.size.z)
+	var t := minf(m.size.x, m.size.z)
+	var pieces: Array = []
+	for c in m.get_children():
+		if c is MeshInstance3D or c is CollisionShape3D:
+			c.queue_free()
+	for i in n:
+		var pw := w / n
+		var size := Vector3(pw - 0.004, m.size.y, t) if m.size.x >= m.size.z else Vector3(t, m.size.y, pw - 0.004)
+		var rb := _new_rubble([m.member_id])
+		rb.global_transform = Transform3D(m.global_basis, m.global_position + across.normalized() * (-w * 0.5 + pw * (i + 0.5)))
+		var pmi := MeshInstance3D.new()
+		pmi.mesh = MemberMesh.box(size)
+		pmi.material_override = WoodMaterials.get_material(m.drawn_wood(), hash(String(m.member_id) + str(i)))
+		rb.add_child(pmi)
+		var pcs := CollisionShape3D.new()
+		pcs.shape = _box_shape(size)
+		rb.add_child(pcs)
+		pieces.append([pmi, pcs])
+		rb.mass = maxf(m.weight(tuning) / 9.81 / n, 0.2)
+		# Each plank goes over inward from its foot, a little this way or that.
+		var wob := Vector3(_rng.randf_range(-0.15, 0.15), 0.0, _rng.randf_range(-0.15, 0.15))
+		rb.linear_velocity = push + wob
+		rb.angular_velocity = push.normalized().cross(Vector3.DOWN) * 2.0 if push.length() > 0.01 else Vector3.ZERO
+	m.pieces = pieces
+	m.set_meta(&"snapped", true)
+	_play(&"timber_crack", m.global_position)
+	var out: Array[StringName] = [m.member_id]
+	out.append_array(settle(SETTLE_FRAME_MS))
+	return out
+
+
+## Latched doors (`openings[] latch`, #1250: the shack's storeroom): wall id -> [wall, rect, spec]. Built
+## open; `shut_leaf` puts its leaf to in the opening (a man pulling it to behind him), `open_leaf` swings
+## it open again (a hand on the latch, or a kick: the latch gives).
+var _latched := {}
+
+
+func latched_door(wall_id: String) -> Rect2:
+	return (_latched[wall_id][1] as Rect2) if _latched.has(wall_id) else Rect2()
+
+
+func leaf_shut(wall_id: String) -> bool:
+	var m := get_member(StringName("%s/%s/door_shut" % [structure_id, wall_id]))
+	return m != null and not m.broken
+
+
+func shut_leaf(wall_id: String) -> void:
+	if not _latched.has(wall_id) or leaf_shut(wall_id):
+		return
+	var e: Array = _latched[wall_id]
+	var o: Rect2 = e[1]
+	var open := get_member(StringName("%s/%s/door_%d" % [structure_id, wall_id, int(o.position.x * 100)]))
+	if open != null and not open.broken and open.get_parent() == self:
+		unbatch(open)
+		remove_built(open)
+	wait_analysis()
+	var outward := String((e[2] as Dictionary).get("leaf", "inward")) == "outward"
+	var d0 := 0.0 - 0.04 if outward else -STUD_D
+	var was := band
+	band = 1
+	var leaf := _wall_member("%s/door_shut" % wall_id, &"door", &"weathered_pine", e[0], o.position.x + 0.01, o.end.x - 0.01,
+			o.position.y + 0.01, o.end.y - 0.01, d0, d0 + 0.04)
+	if leaf and String((e[2] as Dictionary).get("breaks", "")) == "planks":
+		leaf.set_meta(&"planks", maxi(2, roundi(o.size.x / 0.24)))
+	band = was
+	infer_supports()
+
+
+func open_leaf(wall_id: String) -> void:
+	if not leaf_shut(wall_id):
+		return
+	var e: Array = _latched[wall_id]
+	var shut := get_member(StringName("%s/%s/door_shut" % [structure_id, wall_id]))
+	wait_analysis()
+	unbatch(shut)
+	remove_built(shut)
+	var was := band
+	band = 1
+	_leaves(e[0], e[1], e[2], -STUD_D)
+	band = was
+	infer_supports()

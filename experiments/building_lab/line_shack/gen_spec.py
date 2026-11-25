@@ -34,16 +34,18 @@ STUD = 0.1                   # 2x4 on edge (a 4 in wall; boards outside it)
 FOUND_TOP = 0.08             # flat sandstone under the sills, barely out of the dirt
 SILL_H = 0.14                # 4x6 sills on the flat
 FLOOR = 0.32                 # the stand-in's floor_top (the doorstep's two 0.16 m steps, #966)
-PLATE = 2.3                  # the stand-in's wall height: 1.98 m clear under the ties
+PLATE = 2.6                  # the walls to 2.6 m (the stand-in's 2.3 left no room for the storeroom's ledger over its door: 2.28 m clear inside)
 PITCH = 33.7                 # 8/12: shakes want a steep roof
 DOOR_X = W / 2               # the cabin's door point (x 2.1)
-DOOR = [0.95, 1.95]          # the stand-in's door [width, height]
+DOOR = [0.95, 1.98]          # the stand-in's door [width, height] (1.98: a man through it, checks.gd)
 WIN_Z = 1.55                 # the east window, over the single bunk, clear of the lean-to's roof
 
 # --- the cabin's points (no_justice_cabin.json), kept as they are ---------------------------------
+STORE_HIGH, STORE_LOW = 2.55, 2.15  # its shed roof: the ledger under the gable over the back door's header; 1.83 m clear at its back
+LEAN_HIGH, LEAN_LOW = 2.45, 2.0    # the open lean-to's: the ledger under the eave over the window's header
 STORE_D = 1.5                # the back storeroom (Sean, 2026-11-25: "somewhere for Kett to hide at the back"): a closed lean-to on the south gable
 BACK_DOOR_X = 1.15           # its door in the back wall, at the west lane's end
-KETT_CORNER = [0.75, round(D + STORE_D - 0.55, 2)]  # where Kett hides: the storeroom's west end, behind its door's leaf (was the room's SW corner [0.75, 4.3])
+KETT_CORNER = [0.65, round(D + STORE_D - 0.4, 2)]  # where Kett hides: the storeroom's west end, behind its door's leaf (was the room's SW corner [0.75, 4.3])
 JOE_IN = [3.3, 1.5]          # the cabin's joe_in: PROPOSED here to move to the west lane (below)
 WALK = [[2.1, -0.5], [2.1, 0.35], [1.35, 1.3], [1.3, 3.0], [1.15, 4.6], [1.15, 5.35], [1.1, 5.75]]  # Joe's walk: the door, the lane, the storeroom's door, Kett
 
@@ -66,7 +68,7 @@ shack = {
         "pad": "hideout", "moment": "res://config/moments/no_justice_hideout.json#shack",
     },
     "levels": {
-        "_doc": "One storey: the floor 0.32 m up on sleepers over the sills; the walls to a plate at 2.3 m; an 8/12 shake roof gabled front to back (the ridge north-south), its rakes 0.3 m past the gables, the eaves 0.3 m out.",
+        "_doc": "One storey: the floor 0.32 m up on sleepers over the sills; the walls to a plate at 2.6 m; an 8/12 shake roof gabled front to back (the ridge north-south), its rakes 0.3 m past the gables, the eaves 0.3 m out.",
         "ground": {"top": FLOOR}, "upper": {"top": PLATE}, "plate": PLATE, "false_front": 0.0,
         "roof_pitch": PITCH, "roof_from": -0.3, "roof_to": round(D + 0.3, 3),
     },
@@ -77,22 +79,22 @@ shack = {
         "sill": {"section": [0.15, SILL_H], "wood": "framing", "_doc": "4x6 on the flat, halved at the corners"},
         "pier": {"size": 0.3, "wood": "stone"},
         "girder": {"section": [0.1, 0.15], "wood": "framing", "pier_every": 1.2, "_doc": "a 4x6 down the middle under the sleepers (2.05 m spans either side)"},
-        "joist": {"section": [0.05, 0.1], "spacing": 0.61, "wood": "framing", "_doc": "2x4 sleepers at 24 in on the sills and girder (5 crew and a crowd's check)"},
+        "joist": {"section": [0.05, 0.14], "spacing": 0.61, "wood": "framing", "_doc": "2x6 sleepers at 24 in on the sills and girder (5 crew and a crowd's check)"},
         "floor_board": {"width": 0.2, "thick": 0.025, "wood": "floor"},
         "stud": {"section": [0.05, STUD], "spacing": 0.61, "wood": "framing"},
         "plate": {"height": 0.1}, "ribbon": {"section": [0.025, 0.1]}, "header": {"height": 0.1},
         "post": {"section": [0.1, 0.1], "wood": "framing"}, "beam": {"section": [0.1, 0.15], "wood": "framing"},
         "bracket": {"reach": 0.0, "thick": 0.0}, "wall_post": {"section": [0.1, 0.1]},
         "ceiling_joist": {"section": [0.05, 0.1], "spacing": 0.61, "wood": "framing", "lap": 0.4},
-        "rafters": {"rafter": [0.05, 0.1], "spacing": 0.61, "ridge": [0.025, 0.15], "collar": [0.025, 0.1],
+        "rafters": {"rafter": [0.05, 0.14], "spacing": 0.61, "ridge": [0.025, 0.185], "collar": [0.025, 0.14],
                     "collar_every": 1, "collar_down": 0.5, "eave": 0.3,
                     "_doc": "2x4 at 24 in over 2.1 m runs, a collar on every pair 0.5 m under the ridge (no ceiling joists: the room open to the shakes)"},
         "truss": {"tie": [0.05, 0.1], "principal": [0.0, 0.0], "queen": [0.0, 0.0], "purlin": [0.0, 0.0],
                   "rafter": [0.05, 0.1], "rafter_spacing": 0.61, "at": [0.0, D], "purlins": []},
     },
-    "girders": {"x": [round(W / 2, 3)]}, "ceilings": [],
+    "girders": {"x": [round(W / 2, 3)]},
     "floors": [
-        {"id": "ground", "level": "ground", "rect": [STUD, STUD, round(W - STUD, 3), round(D - STUD, 3)], "joists": "z", "look": "wood:int_floor",
+        {"id": "ground", "level": "ground", "rect": [STUD, STUD, round(W - STUD, 3), round(D - STUD, 3)], "joists": "x", "look": "wood:int_floor",
          "_doc": "rough 1x8 boards across the sleepers; the board at the door the sill's threshold (flush: nothing to trip on)"},
     ],
     "shakes": {"exposure": 0.2, "width": 0.7, "strip": 0.14, "thick": 0.016, "lift": 0.014, "skip": 0.3, "new_share": 0.0,
@@ -100,31 +102,41 @@ shack = {
                "_doc": "split shakes 8 in to the weather on skip boards a foot apart; a patch slipped off the west slope over Kett's corner (light through it)"},
     "walls": [
         {"id": "front", "_doc": "the north gable: the one door, in its middle (x 2.1, the stand-in's), the doorstep before it",
-         "line": [[0, 0], [W, 0]], "out": "-z", "top": "gable", "ribbon": True,
+         "line": [[0, 0], [W, 0]], "out": "-z", "top": "gable", "ribbon": False,
          "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [],
-         "openings": [{"type": "door", "level": "ground", "at": DOOR_X, "width": DOOR[0], "height": DOOR[1], "leaf": "inward",
+         "openings": [{"type": "door", "level": "ground", "at": DOOR_X, "width": DOOR[0], "height": DOOR[1], "leaf": "inward", "hinge": "end",
                        "bar": {"height": 1.05, "brackets": True}, "breaks": "planks",
                        "_doc": "a batten door (four 1x10 planks on two battens and a Z-brace, strap hinges on the west jamb, swinging in to the west wall); the bar a 2x4 dropped into two iron brackets on the jambs (the cabin's `front/door_bar`); kicked in it breaks along its planks: flat 25 mm boards, nothing a man must climb (#1091's must: Joe never stalls on the sill)"}]},
         {"id": "back", "_doc": "the south gable, toward the canyon side: the storeroom's door at the lane's end, the storeroom built against it; tin patches over two holes (the storeroom's walls)",
-         "line": [[0, D], [W, D]], "out": "+z", "top": "gable", "ribbon": True,
+         "line": [[0, D], [W, D]], "out": "+z", "top": "gable", "ribbon": False,
          "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [],
-         "openings": [{"type": "door", "level": "ground", "at": BACK_DOOR_X, "width": 0.75, "height": 1.8, "leaf": "outward", "hinge": "west",
+         "openings": [{"type": "door", "level": "ground", "at": BACK_DOOR_X, "width": 0.76, "height": 1.98, "leaf": "outward", "hinge": "start",
                        "latch": "wood", "breaks": "planks",
                        "_doc": "into the storeroom: a low plank door on leather hinges, a wooden latch, no bar (he pulls it to behind him; a kick or E opens it); swinging into the storeroom against its west wall, so Kett crouches behind its leaf"}],
          "patches": [{"at": 1.1, "y": 0.6, "size": [0.3, 0.25]}, {"at": 3.2, "y": 1.5, "size": [0.25, 0.25]}]},
-        {"id": "west", "_doc": "the long side to the slope (where you come down from): no openings", "line": [[0, 0], [0, D]], "out": "-x", "top": "plate", "ribbon": True,
+        {"id": "west", "_doc": "the long side to the slope (where you come down from): no openings", "line": [[0, 0], [0, D]], "out": "-x", "top": "plate", "ribbon": False,
          "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [], "openings": []},
-        {"id": "east", "_doc": "the long side to the horses: the one window over the single bunk, the lean-to against it", "line": [[W, 0], [W, D]], "out": "+x", "top": "plate", "ribbon": True,
+        {"id": "east", "_doc": "the long side to the horses: the one window over the single bunk, the lean-to against it", "line": [[W, 0], [W, D]], "out": "+x", "top": "plate", "ribbon": False,
          "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [],
          "openings": [{"type": "window", "level": "ground", "at": WIN_Z, "width": 0.6, "height": 0.6, "sill": 1.05, "lights": 4,
                        "cracked": [1], "shutter": "open_north", "_doc": "four dirty lights, one cracked; a plank shutter hung open beside it"}]},
+        # The storeroom's own walls (the builder's closed lean_to: its walls are the house's list, as the farmhouse's).
+        {"id": "store_west", "_doc": "the storeroom's west end", "line": [[0, D], [0, round(D + STORE_D, 3)]], "out": "-x",
+         "top": [round(STORE_HIGH + 0.016, 3), round(STORE_LOW - 0.014, 3)], "ribbon": False,
+         "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [], "openings": []},
+        {"id": "store_back", "_doc": "the storeroom's back, no window", "line": [[0, round(D + STORE_D, 3)], [W, round(D + STORE_D, 3)]], "out": "+z",
+         "top": [STORE_LOW + 0.01, STORE_LOW + 0.01], "plate": True, "boards": "under", "ribbon": False,
+         "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [], "openings": []},
+        {"id": "store_east", "_doc": "the storeroom's east end", "line": [[W, D], [W, round(D + STORE_D, 3)]], "out": "+x",
+         "top": [round(STORE_HIGH + 0.016, 3), round(STORE_LOW - 0.014, 3)], "ribbon": False,
+         "outside": {"siding": "vertical", "battens": True, "wood": "weathered_pine"}, "inside": [], "openings": []},
     ],
     "outbuildings": [
-        {"id": "store", "kind": "lean_to", "wall": "back", "rect": [0.0, D, W, round(D + STORE_D, 3)], "high": 2.15, "low": 1.75, "floor_look": "wood:int_floor",
+        {"id": "store", "kind": "lean_to", "wall": "back", "rect": [0.0, D, W, round(D + STORE_D, 3)], "high": STORE_HIGH, "low": STORE_LOW, "floor_look": "wood:int_floor",
          "windows": 0, "siding": {"siding": "vertical", "battens": True, "wood": "weathered_pine"},
          "_doc": "the back storeroom (Sean, 2026-11-25): a closed lean-to across the south gable, its shed roof falling south from a ledger under the gable, its floor the shack's level, no window (dark: light only through the board gaps and its door). Sacks, crates, a keg, spare tack. Kett hides here. The builder's lean_to as the farmhouse's (closed), its siding the shack's."},
         {"id": "lean_to", "kind": "lean_to", "open": True, "wall": "east", "rect": [W, 0.6, round(W + 1.8, 3), round(D - 0.4, 3)],
-         "high": 2.15, "low": 1.75, "floor": "dirt", "posts": [[round(W + 1.75, 3), 0.65], [round(W + 1.75, 3), round(D - 0.45, 3)]],
+         "high": LEAN_HIGH, "low": LEAN_LOW, "floor": "dirt", "posts": [[round(W + 1.75, 3), 0.65], [round(W + 1.75, 3), round(D - 0.45, 3)]],
          "post_wood": "juniper", "roof": "poles_and_boards",
          "_doc": "an open pole lean-to against the east wall: a ledger on the studs under the eave, poles from it to a pole beam on two juniper posts, old boards across; dirt under; open at the north, east and south (NEW in the builder: `open`, `posts`, `floor: dirt`)"},
     ],
@@ -151,11 +163,11 @@ shack = {
          "_doc": "PROPOSED for the cabin's `joe_in` (now [3.3, 1.5], east of the door: the table and the single bunk would stand in his way to Kett); in the west lane, past the door's fall"},
         {"id": "joe_back", "use": "stand", "who": "joe", "at": [1.6, FLOOR, 0.8], "look": [KETT_CORNER[0], KETT_CORNER[1]],
          "_doc": "PROPOSED for `joe_back` (now [2.9, 0.8]): the same, back by the door"},
-        {"id": "table_west", "prop": "bench", "use": "sit", "who": "crew", "at": [1.95, FLOOR, 2.9], "look": [2.6, 2.9]},
-        {"id": "table_east", "prop": "bench", "use": "sit", "who": "crew", "at": [3.25, FLOOR, 2.9], "look": [2.6, 2.9]},
-        {"id": "stove", "use": "cook", "who": "crew", "at": [3.35, FLOOR, 3.75], "look": [3.65, 4.45]},
-        {"id": "bunk_low", "prop": "bunk", "use": "sleep", "who": "crew", "at": [0.45, FLOOR, 1.4], "look": [0.45, 0.0]},
-        {"id": "bunk_east", "prop": "bunk", "use": "sleep", "who": "crew", "at": [3.75, FLOOR, 1.4], "look": [3.75, 0.0]},
+        {"id": "table_west", "prop": "bench_w", "use": "sit", "who": "crew", "at": [1.95, FLOOR, 2.9], "look": [2.6, 2.9]},
+        {"id": "table_east", "prop": "bench_e", "use": "sit", "who": "crew", "at": [3.25, FLOOR, 2.9], "look": [2.6, 2.9]},
+        {"id": "stove", "use": "cook", "who": "crew", "at": [2.85, FLOOR, 4.25], "look": [3.65, 4.25]},
+        {"id": "bunk_low", "prop": "bunks", "use": "sleep", "who": "crew", "at": [0.45, FLOOR, 1.4], "look": [0.45, 0.0]},
+        {"id": "bunk_east", "prop": "bunk_east", "use": "sleep", "who": "crew", "at": [3.75, FLOOR, 1.4], "look": [3.75, 0.0]},
     ],
     "walk": {"_doc": "Joe's walk from the doorstep to Kett in the storeroom (the cabin's revenge): the shack's own space [x, z]; every leg clear of `kept_clear`'s furniture and over nothing but the door's flat planks. The build's test walks it ten times with the door kicked in (#1091's must).",
              "joe_to_kett": WALK, "clear_width": 0.7},
@@ -227,6 +239,42 @@ shack = {
     ],
     "furniture": [], "fixtures": [],
 }
+
+# Stand-ins (#1250): the prop lab's new kit isn't made yet. Each piece the kit has a fair stand-in for
+# takes it and keeps `wants` (the kit the prop lab is to make: swap it back by deleting the mapping);
+# a piece with none waits (`waiting`, not built). The list is the props lane's issue (#1263).
+STAND_IN = {"bunk_stacked": "plank_bed", "bunk": "plank_bed", "plank_bench": "wall_bench", "bedroll": "folded_blanket",
+            "saddle_rack": "trestles_short"}
+WAITS = {"skillet", "tin_plate", "tin_cans", "gun_belt", "saddle", "bridle"}
+# Where a stand-in (bigger than the kit it stands for) or a piece the measured kit put through a wall
+# stands instead (#1250: the props' boxes measured in the lab; the lane x 1.04..1.82 kept clear).
+PLACE = {"bunks": {"at": [0.55, 0.0, 1.35]}, "bunk_east": {"at": [3.65, 0.0, 1.3]},
+         "bedroll_1": {"at": [0.55, 0.0, 1.9]},
+         "bench_w": {"at": [2.0, 0.0, 2.92], "facing": 90, "fit": [1.3, 1.0, 0.36]},
+         "bench_e": {"at": [3.2, 0.0, 2.92], "facing": 90, "fit": [1.3, 1.0, 0.36]},
+         "stove": {"at": [3.65, 0.0, 4.25]}, "coffeepot": {"at": [3.6, 0.0, 4.15]},
+         "shelf": {"at": [2.6, 1.0, 4.72], "facing": 90}, "coffee_mill": {"at": [2.5, 1.0, 4.72]},
+         "cans": {"at": [4.65, 0.0, 1.3], "out": "lean_to", "use": "a crate of empty cans and bottles out under the lean-to (the stand-ins left no room by the stove)"},
+         "keg": {"at": [2.3, 0.0, round(D + 0.35, 3)]}, "store_crate": {"at": [2.85, 0.0, round(D + 0.45, 3)]},
+         "grain": {"at": [3.68, 0.0, round(D + 0.55, 3)], "facing": 0}}
+_waiting = []
+for _name, _batch in shack["dressing"]["batches"].items():
+    _kept = []
+    for _e in _batch:
+        if _e["kit"] in WAITS:
+            _waiting.append(_e["id"] + ": " + _e["kit"])
+            continue
+        if _e["id"] in PLACE:
+            _e.update(PLACE[_e["id"]])
+        if _e["kit"] in STAND_IN:
+            _e["wants"] = _e["kit"]
+            _e["kit"] = STAND_IN[_e["kit"]]
+            if "fit" in _e and "fit" not in PLACE.get(_e["id"], {}):  # (the stand-in at its own size: the fit is the new kit's)
+                _e["wants_fit"] = _e.pop("fit")
+        _kept.append(_e)
+    _batch[:] = _kept
+# (what stood on a waiting piece: nothing does but the saddles on the rack, which wait too)
+shack["dressing"]["waiting"] = _waiting
 
 with open(os.path.join(ROOT, "config", "buildings", "line_shack.json"), "w") as f:
     json.dump(shack, f, indent=1)

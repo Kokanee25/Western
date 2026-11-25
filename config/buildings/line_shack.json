@@ -44,14 +44,14 @@
   "moment": "res://config/moments/no_justice_hideout.json#shack"
  },
  "levels": {
-  "_doc": "One storey: the floor 0.32 m up on sleepers over the sills; the walls to a plate at 2.3 m; an 8/12 shake roof gabled front to back (the ridge north-south), its rakes 0.3 m past the gables, the eaves 0.3 m out.",
+  "_doc": "One storey: the floor 0.32 m up on sleepers over the sills; the walls to a plate at 2.6 m; an 8/12 shake roof gabled front to back (the ridge north-south), its rakes 0.3 m past the gables, the eaves 0.3 m out.",
   "ground": {
    "top": 0.32
   },
   "upper": {
-   "top": 2.3
+   "top": 2.6
   },
-  "plate": 2.3,
+  "plate": 2.6,
   "false_front": 0.0,
   "roof_pitch": 33.7,
   "roof_from": -0.3,
@@ -91,11 +91,11 @@
   "joist": {
    "section": [
     0.05,
-    0.1
+    0.14
    ],
    "spacing": 0.61,
    "wood": "framing",
-   "_doc": "2x4 sleepers at 24 in on the sills and girder (5 crew and a crowd's check)"
+   "_doc": "2x6 sleepers at 24 in on the sills and girder (5 crew and a crowd's check)"
   },
   "floor_board": {
    "width": 0.2,
@@ -158,16 +158,16 @@
   "rafters": {
    "rafter": [
     0.05,
-    0.1
+    0.14
    ],
    "spacing": 0.61,
    "ridge": [
     0.025,
-    0.15
+    0.185
    ],
    "collar": [
     0.025,
-    0.1
+    0.14
    ],
    "collar_every": 1,
    "collar_down": 0.5,
@@ -208,7 +208,6 @@
    2.1
   ]
  },
- "ceilings": [],
  "floors": [
   {
    "id": "ground",
@@ -219,7 +218,7 @@
     4.1,
     4.9
    ],
-   "joists": "z",
+   "joists": "x",
    "look": "wood:int_floor",
    "_doc": "rough 1x8 boards across the sleepers; the board at the door the sill's threshold (flush: nothing to trip on)"
   }
@@ -263,7 +262,7 @@
    ],
    "out": "-z",
    "top": "gable",
-   "ribbon": true,
+   "ribbon": false,
    "outside": {
     "siding": "vertical",
     "battens": true,
@@ -276,8 +275,9 @@
      "level": "ground",
      "at": 2.1,
      "width": 0.95,
-     "height": 1.95,
+     "height": 1.98,
      "leaf": "inward",
+     "hinge": "end",
      "bar": {
       "height": 1.05,
       "brackets": true
@@ -302,7 +302,7 @@
    ],
    "out": "+z",
    "top": "gable",
-   "ribbon": true,
+   "ribbon": false,
    "outside": {
     "siding": "vertical",
     "battens": true,
@@ -314,10 +314,10 @@
      "type": "door",
      "level": "ground",
      "at": 1.15,
-     "width": 0.75,
-     "height": 1.8,
+     "width": 0.76,
+     "height": 1.98,
      "leaf": "outward",
-     "hinge": "west",
+     "hinge": "start",
      "latch": "wood",
      "breaks": "planks",
      "_doc": "into the storeroom: a low plank door on leather hinges, a wooden latch, no bar (he pulls it to behind him; a kick or E opens it); swinging into the storeroom against its west wall, so Kett crouches behind its leaf"
@@ -357,7 +357,7 @@
    ],
    "out": "-x",
    "top": "plate",
-   "ribbon": true,
+   "ribbon": false,
    "outside": {
     "siding": "vertical",
     "battens": true,
@@ -381,7 +381,7 @@
    ],
    "out": "+x",
    "top": "plate",
-   "ribbon": true,
+   "ribbon": false,
    "outside": {
     "siding": "vertical",
     "battens": true,
@@ -404,6 +404,89 @@
      "_doc": "four dirty lights, one cracked; a plank shutter hung open beside it"
     }
    ]
+  },
+  {
+   "id": "store_west",
+   "_doc": "the storeroom's west end",
+   "line": [
+    [
+     0,
+     5.0
+    ],
+    [
+     0,
+     6.5
+    ]
+   ],
+   "out": "-x",
+   "top": [
+    2.566,
+    2.136
+   ],
+   "ribbon": false,
+   "outside": {
+    "siding": "vertical",
+    "battens": true,
+    "wood": "weathered_pine"
+   },
+   "inside": [],
+   "openings": []
+  },
+  {
+   "id": "store_back",
+   "_doc": "the storeroom's back, no window",
+   "line": [
+    [
+     0,
+     6.5
+    ],
+    [
+     4.2,
+     6.5
+    ]
+   ],
+   "out": "+z",
+   "top": [
+    2.1599999999999997,
+    2.1599999999999997
+   ],
+   "plate": true,
+   "boards": "under",
+   "ribbon": false,
+   "outside": {
+    "siding": "vertical",
+    "battens": true,
+    "wood": "weathered_pine"
+   },
+   "inside": [],
+   "openings": []
+  },
+  {
+   "id": "store_east",
+   "_doc": "the storeroom's east end",
+   "line": [
+    [
+     4.2,
+     5.0
+    ],
+    [
+     4.2,
+     6.5
+    ]
+   ],
+   "out": "+x",
+   "top": [
+    2.566,
+    2.136
+   ],
+   "ribbon": false,
+   "outside": {
+    "siding": "vertical",
+    "battens": true,
+    "wood": "weathered_pine"
+   },
+   "inside": [],
+   "openings": []
   }
  ],
  "outbuildings": [
@@ -417,8 +500,8 @@
     4.2,
     6.5
    ],
-   "high": 2.15,
-   "low": 1.75,
+   "high": 2.55,
+   "low": 2.15,
    "floor_look": "wood:int_floor",
    "windows": 0,
    "siding": {
@@ -439,8 +522,8 @@
     6.0,
     4.6
    ],
-   "high": 2.15,
-   "low": 1.75,
+   "high": 2.45,
+   "low": 2.0,
    "floor": "dirt",
    "posts": [
     [
@@ -555,9 +638,9 @@
    "use": "cornered",
    "who": "kett",
    "at": [
-    0.75,
+    0.65,
     0.32,
-    5.95
+    6.1
    ],
    "look": [
     1.15,
@@ -575,8 +658,8 @@
     1.4
    ],
    "look": [
-    0.75,
-    5.95
+    0.65,
+    6.1
    ],
    "_doc": "PROPOSED for the cabin's `joe_in` (now [3.3, 1.5], east of the door: the table and the single bunk would stand in his way to Kett); in the west lane, past the door's fall"
   },
@@ -590,14 +673,14 @@
     0.8
    ],
    "look": [
-    0.75,
-    5.95
+    0.65,
+    6.1
    ],
    "_doc": "PROPOSED for `joe_back` (now [2.9, 0.8]): the same, back by the door"
   },
   {
    "id": "table_west",
-   "prop": "bench",
+   "prop": "bench_w",
    "use": "sit",
    "who": "crew",
    "at": [
@@ -612,7 +695,7 @@
   },
   {
    "id": "table_east",
-   "prop": "bench",
+   "prop": "bench_e",
    "use": "sit",
    "who": "crew",
    "at": [
@@ -630,18 +713,18 @@
    "use": "cook",
    "who": "crew",
    "at": [
-    3.35,
+    2.85,
     0.32,
-    3.75
+    4.25
    ],
    "look": [
     3.65,
-    4.45
+    4.25
    ]
   },
   {
    "id": "bunk_low",
-   "prop": "bunk",
+   "prop": "bunks",
    "use": "sleep",
    "who": "crew",
    "at": [
@@ -656,7 +739,7 @@
   },
   {
    "id": "bunk_east",
-   "prop": "bunk",
+   "prop": "bunk_east",
    "use": "sleep",
    "who": "crew",
    "at": [
@@ -730,57 +813,61 @@
    "L1": [
     {
      "id": "bunks",
-     "kit": "bunk_stacked",
-     "fit": [
+     "kit": "plank_bed",
+     "at": [
+      0.55,
+      0.0,
+      1.35
+     ],
+     "facing": 0,
+     "use": "two bunks one over the other along the west wall from the front corner: clear of the door's swing and the lane",
+     "wants": "bunk_stacked",
+     "wants_fit": [
       0.8,
       1.6,
       1.95
-     ],
-     "at": [
-      0.45,
-      0.0,
-      1.4
-     ],
-     "facing": 0,
-     "use": "two bunks one over the other along the west wall from the front corner: clear of the door's swing and the lane"
+     ]
     },
     {
      "id": "bunk_east",
-     "kit": "bunk",
-     "fit": [
+     "kit": "plank_bed",
+     "at": [
+      3.65,
+      0.0,
+      1.3
+     ],
+     "facing": 0,
+     "use": "a single plank bunk along the east wall under the window",
+     "wants": "bunk",
+     "wants_fit": [
       0.75,
       0.5,
       1.9
-     ],
-     "at": [
-      3.73,
-      0.0,
-      1.4
-     ],
-     "facing": 0,
-     "use": "a single plank bunk along the east wall under the window"
+     ]
     },
     {
      "id": "bedroll_1",
-     "kit": "bedroll",
+     "kit": "folded_blanket",
      "on": "bunks",
      "at": [
-      0.45,
+      0.55,
       0.0,
       1.9
      ],
-     "facing": 0
+     "facing": 0,
+     "wants": "bedroll"
     },
     {
      "id": "bedroll_2",
-     "kit": "bedroll",
+     "kit": "folded_blanket",
      "at": [
       3.6,
       0.0,
       3.25
      ],
      "facing": 90,
-     "use": "a sixth man's, rolled against the east wall between the bunk and the stove"
+     "use": "a sixth man's, rolled against the east wall between the bunk and the stove",
+     "wants": "bedroll"
     },
     {
      "id": "table",
@@ -800,33 +887,35 @@
     },
     {
      "id": "bench_w",
-     "kit": "plank_bench",
+     "kit": "wall_bench",
      "fit": [
-      0.25,
-      0.44,
-      1.3
+      1.3,
+      1.0,
+      0.36
      ],
      "at": [
       2.0,
       0.0,
-      2.9
+      2.92
      ],
-     "facing": 0
+     "facing": 90,
+     "wants": "plank_bench"
     },
     {
      "id": "bench_e",
-     "kit": "plank_bench",
+     "kit": "wall_bench",
      "fit": [
-      0.25,
-      0.44,
-      1.3
+      1.3,
+      1.0,
+      0.36
      ],
      "at": [
       3.2,
       0.0,
-      2.9
+      2.92
      ],
-     "facing": 0
+     "facing": 90,
+     "wants": "plank_bench"
     },
     {
      "id": "lamp",
@@ -889,23 +978,12 @@
      "facing": 40
     },
     {
-     "id": "plates",
-     "kit": "tin_plate",
-     "on": "table",
-     "at": [
-      2.55,
-      0.0,
-      3.45
-     ],
-     "facing": 0
-    },
-    {
      "id": "stove",
      "kit": "box_stove",
      "at": [
       3.65,
       0.0,
-      4.45
+      4.25
      ],
      "facing": 270,
      "use": "the sheet-iron box stove in the SE corner on flat stones, its pipe up through the roof"
@@ -917,20 +995,9 @@
      "at": [
       3.6,
       0.0,
-      4.35
+      4.15
      ],
      "facing": 0
-    },
-    {
-     "id": "skillet",
-     "kit": "skillet",
-     "on": "stove",
-     "at": [
-      3.75,
-      0.0,
-      4.6
-     ],
-     "facing": 90
     },
     {
      "id": "shelf",
@@ -943,9 +1010,9 @@
      "at": [
       2.6,
       1.0,
-      4.75
+      4.72
      ],
-     "facing": 0,
+     "facing": 90,
      "use": "a board shelf on the back wall east of the storeroom's door (high)"
     },
     {
@@ -953,9 +1020,9 @@
      "kit": "coffee_mill",
      "on": "shelf",
      "at": [
-      2.4,
+      2.5,
       1.0,
-      4.75
+      4.72
      ],
      "facing": 0
     },
@@ -963,23 +1030,13 @@
      "id": "cans",
      "kit": "crate",
      "at": [
-      3.0,
+      4.65,
       0.0,
-      4.6
+      1.3
      ],
      "facing": 15,
-     "use": "a crate of empty cans and bottles by the stove"
-    },
-    {
-     "id": "cans_floor",
-     "kit": "tin_cans",
-     "at": [
-      3.1,
-      0.0,
-      3.9
-     ],
-     "facing": 0,
-     "scatter": 5
+     "use": "a crate of empty cans and bottles out under the lean-to (the stand-ins left no room by the stove)",
+     "out": "lean_to"
     },
     {
      "id": "pegs_e",
@@ -991,28 +1048,6 @@
      ],
      "facing": 270,
      "use": "a gun belt, a coat and a bridle on the east wall's pegs"
-    },
-    {
-     "id": "gun_belt",
-     "kit": "gun_belt",
-     "on": "pegs_e",
-     "at": [
-      4.1,
-      1.5,
-      3.3
-     ],
-     "facing": 270
-    },
-    {
-     "id": "saddle_in",
-     "kit": "saddle",
-     "at": [
-      3.8,
-      0.0,
-      2.65
-     ],
-     "facing": 90,
-     "use": "one saddle on the floor at the single bunk's foot (a pillow)"
     },
     {
      "id": "pegs_w",
@@ -1057,17 +1092,17 @@
      "id": "grain",
      "kit": "grain_sacks",
      "at": [
-      3.75,
+      3.68,
       0.0,
-      5.4
+      5.55
      ],
-     "facing": 90
+     "facing": 0
     },
     {
      "id": "keg",
      "kit": "nail_keg",
      "at": [
-      2.55,
+      2.3,
       0.0,
       5.35
      ],
@@ -1078,7 +1113,7 @@
      "id": "store_crate",
      "kit": "crate",
      "at": [
-      3.05,
+      2.85,
       0.0,
       5.45
      ],
@@ -1099,7 +1134,7 @@
    "L2": [
     {
      "id": "rack",
-     "kit": "saddle_rack",
+     "kit": "trestles_short",
      "out": "lean_to",
      "at": [
       5.2,
@@ -1107,52 +1142,8 @@
       2.6
      ],
      "facing": 0,
-     "use": "in the lean-to: a pole rail with three saddles and blankets"
-    },
-    {
-     "id": "saddle_1",
-     "kit": "saddle",
-     "on": "rack",
-     "at": [
-      5.2,
-      0.0,
-      1.9
-     ],
-     "facing": 90
-    },
-    {
-     "id": "saddle_2",
-     "kit": "saddle",
-     "on": "rack",
-     "at": [
-      5.2,
-      0.0,
-      2.6
-     ],
-     "facing": 90
-    },
-    {
-     "id": "saddle_3",
-     "kit": "saddle",
-     "on": "rack",
-     "at": [
-      5.2,
-      0.0,
-      3.3
-     ],
-     "facing": 90
-    },
-    {
-     "id": "bridles",
-     "kit": "bridle",
-     "out": "lean_to",
-     "at": [
-      4.25,
-      1.5,
-      2.0
-     ],
-     "facing": 90,
-     "scatter": 3
+     "use": "in the lean-to: a pole rail with three saddles and blankets",
+     "wants": "saddle_rack"
     },
     {
      "id": "rope",
@@ -1178,7 +1169,18 @@
      "use": "split juniper firewood (a woodpile kit if the prop lab has one by then)"
     }
    ]
-  }
+  },
+  "waiting": [
+   "plates: tin_plate",
+   "skillet: skillet",
+   "cans_floor: tin_cans",
+   "gun_belt: gun_belt",
+   "saddle_in: saddle",
+   "saddle_1: saddle",
+   "saddle_2: saddle",
+   "saddle_3: saddle",
+   "bridles: bridle"
+  ]
  },
  "materials": {
   "wear": {

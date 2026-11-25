@@ -22,6 +22,9 @@ var joe: HumanBody
 var joe_brain: CompanionBrain
 var kett: HumanBody
 var shack: FalseFrontBuilding
+## The shack's whole depth from its front wall, the back storeroom in (#1250: 6.5 m; the room is `shack.depth`).
+var shack_depth := 0.0
+const SpecBuilding := preload("res://src/structures/spec_building.gd")
 ## The crew but Kett: {man, brain, id}.
 var crew: Array[Dictionary] = []
 var props: Array[Node3D] = []
@@ -149,7 +152,36 @@ func in_shack(at: Vector3) -> bool:
 	if shack == null or not is_instance_valid(shack):
 		return false
 	var l := shack.global_transform.affine_inverse() * at
-	return l.x > 0.15 and l.x < shack.width - 0.15 and l.z > 0.15 and l.z < shack.depth - 0.15 and l.y > -0.5 and l.y < 2.5
+	return l.x > 0.15 and l.x < shack.width - 0.15 and l.z > 0.15 and l.z < shack_depth - 0.15 and l.y > -0.5 and l.y < 2.5
+
+
+## The shack's spec (the line shack's, config/buildings/line_shack.json; {} for the old box).
+func shack_spec() -> Dictionary:
+	return shack.get(&"spec") if shack is SpecBuilding else {}
+
+
+## A point of the shack's floor [x, z] (its own space), up `up` from its floor.
+func shack_point(xz: Array, up := 0.0) -> Vector3:
+	return shack.global_transform * Vector3(float(xz[0]), shack.floor_top + up, float(xz[1]))
+
+
+## Where Kett hides (#1250: the storeroom's west end behind its door's leaf; the spec's `kett_corner`).
+func kett_corner() -> Array:
+	for u: Dictionary in shack_spec().get("use_points", []):
+		if u.id == "kett_corner":
+			return [u.at[0], u.at[2]]
+	return []
+
+
+## The way in from the door to the storeroom (the spec's walk, past its doorstep and sill): [x, z]s.
+func shack_lane() -> Array:
+	var w: Array = (shack_spec().get("walk", {}) as Dictionary).get("joe_to_kett", [])
+	return w.filter(func(p: Array) -> bool: return float(p[1]) > 1.0)
+
+
+## In the back storeroom (#1250: past the room's back wall).
+func in_storeroom(at: Vector3) -> bool:
+	return in_shack(at) and (shack.global_transform.affine_inverse() * at).z > shack.depth
 
 
 func _shack_door(out_m: float) -> Vector3:
@@ -169,36 +201,34 @@ func _build_set() -> void:
 	_note("set: the shack, %d props, %d horses, %d men and Kett" % [props.size(), horses.size(), crew.size()])
 
 
+## The line shack (#1091, #1250: the building lab's, config/buildings/line_shack.json, the moment's
+## `shack.spec`), its middle at `shack.at`. (Changed by the art lane's #1250: the spec for the box.)
 func _build_shack() -> void:
 	var sd: Dictionary = data.get("shack", {})
-	shack = FalseFrontBuilding.new()
+	var sb := SpecBuilding.new()
+	sb.spec_path = String(sd.get("spec", "res://config/buildings/line_shack.json"))
+	sb.spec = SpecBuilding.load_spec(sb.spec_path)
+	shack = sb
 	shack.name = "HideoutShack"
 	shack.structure_id = &"hideout_shack"
-	shack.width = float(sd.get("width", 4.2))
-	shack.depth = float(sd.get("depth", 5.0))
-	shack.wall_height = float(sd.get("wall_height", 2.3))
-	shack.front_height = shack.wall_height
-	shack.floor_top = float(sd.get("floor_top", 0.18))
-	var door: Array = sd.get("door", [0.95, 1.95])
-	shack.door_size = Vector2(float(door[0]), float(door[1]))
-	shack.gable_front = true
-	shack.front_wood = &"weathered_pine"
-	shack.front_windows = false
-	shack.porch = false
-	shack.porch_lantern = false
-	shack.furnished = false
-	shack.sign_text = ""
-	shack.roof_pitch_degrees = 24.0
+	var lot: Dictionary = sb.spec.lot
+	var w := float(lot.width)
+	var d := float(lot.depth)
+	shack_depth = d
+	for r: Array in lot.get("footprint", []):
+		shack_depth = maxf(shack_depth, float(r[3]))
 	var mid := spot(sd.get("at", [7.0, 5.0]))
-	# Its floor on the ground's high corner (the pad's flat; a little set in where it's not).
+	# Its floor on the ground's high corner (the pad's flat; a little set in where it's not), the
+	# storeroom's back corners counted.
 	var lo := INF
 	for cx: float in [-0.5, 0.5]:
-		for cz: float in [-0.5, 0.5]:
-			lo = minf(lo, _ground(mid.x + cx * shack.width, mid.z + cz * shack.depth))
-	shack.position = Vector3(mid.x - shack.width * 0.5, lo, mid.z - shack.depth * 0.5)
+		for cz: float in [-0.5, 0.5, shack_depth / d - 0.5]:
+			lo = minf(lo, _ground(mid.x + cx * w, mid.z + cz * d))
+	shack.position = Vector3(mid.x - w * 0.5, lo, mid.z - d * 0.5)
 	street.add_child(shack)
 	_made.append(shack)
-	_build_doorstep(sd)
+	if shack.get_member(StringName("%s/doorstep" % shack.structure_id)) == null:
+		_build_doorstep(sd)
 
 
 ## A flat stone before the door, half the floor's height (#966's playtest: you can step 0.3 m, and
@@ -614,6 +644,12 @@ func _kett_step(delta: float) -> void:
 		var sd: Dictionary = data.get("shack", {})
 		var inn: Array = sd.get("in", [0.0, 1.6])
 		_kett_way = [_shack_door(1.4), _shack_door(-0.3), shack.global_transform * Vector3(shack.width * 0.5 + float(inn[0]), shack.floor_top, float(inn[1]) + 0.6)]
+		if not kett_corner().is_empty():
+			# Down the lane, through the storeroom's door, to his place behind its leaf (#1250).
+			_kett_way = [_shack_door(1.4), _shack_door(-0.3)]
+			for p: Array in shack_lane():
+				_kett_way.append(shack_point(p))
+			_kett_way.append(shack_point(kett_corner()))
 		_note("Kett breaks for the shack")
 		_yell_after()
 		if joe_brain and joe.physiology.is_conscious() and not joe.limp:
@@ -663,6 +699,8 @@ func _kett_step(delta: float) -> void:
 func _holed_up() -> void:
 	kett_state = HOLED_UP
 	shack.shut_door(true)
+	if shack is SpecBuilding and in_storeroom(kett.global_position):
+		shack.call(&"shut_leaf", "back")  # (he pulls the storeroom's door to behind him, #1250)
 	kett.face(_shack_door(0.0) + Vector3.UP * 1.0)
 	kett.set_pose(&"crouch")
 	fact("nojustice.kett", HOLED_UP)
