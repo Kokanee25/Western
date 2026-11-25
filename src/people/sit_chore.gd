@@ -49,13 +49,22 @@ func step_chore(delta: float, free: bool) -> bool:
 			brain.say(&"chair")
 	if chair == null or not is_instance_valid(chair) or chair.loose:
 		# His chair's gone (kicked to pieces): another free one near takes its place (the playtest's
-		# Earl stood on the wreck for minutes).
-		if not free or not wanted or man.limp:
+		# Earl stood on the wreck for minutes), and his post moves to it. Picked even while he isn't
+		# free: on his way back his post was the wreck's spot, which he couldn't reach for its pieces
+		# (#1230, saloon B: they lie against the wall), and "returning" there kept him from any chair.
+		if not wanted or man.limp:
 			return false
 		var other := Seating.free_chair_near(man.get_tree(), man.global_position + Vector3.UP * 0.47, ANOTHER, man)
 		if other == null:
 			return false
 		chair = other
+		var brain := man.get_node_or_null(^"Brain") as CivilianBrain
+		if brain != null:
+			brain.post = Seating.spot(other)
+			brain.faces = Seating.faces(other)
+			brain.reroute()
+		if not free:
+			return false
 	if not free or not wanted or man.limp:
 		if chair.seated == man:
 			Seating.stand_up(man, chair)
