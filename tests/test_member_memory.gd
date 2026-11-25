@@ -1,7 +1,7 @@
 extends TestCase
 ## What a building's members cost in memory (#1259; tools/member_memory.gd): the hotel built on its own
 ## (the game's biggest building, 15.7k members) comes in under the frame budget's memory a member
-## (config/frame_budget.tres `kb_per_member_held`, the step to `kb_per_member`), and the batches'
+## (config/frame_budget.tres `kb_per_member_held`, the step to `kb_per_member`), and the mesh batches'
 ## shadow, merged from each member's own arrays and place, is the batches' vertices as they were.
 
 const Lib := preload("res://tools/member_memory_lib.gd")
@@ -39,7 +39,8 @@ func test_the_shadow_is_the_batches_vertices() -> void:
 			want_v.append_array(old[Mesh.ARRAY_VERTEX])
 		else:
 			want_v.append_array((part as Array)[Mesh.ARRAY_VERTEX])
-	check(sources > 20, "the board batches' shadow comes from their members (%d)" % sources)
+	check(sources > 0, "the board batches' shadow comes from their members (%d)" % sources)
+	# (Boards shared by shape are drawn as instances since #1262: their shadow is their boxes', test_board_instances.)
 	var merged: Array = Structure._merge_batches(got)
 	var got_v: PackedVector3Array = merged[Mesh.ARRAY_VERTEX]
 	check_eq(got_v.size(), want_v.size(), "as many shadow vertices as the batches have")

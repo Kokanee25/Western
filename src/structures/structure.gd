@@ -142,6 +142,21 @@ var _batch_arrays := {}
 ## so such boards batch only with boards facing the same way, merged in their own frame.
 var _batch_axes := {}
 var _batch_dirty := {}
+## Batch -> [segments, role] for boards and strips shared by their shape (PropKit.shared_board,
+## shared_strips) drawn by the library shader: drawn as instances of one board a metre each way
+## (PropKit.unit_board; #1262), each board's place, size, seed, warp, nails and ground its instance's,
+## not their vertices copied into a mesh (11.7 KB a member on the hotel, its batches and their
+## shadow's). A piece holds up to INST_PIECE members, near ones together; its node a MultiMeshInstance3D.
+var _batch_inst := {}
+const INST_PIECE := 512
+## Instanced batch -> its boards' boxes for the far lamps' shadow (12 floats a board: a transform
+## scaled to the board, a unit box's), and the box round them; one shadow-only MultiMesh of them all.
+var _inst_shadow := {}
+var _inst_box := {}
+var _inst_shadow_node: MultiMeshInstance3D
+var _inst_shadow_queued := false
+const WOOD_SHADER := preload("res://src/render/scan_wood.gdshader")
+static var _unit_box: BoxMesh
 ## The shadow mesh (every batch merged) is built on a worker thread, at most every
 ## SHADOW_REBUILD_GAP: a far lamp's shadow of a fallen board lingers that long at most (it was
 ## 60 ms on the main thread for the spec saloon, every frame something broke, 2026-10-25).
@@ -731,8 +746,11 @@ func _batch_all() -> void:
 			continue
 		var mat := mi.material_override
 		var gk: Variant = mat
-		var frame: Variant = _frame_of(m, mi)
-		if frame != null:
+		var ig: Variant = _inst_group(mi)
+		var frame: Variant = null if ig != null else _frame_of(m, mi)
+		if ig != null:
+			gk = [mat, &"inst", ig[0], ig[1]]
+		elif frame != null:
 			gk = [mat, var_to_str(frame)]
 		if not groups.has(gk):
 			groups[gk] = []
@@ -741,12 +759,15 @@ func _batch_all() -> void:
 	var next := {}
 	for gk in groups:
 		var mat: Material = gk[0] if gk is Array else gk
-		var pieces := _batch_pieces(groups[gk])
+		var inst: bool = gk is Array and gk.size() == 4
+		var pieces := _batch_pieces(groups[gk], INST_PIECE if inst else BATCH_PIECE)
 		for i in pieces.size():
 			var key := [mat, int(next.get(mat, 0))]
 			next[mat] = int(next.get(mat, 0)) + 1
 			_batch_members[key] = pieces[i]
-			if gk is Array:
+			if inst:
+				_batch_inst[key] = [gk[2], gk[3]]
+			elif gk is Array:
 				_batch_axes[key] = str_to_var(gk[1])
 			for m: StructureMember in pieces[i]:
 				_batched[m] = key
@@ -758,6 +779,7 @@ func _batch_all() -> void:
 	for key in _batch_members:
 		_build_batch(key)
 	_build_shadow()
+	_set_inst_shadow()
 	if rest_batched and members_rest:
 		for m: StructureMember in _batched:
 			m.rest()
@@ -765,8 +787,8 @@ func _batch_all() -> void:
 
 ## One material's members in pieces of at most BATCH_PIECE, each piece near together: sorted by
 ## their 2 m cell's place on a Morton curve (then as built), and cut in runs.
-static func _batch_pieces(members: Array) -> Array:
-	if members.size() <= BATCH_PIECE:
+static func _batch_pieces(members: Array, piece := BATCH_PIECE) -> Array:
+	if members.size() <= piece:
 		return [members]
 	var low := Vector3.INF
 	for m: StructureMember in members:
@@ -777,7 +799,7 @@ static func _batch_pieces(members: Array) -> Array:
 		keyed.append([_morton(int(c.x), int(c.y), int(c.z)), i])
 	keyed.sort()  # (by cell, then the order they were built in: the same every time)
 	var out: Array = []
-	var n := ceili(members.size() / float(BATCH_PIECE))
+	var n := ceili(members.size() / float(piece))
 	var each := ceili(members.size() / float(n))  # even pieces, not 64, 64, ..., 3
 	for k in range(0, keyed.size(), each):
 		out.append(keyed.slice(k, k + each).map(func(e: Array) -> StructureMember: return members[e[1]]))
@@ -794,6 +816,9 @@ static func _morton(x: int, y: int, z: int) -> int:
 
 func _build_batch(key: Array) -> void:
 	var list: Array = _batch_members.get(key, [])
+	if _batch_inst.has(key):
+		_apply_instances(key, list)
+		return
 	var fire := _any_fire(list)
 	if list.is_empty():
 		_apply_batch(key, list, [], false)
@@ -1026,18 +1051,22 @@ func _batch_new(m: StructureMember) -> void:
 			or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
 		return
 	var mat := mi.material_override
-	var frame: Variant = _frame_of(m, mi)
+	var ig: Variant = _inst_group(mi)
+	var frame: Variant = null if ig != null else _frame_of(m, mi)
 	var key: Variant = null
 	var next := 0
 	for k: Array in _batch_members:
 		if k[0] == mat:
 			next = maxi(next, int(k[1]) + 1)
-			if key == null and (_batch_members[k] as Array).size() < BATCH_PIECE and _batch_axes.get(k) == frame:
+			if key == null and (_batch_members[k] as Array).size() < (INST_PIECE if ig != null else BATCH_PIECE) \
+					and _batch_axes.get(k) == frame and _batch_inst.get(k) == ig:
 				key = k
 	if key == null:
 		key = [mat, next]
 		_batch_members[key] = []
-		if frame != null:
+		if ig != null:
+			_batch_inst[key] = ig
+		elif frame != null:
 			_batch_axes[key] = frame
 	(_batch_members[key] as Array).append(m)
 	_batched[m] = key
@@ -1079,6 +1108,10 @@ func _rebuild_dirty_batches() -> void:
 		var list: Array = (_batch_members.get(key, []) as Array).duplicate()
 		_batch_frame_units += list.size()
 		_batch_dirty.erase(key)
+		if _batch_inst.has(key):
+			_apply_instances(key, list)  # (no merge: its instances' data, here)
+			_show_rebuilt(key)
+			continue
 		var inputs: Variant = null if list.is_empty() else _member_inputs(list, _batch_axes.get(key))
 		if inputs == null:
 			_build_batch(key)  # (nothing left of it, or members the merge doesn't take: here)
@@ -1531,10 +1564,16 @@ func _clear_batches() -> void:
 		_shadow.free()
 	_shadow = null
 	for key in _batches:
-		var mi: MeshInstance3D = _batches[key]
+		var mi: Node = _batches[key]
 		if is_instance_valid(mi):
 			mi.free()
 	_batches.clear()
+	_batch_inst.clear()
+	_inst_shadow.clear()
+	_inst_box.clear()
+	if _inst_shadow_node and is_instance_valid(_inst_shadow_node):
+		_inst_shadow_node.free()
+	_inst_shadow_node = null
 	_batched.clear()
 	_batch_members.clear()
 	_batch_arrays.clear()
@@ -1546,6 +1585,150 @@ func _clear_batches() -> void:
 	_looks.clear()
 	_slot.clear()
 	_looks_dirty.clear()
+
+
+# --- Boards drawn as instances (#1262) ---------------------------------------------------------
+
+## Whether its shared boards are drawn as instances (a kit prop's batches are joined into its
+## neighbours' meshes at rest, PropBatch: they stay meshes).
+func _instanced_boards() -> bool:
+	return true
+
+
+## The instanced batch a member drawn by `mi` goes in ([segments, role]), or null: a board or strips
+## shared by shape (PropKit.shared_board, shared_strips) drawn by the library shader.
+func _inst_group(mi: MeshInstance3D) -> Variant:
+	if mi.mesh == null or not _instanced_boards():
+		return null
+	var mat := mi.material_override as ShaderMaterial
+	if mat == null or mat.shader != WOOD_SHADER:
+		return null
+	if mi.mesh.has_meta(&"board_shared"):
+		var k: Array = mi.mesh.get_meta(&"board_shared")
+		return [PropKit.board_segments(k[0]), float(k[3])]
+	if mi.mesh.has_meta(&"strips_shared"):
+		var sk: Array = mi.mesh.get_meta(&"strips_shared")
+		return [PropKit.board_segments(sk[0]), 0.0]
+	return null
+
+
+## An instanced batch drawn as its members are now: each board (each strip of a strips member) an
+## instance of the unit board, its own transform, (warp, nails, ground) its colour and (L, W, T, seed)
+## its custom data, as scan_wood.gdshader reads them; nothing left of it if `list` is empty.
+func _apply_instances(key: Array, list: Array) -> void:
+	var node: MultiMeshInstance3D = _batches.get(key)
+	_batch_arrays.erase(key)
+	_fire_mats.erase(key)
+	_looks.erase(key)
+	var buf := PackedFloat32Array()
+	var shadow := PackedFloat32Array()
+	var lo := Vector3.INF
+	var hi := -Vector3.INF
+	var n := 0
+	for m: StructureMember in list:
+		var mi := m.drawn_node()
+		if mi == null or mi.mesh == null:
+			continue
+		var xf := m.transform * mi.transform
+		var b: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
+		var look := Vector4(b.y, b.z, b.w, float(mi.get_meta(&"board_ground", 0.0)))
+		var boards: Array = []  # [transform, size, seed]
+		if mi.mesh.has_meta(&"strips_shared"):
+			var sk: Array = mi.mesh.get_meta(&"strips_shared")
+			var widths: Array = mi.mesh.get_meta(&"strip_widths")
+			var ys := PropKit.strip_centres(sk[1], widths)
+			var rng: int = mi.get_meta(&"strips_rng", 0)
+			for i in widths.size():
+				boards.append([xf.translated_local(Vector3(0.0, ys[i], 0.0)), Vector3(sk[0], widths[i], sk[2]), PropKit.strip_seed(rng, i)])
+		elif mi.mesh.has_meta(&"board_shared"):
+			var k: Array = mi.mesh.get_meta(&"board_shared")
+			boards.append([xf, Vector3(k[0], k[1], k[2]), b.x])
+		else:
+			push_warning("Structure: %s in an instanced batch isn't a shared board" % m.member_id)
+			mi.visible = true
+			continue
+		for e: Array in boards:
+			var at: Transform3D = e[0]
+			var size: Vector3 = e[1]
+			var bs := at.basis
+			buf.append_array([bs.x.x, bs.y.x, bs.z.x, at.origin.x, bs.x.y, bs.y.y, bs.z.y, at.origin.y,
+					bs.x.z, bs.y.z, bs.z.z, at.origin.z, look.x, look.y, look.z, look.w, size.x, size.y, size.z, e[2]])
+			# The far lamps' shadow: a unit box (centred) scaled to the board, its middle where the board's is.
+			var c := at * Vector3(size.x * 0.5, 0.0, 0.0)
+			var sx := bs.x * size.x
+			var sy := bs.y * size.y
+			var sz := bs.z * size.z
+			shadow.append_array([sx.x, sy.x, sz.x, c.x, sx.y, sy.y, sz.y, c.y, sx.z, sy.z, sz.z, c.z])
+			var half := (sx.abs() + sy.abs() + sz.abs()) * 0.5 + Vector3(0.03, 0.03, 0.03)  # (and its warp)
+			lo = lo.min(c - half)
+			hi = hi.max(c + half)
+			n += 1
+	if n == 0:
+		if node:
+			node.queue_free()
+		_batches.erase(key)
+		_inst_shadow.erase(key)
+		_inst_box.erase(key)
+		_inst_shadow_soon()
+		return
+	var ig: Array = _batch_inst[key]
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
+	mm.use_custom_data = true
+	mm.mesh = PropKit.unit_board(ig[0], ig[1])
+	mm.instance_count = n
+	mm.buffer = buf
+	var box := AABB(lo, hi - lo)
+	mm.custom_aabb = box
+	if node == null:
+		node = MultiMeshInstance3D.new()
+		node.name = "Batch"
+		node.material_override = key[0]
+		add_child(node, false, Node.INTERNAL_MODE_BACK)
+		_batches[key] = node
+	node.multimesh = mm
+	_inst_shadow[key] = shadow
+	_inst_box[key] = box
+	_inst_shadow_soon()
+
+
+func _inst_shadow_soon() -> void:
+	if _inst_shadow_queued or not is_inside_tree():
+		return
+	_inst_shadow_queued = true
+	_set_inst_shadow.call_deferred()
+
+
+## The far lamps' shadow of every instanced board (Layers.VIS_WALLS, as `_shadow` is of the rest):
+## one unit box a board, one draw.
+func _set_inst_shadow() -> void:
+	_inst_shadow_queued = false
+	var all := PackedFloat32Array()
+	var box := AABB()
+	for k: Array in _inst_shadow:
+		all.append_array(_inst_shadow[k])
+		box = _inst_box[k] if box.size == Vector3.ZERO else box.merge(_inst_box[k])
+	if all.is_empty():
+		if _inst_shadow_node and is_instance_valid(_inst_shadow_node):
+			_inst_shadow_node.queue_free()
+		_inst_shadow_node = null
+		return
+	if _unit_box == null:
+		_unit_box = BoxMesh.new()
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = _unit_box
+	mm.instance_count = all.size() / 12
+	mm.buffer = all
+	mm.custom_aabb = box
+	if _inst_shadow_node == null or not is_instance_valid(_inst_shadow_node):
+		_inst_shadow_node = MultiMeshInstance3D.new()
+		_inst_shadow_node.name = "BoardShadow"
+		_inst_shadow_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+		_inst_shadow_node.layers = Layers.VIS_WALLS
+		add_child(_inst_shadow_node, false, Node.INTERNAL_MODE_BACK)
+	_inst_shadow_node.multimesh = mm
 
 
 ## How many draw calls its intact members take (tests, F3).

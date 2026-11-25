@@ -76,8 +76,15 @@ static func take_apart(b: Structure) -> Dictionary:
 	step.call("batch arrays (CPU copy)")
 	if b._shadow:
 		b._shadow.mesh = null
+	if b._inst_shadow_node:
+		b._inst_shadow_node.multimesh = null
+	b._inst_shadow.clear()
 	for key in b._batches:
-		(b._batches[key] as MeshInstance3D).mesh = null
+		var bn: Node = b._batches[key]
+		if bn is MeshInstance3D:
+			(bn as MeshInstance3D).mesh = null
+		elif bn is MultiMeshInstance3D:
+			(bn as MultiMeshInstance3D).multimesh = null
 	step.call("batch + shadow meshes")
 	b._clear_batches()
 	step.call("batch nodes and lists")
@@ -186,7 +193,11 @@ class MeasuredBuilding:
 		for mesh: Mesh in meshes:
 			verts += mesh.surface_get_array_len(0)
 		var bverts := 0
+		var instances := 0
 		for k in _batches:
-			bverts += ((_batches[k] as MeshInstance3D).mesh as ArrayMesh).surface_get_array_len(0)
+			if _batches[k] is MultiMeshInstance3D:
+				instances += (_batches[k] as MultiMeshInstance3D).multimesh.instance_count
+			else:
+				bverts += ((_batches[k] as MeshInstance3D).mesh as ArrayMesh).surface_get_array_len(0)
 		counts = {"distinct_member_meshes": meshes.size(), "their_vertices": verts, "batches": _batches.size(),
-			"batch_vertices": bverts}
+			"batch_vertices": bverts, "board_instances": instances}
