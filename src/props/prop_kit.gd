@@ -561,9 +561,21 @@ static func shared_board(mi: MeshInstance3D, length: float, width: float, thick:
 
 
 ## A shared board's own values for the batch's merge: [seed, CUSTOM1, CUSTOM2] (board_mesh's layout),
-## or null for any other mesh.
+## or null for any other mesh. Shared strips (#1259, `shared_strips`): [each strip's seed
+## (PackedFloat32Array), Vector4(0, 0, 0, warp), CUSTOM2, each strip's vertex count], the strips' own
+## lengths, widths and thicknesses kept in the mesh.
 static func board_values(mi: MeshInstance3D) -> Variant:
-	if mi == null or mi.mesh == null or not mi.mesh.has_meta(&"board_shared"):
+	if mi == null or mi.mesh == null:
+		return null
+	if mi.mesh.has_meta(&"strips_shared"):
+		var w: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
+		var seeds := PackedFloat32Array()
+		var rng: int = mi.get_meta(&"strips_rng", 0)
+		for i in (mi.mesh.get_meta(&"strip_widths") as Array).size():
+			seeds.append(strip_seed(rng, i))
+		return [seeds, Vector4(0.0, 0.0, 0.0, w.y), Vector4(w.z, w.w, float(mi.get_meta(&"board_ground", 0.0)), 0.0),
+				mi.mesh.get_meta(&"strip_counts")]
+	if not mi.mesh.has_meta(&"board_shared"):
 		return null
 	var k: Array = mi.mesh.get_meta(&"board_shared")
 	var b: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
@@ -572,13 +584,125 @@ static func board_values(mi: MeshInstance3D) -> Variant:
 
 ## A shared board given its own mesh (board_mesh's, as it was before #1246), to be drawn on its own.
 static func own_board(mi: MeshInstance3D) -> void:
-	if mi == null or mi.mesh == null or not mi.mesh.has_meta(&"board_shared"):
+	if mi == null or mi.mesh == null:
+		return
+	if mi.mesh.has_meta(&"strips_shared"):
+		var sk: Array = mi.mesh.get_meta(&"strips_shared")
+		var w: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
+		mi.mesh = strips_mesh(sk[0], sk[1], sk[2], sk[3], mi.get_meta(&"strips_rng", 0), w.y, Vector2(w.z, w.w),
+				float(mi.get_meta(&"board_ground", 0.0)))
+		mi.remove_meta(&"board")
+		mi.remove_meta(&"board_ground")
+		mi.remove_meta(&"strips_rng")
+		return
+	if not mi.mesh.has_meta(&"board_shared"):
 		return
 	var k: Array = mi.mesh.get_meta(&"board_shared")
 	var b: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
 	mi.mesh = board_mesh(k[0], k[1], k[2], b.x, b.y, Vector2(b.z, b.w), float(mi.get_meta(&"board_ground", 0.0)), k[3])
 	mi.remove_meta(&"board")
 	mi.remove_meta(&"board_ground")
+
+
+# --- strips: a member drawn as several boards side by side (#826; shared by shape, #1259) ---------
+
+## Strips shared by their shape (#1259, the hotel's memory: its ~4,100 inside wall and ceiling members
+## were each a strips mesh of its own, ~150 vertices and their arrays, about 10 KB a member). One
+## mesh per (length, width, thickness, strip), its strips' seeds, warp, nails and ground at zero; each
+## member's own on its node (`board`: Vector4(0, warp, nails), `board_ground`, `strips_rng`), written
+## into the batch by Structure's merge float for float as `strips_mesh` would have made them.
+static var _shared_strips := {}
+
+
+static func shared_strips(mi: MeshInstance3D, length: float, width: float, thick: float, strip: float, rng: int, warp: float,
+		nails: Vector2, ground_y: float) -> void:
+	var key := [length, width, thick, strip]
+	_shared_lock.lock()
+	var ref: WeakRef = _shared_strips.get(key)
+	var mesh: ArrayMesh = ref.get_ref() if ref else null
+	if mesh == null:
+		mesh = strips_mesh(length, width, thick, strip, 0, 0.0, Vector2.ZERO, 0.0)
+		mesh.set_meta(&"strips_shared", key)
+		if _shared_strips.size() > 8192:
+			for k: Array in _shared_strips.keys():
+				if (_shared_strips[k] as WeakRef).get_ref() == null:
+					_shared_strips.erase(k)
+		_shared_strips[key] = weakref(mesh)
+	_shared_lock.unlock()
+	mi.mesh = mesh
+	mi.set_meta(&"board", Vector4(0.0, warp, nails.x, nails.y))
+	mi.set_meta(&"board_ground", ground_y)
+	mi.set_meta(&"strips_rng", rng)
+
+
+## The seed of a member's strip `i` (its member's `rng`, the hash of its id).
+static func strip_seed(rng: int, i: int) -> float:
+	return float(hash(rng + i * 7919) % 100000) / 100000.0
+
+
+## A member drawn as boards `strip` wide side by side across its width (#826: a wall cut 27 cm a
+## member, drawn as the three 9 cm beaded boards its paint was judged at), the last one ripped to
+## what's left; each a library board of its own (its own seed, grain, bead and nails), one mesh in
+## the board frame (`board_mesh`'s), so it batches as one board does. Its strips' widths
+## (`strip_widths`) and vertex counts (`strip_counts`) kept on it. (Moved from SpecBuilding, #1259.)
+static func strips_mesh(length: float, width: float, thick: float, strip: float, rng: int, warp: float, nails: Vector2, ground_y: float) -> ArrayMesh:
+	var widths: Array[float] = []
+	var left := width
+	while left > 0.0005:
+		var w := minf(strip, left)
+		if left - w < 0.03 and widths.size() > 0 and left - w > 0.0005:
+			w = left  # (no sliver: the last board takes it)
+		widths.append(w)
+		left -= w
+	var parts: Array = []
+	var y := -width * 0.5
+	for i in widths.size():
+		var wi: float = widths[i]
+		var arr: Array = board_mesh(length, wi, thick, strip_seed(rng, i), warp, nails, ground_y).get_meta(&"arrays")
+		parts.append([arr, y + wi * 0.5])
+		y += wi
+	var out := []
+	out.resize(Mesh.ARRAY_MAX)
+	var v := PackedVector3Array()
+	var n := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var c0 := PackedFloat32Array()
+	var c1 := PackedFloat32Array()
+	var c2 := PackedFloat32Array()
+	var idx := PackedInt32Array()
+	var counts := PackedInt32Array()
+	for p: Array in parts:
+		var a: Array = p[0]
+		var off := Vector3(0.0, float(p[1]), 0.0)
+		var base := v.size()
+		for q: Vector3 in a[Mesh.ARRAY_VERTEX]:
+			v.append(q + off)
+		counts.append(v.size() - base)
+		n.append_array(a[Mesh.ARRAY_NORMAL])
+		uv.append_array(a[Mesh.ARRAY_TEX_UV])
+		c0.append_array(a[Mesh.ARRAY_CUSTOM0])
+		c1.append_array(a[Mesh.ARRAY_CUSTOM1])
+		c2.append_array(a[Mesh.ARRAY_CUSTOM2])
+		for k: int in a[Mesh.ARRAY_INDEX]:
+			idx.append(base + k)
+	out[Mesh.ARRAY_VERTEX] = v
+	out[Mesh.ARRAY_NORMAL] = n
+	out[Mesh.ARRAY_TEX_UV] = uv
+	out[Mesh.ARRAY_CUSTOM0] = c0
+	out[Mesh.ARRAY_CUSTOM1] = c1
+	out[Mesh.ARRAY_CUSTOM2] = c2
+	out[Mesh.ARRAY_INDEX] = idx
+	var fmt := (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT) \
+			| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, out, [], {}, fmt)
+	mesh.custom_aabb = AABB(Vector3(-0.02, -width * 0.5 - 0.02, -thick * 0.5 - 0.02), Vector3(length + 0.04, width + 0.04, thick + 0.04))
+	mesh.set_meta(&"arrays", out)
+	mesh.set_meta(&"board_frame", true)
+	mesh.set_meta(&"strip_widths", widths)
+	mesh.set_meta(&"strip_counts", counts)
+	return mesh
 
 
 ## A library board cut to an outline (#805: a roll-top desk's S-curved sides; a bracket, a crest):

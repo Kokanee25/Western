@@ -196,10 +196,6 @@ var _batch_gen := {}
 var _batch_job: Array = []
 var _batch_out: Array = []
 var _batch_task := -1
-## A member mesh's arrays, read once (the worker mustn't ask the rendering server: it waits on the
-## main thread, which deadlocks the moment the main thread waits on it).
-static var _mesh_arrays := {}
-const MESH_ARRAYS_KEPT := 20000
 ## A material's members are batched in pieces of at most this many, near ones together (in the
 ## order of 2 m cells along a Morton curve): a ball into one board rebuilt the material's batch for
 ## the whole building, 683 members of the spec saloon's, ~20 ms on the physics frame every shot
@@ -805,7 +801,7 @@ func _build_batch(key: Array) -> void:
 	if _batch_axes.has(key):
 		var inputs: Variant = _member_inputs(list, _batch_axes[key])
 		if inputs != null:
-			_apply_batch(key, list, _merge_members(inputs, false), false)
+			_apply_batch(key, list, _merge_members(inputs, false), false, inputs)
 			return
 	var st := SurfaceTool.new()
 	var counts := PackedInt32Array()
@@ -834,7 +830,7 @@ func _any_fire(list: Array) -> bool:
 
 ## A batch's mesh made from its arrays (worked out here or on a worker) for `list`, its members as
 ## they were then; nothing left of it if `list` is empty.
-func _apply_batch(key: Array, list: Array, arrays: Array, fire: bool) -> void:
+func _apply_batch(key: Array, list: Array, arrays: Array, fire: bool, inputs: Variant = null) -> void:
 	var mat: Material = key[0]
 	var old: MeshInstance3D = _batches.get(key)
 	if list.is_empty() or arrays.is_empty():
@@ -855,7 +851,9 @@ func _apply_batch(key: Array, list: Array, arrays: Array, fire: bool) -> void:
 				flags |= Mesh.ARRAY_CUSTOM_RGBA_FLOAT << (Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT + c * Mesh.ARRAY_FORMAT_CUSTOM_BITS)
 	elif fire:
 		flags = Mesh.ARRAY_CUSTOM_R_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
-	_batch_arrays[key] = arrays if frame == null else _in_structure(arrays, frame)
+	# What the shadow is merged from (`_merge_batches`): a board batch's members' own arrays (shared by
+	# shape) and where each sits, not a copy of its vertices (#1259: the copies were ~4 KB a member).
+	_batch_arrays[key] = arrays if frame == null or inputs == null else _shadow_source(inputs, frame)
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 	if old == null:
@@ -1128,12 +1126,9 @@ func _member_inputs(list: Array, frame: Variant = null) -> Variant:
 		var mi := m.drawn_node()
 		if mi == null or mi.mesh == null or mi.mesh.get_surface_count() == 0:
 			return null
-		var arrays: Variant = _mesh_arrays.get(mi.mesh)
-		if arrays == null:
-			if _mesh_arrays.size() > MESH_ARRAYS_KEPT:
-				_mesh_arrays.clear()
-			arrays = MemberMesh.arrays_of(mi.mesh)  # (kept from its making: no read back, #626)
-			_mesh_arrays[mi.mesh] = arrays
+		# Kept on the mesh from its making (no read back, #626; the worker mustn't ask the rendering
+		# server). A static cache of them here kept every mesh it had seen alive, up to 20,000 (#1259).
+		var arrays: Array = MemberMesh.arrays_of(mi.mesh)
 		var has := _channels(arrays)
 		if has < 0 or (shape >= 0 and has != shape):
 			return null
@@ -1223,7 +1218,25 @@ static func _merge_members(inputs: Array, fire: bool) -> Array:
 			uvs.append_array(a[Mesh.ARRAY_TEX_UV])
 		if first[Mesh.ARRAY_TEX_UV2] != null:
 			uv2s.append_array(a[Mesh.ARRAY_TEX_UV2])
-		if own != null:
+		if own != null and own[0] is PackedFloat32Array:
+			# Shared strips (#1259, PropKit.shared_strips): each strip's seed, the member's warp, nails and
+			# ground in; each strip's own length, width and thickness as its shape has them.
+			var c0_at := cu0.size()
+			cu0.append_array(a[Mesh.ARRAY_CUSTOM0])
+			var seeds: PackedFloat32Array = own[0]
+			var counts_of: PackedInt32Array = own[3]
+			var at := c0_at
+			for k in seeds.size():
+				for i in counts_of[k]:
+					cu0[at] = seeds[k]
+					at += 4
+			var c1_at := cu1.size()
+			cu1.append_array(a[Mesh.ARRAY_CUSTOM1])
+			var warp: float = (own[1] as Vector4).w
+			for i in range(c1_at + 3, cu1.size(), 4):
+				cu1[i] = warp
+			cu2.append_array(_repeated(own[2], v.size()))
+		elif own != null:
 			# Its shape's channels with its own values in: board_mesh's, float for float.
 			var c0_at := cu0.size()
 			cu0.append_array(a[Mesh.ARRAY_CUSTOM0])
@@ -1297,7 +1310,7 @@ func _batch_done() -> void:
 		if fire and (arrays[Mesh.ARRAY_CUSTOM2] as PackedFloat32Array).is_empty():
 			fire = false  # (the vertices weren't its members': drawn without places)
 			arrays[Mesh.ARRAY_CUSTOM2] = null
-		_apply_batch(j[0], j[2], arrays, fire)
+		_apply_batch(j[0], j[2], arrays, fire, j[4])
 		if int(_batch_gen.get(j[0], 0)) == int(j[1]):
 			_show_rebuilt(j[0])
 	Prof.stop(&"batches", t)
@@ -1347,6 +1360,18 @@ static func _in_structure(arrays: Array, frame: Basis) -> Array:
 	return out
 
 
+## A board batch's shadow source (#1259): each member's arrays and its place in the structure (the
+## batch's frame and its place in that), not its vertices.
+static func _shadow_source(inputs: Array, frame: Basis) -> Dictionary:
+	var arrays: Array = []
+	var xfs: Array[Transform3D] = []
+	var into := Transform3D(frame, Vector3.ZERO)
+	for inp: Array in inputs:
+		arrays.append(inp[0])
+		xfs.append(into * (inp[1] as Transform3D))
+	return {"arrays": arrays, "xfs": xfs}
+
+
 ## The shadow mesh now, on this thread (the build; tests).
 func _build_shadow() -> void:
 	_set_shadow(_merge_batches(_batch_arrays.values()))
@@ -1360,7 +1385,11 @@ static func _merge_batches(parts: Array) -> Array:
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var indices := PackedInt32Array()
-	for arrays: Array in parts:
+	for part: Variant in parts:
+		if part is Dictionary:
+			_merge_shadow_source(part, verts, normals, indices)
+			continue
+		var arrays: Array = part
 		var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 		var n: Variant = arrays[Mesh.ARRAY_NORMAL]
 		var idx: Variant = arrays[Mesh.ARRAY_INDEX]
@@ -1383,6 +1412,30 @@ static func _merge_batches(parts: Array) -> Array:
 		out[Mesh.ARRAY_NORMAL] = normals
 	out[Mesh.ARRAY_INDEX] = indices
 	return out
+
+
+## A board batch's members (`_shadow_source`) into the shadow's arrays: each member's own vertices
+## put where it sits, as the batch has them (its normals turned with it; its basis is a turn, so they
+## stay unit).
+static func _merge_shadow_source(src: Dictionary, verts: PackedVector3Array, normals: PackedVector3Array, indices: PackedInt32Array) -> void:
+	var arrays: Array = src.arrays
+	var xfs: Array[Transform3D] = src.xfs
+	for i in arrays.size():
+		var a: Array = arrays[i]
+		var xf := xfs[i]
+		var v: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+		var base := verts.size()
+		verts.append_array(xf * v)
+		var n: Variant = a[Mesh.ARRAY_NORMAL]
+		if n is PackedVector3Array:
+			normals.append_array(Transform3D(xf.basis, Vector3.ZERO) * (n as PackedVector3Array))
+		var idx: Variant = a[Mesh.ARRAY_INDEX]
+		if idx is PackedInt32Array:
+			for k: int in idx:
+				indices.append(k + base)
+		else:
+			for k in v.size():
+				indices.append(base + k)
 
 
 func _set_shadow(arrays: Array) -> void:
