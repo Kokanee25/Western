@@ -720,6 +720,9 @@ func by_stack() -> Array[StructureMember]:
 func _batch_all() -> void:
 	_clear_batches()
 	if not batch_meshes:
+		for m in _order:
+			if m.resting() or m.get_child_count() > 0:
+				PropKit.own_board(m.drawn_node())  # (drawn on its own: its own mesh, #1246)
 		return
 	var groups := {}
 	for m in _order:
@@ -728,6 +731,7 @@ func _batch_all() -> void:
 		# member under its painted board) or drawn its own way.
 		if mi == null or not mi.visible or m.kind == &"glass" or mi.material_override == null \
 				or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
+			PropKit.own_board(mi)
 			continue
 		var mat := mi.material_override
 		var gk: Variant = mat
@@ -807,6 +811,7 @@ func _build_batch(key: Array) -> void:
 	var counts := PackedInt32Array()
 	for m: StructureMember in list:
 		var mi := m.drawn_node()
+		PropKit.own_board(mi)  # (append_from takes the mesh as it is: a shared board's own first, #1246)
 		st.append_from(mi.mesh, 0, m.transform * mi.transform)
 		if fire:
 			counts.append(mi.mesh.surface_get_array_len(0))
@@ -986,6 +991,8 @@ func unbatch(m: StructureMember, soon := false, aside := false) -> void:
 	RubbleRest.touch(m)  # (its pieces lying at rest in a cell are their bodies' own again)
 	if not aside:
 		m.realise()
+	if m.resting() or m.get_child_count() > 0:
+		PropKit.own_board(m.drawn_node())  # (drawn on its own from now: its own mesh, not its shape's, #1246)
 	if not _batched.has(m):
 		return
 	var key: Array = _batched[m]
@@ -1131,7 +1138,7 @@ func _member_inputs(list: Array, frame: Variant = null) -> Variant:
 		if has < 0 or (shape >= 0 and has != shape):
 			return null
 		shape = has
-		out.append([arrays, into * m.transform * mi.transform])
+		out.append([arrays, into * m.transform * mi.transform, PropKit.board_values(mi)])
 	return out
 
 
@@ -1189,6 +1196,8 @@ static func _merge_members(inputs: Array, fire: bool) -> Array:
 	for inp: Array in inputs:
 		var a: Array = inp[0]
 		var xf: Transform3D = inp[1]
+		# A shared board's own seed, shape and nails (#1246, PropKit.shared_board): [seed, CUSTOM1, CUSTOM2].
+		var own: Variant = inp[2] if inp.size() > 2 else null
 		var v: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
 		var base := verts.size()
 		verts.append_array(xf * v)
@@ -1214,12 +1223,22 @@ static func _merge_members(inputs: Array, fire: bool) -> Array:
 			uvs.append_array(a[Mesh.ARRAY_TEX_UV])
 		if first[Mesh.ARRAY_TEX_UV2] != null:
 			uv2s.append_array(a[Mesh.ARRAY_TEX_UV2])
-		if first[Mesh.ARRAY_CUSTOM0] != null:
+		if own != null:
+			# Its shape's channels with its own values in: board_mesh's, float for float.
+			var c0_at := cu0.size()
 			cu0.append_array(a[Mesh.ARRAY_CUSTOM0])
-		if first[Mesh.ARRAY_CUSTOM1] != null:
-			cu1.append_array(a[Mesh.ARRAY_CUSTOM1])
-		if first[Mesh.ARRAY_CUSTOM2] != null:
-			cu2.append_array(a[Mesh.ARRAY_CUSTOM2])
+			var seed: float = own[0]
+			for i in range(c0_at, cu0.size(), 4):
+				cu0[i] = seed
+			cu1.append_array(_repeated(own[1], v.size()))
+			cu2.append_array(_repeated(own[2], v.size()))
+		else:
+			if first[Mesh.ARRAY_CUSTOM0] != null:
+				cu0.append_array(a[Mesh.ARRAY_CUSTOM0])
+			if first[Mesh.ARRAY_CUSTOM1] != null:
+				cu1.append_array(a[Mesh.ARRAY_CUSTOM1])
+			if first[Mesh.ARRAY_CUSTOM2] != null:
+				cu2.append_array(a[Mesh.ARRAY_CUSTOM2])
 		if indexed:
 			for i: int in (a[Mesh.ARRAY_INDEX] as PackedInt32Array):
 				indices.append(i + base)
@@ -1248,6 +1267,14 @@ static func _merge_members(inputs: Array, fire: bool) -> Array:
 	if fire and arrays[Mesh.ARRAY_CUSTOM2] == null:
 		arrays[Mesh.ARRAY_CUSTOM2] = _places(arrays, counts)
 	return arrays
+
+
+## `v` n times over, as floats (a channel the same at every vertex of a board).
+static func _repeated(v: Vector4, n: int) -> PackedFloat32Array:
+	var q := PackedVector4Array()
+	q.resize(n)
+	q.fill(v)
+	return q.to_byte_array().to_float32_array()
 
 
 ## A job's batches in: each made into its mesh (as its members were when the job began; a batch
