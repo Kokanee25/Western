@@ -2378,7 +2378,7 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		# Going away from him, it isn't striking him: a piece he walked into and shoved on (#1248: Earl,
 		# up among the card table's pieces, broke a hand and a foot on the pedestal he pushed along).
 		var toward := (other as Node3D).global_position - rb.global_position
-		var away := toward.length() > 0.001 and v.dot(toward.normalized()) < tuning.harmless_speed
+		var away := toward.length() > 0.001 and v.dot(toward.normalized()) < 0.0
 		# The man whose boot just broke it: the piece leaves at his boot's speed, against his own leg
 		# (No Law's kicked chair: Cody went down to his own kick's spindle, #887). Spared a moment.
 		var by: Array = get_meta(&"broken_by", [])
