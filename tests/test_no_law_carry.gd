@@ -89,6 +89,25 @@ func _by(man: HumanBody) -> void:
 	await physics_frames(2)
 
 
+## Where the last walk went (every 10 s) and what held it: in the failure's message (#1230: CI's walk
+## from saloon B stopped short at 153.7 m where no local run did).
+var _trail: Array[String] = []
+
+
+static func _r(v: Vector3) -> String:
+	return "(%.1f, %.1f, %.1f)" % [v.x, v.y, v.z]
+
+
+## Saloon B's card table and chairs gone loose (kicked or knocked over), by name.
+func _loose_set() -> Array:
+	var out := []
+	for k: String in _folk().props:
+		var kp := _folk().props[k] as KitProp
+		if kp != null and is_instance_valid(kp) and kp.loose:
+			out.append(k)
+	return out
+
+
 ## Walk (the forward key, steered) by `way` to its end: false if it took over `max_s`.
 func _walk(way: Array[Vector3], max_s: float) -> bool:
 	var p := _player()
@@ -96,7 +115,10 @@ func _walk(way: Array[Vector3], max_s: float) -> bool:
 	print("      walk: time_scale %.2f move_factor %.2f burden %.2f shove %.2f carry %.2f crouching %s winded %.2f" % [Engine.time_scale, p.move_factor, p.burden, p.shove.pace() if p.shove else 1.0, p.carry.pace(), p.is_crouching, p.composure.winded if p.composure else 0.0])
 	var stuck := 0
 	var last := p.global_position
+	_trail.clear()
 	for i in frames:
+		if i % 600 == 0:
+			_trail.append("%d s %s" % [i / 60, _r(p.global_position)])
 		while not way.is_empty() and Vector2(p.global_position.x - way[0].x, p.global_position.z - way[0].z).length() < 0.6:
 			way.pop_front()
 		if way.is_empty():
@@ -130,6 +152,7 @@ func _walk(way: Array[Vector3], max_s: float) -> bool:
 					var col := p.get_slide_collision(k).get_collider() as Node
 					cols.append(str(col.get_path()) if col else "?")
 				print("      held at %s: touching %s" % [p.global_position, cols])
+				_trail.append("held at %s by %s" % [_r(p.global_position), cols])
 			# Held (the card table's edge where Earl fell, the barkeep by it: where he fell decides
 			# whether the way out goes through them), you'd step back and round it with him, as a player
 			# would.
@@ -164,10 +187,7 @@ func _tap_e() -> void:
 ## Earl's wound as the test needs it whatever the ball did (#1079): a ball under the collarbone, one
 ## bleed that doesn't clot (KNOWN_ML_S), his breath and head clear, so he talks while you carry him
 ## (out at unconscious_at_loss about two minutes on, slower as his pressure falls) and dies of it.
-## (#1230: 10 ml/s, was 14: from saloon B's card table the walk to Doc's is ~106 m, not the yard's ~60;
-## at 14 he died at ~182 s and a walk that wandered to 154 m on CI didn't make the door. At 10 he dies
-## ~285 s on: the arrival with time to spare, his death after it still inside the test's 240 s wait.)
-const KNOWN_ML_S := 10.0
+const KNOWN_ML_S := 14.0
 const KNOWN_LOST_ML := 300.0
 
 
@@ -411,7 +431,7 @@ func test_the_night_earl_carried_to_the_doctors_and_there_in_the_morning() -> vo
 		retakes += 1
 		await _by(earl)
 		await _tap_e()
-	check(there and p.carry.carrying(earl), "to the doctor's door with him (%s; taken up again %d)" % [p.carry.report(), retakes])
+	check(there and p.carry.carrying(earl), "to the doctor's door with him (%s; taken up again %d; loose %s; the walk %s)" % [p.carry.report(), retakes, _loose_set(), _trail])
 	check(retakes <= 2, "lost him at most twice (%d)" % retakes)
 	check(c.said.any(func(s: Array) -> bool: return s[2] == "carry.earl"), "Earl talks on the way (%s)" % [c.said])
 	print("    at the door: you %s, Earl %s, door_point %s, the doctor's place %s, %s" % [p.global_position, ValleyFolk._body_at(earl), c.door_point(), f.places.at(&"doctor"), p.carry.report()])

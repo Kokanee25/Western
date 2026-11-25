@@ -136,6 +136,10 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	check(shot, "Cody shoots (%s)" % m.result())
 	var r := m.result()
 	check(r.chair_loose and r.earl_fell, "Earl's chair kicked out from under him (%s)" % r)
+	# #1248 (the blind playtest, 2026-11-25): the card table went over with Earl's chair, and in saloon B
+	# it lay on the way out. The table stands, and the other chairs (the stranger's, yours) with it.
+	var table := f.props.table as KitProp
+	check(table != null and not table.loose, "the card table still standing after the kick (%s)" % (table.global_position if table else Vector3.INF))
 	# Down and bleeding, not shot dead (Sean, 2026-11-17, #1057): the ball through his collarbone,
 	# what it does the body's.
 	await physics_frames(20)
@@ -175,7 +179,19 @@ func test_the_murder_with_you_sat_at_the_table() -> void:
 	# Down and breathing when it's over (#1057): the carry's, and he dies by his own clock.
 	check(String(f.state[&"earl"]) == "dead" or earl.physiology.alive, "Earl breathing, or dead to the folk (%s)" % f.state[&"earl"])
 	var gone := await wait_until(func() -> bool: return not f.people.has(&"cody") and not f.people.has(&"stranger"), 60 * 90)
-	check(gone, "Cody and the stranger walk off down the street and are gone (%s)" % [m.result().events.slice(-3)])
+	var touching := []
+	if not gone and m.stranger != null and is_instance_valid(m.stranger):
+		var q := PhysicsShapeQueryParameters3D.new()
+		var cap := CapsuleShape3D.new()
+		cap.radius = 0.3
+		cap.height = 1.6
+		q.shape = cap
+		q.transform = Transform3D(Basis(), m.stranger.global_position + Vector3.UP * 0.9)
+		q.collision_mask = Layers.WORLD
+		for hit: Dictionary in valley.get_world_3d().direct_space_state.intersect_shape(q, 12):
+			touching.append(str((hit.collider as Node).get_path()).get_slice("/Valley/", 1))
+	check(gone, "Cody and the stranger walk off down the street and are gone (%s; the stranger %s at %s by %s, his way left %s)" % [m.result().events.slice(-3), m._str_state,
+			m.stranger.global_position if m.stranger != null and is_instance_valid(m.stranger) else "gone", touching, m._str_route])
 	check(String(f.state[&"drifter"]) in ["going", "out"] and f.kept_out.has(&"drifter"), "the drifter leaves (%s)" % f.state[&"drifter"])
 	check_eq(StoryState.get_fact("nolaw.murder"), "done", "nolaw.murder")
 	check_eq(StoryState.get_fact("nolaw.seen_from"), "table", "seen from the table")
