@@ -16,8 +16,8 @@
   "cody": {
     "_doc": "Comes in from the street by `in` (places of ValleyFolk's), shouting the accusation as he's taken in at its first; the stranger's warning `warn_after_s` after the shout (once he's within `stop_m` of the table, when the game stops). Out by `out` and on `off` [x, z] m from its last down Main Street and on that way, taken out of the world once `gone_m` from you and out of your sight (follow him and he walks on). `after_s` after the stranger's sat (or gave up on a chair).",
     "id": "cody", "after_s": 3.0,
-    "in": ["saloon", "saloonb_corner_in", "saloonb_cards"],
-    "out": ["saloonb_cards", "saloonb_corner_in", "saloon", "saloon_steps", "main@8.9"],
+    "in": ["saloon", "saloonb_corner_in", "saloonb_corner_inside", "saloonb_cards"],
+    "out": ["saloonb_cards", "saloonb_corner_inside", "saloonb_corner_in", "saloon", "saloon_steps", "main@8.9"],
     "off": [60.0, 0.0],
     "gone_m": 30.0,
     "stop_m": 6.0,
@@ -31,7 +31,7 @@
   },
   "stranger": {
     "_doc": "Sits in the free chair you're not in (the first of `chairs` free), a minute's quiet before Cody; stands and leaves `leave_s` after Cody's out of the yard.",
-    "id": "stranger", "in": ["saloon", "saloonb_corner_in", "saloonb_cards"], "chairs": ["s", "n"], "walk_speed": 1.2,
+    "id": "stranger", "in": ["saloon", "saloonb_corner_in", "saloonb_corner_inside", "saloonb_cards"], "chairs": ["s", "n"], "walk_speed": 1.2,
     "sit_timeout_s": 20.0, "leave_s": 4.0,
     "_approach": "The way to each chair from inside the corner door (`saloonb_cards`), [x, z] on saloon B's floor in its space (#1230; the set's `hall`), round the table and its men (#773's playtest: the north chair's way went through the table): the south chair's straight on, the north chair's round the table's east side (the window side has Earl's back and the wall's lamp); walked back the other way when he goes.",
     "approach": {"s": [], "n": [[11.3, 5.9], [11.6, 9.0]]}

@@ -187,10 +187,7 @@ func _tap_e() -> void:
 ## Earl's wound as the test needs it whatever the ball did (#1079): a ball under the collarbone, one
 ## bleed that doesn't clot (KNOWN_ML_S), his breath and head clear, so he talks while you carry him
 ## (out at unconscious_at_loss about two minutes on, slower as his pressure falls) and dies of it.
-## (#1230: 10 ml/s, was 14: from saloon B's card table the walk to Doc's is ~106 m, not the yard's ~60;
-## at 14 he died at ~182 s and a walk that wandered to 154 m on CI didn't make the door. At 10 he dies
-## ~285 s on: the arrival with time to spare, his death after it still inside the test's 240 s wait.)
-const KNOWN_ML_S := 10.0
+const KNOWN_ML_S := 14.0
 const KNOWN_LOST_ML := 300.0
 
 
