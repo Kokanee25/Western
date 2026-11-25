@@ -2375,13 +2375,17 @@ func _on_rubble_hit(other: Node, rb: RigidBody3D) -> void:
 		# 9 kg seat as a 3,900 J blow to the belly each time he rose, and never got up (#834, #875).
 		if person.get(&"rising") == true:
 			return
+		# Going away from him, it isn't striking him: a piece he walked into and shoved on (#1248: Earl,
+		# up among the card table's pieces, broke a hand and a foot on the pedestal he pushed along).
+		var toward := (other as Node3D).global_position - rb.global_position
+		var away := toward.length() > 0.001 and v.dot(toward.normalized()) < tuning.harmless_speed
 		# The man whose boot just broke it: the piece leaves at his boot's speed, against his own leg
 		# (No Law's kicked chair: Cody went down to his own kick's spindle, #887). Spared a moment.
 		var by: Array = get_meta(&"broken_by", [])
 		if by.size() == 2 and by[0] == person and Engine.get_physics_frames() - int(by[1]) <= BREAKER_SPARED_FRAMES:
 			hurt.append(person)
 			rb.set_meta(&"hurt", hurt)
-		if not hurt.has(person):
+		if not away and not hurt.has(person):
 			hurt.append(person)
 			rb.set_meta(&"hurt", hurt)
 			person.call_deferred(&"take_blow", other, energy, rb.global_position, v.normalized(), rb.mass * speed)
