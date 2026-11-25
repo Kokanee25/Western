@@ -95,3 +95,34 @@ To measure this, I put the hotel back on its lot (ce3f6590^'s `valley.json` line
 3. **The structure node's 3.4 KB a member, freed with the node** (not script data). Not traced yet.
 4. **The support graph (2.6 KB a member).** Packed arrays of indices instead of
    `Array[StringName]` and dictionaries. `tests/test_support_graph.gd` pins the graph.
+
+## Step 2 (#1262), cut 1: boards drawn as instances
+
+A building's boards and strips shared by shape are drawn as MultiMesh instances of one board a metre
+each way per (segments, role) (`PropKit.unit_board`): each board's transform, (warp, nails, ground) as
+its colour and (L, W, T, seed) as its custom data; `scan_wood.gdshader` scales the board and works
+out its UV from them (a unit board's CUSTOM1.x is -1). A strips member is an instance a strip. Pieces
+hold up to 512 members, near ones together. The far lamps' shadow of them is one MultiMesh of unit
+boxes. Members drawn on their own (hit, cut, burning, moving) and the few boards with meshes of their
+own batch as before. Kit props keep mesh batches (PropBatch joins them).
+
+The hotel alone, this workspace, main 68e447f9 → this cut:
+
+| Part | Before KB a member | After KB a member |
+|---|---|---|
+| batch + shadow meshes (VRAM on a GPU) | 11.74 | 0.29 |
+| batch arrays, nodes and lists | 0.22 | 0.12 |
+| every other part | unchanged | unchanged |
+| **whole** | **37.8** | **26.1** |
+
+- Batches: 280 → 117 (draw calls of its intact members); 15,130 members drawn as 17,520 instances.
+- The hotel alone: peak RSS 1,122 → 890 MB.
+- The valley with the hotel placed (this workspace, main as of #1265, so higher than step 1's
+  numbers): peak RSS 5,685 → 5,173 MB, static 4,812 → 4,277 MB, the buildings' load 17.6 → 14.5 s.
+- On a GPU the batches' meshes were video memory: ~180 MB for the hotel, ~0.5 GB for the valley's
+  buildings, now ~2 MB and ~10 MB of instance data.
+- The look: the hotel lobby rendered before and after under lavapipe. Side by side it's the same
+  picture; 1.5% of pixels differ by more than 24/255, single pixels at board edges and at the paint
+  chips' thresholds (each board now drawn on its own exact axes; the batch snapped them to 0.001).
+- `tests/test_board_instances.gd`: every vertex, UV and channel the shader makes of the instances is
+  the boards' own merge (worst under 0.02 mm), and a hit board leaves its instances and draws itself.
