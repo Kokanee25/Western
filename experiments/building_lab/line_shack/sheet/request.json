@@ -1,0 +1,101 @@
+{
+ "_doc": "The hideout's line shack (Kett's cabin, No Justice) target sheet (#1091, the building lab's step 1). Sean's answers 2026-11-25 in the session: rough vertical boards (not the homestead's logs), split shakes, one small window, a board floor, a pole lean-to beside it. Door in the north gable end; the stand-in's footprint 4.2 x 5 m (about 14 x 16 ft); a one-foot step to the floor (#966). Nine views at ~$0.14, $1.41 cap. The spec settles every size.",
+ "sheet_title": "Salt Creek, 1882: the hideout's line shack (target sheet, #1091)",
+ "cap": 1.41,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light, real worn materials (rough-sawn and weathered boards, split shakes, sandstone, iron, dust, dry grass), period-accurate in every object. No people unless the view asks for them. No modern objects. No text, no signs. No border, no frame, no watermark, no captions.",
+ "building": "An outlaw gang's LINE SHACK in 1882, in a dry box canyon under red sandstone rimrock cliffs in south-west Colorado: an old cow-camp line shack the gang has taken over as their hideout, scattered pinyon and juniper, sage and dry grass, a rocky dirt clearing before it. THE SHACK: small, about 14 ft wide by 16 ft deep, ONE room, ONE storey, a plain rectangle in plan with no wing or ell. Its ONE DOOR is in the middle of the NORTH GABLE END (the front), a heavy door of vertical planks on two battens and a Z-brace with strap hinges, barred from inside by a wooden bar dropped into two iron brackets. A flat stone doorstep before the door, the floor one short step (about a foot) above the ground. WALLS of ROUGH VERTICAL BOARDS: wide rough-sawn pine boards standing up and down with narrow battens over the joints, weathered silver-grey and brown, warped, a few gaps and knotholes, a couple of boards split or patched with a tin can flattened over a hole, on a timber sill resting on flat sandstone rocks at the corners. A STEEP GABLE ROOF of old grey split SHAKES, the ridge running front to back, the eaves overhanging a little, a patch or two of shakes missing or slipped. A rusty tin STOVEPIPE through the roof near the back, with a little cap and guy wires. ONE small window in the EAST side wall: four small dirty panes, one cracked, a plank shutter hung open beside it. A POLE LEAN-TO against the EAST side wall: a shed roof of poles and old boards on two juniper posts, open at the front and side, sheltering SADDLES on a rail, saddle blankets, bridles and ropes hung on pegs, a stack of split juniper firewood and a pack saddle. INSIDE, the one room (board floor of rough planks on sleepers, worn and stained): the gang's mess: two plank BUNKS one above the other against the back (south) wall's west corner and a third single bunk along the west wall, with grey blankets and bedrolls; a sheet-iron box STOVE in the back east corner on flat stones, its pipe up through the roof, a blackened COFFEE POT and a skillet on it; a rough plank TABLE in the middle with two plank BENCHES, on it tin plates, cups, a deck of cards, a lamp, empty whiskey BOTTLES; empty tin CANS and bottles in a crate and on the floor; a saddle, a rifle scabbard and spurs on the floor by the bunks; a shelf of tins, a sack of flour, a coffee grinder; clothes and a gun belt hung on nails; a cartridge box. Dim light through the one window and the door. Lived in hard by five rough men: dirty, cluttered, but nothing modern.",
+ "views": [
+  {
+   "id": "approach",
+   "title": "The line shack in its box canyon",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Coming into the clearing at eye level from the north in late afternoon, the low sun from the west: the shack's front gable end facing you with its plank door and stone doorstep, the pole lean-to with saddles on its east side, the stovepipe smoking a little, red rimrock cliffs rising behind, pinyon and juniper, a cold campfire ring in the clearing before the shack. A slightly long lens."
+  },
+  {
+   "id": "plan",
+   "title": "Site plan and the shack's plan",
+   "aspect": "3:2",
+   "size": "2K",
+   "view": "A clean architect's drawing in black ink on off-white paper, seen from above: on the left a small site plan (the shack, the lean-to on its east side, the campfire ring north of the door, a horse picket line east of the lean-to, the canyon walls to the south); on the right at a larger scale the shack's one-room floor plan, a plain rectangle about 14 by 16 ft, no wing or ell: the door in the middle of the north wall with the doorstep outside it, the one small window in the east wall, the stacked bunks in the south-west corner and a single bunk along the west wall, the stove in the south-east corner, the table and two benches in the middle, a shelf, the lean-to outside the east wall. Each thing labelled in small lettering. A north arrow."
+  },
+  {
+   "id": "front",
+   "title": "The shack's front and door",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The north gable end straight on at eye level, late afternoon light raking across the rough vertical boards and battens: the heavy plank door on its strap hinges, shut, the flat stone doorstep a foot below the sill, the steep shake roof's gable, the stovepipe showing beyond the ridge, the lean-to's end on the left with a saddle on its rail.",
+   "refs": [
+    "approach",
+    "plan"
+   ]
+  },
+  {
+   "id": "side",
+   "title": "The east side and the lean-to",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the clearing to the north-east of the shack: its east side wall of rough vertical boards with the one small four-pane window and its open plank shutter, the pole lean-to against the wall with saddles on a rail, bridles and ropes on pegs, firewood stacked, a pack saddle; the shake roof and the rusty stovepipe with its guy wires; the red rimrock behind. Late afternoon.",
+   "refs": [
+    "approach",
+    "plan"
+   ]
+  },
+  {
+   "id": "back",
+   "title": "The back and west side",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From behind the shack to the south-west, the canyon wall close behind you: the back (south) gable end and the long west wall of rough vertical boards, no window on these sides, the sill on flat sandstone rocks, a tin can patch over a hole, the shake roof with a missing patch, the stovepipe, junk thrown out behind (empty cans, a broken crate, bottles). Late afternoon light.",
+   "refs": [
+    "approach",
+    "plan"
+   ]
+  },
+  {
+   "id": "inside_door",
+   "title": "Inside, from the door",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the one room at eye level, standing just inside the open door looking south to the back wall, afternoon light through the door behind you and the small east window: the board walls and battens seen from inside with light through the cracks, the open rafters and the undersides of the shakes, the stacked bunks in the back right corner and the single bunk along the right wall with grey blankets and bedrolls, the sheet-iron stove in the back left corner with the coffee pot on it, the plank table and two benches in the middle with tin plates, cards, a lamp and empty bottles, cans and bottles on the floor, saddles and a gun belt, the board floor worn and stained.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "inside_back",
+   "title": "Inside, toward the door",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the one room at eye level from the back corner by the stove, looking north to the door: the plank door shut and barred, its wooden bar down in two iron brackets across it, the board wall either side with clothes and a rifle on nails, the end of the table and a bench in the foreground with the crew's mess on it (tin cups, a coffee pot, a whiskey bottle, a skillet), the window on the right throwing light across the floor. Dim, smoky.",
+   "refs": [
+    "inside_door",
+    "plan"
+   ]
+  },
+  {
+   "id": "cutaway",
+   "title": "The shack's cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "An architectural cutaway of the shack, a bird's-eye three-quarter view from the north-west with the west wall and half the roof cut away: the timber sill on flat sandstone rocks, the floor sleepers and rough plank floor, the light frame of the walls (corner posts, a top plate, a girt halfway up) with the rough vertical boards and battens nailed on outside, the door framed in the north wall with its bar and brackets, the small window in the east wall, the rafters, the skip boards and the split shakes on them, the stovepipe through a tin plate in the roof, the lean-to's poles against the east wall; the room furnished as the plan has it.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "dusk",
+   "title": "The hideout at dusk",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The shack from the clearing at dusk, at a distance, a little above (from the slope to the west): lamplight in the small window and through the cracks of the board walls, sparks from the stovepipe, a campfire burning before the door, the horses on the picket line east of the lean-to, the rimrock dark against a deep blue sky. No people.",
+   "refs": [
+    "approach",
+    "plan"
+   ]
+  }
+ ]
+}
