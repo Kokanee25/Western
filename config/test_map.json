@@ -41,7 +41,7 @@
       "test_stair_ramp.gd", "test_trestle.gd", "test_inside_woods.gd", "test_wood_use.gd",
       "test_town_buildings.gd", "test_cemetery.gd", "test_valley.gd", "test_valley_town.gd",
       "test_valley_church.gd", "test_undertaker_valley.gd", "test_valley_farmhouse.gd", "test_farmhouse.gd",
-      "test_support_graph.gd"
+      "test_support_graph.gd", "test_member_memory.gd", "test_shared_strips.gd", "test_shared_boards.gd"
     ],
     "blast": [
       "test_blast_*", "test_dynamite*", "test_rubble*", "test_settle_incremental.gd", "test_breakage_lab.gd",
@@ -91,7 +91,8 @@
     ],
     "debug": [
       "test_dev_bridge.gd", "test_bug_report.gd", "test_crash_reports.gd", "test_perf.gd", "test_soak_rules.gd",
-      "test_game_quit.gd", "test_scene_hold.gd", "test_chaos.gd", "test_playtest_faults.gd", "test_look_panel.gd"
+      "test_game_quit.gd", "test_scene_hold.gd", "test_chaos.gd", "test_playtest_faults.gd", "test_look_panel.gd",
+      "test_member_memory.gd"
     ]
   },
   "rules": [
