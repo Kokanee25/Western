@@ -82,6 +82,13 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 			if not k in wears:
 				shapes.erase(k)
 		hatted = shapes.has("hat")
+	# A man with his own hat (a MetaHuman dressed in the bundle's, #1282) wears it, not BodyMesh's,
+	# when his outfit has a hat, and goes bareheaded (his hair showing) when it hasn't.
+	var own_hat := whole and generated.has("hat")
+	if own_hat:
+		for k: String in ["hat", "hat_brim", "hat_band"]:
+			shapes.erase(k)
+		hatted = bool(outfit.get("hat", false))
 	# A man with his own tie doesn't also wear the old lofted bandana (it floats off his neck).
 	if generated.has("cravat"):
 		shapes.erase("bandana")
@@ -99,6 +106,11 @@ static func build(anatomy: Anatomy, outfit: Dictionary, model: StringName) -> Di
 		if k in ["hat_brim", "hat_band"] and not shapes.has("hat") and not whole:
 			continue
 		if hatted and k in info.get("under_hat", []):
+			continue
+		if own_hat and k == "hat" and not hatted:
+			continue
+		# What a cast man goes without (config/private_cast.json `off`: his beard, his mustache).
+		if k in outfit.get("off", []):
 			continue
 		# His own skin and head always; a garment only if this outfit has it (a man without a coat
 		# on doesn't get the model's coat), and anything BodyMesh doesn't make (the tie). A whole
@@ -594,10 +606,13 @@ static func _to_root(n: Node3D) -> Transform3D:
 	return t
 
 
-# --- Private men cast in the valley (#933) ------------------------------------------------------
+# --- Private men cast (#933, #1282) -------------------------------------------------------------
 
 const CAST_PATH := "res://config/private_cast.json"
 static var _cast: Variant = null
+## The shapes a cast man's tints go on (config/private_cast.json `looks`): each key is a shape of his
+## model (`skin` takes his head too).
+const CAST_TINTS := ["hat", "vest", "shirt", "trousers", "skin"]
 
 
 static func _cast_data() -> Dictionary:
@@ -610,37 +625,95 @@ static func _cast_data() -> Dictionary:
 	return _cast
 
 
-## The model a person is played by: the private man's level config/private_cast.json gives him,
-## when the cast is `on` and that level is laid in (tools/characters/fetch_private.sh), else his own
-## `model`.
-static func cast_model(person: StringName, model: StringName) -> StringName:
+## Is the cast on in this build? `on` for debug and local builds; a release export also needs
+## `release` (off until the release encryption, #1176: the private build for Sean sets it, the
+## public releases never carry the private files anyway).
+static func cast_on() -> bool:
+	var c := _cast_data()
+	if String(c.get("build", "")) == "" or not bool(c.get("on", true)):
+		return false
+	return OS.is_debug_build() or bool(c.get("release", false))
+
+
+## How a person is cast (#1282): his own entry in `people`, else, with `everyone`, one of `looks`
+## picked by his id (the same man the same look every time), unless his model is one the cast keeps
+## (`keep_models`: the women, by the start of their model's name) or he's in `keep_people`. {} when
+## he isn't cast.
+static func cast_of(person: StringName, model: StringName) -> Dictionary:
 	var c := _cast_data()
 	var who: Variant = (c.get("people", {}) as Dictionary).get(String(person))
-	if not who is Dictionary or String(c.get("build", "")) == "" or not bool(c.get("on", true)):
+	if who is Dictionary:
+		return _with_look(who as Dictionary, person)
+	if not bool(c.get("everyone", false)) or String(person) in c.get("keep_people", []):
+		return {}
+	for k: String in c.get("keep_models", []):
+		if String(model).begins_with(k):
+			return {}
+	return _with_look({}, person)
+
+
+## A person's entry over his look (`look`: an index into `looks`, else one picked by his id).
+static func _with_look(who: Dictionary, person: StringName) -> Dictionary:
+	var looks: Array = _cast_data().get("looks", [])
+	if looks.is_empty():
+		return who
+	var i := int(who.get("look", absi(hash(String(person))) % looks.size()))
+	var out: Dictionary = (looks[clampi(i, 0, looks.size() - 1)] as Dictionary).duplicate()
+	out.merge(who, true)
+	return out
+
+
+## The model a person is played by: the private man's level config/private_cast.json gives him,
+## when the cast is on and that level is laid in (tools/characters/fetch_private.sh), else his own
+## `model`.
+static func cast_model(person: StringName, model: StringName) -> StringName:
+	if String(model).begins_with("private/") or not cast_on():
 		return model
+	var who := cast_of(person, model)
+	if who.is_empty():
+		return model
+	var c := _cast_data()
 	var level := String(who.get("level", c.get("near", "lod1")))
 	var m := StringName("private/%s_%s" % [c.build, level] if level != "" else "private/%s" % c.build)
 	return m if has_model(m) else model
 
 
-## Re-dress a man cast by cast_model (his `hat` colour now; his vest's `tint` once he's built):
-## nothing for a man playing his own model.
+## Re-dress a man cast by cast_model: his hat (`hat`: a tint on his own hat, or BodyMesh's hat's
+## colour on a man without one; [0,0,0,0] for none, his hair shows), the tints on his own shapes
+## (CAST_TINTS) and the shapes he goes without (`off`: his beard, his mustache), so the same face
+## many times doesn't read as clones. Nothing for a man playing his own model.
 static func cast_dress(man: Node3D, person: StringName) -> void:
 	if not String(man.get(&"body_model")).begins_with("private/"):
 		return
-	var who: Variant = (_cast_data().get("people", {}) as Dictionary).get(String(person))
-	if not who is Dictionary:
+	var who := cast_of(person, &"")
+	if who.is_empty():
 		return
 	if who.has("hat"):
 		man.set(&"hat_color", _rgba(who.hat))
-	if who.has("vest"):
-		var tint := _rgba(who.vest)
-		man.ready.connect(func() -> void:
-			var meshes: Dictionary = man.get(&"skin_meshes")
-			for key: String in meshes:
-				var mat = (meshes[key] as MeshInstance3D).material_override
-				if key.begins_with("vest/") and mat is ShaderMaterial:
-					(mat as ShaderMaterial).set_shader_parameter(&"tint", tint), CONNECT_ONE_SHOT)
+	man.set(&"cast_off", (who.get("off", []) as Array).duplicate())
+	var tints := {}
+	for k: String in CAST_TINTS:
+		if who.has(k) and not (k == "hat" and _rgba(who.hat).a <= 0.0):
+			tints[k] = _rgba(who[k])
+	if tints.is_empty():
+		return
+	man.ready.connect(func() -> void:
+		var meshes: Dictionary = man.get(&"skin_meshes")
+		# BodyMesh's hat (with its brim) takes his hat_color already: the tint is for his own hat.
+		var bodymesh_hat := false
+		for key: String in meshes:
+			bodymesh_hat = bodymesh_hat or key.begins_with("hat_brim/")
+		if bodymesh_hat:
+			tints.erase("hat")
+		for key: String in meshes:
+			var shape := key.get_slice("/", 0)
+			var k := "skin" if shape == "head" else shape
+			var mat = (meshes[key] as MeshInstance3D).material_override
+			if tints.has(k) and mat is ShaderMaterial:
+				var t: Color = tints[k]
+				if shape == "head":
+					t = Color(t.r, t.g, t.b, 1.0)
+				(mat as ShaderMaterial).set_shader_parameter(&"tint", t), CONNECT_ONE_SHOT)
 
 
 static func _rgba(a: Array) -> Color:
