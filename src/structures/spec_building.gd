@@ -32,6 +32,8 @@ var spec: Dictionary
 var extra_furniture: Array = []
 ## The band members added now go in (see the top).
 var band := 0
+## The band the walls' battens were laid in (board-and-batten; -1 none): a sign on them goes in it (#1286).
+var _batten_band := -1
 ## [StaticBody3D ramp, [stringers]] for each stair.
 var ramps: Array = []
 var lamps: Array[OilLamp] = []
@@ -3208,6 +3210,10 @@ func _rafter_lines() -> Array[float]:
 	var loft := false
 	for f: Dictionary in spec.floors:
 		loft = loft or f.level == "upper"
+	# An upper floor well under the plates is a storey with knee walls, not a loft whose joists tie the
+	# rafters' feet (#1286, the Railroad Saloon's dance floor 1.2 m under them): the rafters at their own spacing.
+	if loft and float((spec.levels.get("upper", {}) as Dictionary).get("top", 0.0)) < float(spec.levels.plate) - 0.3:
+		loft = false
 	if not loft:
 		# No loft (#1250, the line shack: open to the shakes): the rafters at their spacing on the plates,
 		# tied by their collars.
@@ -3647,7 +3653,13 @@ func _gable_sign() -> void:
 	var front: Dictionary = walls["front"].dict
 	var w := float(gs.width)
 	var x0 := (width - w) * 0.5
-	var sign := _wall_member("front/sign", &"trim", &"sign", front, x0, x0 + w, float(gs.y[0]), float(gs.y[1]), BOARD_T, BOARD_T + 0.03)
+	# On board-and-batten (#1286, the Railroad Saloon) the sign is nailed to the battens' face, 19 mm proud.
+	var out0 := BOARD_T + (0.019 if String(((walls["front"].spec as Dictionary).get("outside", {}) as Dictionary).get("siding", "")) == "vertical" else 0.0)
+	var keep := band
+	if out0 > BOARD_T and _batten_band >= 0:
+		band = _batten_band  # (a trim on the battens, in their band: it rests on them)
+	var sign := _wall_member("front/sign", &"trim", &"sign", front, x0, x0 + w, float(gs.y[0]), float(gs.y[1]), out0, out0 + 0.03)
+	band = keep
 	SignArt.hang(self, sign, String(spec.front.sign_text))
 
 
@@ -4636,6 +4648,7 @@ func _battens(wall: Dictionary, wood: StringName) -> void:
 	keys.sort()
 	var bw := 0.07
 	band += 1
+	_batten_band = band
 	for i in keys.size() - 1:
 		var a: Array = cols[keys[i]]
 		var b: Array = cols[keys[i + 1]]

@@ -20,6 +20,7 @@
  "lot": {
   "_doc": "valley.json town.extras 'second_saloon' (centre [-42, -62], 12 x 9 m: x -48..-36, z -66.5..-57.5), between Back Street (z -54.25..-48.15) and the tracks, by the stock pens and the team track. The building on the lot's west half, its back wall on the lot's back line; 30 ft runs 0.14 m past the lot's front edge into the 3.25 m verge before Back Street (no walk on Back Street). Its east front corner is the origin. The outside stair stands on the lot's west edge (x -47.92); the 3.5 m yard east holds the empty kegs, the privy and the way round to the pens.",
   "valley_lot": "second_saloon",
+  "walk": false,
   "side": "north",
   "at": [
    -39.5,
@@ -45,7 +46,7 @@
    -3.5,
    0.0,
    8.382,
-   9.144
+   10.294
   ]
  },
  "levels": {
@@ -154,7 +155,8 @@
     0.15
    ],
    "wood": "framing",
-   "look": "wood:int_timber"
+   "look": "wood:int_timber",
+   "chamfer": 0.012
   },
   "beam": {
    "_doc": "THE GIRDER: one 6x12, jointed over its posts (three pieces)",
@@ -163,7 +165,8 @@
     0.305
    ],
    "wood": "framing",
-   "look": "wood:int_timber"
+   "look": "wood:int_timber",
+   "chamfer": 0.012
   },
   "bracket": {
    "reach": 0.3,
@@ -432,7 +435,7 @@
    ]
   },
   {
-   "_doc": "To the tracks and the pens: the back door (west of the girder's wall post), one small window upstairs over the piano's end.",
+   "_doc": "To the tracks and the pens: the back door and the upstairs door over it (west of the girder's wall post), the landing outside between them; a small window high over the piano.",
    "id": "back",
    "line": [
     [
@@ -470,19 +473,28 @@
     {
      "type": "door",
      "level": "ground",
-     "at": 5.015,
+     "at": 5.7,
      "width": 0.91,
      "height": 2.03,
-     "leaf": "outward",
-     "_doc": "to the pens and the tracks"
+     "leaf": "inward",
+     "_doc": "to the pens and the tracks, under the landing"
+    },
+    {
+     "type": "door",
+     "level": "upper",
+     "at": 5.7,
+     "width": 0.81,
+     "height": 1.98,
+     "leaf": "inward",
+     "_doc": "the upstairs door off the landing: the only way in and out, THE JAM when the floor goes"
     },
     {
      "type": "window",
      "level": "upper",
      "at": 2.0,
      "width": 0.6,
-     "height": 0.76,
-     "sill": 0.6,
+     "height": 0.6,
+     "sill": 1.4,
      "lights": 2
     }
    ]
@@ -546,8 +558,8 @@
      "level": "upper",
      "at": 1.2,
      "width": 0.6,
-     "height": 0.76,
-     "sill": 0.6,
+     "height": 0.6,
+     "sill": 0.25,
      "lights": 2
     },
     {
@@ -555,14 +567,14 @@
      "level": "upper",
      "at": 7.9,
      "width": 0.6,
-     "height": 0.76,
-     "sill": 0.6,
+     "height": 0.6,
+     "sill": 0.25,
      "lights": 2
     }
    ]
   },
   {
-   "_doc": "The west side, the outside stair's: two windows before the stair's foot, the upstairs door at the landing near the back.",
+   "_doc": "The west side, the outside stair's: two windows before the stair's foot, one small one under the eaves upstairs (the 4 ft knee wall).",
    "id": "stair",
    "line": [
     [
@@ -620,18 +632,9 @@
      "level": "upper",
      "at": 1.5,
      "width": 0.6,
-     "height": 0.76,
-     "sill": 0.6,
+     "height": 0.6,
+     "sill": 0.25,
      "lights": 2
-    },
-    {
-     "type": "door",
-     "level": "upper",
-     "at": 8.594,
-     "width": 0.81,
-     "height": 1.98,
-     "leaf": "inward",
-     "_doc": "the upstairs door off the landing; THE JAM when the floor goes"
     }
    ]
   }
@@ -642,7 +645,7 @@
    "id": "outside",
    "head": [
     7.315,
-    8.144
+    9.194
    ],
    "dir": "+z",
    "width": 1.067,
@@ -655,31 +658,32 @@
    "posts": [
     [
      8.332,
-     5.48
+     6.53
     ],
     [
-     7.365,
-     5.48
+     7.435,
+     6.53
     ],
     [
      8.332,
-     6.88
+     7.93
     ],
     [
-     7.365,
-     6.88
+     7.435,
+     7.93
     ]
    ]
   },
   {
-   "_doc": "the back door's two steps down to the pad behind (the cut's bank 1.5 m back)",
+   "_doc": "the back door's two steps down to the pad behind (the cut's bank 1.5 m back), under the landing",
    "id": "back",
    "head": [
-    5.015,
-    9.444
+    5.2,
+    9.144
    ],
    "dir": "-z",
    "width": 1.0,
+   "rail": "none",
    "from": 0.0,
    "to": "ground",
    "risers": 2,
@@ -687,14 +691,15 @@
    "wood": "weathered_pine"
   },
   {
-   "_doc": "the front door's plank step to the pad",
+   "_doc": "the front door's plank steps to the pad",
    "id": "front",
    "head": [
-    3.3,
-    -0.3
+    4.15,
+    0.0
    ],
    "dir": "+z",
    "width": 1.4,
+   "rail": "none",
    "from": 0.0,
    "to": "ground",
    "risers": 2,
@@ -704,7 +709,7 @@
  ],
  "balconies": [
   {
-   "_doc": "the outside stair's landing at the upstairs door (the hotel's `landings` are inside: this is a balcony a bay)",
+   "_doc": "the outside stair's landing behind the back wall: from the stair's head (west, past the wall's end) to the door in the back gable; it roofs the back door under it. Three beams across it on posts, its joists along the wall over them (a stair's stringers on a beam, never a joist).",
    "id": "landing",
    "wood": "weathered_pine",
    "post": [
@@ -717,40 +722,70 @@
    ],
    "posts": [
     [
-     8.302,
-     8.144
+     4.95,
+     9.274
+    ],
+    [
+     4.95,
+     10.214
+    ],
+    [
+     6.65,
+     9.274
+    ],
+    [
+     6.65,
+     10.214
     ],
     [
      8.302,
-     9.044
+     9.274
+    ],
+    [
+     8.302,
+     10.214
     ]
    ],
    "beams": [
     [
      [
+      4.95,
+      9.274
+     ],
+     [
+      4.95,
+      10.214
+     ]
+    ],
+    [
+     [
+      6.65,
+      9.274
+     ],
+     [
+      6.65,
+      10.214
+     ]
+    ],
+    [
+     [
       8.302,
-      8.144
+      9.274
      ],
      [
       8.302,
-      9.044
+      10.214
      ]
     ]
    ],
-   "ledgers": [
-    {
-     "wall": "stair",
-     "from": 8.144,
-     "to": 9.044
-    }
-   ],
+   "ledgers": [],
    "decks": [
     {
      "rect": [
-      7.365,
-      8.144,
+      4.95,
+      9.214,
       8.382,
-      9.044
+      10.234
      ],
      "joists": "x"
     }
@@ -758,22 +793,32 @@
    "rails": [
     [
      [
-      8.342,
-      8.184
+      4.95,
+      10.254
      ],
      [
       8.342,
-      9.004
+      10.254
      ]
     ],
     [
      [
-      7.365,
-      9.004
+      8.342,
+      9.194
      ],
      [
       8.342,
-      9.004
+      10.254
+     ]
+    ],
+    [
+     [
+      4.99,
+      9.194
+     ],
+     [
+      4.99,
+      10.254
      ]
     ]
    ]
@@ -842,7 +887,7 @@
     5.3,
     3.7
    ],
-   "chairs": 0
+   "chairs": 2
   },
   {
    "kit": "table",
@@ -850,7 +895,7 @@
     5.3,
     5.8
    ],
-   "chairs": 0
+   "chairs": 2
   },
   {
    "_doc": "the front table by the window, clear of the fall",
@@ -859,72 +904,55 @@
     5.4,
     1.4
    ],
-   "chairs": 0
+   "chairs": 2
   }
  ],
  "lamps": {
-  "_doc": "#824's rules: smoky coal-oil lamps, few. Below: one on each of the girder's posts, one on the bar. Upstairs: two hung from collars over the posts' lines, one on the back wall by the piano.",
+  "_doc": "#824's rules: smoky coal-oil lamps, few. Below: a reflector lamp on the yard wall by the bar's front end and one on the stair wall by the tables. Upstairs: two hung from the collars over the girder's posts (the dressing's `plan` batch, as saloon B's S1 hangs its lamps from joists) and one on the back wall by the piano.",
   "kit": [
    {
     "room": "bar_room",
     "kit": "reflector_lamp",
-    "post": [
-     3.658,
-     3.048
-    ],
+    "wall": "yard",
     "level": "ground",
-    "height": 1.8,
+    "at": 2.2,
+    "height": 1.7,
     "lit": [
      17,
      4
     ],
+    "shadows": true,
     "energy": 1.2,
     "reach": 6.0
    },
    {
     "room": "bar_room",
     "kit": "reflector_lamp",
-    "post": [
-     3.658,
-     6.096
-    ],
+    "wall": "stair",
     "level": "ground",
-    "height": 1.8,
+    "at": 5.0,
+    "height": 1.7,
     "lit": [
      17,
      4
     ],
+    "shadows": true,
     "energy": 1.2,
     "reach": 6.0
    },
    {
     "room": "dance_floor",
-    "kit": "hanging_lamp",
-    "hang": [
-     3.658,
-     3.048
-    ],
+    "kit": "reflector_lamp",
+    "wall": "back",
     "level": "upper",
+    "at": 4.2,
+    "height": 1.0,
     "lit": [
      19,
      3
     ],
-    "energy": 1.2,
-    "reach": 6.0
-   },
-   {
-    "room": "dance_floor",
-    "kit": "hanging_lamp",
-    "hang": [
-     3.658,
-     6.096
-    ],
-    "level": "upper",
-    "lit": [
-     19,
-     3
-    ],
-    "energy": 1.2,
+    "shadows": true,
+    "energy": 1.0,
     "reach": 6.0
    }
   ]
@@ -995,6 +1023,34 @@
       8.044
      ],
      "facing": 0
+    },
+    {
+     "id": "hanging_lamp_0",
+     "kit": "hanging_lamp",
+     "at": [
+      3.658,
+      5.683,
+      2.685
+     ],
+     "facing": 0,
+     "light": 0.33,
+     "shadows": false,
+     "energy": 1.0,
+     "use": "hung from the collar nearest the girder's front post"
+    },
+    {
+     "id": "hanging_lamp_1",
+     "kit": "hanging_lamp",
+     "at": [
+      3.658,
+      5.683,
+      6.345
+     ],
+     "facing": 0,
+     "light": 0.33,
+     "shadows": false,
+     "energy": 1.0,
+     "use": "hung from the collar nearest the girder's back post"
     },
     {
      "id": "stove",
@@ -1136,54 +1192,6 @@
    "_doc": "behind the bar: UNDER THE CUT"
   },
   {
-   "id": "table_0",
-   "use": "sit",
-   "who": "drinker",
-   "at": [
-    4.6,
-    0.375,
-    3.7
-   ],
-   "facing": 0,
-   "_doc": "the tables west of the girder: under the west half"
-  },
-  {
-   "id": "table_1",
-   "use": "sit",
-   "who": "drinker",
-   "at": [
-    6.0,
-    0.375,
-    3.7
-   ],
-   "facing": 0,
-   "_doc": "the tables west of the girder: under the west half"
-  },
-  {
-   "id": "table_2",
-   "use": "sit",
-   "who": "drinker",
-   "at": [
-    4.6,
-    0.375,
-    5.8
-   ],
-   "facing": 0,
-   "_doc": "the tables west of the girder: under the west half"
-  },
-  {
-   "id": "table_3",
-   "use": "sit",
-   "who": "drinker",
-   "at": [
-    6.0,
-    0.375,
-    5.8
-   ],
-   "facing": 0,
-   "_doc": "the tables west of the girder: under the west half"
-  },
-  {
    "id": "edge_0",
    "use": "stand",
    "who": "drinker",
@@ -1200,9 +1208,9 @@
    "use": "stand",
    "who": "drinker",
    "at": [
-    5.0,
+    4.4,
     0.375,
-    8.4
+    8.3
    ],
    "facing": 180,
    "_doc": "standing drinkers outside the bay"
@@ -1224,24 +1232,24 @@
    "use": "play",
    "who": "band",
    "at": [
-    1.4,
+    3.4,
     3.245,
-    8.244
+    8.45
    ],
    "facing": 180,
-   "_doc": "the band at the back wall, in the back bay (pianist at the piano, fiddle, cornet, bones)"
+   "_doc": "the band beside the piano at the back wall, in the back bay, clear of the door (the pianist on the piano's stool)"
   },
   {
    "id": "band_1",
    "use": "play",
    "who": "band",
    "at": [
-    2.4,
+    4.25,
     3.245,
-    8.244
+    8.45
    ],
    "facing": 180,
-   "_doc": "the band at the back wall, in the back bay (pianist at the piano, fiddle, cornet, bones)"
+   "_doc": "the band beside the piano at the back wall, in the back bay, clear of the door (the pianist on the piano's stool)"
   },
   {
    "id": "band_2",
@@ -1250,22 +1258,22 @@
    "at": [
     3.4,
     3.245,
-    8.244
+    7.6
    ],
    "facing": 180,
-   "_doc": "the band at the back wall, in the back bay (pianist at the piano, fiddle, cornet, bones)"
+   "_doc": "the band beside the piano at the back wall, in the back bay, clear of the door (the pianist on the piano's stool)"
   },
   {
    "id": "band_3",
    "use": "play",
    "who": "band",
    "at": [
-    4.4,
+    4.25,
     3.245,
-    8.244
+    7.6
    ],
    "facing": 180,
-   "_doc": "the band at the back wall, in the back bay (pianist at the piano, fiddle, cornet, bones)"
+   "_doc": "the band beside the piano at the back wall, in the back bay, clear of the door (the pianist on the piano's stool)"
   },
   {
    "id": "reel_0",

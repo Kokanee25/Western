@@ -55,11 +55,12 @@ RISERS = 17
 RISE = U_TOP / RISERS
 GOING = 10 * IN
 STAIR_W = 3.5 * FT     # 1.07
-LAND = (r(D - 0.1 - 0.9), r(D - 0.1))  # the landing at the upper door, against the back corner's line
+LAND = (r(D + 0.05), r(D + 1.15))      # the landing behind the back wall, from the stair's head to the gable's door
+LAND_X0 = 4.95                          # its east end, past the door (its post clear of the back door's steps)
 HEAD_Z = LAND[0]
 FOOT_Z = r(HEAD_Z - (RISERS - 1) * GOING)
 SX0, SX1 = r(W), r(W + STAIR_W)
-UP_DOOR_Z = r((LAND[0] + LAND[1]) / 2)
+BACK_DOOR_X = 5.7                       # the back door and the upstairs door over it, off the girder's wall post (3.66)
 
 # ---------------------------------------------------------------- the collapse's numbers (USDA Wood Handbook)
 # Ponderosa pine (western yellow pine, the Colorado mills' wood), Wood Handbook (FPL-GTR-282, 2021) Table 5-3a, clear,
@@ -137,6 +138,7 @@ spec = {
 			"before Back Street (no walk on Back Street). Its east front corner is the origin. The outside stair stands on the "
 			"lot's west edge (x -47.92); the 3.5 m yard east holds the empty kegs, the privy and the way round to the pens."),
 		"valley_lot": "second_saloon",
+		"walk": False,
 		"side": "north",
 		"at": [r(-36.0 - 3.5 - 0.0), 2.17, r(-66.5 + D)],
 		"facing": 180,
@@ -148,7 +150,7 @@ spec = {
 			"y": 2.17, "rise_front_to_back": 0.66, "behind": 1.5},
 		"width": r(W), "depth": r(D),
 		"yard": [-3.5, 0.0, 0.0, r(D)],
-		"footprint_with_stair": [-3.5, 0.0, SX1, r(D)],
+		"footprint_with_stair": [-3.5, 0.0, SX1, LAND[1]],
 	},
 	"levels": {
 		"_doc": (f"Low and cheap: the floor one plank step over the pad; 7 ft 6 in clear under the girder (8 ft 6 in to the "
@@ -181,8 +183,8 @@ spec = {
 		"plate": {"height": 0.1},
 		"ribbon": {"section": [0.025, 0.15]},
 		"header": {"height": 0.15},
-		"post": {"_doc": "6x6 rough posts on stone footings under the girder", "section": [0.15, 0.15], "wood": "framing", "look": "wood:int_timber"},
-		"beam": {"_doc": "THE GIRDER: one 6x12, jointed over its posts (three pieces)", "section": [r(GIRDER[0]), r(GIRDER[1])], "wood": "framing", "look": "wood:int_timber"},
+		"post": {"_doc": "6x6 rough posts on stone footings under the girder", "section": [0.15, 0.15], "wood": "framing", "look": "wood:int_timber", "chamfer": 0.012},
+		"beam": {"_doc": "THE GIRDER: one 6x12, jointed over its posts (three pieces)", "section": [r(GIRDER[0]), r(GIRDER[1])], "wood": "framing", "look": "wood:int_timber", "chamfer": 0.012},
 		"bracket": {"reach": 0.3, "thick": 0.08},
 		"wall_post": {"section": [0.15, 0.1]},
 		"rafters": {"_doc": ("2x6 at 24 in, 10/12, on the plates against a 1x8 ridge; a 2x6 collar on EVERY pair 8 ft over the dance "
@@ -229,22 +231,25 @@ spec = {
 			"morning; Joe watches from it; the crowd jams it when the floor goes."),
 		"id": "outside", "head": [SX0, HEAD_Z], "dir": "+z", "width": r(STAIR_W), "from": 0.0, "to": "upper",
 		"risers": RISERS, "going": r(GOING), "rail": "+x", "wood": "weathered_pine",
-		"posts": [[r(SX1 - 0.05), r(FOOT_Z + 1.4)], [r(SX0 + 0.05), r(FOOT_Z + 1.4)], [r(SX1 - 0.05), r(FOOT_Z + 2.8)], [r(SX0 + 0.05), r(FOOT_Z + 2.8)]],
+		"posts": [[r(SX1 - 0.05), r(FOOT_Z + 1.4)], [r(SX0 + 0.12), r(FOOT_Z + 1.4)], [r(SX1 - 0.05), r(FOOT_Z + 2.8)], [r(SX0 + 0.12), r(FOOT_Z + 2.8)]],
 	}, {
-		"_doc": "the back door's two steps down to the pad behind (the cut's bank 1.5 m back)", "id": "back", "head": [r(W - 2.3), r(D + 0.3)], "dir": "-z",
-		"width": 1.0, "from": 0.0, "to": "ground", "risers": 2, "going": 0.28, "wood": "weathered_pine",
+		"_doc": "the back door's two steps down to the pad behind (the cut's bank 1.5 m back), under the landing", "id": "back", "head": [r(BACK_DOOR_X - 0.5), r(D)], "dir": "-z",
+		"width": 1.0, "rail": "none", "from": 0.0, "to": "ground", "risers": 2, "going": 0.28, "wood": "weathered_pine",
 	}, {
-		"_doc": "the front door's plank step to the pad", "id": "front", "head": [3.3, -0.3], "dir": "+z", "width": 1.4,
+		"_doc": "the front door's plank steps to the pad", "id": "front", "head": [4.15, 0.0], "dir": "+z", "width": 1.4, "rail": "none",
 		"from": 0.0, "to": "ground", "risers": 2, "going": 0.28, "wood": "weathered_pine",
 	}],
 	"balconies": [{
-		"_doc": "the outside stair's landing at the upstairs door (the hotel's `landings` are inside: this is a balcony a bay)",
+		"_doc": ("the outside stair's landing behind the back wall: from the stair's head (west, past the wall's end) to the "
+			"door in the back gable; it roofs the back door under it. Three beams across it on posts, its joists along the wall over them (a stair's stringers on a beam, never a joist)."),
 		"id": "landing", "wood": "weathered_pine", "post": [0.15, 0.15], "beam": [0.15, 0.25],
-		"posts": [[r(SX1 - 0.08), LAND[0]], [r(SX1 - 0.08), LAND[1]]],
-		"beams": [[[r(SX1 - 0.08), LAND[0]], [r(SX1 - 0.08), LAND[1]]]],
-		"ledgers": [{"wall": "stair", "from": LAND[0], "to": LAND[1]}],
-		"decks": [{"rect": [r(W + 0.05), LAND[0], SX1, LAND[1]], "joists": "x"}],
-		"rails": [[[r(SX1 - 0.04), r(LAND[0] + 0.04)], [r(SX1 - 0.04), r(LAND[1] - 0.04)]], [[r(W + 0.05), r(LAND[1] - 0.04)], [r(SX1 - 0.04), r(LAND[1] - 0.04)]]],
+		"posts": [[LAND_X0, r(LAND[0] + 0.08)], [LAND_X0, r(LAND[1] - 0.08)], [6.65, r(LAND[0] + 0.08)], [6.65, r(LAND[1] - 0.08)],
+			[r(SX1 - 0.08), r(LAND[0] + 0.08)], [r(SX1 - 0.08), r(LAND[1] - 0.08)]],
+		"beams": [[[x, r(LAND[0] + 0.08)], [x, r(LAND[1] - 0.08)]] for x in (LAND_X0, 6.65, r(SX1 - 0.08))],
+		"ledgers": [],
+		"decks": [{"rect": [LAND_X0, r(LAND[0] + 0.02), SX1, r(LAND[1] - 0.06)], "joists": "x"}],
+		"rails": [[[LAND_X0, r(LAND[1] - 0.04)], [r(SX1 - 0.04), r(LAND[1] - 0.04)]], [[r(SX1 - 0.04), LAND[0]], [r(SX1 - 0.04), r(LAND[1] - 0.04)]],
+			[[r(LAND_X0 + 0.04), LAND[0]], [r(LAND_X0 + 0.04), r(LAND[1] - 0.04)]]],
 	}],
 	"front": {
 		"_doc": "a gable front, no false front: the crude sign board nailed across the gable between the door's head and the upper windows",
@@ -264,17 +269,18 @@ spec = {
 			"kit": "keg_rack", "at": [0.45, r(sum(BAY) / 2)], "facing": 90},
 	],
 	"furniture": [
-		{"_doc": "two rough tables west of the girder, under the falling west half", "kit": "table", "at": [5.3, 3.7], "chairs": 0},
-		{"kit": "table", "at": [5.3, 5.8], "chairs": 0},
-		{"_doc": "the front table by the window, clear of the fall", "kit": "table", "at": [5.4, 1.4], "chairs": 0},
+		{"_doc": "two rough tables west of the girder, under the falling west half", "kit": "table", "at": [5.3, 3.7], "chairs": 2},
+		{"kit": "table", "at": [5.3, 5.8], "chairs": 2},
+		{"_doc": "the front table by the window, clear of the fall", "kit": "table", "at": [5.4, 1.4], "chairs": 2},
 	],
 	"lamps": {
-		"_doc": "#824's rules: smoky coal-oil lamps, few. Below: one on each of the girder's posts, one on the bar. Upstairs: two hung from collars over the posts' lines, one on the back wall by the piano.",
+		"_doc": ("#824's rules: smoky coal-oil lamps, few. Below: a reflector lamp on the yard wall by the bar's front end and one on "
+			"the stair wall by the tables. Upstairs: two hung from the collars over the girder's posts (the dressing's `plan` "
+			"batch, as saloon B's S1 hangs its lamps from joists) and one on the back wall by the piano."),
 		"kit": [
-			{"room": "bar_room", "kit": "reflector_lamp", "post": [GX, POSTS_Z[0]], "level": "ground", "height": 1.8, "lit": [17, 4], "energy": 1.2, "reach": 6.0},
-			{"room": "bar_room", "kit": "reflector_lamp", "post": [GX, POSTS_Z[1]], "level": "ground", "height": 1.8, "lit": [17, 4], "energy": 1.2, "reach": 6.0},
-			{"room": "dance_floor", "kit": "hanging_lamp", "hang": [GX, POSTS_Z[0]], "level": "upper", "lit": [19, 3], "energy": 1.2, "reach": 6.0},
-			{"room": "dance_floor", "kit": "hanging_lamp", "hang": [GX, POSTS_Z[1]], "level": "upper", "lit": [19, 3], "energy": 1.2, "reach": 6.0},
+			{"room": "bar_room", "kit": "reflector_lamp", "wall": "yard", "level": "ground", "at": 2.2, "height": 1.7, "lit": [17, 4], "shadows": True, "energy": 1.2, "reach": 6.0},
+			{"room": "bar_room", "kit": "reflector_lamp", "wall": "stair", "level": "ground", "at": 5.0, "height": 1.7, "lit": [17, 4], "shadows": True, "energy": 1.2, "reach": 6.0},
+			{"room": "dance_floor", "kit": "reflector_lamp", "wall": "back", "level": "upper", "at": 4.2, "height": 1.0, "lit": [19, 3], "shadows": True, "energy": 1.0, "reach": 6.0},
 		],
 	},
 	"dust": {"_doc": "dust sifts through the square-edged boards onto the bar; a fall under anyone moving upstairs (FloorDust); on Payday's last seconds, into the drinks", "floor": "dance_mid", "rest": 0.25, "motes": 50},
@@ -309,22 +315,24 @@ spec["walls"] = [
 		win("ground", 6.5), win("upper", 1.83, 0.6, 0.76, 0.6, 2), win("upper", 6.5, 0.6, 0.76, 0.6, 2)],
 		"To Back Street: the gable, the plank door west of the girder's line, a small window each side, two small windows over them upstairs; the sign board across the gable."),
 	wall("back", [[0, r(D)], [r(W), r(D)]], "+z", "gable", [
-		{"type": "door", "level": "ground", "at": r(W - 2.3), "width": 0.91, "height": 2.03, "leaf": "outward", "_doc": "to the pens and the tracks"},
-		win("upper", 2.0, 0.6, 0.76, 0.6, 2)],
-		"To the tracks and the pens: the back door (west of the girder's wall post), one small window upstairs over the piano's end."),
+		{"type": "door", "level": "ground", "at": BACK_DOOR_X, "width": 0.91, "height": 2.03, "leaf": "inward", "_doc": "to the pens and the tracks, under the landing"},
+		{"type": "door", "level": "upper", "at": BACK_DOOR_X, "width": 0.81, "height": 1.98, "leaf": "inward", "_doc": "the upstairs door off the landing: the only way in and out, THE JAM when the floor goes"},
+		win("upper", 2.0, 0.6, 0.6, 1.4, 2)],
+		"To the tracks and the pens: the back door and the upstairs door over it (west of the girder's wall post), the landing outside between them; a small window high over the piano."),
 	wall("yard", [[0, 0], [0, r(D)]], "-x", "plate", [
-		win("ground", 1.2), win("ground", 7.9), win("upper", 1.2, 0.6, 0.76, 0.6, 2), win("upper", 7.9, 0.6, 0.76, 0.6, 2)],
+		win("ground", 1.2), win("ground", 7.9), win("upper", 1.2, 0.6, 0.6, 0.25, 2), win("upper", 7.9, 0.6, 0.6, 0.25, 2)],
 		"The east side, to the yard: windows front and back of the bar (the racks stand between them), the same over them upstairs."),
 	wall("stair", [[r(W), 0], [r(W), r(D)]], "+x", "plate", [
-		win("ground", 1.5), win("ground", 3.2), win("upper", 1.5, 0.6, 0.76, 0.6, 2),
-		{"type": "door", "level": "upper", "at": UP_DOOR_Z, "width": 0.81, "height": 1.98, "leaf": "inward", "_doc": "the upstairs door off the landing; THE JAM when the floor goes"}],
-		"The west side, the outside stair's: two windows before the stair's foot, the upstairs door at the landing near the back."),
+		win("ground", 1.5), win("ground", 3.2), win("upper", 1.5, 0.6, 0.6, 0.25, 2)],
+		"The west side, the outside stair's: two windows before the stair's foot, one small one under the eaves upstairs (the 4 ft knee wall)."),
 ]
 
 # ---------------------------------------------------------------- the dressing the plan needs (the prop lab's to place)
 spec["dressing"] = {"_doc": "The plan's (README.md 'The crowd'): the prop lab places the rest by its recipe.", "batches": {"plan": [
 	{"id": "piano", "kit": "upright_piano", "at": [2.2, U_TOP, r(D - 0.45)], "facing": 180, "use": "carried up the outside stair that afternoon (S24): its back to the back wall, in the back bay (not the sawn one)"},
 	{"id": "piano_stool", "kit": "piano_stool", "at": [2.2, U_TOP, r(D - 1.1)], "facing": 0},
+	{"id": "hanging_lamp_0", "kit": "hanging_lamp", "at": [GX, r(U_TOP + 8 * FT), 2.685], "facing": 0, "light": 0.33, "shadows": False, "energy": 1.0, "use": "hung from the collar nearest the girder's front post"},
+	{"id": "hanging_lamp_1", "kit": "hanging_lamp", "at": [GX, r(U_TOP + 8 * FT), 6.345], "facing": 0, "light": 0.33, "shadows": False, "energy": 1.0, "use": "hung from the collar nearest the girder's back post"},
 	{"id": "stove", "kit": "box_stove", "at": [5.2, 0.0, 1.9], "facing": 0, "use": "forward of the fall, its pipe up through the dance floor's front bay and the roof"},
 	{"id": "bench_e", "kit": "wall_bench", "at": [0.35, U_TOP, 1.9], "facing": 90, "repeat": {"count": 3, "step": [0, 2.4]}},
 	{"id": "bench_w", "kit": "wall_bench", "at": [r(W - 0.35), U_TOP, 2.2], "facing": 270, "repeat": {"count": 2, "step": [0, 2.4]}},
@@ -338,12 +346,10 @@ up = []
 for i, z in enumerate([3.4, 4.1, 4.8, 5.5]):
 	up.append({"id": f"bar_{i}", "use": "drink", "who": "drinker", "at": [2.75, G_TOP, z], "facing": 270, "_doc": "at the bar: UNDER THE CUT"})
 up.append({"id": "barman", "use": "serve", "who": "barman", "at": [1.2, G_TOP, 4.6], "facing": 90, "_doc": "behind the bar: UNDER THE CUT"})
-for i, (x, z) in enumerate([(4.6, 3.7), (6.0, 3.7), (4.6, 5.8), (6.0, 5.8)]):
-	up.append({"id": f"table_{i}", "use": "sit", "who": "drinker", "at": [x, G_TOP, z], "facing": 0, "_doc": "the tables west of the girder: under the west half"})
-for i, (x, z, f) in enumerate([(1.0, 7.4, 270), (5.0, 8.4, 180), (2.5, 1.2, 0)]):
+for i, (x, z, f) in enumerate([(1.0, 7.4, 270), (4.4, 8.3, 180), (2.5, 1.2, 0)]):
 	up.append({"id": f"edge_{i}", "use": "stand", "who": "drinker", "at": [x, G_TOP, z], "facing": f, "_doc": "standing drinkers outside the bay"})
-for i in range(4):
-	up.append({"id": f"band_{i}", "use": "play", "who": "band", "at": [r(1.4 + i * 1.0), U_TOP, r(D - 0.9)], "facing": 180, "_doc": "the band at the back wall, in the back bay (pianist at the piano, fiddle, cornet, bones)"})
+for i, (x, z) in enumerate([(3.4, 8.45), (4.25, 8.45), (3.4, 7.6), (4.25, 7.6)]):
+	up.append({"id": f"band_{i}", "use": "play", "who": "band", "at": [x, U_TOP, z], "facing": 180, "_doc": "the band beside the piano at the back wall, in the back bay, clear of the door (the pianist on the piano's stool)"})
 for i, (x, z) in enumerate([(1.5, 3.3), (2.7, 3.3), (4.6, 3.3), (5.8, 3.3), (1.5, 4.6), (2.7, 4.6), (4.6, 4.6), (5.8, 4.6), (1.5, 5.8), (2.7, 5.8), (4.6, 5.8), (5.8, 5.8)]):
 	up.append({"id": f"reel_{i}", "use": "dance", "who": "dancer", "at": [x, U_TOP, z], "facing": 0, "_doc": "the middle set: OVER THE CUT"})
 spec["use_points"] = up
