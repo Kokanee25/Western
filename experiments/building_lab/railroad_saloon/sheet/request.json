@@ -1,0 +1,115 @@
+{
+ "_doc": "The Railroad Saloon's target sheet (#1285, the building lab's step 1). Sean 2026-11-26 (#1097, #1285): Payday Night's floor falls here, the dance floor upstairs over the bar, small, rough and cramped, 25-40 packed upstairs. Sean's picks in the session's chat, 2026-11-26: raw board-and-batten with the gable to Back Street; a short built bar with barrels on racks behind; one outside stair up the side; the piano carried up and the band upstairs; the name THE SILVER SPIKE; 24 x 30 ft on the 12 x 9 m lot. Ten views at ~$0.14, $1.60 cap. The spec settles every size; the pictures are the look only. Painted by building_sheet.yml on claude/art-building-railroad-saloon-xrtobl.",
+ "sheet_title": "Salt Creek, 1882: The Silver Spike, the railroad saloon (target sheet, #1285)",
+ "cap": 1.6,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light and lamplight, real worn materials (raw rough-sawn pine boards and battens, rough timber, tar paper, sawdust, iron, tin, glass, oak barrels, dust, soot), period-accurate in every object: coal-oil lamps only (no gas, no electric light). Cheap, rough, crude and dirty, built in a hurry and never painted: nothing fancy, no carving, no wallpaper, no brass. Grounded and gritty. No people unless the view asks for them. No modern objects. No text, no signs. No border, no frame, no watermark, no captions.",
+ "building": "THE SILVER SPIKE, Salt Creek's railroad saloon in 1882, a two-year-old Colorado mining-and-ranching boom town: the cheapest, roughest drinking house in town, thrown up in a hurry in 1881 for the track gangs, teamsters and drovers, small and deliberately cramped. It stands on Back Street, the dirt delivery street behind Main Street, so its FRONT faces SOUTH onto Back Street; BEHIND it to the north, close, are the railroad tracks on their low cinder bank, the team track's loading platform and the weathered empty stock pens; Main Street's false fronts show their plain backs across Back Street. IN PLAN THE BUILDING IS A PLAIN RECTANGLE, no wing, no ell, no porch: 24 ft wide across the front and 30 ft deep. TWO STOREYS under a steep pitched gable roof whose ridge runs front to back, so the GABLE END FACES THE STREET (no false front). Walls of RAW UNPAINTED rough-sawn board-and-batten, the pine weathered silver-grey and brown, streaked with soot from the engines, the roof of rough boards with tar-paper and battens, a single rusty stovepipe through the roof near the back. THE FRONT: one wide plank door at the middle of the gable end at grade (a single worn plank step, no boardwalk), a small window either side of it, two small windows high in the upper storey, and a crude rough board nailed across the gable over the door where the name will be painted (leave it blank). THE OUTSIDE STAIR: a steep open plank stair of rough timber with a plain pole handrail climbs the WEST side wall from the front corner toward the back, up to a small landing and a plank door into the upper storey near the back of the west side; it is the ONLY way upstairs. On the EAST side a narrow dirt yard with barrels and empty kegs stacked against the wall and a privy at its back. A plank back door in the north wall opens toward the pens and the tracks. DOWNSTAIRS, ONE LOW BAR ROOM (about 8 ft to the joists, NO ceiling: the upstairs floor's joists and the heavy timber girder carrying them run bare overhead, the girder down the room's middle front to back on two or three rough posts): a SHORT built plank bar about 12 ft long along the east wall, and behind it whiskey BARRELS lying on a timber rack, tapped, a shelf of a few bottles, a small cracked mirror; a squat iron box stove in the middle of the room with its pipe going up; spittoons; rough plank tables and benches and a few kegs to sit on; sawdust on the plank floor; a coal-oil lamp on a post. UPSTAIRS, THE DANCE FLOOR: one bare room the whole size of the building, a floor of wide bare pine planks worn by boots, open to the steep roof's rafters and collar ties (no ceiling), the short side walls of bare board-and-batten, rough plank benches all round the walls, a few posts carrying the roof's timbers with coal-oil lamps hung on them, small windows, the door at the top of the outside stair; an upright piano against the back wall where the band plays.",
+ "views": [
+  {
+   "id": "front",
+   "title": "The front, from Back Street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the dirt of Back Street at eye level, a little to the south-west, in clear late afternoon light from the south-west: the raw board-and-batten gable end with its wide plank door, the two small windows, the blank crude board over the door, the two small upper windows under the steep gable; the steep open outside stair climbing the west side wall to its landing and upper door near the back; the narrow east yard with barrels and kegs; the backs of the tracks' cinder bank, a box car and the stock pens' rails behind. A slightly long lens."
+  },
+  {
+   "id": "plan",
+   "title": "The two floor plans",
+   "aspect": "3:2",
+   "size": "2K",
+   "view": "A clean architect's drawing in black ink on off-white paper, seen from above, two plans side by side at the same scale, both PLAIN RECTANGLES 24 ft by 30 ft (no wing). LEFT, the ground floor: the front door in the middle of the south (street) wall at the bottom of the sheet, the short bar along the east wall with the barrel rack behind it, the stove in the middle, the girder's line down the middle front to back with its posts marked, tables and benches, the back door in the north wall, the outside stair drawn along the outside of the west wall. RIGHT, the upper floor: one open dance floor, benches round the walls, the roof posts, the piano against the north wall, the door at the top of the outside stair on the west wall near the back. Each part labelled in small lettering.",
+   "refs": [
+    "front"
+   ]
+  },
+  {
+   "id": "side",
+   "title": "The west side and the outside stair",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Standing on the dirt beside the building at eye level looking north-east along its WEST side, late afternoon light: the steep open plank stair of rough timber with its pole handrail climbing the board-and-batten side wall from the front corner to the small landing and the plank door near the back; worn treads, the gap under the stair with junk and weeds; the tracks and a water tank beyond the back corner.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "rear",
+   "title": "The back: the back door, the pens and the tracks",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the cinder ground behind the building at eye level, looking south, low evening light: the plain raw board-and-batten back gable with its plank back door at grade and a step, empty kegs and a pile of broken bottles by it, a small upper window, the stovepipe through the roof; the top of the outside stair and its landing at the right corner; Main Street's plain false-front backs beyond across Back Street. A wooden pen rail and the end of the team track's platform in the foreground.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "cutaway",
+   "title": "The cutaway, both floors",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "An architectural cutaway, a bird's-eye three-quarter view from the south-east with the east side wall, the front's eastern half and half the roof cut away: the bar room below with its short bar, barrels on their rack, stove, tables, and overhead the bare floor joists resting on the heavy girder down the middle on its posts; the plank dance floor above on those joists, the benches round its walls, the roof posts with lamps, the piano at the back; the steep outside stair on the far west side wall; the studs, boards and battens, rafters and collar ties shown plainly.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "bar",
+   "title": "The bar room, by lamplight",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the bar room at eye level from the front door's corner, evening, lit by two smoky coal-oil lamps: the short rough built plank bar along the right wall, whiskey barrels lying tapped on a timber rack behind it, a few bottles on a plank shelf and a small cracked mirror; the squat iron stove in the middle; rough plank tables, benches and kegs to sit on; spittoons; sawdust on the floor; and LOW overhead the bare joists and the heavy rough timber girder down the room's middle on its rough posts, the undersides of the upstairs floor boards between the joists. Dirty, cramped, smoky.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "behind",
+   "title": "Behind the bar",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Standing behind the short bar at eye level, looking along it toward the back wall: the timber rack of whiskey barrels lying on their sides with wooden spigots, a tin cup hung on each, a keg of beer, a crude plank shelf of a few bottles with stained labels, a small cracked mirror, a slop bucket, a rag, the bar's worn and stained plank top and a few thick glasses; the plank back door ajar on the dusk outside. Lamplight, the joists overhead.",
+   "refs": [
+    "bar",
+    "plan"
+   ]
+  },
+  {
+   "id": "ceiling",
+   "title": "The girder overhead, seen with a lamp",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Looking up at the bar room's low ceiling from beside the bar at night, a coal-oil lamp held up into the frame from below lighting it: the heavy rough-sawn timber girder running across the frame, the floor joists resting on it close together, the undersides of the upstairs floor boards with dust sifting from the cracks; a rough post under the girder at the edge of the frame. Dark beyond the lamp's pool.",
+   "refs": [
+    "bar",
+    "cutaway"
+   ]
+  },
+  {
+   "id": "upstairs",
+   "title": "The dance floor upstairs, empty",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the upper storey at eye level from the door at the top of the outside stair, late afternoon light through the small windows: one bare room, the wide worn pine plank floor, open to the steep roof's rafters and collar ties, the short raw board-and-batten side walls, rough plank benches all round the walls, a few rough posts carrying the roof's timbers with coal-oil lamps hung on nails on them, an old upright piano against the back wall with a stool, a fiddle case on a bench. Bare, dusty, cramped.",
+   "refs": [
+    "front",
+    "plan"
+   ]
+  },
+  {
+   "id": "dance",
+   "title": "Payday night upstairs",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "The dance floor upstairs on payday night, at eye level from a bench by the wall, lit by the lamps on the posts: packed shoulder to shoulder with thirty or more people, railroad men, teamsters and drovers in work clothes and hats stamping a reel with a handful of women in plain dresses, men on the benches round the walls, a small travelling band in the back corner (a man at the upright piano, a fiddler, a cornet), smoke and dust in the lamplight hanging under the rafters; loud, crowded, rough, happy.",
+   "refs": [
+    "upstairs",
+    "plan"
+   ]
+  }
+ ]
+}

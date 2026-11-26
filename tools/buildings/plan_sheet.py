@@ -120,7 +120,8 @@ def main(spec_path, out):
             rect(st["stoop"], fill=(225, 214, 190), outline=ink, width=2)
         hx, hz = st["head"]
         n, g, w = int(st["risers"]), float(st["going"]), float(st["width"])
-        dx, dz = {"+x": (-1, 0), "-x": (1, 0), "+z": (0, 1), "-z": (0, -1)}[st["dir"]]
+        # the body runs from the head against the way it climbs (spec_building `_stair`: foot = head - up * run)
+        dx, dz = {"+x": (-1, 0), "-x": (1, 0), "+z": (0, -1), "-z": (0, 1)}[st["dir"]]
         run = (n - 1) * g if n > 1 else g
         if dx:
             r = [hx, hz, hx + dx * run, hz + w]
