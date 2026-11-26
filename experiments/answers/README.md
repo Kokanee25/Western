@@ -70,3 +70,46 @@ What changed (step B):
 - The bench: `ans_watch` counts a look already on at its start (it began in the verb's own frame) and the
   lines said in that frame come from the bridge's log (the after rows use this; the baseline's shove row
   under it would read the same looks, without the words).
+
+## Step 2, the card table (#1279): `results/baseline_table/`, `results/after_table*/`
+
+The table's verbs: you sat at the south chair (`sit s`) on an ordinary evening; `ans_turn [any|bet|weak|strong]`
+waits for your turn (a bet open to you, a hand under or over `call_at`); a nod calls, a shake folds, fire raises
+(nothing before #1279), `ans_pot`/`ans_lose` play hands till you win or lose one, G (`press shout`) facing Earl
+calls a cheat, `stand` gets up, `watch` stands 1.6 m from Earl for 20 s. "Saw it" adds the table's men (it's done
+to their faces). The "reacted" column at the table counts the game's own talk too ("Bet.", "Mister?"), so the
+answer lines are quoted below from each run's JSON.
+
+Baseline (main at a68e7b1e, before the step):
+
+| verb | in the room (10 m) | saw it | reacted in 3 s | regard moved | mentioned later |
+|---|---|---|---|---|---|
+| sit | 11 | 2 | 2 (looks; Earl's greeting) | 0 | no |
+| call | 9 | 6 | 0 | 0 | no |
+| fold | 9 | 6 | 0 | 0 | no |
+| raise | - | - | - | - | no verb: fire did nothing at the table |
+| bluff | - | - | - | - | no verb (a raise on a weak hand) |
+| win_pot | 9 | 2 | 2 (the table's own "you_win") | 5 | no |
+| lose_pot | 9 | 2 | 2 (the game's talk; its long wait ran into No Law's murder: Cody at Earl) | 8 | no |
+| cheat | 9 | 6 | 1 (the drifter's "Mister?", the game's own; G said "You! Step out here and face me!", a call-out) | 0 | no (Cody's own line, No Law) |
+| stand | 9 | 6 | 0 | 0 | no |
+| watch | 10 | 2 | 2 looks, no invitation | 0 | no |
+
+After (`after_table`, raise from `after_table3`, call `after_table3`):
+
+| verb | saw it | answered at once (the words) | regard moved | mentioned later |
+|---|---|---|---|---|
+| sit | 2 | Earl's greeting, the table's looks | 2 | news only for the pot, cheat, bluff |
+| raise | 6 | Earl: "Big bet for a quiet man." | 6 | not news (small) |
+| bluff | 6 | Earl: "Big bet for a quiet man." (they can't know yet; shown down it's `bluff_called`, the test) | 6 | told when shown up (test) |
+| call | - | not met on the bench: its runs are the same deal every time, and no man bet into you in 400 s (twice); `test_card_answers::test_a_call_on_a_bet_is_answered` holds it (a nod on a bet: "He's in." / "Stays in. All right." / "Brave.") | (test: each table man keeps it) | no (small) |
+| fold | 6 | the drifter: "Can't win 'em all, mister." | 6 | no (small) |
+| win_pot | 2 | the table's "you_win" | 6 | yes: to your face, "Saw you clean up at cards, right here. Lucky hand."; told on, "The new man took a pot at cards, right here. Cleaned the table out." |
+| lose_pot | 2 | the winner at you ("you_lose") | 8 | (the pot you'd won before it, told) |
+| cheat (false) | 6 | Earl: "You calling me a cheat? In front of God and the drifter?"; the drifter: "Easy, now. It's a clean game." | 6 | yes: Earl, "You called me a cheat, right here. Never proved a thing."; told on by the liveryman |
+| stand | 6 | Earl: "Mind how you go." | 6 | no (small) |
+| watch | 2 | Earl: "You going to stand there all night? Chair's free." at 5.8 s | 0 | - |
+
+A cheat called true (Earl dealt from the bottom this hand or the last; 30% of his deals) wasn't met on the bench's
+run: tests/test_card_answers.gd holds it (Earl "caught", the drifter "cheat_seen", Earl's own `caught_him`, news
+`cheat_true`), as it holds the bluff shown down and the needle after a big pot.

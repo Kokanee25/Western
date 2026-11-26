@@ -1,0 +1,740 @@
+{
+ "verb": "stand",
+ "setup": [
+  {
+   "by_chair": "",
+   "chair": "ValleySaloonChair10",
+   "cmd": "sit s",
+   "did": "sat",
+   "down_s": 0.0,
+   "held": [],
+   "last": "sat",
+   "ok": true,
+   "seated": true,
+   "t": 27.05
+  },
+  {
+   "cmd": "wait 30",
+   "ok": true,
+   "t": 57.07
+  }
+ ],
+ "act": [
+  {
+   "at": [
+    11.34,
+    1.1,
+    -15.93
+   ],
+   "by_chair": "ValleySaloonChair10",
+   "chair": "",
+   "cmd": "stand",
+   "did": "stood",
+   "down_s": 0.0,
+   "held": [],
+   "last": "stood",
+   "ok": true,
+   "seated": false,
+   "t": 57.2
+  }
+ ],
+ "before": {
+  "barks": 0,
+  "cmd": "ans_snap",
+  "men": {
+   "barkeep": {
+    "alive": true,
+    "band": "wary",
+    "d": 12.1,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "drifter": {
+    "alive": true,
+    "band": "wary",
+    "d": 1.23,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "look_away",
+    "stage": "none",
+    "state": "in",
+    "table": true,
+    "trust": 0.0
+   },
+   "earl": {
+    "alive": true,
+    "band": "wary",
+    "d": 1.23,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "look_away",
+    "stage": "none",
+    "state": "in",
+    "table": true,
+    "trust": 0.0
+   },
+   "fiddler": {
+    "alive": true,
+    "band": "wary",
+    "d": 6.42,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "look_away",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "liveryman": {
+    "alive": true,
+    "band": "wary",
+    "d": 8.13,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "loudmouth": {
+    "alive": true,
+    "band": "wary",
+    "d": 10.53,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "miner": {
+    "alive": true,
+    "band": "wary",
+    "d": 9.77,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "pianist": {
+    "alive": true,
+    "band": "wary",
+    "d": 5.86,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "rancher": {
+    "alive": true,
+    "band": "wary",
+    "d": 9.73,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "saloon_girl": {
+    "alive": true,
+    "band": "wary",
+    "d": 8.51,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "storekeeper": {
+    "alive": true,
+    "band": "wary",
+    "d": 7.56,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   }
+  },
+  "ok": true,
+  "t": 57.12
+ },
+ "watch": {
+  "cmd": "ans_watch 3",
+  "first": {},
+  "lines": [],
+  "ok": true,
+  "real_ms": 2988,
+  "t": 60.22
+ },
+ "after": {
+  "barks": 0,
+  "cmd": "ans_snap",
+  "men": {
+   "barkeep": {
+    "alive": true,
+    "band": "wary",
+    "d": 11.84,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "drifter": {
+    "alive": true,
+    "band": "wary",
+    "d": 1.71,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "look_away",
+    "stage": "none",
+    "state": "in",
+    "table": true,
+    "trust": 0.0
+   },
+   "earl": {
+    "alive": true,
+    "band": "wary",
+    "d": 1.71,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "look_away",
+    "stage": "none",
+    "state": "in",
+    "table": true,
+    "trust": 0.0
+   },
+   "fiddler": {
+    "alive": true,
+    "band": "wary",
+    "d": 6.94,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "look_away",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "liveryman": {
+    "alive": true,
+    "band": "wary",
+    "d": 8.21,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "loudmouth": {
+    "alive": true,
+    "band": "wary",
+    "d": 10.63,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "miner": {
+    "alive": true,
+    "band": "wary",
+    "d": 9.55,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "pianist": {
+    "alive": true,
+    "band": "wary",
+    "d": 6.43,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "rancher": {
+    "alive": true,
+    "band": "wary",
+    "d": 9.65,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "saloon_girl": {
+    "alive": true,
+    "band": "wary",
+    "d": 8.68,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": true,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   },
+   "storekeeper": {
+    "alive": true,
+    "band": "wary",
+    "d": 7.71,
+    "fear": 0.0,
+    "kind": "",
+    "liking": 0.0,
+    "mood": "calm",
+    "respect": 0.0,
+    "sees": false,
+    "shown": "",
+    "stage": "none",
+    "state": "in",
+    "table": false,
+    "trust": 0.0
+   }
+  },
+  "ok": true,
+  "t": 60.27
+ },
+ "saw": [
+  "barkeep",
+  "drifter",
+  "earl",
+  "fiddler",
+  "liveryman",
+  "saloon_girl"
+ ],
+ "reacted": [],
+ "moved": [],
+ "later_lines": [
+  "earl: \"A dollar.\"",
+  "drifter: \"I'm out.\"",
+  "earl: \"Nobody wants it? I'll mind it for you.\"",
+  "earl: \"These cards have been against me since Christmas.\"",
+  "earl: \"Bet.\"",
+  "drifter: \"Three.\"",
+  "drifter: \"I'll see that.\"",
+  "earl: \"Two pair, queens and tens. Now ain't that something.\"",
+  "drifter: \"Let's see if these are any kinder.\"",
+  "earl: \"I'll bet.\"",
+  "earl: \"Obliged.\"",
+  "miner: \"To the last one. And the next.\"",
+  "earl: \"My deal. Ante up, boys.\"",
+  "drifter: \"Three. Don't spare me.\"",
+  "drifter: \"A pair of queens.\"",
+  "drifter: \"Five-card draw. Ante up.\"",
+  "stranger: \"Evening. Mind if I sit in a while?\"",
+  "cody: \"Earl, you cheating son of a bitch!\"",
+  "stranger: \"Don't move, friend. Whatever happens next, you sit still.\"",
+  "earl: \"Now, Cody, I never...\"",
+  "cody: \"Ain't no law left in this valley to save you now, Earl.\"",
+  "barkeep: \"Jesus, Cody, my chair!\"",
+  "stranger: \"You didn't see a thing tonight. Nobody did. Remember that.\"",
+  "barkeep: \"Somebody ought to fetch the... hell. Ain't nobody left to fetch.\"",
+  "runner: \"Harlan! Doc's asking for you. Says the sheriff's sinking.\""
+ ],
+ "mentions": [],
+ "news": {
+  "harlan": "",
+  "records": [
+   {
+    "day": 1,
+    "first": "cody",
+    "hour": 20.5,
+    "id": 1,
+    "shots": 1,
+    "story": true,
+    "what": "killing",
+    "where": "the saloon",
+    "who": "cody",
+    "whom": "earl"
+   }
+  ],
+  "talks": 0,
+  "versions": {
+   "barkeep": {
+    "1": {
+     "by": "",
+     "dead": true,
+     "down": true,
+     "first": "cody",
+     "how": "saw",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "churchman": {
+    "1": {
+     "by": "storekeeper",
+     "dead": false,
+     "down": true,
+     "first": "cody",
+     "how": "told",
+     "kind": "shooting",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "doctor": {
+    "1": {
+     "by": "storekeeper",
+     "dead": false,
+     "down": true,
+     "first": "cody",
+     "how": "told",
+     "kind": "shooting",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "drifter": {
+    "1": {
+     "by": "",
+     "dead": false,
+     "down": true,
+     "first": "cody",
+     "how": "saw",
+     "kind": "shooting",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "fiddler": {
+    "1": {
+     "by": "",
+     "dead": true,
+     "down": true,
+     "first": "",
+     "how": "saw",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "landlady": {
+    "1": {
+     "by": "fiddler",
+     "dead": true,
+     "down": true,
+     "first": "",
+     "how": "told",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "liveryman": {
+    "1": {
+     "by": "",
+     "dead": false,
+     "down": false,
+     "first": "cody",
+     "how": "saw",
+     "kind": "shots",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "",
+     "wrong": ""
+    }
+   },
+   "loudmouth": {
+    "1": {
+     "by": "",
+     "dead": false,
+     "down": false,
+     "first": "",
+     "how": "heard",
+     "kind": "shots",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "",
+     "wrong": ""
+    }
+   },
+   "miner": {
+    "1": {
+     "by": "",
+     "dead": false,
+     "down": true,
+     "first": "",
+     "how": "saw",
+     "kind": "shooting",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "pianist": {
+    "1": {
+     "by": "",
+     "dead": true,
+     "down": true,
+     "first": "cody",
+     "how": "saw",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "rancher": {
+    "1": {
+     "by": "",
+     "dead": true,
+     "down": true,
+     "first": "cody",
+     "how": "saw",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "saloon_girl": {
+    "1": {
+     "by": "",
+     "dead": true,
+     "down": true,
+     "first": "",
+     "how": "saw",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "smith": {
+    "1": {
+     "by": "saloon_girl",
+     "dead": true,
+     "down": true,
+     "first": "",
+     "how": "told",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "store_wife": {
+    "1": {
+     "by": "saloon_girl",
+     "dead": true,
+     "down": true,
+     "first": "",
+     "how": "told",
+     "kind": "killing",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "storekeeper": {
+    "1": {
+     "by": "",
+     "dead": false,
+     "down": true,
+     "first": "cody",
+     "how": "saw",
+     "kind": "shooting",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "townsman": {
+    "1": {
+     "by": "barkeep",
+     "dead": false,
+     "down": true,
+     "first": "cody",
+     "how": "told",
+     "kind": "shooting",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "cody",
+     "whom": "earl",
+     "wrong": ""
+    }
+   },
+   "undertaker": {
+    "1": {
+     "by": "",
+     "dead": false,
+     "down": false,
+     "first": "",
+     "how": "heard",
+     "kind": "shots",
+     "shots": 1,
+     "where": "the saloon",
+     "who": "",
+     "whom": "",
+     "wrong": ""
+    }
+   }
+  },
+  "yesterday": ""
+ },
+ "barks": [
+  [
+   "miner",
+   "room.toast",
+   "To the last one. And the next.",
+   "room.toast",
+   115.992388787881
+  ]
+ ]
+}

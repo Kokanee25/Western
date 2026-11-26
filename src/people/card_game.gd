@@ -6,7 +6,14 @@ extends Node3D
 ## draw and show by the data's rules, a line now and then (Events.spoke: their mouths, subtitles),
 ## their hands to the deck and the pot (HumanBody.reach_to), their eyes on the table; the cards
 ## and chips lie on the table (stand-ins: boxes and discs, the faces as text). On your turn a nod
-## calls or checks and a shake folds (HeadGesture), and waited on you check, or fold to a bet.
+## calls or checks and a shake folds (HeadGesture), fire raises (#1279), and waited on you check, or
+## fold to a bet. Sat, a shout calls a cheat on the man you face (PlayerWounds, `accuse`).
+##
+## Everything you do here gets an answer (#1279, DESIGN §2 pillar 6): a line from the table at once in
+## words that match what they saw (your raise, your bluff shown up, a pot taken or lost, a cheat called
+## true or false, you up and off), and `you_did` for the town (ValleyFolk: regard, TownNews). The table
+## starts things too: a man asks you to sit if you stand watching (`invite`), and needles you after a big
+## pot (`needle`).
 ##
 ## A hand in play holds its men's chairs (SceneHold, #1050: nobody else sits in a man's chair while he's
 ## in the hand; no cast and no breaks of its own: its own stops below end it).
@@ -17,6 +24,10 @@ extends Node3D
 
 signal interrupted(reason: StringName)
 signal hand_done(winner: String, pot: int, hand: String)
+## You did `verb` at the table (#1279): sit, up, call, fold, raise, won_pot, lost_pot, bluff_called,
+## cheat_true, cheat_false. `info`: the table's men (`men`), and the verb's own (`pot`, `bluff`, `ahead`,
+## `accused`). ValleyFolk makes it regard and news.
+signal you_did(verb: StringName, info: Dictionary)
 
 const DATA := "res://config/card_game.json"
 const YOU := "you"
@@ -78,6 +89,14 @@ var _reach := {}  # id -> [side, point, until]
 var _you_seated := false
 var _broke_told := false
 var _mucked := 0
+# What you've done this hand and this sitting (#1279).
+var _you_bluffing := false  # raised on a hand under call_at
+var _cheat_hand := -1  # the hand (`hands` then) the cheat last dealt himself from the bottom
+var _came_with := 0  # your stack when you sat down
+var _needle := false  # a big pot taken: the next hand starts with a word at you
+var _watched := 0.0  # you stood by the table, not sat (s)
+var _invited_at := -INF
+var _accused_at := -INF
 
 # What's drawn: every card on the table, the chips, the flights.
 var _cards: Array[Dictionary] = []  # {c, from, to, t, up, label}
@@ -107,6 +126,7 @@ func _ready() -> void:
 	_chip_mm = _multimesh("Chips", _chip_mesh())
 	Events.shot_fired.connect(_on_shot)
 	Events.exploded.connect(_on_blast)
+	Events.shouted.connect(_on_shouted)
 
 
 func _exit_tree() -> void:
@@ -114,6 +134,8 @@ func _exit_tree() -> void:
 		Events.shot_fired.disconnect(_on_shot)
 	if Events.exploded.is_connected(_on_blast):
 		Events.exploded.disconnect(_on_blast)
+	if Events.shouted.is_connected(_on_shouted):
+		Events.shouted.disconnect(_on_shouted)
 
 
 func _beat(k: String) -> float:
@@ -285,6 +307,7 @@ func _on_blast(at: Vector3, _kg: float) -> void:
 func step(dt: float) -> void:
 	_clock += dt
 	_watch_you()
+	_invite(dt)
 	if state == &"stopped" or state == &"idle":
 		_calm += dt
 		var wait := float(data.get("resume_after_s", 25.0)) if state == &"stopped" else 1.0
@@ -341,7 +364,38 @@ func _watch_you() -> void:
 		_prompt(String(data.you.next_hand), 2.5)
 	if now and not _you_seated:
 		_say(_a_man(), "greet", {}, true)  # (#1213: nobody greeted you at the table)
+		_came_with = int(stacks.get(YOU, (data.get("stack", {}) as Dictionary).get("you", 0)))
+		_watched = 0.0
+		you_did.emit(&"sit", {"men": _men()})
+	elif not now and _you_seated:
+		# Up and off (#1279): a word after you, ahead of the table or not.
+		var ahead := int(stacks.get(YOU, _came_with)) > _came_with
+		_say(_a_man(), "you_up_ahead" if ahead else "you_up", {}, true)
+		you_did.emit(&"up", {"men": _men(), "ahead": ahead})
 	_you_seated = now
+
+
+## The men sat at the table (not you).
+func _men() -> Array:
+	return sat().filter(func(x: Array) -> bool: return id_of(x[1]) != YOU).map(func(x: Array) -> Node3D: return x[1])
+
+
+## You standing by the table watching, a chair free and a game on (#1279: the table starts things with
+## you): after `invite.after_s` within `invite.m` of it, a man asks you to sit; once each `invite.gap_s`.
+func _invite(dt: float) -> void:
+	var iv: Dictionary = data.get("invite", {})
+	if _you_seated or iv.is_empty() or state in [&"idle", &"stopped"] or not is_inside_tree():
+		_watched = 0.0
+		return
+	var p := get_tree().get_first_node_in_group(&"player") as Node3D
+	if p == null or p.global_position.distance_to(centre()) > float(iv.get("m", 2.6)) \
+			or not chairs.any(func(c: KitProp) -> bool: return c != null and is_instance_valid(c) and c.seated == null and not c.loose):
+		_watched = 0.0
+		return
+	_watched += dt
+	if _watched >= float(iv.get("after_s", 6.0)) and _clock - _invited_at >= float(iv.get("gap_s", 240.0)):
+		_invited_at = _clock
+		_say(_a_man(), "invite", {}, true)
 
 
 ## The hand's chairs held while it plays (the men in them keep them; nobody else sits down in one).
@@ -399,7 +453,13 @@ func _start_hand() -> void:
 	state = &"shuffle"
 	_hold_seats()
 	_t = _beat("shuffle_s")
-	_say(_seat(dealer_id).who, "shuffle", {}, true)
+	_you_bluffing = false
+	if _needle and you_in():
+		# A big pot of theirs in front of you (#1279): the hand starts with a word at it.
+		_needle = false
+		_say(_a_man(), "needle", {}, true)
+	else:
+		_say(_seat(dealer_id).who, "shuffle", {}, true)
 	_reach_for(dealer_id, "r", _deck_at().origin, _t)
 	_reach_for(dealer_id, "l", _deck_at().origin + Vector3.UP * 0.02, _t)
 	_dirty = true
@@ -459,6 +519,7 @@ func _deal_step() -> void:
 				c = deck[i]
 				deck.remove_at(i)
 				cheated += 1
+				_cheat_hand = hands
 				break
 	s.cards.append(c)
 	_add_card(c, _deck_at(), _card_at(s.chair, int(job[1])), s.id == YOU)
@@ -527,15 +588,25 @@ func _bet_step(dt: float) -> void:
 			if not asker.is_empty() and asker.id != YOU:
 				_say(asker.who, "your_turn")
 		var p := s.who as Player
+		if p and p.input_enabled and Input.is_action_just_pressed(&"fire") and you_raise():
+			return
 		var g := _gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), dt) if p else &""
 		if g == &"shake":
 			_you_turn = false
 			_fold(s, true)
 			_prompt(String(data.you.you_fold), 1.5)
+			you_did.emit(&"fold", {"men": _men()})
 		elif g == &"nod" or (_t <= 0.0 and to_call <= 0):
 			_you_turn = false
 			_call(s)
 			_prompt(String(data.you.you_call if to_call > 0 else data.you.you_check), 1.5)
+			if g == &"nod" and to_call > 0:
+				# Your call answered (#1279): the man who bet it, or whoever's next.
+				_say(_next_man(), "you_call", {}, true)
+				you_did.emit(&"call", {"men": _men()})
+			elif g == &"nod":
+				# A check: a word now and then (the table's own pace), their eyes on you as ever.
+				_say(_next_man(), "you_check")
 		elif _t <= 3.0 and to_call > 0 and not _you_warned:
 			_you_warned = true
 			_prompt(String(data.you.get("hurry", "Nod to call, shake to fold: 3 s")), 3.0)
@@ -585,6 +656,83 @@ func _did(s: Dictionary, move: String) -> void:
 	_say(s.who, move)
 
 
+## You raise (#1279: fire on your turn; the bridge's and the tests' too): the bet up one step, as a man
+## raises, if the raises aren't spent and you've the chips to go past the call. A raise on a hand under
+## `call_at` is a bluff, known only to you till it's shown down. The next man to act answers it.
+func you_raise() -> bool:
+	if not _you_turn or _turn < 0 or _turn >= seats.size() or seats[_turn].id != YOU:
+		return false
+	var s: Dictionary = seats[_turn]
+	var bet := int((data.get("bets", [1, 2]) as Array)[mini(betting_round, 1)])
+	var to_call := _round_bet - int(s.put)
+	if _raises >= int(data.get("max_raises", 2)) or int(stacks.get(YOU, 0)) < to_call + bet:
+		_prompt(String(data.you.get("no_raise", "You can't raise that")), 1.5)
+		return false
+	_you_turn = false
+	_round_bet += bet
+	_raises += 1
+	_put(s, _round_bet - int(s.put))
+	_acted[YOU] = true
+	last_move[YOU] = "raise"
+	var weak := Poker.strength(s.cards) < _play("call_at")
+	_you_bluffing = _you_bluffing or weak
+	_prompt(String(data.you.get("you_raise", "You raise it to {n}")).replace("{n}", str(_round_bet)), 1.5)
+	_say(_next_man(), "you_raise", {"n": str(_round_bet)}, true)
+	you_did.emit(&"raise", {"men": _men(), "bluff": weak})
+	_next_turn()
+	return true
+
+
+## The next man after you still in the hand (who answers your bet), else any man sat.
+func _next_man() -> Variant:
+	var order := _from_dealer()
+	var at := -1
+	for i in order.size():
+		if order[i].id == YOU:
+			at = i
+	for k in range(1, order.size()):
+		var o: Dictionary = order[(at + k) % order.size()]
+		if o.id != YOU and o.in:
+			return o.who
+	return _a_man()
+
+
+## A shout from you sat here (#1279, PlayerWounds: G at the table): a cheat called on the man you face.
+func _on_shouted(speaker: Node, kind: StringName) -> void:
+	if kind == &"cheat" and speaker is Player and _you_seated:
+		var cam := (speaker as Player).camera
+		var best: Node3D = null
+		var best_ang := 40.0
+		for m: Node3D in _men():
+			var ang := rad_to_deg((-cam.global_basis.z).angle_to(m.global_position + Vector3.UP * 1.1 - cam.global_position))
+			if ang < best_ang:
+				best = m
+				best_ang = ang
+		accuse(best if best != null else _seat(String((data.get("cheat", {}) as Dictionary).get("who", ""))).get("who"))
+
+
+## You call `man` a cheat (#1279). True when he's the table's cheat and dealt himself from the bottom
+## this hand or the last (`cheat`): he's caught, blusters, the others turn on him. Else it's a lie on an
+## honest man: he takes it hard and the table with him. The hand stops either way (it deals again when
+## it's calm); once each `accuse_gap_s`. Returns &"cheat_true" / &"cheat_false" / &"".
+func accuse(man: Variant) -> StringName:
+	if man == null or not is_instance_valid(man) or not man is HumanBody or _clock - _accused_at < float(data.get("accuse_gap_s", 20.0)):
+		return &""
+	_accused_at = _clock
+	var id := id_of(man)
+	var caught := id == String((data.get("cheat", {}) as Dictionary).get("who", "")) and _cheat_hand >= 0 and hands - _cheat_hand <= 1
+	_say(man, "caught" if caught else "accused", {}, true)
+	for m: Node3D in _men():
+		if m != man:
+			_say(m, "cheat_seen" if caught else "accused_seen", {}, true)
+			break
+	var verb := &"cheat_true" if caught else &"cheat_false"
+	if state not in [&"idle", &"stopped"]:
+		interrupt(&"accused")
+	you_did.emit(verb, {"men": _men(), "accused": man})
+	return verb
+
+
 func _call(s: Dictionary) -> void:
 	_acted[s.id] = true
 	last_move[s.id] = "call" if _round_bet > int(s.put) else "check"
@@ -603,7 +751,7 @@ func _fold(s: Dictionary, said: bool) -> void:
 			_mucked += 1
 	if s.id == YOU and said:
 		for o in _in_hand():
-			_say(o.who, "you_fold")
+			_say(o.who, "you_fold", {}, true)
 			break
 
 
@@ -681,13 +829,26 @@ func _showdown() -> void:
 	var w0: Dictionary = best[0] if not best.is_empty() else {}
 	last_winner = String(w0.get("id", ""))
 	last_hand = Poker.name(w0.cards) if not w0.is_empty() else ""
+	var you := _seat(YOU)
+	var you_lost: bool = not w0.is_empty() and w0.id != YOU and not you.is_empty() and bool(you.in)
 	if not w0.is_empty():
 		if w0.id == YOU:
 			_prompt(String(data.you.you_win).replace("{hand}", last_hand) if shown else String(data.you.you_win).replace(" with {hand}", ""), 3.0)
+			# Your win answered (#1279): shown down, or taken with nobody left to see (a bluff that
+			# worked looks the same to them: they never saw your cards).
 			for o in seats:
 				if o.id != YOU:
-					_say(o.who, "you_win")
+					_say(o.who, "you_win" if shown else "you_win_quiet", {}, true)
 					break
+			if won >= int(data.get("needle_pot", 8)):
+				_needle = true
+			you_did.emit(&"won_pot", {"men": _men(), "pot": won, "shown": shown})
+		elif you_lost:
+			# You played it to the end and lost (#1279): your raise on nothing shown up is a bluff called,
+			# not an ordinary loss.
+			var called := _you_bluffing and shown
+			_say(w0.who, "bluff_called" if called else "you_lose", {"hand": last_hand}, true)
+			you_did.emit(&"bluff_called" if called else &"lost_pot", {"men": _men(), "pot": won, "bluff": called})
 		else:
 			_say(w0.who, "win" if shown else "win_quiet", {"hand": last_hand[0].to_upper() + last_hand.substr(1)}, true)
 			for o in live:

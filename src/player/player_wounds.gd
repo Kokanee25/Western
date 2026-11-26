@@ -841,6 +841,10 @@ func _physics_step(delta: float) -> void:
 		var companion := CompanionBrain.in_view(player)
 		if given_up != null:
 			_arrest(given_up)
+		elif _at_cards():
+			# Sat at the card table (#1279): calling a cheat on the man you face (CardGame.accuse).
+			say("\"You're dealing off the bottom!\"", 2.5)
+			Events.shouted.emit(player, &"cheat")
 		elif companion != null:
 			# Your companion in the middle of your view: a word to him (wait here, come on; #843).
 			say(companion.told(player), 2.0)
@@ -1185,6 +1189,14 @@ func _name_of(who: Node) -> String:
 		var id := (who as HumanBody).person_id
 		return CALLED.get(id, String(id).capitalize())
 	return "Somebody"
+
+
+## Sat in a chair at a card game's table (#1279: a shout there calls a cheat).
+func _at_cards() -> bool:
+	if player.seat == null or not player.seat.seated():
+		return false
+	var g := get_tree().get_first_node_in_group(&"card_game") as CardGame
+	return g != null and g.chairs.has(player.seat.chair)
 
 
 ## Where you were last hurt and by what, in one plain line from the wound record (#1095: the card

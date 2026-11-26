@@ -9,6 +9,8 @@ const HELP := {
 	"ans_snap": "ans_snap -> each valley man in play: sees you, distance, Reaction stage/kind, mood, look shown, regard numbers and band",
 	"ans_pot": "ans_pot MAX_S -> waits (at most MAX_S game s) till you win a hand at the valley's table; answers the hand",
 	"ans_close": "ans_close PERSON D -> you put D m in front of PERSON, facing him",
+	"ans_turn": "ans_turn [any|bet|weak|strong] MAX_S -> waits (at most MAX_S game s) till it's your turn at the valley's table (bet: with a bet open to you; weak/strong: your hand under or over the table's call_at; answers your hand",
+	"ans_lose": "ans_lose MAX_S -> waits till a hand you played to the end is won by another man; answers the hand",
 	"ans_watch": "ans_watch S -> S seconds watched: each man's first answer (said / reaction / look / flinch / mood) and when, the lines said",
 }
 
@@ -47,6 +49,8 @@ func _cmd_ans_snap(_a: Array) -> Dictionary:
 			r["kind"] = String(b.reaction.kind) if b.reaction else ""
 			r["fear"] = snappedf(b.fear, 0.01)
 			r["shown"] = String(b.last_shown)
+		# At the card table (#1279): sat at it, the verbs there are done to his face.
+		r["table"] = vf.cards != null and vf.cards.sat().any(func(x: Array) -> bool: return x[1] == man)
 		if vf.regard != null and vf.regard.people().has(pid):
 			var o := vf.regard.opinions(pid)
 			for k: String in o:
@@ -137,3 +141,52 @@ func _cmd_ans_close(a: Array) -> Dictionary:
 	player.rotation.y = atan2(to.x, to.z)
 	await physics_frames(2)
 	return {"d": snappedf(player.global_position.distance_to(man.global_position), 0.01)}
+
+
+func _cmd_ans_turn(a: Array) -> Dictionary:
+	var g := get_tree().get_first_node_in_group(&"card_game") as CardGame
+	if g == null:
+		return {"ok": false, "error": "no card game"}
+	var want := String(a[0]) if a.size() > 0 else "any"
+	var game0 := bridge._game_seconds()
+	var limit := float(a[1]) if a.size() > 1 else 240.0
+	while bridge._game_seconds() - game0 < limit:
+		await physics_frames(1)
+		if not g._you_turn:
+			continue
+		var you := g._seat(CardGame.YOU)
+		if you.is_empty():
+			continue
+		var st := Poker.strength(you.cards)
+		var weak := st < g._play("call_at")
+		var to_call := g._round_bet - int(you.put)
+		if want == "any" or (want == "bet" and to_call > 0) or (want in ["weak", "strong"] and (want == "weak") == weak):
+			return {"turn": true, "hand": Poker.name(you.cards), "strength": snappedf(st, 0.01), "weak": weak,
+					"to_call": to_call, "pot": g.pot, "after_s": snappedf(bridge._game_seconds() - game0, 0.1)}
+		# Not the turn wanted: waiting for a bet, check (a nod) and play on; else fold it (a shake) and wait
+		# for the next hand.
+		if want == "bet":
+			await bridge._cmd_nod([])
+		else:
+			await bridge._cmd_shake([])
+	return {"turn": false, "after_s": snappedf(bridge._game_seconds() - game0, 0.1)}
+
+
+func _cmd_ans_lose(a: Array) -> Dictionary:
+	var g := get_tree().get_first_node_in_group(&"card_game") as CardGame
+	if g == null:
+		return {"ok": false, "error": "no card game"}
+	var lost := [false]
+	var f := func(w: String, _p: int, _h: String) -> void:
+		var you := g._seat(CardGame.YOU)
+		if w != CardGame.YOU and not you.is_empty() and bool(you.in):
+			lost[0] = true
+	g.hand_done.connect(f)
+	var game0 := bridge._game_seconds()
+	while not lost[0] and bridge._game_seconds() - game0 < (float(a[0]) if a.size() > 0 else 240.0):
+		await physics_frames(1)
+		# Stay in every hand to the end: nod on your turn (a call).
+		if g._you_turn:
+			await bridge._cmd_nod([])
+	g.hand_done.disconnect(f)
+	return {"lost": lost[0], "after_s": snappedf(bridge._game_seconds() - game0, 0.1), "hands": g.hands}
