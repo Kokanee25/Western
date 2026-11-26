@@ -73,8 +73,8 @@ func test_a_block_for_every_building_volume() -> void:
 		if not l.has("spec"):
 			want += 1  # (a lot with its building's spec has that building, not a block: #765)
 	for ex: Dictionary in lay.town().get("extras", []):
-		if ex.has("w"):
-			want += 1
+		if ex.has("w") and not ex.has("spec"):
+			want += 1  # (an extra with its building's spec has that building, as a lot: the Railroad Saloon, #1286)
 	for p: Dictionary in lay.places():
 		if p.has("block"):
 			want += 1
