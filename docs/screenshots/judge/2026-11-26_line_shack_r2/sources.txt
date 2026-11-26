@@ -1,0 +1,2 @@
+a inside build/ls_r/inside.png
+b inside_door build/ls_r/inside_door.png

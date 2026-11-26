@@ -1,0 +1,162 @@
+{
+  "_doc": "Three empty tin cans (#1263; Sean's 'cans everywhere'): a 4 1/2 in. tomato can standing with its lid cut out, a shorter one beside it, a third on its side. Dull grey, a little rust. 1 physics body. Written by tools/props/line_shack.py.",
+  "id": "tin_cans",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "tin",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "cans",
+      "kind": "post",
+      "size": [
+        0.4,
+        0.1,
+        0.3
+      ],
+      "at": [
+        0.0,
+        0.05,
+        0.0
+      ],
+      "wood": "tin",
+      "look": "prop:tin",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.038,
+            0.0
+          ],
+          [
+            0.04,
+            0.003
+          ],
+          [
+            0.04,
+            0.1
+          ],
+          [
+            0.0,
+            0.1
+          ]
+        ],
+        "segments": 10,
+        "at": [
+          -0.12,
+          0,
+          0.03
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:tin",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.038,
+                0.0
+              ],
+              [
+                0.04,
+                0.003
+              ],
+              [
+                0.04,
+                0.075
+              ],
+              [
+                0.0,
+                0.075
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              0.06,
+              0.0,
+              0.05
+            ]
+          }
+        },
+        {
+          "look": "prop:tin",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.0,
+                -0.05
+              ],
+              [
+                0.04,
+                -0.05
+              ],
+              [
+                0.04,
+                0.05
+              ],
+              [
+                0.0,
+                0.05
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              0.0,
+              0.04,
+              -0.09
+            ],
+            "rot": [
+              0.0,
+              0.0,
+              90.0
+            ]
+          }
+        },
+        {
+          "look": "prop:dung",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.0,
+                0.09
+              ],
+              [
+                0.034,
+                0.09
+              ],
+              [
+                0.034,
+                0.096
+              ],
+              [
+                0.0,
+                0.096
+              ]
+            ],
+            "segments": 10,
+            "at": [
+              -0.12,
+              0.0,
+              0.03
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "mass": 0.3,
+  "factory": "tools/props/line_shack.py"
+}
