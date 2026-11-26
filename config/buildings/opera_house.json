@@ -1,0 +1,4048 @@
+{
+	"_doc": "McCready's Opera House (#1143): the building lab's step 2, the spec on its lot, written by tools/buildings/opera_house_spec.py (edit it, not this). NOT BUILT: the build waits for after the slice; keys marked NEW are parts the builder doesn't have (experiments/building_lab/opera_house/README.md). Sizes here, the look on the sheet (experiments/building_lab/opera_house/sheet).",
+	"format": 1,
+	"id": "opera_house",
+	"status": "spec",
+	"identity": {
+		"owner": "Ezra McCready, who sold his share in the Argentine lode in 1880 and built the town something to be proud of (and a stage for his wife's sister)",
+		"trade": "an opera house: travelling companies, melodrama, a singer with the band, lectures, the magic lantern, the Fourth of July ball, the Miners' Union meetings",
+		"means": "the only brick building in Salt Creek but the bank: freighted-in brick, plate glass, iron, three hundred opera chairs from Chicago, scenery painted in Denver",
+		"age_and_repair": "1 year: the brick new and sharp, the walk already worn at the doors; one lane window boarded where a drunk put a bottle through",
+		"clues": [
+			"a stack of old show bills behind the box office",
+			"cigar ash ground into the foyer's carpet",
+			"a banjo case and a pair of dancing shoes left in a dressing room",
+			"chalk seat numbers on the backs of the chairs",
+			"a bucket of sand and a bucket of water by the footlights"
+		]
+	},
+	"lot": {
+		"_doc": "valley.json town.north (NEW lot, added at the build, not before: a valley change can tip the card-game tests): past the undertaker's (x 106-128) a lane x 128.0-130.4 (8 ft: the hall's west exits), the lot x 130.4-149.0 by the town's 125 ft depth to Back Street; Main Street's and Back Street's x [-125, 130] grow to 150. The East Road still leaves from (130, 0) south-east, clear of the walk. The building's origin its EAST front corner (facing 180). The ground (ValleyTerrain.height, 2026-11-24): -0.44 (west) to -0.58 (east) at the front line, +0.18..+0.06 at 20 m back, +0.84..+0.38 at 30 m (Back Street's bank): a pad dug level at the walk's street edge (y -0.5) under the building and its yard, a bank left behind.",
+		"valley_lot": "opera_house",
+		"side": "north",
+		"at": [
+			148.84,
+			-0.5,
+			-10.05
+		],
+		"facing": 180,
+		"width": 18.288,
+		"depth": 33.528,
+		"yard": [
+			0.0,
+			33.528,
+			18.288,
+			37.8
+		],
+		"pad": {
+			"y": -0.5,
+			"x": [
+				130.0,
+				149.6
+			],
+			"z": [
+				-9.75,
+				-44.6
+			],
+			"blend": 3.0
+		},
+		"walk": {
+			"h": 0.45,
+			"awning": 0,
+			"span": [
+				130.4,
+				149.0
+			],
+			"door_x": 139.7,
+			"door_w": 6.0,
+			"why": "A brick front needs no awning; three wide stone-edged steps across the three doorways for a crowd and ladies' skirts."
+		},
+		"footprint": [
+			[
+				0,
+				0,
+				18.288,
+				33.528
+			]
+		]
+	},
+	"levels": {
+		"_doc": "The hall's floor at the walk's top; the stage, the dressing block and the lower boxes 3 ft 6 in over it; the foyer and the balcony's back aisle 5 m over it (the lobby 16 ft high); the scene loft over the foyer; the hall's trusses on the plate 10 m over the floor, its plaster ceiling under them (32 ft); the stage house's gridiron 30 ft over the stage. NEW levels: stage, attic, dress_upper, dress_roof, front_roof (the builder knows cellar, ground and upper).",
+		"ground": {
+			"top": 0.45
+		},
+		"stage": {
+			"top": 1.517
+		},
+		"upper": {
+			"top": 5.45
+		},
+		"attic": {
+			"top": 10.05
+		},
+		"dress_upper": {
+			"top": 4.565
+		},
+		"dress_roof": {
+			"top": 7.565
+		},
+		"front_roof": {
+			"top": 13.05
+		},
+		"plate": 10.45,
+		"ceiling": 10.2,
+		"grid": 10.661,
+		"false_front": 14.0,
+		"pediment": 15.9,
+		"hall_parapet": 11.45,
+		"stage_top": 13.961,
+		"dress_top": 8.165,
+		"roof_pitch": 0.0,
+		"roof_tight": true
+	},
+	"frame": {
+		"_doc": "A load-bearing brick building, timber floors and roof. Brick walls by Kidder (public halls: 17 in to the upper floor, 13 in above; 13 in for the fire wall and the dressing block), lime mortar, on sandstone footings 4 ft down (below Colorado's frost). Joists by the Wood Handbook's working stresses (yellow pine, 1,200 lb/in2 bending; deflection L/360), 100 lb/ft2 where a crowd stands (Kidder's for theatres), 70 the dance floor, 40 the lofts and roofs (snow). `--sizing` prints each (the README's table). Dressed sizes, metres [width, depth].",
+		"stacked": true,
+		"stone_wall": {
+			"_doc": "NEW use: the jail's stone walls laid as BRICK (`masonry` brick; BrickWall, the README's parts): members as lifts of nine courses (0.6 m, the jail's course) and 1.2 m long, so the walls are ~2,000 members, not 100,000 bricks; chips by the voxel carving, a charge drops lifts. Common bond (a header course every sixth), 8 x 4 x 2 1/4 in bricks, 3/8 in joints: the shader's. Dressed buff sandstone: the quoins, the base course, sills, keystones over the arches, the coping.",
+			"masonry": "brick",
+			"wood": "brick",
+			"thick": 0.43,
+			"course": 0.6,
+			"piece": 1.2,
+			"brick": [
+				0.203,
+				0.102,
+				0.057
+			],
+			"joint": 0.0095,
+			"bond": "common_6",
+			"footing_below": 1.2,
+			"footing_spread": 0.2,
+			"quoin": [
+				0.46,
+				0.3
+			],
+			"base": {
+				"height": 0.75,
+				"stone": "buff_sandstone"
+			},
+			"lintel": {
+				"height": 0.3,
+				"bear": 0.23,
+				"_doc": "square heads (the back's); arched heads are rings of brick (NEW)"
+			},
+			"arch": {
+				"rings": 2,
+				"keystone": [
+					0.25,
+					0.4
+				],
+				"_doc": "NEW: a round head two brick rings deep, a stone keystone"
+			},
+			"sill": {
+				"height": 0.12,
+				"proj": 0.04
+			},
+			"coping": {
+				"height": 0.1,
+				"proj": 0.04
+			},
+			"pocket": 0.15
+		},
+		"pier": {
+			"size": 0.45,
+			"wood": "brick"
+		},
+		"girder": {
+			"section": [
+				0.15,
+				0.25
+			],
+			"wood": "framing",
+			"pier_every": 1.83
+		},
+		"joist": {
+			"section": [
+				0.04,
+				0.24
+			],
+			"spacing": 0.406,
+			"wood": "framing",
+			"_doc": "2x10 at 16 in (the lobby, the dressing block)"
+		},
+		"dance_joist": {
+			"section": [
+				0.04,
+				0.29
+			],
+			"spacing": 0.406,
+			"wood": "framing",
+			"_doc": "2x12 at 16 in, the hall: 2.9 m at 70 lb/ft2"
+		},
+		"long_joist": {
+			"section": [
+				0.064,
+				0.34
+			],
+			"spacing": 0.305,
+			"wood": "framing",
+			"_doc": "3x14 at 12 in: the foyer's 21 ft at 100 lb/ft2 (the scene loft's the same, at 40)"
+		},
+		"roof_joist": {
+			"section": [
+				0.04,
+				0.24
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"floor_board": {
+			"width": 0.14,
+			"thick": 0.022,
+			"wood": "floor"
+		},
+		"stud": {
+			"section": [
+				0.05,
+				0.1
+			],
+			"spacing": 0.406,
+			"wood": "framing",
+			"_doc": "2x4 at 16 in: the timber partitions (box office, cloak room, the dressing rooms, the office)"
+		},
+		"plate": {
+			"height": 0.1
+		},
+		"ribbon": {
+			"section": [
+				0.025,
+				0.15
+			]
+		},
+		"header": {
+			"height": 0.15
+		},
+		"post": {
+			"section": [
+				0.14,
+				0.14
+			],
+			"wood": "framing"
+		},
+		"beam": {
+			"section": [
+				0.19,
+				0.29
+			],
+			"wood": "framing"
+		},
+		"column": {
+			"kind": "cast_iron",
+			"dia": 0.152,
+			"metal": 0.019,
+			"_doc": "NEW (`IronColumn`): a hollow cast-iron column, a cap and a base plate; brittle: a charge or a heavy blow cracks it through, it doesn't bend"
+		}
+	},
+	"girders": {
+		"_doc": "Lines along z under the ground floors' joists (along x), on brick piers at 6 ft over the pad (a crawl space: the pad is level at the street edge's height). Spans 2.9 m; the balcony's columns stand on piers of their own between them.",
+		"x": [
+			3.33,
+			6.24,
+			9.14,
+			12.05,
+			14.96
+		]
+	},
+	"floors": [
+		{
+			"id": "ground_front",
+			"level": "ground",
+			"rect": [
+				0.43,
+				0.43,
+				17.858,
+				10.2
+			],
+			"joists": "x",
+			"look": "wood:int_floor",
+			"_doc": "the vestibule (laid over with black and white marble tile: NEW finish) and the lobby, 2x10 at 16 in along x on the girders"
+		},
+		{
+			"id": "hall",
+			"level": "ground",
+			"rect": [
+				0.43,
+				10.53,
+				17.858,
+				22.86
+			],
+			"joists": "x",
+			"joist": "dance_joist",
+			"look": "wood:int_floor",
+			"_doc": "the parquet and the pit, level (a dance floor: the front four rows on runners), 2x12 at 16 in on five girder lines (70 lb/ft2)"
+		},
+		{
+			"id": "foyer",
+			"level": "upper",
+			"rect": [
+				0.43,
+				0.43,
+				17.858,
+				2.6
+			],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"_doc": "the foyer's front promenade behind the five tall windows: 2x10 from the front wall's set-off to the vestibule wall (2.2 m)"
+		},
+		{
+			"id": "office",
+			"level": "upper",
+			"rect": [
+				0.43,
+				2.93,
+				5.6,
+				10.2
+			],
+			"joists": "z",
+			"joist": "long_joist",
+			"look": "wood:int_floor",
+			"openings": [
+				{
+					"id": "loft_stair",
+					"rect": [
+						0.53,
+						5.3,
+						1.43,
+						9.9
+					]
+				}
+			],
+			"_doc": "over the bar: 4x14 at 12 in, vestibule wall to the lobby's back wall (24 ft), 100 lb/ft2"
+		},
+		{
+			"id": "gallery",
+			"level": "upper",
+			"rect": [
+				7.03,
+				2.93,
+				11.258,
+				10.2
+			],
+			"joists": "z",
+			"joist": "long_joist",
+			"look": "wood:int_floor",
+			"_doc": "the foyer's gallery over the lobby, between the stairs' wells, to the balcony's middle doors"
+		},
+		{
+			"id": "committee",
+			"level": "upper",
+			"rect": [
+				12.688,
+				2.93,
+				17.858,
+				10.2
+			],
+			"joists": "z",
+			"joist": "long_joist",
+			"look": "wood:int_floor"
+		},
+		{
+			"id": "landing_e",
+			"level": "upper",
+			"rect": [
+				5.66,
+				9.2,
+				7.03,
+				10.2
+			],
+			"joists": "x",
+			"look": "wood:int_floor",
+			"_doc": "the east stair's landing: 2x10 across, from the bar's stud wall to the well's trimmer"
+		},
+		{
+			"id": "landing_w",
+			"level": "upper",
+			"rect": [
+				11.258,
+				9.2,
+				12.628,
+				10.2
+			],
+			"joists": "x",
+			"look": "wood:int_floor"
+		},
+		{
+			"id": "scene_loft",
+			"level": "attic",
+			"rect": [
+				0.43,
+				0.43,
+				17.858,
+				10.2
+			],
+			"joists": "z",
+			"joist": "long_joist",
+			"look": "wood:int_rough",
+			"_doc": "the scene painter's loft and the stores over the whole front block (40 lb/ft2), on the vestibule wall"
+		},
+		{
+			"id": "dress_ground",
+			"level": "stage",
+			"rect": [
+				0.43,
+				30.23,
+				17.858,
+				33.198
+			],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"_doc": "the dressing block's floor at the stage's height, 2x10 front to back over 2.97 m on the walls' ledges"
+		},
+		{
+			"id": "dress_upper",
+			"level": "dress_upper",
+			"rect": [
+				0.43,
+				30.23,
+				17.858,
+				33.198
+			],
+			"joists": "z",
+			"look": "wood:int_floor",
+			"openings": [
+				{
+					"id": "stair",
+					"rect": [
+						8.544,
+						29.898,
+						9.744,
+						33.098
+					]
+				}
+			]
+		},
+		{
+			"id": "dress_roof",
+			"level": "dress_roof",
+			"rect": [
+				0.43,
+				30.23,
+				17.858,
+				33.198
+			],
+			"joists": "z",
+			"joist": "roof_joist",
+			"_doc": "flat, tin on boards, behind its parapet"
+		},
+		{
+			"id": "front_roof",
+			"level": "front_roof",
+			"rect": [
+				0.43,
+				0.43,
+				17.858,
+				10.2
+			],
+			"joists": "z",
+			"joist": "long_joist",
+			"_doc": "the front block's flat roof behind the cornice's parapet, tin on boards"
+		}
+	],
+	"posts": {
+		"_doc": "6x6 posts under the wells' trimmers, cased as fluted columns, from the lobby's floor (on piers): at each flight's middle and its head (its newel)",
+		"free": [
+			[
+				7.03,
+				6.0
+			],
+			[
+				7.03,
+				9.2
+			],
+			[
+				11.258,
+				6.0
+			],
+			[
+				11.258,
+				9.2
+			]
+		],
+		"wall": []
+	},
+	"beams": [
+		{
+			"id": "trimmer_e0",
+			"from": [
+				7.03,
+				2.93
+			],
+			"to": [
+				7.03,
+				6.0
+			],
+			"level": "upper",
+			"_doc": "the well's inner edge, 8x12 a bay (cut over each post), ends in pockets in the brick: the gallery's edge joist beside it, the landing's joists on it"
+		},
+		{
+			"id": "trimmer_e1",
+			"from": [
+				7.03,
+				6.0
+			],
+			"to": [
+				7.03,
+				9.2
+			],
+			"level": "upper",
+			"_doc": ""
+		},
+		{
+			"id": "trimmer_e2",
+			"from": [
+				7.03,
+				9.2
+			],
+			"to": [
+				7.03,
+				10.2
+			],
+			"level": "upper",
+			"_doc": ""
+		},
+		{
+			"id": "trimmer_w0",
+			"from": [
+				11.258,
+				2.93
+			],
+			"to": [
+				11.258,
+				6.0
+			],
+			"level": "upper",
+			"_doc": "the well's inner edge, 8x12 a bay (cut over each post), ends in pockets in the brick: the gallery's edge joist beside it, the landing's joists on it"
+		},
+		{
+			"id": "trimmer_w1",
+			"from": [
+				11.258,
+				6.0
+			],
+			"to": [
+				11.258,
+				9.2
+			],
+			"level": "upper",
+			"_doc": ""
+		},
+		{
+			"id": "trimmer_w2",
+			"from": [
+				11.258,
+				9.2
+			],
+			"to": [
+				11.258,
+				10.2
+			],
+			"level": "upper",
+			"_doc": ""
+		}
+	],
+	"walls": [
+		{
+			"id": "front",
+			"line": [
+				[
+					0,
+					0
+				],
+				[
+					18.288,
+					0
+				]
+			],
+			"out": "-z",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.43,
+			"top": 14.0,
+			"set_off": {
+				"y": 5.45,
+				"thick": 0.33
+			},
+			"pediment": {
+				"at": 9.144,
+				"width": 6.1,
+				"top": 15.9,
+				"roundel": "1881"
+			},
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 6.094,
+					"width": 1.68,
+					"height": 3.05,
+					"leaves": 2,
+					"leaf": "outward",
+					"arch": "round",
+					"fanlight": 0.84,
+					"glazed": true
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 9.144,
+					"width": 1.68,
+					"height": 3.05,
+					"leaves": 2,
+					"leaf": "outward",
+					"arch": "round",
+					"fanlight": 0.84,
+					"glazed": true
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 12.194,
+					"width": 1.68,
+					"height": 3.05,
+					"leaves": 2,
+					"leaf": "outward",
+					"arch": "round",
+					"fanlight": 0.84,
+					"glazed": true
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 2.6,
+					"width": 1.07,
+					"height": 3.2,
+					"sill": 1.2,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 15.688,
+					"width": 1.07,
+					"height": 3.2,
+					"sill": 1.2,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 3.044,
+					"width": 1.22,
+					"height": 3.35,
+					"sill": 5.9,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 6.094,
+					"width": 1.22,
+					"height": 3.35,
+					"sill": 5.9,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 9.144,
+					"width": 1.22,
+					"height": 3.35,
+					"sill": 5.9,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 12.194,
+					"width": 1.22,
+					"height": 3.35,
+					"sill": 5.9,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 15.244,
+					"width": 1.22,
+					"height": 3.35,
+					"sill": 5.9,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 3.044,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 6.094,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 9.144,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 12.194,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 15.244,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				}
+			],
+			"profile": [
+				[
+					-9,
+					-0.63,
+					0.0
+				],
+				[
+					0.0,
+					-0.43,
+					0.0
+				],
+				[
+					5.09,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"_doc": "The front on Main Street: red brick in common bond on a buff sandstone base course (to the walk's top), dressed quoins at both corners, stone sills and keystones; 17 in to the foyer's floor, 13 in above (the set-off carries the foyer's joists). Three tiers (Sean, #1242): three arched doorways (pairs of glazed doors opening OUT, fanlights; cast-iron columns at the middle one: `front.iron_columns`) and an arched window either side; five tall arched foyer windows; five small arched attic windows (the scene loft). The galvanized-iron cornice on paired brackets, its frieze MCCREADY'S OPERA HOUSE in gilt, the pediment's roundel 1881."
+		},
+		{
+			"id": "east_front",
+			"line": [
+				[
+					0.0,
+					0
+				],
+				[
+					0.0,
+					10.2
+				]
+			],
+			"out": "-x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.43,
+			"top": 14.0,
+			"set_off": {
+				"y": 5.45,
+				"thick": 0.33
+			},
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 9.45,
+					"width": 1.07,
+					"height": 2.44,
+					"leaf": "inward",
+					"glazed": true,
+					"_doc": "the bar's own door, onto the open ground: a drink without a ticket"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 4.5,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 1.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 6.9,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 1.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 4.5,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 6.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 8.2,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 6.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 4.5,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 8.2,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				}
+			],
+			"_doc": "the front block's side: the cornice returns along it (a three-storey block); the bar's windows and its own door",
+			"profile": [
+				[
+					-9,
+					-0.63,
+					0.0
+				],
+				[
+					0.0,
+					-0.43,
+					0.0
+				],
+				[
+					5.09,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "east"
+		},
+		{
+			"id": "east_hall",
+			"line": [
+				[
+					0.0,
+					10.2
+				],
+				[
+					0.0,
+					22.86
+				]
+			],
+			"out": "-x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.43,
+			"top": 11.45,
+			"pilasters": {
+				"at": [
+					2.16,
+					5.82,
+					9.48
+				],
+				"proj": 0.11,
+				"width": 0.56,
+				"_doc": "NEW: brick piers under the trusses' bearings (the wall's stiffening)"
+			},
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 3.99,
+					"width": 1.07,
+					"height": 2.4,
+					"sill": 1.45,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "a lower window, under the balcony's side arm"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 3.99,
+					"width": 1.07,
+					"height": 2.6,
+					"sill": 6.15,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "an upper window over the side arm, under the plate"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.65,
+					"width": 1.07,
+					"height": 2.4,
+					"sill": 1.45,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "a lower window, under the balcony's side arm"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 7.65,
+					"width": 1.07,
+					"height": 2.6,
+					"sill": 6.15,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "an upper window over the side arm, under the plate"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 0.88,
+					"width": 1.07,
+					"height": 2.29,
+					"leaf": "outward",
+					"_doc": "the back exit, from the cross aisle under the balcony"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 9.0,
+					"width": 1.52,
+					"height": 2.44,
+					"leaves": 2,
+					"leaf": "outward",
+					"_doc": "the hall's side exit to the lane, by the boxes"
+				}
+			],
+			"_doc": "the hall's side: pilasters under the trusses, two tiers of arched windows with iron fire shutters, two exits (doors opening out, after the Brooklyn Theatre fire, 1876)",
+			"profile": [
+				[
+					-9,
+					-0.63,
+					0.0
+				],
+				[
+					0.0,
+					-0.43,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "east"
+		},
+		{
+			"id": "east_stage",
+			"line": [
+				[
+					0.0,
+					22.86
+				],
+				[
+					0.0,
+					30.23
+				]
+			],
+			"out": "-x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.43,
+			"top": 13.961,
+			"openings": [
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 5.2,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 5.117,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 2.0,
+					"width": 2.44,
+					"height": 3.66,
+					"leaves": 2,
+					"leaf": "outward",
+					"sill": 1.067,
+					"_doc": "the scenery door at the stage's height: flats and trunks off a wagon's bed"
+				}
+			],
+			"_doc": "the stage house's side, 44 ft (the gridiron and roll drops in it)",
+			"profile": [
+				[
+					-9,
+					-0.63,
+					0.0
+				],
+				[
+					0.0,
+					-0.43,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "east"
+		},
+		{
+			"id": "east_dress",
+			"line": [
+				[
+					0.0,
+					30.23
+				],
+				[
+					0.0,
+					33.528
+				]
+			],
+			"out": "-x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.33,
+			"top": 8.165,
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 1.4,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 2.417,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 1.4,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 5.465,
+					"lights": 4
+				}
+			],
+			"_doc": "the dressing block's side: two storeys, 13 in",
+			"profile": [
+				[
+					-9,
+					-0.53,
+					0.0
+				],
+				[
+					0.0,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "east"
+		},
+		{
+			"id": "west_front",
+			"line": [
+				[
+					18.288,
+					0
+				],
+				[
+					18.288,
+					10.2
+				]
+			],
+			"out": "+x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.43,
+			"top": 14.0,
+			"set_off": {
+				"y": 5.45,
+				"thick": 0.33
+			},
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 9.3,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 1.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 4.5,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 1.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 6.9,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 1.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 4.5,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 6.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 8.2,
+					"width": 0.91,
+					"height": 2.4,
+					"sill": 6.35,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 4.5,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				},
+				{
+					"type": "window",
+					"level": "attic",
+					"at": 8.2,
+					"width": 0.91,
+					"height": 1.3,
+					"sill": 10.65,
+					"lights": 4,
+					"arch": "round"
+				}
+			],
+			"_doc": "the front block's side: the cornice returns along it (a three-storey block); the parlour's windows on the lane",
+			"profile": [
+				[
+					-9,
+					-0.63,
+					0.0
+				],
+				[
+					0.0,
+					-0.43,
+					0.0
+				],
+				[
+					5.09,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "west"
+		},
+		{
+			"id": "west_hall",
+			"line": [
+				[
+					18.288,
+					10.2
+				],
+				[
+					18.288,
+					22.86
+				]
+			],
+			"out": "+x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.43,
+			"top": 11.45,
+			"pilasters": {
+				"at": [
+					2.16,
+					5.82,
+					9.48
+				],
+				"proj": 0.11,
+				"width": 0.56,
+				"_doc": "NEW: brick piers under the trusses' bearings (the wall's stiffening)"
+			},
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 3.99,
+					"width": 1.07,
+					"height": 2.4,
+					"sill": 1.45,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "a lower window, under the balcony's side arm"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 3.99,
+					"width": 1.07,
+					"height": 2.6,
+					"sill": 6.15,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "an upper window over the side arm, under the plate"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 7.65,
+					"width": 1.07,
+					"height": 2.4,
+					"sill": 1.45,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "a lower window, under the balcony's side arm"
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 7.65,
+					"width": 1.07,
+					"height": 2.6,
+					"sill": 6.15,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron",
+					"_doc": "an upper window over the side arm, under the plate"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 0.88,
+					"width": 1.07,
+					"height": 2.29,
+					"leaf": "outward",
+					"_doc": "the back exit, from the cross aisle under the balcony"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 9.0,
+					"width": 1.52,
+					"height": 2.44,
+					"leaves": 2,
+					"leaf": "outward",
+					"_doc": "the hall's side exit to the lane, by the boxes"
+				}
+			],
+			"_doc": "the hall's side: pilasters under the trusses, two tiers of arched windows with iron fire shutters, two exits (doors opening out, after the Brooklyn Theatre fire, 1876)",
+			"profile": [
+				[
+					-9,
+					-0.63,
+					0.0
+				],
+				[
+					0.0,
+					-0.43,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "west"
+		},
+		{
+			"id": "west_stage",
+			"line": [
+				[
+					18.288,
+					22.86
+				],
+				[
+					18.288,
+					30.23
+				]
+			],
+			"out": "+x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.43,
+			"top": 13.961,
+			"openings": [
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 5.2,
+					"width": 0.91,
+					"height": 1.83,
+					"sill": 5.117,
+					"lights": 4,
+					"arch": "round",
+					"shutters": "iron"
+				}
+			],
+			"_doc": "the stage house's side, 44 ft (the gridiron and roll drops in it)",
+			"profile": [
+				[
+					-9,
+					-0.63,
+					0.0
+				],
+				[
+					0.0,
+					-0.43,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "west"
+		},
+		{
+			"id": "west_dress",
+			"line": [
+				[
+					18.288,
+					30.23
+				],
+				[
+					18.288,
+					33.528
+				]
+			],
+			"out": "+x",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.33,
+			"top": 8.165,
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 1.4,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 2.417,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 1.4,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 5.465,
+					"lights": 4
+				}
+			],
+			"_doc": "the dressing block's side: two storeys, 13 in",
+			"profile": [
+				[
+					-9,
+					-0.53,
+					0.0
+				],
+				[
+					0.0,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"side": "west"
+		},
+		{
+			"id": "back",
+			"line": [
+				[
+					0,
+					33.528
+				],
+				[
+					18.288,
+					33.528
+				]
+			],
+			"out": "+z",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.33,
+			"top": 8.165,
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 9.144,
+					"width": 1.07,
+					"height": 2.29,
+					"sill": 1.067,
+					"_doc": "the stage door, up from the yard"
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 2.6,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 2.417,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 15.688,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 2.417,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 6.0,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 2.417,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 12.288,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 2.417,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 2.6,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 5.465,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 15.688,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 5.465,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 6.0,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 5.465,
+					"lights": 4
+				},
+				{
+					"type": "window",
+					"level": "upper",
+					"at": 12.288,
+					"width": 0.76,
+					"height": 1.52,
+					"sill": 5.465,
+					"lights": 4
+				}
+			],
+			"profile": [
+				[
+					-9,
+					-0.53,
+					0.0
+				],
+				[
+					0.0,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			],
+			"_doc": "The back on the yard: the dressing block's wall, 13 in, the stage door up from the yard (its ground ~1.2 m over the pad: three steps), eight small windows."
+		},
+		{
+			"id": "vestibule",
+			"line": [
+				[
+					0.43,
+					2.6
+				],
+				[
+					17.858,
+					2.6
+				]
+			],
+			"out": "-z",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.33,
+			"top": 13.05,
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 8.714,
+					"width": 3.05,
+					"height": 2.9,
+					"leaves": 2,
+					"leaf": "swing",
+					"arch": "round",
+					"_doc": "into the lobby: two pairs of swing doors under one arch"
+				},
+				{
+					"type": "void",
+					"level": "upper",
+					"at": 8.714,
+					"width": 3.66,
+					"height": 3.0,
+					"arch": "round",
+					"_doc": "the foyer's arch: the front promenade (the five tall windows) to the gallery over the lobby"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 2.57,
+					"width": 0.91,
+					"height": 2.13,
+					"_doc": "McCready's office"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 14.858,
+					"width": 0.91,
+					"height": 2.13,
+					"_doc": "the committee room"
+				},
+				{
+					"type": "door",
+					"level": "attic",
+					"at": 8.714,
+					"width": 0.91,
+					"height": 2.0,
+					"_doc": "through the scene loft"
+				}
+			],
+			"_doc": "The vestibule's back, 13 in brick to the roof: the front block's middle bearing line (its floors span 2.2 m in front of it and 7.3 m behind); the box office's and the cloak room's back walls.",
+			"profile": [
+				[
+					-9,
+					-0.53,
+					0.2
+				],
+				[
+					0.0,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			]
+		},
+		{
+			"id": "box_office",
+			"line": [
+				[
+					4.6,
+					0.43
+				],
+				[
+					4.6,
+					2.6
+				]
+			],
+			"out": "-x",
+			"partition": true,
+			"level": "ground",
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "window",
+					"level": "ground",
+					"at": 0.9,
+					"width": 0.6,
+					"height": 0.6,
+					"sill": 1.0,
+					"lights": 4,
+					"arch": "round",
+					"grille": "brass",
+					"shelf": "marble",
+					"_doc": "the ticket window, onto the vestibule"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 1.75,
+					"width": 0.76,
+					"height": 2.03,
+					"_doc": "the seller's door, from the vestibule's corner"
+				}
+			]
+		},
+		{
+			"id": "cloak_room",
+			"line": [
+				[
+					13.688,
+					0.43
+				],
+				[
+					13.688,
+					2.6
+				]
+			],
+			"out": "+x",
+			"partition": true,
+			"level": "ground",
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "hatch",
+					"at": 0.9,
+					"width": 1.2,
+					"height": 1.0,
+					"sill": 0.95,
+					"_doc": "the cloak counter"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 1.75,
+					"width": 0.76,
+					"height": 2.03
+				}
+			]
+		},
+		{
+			"id": "lobby_back",
+			"line": [
+				[
+					0.43,
+					10.2
+				],
+				[
+					17.858,
+					10.2
+				]
+			],
+			"out": "-z",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.33,
+			"top": 11.45,
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 8.714,
+					"width": 2.44,
+					"height": 2.44,
+					"leaves": 2,
+					"leaf": "swing",
+					"_doc": "the hall's doors, between the stairs"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 8.714,
+					"width": 1.52,
+					"height": 2.29,
+					"leaves": 2,
+					"leaf": "swing",
+					"_doc": "the foyer's gallery to the balcony's back aisle"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 5.915,
+					"width": 1.07,
+					"height": 2.29,
+					"leaf": "swing",
+					"_doc": "at the east stair's landing: up the stair and straight into the balcony"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 11.513,
+					"width": 1.07,
+					"height": 2.29,
+					"leaf": "swing"
+				}
+			],
+			"_doc": "The lobby's back wall, 13 in brick to the roof: the foyer's and the scene loft's joists, the balcony's carriages and the hall's first purlins bear on it; doors into the hall's cross aisle below, the balcony's back aisle above.",
+			"profile": [
+				[
+					-9,
+					-0.53,
+					0.2
+				],
+				[
+					0.0,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			]
+		},
+		{
+			"id": "proscenium",
+			"line": [
+				[
+					0.43,
+					22.86
+				],
+				[
+					17.858,
+					22.86
+				]
+			],
+			"out": "-z",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.33,
+			"top": 13.961,
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"openings": [
+				{
+					"type": "void",
+					"at": 8.714,
+					"width": 8.534,
+					"height": 6.096,
+					"sill": 1.067,
+					"arch": "segmental",
+					"_doc": "NEW: the proscenium opening (a segmental arch of brick rings over 28 ft, framed inside in gilt plaster)"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 0.97,
+					"width": 0.91,
+					"height": 2.13,
+					"sill": 1.067,
+					"_doc": "the lower east box's passage to the wings"
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 16.458,
+					"width": 0.91,
+					"height": 2.13,
+					"sill": 1.067
+				}
+			],
+			"_doc": "The proscenium wall: 13 in brick from its footing through the roof (the period's fire wall between stage and house).",
+			"profile": [
+				[
+					-9,
+					-0.53,
+					0.2
+				],
+				[
+					0.0,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			]
+		},
+		{
+			"id": "dressing_front",
+			"line": [
+				[
+					0.43,
+					29.9
+				],
+				[
+					17.858,
+					29.9
+				]
+			],
+			"out": "-z",
+			"stone": true,
+			"masonry": "brick",
+			"thick": 0.33,
+			"top": 13.961,
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 8.714,
+					"width": 1.22,
+					"height": 2.29,
+					"sill": 1.067,
+					"_doc": "the stage's back door to the corridor"
+				},
+				{
+					"type": "door",
+					"level": "upper",
+					"at": 16.428,
+					"width": 0.91,
+					"height": 2.13,
+					"sill": 4.115,
+					"_doc": "the upper dressing rooms' door onto the fly gallery (west)"
+				}
+			],
+			"_doc": "The stage's back wall and the dressing block's front, 13 in to the stage house's top.",
+			"profile": [
+				[
+					-9,
+					-0.53,
+					0.2
+				],
+				[
+					0.0,
+					-0.33,
+					0.0
+				]
+			],
+			"ends": [
+				null,
+				null
+			]
+		},
+		{
+			"id": "corridor_e",
+			"line": [
+				[
+					8.384,
+					30.23
+				],
+				[
+					8.384,
+					33.198
+				]
+			],
+			"out": "-x",
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 0.75,
+					"width": 0.76,
+					"height": 2.03
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 2.2,
+					"width": 0.76,
+					"height": 2.03
+				}
+			]
+		},
+		{
+			"id": "corridor_w",
+			"line": [
+				[
+					9.904,
+					30.23
+				],
+				[
+					9.904,
+					33.198
+				]
+			],
+			"out": "+x",
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 0.75,
+					"width": 0.76,
+					"height": 2.03
+				},
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 2.2,
+					"width": 0.76,
+					"height": 2.03
+				}
+			]
+		},
+		{
+			"id": "dressing_split_e",
+			"line": [
+				[
+					0.43,
+					31.68
+				],
+				[
+					8.384,
+					31.68
+				]
+			],
+			"out": "-z",
+			"partition": true,
+			"level": "ground",
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "dressing_split_w",
+			"line": [
+				[
+					9.904,
+					31.68
+				],
+				[
+					17.858,
+					31.68
+				]
+			],
+			"out": "-z",
+			"partition": true,
+			"level": "ground",
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": []
+		},
+		{
+			"id": "bar",
+			"line": [
+				[
+					5.6,
+					2.93
+				],
+				[
+					5.6,
+					10.2
+				]
+			],
+			"out": "-x",
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"stud": 0.1,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 6.77,
+					"width": 0.91,
+					"height": 2.13,
+					"_doc": "from the lobby, past the east stair's head"
+				}
+			],
+			"_doc": "the bar's wall: 4x4 studs (it carries the east landing's joists), the east stair against it"
+		},
+		{
+			"id": "parlour",
+			"line": [
+				[
+					12.688,
+					2.93
+				],
+				[
+					12.688,
+					10.2
+				]
+			],
+			"out": "+x",
+			"partition": true,
+			"level": "ground",
+			"bearing": true,
+			"stud": 0.1,
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [
+				{
+					"type": "door",
+					"level": "ground",
+					"at": 6.77,
+					"width": 0.91,
+					"height": 2.13,
+					"_doc": "from the lobby, past the west stair's head"
+				}
+			],
+			"_doc": "the ladies' parlour's wall, as the bar's"
+		},
+		{
+			"id": "office",
+			"line": [
+				[
+					5.6,
+					2.93
+				],
+				[
+					5.6,
+					10.2
+				]
+			],
+			"out": "-x",
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "McCready's office over the bar (its door through the vestibule wall)"
+		},
+		{
+			"id": "committee",
+			"line": [
+				[
+					12.688,
+					2.93
+				],
+				[
+					12.688,
+					10.2
+				]
+			],
+			"out": "+x",
+			"partition": true,
+			"level": "upper",
+			"inside": [
+				{
+					"side": "-",
+					"finish": "boards"
+				},
+				{
+					"side": "+",
+					"finish": "boards"
+				}
+			],
+			"openings": [],
+			"_doc": "the committee room over the parlour: the town's and the Miners' Union's meetings"
+		}
+	],
+	"balcony": {
+		"_doc": "NEW (`Balcony` kind `horseshoe`, the README's parts): the deck in tiers stepped 0.3 m (each tier a floor of its own on raking carriages: 3x12 at 16 in from the rail beam up to pockets in the brick and the lobby's back wall), the rail beam 8x12 on nine cast-iron columns (6 in, 3/4 in metal), the corners' beam as 0.6 m chords (a ball or charge brings down a segment, not the sweep); the front a panelled gilt fascia on the rail's line with a velvet-padded rail 0.75 m over the front row. 100 lb/ft2. The columns stand on brick piers through the hall's floor. Clear under the rail: 3.45 m.",
+		"kind": "horseshoe",
+		"rail": [
+			[
+				2.054,
+				19.4
+			],
+			[
+				2.054,
+				17.322
+			],
+			[
+				2.103,
+				16.766
+			],
+			[
+				2.247,
+				16.228
+			],
+			[
+				2.483,
+				15.722
+			],
+			[
+				2.803,
+				15.265
+			],
+			[
+				3.197,
+				14.871
+			],
+			[
+				3.654,
+				14.551
+			],
+			[
+				4.16,
+				14.315
+			],
+			[
+				4.698,
+				14.171
+			],
+			[
+				5.254,
+				14.122
+			],
+			[
+				9.144,
+				14.122
+			],
+			[
+				13.034,
+				14.122
+			],
+			[
+				13.59,
+				14.171
+			],
+			[
+				14.128,
+				14.315
+			],
+			[
+				14.634,
+				14.551
+			],
+			[
+				15.091,
+				14.871
+			],
+			[
+				15.485,
+				15.265
+			],
+			[
+				15.805,
+				15.722
+			],
+			[
+				16.041,
+				16.228
+			],
+			[
+				16.185,
+				16.766
+			],
+			[
+				16.234,
+				17.322
+			],
+			[
+				16.234,
+				19.4
+			]
+		],
+		"radius": 3.2,
+		"columns": {
+			"kind": "cast_iron",
+			"dia": 0.152,
+			"metal": 0.019,
+			"at": [
+				[
+					5.254,
+					14.122
+				],
+				[
+					9.144,
+					14.122
+				],
+				[
+					13.034,
+					14.122
+				],
+				[
+					2.991,
+					15.059
+				],
+				[
+					15.297,
+					15.059
+				],
+				[
+					2.054,
+					17.322
+				],
+				[
+					16.234,
+					17.322
+				],
+				[
+					2.054,
+					19.4
+				],
+				[
+					16.234,
+					19.4
+				]
+			],
+			"foot_y": 0.45,
+			"head_y": 4.2
+		},
+		"beam": {
+			"section": [
+				0.19,
+				0.29
+			],
+			"wood": "framing"
+		},
+		"carriage": {
+			"section": [
+				0.076,
+				0.29
+			],
+			"spacing": 0.406,
+			"wood": "framing"
+		},
+		"front": {
+			"height": 0.75,
+			"fascia": "panelled, gilt mouldings",
+			"rail": "velvet-padded"
+		},
+		"tiers": [
+			{
+				"id": "back_1",
+				"y": 4.55,
+				"rect": [
+					0.43,
+					13.258,
+					17.858,
+					14.122
+				],
+				"seats": 26
+			},
+			{
+				"id": "back_2",
+				"y": 4.85,
+				"rect": [
+					0.43,
+					12.394,
+					17.858,
+					13.258
+				],
+				"seats": 26
+			},
+			{
+				"id": "back_3",
+				"y": 5.15,
+				"rect": [
+					0.43,
+					11.53,
+					17.858,
+					12.394
+				],
+				"seats": 26
+			},
+			{
+				"id": "back_aisle",
+				"y": 5.45,
+				"rect": [
+					0.43,
+					10.53,
+					17.858,
+					11.53
+				],
+				"seats": 0
+			},
+			{
+				"id": "east_1",
+				"y": 4.55,
+				"rect": [
+					1.19,
+					14.122,
+					2.054,
+					19.4
+				],
+				"seats": 4
+			},
+			{
+				"id": "east_passage",
+				"y": 4.85,
+				"rect": [
+					0.43,
+					14.122,
+					1.19,
+					19.4
+				],
+				"seats": 0,
+				"_doc": "the passage along the wall from the back aisle (down three steps at the corner) to the upper box"
+			},
+			{
+				"id": "west_1",
+				"y": 4.55,
+				"rect": [
+					16.234,
+					14.122,
+					17.098,
+					19.4
+				],
+				"seats": 4
+			},
+			{
+				"id": "west_passage",
+				"y": 4.85,
+				"rect": [
+					17.098,
+					14.122,
+					17.858,
+					19.4
+				],
+				"seats": 0,
+				"_doc": "the passage along the wall from the back aisle (down three steps at the corner) to the upper box"
+			}
+		],
+		"seats": {
+			"back": 78,
+			"sides": 8
+		}
+	},
+	"boxes": {
+		"_doc": "NEW (`Balcony` kind `box`): four boxes, two a side, one over the other, between the side arms' ends and the proscenium wall: joists 3x10 in pockets in the side wall and the proscenium, the front on a cast-iron column at its outer corner. The lower boxes' floor at the stage's height (entered through the proscenium wall's passage doors, or four steps up from the hall's side aisle); the upper ones off the side arms' passages.",
+		"list": [
+			{
+				"id": "box_east_lower",
+				"rect": [
+					0.43,
+					19.6,
+					2.43,
+					22.76
+				],
+				"y": 1.517,
+				"chairs": 4,
+				"front": {
+					"curve": 0.3,
+					"height": 0.75,
+					"fascia": "gilt",
+					"drapes": "red velvet, tied back"
+				}
+			},
+			{
+				"id": "box_east_upper",
+				"rect": [
+					0.43,
+					19.6,
+					2.43,
+					22.76
+				],
+				"y": 4.85,
+				"chairs": 4,
+				"front": {
+					"curve": 0.3,
+					"height": 0.75,
+					"fascia": "gilt",
+					"drapes": "red velvet, tied back"
+				}
+			},
+			{
+				"id": "box_west_lower",
+				"rect": [
+					15.858,
+					19.6,
+					17.858,
+					22.76
+				],
+				"y": 1.517,
+				"chairs": 4,
+				"front": {
+					"curve": 0.3,
+					"height": 0.75,
+					"fascia": "gilt",
+					"drapes": "red velvet, tied back"
+				}
+			},
+			{
+				"id": "box_west_upper",
+				"rect": [
+					15.858,
+					19.6,
+					17.858,
+					22.76
+				],
+				"y": 4.85,
+				"chairs": 4,
+				"front": {
+					"curve": 0.3,
+					"height": 0.75,
+					"fascia": "gilt",
+					"drapes": "red velvet, tied back"
+				}
+			}
+		]
+	},
+	"seats": {
+		"_doc": "The parquet (Sean, 2026-11-24: about 300 in all): eight rows of 26 in one block, 32 in rows, 20 in folding opera chairs on cast-iron standards (A. H. Andrews & Co.'s), screwed down; the front four rows on runners (cleared for a ball); behind them standing room under the balcony. Side aisles along the walls under the balcony's side arms (its side columns in them); a column that stands in a row takes a seat's place (`out`: the period's 'obstructed by a post'). A kit prop by the prop lab (`opera_chair`, NEW).",
+		"kit": "opera_chair",
+		"rows": 8,
+		"row_pitch": 0.813,
+		"seat_width": 0.508,
+		"first_row_z": 12.759,
+		"last_row_z": 18.45,
+		"blocks": [
+			[
+				2.54,
+				15.748,
+				26
+			]
+		],
+		"out": 0,
+		"count": 208,
+		"runners": 4,
+		"facing": 0
+	},
+	"stage": {
+		"_doc": "The stage (saloon B's `stage` grown up, #902's form: legs, bearers, joists, boards, a skirt): 3 ft 6 in over the hall, the full width behind the proscenium and an apron 4 ft out of it with the footlights' trough; a trap 4 x 4 ft between two joists (the church's hatch rule); the gridiron 30 ft over the stage on beams in pockets (3x8 slats, open between); the drop curtain and three roll drops on battens hung from it by ropes made off at the pin rail (the Rope part) on the west fly gallery; wings of flats either side. NEW: the apron, the trough, the gridiron, the battens, the pin rail, the gallery.",
+		"level": "ground",
+		"rect": [
+			0.43,
+			23.19,
+			17.858,
+			29.9
+		],
+		"height": 1.067,
+		"leg": 0.15,
+		"bearer": [
+			0.15,
+			0.25
+		],
+		"joist": [
+			0.05,
+			0.24
+		],
+		"spacing": 0.406,
+		"legs_every": 1.5,
+		"bearers": 5,
+		"skirt": [
+			"front"
+		],
+		"apron": {
+			"rect": [
+				4.874,
+				21.64,
+				13.414,
+				22.86
+			],
+			"bow": 0.4,
+			"steps": [
+				{
+					"id": "apron_e",
+					"head": [
+						4.874,
+						21.94
+					],
+					"dir": "+x",
+					"width": 0.9,
+					"risers": 6,
+					"going": 0.25,
+					"_doc": "down to the pit's east end (acts into the house)"
+				}
+			]
+		},
+		"pit": {
+			"rect": [
+				4.144,
+				19.8,
+				14.144,
+				21.64
+			],
+			"rail": {
+				"height": 0.9,
+				"z": 19.8
+			},
+			"_doc": "the band: a piano, a fiddle, a cornet; level with the hall, a brass-capped rail before the first row"
+		},
+		"footlights": {
+			"count": 14,
+			"trough": [
+				5.144,
+				21.69,
+				13.144,
+				21.89
+			],
+			"kind": "kerosene, tin reflectors",
+			"lit": [
+				19,
+				23
+			]
+		},
+		"trap": [
+			8.534,
+			25.63,
+			9.754,
+			26.85
+		],
+		"gridiron": {
+			"y": 10.661,
+			"beams": [
+				0.15,
+				0.3
+			],
+			"slats": [
+				0.076,
+				0.2
+			],
+			"gap": 0.61
+		},
+		"drops": [
+			{
+				"id": "curtain",
+				"z": 23.49,
+				"art": "a painted lake under mountains in a painted gilt frame",
+				"roll": true,
+				"down": true
+			},
+			{
+				"id": "parlour",
+				"z": 25.19,
+				"roll": true
+			},
+			{
+				"id": "forest",
+				"z": 26.99,
+				"roll": true
+			},
+			{
+				"id": "street",
+				"z": 29.5,
+				"roll": true,
+				"_doc": "the back drop: a western street"
+			}
+		],
+		"drop_width": 9.144,
+		"drop_height": 6.706,
+		"pin_rail": {
+			"wall": "west_stage",
+			"y": 5.565,
+			"lines": 12
+		},
+		"fly_gallery": {
+			"wall": "west_stage",
+			"y": 4.565,
+			"depth": 1.0,
+			"from": 23.19,
+			"to": 29.9,
+			"_doc": "a gallery along the west wall at the dressing block's upper floor, for the flymen, on brackets in the brick; its door to the upper dressing rooms"
+		},
+		"wings": {
+			"flats": 6,
+			"each_side": 3,
+			"width": 1.5,
+			"height": 5.5
+		}
+	},
+	"roof": {
+		"_doc": "NEW (`HoweTruss`, the README's parts): over the hall, four Howe trusses on the pilasters at 12 ft, spanning 59 ft; over the stage house two more; the front block and the dressing block flat behind their parapets (floors of level front_roof and dress_roof). Purlins 4x10 at the panel points, rafters 2x8 at 24 in, 1 in boards, terne plate (tin), 3/12 to a ridge 2.1 m over the plate, under the hall's parapets' line seen from the street (the front block hides it). The hall's ceiling: 2x8 at 16 in hung from the bottom chords by iron straps, lath and plaster under them, a cove at the walls, a plaster rose round the chandelier's chain in the middle bay.",
+		"pitch": "3/12",
+		"hall": {
+			"z": [
+				10.2,
+				22.86
+			],
+			"trusses_at": [
+				12.36,
+				16.02,
+				19.68
+			],
+			"bear_y": 10.45
+		},
+		"stage": {
+			"z": [
+				22.86,
+				30.23
+			],
+			"trusses_at": [
+				25.39,
+				27.79
+			],
+			"bear_y": 12.861
+		},
+		"truss": {
+			"kind": "howe",
+			"span": 18.028,
+			"depth": 2.0,
+			"panels": 8,
+			"top_chord": [
+				0.19,
+				0.29
+			],
+			"bottom_chord": {
+				"section": [
+					0.14,
+					0.29
+				],
+				"count": 2
+			},
+			"braces": [
+				0.14,
+				0.19
+			],
+			"counters": [
+				0.09,
+				0.14
+			],
+			"rods": [
+				0.041,
+				0.032,
+				0.025
+			],
+			"_doc": "rods 1 5/8 in at the ends, 1 1/4 next, 1 in in the middle panels (wrought iron, nuts on cast angle blocks); the bottom chord two 6x12 bolted with keys (Haupt)"
+		},
+		"purlin": [
+			0.09,
+			0.24
+		],
+		"rafter": [
+			0.04,
+			0.19
+		],
+		"rafter_spacing": 0.61,
+		"boards": 0.025,
+		"tin": true,
+		"ceiling": {
+			"y": 10.2,
+			"joist": [
+				0.04,
+				0.19
+			],
+			"spacing": 0.406,
+			"finish": "plaster on lath",
+			"rose": {
+				"at": [
+					9.144,
+					16.02
+				],
+				"dia": 1.5
+			},
+			"cove": 0.6
+		}
+	},
+	"ceilings": {
+		"_doc": "Plaster on lath (NEW: `PlasterWall`, the README's parts: cracks, falls in chunks off its lath, the paper tearing with it) in every room, the hall's under the trusses (the roof's `ceiling`), the lobby's and foyer's with a cornice and a rose.",
+		"levels": [
+			"ground",
+			"upper",
+			"stage",
+			"dress_upper"
+		],
+		"finish": "plaster",
+		"holes": [
+			[
+				5.66,
+				2.95,
+				7.03,
+				9.2
+			],
+			[
+				11.258,
+				2.95,
+				12.628,
+				9.2
+			]
+		]
+	},
+	"inside_finish": {
+		"_doc": "NEW finishes: walnut wainscot to 3 ft (the lobby, the foyer, the hall), wallpaper over plaster above (deep red and gold, three bands), plain plaster and whitewash backstage and in the dressing rooms; the brick bare in the stage house.",
+		"wainscot": {
+			"height": 0.91,
+			"wood": "walnut",
+			"rooms": [
+				"lobby",
+				"foyer",
+				"hall",
+				"vestibule"
+			]
+		},
+		"paper": {
+			"rooms": [
+				"lobby",
+				"foyer",
+				"hall",
+				"office",
+				"boxes"
+			],
+			"pattern": "three-band, red and gold"
+		},
+		"skirting": 0.2
+	},
+	"stairs": [
+		{
+			"id": "lobby_east",
+			"head": [
+				5.66,
+				9.2
+			],
+			"dir": "+z",
+			"width": 1.37,
+			"from": "ground",
+			"to": "upper",
+			"risers": 26,
+			"going": 0.25,
+			"rail": "+x",
+			"look": "wood:int_oak",
+			"stringer_look": "wood:int_timber",
+			"_doc": "the lobby's two stairs: straight flights of 26 risers (7.6 in on 10 in treads) against the bar's and the parlour's walls, rising from the vestibule's side to a landing at the lobby's back wall, its door straight into the balcony (the gallery's to the foyer); turned walnut newels at the foot, a red runner on brass rods; their open sides railed. The wells over them the flights' length."
+		},
+		{
+			"id": "lobby_west",
+			"head": [
+				11.258,
+				9.2
+			],
+			"dir": "+z",
+			"width": 1.37,
+			"from": "ground",
+			"to": "upper",
+			"risers": 26,
+			"going": 0.25,
+			"rail": "-x",
+			"look": "wood:int_oak",
+			"stringer_look": "wood:int_timber"
+		},
+		{
+			"id": "dressing",
+			"head": [
+				8.544,
+				33.098
+			],
+			"dir": "+z",
+			"width": 1.2,
+			"from": "stage",
+			"to": "dress_upper",
+			"risers": 16,
+			"going": 0.2,
+			"_doc": "a steep boxed stair at the corridor's end"
+		},
+		{
+			"id": "loft",
+			"head": [
+				0.53,
+				9.9
+			],
+			"dir": "+z",
+			"width": 0.9,
+			"from": "upper",
+			"to": "attic",
+			"risers": 24,
+			"going": 0.2,
+			"_doc": "a closed stair in McCready's office's corner up to the scene loft"
+		},
+		{
+			"id": "stage_door",
+			"head": [
+				8.394,
+				34.478
+			],
+			"dir": "-z",
+			"width": 1.5,
+			"from": "yard",
+			"to": "stage",
+			"risers": 3,
+			"going": 0.3,
+			"_doc": "three stone steps up from the yard to the stage door"
+		}
+	],
+	"front": {
+		"sign": "MCCREADY'S OPERA HOUSE",
+		"sign_from": 12.65,
+		"sign_to": 13.25,
+		"sign_width": 13.0,
+		"year": "1881",
+		"brackets": {
+			"spacing": 0.6,
+			"drop": 0.45,
+			"reach": 0.22,
+			"width": 0.09,
+			"pairs": true,
+			"sides": [
+				"east_front",
+				"west_front"
+			],
+			"_doc": "the hotel's paired scroll brackets, deeper (the cornice 1.1 m: galvanized iron on a timber frame)"
+		},
+		"cornice": {
+			"kind": "bracketed",
+			"top": 14.0,
+			"depth": 1.1,
+			"material": "galvanized iron, painted stone colour"
+		},
+		"iron_columns": {
+			"at": [
+				8.194,
+				10.094
+			],
+			"height": 3.4,
+			"_doc": "NEW: a pair of cast-iron columns either side of the middle doorway (catalogue parts, bolted to the brick)"
+		},
+		"posters": [
+			{
+				"board": [
+					7.624,
+					1.0,
+					1.0,
+					1.4
+				],
+				"bill": "THE MORTGAGE ON HAZEL FARM, or a Daughter's Sacrifice: a melodrama in four acts"
+			},
+			{
+				"board": [
+					10.664,
+					1.0,
+					1.0,
+					1.4
+				],
+				"bill": "The Hartwell Shakespearean Company: HAMLET and RICHARD III, two nights only"
+			},
+			{
+				"board": [
+					4.544,
+					1.0,
+					1.0,
+					1.4
+				],
+				"bill": "Professor Alcott's Magic Lantern: Wonders of the Yellowstone, sixty views"
+			},
+			{
+				"board": [
+					13.744,
+					1.0,
+					1.0,
+					1.4
+				],
+				"bill": "Miss Lottie Byrne, the Colorado Nightingale, with the Salt Creek Cornet Band"
+			}
+		],
+		"_posters_doc": "board: [x along the front, its foot over the walk, width, height]; the bills painted by the texture factory (invented acts; no minstrel shows, Sean)"
+	},
+	"rooms": [
+		{
+			"id": "vestibule",
+			"level": "ground",
+			"rect": [
+				4.6,
+				0.43,
+				13.688,
+				2.6
+			],
+			"use": "a show night's crowd in out of the street; tickets bought at the window, bills on the walls"
+		},
+		{
+			"id": "box_office",
+			"level": "ground",
+			"rect": [
+				0.43,
+				0.43,
+				4.6,
+				2.6
+			],
+			"use": "the ticket seller behind the grille, the cash box, the seating chart, the night's takings"
+		},
+		{
+			"id": "cloak_room",
+			"level": "ground",
+			"rect": [
+				13.688,
+				0.43,
+				17.858,
+				2.6
+			],
+			"use": "coats, hats and guns checked"
+		},
+		{
+			"id": "lobby",
+			"level": "ground",
+			"rect": [
+				5.6,
+				2.93,
+				12.688,
+				10.2
+			],
+			"use": "the two stairs up to the foyer, the hall's doors; waiting, smoking, the interval"
+		},
+		{
+			"id": "bar",
+			"level": "ground",
+			"rect": [
+				0.43,
+				2.93,
+				5.6,
+				10.2
+			],
+			"use": "the opera house's bar (Sean, 2026-11-24): two bar sections and the back bar along its west wall, its own door onto the open ground (a drink without a ticket), the interval's crush; the men's"
+		},
+		{
+			"id": "parlour",
+			"level": "ground",
+			"rect": [
+				12.688,
+				2.93,
+				17.858,
+				10.2
+			],
+			"use": "the ladies' parlour (the retiring room, Sean's pick): settees, a pier glass, a washstand, a stove; the windows on the lane"
+		},
+		{
+			"id": "hall",
+			"level": "ground",
+			"rect": [
+				0.43,
+				10.53,
+				17.858,
+				19.8
+			],
+			"use": "the parquet: 208 seats; the crowd's place; a ball with the front rows cleared"
+		},
+		{
+			"id": "pit",
+			"level": "ground",
+			"rect": [
+				4.144,
+				19.8,
+				14.144,
+				21.64
+			],
+			"use": "the band"
+		},
+		{
+			"id": "stage",
+			"level": "stage",
+			"rect": [
+				0.43,
+				23.19,
+				17.858,
+				29.9
+			],
+			"use": "the acts (#1143's later shows); the wings, the pin rail, roll drops and flats; a trap"
+		},
+		{
+			"id": "apron",
+			"level": "stage",
+			"rect": [
+				4.874,
+				21.64,
+				13.414,
+				22.86
+			],
+			"use": "the footlights along its edge; where a speech is made to the house"
+		},
+		{
+			"id": "dressing_1",
+			"level": "stage",
+			"rect": [
+				0.43,
+				30.23,
+				8.384,
+				31.68
+			],
+			"use": "the star's"
+		},
+		{
+			"id": "dressing_2",
+			"level": "stage",
+			"rect": [
+				0.43,
+				31.68,
+				8.384,
+				33.198
+			],
+			"use": "the company's men"
+		},
+		{
+			"id": "corridor",
+			"level": "stage",
+			"rect": [
+				8.384,
+				30.23,
+				9.904,
+				33.198
+			],
+			"use": "the stage door to the stage; the stair to the upper dressing rooms"
+		},
+		{
+			"id": "dressing_3",
+			"level": "stage",
+			"rect": [
+				9.904,
+				30.23,
+				17.858,
+				31.68
+			],
+			"use": "the company's women"
+		},
+		{
+			"id": "dressing_4",
+			"level": "stage",
+			"rect": [
+				9.904,
+				31.68,
+				17.858,
+				33.198
+			],
+			"use": "trunks and costumes"
+		},
+		{
+			"id": "foyer",
+			"level": "upper",
+			"rect": [
+				0.43,
+				0.43,
+				17.858,
+				2.6
+			],
+			"use": "the foyer's promenade behind the five tall windows over Main Street, settees; through its arch the gallery over the lobby to the balcony"
+		},
+		{
+			"id": "gallery",
+			"level": "upper",
+			"rect": [
+				7.03,
+				2.93,
+				11.258,
+				10.2
+			],
+			"use": "the foyer's gallery between the stairs' wells, railed, looking down into the lobby"
+		},
+		{
+			"id": "office",
+			"level": "upper",
+			"rect": [
+				0.43,
+				2.93,
+				5.6,
+				10.2
+			],
+			"use": "McCready's office over the bar: the safe, the bookings, the side windows; the loft stair"
+		},
+		{
+			"id": "committee",
+			"level": "upper",
+			"rect": [
+				12.688,
+				2.93,
+				17.858,
+				10.2
+			],
+			"use": "the committee room over the parlour: a long table, the town's meetings and the Miners' Union's"
+		},
+		{
+			"id": "balcony",
+			"level": "upper",
+			"rect": [
+				0.43,
+				10.53,
+				17.858,
+				19.4
+			],
+			"use": "the horseshoe: 86 seats, the cheap ones at the back"
+		},
+		{
+			"id": "boxes",
+			"level": "upper",
+			"rect": [
+				0.43,
+				19.6,
+				17.858,
+				22.76
+			],
+			"use": "the four boxes: McCready's, the Baron's, the mine's, the bank's"
+		},
+		{
+			"id": "dressing_upper",
+			"level": "dress_upper",
+			"rect": [
+				0.43,
+				30.23,
+				17.858,
+				33.198
+			],
+			"use": "four more dressing rooms, the wardrobe; the door onto the fly gallery"
+		},
+		{
+			"id": "scene_loft",
+			"level": "attic",
+			"rect": [
+				0.43,
+				0.43,
+				17.858,
+				10.2
+			],
+			"use": "the scene painter's loft: a frame, pots of distemper, rolled canvas; the old drops"
+		}
+	],
+	"use_points": [
+		{
+			"id": "ticket_seller",
+			"use": "work",
+			"who": "ticket_seller",
+			"at": [
+				3.4,
+				0.45,
+				1.5
+			],
+			"look": [
+				4.6,
+				1.5
+			]
+		},
+		{
+			"id": "usher_e",
+			"use": "stand",
+			"who": "usher",
+			"at": [
+				6.144,
+				0.45,
+				11.03
+			],
+			"look": [
+				6.144,
+				12.0
+			]
+		},
+		{
+			"id": "usher_w",
+			"use": "stand",
+			"who": "usher",
+			"at": [
+				12.144,
+				0.45,
+				11.03
+			],
+			"look": [
+				12.144,
+				12.0
+			]
+		},
+		{
+			"id": "doorman",
+			"use": "stand",
+			"who": "doorman",
+			"at": [
+				9.144,
+				0.45,
+				1.0
+			],
+			"look": [
+				9.144,
+				-2.0
+			]
+		},
+		{
+			"id": "cloak",
+			"use": "work",
+			"who": "cloak_girl",
+			"at": [
+				14.888,
+				0.45,
+				1.5
+			],
+			"look": [
+				13.688,
+				1.5
+			]
+		},
+		{
+			"id": "piano",
+			"use": "play",
+			"who": "band",
+			"at": [
+				5.644,
+				0.45,
+				20.4
+			],
+			"look": [
+				5.644,
+				21.0
+			]
+		},
+		{
+			"id": "fiddle",
+			"use": "play",
+			"who": "band",
+			"at": [
+				8.144,
+				0.45,
+				20.9
+			],
+			"look": [
+				9.144,
+				23.0
+			]
+		},
+		{
+			"id": "cornet",
+			"use": "play",
+			"who": "band",
+			"at": [
+				10.644,
+				0.45,
+				20.9
+			],
+			"look": [
+				9.144,
+				23.0
+			]
+		},
+		{
+			"id": "act_centre",
+			"use": "perform",
+			"who": "act",
+			"at": [
+				9.144,
+				1.517,
+				23.8
+			],
+			"look": [
+				9.144,
+				12.0
+			]
+		},
+		{
+			"id": "act_apron",
+			"use": "perform",
+			"who": "act",
+			"at": [
+				9.144,
+				1.517,
+				22.0
+			],
+			"look": [
+				9.144,
+				10.0
+			]
+		},
+		{
+			"id": "prompter",
+			"use": "watch",
+			"who": "stage_manager",
+			"at": [
+				2.0,
+				1.517,
+				23.6
+			],
+			"look": [
+				9.144,
+				24.0
+			]
+		},
+		{
+			"id": "flyman",
+			"use": "work",
+			"who": "stagehand",
+			"at": [
+				17.358,
+				4.565,
+				26.0
+			],
+			"look": [
+				17.858,
+				26.0
+			]
+		},
+		{
+			"id": "lamp_lighter",
+			"use": "work",
+			"who": "stagehand",
+			"at": [
+				5.144,
+				1.517,
+				21.9
+			],
+			"look": [
+				9.144,
+				21.7
+			]
+		},
+		{
+			"id": "standing_room",
+			"use": "watch",
+			"who": "crowd",
+			"at": [
+				9.144,
+				0.45,
+				11.23
+			],
+			"look": [
+				9.144,
+				23.0
+			]
+		},
+		{
+			"id": "box_baron",
+			"use": "sit",
+			"who": "baron",
+			"at": [
+				1.4,
+				4.85,
+				21.0
+			],
+			"look": [
+				9.144,
+				24.0
+			]
+		},
+		{
+			"id": "box_mccready",
+			"use": "sit",
+			"who": "mccready",
+			"at": [
+				16.888,
+				4.85,
+				21.0
+			],
+			"look": [
+				9.144,
+				24.0
+			]
+		},
+		{
+			"id": "office_desk",
+			"use": "work",
+			"who": "mccready",
+			"at": [
+				2.4,
+				5.45,
+				4.0
+			],
+			"look": [
+				0.43,
+				4.0
+			]
+		},
+		{
+			"id": "bartender",
+			"use": "serve",
+			"who": "bartender",
+			"at": [
+				4.3,
+				0.45,
+				6.4
+			],
+			"look": [
+				1.5,
+				6.4
+			]
+		},
+		{
+			"id": "bar_rail_1",
+			"use": "drink",
+			"who": "any",
+			"at": [
+				2.6,
+				0.45,
+				4.4
+			],
+			"look": [
+				4.3,
+				4.4
+			]
+		},
+		{
+			"id": "bar_rail_2",
+			"use": "drink",
+			"who": "any",
+			"at": [
+				2.6,
+				0.45,
+				6.0
+			],
+			"look": [
+				4.3,
+				6.0
+			]
+		},
+		{
+			"id": "bar_rail_3",
+			"use": "drink",
+			"who": "any",
+			"at": [
+				2.6,
+				0.45,
+				7.6
+			],
+			"look": [
+				4.3,
+				7.6
+			]
+		},
+		{
+			"id": "parlour_settee",
+			"use": "sit",
+			"who": "lady",
+			"at": [
+				16.288,
+				0.45,
+				5.5
+			],
+			"look": [
+				14.288,
+				5.5
+			]
+		},
+		{
+			"id": "parlour_glass",
+			"use": "dress",
+			"who": "lady",
+			"at": [
+				17.288,
+				0.45,
+				8.4
+			],
+			"look": [
+				17.858,
+				8.4
+			]
+		},
+		{
+			"id": "committee_chair",
+			"use": "sit",
+			"who": "chairman",
+			"at": [
+				15.288,
+				5.45,
+				9.6
+			],
+			"look": [
+				15.288,
+				4.0
+			]
+		},
+		{
+			"id": "dressing_mirror",
+			"use": "dress",
+			"who": "act",
+			"at": [
+				2.0,
+				1.517,
+				30.83
+			],
+			"look": [
+				2.0,
+				30.23
+			]
+		},
+		{
+			"id": "balcony_cover",
+			"use": "cover",
+			"who": "any",
+			"at": [
+				9.144,
+				4.55,
+				13.622
+			],
+			"look": [
+				9.144,
+				23.0
+			],
+			"_doc": "behind the balcony's front: a gunman's place over the house"
+		},
+		{
+			"id": "foyer_window",
+			"use": "watch",
+			"who": "any",
+			"at": [
+				9.144,
+				5.45,
+				1.0
+			],
+			"look": [
+				9.144,
+				-10.0
+			]
+		}
+	],
+	"lamps": {
+		"_doc": "Kerosene throughout (no gas in Salt Creek). The chandelier in the hall's middle bay from the ceiling's rose on a chain to the middle truss's bottom chord (lowered on a rope to be lit: the Rope part), 24 lamps in two tiers; brackets on the walls; the footlights (the stage's); two lamp standards on the walk (prop lab's `lamp_standard`, NEW).",
+		"chandelier": {
+			"at": [
+				9.144,
+				16.02
+			],
+			"y": 8.6,
+			"radius": 1.1,
+			"lamps": 24,
+			"truss": 16.02,
+			"tiers": 2
+		},
+		"kit": [
+			{
+				"room": "vestibule",
+				"kit": "reflector_lamp",
+				"wall": "vestibule",
+				"level": "ground",
+				"at": 4.5,
+				"height": 2.2,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "vestibule",
+				"kit": "reflector_lamp",
+				"wall": "vestibule",
+				"level": "ground",
+				"at": 12.9,
+				"height": 2.2,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "lobby",
+				"kit": "reflector_lamp",
+				"wall": "lobby_back",
+				"level": "ground",
+				"at": 5.915,
+				"height": 2.4,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "lobby",
+				"kit": "reflector_lamp",
+				"wall": "lobby_back",
+				"level": "ground",
+				"at": 11.513,
+				"height": 2.4,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "bar",
+				"kit": "reflector_lamp",
+				"wall": "east_front",
+				"level": "ground",
+				"at": 3.4,
+				"height": 2.2,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "bar",
+				"kit": "reflector_lamp",
+				"wall": "east_front",
+				"level": "ground",
+				"at": 8.2,
+				"height": 2.2,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "parlour",
+				"kit": "reflector_lamp",
+				"wall": "west_front",
+				"level": "ground",
+				"at": 3.4,
+				"height": 2.0,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "parlour",
+				"kit": "reflector_lamp",
+				"wall": "west_front",
+				"level": "ground",
+				"at": 8.2,
+				"height": 2.0,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "hall",
+				"kit": "reflector_lamp",
+				"wall": "east_hall",
+				"level": "ground",
+				"at": 3.0,
+				"height": 2.6,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "hall",
+				"kit": "reflector_lamp",
+				"wall": "east_hall",
+				"level": "ground",
+				"at": 10.3,
+				"height": 2.6,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "hall",
+				"kit": "reflector_lamp",
+				"wall": "west_hall",
+				"level": "ground",
+				"at": 3.0,
+				"height": 2.6,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			},
+			{
+				"room": "hall",
+				"kit": "reflector_lamp",
+				"wall": "west_hall",
+				"level": "ground",
+				"at": 10.3,
+				"height": 2.6,
+				"energy": 1.0,
+				"reach": 6.0,
+				"lit": [
+					18,
+					24
+				]
+			}
+		],
+		"standards": [
+			{
+				"kit": "lamp_standard",
+				"at": [
+					4.544,
+					-1.6
+				],
+				"lit": [
+					18,
+					24
+				],
+				"_doc": "on the walk before the doors (NEW: the prop lab's lamp standard, placed by the walk)"
+			},
+			{
+				"kit": "lamp_standard",
+				"at": [
+					13.744,
+					-1.6
+				],
+				"lit": [
+					18,
+					24
+				],
+				"_doc": "on the walk before the doors (NEW: the prop lab's lamp standard, placed by the walk)"
+			}
+		]
+	},
+	"light": {
+		"_doc": "saloon B's dials for a big room (#867): the windows light the hall by day, the fill lifts the far walls",
+		"fill": [
+			0.62,
+			0.6,
+			0.57
+		],
+		"window_day": 14.0,
+		"day_fill": 0.32
+	},
+	"furniture": [],
+	"fixtures": [
+		{
+			"kit": "bar",
+			"at": [
+				3.41,
+				3.6
+			],
+			"facing": 270,
+			"repeat": {
+				"count": 2,
+				"step": [
+					0,
+					3.0
+				]
+			},
+			"_doc": "the bar's counter, two 3 m kit sections (the hotel's), the customers east of it by the windows"
+		},
+		{
+			"kit": "back_bar",
+			"at": [
+				5.18,
+				3.4
+			],
+			"facing": 270,
+			"repeat": {
+				"count": 2,
+				"step": [
+					0,
+					2.5
+				]
+			},
+			"_doc": "the back bar against the bar's wall (the east stair behind it)"
+		}
+	],
+	"props_wanted": [
+		{
+			"kit": "piano",
+			"at": [
+				5.644,
+				20.9
+			],
+			"facing": 0,
+			"_doc": "the pit's upright (prop lab, NEW)"
+		},
+		{
+			"kit": "safe",
+			"at": [
+				1.0,
+				4.5
+			],
+			"level": "upper",
+			"facing": 90,
+			"_doc": "McCready's (prop lab, NEW)"
+		},
+		{
+			"kit": "settee",
+			"at": [
+				6.094,
+				1.2
+			],
+			"level": "upper",
+			"facing": 0,
+			"repeat": {
+				"count": 3,
+				"step": [
+					3.05,
+					0
+				]
+			},
+			"_doc": "the foyer's (prop lab, NEW)"
+		},
+		{
+			"kit": "opera_chair",
+			"_doc": "the seats' rows (`seats`, the balcony's tiers) and the boxes' gilt chairs"
+		},
+		{
+			"kit": "settee",
+			"room": "parlour",
+			"_doc": "the ladies' parlour: two settees, a pier glass, a washstand (prop lab, NEW)"
+		},
+		{
+			"kit": "long_table",
+			"room": "committee",
+			"_doc": "the committee room's table and chairs (prop lab)"
+		},
+		{
+			"kit": "lamp_standard",
+			"_doc": "the two on the walk (`lamps.kit`)"
+		}
+	],
+	"_props_doc": "`props_wanted`: kit props the prop lab makes before they go in `fixtures` (none exist yet)",
+	"use": {
+		"years": 1,
+		"paths": [
+			{
+				"id": "doors_to_hall",
+				"who": "everyone",
+				"level": "ground",
+				"daily": 120,
+				"width": 2.4,
+				"points": [
+					[
+						9.144,
+						0.43
+					],
+					[
+						9.144,
+						2.6
+					],
+					[
+						9.144,
+						11.129999999999999
+					]
+				]
+			},
+			{
+				"id": "aisle_e",
+				"who": "everyone",
+				"level": "ground",
+				"daily": 50,
+				"width": 0.9,
+				"points": [
+					[
+						2.98,
+						11.129999999999999
+					],
+					[
+						2.98,
+						19.8
+					]
+				]
+			},
+			{
+				"id": "aisle_w",
+				"who": "everyone",
+				"level": "ground",
+				"daily": 50,
+				"width": 0.9,
+				"points": [
+					[
+						15.308,
+						11.129999999999999
+					],
+					[
+						15.308,
+						19.8
+					]
+				]
+			},
+			{
+				"id": "stage_door",
+				"who": "acts",
+				"level": "stage",
+				"daily": 15,
+				"width": 1.0,
+				"points": [
+					[
+						9.144,
+						33.198
+					],
+					[
+						9.144,
+						29.9
+					],
+					[
+						9.144,
+						21.94
+					]
+				]
+			}
+		],
+		"_doc": "a show a week, a ball a month (daily: passings a day averaged): the aisles and doors worn, the stage's centre and its door"
+	},
+	"materials": {
+		"_doc": "From the material library by name when built (passing entries only); NEW: brick, buff sandstone, plaster on lath, wallpaper, walnut (FN3 parked: the material lab first), red plush, gilt, galvanized iron, marble tile.",
+		"wear": {
+			"use": 0.5,
+			"dings": 0.0,
+			"_why": "one year of shows and balls"
+		},
+		"floor": "wood:int_floor",
+		"wall_boards": "int_boards",
+		"woodwork": "wood:int_timber",
+		"timber": "wood:int_timber",
+		"rough": "framing",
+		"chimney": "stone",
+		"_names_doc": "the jail's names for the builder's surfaces until step 4 (the look) picks from the library"
+	},
+	"sources": [
+		"F. E. Kidder, Building Construction and Superintendence (1890s eds.): brick wall thicknesses, theatre floor loads",
+		"USDA Wood Handbook: working stresses for the joists and beams (the game's timber numbers)",
+		"Herman Haupt, General Theory of Bridge Construction (1851) and Hatfield, The American House-Carpenter (1880): Howe trusses",
+		"Gordon's formula for cast-iron columns (Trautwine's Civil Engineer's Pocket-Book, 1870s eds.)",
+		"Central City Opera House (1878, stone, ~550 seats) and the Tabor Opera House, Leadville (1879, brick, three storeys): size and arrangement",
+		"A. H. Andrews & Co. (Chicago) opera-chair catalogues, 1880s: 20 in seats on cast-iron standards, 30-32 in rows",
+		"the Brooklyn Theatre fire (1876): doors opening outward, exits on both sides"
+	]
+}

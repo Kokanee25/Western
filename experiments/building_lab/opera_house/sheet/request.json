@@ -1,0 +1,89 @@
+{
+ "_doc": "McCready's Opera House's target sheet (#1143, the building lab's step 1). Sean's answers 2026-11-24 (this session): the new lot at Main Street's east end, north side (front faces south); red brick with dressed stone corners, base and window heads; MCCREADY'S OPERA HOUSE 1881; a horseshoe balcony. Ten views at ~$0.14 (~$1.41, Sean's DECIDED comment on #1143); the cap is a ceiling, not the spend (the tool stops before a call that could pass it). The spec settles every size; the pictures are the look only.",
+ "sheet_title": "Salt Creek, 1882: McCready's Opera House (target sheet, #1143)",
+ "cap": 1.7,
+ "model": "google/gemini-3-pro-image-preview",
+ "look": "Realistic concept art for a AAA open-world Western game set in 1882, in the direction of Red Dead Redemption 2's art book: photographic realism, natural light and lamplight, real worn materials (red pressed brick laid in lime mortar, dressed buff sandstone, galvanized sheet-iron cornice painted, cast iron, plate glass, gold leaf, plaster, wallpaper, walnut, mahogany, red plush velvet, brass, Brussels carpet, painted canvas scenery, hemp rope), period-accurate in every object: kerosene lamps and candles only (no gas, no electric light), plaster ceilings (no pressed tin). The town's pride, opulent for a frontier mining town, yet a frontier town: dust on the walk, mud on the street, a little wear at the doors. No people unless the view asks for them. No modern objects. No text, no signs, no readable letters (lettering is left as blank gilt panels). No border, no frame, no watermark, no captions.",
+ "building": "McCready's Opera House, built in 1881 by a silver-mine owner in Salt Creek, a two-year-old Colorado silver-mining and railroad town of about a thousand people, in 1882: the most expensive building in town, its brick, iron front parts, plate glass, seats, carpet and scenery all freighted in on the railroad. It stands at the EAST END of the dirt Main Street on its NORTH side, so its FRONT faces SOUTH; to its west a narrow lane and then the undertaker's two-storey white false-front building; to its east open ground where the East Road curves away out of town to the south-east; behind it, a 15 ft dirt yard and then the dirt Back Street. IN PLAN: a plain long rectangle, 60 ft wide across the front and 110 ft deep, NO wing or ell, a low-pitched roof hidden behind parapets; the stage end at the back is taller than the hall. THE FRONT (three storeys high, about 46 ft to the top of the cornice, a small pediment in the middle rising higher): red brick with dressed buff sandstone quoins at both corners, a stone base course, stone sills and stone keystones over every arch; on the ground floor three tall round-arched entrance doorways in the middle, each with a pair of panelled and glazed doors and a fanlight, and one round-arched window either side; a slender pair of cast-iron columns framing the middle doorway; a plank boardwalk across the whole front 18 in above the street with three wide steps up to the doors and no awning; a pair of tall kerosene lamp standards on the walk either side of the doors and lamp brackets on the piers; framed poster boards on the brick piers between the doors with printed show bills (blank of readable text). Above, five tall round-arched windows across the first floor (the foyer), and a row of five small round-arched windows over them; a deep bracketed cornice across the top with a long blank frieze panel for the gilt name, and in the middle pediment a blank roundel for the year. THE ROOMS: inside the doors a vestibule with the TICKET WINDOW (a box office with a brass grille window in its wall) and a lobby with two stairs, east and west, up to the balcony; through inner doors the HALL: about 54 ft wide and 54 ft long, a level floor of rows of folding seats, a centre and two side aisles; a HORSESHOE BALCONY round the back and both sides, carried on slender cast-iron columns, its curved front panelled and gilded; two BOXES on each side next to the stage, one over the other, draped in red velvet; a plaster ceiling with a big rose round a brass kerosene chandelier; the STAGE at the far end raised 3 ft 6 in behind a framed proscenium arch 28 ft wide, a small orchestra pit with a rail before it, a row of kerosene FOOTLIGHTS with tin reflectors along its edge, and a painted DROP CURTAIN (a painted landscape of mountains and a lake in a painted gilt frame); behind the stage roll drops and painted flats, ropes on a pin rail; at the very back, two storeys of small DRESSING ROOMS and a stage door to the yard.",
+ "views": [
+  {
+   "id": "front",
+   "title": "The front, from Main Street",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the dirt of Main Street at eye level, a little to the south-west, in warm late-afternoon light from the west raking across the front: the whole 60 ft three-storey red-brick front with its stone quoins, base and keystones, the three arched entrance doorways, the cast-iron columns, the five tall arched foyer windows, the deep bracketed cornice with its blank gilt frieze and the pediment; the boardwalk and its three wide steps, the two kerosene lamp standards, the poster boards on the piers; the narrow lane and the corner of the undertaker's white false front on the left, open ground and the East Road curving away on the right. A slightly long lens."
+  },
+  {
+   "id": "plan",
+   "title": "Ground floor and balcony plans",
+   "aspect": "3:2",
+   "size": "2K",
+   "view": "A clean architect's drawing in black ink on off-white paper, seen from above, two plans side by side at the same scale, the street at the bottom of the sheet; the building a plain long rectangle 60 by 110 ft with no wing. LEFT, the ground floor: at the front the boardwalk and steps, the vestibule with the box office, the lobby with the two stairs east and west, a cloak room and the manager's office; then the hall with its rows of seats in three blocks and two aisles; the orchestra pit; the stage with the proscenium wall across the building; behind the stage the dressing rooms and the stage door. RIGHT, the upper level: the foyer across the front, the horseshoe balcony with its curved rows round the back and both sides of the hall, the four boxes by the stage, the open space over the stage, the upper dressing rooms. Rooms labelled in small lettering.",
+   "refs": ["front"]
+  },
+  {
+   "id": "flank",
+   "title": "The east side and the back",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the open ground to the south-east, in morning light: the long 110 ft east brick side wall, plainer than the front, with tall round-arched windows down the hall in stone heads, brick pilasters between them, iron fire shutters folded back, the stage end at the back rising taller than the hall with a small door high up; the back wall with the stage door up a few steps, a big scenery door for loading flats from a wagon, a woodpile and ash barrels in the 15 ft dirt yard, a privy, and Back Street beyond; the front's cornice seen end-on at the left.",
+   "refs": ["front", "plan"]
+  },
+  {
+   "id": "cutaway",
+   "title": "The cutaway",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "An architectural long-section cutaway, a three-quarter bird's-eye view from the south-east with the east wall and half the roof cut away: the brick walls in section, the heavy timber roof trusses with iron rods spanning the hall, the vestibule and box office, the lobby stairs, the foyer upstairs, the hall with its seats, the horseshoe balcony on its iron columns and the boxes, the chandelier, the raised stage with the drop curtain down, the footlights, the scenery and roll drops behind, ropes on the pin rail, the dressing rooms at the back on two floors. Lamps lit.",
+   "refs": ["front", "plan"]
+  },
+  {
+   "id": "lobby",
+   "title": "The vestibule, the ticket window and the lobby",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside, at eye level, just inside the front doors on a show night: the vestibule's black-and-white tiled floor, the box office's arched ticket window with its brass grille and a ticket shelf (no seller), framed show bills on the walls, then the lobby beyond: walnut wainscot, a deep red and gold wallpaper, the two stairs rising east and west to the foyer with turned walnut newels and a red carpet runner, the inner doors to the hall half open showing warm light; kerosene wall lamps lit, a brass spittoon, a coat rack.",
+   "refs": ["front", "plan"]
+  },
+  {
+   "id": "hall",
+   "title": "The hall, toward the stage",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the middle of the horseshoe balcony's front row, looking down the hall to the stage, lamplight before a show: the rows of folding seats below with their cast-iron ends and red plush, the aisles, the balcony's curved gilded front sweeping forward along both sides on its slender iron columns, the two tiers of boxes either side of the stage draped in red velvet with gilt, the framed gilt proscenium arch, the painted drop curtain down (mountains and a lake), the kerosene footlights glowing in their tin reflectors, the orchestra pit's rail with a piano and music stands, the big brass chandelier hanging from the plaster rose at the right of the frame. Empty of people.",
+   "refs": ["plan", "cutaway"]
+  },
+  {
+   "id": "house",
+   "title": "The house, from the stage",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "From the middle of the stage at the footlights, looking out over the house: the footlights in the foreground, the orchestra pit, the rows of seats running back to the back wall, the horseshoe balcony curving round the back and both sides on its iron columns, the boxes on either hand close by, the foyer doors at the back under the balcony, the plaster ceiling with its rose and the lit brass chandelier, wallpaper and wainscot on the side walls between tall arched windows shuttered for the night. Empty of people.",
+   "refs": ["plan", "hall"]
+  },
+  {
+   "id": "box",
+   "title": "A box beside the stage",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Inside the lower east box at eye level: four gilt chairs with red plush seats, the box's curved front with a velvet-padded rail and gilt mouldings, red velvet drapes tied back with gold cord, a small brass kerosene lamp, a pair of opera glasses and a fan on the rail; beyond the rail the stage close at the left with the edge of the drop curtain and the proscenium, the balcony's curved front and the house beyond, the chandelier. Evening lamplight.",
+   "refs": ["hall", "house"]
+  },
+  {
+   "id": "backstage",
+   "title": "Backstage and a dressing room",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Behind the drop curtain, at eye level in the wings by lamplight: painted canvas flats stacked against the brick wall (a parlour, a forest, a western street), roll drops rolled up on their battens high overhead, hemp ropes made off on a pin rail with sandbags, the back of the proscenium wall in raw brick, the stage floor's worn boards and a trap; through an open door a small dressing room: a long shelf with a mirror and a kerosene lamp, grease paint and powder, a costume rack, a trunk with travelling labels, a chair. Lived in, worn, untidy.",
+   "refs": ["cutaway", "hall"]
+  },
+  {
+   "id": "night",
+   "title": "The doors on a show night",
+   "aspect": "16:9",
+   "size": "2K",
+   "view": "Close to the front at dusk on a show night, from the street at the foot of the steps: the three arched doorways open and warm-lit from inside, the two kerosene lamp standards and the bracket lamps lit, the framed show bills on the brick piers between the doors (colourful printed posters with woodcut pictures: a melodrama's villain and heroine, a travelling Shakespeare company, a magician, a lady singer; letters too small or blurred to read), the stone base and keystones, the cast-iron columns, the deep blue sky over the dark cornice, horses tied at a rail and a buggy in the street; no people.",
+   "refs": ["front"]
+  }
+ ]
+}
