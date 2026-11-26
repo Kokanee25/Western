@@ -23,9 +23,10 @@
     "The town gets the night wrong in the morning, on purpose: a player who sat at the table knows it.",
     "Sean, 2026-11-17 (decided, #1056): Harlan carries Earl to the doctor's and bangs on the door; the doctor, up with the sheriff, says the man wants burying; Earl lies in the front room till morning. Scenes 'after', 'carry' and 'morning' are written to it. This changes the built murder: Earl is shot and down, not shot dead (gameplay, #1057).",
     "Sean's review, 2026-11-17: the stranger asks Harlan to his own table, buys him a drink, and they talk a minute about the sheriff before Cody comes in. So s26 is simpler: the doctor may say 'Go and get a drink', and whoever walks into the saloon's yard is asked to sit. The oath and 'deputy for now, until the county names a man' are the sheriff's own words: his page, scene 5 (day2.oath, day2.for_now).",
-    "The sheriff's last day (Beat 5) is shown here as a copy of the sheriff's script's scene 5 (day2.*), so the oath reads with the rest of No Law: he asks if you'll take the badge, you nod or shake, and a shake gets 'That's not the way this works, son.' The lines are kept in sheriff_road.json, so his voice is in one place.",
+    "The sheriff's last day (Beat 5) is shown here as a copy of the sheriff's script's scene 5 (day2.*), so the oath reads with the rest of No Law: he asks if you'll take the badge, you nod or shake, and a shake gets 'That ain't how it's done, son.' The lines are kept in sheriff_road.json, so his voice is in one place.",
     "Sean, 2026-11-17 (decided): the stranger is cocky, arrogant and a coward, which is why the sheriff was shot once in the belly and not finished. Held back: a mid-game reveal. Written in: his manners are amused and condescending at the table; the doctor's 'didn't get down to make sure' and the sheriff's 'never got down' (the sheriff's page) are the only hints.",
-    "Sean, 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2. That is what stops a shoot-out in the saloon. So nothing on night one waits on a gun: the stranger's 'aimed' lines are marked for later, and no fact records drawing on him."
+    "Sean, 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2. That is what stops a shoot-out in the saloon. So nothing on night one waits on a gun: the stranger's 'aimed' lines are marked for later, and no fact records drawing on him.",
+    "Sean's five calls of 2026-11-18 (#1059) applied 2026-11-26 (#1288): the doctor's 'The man wants burying, not doctoring.', the stranger's after.word and after.aimed re-made, and day2 copied again from the sheriff's script."
   ],
   "words_to_check": [],
   "setups": [
@@ -105,7 +106,7 @@
     },
     {
       "id": "S15",
-      "what": "\"That's not the way this works, son.\" (the widow knows you shook your head)",
+      "what": "\"That ain't how it's done, son.\" (the widow knows you shook your head)",
       "here": [
         "funeral.you_came_shake"
       ]
@@ -727,14 +728,18 @@
           "delivery": "Friendly again, which is worse; a hand on your shoulder as he passes.",
           "words": [
             {
-              "text": "You didn't see a thing tonight. Nobody did. Remember that.",
-              "status": "built"
+              "text": "I'll say good night, friend. Anybody asks, I'd take it kindly if you'd been looking into your glass.",
+              "status": "new"
             }
           ],
           "setups": [
             "S39"
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "You didn't see a thing tonight. Nobody did. Remember that."
+          ],
+          "note": "Sean, 2026-11-18 (#1059): the stranger's gangster-film lines re-made in his own voice, soft-spoken and mannerly (#1288; read blind once)."
         },
         {
           "id": "after.aimed",
@@ -742,26 +747,31 @@
           "trigger": "Not on night one: you have no gun. Kept for the first time you meet him with the sheriff's revolver in your hand",
           "when": "you are armed (never on night one)",
           "condition": "calm",
-          "delivery": "Unbothered, amused. He isn't alone when you meet him next, either.",
+          "delivery": "Unbothered, amused, polite to a man pointing a gun at him. He isn't alone when you meet him next: his men are behind him.",
           "words": [
             {
-              "text": "Easy, friend. I ain't the one you want.",
-              "status": "built"
+              "text": "Why, Deputy. I'd sooner you pointed that some other way, if it's no trouble.",
+              "status": "new"
             },
             {
-              "text": "Put it up. You'll only get yourself killed.",
-              "status": "built"
+              "text": "Best put that by, Deputy. These gentlemen might take it wrong.",
+              "status": "new"
             },
             {
-              "text": "Walk away. That's my advice.",
-              "status": "built"
+              "text": "Go on home, Deputy. I'll not hold it against you.",
+              "status": "new"
             }
           ],
           "setups": [
             "S40"
           ],
           "takes": [],
-          "note": "Sean, 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2. That is what stops a shoot-out in the saloon. These three are in the game's night-one scene, where they can't be reached in the story: for gameplay to move or drop (CHANGES.md)."
+          "note": "Sean, 2026-11-17: Harlan has no gun on night one; he gets the sheriff's on day 2. That is what stops a shoot-out in the saloon. These three are in the game's night-one scene, where they can't be reached in the story: for gameplay to move or drop (CHANGES.md). Sean, 2026-11-18 (#1059): the stranger's gangster-film lines re-made in his own voice, soft-spoken and mannerly (#1288; read blind once). The third the reader flagged in 2026-11-17's read isn't recorded by name, so all three of his gun lines are re-made.",
+          "was": [
+            "Easy, friend. I ain't the one you want.",
+            "Put it up. You'll only get yourself killed.",
+            "Walk away. That's my advice."
+          ]
         },
         {
           "id": "after.drifter",
@@ -949,16 +959,19 @@
           "delivery": "One look, a thumb to the man's eye. No drama. He has been losing a man all day.",
           "words": [
             {
-              "text": "This man wants burying, Harlan, not doctoring.",
+              "text": "The man wants burying, not doctoring.",
               "status": "new"
             }
           ],
           "setups": [
             "S50"
           ],
-          "note": "Sean, 2026-11-17 (#1056, decided): 'He needs a grave, not a doctor.' His sense, in the doctor's mouth ('wants' for needs).",
+          "note": "Sean, 2026-11-17 (#1056, decided): 'He needs a grave, not a doctor.' His sense, in the doctor's mouth ('wants' for needs). Sean, 2026-11-18 (#1059): Sean's wording, no 'Harlan' (#1288).",
           "added": "2026-11-17 (#1056)",
-          "takes": []
+          "takes": [],
+          "was": [
+            "This man wants burying, Harlan, not doctoring."
+          ]
         },
         {
           "id": "carry.two",
@@ -1235,7 +1248,7 @@
       "title": "Day 2: the doctor's",
       "when": "Day 2, morning",
       "built": false,
-      "setting": "A COPY of the sheriff's page, scene 5, so the whole of No Law reads in one place (change a line in sheriff_road.json, never here; build this scene again from it). He dies at the doctor's, his wife there. His last words follow day 1's care: clear if you packed it (care good), fading if not (poor or left). He swears Harlan in and gives him his revolver; a shake gets 'That's not the way this works, son.' He's the county sheriff; the doctor is the coroner, so the acting sheriff, and keeps Harlan on until the county names a man (C12 a).",
+      "setting": "A COPY of the sheriff's page, scene 5, so the whole of No Law reads in one place (change a line in sheriff_road.json, never here; build this scene again from it). He dies at the doctor's, his wife there. His last words follow day 1's care: clear if you packed it (care good), fading if not (poor or left). He swears Harlan in and gives him his revolver; a shake gets 'That ain't how it's done, son.' He's the county sheriff; the doctor is the coroner, so the acting sheriff, and keeps Harlan on until the county names a man (C12 a).",
       "lines": [
         {
           "id": "day2.door.good",
@@ -1526,7 +1539,7 @@
             "Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then."
           ],
           "check": "disremember",
-          "note": "Sean's review, 2026-11-17: 'the whole head nod yes or no if we're taking the badge when he asks'. A nod: day2.nod. A shake, or no answer: day2.shake, 'That's not the way this works, son.', and the badge is pinned on anyway."
+          "note": "Sean's review, 2026-11-17: 'the whole head nod yes or no if we're taking the badge when he asks'. A nod: day2.nod. A shake, or no answer: day2.shake, 'That ain't how it's done, son.', and the badge is pinned on anyway."
         },
         {
           "id": "day2.oath.fading",
@@ -1588,8 +1601,8 @@
           "delivery": "Not angry: patient, nearly a smile. Then the order.",
           "words": [
             {
-              "text": "That's not the way this works, son. ... Doc. Pin it on him.",
-              "status": "built",
+              "text": "That ain't how it's done, son. ... Doc. Pin it on him.",
+              "status": "new",
               "note": "Sean's beat 2026-11-09; this wording #796's"
             }
           ],
@@ -1597,7 +1610,10 @@
             "S15"
           ],
           "takes": [],
-          "note": "Sean's beat 2026-11-09, his words (#796's wording): he won't take no, and the doctor pins it on."
+          "note": "Sean's beat 2026-11-09, his words (#796's wording): he won't take no, and the doctor pins it on. Sean, 2026-11-18 (#1059): 'That's not the way this works, son.' becomes 'That ain't how it's done, son.' (#1288).",
+          "was": [
+            "That's not the way this works, son. ... Doc. Pin it on him."
+          ]
         },
         {
           "id": "day2.shake.twice",
@@ -1608,16 +1624,19 @@
           "delivery": "He has seen this man say no before. Nearly a laugh, which hurts him. Then the order.",
           "words": [
             {
-              "text": "Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him.",
+              "text": "Second time you've shook your head at me. ... That ain't how it's done, son. Doc. Pin it on him.",
               "status": "new"
             }
           ],
           "setups": [
             "S15"
           ],
-          "note": "Sean's line kept whole inside it. Needs the fact sheriff.shook (gameplay).",
+          "note": "Sean's line kept whole inside it. Needs the fact sheriff.shook (gameplay). Sean, 2026-11-18 (#1059): 'That's not the way this works, son.' becomes 'That ain't how it's done, son.' (#1288).",
           "added": "2026-11-17 (#1056)",
-          "takes": []
+          "takes": [],
+          "was": [
+            "Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him."
+          ]
         },
         {
           "id": "day2.shake.fading",
@@ -1628,14 +1647,18 @@
           "delivery": "The same words with the breath run out.",
           "words": [
             {
-              "text": "...not how it works... son.",
-              "status": "built"
+              "text": "...ain't how it's done... son.",
+              "status": "new"
             }
           ],
           "setups": [
             "S15"
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "...not how it works... son."
+          ],
+          "note": "Sean, 2026-11-18 (#1059): 'That's not the way this works, son.' becomes 'That ain't how it's done, son.' (#1288). The broken form to match."
         },
         {
           "id": "day2.for_now.clear",
@@ -2088,7 +2111,7 @@
       ]
     }
   ],
-  "rewritten": "2026-11-17",
+  "rewritten": "2026-11-26",
   "facts": [
     {
       "fact": "sheriff.care",
@@ -2192,11 +2215,6 @@
       "why": "Sean's beat, built, and S2's plant. The reader heard a killer speaking the title; that is what it is for."
     },
     {
-      "line": "table.warn, after.word, after.aimed, murder.fetch",
-      "words": "the stranger's and the barkeep's built lines",
-      "why": "Built and fixed (VOICES.md); 'Don't move, friend' is S40. The reader heard film stock in 'You didn't see a thing tonight' and 'I ain't the one you want'. For Sean: say if the stranger's lines should be re-made in his new voice."
-    },
-    {
       "line": "murder.accuse",
       "words": "Earl, you cheating son of a bitch!",
       "why": "Sean's redo of 2026-11-12, as he worded it."
@@ -2205,7 +2223,12 @@
       "line": "funeral.offer",
       "words": "A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure.",
       "why": "Not kept: re-worded as one long sentence, because both readers said the Baron spoke in short sentences against his brief. The old words are in the line's `was` if Sean prefers them."
+    },
+    {
+      "line": "table.warn, murder.fetch",
+      "words": "Don't move, friend. Whatever happens next, you sit still. / Somebody ought to fetch the... hell. Ain't nobody left to fetch.",
+      "why": "Built and fixed (VOICES.md); 'Don't move, friend' is S40. The stranger's other night-one line (after.word) and his gun lines (after.aimed) were re-made on Sean's call of 2026-11-18 (#1059)."
     }
   ],
-  "rewritten_at": "2026-11-17T15:56:06Z"
+  "rewritten_at": "2026-11-26T17:47:04Z"
 }

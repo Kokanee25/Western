@@ -7,9 +7,9 @@ takes under every line, and he picks one.
 
 | Mission | Script | Page | State |
 |---|---|---|---|
-| The sheriff on the road | `sheriff_road.json` (page `board.html`) | https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX | rewritten 2026-11-17 (#1056), waiting on Sean's Script OK |
-| No Law | `no_law.json` (page `no_law.html`) | https://claude.ai/artifact/65eAXArWQm5XD5FCEXpYuY | rewritten 2026-11-17 (#1056), waiting on Sean's Script OK |
-| No Justice | `no_justice.json` (page `no_justice.html`) | https://claude.ai/artifact/3ojdVLjNoGLCt5qkADSEiW | rewritten 2026-11-17 (#1056), waiting on Sean's Script OK |
+| The sheriff on the road | `sheriff_road.json` (page `board.html`) | https://claude.ai/artifact/FyzbCopumhRVDAeH7hN1vX | rewritten 2026-11-17 (#1056); Sean's five calls applied 2026-11-26 (#1288); waiting on Sean's Script OK |
+| No Law | `no_law.json` (page `no_law.html`) | https://claude.ai/artifact/65eAXArWQm5XD5FCEXpYuY | rewritten 2026-11-17 (#1056); Sean's five calls applied 2026-11-26 (#1288); waiting on Sean's Script OK |
+| No Justice | `no_justice.json` (page `no_justice.html`) | https://claude.ai/artifact/3ojdVLjNoGLCt5qkADSEiW | rewritten 2026-11-17 (#1056); Sean's five calls applied 2026-11-26 (#1288); waiting on Sean's Script OK |
 | The town (no mission: the runner, the news, the morning after, the uneasy day, the undertaker; townsfolk step 8) | `town.json` (page `town.html`; the game reads its copy `config/town_script.json`, kept identical by `tests/test_town_script.gd`) | https://claude.ai/artifact/JFQURoGdJrUGWHtQp9LfA6 | written 2026-11-22 (#1144), waiting on Sean's Script OK; scene `saloon` (ten lines, first wordings, not yet read blind) added the same day by gameplay (#1157): the page wants republishing |
 
 ## The house style, and the rewrite of 2026-11-17 (#1056)
@@ -30,7 +30,7 @@ most). The three scripts were rewritten that way on 2026-11-17, as one story:
   (lines the blind reader flagged that stay because they're Sean's own or fixed in the game, each
   with a period way to say it if he wants one).
 - **No Law's page shows the sheriff's last day** (scene `day2`) as a copy of `sheriff_road.json`'s, so Sean reads the
-  oath, the nod or shake and "That's not the way this works, son." with the rest of the mission. The lines live in
+  oath, the nod or shake and "That ain't how it's done, son." with the rest of the mission. The lines live in
   the sheriff's file: change them there and copy the scene across again.
 - **Script OK after a rewrite:** a script's `rewritten_at` (a UTC time) makes the page ignore an OK tapped before it,
   so Sean's old tap doesn't count for new words and his row isn't touched. Set it whenever the words change after an OK.
