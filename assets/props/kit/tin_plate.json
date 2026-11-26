@@ -1,0 +1,108 @@
+{
+  "_doc": "Two tin plates (#1263; the table's): 9 in. across, a rolled rim, one on the other and a little askew, dull grey. 1 physics body. Written by tools/props/line_shack.py.",
+  "id": "tin_plate",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "tin",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "plates",
+      "kind": "post",
+      "size": [
+        0.24,
+        0.03,
+        0.24
+      ],
+      "at": [
+        0.0,
+        0.015,
+        0.0
+      ],
+      "wood": "tin",
+      "look": "prop:tin",
+      "draw": {
+        "shape": "lathe",
+        "profile": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.085,
+            0.0
+          ],
+          [
+            0.115,
+            0.018
+          ],
+          [
+            0.12,
+            0.022
+          ],
+          [
+            0.115,
+            0.022
+          ],
+          [
+            0.085,
+            0.008
+          ],
+          [
+            0.0,
+            0.008
+          ]
+        ],
+        "segments": 14
+      },
+      "dress": [
+        {
+          "look": "prop:tin",
+          "draw": {
+            "shape": "lathe",
+            "profile": [
+              [
+                0.0,
+                0.008
+              ],
+              [
+                0.07,
+                0.008
+              ],
+              [
+                0.1,
+                0.026
+              ],
+              [
+                0.105,
+                0.03
+              ],
+              [
+                0.1,
+                0.03
+              ],
+              [
+                0.07,
+                0.016
+              ],
+              [
+                0.0,
+                0.016
+              ]
+            ],
+            "segments": 14,
+            "at": [
+              0.012,
+              0.0,
+              -0.01
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "mass": 0.3,
+  "factory": "tools/props/line_shack.py"
+}

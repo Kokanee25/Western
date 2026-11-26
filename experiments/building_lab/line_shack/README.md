@@ -74,15 +74,10 @@ its parts, the door's planks), `tests/test_no_justice_shack_walk.gd` (#1091's mu
 - **The door's fall** (10 kicks, the lab): four planks and the bar's halves, in the lane under 0.45 m;
   without the threshold the planks' feet jammed in the gap under the door and they stood at 45 degrees.
 - **Not built yet:** `walls[].patches`, the window's `shutter` and `cracked`, the stovepipe's guys.
-- **Stand-ins** (gen_spec.py `STAND_IN`, `PLACE`; each keeps `wants`): plank_bed for the bunks,
-  wall_bench (scaled) for the plank benches, folded_blanket for the bedrolls, trestles_short for the
-  saddle rack; skillet, tin_plate, tin_cans, gun_belt, saddle and bridle wait (`dressing.waiting`).
-
-## The look (#1250, 2026-11-25)
-
-`render_lab.gd` draws it in the street's desert in the game's light (the valley version, `render_valley.gd`,
-is killed for memory under lavapipe on a 15 GB box). `results/2026-11-25/before_after.jpg`: the stand-in box
-beside the shack. Cheap judge `2026-11-25_line_shack_r1`: front, back, inside cheap indie; inside to the door
-good indie. Its reasons: the lab's bare sand and cut backdrop (not the shack's); the inside's flat sourceless
-light; the stand-in bunks and coat pegs identical, a bed's frame through its blanket (the kit, #1263); no
-contact shadow under benches and table. Braces stood through the storeroom's sloped roof: fixed in `_braces`.
+- **The shack's own kit, L1 (#1263):** `tools/props/line_shack.py` makes bunk_stacked, bunk, plank_bench, bedroll,
+  saddle_rack, saddle, bridle, gun_belt, skillet, tin_plate, tin_cans (members only; `tests/test_line_shack_props.gd`).
+  `gen_spec.py` has no stand-ins or waiting list now; its `PLACE` keeps only the non-L1 pieces the lab measured
+  (stove, shelf, crates). The cabin test (`test_shooting_the_man_who_gave_up`) stands the player at (3.5, 2.4), where the
+  props push him to (3.6, 2.6); from there the ball grazes the storeroom opening's east king stud (x 1.62) and
+  ricochets if he's pushed less far: keep the single bunk's foot (z 2.4) and the east bench (x 3.28) where they are, or
+  move the opening.

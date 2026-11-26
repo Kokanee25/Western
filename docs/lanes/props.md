@@ -14,6 +14,11 @@ here at the end of a session; no history. Keep under ~10 KB. History to 2026-11-
   judged blind in its room (`experiments/prop_lab/doctor/dress.gd`).
 
 ## Open
+- **The line shack's kit, L1 made and placed** (#1263; `tools/props/line_shack.py`, 11 members-only props, test
+  `tests/test_line_shack_props.gd`; `experiments/building_lab/line_shack/gen_spec.py` has no stand-ins or waiting list):
+  bunk_stacked, bunk, plank_bench, bedroll, saddle_rack, saddle (one inside, three on the rack), bridle, gun_belt, skillet,
+  tin_plate, tin_cans. Judge round 2 `docs/screenshots/judge/2026-11-26_line_shack_r2/`. The cabin test's player spot
+  (3.5, 2.4) is pushed by the single bunk's foot and the east bench: move them and his shot grazes the storeroom's king stud (README).
 - **The undertaker's props, U1** (#1181; `tools/props/undertaker.py`, 33 kit props, members only, no
   Blender; placed by `experiments/building_lab/undertaker/make_spec.py` batch U1; README `experiments/prop_lab/undertaker/`,
   test `tests/test_undertaker_props.gd`). 345 bodies (valley 50,152 of 65,536). Tests green (building 9, valley, card_game).

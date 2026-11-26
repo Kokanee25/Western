@@ -1,0 +1,303 @@
+{
+  "_doc": "A stock saddle set down on its blanket (#1263; refs: Ward's 1895 catalogue, the Cheyenne roper): a grey blanket, two leather skirts with the gullet's bar between, a dished seat of oiled leather with a high cantle behind and a swelled fork before, an iron horn with its cap, the stirrups' leathers folded up over the skirts. Front (the horn) at +z; 0.82 m fore and aft, 0.6 wide, 0.4 high. Sits flat on the floor or astride a rail. 3 physics bodies. Written by tools/props/line_shack.py.",
+  "id": "saddle",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "leather",
+  "splits_below": 0.3,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "blanket",
+      "kind": "post",
+      "size": [
+        0.6,
+        0.025,
+        0.82
+      ],
+      "at": [
+        0.0,
+        0.0125,
+        0.0
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.6,
+              0.025,
+              0.82
+            ],
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.5,
+              0.004,
+              0.7
+            ],
+            "at": [
+              0.0,
+              0.0125,
+              0.0
+            ],
+            "rot": [
+              0.0,
+              2.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "skirts",
+      "kind": "furniture_top",
+      "size": [
+        0.52,
+        0.035,
+        0.66
+      ],
+      "at": [
+        0.0,
+        0.0425,
+        0.0
+      ],
+      "wood": "leather",
+      "look": "prop:leather",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.24,
+              0.035,
+              0.66
+            ],
+            "at": [
+              -0.14,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.24,
+              0.035,
+              0.66
+            ],
+            "at": [
+              0.14,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.12,
+              0.02,
+              0.5
+            ],
+            "at": [
+              0.0,
+              0.01,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "seat",
+      "kind": "trim",
+      "size": [
+        0.34,
+        0.3,
+        0.6
+      ],
+      "at": [
+        0.0,
+        0.205,
+        0.0
+      ],
+      "wood": "leather",
+      "look": "prop:leather",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.3,
+              0.05,
+              0.42
+            ],
+            "at": [
+              0.0,
+              -0.07,
+              -0.05
+            ]
+          },
+          {
+            "size": [
+              0.26,
+              0.14,
+              0.12
+            ],
+            "at": [
+              0.0,
+              -0.025,
+              0.2
+            ]
+          },
+          {
+            "size": [
+              0.32,
+              0.17,
+              0.05
+            ],
+            "at": [
+              0.0,
+              0.03,
+              -0.27
+            ],
+            "rot": [
+              8.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.36,
+              0.08,
+              0.2
+            ],
+            "at": [
+              0.0,
+              -0.09,
+              -0.12
+            ]
+          }
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "from": [
+                  0.0,
+                  0.0,
+                  0.25
+                ],
+                "to": [
+                  0.0,
+                  0.09,
+                  0.27
+                ],
+                "thick": 0.045
+              },
+              {
+                "size": [
+                  0.1,
+                  0.018,
+                  0.1
+                ],
+                "at": [
+                  0.0,
+                  0.12,
+                  0.27
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.012,
+                  0.012,
+                  0.03
+                ],
+                "at": [
+                  -0.19,
+                  -0.06,
+                  0.07
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.012,
+                  0.03
+                ],
+                "at": [
+                  0.19,
+                  -0.06,
+                  0.07
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:dark_wood",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.1,
+                  0.012,
+                  0.22
+                ],
+                "at": [
+                  -0.2,
+                  -0.11,
+                  0.08
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  -20.0
+                ]
+              },
+              {
+                "size": [
+                  0.1,
+                  0.012,
+                  0.22
+                ],
+                "at": [
+                  0.2,
+                  -0.11,
+                  0.08
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  20.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "factory": "tools/props/line_shack.py"
+}
