@@ -21,17 +21,10 @@
     "Rewritten 2026-11-17 (#1056). The road's built lines Sean picked a take for are left alone; the ones he marked Redo are re-worded so the words carry the acting, and each says what was done.",
     "The town remembers: lines with an 'If:' wait on what you did (packed him, left him, shook your head at him, sat at Earl's table). The sheriff never learns about Earl: the doctor keeps it from him.",
     "Sean, 2026-11-17: Harlan carries Earl to the doctor's on night one, and the body is in the doctor's front room on day 2 (No Law's script, scenes carry and morning). So day 2 here has the coat: the doctor has him button it, and the sheriff, if he sees the blood, is lied to.",
-    "Sean's review, 2026-11-17: the sheriff himself tells Harlan he's deputy only for now, until the county names a man (day2.for_now); the doctor confirms it after."
+    "Sean's review, 2026-11-17: the sheriff himself tells Harlan he's deputy only for now, until the county names a man (day2.for_now); the doctor confirms it after.",
+    "Sean's five calls of 2026-11-18 (#1059) applied 2026-11-26 (#1288): 'That ain't how it's done, son.', 'shot in the belly' for 'gut-shot'. Each changed line keeps its old words in 'was'."
   ],
   "words_to_check": [
-    {
-      "words": "gut-shot",
-      "lines": [
-        "road.ask",
-        "town.doctor"
-      ],
-      "worry": "Not in Bartlett (1877), De Vere (1872) or Farmer (1889), and the Tombstone witnesses of 1881 say 'shot in the belly'. Built, and Sean picked a take of road.ask.clear, so kept; proposed if he wants it: 'I'm shot in the belly.' and the doctor's 'Shot through the bowel. Help me get him up the steps.'"
-    },
     {
       "words": "Hold it!",
       "lines": [
@@ -101,7 +94,7 @@
     },
     {
       "id": "S15",
-      "what": "\"That's not the way this works, son.\"",
+      "what": "\"That ain't how it's done, son.\"",
       "here": [
         "day2.shake"
       ]
@@ -274,12 +267,15 @@
           "delivery": "Knows him; relief he won't show. Flat and practical, and the question put hard.",
           "words": [
             {
-              "text": "Harlan. You're Harlan, from up the creek. I'm gut-shot. I need the doc. You going to help me or not?",
-              "status": "built"
+              "text": "Harlan. You're Harlan, from up the creek. I'm shot in the belly. I need the doc. You going to help me or not?",
+              "status": "new"
             }
           ],
-          "check": "gut-shot",
-          "takes": []
+          "takes": [],
+          "was": [
+            "Harlan. You're Harlan, from up the creek. I'm gut-shot. I need the doc. You going to help me or not?"
+          ],
+          "note": "Sean, 2026-11-18 (#1059): 'gut-shot' becomes 'shot in the belly' (#1288). The old take goes; this needs a new one."
         },
         {
           "id": "road.ask.weak",
@@ -782,12 +778,15 @@
           "delivery": "Down his steps at a walk, already rolling a sleeve; no fuss.",
           "words": [
             {
-              "text": "Gut-shot. Help me get him up the steps.",
-              "status": "built"
+              "text": "Shot in the belly. Help me get him up the steps.",
+              "status": "new"
             }
           ],
-          "check": "gut-shot",
-          "takes": []
+          "takes": [],
+          "was": [
+            "Gut-shot. Help me get him up the steps."
+          ],
+          "note": "Sean, 2026-11-18 (#1059): 'gut-shot' becomes 'shot in the belly' (#1288). The old take goes; this needs a new one."
         },
         {
           "id": "town.doctor.weak",
@@ -1048,7 +1047,7 @@
       "title": "Day 2: the doctor's",
       "when": "Day 2, morning",
       "built": false,
-      "setting": "He dies at the doctor's, his wife there. His last words follow day 1's care: clear if you packed it (care good), fading if not (poor or left). He swears Harlan in and gives him his revolver; a shake gets 'That's not the way this works, son.' He's the county sheriff; the doctor is the coroner, so the acting sheriff, and keeps Harlan on until the county names a man (C12 a).",
+      "setting": "He dies at the doctor's, his wife there. His last words follow day 1's care: clear if you packed it (care good), fading if not (poor or left). He swears Harlan in and gives him his revolver; a shake gets 'That ain't how it's done, son.' He's the county sheriff; the doctor is the coroner, so the acting sheriff, and keeps Harlan on until the county names a man (C12 a).",
       "lines": [
         {
           "id": "day2.door.good",
@@ -1339,7 +1338,7 @@
             "Doc. My badge. ... Raise your hand, Harlan. You'll keep the peace of this county, best you're able. Nod, then."
           ],
           "check": "disremember",
-          "note": "Sean's review, 2026-11-17: 'the whole head nod yes or no if we're taking the badge when he asks'. A nod: day2.nod. A shake, or no answer: day2.shake, 'That's not the way this works, son.', and the badge is pinned on anyway."
+          "note": "Sean's review, 2026-11-17: 'the whole head nod yes or no if we're taking the badge when he asks'. A nod: day2.nod. A shake, or no answer: day2.shake, 'That ain't how it's done, son.', and the badge is pinned on anyway."
         },
         {
           "id": "day2.oath.fading",
@@ -1401,8 +1400,8 @@
           "delivery": "Not angry: patient, nearly a smile. Then the order.",
           "words": [
             {
-              "text": "That's not the way this works, son. ... Doc. Pin it on him.",
-              "status": "built",
+              "text": "That ain't how it's done, son. ... Doc. Pin it on him.",
+              "status": "new",
               "note": "Sean's beat 2026-11-09; this wording #796's"
             }
           ],
@@ -1410,7 +1409,10 @@
             "S15"
           ],
           "takes": [],
-          "note": "Sean's beat 2026-11-09, his words (#796's wording): he won't take no, and the doctor pins it on."
+          "note": "Sean's beat 2026-11-09, his words (#796's wording): he won't take no, and the doctor pins it on. Sean, 2026-11-18 (#1059): 'That's not the way this works, son.' becomes 'That ain't how it's done, son.' (#1288).",
+          "was": [
+            "That's not the way this works, son. ... Doc. Pin it on him."
+          ]
         },
         {
           "id": "day2.shake.twice",
@@ -1421,16 +1423,19 @@
           "delivery": "He has seen this man say no before. Nearly a laugh, which hurts him. Then the order.",
           "words": [
             {
-              "text": "Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him.",
+              "text": "Second time you've shook your head at me. ... That ain't how it's done, son. Doc. Pin it on him.",
               "status": "new"
             }
           ],
           "setups": [
             "S15"
           ],
-          "note": "Sean's line kept whole inside it. Needs the fact sheriff.shook (gameplay).",
+          "note": "Sean's line kept whole inside it. Needs the fact sheriff.shook (gameplay). Sean, 2026-11-18 (#1059): 'That's not the way this works, son.' becomes 'That ain't how it's done, son.' (#1288).",
           "added": "2026-11-17 (#1056)",
-          "takes": []
+          "takes": [],
+          "was": [
+            "Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him."
+          ]
         },
         {
           "id": "day2.shake.fading",
@@ -1441,14 +1446,18 @@
           "delivery": "The same words with the breath run out.",
           "words": [
             {
-              "text": "...not how it works... son.",
-              "status": "built"
+              "text": "...ain't how it's done... son.",
+              "status": "new"
             }
           ],
           "setups": [
             "S15"
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "...not how it works... son."
+          ],
+          "note": "Sean, 2026-11-18 (#1059): 'That's not the way this works, son.' becomes 'That ain't how it's done, son.' (#1288). The broken form to match."
         },
         {
           "id": "day2.for_now.clear",
@@ -1652,7 +1661,7 @@
       ]
     }
   ],
-  "rewritten": "2026-11-17",
+  "rewritten": "2026-11-26",
   "facts": [
     {
       "fact": "sheriff.care",
@@ -1703,11 +1712,6 @@
   ],
   "kept": [
     {
-      "line": "day2.shake.*",
-      "words": "That's not the way this works, son.",
-      "why": "Sean's line (2026-11-09). The blind reader heard it as a present-day phrase. A period way, if Sean wants one: 'That ain't how it's done, son.'"
-    },
-    {
       "line": "road.hail.clear",
       "words": "Keep your hands where I can see 'em.",
       "why": "Built; it never plays (the hail is said once). The reader heard a film lawman. Drop it when the line is next touched."
@@ -1723,5 +1727,5 @@
       "why": "Built, and Sean picked takes of both. The second reader doubted 'Ain't that something' and 'bought him some hours' for 1882. Plainer, if Sean wants: 'Sun's coming up.' / 'That wound was packed right. It's given him some hours.'"
     }
   ],
-  "rewritten_at": "2026-11-17T15:56:06Z"
+  "rewritten_at": "2026-11-26T17:47:04Z"
 }

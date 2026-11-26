@@ -63,6 +63,13 @@ with their tests (several tests check a line's words).
 | `config/moments/the_sheriff.json` | `lines.shot_by.clear.0` | sheriff_road.json `road.shot_by.clear` | Stranger on a bald-faced sorrel. Rode up easy, like he wanted directions. Called me friend. Then he shot me. | Stranger on a bald-faced sorrel. Rode up easy. Called me friend and shot me. |
 | `config/moments/the_sheriff.json` | `lines.shot_by.fading.0` | sheriff_road.json `road.shot_by.fading` | ...friend... | Friend. He said friend. |
 | `config/moments/the_sheriff.json` | `lines.shot_by.weak.0` | sheriff_road.json `road.shot_by.weak` | Bald-faced sorrel. Rode up like a friend. | Sorrel horse. White face. Called me friend. |
+| `config/moments/the_sheriff.json` | `lines.ask.clear.0` | sheriff_road.json `road.ask.clear` | Harlan. You're Harlan, from up the creek. I'm gut-shot. I need the doc. You going to help me or not? | Harlan. You're Harlan, from up the creek. I'm shot in the belly. I need the doc. You going to help me or not? (Sean, 2026-11-18; its take goes: a new one) |
+| `config/moments/the_sheriff.json` | `lines.doctor.clear.0` | sheriff_road.json `town.doctor.clear` | Gut-shot. Help me get him up the steps. | Shot in the belly. Help me get him up the steps. (Sean, 2026-11-18; a new take) |
+| `config/moments/sheriff_dies.json` | `lines.shake.clear.0` | sheriff_road.json `day2.shake.clear` | That's not the way this works, son. ... Doc. Pin it on him. | That ain't how it's done, son. ... Doc. Pin it on him. (Sean, 2026-11-18) |
+| `config/moments/sheriff_dies.json` | `lines.shake.fading.0` | sheriff_road.json `day2.shake.fading` | ...not how it works... son. | ...ain't how it's done... son. (Sean, 2026-11-18) |
+| `config/moments/no_law_murder.json` | `lines.stranger_word.0` | no_law.json `after.word` | You didn't see a thing tonight. Nobody did. Remember that. | I'll say good night, friend. Anybody asks, I'd take it kindly if you'd been looking into your glass. (Sean, 2026-11-18: re-made) |
+| `config/moments/no_law_murder.json` | `lines.stranger_aimed` (all three) | no_law.json `after.aimed` | Easy, friend. I ain't the one you want. / Put it up. You'll only get yourself killed. / Walk away. That's my advice. | Why, Deputy. I'd sooner you pointed that some other way, if it's no trouble. / Best put that by, Deputy. These gentlemen might take it wrong. / Go on home, Deputy. I'll not hold it against you. (Sean, 2026-11-18: re-made; still for the first armed meeting, not night one, see part 4) |
+| `config/moments/no_justice_cabin.json` | `lines.unclear.any.0` | no_justice.json `cabin.unclear` | Is that a yes? | Is that yes? (Sean, 2026-11-18) |
 
 ## 2. New lines
 
@@ -76,7 +83,7 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | sheriff_road.json `day2.heard` | sheriff | clear (care good) | I can hear you, Doc. Send him in. |
 | sheriff_road.json `day2.blood` | sheriff | clear, and nolaw.carried_earl = yes | Whose blood is that on you? ... That ain't mine. |
 | sheriff_road.json `day2.blood_doc` | doctor | clear, and nolaw.carried_earl = yes | A man cut himself at the saloon. Lie back. |
-| sheriff_road.json `day2.shake.twice` | sheriff | clear, and sheriff.shook (you shook your head at him on the road, then helped him anyway) | Second time you've shook your head at me. ... That's not the way this works, son. Doc. Pin it on him. |
+| sheriff_road.json `day2.shake.twice` | sheriff | clear, and sheriff.shook (you shook your head at him on the road, then helped him anyway) | Second time you've shook your head at me. ... That ain't how it's done, son. Doc. Pin it on him. |
 | sheriff_road.json `day2.for_now.clear` | sheriff | clear | It's only for now. The county commissioners name the next man. Till they do, Doc's coroner, so he's sheriff, and you're his deputy. |
 | sheriff_road.json `day2.for_now.fading` | sheriff | fading | Only till the county... names a man. Doc... tell him. |
 | sheriff_road.json `day2.not_enough` | doctor | nolaw.seen_from = table (you sat with the stranger) | A sorrel horse and one word. I can't hang a man on that, Harlan. |
@@ -93,7 +100,7 @@ Each waits on its fact (`when`). A line whose fact isn't in the game yet waits o
 | no_law.json `carry.earl` | earl | nolaw.carried_earl = yes; while his blood loss lets him | Mind my arm. / I left my hat. / Tell Cody I'll make it good. You tell him. / It was only a dollar. / ... |
 | no_law.json `carry.street` | townswoman | nolaw.carried_earl = yes | Is that Earl? ... Lord. Doc's got his lamp lit. Go on. |
 | no_law.json `carry.door_wait` | doctor | any | Who is it? I've a man dying in here. / I hear you! I've only the two hands. |
-| no_law.json `carry.door` | doctor | any | This man wants burying, Harlan, not doctoring. |
+| no_law.json `carry.door` | doctor | any | The man wants burying, not doctoring. (Sean's wording, 2026-11-18) |
 | no_law.json `carry.two` | doctor | sheriff.care = good or poor (you brought the sheriff here this morning) | That's two you've carried to this door today. |
 | no_law.json `carry.this_one` | doctor | sheriff.care = left (you left the sheriff on the road) | This one you carried. |
 | no_law.json `carry.lay` | doctor | any | Lay him in the front room. On the table. There's a sheet on the chair. / Then go home. I've the sheriff to sit with. |
@@ -141,13 +148,23 @@ Every other fact the scripts' `when` fields name is set by the game now (`sherif
 
 | Script | Line | Words | Why it stays, and what Sean could change |
 |---|---|---|---|
-| sheriff_road | `day2.shake.*` | That's not the way this works, son. | Sean's line (2026-11-09). The blind reader heard it as a present-day phrase. A period way, if Sean wants one: 'That ain't how it's done, son.' |
 | sheriff_road | `road.hail.clear` | Keep your hands where I can see 'em. | Built; it never plays (the hail is said once). The reader heard a film lawman. Drop it when the line is next touched. |
 | sheriff_road | `road.ask_again.weak, road.shake.weak` | Please. / Don't... don't leave me here. | Built, and Sean picked takes for them. The reader says a man who gives orders wouldn't plead; that he does, once he's weak, is the point of the three bands. |
 | sheriff_road | `road.idle.clear, town.doctor_after.good` | Sun's coming up. Ain't that something. / Somebody packed that wound, and packed it right. That's bought him some hours. | Built, and Sean picked takes of both. The second reader doubted 'Ain't that something' and 'bought him some hours' for 1882. Plainer, if Sean wants: 'Sun's coming up.' / 'That wound was packed right. It's given him some hours.' |
 | no_law | `murder.gloat` | Ain't no law left in this valley to save you now, Earl. | Sean's beat, built, and S2's plant. The reader heard a killer speaking the title; that is what it is for. |
-| no_law | `table.warn, after.word, after.aimed, murder.fetch` | the stranger's and the barkeep's built lines | Built and fixed (VOICES.md); 'Don't move, friend' is S40. The reader heard film stock in 'You didn't see a thing tonight' and 'I ain't the one you want'. For Sean: say if the stranger's lines should be re-made in his new voice. |
+| no_law | `table.warn, murder.fetch` | the stranger's and the barkeep's built lines | Built and fixed (VOICES.md); 'Don't move, friend' is S40. The stranger's `after.word` and `after.aimed` were re-made on Sean's call of 2026-11-18 (#1059, #1288): part 1. |
 | no_law | `murder.accuse` | Earl, you cheating son of a bitch! | Sean's redo of 2026-11-12, as he worded it. |
 | no_law | `funeral.offer` | A hard day, ma'am. When that place grows too much for you, come to me first. You'll not find a fairer figure. | Not kept: re-worded as one long sentence, because both readers said the Baron spoke in short sentences against his brief. The old words are in the line's `was` if Sean prefers them. |
-| no_justice | `cabin.ask, cabin.unclear, fight.mine` | Are you going to stop me? / Is that a yes? / That was mine to take. | Sean's lines (2026-11-09), word for word. The blind reader heard 'Is that a yes?' as present-day. A period way, if Sean wants one: 'Is that yes?' |
+| no_justice | `cabin.ask, fight.mine` | Are you going to stop me? / That was mine to take. | Sean's lines (2026-11-09), word for word. `cabin.unclear` became 'Is that yes?' on his call of 2026-11-18 (part 1). |
 | no_justice | `fight.crew_*` | I'm hit! / There's only two of 'em! | Barks in a gunfight: plain on purpose. |
+
+## 6. Sean's five calls of 2026-11-18 (#1059), applied 2026-11-26 (#1288)
+
+1. "That's not the way this works, son." -> "That ain't how it's done, son." (`day2.shake.clear`, `.twice`, `.fading`; No Law's copy of day2 too).
+2. Joe's "Is that a yes?" -> "Is that yes?" (`cabin.unclear`).
+3. The doctor at the door -> "The man wants burying, not doctoring." (`carry.door`, new, not built).
+4. The stranger re-made in his own voice: `after.word` and all three `after.aimed` (part 1). The 2026-11-17 reader's third flagged
+   line wasn't recorded by name, so all his gun lines were re-made. One blind read (DIALOGUE.md part 4), its picks taken.
+5. "Gut-shot" -> "shot in the belly" (`road.ask.clear`, `town.doctor.clear`); both lose their takes on the sheriff's page.
+
+Story docs that quote the old words (VOICES.md, SETUPS.md) were updated; the mission cards (`docs/story/missions/`) wait for #959.
