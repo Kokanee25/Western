@@ -79,7 +79,10 @@ static func place(parent: Node3D, entries: Array, floor_y: float, structure_id :
 			node = PropKit.make(id)
 			if e.has("variant") and node is GlassProp:
 				(node as GlassProp).variant = int(e.variant)
-		var y := floor_y + float(e.at[1]) + float(e.get("lift", 0.0))
+		# `out` (a lean-to's: the line shack's saddle rack, #1271): out of doors, on the ground the
+		# building stands on (its foot, y 0), not on its floor: put on the floor's height there it stood
+		# in the air, went loose and fell, and a saddle off it crashing was the hideout's alarm (#1279).
+		var y := (0.0 if e.has("out") else floor_y) + float(e.at[1]) + float(e.get("lift", 0.0))
 		if e.has("on"):
 			y = float(tops[e.on]) + float(e.get("lift", 0.0))
 		node.transform = Transform3D(Basis(Vector3.UP, deg_to_rad(float(e.get("facing", 0.0)))), Vector3(e.at[0], y, e.at[2]))
