@@ -130,7 +130,8 @@ func _find_blocks() -> void:
 			var lift := 0.0 if walk.get("none", false) else float(walk.get("h", ValleyTown.WALK_TOP)) - ValleyTown.WALK_TOP
 			_add_block(String(l.id), "lot", c, Vector2(x1 - x0, depth), 90.0, LOT_H + lift)
 	for ex: Dictionary in t.get("extras", []):
-		if ex.has("at") and ex.has("w") and ex.has("d"):
+		# (one with its building's spec is built in its place by ValleyWorld, #1286: no block)
+		if ex.has("at") and ex.has("w") and ex.has("d") and not ex.has("spec"):
 			_add_block(String(ex.id), "extra", ValleyLayout.xz(ex.at), Vector2(float(ex.w), float(ex.d)), 90.0, float(ex.get("h", BLOCK_H)))
 	for p: Dictionary in layout.places():
 		var b: Dictionary = p.get("block", {})

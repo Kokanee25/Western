@@ -39,11 +39,11 @@ def main():
 	d.text((30, 54), "red hatch: the sawn bay (beam/spine/1, 10 ft) and the floor that falls; green: the crowd; blue: the band", fill=INK, font=font(17))
 
 	# --- the upstairs plan (x mirrored: east on the right)
-	ox, oy = 110, 175
+	ox, oy = 110, 215
 
 	def P(x, z):
 		return (ox + (W - x) * S, oy + (D - z) * S)
-	d.text((ox, oy - 68), "UPSTAIRS: the dance floor (7.1 x 8.9 m)", fill=INK, font=font(19, True))
+	d.text((ox, oy + D * S + 78), "UPSTAIRS: the dance floor (7.1 x 8.9 m)", fill=INK, font=font(19, True))
 	d.rectangle([P(W, D), P(0, 0)], outline=INK, width=6)
 	d.rectangle([P(W - 0.1, pz[1]), P(0.1, pz[0])], fill=HATCH)
 	for k in range(0, 40):
@@ -76,16 +76,21 @@ def main():
 		col = BLUE if u["who"] == "band" else GREEN
 		x, _, z = u["at"]
 		d.ellipse([P(x + 0.15, z + 0.15), P(x - 0.15, z - 0.15)], fill=col)
-	door_z = [o for w in sp["walls"] if w["id"] == "stair" for o in w["openings"] if o["type"] == "door"][0]["at"]
-	d.rectangle([P(W + 0.12, door_z + 0.4), P(W - 0.12, door_z - 0.4)], fill=RED)
+	door_x = [o for w in sp["walls"] if w["id"] == "back" for o in w["openings"] if o["type"] == "door" and o["level"] == "upper"][0]["at"]
+	for bal in sp.get("balconies", []):
+		for dk in bal["decks"]:
+			x0, z0, x1, z1 = dk["rect"]
+			d.rectangle([P(x1, z1), P(x0, z0)], outline=INK, fill=(236, 228, 210))
+	d.text(P(door_x - 0.3, D + 0.85), "landing", fill=INK, font=font(12))
+	d.rectangle([P(door_x + 0.4, D + 0.12), P(door_x - 0.4, D - 0.12)], fill=RED)
 	st = sp["stairs"][0]
 	sx0, sx1 = st["head"][0], st["head"][0] + st["width"]
 	foot = st["head"][1] - (st["risers"] - 1) * st["going"]
 	d.rectangle([P(sx1, st["head"][1]), P(sx0, foot)], outline=INK, fill=(236, 228, 210))
 	d.text(P(sx1 + 0.75, foot - 0.2), "outside\nstair,\n17R down\nto the\nfront.", fill=INK, font=font(12))
-	d.text(P(sx1 + 0.75, foot - 1.6), "Its door\nat the top\n(red):\nTHE JAM", fill=RED, font=font(13, True))
+	d.text(P(sx1 + 0.75, foot - 1.6), "Its door\n(red, in the\nback gable\nover the\nlanding):\nTHE JAM", fill=RED, font=font(13, True))
 	d.text(P(W, -0.25), "FRONT (Back Street)", fill=INK, font=font(14))
-	d.text(P(W, D + 0.55), "BACK (the pens, the tracks)", fill=INK, font=font(14))
+	d.text(P(W - 2.6, D + 1.75), "BACK (the pens, the tracks)", fill=INK, font=font(14))
 	d.text(P(-0.1, D * 0.5), "E", fill=INK, font=font(16, True))
 	d.text(P(W + 1.6, D * 0.15), "W", fill=INK, font=font(16, True))
 	# the crowd's count

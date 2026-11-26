@@ -48,8 +48,10 @@ two-storey hotel"; FORMAT "The parts"; `saloon_b.json` (sabotage, outside stair,
   - **The roof:** 10/12, open to its rafters, a collar on every pair 8 ft over the floor; the lamps hang from them.
   - **Round the walls:** benches.
   - **The piano:** against the back wall, with the band (4) beside it.
-  - **The door:** at the west back corner, off the stair's landing.
-- **The outside stair:** up the west wall from z 4.1 to a landing at the back corner. 17 risers of 7.5 in, 10 in
+  - **The door:** in the back gable over the back door, off the landing (#1286: a 6 ft 6 in door won't go in a 4 ft
+    knee wall, so it moved from the west side to the gable).
+- **The outside stair:** up the west wall from z 5.1, past the back corner, to a landing behind the back wall (three
+  beams on posts, the joists along the wall; it roofs the back door). 17 risers of 7.5 in, 10 in
   treads, 3 ft 6 in wide, a pole rail. It is the only way up.
 - **No upstairs posts.** The sheet paints posts carrying the roof. The spec hangs the lamps from the collars over
   the girder's posts instead: a post on the dance floor would put the roof on the girder that's sawn.

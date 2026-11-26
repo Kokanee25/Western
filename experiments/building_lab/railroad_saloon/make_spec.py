@@ -225,8 +225,8 @@ spec = {
 	],
 	"walls": [],
 	"stairs": [{
-		"_doc": (f"THE ONLY WAY UP: the outside stair up the west wall from near the front to a landing at the upstairs door "
-			f"near the back. {RISERS} risers of {RISE / IN:.1f} in, 10 in treads, 3 ft 6 in wide, open on its outer side "
+		"_doc": (f"THE ONLY WAY UP: the outside stair up the west wall past the back corner to a landing behind the back wall "
+			f"and the upstairs door in the back gable. {RISERS} risers of {RISE / IN:.1f} in, 10 in treads, 3 ft 6 in wide, open on its outer side "
 			"with a pole rail; three lines of posts under it. On Payday Night the two men go up it with a saw in the "
 			"morning; Joe watches from it; the crowd jams it when the floor goes."),
 		"id": "outside", "head": [SX0, HEAD_Z], "dir": "+z", "width": r(STAIR_W), "from": 0.0, "to": "upper",
@@ -260,7 +260,7 @@ spec = {
 		{"id": "bar_room", "level": "ground", "rect": [0.1, 0.1, r(W - 0.1), r(D - 0.1)],
 			"use": "the short bar down the east wall under the middle bay, barrels on racks behind it, the stove forward of the girder's front post, tables and benches west, spittoons, sawdust"},
 		{"id": "dance_floor", "level": "upper", "rect": [0.1, 0.1, r(W - 0.1), r(D - 0.1)],
-			"use": "benches round the walls, the piano and the band at the back wall, the door from the outside stair at the west back corner, the reels in the middle"},
+			"use": "benches round the walls, the piano and the band at the back wall, the door from the outside stair in the back gable, the reels in the middle"},
 	],
 	"fixtures": [
 		{"_doc": "THE BAR: one 3 m built section (10 ft) down the east wall, exactly under the sawn bay (z 3.05-6.10); the customers west of it. UNDER THE CUT.",
@@ -328,15 +328,20 @@ spec["walls"] = [
 ]
 
 # ---------------------------------------------------------------- the dressing the plan needs (the prop lab's to place)
+# Dressing heights are over the ground floor's top (saloon B's), not the pad: the upstairs things at UP_REL.
+UP_REL = r(U_TOP - G_TOP)
+# A hanging lamp's `at` is its foot, its hook 1.01 over it (saloon_b_dress.py LAMP_FOOT), 1 cm under the collar it
+# hangs from (the collars' undersides 8 ft over the dance floor; on the rafters' own spacing, the ones over the bay lines).
+LAMP_Y = r(U_TOP + 8 * FT - G_TOP - 1.01)
 spec["dressing"] = {"_doc": "The plan's (README.md 'The crowd'): the prop lab places the rest by its recipe.", "batches": {"plan": [
-	{"id": "piano", "kit": "upright_piano", "at": [2.2, U_TOP, r(D - 0.45)], "facing": 180, "use": "carried up the outside stair that afternoon (S24): its back to the back wall, in the back bay (not the sawn one)"},
-	{"id": "piano_stool", "kit": "piano_stool", "at": [2.2, U_TOP, r(D - 1.1)], "facing": 0},
+	{"id": "piano", "kit": "upright_piano", "at": [2.2, UP_REL, r(D - 0.45)], "facing": 180, "use": "carried up the outside stair that afternoon (S24): its back to the back wall, in the back bay (not the sawn one)"},
+	{"id": "piano_stool", "kit": "piano_stool", "at": [2.2, UP_REL, r(D - 1.1)], "facing": 0},
 	{"id": "hanging_lamp_0", "kit": "hanging_lamp", "at": [GX, r(U_TOP + 8 * FT), 2.685], "facing": 0, "light": 0.33, "shadows": False, "energy": 1.0, "use": "hung from the collar nearest the girder's front post"},
 	{"id": "hanging_lamp_1", "kit": "hanging_lamp", "at": [GX, r(U_TOP + 8 * FT), 6.345], "facing": 0, "light": 0.33, "shadows": False, "energy": 1.0, "use": "hung from the collar nearest the girder's back post"},
 	{"id": "stove", "kit": "box_stove", "at": [5.2, 0.0, 1.9], "facing": 0, "use": "forward of the fall, its pipe up through the dance floor's front bay and the roof"},
-	{"id": "bench_e", "kit": "wall_bench", "at": [0.35, U_TOP, 1.9], "facing": 90, "repeat": {"count": 3, "step": [0, 2.4]}},
-	{"id": "bench_w", "kit": "wall_bench", "at": [r(W - 0.35), U_TOP, 2.2], "facing": 270, "repeat": {"count": 2, "step": [0, 2.4]}},
-	{"id": "bench_f", "kit": "wall_bench", "at": [3.66, U_TOP, 0.35], "facing": 0},
+	{"id": "bench_e", "kit": "wall_bench", "at": [0.35, UP_REL, 1.9], "facing": 90, "repeat": {"count": 3, "step": [0, 2.4]}},
+	{"id": "bench_w", "kit": "wall_bench", "at": [r(W - 0.35), UP_REL, 2.2], "facing": 270, "repeat": {"count": 2, "step": [0, 2.4]}},
+	{"id": "bench_f", "kit": "wall_bench", "at": [3.66, UP_REL, 0.35], "facing": 0},
 	{"id": "spittoon_bar", "kit": "spittoon", "at": [2.6, 0.0, 3.4], "facing": 0},
 	{"id": "spittoon_bar2", "kit": "spittoon", "at": [2.6, 0.0, 5.8], "facing": 0},
 ]}}

@@ -641,7 +641,7 @@
  ],
  "stairs": [
   {
-   "_doc": "THE ONLY WAY UP: the outside stair up the west wall from near the front to a landing at the upstairs door near the back. 17 risers of 7.5 in, 10 in treads, 3 ft 6 in wide, open on its outer side with a pole rail; three lines of posts under it. On Payday Night the two men go up it with a saw in the morning; Joe watches from it; the crowd jams it when the floor goes.",
+   "_doc": "THE ONLY WAY UP: the outside stair up the west wall past the back corner to a landing behind the back wall and the upstairs door in the back gable. 17 risers of 7.5 in, 10 in treads, 3 ft 6 in wide, open on its outer side with a pole rail; three lines of posts under it. On Payday Night the two men go up it with a saw in the morning; Joe watches from it; the crowd jams it when the floor goes.",
    "id": "outside",
    "head": [
     7.315,
@@ -856,7 +856,7 @@
     7.215,
     9.044
    ],
-   "use": "benches round the walls, the piano and the band at the back wall, the door from the outside stair at the west back corner, the reels in the middle"
+   "use": "benches round the walls, the piano and the band at the back wall, the door from the outside stair in the back gable, the reels in the middle"
   }
  ],
  "fixtures": [
@@ -1008,7 +1008,7 @@
      "kit": "upright_piano",
      "at": [
       2.2,
-      3.245,
+      2.87,
       8.694
      ],
      "facing": 180,
@@ -1019,7 +1019,7 @@
      "kit": "piano_stool",
      "at": [
       2.2,
-      3.245,
+      2.87,
       8.044
      ],
      "facing": 0
@@ -1068,7 +1068,7 @@
      "kit": "wall_bench",
      "at": [
       0.35,
-      3.245,
+      2.87,
       1.9
      ],
      "facing": 90,
@@ -1085,7 +1085,7 @@
      "kit": "wall_bench",
      "at": [
       6.965,
-      3.245,
+      2.87,
       2.2
      ],
      "facing": 270,
@@ -1102,7 +1102,7 @@
      "kit": "wall_bench",
      "at": [
       3.66,
-      3.245,
+      2.87,
       0.35
      ],
      "facing": 0
