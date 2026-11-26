@@ -746,7 +746,7 @@ func _batch_all() -> void:
 			continue
 		var mat := mi.material_override
 		var gk: Variant = mat
-		var ig: Variant = _inst_group(mi)
+		var ig: Variant = _inst_group(m)
 		var frame: Variant = null if ig != null else _frame_of(m, mi)
 		if ig != null:
 			gk = [mat, &"inst", ig[0], ig[1]]
@@ -782,7 +782,7 @@ func _batch_all() -> void:
 	_set_inst_shadow()
 	if rest_batched and members_rest:
 		for m: StructureMember in _batched:
-			m.rest()
+			m.rest(_frees_rest_nodes())
 
 
 ## One material's members in pieces of at most BATCH_PIECE, each piece near together: sorted by
@@ -1051,7 +1051,7 @@ func _batch_new(m: StructureMember) -> void:
 			or mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_ON or mi.material_overlay != null:
 		return
 	var mat := mi.material_override
-	var ig: Variant = _inst_group(mi)
+	var ig: Variant = _inst_group(m)
 	var frame: Variant = null if ig != null else _frame_of(m, mi)
 	var key: Variant = null
 	var next := 0
@@ -1369,7 +1369,7 @@ func _show_rebuilt(key: Variant = null) -> void:
 			if own:
 				own.visible = false
 			if rest_batched and members_rest:
-				(m as StructureMember).rest()
+				(m as StructureMember).rest(_frees_rest_nodes())
 	for m: Variant in _show_after.keys():
 		if key != null and _show_after[m] != key:
 			continue
@@ -1589,25 +1589,31 @@ func _clear_batches() -> void:
 
 # --- Boards drawn as instances (#1262) ---------------------------------------------------------
 
+## Whether its resting members' mesh and shape nodes are freed, kept as data (#1262: 4.4 KB a member).
+func _frees_rest_nodes() -> bool:
+	return true
+
+
 ## Whether its shared boards are drawn as instances (a kit prop's batches are joined into its
 ## neighbours' meshes at rest, PropBatch: they stay meshes).
 func _instanced_boards() -> bool:
 	return true
 
 
-## The instanced batch a member drawn by `mi` goes in ([segments, role]), or null: a board or strips
+## The instanced batch a member goes in ([segments, role]), or null: a board or strips
 ## shared by shape (PropKit.shared_board, shared_strips) drawn by the library shader.
-func _inst_group(mi: MeshInstance3D) -> Variant:
-	if mi.mesh == null or not _instanced_boards():
+func _inst_group(m: StructureMember) -> Variant:
+	var mesh := m.drawn_mesh()
+	if mesh == null or not _instanced_boards():
 		return null
-	var mat := mi.material_override as ShaderMaterial
+	var mat := m.drawn_material() as ShaderMaterial
 	if mat == null or mat.shader != WOOD_SHADER:
 		return null
-	if mi.mesh.has_meta(&"board_shared"):
-		var k: Array = mi.mesh.get_meta(&"board_shared")
+	if mesh.has_meta(&"board_shared"):
+		var k: Array = mesh.get_meta(&"board_shared")
 		return [PropKit.board_segments(k[0]), float(k[3])]
-	if mi.mesh.has_meta(&"strips_shared"):
-		var sk: Array = mi.mesh.get_meta(&"strips_shared")
+	if mesh.has_meta(&"strips_shared"):
+		var sk: Array = mesh.get_meta(&"strips_shared")
 		return [PropKit.board_segments(sk[0]), 0.0]
 	return null
 
@@ -1626,26 +1632,27 @@ func _apply_instances(key: Array, list: Array) -> void:
 	var hi := -Vector3.INF
 	var n := 0
 	for m: StructureMember in list:
-		var mi := m.drawn_node()
-		if mi == null or mi.mesh == null:
+		# Read as data: a resting member's nodes are freed (StructureMember._rest_data), not made again here.
+		var mesh := m.drawn_mesh()
+		if mesh == null:
 			continue
-		var xf := m.transform * mi.transform
-		var b: Vector4 = mi.get_meta(&"board", Vector4.ZERO)
-		var look := Vector4(b.y, b.z, b.w, float(mi.get_meta(&"board_ground", 0.0)))
+		var xf := m.transform * m.drawn_transform()
+		var b: Vector4 = m.drawn_meta(&"board", Vector4.ZERO)
+		var look := Vector4(b.y, b.z, b.w, float(m.drawn_meta(&"board_ground", 0.0)))
 		var boards: Array = []  # [transform, size, seed]
-		if mi.mesh.has_meta(&"strips_shared"):
-			var sk: Array = mi.mesh.get_meta(&"strips_shared")
-			var widths: Array = mi.mesh.get_meta(&"strip_widths")
+		if mesh.has_meta(&"strips_shared"):
+			var sk: Array = mesh.get_meta(&"strips_shared")
+			var widths: Array = mesh.get_meta(&"strip_widths")
 			var ys := PropKit.strip_centres(sk[1], widths)
-			var rng: int = mi.get_meta(&"strips_rng", 0)
+			var rng: int = m.drawn_meta(&"strips_rng", 0)
 			for i in widths.size():
 				boards.append([xf.translated_local(Vector3(0.0, ys[i], 0.0)), Vector3(sk[0], widths[i], sk[2]), PropKit.strip_seed(rng, i)])
-		elif mi.mesh.has_meta(&"board_shared"):
-			var k: Array = mi.mesh.get_meta(&"board_shared")
+		elif mesh.has_meta(&"board_shared"):
+			var k: Array = mesh.get_meta(&"board_shared")
 			boards.append([xf, Vector3(k[0], k[1], k[2]), b.x])
 		else:
 			push_warning("Structure: %s in an instanced batch isn't a shared board" % m.member_id)
-			mi.visible = true
+			m.drawn_node().visible = true
 			continue
 		for e: Array in boards:
 			var at: Transform3D = e[0]

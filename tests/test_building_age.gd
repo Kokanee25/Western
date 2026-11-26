@@ -116,7 +116,7 @@ func test_it_shows_its_age() -> void:
 	var beam := b.get_member(&"old/porch/beam")
 	check(beam.has_meta(&"bent"), "the porch beam sags between its posts")
 	# The beam drawn lower at its middle than at its ends.
-	var mi := beam.pieces[0][0] as MeshInstance3D
+	var mi := beam.drawn_node()  # (at rest its nodes are a row, #1262: made again here)
 	var verts: PackedVector3Array = mi.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var mid_y := INF
 	var end_y := -INF

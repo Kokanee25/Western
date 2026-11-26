@@ -142,7 +142,7 @@ his own).
 | Render CPU (draw calls) | 4.0 | 2.9 | – | 6.1–6.4 |
 | Everything else (day cycle, lamps, engine, untimed) | 1.0 | 0.1 | **1.5** | 0.2 |
 | **Total** | **≤ 14** | **6.0** | 6.6 + render | 4.7 + 6.4 |
-| **Memory** (#1259, #1262) | ≤ 15 KB a member; valley ≤ 4,096 MB peak | hotel 26.1 KB | valley + hotel 5,173 MB | suite holds ≤ 28 KB |
+| **Memory** (#1259, #1262) | ≤ 15 KB a member; valley ≤ 4,096 MB peak | hotel 21.3 KB | valley + hotel 4,820 MB | suite holds ≤ 23 KB |
 
 \* noisy: pausing the server also stops the rubble falling. These columns are the old town's (2026-10);
 the valley's numbers are `docs/reviews/2026-11-valley-bench.md` (after the people cuts: 24 townsfolk fit).
