@@ -29,6 +29,16 @@ VERBS = {
              r"\bshot\b|shooting|\bfired\b|firing|ceiling|let (that|off)|iron off"),
     "sit": (["goto 18.6 1.2 -17.4 90"], ["sit s"], r"sit down|\bsat\b|join|pull up|take a hand|\bseat\b"),
     "win_pot": (["sit s"], ["ans_pot 240"], r"\bpot\b|you won|cleaned|lucky"),
+    # The card table (#1279): you sat at its south chair; a verb on your turn is the input the player
+    # uses (a nod calls, a shake folds, fire raises: the "press fire" is nothing before #1279's raise).
+    "call": (["sit s", "ans_turn any 240"], ["nod"], r"\bcall|see (it|that|you)|in, then|brave"),
+    "fold": (["sit s", "ans_turn any 240"], ["shake"], r"\bfold|out of it|quit|smart|scared"),
+    "raise": (["sit s", "ans_turn strong 300"], ["press fire"], r"\braise|rais|big bet|proud|bet like"),
+    "bluff": (["sit s", "ans_turn weak 300"], ["press fire"], r"bluff|\bnothing\b|rais|big bet|lie|liar|bet like"),
+    "lose_pot": (["sit s"], ["ans_lose 300"], r"\bpot\b|lost|losing|lose|cleaned|unlucky|took you"),
+    "cheat": (["sit s", "wait 20", "look earl"], ["press shout"], r"cheat|bottom|deal(ing|t)? (off|from)|sleeve|crook|accus|calling me|called earl"),
+    "stand": (["sit s", "wait 30"], ["stand"], r"leav|quit|go(ing)? so soon|money|cash|up and|walk(ing)? off"),
+    "watch": (["goto 18.6 1.2 -17.4 90", "ans_close earl 1.6"], ["wait 0.1"], r"sit|chair|deal you|join|play|watch(ing)?|seat"),
     "knock": (["walk saloonb_front_in", "turn 180"], ["press shove"], r"knock|door|bang"),
     "crowd": (["goto 18.6 1.2 -17.4 90", "walk rancher"], ["ans_close rancher 0.6"], r"close|room|space|breath|back off|crowd"),
 }
@@ -66,7 +76,7 @@ def one(verb):
     bridge("time 20.5", "wait 25")
     log = {"verb": verb, "setup": [r for r in bridge(*setup)] if setup else []}
     before = bridge("ans_snap")[0]
-    r = bridge(*act, "ans_watch %d" % (20 if verb == "crowd" else 3))
+    r = bridge(*act, "ans_watch %d" % (20 if verb in ("crowd", "watch") else 3))
     log["act"] = r[:-1]
     watch = r[-1]
     after = bridge("ans_snap")[0]
@@ -94,6 +104,7 @@ def one(verb):
     target = "rancher" if verb in ("shove", "crowd") else None
     if target and target not in saw:
         saw.append(target)
+    saw += [p for p, m in before["men"].items() if m.get("table") and p not in saw]  # the table's verbs: to their faces
     reacted = sorted(set(watch.get("first", {})) & set(saw))
     moved_ = [p for p in before["men"] if "trust" in after["men"].get(p, {}) and moved(before["men"][p], after["men"][p])]
     rx = re.compile(words, re.I)
@@ -124,6 +135,7 @@ def retable(lg):
     saw = [p for p, m in before["men"].items() if m.get("sees")]
     if lg["verb"] in ("shove", "crowd") and "rancher" not in saw:
         saw.append("rancher")
+    saw += [p for p, m in before["men"].items() if m.get("table") and p not in saw]
     lg["saw"] = saw
     lg["reacted"] = sorted(set(watch.get("first", {})) & set(saw))
     lg["moved"] = [p for p in before["men"] if "trust" in after["men"].get(p, {}) and moved(before["men"][p], after["men"][p])]

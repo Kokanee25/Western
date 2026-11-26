@@ -142,7 +142,8 @@ func test_a_won_pot_earns_the_table_s_respect() -> void:
 	var sees := await wait_until(func() -> bool:
 		return seen_by.any(func(m: HumanBody) -> bool: return (m.get_node(^"Brain") as CivilianBrain).senses.sees(p)), 60 * 4)
 	check(sees, "a man at the table sees Harlan")
-	f.cards.hand_done.emit(CardGame.YOU, 30, "two pair")
+	# (#1279: the table's deeds come from CardGame.you_did; no men listed, so only those who see it keep it)
+	f.cards.you_did.emit(&"won_pot", {"men": [], "pot": 30, "shown": true})
 	await physics_frames(2)
 	var moved := 0
 	for man: HumanBody in seen_by:

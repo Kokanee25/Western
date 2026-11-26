@@ -81,6 +81,23 @@ var people := {}
 var props := {}
 ## The band (Band, #799), when it plays on the set's lot.
 var band: Band
+## What you did at the card table (#1279, CardGame.you_did): the table and the room think of you by it
+## (TownRegard: the table's men keep it whatever their Senses saw; the man called a cheat his own dial),
+## and the news carries the bigger ones (TownNews.table: a pot, a bluff shown up, a cheat called).
+func _on_table_deed(verb: StringName, info: Dictionary) -> void:
+	var harlan := get_tree().get_first_node_in_group(&"player") as Node3D if is_inside_tree() else null
+	var men: Array = info.get("men", [])
+	var accused: Node = info.get("accused") as Node
+	var at := cards._pot_at()
+	if regard != null:
+		var kind := "up_ahead" if verb == &"up" and bool(info.get("ahead", false)) else String(verb)
+		regard.saw_harlan(kind, at, harlan, null, men, false, accused)
+		if accused != null:
+			regard.saw_harlan("caught_him" if verb == &"cheat_true" else "accused_him", at, harlan, accused, [], true)
+	if news != null:
+		news.table(verb, info, at)
+
+
 ## The card game at the set's table (CardGame, #766).
 var cards: CardGame
 ## Built and out of the world till wanted (id -> HumanBody).
@@ -207,8 +224,8 @@ func _ready() -> void:
 	cards.hand_done.connect(func(w: String, _p: int, _h: String) -> void:
 		if cards.report().get("seats", []).any(func(x: Dictionary) -> bool: return String(x.get("id", "")) == CardGame.YOU):
 			_your_hands += 1
-		if w == CardGame.YOU and regard != null:  # the table and the room saw you take it (#1167)
-			regard.saw_harlan("won_pot", cards._pot_at(), get_tree().get_first_node_in_group(&"player") as Node3D))
+		)
+	cards.you_did.connect(_on_table_deed)
 	var mpath := "res://config/moments/%s.json" % MURDER
 	if FileAccess.file_exists(mpath):
 		_murder_data = JSON.parse_string(FileAccess.get_file_as_string(mpath))

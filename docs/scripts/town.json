@@ -862,6 +862,150 @@
       }
      ],
      "takes": []
+    },
+    {
+     "id": "news.cards.won_pot.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Harlan took a pot at the card table (#1279)",
+     "when": "cards won_pot; who Harlan; told to him",
+     "condition": "",
+     "delivery": "Half sore, half admiring.",
+     "words": [
+      {
+       "text": "You took that pot off us, {at}. Don't make a habit of it.",
+       "status": "new"
+      },
+      {
+       "text": "Saw you clean up at cards, {at}. Lucky hand.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.cards.won_pot",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan took a pot at the card table (#1279)",
+     "when": "cards won_pot; who known",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} took a pot at cards, {at}. Cleaned the table out.",
+       "status": "new"
+      },
+      {
+       "text": "{who} won a pot off Earl, {at}. Earl didn't care for it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.cards.bluff_called.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Harlan raised on nothing and was shown up (#1279)",
+     "when": "cards bluff_called; who Harlan; told to him",
+     "condition": "",
+     "delivery": "Grinning at you.",
+     "words": [
+      {
+       "text": "Raised on nothing at cards, {at}. We all saw your hand, mister.",
+       "status": "new"
+      },
+      {
+       "text": "That bluff of yours, {at}. Nothing but nerve.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.cards.bluff_called",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan's bluff at cards was shown up (#1279)",
+     "when": "cards bluff_called; who known",
+     "condition": "",
+     "delivery": "Telling it as a joke.",
+     "words": [
+      {
+       "text": "{who} tried a bluff at cards, {at}. Caught with nothing in his hand.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.cards.cheat_true.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Harlan caught {whom} dealing from the bottom (#1279); {whom} is 'me' from the cheat",
+     "when": "cards cheat_true; who Harlan; told to him",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You caught {whom} dealing off the bottom, {at}. Somebody had to.",
+       "status": "new"
+      },
+      {
+       "text": "That was you called the cheat on {whom}, {at}. Good eyes.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.cards.cheat_true",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan caught {whom} cheating at cards (#1279)",
+     "when": "cards cheat_true; who known",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} caught {whom} dealing off the bottom, {at}.",
+       "status": "new"
+      },
+      {
+       "text": "{who} called {whom} a cheat at cards, {at}, and he was one.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.cards.cheat_false.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Harlan called {whom} a cheat and he wasn't (#1279); {whom} is 'me' from the man called",
+     "when": "cards cheat_false; who Harlan; told to him",
+     "condition": "",
+     "delivery": "Cold.",
+     "words": [
+      {
+       "text": "You called {whom} a cheat, {at}. Never proved a thing.",
+       "status": "new"
+      },
+      {
+       "text": "Calling {whom} a cheat, {at}. Them's hard words, mister.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.cards.cheat_false",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan called {whom} a cheat and it wasn't so (#1279)",
+     "when": "cards cheat_false; who known",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} called {whom} a cheat at cards, {at}. Never proved a thing.",
+       "status": "new"
+      }
+     ],
+     "takes": []
     }
    ]
   },

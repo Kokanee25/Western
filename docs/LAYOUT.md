@@ -2097,6 +2097,17 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   standing only folds you. Cards and chips are stand-ins (two MultiMeshes, faces Label3D text), not
   drawn past 40 m. `speed` runs it faster (tests). Bridge `cards [wait N]`; Prof `card_game`;
   valley_bench spot `card_seat` (you sat in the north chair, the game going).
+  **The table answers you** (#1279, pillar 6; `tests/test_card_answers.gd`): fire on your turn raises
+  (`you_raise`; on a hand under `call_at` it's a bluff, `_you_bluffing`), G sat there calls a cheat on the
+  man you face (PlayerWounds `_at_cards` -> Events.shouted `cheat` -> `accuse`: true if he's `cheat.who`
+  and dealt from the bottom this hand or the last). Each verb gets a line at once (`lines` `you_raise`,
+  `you_call`, `you_fold`, `you_win[_quiet]`, `you_lose`, `bluff_called`, `caught`/`cheat_seen`,
+  `accused`/`accused_seen`, `you_up[_ahead]`) and `you_did(verb, info)`: ValleyFolk `_on_table_deed` ->
+  TownRegard (`saw_harlan(..., known)`: the table's men keep it whatever their Senses saw; the accused
+  his own `caught_him`/`accused_him`) and TownNews `table` (`TABLE_NEWS`: a pot, a bluff shown up, a
+  cheat called; a `rough` record with `cards` the verb, kinds `cards`/`cheat`, lines `news.cards.<verb>`).
+  It starts things: `invite` (you stood within `invite.m` `after_s`, a chair free), `needle` (the hand
+  after a pot of `needle_pot`+). Bench: `experiments/answers/` (the table's verbs).
 - **`CompanionBrain`** (`src/people/companion_brain.gd`, #843, No Justice step 1; data
   `config/companion_joe.json`; `tests/test_companion.gd`): Joe, the one full companion. An
   `OutlawBrain` (variant D and the trial's fixes, "D+") on your side: `follow_man(player)`;

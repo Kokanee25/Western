@@ -50,7 +50,12 @@ const LOOK_EVERY := 1.0
 ## Overnight, this big and more reaches everyone; less, and only told, it fades.
 const OVERNIGHT := 0.5
 ## The size of a version by what it holds.
-const SIZES := {&"killing": 1.0, &"shooting": 0.7, &"down": 0.4, &"shots": 0.3, &"rough": 0.2}
+const SIZES := {&"killing": 1.0, &"shooting": 0.7, &"down": 0.4, &"cheat": 0.35, &"shots": 0.3, &"rough": 0.2, &"cards": 0.15}
+## The card table (#1279, CardGame.you_did by ValleyFolk): what's news of it, a record of its own like a
+## shove's (`rough` true, so never merged with shots, and not told till `ROUGH_TELL_S` after), `cards` the
+## verb: a pot Harlan took, his bluff shown up (small, `cards`), a cheat he called true or false (`cheat`:
+## `whom` the man called). Held by the table's men and those who saw it.
+const TABLE_NEWS := [&"won_pot", &"bluff_called", &"cheat_true", &"cheat_false"]
 ## Rough handling (#1272, DESIGN §2 pillar 6: every verb leaves a mark): a shove or a kick by Harlan is a
 ## record of its own (`what` rough, `rough` true), held by the man it was done to and those who saw it
 ## (their Senses, within `ROUGH_SEEN_M`); small news, told on and said to his face, faded overnight when
@@ -154,6 +159,36 @@ func _on_deed(actor: Node, kind: StringName, target: Node, at: Vector3) -> void:
 		r.what = &"killing"
 	elif r.what in [&"shots", &"down"]:
 		r.what = &"shooting"
+
+
+## Harlan did `verb` at the card table (#1279): a record if it's news (TABLE_NEWS), a version for each
+## man at the table (`info.men`) and each townsman who saw him do it.
+func table(verb: StringName, info: Dictionary, at: Vector3) -> void:
+	if not verb in TABLE_NEWS:
+		return
+	var accused := info.get("accused") as HumanBody
+	var r := _new_record(&"rough", at)
+	r["rough"] = true
+	r["cards"] = verb
+	r.who = HARLAN
+	r.whom = id_of(accused) if accused != null else &""
+	var men: Array = info.get("men", [])
+	var harlan: Node3D = null
+	if folk != null and folk.is_inside_tree():
+		harlan = folk.get_tree().get_first_node_in_group(&"player") as Node3D
+	for b: CivilianBrain in brains:
+		if not is_instance_valid(b) or b.body == null or not b.body.physiology.is_conscious():
+			continue
+		if not men.has(b.body) and (harlan == null or b.body.global_position.distance_to(at) > ROUGH_SEEN_M \
+				or b.senses == null or not b.senses.sees(harlan)):
+			continue
+		var v := _version(b.body.person_id, r, &"saw")
+		v["rough"] = true
+		v["cards"] = verb
+		v.who = HARLAN
+		v.whom = r.whom
+		if v.where == "":
+			v.where = _place(at)
 
 
 ## Harlan shoved or kicked `man`: one record (again within `SAME_S`, the same one), a version for him
@@ -386,6 +421,8 @@ static func kind_of(v: Dictionary) -> StringName:
 		return &"shooting"
 	if v.down:
 		return &"down"
+	if v.get("cards", &"") != &"":
+		return &"cheat" if String(v.cards).begins_with("cheat") else &"cards"
 	if v.get("rough", false):
 		return &"rough"
 	return &"shots" if int(v.shots) > 0 else &""
@@ -756,6 +793,10 @@ func line_of(pid: StringName, rid: int, to := &"") -> String:
 		head = [base + ".you"] if v.who == HARLAN and to == HARLAN else ([base] if v.who != &"" else [base + ".nobody"])
 	elif k == &"down":
 		head = ["news.down"]
+	elif k == &"cards" or k == &"cheat":
+		# The card table (#1279): news.cards.<verb>, ".you" to his face (the man called a cheat: "me").
+		var base := "news.cards." + String(v.cards)
+		head = [base + ".you"] if v.who == HARLAN and to == HARLAN else ([base] if v.who != &"" else [base + ".nobody"])
 	elif k == &"rough":
 		# A shove (#1272): to his face, "you"; the man it was done to says "me".
 		head = ["news.rough.you"] if v.who == HARLAN and to == HARLAN else (["news.rough"] if v.who != &"" else ["news.rough.nobody"])
@@ -803,6 +844,16 @@ func _built_head(v: Dictionary, to: StringName, here := false) -> String:
 			return "%s's been shot, by %s." % [_cap(_whom(v)), where]
 		&"down":
 			return "There's a man down by %s." % where
+		&"cards", &"cheat":
+			var doer := _doer(v, to) if v.who != &"" else "Somebody"
+			match StringName(v.cards):
+				&"won_pot":
+					return "%s took a pot off the table at cards, %s." % [doer, at]
+				&"bluff_called":
+					return "%s tried a bluff at cards, %s, and got caught at it." % [doer, at]
+				&"cheat_true":
+					return "%s caught %s dealing off the bottom, %s." % [doer, _whom(v), at]
+			return "%s called %s a cheat at cards, %s." % [doer, _whom(v), at]
 		&"rough":
 			if v.who != &"":
 				return "%s shoved %s about, %s." % [_doer(v, to), _whom(v), at]

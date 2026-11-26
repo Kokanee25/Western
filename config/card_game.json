@@ -29,8 +29,8 @@
     "cards_in": 0.33, "card_gap": 0.072, "chips_in": 0.4, "chips_side": 0.2, "deck_in": 0.22, "pot_off": [0.0, 0.0]
   },
   "you": {
-    "turn": "Your bet: {call} to call. Nod: call · shake: fold",
-    "turn_check": "Your bet. Nod: check · shake: fold",
+    "turn": "Your bet: {call} to call. Nod: call · shake: fold · fire: raise",
+    "turn_check": "Your bet. Nod: check · shake: fold · fire: raise",
     "stakes": "\n(pot {pot} · you have {stack})",
     "they_bet": "{who} makes it {n}",
     "dealt": "You're dealt in: {hand}",
@@ -38,8 +38,13 @@
     "you_call": "You call", "you_check": "You check", "hurry": "Nod to call, shake to fold: 3 s left.", "you_fold": "You fold",
     "you_draw": "You draw {n}", "you_stand_pat": "You stand pat",
     "you_win": "You take the pot with {hand}",
-    "broke": "You're cleaned out"
+    "broke": "You're cleaned out",
+    "you_raise": "You raise it to {n}", "no_raise": "You can't raise that"
   },
+  "needle_pot": 8, "_needle_pot": "#1279: a pot this big or more taken by you, and the next hand starts with a man needling you (lines `needle`).",
+  "accuse_gap_s": 20.0, "_accuse_gap_s": "#1279: a cheat called (a shout sat at the table, CardGame.accuse) at most once in this long (s).",
+  "invite": {"_doc": "#1279: you stood within `m` of the table's middle for `after_s`, a chair free and a game on: a man asks you to sit (lines `invite`), once each `gap_s`.",
+    "m": 2.6, "after_s": 6.0, "gap_s": 240.0},
   "lines": {
     "_doc": "What the men say (Events.spoke: his mouth and the subtitle), one picked at random, at most one a man every say_gap_s and each only say_chance of the time (a win always). {hand} the hand's name, {n} cards. `by` a man's own lines over these. No line the table said within the game's `same_line_s` (#1184); all said lately, he keeps quiet, a win too (#1213). `greet` when you sit down, `you_broke` when you're cleaned out.",
     "shuffle": ["Five-card draw. Ante up.", "Same game, gents.", "Cut 'em thin, deal 'em true.", "Ante.",
@@ -68,8 +73,27 @@
       "Sit, if you're sitting.", "Room for one more fool.", "You play? We'll see."],
     "you_broke": ["That's the lot of it, mister.", "Table thanks you.", "Come back when you're flush.",
       "Cleaned out. Happens to the best of us. Happened to you."],
+    "_doc_you": "#1279, every verb gets an answer (DESIGN §2 pillar 6), said at once: `you_raise` the next man to act at your raise ({n} the bet); `you_call` at your call; `you_win_quiet` your pot taken with nobody left in (they never saw your cards); `you_lose` the man who beat you ({hand} his); `bluff_called` the same when you'd raised on nothing and it was shown down; `accused` the man you call a cheat when he isn't one (or wasn't this hand), `accused_seen` another man at it; `caught` the cheat caught dealing from the bottom, `cheat_seen` another man at it; `you_up` / `you_up_ahead` as you get up (ahead: more than you sat down with); `invite` a man asking you to sit; `needle` the hand after you took a big pot.",
+    "you_raise": ["Raise, he says.", "Proud of those, are you?", "Well now. Somebody's feeling lucky.", "Big bet for a quiet man."],
+    "you_call": ["He's in.", "Stays in. All right.", "Brave."],
+    "you_win_quiet": ["Take it, then. Didn't want to see 'em anyhow.", "Keep your secrets, mister. Keep the pot too."],
+    "you_lose": ["{hand}, mister. Thank you kindly.", "Not your hand, friend. {hand}.", "That's {hand}. Better luck."],
+    "bluff_called": ["Thought so. Nothing in that hand but nerve.", "Raised on that? Mister, you got sand. No cards, but sand.",
+      "Ha! I knew it. Bluffing on a busted hand."],
+    "accused": ["You calling me a cheat, mister?", "Say that again. Slow.", "Them's hard words for a man who can't play."],
+    "accused_seen": ["Easy, now. It's a clean game.", "Watch your mouth. He's lost same as you.", "Mister, you'd best take that back."],
+    "caught": ["Now hold on, hold on. It slipped, is all.", "You never saw a thing. Nobody saw a thing."],
+    "cheat_seen": ["From the bottom. I saw it too.", "I knew it. Every damn hand, I knew it."],
+    "you_up": ["Had enough?", "Leaving us?", "Mind how you go."],
+    "you_up_ahead": ["Walking off with our money, then.", "Hit and run, is it?", "Quit while you're ahead. Smart. Ugly, but smart."],
+    "invite": ["You going to stand there all night? Chair's free.", "Watching won't win you anything, mister. Sit.",
+      "Sit down or move along, mister."],
+    "needle": ["Let's see you do that twice.", "That's our money in front of you, mister. We'll want it back.",
+      "Lucky once. Deal him in."],
     "by": {
       "earl": {
+        "accused": ["Cheat? Me? I've played this table twenty years.", "You calling me a cheat? In front of God and the drifter?"],
+        "caught": ["Now hold on. The card slipped, is all. It slipped.", "I never. That's a damn lie. ...It slipped."],
         "win": ["{hand}. Lady's been kind tonight.", "{hand}. Don't look at me like that.",
           "{hand}. Clean deck, boys. Clean as Sunday.", "{hand}. Now ain't that something.",
           "{hand}. Read 'em out loud, boys, if you can."],

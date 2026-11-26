@@ -14,7 +14,9 @@ extends RefCounted
 const NAMES: Array[String] = ["trust", "fear", "liking", "respect"]
 ## What he saw Harlan do himself (fault 1 of the town gate, #1167: a shot, a shove, a won pot moved
 ## nothing, since only killings and the story's facts counted). Deeds are Events.deed's with the
-## player the actor, and `won_pot` (the card table); each `deeds` dial is what one such deed seen
+## player the actor, and the card table's (#1279, ValleyFolk on CardGame.you_did: `won_pot`, `lost_pot`,
+## `bluff_called`, `raise`, `call`, `fold`, `sit`, `up`, `up_ahead`, `cheat_true`, `cheat_false`, and the
+## accused man's own `caught_him` / `accused_him`); each `deeds` dial is what one such deed seen
 ## adds, double (`to_him`) for the man it was done to; the nth of a kind adds `each_more`^(n-1) of
 ## it. And `fired`: each of his news versions with Harlan firing and nobody down (seen or told).
 ## What each band shows as Harlan passes.
@@ -130,17 +132,22 @@ func _on_deed(actor: Node, kind: StringName, target: Node, at: Vector3) -> void:
 
 
 ## The men who see Harlan within `see_m` of `at` (or are `target`) keep `kind`. Returns who did.
-func saw_harlan(kind: String, at: Vector3, harlan: Node3D, target: Node = null) -> Array[StringName]:
+## `known` (#1279, the card table): men it was done in front of, who keep it whatever their Senses saw at
+## that moment; `only_target`: him alone (the man called a cheat, his own dial); `skip`: not him.
+func saw_harlan(kind: String, at: Vector3, harlan: Node3D, target: Node = null, known: Array = [],
+		only_target := false, skip: Node = null) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if folk == null:
 		return out
 	var ps := people()
 	for pid: StringName in folk.people:
 		var man: HumanBody = folk.people[pid]
-		if man == null or not is_instance_valid(man) or not ps.has(pid) or not man.physiology.alive:
+		if man == null or not is_instance_valid(man) or not ps.has(pid) or not man.physiology.alive or man == skip:
 			continue
 		var him := man == target
-		if not him:
+		if only_target and not him:
+			continue
+		if not him and not known.has(man):
 			if man.global_position.distance_to(at) > _d("see_m", 20.0):
 				continue
 			var b := man.get_node_or_null(^"Brain") as CivilianBrain
