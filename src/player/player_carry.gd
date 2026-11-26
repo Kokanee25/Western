@@ -82,6 +82,8 @@ func man_here() -> HumanBody:
 		return null
 	if player.seat != null and player.seat.seated():
 		return null
+	if player.drink != null and player.drink.holding():
+		return null  # a glass in your hand: E's for it (#1292)
 	var t := player.tuning
 	var fwd := player.get_forward()
 	fwd.y = 0.0

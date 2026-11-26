@@ -41,6 +41,10 @@ VERBS = {
     "watch": (["goto 18.6 1.2 -17.4 90", "ans_close earl 1.6"], ["wait 0.1"], r"sit|chair|deal you|join|play|watch(ing)?|seat"),
     "knock": (["walk saloonb_front_in", "turn 180"], ["press shove"], r"knock|door|bang"),
     "crowd": (["goto 18.6 1.2 -17.4 90", "walk rancher"], ["ans_close rancher 0.6"], r"close|room|space|breath|back off|crowd"),
+    # The bar (#1292): stood before the barkeep (`drink bar`), a whiskey asked for (E there), then drunk.
+    "buy": (["drink bar"], ["drink buy whiskey"], r"whiskey|cents|pour|money|drink|glass|nickel"),
+    "drink": (["drink bar", "drink buy whiskey", "wait 4", "drink take"], ["drink sip 1"], r"drink|whiskey|glass|alone|thirst|bottle|drunk"),
+    "round": (["drink bar"], ["drink buy round"], r"round|buying|house|obliged|health|drink|neighbourly|bought"),
 }
 
 
@@ -58,9 +62,15 @@ def bridge(*cmds, timeout=900):
     return out
 
 
-def start():
+# The bar's verbs (#1292) on an ordinary evening: the bench's day 1 is No Law's night, whose scene holds the
+# bar and its barkeep (SceneHold, ValleyFolk._story_on), so these start with the murder off.
+ORDINARY = ("buy", "drink", "round")
+
+
+def start(verb=""):
     subprocess.run(BRIDGE + ["stop"], capture_output=True, cwd=ROOT)
-    p = subprocess.run(BRIDGE + ["start", "--headless", "--game-args=--world=valley"], capture_output=True,
+    args = "--world=valley" + (",--no-murder" if verb in ORDINARY else "")
+    p = subprocess.run(BRIDGE + ["start", "--headless", "--game-args=" + args], capture_output=True,
                        text=True, cwd=ROOT, timeout=900)
     if p.returncode != 0:
         raise SystemExit("bridge didn't start: " + p.stdout[-400:] + p.stderr[-400:])
@@ -72,7 +82,7 @@ def moved(a, b, keys=("trust", "fear", "liking", "respect")):
 
 def one(verb):
     setup, act, words = VERBS[verb]
-    start()
+    start(verb)
     bridge("time 20.5", "wait 25")
     log = {"verb": verb, "setup": [r for r in bridge(*setup)] if setup else []}
     before = bridge("ans_snap")[0]
