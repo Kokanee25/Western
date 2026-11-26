@@ -9,7 +9,7 @@ const HELP := {
 	"ans_snap": "ans_snap -> each valley man in play: sees you, distance, Reaction stage/kind, mood, look shown, regard numbers and band",
 	"ans_pot": "ans_pot MAX_S -> waits (at most MAX_S game s) till you win a hand at the valley's table; answers the hand",
 	"ans_close": "ans_close PERSON D -> you put D m in front of PERSON, facing him",
-	"ans_turn": "ans_turn [any|weak|strong] MAX_S -> waits (at most MAX_S game s) till it's your turn at the valley's table with a bet open to you or not, and (weak/strong) your hand under or over the table's call_at; answers your hand",
+	"ans_turn": "ans_turn [any|bet|weak|strong] MAX_S -> waits (at most MAX_S game s) till it's your turn at the valley's table (bet: with a bet open to you; weak/strong: your hand under or over the table's call_at; answers your hand",
 	"ans_lose": "ans_lose MAX_S -> waits till a hand you played to the end is won by another man; answers the hand",
 	"ans_watch": "ans_watch S -> S seconds watched: each man's first answer (said / reaction / look / flinch / mood) and when, the lines said",
 }
@@ -159,11 +159,16 @@ func _cmd_ans_turn(a: Array) -> Dictionary:
 			continue
 		var st := Poker.strength(you.cards)
 		var weak := st < g._play("call_at")
-		if want == "any" or (want == "weak") == weak:
+		var to_call := g._round_bet - int(you.put)
+		if want == "any" or (want == "bet" and to_call > 0) or (want in ["weak", "strong"] and (want == "weak") == weak):
 			return {"turn": true, "hand": Poker.name(you.cards), "strength": snappedf(st, 0.01), "weak": weak,
-					"to_call": g._round_bet - int(you.put), "pot": g.pot, "after_s": snappedf(bridge._game_seconds() - game0, 0.1)}
-		# Not the hand wanted: fold it (a shake, as you would) and wait for the next.
-		await bridge._cmd_shake([])
+					"to_call": to_call, "pot": g.pot, "after_s": snappedf(bridge._game_seconds() - game0, 0.1)}
+		# Not the turn wanted: waiting for a bet, check (a nod) and play on; else fold it (a shake) and wait
+		# for the next hand.
+		if want == "bet":
+			await bridge._cmd_nod([])
+		else:
+			await bridge._cmd_shake([])
 	return {"turn": false, "after_s": snappedf(bridge._game_seconds() - game0, 0.1)}
 
 

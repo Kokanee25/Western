@@ -253,3 +253,29 @@ func test_stood_watching_a_man_asks_you_to_sit() -> void:
 ## A card: face value 2..14 (the ace), suit 0..3 (Poker: rank `c % 13`, suit `c / 13`).
 func _c(v: int, s: int) -> int:
 	return s * 13 + (v - 2)
+
+
+## A bet open to you and a nod: a call, answered at once, and kept by the table.
+func test_a_call_on_a_bet_is_answered() -> void:
+	await _sat()
+	var g := _game()
+	var p := _player()
+	var turn := await wait_until(func() -> bool: return g._you_turn, 60 * 90)
+	check(turn, "your turn comes (%s)" % g.report())
+	if not turn:
+		return
+	var you := g._seat(CardGame.YOU)
+	g._round_bet = int(you.put) + 1  # a man's bet to you
+	did.clear()
+	var from := said.size()
+	# A nod, as the bridge's: three swings of 12 degrees on the pitch.
+	var pitch0 := p.get_pitch_degrees()
+	for k: float in [0.5, 1.0, 0.5, 0.0, -0.5, -1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0]:
+		p.input_enabled = true
+		p.add_look(Vector2(0.0, pitch0 - 12.0 * k - p.get_pitch_degrees()))
+		await physics_frames(3)
+	await physics_frames(5)
+	check(not _did(&"call").is_empty(), "your nod called the bet (%s)" % [did.map(func(d: Array) -> StringName: return d[0])])
+	check(not _said_kind("you_call", from).is_empty(), "the table answers your call (%s)" % [said.slice(from)])
+	for m: HumanBody in g._men():
+		check(_deeds(m.person_id).has("call"), "%s keeps it" % m.person_id)

@@ -31,9 +31,9 @@ VERBS = {
     "win_pot": (["sit s"], ["ans_pot 240"], r"\bpot\b|you won|cleaned|lucky"),
     # The card table (#1279): you sat at its south chair; a verb on your turn is the input the player
     # uses (a nod calls, a shake folds, fire raises: the "press fire" is nothing before #1279's raise).
-    "call": (["sit s", "ans_turn any 240"], ["nod"], r"\bcall|see (it|that|you)|in, then|brave"),
+    "call": (["sit s", "ans_turn bet 400"], ["nod"], r"\bcall|see (it|that|you)|in, then|brave"),
     "fold": (["sit s", "ans_turn any 240"], ["shake"], r"\bfold|out of it|quit|smart|scared"),
-    "raise": (["sit s", "ans_turn strong 300"], ["press fire"], r"\braise|rais|big bet|proud|bet like"),
+    "raise": (["sit s", "ans_turn any 400"], ["press fire"], r"\braise|rais|big bet|proud|bet like"),
     "bluff": (["sit s", "ans_turn weak 300"], ["press fire"], r"bluff|\bnothing\b|rais|big bet|lie|liar|bet like"),
     "lose_pot": (["sit s"], ["ans_lose 300"], r"\bpot\b|lost|losing|lose|cleaned|unlucky|took you"),
     "cheat": (["sit s", "wait 20", "look earl"], ["press shout"], r"cheat|bottom|deal(ing|t)? (off|from)|sleeve|crook|accus|calling me|called earl"),
@@ -119,7 +119,10 @@ def one(verb):
 
 def row(lg):
     w = lg["watch"].get("first", {})
-    hows = ", ".join("%s %s" % (p, w[p]["how"].split(":")[0] if not w[p]["how"].startswith("reaction") else w[p]["how"].split(":", 1)[1]) for p in lg["reacted"])
+    # A man who said something in the watch shows "said" (#1279: at the table the look comes first, the words a
+    # beat after, and the row hid them).
+    spoke = {l[0] for l in lg["watch"].get("lines", [])}
+    hows = ", ".join("%s %s" % (p, "said" if p in spoke or "also_said" in w[p] else (w[p]["how"].split(":")[0] if not w[p]["how"].startswith("reaction") else w[p]["how"].split(":", 1)[1])) for p in lg["reacted"])
     nrec = len(lg["news"].get("records", [])) if isinstance(lg["news"].get("records"), list) else 0
     near = sum(1 for m in lg["before"]["men"].values() if m.get("d", 99) <= 10.0)
     return "| %s | %d | %d | %d (%s) | %d | %s |" % (lg["verb"], near, len(lg["saw"]), len(lg["reacted"]), hows or "-",

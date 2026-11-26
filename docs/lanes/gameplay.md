@@ -44,10 +44,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   room's sounds are synth stand-ins (#807); no argument, round bought or song called for; react.fight*, body_child,
   kett.meal untriggered; nobody carries the body.
   A spot's `hall` is its building for the barks (`bark_ctx`, #1240: hall spots had lost the saloon's lines).
-- **Every verb gets an answer** (DESIGN §2 pillar 6; #1272 step 1 done: the shove and the shot): the bench
-  `experiments/answers/` (README: the table a verb, before and after). A shove: the man shoved speaks, those who saw
-  look and two say so, one seen turns a man cold, TownNews `rough` news told on after 30 s. Still flat (the table):
-  sitting, a won pot (no words), standing close (nothing), the barkeep's "Don't shoot!" over and over. Next: step 2.
+- **Every verb gets an answer** (DESIGN §2 pillar 6; #1272 step 1 the shove and the shot, #1279 step 2 the card
+  table): the bench `experiments/answers/` (README: the table a verb, before and after). The table (LAYOUT CardGame
+  "The table answers you"): fire raises, G sat calls a cheat; each verb a line at once, `you_did` -> regard and
+  TownNews `table` (a pot, a bluff shown up, a cheat called told later). Still flat: standing close (nothing), the
+  barkeep's "Don't shoot!" over and over; the bench's "said" column counts the table's own game talk too.
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's

@@ -604,6 +604,9 @@ func _bet_step(dt: float) -> void:
 				# Your call answered (#1279): the man who bet it, or whoever's next.
 				_say(_next_man(), "you_call", {}, true)
 				you_did.emit(&"call", {"men": _men()})
+			elif g == &"nod":
+				# A check: a word now and then (the table's own pace), their eyes on you as ever.
+				_say(_next_man(), "you_check")
 		elif _t <= 3.0 and to_call > 0 and not _you_warned:
 			_you_warned = true
 			_prompt(String(data.you.get("hurry", "Nod to call, shake to fold: 3 s")), 3.0)
