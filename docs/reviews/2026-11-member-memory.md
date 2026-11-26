@@ -157,3 +157,70 @@ back as the nodes it was (mesh, material, place, metas, shape, piece), is found 
 - **The structure node (3.4 KB a member, engine side):** untraced; it's freed with the node.
 - **The support graph (2.6 KB):** packed indices instead of `Array[StringName]` and dictionaries.
 - **Member meshes (1.9 KB):** the few own meshes (non-board members' boxes and warped beams).
+
+## Step 3 (#1270), cut 1: what a member's script makes, cut
+
+Measured on micro-tests (`OS.get_static_memory_usage`, 10,000 nodes in a tree): a StaticBody3D is ~2.5 KB;
+**every declared script var is ~80 B a member, whatever its type** (10 vars 3.4 KB, 45 vars 6.2, 90 vars 9.8:
+untyped, int and float the same); an empty Dictionary 0.15 KB, an empty Array 0.09; a meta on a node 0.6 KB
+(its maps); two `connect(callable.bind(m))` 1.24 KB. On the hotel every member carried a `band` meta and two
+bound `damaged` connections to its structure, and `analysis_cache`, `holes` and (at rest) `pieces` empty but
+its own.
+
+- `damaged`: the structure is called directly (`StructureMember._report_damage` → `Structure.member_damaged`:
+  unbatch, mark dirty, settle), then the signal for whoever else listens (kit props, contents), in the same order.
+- `band` a var (`StructureMember.band`, -1 outside a spec building), not a meta.
+- Shared read-only empties for `analysis_cache` (`forget_analysis()`), `holes` and `pieces` at rest; what fills
+  one gives the member its own first.
+- The fire's four backing vars folded into `temperature`, `char_depth`, `burn_time`, `wet`'s own storage.
+
+The hotel alone, main 4086f3d3 → cut 1 (this workspace, headless):
+
+| Part | Before KB a member | After KB a member |
+|---|---|---|
+| StructureMember nodes (body, script) | 9.12 | 6.39 |
+| finish textures (shared, loaded once; was "the structure", 3.42) | 3.42 | 3.42 |
+| every other part | unchanged | unchanged |
+| **whole** | **21.3** | **18.6** |
+
+The hotel's peak RSS alone 892 → 840 MB. `kb_per_member_held` 23 → 20.
+
+**"The structure node" was the hotel's finish textures.** Its seven library materials (`SpecBuilding._lib_mats`)
+hold 2048² albedo, normal and roughness maps: 50 MB, loaded once and shared by every building with the same
+finishes (the warm-up building uses other ones), and video memory on a GPU. They're not a member's; the tool
+now names them.
+
+## Step 3, a member as a row: measured, not built
+
+What a resting member would cost as a row (micro-tests, 15,000):
+
+| | KB a member |
+|---|---|
+| now: its node (6.39) + its Jolt body (0.14) + its kept nodes' row (0.74) | 7.27 |
+| a row: id, transform, size, kind, wood, flags, band in packed arrays | 0.32 |
+| its shape in a compound body of 300 (a StaticBody3D of its own: 3.26 with Jolt) | 0.44 |
+
+That takes the hotel from 18.6 to about **12 KB a member**: the budget's 15 is reachable this way, and only
+this way (every other part together is under 5 KB). What it needs (an audit of `src/`):
+
+- **~26 files, ~55 sites take a hit's collider as a member**: ballistics, blast, bodies, brains, dents, rubble,
+  feet. They need `Structure.member_at(collider, shape_index)` making the node on demand; `body_entered` gives no
+  shape (`body_shape_entered` instead).
+- **~10 sites look past a hit by excluding its RID** (ballistics through glass, the outlaw's, past stains, room
+  light, Sight): excluding a compound would skip its whole cell. They need a per-shape skip.
+- **Sight** registers a body at a time, one kind each, with a 64-bit mask of disabled shapes: a cell of glass
+  and boards needs a kind a shape. A redesign, and it runs every frame.
+- **~33 files, ~75 loops over all members**: the analysis (`get_member`, fields only, every analysis), the fire's
+  grid (keyed by node), smoke, kit props; the rest at load or save. Fields only for most; a row API serves them.
+- **Long-held references** (fire, smoke, kit props' feet, glass, fittings, dynamite, floor marks): a stable handle.
+- **Metas on members** (`use_role`, `cut`, `dents`, `snapped`, ... ~60 sites): a sparse side table.
+- Joining a compound: build each cell whole (adding one shape at a time rebuilds it: quadratic); taking a
+  member out rebuilds its cell's compound (keep cells to a few hundred). Rays through the micro's compounds
+  were 2× slower than through separate bodies (9.0 vs 4.2 ms a thousand), against the earlier review's 8× faster:
+  measure on the real buildings first.
+
+It's more than a day's work across ~60 files, with the shot and Sight paths changing, so it starts with a
+brief (`docs/briefs/member-rows.md`, the next step) and is built in stages, each merged on green.
+
+Not done this step: the support graph packed (2.6 KB a member; `support_points` and `support_boxes` are
+dictionaries of ~8 entries each, most of it).

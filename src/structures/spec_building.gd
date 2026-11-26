@@ -61,14 +61,14 @@ static func load_spec(path: String) -> Dictionary:
 
 func add_member(id_path: String, kind: StringName, wood: StringName, size: Vector3, center: Vector3, basis := Basis()) -> StructureMember:
 	var m := super(id_path, kind, wood, size, center, basis)
-	m.set_meta(&"band", band)
+	m.band = band
 	return m
 
 
 # --- the support ladder in bands ------------------------------------------------------------------
 
 func _tier(m: StructureMember) -> int:
-	return StructureMember.tier_of(m.kind) + 10 * int(m.get_meta(&"band", 0))
+	return StructureMember.tier_of(m.kind) + 10 * maxi(m.band, 0)
 
 
 func _place_in_stack(m: StructureMember, box: AABB) -> void:
@@ -393,7 +393,7 @@ func _snap_member(m: StructureMember) -> Array[StructureMember]:
 	half[ax] = length * 0.46
 	var out: Array[StructureMember] = []
 	var id := String(m.member_id).trim_prefix(String(structure_id) + "/")
-	var b0 := int(m.get_meta(&"band", band))
+	var b0 := m.band if m.band >= 0 else band
 	var kind := m.kind
 	var wood := m.wood
 	var basis := m.transform.basis

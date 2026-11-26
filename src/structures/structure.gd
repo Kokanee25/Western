@@ -412,8 +412,6 @@ func add_member(id_path: String, kind: StringName, wood: StringName, size: Vecto
 
 	add_child(m)
 	m.pieces = [[mi, cs]]
-	m.damaged.connect(unbatch.bind(m))
-	m.damaged.connect(_on_member_damaged.bind(m))
 	members[id] = m
 	_order.append(m)
 	if _bounds_ok:
@@ -484,7 +482,7 @@ func infer_from_geometry() -> void:
 		m.support_points.clear()
 		m.support_boxes.clear()
 		m.touching.clear()
-		m.analysis_cache = {}
+		m.forget_analysis()
 		var box := boxes[i]
 		_place_in_stack(m, box)
 		var grown := box.grow(eps)
@@ -1745,7 +1743,10 @@ func batch_count() -> int:
 
 # --- Standing and falling -----------------------------------------------------------------------
 
-func _on_member_damaged(m: StructureMember) -> void:
+## One of its members was damaged (StructureMember._report_damage, before its `damaged` signal): out of
+## its batch, and its loads checked again.
+func member_damaged(m: StructureMember) -> void:
+	unbatch(m)
 	mark_dirty(m.member_id)
 	settle_soon()
 
@@ -2195,7 +2196,7 @@ func _relink(old: StructureMember, pieces: Array[StructureMember]) -> void:
 		o.supported_by.erase(old.member_id)
 		o.support_points.erase(old.member_id)
 		o.support_boxes.erase(old.member_id)
-		o.analysis_cache = {}
+		o.forget_analysis()
 		for p in pieces:
 			_link(p, boxes[p], o, obox)
 			_link(o, obox, p, boxes[p])
@@ -2770,7 +2771,7 @@ func maybe_changed() -> bool:
 	if not rubble.is_empty() or get(&"loose") == true:
 		return true
 	for m in _order:
-		if m.broken or m.consumed or m.burning or m.fire_slot >= 0 or m._char_depth > 0.0 or m._wet > 0.0 \
+		if m.broken or m.consumed or m.burning or m.fire_slot >= 0 or m.char_depth > 0.0 or m.wet > 0.0 \
 				or not m.holes.is_empty() or m.has_meta(&"cut") or m.has_meta(&"dents") or m.has_meta(&"dent_torn"):
 			return true
 	return false
@@ -2925,6 +2926,7 @@ func _lay_piece(m: StructureMember, along: float, t: Transform3D) -> RigidBody3D
 	pcs.shape = _box_shape(size)
 	rb.add_child(pcs)
 	if m.has_meta(&"snapped"):
+		m.own_pieces()
 		m.pieces.append([pmi, pcs])
 	rb.mass = maxf(m.weight(tuning) / 9.81 * along / maxf(m.length(), 0.01), 0.05)
 	if maxf(size.x, maxf(size.y, size.z)) < Fittings.SMALL:

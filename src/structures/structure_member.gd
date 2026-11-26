@@ -62,8 +62,13 @@ const TIERS := {
 		for mi in meshes:
 			(mi as MeshInstance3D).material_override = WoodMaterials.get_material(drawn_wood(), hash(member_id))
 
-## Emitted when something damages the member (a bullet hole): the structure re-checks its loads.
+## Emitted when something damages the member (a bullet hole), after its structure is told
+## (`_report_damage`): the structure re-checks its loads.
 signal damaged
+
+## Its spec building's band (SpecBuilding: the support ladder in bands); -1 when not in one. A var,
+## not a meta: a meta on every member was ~0.6 KB a member (#1270).
+var band := -1
 
 ## Weight resting on this member that isn't a member (goods on a shelf, a man on the porch), N.
 @export var extra_load := 0.0
@@ -88,42 +93,43 @@ var grounded := false
 var stack_key := 0.0
 ## What's drawn and solid for this member: [MeshInstance3D, CollisionShape3D] pairs. One while it
 ## stands; when it snaps, one per piece (they move into rubble but stay this member's).
-var pieces: Array = []
+var pieces: Array = _NO_PIECES
 ## StructuralAnalysis's note of what doesn't change while it stands (axis, where it bears on its
 ## supports); not saved.
-var analysis_cache := {}
+var analysis_cache: Dictionary = _NO_CACHE
 
 # Fire (FireSystem runs it): degrees C, alight or not, how deep the char has gone from each face
 # (m), how long it's been alight, and whether it's burnt away to nothing.
 ## Once the fire has met it, its temperature, water, char and burn time live in the fire's core
 ## (FireSystem's `_core`: the native FireCore, or FireCoreScript), slot `fire_slot`, where the
 ## fire's tick works them out (more-cores step 8); these read and write them there.
-var temperature: float:
-	get: return fire_core.temperature(fire_slot) if fire_slot >= 0 else _temperature
+## (Each keeps its value in its own storage until then: a script var is ~80 B a member, #1270.)
+var temperature := 20.0:
+	get: return fire_core.temperature(fire_slot) if fire_slot >= 0 else temperature
 	set(v):
 		if fire_slot >= 0:
 			fire_core.set_temperature(fire_slot, v)
 		else:
-			_temperature = v
+			temperature = v
 var burning := false:
 	set(v):
 		burning = v
 		if fire_slot >= 0:
 			fire_core.set_flag(fire_slot, FireCoreScript.F_BURNING, v)
-var char_depth: float:
-	get: return fire_core.char_depth(fire_slot) if fire_slot >= 0 else _char_depth
+var char_depth := 0.0:
+	get: return fire_core.char_depth(fire_slot) if fire_slot >= 0 else char_depth
 	set(v):
 		if fire_slot >= 0:
 			fire_core.set_char_depth(fire_slot, v)
 		else:
-			_char_depth = v
-var burn_time: float:
-	get: return fire_core.burn_time(fire_slot) if fire_slot >= 0 else _burn_time
+			char_depth = v
+var burn_time := 0.0:
+	get: return fire_core.burn_time(fire_slot) if fire_slot >= 0 else burn_time
 	set(v):
 		if fire_slot >= 0:
 			fire_core.set_burn_time(fire_slot, v)
 		else:
-			_burn_time = v
+			burn_time = v
 var consumed := false:
 	set(v):
 		consumed = v
@@ -131,23 +137,19 @@ var consumed := false:
 			fire_core.set_flag(fire_slot, FireCoreScript.F_CONSUMED, v)
 ## Litres of water soaked into it (a bucket thrown on it): while it's wet, heat goes into drying it
 ## and it gets no hotter than boiling (FireSystem._heat). Dries in the air and the heat.
-var wet: float:
-	get: return fire_core.wet(fire_slot) if fire_slot >= 0 else _wet
+var wet := 0.0:
+	get: return fire_core.wet(fire_slot) if fire_slot >= 0 else wet
 	set(v):
 		if fire_slot >= 0:
 			fire_core.set_wet(fire_slot, v)
 		else:
-			_wet = v
+			wet = v
 ## The fire's core and this member's slot in it (-1: the fire hasn't met it).
 var fire_core: Object = null
 var fire_slot := -1
-var _temperature := 20.0
-var _char_depth := 0.0
-var _burn_time := 0.0
-var _wet := 0.0
 ## Bullet holes, in member space: {entry: Vector3, exit: Vector3, through: bool, radius: float}.
 ## Kept for saving (the difference from the authored town) and drawn by member_holes.gdshader.
-var holes: Array[Dictionary] = []
+var holes: Array[Dictionary] = _NO_HOLES
 ## Broken members are gone from the world (a shattered pane). Saved.
 var broken := false:
 	set(v):
@@ -198,6 +200,50 @@ var _rest_data = null
 ## Whether resting members' nodes are freed (the switch for a before/after, tests).
 static var free_at_rest := not "--keep-rest-nodes" in OS.get_cmdline_user_args()
 const _PLAIN_METAS: Array[StringName] = [&"board", &"board_ground", &"strips_rng"]
+
+## Shared empties, read-only, for what most members never fill (an empty container is ~0.1-0.15 KB a
+## member, #1270): whatever fills one gives the member its own first (`holes`, `pieces` below;
+## `analysis_cache` is only ever replaced whole).
+static var _NO_PIECES: Array = _read_only([])
+static var _NO_CACHE: Dictionary = _read_only({})
+static var _NO_HOLES: Array[Dictionary] = _no_holes()
+
+
+static func _read_only(c: Variant) -> Variant:
+	c.make_read_only()
+	return c
+
+
+static func _no_holes() -> Array[Dictionary]:
+	var a: Array[Dictionary] = []
+	a.make_read_only()
+	return a
+
+
+## Its analysis's note forgotten (moved, relinked: StructuralAnalysis.geometry_of works it out again).
+func forget_analysis() -> void:
+	analysis_cache = _NO_CACHE
+
+
+## Its holes, its own to add to.
+func _own_holes() -> void:
+	if holes.is_read_only():
+		holes = []
+
+
+## Its pieces, its own to add to.
+func own_pieces() -> void:
+	if pieces.is_read_only():
+		pieces = []
+
+
+## Something damaged it: its structure told first (it unbatches it and re-checks its loads: a direct
+## call, as two bound connections a member were ~1.2 KB, #1270), then whatever listens to `damaged`.
+func _report_damage() -> void:
+	var s := get_parent() as Structure
+	if s != null:
+		s.member_damaged(self)
+	damaged.emit()
 
 
 ## The wood its mesh is drawn in: its `look`, else its own.
@@ -274,7 +320,7 @@ func rest(free_nodes := false) -> void:
 		_rest_data = [mi.name, mi.mesh, mi.material_override, mi.transform, mi.visible, mi.cast_shadow, mi.layers, metas, cs.name]
 		_rest_mesh = null
 		_rest_shape = null
-		pieces = []
+		pieces = _NO_PIECES
 		mi.free()
 		cs.free()
 
@@ -571,9 +617,10 @@ func add_hole(entry: Vector3, exit: Variant, radius: float) -> void:
 	var local_entry := inv * entry
 	var through := exit != null
 	var local_exit: Vector3 = inv * (exit as Vector3) if through else local_entry
+	_own_holes()
 	holes.append({"entry": local_entry, "exit": local_exit, "through": through, "radius": radius})
 	_draw_holes()
-	damaged.emit()
+	_report_damage()
 
 
 func _draw_holes() -> void:
@@ -772,7 +819,7 @@ func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, r
 	var seed := _carve_local(local_entry, local_to, through, radius, spall)
 	if seed != 0:
 		_throw_chips(direction, seed)
-	damaged.emit()
+	_report_damage()
 
 
 ## The carving itself, in the member's own space: the hole on its record, the channel and its spall
@@ -781,6 +828,7 @@ func carve_hit(entry: Vector3, to: Vector3, through: bool, direction: Vector3, r
 func _carve_local(local_entry: Vector3, local_to: Vector3, through: bool, radius: float, spall: float) -> int:
 	var t := voxel_damage_tuning()
 	var seed := hash(member_id) + holes.size() * 7919
+	_own_holes()
 	holes.append({"entry": local_entry, "exit": local_to, "through": through, "radius": radius, "spall": spall})
 	var removed: int = voxels.carve(local_entry, local_to, radius * t.channel_scale, spall, seed, t.ragged, t.flare,
 			-1 if is_masonry() else axis_index(), t.grain_split, t.island_max, t.chips_per_hit)
@@ -808,10 +856,11 @@ func restore_holes(list: Array) -> void:
 		if carved:
 			_carve_local(entry, exit, bool(h.through), float(h.radius), float(h.get("spall", 0.0)))
 		else:
+			_own_holes()
 			holes.append({"entry": entry, "exit": exit, "through": bool(h.through), "radius": float(h.radius)})
 	if not carved:
 		_draw_holes()
-	damaged.emit()
+	_report_damage()
 
 
 ## The worker's mesh: drawn and solid as carved. The outside keeps the member's own material; the

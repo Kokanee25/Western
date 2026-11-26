@@ -673,7 +673,7 @@ func _consume(m: StructureMember) -> void:
 				# else hangs on it.
 				if body is RigidBody3D and not Structure.has_solid_shape(body):
 					body.queue_free.call_deferred()
-	m.pieces.clear()
+	m.pieces = []
 	Events.member_broken.emit(m.member_id)
 	if was_standing and m.get_parent() is Structure:
 		var s := m.get_parent() as Structure
