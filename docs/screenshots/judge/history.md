@@ -510,3 +510,7 @@ Verdict on AI slop / cheap indie / good indie / AA / AAA-feeling; the tells it f
 | 2026-11-25_line_shack_r1 | back | **cheap indie** | 2, 3, 4, 5, 6, 7, 9 | Backdrop card cut off mid-cliff | 4% / 6.8 / 12.81 / 0.08 | #1250 the line shack, lab street (a front, b back, c inside, d inside to the door) |
 | 2026-11-25_line_shack_r1 | inside | **cheap indie** | 1, 2, 4, 5, 6 | Flat, sourceless interior light | 32% / 0.8 / 1.29 / 0.14 | #1250 the line shack, lab street (a front, b back, c inside, d inside to the door) |
 | 2026-11-25_line_shack_r1 | inside_door | **good indie** | 2, 4, 5, 6 | Duplicated bunks and pegs | 65% / 0.0 / 1.68 / 0.18 | #1250 the line shack, lab street (a front, b back, c inside, d inside to the door) |
+| railroad_saloon_r1 | front | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 9 | The cliff is a cardboard cut-out | 5% / 6.8 / 2.95 / 0.12 | #1286 lab renders: raw board-and-batten, undressed |
+| railroad_saloon_r1 | rear | **cheap indie** | 2, 3, 4, 5, 6, 7, 8 | Lumpy green blobs on the sand | 13% / 4.6 / 1.61 / 0.19 | #1286 lab renders: raw board-and-batten, undressed |
+| railroad_saloon_r1 | bar | **cheap indie** | 2, 3, 4, 5, 6, 7 | A saloon with nothing in it | 90% / 0.0 / 0.82 / 0.27 | #1286 lab renders: raw board-and-batten, undressed |
+| railroad_saloon_r1 | upstairs | **cheap indie** | 1, 2, 3, 4, 5, 6, 7, 9 | Light leaking through the seams | 79% / 0.5 / 1.77 / 0.06 | #1286 lab renders: raw board-and-batten, undressed |

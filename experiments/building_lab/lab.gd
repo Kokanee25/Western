@@ -80,7 +80,12 @@ func _ready() -> void:
 		side_walk.steps = flights
 		side_walk.end_steps = [Vector2(1, 0.0)]
 		add_child(side_walk)
-	add_child(boardwalk)
+	# A lot with no walk (#1286, the Railroad Saloon on Back Street: `lot.walk: false`): its own steps only.
+	if spec.lot.get("walk", true):
+		add_child(boardwalk)
+	else:
+		boardwalk.free()
+		boardwalk = null
 	fittings = Fittings.new()
 	fittings.name = "Fittings"
 	add_child(fittings)

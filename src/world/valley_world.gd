@@ -362,7 +362,8 @@ func _make_buildings() -> void:
 	var tops := {}
 	for w: Dictionary in markers.town.walks:
 		tops[String(w.id)] = float(w.top)
-	for side: String in ["north", "south"]:
+	# (and the town's extras with one: the Railroad Saloon behind Back Street, #1286; no walk, its floor on its pad)
+	for side: String in ["north", "south", "extras"]:
 		for l: Dictionary in layout.lots(side):
 			if not l.has("spec"):
 				continue

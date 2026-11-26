@@ -443,3 +443,19 @@ Record: `church/README.md`. What it taught:
 - **A wing's partitions on its joists' lines** (0.145 + 0.406 k), and floors in 12 ft stock (`board_length`): the
   crowd check bears a board piece's whole crowd at its middle.
 
+
+## A small saloon whose floor falls (#1285, #1286, the Railroad Saloon)
+
+- **A storey with knee walls isn't a loft.** With its floor 1.2 m under the plates, the rafters had followed only the
+  first upper floor's joists (the loft's tie) and left two bays bare. The builder now spaces them on their own.
+- **No door in a 4 ft knee wall:** an upstairs door goes in a gable, its head under the rafters at its edge.
+- **Dressing heights are over the ground floor's top**, not the pad: upstairs props set at the floor's own height
+  dropped 0.375 m and the valley's save found them moved. A hanging lamp's `at` is its foot, 1.01 under its hook.
+- **A gable sign on board-and-batten** sits on the battens, in their band: on the boards it hung on nothing.
+- **A sheet's or plan's folder gets a `.gdignore`**, or the import writes `.import` files for every panel.
+- **A building on a town extra** (`valley.json` `town.extras` with `spec` and `pad`): the valley builds it as a lot's,
+  its floor on its pad (no walk; `lot.walk: false` in the lab).
+- **A crowd on a floor that falls** (`crowd_bench.gd`):
+  - Load each man's board from the members' boxes. A ray down from his feet starts inside his own blocker and
+    missed a whole half of the floor.
+  - A standing HumanBody doesn't fall when his floor goes: the bench sends him limp when his board breaks.

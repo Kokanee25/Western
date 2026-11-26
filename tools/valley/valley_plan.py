@@ -366,7 +366,7 @@ class Terrain:
 			self._blend(X, Z, H, p["at"][0], p["at"][1], pd["w"], pd["d"], pd.get("heading", 90), pd.get("blend", 30), lambda X, Z, y=y: np.full(X.shape, y))
 		# A town lot dug level for the building on it (#765, the doctor's: Sean's pad on a rising lot):
 		# its `pad` {y, x: [x0, x1], z: [z0, z1], blend} levelled, the bank `blend` m round it.
-		for side in ("north", "south"):
+		for side in ("north", "south", "extras"):  # (an extra's too: the Railroad Saloon's, #1286)
 			for l in self.data["town"].get(side, []):
 				lp = l.get("pad")
 				if not lp:

@@ -213,7 +213,7 @@ func test_main_loads_one_world() -> void:
 func test_the_valley_specs_ship_in_the_export() -> void:
 	var v := _valley()
 	var n := 0
-	for side: String in ["north", "south"]:
+	for side: String in ["north", "south", "extras"]:
 		for l: Dictionary in v.lots(side):
 			if not l.has("spec"):
 				continue
