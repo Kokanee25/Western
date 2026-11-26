@@ -66,6 +66,12 @@ func _run() -> void:
 	building.structure_id = &"railroad_saloon_lab"
 	building.transform = frame
 	street.add_child(building)
+	# The doors' leaves, hidden for the views inside (open, one fills the view from beside it).
+	var leaves: Array = []
+	for m in building.get_members():
+		if String(m.member_id).contains("/door_"):
+			building.unbatch(m)
+			leaves.append(m)
 	var cam := Camera3D.new()
 	cam.name = "SaloonCamera"
 	cam.far = 900.0
@@ -77,6 +83,8 @@ func _run() -> void:
 		if not only.is_empty() and not only.has(v):
 			continue
 		var view: Array = VIEWS[v]
+		for m in leaves:
+			m.visible = v == "front" or v == "rear"
 		clock.set_time(float(view[3]))
 		cam.global_position = frame * (view[0] as Vector3)
 		cam.look_at(frame * (view[1] as Vector3), Vector3.UP)

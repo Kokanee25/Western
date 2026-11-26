@@ -163,6 +163,7 @@ spec = {
 		"roof_pitch": 39.81,
 		"roof_from": -0.3,
 		"roof_to": r(D + 0.3),
+		"roof_tight": True,
 	},
 	"frame": {
 		"_doc": ("A balloon frame, cheap (Bell 1858; Woodward 1865): rough-sawn full sizes, studs sill to plate, the dance floor's "
@@ -285,11 +286,22 @@ spec = {
 	},
 	"dust": {"_doc": "dust sifts through the square-edged boards onto the bar; a fall under anyone moving upstairs (FloorDust); on Payday's last seconds, into the drinks", "floor": "dance_mid", "rest": 0.25, "motes": 50},
 	"materials": {
-		"_doc": "Step 4's: all raw. Outside the library's rough_pine_batten (approved R1 family), weathered; inside the same, unplaned; the floors FL1 worn hard. Never 'trial': true.",
+		"_doc": ("Step 4's, as the line shack's (#1250: raw board-and-batten gone grey-brown, the homestead's rough class): "
+			"the siding and battens rough_pine_batten old, the roof boards, doors, trim, stair and landing hewn_pine_log "
+			"old (weathered silver-tan), the framing rough_pine_batten few, both floors floor_fir_worn old. Never 'trial': true."),
 		"wear": {"use": 1.0, "dings": 0.0, "_why": "a year of track gangs' boots, sawdust and spit; dents off until the judges like them (#901)"},
-		"floor": "wood:int_floor", "wall_boards": "rough", "timber": "wood:int_timber", "roof": "weathered_pine", "rough": "framing", "deck": "weathered_pine",
-		"finishes": {"exterior": {"use": {"entry": "rough_pine_batten", "age": "old", "role": "wall"}},
-			"floor": {"use": {"entry": "floor_fir_worn", "age": "old", "role": "floor"}}},
+		"floor": "wood:int_floor", "wall_boards": "int_boards", "timber": "wood:int_timber", "woodwork": "wood:int_timber",
+		"trim_outside": "weathered_pine", "roof": "weathered_pine", "rough": "framing", "deck": "weathered_pine",
+		"finishes": {
+			"boards": {"use": {"entry": "rough_pine_batten", "age": "old", "role": "wall"}},
+			"rough": {"use": {"entry": "hewn_pine_log", "age": "old", "role": "wall"}},
+			"floor": {"use": {"entry": "floor_fir_worn", "age": "old", "role": "floor"}},
+			"framing": {"use": {"entry": "rough_pine_batten", "age": "few", "role": "wall"}},
+		},
+		"surfaces": [["/siding/", "boards"], ["/batten", "boards"], ["roof/board", "rough"], ["/door_", "rough"], ["/trim_", "rough"],
+			["landing/", "rough"], ["stair/outside/", "rough"], ["stair/front/", "rough"], ["stair/back/", "rough"],
+			["/joist/", "framing"], ["floor/", "floor"], ["sill/", "framing"], ["/stud", "framing"], ["/post", "framing"],
+			["beam/", "framing"], ["/ribbon", "framing"], ["/plate", "framing"], ["roof/rafter", "framing"], ["roof/collar", "framing"]],
 	},
 	"sources": [
 		"USDA Forest Products Laboratory, Wood Handbook (FPL-GTR-282, 2021), ch. 5 Table 5-3a (ponderosa pine MOR, MOE), ch. 7 (strength ratios of knotty timber)",
@@ -302,7 +314,7 @@ spec = {
 # ---------------------------------------------------------------- the walls
 def wall(id_, line, out, top, openings, doc):
 	return {"_doc": doc, "id": id_, "line": line, "out": out, "top": top,
-		"outside": {"siding": "vertical", "wood": "rough_pine_batten", "battens": True},
+		"outside": {"siding": "vertical", "wood": "weathered_pine", "battens": True},
 		"inside": [{"level": "ground", "from": 0.1, "to": r((W if out in ("-z", "+z") else D) - 0.1), "finish": "rough", "to_y": r(GIRDER_TOP - 0.15)},
 			{"level": "upper", "from": 0.1, "to": r((W if out in ("-z", "+z") else D) - 0.1), "finish": "rough"}],
 		"openings": openings}
