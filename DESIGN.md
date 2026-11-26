@@ -13,7 +13,7 @@ without asking Sean.
 - **§1 The game in one paragraph** — the premise: a homesteader with the valley's spring claim,
   the railroad thirty days out, an outlaw gang, and a town that remembers.
 - **§2 Pillars** — systems not scripts; consequences that stay; people you can talk to; grounded
-  and gritty with humour; a small world, deep.
+  and gritty with humour; a small world, deep; everything you do gets an answer (2026-11-26).
 - **§3 Platform, view, time, saving** (decided) — PC first, Godot 4, first person only, a
   45-minute day on a 30-day railroad clock, save only in a bed, death wakes you at the doctor's.
 - **§4 The look** (decided; **changed 2026-11-04: realistic, in Red Dead Redemption 2's direction**;
@@ -76,6 +76,17 @@ when you push on it.
    has lasting consequences.
 5. **A small world, deep.** One valley done thoroughly beats a big empty map. Build a few systems that
    interact heavily rather than many that don't.
+6. **Everything you do gets an answer** (**decided**, Sean 2026-11-26). Fun here is interaction, so
+   answers are maximised, not buttons. Every scene and system is held to four rules:
+   - **Every verb gets an answer at once:** the person it's done to and the people who saw it each
+     react, in words that match what they saw.
+   - **Every answer leaves a mark:** regard moves, the news carries it, someone brings it up later.
+   - **No scene holds the player still:** if you're in the room you can act, and the scene hands
+     over to the systems when you do (pillar 1).
+   - **People start things with you:** a greeting when you sit, a remark when you go bust, a
+     question when you stand too close.
+   It's measured: a blind playtest runs each verb in a scene and counts how many got a reaction at
+   once, how many moved regard, and how many were mentioned again within a day.
 
 ## 3. Platform, view, time, saving (all **decided**)
 
