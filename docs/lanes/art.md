@@ -46,6 +46,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   saloon B is Fable's (#848: step 1 done, below).
 - **The church** (#1203, `church/` README r7): open truss nave. Open: #1217 (ceiling), #1202 q2 (pews). Render: swap + lavapipe.
 - **The hotel** (#1220, #1226, #1247; `hotel/` README, `make_spec.py`): layout A and the kitchen wing built and tested in the lab (15.7k members, test cap 16k); P7-P9 approved (blue-grey and cream new+few, red few+old, judged without the yardstick: it isn't in the Studio checkout) so it draws them; judge round 1 `hotel/results/2026-11-25_r1`: round 1 cheap indie all four (the lab stood the hotel ~0.2 m under the sand: fixed, a walk and steps added); round 2 (`results/2026-11-25_r2`): stair hall good indie, the rest cheap indie (flat blue siding, empty rooms, no haze). Two rounds used. Not on its lot till #1227. Next: P7's far hue, the dressing (arch casing, newel lamps, mirror, chandelier: the prop lab's), plaster #1225.
+- **The Railroad Saloon, THE SILVER SPIKE** (#1285 design; build #1286, after slice; `railroad_saloon/` README, `make_spec.py`): 24 x 30 ft, the dance floor upstairs falls on Payday (the 6x12 girder's middle bay sawn: 0.82x the packed reel, 2x an ordinary night). Sheet $1.41; Sean's OK on it pending (#1285). Not built; the branch merges with the build.
 - **Harlan's homestead** (#1126, #1160, `homestead/` README): look pass 1 merged: R3 `hewn_pine_log`, R4 `fieldstone_rubble` (unapproved: no yardstick for the materials judge), pines and grass by ValleyScatter's `place` rule, the spring on posts. Left: golden light, thinner pines, chimney courses, yard props.
 - **The line shack** (#1250, PR #1267; `line_shack/` README): in No Justice from its spec (861 members); Joe reaches Kett 10/10. Not built: patches, shutter, guys. Kit: #1263.
 - **The undertaker's** (#1174, `undertaker/` README): built, on its lot, its cellar dug (`CellarDig`) and walked. Props in (U1, #1181). **Grim** (#1187): old blood by its `past` (`PastStains`: Blood splats, FloorMarks stains), a smoky lamp, CellarHaze; embalming good indie. Damp waits on Sean (#1197); the black trim wants `painted_black_trim`.
@@ -63,7 +64,6 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   dig moves the card set's ground). Doors swing clear (`Checks.door_swings`, `test_building_doors.gd`, #1266). Traps: RECIPE "A
   two-storey building under trusses"; `reduce.py` rewrites the vram signs' `.import` files short (restore from git).
 - **Floors and furniture, still open:** FL1's path a milky haze, FN1 laminate-looking (no pores, ray fleck): #964 (slice, week 3).
-- Lighting (#711): saw-tooth sun shadows, rim light, shadows under feet, shade fill. Parked: paint round 2 (#804). Waiting on Sean: #615, #608, #641.
 - **The doctor's walls, windows and light** (#826, #824, #829): RECIPE.md "Walls and windows", "Light".
 
 ## Traps
