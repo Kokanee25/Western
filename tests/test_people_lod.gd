@@ -63,6 +63,7 @@ func test_a_cast_man_is_the_private_level_only_when_laid_in() -> void:
 	check(bool(c.get("everyone", false)), "everyone else is cast too")
 	check(not bool(c.get("release", true)), "off in release builds until the encryption (#1176)")
 	var was_on: bool = c.get("on", true)
+	PeopleBodies.cast_suspended = false
 	c["on"] = false
 	check_eq(PeopleBodies.cast_model(&"townsman", &"storekeeper_s1_talking"), &"storekeeper_s1_talking",
 			"the cast off: his own man, laid in or not")
@@ -96,5 +97,6 @@ func test_a_cast_man_is_the_private_level_only_when_laid_in() -> void:
 	check_eq(man.hat_color.a, 0.0, "the loudmouth goes bareheaded")
 	man.free()
 	c["on"] = was_on
+	PeopleBodies.cast_suspended = true
 
 

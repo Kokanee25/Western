@@ -610,6 +610,8 @@ static func _to_root(n: Node3D) -> Transform3D:
 
 const CAST_PATH := "res://config/private_cast.json"
 static var _cast: Variant = null
+## Off while the tests run (tests/run_tests.gd): their men are made as they say.
+static var cast_suspended := false
 ## The shapes a cast man's tints go on (config/private_cast.json `looks`): each key is a shape of his
 ## model (`skin` takes his head too).
 const CAST_TINTS := ["hat", "vest", "shirt", "trousers", "skin"]
@@ -630,7 +632,7 @@ static func _cast_data() -> Dictionary:
 ## public releases never carry the private files anyway).
 static func cast_on() -> bool:
 	var c := _cast_data()
-	if String(c.get("build", "")) == "" or not bool(c.get("on", true)):
+	if cast_suspended or String(c.get("build", "")) == "" or not bool(c.get("on", true)):
 		return false
 	return OS.is_debug_build() or bool(c.get("release", false))
 
