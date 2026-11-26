@@ -54,6 +54,9 @@ var carry: PlayerCarry
 var knock: PlayerKnock
 ## Sleeping in a bed: the night passes and the game is saved (E at a bed; #1148).
 var sleep: PlayerSleep
+## Money in your pocket and a drink in your hand (#1292).
+var purse: PlayerPurse
+var drink: PlayerDrink
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -189,6 +192,14 @@ func _arm() -> void:
 	sleep.name = "Sleep"
 	sleep.player = self
 	add_child(sleep)
+	purse = PlayerPurse.new()
+	purse.name = "Purse"
+	purse.player = self
+	add_child(purse)
+	drink = PlayerDrink.new()
+	drink.name = "Drink"
+	drink.player = self
+	add_child(drink)
 
 
 func revolver() -> RevolverViewmodel:
@@ -434,6 +445,8 @@ func _physics_step(delta: float) -> void:
 		speed = tuning.run_speed * (1.0 - tuning.winded_slow * blown)
 	var wish := global_transform.basis * Vector3(move.x, 0.0, move.y)
 	wish.y = 0.0
+	if drink:
+		wish = drink.weave(wish)  # drunk, your walk weaves (#1292)
 	speed *= move_factor * burden * (shove.pace() if shove else 1.0) * (carry.pace(wish) if carry else 1.0)
 	var target := Vector2(wish.x, wish.z) * speed
 

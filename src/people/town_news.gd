@@ -50,7 +50,11 @@ const LOOK_EVERY := 1.0
 ## Overnight, this big and more reaches everyone; less, and only told, it fades.
 const OVERNIGHT := 0.5
 ## The size of a version by what it holds.
-const SIZES := {&"killing": 1.0, &"shooting": 0.7, &"down": 0.4, &"cheat": 0.35, &"shots": 0.3, &"rough": 0.2, &"cards": 0.15}
+const SIZES := {&"killing": 1.0, &"shooting": 0.7, &"down": 0.4, &"cheat": 0.35, &"shots": 0.3, &"rough": 0.2, &"cards": 0.15, &"bar": 0.15}
+## The bar (#1292, BarService): a round Harlan stood the house, Harlan drunk, the deputy drinking on duty; a
+## record of its own like the table's (`rough` true, never merged with shots, told after `ROUGH_TELL_S`),
+## `bar` the verb. Held by the men the bar names and those who saw it.
+const BAR_NEWS := [&"round", &"drunk", &"deputy"]
 ## The card table (#1279, CardGame.you_did by ValleyFolk): what's news of it, a record of its own like a
 ## shove's (`rough` true, so never merged with shots, and not told till `ROUGH_TELL_S` after), `cards` the
 ## verb: a pot Harlan took, his bluff shown up (small, `cards`), a cheat he called true or false (`cheat`:
@@ -187,6 +191,31 @@ func table(verb: StringName, info: Dictionary, at: Vector3) -> void:
 		v["cards"] = verb
 		v.who = HARLAN
 		v.whom = r.whom
+		if v.where == "":
+			v.where = _place(at)
+
+
+## The bar's news (#1292): `men` hold it, and every man who sees Harlan within `ROUGH_SEEN_M`.
+func bar(verb: StringName, men: Array, at: Vector3) -> void:
+	if not verb in BAR_NEWS:
+		return
+	var r := _new_record(&"rough", at)
+	r["rough"] = true
+	r["bar"] = verb
+	r.who = HARLAN
+	var harlan: Node3D = null
+	if folk != null and folk.is_inside_tree():
+		harlan = folk.get_tree().get_first_node_in_group(&"player") as Node3D
+	for b: CivilianBrain in brains:
+		if not is_instance_valid(b) or b.body == null or not b.body.physiology.is_conscious():
+			continue
+		if not men.has(b.body) and (harlan == null or b.body.global_position.distance_to(at) > ROUGH_SEEN_M \
+				or b.senses == null or not b.senses.sees(harlan)):
+			continue
+		var v := _version(b.body.person_id, r, &"saw")
+		v["rough"] = true
+		v["bar"] = verb
+		v.who = HARLAN
 		if v.where == "":
 			v.where = _place(at)
 
@@ -423,6 +452,8 @@ static func kind_of(v: Dictionary) -> StringName:
 		return &"down"
 	if v.get("cards", &"") != &"":
 		return &"cheat" if String(v.cards).begins_with("cheat") else &"cards"
+	if v.get("bar", &"") != &"":
+		return &"bar"
 	if v.get("rough", false):
 		return &"rough"
 	return &"shots" if int(v.shots) > 0 else &""
@@ -797,6 +828,10 @@ func line_of(pid: StringName, rid: int, to := &"") -> String:
 		# The card table (#1279): news.cards.<verb>, ".you" to his face (the man called a cheat: "me").
 		var base := "news.cards." + String(v.cards)
 		head = [base + ".you"] if v.who == HARLAN and to == HARLAN else ([base] if v.who != &"" else [base + ".nobody"])
+	elif k == &"bar":
+		# The bar (#1292): news.bar.<verb>, ".you" to his face.
+		var base := "news.bar." + String(v.bar)
+		head = [base + ".you"] if v.who == HARLAN and to == HARLAN else [base]
 	elif k == &"rough":
 		# A shove (#1272): to his face, "you"; the man it was done to says "me".
 		head = ["news.rough.you"] if v.who == HARLAN and to == HARLAN else (["news.rough"] if v.who != &"" else ["news.rough.nobody"])
@@ -854,6 +889,13 @@ func _built_head(v: Dictionary, to: StringName, here := false) -> String:
 				&"cheat_true":
 					return "%s caught %s dealing off the bottom, %s." % [doer, _whom(v), at]
 			return "%s called %s a cheat at cards, %s." % [doer, _whom(v), at]
+		&"bar":
+			match StringName(v.bar):
+				&"round":
+					return "%s stood the house a round, %s." % [_doer(v, to), at]
+				&"drunk":
+					return "%s got good and drunk, %s." % [_doer(v, to), at]
+			return "%s took a drink on duty, %s." % [_doer(v, to), at]
 		&"rough":
 			if v.who != &"":
 				return "%s shoved %s about, %s." % [_doer(v, to), _whom(v), at]

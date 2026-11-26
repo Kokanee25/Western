@@ -383,7 +383,9 @@ func _update_sway(delta: float) -> void:
 		steady = 0.0
 	var scale := _player.composure.sway_scale() if _player and _player.composure else 1.0
 	var winded := _player.composure.winded if _player and _player.composure else 0.0
-	var amp := (t.sway_aim if aiming else t.sway_hip) * lerpf(t.unsettled, 1.0, clampf(steady / maxf(t.settle_time, 0.01), 0.0, 1.0))
+	# Drink in you, the aim takes longer to settle (#1292, PlayerDrink.settle_scale).
+	var settle := t.settle_time * (_player.drink.settle_scale() if _player and _player.drink else 1.0)
+	var amp := (t.sway_aim if aiming else t.sway_hip) * lerpf(t.unsettled, 1.0, clampf(steady / maxf(settle, 0.01), 0.0, 1.0))
 	if _player and _player.is_crouching:
 		amp *= t.crouch_sway
 	amp = (amp + moving * t.move_sway) * scale * sway_factor

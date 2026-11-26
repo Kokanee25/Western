@@ -388,7 +388,12 @@
       "cheat_false": {"liking": -0.25, "trust": -0.2, "respect": -0.1},
       "caught_him": {"liking": -0.4, "fear": 0.25},
       "accused_him": {"liking": -0.4, "trust": -0.3, "respect": -0.1},
-      "carry": {"trust": 0.2, "liking": 0.2, "respect": 0.2}
+      "carry": {"trust": 0.2, "liking": 0.2, "respect": 0.2},
+      "_bar": "#1292, the bar (BarService): the barkeep likes a paying man a little each time (`bought`, his alone); a round stood warms the room (`round`, every man in it); the deputy drinking on duty (`deputy_drinking`, those who see it) and Harlan drunk (`drunk`) cost him respect and trust.",
+      "bought": {"liking": 0.03},
+      "round": {"liking": 0.25, "respect": 0.05},
+      "deputy_drinking": {"respect": -0.15, "trust": -0.1},
+      "drunk": {"respect": -0.15, "trust": -0.1, "liking": -0.03}
     },
     "show_m": 7.0, "show_clear_m": 5.0, "look_s": 0.25,
     "view": {

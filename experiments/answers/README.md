@@ -113,3 +113,19 @@ After (`after_table`, raise from `after_table3`, call `after_table3`):
 A cheat called true (Earl dealt from the bottom this hand or the last; 30% of his deals) wasn't met on the bench's
 run: tests/test_card_answers.gd holds it (Earl "caught", the drifter "cheat_seen", Earl's own `caught_him`, news
 `cheat_true`), as it holds the bluff shown down and the needle after a big pot.
+
+## Step 3, the bar (#1292): `results/after_drink/`
+
+The bar's verbs (`drink bar` stands you before the barkeep; `drink buy whiskey|round` is E or G there; `drink take`,
+`drink sip 1` the glass he set you, fire to drink). They start the game `--no-murder` (`ORDINARY` in `run.py`): the
+bench's day-1 evening is No Law's night, whose scene holds the bar, and the first run's orders were all refused
+"held". Before this step none of these were verbs (no purse, no order, no glass in hand).
+
+| verb | in the room (10 m) | saw it | answered at once (the words) | regard moved | mentioned later |
+|---|---|---|---|---|---|
+| buy | 8 | 2 | the barkeep: "There you go. Fifteen cents." (in the verb's frame; the strict "saw it" leaves him out) | 1 (the barkeep: `bought`) | no (small) |
+| drink | 8 | 6 | the room's looks; nothing said at a first shot (by design: alone at the bar is 45 s, drunk is 4 drinks) | 0 | no |
+| round | 8 | 2 | the barkeep: "Round for the house, on him. Glasses up."; the miner: "Obliged to you, mister." | 11 (every man in the room) | yes: to your face, "You bought for the house, right here. I ain't forgot." (the barkeep) |
+
+Held by tests/test_drink.gd, not met on the bench's run: no money, a gun out and the cut-off refused in words; drunk
+answered (a word, regard, news); the deputy's "On duty, Deputy?"; a dropped glass's "There goes a glass."
