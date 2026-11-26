@@ -71,6 +71,14 @@ var _omega := Vector2.ZERO
 var _swinging := false
 ## Swinging, it has left the batch (drawn on its own, as a prop that moves must be).
 var _unbatched := false
+## What's in it now (litres; -1: its kit file's, full) and whether a hand has it (#1292, PlayerDrink: a
+## glass poured and drunk, a bottle poured from). Held, it's under the hand's node: its body off, its
+## meshes on the held layer, nothing of the standing checks.
+var litres := -1.0
+var held := false
+var _model_rest := Transform3D.IDENTITY
+var _layers_was := {}
+var _body_was := Vector2i.ZERO
 ## The most a swing leans (radians): past it, it's against the joist.
 const MAX_SWING := 0.7
 ## Its hook looks this far over itself for what it hangs from (m).
@@ -171,6 +179,7 @@ func _build() -> void:
 			else:
 				push_warning("GlassProp: no model %s" % other)
 	add_child(model)
+	_model_rest = model.transform
 	if definition.has("swing"):
 		# Its model (and its lights, as they come) on a pivot at its hook, turned as it swings.
 		_pivot = Node3D.new()
@@ -240,7 +249,7 @@ func _lamps() -> Array[Node]:
 
 
 func _physics_process(delta: float) -> void:
-	if broken:
+	if broken or held:
 		return
 	if loose:
 		_v_before = body.linear_velocity
@@ -649,7 +658,7 @@ func _sound(host: Node, at: Vector3) -> void:
 ## lamp oil into flames catches.
 func _let_go(host: Node, at: Vector3) -> void:
 	var contents: Dictionary = definition.get("contents", {})
-	var litres := float(contents.get("litres", 0.0))
+	var litres := litres_in()
 	if litres <= 0.0:
 		return
 	var floor_at := at
@@ -668,3 +677,93 @@ func _let_go(host: Node, at: Vector3) -> void:
 		var fire := FireSystem.find(get_tree())
 		if fire and int(fire.fire_near(floor_at, 0.6).count) > 0:
 			fire.spill(floor_at)
+
+
+# --- In a hand (#1292: Harlan's glass, PlayerDrink; the barkeep's pour, BarService) -------------------
+
+## What's in it now (litres).
+func litres_in() -> float:
+	return litres if litres >= 0.0 else float((definition.get("contents", {}) as Dictionary).get("litres", 0.0))
+
+
+## Its kit file's full (litres).
+func full_litres() -> float:
+	return float((definition.get("contents", {}) as Dictionary).get("litres", 0.0))
+
+
+## Filled or drunk to `l` litres: its liquid parts (named Liquid.. or Foam..) drawn to that level, scaled
+## up from its foot (gone when it's empty; at most its kit file's full).
+func set_litres(l: float) -> void:
+	var full := full_litres()
+	litres = clampf(l, 0.0, maxf(full, l))
+	var share := clampf(litres / full, 0.0, 1.0) if full > 0.0 else (1.0 if litres > 0.0 else 0.0)
+	if model == null:
+		return
+	if not loose and not held and is_inside_tree():
+		StaticBatch.release_in(get_tree(), self)
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		var n := String(mi.name)
+		if not (n.begins_with("Liquid") or n.begins_with("Foam")):
+			continue
+		var level := share if n.begins_with("Liquid") else (1.0 if share > 0.6 else 0.0)
+		mi.visible = level > 0.02
+		mi.scale.y = maxf(level, 0.02)
+
+
+## Taken up into a hand: `holder` its parent, `xf` its place there. Standing or knocked over (not broken).
+func take_up(holder: Node3D, xf: Transform3D) -> void:
+	if broken or held:
+		return
+	if is_inside_tree():
+		StaticBatch.release_in(get_tree(), self)
+	if loose:
+		# Off its body back to its own node (the body where the prop is, still).
+		global_transform = Transform3D(Basis(Vector3.UP, body.global_rotation.y), body.global_position)
+		model.reparent(self, false)
+		model.transform = _model_rest
+		for lamp in _lamps():
+			lamp.reparent(self, true)
+		loose = false
+	body.freeze = true
+	body.transform = Transform3D.IDENTITY
+	body.linear_velocity = Vector3.ZERO
+	body.angular_velocity = Vector3.ZERO
+	_body_was = Vector2i(body.collision_layer, body.collision_mask)
+	body.collision_layer = 0
+	body.collision_mask = 0
+	_layers_was.clear()
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		_layers_was[mi] = mi.layers
+		Layers.hold(mi)
+	held = true
+	if get_parent() != null:
+		reparent(holder, false)
+	else:
+		holder.add_child(self)
+	transform = xf
+	_under.clear()
+
+
+## Out of the hand and stood at `xf` (world) under `host`: what's under it found afresh (none: it falls).
+func put_down(host: Node, xf: Transform3D) -> void:
+	if not held:
+		return
+	held = false
+	reparent(host, false)
+	global_transform = xf
+	for mi: MeshInstance3D in _layers_was:
+		if is_instance_valid(mi):
+			mi.layers = _layers_was[mi]
+	_layers_was.clear()
+	body.collision_layer = _body_was.x if _body_was != Vector2i.ZERO else Layers.DEBRIS
+	body.collision_mask = _body_was.y if _body_was != Vector2i.ZERO else Layers.DEBRIS_MASK
+	_footed = false
+	_frames = 0
+	_under.clear()
+
+
+## Let go of in the air (dropped from a hand, `velocity` with it): it falls, and breaks if it lands hard.
+func let_fall(host: Node, velocity := Vector3.ZERO) -> void:
+	var xf := global_transform
+	put_down(host, xf)
+	wake(velocity)

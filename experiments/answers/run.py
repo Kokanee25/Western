@@ -41,6 +41,10 @@ VERBS = {
     "watch": (["goto 18.6 1.2 -17.4 90", "ans_close earl 1.6"], ["wait 0.1"], r"sit|chair|deal you|join|play|watch(ing)?|seat"),
     "knock": (["walk saloonb_front_in", "turn 180"], ["press shove"], r"knock|door|bang"),
     "crowd": (["goto 18.6 1.2 -17.4 90", "walk rancher"], ["ans_close rancher 0.6"], r"close|room|space|breath|back off|crowd"),
+    # The bar (#1292): stood before the barkeep (`drink bar`), a whiskey asked for (E there), then drunk.
+    "buy": (["drink bar"], ["drink buy whiskey"], r"whiskey|cents|pour|money|drink|glass|nickel"),
+    "drink": (["drink bar", "drink buy whiskey", "wait 4", "drink take"], ["drink sip 1"], r"drink|whiskey|glass|alone|thirst|bottle|drunk"),
+    "round": (["drink bar"], ["drink buy round"], r"round|buying|house|obliged|health|drink|neighbourly|bought"),
 }
 
 

@@ -658,6 +658,20 @@ real look RoomLight is on whatever `Settings.room_light` says.
   ValleyFolk's `door_places`, homes and day `in`s) bangs on it: three `thump`s there, a `knock` deed, the owner's
   `knock(place, by, at)` (ValleyFolk: `knocked(place, inside, by, at)`, the book's rows inside, `knocks`).
   Nobody answers on his own yet: an act does (NoLawCarry). `read player`'s `knock`.
+- `PlayerPurse` (`player_purse.gd`, #1292; `config/drink.json` `purse`, `chip_cents`): `player.purse.cents`, `pay`,
+  `take`, `money(c)` ("15 cents", "$3.40"), `say_paid`; saved (SaveGame player `purse`). CardGame buys your stake
+  with it on sitting (`_buy_in`, `stack.you` chips) and cashes it back on getting up (`_cash_out`). Bridge `purse [CENTS]`.
+- `PlayerDrink` (`player_drink.gd`, #1292; dials `config/drink.json`): E at a bar (group `bars`, BarService `at_bar`):
+  a tap a whiskey, held `hold_beer_s` a beer, `hold_bottle_s` the bottle; G there a round (PlayerWounds' shout).
+  A vessel served to you (meta `served_to`) in view within `reach`: E takes it into your left hand (`take`:
+  `GlassProp.take_up` under the camera's `DrinkHold` with a HeldHand, the held layer, body off); fire with no gun
+  out `sip` (raised over `raise_s`, a shot glass's shot in one, `swig_l` from a bottle; `drank`); E `set_down`
+  on a top ahead above your knees (`_surface_ahead`), else `drop` (`GlassProp.let_fall`: breaks by its own
+  rules); a gun drawn drops it. Seat and carry yield E to it (`claims_use`). The dial: `gut` -> `units` over
+  `absorb_h`, `burn_per_h` by the clock (held clock: `held_hour_s`; `hours_passed` burns it); `sway_scale`
+  (PlayerComposure), `settle_scale` (WeaponViewmodel's settle), `nerve_scale` (flinch and rattle, steadier round
+  one), past `body_from` the view drifts (`_body_sway`, add_look) and the walk weaves (`weave`, Player);
+  `drunk()`. No blur or tint. Saved (`drink`). Bridge `drink [bar|buy K|take|sip N|set|drop]`, `read player`'s `drink`.
 - `PlayerShove` (`player_shove.gd`, `ShoveTuning` in `config/shove.tres`; issue #479): the `shove`
   action (E, the right stick's click): tapped a shove, held past `hold_for_kick` and let go a kick
   (`leg()` poses `PlayerBody.kick_leg`, `view_pitch()` dips the view, the hands are two HeldHands
@@ -2034,6 +2048,15 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   doors only. Measured by `experiments/answers/` (its README: the table, verb by verb). Reaction's
   stages call `brain.bark` (ValleyFolk.bark_for); the undertaker's at the body (`_undertaker_says`). Pools in data
   `barks.pools`.
+  **The bar** (#1292; `BarService` `src/people/bar_service.gd`, `ValleyFolk.service`, group `bars`; dials
+  `config/drink.json` `_bar`; `tests/test_drink.gd`): `order(player, kind)` (whiskey, beer, bottle, round) answers
+  at once (TownScript `bar.*`, said every time, scene `saloon`): a gun out, past `cut_off`, short of money: refused
+  in words; else paid from the purse and poured (CivilianBrain bit `pour`: his hand to the nearest kit bottle of
+  the drink, `GlassProp.set_litres` down by `pour_l`, into a kit glass `spot_before` you; beer from the tap; the
+  bottle moved before you). Empties on the bar `collect_s` he takes away; a glass of his broken: `bar.broke`.
+  Answers: `bought` (his regard), a round (`toast` bits, `bar.round.thanks`, regard `round`, TownNews `bar`
+  round), the deputy (`bar.deputy`, news), you drunk (`bar.drunk`, regard, news), alone at the bar (`bar.alone`).
+  SaloonRoom's glass on the house is a real one (`give_glass`). Bridge `drink bar` stands you before him.
   **The saloon as a room** (townsfolk step 10, #1157; `SaloonRoom` `src/people/saloon_room.gd`, data `room`,
   `tests/test_saloon_room.gd`; bridge `read room`): saloon B's bar room (`room.hall_rect`, #1230; the night's
   people at its spots: `bar_far`, `bar_near`, `room_talk_a/b/c`, `room_bar_end`). `mood` 0-1 once a second from who's

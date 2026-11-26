@@ -642,6 +642,11 @@ func _glass_step(p: Node3D, dt: float) -> void:
 
 func _set_glass(at: Vector3, man: HumanBody) -> void:
 	_clear_glass()
+	if folk.service != null:
+		# A real glass with a real shot in it (#1292): yours to pick up and drink (BarService).
+		folk.service.give_glass(at, _player())
+		_sound(&"glass_down", man, "glass", at)
+		return
 	glass = MeshInstance3D.new()
 	var m := CylinderMesh.new()
 	m.top_radius = 0.03

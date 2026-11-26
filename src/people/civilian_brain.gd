@@ -1202,6 +1202,15 @@ func _bit_step(delta: float) -> void:
 			var at: Vector3 = bit.get("at", body.global_position)
 			body.reach_to("r", at + Vector3.UP * 0.07, Vector3.UP, kk)
 			_bit_lean(&"chest", Vector3(-8.0 * kk, 0, 0))
+		&"pour":
+			# The barkeep pours (#1292, BarService): his right hand to the bottle, over the glass with it
+			# (the pour), back. `bottle` where it stood, `at` the glass.
+			var at: Vector3 = bit.get("at", body.global_position)
+			var from: Vector3 = bit.get("bottle", at)
+			var over := smoothstep(0.7, 1.1, t)
+			var kk := smoothstep(0.1, 0.6, t) * (1.0 - smoothstep(span - 0.6, span - 0.1, t))
+			body.reach_to("r", from.lerp(at + Vector3.UP * 0.2, over) + Vector3.UP * 0.12, Vector3.UP, kk)
+			_bit_lean(&"chest", Vector3(-9.0 * kk, 0, 0))
 
 
 # --- Regard (townsfolk step 9): what he shows Harlan before anyone speaks ----------------------------

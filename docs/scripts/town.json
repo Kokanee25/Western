@@ -1006,6 +1006,126 @@
       }
      ],
      "takes": []
+    },
+    {
+     "id": "news.bar.round.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Harlan stood the house a round (#1292)",
+     "when": "bar round; who Harlan; told to him",
+     "condition": "",
+     "delivery": "Warm.",
+     "words": [
+      {
+       "text": "You stood us all a drink, {at}. Decent of you.",
+       "status": "new"
+      },
+      {
+       "text": "You bought for the house, {at}. I ain't forgot.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.round",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan stood the house a round (#1292)",
+     "when": "bar round; who known",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} stood the house a round, {at}.",
+       "status": "new"
+      },
+      {
+       "text": "{who} bought for the whole bar, {at}. Free with his money.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.drunk.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Harlan was drunk (#1292)",
+     "when": "bar drunk; who Harlan; told to him",
+     "condition": "",
+     "delivery": "Not unkind.",
+     "words": [
+      {
+       "text": "You were drunk as a lord, {at}.",
+       "status": "new"
+      },
+      {
+       "text": "You could hardly stand, {at}. I saw it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.drunk",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan was drunk (#1292)",
+     "when": "bar drunk; who known",
+     "condition": "",
+     "delivery": "Telling it as a joke.",
+     "words": [
+      {
+       "text": "{who} got good and drunk, {at}.",
+       "status": "new"
+      },
+      {
+       "text": "{who} was falling about drunk, {at}.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.deputy.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: the deputy drinking on duty (#1292)",
+     "when": "bar deputy; who Harlan; told to him",
+     "condition": "",
+     "delivery": "Disapproving.",
+     "words": [
+      {
+       "text": "You were drinking on duty, {at}. With that badge on.",
+       "status": "new"
+      },
+      {
+       "text": "Badge on and a glass in your hand, {at}. I saw.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.deputy",
+     "speaker": "townsman",
+     "trigger": "His version: the deputy drinking on duty (#1292)",
+     "when": "bar deputy; who known",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} was drinking on duty, {at}, badge and all.",
+       "status": "new"
+      },
+      {
+       "text": "{who} wears the badge and drinks on duty, {at}.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
     }
    ]
   },
@@ -2682,6 +2802,330 @@
       }
      ],
      "added": "2026-11-22 (#1157)",
+     "takes": []
+    },
+    {
+     "id": "bar.serve.whiskey",
+     "speaker": "barkeep",
+     "trigger": "Harlan asks for a whiskey and has the money; he pours it",
+     "when": "said every time",
+     "if": {
+      "on": "bar.serve.whiskey"
+     },
+     "condition": "",
+     "delivery": "Pouring as he says it, not looking up.",
+     "words": [
+      {
+       "text": "Whiskey. Fifteen cents.",
+       "status": "new"
+      },
+      {
+       "text": "There you go. Fifteen cents.",
+       "status": "new"
+      },
+      {
+       "text": "Fifteen cents, and it's the good stuff. Near enough.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.serve.beer",
+     "speaker": "barkeep",
+     "trigger": "Harlan asks for a beer; he draws it from the tap",
+     "when": "said every time",
+     "if": {
+      "on": "bar.serve.beer"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Beer. That's a nickel.",
+       "status": "new"
+      },
+      {
+       "text": "Nickel for the beer.",
+       "status": "new"
+      },
+      {
+       "text": "Here. Mind the head on it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.serve.bottle",
+     "speaker": "barkeep",
+     "trigger": "Harlan asks for the bottle",
+     "when": "said every time",
+     "if": {
+      "on": "bar.serve.bottle"
+     },
+     "condition": "",
+     "delivery": "Setting it down with a look that says go easy.",
+     "words": [
+      {
+       "text": "The whole bottle. Dollar and a half.",
+       "status": "new"
+      },
+      {
+       "text": "Dollar and a half. Go easy with it.",
+       "status": "new"
+      },
+      {
+       "text": "There's your bottle. Don't make me sorry.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.no_money",
+     "speaker": "barkeep",
+     "trigger": "Harlan asks for a drink he can't pay for",
+     "when": "said every time",
+     "if": {
+      "on": "bar.no_money"
+     },
+     "condition": "",
+     "delivery": "Hand flat on the bar, not pouring.",
+     "words": [
+      {
+       "text": "Money first, friend.",
+       "status": "new"
+      },
+      {
+       "text": "No credit. Not to strangers.",
+       "status": "new"
+      },
+      {
+       "text": "Show me the coin and I'll show you the bottle.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.gun",
+     "speaker": "barkeep",
+     "trigger": "Harlan asks for a drink with a gun out in his hand",
+     "when": "said every time",
+     "if": {
+      "on": "bar.gun"
+     },
+     "condition": "",
+     "delivery": "Eyes on the gun, not on him.",
+     "words": [
+      {
+       "text": "Put that away and I'll pour.",
+       "status": "new"
+      },
+      {
+       "text": "Not with that in your hand, I won't.",
+       "status": "new"
+      },
+      {
+       "text": "Holster it. Then we'll talk about whiskey.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.cut_off",
+     "speaker": "barkeep",
+     "trigger": "Harlan asks for another past the cut-off",
+     "when": "said every time",
+     "if": {
+      "on": "bar.cut_off"
+     },
+     "condition": "",
+     "delivery": "Kind, but the bottle's gone under the bar.",
+     "words": [
+      {
+       "text": "You've had plenty. Go sleep it off.",
+       "status": "new"
+      },
+      {
+       "text": "Not another drop. Not tonight.",
+       "status": "new"
+      },
+      {
+       "text": "That's you done, friend. Come back sober.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.round",
+     "speaker": "barkeep",
+     "trigger": "Harlan stands the house a round",
+     "when": "said every time",
+     "if": {
+      "on": "bar.round"
+     },
+     "condition": "",
+     "delivery": "Loud, for the room.",
+     "words": [
+      {
+       "text": "The new man's buying! Step up, gents.",
+       "status": "new"
+      },
+      {
+       "text": "Drinks on the stranger. Don't all rush.",
+       "status": "new"
+      },
+      {
+       "text": "Round for the house, on him. Glasses up.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.round.thanks",
+     "speaker": "townsman",
+     "trigger": "Harlan stood the house a round: a man in the room thanks him",
+     "when": "once a day",
+     "if": {
+      "on": "bar.round.thanks"
+     },
+     "condition": "",
+     "delivery": "Glass lifted.",
+     "words": [
+      {
+       "text": "Obliged to you, mister.",
+       "status": "new"
+      },
+      {
+       "text": "Your health, mister.",
+       "status": "new"
+      },
+      {
+       "text": "Well now. That's neighbourly.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.alone",
+     "speaker": "barkeep",
+     "trigger": "Harlan drinking alone at the bar a while, nobody near",
+     "when": "once a night",
+     "if": {
+      "on": "bar.alone"
+     },
+     "condition": "",
+     "delivery": "Wiping a glass that's already clean.",
+     "words": [
+      {
+       "text": "Drinking on your own? There's company at the table.",
+       "status": "new"
+      },
+      {
+       "text": "Quiet sort, ain't you.",
+       "status": "new"
+      },
+      {
+       "text": "Man drinks alone, he's either thinking or hiding. Which is it?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.deputy",
+     "speaker": "barkeep",
+     "trigger": "The deputy (Harlan, with the badge) buys a drink",
+     "when": "once a day",
+     "if": {
+      "on": "bar.deputy"
+     },
+     "condition": "",
+     "delivery": "Pouring it all the same.",
+     "words": [
+      {
+       "text": "On duty, Deputy?",
+       "status": "new"
+      },
+      {
+       "text": "Sheriff never took a drink on duty. Just saying.",
+       "status": "new"
+      },
+      {
+       "text": "Badge and a bottle. That's a new one.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.drunk",
+     "speaker": "townsman",
+     "trigger": "Harlan is drunk: the barkeep if he's at his bar, else a man near who sees it",
+     "when": "once a day",
+     "if": {
+      "on": "bar.drunk"
+     },
+     "condition": "",
+     "delivery": "Half amused, half tired of it.",
+     "words": [
+      {
+       "text": "Steady, now. You've had a few.",
+       "status": "new"
+      },
+      {
+       "text": "Hold on to my bar, then. It's had worse.",
+       "status": "new"
+      },
+      {
+       "text": "Easy. The floor ain't going anywhere.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
+     "takes": []
+    },
+    {
+     "id": "bar.broke",
+     "speaker": "barkeep",
+     "trigger": "A glass of his broken (dropped, knocked, shot)",
+     "when": "said every time",
+     "if": {
+      "on": "bar.broke"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That glass cost me money.",
+       "status": "new"
+      },
+      {
+       "text": "There goes a glass.",
+       "status": "new"
+      },
+      {
+       "text": "Broom's in the corner, friend.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-26 (#1292)",
      "takes": []
     }
    ]

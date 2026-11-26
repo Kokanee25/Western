@@ -48,10 +48,12 @@ func incoming(strength: float) -> void:
 	if player == null:
 		return
 	var t := player.tuning
-	flinch = clampf(flinch + strength, 0.0, 1.0)
-	rattled = clampf(rattled + t.rattle_per_round * strength, 0.0, 1.0)
+	# A drink in you steadies the nerve a little (#1292, PlayerDrink.nerve_scale: round one drink).
+	var nerve := player.drink.nerve_scale() if player.drink else 1.0
+	flinch = clampf(flinch + strength * nerve, 0.0, 1.0)
+	rattled = clampf(rattled + t.rattle_per_round * strength * nerve, 0.0, 1.0)
 	_since_incoming = 0.0
-	player.add_look(Vector2(_rng.randf_range(-1.0, 1.0), _rng.randf_range(-0.4, 1.0)) * t.flinch_jolt * strength)
+	player.add_look(Vector2(_rng.randf_range(-1.0, 1.0), _rng.randf_range(-0.4, 1.0)) * t.flinch_jolt * strength * nerve)
 	if player.weapon != null:
 		player.weapon.jerk(t.flinch_jerk * strength, _rng)
 
@@ -70,10 +72,11 @@ func _physics_process(delta: float) -> void:
 		winded = move_toward(winded, 0.0, delta / maxf(t.winded_recovery, 0.01))
 
 
-## How many times as much the gun wanders now (winded, rattled).
+## How many times as much the gun wanders now (winded, rattled, the drink in you: #1292).
 func sway_scale() -> float:
 	var t := player.tuning
-	return lerpf(1.0, t.winded_sway, winded) * lerpf(1.0, t.rattled_sway, rattled)
+	var drink := player.drink.sway_scale() if player.drink else 1.0
+	return lerpf(1.0, t.winded_sway, winded) * lerpf(1.0, t.rattled_sway, rattled) * drink
 
 
 ## Extra spread while flinching (degrees).
