@@ -10,7 +10,7 @@
    "cmd": "goto 18.6 1.2 -17.4 90",
    "facing": 90.0,
    "ok": true,
-   "t": 27.0
+   "t": 26.97
   },
   {
    "arrived": true,
@@ -26,7 +26,7 @@
    "legs": 1,
    "ok": true,
    "slowed": "",
-   "t": 27.9,
+   "t": 27.87,
    "walked_m": 1.7
   },
   {
@@ -44,26 +44,26 @@
    "cmd": "look rancher chest",
    "facing": 89.0,
    "ok": true,
-   "pitch": -28.6,
-   "t": 27.93
+   "pitch": -28.9,
+   "t": 27.9
   },
   {
    "cmd": "weapon revolver",
    "ok": true,
-   "t": 28.45,
+   "t": 28.42,
    "weapon": "revolver in hand, 5 loaded, 24 on the belt, hammer down"
   },
   {
    "cmd": "wait 15",
    "ok": true,
-   "t": 43.47
+   "t": 43.43
   },
   {
    "cmd": "turn 0 80",
    "facing": 89.0,
    "ok": true,
-   "pitch": 51.4,
-   "t": 43.52
+   "pitch": 51.1,
+   "t": 43.47
   }
  ],
  "act": [
@@ -72,7 +72,7 @@
    "cmd": "shoot 1",
    "fired": 1,
    "ok": true,
-   "t": 44.55,
+   "t": 44.38,
    "weapon": "revolver in hand, 4 loaded, 24 on the belt, hammer down"
   }
  ],
@@ -132,7 +132,7 @@
     "fear": 0.41,
     "kind": "gun",
     "liking": -0.2,
-    "mood": "shaken",
+    "mood": "calm",
     "respect": 0.0,
     "sees": true,
     "shown": "",
@@ -165,7 +165,7 @@
     "mood": "calm",
     "respect": 0.0,
     "sees": false,
-    "shown": "",
+    "shown": "look_away",
     "stage": "none",
     "state": "in",
     "trust": -0.4
@@ -247,79 +247,83 @@
    }
   },
   "ok": true,
-  "t": 43.57
+  "t": 43.5
  },
  "watch": {
   "cmd": "ans_watch 3",
   "first": {
    "barkeep": {
-    "how": "reaction:shot_seen:act",
-    "s": 0.75
+    "how": "reaction:shot_seen:look",
+    "s": 0.05
    },
    "drifter": {
-    "how": "reaction:shot:act",
-    "s": 0.75
+    "how": "reaction:shot:look",
+    "s": 0.05
    },
    "earl": {
-    "how": "reaction:shot_seen:act",
-    "s": 0.45
+    "how": "reaction:shot_seen:look",
+    "s": 0.05
    },
    "fiddler": {
-    "how": "said",
-    "s": 0.2,
-    "text": "Lord almighty!"
+    "how": "reaction:shot_seen:look",
+    "s": 0.05,
+    "also_said": "\"Lord almighty!\""
    },
    "liveryman": {
-    "how": "reaction:shot:act",
-    "s": 1.65
+    "how": "reaction:shot:look",
+    "s": 0.05
    },
    "loudmouth": {
-    "how": "reaction:shot:act",
-    "s": 1.2
+    "how": "reaction:shot:look",
+    "s": 0.05
    },
    "miner": {
-    "how": "reaction:shot:act",
-    "s": 1.0
+    "how": "reaction:shot:look",
+    "s": 0.05
+   },
+   "pianist": {
+    "how": "reaction:shot_seen:act",
+    "s": 0.05
    },
    "rancher": {
-    "how": "said",
-    "s": 0.57,
-    "text": "Get down! Everybody down!"
+    "how": "reaction:shot_seen:look",
+    "s": 0.05,
+    "also_said": "\"Get down! Everybody down!\""
    },
    "saloon_girl": {
-    "how": "reaction:shot_seen:act",
-    "s": 0.8
+    "how": "reaction:shot_seen:look",
+    "s": 0.05
    },
    "storekeeper": {
-    "how": "reaction:shot_seen:act",
-    "s": 0.9
+    "how": "reaction:shot_seen:look",
+    "s": 0.05
    },
-   "townsman": {
+   "undertaker": {
     "how": "said",
-    "s": 0.0,
+    "s": 0.23,
     "text": "Up the street. Was that up the street?"
    }
   },
   "lines": [
    [
-    "townsman",
-    "Up the street. Was that up the street?",
-    0.0
-   ],
-   [
     "fiddler",
     "Lord almighty!",
-    0.2
+    0.22
+   ],
+   [
+    "undertaker",
+    "Up the street. Was that up the street?",
+    0.23
    ],
    [
     "rancher",
     "Get down! Everybody down!",
-    0.57
+    0.58
    ]
   ],
   "ok": true,
-  "real_ms": 3053,
-  "t": 47.58
+  "real_ms": 3066,
+  "t": 47.4
  },
  "after": {
   "barks": 2,
@@ -328,7 +332,7 @@
    "barkeep": {
     "alive": true,
     "band": "afraid",
-    "d": 6.63,
+    "d": 6.61,
     "fear": 0.56,
     "kind": "shot_seen",
     "liking": -0.2,
@@ -388,7 +392,7 @@
    "liveryman": {
     "alive": true,
     "band": "wary",
-    "d": 4.39,
+    "d": 4.34,
     "fear": 0.36,
     "kind": "shot",
     "liking": -0.2,
@@ -403,14 +407,14 @@
    "loudmouth": {
     "alive": true,
     "band": "wary",
-    "d": 4.45,
+    "d": 4.4,
     "fear": 0.36,
     "kind": "shot",
     "liking": -0.2,
     "mood": "running",
     "respect": 0.0,
     "sees": false,
-    "shown": "",
+    "shown": "look_away",
     "stage": "act",
     "state": "in",
     "trust": -0.4
@@ -418,7 +422,7 @@
    "miner": {
     "alive": true,
     "band": "wary",
-    "d": 6.87,
+    "d": 6.81,
     "fear": 0.36,
     "kind": "shot",
     "liking": -0.2,
@@ -448,7 +452,7 @@
    "rancher": {
     "alive": true,
     "band": "cold",
-    "d": 6.33,
+    "d": 6.32,
     "fear": 0.51,
     "kind": "shot_seen",
     "liking": -0.2,
@@ -463,7 +467,7 @@
    "saloon_girl": {
     "alive": true,
     "band": "afraid",
-    "d": 3.71,
+    "d": 3.65,
     "fear": 0.56,
     "kind": "shot_seen",
     "liking": -0.2,
@@ -492,7 +496,7 @@
    }
   },
   "ok": true,
-  "t": 47.63
+  "t": 47.45
  },
  "saw": [
   "barkeep",
@@ -507,6 +511,7 @@
   "barkeep",
   "earl",
   "fiddler",
+  "pianist",
   "rancher",
   "saloon_girl",
   "storekeeper"
@@ -537,31 +542,26 @@
   "earl: \"Don't shoot! I got a family!\"",
   "fiddler: \"Take it! Take whatever you want!\"",
   "earl: \"Easy. Easy, now. Nobody's hurt.\"",
+  "pianist: \"Take it! Take whatever you want!\"",
   "fiddler: \"Please, mister...\"",
-  "pianist: \"Don't shoot! I got a family!\"",
-  "fiddler: \"Put that thing away, mister. Please.\"",
   "drifter: \"Cut 'em thin, deal 'em true.\"",
   "pianist: \"You done? Lord.\"",
   "earl: \"Three, and quit smiling.\"",
   "drifter: \"Three. And make 'em good.\"",
-  "pianist: \"Don't shoot! I got a family!\"",
   "earl: \"A dollar.\"",
   "earl: \"Two pair, kings and nines. Clean deck, boys. Clean as Sunday.\"",
   "drifter: \"You're a lucky old man, Earl.\"",
-  "pianist: \"Please, mister...\"",
   "earl: \"These cards have been against me since Christmas.\"",
-  "pianist: \"Take it! Take whatever you want!\"",
   "drifter: \"Three. Don't spare me.\"",
-  "pianist: \"Don't shoot! I got a family!\"",
   "earl: \"Three.\"",
-  "stranger: \"Evening. Mind if I sit in a while?\"",
   "earl: \"A pair of nines. Lady's been kind tonight.\"",
-  "pianist: \"Please, mister...\"",
+  "stranger: \"Evening. Mind if I sit in a while?\"",
   "cody: \"Earl, you cheating son of a bitch!\"",
   "stranger: \"Don't move, friend. Whatever happens next, you sit still.\"",
   "earl: \"Now, Cody, I never...\"",
-  "saloon_girl: \"A man went down by the saloon. I never saw what took him.\"",
-  "drifter: \"There's a man down by the saloon.\"",
+  "fiddler: \"There's a man down by the saloon.\"",
+  "fiddler: \"There's a man down by the saloon.\"",
+  "barkeep: \"There's a man down by the saloon.\"",
   "fiddler: \"There's a man down by the saloon.\""
  ],
  "mentions": [
@@ -586,7 +586,7 @@
    {
     "day": 1,
     "first": "",
-    "hour": 1.76,
+    "hour": 1.77,
     "id": 2,
     "shots": 0,
     "story": false,
@@ -697,7 +697,6 @@
      "wrong": ""
     }
    },
-   "landlady": {},
    "liveryman": {
     "1": {
      "by": "",
@@ -725,6 +724,19 @@
      "where": "the saloon",
      "who": "",
      "whom": "",
+     "wrong": ""
+    },
+    "2": {
+     "by": "fiddler",
+     "dead": false,
+     "down": true,
+     "first": "",
+     "how": "told",
+     "kind": "down",
+     "shots": 0,
+     "where": "the saloon",
+     "who": "",
+     "whom": "earl",
      "wrong": ""
     }
    },
@@ -769,19 +781,6 @@
      "who": "harlan",
      "whom": "",
      "wrong": ""
-    },
-    "2": {
-     "by": "",
-     "dead": false,
-     "down": true,
-     "first": "",
-     "how": "saw",
-     "kind": "down",
-     "shots": 0,
-     "where": "the saloon",
-     "who": "",
-     "whom": "earl",
-     "wrong": ""
     }
    },
    "rancher": {
@@ -825,19 +824,6 @@
      "who": "harlan",
      "whom": "",
      "wrong": ""
-    },
-    "2": {
-     "by": "",
-     "dead": false,
-     "down": true,
-     "first": "",
-     "how": "saw",
-     "kind": "down",
-     "shots": 0,
-     "where": "the saloon",
-     "who": "",
-     "whom": "earl",
-     "wrong": ""
     }
    },
    "storekeeper": {
@@ -851,21 +837,6 @@
      "shots": 1,
      "where": "the saloon",
      "who": "harlan",
-     "whom": "",
-     "wrong": ""
-    }
-   },
-   "townsman": {
-    "1": {
-     "by": "",
-     "dead": false,
-     "down": false,
-     "first": "",
-     "how": "heard",
-     "kind": "shots",
-     "shots": 1,
-     "where": "the saloon",
-     "who": "",
      "whom": "",
      "wrong": ""
     }
@@ -894,35 +865,35 @@
    "react.gun",
    "Put that up or get out.",
    "react.gun",
-   29.9617353333334
+   29.6909090000001
   ],
   [
-   "townsman",
+   "undertaker",
    "react.shot_far",
    "Up the street. Was that up the street?",
    "react.shot_far",
-   44.5447740000002
+   44.6073950000001
   ],
   [
    "pianist",
    "react.back.saw",
    "Is he done, you reckon?",
    "react.back.saw",
-   72.2763400000003
+   72.097536666667
   ],
   [
    "miner",
    "react.back",
    "Is it done?",
    "react.back",
-   94.2142321111116
+   94.0350853333342
   ],
   [
    "pianist",
    "react.back.you",
    "You done? Lord.",
    "react.back.you",
-   155.446173111108
+   155.177421333331
   ]
  ]
 }

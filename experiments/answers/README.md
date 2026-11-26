@@ -56,7 +56,7 @@ What it showed, for the step's two verbs:
 | verb | in the room (10 m) | saw it | reacted in 3 s | regard moved | mentioned later |
 |---|---|---|---|---|---|
 | shove | 10 | 5 | 5 (all looked; the rancher said "Please, I don't want any trouble."; the barkeep "Not in my place. You want to push folks about, do it outside."; the saloon girl "Leave him be, mister.") | 5, all cold (were wary) | yes, from half a minute on: "The new man put hands on me, right here. No call for it." (the rancher); "You put hands on me, right here. I don't forget a thing like that." (to your face); told on: "...That's what the rancher says, anyhow." |
-| shot | SHOT_ROW |
+| shot | 9 | 7 | 7 (all looked or ducked; the fiddler "Lord almighty!", the rancher "Get down! Everybody down!"; no "Get in" from inside) | 7: afraid 4, cold 3 | yes: "Somebody take that iron off him."; to your face, "That was you, firing right here. One shot. I saw you." |
 
 What changed (step B):
 - The man shoved knows it, shoved from behind or not: he turns to see who and speaks up (`CivilianBrain._on_deed`).
