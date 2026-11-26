@@ -62,9 +62,15 @@ def bridge(*cmds, timeout=900):
     return out
 
 
-def start():
+# The bar's verbs (#1292) on an ordinary evening: the bench's day 1 is No Law's night, whose scene holds the
+# bar and its barkeep (SceneHold, ValleyFolk._story_on), so these start with the murder off.
+ORDINARY = ("buy", "drink", "round")
+
+
+def start(verb=""):
     subprocess.run(BRIDGE + ["stop"], capture_output=True, cwd=ROOT)
-    p = subprocess.run(BRIDGE + ["start", "--headless", "--game-args=--world=valley"], capture_output=True,
+    args = "--world=valley" + (",--no-murder" if verb in ORDINARY else "")
+    p = subprocess.run(BRIDGE + ["start", "--headless", "--game-args=" + args], capture_output=True,
                        text=True, cwd=ROOT, timeout=900)
     if p.returncode != 0:
         raise SystemExit("bridge didn't start: " + p.stdout[-400:] + p.stderr[-400:])
@@ -76,7 +82,7 @@ def moved(a, b, keys=("trust", "fear", "liking", "respect")):
 
 def one(verb):
     setup, act, words = VERBS[verb]
-    start()
+    start(verb)
     bridge("time 20.5", "wait 25")
     log = {"verb": verb, "setup": [r for r in bridge(*setup)] if setup else []}
     before = bridge("ans_snap")[0]
