@@ -129,6 +129,20 @@ in bending; the period books allowed about 1,000 psi):
   - Four small windows.
   - The fallen floor blocks the bar's side, and the stove stands at the front by the door.
 
+## The look, judge round 1 (`results/2026-11-26_r1`, the blind cheap judge)
+
+All four views were rated cheap indie.
+- **The setting, not the building:** the front's backdrop is the lab street's flat cliff card, and the rear's sand
+  has repeated green rocks. It needs rendering on its lot in the valley, which wants a bigger box than this one.
+- **The bar room and the dance floor are empty:** dressing them is the prop lab's job (#1222's casks and bottles,
+  glasses, sawdust, coats on pegs).
+- **The building's own faults:**
+  - Light under the near table where its shadow should be.
+  - Pinpoints of sky through the dance floor's square-edged boards and the roof upstairs.
+  - The dark raw boards on a bright sand plain with no contact shadow.
+
+One round used; a second waits for the dressing.
+
 ## Builder parts it uses (docs/PARTS.md)
 
 All shared with the hotel, saloon B and the doctor's:
