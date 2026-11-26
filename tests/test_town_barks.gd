@@ -7,8 +7,8 @@ extends TestCase
 ## - regard: each man's band from his own view of Harlan and the story's facts, the town's the average;
 ## - what you see by band (a man in a plain world): a nod, a look away, a turned shoulder, a step aside.
 
-const ONS := ["pass", "chat", "chat.reply", "knock", "knock.wait", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "react.back.saw", "react.back.you", "undertaker", "room.toast", "room.hail", "room.leave", "room.answer", "room.glass"]
-const KNOWN := ["on", "once", "regard", "view", "fact", "day", "hour", "spot", "at", "whom", "who_you", "shaken", "opinion"]
+const ONS := ["pass", "chat", "chat.reply", "knock", "knock.wait", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "react.back.saw", "react.back.you", "react.shove", "undertaker", "room.toast", "room.hail", "room.leave", "room.answer", "room.glass"]
+const KNOWN := ["on", "once", "regard", "view", "fact", "day", "hour", "spot", "at", "whom", "who_you", "shaken", "indoors", "opinion"]
 const FACTS := ["news.", "nolaw.", "sheriff.", "nojustice.", "kett."]
 
 var world: Node3D
@@ -32,7 +32,7 @@ func _data() -> Dictionary:
 
 func _ctx(pid: String, more := {}) -> Dictionary:
 	var c := {"pid": pid, "pools": ["townsman"], "band": "wary", "view": "", "hour": 13.0, "day_kind": "ordinary",
-			"spot": "stand", "at": [], "shaken": false, "opinion": {}}
+			"spot": "stand", "at": [], "shaken": false, "indoors": false, "opinion": {}}
 	c.merge(more, true)
 	return c
 

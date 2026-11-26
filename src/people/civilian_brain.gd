@@ -187,6 +187,14 @@ static var _cower_at := -100000
 
 ## Seen kicking a man (PlayerShove's deeds), within this (m), it frightens him.
 const ASSAULTS := [&"kick", &"kick_down"]
+## A shove by Harlan seen (#1272, DESIGN §2 pillar 6): every man who saw it looks at him (`ROUGH_LOOK_S`);
+## the first `ROUGH_SPEAK` to come to it, by distance (`ROUGH_SAY_S` + `ROUGH_SAY_PER_M` a metre), say so
+## (TownBarks `react.shove`); the rest only look. Keyed by the deed's frame.
+const ROUGH_LOOK_S := 3.0
+const ROUGH_SPEAK := 2
+const ROUGH_SAY_S := 0.6
+const ROUGH_SAY_PER_M := 0.12
+static var _rough_spoke := {}
 const ASSAULT_SEEN := 15.0
 ## Fire within `FIRE_REACH` m of him sends him off to somewhere `FIRE_CLEAR` m from any; he goes
 ## back once his post has had none within `FIRE_CLEAR` for `FIRE_OVER` s. Looked for every
@@ -359,7 +367,10 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 	if actor is Player and troubled_by.has(target) and kind in [&"hit", &"kill"] and senses.sees(actor):
 		helped_by = actor
 	if not to_me:
-		if kind in ASSAULTS and actor is Node3D and senses.sees(actor) \
+		if kind == &"shove" and actor is Player and target is HumanBody and senses.sees(actor) \
+				and (actor as Node3D).global_position.distance_to(body.global_position) < ASSAULT_SEEN:
+			_saw_shove(actor as Node3D, target as HumanBody)
+		elif kind in ASSAULTS and actor is Node3D and senses.sees(actor) \
 				and (actor as Node3D).global_position.distance_to(body.global_position) < ASSAULT_SEEN:
 			# A man kicked in front of him: it's turned ugly.
 			fear += 0.1 if kind == &"kick" else 0.2
@@ -383,13 +394,17 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 		elif kind == &"holster" and actor == _gun_seen:
 			_gun_watch = 0.0
 		return
-	if not loud and not senses.sees(actor) and senses.aware_of(actor) < 0.4:
+	var felt := kind in [&"shove", &"kick", &"kick_down"]  # (#1272: shoved from behind, he still knows it)
+	if not loud and not felt and not senses.sees(actor) and senses.aware_of(actor) < 0.4:
 		return  # done behind his back and he never knew
 	match kind:
 		&"shove", &"kick", &"kick_down":
 			fear += 0.25 if kind == &"shove" else 0.5
 			_flinch = 1.0
 			_troubled(actor)
+			if actor is Node3D:
+				show_look((actor as Node3D).global_position, actor as Node3D, ROUGH_LOOK_S)  # round to see who
+			_since_said = SAY_GAP  # (#1272: it was done to him: he speaks up, whatever he'd just said)
 			say(&"shoved")
 			_say_again = 4.0
 		&"aim_at":
@@ -495,6 +510,24 @@ func _against_player(man: Node) -> bool:
 		return false
 	var e: Dictionary = b.relations.entries[p]
 	return e.cowed or e.grudge > 0.0 or e.stance >= Relations.Stance.WARY
+
+
+## He saw Harlan shove `man` (#1272): he looks, a little uneasy; the nearest few say so.
+func _saw_shove(harlan: Node3D, man: HumanBody) -> void:
+	fear += 0.05
+	show_look(harlan.global_position, harlan, ROUGH_LOOK_S)
+	var frame := Engine.get_physics_frames()
+	var after := ROUGH_SAY_S + ROUGH_SAY_PER_M * body.global_position.distance_to(man.global_position)
+	get_tree().create_timer(after, false, true).timeout.connect(func() -> void:
+		if not is_instance_valid(self) or not is_instance_valid(man) or not bark.is_valid() or not may_speak():
+			return
+		if int(_rough_spoke.get(frame, 0)) >= ROUGH_SPEAK:
+			return
+		var whom := news.name_of(man.person_id) if news != null else "him"
+		if bool(bark.call(self, "react.shove", {"slots": {"whom": whom, "Whom": whom.substr(0, 1).to_upper() + whom.substr(1)}})):
+			_rough_spoke[frame] = int(_rough_spoke.get(frame, 0)) + 1
+			if _rough_spoke.size() > 16:
+				_rough_spoke.erase(_rough_spoke.keys()[0]))
 
 
 func _troubled(who: Node) -> void:

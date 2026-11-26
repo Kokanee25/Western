@@ -50,7 +50,17 @@ const LOOK_EVERY := 1.0
 ## Overnight, this big and more reaches everyone; less, and only told, it fades.
 const OVERNIGHT := 0.5
 ## The size of a version by what it holds.
-const SIZES := {&"killing": 1.0, &"shooting": 0.7, &"down": 0.4, &"shots": 0.3}
+const SIZES := {&"killing": 1.0, &"shooting": 0.7, &"down": 0.4, &"shots": 0.3, &"rough": 0.2}
+## Rough handling (#1272, DESIGN §2 pillar 6: every verb leaves a mark): a shove or a kick by Harlan is a
+## record of its own (`what` rough, `rough` true), held by the man it was done to and those who saw it
+## (their Senses, within `ROUGH_SEEN_M`); small news, told on and said to his face, faded overnight when
+## only told. Never merged with shots (`_record_near`, `_record_heard`, `_record_of` skip it).
+const ROUGH := [&"shove", &"kick", &"kick_down"]
+const ROUGH_SEEN_M := 20.0
+## Not told on, nor said to his face, till this long after (s): at once, every man who saw it told the man
+## beside him in the same breath, with Harlan stood there (#1272's bench). The look and the word at it are
+## CivilianBrain's; the talk is for after.
+const ROUGH_TELL_S := 30.0
 ## The player in the records.
 const HARLAN := &"harlan"
 
@@ -119,6 +129,9 @@ func _on_noise(at: Vector3, _loud: float, kind: StringName, source: Node) -> voi
 
 
 func _on_deed(actor: Node, kind: StringName, target: Node, at: Vector3) -> void:
+	if kind in ROUGH and actor is Player and target is HumanBody:
+		_rough(actor as Node3D, target as HumanBody, at)
+		return
 	if not kind in [&"hit", &"kill"] or not target is HumanBody:
 		return
 	var whom := id_of(target)
@@ -141,6 +154,38 @@ func _on_deed(actor: Node, kind: StringName, target: Node, at: Vector3) -> void:
 		r.what = &"killing"
 	elif r.what in [&"shots", &"down"]:
 		r.what = &"shooting"
+
+
+## Harlan shoved or kicked `man`: one record (again within `SAME_S`, the same one), a version for him
+## and for each townsman who saw Harlan do it.
+func _rough(harlan: Node3D, man: HumanBody, at: Vector3) -> void:
+	var whom := id_of(man)
+	var r := {}
+	var now := Engine.get_physics_frames()
+	for i in range(records.size() - 1, -1, -1):
+		var x: Dictionary = records[i]
+		if x.get("rough", false) and x.whom == whom and float(now - int(x.last_frame)) / Engine.physics_ticks_per_second < SAME_S:
+			r = x
+			break
+	if r.is_empty():
+		r = _new_record(&"rough", at)
+		r["rough"] = true
+		r.who = HARLAN
+		r.whom = whom
+	r.last_frame = now
+	for b: CivilianBrain in brains:
+		if not is_instance_valid(b) or b.body == null or not b.body.physiology.is_conscious():
+			continue
+		var him := b.body == man
+		if not him and (b.body.global_position.distance_to(at) > ROUGH_SEEN_M or b.senses == null or not b.senses.sees(harlan)):
+			continue
+		var v := _version(b.body.person_id, r, &"saw")
+		v.how = &"saw"
+		v["rough"] = true
+		v.who = HARLAN
+		v.whom = whom
+		if v.where == "":
+			v.where = _place(at)
 
 
 func _on_died(p: Node, _cause: StringName) -> void:
@@ -187,7 +232,7 @@ func _record_near(at: Vector3, s: float) -> Dictionary:
 	var now := Engine.get_physics_frames()
 	for i in range(records.size() - 1, -1, -1):
 		var r: Dictionary = records[i]
-		if float(now - int(r.last_frame)) / Engine.physics_ticks_per_second > s:
+		if r.get("rough", false) or float(now - int(r.last_frame)) / Engine.physics_ticks_per_second > s:
 			continue
 		if (r.at as Vector3).distance_to(at) <= SAME_M:
 			return r
@@ -198,7 +243,7 @@ func _record_of(whom: StringName) -> Dictionary:
 	if whom == &"":
 		return {}
 	for i in range(records.size() - 1, -1, -1):
-		if records[i].whom == whom:
+		if records[i].whom == whom and not records[i].get("rough", false):
 			return records[i]
 	return {}
 
@@ -290,7 +335,7 @@ func _record_heard(at: Vector3, now: int) -> Dictionary:
 	var best := {}
 	var best_d := INF
 	for r: Dictionary in records:
-		if absf(float(now - int(r.last_frame))) / Engine.physics_ticks_per_second > HEARD_S or int(r.frame) > now:
+		if r.get("rough", false) or absf(float(now - int(r.last_frame))) / Engine.physics_ticks_per_second > HEARD_S or int(r.frame) > now:
 			continue
 		var d := (r.at as Vector3).distance_to(at)
 		if d < best_d:
@@ -314,7 +359,8 @@ func saw_fire(pid: StringName) -> StringName:
 	var mine: Dictionary = versions.get(pid, {})
 	var best := -1
 	for rid: Variant in mine:
-		best = maxi(best, int(rid))
+		if not (mine[rid] as Dictionary).get("rough", false):
+			best = maxi(best, int(rid))
 	if best < 0:
 		return &""
 	var v: Dictionary = mine[best]
@@ -340,6 +386,8 @@ static func kind_of(v: Dictionary) -> StringName:
 		return &"shooting"
 	if v.down:
 		return &"down"
+	if v.get("rough", false):
+		return &"rough"
 	return &"shots" if int(v.shots) > 0 else &""
 
 
@@ -412,6 +460,8 @@ func _piece(a: StringName, b: StringName) -> int:
 	var best := 0
 	var best_s := 0.0
 	for rid: int in (versions.get(a, {}) as Dictionary):
+		if _too_soon(rid):
+			continue
 		var av := version_of(a, rid)
 		var bv := version_of(b, rid)
 		if not bv.is_empty() and (bv.how != &"told" or size_of(bv) >= size_of(av)):
@@ -693,7 +743,7 @@ func line_of(pid: StringName, rid: int, to := &"") -> String:
 	if v.is_empty():
 		return ""
 	var here := _here(pid, rid)
-	var slots := {"who": "you" if v.who == HARLAN and to == HARLAN else name_of(v.who), "whom": _whom(v),
+	var slots := {"who": "you" if v.who == HARLAN and to == HARLAN else name_of(v.who), "whom": "me" if v.whom == pid else _whom(v),
 			"where": v.where if v.where != "" else "the street", "shots": _count(int(v.shots)).to_lower(),
 			"teller": name_of(v.by) if v.by != &"" else "somebody",
 			"at": "right here" if here else "by " + (v.where if v.where != "" else "the street"),
@@ -706,6 +756,9 @@ func line_of(pid: StringName, rid: int, to := &"") -> String:
 		head = [base + ".you"] if v.who == HARLAN and to == HARLAN else ([base] if v.who != &"" else [base + ".nobody"])
 	elif k == &"down":
 		head = ["news.down"]
+	elif k == &"rough":
+		# A shove (#1272): to his face, "you"; the man it was done to says "me".
+		head = ["news.rough.you"] if v.who == HARLAN and to == HARLAN else (["news.rough"] if v.who != &"" else ["news.rough.nobody"])
 	elif k == &"shots":
 		# Who fired, if he saw it (#1213: the liveryman, in the room, said "Damn fool, whoever it was"; the
 		# barkeep told "Shooting, down by the saloon" from inside it): "you" to his face; "right here" at it.
@@ -750,6 +803,10 @@ func _built_head(v: Dictionary, to: StringName, here := false) -> String:
 			return "%s's been shot, by %s." % [_cap(_whom(v)), where]
 		&"down":
 			return "There's a man down by %s." % where
+		&"rough":
+			if v.who != &"":
+				return "%s shoved %s about, %s." % [_doer(v, to), _whom(v), at]
+			return "Somebody shoved %s about, %s." % [_whom(v), at]
 	if v.who == HARLAN and to == HARLAN:
 		return "You let that iron off %s. %s." % [at, _count(int(v.shots))]
 	if v.who != &"":
@@ -792,13 +849,20 @@ func to_say(pid: StringName) -> int:
 	var best_s := 0.0
 	for rid: int in (versions.get(pid, {}) as Dictionary):
 		var r := record(rid)
-		if r.is_empty() or r.story or _said.has("%s:%d" % [pid, rid]):
+		if r.is_empty() or r.story or _said.has("%s:%d" % [pid, rid]) or _too_soon(rid):
 			continue
 		var s := size_of(version_of(pid, rid))
 		if s > best_s:
 			best_s = s
 			best = rid
 	return best
+
+
+## A shove's news still fresh (`ROUGH_TELL_S`): not talked of yet.
+func _too_soon(rid: int) -> bool:
+	var r := record(rid)
+	return not r.is_empty() and r.get("rough", false) \
+			and float(Engine.get_physics_frames() - int(r.last_frame)) / Engine.physics_ticks_per_second < ROUGH_TELL_S
 
 
 func said(pid: StringName, rid: int) -> void:

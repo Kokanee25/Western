@@ -809,6 +809,59 @@
      ],
      "takes": [],
      "script_only": true
+    },
+    {
+     "id": "news.rough.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Harlan shoved a man (#1272); {whom} is 'me' from the man shoved",
+     "when": "rough; who Harlan; told to him",
+     "condition": "",
+     "delivery": "Not a challenge. He wants you to know it was seen.",
+     "words": [
+      {
+       "text": "You put hands on {whom}, {at}. I don't forget a thing like that.",
+       "status": "new"
+      },
+      {
+       "text": "That was you, shoving {whom} about, {at}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.rough",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan shoved a man (#1272)",
+     "when": "rough; who known",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} shoved {whom} about, {at}.",
+       "status": "new"
+      },
+      {
+       "text": "{who} put hands on {whom}, {at}. No call for it.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "news.rough.nobody",
+     "speaker": "townsman",
+     "trigger": "His version: a man shoved, who did it dropped in the telling (#1272)",
+     "when": "rough; who empty",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Somebody shoved {whom} about, {at}.",
+       "status": "new"
+      }
+     ],
+     "takes": []
     }
    ]
   },
@@ -1398,9 +1451,10 @@
      "id": "react.inside",
      "speaker": "townswoman",
      "trigger": "Heard a shot, going in",
-     "when": "any",
+     "when": "out of doors (#1272: not from a woman already in the saloon)",
      "if": {
-      "on": "react.flee"
+      "on": "react.flee",
+      "indoors": false
      },
      "condition": "",
      "delivery": "",
@@ -1640,6 +1694,65 @@
      "words": [
       {
        "text": "Come away. That's nothing to look at.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.shove",
+     "speaker": "townsman",
+     "trigger": "Saw Harlan shove a man (#1272)",
+     "when": "any",
+     "if": {
+      "on": "react.shove"
+     },
+     "condition": "",
+     "delivery": "Half a step toward it, no further.",
+     "words": [
+      {
+       "text": "Here, now. Leave {whom} be.",
+       "status": "new"
+      },
+      {
+       "text": "Easy, mister. What's {whom} done to you?",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.shove.woman",
+     "speaker": "townswoman",
+     "trigger": "Saw Harlan shove a man (#1272)",
+     "when": "any",
+     "if": {
+      "on": "react.shove"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Leave him be, mister.",
+       "status": "new"
+      }
+     ],
+     "takes": []
+    },
+    {
+     "id": "react.shove.bar",
+     "speaker": "barkeep",
+     "trigger": "Harlan shoves a man in his room (#1272)",
+     "when": "in the saloon",
+     "if": {
+      "on": "react.shove",
+      "at": "saloon"
+     },
+     "condition": "",
+     "delivery": "Both hands flat on the bar.",
+     "words": [
+      {
+       "text": "Not in my place. You want to push folks about, do it outside.",
        "status": "new"
       }
      ],

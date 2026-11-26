@@ -6,7 +6,7 @@ extends RefCounted
 ##   `pass` (Harlan within the folk's talk reach, ValleyFolk._talk_step), `chat` and `chat.reply` (two
 ##   men by each other, in your hearing, ValleyFolk._chat_step: one says, the other answers), `knock`
 ##   and `knock.wait` (a shopkeeper at his door, and again if you stand there), `react.<x>` (Reaction's
-##   stages: shot_far, flee, ring, doc, gun, back), `undertaker` (at a body, ValleyFolk._dead_step),
+##   stages: shot_far, flee, ring, doc, gun, back; `react.shove`, a shove seen, CivilianBrain._saw_shove), `undertaker` (at a body, ValleyFolk._dead_step),
 ##   `room.<x>` (the saloon's bits, SaloonRoom by ValleyFolk.room_line: toast, hail, leave, answer, glass).
 ## The rest of `if`, all of which must hold (each counts toward how specific the line is):
 ##   `regard` the speaker's own band (TownRegard) or a list; `view` his own view of Harlan
@@ -14,7 +14,8 @@ extends RefCounted
 ##   (ValleyFolk.story_holds' shape, each key counts); `day` the day kind; `hour` [from, to) (to past
 ##   24 runs over midnight); `spot` what he's doing there (his block's `do`); `at` a tag of where he
 ##   is (`saloon`, `store`, his block's place or spot); `whom` his version has the man down's name
-##   (true) or not (false); `who_you` his version has Harlan firing; `shaken`; `opinion` {name: at
+##   (true) or not (false); `who_you` his version has Harlan firing; `shaken`; `indoors` (true or false:
+##   under a roof, #1272: "Get in and shut it" from a woman already in the saloon); `opinion` {name: at
 ##   least}; `once` "ever" (said once in the game, not once a day).
 ## The rules: the most specific line that fits wins (`specificity`, his own pool's one more; then a
 ## line of his own pool before a shared one); a person says a given line once a day; nobody says a line another said in
@@ -130,7 +131,7 @@ static func holds(c: Dictionary, ctx: Dictionary) -> bool:
 					any = any or tags.has(String(w))
 				if not any:
 					return false
-			"whom", "who_you", "shaken":
+			"whom", "who_you", "shaken", "indoors":
 				if not ctx.has(k) or bool(ctx[k]) != bool(want):
 					return false
 			"opinion":

@@ -39,12 +39,15 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   faults, then Sean plays it himself (#1208). **#1230: the evening is in saloon B** (Sean on #755): the set is the
   building's own (`set.hall`, `_bind_hall_set`: its bar, `no_law_table` and chairs by compass, the piano corner; the
   band's ordinary nights there), the barkeep behind its bar day and night, the spots its use points, ways
-  `saloonb_corner_inside`/`_front_in`/`_cards*`/`_room`/`_piano` (each swept straight: a test); No Law in by the corner door, out down the front steps; twelve fit. Faults
-  fixed: overlapping dressing broke at load; a `talk` alone falls quiet (`alone_s`); a keeper's out after his walk
-  (`door_walk_s`). #1248: a knee under the rim doesn't throw the table (`KitProp.lifted_over`); bruises aren't hurts (`Physiology.injuries`); indoors a room's own door's no refuge; no doctor called to the dead or over the carry (`FetchHelp.answered`). Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the
-  room. Open: the room's sounds are synth stand-ins (#807); no argument, round bought or song
-  called for; react.fight*, body_child, kett.meal untriggered; nobody carries the body.
+  `saloonb_*` (each swept straight: a test); No Law in by the corner door, out down the front steps; twelve fit.
+  Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the room. Open: the
+  room's sounds are synth stand-ins (#807); no argument, round bought or song called for; react.fight*, body_child,
+  kett.meal untriggered; nobody carries the body.
   A spot's `hall` is its building for the barks (`bark_ctx`, #1240: hall spots had lost the saloon's lines).
+- **Every verb gets an answer** (DESIGN §2 pillar 6; #1272 step 1 done: the shove and the shot): the bench
+  `experiments/answers/` (README: the table a verb, before and after). A shove: the man shoved speaks, those who saw
+  look and two say so, one seen turns a man cold, TownNews `rough` news told on after 30 s. Still flat (the table):
+  sitting, a won pot (no words), standing close (nothing), the barkeep's "Don't shoot!" over and over. Next: step 2.
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
@@ -63,19 +66,16 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   stranger, Cody), the cabin (Joe, no breaks), a card hand's chairs. Not yet: No Justice's camp and hideout (Joe's
   `held` set by hand), the sheriff's scenes, the funeral (#1050's handover).
 - **Winchester** (#792, key 6; waiting on Sean's play, #801). **The Colt** (#693). **Gunfight D+** (#633; #349 is Sean's).
-- **The chaos bench** (`docs/reviews/2026-11-chaos-bench.md`): `perf_bench --scene=chaos [--world=valley]
-  [--spikes=MS]`. Valley: brain frames < 33 ms (#1119, #1123: `Cover.Pick`); a blast's settle sliced by its own
-  `SettleQueue` (#1128). Open: `kit_blast` ~130 ms the tick after saloon B's sticks, the blast's own frame ~110 ms; Jolt.
-- **The valley's frame bench** (#865, `docs/reviews/2026-11-valley-bench.md`): `perf_bench --world=valley
-  --townsfolk=N`; 24 townsfolk fit (#881). Open: else ~1 ms untimed, the outlaws' first cover moves (~120 ms).
+- **Benches:** chaos (`docs/reviews/2026-11-chaos-bench.md`, `perf_bench --scene=chaos [--world=valley]`; open:
+  `kit_blast` ~130 ms after saloon B's sticks); the valley (`docs/reviews/2026-11-valley-bench.md`, `--townsfolk=N`:
+  24 fit; open: ~1 ms untimed, the outlaws' first cover moves ~120 ms).
 - **Building memory** (#1259, #1262; `docs/reviews/2026-11-member-memory.md`): `tools/member_memory.gd` (KB a member by
   part); hotel 50 -> 21.3 KB, valley + hotel 4,820 MB (this workspace). Shared boards drawn as instances
   (`Structure._apply_instances`, `PropKit.unit_board`); resting members' nodes a row (`StructureMember._rest_data`: ask
   `drawn_node()`, not `pieces`). Budget 15 KB / 4 GB not met: next #1270 (a member as a row). Held to 23 KB.
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
-- **Flaky in shard order:** `test_town_day`'s fights.
-- **Comparing two collapses** (#1214): rubble breaks boards by body order; compare with impacts off (`_no_impact_breaks`).
+- **Flaky in shard order:** `test_town_day`'s fights. **Two collapses** (#1214): compare with impacts off.
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
@@ -100,7 +100,6 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `outlaw_brain.gd` while `run.py` runs.
 - Tests at night in the valley turn the murder off (`-- --no-murder`); a drawn rifle on Main Street sets the
   gang off (use the rope range).
-- Sight takes a new structure in at its first look (look once at the build).
 - A fresh container has no native plugin (`bin/` is ignored): `NO_PROXY=localhost,127.0.0.1 cargo build --release`
   in the plugin (2.5 min), the .so to `bin/`, then `godot --headless --import` (~5 min).
 - Bridge commands: LAYOUT "The dev bridge". `bridge.py start` is the old town (the gang, the store, the widow) unless
