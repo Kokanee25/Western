@@ -2049,7 +2049,8 @@
 					"width": 0.86,
 					"height": 1.98,
 					"thick": 0.1,
-					"_doc": "the ice room's thick door"
+					"hinge": "end",
+					"_doc": "the ice room's thick door (#1266: hung on its east jamb, clear of the beer cellar's door)"
 				},
 				{
 					"type": "door",

@@ -23,14 +23,12 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   thickness, role) (`PropKit.shared_board`); seed, warp, nails and ground ride on the node (`board_values`) and the batch
   writes them into the vertex channels; a board drawn alone gets its own back (`own_board`). Valley load -2.2 s, -480 MB.
   Tests reading CUSTOM1/2 off one board read `board_values`. Next cut: the batches' per-vertex copies (and shadow mesh).
-- **Eased edges** (#873): every library board's arrises and ends rounded in `scan_wood.gdshader`'s normal
-  (`edge_round` by age and wood class, `MaterialLibrary.EDGE_ROUND`; shaped boards, role + 10, keep their own
-  normals). `Railing`'s rail is the `handrail` profile, kept under a library finish (`PropKit.lib_profile_mesh`,
-  meta `draw`). Not eased yet: Main Street's older buildings (texel_grid) and kit props (desk, newel posts).
+- **Eased edges** (#873): library boards' arrises rounded in `scan_wood.gdshader` (`MaterialLibrary.EDGE_ROUND`); `Railing`'s
+  rail the `handrail` profile. Not eased: Main Street's older buildings, kit props.
 - **Wear by use** (#901, PR #963; RECIPE.md "Wear by use"): scan_wood's use pass from a spec's `materials.wear` and
   members' `use_role` or a kit look's `/<role>` (the bar's top `bar`, plinth `kick`). Dents (`dings`) built, set 0
   (Sean). Not done: chairs (test_perf's 1800 meshes), the brass rail. Quick look: `tools/wood_probe.gd`.
-- **Saloon B's gallery view over budget on main:** render CPU 5.9 ms at Sean's (lavapipe) since step 2's look (was 3.8-4.0); find what step 2 added.
+- **Saloon B's gallery view over budget:** render CPU 5.9 ms at Sean's (lavapipe) since step 2's look (was 3.8-4.0).
 - **Goldens stale on main:** the nightly fails 69 of 84 views (porch_dusk, street_night, the outlaws...), not
   from one change; re-approving them needs each view's diff looked at, not a blanket approve.
 - **Judges decide** (Sean, #721): materials judge (`tools/material_judge.py`,
@@ -44,7 +42,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   `RECIPE.md`); **the jail done** (#811, steps 1-6; `experiments/building_lab/jail/` README, on its valley lot).
   **The jail's stone and form** (#860, PR #927): the stepped parapet with corner piers, the cell wing a metre lower,
   the 7 ft yard wall, proud sills, lintels and coping, the walk stopping at the building. **The general store (#858): steps 1-3 done**
-  (`experiments/building_lab/store/` README: bodies 38,185 of 65,536; render CPU 1.5-2.4 ms (cellar 5.4, over); the rear's gabled wing is Sean's call). **Lit** (#1053): a `Storefront` (show windows, recessed entry; PARTS.md), RoomLight's cap 12 m², RealLook `exposure_indoor` 1.7, a pale beaded ceiling; back wall card 0.110 -> 0.193. **Hollis's** (#1074): pale posts and beams, A. P. HOLLIS gilded on the show windows (`Storefront.gilt`), kit goods in the windows (real stock #1076); the dark brackets are Sean's call;
+  (`experiments/building_lab/store/` README: bodies 38,185 of 65,536; render CPU 1.5-2.4 ms (cellar 5.4, over); its cellar dug in the valley (#1266); the rear's gabled wing is Sean's call). **Lit** (#1053): a `Storefront` (show windows, recessed entry; PARTS.md), RoomLight's cap 12 m², RealLook `exposure_indoor` 1.7, a pale beaded ceiling; back wall card 0.110 -> 0.193. **Hollis's** (#1074): pale posts and beams, A. P. HOLLIS gilded on the show windows (`Storefront.gilt`), kit goods in the windows (real stock #1076); the dark brackets are Sean's call;
   saloon B is Fable's (#848: step 1 done, below).
 - **The church** (#1203, `church/` README r7): open truss nave. Open: #1217 (ceiling), #1202 q2 (pews). Render: swap + lavapipe.
 - **The hotel** (#1220, #1226, #1247; `hotel/` README, `make_spec.py`): layout A and the kitchen wing built and tested in the lab (15.7k members, test cap 16k); P7-P9 approved (blue-grey and cream new+few, red few+old, judged without the yardstick: it isn't in the Studio checkout) so it draws them; judge round 1 `hotel/results/2026-11-25_r1`: round 1 cheap indie all four (the lab stood the hotel ~0.2 m under the sand: fixed, a walk and steps added); round 2 (`results/2026-11-25_r2`): stair hall good indie, the rest cheap indie (flat blue siding, empty rooms, no haze). Two rounds used. Not on its lot till #1227. Next: P7's far hue, the dressing (arch casing, newel lamps, mirror, chandelier: the prop lab's), plaster #1225.
@@ -56,18 +54,17 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   `"trial": true` committed.
 - **The valley's ground and scatter** (#891, #962; LAYOUT "src/world/town_layout.gd"): scanned ground from a map baked from
   valley.json (re-bake `tools/textures/valley_ground_map.gd` when it changes), ruts, bunch grass, sage, pines, cottonwoods. Cheap
-  judge `2026-11-15_valley_land2_r2_cheap`: roads good indie, streets cheap. Left: bonsai-pad clumps, pale far ground.
+  judge `2026-11-15_valley_land2_r2_cheap`: roads good indie, streets cheap. Left: bonsai-pad clumps, pale far ground. **Trap
+  (#1266):** a scan's `.import` must keep `mipmaps/generate=true` or the ground swims (the other scans, plaster, rock, wood, have none).
 - **Saloon B, the corner saloon** (#772, #848, #884, the stage #902, step 3 #886): `experiments/building_lab/saloon_b/` README,
   `tests/test_building_saloon_b.gd`. 7,775 members; valley bodies near Jolt's 32,768 (the jail and store need the guard raised or
   members put to rest). Judged good indie (bar room) / cheap indie (corner, the stage: empty hall, bare proscenium). Open with Sean:
-  the roof. Wants: a dressed-timber entry, a matt floor; the cellar in the valley (#695). Traps: RECIPE "A two-storey building under
-  trusses"; `reduce.py` rewrites the vram signs' `.import` files short (restore from git).
+  the roof. Wants: a dressed-timber entry, a matt floor; the cellar in the valley (#695: its trap and stair go into undug ground; its
+  dig moves the card set's ground). Doors swing clear (`Checks.door_swings`, `test_building_doors.gd`, #1266). Traps: RECIPE "A
+  two-storey building under trusses"; `reduce.py` rewrites the vram signs' `.import` files short (restore from git).
 - **Floors and furniture, still open:** FL1's path a milky haze, FN1 laminate-looking (no pores, ray fleck): #964 (slice, week 3).
-- Paint round 2 (#804: an opaque film inside, failing in strips outside, P3 new): parked until after the slice unless Sean says otherwise.
-- Lighting (#711): the sun's saw-tooth shadows, rim light, shadows under feet, the shade fill; F2's varnish waits on it. Week 2.
-- **The doctor's walls, windows and light** (#826, #824, #829): rules in `experiments/building_lab/RECIPE.md` ("Walls and windows", "Light"); contact shadows wait on #711.
-- Room light (#608): on under the real look; its painted-look switch still waiting on Sean.
-- Waiting on Sean: #615 (yardstick), #641 follow-ups.
+- Lighting (#711): saw-tooth sun shadows, rim light, shadows under feet, shade fill. Parked: paint round 2 (#804). Waiting on Sean: #615, #608, #641.
+- **The doctor's walls, windows and light** (#826, #824, #829): RECIPE.md "Walls and windows", "Light".
 
 ## Traps
 - The sky: Godot keeps a 24-bit depth where the card has it (no tricks behind the far plane); the scene's

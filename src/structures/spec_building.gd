@@ -2129,6 +2129,12 @@ func _leaf(wall: Dictionary, o: Rect2, outward: bool, d: float, at_end := false,
 	if leaf:
 		leaf.set_meta(&"use_role", 3.0)
 		leaf.set_meta(&"latch", into)
+		# Its swing (#1266, tests/test_building_doors.gd): the hinge's line and the way the leaf lies shut.
+		leaf.set_meta(&"hinge", hinge + along * (0.025 * k))
+		leaf.set_meta(&"shut", along * k)
+		leaf.set_meta(&"leaf_h", lh)
+		leaf.set_meta(&"leaf_y0", o.position.y + 0.01)
+		leaf.set_meta(&"leaf_w", lw + 0.03)
 
 
 func _partitions(level: String, b: int) -> void:
@@ -4527,7 +4533,15 @@ func _corner_entrance() -> void:
 		var pre := "corner/leaf%d" % side
 		var st := 0.11
 		var panel := 0.95
-		add_member(pre + "/panel", &"trim", trim, Vector3(lw, panel, 0.045), mid + Vector3.UP * (foot + 0.01 + panel * 0.5), lb)
+		var pm := add_member(pre + "/panel", &"trim", trim, Vector3(lw, panel, 0.045), mid + Vector3.UP * (foot + 0.01 + panel * 0.5), lb)
+		if pm:
+			# Its swing (#1266): the hinge's line, the way it lies shut, the way it opens, its height.
+			pm.set_meta(&"hinge", hinge)
+			pm.set_meta(&"shut", along * (1.0 if side == 0 else -1.0))
+			pm.set_meta(&"latch", inward)
+			pm.set_meta(&"leaf_h", lh)
+			pm.set_meta(&"leaf_y0", foot + 0.01)
+			pm.set_meta(&"leaf_w", lw + 0.02)
 		for e in 2:
 			var off := inward * ((lw - st) * 0.5) * (-1.0 if e == 0 else 1.0)
 			add_member("%s/stile%d" % [pre, e], &"trim", trim, Vector3(st, lh - panel - st, 0.045), mid + off + Vector3.UP * (foot + 0.01 + panel + (lh - panel - st) * 0.5), lb)
