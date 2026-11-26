@@ -38,6 +38,6 @@ for d in ("blackbox", "crash_reports"):
 	shutil.rmtree(os.path.expanduser("~/.local/share/godot/app_userdata/Salt Creek/" + d), ignore_errors=True)
 log = open(out / "bridge.log", "w")
 subprocess.run(["python3", "tools/bridge.py", "start", "--size=1280x720", "--game-args=--real,--world=valley,--crash-watch=40,180"], cwd=root, stdout=log, stderr=log)
-subprocess.run(["python3", "tools/bridge.py"] + cmds, cwd=root, stdout=log, stderr=log)
+subprocess.run(["python3", "tools/bridge.py", "--timeout=1500"] + cmds, cwd=root, stdout=log, stderr=log)
 subprocess.run(["python3", "tools/bridge.py", "stop"], cwd=root, stdout=log, stderr=log)
 print(sorted(p.name for p in out.glob("*.png")))
