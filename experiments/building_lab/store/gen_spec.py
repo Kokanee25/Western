@@ -358,6 +358,9 @@ spec = {
         "rect": [0.0, 0.0, W, CELLAR_Z], "posts": cellar_posts, "flag": 1.2,
         "trap": {"rect": TRAP},
         "stair": {"head": [0.55, TRAP[1]], "dir": "-z", "width": 0.9, "risers": 13, "going": 0.2},
+        # #1266 (Sean's walk: the stair went down into the mud): dug in the valley as the undertaker's is.
+        "dig": True,
+        "_dig": "#1266 (CellarDig): in the valley the ground under it is dug to its floor (Ground's dug tiles), the cut's edge inside the walls' stone. The store's lot (x -54 to -37) is outside the valley's first ground chunk, so the card set's ground in saloon B's yard is untouched (the hotel's _dig).",
     },
     "posts": posts,
     "beams": beams,

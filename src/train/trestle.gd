@@ -410,7 +410,7 @@ func infer_supports() -> void:
 		m.support_points.clear()
 		m.support_boxes.clear()
 		m.touching.clear()
-		m.analysis_cache = {}
+		m.forget_analysis()
 		m.grounded = m.kind == &"pier"
 	for l: Array in _links:
 		var m: StructureMember = l[0]
@@ -732,8 +732,8 @@ func _intact_caps() -> Dictionary:
 	return _intact
 
 
-func _on_member_damaged(m: StructureMember) -> void:
-	super._on_member_damaged(m)
+func member_damaged(m: StructureMember) -> void:
+	super.member_damaged(m)
 	_intact_stale = true
 
 

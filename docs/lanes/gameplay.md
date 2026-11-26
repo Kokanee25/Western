@@ -69,10 +69,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Benches:** chaos (`docs/reviews/2026-11-chaos-bench.md`, `perf_bench --scene=chaos [--world=valley]`; open:
   `kit_blast` ~130 ms after saloon B's sticks); the valley (`docs/reviews/2026-11-valley-bench.md`, `--townsfolk=N`:
   24 fit; open: ~1 ms untimed, the outlaws' first cover moves ~120 ms).
-- **Building memory** (#1259, #1262; `docs/reviews/2026-11-member-memory.md`): `tools/member_memory.gd` (KB a member by
-  part); hotel 50 -> 21.3 KB, valley + hotel 4,820 MB (this workspace). Shared boards drawn as instances
-  (`Structure._apply_instances`, `PropKit.unit_board`); resting members' nodes a row (`StructureMember._rest_data`: ask
-  `drawn_node()`, not `pieces`). Budget 15 KB / 4 GB not met: next #1270 (a member as a row). Held to 23 KB.
+- **Building memory** (#1259, #1262, #1270; `docs/reviews/2026-11-member-memory.md`, `tools/member_memory.gd`): hotel
+  18.6 KB a member (held to 20), valley + hotel 3,470 MB peak here. Resting members' nodes are rows (`_rest_data`: ask
+  `drawn_node()`, not `pieces`); a script var is ~80 B a member; damage reaches the structure by `member_damaged`, no
+  connects. 15 KB needs a member as a row (measured ~12, not built): #1275.
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
 - **Flaky in shard order:** `test_town_day`'s fights. **Two collapses** (#1214): compare with impacts off.

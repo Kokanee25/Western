@@ -424,7 +424,7 @@ spec["walls"] = [
     part("c_stores", [r3(CEL[0] + 0.25), BACK_Z], [r3(BAR_X - 0.05), BACK_Z], "cellar", True, [door(1.2, 0.91, 1.98)], "the stores' back wall under the 28 ft girder", ("rough", "rough")),
     part("c_back", [r3(CEL[0] + 0.25), CEL_BEER_Z], [r3(W - T - 0.02), CEL_BEER_Z], "cellar", False, [
         door(2.4, 0.86, 1.98, _doc="the wine room's door (locked: the landlady's key)"),
-        door(8.2, 0.86, 1.98, thick=0.1, _doc="the ice room's thick door"),
+        door(8.2, 0.86, 1.98, thick=0.1, hinge="end", _doc="the ice room's thick door (#1266: hung on its east jamb, clear of the beer cellar's door)"),
         door(12.3, 0.86, 1.98, _doc="the coal"),
     ], "the back rooms' wall, from the passage and the beer cellar", ("rough", "rough")),
     part("c_coal", [SAMPLE_X, r3(CEL_BEER_Z + 0.05)], [SAMPLE_X, r3(D - T - 0.02)], "cellar", True, [], "the coal | the ice room, under the sample room's girder", ("rough", "rough")),

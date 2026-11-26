@@ -129,6 +129,11 @@ float fbm(vec2 p) {
 
 // --- A scan without its repeat: two lookups at offsets chosen by a slow noise and blended
 // (Inigo Quilez, "Texture repetition", technique 3, iquilezles.org/articles/texturerepetition).
+// How much wider than a pixel a scan's lookup reaches (#1266): 1 the pixel's own footprint; more takes
+// a coarser mip (log2 of it) where a texel is already finer than a pixel, so the scans' grain doesn't
+// sparkle as the camera moves or the anti-aliasing jitters; where a texel is bigger than a pixel (the
+// near ground) the lookup is mip 0 either way and nothing blurs.
+uniform float scan_soft = 0.7;
 struct Tap {
 	vec2 a;
 	vec2 b;
@@ -145,8 +150,8 @@ Tap tap(vec2 xz, float metres) {
 	t.a = uv + hash22(vec2(i, 3.7)) * 7.0;
 	t.b = uv + hash22(vec2(i + 1.0, 3.7)) * 7.0;
 	t.f = smoothstep(0.2, 0.8, f);
-	t.dx = dFdx(uv);
-	t.dy = dFdy(uv);
+	t.dx = dFdx(uv) * scan_soft;
+	t.dy = dFdy(uv) * scan_soft;
 	return t;
 }
 // One per kind of map: Godot wants a sampler argument always given textures of the same hints.
@@ -337,6 +342,12 @@ void fragment() {
 	vec3 n = normalize(world_nrm);
 	float dist = length(world_pos - CAMERA_POSITION_WORLD);
 	float near = 1.0 - smoothstep(detail_far * 0.5, detail_far, dist);
+	// What one pixel covers of the ground (m, its longer side): a mark finer than this can't be drawn
+	// without sparkling as the camera moves or the anti-aliasing jitters it, so each fades to its own
+	// average as the pixel outgrows it (#1266, Sean: "the ground looks like it's moving"). Up close the
+	// pixel is a few millimetres and every mark is drawn as before.
+	vec2 fw = fwidth(xz);
+	float px = max(fw.x, fw.y);
 	vec4 ma = map_at(map_a, xz);
 	vec4 mb = map_at(map_b, xz);
 	float across = ma.r;
@@ -517,12 +528,14 @@ void fragment() {
 	// Hoof prints between the ruts, boot prints toward the walks.
 	if (on_road > 0.05 && near > 0.0) {
 		float hp = prints(xz, 0.38, hoof_density * 0.3 * lane_mid * on_road, 0.065);
-		h -= hp * hoof_depth * near;
+		// (a print's wall is ~2.5 cm: its height, drawn as the normal's slope, only where a pixel is finer)
+		float print_px = 1.0 - smoothstep(0.008, 0.025, px);
+		h -= hp * hoof_depth * near * print_px;
 		col *= 1.0 - hp * 0.12 * near;
 		if (street) {
 			float boots = smoothstep(walk_edge - 3.5, walk_edge - 0.6, abs(across)) * (cls < 1.5 ? 1.0 : 0.4);
 			float bp = prints(xz * vec2(1.0, 1.0) + 31.0, 0.3, 0.35 * boots, 0.05);
-			h -= bp * 0.008 * near;
+			h -= bp * 0.008 * near * print_px;
 			col *= 1.0 - bp * 0.08 * near;
 		}
 	}
@@ -530,11 +543,16 @@ void fragment() {
 	if (street) {
 		float chance = manure_density * 0.0004 * 4.0 * (lane_mid * 0.6 + gather * 1.8 + 0.1);
 		vec2 mb2 = blobs(xz, 2.0, chance);
-		col = mix(col, vec3(0.16, 0.12, 0.07) * (0.8 + vnoise(xz * 40.0) * 0.4), mb2.x * 0.9);
+		// (its grain 2.5 cm across: its average where a pixel is wider)
+		float grain = mix(vnoise(xz * 40.0), 0.5, smoothstep(0.008, 0.025, px));
+		col = mix(col, vec3(0.16, 0.12, 0.07) * (0.8 + grain * 0.4), mb2.x * 0.9);
 		h += mb2.y;
 		rough = mix(rough, 0.75, mb2.x);
 		if (near > 0.0) {
-			float st = straw(xz, 0.18, straw_density * 0.0324 * (gather + mb2.x * 2.0 + 0.04)) * near;
+			// (a strand is 2-3 mm wide: drawn only while a pixel is about that fine; past it, too few
+			// to tint the ground)
+			float st = straw(xz, 0.18, straw_density * 0.0324 * (gather + mb2.x * 2.0 + 0.04)) * near
+					* (1.0 - smoothstep(0.003, 0.008, px));
 			col = mix(col, vec3(0.62, 0.52, 0.30), st * 0.85);
 		}
 		// Mottled: damp-dark and dusty-light patches a metre or two across, loose pale dust off the lanes.

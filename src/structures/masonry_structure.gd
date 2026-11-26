@@ -66,7 +66,7 @@ func infer_supports() -> void:
 		m.support_boxes.clear()
 		m.touching.clear()
 		m.dependents.clear()
-		m.analysis_cache = {}
+		m.forget_analysis()
 	for i in wall.count():
 		var m := _members[i]
 		var beds := {}

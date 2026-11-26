@@ -95,7 +95,7 @@ static func take_apart(b: Structure) -> Dictionary:
 		m.support_points = {}
 		m.support_boxes = {}
 		m.touching = []
-		m.analysis_cache = {}
+		m.forget_analysis()
 		m.extra_points = PackedVector2Array()
 	b.last_analysis = null
 	b._records.clear()
@@ -153,8 +153,13 @@ static func take_apart(b: Structure) -> Dictionary:
 	for c in b.get_children():
 		c.free()
 	step.call("other children (lamps, kit props, dressing)")
-	if OS.has_environment("MM_CENSUS"):
-		load("res://build/probe_lib2.gd").census(b)
+	# Its finishes' materials (SpecBuilding's library ones): what they free is their textures, loaded once
+	# and shared by every building with the same finishes (#1270: this was "the structure", 3.4 KB a member
+	# on the hotel, whose finishes the warm-up building doesn't use; VRAM on a GPU).
+	var lib_mats: Variant = b.get("_lib_mats")
+	if lib_mats is Dictionary:
+		(lib_mats as Dictionary).clear()
+	step.call("finish textures (shared, loaded once)")
 	b.free()
 	step.call("the structure (its own lists and spec)")
 	MemberMesh._cache.clear()

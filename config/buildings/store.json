@@ -354,7 +354,9 @@
    "width": 0.9,
    "risers": 13,
    "going": 0.2
-  }
+  },
+  "dig": true,
+  "_dig": "#1266 (CellarDig): in the valley the ground under it is dug to its floor (Ground's dug tiles), the cut's edge inside the walls' stone. The store's lot (x -54 to -37) is outside the valley's first ground chunk, so the card set's ground in saloon B's yard is untouched (the hotel's _dig)."
  },
  "posts": {
   "free": [

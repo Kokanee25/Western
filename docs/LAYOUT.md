@@ -467,7 +467,8 @@ the sky's `cloud_band`, the ground's `ground_tint`/`ground_saturation`/`churn_da
 (street colour), SSAO, `grade.*` (`LightGrade`: a 16-cube lookup on the environment's colour
 correction: split tone, oranges pulled back, saturation, an S of contrast; strength 0 = off and the
 environment's adjustments off as before), `finish.*` (`LightFinish`: a quad the player's camera
-carries, vignette, grain, heat shimmer on far pixels by day; none carried at 0), the saloon's lamps
+carries, vignette, grain, heat shimmer by day on far level ground seen just under the horizon, never a
+building (#1266: `shimmer_flat`, `shimmer_band`, `shimmer_rise`); none carried at 0), the saloon's lamps
 by kind (`lamps.saloon_hanging|saloon_wall`) and night fill. Today's = every address they set put
 back to what LookPreset read first. Not saved; the goldens are today's until Sean picks.
 
@@ -788,6 +789,8 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
 - **The valley's ground drawn real and its scatter** (#891, art's; `-- --greybox-ground` and `-- --no-scatter`
   give the old): `ValleyGroundArt` (`src/art/valley_ground_art.gd`) makes the material ValleyGround's
   blocks and the dug tiles wear (`src/art/valley_ground.gdshader`: six CC0 scans, `config/valley_ground_art.tres`)
+  (#1266: the scans' imports keep mipmaps or the far ground swims; `scan_soft` 0.7 their lookup's reach, the
+  fine marks fade by a pixel's footprint)
   and answers the ground map (`assets/textures/valley/ground_map_a.res`, `_b.res`, baked from valley.json by
   `godot --headless -s res://tools/textures/valley_ground_map.gd`; re-bake when valley.json changes:
   `tests/test_valley_ground_art.gd` fails until it is): `road_at`, `off_road`, `water_at`, `flags_at`,

@@ -831,7 +831,9 @@
 					"level": "upper",
 					"at": 1.22,
 					"width": 0.91,
-					"height": 2.13
+					"height": 2.13,
+					"hinge": "end",
+					"_hinge": "#1266: hung on its back jamb, its leaf clear of the office's front door in the corner"
 				},
 				{
 					"type": "window",
@@ -1160,7 +1162,9 @@
 					"type": "door",
 					"at": 7.14,
 					"width": 0.91,
-					"height": 2.13
+					"height": 2.13,
+					"hinge": "end",
+					"_hinge": "#1266: hung on its back jamb, its leaf clear of the kitchen door's way through"
 				}
 			]
 		},
@@ -1344,7 +1348,9 @@
 					"type": "door",
 					"at": 8.43,
 					"width": 1.22,
-					"height": 2.13
+					"height": 2.13,
+					"hinge": "end",
+					"_hinge": "#1266: hung on its far jamb, its leaf clear of the stage's steps (they end at x 8.26)"
 				}
 			]
 		},
