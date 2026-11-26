@@ -133,7 +133,7 @@ the saddle; it stands at the livery; the livery man complains of the oats. Payof
 **S14. The sheriff's rifle** · T1 → T2 · D. Plant: in its scabbard on that horse from day 1 (P); the
 widow gives it to him (D). Payoff: the rope shot. The dead sheriff's rifle saves Joe.
 
-**S15. "That's not the way this works, son."** · T1 · plant D, payoff P·bible. Plant: the dying sheriff,
+**S15. "That ain't how it's done, son."** (Sean's wording, 2026-11-18; was "That's not the way this works, son.") · T1 · plant D, payoff P·bible. Plant: the dying sheriff,
 when Harlan shakes his head at the badge. Payoff: the widow, when he tries to refuse the rifle: her
 husband's own words, and the first time she smiles. If he nodded on day 2 he never heard the line,
 so hers has to land without it.
@@ -286,8 +286,8 @@ line and an object (rule 3).
   the bedside, where every player passes. If Harlan left him, the freighter: "A sorrel, he kept
   saying. A sorrel, and 'friend'."
 - Again, night one: the sorrel at the saloon's rail as Harlan goes in, then the stranger's built
-  "Don't move, friend." A player who listened joins them himself; nobody tells him. His built "Easy,
-  friend. I ain't the one you want." is a lie with no word changed. Tonight he can do nothing about
+  "Don't move, friend." A player who listened joins them himself; nobody tells him. His gun line, later,
+  "Best put that by, Deputy. These gentlemen might take it wrong." (re-made 2026-11-18) is the same coward's manners. Tonight he can do nothing about
   it (No Law's point); he has no gun until the sheriff gives him his on day 2 (Sean, 2026-11-17), so there is nothing to go for him with.
 - Again: the sorrel at the Baron's buggy at the funeral, the foreman standing behind the Baron
   while he makes the widow his offer.
@@ -368,7 +368,7 @@ above the creek, I believe. I have admired it." (`funeral.baron_spring`). Payoff
 doctor's and bang on the door"; the doctor "says, more or less, that this man needs a grave, not a
 doctor"); the wordings P·bible. Three things, of three kinds (rule 3):
 - **The door.** The doctor is up with the sheriff and slow to come ("Who is it? I've a man dying in
-  here."). He opens, looks once: "This man wants burying, Harlan, not doctoring." Earl is laid in the
+  here."). He opens, looks once: "The man wants burying, not doctoring." (Sean's wording) Earl is laid in the
   front room under a sheet. Payoff, next morning, by the body: "He was dead when you knocked. I'd not
   have you think it was the door." Which is how Harlan knows the doctor has thought about it.
 - **The count.** The doctor counts what Harlan carries: "That's two you've carried to this door

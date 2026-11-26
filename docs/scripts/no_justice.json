@@ -18,7 +18,7 @@
     "Nobody says Kett's name (K3, who names him is open). His crew call him 'Red', a cowhand's nickname by look (WORDS.md).",
     "Where Joe and Harlan meet is open (s3); the card says the doctor's office, so that's where it's written. The bold cowboy's part is open (s4): his one line is the card's.",
     "Rule 7 (slurs, Kett one of three men allowed, at a moment that matters): one moment is marked (cabin.bargain) and written without the word. Sean decides whether it gets one; the word is chosen then, and may not be voiceable.",
-    "Rewritten 2026-11-17 (#1056). Sean's lines stay word for word: 'Are you going to stop me?', 'Is that a yes?', 'That was mine to take.'",
+    "Rewritten 2026-11-17 (#1056). Sean's lines stay word for word: 'Are you going to stop me?', 'Is that yes?' (his own period way, 2026-11-18), 'That was mine to take.'",
     "Joe is a man whose wife was murdered, and he talks about horses, dogs, a hat and what her mother will ask. He never says what he feels. 'It is done' and 'It did not give her back' are gone for that reason.",
     "The town remembers: lines with an 'If:' wait on what you did (carried the sheriff or left him, sat at Earl's table, went out after Cody). Joe has heard all of it.",
     "Kett has been in the state prison at Cañon City and rates jails by their supper. He has seen Joe's face at the cabin, so in the arrest ending the costume has not held with him."
@@ -994,12 +994,16 @@
           "delivery": "He wants it said plainly, with your head.",
           "words": [
             {
-              "text": "Is that a yes?",
-              "status": "built",
+              "text": "Is that yes?",
+              "status": "new",
               "note": "Sean's"
             }
           ],
-          "takes": []
+          "takes": [],
+          "was": [
+            "Is that a yes?"
+          ],
+          "note": "Sean, 2026-11-18 (#1059): Sean's period way (#1288)."
         },
         {
           "id": "cabin.nod",
@@ -1278,7 +1282,7 @@
       ]
     }
   ],
-  "rewritten": "2026-11-17",
+  "rewritten": "2026-11-26",
   "facts": [
     {
       "fact": "sheriff.care",
@@ -1347,8 +1351,8 @@
   "kept": [
     {
       "line": "cabin.ask, cabin.unclear, fight.mine",
-      "words": "Are you going to stop me? / Is that a yes? / That was mine to take.",
-      "why": "Sean's lines (2026-11-09), word for word. The blind reader heard 'Is that a yes?' as present-day. A period way, if Sean wants one: 'Is that yes?'"
+      "words": "Are you going to stop me? / Is that yes? / That was mine to take.",
+      "why": "Sean's lines (2026-11-09), word for word; 'Is that a yes?' became 'Is that yes?' on his call of 2026-11-18 (#1059)."
     },
     {
       "line": "fight.crew_*",
@@ -1356,5 +1360,5 @@
       "why": "Barks in a gunfight: plain on purpose."
     }
   ],
-  "rewritten_at": "2026-11-17T15:56:06Z"
+  "rewritten_at": "2026-11-26T17:47:04Z"
 }

@@ -77,7 +77,7 @@ fact, not the beat.
      reads wrong since 2026-11-13. By C16 a, D: "Stranger on a bald-faced sorrel. Rode up easy, like
      he wanted directions. Called me friend. Then he shot me.")
   2. "Well? Nod or don't, but don't just stand there." (built)
-  3. "That's not the way this works, son." (Sean's beat, 2026-11-09; this wording is #796's)
+  3. "That ain't how it's done, son." (Sean's beat, 2026-11-09; his wording 2026-11-18, #1059; was #796's "That's not the way this works, son.")
   3a. Day 2, clear (by C16 a, D): "Bald-faced sorrel. Called me friend. I'd know him again. You find
      him, Harlan." (the built "Faded red shirt..." reads wrong since 2026-11-13)
   4. Day 2, clear: "He's wanted my ditch since the day I cut it. Now he'll go at her. Look to them."
@@ -147,7 +147,7 @@ fact, not the beat.
   captain's day means for his people (D).
 - **Lines:**
   1. "Are you going to stop me?" (Sean's beat)
-  2. "Is that a yes?" (Sean)
+  2. "Is that yes?" (Sean; his period way, 2026-11-18)
   3. "That was mine to take." (Sean)
   4. "A hat and a rag at my neck, and I am nobody's Indian. Only one more man who shot at them."
   5. "A log that size will stop them. If it swings when it should." (after #738's example)
@@ -182,8 +182,11 @@ fact, not the beat.
 - **His built lines are fixed** (`config/moments/no_law_murder.json`), and this sheet must fit them:
   1. "Evening. Mind if I sit in a while?" (built)
   2. "Don't move, friend. Whatever happens next, you sit still." (built)
-  3. "You didn't see a thing tonight. Nobody did. Remember that." (built)
-  4. "Put it up. You'll only get yourself killed." (built)
+  3. "I'll say good night, friend. Anybody asks, I'd take it kindly if you'd been looking into your glass." (re-made on
+     Sean's call, 2026-11-18, #1059; was the built "You didn't see a thing tonight. Nobody did. Remember that.")
+  4. At a gun, later (re-made the same way; were "Easy, friend. I ain't the one you want." and two more): "Why, Deputy.
+     I'd sooner you pointed that some other way, if it's no trouble." / "Best put that by, Deputy. These gentlemen might
+     take it wrong." / "Go on home, Deputy. I'll not hold it against you."
 - **What he is (D, Sean 2026-11-17, #1056):** "cocky and arrogant … but also a coward - that's why the sheriff was only
   shot in the gut and not finished off". **Held back: "probably a mid game reveal"** (Sean), though players will guess.
   So: he fired once from the saddle and rode, which is why the sheriff lived a day and talked, which is why he has to
