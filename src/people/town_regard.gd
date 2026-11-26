@@ -117,7 +117,7 @@ func _harlan_fired(pid: StringName) -> int:
 	var n := 0
 	for rid: int in (folk.news.versions.get(pid, {}) as Dictionary):
 		var v := folk.news.version_of(pid, rid)
-		if v.who == TownNews.HARLAN and not v.down:
+		if v.who == TownNews.HARLAN and not v.down and not v.get("rough", false):
 			n += 1
 	return n
 

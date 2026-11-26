@@ -2223,7 +2223,8 @@ func bark_ctx(id: StringName, man: HumanBody) -> Dictionary:
 	return {"pid": String(id), "pools": pools_of(id), "band": String(regard.band_of(o)) if regard else "",
 			"view": String(regard.view(id)) if regard else "", "opinion": o, "hour": hour(),
 			"day_kind": String(day_kind(town_day())), "spot": String(b.get("do", "")), "at": at,
-			"shaken": brain != null and brain.reaction != null and brain.reaction.shaken()}
+			"shaken": brain != null and brain.reaction != null and brain.reaction.shaken(),
+			"indoors": hall != "" or b.has("in") or (room != null and man != null and room.inside(man.global_position))}
 
 
 ## A moment of his asks for a bark (Reaction's stages: `react.<x>`): said on the physics frame if a

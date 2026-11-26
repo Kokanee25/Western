@@ -2011,8 +2011,12 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `run_doc`/`run_law`/`runner[_dead|_you][.shot]`; the built strings only a fallback. **The dead taken away** (`ValleyFolk._dead_step`, data `dead`): a day man dead,
   seen (`known_down`) within 0.75 clock h, else from 06:00 next morning, the undertaker called out to him, the
   body to the undertaker's once you're off it (`to_undertaker`, `death.<id>`); Earl keeps No Law's way. Bridge `read news`.
+  **A shove is news** (#1272, `_rough`): Harlan's shove or kick is a record `what` rough (`rough` true; never merged
+  with shots: `_record_near`/`_record_heard`/`_record_of` skip it), held by the man it was done to and each townsman who
+  saw it (within `ROUGH_SEEN_M`); kind `rough`, size 0.2 (told on; only told, it fades overnight); not told nor said to
+  your face for `ROUGH_TELL_S` (30 s, `_too_soon`); `news.rough[.you|.nobody]`, `{whom}` "me" from the man shoved.
   **Regard and the barks** (townsfolk step 9, #1152; `TownRegard` `src/people/town_regard.gd`, `TownBarks`
-  `src/people/town_barks.gd`, `tests/test_town_barks.gd`, `_valley`; bridge `read regard`): each man's trust, fear,
+  `src/people/town_barks.gd`, `tests/test_town_barks.gd`, `_valley`, `tests/test_answers.gd`; bridge `read regard`): each man's trust, fear,
   liking, respect of Harlan worked out when asked from his own `view_of_harlan` and StoryState facts (data `regard`:
   `view`, `facts` with `all`/`who`/`split`), and what he saw Harlan do himself (#1167: `deeds`, from Events.deed
   and a won pot, `saw_harlan`; `fired`, his versions with Harlan firing and nobody down; kept in the save); band afraid / warm / wary / cold, the town's the average. Within
@@ -2023,7 +2027,11 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `clear_far`; again after `group_again_s` if you stay, #1184). `_talk_step`: his news, else No Law's set (wins;
   the same limits; from `near_m`), else a `pass` bark (from `bark_m`). `_chat_step` (#1184, data `chat`): two calm
   day men by each other in your hearing: a `chat` line, a `chat.reply` a beat on (`_later`; none if the first's gone). A `talk` with nobody near
-  waits looking about (`SpotChore.alone_s`); a round moves on after `chat.alone_s` (#1230). Reaction's
+  waits looking about (`SpotChore.alone_s`); a round moves on after `chat.alone_s` (#1230). **A shove answered** (#1272):
+  the man shoved always knows it (even from behind), turns (`show_look`) and speaks up; everyone who saw it looks, the
+  first `ROUGH_SPEAK` (2) by distance say `react.shove` (`CivilianBrain._saw_shove`); one shove seen turns a man cold
+  (data `regard.deeds.shove`). Bark ctx `indoors` (a hall spot, at home, or in the saloon room): `react.inside` is out of
+  doors only. Measured by `experiments/answers/` (its README: the table, verb by verb). Reaction's
   stages call `brain.bark` (ValleyFolk.bark_for); the undertaker's at the body (`_undertaker_says`). Pools in data
   `barks.pools`.
   **The saloon as a room** (townsfolk step 10, #1157; `SaloonRoom` `src/people/saloon_room.gd`, data `room`,
