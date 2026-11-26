@@ -10,13 +10,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   The clock runs at a quarter of the day's rate till it's over (#1082: in by about 08:00). Waiting on Sean: #755. The carry's pose is unjudged on a real screen.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
-  **The night's carry (#1057):** Cody's ball goes through Earl's collarbone (`aim` subclavian_r: down, ~25 ml/s,
-  dead ~146 s on); the barkeep sends you to Doc's; `PlayerCarry` (E: over the shoulder, no trail), `PlayerKnock` (E at
-  a door; `ValleyFolk.knocked`), `NoLawCarry` (the doctor out, his lines, Earl laid in the front room under a
-  stand-in sheet, `ValleyFolk.lay_out`); in the morning SheriffDies' doctor says morning.body by him, the
-  undertaker's after the sheriff's dead. `tests/test_no_law_carry.gd`. Open: the doctor in the doorway can block
-  dragging him in yourself (the test lets go on the step); "on the table" in carry.lay but he's on the floor;
-  carry.street, morning.coat, the undertaker's lines aren't wired; the coat isn't drawn bloody. The funeral (#868) as it was. No Law's script
+  **The night's carry (#1057):** Cody's ball through Earl's collarbone; the barkeep sends you to Doc's; `PlayerCarry`,
+  `PlayerKnock`, `NoLawCarry` (Earl laid in the front room), `tests/test_no_law_carry.gd`. Open: the doctor in the
+  doorway can block dragging him in; he's laid on the floor, not "on the table"; carry.street, morning.coat and the
+  undertaker's lines aren't wired; the coat isn't drawn bloody. The funeral (#868) as it was. No Law's script
   isn't OK'd (#1059). **Next: the whole mission played end to end, its seams mended (#876).**
 - **No Justice: steps 1-4 done** (#843's plan; each `-- --world=valley --mission=<m>`, bridge `moment <m> set_up=1`).
   Joe is `CompanionBrain` (`--joe`, the lab's `joe=1`, `--joe-tune`); `held`, a scene walks him and he doesn't step out
@@ -29,8 +26,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`; down in the fight, Enter retries it (`retry_on_load`).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest faults (#1095-#1125)** built (LAYOUT "src/people"). Open: one stick at 1.2-1.7 m takes a foot, a hand,
-  15-19 wounds; the bridge's `tend` on an unhurt man kicks; the slowdown after dynamite and fire.
+- **Playtest faults (#1095-#1125)** built. Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds; the
+  bridge's `tend` on an unhurt man kicks; the slowdown after dynamite and fire.
 - Story: #744, STORY.md; the bible #809.
 - **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-10: day and book, roster,
   spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
@@ -49,6 +46,12 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   "The table answers you"): fire raises, G sat calls a cheat; each verb a line at once, `you_did` -> regard and
   TownNews `table` (a pot, a bluff shown up, a cheat called told later). Still flat: standing close (nothing), the
   barkeep's "Don't shoot!" over and over; the bench's "said" column counts the table's own game talk too.
+
+- **The drink** (#1292; LAYOUT "src/player" PlayerPurse/PlayerDrink, "src/people" the bar; `config/drink.json`):
+  a purse (saved; the card stake from it), E at saloon B's bar (tap whiskey, hold beer/the bottle, G a round), the
+  barkeep pours a kit bottle into a kit glass, the glass in your hand, the dial (sway, settle, nerve, the walk
+  weaves). Answers: round, deputy, drunk, alone; news `bar`. Unjudged on screen: the hand round the glass, the pour.
+  12 + 6 lines for Sean's script OK (#1150). Open: only the valley's bar has a BarService (no old town, no hotel).
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
@@ -71,9 +74,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `kit_blast` ~130 ms after saloon B's sticks); the valley (`docs/reviews/2026-11-valley-bench.md`, `--townsfolk=N`:
   24 fit; open: ~1 ms untimed, the outlaws' first cover moves ~120 ms).
 - **Building memory** (#1259, #1262, #1270; `docs/reviews/2026-11-member-memory.md`, `tools/member_memory.gd`): hotel
-  18.6 KB a member (held to 20), valley + hotel 3,470 MB peak here. Resting members' nodes are rows (`_rest_data`: ask
-  `drawn_node()`, not `pieces`); a script var is ~80 B a member; damage reaches the structure by `member_damaged`, no
-  connects. 15 KB needs a member as a row (measured ~12, not built): #1275.
+  18.6 KB a member (held to 20); resting members' nodes are rows (ask `drawn_node()`, not `pieces`). 15 KB: #1275.
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
 - **Flaky in shard order:** `test_town_day`'s fights. **Two collapses** (#1214): compare with impacts off.
@@ -84,9 +85,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **The valley's people tests** (#925): sample a people test's odds by running its scene many times in one
   process, each start shifted a few frames (#1248: a run here is deterministic; CI's shard order isn't).
   Traps: `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI draws differently from a
-  workspace (nudge the test's setup a few cm in a scratch test to find CI's path, #1094);
-  the kit chair's pieces keep collision exceptions to freed bodies (`get_collision_exceptions` on one errors:
-  test by `body_test_motion`); two test suites at once collide on the bridge port and `user://`.
+  workspace (#1094); a kit chair's pieces keep exceptions to freed bodies (test by `body_test_motion`).
   `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
 - **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks, smoke legs (valley, sheriff,
   `sheriff_dies`, coach); a red night opens a `nightly red` issue. Trap: a `.gdignore` drops its folder from the pack.
@@ -101,7 +100,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `outlaw_brain.gd` while `run.py` runs.
 - Tests at night in the valley turn the murder off (`-- --no-murder`); a drawn rifle on Main Street sets the
   gang off (use the rope range).
-- A fresh container has no native plugin (`bin/` is ignored): `NO_PROXY=localhost,127.0.0.1 cargo build --release`
-  in the plugin (2.5 min), the .so to `bin/`, then `godot --headless --import` (~5 min).
+- A fresh container has no Godot (the 4.7.2 zip from GitHub to ~/.local/bin) nor native plugin: `cargo build --release`
+  in it (2.5 min), the .so to `bin/`, then `godot --headless --import` (~10 min).
 - Bridge commands: LAYOUT "The dev bridge". `bridge.py start` is the old town (the gang, the store, the widow) unless
   `--game-args=--world=valley` or a story `--mission=`; the clock's held (`clock on`).

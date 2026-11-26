@@ -59,7 +59,7 @@ var _entered_at := -INF
 var _drop_at := -INF
 var _by_bar := 0.0
 var _glass_day := -1
-var glass: MeshInstance3D
+var glass: Node3D  # a real GlassProp since #1292 (BarService.give_glass); a stand-in cylinder without the bar's service
 ## The room's box on its floor: its corner and two sides (world); saloon B's bar room.
 var _o := Vector3.ZERO
 var _ax := Vector3.RIGHT
@@ -644,18 +644,19 @@ func _set_glass(at: Vector3, man: HumanBody) -> void:
 	_clear_glass()
 	if folk.service != null:
 		# A real glass with a real shot in it (#1292): yours to pick up and drink (BarService).
-		folk.service.give_glass(at, _player())
+		glass = folk.service.give_glass(at, _player())
 		_sound(&"glass_down", man, "glass", at)
 		return
-	glass = MeshInstance3D.new()
+	var mi := MeshInstance3D.new()
+	glass = mi
 	var m := CylinderMesh.new()
 	m.top_radius = 0.03
 	m.bottom_radius = 0.026
 	m.height = 0.08
-	glass.mesh = m
+	mi.mesh = m
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color(0.7, 0.62, 0.45)
-	glass.material_override = mat
+	mi.material_override = mat
 	glass.name = "RoomGlass"
 	folk.add_child(glass)
 	glass.global_position = at + Vector3.UP * 0.04
@@ -664,7 +665,9 @@ func _set_glass(at: Vector3, man: HumanBody) -> void:
 
 func _clear_glass() -> void:
 	if glass != null and is_instance_valid(glass) and (not open() or _glass_day != folk.town_day()):
-		glass.queue_free()
+		# (A real glass in your hand, or broken, is yours or the floor's now: only forgotten.)
+		if not (glass is GlassProp and ((glass as GlassProp).held or (glass as GlassProp).broken)):
+			glass.queue_free()
 		glass = null
 
 

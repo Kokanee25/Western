@@ -2809,9 +2809,6 @@
      "speaker": "barkeep",
      "trigger": "Harlan asks for a whiskey and has the money; he pours it",
      "when": "said every time",
-     "if": {
-      "on": "bar.serve.whiskey"
-     },
      "condition": "",
      "delivery": "Pouring as he says it, not looking up.",
      "words": [
@@ -2836,9 +2833,6 @@
      "speaker": "barkeep",
      "trigger": "Harlan asks for a beer; he draws it from the tap",
      "when": "said every time",
-     "if": {
-      "on": "bar.serve.beer"
-     },
      "condition": "",
      "delivery": "",
      "words": [
@@ -2863,9 +2857,6 @@
      "speaker": "barkeep",
      "trigger": "Harlan asks for the bottle",
      "when": "said every time",
-     "if": {
-      "on": "bar.serve.bottle"
-     },
      "condition": "",
      "delivery": "Setting it down with a look that says go easy.",
      "words": [
@@ -2890,9 +2881,6 @@
      "speaker": "barkeep",
      "trigger": "Harlan asks for a drink he can't pay for",
      "when": "said every time",
-     "if": {
-      "on": "bar.no_money"
-     },
      "condition": "",
      "delivery": "Hand flat on the bar, not pouring.",
      "words": [
@@ -2917,9 +2905,6 @@
      "speaker": "barkeep",
      "trigger": "Harlan asks for a drink with a gun out in his hand",
      "when": "said every time",
-     "if": {
-      "on": "bar.gun"
-     },
      "condition": "",
      "delivery": "Eyes on the gun, not on him.",
      "words": [
@@ -2944,9 +2929,6 @@
      "speaker": "barkeep",
      "trigger": "Harlan asks for another past the cut-off",
      "when": "said every time",
-     "if": {
-      "on": "bar.cut_off"
-     },
      "condition": "",
      "delivery": "Kind, but the bottle's gone under the bar.",
      "words": [
@@ -2971,9 +2953,6 @@
      "speaker": "barkeep",
      "trigger": "Harlan stands the house a round",
      "when": "said every time",
-     "if": {
-      "on": "bar.round"
-     },
      "condition": "",
      "delivery": "Loud, for the room.",
      "words": [
@@ -3106,9 +3085,6 @@
      "speaker": "barkeep",
      "trigger": "A glass of his broken (dropped, knocked, shot)",
      "when": "said every time",
-     "if": {
-      "on": "bar.broke"
-     },
      "condition": "",
      "delivery": "",
      "words": [
