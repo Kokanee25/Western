@@ -189,6 +189,15 @@ static var _chips: Array = []
 var _rest_mesh: MeshInstance3D
 var _rest_shape: CollisionShape3D
 var _rest_owner := -1
+## At rest with plain nodes, not even them (#1262: a MeshInstance3D and a CollisionShape3D kept aside were
+## 4.4 KB a member on the hotel): what they were, [mesh's name, mesh, material, transform, visible,
+## cast_shadow, layers, metas ([name, value, ...]), shape's name], made into nodes again only when
+## something asks for them (`drawn_node`, `realise`, `take_parts`). Its batch reads it as data
+## (`drawn_mesh`, `drawn_meta`, ...). Untyped: null when not.
+var _rest_data = null
+## Whether resting members' nodes are freed (the switch for a before/after, tests).
+static var free_at_rest := not "--keep-rest-nodes" in OS.get_cmdline_user_args()
+const _PLAIN_METAS: Array[StringName] = [&"board", &"board_ground", &"strips_rng"]
 
 
 ## The wood its mesh is drawn in: its `look`, else its own.
@@ -198,17 +207,53 @@ func drawn_wood() -> StringName:
 
 ## Its mesh node, in the tree or kept aside at rest (what its structure batches).
 func drawn_node() -> MeshInstance3D:
+	if _rest_data != null:
+		_unpack()
 	return _rest_mesh if _rest_mesh else get_child(0) as MeshInstance3D
 
 
 func resting() -> bool:
-	return _rest_mesh != null
+	return _rest_mesh != null or _rest_data != null
+
+
+## What its mesh node draws and how it's placed, read without making the node at rest (its batch).
+func drawn_mesh() -> Mesh:
+	if _rest_data != null:
+		return _rest_data[1]
+	var mi := drawn_node()
+	return mi.mesh if mi else null
+
+
+func drawn_material() -> Material:
+	if _rest_data != null:
+		return _rest_data[2]
+	var mi := drawn_node()
+	return mi.material_override if mi else null
+
+
+func drawn_transform() -> Transform3D:
+	if _rest_data != null:
+		return _rest_data[3]
+	var mi := drawn_node()
+	return mi.transform if mi else Transform3D()
+
+
+func drawn_meta(name: StringName, default: Variant = null) -> Variant:
+	if _rest_data != null:
+		var metas: Array = _rest_data[7]
+		for i in range(0, metas.size(), 2):
+			if metas[i] == name:
+				return metas[i + 1]
+		return default
+	var mi := drawn_node()
+	return mi.get_meta(name, default) if mi else default
 
 
 ## Take its mesh and shape nodes out of the tree (the structure has it in a batch): the body keeps
-## the shape. Only as built: child 0 its mesh, child 1 its shape.
-func rest() -> void:
-	if _rest_mesh or get_child_count() < 2:
+## the shape. Only as built: child 0 its mesh, child 1 its shape. `free_nodes` (and plain nodes, as built
+## and the member's only piece): the nodes freed, what they were kept as data (`_rest_data`).
+func rest(free_nodes := false) -> void:
+	if _rest_mesh or _rest_data != null or get_child_count() < 2:
 		return
 	var mi := get_child(0) as MeshInstance3D
 	var cs := get_child(1) as CollisionShape3D
@@ -222,11 +267,77 @@ func rest() -> void:
 	shape_owner_add_shape(_rest_owner, cs.shape)
 	shape_owner_set_transform(_rest_owner, cs.transform)
 	shape_owner_set_disabled(_rest_owner, cs.disabled)
+	if free_nodes and free_at_rest and _plain(mi, cs):
+		var metas: Array = []
+		for k: StringName in mi.get_meta_list():
+			metas.append_array([k, mi.get_meta(k)])
+		_rest_data = [mi.name, mi.mesh, mi.material_override, mi.transform, mi.visible, mi.cast_shadow, mi.layers, metas, cs.name]
+		_rest_mesh = null
+		_rest_shape = null
+		pieces = []
+		mi.free()
+		cs.free()
+
+
+## Nodes it can make again from data alone: as built, nothing on them but their mesh, material, place
+## and the boards' metas, and the member's only piece.
+func _plain(mi: MeshInstance3D, cs: CollisionShape3D) -> bool:
+	if pieces.size() != 1 or (pieces[0] as Array).size() != 2 or pieces[0][0] != mi or pieces[0][1] != cs:
+		return false
+	if mi.get_child_count() > 0 or cs.get_child_count() > 0 or mi.material_overlay != null or mi.skeleton != NodePath("") \
+			or mi.transparency != 0.0 or mi.extra_cull_margin != 0.0 or mi.visibility_range_end != 0.0 \
+			or mi.gi_mode != GeometryInstance3D.GI_MODE_STATIC or not cs.get_meta_list().is_empty() \
+			or _wired(mi) or _wired(cs):
+		return false
+	if mi.mesh:
+		for i in mi.mesh.get_surface_count():
+			if mi.get_surface_override_material(i) != null:
+				return false
+	for k: StringName in mi.get_meta_list():
+		if not k in _PLAIN_METAS:
+			return false
+	return true
+
+
+## Something else (a node) has a signal of its own connected to `n`: it'd hold the freed node (its
+## own mesh's and material's `changed` are the engine's).
+static func _wired(n: Node) -> bool:
+	for c: Dictionary in n.get_incoming_connections():
+		if (c.signal as Signal).get_object() is Node:
+			return true
+	return false
+
+
+## Its nodes made again from what they were (still aside: at rest), the member's piece again.
+func _unpack() -> void:
+	var d: Array = _rest_data
+	_rest_data = null
+	var mi := MeshInstance3D.new()
+	mi.name = d[0]
+	mi.mesh = d[1]
+	mi.material_override = d[2]
+	mi.transform = d[3]
+	mi.visible = d[4]
+	mi.cast_shadow = d[5]
+	mi.layers = d[6]
+	var metas: Array = d[7]
+	for i in range(0, metas.size(), 2):
+		mi.set_meta(metas[i], metas[i + 1])
+	var cs := CollisionShape3D.new()
+	cs.name = d[8]
+	cs.shape = shape_owner_get_shape(_rest_owner, 0)
+	cs.transform = shape_owner_get_transform(_rest_owner)
+	cs.disabled = is_shape_owner_disabled(_rest_owner)
+	_rest_mesh = mi
+	_rest_shape = cs
+	pieces = [[mi, cs]]
 
 
 ## Its mesh and shape nodes back in the tree, where they were (child 0 and 1), before anything
 ## reads or changes them.
 func realise() -> void:
+	if _rest_data != null:
+		_unpack()
 	if _rest_mesh == null:
 		return
 	var mi := _rest_mesh
@@ -246,6 +357,8 @@ func realise() -> void:
 ## with its transform as it is under the member. At rest, the pair kept aside as they are: put back
 ## under the member only to be moved again was a kit prop's going loose twice over (#538).
 func take_parts() -> Array[Node3D]:
+	if _rest_data != null:
+		_unpack()
 	var out: Array[Node3D] = []
 	if _rest_mesh:
 		out.append(_rest_mesh)
@@ -354,6 +467,9 @@ func is_masonry() -> bool:
 
 ## Where it is in the world now (it may be lying in the street as rubble).
 func world_aabb() -> AABB:
+	if _rest_data != null and is_inside_tree():
+		var mesh: Mesh = _rest_data[1]
+		return global_transform * (_rest_data[3] as Transform3D) * (mesh.get_aabb() if mesh else AABB())
 	if _rest_mesh and is_inside_tree():
 		return global_transform * _rest_mesh.transform * _rest_mesh.get_aabb()
 	var box := AABB()

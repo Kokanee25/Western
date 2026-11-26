@@ -105,7 +105,11 @@ static func take_apart(b: Structure) -> Dictionary:
 	# Each member's mesh and shape resources (shared ones go when the last member lets go).
 	var mis: Array[MeshInstance3D] = []
 	var css: Array[CollisionShape3D] = []
+	var rows: Array[StructureMember] = []  # resting with their nodes freed (#1262): a row of data each
 	for m: StructureMember in b.get_members():
+		if m._rest_data != null:
+			rows.append(m)
+			continue
 		m.realise()
 		for c in m.get_children():
 			if c is MeshInstance3D:
@@ -116,9 +120,15 @@ static func take_apart(b: Structure) -> Dictionary:
 	for mi in mis:
 		mi.mesh = null
 		mi.material_override = null
+	for m in rows:
+		m._rest_data[1] = null
+		m._rest_data[2] = null
 	step.call("member meshes")
 	for cs in css:
 		cs.shape = null
+	for m in rows:
+		m.remove_shape_owner(m._rest_owner)
+		m._rest_owner = -1
 	b._shape_cache.clear()
 	step.call("member shapes")
 	for mi in mis:
@@ -127,6 +137,9 @@ static func take_apart(b: Structure) -> Dictionary:
 	for cs in css:
 		cs.free()
 	step.call("CollisionShape3D nodes")
+	for m in rows:
+		m._rest_data = null
+	step.call("resting members' rows (their nodes freed)")
 	var ms: Array[StructureMember] = b.get_members().duplicate()
 	for m in ms:
 		b.remove_child(m)
@@ -186,10 +199,13 @@ class MeasuredBuilding:
 		mem_marks["batches"] = OS.get_static_memory_usage() / 1024.0
 		var meshes := {}
 		var verts := 0
+		var rows := 0
 		for m: StructureMember in get_members():
-			var mi := m.drawn_node()
-			if mi and mi.mesh:
-				meshes[mi.mesh] = true
+			var mesh := m.drawn_mesh()  # (not drawn_node: that makes a resting member's nodes again)
+			if mesh:
+				meshes[mesh] = true
+			if m._rest_data != null:
+				rows += 1
 		for mesh: Mesh in meshes:
 			verts += mesh.surface_get_array_len(0)
 		var bverts := 0
@@ -200,4 +216,4 @@ class MeasuredBuilding:
 			else:
 				bverts += ((_batches[k] as MeshInstance3D).mesh as ArrayMesh).surface_get_array_len(0)
 		counts = {"distinct_member_meshes": meshes.size(), "their_vertices": verts, "batches": _batches.size(),
-			"batch_vertices": bverts, "board_instances": instances}
+			"batch_vertices": bverts, "board_instances": instances, "resting_as_rows": rows}
