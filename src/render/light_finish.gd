@@ -16,6 +16,9 @@ const DEFAULTS := {
 	"shimmer_from": 40.0,
 	"shimmer_full": 160.0,
 	"shimmer_top": 0.35,
+	"shimmer_flat": 0.9,
+	"shimmer_band": 0.06,
+	"shimmer_rise": 0.4,
 }
 
 static var dials := DEFAULTS.duplicate()

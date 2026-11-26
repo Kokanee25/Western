@@ -525,3 +525,78 @@ static func export_members(b: Structure, path: String) -> int:
 	f.store_string(JSON.stringify({"structure": String(b.structure_id), "members": out}))
 	f.close()
 	return out.size()
+
+
+## Every door leaf swings clear (#1266, Sean's walk: saloon B's leaves crossed in a doorway, some
+## wouldn't open): each leaf the builder hung (its `hinge`, `shut`, `latch`, `leaf_w`, `leaf_h`,
+## `leaf_y0` metas, SpecBuilding._leaf and the corner's pair) swept from nearly shut (15 degrees) to
+## where it stands open, a thin box at every 15 degrees, short of its hinge's jamb and its latch's
+## edge, meets nothing (no member, no furniture, no other leaf); and no leaf stands in another door's
+## way through. `leaves` lists each leaf, which way it swings and what it met.
+static func door_swings(b: Structure) -> Dictionary:
+	var failures := []
+	var leaves := []
+	var space := World.space(b)
+	var hung: Array[StructureMember] = []
+	for m: StructureMember in b.get_members():
+		if m.has_meta(&"hinge") and m.has_meta(&"shut"):
+			hung.append(m)
+	for m: StructureMember in hung:
+		var id := String(m.member_id).trim_prefix(String(b.structure_id) + "/")
+		var mine := id.get_slice("/panel", 0) if id.ends_with("/panel") else id  # (the corner's: panel, stiles, rail, glass)
+		var hinge: Vector3 = m.get_meta(&"hinge")
+		var shut: Vector3 = m.get_meta(&"shut")
+		var latch: Vector3 = m.get_meta(&"latch")
+		var w := float(m.get_meta(&"leaf_w"))
+		var h := float(m.get_meta(&"leaf_h"))
+		var y0 := float(m.get_meta(&"leaf_y0"))
+		var met := {}
+		for step in range(1, 7):
+			var phi := deg_to_rad(15.0 * step)
+			var u := (shut * cos(phi) + latch * sin(phi)).normalized()
+			var box := BoxShape3D.new()
+			var len := w - 0.12
+			box.size = Vector3(len, h - 0.1, 0.02)
+			var q := PhysicsShapeQueryParameters3D.new()
+			q.shape = box
+			var basis := Basis(u, Vector3.UP, u.cross(Vector3.UP))
+			var c := Vector3(hinge.x, y0 + h * 0.5, hinge.z) + u * (0.07 + len * 0.5)
+			q.transform = b.global_transform * Transform3D(basis, c)
+			q.collision_mask = Layers.WORLD
+			for hit in space.intersect_shape(q, 16):
+				var o := hit.collider as StructureMember
+				var who := String(o.member_id).trim_prefix(String(b.structure_id) + "/") if o else str(hit.collider)
+				if who == id or who.begins_with(mine + "/"):
+					continue
+				if not met.has(who):
+					met[who] = 15 * step
+		var facing := "into %s" % ["+x", "-x", "+z", "-z"][[Vector3.RIGHT, Vector3.LEFT, Vector3.BACK, Vector3.FORWARD].find(latch.round())] \
+				if latch.round() in [Vector3.RIGHT, Vector3.LEFT, Vector3.BACK, Vector3.FORWARD] else "into the room (diagonal)"
+		leaves.append({"leaf": mine, "hinge": Vector2(hinge.x, hinge.z), "swings": facing, "met": met})
+		for who: String in met:
+			failures.append("%s (hinged at %.2f, %.2f, %s) meets %s at %d degrees" % [mine, hinge.x, hinge.z, facing, who, met[who]])
+	# Each doorway's way through, 0.6 m wide and 0.8 m out each side: no other door's leaf standing in it.
+	for m: StructureMember in hung:
+		var id := String(m.member_id).trim_prefix(String(b.structure_id) + "/")
+		var mine := id.get_slice("/panel", 0) if id.ends_with("/panel") else id
+		var hinge: Vector3 = m.get_meta(&"hinge")
+		var shut: Vector3 = m.get_meta(&"shut")
+		var latch: Vector3 = m.get_meta(&"latch")
+		var w := float(m.get_meta(&"leaf_w"))
+		var y0 := float(m.get_meta(&"leaf_y0"))
+		var way := BoxShape3D.new()
+		way.size = Vector3(0.6, 1.7, 1.6)
+		var q := PhysicsShapeQueryParameters3D.new()
+		q.shape = way
+		var basis := Basis(shut, Vector3.UP, shut.cross(Vector3.UP))
+		q.transform = b.global_transform * Transform3D(basis, Vector3(hinge.x, y0 + 0.95, hinge.z) + shut * (w * 0.5))
+		q.collision_mask = Layers.WORLD
+		for hit in space.intersect_shape(q, 16):
+			var o := hit.collider as StructureMember
+			if o == null or not (o.kind == &"door" or String(o.member_id).contains("/leaf")):
+				continue
+			var who := String(o.member_id).trim_prefix(String(b.structure_id) + "/")
+			if who == id or who.begins_with(mine + "/"):
+				continue
+			failures.append("%s's leaf stands in %s's way through" % [who.get_slice("/panel", 0), mine])
+	return {"ok": failures.is_empty(), "failures": failures, "leaves": leaves}

@@ -351,6 +351,11 @@ static func _materials(tree: SceneTree, which: String) -> Array[ShaderMaterial]:
 				var m: Material = mi.material_override if mi.material_override else mi.get_active_material(0)
 				if m is ShaderMaterial:
 					out.append(m)
+			# The valley's ground (ValleyGroundArt's material: its chunks and its dug tiles, #1266).
+			if g and g.get(&"terrain") != null:
+				for m: Variant in [g.get(&"valley_material"), g.get(&"material")]:
+					if m is ShaderMaterial and not out.has(m):
+						out.append(m)
 		"backdrop":
 			var b := tree.root.find_child("Backdrop", true, false)
 			if b and "_materials" in b:

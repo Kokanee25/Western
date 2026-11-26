@@ -39,6 +39,9 @@ extends Resource
 @export var straw_density := 12.0
 @export var puddle_cover := 0.18
 @export var detail_far := 40.0
+## How much wider than a pixel the scans' lookups reach (#1266, the moving ground): a coarser mip only
+## where a texel is finer than a pixel; the near ground is drawn as before.
+@export var scan_soft := 0.7
 @export_group("Grassland")
 @export var grassland_a := Vector3(0.34, 0.29, 0.16)
 @export var grassland_b := Vector3(0.68, 0.56, 0.32)
@@ -50,5 +53,5 @@ extends Resource
 ## The dials the shader takes, by name.
 const DIALS := ["rock_from", "rock_full", "water_near", "grade", "grade_sat", "street_tint", "trail_tint", "packed_dark", "rut_dark",
 	"rut_depth", "rut_half", "gauge", "street_lane", "lane_wander", "walk_edge", "hoof_density",
-	"hoof_depth", "manure_density", "straw_density", "puddle_cover", "detail_far",
+	"hoof_depth", "manure_density", "straw_density", "puddle_cover", "detail_far", "scan_soft",
 	"berm_h", "berm_light", "rut_shadow", "grassland_a", "grassland_b", "grassland_near", "grassland_far", "grassland_tufts", "grass_cover"]
