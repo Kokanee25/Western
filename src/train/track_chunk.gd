@@ -170,7 +170,7 @@ func infer_supports() -> void:
 		m.support_points.clear()
 		m.support_boxes.clear()
 		m.touching.clear()
-		m.analysis_cache = {}
+		m.forget_analysis()
 	var t := train_tuning
 	for pair: Array in ties:
 		var tie: StructureMember = pair[0]
