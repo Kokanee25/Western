@@ -185,6 +185,16 @@ The hotel alone, main 4086f3d3 → cut 1 (this workspace, headless):
 
 The hotel's peak RSS alone 892 → 840 MB. `kb_per_member_held` 23 → 20.
 
+The valley with the hotel placed (as above), this session's workspace, which reads lower than step 2's (main
+measured here: 3,681 MB peak, where step 2's workspace read 4,820):
+
+| | Main 4086f3d3 | Cut 1 |
+|---|---|---|
+| Peak RSS on load | 3,681 MB | 3,470 MB |
+| Static memory after load | 3,178 MB | 3,015 MB |
+
+Under 4 GB here; on step 2's workspace it wasn't. Sean's PC (F3) is the measure that counts.
+
 **"The structure node" was the hotel's finish textures.** Its seven library materials (`SpecBuilding._lib_mats`)
 hold 2048² albedo, normal and roughness maps: 50 MB, loaded once and shared by every building with the same
 finishes (the warm-up building uses other ones), and video memory on a GPU. They're not a member's; the tool
