@@ -813,61 +813,47 @@
    "L1": [
     {
      "id": "bunks",
-     "kit": "plank_bed",
+     "kit": "bunk_stacked",
      "at": [
-      0.55,
+      0.5,
       0.0,
-      1.35
+      1.4
      ],
      "facing": 0,
-     "use": "two bunks one over the other along the west wall from the front corner: clear of the door's swing and the lane",
-     "wants": "bunk_stacked",
-     "wants_fit": [
-      0.8,
-      1.6,
-      1.95
-     ]
+     "use": "two bunks one over the other along the west wall from the front corner: clear of the door's swing and the lane"
     },
     {
      "id": "bunk_east",
-     "kit": "plank_bed",
+     "kit": "bunk",
      "at": [
-      3.65,
+      3.72,
       0.0,
-      1.3
+      1.45
      ],
      "facing": 0,
-     "use": "a single plank bunk along the east wall under the window",
-     "wants": "bunk",
-     "wants_fit": [
-      0.75,
-      0.5,
-      1.9
-     ]
+     "use": "a single plank bunk along the east wall under the window"
     },
     {
      "id": "bedroll_1",
-     "kit": "folded_blanket",
-     "on": "bunks",
+     "kit": "bedroll",
      "at": [
-      0.55,
-      0.0,
-      1.9
+      0.5,
+      1.3,
+      2.05
      ],
      "facing": 0,
-     "wants": "bedroll"
+     "use": "a bedroll on the upper bunk, at its foot"
     },
     {
      "id": "bedroll_2",
-     "kit": "folded_blanket",
+     "kit": "bedroll",
      "at": [
-      3.6,
+      0.5,
       0.0,
-      3.25
+      2.72
      ],
-     "facing": 90,
-     "use": "a sixth man's, rolled against the east wall between the bunk and the stove",
-     "wants": "bedroll"
+     "facing": 0,
+     "use": "a sixth man's, rolled against the west wall at the stacked bunks' foot (clear of the lane)"
     },
     {
      "id": "table",
@@ -887,35 +873,23 @@
     },
     {
      "id": "bench_w",
-     "kit": "wall_bench",
-     "fit": [
-      1.3,
-      1.0,
-      0.36
-     ],
+     "kit": "plank_bench",
      "at": [
       2.0,
       0.0,
       2.92
      ],
-     "facing": 90,
-     "wants": "plank_bench"
+     "facing": 90
     },
     {
      "id": "bench_e",
-     "kit": "wall_bench",
-     "fit": [
-      1.3,
-      1.0,
-      0.36
-     ],
+     "kit": "plank_bench",
      "at": [
-      3.2,
+      3.28,
       0.0,
       2.92
      ],
-     "facing": 90,
-     "wants": "plank_bench"
+     "facing": 90
     },
     {
      "id": "lamp",
@@ -978,6 +952,17 @@
      "facing": 40
     },
     {
+     "id": "plates",
+     "kit": "tin_plate",
+     "on": "table",
+     "at": [
+      2.55,
+      0.0,
+      3.45
+     ],
+     "facing": 0
+    },
+    {
      "id": "stove",
      "kit": "box_stove",
      "at": [
@@ -998,6 +983,17 @@
       4.15
      ],
      "facing": 0
+    },
+    {
+     "id": "skillet",
+     "kit": "skillet",
+     "on": "stove",
+     "at": [
+      3.75,
+      0.0,
+      4.6
+     ],
+     "facing": 90
     },
     {
      "id": "shelf",
@@ -1039,6 +1035,17 @@
      "out": "lean_to"
     },
     {
+     "id": "cans_floor",
+     "kit": "tin_cans",
+     "at": [
+      3.1,
+      0.0,
+      3.9
+     ],
+     "facing": 0,
+     "scatter": 5
+    },
+    {
      "id": "pegs_e",
      "kit": "coat_pegs",
      "at": [
@@ -1048,6 +1055,27 @@
      ],
      "facing": 270,
      "use": "a gun belt, a coat and a bridle on the east wall's pegs"
+    },
+    {
+     "id": "gun_belt",
+     "kit": "gun_belt",
+     "at": [
+      4.08,
+      1.5,
+      3.3
+     ],
+     "facing": 270
+    },
+    {
+     "id": "saddle_in",
+     "kit": "saddle",
+     "at": [
+      3.8,
+      0.0,
+      3.25
+     ],
+     "facing": 0,
+     "use": "one saddle on the floor past the single bunk's foot (a pillow), clear of the spot the cabin test stands the player"
     },
     {
      "id": "pegs_w",
@@ -1134,7 +1162,7 @@
    "L2": [
     {
      "id": "rack",
-     "kit": "trestles_short",
+     "kit": "saddle_rack",
      "out": "lean_to",
      "at": [
       5.2,
@@ -1142,8 +1170,52 @@
       2.6
      ],
      "facing": 0,
-     "use": "in the lean-to: a pole rail with three saddles and blankets",
-     "wants": "saddle_rack"
+     "use": "in the lean-to: a pole rail with three saddles and blankets"
+    },
+    {
+     "id": "saddle_1",
+     "kit": "saddle",
+     "on": "rack",
+     "at": [
+      5.2,
+      0.0,
+      1.9
+     ],
+     "facing": 90
+    },
+    {
+     "id": "saddle_2",
+     "kit": "saddle",
+     "on": "rack",
+     "at": [
+      5.2,
+      0.0,
+      2.6
+     ],
+     "facing": 90
+    },
+    {
+     "id": "saddle_3",
+     "kit": "saddle",
+     "on": "rack",
+     "at": [
+      5.2,
+      0.0,
+      3.3
+     ],
+     "facing": 90
+    },
+    {
+     "id": "bridles",
+     "kit": "bridle",
+     "out": "lean_to",
+     "at": [
+      4.25,
+      1.5,
+      2.0
+     ],
+     "facing": 90,
+     "scatter": 3
     },
     {
      "id": "rope",
@@ -1169,18 +1241,7 @@
      "use": "split juniper firewood (a woodpile kit if the prop lab has one by then)"
     }
    ]
-  },
-  "waiting": [
-   "plates: tin_plate",
-   "skillet: skillet",
-   "cans_floor: tin_cans",
-   "gun_belt: gun_belt",
-   "saddle_in: saddle",
-   "saddle_1: saddle",
-   "saddle_2: saddle",
-   "saddle_3: saddle",
-   "bridles: bridle"
-  ]
+  }
  },
  "materials": {
   "wear": {
