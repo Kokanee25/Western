@@ -1,0 +1,4 @@
+a front experiments/building_lab/railroad_saloon/results/2026-11-26_r1/front.png
+b rear experiments/building_lab/railroad_saloon/results/2026-11-26_r1/rear.png
+c bar experiments/building_lab/railroad_saloon/results/2026-11-26_r1/bar.png
+d upstairs experiments/building_lab/railroad_saloon/results/2026-11-26_r1/upstairs.png
