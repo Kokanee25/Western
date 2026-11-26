@@ -38,6 +38,9 @@ func _cmd_street_dress(_a: Array) -> Dictionary:
 	_fill_gaps()
 	await _dress()
 	await seconds(1.0)
+	# Stills only: once settled, the dressing is frozen (its props' and horses' physics were ~40 ms a
+	# frame, too slow for lavapipe's pictures). The townsmen in the street aren't under it.
+	_root.process_mode = Node.PROCESS_MODE_DISABLED
 	return {"ok": true, "nodes": _made}
 
 
