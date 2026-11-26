@@ -126,3 +126,34 @@ The hotel alone, this workspace, main 68e447f9 → this cut:
   chips' thresholds (each board now drawn on its own exact axes; the batch snapped them to 0.001).
 - `tests/test_board_instances.gd`: every vertex, UV and channel the shader makes of the instances is
   the boards' own merge (worst under 0.02 mm), and a hit board leaves its instances and draws itself.
+
+## Step 2, cut 2a: a resting member's nodes freed, kept as a row
+
+At rest in its batch, a member whose mesh and shape nodes are plain (as built, its only piece, no
+children or overlays, no other node wired to them) keeps what they were as data
+(`StructureMember._rest_data`); its body keeps its shape, so it's hit and stood on as before.
+`drawn_node`, `realise` and `take_parts` make the nodes again; the board instances read the row.
+Kit props keep their nodes. `--keep-rest-nodes` turns it off.
+
+| | After cut 1 | After cut 2a |
+|---|---|---|
+| Hotel: MeshInstance3D + CollisionShape3D nodes, KB a member | 4.44 | 0.03 |
+| Hotel: the rows that stand for them | – | 0.74 |
+| Hotel: member meshes and shapes (the nodes' share) | 3.53 | 2.31 |
+| **Hotel, whole** | **26.1** | **21.3** |
+| Valley + hotel, peak RSS | 5,173 MB | 4,820 MB |
+| Valley + hotel, static | 4,277 MB | 3,961 MB |
+| Valley: the buildings' load | 14.5 s | 16.2 s |
+
+15,532 of the hotel's 15,669 members rest as rows. `tests/test_member_rest_rows.gd`: a row comes
+back as the nodes it was (mesh, material, place, metas, shape, piece), is found by a ray, and goes loose.
+
+## What's left (the hotel, 21.3 KB a member; the aim 15)
+
+- **StructureMember nodes (9.1 KB):** the StaticBody3D (~2.2 KB) and its script's vars (~4 KB:
+  ~60 vars, each a Variant slot, plus dictionaries and arrays made per member). Making a member a row
+  in packed arrays with a node only when hit, carved, burning or moved is the next cut; ~30 files read
+  a hit's collider as a StructureMember (`docs/reviews/2026-11-building-bodies.md`).
+- **The structure node (3.4 KB a member, engine side):** untraced; it's freed with the node.
+- **The support graph (2.6 KB):** packed indices instead of `Array[StringName]` and dictionaries.
+- **Member meshes (1.9 KB):** the few own meshes (non-board members' boxes and warped beams).

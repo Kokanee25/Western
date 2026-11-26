@@ -176,13 +176,13 @@ shack = {
     "lamps": {"kit": [], "on_furniture": [[2.6, 0.78, 2.6]]},
     "dressing": {"_doc": "Kit props by the prop lab (PARTS.md). NEW kit the prop lab makes first (#1091's build issue lists them): bunk_stacked, bunk, plank_bench, saddle, saddle_rack, bedroll, skillet, tin_plate, tin_cans, gun_belt, bridle. Existing: box_stove, coffeepot, table, whiskey_bottle, beer_bottle, card_deck, crate, shelves, coat_pegs, flour_sack, coffee_mill, tin_cup, oil_lamp, rope_coil, folded_blanket.",
                  "batches": {"L1": [
-        {"id": "bunks", "kit": "bunk_stacked", "fit": [0.8, 1.6, 1.95], "at": [0.45, 0.0, 1.4], "facing": 0, "use": "two bunks one over the other along the west wall from the front corner: clear of the door's swing and the lane"},
-        {"id": "bunk_east", "kit": "bunk", "fit": [0.75, 0.5, 1.9], "at": [3.73, 0.0, 1.4], "facing": 0, "use": "a single plank bunk along the east wall under the window"},
-        {"id": "bedroll_1", "kit": "bedroll", "on": "bunks", "at": [0.45, 0.0, 1.9], "facing": 0},
-        {"id": "bedroll_2", "kit": "bedroll", "at": [3.6, 0.0, 3.25], "facing": 90, "use": "a sixth man's, rolled against the east wall between the bunk and the stove"},
+        {"id": "bunks", "kit": "bunk_stacked", "at": [0.5, 0.0, 1.4], "facing": 0, "use": "two bunks one over the other along the west wall from the front corner: clear of the door's swing and the lane"},
+        {"id": "bunk_east", "kit": "bunk", "at": [3.72, 0.0, 1.45], "facing": 0, "use": "a single plank bunk along the east wall under the window"},
+        {"id": "bedroll_1", "kit": "bedroll", "at": [0.5, 1.3, 2.05], "facing": 0, "use": "a bedroll on the upper bunk, at its foot"},
+        {"id": "bedroll_2", "kit": "bedroll", "at": [0.5, 0.0, 2.72], "facing": 0, "use": "a sixth man's, rolled against the west wall at the stacked bunks' foot (clear of the lane)"},
         {"id": "table", "kit": "table", "fit": [0.75, 0.74, 1.4], "at": [2.6, 0.0, 2.9], "facing": 0, "use": "rough plank table down the room's middle, east of the lane"},
-        {"id": "bench_w", "kit": "plank_bench", "fit": [0.25, 0.44, 1.3], "at": [2.0, 0.0, 2.9], "facing": 0},
-        {"id": "bench_e", "kit": "plank_bench", "fit": [0.25, 0.44, 1.3], "at": [3.2, 0.0, 2.9], "facing": 0},
+        {"id": "bench_w", "kit": "plank_bench", "at": [2.0, 0.0, 2.92], "facing": 90},
+        {"id": "bench_e", "kit": "plank_bench", "at": [3.28, 0.0, 2.92], "facing": 90},
         {"id": "lamp", "kit": "oil_lamp", "on": "table", "at": [2.6, 0.0, 2.6], "facing": 0, "light": 0.2, "energy": 0.8, "reach": 4.5, "shadows": True},
         {"id": "cards", "kit": "card_deck", "on": "table", "at": [2.5, 0.0, 3.1], "facing": 20},
         {"id": "bottle_1", "kit": "whiskey_bottle", "on": "table", "at": [2.75, 0.0, 3.3], "facing": 0},
@@ -197,8 +197,8 @@ shack = {
         {"id": "cans", "kit": "crate", "at": [3.0, 0.0, 4.6], "facing": 15, "use": "a crate of empty cans and bottles by the stove"},
         {"id": "cans_floor", "kit": "tin_cans", "at": [3.1, 0.0, 3.9], "facing": 0, "scatter": 5},
         {"id": "pegs_e", "kit": "coat_pegs", "at": [4.1, 1.5, 3.4], "facing": 270, "use": "a gun belt, a coat and a bridle on the east wall's pegs"},
-        {"id": "gun_belt", "kit": "gun_belt", "on": "pegs_e", "at": [4.1, 1.5, 3.3], "facing": 270},
-        {"id": "saddle_in", "kit": "saddle", "at": [3.8, 0.0, 2.65], "facing": 90, "use": "one saddle on the floor at the single bunk's foot (a pillow)"},
+        {"id": "gun_belt", "kit": "gun_belt", "at": [4.08, 1.5, 3.3], "facing": 270},
+        {"id": "saddle_in", "kit": "saddle", "at": [3.8, 0.0, 3.25], "facing": 0, "use": "one saddle on the floor past the single bunk's foot (a pillow), clear of the spot the cabin test stands the player"},
         {"id": "pegs_w", "kit": "coat_pegs", "at": [0.1, 1.6, 3.0], "facing": 90, "use": "clothes on the west wall past the bunks (high, over the lane)"},
     ], "S1": [
         {"id": "store_shelves", "kit": "shelves", "fit": [0.35, 1.4, 1.6], "at": [3.2, 0.0, round(D + STORE_D - 0.3, 3)], "facing": 90, "use": "the storeroom's back wall, east half: tins, ammunition boxes, a lantern"},
@@ -240,41 +240,18 @@ shack = {
     "furniture": [], "fixtures": [],
 }
 
-# Stand-ins (#1250): the prop lab's new kit isn't made yet. Each piece the kit has a fair stand-in for
-# takes it and keeps `wants` (the kit the prop lab is to make: swap it back by deleting the mapping);
-# a piece with none waits (`waiting`, not built). The list is the props lane's issue (#1263).
-STAND_IN = {"bunk_stacked": "plank_bed", "bunk": "plank_bed", "plank_bench": "wall_bench", "bedroll": "folded_blanket",
-            "saddle_rack": "trestles_short"}
-WAITS = {"skillet", "tin_plate", "tin_cans", "gun_belt", "saddle", "bridle"}
-# Where a stand-in (bigger than the kit it stands for) or a piece the measured kit put through a wall
-# stands instead (#1250: the props' boxes measured in the lab; the lane x 1.04..1.82 kept clear).
-PLACE = {"bunks": {"at": [0.55, 0.0, 1.35]}, "bunk_east": {"at": [3.65, 0.0, 1.3]},
-         "bedroll_1": {"at": [0.55, 0.0, 1.9]},
-         "bench_w": {"at": [2.0, 0.0, 2.92], "facing": 90, "fit": [1.3, 1.0, 0.36]},
-         "bench_e": {"at": [3.2, 0.0, 2.92], "facing": 90, "fit": [1.3, 1.0, 0.36]},
-         "stove": {"at": [3.65, 0.0, 4.25]}, "coffeepot": {"at": [3.6, 0.0, 4.15]},
+# Where a piece the measured kit put through a wall stands instead (#1250: the props' boxes measured in the lab;
+# the lane x 1.04..1.82 kept clear). The line shack's own kit (#1263) is placed in the batches above.
+PLACE = {"stove": {"at": [3.65, 0.0, 4.25]}, "coffeepot": {"at": [3.6, 0.0, 4.15]},
          "shelf": {"at": [2.6, 0.0, 4.72], "facing": 90}, "coffee_mill": {"at": [2.5, 0.0, 4.72]},
          "cans": {"at": [4.65, 0.0, 1.3], "out": "lean_to", "use": "a crate of empty cans and bottles out under the lean-to (the stand-ins left no room by the stove)"},
          "keg": {"at": [2.3, 0.0, round(D + 0.35, 3)]}, "store_crate": {"at": [2.85, 0.0, round(D + 0.45, 3)]},
          "grain": {"at": [3.68, 0.0, round(D + 0.55, 3)], "facing": 0}}
-_waiting = []
 for _name, _batch in shack["dressing"]["batches"].items():
-    _kept = []
     for _e in _batch:
-        if _e["kit"] in WAITS:
-            _waiting.append(_e["id"] + ": " + _e["kit"])
-            continue
         if _e["id"] in PLACE:
             _e.update(PLACE[_e["id"]])
-        if _e["kit"] in STAND_IN:
-            _e["wants"] = _e["kit"]
-            _e["kit"] = STAND_IN[_e["kit"]]
-            if "fit" in _e and "fit" not in PLACE.get(_e["id"], {}):  # (the stand-in at its own size: the fit is the new kit's)
-                _e["wants_fit"] = _e.pop("fit")
-        _kept.append(_e)
-    _batch[:] = _kept
-# (what stood on a waiting piece: nothing does but the saddles on the rack, which wait too)
-shack["dressing"]["waiting"] = _waiting
+shack["dressing"].pop("waiting", None)
 
 with open(os.path.join(ROOT, "config", "buildings", "line_shack.json"), "w") as f:
     json.dump(shack, f, indent=1)

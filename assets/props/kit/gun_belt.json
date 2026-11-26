@@ -1,0 +1,271 @@
+{
+  "_doc": "A gun belt hung on a peg (#1263; the gang's): a leather belt with a row of brass-headed cartridge loops, a buckle, a right-hand holster hanging low with the grip of a revolver above its mouth. The belt droops in two runs from its peg. 1 physics body. Written by tools/props/line_shack.py.",
+  "id": "gun_belt",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "leather",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "belt",
+      "kind": "post",
+      "size": [
+        0.46,
+        0.4,
+        0.05
+      ],
+      "at": [
+        0.0,
+        -0.2,
+        0.025
+      ],
+      "wood": "leather",
+      "look": "prop:leather",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "from": [
+              -0.04,
+              0.0,
+              0.0
+            ],
+            "to": [
+              -0.2,
+              -0.28,
+              0.0
+            ],
+            "thick": 0.04
+          },
+          {
+            "from": [
+              0.04,
+              0.0,
+              0.0
+            ],
+            "to": [
+              0.2,
+              -0.28,
+              0.0
+            ],
+            "thick": 0.04
+          },
+          {
+            "from": [
+              -0.2,
+              -0.28,
+              0.0
+            ],
+            "to": [
+              0.2,
+              -0.28,
+              0.0
+            ],
+            "thick": 0.04
+          }
+        ]
+      },
+      "dress": [
+        {
+          "look": "prop:brass",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  -0.16,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  -0.12,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  -0.08,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  -0.04,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  0.0,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  0.04,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  0.08,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  0.12,
+                  -0.28,
+                  0.025
+                ]
+              },
+              {
+                "size": [
+                  0.012,
+                  0.03,
+                  0.012
+                ],
+                "at": [
+                  0.16,
+                  -0.28,
+                  0.025
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:iron",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.04,
+                  0.03,
+                  0.01
+                ],
+                "at": [
+                  0.04,
+                  0.0,
+                  0.01
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:leather",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.1,
+                  0.22,
+                  0.05
+                ],
+                "at": [
+                  0.14,
+                  -0.4,
+                  0.02
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  6.0
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "look": "prop:ebony",
+          "draw": {
+            "shape": "boxes",
+            "boxes": [
+              {
+                "size": [
+                  0.04,
+                  0.09,
+                  0.03
+                ],
+                "at": [
+                  0.16,
+                  -0.27,
+                  0.03
+                ],
+                "rot": [
+                  0.0,
+                  0.0,
+                  24.0
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "hangs": {
+    "nails": [
+      [
+        0.0,
+        0.0,
+        0.004
+      ]
+    ]
+  },
+  "drawn_bounds": true,
+  "factory": "tools/props/line_shack.py"
+}

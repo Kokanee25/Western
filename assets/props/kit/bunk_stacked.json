@@ -1,0 +1,568 @@
+{
+  "_doc": "Two rough plank bunks, one over the other (#1263; the line shack's: five men in 4.2 by 5 m): four 3 in. posts, side rails of 2x6, a deck of eight 1x8 boards a finger apart, a straw tick on each (the upper pushed up at the head) and a grey wool blanket thrown over the lower one's foot, hanging down its sides. 0.78 m wide, 1.95 long, 1.62 high; the upper deck's top at 1.2 m (a man sits up under the rafters). Head at -z. 14 physics bodies. Written by tools/props/line_shack.py.",
+  "id": "bunk_stacked",
+  "kind": "members",
+  "fixture": true,
+  "in_game": true,
+  "wood": "weathered_pine",
+  "splits_below": 0.4,
+  "blow_wood_share": 0.5,
+  "members": [
+    {
+      "id": "post0",
+      "kind": "post",
+      "size": [
+        0.075,
+        1.62,
+        0.075
+      ],
+      "at": [
+        -0.3525,
+        0.81,
+        -0.9375
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "post1",
+      "kind": "post",
+      "size": [
+        0.075,
+        1.62,
+        0.075
+      ],
+      "at": [
+        0.3525,
+        0.81,
+        -0.9375
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "post2",
+      "kind": "post",
+      "size": [
+        0.075,
+        1.62,
+        0.075
+      ],
+      "at": [
+        -0.3525,
+        0.81,
+        0.9375
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "post3",
+      "kind": "post",
+      "size": [
+        0.075,
+        1.62,
+        0.075
+      ],
+      "at": [
+        0.3525,
+        0.81,
+        0.9375
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "rail_low_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.045,
+        0.15,
+        1.83
+      ],
+      "at": [
+        -0.34,
+        0.325,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "rail_low_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.045,
+        0.15,
+        1.83
+      ],
+      "at": [
+        0.34,
+        0.325,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "deck_low",
+      "kind": "furniture_top",
+      "size": [
+        0.74,
+        0.025,
+        1.83
+      ],
+      "at": [
+        0.0,
+        0.4125,
+        0.0
+      ],
+      "look": "wood:framing",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.3264,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.2331,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.1399,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.0466,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.0466,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.1399,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.2331,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.3264,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tick_low",
+      "kind": "trim",
+      "size": [
+        0.68,
+        0.09,
+        1.71
+      ],
+      "at": [
+        0.0,
+        0.47,
+        0.0
+      ],
+      "wood": "hay",
+      "look": "prop:straw",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.68,
+              0.07,
+              1.71
+            ],
+            "at": [
+              0.0,
+              -0.01,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.58,
+              0.05,
+              1.43
+            ],
+            "at": [
+              0.0,
+              0.02,
+              -0.05
+            ]
+          },
+          {
+            "size": [
+              0.52,
+              0.02,
+              0.5
+            ],
+            "at": [
+              0.0,
+              0.035,
+              0.45
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "blanket_low",
+      "kind": "trim",
+      "size": [
+        0.72,
+        0.03,
+        1.15
+      ],
+      "at": [
+        0.0,
+        0.525,
+        0.24
+      ],
+      "wood": "canvas",
+      "look": "prop:canvas",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.68,
+              0.012,
+              1.15
+            ],
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.44,
+              0.014,
+              0.95
+            ],
+            "at": [
+              0.04,
+              0.012,
+              0.03
+            ],
+            "rot": [
+              0.0,
+              6.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.012,
+              0.15,
+              1.11
+            ],
+            "at": [
+              -0.34,
+              -0.07,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.012,
+              0.15,
+              1.11
+            ],
+            "at": [
+              0.34,
+              -0.07,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "rail_up_l",
+      "kind": "furniture_frame",
+      "size": [
+        0.045,
+        0.15,
+        1.83
+      ],
+      "at": [
+        -0.34,
+        1.105,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "rail_up_r",
+      "kind": "furniture_frame",
+      "size": [
+        0.045,
+        0.15,
+        1.83
+      ],
+      "at": [
+        0.34,
+        1.105,
+        0.0
+      ],
+      "look": "wood:framing"
+    },
+    {
+      "id": "deck_up",
+      "kind": "furniture_top",
+      "size": [
+        0.74,
+        0.025,
+        1.83
+      ],
+      "at": [
+        0.0,
+        1.1925,
+        0.0
+      ],
+      "look": "wood:framing",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.3264,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.2331,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.1399,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              -0.0466,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.0466,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.1399,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.2331,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.0872,
+              0.025,
+              1.83
+            ],
+            "at": [
+              0.3264,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tick_up",
+      "kind": "trim",
+      "size": [
+        0.68,
+        0.09,
+        1.71
+      ],
+      "at": [
+        0.0,
+        1.25,
+        0.0
+      ],
+      "wood": "hay",
+      "look": "prop:straw",
+      "draw": {
+        "shape": "boxes",
+        "boxes": [
+          {
+            "size": [
+              0.68,
+              0.07,
+              1.71
+            ],
+            "at": [
+              0.0,
+              -0.01,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.58,
+              0.05,
+              1.43
+            ],
+            "at": [
+              0.0,
+              0.02,
+              0.0
+            ]
+          },
+          {
+            "size": [
+              0.52,
+              0.02,
+              0.5
+            ],
+            "at": [
+              0.0,
+              0.035,
+              0.45
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "head_board",
+      "kind": "furniture_frame",
+      "size": [
+        0.7,
+        0.3,
+        0.025
+      ],
+      "at": [
+        0.0,
+        0.78,
+        -0.925
+      ],
+      "look": "wood:framing"
+    }
+  ],
+  "factory": "tools/props/line_shack.py"
+}
