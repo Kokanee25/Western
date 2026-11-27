@@ -5240,10 +5240,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "low",
+     "delivery": "loud",
      "words": [
       {
-       "text": "I'll have that by tomorrow.",
+       "text": "I never followed him in! I got freight to carry, I can't be following every man with a saddle!",
        "status": "new"
       }
      ],
@@ -5310,7 +5310,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "It's dark past the ford. I like to let the moon get up before I... how is it. Before I trust the horse.",
+       "text": "It's dark past the ford, and that horse don't like the ford. I wait for the moon.",
        "status": "new"
       }
      ],
@@ -5400,7 +5400,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "No. No quarrel. And the next summer the creek below it came to my knee, and now it comes to here. My ankle.",
+       "text": "No. Only the creek below it, it used to come up to my knee. Now it's here. My ankle.",
        "status": "new"
       }
      ],
@@ -5421,7 +5421,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "We'd a drift flood that way at Central City. Turned out a man above us wanted his own level dry.",
+       "text": "That's the dry years, maybe.",
        "status": "new"
       }
      ],
@@ -5470,7 +5470,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "Twenty-two cents at Pueblo. And I've a name, Mr. Mapes, you've heard it in this room.",
+       "text": "Twenty-two cents. My name is Gallegos, Mr. Mapes.",
        "status": "new"
       }
      ],
@@ -5637,7 +5637,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "No.",
+       "text": "He dealt faro, Jory. I just told you.",
        "status": "new"
       }
      ],
@@ -5724,7 +5724,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "That's a long time to be sending a letter.",
+       "text": "That's a long time, to send letters.",
        "status": "new"
       }
      ],
@@ -5851,7 +5851,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Nobody you know. A section hand, off the cars. They've no name for him at the depot.",
+       "text": "Nobody you know. A section hand, off the cars. The depot can't tell me his name.",
        "status": "new"
       }
      ],
@@ -5898,7 +5898,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Your shoulders, Mr. Mapes. I beg your pardon. It's a habit of the trade.",
+       "text": "Was I? I beg your pardon, Mr. Mapes. I was a long way off.",
        "status": "new"
       }
      ],
@@ -5938,7 +5938,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "No, no. You look very well.",
+       "text": "I never said you were.",
        "status": "new"
       }
      ],
@@ -5958,7 +5958,7 @@
      "delivery": "uneasy",
      "words": [
       {
-       "text": "You hear that, Jory? He says I look well. I don't care for how he says it.",
+       "text": "You seen him, Jory. He was looking right at me. I don't care for it, a man in that trade.",
        "status": "new"
       }
      ],
@@ -6112,7 +6112,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "He's bought six. I don't see what you've to grieve over.",
+       "text": "He's bought six. I don't see what you got to grieve over.",
        "status": "new"
       }
      ],
@@ -6152,7 +6152,7 @@
      "delivery": "sly",
      "words": [
       {
-       "text": "Fellow by the window's on his own.",
+       "text": "Fellow by the window's got nobody with him.",
        "status": "new"
       }
      ],
@@ -6172,7 +6172,7 @@
      "delivery": "tired",
      "words": [
       {
-       "text": "I saw him. Give me a minute to stand here.",
+       "text": "I saw him. Let me stand here a while first.",
        "status": "new"
       }
      ],
@@ -6346,7 +6346,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "No, my son. That's how come I don't.",
+       "text": "She keeps my bed when I'm short. I'll hear nothing, Rufe.",
        "status": "new"
       }
      ],
@@ -6413,7 +6413,7 @@
      "delivery": "angry",
      "words": [
       {
-       "text": "Butcher's got the last of 'em. Railroad done that. I went down to the agent, I told him, you can haul it cheaper but you can't haul it prouder!",
+       "text": "Butcher's got the last of 'em. Railroad done that. I went down to the agent and I told him what I thought of his cars, to his face!",
        "status": "new"
       }
      ],
@@ -6569,7 +6569,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "They docked you for candles again! I'd not stand for it, not me!",
+       "text": "They docked you for candles again! I wouldn't stand for it, not me!",
        "status": "new"
       }
      ],
@@ -6904,7 +6904,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Jesus, Jory. Keep your voice down.",
+       "text": "Jesus, Jory. Not so loud, he's got friends drink in here.",
        "status": "new"
       }
      ],
@@ -6925,7 +6925,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "He were cheating, mind. A dollar a time, same as ever he did. I'd have sat in again Friday.",
+       "text": "He were cheating, mind. A dollar a time, same as ever he did. And I'd have sat down to him again Friday, I would.",
        "status": "new"
       }
      ],
@@ -6978,7 +6978,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "He took up that claim in 'sixty-eight. I rode over the first week, to see who it was. He was digging.",
+       "text": "He took up that claim in 'sixty-eight. I rode over the first week to see who it was.",
        "status": "new"
       }
      ],
@@ -7020,7 +7020,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "You did. I'm not... I was only remembering him.",
+       "text": "You did. Two hours is good. It's a long walk up that hill.",
        "status": "new"
       }
      ],
@@ -7330,7 +7330,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "Let him.",
+       "text": "That'll do no harm, will it? Pour it.",
        "status": "new"
       }
      ],
@@ -7378,7 +7378,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "My acequia runs a hand deep at noon. In my father's time a boy could drown in it. One did.",
+       "text": "My acequia's a hand deep at noon. When I was a boy it was over my head. We lost my brother in it.",
        "status": "new"
       }
      ],
@@ -7398,7 +7398,7 @@
      "delivery": "uneasy",
      "words": [
       {
-       "text": "Whose boy?",
+       "text": "Drowned?",
        "status": "new"
       }
      ],
@@ -7418,7 +7418,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "My father's. My brother. I was holding the sheep, I did not see it.",
+       "text": "He was eight. I was up with the sheep, I didn't see it.",
        "status": "new"
       }
      ],
@@ -7612,7 +7612,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "No. His mother thinks I can. She has me talk to him every Sunday, and he listens, he's a good boy, and then he looks down the valley at the smoke.",
+       "text": "No. His mother thinks I can. She has me talk to him every Sunday, and he listens, he's a good boy. And Monday he's down at the depot again.",
        "status": "new"
       }
      ],
@@ -7659,7 +7659,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Cap and ball. I ain't seen one of these loaded since the war. You ever fire it?",
+       "text": "Cap and ball. That's an old one. You ever fire it?",
        "status": "new"
       }
      ],
@@ -7719,7 +7719,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "No. But he went.",
+       "text": "I don't think so. He ran, anyway, and I had the lamb.",
        "status": "new"
       }
      ],
@@ -8154,7 +8154,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "'Tis cold tea, maid. I seen him pour it.",
+       "text": "'Tis cold tea, maid. I've watched him pour it.",
        "status": "new"
       }
      ],
@@ -8241,7 +8241,7 @@
      "delivery": "courteous",
      "words": [
       {
-       "text": "Only that you're well, señorita.",
+       "text": "No, thank you. You look tired, Miss Kitty.",
        "status": "new"
       }
      ],
@@ -8328,7 +8328,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Cedar posts. I saw them Tuesday, coming in.",
+       "text": "Cedar posts. I saw them, coming in.",
        "status": "new"
       }
      ],
@@ -8348,7 +8348,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "So now they haul water up to the mules in a wagon, and it's mules pulling the wagon.",
+       "text": "So now they haul it up from the creek, two barrels a day.",
        "status": "new"
       }
      ],
@@ -9314,7 +9314,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "'There is not another man.' Pardon, I do that. It is a habit.",
+       "text": "It isn't so bad. It's only young. Like the town.",
        "status": "new"
       }
      ],
@@ -9354,7 +9354,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "The price of cattle, a wedding at the Dorseys', and one thing I am not sure of, so perhaps not that.",
+       "text": "Cattle prices. And the Dorsey wedding, if she'll tell me how to spell his people's name.",
        "status": "new"
       }
      ],
@@ -10034,7 +10034,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "...I oughtn't to have said that out loud, ought I.",
+       "text": "Don't say it over, Hiram.",
        "status": "new"
       }
      ],
@@ -10101,7 +10101,7 @@
      "delivery": "tired",
      "words": [
       {
-       "text": "She meant it. It's no matter. They were good buttons.",
+       "text": "Ah, she did. It's no matter, Mr. Hollis, I've the buttons.",
        "status": "new"
       }
      ],
@@ -10320,7 +10320,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "It's business, Hiram. Tell me about the roan.",
+       "text": "I'd as soon not, Hiram. How's the roan?",
        "status": "new"
       }
      ],
@@ -10515,7 +10515,7 @@
      "delivery": "teasing",
      "words": [
       {
-       "text": "Ah, I know it. I'd not say it to him.",
+       "text": "Ah, sure. I wouldn't say it to him.",
        "status": "new"
       }
      ],
@@ -11306,7 +11306,7 @@
      "delivery": "placating",
      "words": [
       {
-       "text": "I left the dime on the bar anyhow. I don't like to owe that man, Wiley. I couldn't tell you why.",
+       "text": "I left the dime on the bar anyhow. He looked at it a good while.",
        "status": "new"
       }
      ],
@@ -11385,7 +11385,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "We can't both... ach. Play it in A. I'll find you.",
+       "text": "Then play it in A. Play it in A, I'll find you.",
        "status": "new"
       }
      ],
@@ -11730,10 +11730,10 @@
      "trigger": "Overheard: to Ephraim Tolliver",
      "when": "19:00 to 22:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
-       "text": "I only ever heard it going away from me.",
+       "text": "It's the hand. It don't close like it did.",
        "status": "new"
       }
      ],
@@ -11831,7 +11831,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "Then you made it wrong! ...There's one on the wagon yet. I was coming to that one.",
+       "text": "Fourteen! Count the wagon too, there's one on the wagon!",
        "status": "new"
       }
      ],
@@ -12713,7 +12713,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "You are not to print the red. You are to print it right.",
+       "text": "You needn't print the red, Mr. Bérubé. Only what it says.",
        "status": "new"
       }
      ],
@@ -12831,7 +12831,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "...I've handbills, if you'd care to leave some by the door.",
+       "text": "I have some handbills, Reverend, if you'd leave a few by the door.",
        "status": "new"
       }
      ],
@@ -12918,7 +12918,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "It came to a dollar ninety. I can't help it, I add things.",
+       "text": "It came to a dollar ninety. Was that what you made it?",
        "status": "new"
       }
      ],
@@ -13246,7 +13246,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Somebody's got to.",
+       "text": "It ain't complained.",
        "status": "new"
       }
      ],
@@ -13373,7 +13373,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "I've an engagement at four. I may have.",
+       "text": "I have an engagement at four. I may have.",
        "status": "new"
       }
      ],
@@ -13554,7 +13554,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "He can dig. Give him a fortnight, and a long-handled shovel.",
+       "text": "He can dig. Not for two weeks.",
        "status": "new"
       }
      ],
@@ -13621,7 +13621,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "It was right. The ground was hard and the men were holding. Any longer and one of them shifts his grip.",
+       "text": "It was right. The ground was hard and the men were holding the whole time.",
        "status": "new"
       }
      ],
@@ -13641,7 +13641,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "I'll remember it. I'd not thought about their hands.",
+       "text": "I never thought about the men holding. I'll cut the second psalm when it's cold.",
        "status": "new"
       }
      ],
@@ -13933,7 +13933,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Two dollars a day. You'd have to turn up.",
+       "text": "Two dollars a day. Five o'clock, at the fire.",
        "status": "new"
       }
      ],
@@ -13953,7 +13953,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "I'm a hand, Stroud. I ain't much of one just now. But I start in hammering and that's the end of it, I'll never fork a horse again.",
+       "text": "I'd be no good to you. I'd hear a horse go by and set the hammer down.",
        "status": "new"
       }
      ],
@@ -13973,7 +13973,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "It's there if you want it.",
+       "text": "Well. Five o'clock, if you change.",
        "status": "new"
       }
      ],
@@ -14080,7 +14080,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "I see. Yes. I'll... I'll let you know Thursday.",
+       "text": "I see. Yes. I'll send word.",
        "status": "new"
       }
      ],
@@ -14107,7 +14107,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "A mule! I'd not give you one yoke of oxen for a barn full of mules.",
+       "text": "A mule! I wouldn't give you one yoke of oxen for a barn full of mules.",
        "status": "new"
       }
      ],
@@ -14127,7 +14127,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Nobody's asked for an ox in this town since 'eighty-one.",
+       "text": "Nobody's asked for an ox in this town since the cars come.",
        "status": "new"
       }
      ],
@@ -14341,7 +14341,7 @@
      "delivery": "mocking",
      "words": [
       {
-       "text": "That was General Buell! I had the lines and he had the notion.",
+       "text": "That was General Buell's driving! I only had the lines.",
        "status": "new"
       }
      ],
@@ -14439,7 +14439,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "So far.",
+       "text": "They paid the last lot. I ain't seen this month's.",
        "status": "new"
       }
      ],
@@ -14546,7 +14546,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "Fetch him round, Yount. He's the one walking on it.",
+       "text": "That ain't the horse's lookout. Fetch him round.",
        "status": "new"
       }
      ],
@@ -14751,7 +14751,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "He's sixteen, Mr. Peck. He said it was down and ate four biscuits.",
+       "text": "He didn't say. He ate and went out again.",
        "status": "new"
       }
      ],
@@ -14838,7 +14838,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "He mends my organ, Mrs. Hollis. What he eats is his own affair.",
+       "text": "I guess he likes them. I don't go through his pockets.",
        "status": "new"
       }
      ],
@@ -14945,7 +14945,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "A sister in Minnesota. I wrote her last night. I guess you'll see the letter go through.",
+       "text": "A sister in Minnesota. I wrote her last night.",
        "status": "new"
       }
      ],
@@ -14992,7 +14992,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "He does what he's told, and he doesn't faint. I've had grown men who did both the other way.",
+       "text": "He does what he's told and he doesn't faint. I can use him.",
        "status": "new"
       }
      ],
@@ -15079,7 +15079,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "You'll not stand there all day, young man.",
+       "text": "You can't stand there all day, young man.",
        "status": "new"
       }
      ],
@@ -15246,7 +15246,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "Wood box.",
+       "text": "I heard you. Wood box, and then you can tell me.",
        "status": "new"
       }
      ],
@@ -15341,7 +15341,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Count him, then. But we've eight hymn-books, and I had three people looking over my arm.",
+       "text": "Count him, then. But there are eight hymn-books, and I had three people looking over my arm.",
        "status": "new"
       }
      ],
@@ -15449,7 +15449,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "I've no opinion, Reverend. I only wondered did he ask you to.",
+       "text": "It's not for me to say. Did he ask you to?",
        "status": "new"
       }
      ],
@@ -15534,7 +15534,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Yes.",
+       "text": "That's so, Mr. Peck.",
        "status": "new"
       }
      ],
@@ -15736,7 +15736,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "I've his boots in a box, with the date on. I'll send them to you first.",
+       "text": "I'll send them. I kept his boots, with the date on the box.",
        "status": "new"
       }
      ],
@@ -15934,7 +15934,7 @@
        "status": "new"
       },
       {
-       "text": "Was it me you wanted, or him?",
+       "text": "Did you want something of me?",
        "status": "new"
       }
      ],
