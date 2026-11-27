@@ -145,10 +145,24 @@ func fitting(now: float, table := false) -> Array:
 	var free := {}
 	var tags := {}
 	var found: Array = []
-	for id: String in TownScript.exchanges():
-		var ex: Dictionary = TownScript.exchanges()[id]
+	var all := TownScript.exchanges()
+	var cards := {}
+	var hour := folk.hour()
+	for id: String in all:
+		var ex: Dictionary = all[id]
 		var c: Dictionary = ex["if"]
-		if String(c.get("on", "")) != "heard" or (String(ex.place) == "saloon.table" and _at_cards(ex)) != table:
+		if String(c.get("on", "")) != "heard":
+			continue
+		# (Hours first: most of the script is out on that alone, before anyone is looked at.)
+		if c.has("hour") and not TownBarks.in_hours(hour, float(c.hour[0]), float(c.hour[1])):
+			continue
+		if String(ex.place) == "saloon.table":
+			var key := ",".join(ex.cast)
+			if not cards.has(key):
+				cards[key] = _at_cards(ex)
+			if bool(cards[key]) != table:
+				continue
+		elif table:
 			continue
 		var last := int(heard_day.get(id, -1))
 		if last == day or (String(c.get("once", "")) == "ever" and last >= 0):

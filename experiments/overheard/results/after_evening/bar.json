@@ -3,68 +3,76 @@
  "cmd": "oh_stop",
  "lines": [
   [
-   "barkeep",
-   "You sitting in Friday?",
-   2.1,
-   "20:18",
-   "exchange:heard.friday_cards",
-   1.0
-  ],
-  [
    "saloon_girl",
    "Is Wiley eating, Hiram?",
    7.1,
-   "20:19",
+   "20:16",
    "exchange:heard.wiley_eating",
    0.45
-  ],
-  [
-   "miner",
-   "I always sit in Friday.",
-   1.2,
-   "20:20",
-   "exchange:heard.friday_cards",
-   1.0
   ],
   [
    "liveryman",
    "There's bread goes missing off the feed bin. I ain't looked into it.",
    5.8,
-   "20:20",
+   "20:17",
    "exchange:heard.wiley_eating",
    0.64
   ],
   [
-   "barkeep",
-   "Earl takes a dollar off you every time he deals.",
-   2.1,
-   "20:21",
-   "exchange:heard.friday_cards",
-   1.0
+   "loudmouth",
+   "Hey! Hey, Mexican! What's wool fetching?",
+   6.6,
+   "20:19",
+   "exchange:heard.the_mexican",
+   0.52
   ],
   [
    "saloon_girl",
    "You leave it there for him.",
    7.1,
-   "20:23",
+   "20:20",
    "exchange:heard.wiley_eating",
    0.45
   ],
   [
-   "miner",
-   "He do. I watch for how. Three year, and I've not caught him at it yet.",
-   1.2,
-   "20:23",
-   "exchange:heard.friday_cards",
+   "rancher",
+   "Twenty-two cents. My name is Gallegos, Mr. Mapes.",
+   3.4,
+   "20:21",
+   "exchange:heard.the_mexican",
    1.0
   ],
   [
    "liveryman",
    "I set it down and forget it. I'm an old man. Leave me be.",
    5.8,
-   "20:25",
+   "20:22",
    "exchange:heard.wiley_eating",
    0.64
+  ],
+  [
+   "loudmouth",
+   "I hear a heap of things. I disremember the most of 'em.",
+   6.6,
+   "20:24",
+   "exchange:heard.the_mexican",
+   0.52
+  ],
+  [
+   "barkeep",
+   "Rufe.",
+   2.1,
+   "20:26",
+   "exchange:heard.the_mexican",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "What? I only asked the man about wool!",
+   6.6,
+   "20:28",
+   "exchange:heard.the_mexican",
+   0.52
   ],
   [
    "drifter",
@@ -75,9 +83,9 @@
    1.0
   ],
   [
-   "rancher",
+   "miner",
    "Earl! Get in here.",
-   3.4,
+   1.2,
    "20:32",
    "said",
    1.0
@@ -116,27 +124,35 @@
   ],
   [
    "earl",
-   "You're light tonight, Wiley.",
+   "He poured me one last night and wouldn't take for it.",
    11.2,
    "20:42",
-   "exchange:heard.light_tonight",
+   "exchange:heard.leave_the_dime",
    0.0
   ],
   [
    "drifter",
-   "I got a dollar and it's to see me to Sunday.",
+   "And?",
    9.8,
    "20:44",
-   "exchange:heard.light_tonight",
+   "exchange:heard.leave_the_dime",
    0.04
   ],
   [
    "earl",
-   "Dimes, then. We'll play for dimes, I don't mind it.",
+   "I left the dime on the bar anyhow. He looked at it a good while.",
    11.2,
-   "20:46",
-   "exchange:heard.light_tonight",
+   "20:45",
+   "exchange:heard.leave_the_dime",
    0.0
+  ],
+  [
+   "rancher",
+   "Look what the wind blew in.",
+   3.4,
+   "20:48",
+   "said",
+   1.0
   ],
   [
    "earl",
@@ -147,11 +163,11 @@
    1.0
   ],
   [
-   "loudmouth",
-   "Ain't no sheriff tonight, boys!",
-   6.6,
-   "20:54",
-   "said",
+   "miner",
+   "Preacher says you carried his stove up the lane on your back.",
+   1.2,
+   "20:52",
+   "exchange:heard.stove",
    1.0
   ],
   [
@@ -163,6 +179,14 @@
    1.0
   ],
   [
+   "loudmouth",
+   "Who says?",
+   6.6,
+   "20:55",
+   "exchange:heard.stove",
+   0.52
+  ],
+  [
    "drifter",
    "Obliged.",
    9.8,
@@ -171,12 +195,44 @@
    1.0
   ],
   [
-   "saloon_girl",
-   "Mr. Hollis. Your wife sold me a card of buttons today and never once looked at me.",
-   7.1,
+   "miner",
+   "He do. Says you took nothing for it.",
+   1.2,
+   "20:56",
+   "exchange:heard.stove",
+   1.0
+  ],
+  [
+   "liveryman",
+   "You bar up before you come over?",
+   5.8,
    "20:57",
-   "exchange:heard.buttons",
-   0.45
+   "exchange:heard.three_and_one",
+   0.64
+  ],
+  [
+   "loudmouth",
+   "It wasn't heavy. And don't you go telling that round, I got a name in this town.",
+   6.6,
+   "20:58",
+   "exchange:heard.stove",
+   0.52
+  ],
+  [
+   "storekeeper",
+   "Lavinia drops it behind me. I knock three and one and she lifts it.",
+   6.4,
+   "20:58",
+   "exchange:heard.three_and_one",
+   0.55
+  ],
+  [
+   "rancher",
+   "To the last one. And the next.",
+   3.4,
+   "20:59",
+   "said",
+   1.0
   ],
   [
    "drifter",
@@ -187,27 +243,35 @@
    1.0
   ],
   [
-   "storekeeper",
-   "She... I'm sure she meant nothing by it.",
-   6.4,
-   "21:00",
-   "exchange:heard.buttons",
-   0.55
+   "liveryman",
+   "Three and one.",
+   5.8,
+   "21:01",
+   "exchange:heard.three_and_one",
+   0.64
   ],
   [
-   "saloon_girl",
-   "Ah, she did. It's no matter, Mr. Hollis, I've the buttons.",
-   7.1,
-   "21:02",
-   "exchange:heard.buttons",
-   0.45
+   "storekeeper",
+   "Don't say it over, Hiram.",
+   6.4,
+   "21:03",
+   "exchange:heard.three_and_one",
+   0.55
   ],
   [
    "earl",
    "Three. And make 'em good.",
    11.2,
-   "21:05",
+   "21:04",
    "said",
+   1.0
+  ],
+  [
+   "rancher",
+   "One. And I'll be slow with it, if you don't mind.",
+   3.4,
+   "21:07",
+   "exchange:heard.one_only",
    1.0
   ],
   [
@@ -220,10 +284,10 @@
   ],
   [
    "barkeep",
-   "Creek's down again. My well's fourteen foot to water, and it was ten.",
+   "You're an hour over every one, Don Anselmo. I could have had three men at that piece of rail.",
    2.1,
-   "21:11",
-   "exchange:heard.acequia",
+   "21:10",
+   "exchange:heard.one_only",
    1.0
   ],
   [
@@ -236,19 +300,11 @@
   ],
   [
    "rancher",
-   "My acequia's a hand deep at noon. When I was a boy it was over my head. We lost my brother in it.",
+   "It's dark past the ford, and that horse don't like the ford. I wait for the moon.",
    3.4,
-   "21:14",
-   "exchange:heard.acequia",
+   "21:13",
+   "exchange:heard.one_only",
    1.0
-  ],
-  [
-   "loudmouth",
-   "Stand me one, Jory, and I'll tell you what Hollis's wife said about the widow Rudd.",
-   6.6,
-   "21:15",
-   "exchange:heard.widow_rudd",
-   0.52
   ],
   [
    "drifter",
@@ -256,14 +312,6 @@
    9.8,
    "21:17",
    "said",
-   1.0
-  ],
-  [
-   "barkeep",
-   "Drowned?",
-   2.1,
-   "21:17",
-   "exchange:heard.acequia",
    1.0
   ],
   [
@@ -275,36 +323,12 @@
    1.0
   ],
   [
-   "miner",
-   "I board with the widow Rudd.",
-   1.2,
-   "21:18",
-   "exchange:heard.widow_rudd",
-   1.0
-  ],
-  [
-   "rancher",
-   "He was eight. I was up with the sheep, I didn't see it.",
-   3.4,
-   "21:18",
-   "exchange:heard.acequia",
-   1.0
-  ],
-  [
    "drifter",
    "Bet two bits more'n it's worth.",
    9.8,
    "21:19",
    "said",
    1.0
-  ],
-  [
-   "loudmouth",
-   "Well, that's how come you'd want to know!",
-   6.6,
-   "21:20",
-   "exchange:heard.widow_rudd",
-   0.52
   ],
   [
    "earl",
@@ -323,33 +347,57 @@
    1.0
   ],
   [
-   "miner",
-   "She keeps my bed when I'm short. I'll hear nothing, Rufe.",
-   1.2,
-   "21:22",
-   "exchange:heard.widow_rudd",
-   1.0
+   "drifter",
+   "Baron's outfit's hiring. Sixty a month.",
+   9.8,
+   "21:23",
+   "exchange:heard.sixty_a_month",
+   0.04
+  ],
+  [
+   "earl",
+   "Sixty! For riding?",
+   11.2,
+   "21:25",
+   "exchange:heard.sixty_a_month",
+   0.0
   ],
   [
    "drifter",
-   "Cut 'em thin, deal 'em true.",
+   "They don't ask can you rope.",
    9.8,
-   "21:25",
-   "said",
-   1.0
+   "21:27",
+   "exchange:heard.sixty_a_month",
+   0.04
   ],
   [
-   "rancher",
-   "To the last one. And the next.",
-   3.4,
-   "21:25",
-   "said",
-   1.0
+   "saloon_girl",
+   "Mr. Hollis. Your wife sold me a card of buttons today and never once looked at me.",
+   7.1,
+   "21:28",
+   "exchange:heard.buttons",
+   0.45
+  ],
+  [
+   "earl",
+   "What do they ask?",
+   11.2,
+   "21:28",
+   "exchange:heard.sixty_a_month",
+   0.0
+  ],
+  [
+   "drifter",
+   "I come away before he got to it.",
+   9.8,
+   "21:30",
+   "exchange:heard.sixty_a_month",
+   0.04
   ],
   [
    "storekeeper",
    "Night, all.",
-   6.3,
+   5.5,
    "21:30",
    "said",
    1.0
@@ -358,7 +406,31 @@
    "barkeep",
    "Night.",
    2.1,
-   "21:30",
+   "21:31",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "Twelve yoke I had. Twelve! Over Mosquito Pass in the snow, and never lost a sack.",
+   6.6,
+   "21:33",
+   "exchange:heard.twelve_yoke",
+   0.52
+  ],
+  [
+   "drifter",
+   "Cut 'em thin, deal 'em true.",
+   9.8,
+   "21:33",
+   "said",
+   1.0
+  ],
+  [
+   "miner",
+   "Help you, mister?",
+   1.2,
+   "21:37",
    "said",
    1.0
   ],
@@ -366,7 +438,7 @@
    "drifter",
    "Three, and quit smiling.",
    9.8,
-   "21:30",
+   "21:39",
    "said",
    1.0
   ],
@@ -374,7 +446,7 @@
    "earl",
    "Two pair, queens and eights. Now ain't that something.",
    11.2,
-   "21:33",
+   "21:41",
    "said",
    1.0
   ],
@@ -382,49 +454,9 @@
    "drifter",
    "You're a lucky old man, Earl.",
    9.8,
-   "21:33",
+   "21:41",
    "said",
    1.0
-  ],
-  [
-   "drifter",
-   "Baron's outfit's hiring. Sixty a month.",
-   9.8,
-   "21:36",
-   "exchange:heard.sixty_a_month",
-   0.04
-  ],
-  [
-   "earl",
-   "Sixty! For riding?",
-   11.2,
-   "21:38",
-   "exchange:heard.sixty_a_month",
-   0.0
-  ],
-  [
-   "drifter",
-   "They don't ask can you rope.",
-   9.8,
-   "21:40",
-   "exchange:heard.sixty_a_month",
-   0.04
-  ],
-  [
-   "earl",
-   "What do they ask?",
-   11.2,
-   "21:41",
-   "exchange:heard.sixty_a_month",
-   0.0
-  ],
-  [
-   "drifter",
-   "I come away before he got to it.",
-   9.8,
-   "21:42",
-   "exchange:heard.sixty_a_month",
-   0.04
   ],
   [
    "earl",
@@ -436,10 +468,10 @@
   ],
   [
    "barkeep",
-   "Professor wants a tuner up from Denver. Twelve dollars and his fare.",
+   "Creek's down again. My well's fourteen foot to water, and it was ten.",
    2.1,
    "21:52",
-   "exchange:heard.tuner",
+   "exchange:heard.acequia",
    1.0
   ],
   [
@@ -451,50 +483,42 @@
    1.0
   ],
   [
-   "miner",
-   "The C sticks. I've heard it stick.",
-   1.2,
-   "21:56",
-   "exchange:heard.tuner",
-   1.0
-  ],
-  [
-   "barkeep",
-   "I can't hear it. Can you hear it over them boots?",
-   2.1,
-   "21:57",
-   "exchange:heard.tuner",
+   "rancher",
+   "My acequia's a hand deep at noon. When I was a boy it was over my head. We lost my brother in it.",
+   3.4,
+   "21:55",
+   "exchange:heard.acequia",
    1.0
   ],
   [
    "drifter",
    "Five-card draw. Ante up.",
    9.8,
-   "21:59",
+   "21:58",
    "said",
    1.0
   ],
   [
-   "miner",
-   "Chapel at St Just had a harmonium with three dead. We sang round 'em.",
-   1.2,
-   "21:59",
-   "exchange:heard.tuner",
+   "barkeep",
+   "Drowned?",
+   2.1,
+   "22:00",
+   "exchange:heard.acequia",
    1.0
   ],
   [
-   "saloon_girl",
-   "Don Anselmo. You'll want nothing from me, same as ever.",
-   7.7,
+   "rancher",
+   "He was eight. I was up with the sheep, I didn't see it.",
+   3.4,
    "22:01",
-   "exchange:heard.nothing_from_me",
-   0.36
+   "exchange:heard.acequia",
+   1.0
   ],
   [
    "drifter",
    "A dollar.",
    9.8,
-   "22:03",
+   "22:02",
    "said",
    1.0
   ],
@@ -507,20 +531,12 @@
    1.0
   ],
   [
-   "rancher",
-   "No, thank you. You look tired, Miss Kitty.",
-   3.4,
-   "22:04",
-   "exchange:heard.nothing_from_me",
-   1.0
-  ],
-  [
-   "saloon_girl",
-   "My feet aren't. The rest of me's grand.",
-   7.7,
-   "22:06",
-   "exchange:heard.nothing_from_me",
-   0.36
+   "loudmouth",
+   "Stand me one, Jory, and I'll tell you what Hollis's wife said about the widow Rudd.",
+   6.6,
+   "22:05",
+   "exchange:heard.widow_rudd",
+   0.52
   ],
   [
    "drifter",
@@ -531,18 +547,66 @@
    1.0
   ],
   [
-   "rancher",
-   "My wife puts hers in the ditch, at shearing. She says it's the cold does it. I don't know, you have no ditch here.",
-   3.4,
+   "miner",
+   "I board with the widow Rudd.",
+   1.2,
    "22:08",
-   "exchange:heard.nothing_from_me",
+   "exchange:heard.widow_rudd",
    1.0
+  ],
+  [
+   "loudmouth",
+   "Well, that's how come you'd want to know!",
+   6.6,
+   "22:10",
+   "exchange:heard.widow_rudd",
+   0.52
+  ],
+  [
+   "drifter",
+   "Cut 'em where I can see, Earl.",
+   9.8,
+   "22:11",
+   "exchange:heard.cut_em",
+   0.04
+  ],
+  [
+   "miner",
+   "She keeps my bed when I'm short. I'll hear nothing, Rufe.",
+   1.2,
+   "22:12",
+   "exchange:heard.widow_rudd",
+   1.0
+  ],
+  [
+   "earl",
+   "Now, Wiley. Have I ever...",
+   11.2,
+   "22:13",
+   "exchange:heard.cut_em",
+   0.0
+  ],
+  [
+   "drifter",
+   "Twice last night. I let it go by.",
+   9.8,
+   "22:15",
+   "exchange:heard.cut_em",
+   0.04
+  ],
+  [
+   "earl",
+   "Well. Well, there, you cut them. Go on. Cut them yourself.",
+   11.2,
+   "22:17",
+   "exchange:heard.cut_em",
+   0.0
   ],
   [
    "earl",
    "My deal. Ante up, boys.",
    11.2,
-   "22:13",
+   "22:22",
    "said",
    1.0
   ],
@@ -550,7 +614,7 @@
    "earl",
    "Two pair, aces and fives. Clean deck, boys. Clean as Sunday.",
    11.2,
-   "22:21",
+   "22:30",
    "said",
    1.0
   ],
@@ -558,119 +622,159 @@
    "drifter",
    "Funny how it goes, Earl.",
    9.8,
-   "22:21",
+   "22:30",
    "said",
    1.0
+  ],
+  [
+   "saloon_girl",
+   "Don Anselmo. You'll want nothing from me, same as ever.",
+   7.7,
+   "22:33",
+   "exchange:heard.nothing_from_me",
+   0.36
   ],
   [
    "drifter",
    "Let's see if these are any kinder.",
    9.8,
-   "22:26",
+   "22:35",
    "said",
    1.0
+  ],
+  [
+   "rancher",
+   "No, thank you. You look tired, Miss Kitty.",
+   3.4,
+   "22:36",
+   "exchange:heard.nothing_from_me",
+   1.0
+  ],
+  [
+   "saloon_girl",
+   "My feet aren't. The rest of me's grand.",
+   7.7,
+   "22:38",
+   "exchange:heard.nothing_from_me",
+   0.36
+  ],
+  [
+   "rancher",
+   "My wife puts hers in the ditch, at shearing. She says it's the cold does it. I don't know, you have no ditch here.",
+   3.4,
+   "22:40",
+   "exchange:heard.nothing_from_me",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "Fellow got down off the noon train with a saddle and no trunk. That's worth a short one.",
+   6.6,
+   "22:42",
+   "exchange:heard.noon_train",
+   0.52
   ],
   [
    "earl",
    "A pair of sevens. Read 'em out loud, boys, if you can.",
    11.2,
-   "22:34",
+   "22:43",
    "said",
    1.0
   ],
   [
-   "miner",
-   "Preacher says you carried his stove up the lane on your back.",
-   1.2,
-   "22:36",
-   "exchange:heard.stove",
+   "barkeep",
+   "What kind of saddle?",
+   2.1,
+   "22:45",
+   "exchange:heard.noon_train",
    1.0
   ],
   [
    "earl",
-   "He poured me one last night and wouldn't take for it.",
+   "What come of your saddle, anyhow?",
    11.2,
-   "22:37",
-   "exchange:heard.leave_the_dime",
+   "22:46",
+   "exchange:heard.your_saddle",
    0.0
   ],
   [
    "loudmouth",
-   "Who says?",
+   "Texas rig, double cinch. Went up to the hotel and never looked at nobody.",
    6.6,
-   "22:39",
-   "exchange:heard.stove",
+   "22:47",
+   "exchange:heard.noon_train",
    0.52
   ],
   [
    "drifter",
-   "And?",
+   "Stole. In Tascosa.",
    9.8,
-   "22:39",
-   "exchange:heard.leave_the_dime",
+   "22:48",
+   "exchange:heard.your_saddle",
    0.04
   ],
   [
-   "miner",
-   "Help you, mister?",
-   1.2,
-   "22:40",
-   "said",
+   "earl",
+   "That's hard. Man can't hire on without one.",
+   11.2,
+   "22:49",
+   "exchange:heard.your_saddle",
+   0.0
+  ],
+  [
+   "barkeep",
+   "Who'd he ask for?",
+   2.1,
+   "22:50",
+   "exchange:heard.noon_train",
    1.0
   ],
   [
+   "drifter",
+   "Ask me about something else, Earl.",
+   9.8,
+   "22:51",
+   "exchange:heard.your_saddle",
+   0.04
+  ],
+  [
+   "loudmouth",
+   "I never followed him in! I got freight to carry, I can't be following every man with a saddle!",
+   6.6,
+   "22:52",
+   "exchange:heard.noon_train",
+   0.52
+  ],
+  [
    "earl",
-   "I left the dime on the bar anyhow. He looked at it a good while.",
+   "I'm sorry. I'm sorry, I only... It's your deal.",
    11.2,
-   "22:40",
-   "exchange:heard.leave_the_dime",
+   "22:53",
+   "exchange:heard.your_saddle",
    0.0
   ],
   [
    "earl",
    "Five-card. Same as ever.",
    11.2,
-   "22:45",
+   "22:58",
    "said",
-   1.0
-  ],
-  [
-   "rancher",
-   "One. And I'll be slow with it, if you don't mind.",
-   3.4,
-   "22:45",
-   "exchange:heard.one_only",
-   1.0
-  ],
-  [
-   "barkeep",
-   "You're an hour over every one, Don Anselmo. I could have had three men at that piece of rail.",
-   2.1,
-   "22:47",
-   "exchange:heard.one_only",
    1.0
   ],
   [
    "earl",
    "Two.",
    11.2,
-   "22:51",
+   "23:04",
    "said",
-   1.0
-  ],
-  [
-   "rancher",
-   "It's dark past the ford, and that horse don't like the ford. I wait for the moon.",
-   3.4,
-   "22:51",
-   "exchange:heard.one_only",
    1.0
   ],
   [
    "drifter",
    "Call.",
    9.8,
-   "22:54",
+   "23:07",
    "said",
    1.0
   ],
@@ -678,31 +782,71 @@
    "earl",
    "Three queens. Lady's been kind tonight.",
    11.2,
-   "22:54",
+   "23:07",
    "said",
+   1.0
+  ],
+  [
+   "miner",
+   "Company mules used to water at the spring below the dump. There's posts round it now.",
+   1.2,
+   "23:11",
+   "exchange:heard.mules_water",
    1.0
   ],
   [
    "drifter",
    "Ante.",
    9.8,
-   "22:58",
+   "23:12",
    "said",
+   1.0
+  ],
+  [
+   "rancher",
+   "Cedar posts. I saw them, coming in.",
+   3.4,
+   "23:14",
+   "exchange:heard.mules_water",
    1.0
   ],
   [
    "drifter",
    "I'll see that.",
    9.8,
-   "23:03",
+   "23:16",
    "said",
+   1.0
+  ],
+  [
+   "miner",
+   "So now they haul it up from the creek, two barrels a day.",
+   1.2,
+   "23:17",
+   "exchange:heard.mules_water",
+   1.0
+  ],
+  [
+   "rancher",
+   "Whose posts?",
+   3.4,
+   "23:19",
+   "exchange:heard.mules_water",
+   1.0
+  ],
+  [
+   "miner",
+   "Nobody at the office will say.",
+   1.2,
+   "23:20",
+   "exchange:heard.mules_water",
    1.0
   ],
   [
    "drifter",
    "A full house, jacks over sevens. Come to papa.",
    9.8,
-   "23:08",
+   "23:21",
    "said",
    1.0
   ],
@@ -710,23 +854,7 @@
    "earl",
    "That's a lot of hand for this table.",
    11.2,
-   "23:08",
-   "said",
-   1.0
-  ],
-  [
-   "drifter",
-   "I'll bet.",
-   9.8,
-   "23:19",
-   "said",
-   1.0
-  ],
-  [
-   "earl",
-   "A pair of kings. Thank you kindly.",
-   11.2,
-   "23:20",
+   "23:21",
    "said",
    1.0
   ],
@@ -739,36 +867,12 @@
    0.52
   ],
   [
-   "earl",
-   "You're light tonight, Wiley.",
-   11.2,
-   "23:23",
-   "exchange:heard.light_tonight",
-   0.0
-  ],
-  [
    "saloon_girl",
    "It's four bits, Rufe. Have you got it?",
    7.7,
    "23:25",
    "exchange:heard.sit_by",
    0.36
-  ],
-  [
-   "drifter",
-   "I got a dollar and it's to see me to Sunday.",
-   9.8,
-   "23:25",
-   "exchange:heard.light_tonight",
-   0.04
-  ],
-  [
-   "earl",
-   "Dimes, then. We'll play for dimes, I don't mind it.",
-   11.2,
-   "23:27",
-   "exchange:heard.light_tonight",
-   0.0
   ],
   [
    "loudmouth",
@@ -779,66 +883,106 @@
    0.52
   ],
   [
-   "miner",
-   "Letter goes Thursday. Four pound in it, if the cards leave me be.",
-   1.2,
-   "23:28",
-   "exchange:heard.letter",
-   1.0
-  ],
-  [
    "saloon_girl",
    "Ask himself, so. I'll wait here while you do.",
    7.7,
-   "23:29",
+   "23:28",
    "exchange:heard.sit_by",
    0.36
   ],
   [
-   "rancher",
-   "To your wife.",
-   3.4,
-   "23:31",
-   "exchange:heard.letter",
+   "drifter",
+   "I'll bet.",
+   9.8,
+   "23:33",
+   "said",
    1.0
+  ],
+  [
+   "earl",
+   "A pair of kings. Thank you kindly.",
+   11.2,
+   "23:34",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "He poured me one last night and wouldn't take for it.",
+   11.2,
+   "23:36",
+   "exchange:heard.leave_the_dime",
+   0.0
+  ],
+  [
+   "drifter",
+   "And?",
+   9.8,
+   "23:39",
+   "exchange:heard.leave_the_dime",
+   0.04
+  ],
+  [
+   "earl",
+   "I left the dime on the bar anyhow. He looked at it a good while.",
+   11.2,
+   "23:40",
+   "exchange:heard.leave_the_dime",
+   0.0
   ],
   [
    "drifter",
    "Another, then.",
    9.8,
-   "23:32",
+   "23:45",
    "said",
    1.0
   ],
   [
-   "miner",
-   "Loveday, and the maid. Maid were six when I come away. She's seventeen now, and writes a better hand than her mother.",
-   1.2,
-   "23:32",
-   "exchange:heard.letter",
+   "rancher",
+   "My pistol, please. I'm going.",
+   3.4,
+   "23:45",
+   "exchange:heard.cap_and_ball",
+   1.0
+  ],
+  [
+   "barkeep",
+   "Cap and ball. That's an old one. You ever fire it?",
+   2.1,
+   "23:47",
+   "exchange:heard.cap_and_ball",
    1.0
   ],
   [
    "rancher",
-   "That's a long time, to send letters.",
+   "At a coyote, in the spring. He was among the lambs.",
    3.4,
-   "23:36",
-   "exchange:heard.letter",
+   "23:49",
+   "exchange:heard.cap_and_ball",
    1.0
   ],
   [
-   "miner",
-   "One more year, I told her. I've told her that in... Well. In a good few letters.",
-   1.2,
-   "23:38",
-   "exchange:heard.letter",
+   "barkeep",
+   "Get him?",
+   2.1,
+   "23:52",
+   "exchange:heard.cap_and_ball",
+   1.0
+  ],
+  [
+   "rancher",
+   "I don't think so. He ran, anyway, and I had the lamb.",
+   3.4,
+   "23:53",
+   "exchange:heard.cap_and_ball",
    1.0
   ],
   [
    "drifter",
    "A pair of queens, gents.",
    9.8,
-   "23:41",
+   "23:54",
    "said",
    1.0
   ],
@@ -846,73 +990,65 @@
    "earl",
    "Damn the luck.",
    11.2,
-   "23:41",
+   "23:54",
    "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "Twelve yoke I had. Twelve! Over Mosquito Pass in the snow, and never lost a sack.",
+   6.6,
+   "00:01",
+   "exchange:heard.twelve_yoke",
+   0.52
+  ],
+  [
+   "miner",
+   "And where be they now?",
+   1.2,
+   "00:05",
+   "exchange:heard.twelve_yoke",
    1.0
   ],
   [
    "drifter",
    "A pair of jacks. Pay the man. That's me.",
    9.8,
-   "23:53",
+   "00:06",
    "said",
    1.0
+  ],
+  [
+   "loudmouth",
+   "Butcher's got the last of 'em. Railroad done that. I went down to the agent and I told him what I thought of his cars, to his face!",
+   6.6,
+   "00:06",
+   "exchange:heard.twelve_yoke",
+   0.52
   ],
   [
    "drifter",
    "Ante up. You know the price.",
    9.8,
-   "23:58",
+   "00:11",
    "said",
    1.0
-  ],
-  [
-   "drifter",
-   "A pair of aces. I'll take that.",
-   9.8,
-   "00:07",
-   "said",
-   1.0
-  ],
-  [
-   "drifter",
-   "Baron's outfit's hiring. Sixty a month.",
-   9.8,
-   "00:10",
-   "exchange:heard.sixty_a_month",
-   0.04
   ],
   [
    "miner",
-   "This one's thin, my son.",
+   "What'd he say to that?",
    1.2,
-   "00:12",
-   "exchange:heard.thin_barrel",
+   "00:11",
+   "exchange:heard.twelve_yoke",
    1.0
   ],
   [
-   "earl",
-   "Sixty! For riding?",
-   11.2,
+   "loudmouth",
+   "He never heard me. He was inside.",
+   6.6,
    "00:12",
-   "exchange:heard.sixty_a_month",
-   0.0
-  ],
-  [
-   "barkeep",
-   "It's the same barrel as yesterday.",
-   2.1,
-   "00:14",
-   "exchange:heard.thin_barrel",
-   1.0
-  ],
-  [
-   "drifter",
-   "They don't ask can you rope.",
-   9.8,
-   "00:14",
-   "exchange:heard.sixty_a_month",
-   0.04
+   "exchange:heard.twelve_yoke",
+   0.52
   ]
  ],
  "ok": true,
@@ -920,8 +1056,8 @@
   "barkeep|miner": 243.0,
   "barkeep|rancher": 243.0,
   "drifter|earl": 224.0,
-  "drifter|fiddler": 243.0,
-  "drifter|pianist": 243.0,
+  "drifter|fiddler": 235.0,
+  "drifter|pianist": 235.0,
   "earl|pianist": 224.0,
   "fiddler|pianist": 243.0,
   "fiddler|saloon_girl": 107.0,
@@ -942,8 +1078,8 @@
   "rancher|storekeeper": 43.0,
   "saloon_girl|storekeeper": 43.0
  },
- "s": 450.1,
- "t": 478.45,
+ "s": 450.2,
+ "t": 478.5,
  "where": {
   "barkeep|miner": {
    "bar_back:counter + bar_south:drink": 91
@@ -952,13 +1088,13 @@
    "bar_back:counter + bar_north:drink": 91
   },
   "drifter|earl": {
-   "card_e:play + card_w:play": 84
+   "card_w:play + card_e:play": 84
   },
   "drifter|fiddler": {
-   "card_e:play + band_fiddle:play": 91
+   "band_fiddle:play + card_e:play": 88
   },
   "drifter|pianist": {
-   "card_e:play + piano_chair:play": 91
+   "piano_chair:play + card_e:play": 88
   },
   "earl|pianist": {
    "card_w:play + piano_chair:play": 84
@@ -1029,13 +1165,6 @@
     "spot": "bar_back:counter",
     "tags": [
      "saloon.bar"
-    ]
-   },
-   "drifter": {
-    "d": 9.8,
-    "spot": "card_e:play",
-    "tags": [
-     "saloon.table"
     ]
    },
    "fiddler": {

@@ -1,0 +1,73 @@
+{
+ "clock": "12:18",
+ "cmd": "oh_stop",
+ "lines": [
+  [
+   "loudmouth",
+   "Mm. Morning.",
+   0.9,
+   "09:20",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "Dry as a bone. We could use a rain.",
+   1.4,
+   "09:36",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "This town's dead as a doornail till payday.",
+   0.9,
+   "09:53",
+   "said",
+   1.0
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|drifter": 48.0
+ },
+ "s": 450.1,
+ "t": 487.53,
+ "where": {
+  "barkeep|drifter": {
+   "bar_back_day:counter + bar_day_2:drink": 18
+  }
+ },
+ "start": {
+  "clock": "08:18",
+  "cmd": "oh_where",
+  "men": {
+   "drifter": {
+    "d": 29.5,
+    "spot": "livery_lean:lean",
+    "tags": [
+     "livery",
+     "street"
+    ]
+   },
+   "smith": {
+    "d": 42.6,
+    "spot": "smith_door:work",
+    "tags": [
+     "smithy",
+     "street"
+    ]
+   },
+   "undertaker": {
+    "d": 156.8,
+    "spot": "undertaker_walk:work",
+    "tags": [
+     "undertaker",
+     "street"
+    ]
+   }
+  },
+  "ok": true,
+  "t": 37.38
+ }
+}

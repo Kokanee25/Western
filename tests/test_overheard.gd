@@ -189,6 +189,13 @@ func test_an_evening_at_the_bar() -> void:
 	for e: Array in done:
 		check(int(o.heard_day.get(String(e[0]), -1)) == folk.town_day(), "%s counts as heard today" % e[0])
 	check(not _player().wounds.last_heard.is_empty(), "the subtitle shows what's overheard")
+	# The budget: looking for an exchange to start (once `try_s`, all 115 against who's here) is cheap.
+	var t0 := Time.get_ticks_usec()
+	for i in 50:
+		o.fitting(folk._ran + 1000.0)
+	var ms := float(Time.get_ticks_usec() - t0) / 50000.0
+	print("  overheard: a look for an exchange to start takes %.3f ms (once every %.1f s)" % [ms, float(Overheard.DIALS.try_s)])
+	check(ms < 3.0, "a look for an exchange to start is under 3 ms (%.3f)" % ms)
 	# The save keeps what you've heard.
 	var kept := folk.save_dict()
 	check((kept.get("overheard", {}) as Dictionary).has("heard_day"), "the save holds the heard exchanges")
