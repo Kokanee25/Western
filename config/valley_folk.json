@@ -359,8 +359,7 @@
      "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."},
     {"id": "town_drunk", "name": "Sarge", "model": "oldtimer_factory", "seed": 1312, "dials": {"nerve": 0.9, "nosy": 0.7, "duty": 0.3}, "shirt": [0.5, 0.47, 0.4], "vest": [0.33, 0.33, 0.36], "home": "livery", "jibes": true,
      "day": [
-       {"from": 9.5, "at": "sarge_walk", "do": "stand"},
-       {"from": 10.0, "at": "sarge_walk", "do": "sweep"},
+       {"from": 9.5, "do": "sweep", "round": [{"at": "sarge_walk", "do": "sweep", "stay": [120, 240]}, {"at": "saloon_porch", "do": "stand", "stay": [60, 120]}]},
        {"from": 11.0, "do": "lean", "round": [{"at": "sarge_walk", "do": "lean", "stay": [120, 260]}, {"at": "sarge_store", "do": "sit", "stay": [90, 200]}, {"at": "sarge_jail", "do": "stand", "stay": [60, 150]}, {"at": "saloon_porch", "do": "stand", "stay": [60, 120]}]},
        {"from": 18.5, "in": "hotel", "do": "supper"},
        {"from": 19.0, "at": "bar_door_end", "do": "drink"},
