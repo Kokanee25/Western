@@ -63,7 +63,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Saving by sleeping** (#1138, #1148, #1154 steps 1-3 done; `docs/briefs/saving.md`, LAYOUT "src/save"): `SaveGame`;
   E at a bed (group `beds`: spec `use: sleep` points) sleeps to 06:00 and saves (`PlayerSleep`); `ContinueCard` at a
   plain start; `load_slot` reloads with it. A hurt man indoors stays hurt (`ValleyFolk.kept`, run on by the clock;
-  can't stand: laid up; dead in there: `died_indoors`). Open: the doctor doesn't tend a laid-up man; the brief's
+  can't stand: laid up; dead in there: `died_indoors`). A kit prop's contents are kept (`contents`: level, let go;
+  a barrel knocked over whole loads shut, #1315). Open: the doctor doesn't tend a laid-up man; the brief's
   "Not yet"; no start in play for No Justice; Harlan's bed once #1126's spec has a `sleep` point.
 - **The valley** (#467, `config/valley.json`, `tools/valley/`; LAYOUT "src/world/town_layout.gd"): G1-G7 done;
   G8 step 1 (#1098): a plain start is the valley (`Settings.world_for`); script runs and the bridge keep the town.
