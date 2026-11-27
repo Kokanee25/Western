@@ -81,7 +81,7 @@
     "doctor_walk": {"lot": "doctor", "at": [3.8, -1.0]},
     "main_corner": {"lot": "jail", "at": [4.0, -1.0]},
     "sarge_walk": {"lot": "saloon", "at": [13.0, -1.0], "_doc": "#1312: the drunk's piece of the saloon's walk, east of its door"},
-    "sarge_store": {"lot": "general_store", "at": [12.0, -1.5]},
+    "sarge_store": {"lot": "general_store", "at": [6.2, -1.5], "_doc": "#1312: between the benches and the store's door, clear of the dock's crates (a spot is a way: at 12.0 it put three crates out)"},
     "sarge_jail": {"lot": "jail", "at": [8.5, -1.0], "faces": [8.5, -8.0]},
     "bar_door_end": {"hall": "saloon", "use": "drinker_4", "bar_top": true, "_doc": "#1312: the drunk's place at night, the bar's door end (his card)"},
     "saloon_porch": {"lot": "saloon", "at": [6.0, -1.0]},
