@@ -31,7 +31,9 @@ KINDS = {'ordinary': 'An ordinary day', 'sunday': 'Sunday', 'payday': 'A payday 
          'uneasy': 'The day after a killing or a shooting'}
 GONE = ('sleep', 'away')          # not somewhere he can be met
 HASHED = ('kind', 'role', 'name', 'called', 'who', 'age', 'born', 'from', 'came', 'work', 'place', 'wants', 'secret',
-          'likes', 'dislikes', 'habit', 'talks', 'voice', 'body', 'clothes', 'lines', 'seen', 'day_proposed', 'fixed')
+          'likes', 'dislikes', 'habit', 'talks', 'voice', 'body', 'clothes', 'lines', 'seen', 'day_proposed', 'fixed',
+          'in_town', 'circle', 'home', 'if_dies', 'knows', 'trouble', 'harlan', 'jobs', 'looks', 'casting', 'owns', 'week',
+          'loyalty')
 
 
 def spot_place(name, spots):
@@ -190,11 +192,23 @@ def check(people, folk):
                 errs.append('%s: unknown place %s' % (ln['id'], ln['place']))
             if ln.get('to') and ln['to'] not in P:
                 errs.append('%s: to an unknown id %s' % (ln['id'], ln['to']))
+        for ln in (p.get('if_dies') or {}).get('lines') or []:
+            if ln['id'] in seen:
+                errs.append('line id twice: ' + ln['id'])
+            seen.add(ln['id'])
+            if ln['by'] not in P:
+                errs.append('%s: by an unknown id %s' % (ln['id'], ln['by']))
+        if p.get('home') and p['home'].get('state') not in ('built', 'to be built'):
+            errs.append('%s: home.state is built or to be built' % pid)
         for s in p.get('seen') or []:
             if s['place'] not in places:
                 errs.append('%s: seen at an unknown place %s' % (pid, s['place']))
         if p.get('kind') == 'townsfolk' and not p.get('name'):
             errs.append('%s: a townsperson with no name' % pid)
+    for group in ('stranger', 'rider', 'outlaw'):
+        for ln in (people.get('nobody_knew') or {}).get(group) or []:
+            if ln['by'] not in P:
+                errs.append('%s: by an unknown id %s' % (ln['id'], ln['by']))
     return errs
 
 
@@ -265,9 +279,16 @@ def build():
             for ln in mine:
                 by_place[t]['lines'].append(dict(ln, pid=pid))
         q['groups'] = groups
+        q['more'] = pid in (people.get('more_done') or [])
+        for ln in (q.get('if_dies') or {}).get('lines') or []:
+            ln['by_name'] = label(ln['by'])
         out_people[pid] = q
     return {'built': datetime.date.today().isoformat(), 'status': people.get('status'), 'assumed': people.get('assumed', []),
             'order': list(P.keys()), 'people': out_people,
+            'nobody': {g: [dict(ln, by_name=label(ln['by'])) for ln in (people.get('nobody_knew') or {}).get(g) or []]
+                       for g in ('stranger', 'rider', 'outlaw')},
+            'homes': [{'id': pid, 'name': label(pid), 'what': p['home']['what'], 'state': p['home']['state'],
+                       'where': p['home'].get('where', '')} for pid, p in P.items() if p.get('home')],
             'places': [v for v in by_place.values() if v['who']]}
 
 

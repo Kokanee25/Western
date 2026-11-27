@@ -141,6 +141,13 @@ bar, the store, the street: who's there and everything said there).
   says what it's on: `p.<id>` (the whole person), `p.<id>.<field>` (name, called, age, from, came, work, place, wants,
   secret, habit, voice, body, clothes, day), `p.<id>.likes.<other id>`, `p.<id>.talks.<n>`, `p.<id>.line.<line id>`,
   `a.<n>` (an assumption on the front page). They are his: never overwrite or delete one. Act on a note in `people.json`.
+- **The further sections** (Sean, 2026-11-27, #1309's later comments): time in town, circle and family, home (`built` or
+  `to be built`, against `config/valley.json`), if he dies (funeral lines, bearers, what changes), what he knows of the
+  story and what it takes, trouble, Harlan (and a greeting at each of TownRegard's four bands), jobs, looks, casting,
+  owns and owes, his week, his loyalties: each a folded section on his page. Written for those in `more_done` (the saloon's
+  regulars and Claude Bérubé); the rest of the town is the next batch. Two shared cards: `nobody_knew` (funeral lines for a
+  stranger, a gang's rider, a known outlaw) and the homes list. Note ids: `p.<id>.<section>` or `p.<id>.<section>.<key>`
+  (`knows.<n>`, `jobs.<n>`, `harlan.greet.<band>`), `p.<id>.grave.<line id>`, `n.<line id>` (the shared card).
 - **Person OK:** collection `ok`, one document a person (`{ok, hash, at, name}`). It counts only while `hash` is the
   sheet's own (the build's hash of his fields and sample lines, not his day or the town script's lines), so any change to
   a sheet asks for his OK again, with nothing to remember to bump. Never write these.
