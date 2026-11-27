@@ -4902,7 +4902,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "That's four, Jory. I'm counting if you ain't.",
+       "text": "That's your fourth, Jory.",
        "status": "new"
       }
      ],
@@ -4922,27 +4922,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "Count away. I'd sooner you did it than me, this time of night.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.dust.4",
-     "ex": "heard.dust",
-     "speaker": "barkeep",
-     "who": "barkeep",
-     "to": "miner",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Jory Trembath",
-     "when": "19:00 to 03:00",
-     "condition": "",
-     "delivery": "sour",
-     "words": [
-      {
-       "text": "Sixty cents, then. And I'll have it before the fifth.",
+       "text": "Is it? I'd lost the count. Go on, then.",
        "status": "new"
       }
      ],
@@ -5026,10 +5006,10 @@
      "trigger": "Overheard: to Jory Trembath",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "flat",
+     "delivery": "uneasy",
      "words": [
       {
-       "text": "And what do you say?",
+       "text": "Well. He'd know, I guess.",
        "status": "new"
       }
      ],
@@ -5046,10 +5026,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "I say he's up to grass by ten every morning, and I go down at six.",
+       "text": "He goes up to grass at ten every morning. I couldn't tell 'ee what he knows.",
        "status": "new"
       }
      ],
@@ -5116,7 +5096,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "You paid for what's in it. Glass is nine cents landed, and the glass is mine.",
+       "text": "You paid for the whiskey. Them glasses come up from Denver in straw, and half of 'em don't come.",
        "status": "new"
       }
      ],
@@ -5136,7 +5116,7 @@
      "delivery": "laughing",
      "words": [
       {
-       "text": "Nine cents! I've throwed better glasses than that at a mule in Santa Fe, I said to the man, I said...",
+       "text": "I've throwed better glasses than that at a mule! In Santa Fe, this was, the mule had got into...",
        "status": "new"
       }
      ],
@@ -5156,7 +5136,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Thirty-one dollars, Rufe. Tell me about Santa Fe when it's thirty.",
+       "text": "Thirty-one dollars, Rufe.",
        "status": "new"
       }
      ],
@@ -5243,7 +5223,27 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Half of one. You get the other half when you tell me who he asks for.",
+       "text": "Who'd he ask for?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.noon_train.5",
+     "ex": "heard.noon_train",
+     "speaker": "loudmouth",
+     "who": "loudmouth",
+     "to": "barkeep",
+     "place": "saloon.bar",
+     "trigger": "Overheard: to Barkeep (owns the saloon)",
+     "when": "19:00 to 03:00",
+     "condition": "",
+     "delivery": "low",
+     "words": [
+      {
+       "text": "I'll have that by tomorrow.",
        "status": "new"
       }
      ],
@@ -5270,7 +5270,7 @@
      "delivery": "courteous",
      "words": [
       {
-       "text": "One only, with your permission. And I will take my time with it.",
+       "text": "One. And I'll be slow with it, if you don't mind.",
        "status": "new"
       }
      ],
@@ -5290,7 +5290,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "You take an hour with it, Don Anselmo. That's a nickel an hour for the rail you're stood at.",
+       "text": "You're an hour over every one, Don Anselmo. I could have had three men at that piece of rail.",
        "status": "new"
       }
      ],
@@ -5310,27 +5310,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Then it is the cheapest rail in the valley. The road home is dark past the ford.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.one_only.4",
-     "ex": "heard.one_only",
-     "speaker": "barkeep",
-     "who": "barkeep",
-     "to": "rancher",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Anselmo Gallegos",
-     "when": "19:00 to 03:00",
-     "condition": "",
-     "delivery": "flat",
-     "words": [
-      {
-       "text": "I ain't complaining. I'm only saying what it comes to.",
+       "text": "It's dark past the ford. I like to let the moon get up before I... how is it. Before I trust the horse.",
        "status": "new"
       }
      ],
@@ -5399,7 +5379,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Fair enough, then.",
+       "text": "Then you've no quarrel with him.",
        "status": "new"
       }
      ],
@@ -5420,7 +5400,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Yes, it was fair. And the next summer the creek below it came to my knee, and now it comes to here. My ankle.",
+       "text": "No. No quarrel. And the next summer the creek below it came to my knee, and now it comes to here. My ankle.",
        "status": "new"
       }
      ],
@@ -5490,7 +5470,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "Twenty-two cents at Pueblo, Mr. Mapes. My name you have been told.",
+       "text": "Twenty-two cents at Pueblo. And I've a name, Mr. Mapes, you've heard it in this room.",
        "status": "new"
       }
      ],
@@ -5510,7 +5490,7 @@
      "delivery": "mocking",
      "words": [
       {
-       "text": "I been told a heap of things. I disremember the most of 'em.",
+       "text": "I hear a heap of things. I disremember the most of 'em.",
        "status": "new"
       }
      ],
@@ -5519,26 +5499,6 @@
     },
     {
      "id": "heard.the_mexican.4",
-     "ex": "heard.the_mexican",
-     "speaker": "townsman",
-     "who": "rancher",
-     "to": "loudmouth",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Rufus Mapes",
-     "when": "19:00 to 03:00, once only",
-     "condition": "",
-     "delivery": "courteous",
-     "words": [
-      {
-       "text": "Then I will not add to them. Good evening.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.the_mexican.5",
      "ex": "heard.the_mexican",
      "speaker": "barkeep",
      "who": "barkeep",
@@ -5550,7 +5510,27 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "Rufe. He pays in coin and he's never broke a glass. You think on which of you I'd sooner keep.",
+       "text": "Rufe.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.the_mexican.5",
+     "ex": "heard.the_mexican",
+     "speaker": "loudmouth",
+     "who": "loudmouth",
+     "to": "barkeep",
+     "place": "saloon.bar",
+     "trigger": "Overheard: to Barkeep (owns the saloon)",
+     "when": "19:00 to 03:00, once only",
+     "condition": "",
+     "delivery": "loud",
+     "words": [
+      {
+       "text": "What? I only asked the man about wool!",
        "status": "new"
       }
      ],
@@ -5617,7 +5597,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "I had a faro dealer told me that. Buried him in March, owing me six dollars forty.",
+       "text": "I had a faro dealer told me that. We put him up the hill inside the year.",
        "status": "new"
       }
      ],
@@ -5634,10 +5614,30 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "Then I'll pay as I go, my son, and you'll not be out by me.",
+       "text": "Did he work powder?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.cough.5",
+     "ex": "heard.cough",
+     "speaker": "barkeep",
+     "who": "barkeep",
+     "to": "miner",
+     "place": "saloon.bar",
+     "trigger": "Overheard: to Jory Trembath",
+     "when": "19:00 to 03:00",
+     "condition": "",
+     "delivery": "flat",
+     "words": [
+      {
+       "text": "No.",
        "status": "new"
       }
      ],
@@ -5724,7 +5724,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "That is a long time to be sending a letter.",
+       "text": "That's a long time to be sending a letter.",
        "status": "new"
       }
      ],
@@ -5771,7 +5771,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "One, and the clock says eight.",
+       "text": "One whiskey. It's eight by your clock.",
        "status": "new"
       }
      ],
@@ -5791,7 +5791,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Clock says four minutes past, Mr. Colby.",
+       "text": "Ten past, Mr. Colby.",
        "status": "new"
       }
      ],
@@ -5811,7 +5811,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "Then I'm four minutes late, and you've had the lamp oil of me for nothing. There's a lid to fit tonight.",
+       "text": "Is it. I was planing and lost the light. There's a lid to fit yet tonight.",
        "status": "new"
       }
      ],
@@ -5851,7 +5851,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Nobody yet. I like one by me, dry. Pine moves if you hurry it.",
+       "text": "Nobody you know. A section hand, off the cars. They've no name for him at the depot.",
        "status": "new"
       }
      ],
@@ -5898,7 +5898,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Six foot one. And broad with it.",
+       "text": "Your shoulders, Mr. Mapes. I beg your pardon. It's a habit of the trade.",
        "status": "new"
       }
      ],
@@ -5935,10 +5935,10 @@
      "trigger": "Overheard: to Rufus Mapes",
      "when": "20:00 to 20:36",
      "condition": "",
-     "delivery": "precise",
+     "delivery": "mild",
      "words": [
       {
-       "text": "No. I only like to know what pine I'd want. You'd be two boards over the common run.",
+       "text": "No, no. You look very well.",
        "status": "new"
       }
      ],
@@ -5958,27 +5958,7 @@
      "delivery": "uneasy",
      "words": [
       {
-       "text": "You hear that, Jory? Man's selling me a box and me stood here drinking!",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.six_foot_one.6",
-     "ex": "heard.six_foot_one",
-     "speaker": "townsman",
-     "who": "miner",
-     "to": "loudmouth",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Rufus Mapes",
-     "when": "20:00 to 20:36",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "He'll not charge 'ee till you're in it. Drink up.",
+       "text": "You hear that, Jory? He says I look well. I don't care for how he says it.",
        "status": "new"
       }
      ],
@@ -6005,7 +5985,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "Black walnut, seasoned. I've sent to Kansas City for it twice.",
+       "text": "I've wrote to Kansas City again for black walnut. Seasoned.",
        "status": "new"
       }
      ],
@@ -6025,7 +6005,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "For who?",
+       "text": "Who's it for?",
        "status": "new"
       }
      ],
@@ -6045,7 +6025,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "For stock. A man who can pay for walnut generally goes sudden.",
+       "text": "Whoever asks. Nobody has, in five years. They take the pine.",
        "status": "new"
       }
      ],
@@ -6065,7 +6045,7 @@
      "delivery": "sly",
      "words": [
       {
-       "text": "What's it fetch?",
+       "text": "What's the difference to a man?",
        "status": "new"
       }
      ],
@@ -6085,47 +6065,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "Forty-five dollars, lined. Pine's four.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.walnut.6",
-     "ex": "heard.walnut",
-     "speaker": "barkeep",
-     "who": "barkeep",
-     "to": "undertaker",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Phineas Colby",
-     "when": "20:00 to 20:36",
-     "condition": "",
-     "delivery": "proud",
-     "words": [
-      {
-       "text": "Jesus. Forty-one dollars' difference, and the customer never sees it.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.walnut.7",
-     "ex": "heard.walnut",
-     "speaker": "undertaker",
-     "who": "undertaker",
-     "to": "barkeep",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Barkeep (owns the saloon)",
-     "when": "20:00 to 20:36",
-     "condition": "",
-     "delivery": "mild",
-     "words": [
-      {
-       "text": "The family does.",
+       "text": "Forty-odd dollars. And walnut takes a polish.",
        "status": "new"
       }
      ],
@@ -6152,7 +6092,7 @@
      "delivery": "tired",
      "words": [
       {
-       "text": "He's had six and he's showing me a picture of his mother. I want paying for that.",
+       "text": "He's had six and he's showing me a picture of his mother.",
        "status": "new"
       }
      ],
@@ -6172,7 +6112,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "You get your share of six.",
+       "text": "He's bought six. I don't see what you've to grieve over.",
        "status": "new"
       }
      ],
@@ -6192,7 +6132,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "I get my share of cold tea at four bits. Listening's extra, and you know it is.",
+       "text": "She's a hard-looking woman, is what. And he wants me to say she's not.",
        "status": "new"
       }
      ],
@@ -6212,7 +6152,7 @@
      "delivery": "sly",
      "words": [
       {
-       "text": "Table by the window's got money and no company.",
+       "text": "Fellow by the window's on his own.",
        "status": "new"
       }
      ],
@@ -6232,7 +6172,7 @@
      "delivery": "tired",
      "words": [
       {
-       "text": "Him by the window's got new boots and his wages in them. He'll keep ten minutes.",
+       "text": "I saw him. Give me a minute to stand here.",
        "status": "new"
       }
      ],
@@ -6299,7 +6239,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "It's wrote down, isn't it? Then you've no call to ask.",
+       "text": "It's wrote in your book where it goes. You needn't say it out across the bar.",
        "status": "new"
       }
      ],
@@ -6319,7 +6259,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "I don't ask. I only like to know where my money goes when it quits being mine.",
+       "text": "I never said a thing but the town.",
        "status": "new"
       }
      ],
@@ -6366,7 +6306,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "I'll stand 'ee one to keep it to yourself.",
+       "text": "I board with the widow Rudd.",
        "status": "new"
       }
      ],
@@ -6386,7 +6326,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "That's the same drink!",
+       "text": "Well, that's how come you'd want to know!",
        "status": "new"
       }
      ],
@@ -6403,10 +6343,10 @@
      "trigger": "Overheard: to Rufus Mapes",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "'Tis. Only I get the quiet with it.",
+       "text": "No, my son. That's how come I don't.",
        "status": "new"
       }
      ],
@@ -6473,7 +6413,7 @@
      "delivery": "angry",
      "words": [
       {
-       "text": "Butcher's got the last four. Railroad done that. I said to the agent, I said, you can haul it cheaper but you can't haul it prouder...",
+       "text": "Butcher's got the last of 'em. Railroad done that. I went down to the agent, I told him, you can haul it cheaper but you can't haul it prouder!",
        "status": "new"
       }
      ],
@@ -6561,7 +6501,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "Noon. Money order's put by, and Mrs. Rudd's had hers at the door. What's left in my pocket is my own to lose.",
+       "text": "Noon. Money order's put by, and Mrs. Rudd had hers off me at the door.",
        "status": "new"
       }
      ],
@@ -6581,7 +6521,7 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "Now that's what I like to hear a man say.",
+       "text": "And the rest?",
        "status": "new"
       }
      ],
@@ -6598,10 +6538,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "18:00 to 03:00, a payday",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "Aye. I thought you might.",
+       "text": "The rest is here. Pour, and don't look so glad about it.",
        "status": "new"
       }
      ],
@@ -6629,7 +6569,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "They docked you for candles again! I'd not stand it. I'd go up to that office, I'd say to him...",
+       "text": "They docked you for candles again! I'd not stand for it, not me!",
        "status": "new"
       }
      ],
@@ -6686,10 +6626,10 @@
      "trigger": "Overheard: to Rufus Mapes",
      "when": "18:00 to 03:00, a payday",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "Three dollars a day after. Find me the ox team pays that.",
+       "text": "Like enough. It's three dollars a day after, and there's Loveday to send to.",
        "status": "new"
       }
      ],
@@ -6757,7 +6697,7 @@
      "delivery": "proud",
      "words": [
       {
-       "text": "Eleven. I could've told him. A dollar thirty apiece, hung.",
+       "text": "Eleven. He can count till dark, they're paid for.",
        "status": "new"
       }
      ],
@@ -6777,7 +6717,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "He've the one, up the lane. And it wants a hinge.",
+       "text": "Church has the one. I've seen it bang, in a wind.",
        "status": "new"
       }
      ],
@@ -6828,7 +6768,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "The sheriff has ridden that road fourteen years, Mr. Mapes.",
+       "text": "He's ridden that road since before you came, Mr. Mapes. Every court day.",
        "status": "new"
       }
      ],
@@ -6870,7 +6810,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "You have seen them? No. Then you have seen what I have seen.",
+       "text": "Did you see a Ute? I didn't. I saw nobody, I was with my sheep.",
        "status": "new"
       }
      ],
@@ -6891,7 +6831,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Doc says he ain't to be moved and he ain't to be asked. That's all anybody's got, and I had it for nothing.",
+       "text": "Doc won't have him moved and won't have him asked. That's all there is, Rufe, and you had it off me.",
        "status": "new"
       }
      ],
@@ -6964,7 +6904,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "I'll not ask Cody the time of day.",
+       "text": "Jesus, Jory. Keep your voice down.",
        "status": "new"
       }
      ],
@@ -6985,7 +6925,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "He were cheating, mind. A dollar a time, same as ever. I'd have sat in again Friday, and gladly.",
+       "text": "He were cheating, mind. A dollar a time, same as ever he did. I'd have sat in again Friday.",
        "status": "new"
       }
      ],
@@ -7017,7 +6957,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "I'll shut for the burying. Two hours. That's seven dollars of trade, on a weekday.",
+       "text": "I'll shut for the burying. Two hours, and it's a weekday.",
        "status": "new"
       }
      ],
@@ -7038,7 +6978,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "He was fourteen years on that claim. I knew him before there was a street here.",
+       "text": "He took up that claim in 'sixty-eight. I rode over the first week, to see who it was. He was digging.",
        "status": "new"
       }
      ],
@@ -7059,7 +6999,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "I never said I begrudged it. I said what it comes to.",
+       "text": "I said I'd shut, didn't I?",
        "status": "new"
       }
      ],
@@ -7077,10 +7017,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00, after the sheriff has died, before the burying",
      "condition": "",
-     "delivery": "courteous",
+     "delivery": "low",
      "words": [
       {
-       "text": "Yes. You are a man who knows what a thing comes to.",
+       "text": "You did. I'm not... I was only remembering him.",
        "status": "new"
       }
      ],
@@ -7111,7 +7051,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "A farmer. Doc's gone and pinned the star on a farmer!",
+       "text": "A farmer! Doc's swore in a farmer for deputy!",
        "status": "new"
       }
      ],
@@ -7132,7 +7072,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "Doctor's coroner. 'Tis his to pin.",
+       "text": "Somebody's to be.",
        "status": "new"
       }
      ],
@@ -7174,7 +7114,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "You was not asked, Rufe. I was stood right here the whole time nobody asked you.",
+       "text": "You wasn't asked, Rufe.",
        "status": "new"
       }
      ],
@@ -7209,7 +7149,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Don't look round. Badge is in.",
+       "text": "Don't look round. That deputy's come in.",
        "status": "new"
       }
      ],
@@ -7230,7 +7170,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "I seen him. He drinks like anybody, and he pays, which I can't say for every man at this bar.",
+       "text": "I seen him.",
        "status": "new"
       }
      ],
@@ -7251,7 +7191,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "I'm only telling you.",
+       "text": "What's he want in here?",
        "status": "new"
       }
      ],
@@ -7272,7 +7212,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Then tell it lower. Jesus, Rufe, he ain't deaf.",
+       "text": "A drink, maybe. Hush up, Rufe, he ain't deaf.",
        "status": "new"
       }
      ],
@@ -7327,7 +7267,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "I got eyes.",
+       "text": "So it is.",
        "status": "new"
       }
      ],
@@ -7348,7 +7288,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "Stand him one off my money. Don't say whose.",
+       "text": "Stand him one off my money. Don't tell him whose.",
        "status": "new"
       }
      ],
@@ -7369,7 +7309,28 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Off your money. So it's fifteen cents to you and he thinks well of me. I can stand that.",
+       "text": "He'll think it's me.",
+       "status": "new"
+      }
+     ],
+     "story": true,
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.badge_warm.5",
+     "ex": "heard.badge_warm",
+     "speaker": "townsman",
+     "who": "miner",
+     "to": "barkeep",
+     "place": "saloon.bar",
+     "trigger": "Overheard: to Barkeep (owns the saloon)",
+     "when": "19:00 to 03:00, once the deputy is sworn, the speaker warm to the deputy",
+     "condition": "",
+     "delivery": "slow",
+     "words": [
+      {
+       "text": "Let him.",
        "status": "new"
       }
      ],
@@ -7397,7 +7358,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Creek's down again. My well's fourteen foot to water and it was ten.",
+       "text": "Creek's down again. My well's fourteen foot to water, and it was ten.",
        "status": "new"
       }
      ],
@@ -7417,7 +7378,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "My acequia, my ditch, runs a hand deep at noon. In my father's time a boy could drown in it. One did.",
+       "text": "My acequia runs a hand deep at noon. In my father's time a boy could drown in it. One did.",
        "status": "new"
       }
      ],
@@ -7484,7 +7445,7 @@
      "delivery": "courteous",
      "words": [
       {
-       "text": "Wool is twenty-two cents at Pueblo. Last year, twenty-eight.",
+       "text": "Wool's twenty-two cents at Pueblo. Last year, twenty-eight.",
        "status": "new"
       }
      ],
@@ -7524,7 +7485,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "The cars bring everything down but the price.",
+       "text": "They told me the same about freight on wool. The agent, he had a paper with it printed.",
        "status": "new"
       }
      ],
@@ -7541,30 +7502,10 @@
      "trigger": "Overheard: to Anselmo Gallegos",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "laughing",
+     "delivery": "grumbling",
      "words": [
       {
-       "text": "Jesus, Don Anselmo, that's the first joke I ever had off you!",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.wool_price.5",
-     "ex": "heard.wool_price",
-     "speaker": "townsman",
-     "who": "rancher",
-     "to": "barkeep",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Barkeep (owns the saloon)",
-     "when": "19:00 to 03:00",
-     "condition": "",
-     "delivery": "flat",
-     "words": [
-      {
-       "text": "It was not a joke.",
+       "text": "They all got a paper.",
        "status": "new"
       }
      ],
@@ -7591,7 +7532,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "My younger son wants to go on the railroad. A brakeman.",
+       "text": "My younger boy wants to go on the railroad. A brakeman.",
        "status": "new"
       }
      ],
@@ -7611,7 +7552,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "How old?",
+       "text": "How old is he?",
        "status": "new"
       }
      ],
@@ -7631,7 +7572,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Nineteen.",
+       "text": "Nineteen. Eusebio.",
        "status": "new"
       }
      ],
@@ -7651,7 +7592,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "I were five year under ground by nineteen. Let him go. He'll come home with all his fingers or he'll come home wiser.",
+       "text": "I were five year under ground by that. You'll not keep him, if he's set.",
        "status": "new"
       }
      ],
@@ -7671,7 +7612,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "His mother counts the fingers already.",
+       "text": "No. His mother thinks I can. She has me talk to him every Sunday, and he listens, he's a good boy, and then he looks down the valley at the smoke.",
        "status": "new"
       }
      ],
@@ -7698,7 +7639,7 @@
      "delivery": "courteous",
      "words": [
       {
-       "text": "My pistol, if you please. I am going.",
+       "text": "My pistol, please. I'm going.",
        "status": "new"
       }
      ],
@@ -7718,7 +7659,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Cap and ball. I ain't seen one loaded since the war. You ever fire it?",
+       "text": "Cap and ball. I ain't seen one of these loaded since the war. You ever fire it?",
        "status": "new"
       }
      ],
@@ -7738,7 +7679,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "At a coyote, in March.",
+       "text": "At a coyote, in the spring. He was among the lambs.",
        "status": "new"
       }
      ],
@@ -7758,7 +7699,7 @@
      "delivery": "sly",
      "words": [
       {
-       "text": "Hit him?",
+       "text": "Get him?",
        "status": "new"
       }
      ],
@@ -7775,10 +7716,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "23:30 to 01:00",
      "condition": "",
-     "delivery": "courteous",
+     "delivery": "mild",
      "words": [
       {
-       "text": "I frightened him very much.",
+       "text": "No. But he went.",
        "status": "new"
       }
      ],
@@ -7805,7 +7746,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "There's the whistle. Night shift's going down, and my bed's empty for the first time since six this morning.",
+       "text": "There's the whistle. Night shift's going down, and my bed's empty for the first time since morning.",
        "status": "new"
       }
      ],
@@ -7845,7 +7786,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Share it! We never met. He's in it days and I'm in it nights. Mrs. Rudd changes the sheet Mondays, whoever's in.",
+       "text": "Share it! We never met. He's in it days and I'm in it nights. I know him by his boots under it.",
        "status": "new"
       }
      ],
@@ -7882,10 +7823,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "Both. She's a business woman, my son. You'd get on.",
+       "text": "She do.",
        "status": "new"
       }
      ],
@@ -7932,7 +7873,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "It's the same barrel as Tuesday.",
+       "text": "It's the same barrel as yesterday.",
        "status": "new"
       }
      ],
@@ -7949,10 +7890,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "Then Tuesday's were thin and I were too dry to mind.",
+       "text": "I thought yesterday's were thin.",
        "status": "new"
       }
      ],
@@ -7972,7 +7913,7 @@
      "delivery": "angry",
      "words": [
       {
-       "text": "Somebody's watering it, and by God it ain't me. I'd know my own water.",
+       "text": "Somebody's been at it with a dipper, then, and by God it ain't me. I'll sleep down here tonight.",
        "status": "new"
       }
      ],
@@ -8039,7 +7980,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Take it. They'll want cash and all.",
+       "text": "Go on. They want cash down there, same as me.",
        "status": "new"
       }
      ],
@@ -8076,10 +8017,10 @@
      "trigger": "Overheard: to Rufus Mapes",
      "when": "21:00 to 03:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "flat",
      "words": [
       {
-       "text": "And you'll be back in here Monday telling me what it done to your eyes.",
+       "text": "So you tell me, every time. Mind the step.",
        "status": "new"
       }
      ],
@@ -8126,7 +8067,7 @@
      "delivery": "teasing",
      "words": [
       {
-       "text": "It's four bits to sit, Rufe, and you've not got four bits.",
+       "text": "It's four bits, Rufe. Have you got it?",
        "status": "new"
       }
      ],
@@ -8166,7 +8107,7 @@
      "delivery": "teasing",
      "words": [
       {
-       "text": "I don't keep one. Himself does, and he says yours is full.",
+       "text": "Ask himself, so. I'll wait here while you do.",
        "status": "new"
       }
      ],
@@ -8213,7 +8154,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "I'd buy the lady the drink. 'Tis the tea at four bits I can't swallow.",
+       "text": "'Tis cold tea, maid. I seen him pour it.",
        "status": "new"
       }
      ],
@@ -8233,7 +8174,7 @@
      "delivery": "laughing",
      "words": [
       {
-       "text": "He gets three of the four.",
+       "text": "It is, and he gets three parts of the money.",
        "status": "new"
       }
      ],
@@ -8253,7 +8194,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Then here's a dime, and that's for you, and he's not to see it.",
+       "text": "Then here. That's for you. Put it away before he looks round.",
        "status": "new"
       }
      ],
@@ -8300,7 +8241,7 @@
      "delivery": "courteous",
      "words": [
       {
-       "text": "Only that you are well, señorita.",
+       "text": "Only that you're well, señorita.",
        "status": "new"
       }
      ],
@@ -8320,7 +8261,7 @@
      "delivery": "tired",
      "words": [
       {
-       "text": "I'm on my feet since seven and I've been shown two photographs. I'm well.",
+       "text": "My feet aren't. The rest of me's grand.",
        "status": "new"
       }
      ],
@@ -8340,7 +8281,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "At shearing my wife is on her feet from four. She says it the same, and in that voice.",
+       "text": "My wife puts hers in the ditch, at shearing. She says it's the cold does it. I don't know, you have no ditch here.",
        "status": "new"
       }
      ],
@@ -8387,7 +8328,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "New posts. Cedar. I saw them.",
+       "text": "Cedar posts. I saw them Tuesday, coming in.",
        "status": "new"
       }
      ],
@@ -8407,7 +8348,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "So we haul water up for the mules. In a wagon. Drawn by mules.",
+       "text": "So now they haul water up to the mules in a wagon, and it's mules pulling the wagon.",
        "status": "new"
       }
      ],
@@ -8427,7 +8368,27 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "And they drink it going up.",
+       "text": "Whose posts?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.mules_water.5",
+     "ex": "heard.mules_water",
+     "speaker": "townsman",
+     "who": "miner",
+     "to": "rancher",
+     "place": "saloon.bar",
+     "trigger": "Overheard: to Anselmo Gallegos",
+     "when": "19:00 to 03:00",
+     "condition": "",
+     "delivery": "slow",
+     "words": [
+      {
+       "text": "Nobody at the office will say.",
        "status": "new"
       }
      ],
@@ -8494,7 +8455,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "I asked him what one note's worth to me of a night. He couldn't put a figure to it.",
+       "text": "I can't hear it. Can you hear it over them boots?",
        "status": "new"
       }
      ],
@@ -8649,7 +8610,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "Men heard shooting yesterday. They'll drink at the hotel a night or two, where there's a back door.",
+       "text": "Men heard shooting yesterday. They'll drink up at the hotel a night or two.",
        "status": "new"
       }
      ],
@@ -8669,7 +8630,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "I got a back door.",
+       "text": "She don't sell drink.",
        "status": "new"
       }
      ],
@@ -8686,10 +8647,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00, the day after a shooting",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "You've a back door with a slate hung by it.",
+       "text": "They bring it in their coats. I'm only telling 'ee where they are.",
        "status": "new"
       }
      ],
@@ -8758,26 +8719,6 @@
      "words": [
       {
        "text": "Well, a man can see from behind a trough!",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.behind_trough.4",
-     "ex": "heard.behind_trough",
-     "speaker": "townsman",
-     "who": "rancher",
-     "to": "loudmouth",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Rufus Mapes",
-     "when": "19:00 to 03:00, the day after a shooting",
-     "condition": "",
-     "delivery": "mild",
-     "words": [
-      {
-       "text": "Yes. He can see the trough.",
        "status": "new"
       }
      ],
@@ -8867,10 +8808,10 @@
      "trigger": "Overheard: to Barkeep (owns the saloon)",
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "I know what he takes. 'Tis cheaper than the theatre at Central City, and he do it better.",
+       "text": "He do. I watch for how. Three year, and I've not caught him at it yet.",
        "status": "new"
       }
      ],
@@ -8918,7 +8859,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Leaning's free.",
+       "text": "I got a nickel. I was working up to it.",
        "status": "new"
       }
      ],
@@ -8938,7 +8879,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "Not on that it ain't. That's eleven foot of walnut freighted from St. Louis. Go lean on the post.",
+       "text": "Work up to it off the varnish. That top come from St. Louis.",
        "status": "new"
       }
      ],
@@ -8958,27 +8899,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Post come cheaper?",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.leaning.5",
-     "ex": "heard.leaning",
-     "speaker": "barkeep",
-     "who": "barkeep",
-     "to": "drifter",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Wiley Burdett",
-     "when": "10:00 to 18:00",
-     "condition": "",
-     "delivery": "flat",
-     "words": [
-      {
-       "text": "Post is pine.",
+       "text": "Beer, then. Slow as you like.",
        "status": "new"
       }
      ],
@@ -9005,7 +8926,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "You wouldn't want a lot? Fifty feet on Main. West end.",
+       "text": "You wouldn't want a lot? Fifty feet on Main. The west end.",
        "status": "new"
       }
      ],
@@ -9025,7 +8946,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "West end's where the depot ain't.",
+       "text": "Depot's at the east end, Mr. Peck.",
        "status": "new"
       }
      ],
@@ -9093,113 +9014,6 @@
      "takes": []
     },
     {
-     "id": "heard.a_lot.6",
-     "ex": "heard.a_lot",
-     "speaker": "barkeep",
-     "who": "barkeep",
-     "to": "townsman",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Lyman Peck",
-     "when": "10:00 to 18:00",
-     "condition": "",
-     "delivery": "flat",
-     "words": [
-      {
-       "text": "That much.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.striker.1",
-     "ex": "heard.striker",
-     "speaker": "townsman",
-     "who": "miner",
-     "to": "drifter",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Wiley Burdett",
-     "when": "10:00 to 18:00",
-     "if": {
-      "on": "heard",
-      "hour": [
-       10.0,
-       18.0
-      ]
-     },
-     "condition": "",
-     "delivery": "slow",
-     "words": [
-      {
-       "text": "Stroud's asking after 'ee again. Two dollars a day.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.striker.2",
-     "ex": "heard.striker",
-     "speaker": "drifter",
-     "who": "drifter",
-     "to": "miner",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Jory Trembath",
-     "when": "10:00 to 18:00",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "To swing a hammer.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.striker.3",
-     "ex": "heard.striker",
-     "speaker": "townsman",
-     "who": "miner",
-     "to": "drifter",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Wiley Burdett",
-     "when": "10:00 to 18:00",
-     "condition": "",
-     "delivery": "slow",
-     "words": [
-      {
-       "text": "'Tis honest. I've swung one thirty-nine year.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.striker.4",
-     "ex": "heard.striker",
-     "speaker": "drifter",
-     "who": "drifter",
-     "to": "miner",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Jory Trembath",
-     "when": "10:00 to 18:00",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "And you look it. No offense meant. I come up the trail on a horse, and I aim to leave on one.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
      "id": "heard.day_slate.1",
      "ex": "heard.day_slate",
      "speaker": "loudmouth",
@@ -9239,7 +9053,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Then you got seven loads' pay on you.",
+       "text": "So you got seven loads' pay on you.",
        "status": "new"
       }
      ],
@@ -9267,26 +9081,6 @@
      "takes": []
     },
     {
-     "id": "heard.day_slate.4",
-     "ex": "heard.day_slate",
-     "speaker": "barkeep",
-     "who": "barkeep",
-     "to": "loudmouth",
-     "place": "saloon.bar",
-     "trigger": "Overheard: to Rufus Mapes",
-     "when": "10:00 to 18:00",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "Railroad Saloon opens at eight. I only been open since ten, so I'd not know where it went.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
      "id": "heard.heel_taps.1",
      "ex": "heard.heel_taps",
      "speaker": "townsman",
@@ -9306,7 +9100,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "I had it from the depot that they're laying off a shift at the mine. I say it low.",
+       "text": "I had it at the depot that they're laying off a shift at the mine.",
        "status": "new"
       }
      ],
@@ -9363,10 +9157,10 @@
      "trigger": "Overheard: to Lyman Peck",
      "when": "10:00 to 18:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "slow",
      "words": [
       {
-       "text": "Then he'll know, sure enough. We've a man sells boots tells us where the ore runs.",
+       "text": "A drummer. Well. I go down at six tomorrow, same as today, and if the cage don't come I'll know he were right.",
        "status": "new"
       }
      ],
@@ -9413,7 +9207,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "I swept this floor! There's a pint of my sweat in them boards!",
+       "text": "I swept this floor! Every board of it!",
        "status": "new"
       }
      ],
@@ -9430,10 +9224,10 @@
      "trigger": "Overheard: to Ephraim Tolliver",
      "when": "19:00 to 22:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "flat",
      "words": [
       {
-       "text": "There's a pint of my whiskey in you since ten this morning, and I never seen a cent for it. That's us square.",
+       "text": "And drunk for it since ten this morning. Go on, now. Jail door's open, I seen it.",
        "status": "new"
       }
      ],
@@ -9453,7 +9247,7 @@
      "delivery": "gruff",
      "words": [
       {
-       "text": "Square. A sutler's clerk telling a sergeant what's square.",
+       "text": "A sutler's clerk. Putting out a sergeant.",
        "status": "new"
       }
      ],
@@ -9500,7 +9294,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "I know the bottle. Nobody else'd touch it. Stood on my shelf since June, taking room.",
+       "text": "I know the bottle. Ain't another man in the county would drink it.",
        "status": "new"
       }
      ],
@@ -9520,7 +9314,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "'Would touch.' Pardon. You told me Thursday what the shelf costs you.",
+       "text": "'There is not another man.' Pardon, I do that. It is a habit.",
        "status": "new"
       }
      ],
@@ -9540,7 +9334,7 @@
      "delivery": "sly",
      "words": [
       {
-       "text": "And I'll tell you next Thursday. What's in the paper?",
+       "text": "What's in the paper?",
        "status": "new"
       }
      ],
@@ -9560,7 +9354,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "What I have from two people. So it is a short paper, enfin.",
+       "text": "The price of cattle, a wedding at the Dorseys', and one thing I am not sure of, so perhaps not that.",
        "status": "new"
       }
      ],
@@ -9598,7 +9392,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Cars'll run clear to the mine by spring, Amos. Then who hires a team? You tell me.",
+       "text": "Cars'll run clear to the mine by spring, Amos. And who hires a team after that?",
        "status": "new"
       }
      ],
@@ -9638,7 +9432,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Every one wants a horse for a dollar and brings him back lame.",
+       "text": "Every one wants a horse for a dollar and fetches him back lame.",
        "status": "new"
       }
      ],
@@ -9655,7 +9449,7 @@
      "trigger": "Overheard: to Hiram Yount",
      "when": "19:00 to 22:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
        "text": "You said that same thing last night.",
@@ -9675,10 +9469,10 @@
      "trigger": "Overheard: to Amos Pratt Hollis",
      "when": "19:00 to 22:00",
      "condition": "",
-     "delivery": "flat",
+     "delivery": "grumbling",
      "words": [
       {
-       "text": "He come back lame last night.",
+       "text": "The roan. He's standing on three legs this minute.",
        "status": "new"
       }
      ],
@@ -9742,10 +9536,10 @@
      "trigger": "Overheard: to Hiram Yount",
      "when": "19:00 to 22:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
-       "text": "Mapes hauled it. He drank the difference.",
+       "text": "Mapes hauled it.",
        "status": "new"
       }
      ],
@@ -9766,46 +9560,6 @@
      "words": [
       {
        "text": "He did. He did do that. ...I ain't saying the cars is all bad.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.flour_by_wagon.5",
-     "ex": "heard.flour_by_wagon",
-     "speaker": "storekeeper",
-     "who": "storekeeper",
-     "to": "liveryman",
-     "place": "saloon.table",
-     "trigger": "Overheard: to Hiram Yount",
-     "when": "19:00 to 22:00",
-     "condition": "",
-     "delivery": "warm",
-     "words": [
-      {
-       "text": "Why, Hiram.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.flour_by_wagon.6",
-     "ex": "heard.flour_by_wagon",
-     "speaker": "liveryman",
-     "who": "liveryman",
-     "to": "storekeeper",
-     "place": "saloon.table",
-     "trigger": "Overheard: to Amos Pratt Hollis",
-     "when": "19:00 to 22:00",
-     "condition": "",
-     "delivery": "flat",
-     "words": [
-      {
-       "text": "I'm saying they're mostly bad.",
        "status": "new"
       }
      ],
@@ -9892,27 +9646,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "You'd have said Saturday anyhow. You only wanted me to know you had it wrote.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.lamp_oil.5",
-     "ex": "heard.lamp_oil",
-     "speaker": "storekeeper",
-     "who": "storekeeper",
-     "to": "liveryman",
-     "place": "saloon.table",
-     "trigger": "Overheard: to Hiram Yount",
-     "when": "19:00 to 22:00",
-     "condition": "",
-     "delivery": "mild",
-     "words": [
-      {
-       "text": "It's in the book. I'd not want you thinking it wasn't.",
+       "text": "It's a long way to bring a man to tell him Saturday.",
        "status": "new"
       }
      ],
@@ -9959,7 +9693,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "It's stood. I said it to him coming in.",
+       "text": "It's stood. I spoke to him coming in.",
        "status": "new"
       }
      ],
@@ -9999,7 +9733,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "Last night was fifteen cents and tonight's fifteen cents. I'll put you down for tomorrow.",
+       "text": "I'll put you down for tomorrow.",
        "status": "new"
       }
      ],
@@ -10019,7 +9753,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Put me down. In the book. For a drink. I never in my life.",
+       "text": "Put me down. I never in my life.",
        "status": "new"
       }
      ],
@@ -10086,7 +9820,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "He ain't said ary word. Stands there looking at his iron. I wish he'd ask, I could be short with him.",
+       "text": "He ain't said ary word. Stands there looking at his iron.",
        "status": "new"
       }
      ],
@@ -10153,7 +9887,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "Better than a thousand dollars on that book, and not forty in the drawer.",
+       "text": "I added the book again this evening.",
        "status": "new"
       }
      ],
@@ -10173,7 +9907,7 @@
      "delivery": "gruff",
      "words": [
       {
-       "text": "Then quit carrying 'em.",
+       "text": "Quit adding it.",
        "status": "new"
       }
      ],
@@ -10193,7 +9927,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "Carry who? The single men pay. It's the ones with families behind.",
+       "text": "The single men pay. It's the ones with families run behind, and I can't... there's a woman comes in for cornmeal, Hiram.",
        "status": "new"
       }
      ],
@@ -10213,7 +9947,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Then you'll carry 'em, and I'll hear about it till the thaw. Same as last winter.",
+       "text": "Then you'll carry her, same as last winter. Drink that.",
        "status": "new"
       }
      ],
@@ -10280,7 +10014,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Three and one. So now I know it, and that fellow yonder knows it.",
+       "text": "Three and one.",
        "status": "new"
       }
      ],
@@ -10300,7 +10034,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "...I'll change it.",
+       "text": "...I oughtn't to have said that out loud, ought I.",
        "status": "new"
       }
      ],
@@ -10347,7 +10081,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "She was looking for the price, I expect.",
+       "text": "She... I'm sure she meant nothing by it.",
        "status": "new"
       }
      ],
@@ -10364,30 +10098,10 @@
      "trigger": "Overheard: to Amos Pratt Hollis",
      "when": "19:00 to 22:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "tired",
      "words": [
       {
-       "text": "It was eight cents. She has it by heart.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.buttons.4",
-     "ex": "heard.buttons",
-     "speaker": "liveryman",
-     "who": "liveryman",
-     "to": "saloon_girl",
-     "place": "saloon.table",
-     "trigger": "Overheard: to Catherine Dolan",
-     "when": "19:00 to 22:00",
-     "condition": "",
-     "delivery": "grumbling",
-     "words": [
-      {
-       "text": "She looked at me once. I went home and washed.",
+       "text": "She meant it. It's no matter. They were good buttons.",
        "status": "new"
       }
      ],
@@ -10434,7 +10148,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "He's eating my oats, near enough. I leave bread on the feed bin and tell him the rats'll have it else.",
+       "text": "There's bread goes missing off the feed bin. I ain't looked into it.",
        "status": "new"
       }
      ],
@@ -10454,7 +10168,7 @@
      "delivery": "teasing",
      "words": [
       {
-       "text": "You're a soft man.",
+       "text": "You leave it there for him.",
        "status": "new"
       }
      ],
@@ -10474,7 +10188,7 @@
      "delivery": "gruff",
      "words": [
       {
-       "text": "I'm a man with rats. Don't you go putting it about.",
+       "text": "I set it down and forget it. I'm an old man. Leave me be.",
        "status": "new"
       }
      ],
@@ -10543,7 +10257,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "What for?",
+       "text": "What'd they buy?",
        "status": "new"
       }
      ],
@@ -10582,10 +10296,10 @@
      "trigger": "Overheard: to Amos Pratt Hollis",
      "when": "19:00 to 22:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "flat",
      "words": [
       {
-       "text": "You've gone quiet, Amos.",
+       "text": "What goods?",
        "status": "new"
       }
      ],
@@ -10606,7 +10320,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "It's business. I'd as soon talk about the railroad.",
+       "text": "It's business, Hiram. Tell me about the roan.",
        "status": "new"
       }
      ],
@@ -10674,7 +10388,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "It'll be half past by the time I've knocked.",
+       "text": "She'll be listening for me.",
        "status": "new"
       }
      ],
@@ -10694,7 +10408,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Go on, then. I'm up at five, and you'll lie till six like a banker.",
+       "text": "Go on, then. Mind the hole by the trough, I near went in it.",
        "status": "new"
       }
      ],
@@ -10721,7 +10435,7 @@
      "delivery": "sly",
      "words": [
       {
-       "text": "Watch the Professor when I say 'Mrs. Rudd'. ...There. He's lost his place.",
+       "text": "Watch the Professor when I say 'Mrs. Rudd'. ...There. Did you hear that?",
        "status": "new"
       }
      ],
@@ -10761,7 +10475,7 @@
      "delivery": "laughing",
      "words": [
       {
-       "text": "Two. He mends her organ Sundays and eats in the kitchen for it.",
+       "text": "He mends her organ Sundays and eats in the kitchen for it.",
        "status": "new"
       }
      ],
@@ -10801,7 +10515,7 @@
      "delivery": "teasing",
      "words": [
       {
-       "text": "It's the whole town's, Mr. Hollis. He's the only one hasn't been told.",
+       "text": "Ah, I know it. I'd not say it to him.",
        "status": "new"
       }
      ],
@@ -10849,7 +10563,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "It's payday. The mine's men paid down sixty-three dollars on the book since noon.",
+       "text": "It's payday. The mine's men paid down sixty-three dollars on the book since dinner.",
        "status": "new"
       }
      ],
@@ -10869,7 +10583,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Every horse I own went out by noon, and two's come back lame.",
+       "text": "Every horse I own went out this morning. I ain't been round the stalls yet to see what come back.",
        "status": "new"
       }
      ],
@@ -10889,7 +10603,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Then two tonight.",
+       "text": "Have the second one first.",
        "status": "new"
       }
      ],
@@ -10936,7 +10650,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "He carries my freight. I count the sacks twice.",
+       "text": "He carries my freight.",
        "status": "new"
       }
      ],
@@ -10956,7 +10670,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "A mule'll remember it, is my point. An ox forgets. That's why that fellow drove oxen.",
+       "text": "I know whose freight he carries. That near mule won't stand to be harnessed now for a week. I'll be the one gets kicked.",
        "status": "new"
       }
      ],
@@ -10986,7 +10700,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "You come out, then. With him lying shot at Doc's, I'd have bet you'd stop home.",
+       "text": "I didn't look to see you out tonight.",
        "status": "new"
       }
      ],
@@ -11007,7 +10721,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Lavinia said go. She said a man who's seen at his usual table hasn't anything to tell.",
+       "text": "Lavinia said go. She said sit where I always sit.",
        "status": "new"
       }
      ],
@@ -11049,7 +10763,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "She is. I stood behind a counter at Boonville while they helped themselves. Twice. I'd as lief not a third time.",
+       "text": "I had my store cleaned out twice at Boonville, Hiram. I stood there. I held the door for one of 'em.",
        "status": "new"
       }
      ],
@@ -11122,7 +10836,7 @@
      "delivery": "gruff",
      "words": [
       {
-       "text": "I'll not put it to nobody. Somebody ought to take him home to her, is all. He stands at the door of a morning, looking east.",
+       "text": "I ain't putting it to nobody. Somebody ought to take him home to her.",
        "status": "new"
       }
      ],
@@ -11174,7 +10888,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "I'm light every night. I got a dollar and it's to see me to Sunday.",
+       "text": "I got a dollar and it's to see me to Sunday.",
        "status": "new"
       }
      ],
@@ -11195,28 +10909,7 @@
      "delivery": "placating",
      "words": [
       {
-       "text": "Then we'll play for dimes. I'd not want you walking.",
-       "status": "new"
-      }
-     ],
-     "story": true,
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.light_tonight.4",
-     "ex": "heard.light_tonight",
-     "speaker": "drifter",
-     "who": "drifter",
-     "to": "earl",
-     "place": "saloon.table",
-     "trigger": "Overheard: to Earl",
-     "when": "19:00 to 03:00, before Earl is killed",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "I been walking since Tascosa.",
+       "text": "Dimes, then. We'll play for dimes, I don't mind it.",
        "status": "new"
       }
      ],
@@ -11289,7 +10982,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Twice last night. I let it go by, there was only sixty cents in it.",
+       "text": "Twice last night. I let it go by.",
        "status": "new"
       }
      ],
@@ -11307,10 +11000,10 @@
      "trigger": "Overheard: to Wiley Burdett",
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
-     "delivery": "laughing",
+     "delivery": "placating",
      "words": [
       {
-       "text": "Then the next one's mine to buy. ...No, he'll not carry it over. I'll have to go and leave the dime.",
+       "text": "Well. Well, there, you cut them. Go on. Cut them yourself.",
        "status": "new"
       }
      ],
@@ -11540,7 +11233,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "I didn't stop to hear it. That's how come I'm sat here playing you for dimes.",
+       "text": "I come away before he got to it.",
        "status": "new"
       }
      ],
@@ -11571,7 +11264,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "He stood me one last night. On the house, he says.",
+       "text": "He poured me one last night and wouldn't take for it.",
        "status": "new"
       }
      ],
@@ -11613,28 +11306,7 @@
      "delivery": "placating",
      "words": [
       {
-       "text": "I left the dime. Man takes one free off him, next week he's owing a favor nobody told him the price of.",
-       "status": "new"
-      }
-     ],
-     "story": true,
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.leave_the_dime.4",
-     "ex": "heard.leave_the_dime",
-     "speaker": "drifter",
-     "who": "drifter",
-     "to": "earl",
-     "place": "saloon.table",
-     "trigger": "Overheard: to Earl",
-     "when": "19:00 to 03:00, before Earl is killed",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "You'd know about prices.",
+       "text": "I left the dime on the bar anyhow. I don't like to owe that man, Wiley. I couldn't tell you why.",
        "status": "new"
       }
      ],
@@ -11693,7 +11365,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "I allow it is. I had it in A off my uncle, and he never saw it printed.",
+       "text": "I had it in A off my uncle, and he never saw it printed.",
        "status": "new"
       }
      ],
@@ -11713,27 +11385,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "Then one of us must move.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.in_g.4",
-     "ex": "heard.in_g",
-     "speaker": "townsman",
-     "who": "fiddler",
-     "to": "pianist",
-     "place": "saloon.room",
-     "trigger": "Overheard: to Augustus Vogel",
-     "when": "19:00 to 01:00",
-     "condition": "",
-     "delivery": "warm",
-     "words": [
-      {
-       "text": "You go on and read it off the paper, Professor. I'll be along by ear.",
+       "text": "We can't both... ach. Play it in A. I'll find you.",
        "status": "new"
       }
      ],
@@ -11820,7 +11472,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Then play round it. I been playing round my little finger since March.",
+       "text": "Well, don't fret it. There's a right smart of tunes without that one in.",
        "status": "new"
       }
      ],
@@ -11887,7 +11539,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "A man was shot against it. They had me play it the same night. Wet.",
+       "text": "A man was shot against it. They had me play it the same night, they didn't even...",
        "status": "new"
       }
      ],
@@ -11907,7 +11559,7 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "You told me that too, Gus. Give me 'Soldier's Joy'. It wants both your hands, and you'll quit looking at the door.",
+       "text": "Gus. Give me 'Soldier's Joy'. Look at your hands, not the door.",
        "status": "new"
       }
      ],
@@ -11954,7 +11606,7 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "I allow I can find it.",
+       "text": "I can find it.",
        "status": "new"
       }
      ],
@@ -11994,7 +11646,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Ain't any. Come in when you hear where it's going.",
+       "text": "Ain't any. Listen a verse and come in.",
        "status": "new"
       }
      ],
@@ -12061,7 +11713,7 @@
      "delivery": "mocking",
      "words": [
       {
-       "text": "You play it like a man chewing glass!",
+       "text": "You play it like you was sawing a rail!",
        "status": "new"
       }
      ],
@@ -12081,7 +11733,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "I learned it where you learned 'Dixie'. T'other side of a fence.",
+       "text": "I only ever heard it going away from me.",
        "status": "new"
       }
      ],
@@ -12139,7 +11791,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "I drove twelve yoke over Mosquito Pass, I reckon I can find a step!",
+       "text": "I been carrying flour since before you had a step!",
        "status": "new"
       }
      ],
@@ -12159,7 +11811,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "It's the sacks I'm counting. Fourteen come off the car.",
+       "text": "I make it thirteen sacks. There was fourteen come off the car.",
        "status": "new"
       }
      ],
@@ -12179,27 +11831,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "And fourteen's here!",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.up_the_step.5",
-     "ex": "heard.up_the_step",
-     "speaker": "storekeeper",
-     "who": "storekeeper",
-     "to": "loudmouth",
-     "place": "store",
-     "trigger": "Overheard: to Rufus Mapes",
-     "when": "08:00 to 10:00",
-     "condition": "",
-     "delivery": "mild",
-     "words": [
-      {
-       "text": "Thirteen's here. I'll count again when you've fetched the other, so we both seen it.",
+       "text": "Then you made it wrong! ...There's one on the wagon yet. I was coming to that one.",
        "status": "new"
       }
      ],
@@ -12286,7 +11918,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Seven. Come in and read it, I'll turn it round to you.",
+       "text": "Come in and read it. I'll turn it round to you.",
        "status": "new"
       }
      ],
@@ -12353,7 +11985,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "Amos, the man asked for lamp wick, not what you think of the railroad.",
+       "text": "Amos. The man asked for lamp wick.",
        "status": "new"
       }
      ],
@@ -12374,26 +12006,6 @@
      "words": [
       {
        "text": "I was coming to the wick.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.lamp_wick.4",
-     "ex": "heard.lamp_wick",
-     "speaker": "townswoman",
-     "who": "store_wife",
-     "to": "storekeeper",
-     "place": "store",
-     "trigger": "Overheard: to Amos Pratt Hollis",
-     "when": "07:00 to 18:00",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "You were coming to it by way of Denver.",
        "status": "new"
       }
      ],
@@ -12440,7 +12052,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "That makes one a week since March, Mr. Peck.",
+       "text": "That is the fifth this month, Mr. Peck.",
        "status": "new"
       }
      ],
@@ -12477,10 +12089,10 @@
      "trigger": "Overheard: to Lyman Peck",
      "when": "07:00 to 18:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
-       "text": "Then I hope he comes on a Tuesday. You have a fresh one Tuesdays.",
+       "text": "I hope he does. Eight cents.",
        "status": "new"
       }
      ],
@@ -12527,7 +12139,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "You have been resting on my bench since ten, Mr. Mapes, and the children pass it going to their dinners.",
+       "text": "The children pass this bench going to their dinners, Mr. Mapes.",
        "status": "new"
       }
      ],
@@ -12567,7 +12179,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "You said two before the half hour. I'll thank you to rest on the saloon's.",
+       "text": "You said two. I'll thank you to take them down the street.",
        "status": "new"
       }
      ],
@@ -12635,26 +12247,6 @@
      "words": [
       {
        "text": "Ah.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.man_of_business.4",
-     "ex": "heard.man_of_business",
-     "speaker": "storekeeper",
-     "who": "storekeeper",
-     "to": "townsman",
-     "place": "store",
-     "trigger": "Overheard: to Lyman Peck",
-     "when": "07:00 to 18:00",
-     "condition": "",
-     "delivery": "mild",
-     "words": [
-      {
-       "text": "And swept round your feet twice. I'm not complaining of it.",
        "status": "new"
       }
      ],
@@ -12741,7 +12333,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "Ought I to say who it's from? I only ask that I may...",
+       "text": "Ought I to say who it's from? Only so that I...",
        "status": "new"
       }
      ],
@@ -12761,7 +12353,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "You ought to say what I said, Mr. Peck, and no more than that.",
+       "text": "You ought to say what I said, Mr. Peck.",
        "status": "new"
       }
      ],
@@ -12942,7 +12534,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "I'd need it from a second man before I passed it on. ...Which conductor?",
+       "text": "Which conductor? The stout one? ...I ask because I had it otherwise from the hotel.",
        "status": "new"
       }
      ],
@@ -12990,7 +12582,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "I said a drummer said it. Low, now, Mr. Mapes, I beg of you.",
+       "text": "A drummer said it. Not so loud, Mr. Mapes.",
        "status": "new"
       }
      ],
@@ -13053,7 +12645,7 @@
      "delivery": "proud",
      "words": [
       {
-       "text": "Well, and I'm telling it to them.",
+       "text": "Well, and now they got it too.",
        "status": "new"
       }
      ],
@@ -13101,7 +12693,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "In red. Madame, I cannot print red. I have told the children it is the page blushing.",
+       "text": "In red. Madame, I can't print red.",
        "status": "new"
       }
      ],
@@ -13121,7 +12713,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "You have told them no such thing.",
+       "text": "You are not to print the red. You are to print it right.",
        "status": "new"
       }
      ],
@@ -13141,7 +12733,7 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "No. But Friday I will. And Tommy has 'their' right this week, bon, so it goes on page three.",
+       "text": "Tommy has 'their' wrong again. I think I'll leave it. His mother cuts them out, she'll want it how he wrote it.",
        "status": "new"
       }
      ],
@@ -13219,7 +12811,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "By whom?",
+       "text": "Seen by whom?",
        "status": "new"
       }
      ],
@@ -13239,27 +12831,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "...Buyers attend church.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.second_row.5",
-     "ex": "heard.second_row",
-     "speaker": "townsman",
-     "who": "churchman",
-     "to": "townsman",
-     "place": "street",
-     "trigger": "Overheard: to Lyman Peck",
-     "when": "08:00 to 10:00",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "Then I'll pray for buyers. I've a stove wants paying for.",
+       "text": "...I've handbills, if you'd care to leave some by the door.",
        "status": "new"
       }
      ],
@@ -13323,10 +12895,10 @@
      "trigger": "Overheard: to Amos Pratt Hollis",
      "when": "08:00 to 10:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
-       "text": "You were. At the back. Your lips moved all through the collection.",
+       "text": "You were. At the back. I saw your lips going all through the collection.",
        "status": "new"
       }
      ],
@@ -13346,27 +12918,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "It came to a dollar ninety. I only like to know.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.nine_on_sunday.5",
-     "ex": "heard.nine_on_sunday",
-     "speaker": "townsman",
-     "who": "churchman",
-     "to": "storekeeper",
-     "place": "street",
-     "trigger": "Overheard: to Amos Pratt Hollis",
-     "when": "08:00 to 10:00",
-     "condition": "",
-     "delivery": "mild",
-     "words": [
-      {
-       "text": "It did. I counted it after, and I thought of you.",
+       "text": "It came to a dollar ninety. I can't help it, I add things.",
        "status": "new"
       }
      ],
@@ -13393,7 +12945,7 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "I've not thanked you rightly for that stove, Mr. Mapes.",
+       "text": "I never thanked you rightly for that stove, Mr. Mapes.",
        "status": "new"
       }
      ],
@@ -13473,7 +13025,7 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "I know it. I keep a bench at the back for sore heads. Mr. Hollis sits on it.",
+       "text": "Bring it along. I've preached to worse.",
        "status": "new"
       }
      ],
@@ -13500,7 +13052,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "That one's off the section gang. Paid Thursday. Look at his boots, they're new.",
+       "text": "That one's off the section gang. He'll have been paid Thursday. Look at his boots.",
        "status": "new"
       }
      ],
@@ -13537,50 +13089,10 @@
      "trigger": "Overheard: to Rufus Mapes",
      "when": "17:00 to 19:00",
      "condition": "",
-     "delivery": "teasing",
-     "words": [
-      {
-       "text": "You've boots like a man that had boots in Santa Fe.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.new_boots.4",
-     "ex": "heard.new_boots",
-     "speaker": "loudmouth",
-     "who": "loudmouth",
-     "to": "saloon_girl",
-     "place": "street",
-     "trigger": "Overheard: to Catherine Dolan",
-     "when": "17:00 to 19:00",
-     "condition": "",
-     "delivery": "loud",
-     "words": [
-      {
-       "text": "What's that mean?",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.new_boots.5",
-     "ex": "heard.new_boots",
-     "speaker": "saloon_girl",
-     "who": "saloon_girl",
-     "to": "loudmouth",
-     "place": "street",
-     "trigger": "Overheard: to Rufus Mapes",
-     "when": "17:00 to 19:00",
-     "condition": "",
      "delivery": "tired",
      "words": [
       {
-       "text": "It means go in, Rufe, and let me stand where they can see me.",
+       "text": "Go in, Rufe. You're standing in my light.",
        "status": "new"
       }
      ],
@@ -13595,11 +13107,11 @@
      "to": "saloon_girl",
      "place": "street",
      "trigger": "Overheard: to Catherine Dolan",
-     "when": "10:00 to 19:00",
+     "when": "16:00 to 19:00",
      "if": {
       "on": "heard",
       "hour": [
-       10.0,
+       16.0,
        19.0
       ]
      },
@@ -13622,7 +13134,7 @@
      "to": "drifter",
      "place": "street",
      "trigger": "Overheard: to Wiley Burdett",
-     "when": "10:00 to 19:00",
+     "when": "16:00 to 19:00",
      "condition": "",
      "delivery": "teasing",
      "words": [
@@ -13642,12 +13154,12 @@
      "to": "saloon_girl",
      "place": "street",
      "trigger": "Overheard: to Catherine Dolan",
-     "when": "10:00 to 19:00",
+     "when": "16:00 to 19:00",
      "condition": "",
      "delivery": "dry",
      "words": [
       {
-       "text": "It's for later.",
+       "text": "I'm saving it.",
        "status": "new"
       }
      ],
@@ -13662,12 +13174,12 @@
      "to": "drifter",
      "place": "street",
      "trigger": "Overheard: to Wiley Burdett",
-     "when": "10:00 to 19:00",
+     "when": "16:00 to 19:00",
      "condition": "",
      "delivery": "teasing",
      "words": [
       {
-       "text": "What's later?",
+       "text": "For what?",
        "status": "new"
       }
      ],
@@ -13682,12 +13194,12 @@
      "to": "saloon_girl",
      "place": "street",
      "trigger": "Overheard: to Catherine Dolan",
-     "when": "10:00 to 19:00",
+     "when": "16:00 to 19:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "low",
      "words": [
       {
-       "text": "When I got a second one.",
+       "text": "I ain't settled that. Something good.",
        "status": "new"
       }
      ],
@@ -13714,7 +13226,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "You! Texas! You been holding that post up since breakfast.",
+       "text": "You there! You been holding that post up since breakfast.",
        "status": "new"
       }
      ],
@@ -13734,7 +13246,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "It'd fall without me.",
+       "text": "Somebody's got to.",
        "status": "new"
       }
      ],
@@ -13774,7 +13286,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "I heard you. Whole street did. I was awake by the second.",
+       "text": "I was awake. I heard every one.",
        "status": "new"
       }
      ],
@@ -13782,8 +13294,8 @@
      "takes": []
     },
     {
-     "id": "heard.fingers.1",
-     "ex": "heard.fingers",
+     "id": "heard.liver.1",
+     "ex": "heard.liver",
      "speaker": "doctor",
      "who": "doctor",
      "to": "townsman",
@@ -13801,7 +13313,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "You are favoring that side, Mr. Peck.",
+       "text": "You're favoring that side, Mr. Peck.",
        "status": "new"
       }
      ],
@@ -13809,8 +13321,8 @@
      "takes": []
     },
     {
-     "id": "heard.fingers.2",
-     "ex": "heard.fingers",
+     "id": "heard.liver.2",
+     "ex": "heard.liver",
      "speaker": "townsman",
      "who": "townsman",
      "to": "doctor",
@@ -13829,8 +13341,8 @@
      "takes": []
     },
     {
-     "id": "heard.fingers.3",
-     "ex": "heard.fingers",
+     "id": "heard.liver.3",
+     "ex": "heard.liver",
      "speaker": "doctor",
      "who": "doctor",
      "to": "townsman",
@@ -13841,7 +13353,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "It is your liver, and it is the cigars. Saturdays, I think?",
+       "text": "It's not the bed. Come by at four and I'll look at it. There's no charge for looking.",
        "status": "new"
       }
      ],
@@ -13849,8 +13361,8 @@
      "takes": []
     },
     {
-     "id": "heard.fingers.4",
-     "ex": "heard.fingers",
+     "id": "heard.liver.4",
+     "ex": "heard.liver",
      "speaker": "townsman",
      "who": "townsman",
      "to": "doctor",
@@ -13861,27 +13373,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "Who told you Saturdays?",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.fingers.5",
-     "ex": "heard.fingers",
-     "speaker": "doctor",
-     "who": "doctor",
-     "to": "townsman",
-     "place": "street",
-     "trigger": "Overheard: to Lyman Peck",
-     "when": "07:00 to 18:00",
-     "condition": "",
-     "delivery": "dry",
-     "words": [
-      {
-       "text": "Your fingers.",
+       "text": "I've an engagement at four. I may have.",
        "status": "new"
       }
      ],
@@ -13911,7 +13403,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Doctor, a word. Low. Is it true what's said about the sheriff?",
+       "text": "Doctor, a word. Is it true what's being said about the sheriff?",
        "status": "new"
       }
      ],
@@ -13932,7 +13424,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "What is said?",
+       "text": "What's being said?",
        "status": "new"
       }
      ],
@@ -13974,7 +13466,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "Then you have it third-hand, and loud. He is my patient, Mr. Peck. Good morning.",
+       "text": "He's my patient, Mr. Peck, and I've been up since three. Good morning.",
        "status": "new"
       }
      ],
@@ -13983,8 +13475,8 @@
      "takes": []
     },
     {
-     "id": "heard.dry_pine.1",
-     "ex": "heard.dry_pine",
+     "id": "heard.swedes_hand_doc.1",
+     "ex": "heard.swedes_hand_doc",
      "speaker": "undertaker",
      "who": "undertaker",
      "to": "doctor",
@@ -14002,7 +13494,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Morning, Doctor. Anything for me?",
+       "text": "Morning, Doctor. How's the Swede?",
        "status": "new"
       }
      ],
@@ -14010,8 +13502,8 @@
      "takes": []
     },
     {
-     "id": "heard.dry_pine.2",
-     "ex": "heard.dry_pine",
+     "id": "heard.swedes_hand_doc.2",
+     "ex": "heard.swedes_hand_doc",
      "speaker": "doctor",
      "who": "doctor",
      "to": "undertaker",
@@ -14022,7 +13514,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "Not today. The Swede's hand will mend.",
+       "text": "He'll keep the hand. Two fingers I couldn't save.",
        "status": "new"
       }
      ],
@@ -14030,8 +13522,8 @@
      "takes": []
     },
     {
-     "id": "heard.dry_pine.3",
-     "ex": "heard.dry_pine",
+     "id": "heard.swedes_hand_doc.3",
+     "ex": "heard.swedes_hand_doc",
      "speaker": "undertaker",
      "who": "undertaker",
      "to": "doctor",
@@ -14042,7 +13534,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "I'd not wish it otherwise. I've a six-foot pine dry, is all, and it wants using before the wet.",
+       "text": "He digs for me, you know. Tuesdays and when wanted.",
        "status": "new"
       }
      ],
@@ -14050,8 +13542,8 @@
      "takes": []
     },
     {
-     "id": "heard.dry_pine.4",
-     "ex": "heard.dry_pine",
+     "id": "heard.swedes_hand_doc.4",
+     "ex": "heard.swedes_hand_doc",
      "speaker": "doctor",
      "who": "doctor",
      "to": "undertaker",
@@ -14059,10 +13551,10 @@
      "trigger": "Overheard: to Phineas Colby",
      "when": "07:00 to 18:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "brisk",
      "words": [
       {
-       "text": "I'll bear the six foot in mind, Mr. Colby.",
+       "text": "He can dig. Give him a fortnight, and a long-handled shovel.",
        "status": "new"
       }
      ],
@@ -14129,7 +13621,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "It was right. The ground was hard and the men were holding. Thirty, and somebody's foot goes.",
+       "text": "It was right. The ground was hard and the men were holding. Any longer and one of them shifts his grip.",
        "status": "new"
       }
      ],
@@ -14146,10 +13638,10 @@
      "trigger": "Overheard: to Phineas Colby",
      "when": "08:00 to 10:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
-       "text": "Then when it's frozen I'll leave out the second psalm.",
+       "text": "I'll remember it. I'd not thought about their hands.",
        "status": "new"
       }
      ],
@@ -14207,7 +13699,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Forty forkfuls buys me the loft. I counted.",
+       "text": "Forty forkfuls buys me the loft. That's what you said.",
        "status": "new"
       }
      ],
@@ -14227,7 +13719,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Then count forty-five. The bay's been at the mash.",
+       "text": "The bay's been at the mash. It'll be more'n forty.",
        "status": "new"
       }
      ],
@@ -14247,27 +13739,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "That's five on credit, Hiram.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.far_stalls.5",
-     "ex": "heard.far_stalls",
-     "speaker": "liveryman",
-     "who": "liveryman",
-     "to": "drifter",
-     "place": "livery",
-     "trigger": "Overheard: to Wiley Burdett",
-     "when": "05:00 to 10:00",
-     "condition": "",
-     "delivery": "gruff",
-     "words": [
-      {
-       "text": "You're all on credit, boy. Go on.",
+       "text": "I figured it would.",
        "status": "new"
       }
      ],
@@ -14354,7 +13826,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "Then he ain't asking for me.",
+       "text": "Well. That's that.",
        "status": "new"
       }
      ],
@@ -14478,10 +13950,10 @@
      "trigger": "Overheard: to Eben Stroud",
      "when": "13:00 to 18:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "low",
      "words": [
       {
-       "text": "It ain't the money. Man swings a hammer two years, he's a man that swings a hammer.",
+       "text": "I'm a hand, Stroud. I ain't much of one just now. But I start in hammering and that's the end of it, I'll never fork a horse again.",
        "status": "new"
       }
      ],
@@ -14501,7 +13973,7 @@
      "delivery": "slow",
      "words": [
       {
-       "text": "I been one thirty-two years. I et this morning.",
+       "text": "It's there if you want it.",
        "status": "new"
       }
      ],
@@ -14588,7 +14060,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Buggy's a dollar a day, and the mare's got a splint coming. You pay before, and you walk her.",
+       "text": "Dollar a day, paid before. And the mare's got a splint coming, so you'll walk her.",
        "status": "new"
       }
      ],
@@ -14608,27 +14080,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Might I owe for the mare and pay for the buggy?",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.buggy.6",
-     "ex": "heard.buggy",
-     "speaker": "liveryman",
-     "who": "liveryman",
-     "to": "townsman",
-     "place": "livery",
-     "trigger": "Overheard: to Lyman Peck",
-     "when": "13:00 to 18:00",
-     "condition": "",
-     "delivery": "flat",
-     "words": [
-      {
-       "text": "They go together. That's how a buggy works.",
+       "text": "I see. Yes. I'll... I'll let you know Thursday.",
        "status": "new"
       }
      ],
@@ -14675,7 +14127,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Nobody's asking you to. Nobody's asked for an ox in this town since 'eighty-one.",
+       "text": "Nobody's asked for an ox in this town since 'eighty-one.",
        "status": "new"
       }
      ],
@@ -14695,7 +14147,7 @@
      "delivery": "proud",
      "words": [
       {
-       "text": "An ox don't spook, and you can eat him after.",
+       "text": "An ox don't spook, and you can eat him after!",
        "status": "new"
       }
      ],
@@ -14715,7 +14167,7 @@
      "delivery": "sharp",
      "words": [
       {
-       "text": "That's all you ever done for one, was eat him after.",
+       "text": "Get off my bench.",
        "status": "new"
       }
      ],
@@ -14762,7 +14214,7 @@
      "delivery": "angry",
      "words": [
       {
-       "text": "Don't you start. I get that off Hollis every night of my life.",
+       "text": "I get that off Hollis every night of my life. Flour's down, oil's down, iron's down.",
        "status": "new"
       }
      ],
@@ -14782,7 +14234,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "I only said the price.",
+       "text": "Shoes ain't down.",
        "status": "new"
       }
      ],
@@ -14802,7 +14254,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "That's how he starts.",
+       "text": "No. I didn't think they would be.",
        "status": "new"
       }
      ],
@@ -14849,7 +14301,7 @@
      "delivery": "loud",
      "words": [
       {
-       "text": "I drove six of 'em into the river at Pittsburg Landing, and they went, and I ain't forgive a one.",
+       "text": "I drove six of 'em into the river at Pittsburg Landing, and they went, and I ain't forgive a one!",
        "status": "new"
       }
      ],
@@ -14889,7 +14341,7 @@
      "delivery": "mocking",
      "words": [
       {
-       "text": "That was General Buell. I only held the lines.",
+       "text": "That was General Buell! I had the lines and he had the notion.",
        "status": "new"
       }
      ],
@@ -14907,133 +14359,6 @@
    "reads": "Overheard (src/people/overheard.gd, #1293): the lines that share an `ex` are one exchange, said in this order by `who` to `to`, when its cast stand together at spots tagged `place` and its first line's `if` holds. One wording a line: each answers the last.",
    "setting": "The smithy",
    "lines": [
-    {
-     "id": "heard.ary_word.1",
-     "ex": "heard.ary_word",
-     "speaker": "liveryman",
-     "who": "liveryman",
-     "to": "smith",
-     "place": "smithy",
-     "trigger": "Overheard: to Eben Stroud",
-     "when": "13:00 to 18:00",
-     "if": {
-      "on": "heard",
-      "hour": [
-       13.0,
-       18.0
-      ]
-     },
-     "condition": "",
-     "delivery": "grumbling",
-     "words": [
-      {
-       "text": "I ain't forgot them four shoes.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.ary_word.2",
-     "ex": "heard.ary_word",
-     "speaker": "smith",
-     "who": "smith",
-     "to": "liveryman",
-     "place": "smithy",
-     "trigger": "Overheard: to Hiram Yount",
-     "when": "13:00 to 18:00",
-     "condition": "",
-     "delivery": "flat",
-     "words": [
-      {
-       "text": "Didn't say you had.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.ary_word.3",
-     "ex": "heard.ary_word",
-     "speaker": "liveryman",
-     "who": "liveryman",
-     "to": "smith",
-     "place": "smithy",
-     "trigger": "Overheard: to Eben Stroud",
-     "when": "13:00 to 18:00",
-     "condition": "",
-     "delivery": "angry",
-     "words": [
-      {
-       "text": "You ain't said nothing! That's what's wearing on me.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.ary_word.4",
-     "ex": "heard.ary_word",
-     "speaker": "smith",
-     "who": "smith",
-     "to": "liveryman",
-     "place": "smithy",
-     "trigger": "Overheard: to Hiram Yount",
-     "when": "13:00 to 18:00",
-     "condition": "",
-     "delivery": "slow",
-     "words": [
-      {
-       "text": "Dollar and a half the shoe. I said it the once.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.ary_word.5",
-     "ex": "heard.ary_word",
-     "speaker": "liveryman",
-     "who": "liveryman",
-     "to": "smith",
-     "place": "smithy",
-     "trigger": "Overheard: to Eben Stroud",
-     "when": "13:00 to 18:00",
-     "condition": "",
-     "delivery": "gruff",
-     "words": [
-      {
-       "text": "Friday.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
-    {
-     "id": "heard.ary_word.6",
-     "ex": "heard.ary_word",
-     "speaker": "smith",
-     "who": "smith",
-     "to": "liveryman",
-     "place": "smithy",
-     "trigger": "Overheard: to Hiram Yount",
-     "when": "13:00 to 18:00",
-     "condition": "",
-     "delivery": "slow",
-     "words": [
-      {
-       "text": "Friday. Bring the gray. His off hind's sprung.",
-       "status": "new"
-      }
-     ],
-     "added": "2026-11-27 (#1293)",
-     "takes": []
-    },
     {
      "id": "heard.sixty_a_day.1",
      "ex": "heard.sixty_a_day",
@@ -15054,7 +14379,7 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "That's a heap of iron for one town.",
+       "text": "That's a heap of iron for one shop.",
        "status": "new"
       }
      ],
@@ -15114,7 +14439,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Noon, paydays.",
+       "text": "So far.",
        "status": "new"
       }
      ],
@@ -15122,8 +14447,35 @@
      "takes": []
     },
     {
-     "id": "heard.sixty_a_day.5",
-     "ex": "heard.sixty_a_day",
+     "id": "heard.the_gray.1",
+     "ex": "heard.the_gray",
+     "speaker": "smith",
+     "who": "smith",
+     "to": "liveryman",
+     "place": "smithy",
+     "trigger": "Overheard: to Hiram Yount",
+     "when": "13:00 to 18:00",
+     "if": {
+      "on": "heard",
+      "hour": [
+       13.0,
+       18.0
+      ]
+     },
+     "condition": "",
+     "delivery": "slow",
+     "words": [
+      {
+       "text": "Your gray's sprung his off hind.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.the_gray.2",
+     "ex": "heard.the_gray",
      "speaker": "liveryman",
      "who": "liveryman",
      "to": "smith",
@@ -15134,7 +14486,67 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "Then you're the one man in Salt Creek that mine don't owe. You and the widow Rudd.",
+       "text": "I know it. I had my hand down that leg this morning.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.the_gray.3",
+     "ex": "heard.the_gray",
+     "speaker": "smith",
+     "who": "smith",
+     "to": "liveryman",
+     "place": "smithy",
+     "trigger": "Overheard: to Hiram Yount",
+     "when": "13:00 to 18:00",
+     "condition": "",
+     "delivery": "flat",
+     "words": [
+      {
+       "text": "Fetch him round.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.the_gray.4",
+     "ex": "heard.the_gray",
+     "speaker": "liveryman",
+     "who": "liveryman",
+     "to": "smith",
+     "place": "smithy",
+     "trigger": "Overheard: to Eben Stroud",
+     "when": "13:00 to 18:00",
+     "condition": "",
+     "delivery": "grumbling",
+     "words": [
+      {
+       "text": "I owe you for four already.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1293)",
+     "takes": []
+    },
+    {
+     "id": "heard.the_gray.5",
+     "ex": "heard.the_gray",
+     "speaker": "smith",
+     "who": "smith",
+     "to": "liveryman",
+     "place": "smithy",
+     "trigger": "Overheard: to Hiram Yount",
+     "when": "13:00 to 18:00",
+     "condition": "",
+     "delivery": "slow",
+     "words": [
+      {
+       "text": "Fetch him round, Yount. He's the one walking on it.",
        "status": "new"
       }
      ],
@@ -15192,7 +14604,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "Not on the porch, Mrs. Rudd, I beg of you.",
+       "text": "Not on the porch, Mrs. Rudd, please.",
        "status": "new"
       }
      ],
@@ -15212,7 +14624,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "The porch is where you are. I'll have something on it by Saturday.",
+       "text": "I'll have something on it by Saturday.",
        "status": "new"
       }
      ],
@@ -15252,7 +14664,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "He's been writing since June. Saturday.",
+       "text": "Saturday, Mr. Peck.",
        "status": "new"
       }
      ],
@@ -15299,7 +14711,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "Caleb had it first. He was holding the key.",
+       "text": "Caleb said. He was there for it.",
        "status": "new"
       }
      ],
@@ -15319,7 +14731,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "Did he. Did he say why it was down?",
+       "text": "Did he say why it was down?",
        "status": "new"
       }
      ],
@@ -15339,7 +14751,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "I don't ask a train its business, Mr. Peck. Supper was at six and you were sat at it, so it's nothing to you.",
+       "text": "He's sixteen, Mr. Peck. He said it was down and ate four biscuits.",
        "status": "new"
       }
      ],
@@ -15406,7 +14818,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "A quarter pound. It is a great many peppermints for a man who plays in a saloon.",
+       "text": "A quarter pound. It is a great many peppermints for one man.",
        "status": "new"
       }
      ],
@@ -15426,7 +14838,7 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "He mends my organ, Mrs. Hollis. I guess you had that already, or you'd not have walked the length of the street.",
+       "text": "He mends my organ, Mrs. Hollis. What he eats is his own affair.",
        "status": "new"
       }
      ],
@@ -15513,7 +14925,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "I am sorry for it. ...You have it very early, Mrs. Rudd.",
+       "text": "I am sorry for it. Has he anybody?",
        "status": "new"
       }
      ],
@@ -15533,7 +14945,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "He boards with me. I was holding the basin.",
+       "text": "A sister in Minnesota. I wrote her last night. I guess you'll see the letter go through.",
        "status": "new"
       }
      ],
@@ -15580,7 +14992,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "He boils what he is told to boil. That is more than I had of my last two.",
+       "text": "He does what he's told, and he doesn't faint. I've had grown men who did both the other way.",
        "status": "new"
       }
      ],
@@ -15617,10 +15029,10 @@
      "trigger": "Overheard: to Hester Rudd",
      "when": "07:00 to 18:00",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
-       "text": "Then he is washing. Fifty cents a week, Mrs. Rudd, and by spring he'll have a trade's worth of habits.",
+       "text": "He'll smell of worse if he goes up to the mine, Mrs. Rudd.",
        "status": "new"
       }
      ],
@@ -15640,7 +15052,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "So long as it isn't the mine.",
+       "text": "I know it.",
        "status": "new"
       }
      ],
@@ -15687,7 +15099,7 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "I was fixing to go stand somewhere else directly, ma'am.",
+       "text": "No, ma'am. I was fixing to move along directly.",
        "status": "new"
       }
      ],
@@ -15834,7 +15246,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "Wood box. You may tell me about your hand at supper.",
+       "text": "Wood box.",
        "status": "new"
       }
      ],
@@ -15853,8 +15265,8 @@
    "setting": "The church (Sundays) and Church Lane",
    "lines": [
     {
-     "id": "heard.eleven_souls.1",
-     "ex": "heard.eleven_souls",
+     "id": "heard.twelve_souls.1",
+     "ex": "heard.twelve_souls",
      "speaker": "townsman",
      "who": "churchman",
      "to": "store_wife",
@@ -15877,8 +15289,8 @@
      "takes": []
     },
     {
-     "id": "heard.eleven_souls.2",
-     "ex": "heard.eleven_souls",
+     "id": "heard.twelve_souls.2",
+     "ex": "heard.twelve_souls",
      "speaker": "townswoman",
      "who": "store_wife",
      "to": "churchman",
@@ -15889,7 +15301,7 @@
      "delivery": "brisk",
      "words": [
       {
-       "text": "Two were the Dorsey children, Reverend, and one of those was asleep.",
+       "text": "Two were the Dorsey children, Reverend, and the little one slept through it.",
        "status": "new"
       }
      ],
@@ -15897,8 +15309,8 @@
      "takes": []
     },
     {
-     "id": "heard.eleven_souls.3",
-     "ex": "heard.eleven_souls",
+     "id": "heard.twelve_souls.3",
+     "ex": "heard.twelve_souls",
      "speaker": "townsman",
      "who": "churchman",
      "to": "store_wife",
@@ -15909,7 +15321,7 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "The Lord had him here asleep. I'll count him.",
+       "text": "He was in the house. I'm counting him.",
        "status": "new"
       }
      ],
@@ -15917,8 +15329,8 @@
      "takes": []
     },
     {
-     "id": "heard.eleven_souls.4",
-     "ex": "heard.eleven_souls",
+     "id": "heard.twelve_souls.4",
+     "ex": "heard.twelve_souls",
      "speaker": "townswoman",
      "who": "store_wife",
      "to": "churchman",
@@ -15926,10 +15338,10 @@
      "trigger": "Overheard: to Enoch Hadley",
      "when": "a Sunday",
      "condition": "",
-     "delivery": "dry",
+     "delivery": "mild",
      "words": [
       {
-       "text": "Then count the hymn-books. There are eight, and I'd as soon you didn't start one I must finish for you.",
+       "text": "Count him, then. But we've eight hymn-books, and I had three people looking over my arm.",
        "status": "new"
       }
      ],
@@ -16037,7 +15449,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "I think a man who gives a roof generally means to stand under it. I only build them.",
+       "text": "I've no opinion, Reverend. I only wondered did he ask you to.",
        "status": "new"
       }
      ],
@@ -16082,7 +15494,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "I can see the plate from the back.",
+       "text": "I like the back.",
        "status": "new"
       }
      ],
@@ -16102,7 +15514,7 @@
      "delivery": "uneasy",
      "words": [
       {
-       "text": "Is that... does one watch the plate?",
+       "text": "One is so little seen, at the back.",
        "status": "new"
       }
      ],
@@ -16119,10 +15531,10 @@
      "trigger": "Overheard: to Lyman Peck",
      "when": "a Sunday",
      "condition": "",
-     "delivery": "flat",
+     "delivery": "mild",
      "words": [
       {
-       "text": "I don't watch it. I only know what's in it.",
+       "text": "Yes.",
        "status": "new"
       }
      ],
@@ -16206,7 +15618,7 @@
      "delivery": "low",
      "words": [
       {
-       "text": "I can hear Watts from the step. He carries.",
+       "text": "I can hear Watts from the step.",
        "status": "new"
       }
      ],
@@ -16225,8 +15637,8 @@
    "setting": "The undertaker's shop",
    "lines": [
     {
-     "id": "heard.about_forty.1",
-     "ex": "heard.about_forty",
+     "id": "heard.no_name.1",
+     "ex": "heard.no_name",
      "speaker": "undertaker",
      "who": "undertaker",
      "to": "claude",
@@ -16244,7 +15656,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "One this week. Male, about forty, no name he'd give. Cause, the cars.",
+       "text": "One this week. A man, off the cars. No name he'd given anybody.",
        "status": "new"
       }
      ],
@@ -16252,8 +15664,8 @@
      "takes": []
     },
     {
-     "id": "heard.about_forty.2",
-     "ex": "heard.about_forty",
+     "id": "heard.no_name.2",
+     "ex": "heard.no_name",
      "speaker": "townsman",
      "who": "claude",
      "to": "undertaker",
@@ -16264,7 +15676,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "'About forty.' You measured him?",
+       "text": "His age?",
        "status": "new"
       }
      ],
@@ -16272,8 +15684,8 @@
      "takes": []
     },
     {
-     "id": "heard.about_forty.3",
-     "ex": "heard.about_forty",
+     "id": "heard.no_name.3",
+     "ex": "heard.no_name",
      "speaker": "undertaker",
      "who": "undertaker",
      "to": "claude",
@@ -16284,7 +15696,7 @@
      "delivery": "flat",
      "words": [
       {
-       "text": "Five foot eight. I don't measure age.",
+       "text": "I couldn't say. Not young. He'd worked with his hands.",
        "status": "new"
       }
      ],
@@ -16292,8 +15704,8 @@
      "takes": []
     },
     {
-     "id": "heard.about_forty.4",
-     "ex": "heard.about_forty",
+     "id": "heard.no_name.4",
+     "ex": "heard.no_name",
      "speaker": "townsman",
      "who": "claude",
      "to": "undertaker",
@@ -16304,7 +15716,7 @@
      "delivery": "precise",
      "words": [
       {
-       "text": "Then I will print 'about forty', and that it is your opinion.",
+       "text": "I'll write 'a laboring man, name not known'. If somebody comes asking, you'll send them to me?",
        "status": "new"
       }
      ],
@@ -16312,8 +15724,8 @@
      "takes": []
     },
     {
-     "id": "heard.about_forty.5",
-     "ex": "heard.about_forty",
+     "id": "heard.no_name.5",
+     "ex": "heard.no_name",
      "speaker": "undertaker",
      "who": "undertaker",
      "to": "claude",
@@ -16324,7 +15736,7 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Say it's the teeth's.",
+       "text": "I've his boots in a box, with the date on. I'll send them to you first.",
        "status": "new"
       }
      ],
@@ -16354,11 +15766,11 @@
      "delivery": "warm",
      "words": [
       {
-       "text": "Deputy. Pull in, we was only jawing.",
+       "text": "Deputy. Come in on this, we can't settle it.",
        "status": "new"
       },
       {
-       "text": "Evening. You've not missed much.",
+       "text": "Evening. Was you wanting one of us?",
        "status": "new"
       }
      ],
@@ -16402,11 +15814,11 @@
      "delivery": "cold",
      "words": [
       {
-       "text": "This is a private talk.",
+       "text": "Was there something?",
        "status": "new"
       },
       {
-       "text": "Was there something?",
+       "text": "We'll finish this another time.",
        "status": "new"
       }
      ],
@@ -16426,11 +15838,11 @@
      "delivery": "uneasy",
      "words": [
       {
-       "text": "We wasn't saying nothing. Not about you.",
+       "text": "It wasn't about you, mister. It was about a horse.",
        "status": "new"
       },
       {
-       "text": "Only the weather, mister. Only that.",
+       "text": "We was just going.",
        "status": "new"
       }
      ],
@@ -16472,11 +15884,11 @@
      "delivery": "sly",
      "words": [
       {
-       "text": "You listening or drinking? Listening's dearer.",
+       "text": "You want a drink, I'm right here.",
        "status": "new"
       },
       {
-       "text": "There's a deal of bar, friend. You needn't stand on this piece of it.",
+       "text": "What'll it be? You been standing there long enough to be dry.",
        "status": "new"
       }
      ],
@@ -16518,11 +15930,11 @@
      "delivery": "teasing",
      "words": [
       {
-       "text": "It's four bits to listen, same as to sit.",
+       "text": "Are you buying, or only looking?",
        "status": "new"
       },
       {
-       "text": "You've long ears for a man with clean boots.",
+       "text": "Was it me you wanted, or him?",
        "status": "new"
       }
      ],
@@ -16541,11 +15953,11 @@
      "delivery": "grumbling",
      "words": [
       {
-       "text": "You want a horse, say so. Else that fellow and me is talking.",
+       "text": "You want a horse, say so.",
        "status": "new"
       },
       {
-       "text": "Stalls is a dollar a night. Standing there's free, I guess.",
+       "text": "That fellow and me is talking. What is it?",
        "status": "new"
       }
      ],
@@ -16564,11 +15976,11 @@
      "delivery": "mild",
      "words": [
       {
-       "text": "Five foot ten and a half. Stand easy, I was only looking.",
+       "text": "Good day to you. Was it me you wanted?",
        "status": "new"
       },
       {
-       "text": "Was there something? No hurry. There never is, with me.",
+       "text": "Yes? I'm in no hurry, if you're not.",
        "status": "new"
       }
      ],
@@ -16587,7 +15999,7 @@
      "delivery": "worried",
      "words": [
       {
-       "text": "Something I can get you? We'd finished.",
+       "text": "Something I can get you?",
        "status": "new"
       },
       {
@@ -16610,11 +16022,11 @@
      "delivery": "dry",
      "words": [
       {
-       "text": "It ain't worth the listening, mister. I'd know.",
+       "text": "You looking for somebody, mister?",
        "status": "new"
       },
       {
-       "text": "You can have my end of it. I was losing.",
+       "text": "It ain't much of a talk. You can have my end of it.",
        "status": "new"
       }
      ],
