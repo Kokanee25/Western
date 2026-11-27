@@ -55,21 +55,36 @@ func test_a_man_without_levels_is_drawn_from_his_own_glb() -> void:
 
 
 func test_a_cast_man_is_the_private_level_only_when_laid_in() -> void:
-	# config/private_cast.json (#933): the townsman is played by the private man's lod1 once
-	# tools/characters/fetch_private.sh laid him in; without the files (CI's tests, a fork) he keeps
-	# his own Studio man. Someone not in the cast always keeps his own.
+	# config/private_cast.json (#933, #1282): every man is played by the private man's lod1 once
+	# it's laid in (tools/characters/fetch_private.sh) and the cast is on; without his files, or
+	# with the cast off, his own Studio man. The women (and the player) always keep their own.
 	var c := PeopleBodies._cast_data()
 	check(c.get("people", {}).has("townsman"), "the townsman is cast")
+	check(bool(c.get("everyone", false)), "everyone else is cast too")
+	check(not bool(c.get("release", true)), "off in release builds until the encryption (#1176)")
 	var was_on: bool = c.get("on", true)
+	PeopleBodies.cast_suspended = false
 	c["on"] = false
 	check_eq(PeopleBodies.cast_model(&"townsman", &"storekeeper_s1_talking"), &"storekeeper_s1_talking",
 			"the cast off: his own man, laid in or not")
 	c["on"] = true
 	var level := StringName("private/%s_%s" % [c.build, c.near])
-	var want := level if PeopleBodies.has_model(level) else &"storekeeper_s1_talking"
+	var laid := PeopleBodies.has_model(level)
+	var want := level if laid else &"storekeeper_s1_talking"
 	check_eq(PeopleBodies.cast_model(&"townsman", &"storekeeper_s1_talking"), want,
 			"laid in: his level; not: his own man")
-	check_eq(PeopleBodies.cast_model(&"barkeep", &"barkeep_s2_talking"), &"barkeep_s2_talking", "not cast: his own")
+	check_eq(PeopleBodies.cast_model(&"kett_man_1", &"outlaw"), level if laid else &"outlaw",
+			"a mission's man is cast by `everyone`")
+	check_eq(PeopleBodies.cast_model(&"landlady", &"widow_s6_talking"), &"widow_s6_talking", "the women keep theirs")
+	check_eq(PeopleBodies.cast_model(&"player", &"outlaw"), &"outlaw", "the player keeps his")
+	check_eq(PeopleBodies.cast_model(&"x", level), level, "a private man stays himself")
+	# The same man the same look every time; the looks differ between men.
+	check_eq(PeopleBodies.cast_of(&"doctor", &"doctor_s2_talking"), PeopleBodies.cast_of(&"doctor", &"doctor_s2_talking"),
+			"a man's look is stable")
+	var seen := {}
+	for id: String in ["barkeep", "miner", "earl", "doctor", "smith", "cody", "joe", "drifter", "rancher", "fiddler"]:
+		seen[str(PeopleBodies.cast_of(StringName(id), &"outlaw"))] = true
+	check(seen.size() >= 4, "ten men wear at least four looks (%d)" % seen.size())
 	var man := HumanBody.new()
 	man.body_model = &"storekeeper_s1_talking"
 	man.hat_color = Color(0, 0, 0, 0)
@@ -78,5 +93,10 @@ func test_a_cast_man_is_the_private_level_only_when_laid_in() -> void:
 	man.body_model = level
 	PeopleBodies.cast_dress(man, &"townsman")
 	check(man.hat_color.a > 0.0, "a private man gets his cast hat")
+	PeopleBodies.cast_dress(man, &"loudmouth")
+	check_eq(man.hat_color.a, 0.0, "the loudmouth goes bareheaded")
 	man.free()
 	c["on"] = was_on
+	PeopleBodies.cast_suspended = true
+
+

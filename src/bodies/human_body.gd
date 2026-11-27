@@ -243,6 +243,9 @@ const MASS_SHARE := {
 ## His bandana pulled up over his nose and mouth (a Studio man's `cloth_bandana_mask`,
 ## tools/faces/bandana.py), in place of the one at his neck.
 @export var masked := false
+## The shapes of his model he goes without, when he's cast as a private man (PeopleBodies.cast_dress,
+## config/private_cast.json `off`: a beard, a mustache).
+var cast_off: Array = []
 ## A talking face (his model's report has a "facerig") comes alive: FaceLife, his look and his
 ## expressions. Off where something else drives his face (the face lab's sheets and takes).
 @export var face_life := true
@@ -548,6 +551,12 @@ func _ready() -> void:
 	add_to_group(&"people")
 	Events.ground_changed.connect(_on_ground_changed)
 	_rng.seed = rng_seed
+	# Played by a private man when the cast is on and he's laid in (#933, #1282:
+	# config/private_cast.json, any man, however he was made), re-dressed so he isn't a clone.
+	var cast := PeopleBodies.cast_model(person_id, body_model)
+	if cast != body_model:
+		body_model = cast
+		PeopleBodies.cast_dress(self, person_id)
 	# His own proportions if his model has them (#696: the Studio's men with their own bone lengths;
 	# the hitboxes, the ragdoll and what's inside go with him), else everyone's.
 	anatomy = Anatomy.for_model(body_model)
@@ -875,7 +884,7 @@ func _build_visual(sid: StringName, vis: Node3D) -> void:
 func _build_skin() -> void:
 	var outfit := {"shirt": true, "vest": vest_color.a > 0.0, "coat": coat_color.a > 0.0, "trousers": true,
 			"boots": true, "gun_belt": has_gun, "bandana": bandana_color.a > 0.0, "hat": hat_color.a > 0.0,
-			"hair": look.get("hair_long", false), "mask": masked}
+			"hair": look.get("hair_long", false), "mask": masked, "off": cast_off}
 	var data := PeopleBodies.build(anatomy, outfit, body_model)
 	if data.has("skin_tone"):
 		skin_tone = data.skin_tone

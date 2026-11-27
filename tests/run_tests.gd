@@ -36,6 +36,9 @@ var _settings_at_start := {}
 
 
 func _initialize() -> void:
+	# The private cast (config/private_cast.json, #1282) only in the game: tests make their men as they say,
+	# whether or not a session has the private man laid in (test_people_lod checks the cast itself).
+	PeopleBodies.cast_suspended = true
 	Engine.set_meta(&"town_seed", 0)  # the town's run seed fixed (ValleyFolk.run_seed, #1167): the same town every run
 	OS.add_logger(_catcher)
 	# Budgets by count, not the clock: a test's world doesn't depend on how busy the machine is.

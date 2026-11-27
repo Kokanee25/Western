@@ -1579,7 +1579,7 @@ func _people() -> Array:
 			continue
 		var at := _lies(man)
 		var rel := at - player.global_position
-		var e := {"name": String(man.person_id), "at": _arr(at), "distance_m": snappedf(rel.length(), 0.1),
+		var e := {"name": String(man.person_id), "model": String(man.body_model), "at": _arr(at), "distance_m": snappedf(rel.length(), 0.1),
 			"bearing": _bearing(rel), "alive": man.physiology.alive, "conscious": man.physiology.is_conscious(),
 			# Armed is a gun on him, in his hand or his holster (#607: `has_gun` is whether he was given
 			# one, so men who'd dropped theirs to give up still read armed).

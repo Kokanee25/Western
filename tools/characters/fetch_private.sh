@@ -23,7 +23,10 @@ done
 PY="${PY:-python3}"
 STUDIO="${STUDIO:-../saltcreek-characters}"
 NEED=(studio config/metahuman.yaml "frozen/$BUILD")
-if [ ! -f "$STUDIO/frozen/$BUILD/$BUILD.glb" ]; then
+# A frozen GLB over GitHub's 100 MB limit is in parts (<build>.glb.part0, .part1: the dressed townsman,
+# #1282); the Studio's lay step joins them.
+have() { [ -f "$1/frozen/$BUILD/$BUILD.glb" ] || [ -f "$1/frozen/$BUILD/$BUILD.glb.part0" ]; }
+if ! have "$STUDIO"; then
     if [ -z "${STUDIO_TOKEN:-}" ]; then
         echo "fetch_private: no Studio at $STUDIO and no STUDIO_TOKEN: $BUILD not fetched (the game falls back)"
         exit 0
@@ -37,7 +40,7 @@ if [ ! -f "$STUDIO/frozen/$BUILD/$BUILD.glb" ]; then
         https://github.com/Kokanee25/saltcreek-characters.git "$STUDIO"
     git -C "$STUDIO" sparse-checkout set --no-cone "${NEED[@]/#//}" >/dev/null
     git -C "$STUDIO" -c http.extraheader="AUTHORIZATION: basic $auth" checkout -q
-    [ -f "$STUDIO/frozen/$BUILD/$BUILD.glb" ] || { echo "fetch_private: the Studio has no frozen/$BUILD" >&2; exit 1; }
+    have "$STUDIO" || { echo "fetch_private: the Studio has no frozen/$BUILD" >&2; exit 1; }
 fi
 git check-ignore -q "assets/people/private/$BUILD.glb" \
     || { echo "assets/people/private/ isn't git-ignored: refusing (#692)" >&2; exit 1; }
