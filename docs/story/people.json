@@ -1,11 +1,12 @@
 {
   "_doc": "The people of Salt Creek (#1309, Sean 2026-11-27): one sheet a person, keyed by the roster's id (config/valley_folk.json's `id`: the game, the missions and the tests use those ids, so a name is a field here, never a new id). `aliases`: roster ids that are the same man as another entry. Each sheet: `kind` (townsfolk: this file's proposal, Sean's to OK on the People board; cast: a mission's character, only what the bible fixes, not renamed; sean: written by Sean, his facts fixed), `role`, `name` (null: roles only, C14 c), `called` (what the town calls him), `who` (one line), `age`, `born`, `from`, `came` (why he came), `work`, `place` (his place in town), `wants`, `secret` (one fear or secret), `likes` / `dislikes` ([{id, why}], ids of this file), `habit` (something the player can see), `talks` (how he talks: plain notes), `voice` (the casting brief), `body` and `clothes` (#1207: a shared body type, clothes by trade), `lines` (samples in his own voice: `id`, `place` (a tag of `places`, the same tag #1293's overheard talk and the game use), `to` (an id, or absent: anyone in earshot), `when` (only if it needs something to have happened), `words`, `src` (cast only: built / script / bible)), `seen` (cast with no day: where the story puts him), `day_proposed` (in words, only for a man not in valley_folk.json yet), `fixed` ({field: where it's fixed}: the bible's or Sean's; every other filled field is PROPOSED by #1309; a null field is open), `notes` (for the next writer). No line says Harlan's name (#1207), but the built ones. The board (docs/story/board/build_people.py, people_board.html) is built from this file and config/valley_folk.json; `python3 docs/story/board/build_people.py --check` checks ids, places and line ids. MORE (Sean, 2026-11-27, #1309's later comments), each its own folded section on the board: `in_town` (how long, how he came, what he's seen change, what he did before), `circle` ({friends, family}), `home` ({what, state: built | to be built (against config/valley.json), where}), `if_dies` ({grief, lines: [{id, by (a person's id), words}], bearers, after}), `knows` ([{what, from (when he has it), tells (whom), takes (trust, money or a threat)}]: nobody gives away one of VOICES.md's secrets before its beat), `trouble` (his nerve, nosy and duty dials in words), `harlan` ({starts, warms, cools, greets: {warm, wary, cold, afraid}}: TownRegard's four bands), `jobs` (small happenings he could bring the deputy), `looks` ({body, hair, beard, clothes, wear}), `casting` ({voice, accent, pace, say_name}), `owns` ({money, home, pockets, owes}), `week` ({sunday, payday, vices}), `loyalty` ({side, why}: where he stands with the Baron). A sheet without them is not written yet (`more_done` lists who has them). Top level `nobody_knew`: the shared card of funeral lines for a stranger, a gang's rider and a known outlaw.",
-  "status": "PROPOSED (#1309, 2026-11-27): every townsperson's name and sheet waits on Sean's Person OK on the People board. The cast's sheets hold only what the bible fixes. Claude Bérubé is Sean's (#1207). Read blind once (DIALOGUE.md section 4) on 2026-11-27 and re-worded: buttons, threes and writer's jokes cut, the voices pulled apart. The fourteen further sections (Sean, 2026-11-27) are written for the saloon's regulars and Claude Bérubé (`more_done`); the rest of the town's are the next session's.",
+  "status": "PROPOSED (#1309, 2026-11-27): every townsperson's name and sheet waits on Sean's Person OK on the People board. The cast's sheets hold only what the bible fixes. Claude Bérubé is Sean's (#1207). Read blind once (DIALOGUE.md section 4) on 2026-11-27 and re-worded: buttons, threes and writer's jokes cut, the voices pulled apart. The fourteen further sections (Sean, 2026-11-27) are written for the saloon's regulars and Claude Bérubé (`more_done`); the rest of the town's are the next session's. The town drunk (Sean, 2026-11-27) is added as a new person, `town_drunk`, with a full card; his notes about town and the mocking as a mechanic are #1312's.",
   "assumed": [
     "The railroad reached Salt Creek in 1881: Claude Bérubé hauled his press in by freight wagon in 1880 (Sean, #1207), and the trains run in the missions. The teamster's and the livery man's sheets lean on it.",
     "The general store holds the valley's mail (most stores of the time did): the storekeeper's wife's sheet leans on it.",
     "The roster's miner is written so he could be Buried Alive's miner (VOICES.md: no name, C14 c, 'maybe Cornish'), but that is not decided; if he is, his name here is a proposal for that man too.",
-    "The loudmouth could be 'the loudest man at the rope' (VOICES.md, Smaller voices); not decided, and nothing here depends on it."
+    "The loudmouth could be 'the loudest man at the rope' (VOICES.md, Smaller voices); not decided, and nothing here depends on it.",
+    "The town drunk's past (PROPOSED): Rourke's command burned out a 'disloyal' district in Tennessee in 1863 and fouled its wells, and the drunk lost his stripes for reporting it. He names Rourke only from Payday Night. Sean rules on it on Ephraim Tolliver's card."
   ],
   "places": {
     "saloon.bar": "The saloon: at the bar",
@@ -3083,6 +3084,267 @@
         "side": "against him",
         "why": "Sean's: he won't print the Baron's version of things; quietly brave, and a target."
       }
+    },
+    "town_drunk": {
+      "kind": "townsfolk",
+      "role": "The town drunk, an old soldier",
+      "name": "Ephraim Tolliver",
+      "called": "Sarge, by the whole town, and none of them mean it kindly but the preacher",
+      "who": "A broken first sergeant of the Union army, drunk by noon, who mocks the deputy every time he lays eyes on him and is right about him more often than he's funny.",
+      "age": 58,
+      "born": 1824,
+      "from": "Sangamon County, Illinois; a wheelwright's son",
+      "came": "Mustered out a private in 'sixty-five with a pension he drank and a trade his hands had forgotten. Drove a team for the Army's posts in Kansas, then for the mine's first freight in 'seventy-six, and was let go the same winter for being found asleep under the wagon.",
+      "work": "None. Sweeps the saloon out at ten for the heel-taps in last night's glasses; holds a horse for a dime; carries a note or a rumour anywhere for a drink.",
+      "place": "The saloon's walk and its back step; the jail's cot on a cold night.",
+      "wants": "A drink. After that, somebody to say it to who was there.",
+      "secret": "He was broken to the ranks for telling the truth. In Tennessee in the winter of 'sixty-three he reported what another command's men did to a district the Army had called disloyal, and it was his stripes that came off. He jokes about every wound he has but that one.",
+      "likes": [
+        {
+          "id": "barkeep",
+          "why": "An Illinois man who clerked for a sutler: he has been selling Ephraim whiskey, one way or another, since the war. Lets him sweep for it."
+        },
+        {
+          "id": "churchman",
+          "why": "Lifts his hat to him as he does to everybody, and has never once asked him to come Sunday."
+        },
+        {
+          "id": "landlady",
+          "why": "Leaves a plate on the hotel's back step at half past six and has never mentioned it."
+        },
+        {
+          "id": "fiddler",
+          "why": "The other man in town who was there, on the other side. Ephraim calls for 'Dixie' to rile him; Lem plays him 'The Battle Cry of Freedom', badly, on purpose."
+        },
+        {
+          "id": "liveryman",
+          "why": "An Army teamster. They have argued mules against oxen for six years."
+        }
+      ],
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Loud and never served. Ephraim is the funnier of the two and Rufe knows it."
+        },
+        {
+          "id": "store_wife",
+          "why": "Sweeps the store's walk toward him."
+        }
+      ],
+      "habit": "Comes to attention, badly, and salutes with the wrong hand when the deputy passes. Sober, he doesn't salute at all, and that is how you tell.",
+      "talks": [
+        "Loud, hoarse and quick; a first sergeant's bark gone to seed. Army words for everything: the sink, the guardhouse, the quickstep, a brevet.",
+        "Crude about the body and never about a woman. Every joke has him in it getting the worst of it.",
+        "Never says the name of the place in Tennessee, and never calls any man 'sir'."
+      ],
+      "voice": "Late fifties, hoarse and carrying, central Illinois; drunk it slides, sober it is short and exact.",
+      "body": "skinny",
+      "clothes": "A Union sack coat gone the colour of dust, the darker cloth still showing on the sleeve where three stripes and a diamond were; a forage cap with no badge; boots that aren't a pair.",
+      "day_proposed": "Wakes about nine wherever he lay down: the jail's cot, the livery's loft, or the saloon's back step. Ten, sweeps the saloon out and drinks the heel-taps. Eleven to five, the saloon's walk and the store's bench, calling at whoever passes, the deputy above all; a dime's errand when there is one. Half past six, the hotel's back step, where a plate is. Seven to ten, the bar's door end, until the barkeep says 'That'll do, Sarge'. Then the jail if it's cold and the door's open, the loft if Yount is asleep, the back step if neither.",
+      "seen": [
+        {
+          "place": "street",
+          "when": "eleven to five, on the saloon's walk and the store's bench"
+        },
+        {
+          "place": "saloon.bar",
+          "when": "ten in the morning, sweeping; seven to ten at night, by the door"
+        },
+        {
+          "place": "hotel",
+          "when": "half past six, the back step"
+        },
+        {
+          "place": "jail",
+          "when": "cold nights, the cot, the door not locked"
+        },
+        {
+          "place": "livery",
+          "when": "other nights, the loft"
+        },
+        {
+          "place": "church",
+          "when": "the porch, in the worst of the winter"
+        }
+      ],
+      "lines": [
+        {
+          "id": "town_drunk.brevet",
+          "place": "street",
+          "when": "once you wear the badge",
+          "words": "Well, if it ain't the Brevet! All of the title and none of the pay. Salute me, damn you, I outrank you sober."
+        },
+        {
+          "id": "town_drunk.britches",
+          "place": "street",
+          "when": "once you wear the badge",
+          "words": "First shot you hear in earnest, Brevet, you'll shit yer britches. Every man does. I done it at Shiloh, and I was a sergeant."
+        },
+        {
+          "id": "town_drunk.quickstep",
+          "place": "street",
+          "when": "once you wear the badge",
+          "words": "You walk like a man with the quickstep and no sink dug. Ease off, Brevet, nobody's shooting yet."
+        },
+        {
+          "id": "town_drunk.pistol",
+          "place": "street",
+          "when": "once you carry a gun",
+          "words": "That your pistol, or you minding it for the sheriff? T'other end, farmer. The hole goes forward."
+        },
+        {
+          "id": "town_drunk.privy",
+          "place": "saloon.bar",
+          "when": "once you wear the badge",
+          "words": "I seen better law on a privy door. That had a latch on it, anyhow."
+        },
+        {
+          "id": "town_drunk.drawers",
+          "place": "street",
+          "when": "once you wear the badge",
+          "words": "Brevet! Your drawers is showing. No, t'other pair. The pair you'll want changing by sundown."
+        },
+        {
+          "id": "town_drunk.seat",
+          "place": "saloon.bar",
+          "words": "Took a ball in the seat at Shiloh. Going forward! I'd bent for my cap. Surgeon said it was the one part of me he could find to hit."
+        },
+        {
+          "id": "town_drunk.bled",
+          "place": "saloon.bar",
+          "words": "Stand a veteran a drink. I bled for this country. Out the hind end, but it was all the one blood."
+        },
+        {
+          "id": "town_drunk.dixie",
+          "place": "saloon.bar",
+          "to": "fiddler",
+          "words": "Give us 'Dixie', Johnny! Go on. I never could hear it but from the far side of a fence."
+        },
+        {
+          "id": "town_drunk.cell",
+          "place": "jail",
+          "when": "sober; the first cold night after the sheriff is buried",
+          "words": "He left that door unlocked six winters. Never said a word about it. I don't know what you mean to do."
+        },
+        {
+          "id": "town_drunk.tied",
+          "place": "street",
+          "when": "sober; after he has seen you tend a wound",
+          "words": "You tied that off like a man that's done fifty. I know where they teach it. I ain't asking."
+        }
+      ],
+      "in_town": "Six years. He came in on the mine's first freight wagons in 'seventy-six, driving, and was let go before the snow. He has seen the town from the ground up, mostly from the ground: the store when it was the only front, the sheriff ride in from his claim on court days, the hotel, the graders' camp, the cars, and the Baron's riders begin to come in armed. Before: a wheelwright's shop in Sangamon County; four years in an Illinois infantry regiment, first sergeant of his company by Shiloh and a private by Chattanooga; ten years driving for Army posts in Kansas.",
+      "circle": {
+        "friends": "The barkeep, who lets him sweep. Stiles, across the war: they sit on the saloon's back step of an afternoon, one with his hand in a bowl and one with a bottle, and say nothing for an hour. Yount, to argue with. The preacher, who stops. Mrs. Rudd he never speaks to; he leaves her plate washed.",
+        "family": "A wife, Hannah, in Illinois, who had him declared dead in 'seventy-one and married a harness-maker, and was right to. A daughter he has not seen since she was four. Nobody in town knows of either."
+      },
+      "home": {
+        "what": "Nowhere of his own. The jail's cot when it's cold and the door is left unlocked; the livery's loft; the saloon's back step; the church porch in the worst of the winter.",
+        "state": "built",
+        "where": "the jail, the saloon and the church stand today; the livery's loft is to be built"
+      },
+      "if_dies": {
+        "grief": "Nobody expects to mind, and the whole street does. It is found frozen on the saloon's back step, or shot standing where a sober man would have ducked. The saloon's walk is quiet in a way that people remark on for a week, and then they stop remarking and it stays quiet.",
+        "lines": [
+          {
+            "id": "town_drunk.grave.1",
+            "by": "churchman",
+            "words": "Ephraim Tolliver, First Sergeant, of an Illinois regiment. I have that from the Pension Office; I wrote to them this week, for it seemed somebody should. He was drunk every day I knew him, and he never once asked me for a thing but the time."
+          },
+          {
+            "id": "town_drunk.grave.2",
+            "by": "barkeep",
+            "words": "He swept that floor six years for what was left in the glasses. I'd leave a finger in a few. Don't nobody tell it round that I did."
+          },
+          {
+            "id": "town_drunk.grave.3",
+            "by": "fiddler",
+            "words": "We was on two sides of the same field, him and me, and he's the only man here I could say that to. I'll play him his tune. I'll play it right, this once."
+          },
+          {
+            "id": "town_drunk.grave.4",
+            "by": "landlady",
+            "words": "The plate came back washed. Every night, six years. I'll set it out tonight all the same."
+          }
+        ],
+        "bearers": "Yount, Stiles (who has carried nobody else), the barkeep, Stroud, Trembath, and the deputy if he will: Hadley asks him.",
+        "after": "The saloon's floor goes unswept until noon. Nobody on the street says aloud what they think of the deputy, and he finds he had been using that. Stiles plays 'The Battle Cry of Freedom' through, in time, the night of the burying, and doesn't play it again. Whatever notes and chalked insults he left about town stay where they are."
+      },
+      "knows": [
+        {
+          "what": "Night one: he was at the door end of the bar. He saw Cody shoot Earl, and he watched the stranger hold a man in his chair with a word. He knows that kind of quiet: the provost's men had it.",
+          "from": "night one",
+          "tells": "the whole street, as a joke on the deputy ('sat through it like a recruit at church')",
+          "takes": "Nothing. Getting the true part out from under the joke takes finding him sober, before ten."
+        },
+        {
+          "what": "The deputy is an Army man: the way he stands, the way he ties a bandage. He can tell a hospital steward's knot, and says so only sober.",
+          "from": "the first time he sees you tend a wound",
+          "tells": "the deputy alone",
+          "takes": "It is offered, once. A plant for what Harlan was (SETUPS.md S38). PROPOSED."
+        },
+        {
+          "what": "Rourke. When the officer steps down from the train on Payday Night, Ephraim knows the face and the voice: it was that man's command, in Tennessee in the winter of 'sixty-three, that burned out a district the Army had called disloyal and fouled its wells, and it was Ephraim's report of it that cost him his stripes. He is sober inside the minute. He doesn't know the deputy served under the same man.",
+          "from": "Payday Night, when Rourke arrives",
+          "tells": "the deputy, that night or the morning after, in six plain sentences with no joke in them",
+          "takes": "Nothing: he comes to you. PROPOSED, and Sean's to rule on: it gives Rourke a past in the war (he is Harlan's old commander, C15 a) and rhymes with the Baron's plan, a town made to look in revolt so the Army will come and its water taken. If Sean says no, the man keeps his lost stripes and the reason stays his own."
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "PROPOSED (no dials yet; say nerve 0.9 drunk and 0.7 sober, nosy 0.7, duty 0.3). Drunk, he doesn't move: he stands in the open and calls the shooting like a drill sergeant, which men's aim and which man flinched. He has been shot at by better. Sober, he is the best man on the street: he gets people down behind something, names who is to fetch the doctor, and has his hands on the wound before the doctor's there. He won't take up a gun, and he'll tell you why not if you ask him before ten.",
+      "harlan": {
+        "starts": "Hostile, as a matter of principle: a badge pinned on by a dying man is a brevet, and every soldier he ever saw with a badge was a provost guard marching him somewhere.",
+        "warms": "The jail's door left unlocked on a cold night, as the sheriff left it. A drink stood him without a sermon. Seeing the deputy go toward a shot man instead of away. Being asked what he saw, and listened to.",
+        "cools": "Being locked in. Being moved off the saloon's walk. Soldiers brought to town. A man shot who had his hands up.",
+        "greets": {
+          "warm": "Brevet. I'd salute, only I'm sober and it wouldn't be respectful.",
+          "wary": "Here's the Brevet. Mind the step, it's higher than a furrow.",
+          "cold": "Don't stand there. You're keeping the sun off a veteran.",
+          "afraid": "Go on, then. You'd not be the first of your kind to do it."
+        }
+      },
+      "jobs": [
+        "Somebody has been chalking things about the deputy on the jail's wall and the privy door. Everybody knows who. The storekeeper wants it stopped; the barkeep thinks it's good for trade.",
+        "He says a rider took his forage cap off him on the saloon's walk and rode off laughing. He wants it back and will not say why it matters.",
+        "The preacher asks the deputy to write to the Pension Office for him: there is back pension owing to a First Sergeant Tolliver, and the man won't sign his name to ask for it."
+      ],
+      "looks": {
+        "body": "skinny",
+        "hair": "Grey, long, cut with a knife when it gets in his eyes.",
+        "beard": "A week's grey stubble, always a week's.",
+        "clothes": "A Union sack coat gone the colour of dust, the darker cloth still showing on the sleeve where three stripes and a diamond were; a forage cap with no badge; boots that aren't a pair.",
+        "wear": "Sawdust from the saloon's floor on his knees; a red nose; he sits down slowly and to one side."
+      },
+      "casting": {
+        "voice": "Late fifties, hoarse and carrying; a parade-ground voice worn through. Drunk it slides, sober it is short and exact.",
+        "accent": "Central Illinois.",
+        "pace": "Fast and loud drunk; slow and low sober. The change should be heard.",
+        "say_name": "EE-frum TOL-i-ver; 'Sarge'"
+      },
+      "owns": {
+        "money": "A dime, when he has held a horse.",
+        "home": "Nothing anywhere.",
+        "pockets": "A stub of carpenter's chalk, a stub of pencil, a tin cup, a discharge paper folded to the size of a card and gone soft as cloth.",
+        "owes": "The barkeep, by a reckoning neither of them keeps. The sheriff, six winters."
+      },
+      "week": {
+        "sunday": "The saloon opens at noon. Until then he sits on the church's lowest step, outside, and hears the hymn; Hadley leaves the door open on his side.",
+        "payday": "The best day of the fortnight: the miners stand him drinks to hear him go at the deputy, and he is asleep under the store's bench by nine.",
+        "vices": "Whiskey, whatever is left of it. Nothing else: he never plays cards and has never been upstairs."
+      },
+      "loyalty": {
+        "side": "against him, though nobody would think to ask",
+        "why": "He has seen once before how a place is called disloyal and what comes after, and he knows a hired rider from a hand. The Baron's men think he is furniture and talk in front of him."
+      },
+      "fixed": {
+        "role": "Sean, #1309, 2026-11-27: the town drunk, an old war veteran who mocks Harlan every time he sees him, and leaves insults about town (the notes and the mechanic are #1312's)"
+      },
+      "notes": "A new person: none of the 27 fits (the loudmouth is thirty-four and never served). Not in valley_folk.json yet; #1312 puts him there. Sean's brief, and how each part is answered: his war and side (the Union; an Illinois infantry regiment), the rank he lost (first sergeant, broken to private), the wound he jokes about (a ball in the seat at Shiloh), why Harlan (a brevet badge; he knows an Army man; and Rourke, PROPOSED), his nickname for him ('Brevet': an honorary rank with no pay and no authority, which is what a deputy sworn by a dying man looks like to a sergeant; he never says the deputy's name), who tolerates him (the barkeep, the preacher, Mrs. Rudd the widow who feeds him), where he sleeps it off, his funeral, and two sober moments (the jail's door; the knot) with a third at Payday Night. The jibes are samples for #1312: crude, period (britches, drawers, the quickstep, the sink), no slurs, nothing about Joe, none before the badge. Not read blind."
     }
   },
   "nobody_knew": {
@@ -3168,6 +3430,7 @@
     "saloon_girl",
     "loudmouth",
     "barkeep",
-    "claude"
+    "claude",
+    "town_drunk"
   ]
 }
