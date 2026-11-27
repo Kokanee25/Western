@@ -83,7 +83,7 @@
     "sarge_walk": {"lot": "saloon", "at": [13.0, -1.0], "_doc": "#1312: the drunk's piece of the saloon's walk, east of its door"},
     "sarge_store": {"lot": "general_store", "at": [12.0, -1.5]},
     "sarge_jail": {"lot": "jail", "at": [8.5, -1.0], "faces": [8.5, -8.0]},
-    "bar_door_end": {"hall": "saloon", "use": "drinker_2", "bar_top": true, "_doc": "#1312: the drunk's place at night, the bar's door end (his card)"},
+    "bar_door_end": {"hall": "saloon", "use": "drinker_4", "bar_top": true, "_doc": "#1312: the drunk's place at night, the bar's door end (his card)"},
     "saloon_porch": {"lot": "saloon", "at": [6.0, -1.0]},
     "hardware_walk": {"lot": "hardware", "at": [7.5, -1.0]},
     "carpenter_walk": {"lot": "carpenter", "at": [7.8, -1.0]},
@@ -107,16 +107,6 @@
     "kinds": [{"id": "sunday", "week_day": 0}, {"id": "payday", "every": 14, "first": 13}, {"id": "uneasy", "if": {"news.yesterday": ["killing", "shooting"]}}]
   },
   "people": [
-    {"id": "town_drunk", "name": "Sarge", "model": "oldtimer_factory", "seed": 1312, "dials": {"nerve": 0.9, "nosy": 0.7, "duty": 0.3}, "shirt": [0.5, 0.47, 0.4], "vest": [0.33, 0.33, 0.36], "home": "livery", "jibes": true,
-     "day": [
-       {"from": 9.5, "at": "sarge_walk", "do": "stand"},
-       {"from": 10.0, "at": "sarge_walk", "do": "sweep"},
-       {"from": 11.0, "do": "lean", "round": [{"at": "sarge_walk", "do": "lean", "stay": [120, 260]}, {"at": "sarge_store", "do": "sit", "stay": [90, 200]}, {"at": "sarge_jail", "do": "stand", "stay": [60, 150]}, {"at": "saloon_porch", "do": "stand", "stay": [60, 120]}]},
-       {"from": 18.5, "in": "hotel", "do": "supper"},
-       {"from": 19.0, "at": "bar_door_end", "do": "drink"},
-       {"from": 22.5, "in": "livery", "do": "sleep"}
-     ],
-     "_doc": "#1312: the town drunk, Ephraim 'Sarge' Tolliver (docs/story/people.json `town_drunk`; his day is its `day_proposed`): wakes about nine in the livery's loft, sweeps the saloon's walk at ten for the heel-taps, eleven to half past six on the saloon's walk, the store's bench and the jail's walk calling at whoever passes, the hotel's back step for the plate, the bar's door end till half past ten, the loft again. `jibes`: his talk at you is TownDrunk's, not the street's barks. A stand-in body (the old-timer's) till the Studio makes him; his clothes' colours the card's dust-coloured sack coat."},
     {"id": "barkeep", "name": "Barkeep", "model": "barkeep_s2_talking", "seed": 761, "dials": {"nerve": 0.7, "nosy": 0.4, "duty": 0.6}, "shirt": [0.85, 0.84, 0.8], "vest": [0.15, 0.14, 0.13], "home": "saloon",
      "day": [
        {"from": 3.0, "in": "saloon", "do": "sleep"},
@@ -366,7 +356,17 @@
     {"id": "foreman", "name": "Foreman", "model": "colter_rider_s2_talking", "seed": 870, "gun": true, "shirt": [0.45, 0.4, 0.33], "vest": [0.2, 0.17, 0.14], "act": "funeral", "from": "undertaker",
      "_doc": "The Baron's foreman, a step behind him at the funeral, saying nothing (script setup S39). A stand-in man."},
     {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1], "act": "no_justice", "from": "doctor",
-     "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."}
+     "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."},
+    {"id": "town_drunk", "name": "Sarge", "model": "oldtimer_factory", "seed": 1312, "dials": {"nerve": 0.9, "nosy": 0.7, "duty": 0.3}, "shirt": [0.5, 0.47, 0.4], "vest": [0.33, 0.33, 0.36], "home": "livery", "jibes": true,
+     "day": [
+       {"from": 9.5, "at": "sarge_walk", "do": "stand"},
+       {"from": 10.0, "at": "sarge_walk", "do": "sweep"},
+       {"from": 11.0, "do": "lean", "round": [{"at": "sarge_walk", "do": "lean", "stay": [120, 260]}, {"at": "sarge_store", "do": "sit", "stay": [90, 200]}, {"at": "sarge_jail", "do": "stand", "stay": [60, 150]}, {"at": "saloon_porch", "do": "stand", "stay": [60, 120]}]},
+       {"from": 18.5, "in": "hotel", "do": "supper"},
+       {"from": 19.0, "at": "bar_door_end", "do": "drink"},
+       {"from": 22.5, "in": "livery", "do": "sleep"}
+     ],
+     "_doc": "#1312: the town drunk, Ephraim 'Sarge' Tolliver (docs/story/people.json `town_drunk`; his day is its `day_proposed`): wakes about nine in the livery's loft, sweeps the saloon's walk at ten for the heel-taps, eleven to half past six on the saloon's walk, the store's bench and the jail's walk calling at whoever passes, the hotel's back step for the plate, the bar's door end till half past ten, the loft again. `jibes`: his talk at you is TownDrunk's, not the street's barks. A stand-in body (the old-timer's) till the Studio makes him; his clothes' colours the card's dust-coloured sack coat."}
   ],
   "shops": {"_doc": "The town gate's fault 3 (#1167): a shop's open hours and its keeper. A knock at its door while it's open and he's in (on the book at it) brings him out to `spot` facing you, with a line by his regard (TownBarks `knock`, else `pass`, `at` the shop); he goes back to his day once you're `leave_m` off or after `answer_s`. Shut, or him out: nobody comes.", "general_store": {"hours": [7.0, 18.0], "keeper": "storekeeper", "spot": "store_walk", "inside": {"hall": "general_store", "use": "serve_east"}, "walk_mps": 1.2, "ready_s": 1.5, "_inside": "#1230: in on the book, he comes from here (his counter) at `walk_mps`, `ready_s` to put down what he's at: out at the door that long after the knock, not the instant of it.", "answer_s": 45.0, "leave_m": 8.0, "by_door_m": 6.0, "again_s": 12.0, "again_m": 4.0}, "_1184": "#1184: the knock's own line (`knock`) first, then his `pass`; out on his walk within `by_door_m` of the door he answers too; you still within `again_m` `again_s` after his line, he asks again (`knock.wait`)."},
   "no_knock": ["saloon", "saloon_annex"],
