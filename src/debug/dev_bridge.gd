@@ -1421,6 +1421,9 @@ func _listen_to_events() -> void:
 			_shots += 1
 		_log("shot", "%s fired" % _who(shooter)))
 	_hook(Events.spoke, func(who: Node, text: String) -> void: _log("said", "%s: \"%s\"" % [_who(who), text]))
+	_hook(Events.overheard, func(who: Node, text: String, info: Dictionary) -> void:
+		_log("overheard", "%s: \"%s\" (clarity %.2f%s)" % [_who(who), text, float(info.get("clarity", 0.0)),
+				", " + String(info.get("delivery")) if String(info.get("delivery", "")) != "" else ""]))
 	_hook(Events.person_left, func(who: Node, why: StringName) -> void:
 		_log("left", "%s left town (%s)" % [_who(who), "his day done, while you were out" if why == &"day_done" else "rode out"]))
 	# What the screen told you (a wound, the gun you can't hold, coming round): #595's gun lost without a word.
