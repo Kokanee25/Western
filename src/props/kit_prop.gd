@@ -164,7 +164,12 @@ func build() -> void:
 
 
 func _physics_step(delta: float) -> void:
-	super._physics_step(delta)
+	# Standing whole, the structure's own step has nothing to do (no rubble to watch, nothing waiting
+	# to break, no sound cooling): skipped, a street of props at rest ticks for almost nothing (#1304).
+	if not loose and rubble.is_empty() and _breaking.is_empty() and _sound_cooldown <= 0.0:
+		pass
+	else:
+		super._physics_step(delta)
 	if loose:
 		return
 	if not _footed:
@@ -188,16 +193,113 @@ func _physics_step(delta: float) -> void:
 		return
 	# A foot with nothing under it (its board gone, or over a boardwalk's edge or a gap between its
 	# boards as it was put down) isn't a foot: it stands if its weight's over the feet that are left.
+	# (Asked again only when what it stands on, what's left of it or what's on it has changed since it
+	# last held: a wagon on a slope stands on four of its five feet for ever, and was asked four times
+	# a second, #1304.)
+	var bare := PackedInt64Array()
 	for m: StructureMember in _feet:
 		if not m.broken and not _has_footing(m):
-			_check_balance()
-			return
+			bare.append(m.get_instance_id())
+	if bare.is_empty():
+		_held_key = []
+		_maybe_rest()
+		return
+	var key := [bare, get_members().size() - _broken_count(), seated, contents.kg() if contents else 0.0]
+	if key == _held_key:
+		_maybe_rest()
+		return
+	_check_balance()
+	_held_key = [] if loose else key
+
+
+# --- At rest (`rests`) ----------------------------------------------------------------------------
+
+func _maybe_rest() -> void:
+	if not rests or resting or loose or not _footed or seated != null or hung() or _balance_queued \
+			or not rubble.is_empty() or not _breaking.is_empty() or _rebuild_queued or _sound_cooldown > 0.0:
+		return
+	resting = true
+	set_physics_process(false)
+	_resting.append(self)
+	if not _polling and is_inside_tree():
+		_polling = true
+		get_tree().physics_frame.connect(_poll_resting)
+
+
+## Its tick back, its feet looked at on the next one.
+func wake() -> void:
+	if not resting:
+		return
+	resting = false
+	_resting.erase(self)
+	_check_t = 0.0
+	set_physics_process(true)
+
+
+## A fifteenth of the resting props a physics frame (each every quarter second, as CHECK_EVERY): a
+## foot whose floor has gone or moved, or whose footing changed since it last held, wakes it.
+static func _poll_resting() -> void:
+	var n := _resting.size()
+	if n == 0:
+		return
+	var t := Prof.start()
+	var each := ceili(n / (CHECK_EVERY * Engine.physics_ticks_per_second))
+	for k in mini(each, n):
+		_poll_at = (_poll_at + 1) % _resting.size()
+		var p := _resting[_poll_at]
+		if not is_instance_valid(p) or not p.is_inside_tree():
+			_resting.remove_at(_poll_at)
+			if _resting.is_empty():
+				break
+			continue
+		if p._footing_changed():
+			p.wake()
+			if _resting.is_empty():
+				break
+	Prof.stop(&"structures", t)
+
+
+func _footing_changed() -> bool:
+	var bare := PackedInt64Array()
+	for m: StructureMember in _feet:
+		if not m.broken and not _has_footing(m):
+			bare.append(m.get_instance_id())
+	if bare.is_empty():
+		return not _held_key.is_empty()
+	return _held_key.is_empty() or bare != _held_key[0]
+
+
+func break_member(m: StructureMember, push := Vector3.ZERO) -> Array[StringName]:
+	wake()
+	return super.break_member(m, push)
+
+
+func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: Array = [], budget: WorkBudget = null) -> Array[StringName]:
+	wake()
+	return super.break_members(list, pushes, cuts, budget)
+
+
+func _exit_tree() -> void:
+	if resting:
+		resting = false
+		_resting.erase(self)
 
 
 # --- Joints: what each member is fixed to at either end -----------------------------------------
 
 var _ends := {}  # StructureMember -> [ids joined at its one end, ids at its other]
 var _put_down := false  # settled onto its floor (_set_down), once
+var _held_key: Array = []  # what it stood on, was and held when its balance last held
+
+## May rest (#1304; the valley's street dressing sets it): standing whole and still, with nothing to
+## watch, it stops its own physics tick, and one shared look (`_poll_resting`) asks each resting
+## prop's feet four times a second, as its own tick did; anything that touches it (a hit, a break, a
+## blast, a blow, fire, a man sitting, the ground dug) wakes it at once. Off by default.
+var rests := false
+var resting := false
+static var _resting: Array[KitProp] = []
+static var _poll_at := 0
+static var _polling := false
 var _nailed := {}  # StructureMember -> [nail points through it (prop space)]: a hung prop's
 
 
@@ -348,12 +450,14 @@ func _leave_batch() -> void:
 
 ## In a PropBatch: anything happening to a member, or to it (moved, hidden), and it draws itself.
 func unbatch(m: StructureMember, soon := false, aside := false) -> void:
+	wake()
 	_leave_batch()
 	super.unbatch(m, soon, aside)
 
 
 ## Heated or charred: drawn by its own batches, which carry the char (Structure.show_fire).
 func show_fire(m: StructureMember, char_amount: float, glow: float) -> void:
+	wake()
 	_leave_batch()
 	super.show_fire(m, char_amount, glow)
 
@@ -400,7 +504,9 @@ func _find_footing() -> void:
 		var box := BoxShape3D.new()
 		box.size = Vector3(maxf(hi.x - lo.x, 0.01), FOOT_REACH, maxf(hi.z - lo.z, 0.01))
 		q.shape = box
-		q.transform = Transform3D(global_basis, global_transform * Vector3((lo.x + hi.x) * 0.5, -FOOT_REACH * 0.5 + 0.002, (lo.z + hi.z) * 0.5))
+		# Under the foot's own bottom (a wagon's felloes stand 1 cm over its origin: on the valley's
+		# height field, a surface not a solid, a look under the origin found nothing, #1304).
+		q.transform = Transform3D(global_basis, global_transform * Vector3((lo.x + hi.x) * 0.5, lo.y - FOOT_REACH * 0.5 + 0.002, (lo.z + hi.z) * 0.5))
 		q.collision_mask = Layers.WORLD
 		q.exclude = own
 		var under := []
@@ -480,6 +586,7 @@ func _on_ground_changed(area: Rect2) -> void:
 	if loose or not _footed or not is_inside_tree():
 		return
 	if area.grow(0.5).has_point(Vector2(global_position.x, global_position.z)):
+		wake()
 		_footed = false
 		_frames = SETTLE_FRAMES - 1
 
@@ -535,6 +642,7 @@ func _on_member_broken(id: StringName) -> void:
 	# (Every prop hears every break: the cheap test first.)
 	if loose or not members.has(id) or not String(id).begins_with(String(structure_id) + "/"):
 		return
+	wake()
 	if _seat_member and id == _seat_member.member_id:
 		_unseat()
 	if not _balance_queued:
@@ -568,6 +676,14 @@ func centre_of_weight() -> Vector4:
 		sum += contents.centre() * contents.kg() * 9.81
 		w += contents.kg() * 9.81
 	return Vector4(sum.x / maxf(w, 1e-6), sum.y / maxf(w, 1e-6), sum.z / maxf(w, 1e-6), w)
+
+
+func _broken_count() -> int:
+	var n := 0
+	for m in get_members():
+		if m.broken:
+			n += 1
+	return n
 
 
 ## The hull of what's left of its feet (structure space, x and z), anticlockwise.
@@ -617,6 +733,7 @@ func go_loose(velocity := Vector3.ZERO, impulse := Vector3.ZERO, at := Vector3.I
 	var made: Array[RigidBody3D] = []
 	if loose:
 		return made
+	wake()
 	_tear_hanging()
 	loose = true
 	var ids: Array[StringName] = []
@@ -683,6 +800,7 @@ func _drop_fittings(bodies: Array[RigidBody3D]) -> void:
 
 ## A slender member holed past its `splits_below` splits where it's weakest.
 func _check_split(m: StructureMember) -> void:
+	wake()
 	if m.broken or not collapses:
 		return
 	var spec: Dictionary = m.get_meta(&"kit", {})
@@ -715,6 +833,7 @@ func toughness_of(m: StructureMember) -> float:
 func take_blow(m: StructureMember, at: Vector3, impulse: Vector3, blow_mass := 8.0) -> StringName:
 	if m == null or m.broken or impulse.length() < 1e-4:
 		return &"held"
+	wake()
 	var load_kg := _seat_mass if seated else 0.0
 	var big_m := mass() + load_kg
 	var v_in := impulse.length() / blow_mass
@@ -816,6 +935,7 @@ func _next_in_line(at: Vector3, dir: Vector3, after: StructureMember) -> Array:
 func _on_exploded(at: Vector3, kg: float) -> void:
 	if loose or not is_inside_tree():
 		return
+	wake()
 	await get_tree().physics_frame  # after the blast's own breaking has settled
 	# (Its breaking spread over the ticks after, #647: once it's done, as before it was on one.)
 	for k in 12:
@@ -930,6 +1050,7 @@ func _off_the_wall(push: Vector3) -> Vector3:
 func sit(man: Node3D) -> bool:
 	if loose or _seat_member == null or _seat_member.broken or (seated and seated != man):
 		return false
+	wake()
 	seated = man
 	var kg := float(man.get(&"total_mass")) if man.get(&"total_mass") != null else 0.0
 	var parts: Variant = man.get(&"parts")

@@ -1,0 +1,625 @@
+{
+  "_doc": "Main Street's dressing in the valley (#1304, art's; ValleyStreetDressing: src/art/valley_street_dressing.gd). What each owner puts out before his lot (`lots`, by valley.json's lot id) and what stands in the street itself (`street`). A lot's things stand `along` m east from its x0 and `out` m off its front (minus is into the street: the walk is 0 to -2.4, its street edge -2.4, the street's middle -10.05); the street's at `x` and `z` (north is minus). Each stands on what's there (a walk's planks or the ground) plus `up`. Kinds: `kit` (a prop kit id; `n` of them `step` [along, out] apart, `rows` stacked `layer` m apart, every one of a row turned `turn` degrees more), `rail` (a HitchingRail `rail` m long along the street, `horses` tied to it a stall apart, nose to the rail, on its street side), `trough` (a WaterTrough `trough` m long), `wagon` (a kit wagon; its tongue toward -X turned by `yaw`; `team` horses standing in its traces), `horse` (standing loose, head toward -X turned by `yaw`). Never on a way: a thing within `clear_m` of a town link (ValleyTown.add_ways: the doors' flights, the passages' mouths, the street's spine) is left out and said so (the test: none left out). Not in this file: the livery's rail, which is RideThere's (config/ride_there.json's `town`).",
+  "clear_m": 0.55,
+  "stall_m": 1.7,
+  "lots": {
+    "lumber_yard": [
+      {
+        "kit": "plank_stack",
+        "along": 6.0,
+        "out": -1.2,
+        "rows": 4,
+        "layer": 0.22
+      },
+      {
+        "kit": "plank_stack",
+        "along": 10.0,
+        "out": -1.3,
+        "rows": 3,
+        "layer": 0.22,
+        "yaw": 4.0
+      },
+      {
+        "kit": "plank_stack",
+        "along": 12.0,
+        "out": -1.4,
+        "rows": 5,
+        "layer": 0.22,
+        "yaw": -3.0
+      },
+      {
+        "wagon": "freight_wagon",
+        "along": 22.2,
+        "out": -4.2,
+        "yaw": 4.0,
+        "team": 2
+      }
+    ],
+    "carpenter": [
+      {
+        "kit": "trestles",
+        "along": 4.6,
+        "out": -1.9
+      },
+      {
+        "kit": "plank_stack",
+        "along": 12.5,
+        "out": -1.9,
+        "rows": 2,
+        "layer": 0.22
+      }
+    ],
+    "hardware": [
+      {
+        "kit": "nail_keg",
+        "along": 3.0,
+        "out": -1.9,
+        "n": 3,
+        "step": [
+          0.45,
+          0.0
+        ]
+      },
+      {
+        "kit": "tool_keg",
+        "along": 4.7,
+        "out": -1.9
+      },
+      {
+        "kit": "wagon_wheel",
+        "along": 10.5,
+        "out": -1.85
+      },
+      {
+        "kit": "oil_barrel",
+        "along": 12.6,
+        "out": -1.9
+      }
+    ],
+    "general_store": [
+      {
+        "wagon": "freight_wagon",
+        "along": 3.4,
+        "out": -4.0,
+        "yaw": 0.0,
+        "team": 2
+      },
+      {
+        "kit": "crate",
+        "along": 1.6,
+        "out": -1.9,
+        "n": 5,
+        "step": [
+          0.68,
+          0.0
+        ],
+        "turn": 3.0
+      },
+      {
+        "kit": "crate",
+        "along": 2.0,
+        "out": -1.9,
+        "n": 3,
+        "step": [
+          0.68,
+          0.0
+        ],
+        "up": 0.6,
+        "turn": 7.0
+      },
+      {
+        "kit": "barrel",
+        "along": 11.8,
+        "out": -1.9,
+        "n": 4,
+        "step": [
+          0.62,
+          0.0
+        ]
+      },
+      {
+        "kit": "feed_sack",
+        "along": 14.5,
+        "out": -1.9,
+        "n": 4,
+        "step": [
+          0.46,
+          0.0
+        ]
+      },
+      {
+        "kit": "crate",
+        "along": 10.6,
+        "out": -2.9,
+        "n": 4,
+        "step": [
+          0.68,
+          0.0
+        ],
+        "turn": 9.0
+      },
+      {
+        "kit": "crate",
+        "along": 10.9,
+        "out": -2.9,
+        "n": 2,
+        "step": [
+          0.68,
+          0.0
+        ],
+        "up": 0.6,
+        "turn": 13.0
+      },
+      {
+        "kit": "grain_sacks",
+        "along": 13.8,
+        "out": -3.1
+      },
+      {
+        "kit": "sugar_barrel",
+        "along": 15.0,
+        "out": -2.9
+      },
+      {
+        "kit": "flour_barrel",
+        "along": 15.65,
+        "out": -3.1
+      }
+    ],
+    "bakery": [
+      {
+        "kit": "flour_sack",
+        "along": 3.2,
+        "out": -1.9,
+        "n": 3,
+        "step": [
+          0.46,
+          0.0
+        ]
+      },
+      {
+        "kit": "flour_barrel",
+        "along": 10.2,
+        "out": -1.9
+      }
+    ],
+    "butcher": [
+      {
+        "kit": "water_barrel",
+        "along": 1.6,
+        "out": -1.9
+      },
+      {
+        "wagon": "buckboard",
+        "along": 12.0,
+        "out": -4.0,
+        "yaw": 180.0,
+        "team": 1
+      }
+    ],
+    "saloon": [
+      {
+        "rail": 7.4,
+        "along": 7.0,
+        "out": -3.3,
+        "horses": 4
+      },
+      {
+        "trough": 2.4,
+        "along": 14.8,
+        "out": -2.9
+      },
+      {
+        "kit": "beer_keg",
+        "along": 5.0,
+        "out": -1.9,
+        "n": 3,
+        "step": [
+          0.46,
+          0.0
+        ]
+      },
+      {
+        "kit": "beer_keg",
+        "along": 5.23,
+        "out": -1.9,
+        "n": 2,
+        "step": [
+          0.46,
+          0.0
+        ],
+        "up": 0.56
+      },
+      {
+        "kit": "spittoon",
+        "along": 12.0,
+        "out": -2.0
+      }
+    ],
+    "saloon_annex": [
+      {
+        "kit": "whiskey_barrel",
+        "along": 1.0,
+        "out": 1.6,
+        "n": 4,
+        "step": [
+          0.62,
+          0.0
+        ]
+      },
+      {
+        "kit": "beer_keg",
+        "along": 1.3,
+        "out": 1.6,
+        "n": 3,
+        "step": [
+          0.62,
+          0.0
+        ],
+        "up": 0.9
+      },
+      {
+        "wagon": "buckboard",
+        "along": 9.7,
+        "out": -3.0,
+        "yaw": 10.0,
+        "team": 1
+      }
+    ],
+    "hotel": [
+      {
+        "rail": 7.0,
+        "along": 4.5,
+        "out": -3.3,
+        "horses": 4
+      },
+      {
+        "trough": 2.4,
+        "along": 19.0,
+        "out": -2.9
+      },
+      {
+        "kit": "travelling_trunk",
+        "along": 3.0,
+        "out": -2.1
+      },
+      {
+        "kit": "travelling_trunk",
+        "along": 3.95,
+        "out": -2.1,
+        "yaw": 10.0
+      },
+      {
+        "kit": "travelling_trunk",
+        "along": 3.4,
+        "out": -2.1,
+        "up": 0.6,
+        "yaw": -6.0
+      }
+    ],
+    "doctor": [
+      {
+        "wagon": "buckboard",
+        "along": 13.0,
+        "out": -4.0,
+        "yaw": 0.0,
+        "team": 1
+      }
+    ],
+    "barber": [
+      {
+        "kit": "water_barrel",
+        "along": 12.0,
+        "out": -1.9
+      },
+      {
+        "kit": "zinc_pail",
+        "along": 12.55,
+        "out": -1.9
+      }
+    ],
+    "undertaker": [
+      {
+        "wagon": "hearse",
+        "along": 16.0,
+        "out": -4.0,
+        "yaw": 0.0,
+        "team": 2
+      },
+      {
+        "kit": "plank_stack",
+        "along": 13.0,
+        "out": -1.9,
+        "rows": 2,
+        "layer": 0.22
+      }
+    ],
+    "assay_office": [
+      {
+        "kit": "grain_sacks",
+        "along": 1.5,
+        "out": -2.8
+      },
+      {
+        "kit": "grain_sacks",
+        "along": 2.4,
+        "out": -2.8,
+        "yaw": 20.0
+      }
+    ],
+    "blacksmith": [
+      {
+        "rail": 6.0,
+        "along": 3.5,
+        "out": -3.3,
+        "horses": 3
+      },
+      {
+        "trough": 2.4,
+        "along": 9.4,
+        "out": -2.9
+      },
+      {
+        "kit": "wagon_wheel",
+        "along": 16.8,
+        "out": -3.0
+      },
+      {
+        "kit": "broken_wagon_wheel",
+        "along": 18.8,
+        "out": -3.4,
+        "yaw": 30.0
+      },
+      {
+        "kit": "water_barrel",
+        "along": 21.0,
+        "out": -2.1
+      },
+      {
+        "kit": "tool_keg",
+        "along": 21.6,
+        "out": -2.1
+      }
+    ],
+    "wagonwright": [
+      {
+        "wagon": "buckboard",
+        "along": 5.1,
+        "out": -4.4,
+        "yaw": 90.0
+      },
+      {
+        "kit": "wagon_wheel",
+        "along": 16.0,
+        "out": -2.8
+      },
+      {
+        "kit": "wagon_wheel",
+        "along": 16.0,
+        "out": -2.8,
+        "up": 0.28,
+        "yaw": 20.0
+      },
+      {
+        "kit": "broken_wagon_wheel",
+        "along": 18.4,
+        "out": -3.2,
+        "yaw": 50.0
+      }
+    ],
+    "vacant_s2": [
+      {
+        "kit": "broken_wagon_wheel",
+        "along": 2.6,
+        "out": -2.6,
+        "yaw": 70.0
+      },
+      {
+        "kit": "straw_pile",
+        "along": 6.0,
+        "out": -1.5
+      }
+    ],
+    "livery": [
+      {
+        "kit": "hay_bale",
+        "along": 2.0,
+        "out": -1.2,
+        "n": 6,
+        "step": [
+          0.95,
+          0.0
+        ]
+      },
+      {
+        "kit": "hay_bale",
+        "along": 2.5,
+        "out": -1.2,
+        "n": 4,
+        "step": [
+          0.95,
+          0.0
+        ],
+        "up": 0.45
+      },
+      {
+        "kit": "straw_pile",
+        "along": 9.0,
+        "out": -2.6
+      },
+      {
+        "trough": 2.4,
+        "along": 17.5,
+        "out": -2.6
+      },
+      {
+        "kit": "feed_sack",
+        "along": 21.5,
+        "out": -1.0,
+        "n": 3,
+        "step": [
+          0.46,
+          0.0
+        ]
+      },
+      {
+        "kit": "saddle",
+        "along": 23.0,
+        "out": -1.0
+      }
+    ],
+    "jail": [
+      {
+        "rail": 4.0,
+        "along": 22.0,
+        "out": -3.3,
+        "horses": 2
+      },
+      {
+        "kit": "water_barrel",
+        "along": 14.0,
+        "out": -1.9
+      }
+    ],
+    "bank": [
+      {
+        "rail": 3.4,
+        "along": 7.5,
+        "out": -3.3,
+        "horses": 1
+      }
+    ],
+    "land_office": [
+      {
+        "kit": "water_barrel",
+        "along": 2.7,
+        "out": -2.1
+      }
+    ]
+  },
+  "street": [
+    {
+      "wagon": "freight_wagon",
+      "x": -24.0,
+      "z": -3.6,
+      "yaw": 8.0,
+      "team": 2
+    },
+    {
+      "wagon": "freight_wagon",
+      "x": -33.0,
+      "z": 2.8,
+      "yaw": -5.0
+    },
+    {
+      "wagon": "covered_wagon",
+      "x": 30.0,
+      "z": 2.5,
+      "yaw": 172.0,
+      "team": 2
+    },
+    {
+      "wagon": "buckboard",
+      "x": 58.0,
+      "z": -3.2,
+      "yaw": 196.0,
+      "team": 1
+    },
+    {
+      "wagon": "buckboard",
+      "x": -78.0,
+      "z": 3.4,
+      "yaw": -12.0,
+      "team": 1
+    },
+    {
+      "wagon": "covered_wagon",
+      "x": 84.0,
+      "z": 3.8,
+      "yaw": 160.0,
+      "team": 2
+    },
+    {
+      "horse": true,
+      "x": 16.0,
+      "z": 3.8,
+      "yaw": 120.0
+    },
+    {
+      "kit": "horse_droppings",
+      "x": -10.0,
+      "z": 1.5
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 14.0,
+      "z": -2.0
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 36.5,
+      "z": 3.0
+    },
+    {
+      "kit": "horse_droppings",
+      "x": -35.0,
+      "z": 5.2
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 62.0,
+      "z": -1.0
+    },
+    {
+      "kit": "horse_droppings",
+      "x": -70.0,
+      "z": 2.5
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 22.0,
+      "z": 5.5
+    },
+    {
+      "kit": "horse_droppings",
+      "x": -48.0,
+      "z": -1.8
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 88.0,
+      "z": 1.2
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 1.5,
+      "z": -3.0
+    },
+    {
+      "kit": "horse_droppings",
+      "x": -60.0,
+      "z": -1.5
+    },
+    {
+      "kit": "horse_droppings",
+      "x": -90.0,
+      "z": 1.8
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 50.0,
+      "z": -1.6
+    },
+    {
+      "kit": "horse_droppings",
+      "x": 72.0,
+      "z": 2.6
+    },
+    {
+      "kit": "wagon_wheel",
+      "x": -11.5,
+      "z": 6.4,
+      "yaw": 15.0
+    }
+  ]
+}
