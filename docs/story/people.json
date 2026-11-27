@@ -5,8 +5,7 @@
     "The railroad reached Salt Creek in 1881: Claude Bérubé hauled his press in by freight wagon in 1880 (Sean, #1207), and the trains run in the missions. The teamster's and the livery man's sheets lean on it.",
     "The general store holds the valley's mail (most stores of the time did): the storekeeper's wife's sheet leans on it.",
     "The roster's miner is written so he could be Buried Alive's miner (VOICES.md: no name, C14 c, 'maybe Cornish'), but that is not decided; if he is, his name here is a proposal for that man too.",
-    "The loudmouth could be 'the loudest man at the rope' (VOICES.md, Smaller voices); not decided, and nothing here depends on it.",
-    "The town drunk's past (PROPOSED): Rourke's command burned out a 'disloyal' district in Tennessee in 1863 and fouled its wells, and the drunk lost his stripes for reporting it. He names Rourke only from Payday Night. Sean rules on it on Ephraim Tolliver's card."
+    "The loudmouth could be 'the loudest man at the rope' (VOICES.md, Smaller voices); not decided, and nothing here depends on it."
   ],
   "places": {
     "saloon.bar": "The saloon: at the bar",
@@ -3299,7 +3298,7 @@
           "what": "Rourke. When the officer steps down from the train on Payday Night, Ephraim knows the face and the voice: it was that man's command, in Tennessee in the winter of 'sixty-three, that burned out a district the Army had called disloyal and fouled its wells, and it was Ephraim's report of it that cost him his stripes. He is sober inside the minute. He doesn't know the deputy served under the same man.",
           "from": "Payday Night, when Rourke arrives",
           "tells": "the deputy, that night or the morning after, in six plain sentences with no joke in them",
-          "takes": "Nothing: he comes to you. PROPOSED, and Sean's to rule on: it gives Rourke a past in the war (he is Harlan's old commander, C15 a) and rhymes with the Baron's plan, a town made to look in revolt so the Army will come and its water taken. If Sean says no, the man keeps his lost stripes and the reason stays his own."
+          "takes": "Nothing: he comes to you. DECIDED (Sean, 2026-11-27: 'let's keep the Rourke past'): it gives Rourke a past in the war (he is Harlan's old commander, C15 a) and rhymes with the Baron's plan, a town made to look in revolt so the Army will come and its water taken."
         },
         {
           "what": "The sawn floor: nothing.",
@@ -3354,9 +3353,12 @@
         "why": "He has seen once before how a place is called disloyal and what comes after, and he knows a hired rider from a hand. The Baron's men think he is furniture and talk in front of him."
       },
       "fixed": {
-        "role": "Sean, #1309, 2026-11-27: the town drunk, an old war veteran who mocks Harlan every time he sees him, and leaves insults about town (the notes and the mechanic are #1312's)"
+        "role": "Sean, #1309, 2026-11-27: the town drunk, an old war veteran who mocks Harlan every time he sees him, and leaves insults about town (the notes and the mechanic are #1312's)",
+        "secret": "Sean, 2026-11-27: the Rourke past is kept (the district in Tennessee, the report, the stripes)",
+        "knows": "Sean, 2026-11-27: he knows Rourke from Tennessee, 1863, and says so from Payday Night; the other entries are proposed",
+        "called": "Sean, 2026-11-27: 'Brevet' for the deputy is liked ('I like brevet'); 'Sarge' for him is proposed"
       },
-      "notes": "A new person: none of the 27 fits (the loudmouth is thirty-four and never served). Not in valley_folk.json yet; #1312 puts him there. Sean's brief, and how each part is answered: his war and side (the Union; an Illinois infantry regiment), the rank he lost (first sergeant, broken to private), the wound he jokes about (a ball in the seat at Shiloh), why Harlan (a brevet badge; he knows an Army man; and Rourke, PROPOSED), his nickname for him ('Brevet': an honorary rank with no pay and no authority, which is what a deputy sworn by a dying man looks like to a sergeant; he never says the deputy's name), who tolerates him (the barkeep, the preacher, Mrs. Rudd the widow who feeds him), where he sleeps it off, his funeral, and two sober moments (the jail's door; the knot) with a third at Payday Night. The jibes are samples for #1312: crude, period (britches, drawers, the quickstep, the sink), no slurs, nothing about Joe, none before the badge. Not read blind. How the player learns the word (Sean asked, 2026-11-27): his first jibe defines it, a second repeats the sense, and the barkeep explains it at the bar if you come in after."
+      "notes": "A new person: none of the 27 fits (the loudmouth is thirty-four and never served). Not in valley_folk.json yet; #1312 puts him there. Sean's brief, and how each part is answered: his war and side (the Union; an Illinois infantry regiment), the rank he lost (first sergeant, broken to private), the wound he jokes about (a ball in the seat at Shiloh), why Harlan (a brevet badge; he knows an Army man; and Rourke, DECIDED by Sean 2026-11-27), his nickname for him ('Brevet': an honorary rank with no pay and no authority, which is what a deputy sworn by a dying man looks like to a sergeant; he never says the deputy's name), who tolerates him (the barkeep, the preacher, Mrs. Rudd the widow who feeds him), where he sleeps it off, his funeral, and two sober moments (the jail's door; the knot) with a third at Payday Night. The jibes are samples for #1312: crude, period (britches, drawers, the quickstep, the sink), no slurs, nothing about Joe, none before the badge. Not read blind. How the player learns the word (Sean asked, 2026-11-27): his first jibe defines it, a second repeats the sense, and the barkeep explains it at the bar if you come in after."
     }
   },
   "nobody_knew": {

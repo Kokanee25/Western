@@ -297,6 +297,11 @@ under "The Baron's foreman".
   plant it early, `SETUPS.md` S38). On the last train, he and a few bought men are the only uniforms
   among the Baron's hired men, and **he dies on the trestle with the train** (D, Sean 2026-11-11,
   #830, C11 a).
+- **His war** (D, Sean 2026-11-27, #1309: "let's keep the Rourke past"): in Tennessee in the winter of 1863 his command
+  burned out a district the Army had called disloyal and fouled its wells. The town drunk, Ephraim Tolliver (`people.json`,
+  `town_drunk`), then a first sergeant in another command, reported it and lost his stripes for it; he knows Rourke's face
+  when he steps off the train at B12, and tells Harlan, sober. He doesn't know Harlan served under Rourke (K13 stands).
+  Whether Harlan was there that winter is O.
 - **How he talks:** parade-ground courtesy. Whole sentences. "Order", "regular", "duty". Speaks of
   the town as a thing to be put right. Never raises his voice; has other men for that.
 - **Calls Harlan:** "Deputy" in public. In private, his old rank (C15 a): "Sergeant" (#546), but a
