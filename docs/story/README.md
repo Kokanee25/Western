@@ -123,3 +123,28 @@ it; every line has a note under it, and each mission has one for the whole of it
   A line's note is keyed by its place in its section, so adding lines at the end of a section keeps his notes on
   the right lines; inserting in the middle moves them (the note's `about` says what it was on).
 
+
+## The people board (Sean's page for going through the people)
+
+**PEOPLE_BOARD_URL**, pinned in Sean's claude.ai sidebar (#1309, Sean 2026-11-27: "each character has its own
+individual slide for review"). It is [`people.json`](people.json) as a page: everyone in a list (the townsfolk, Sean's own,
+the missions' people), each on his own page (the whole sheet; his day from `config/valley_folk.json`, in words; his lines
+grouped by where you meet him, with the hours he's there and who's there with him), and a view by place (the saloon's
+bar, the store, the street: who's there and everything said there).
+
+- **The sheets** are `people.json`, keyed by the roster's id (`config/valley_folk.json`); its `_doc` has the fields.
+  A townsperson's name is a new field, never a new id. `kind`: `townsfolk` (proposed here, Sean's to OK), `cast` (a
+  mission's character: only what the bible fixes, in `fixed`; not renamed; open fields are null), `sean` (written by Sean:
+  Claude Bérubé, #1207). A line's `place` is a tag of `places`: #1293's overheard talk uses the same tags, and a line of
+  `docs/scripts/town.json` with `who` (a person's id) and `place` shows on his page and the place's.
+- **Reading his notes:** ArtifactData, the URL above, `list` collection `notes`. Each is `{note, about, where, at}`; the id
+  says what it's on: `p.<id>` (the whole person), `p.<id>.<field>` (name, called, age, from, came, work, place, wants,
+  secret, habit, voice, body, clothes, day), `p.<id>.likes.<other id>`, `p.<id>.talks.<n>`, `p.<id>.line.<line id>`,
+  `a.<n>` (an assumption on the front page). They are his: never overwrite or delete one. Act on a note in `people.json`.
+- **Person OK:** collection `ok`, one document a person (`{ok, hash, at, name}`). It counts only while `hash` is the
+  sheet's own (the build's hash of his fields and sample lines, not his day or the town script's lines), so any change to
+  a sheet asks for his OK again, with nothing to remember to bump. Never write these.
+- **Updating the page** after `people.json` or the days change: `python3 docs/story/board/build_people.py --check`, then
+  `python3 docs/story/board/build_people.py /tmp/people_board.json`, then publish `docs/story/board/people_board.html`
+  with `url` (read it first) and `files` `{"people_board.json": "/tmp/people_board.json"}`; `capabilities` carries forward
+  (`db`). The JSON is built, not committed.
