@@ -124,6 +124,12 @@
           "place": "saloon.bar",
           "to": "saloon_girl",
           "words": "Kitty. Table by the window's got money and no company."
+        },
+        {
+          "id": "barkeep.brevet",
+          "place": "saloon.bar",
+          "when": "after the drunk has first called you Brevet",
+          "words": "Brevet's Army talk. Rank with no pay to it. He means you got the badge and not the wages. He ain't wrong, is he?"
         }
       ],
       "fixed": {
@@ -3171,8 +3177,14 @@
         {
           "id": "town_drunk.brevet",
           "place": "street",
-          "when": "once you wear the badge",
-          "words": "Well, if it ain't the Brevet! All of the title and none of the pay. Salute me, damn you, I outrank you sober."
+          "when": "the first time he sees the badge on you: always his first, because it says what the word means",
+          "words": "Well, look at this. A brevet! That's Army, farmer: all of the rank and none of the pay, and nobody bound to mind you. Salute me, Brevet, I outrank you sober."
+        },
+        {
+          "id": "town_drunk.brevet2",
+          "place": "street",
+          "when": "later, in turn with the others",
+          "words": "Brevet! They pin it on you and forget to send the wages. I seen colonels made that way. I seen 'em unmade quicker."
         },
         {
           "id": "town_drunk.britches",
@@ -3344,7 +3356,7 @@
       "fixed": {
         "role": "Sean, #1309, 2026-11-27: the town drunk, an old war veteran who mocks Harlan every time he sees him, and leaves insults about town (the notes and the mechanic are #1312's)"
       },
-      "notes": "A new person: none of the 27 fits (the loudmouth is thirty-four and never served). Not in valley_folk.json yet; #1312 puts him there. Sean's brief, and how each part is answered: his war and side (the Union; an Illinois infantry regiment), the rank he lost (first sergeant, broken to private), the wound he jokes about (a ball in the seat at Shiloh), why Harlan (a brevet badge; he knows an Army man; and Rourke, PROPOSED), his nickname for him ('Brevet': an honorary rank with no pay and no authority, which is what a deputy sworn by a dying man looks like to a sergeant; he never says the deputy's name), who tolerates him (the barkeep, the preacher, Mrs. Rudd the widow who feeds him), where he sleeps it off, his funeral, and two sober moments (the jail's door; the knot) with a third at Payday Night. The jibes are samples for #1312: crude, period (britches, drawers, the quickstep, the sink), no slurs, nothing about Joe, none before the badge. Not read blind."
+      "notes": "A new person: none of the 27 fits (the loudmouth is thirty-four and never served). Not in valley_folk.json yet; #1312 puts him there. Sean's brief, and how each part is answered: his war and side (the Union; an Illinois infantry regiment), the rank he lost (first sergeant, broken to private), the wound he jokes about (a ball in the seat at Shiloh), why Harlan (a brevet badge; he knows an Army man; and Rourke, PROPOSED), his nickname for him ('Brevet': an honorary rank with no pay and no authority, which is what a deputy sworn by a dying man looks like to a sergeant; he never says the deputy's name), who tolerates him (the barkeep, the preacher, Mrs. Rudd the widow who feeds him), where he sleeps it off, his funeral, and two sober moments (the jail's door; the knot) with a third at Payday Night. The jibes are samples for #1312: crude, period (britches, drawers, the quickstep, the sink), no slurs, nothing about Joe, none before the badge. Not read blind. How the player learns the word (Sean asked, 2026-11-27): his first jibe defines it, a second repeats the sense, and the barkeep explains it at the bar if you come in after."
     }
   },
   "nobody_knew": {
