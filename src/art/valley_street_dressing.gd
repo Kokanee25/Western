@@ -4,7 +4,7 @@ extends Node3D
 ## before his lot (the store's freight on its dock and below it, the livery's hay, the saloon's kegs,
 ## rail and trough, the blacksmith's wheels) and what stands in the street itself (wagons out in it
 ## at angles with their teams standing, droppings), all from config/valley_street.json, so every lab,
-## mission and save sees the same street. ValleyWorld's `StreetDressing`; `-- --no-street-dress` leaves
+## mission and save sees the same street. ValleyWorld's `MainStreetDressing`; `-- --no-street-dress` leaves
 ## it out (the bench's before).
 ##
 ## Built of the game's parts, nothing of its own: kit props (PropKit: they break, burn and fall as
@@ -12,7 +12,8 @@ extends Node3D
 ## traces). The livery's rail is RideThere's (a ride-to place's), not made again here.
 ##
 ## Kept clear: nothing stands within `clear_m` of a town link (ValleyTown.add_ways: the doors' flights,
-## the walks' ways, the passages' mouths, the street's spine) or of a RideThere horse's stand; such an
+## the walks' ways, the passages' mouths, the street's spine), of a folk's spot (valley_folk.json: where
+## a man stands a while or sits) or of a RideThere horse's stand; such an
 ## entry is left out and said so (`skipped`; test_valley_street_dressing: none is).
 ##
 ## At rest it costs nothing it needn't: the kit props are Structures (members at rest, drawn batched),
@@ -21,6 +22,7 @@ extends Node3D
 ## his mesh is, so a ball or a man finds him where he's drawn).
 
 const CONFIG := "res://config/valley_street.json"
+const FOLK_CONFIG := "res://config/valley_folk.json"
 ## `-- --no-street-dress`: the valley without it.
 static var dress_default := not "--no-street-dress" in OS.get_cmdline_user_args()
 ## Beyond this (m from the camera) a horse holds his pose even on screen: his idle (a weight shift,
@@ -30,6 +32,11 @@ const HORSE_AWAKE_M := 60.0
 const WAKE_EVERY := 0.25
 ## A horse's footprint in his own space (head toward -X), for keeping him off the ways.
 const HORSE_BOX := Rect2(-1.35, -0.38, 2.5, 0.76)
+## Things of different entries stand at least this far apart, or the gap between them would be a slot a
+## man walks into and sticks in (m).
+const GAP_M := 0.9
+## A folk's spot is kept clear along the way to each of this many places nearest it.
+const SPOT_WAYS := 3
 ## A town link counts if both its ends are within this box (Main Street and its walks).
 const TOWN_X := Vector2(-135.0, 140.0)
 const TOWN_Z := 14.0
@@ -51,13 +58,14 @@ var rails: Array[HitchingRail] = []
 var _front := 10.05
 var _clear := 0.55
 var _segments: Array = []  # [Vector2 a, Vector2 b] in x, z
-var _placed: Array[PackedVector2Array] = []  # what's down, its corners in x, z
+var _placed: Array = []  # what's down: [its corners in x, z, grown by half GAP_M, its entry]
+var _group := 0  # the entry being put down: its own things may touch
 var _wake_t := 0.0
 var _n := 0
 
 
 func _ready() -> void:
-	name = &"StreetDressing"
+	name = &"MainStreetDressing"
 	data = JSON.parse_string(FileAccess.get_file_as_string(CONFIG))
 	if layout == null:
 		layout = ValleyLayout.main()
@@ -137,6 +145,32 @@ func _collect_ways() -> void:
 			var pb := places.at(b)
 			if _in_town(pb):
 				_segments.append([Vector2(pa.x, pa.z), Vector2(pb.x, pb.z)])
+	# The folk's spots and places on the lots (config/valley_folk.json: where a man stands a while, sits on
+	# a bench or leans), each with the step from it back to its walk's door line: they aren't town links.
+	var folk: Variant = JSON.parse_string(FileAccess.get_file_as_string(FOLK_CONFIG))
+	if folk is Dictionary:
+		for group: String in ["spots", "places"]:
+			var d: Dictionary = (folk as Dictionary).get(group, {})
+			for id: String in d:
+				var sp: Variant = d[id]
+				if not sp is Dictionary or not (sp as Dictionary).has("lot") or not (sp as Dictionary).has("at"):
+					continue
+				var lot_id := String(sp.lot)
+				if layout.lot(lot_id).is_empty():
+					continue
+				var at: Array = sp.at
+				var a := _xz({"along": float(at[0]), "out": float(at[1])}, lot_id)
+				# A man goes from it straight to a place near it (the steps' head, the door): its few nearest.
+				var near: Array = []
+				for pn: StringName in places.points:
+					var pp := places.at(pn)
+					var dd := Vector2(pp.x, pp.z).distance_to(a)
+					if dd < 15.0:
+						near.append([dd, Vector2(pp.x, pp.z)])
+				near.sort_custom(func(x: Array, y: Array) -> bool: return x[0] < y[0])
+				_segments.append([a, a])
+				for k in mini(SPOT_WAYS, near.size()):
+					_segments.append([a, near[k][1]])
 	if ride:
 		for id: StringName in ride.order:
 			var s: Dictionary = ride.spots[id]
@@ -174,6 +208,8 @@ func _rect_of(box: AABB) -> Rect2:
 # --- The entries ----------------------------------------------------------------------------------
 
 func _entry(e: Dictionary, lot_id: String) -> void:
+	# One heap (`pile`: a lot's freight, kegs and wheels together) may touch; else each entry its own.
+	_group = hash(lot_id + "/" + String(e.pile)) if e.has("pile") else _group + 1
 	if e.has("kit"):
 		var n := int(e.get("n", 1))
 		var rows := int(e.get("rows", 1))
@@ -207,11 +243,15 @@ func _check(rect: Rect2, xf: Transform3D, lot_id: String, what: String, stacked 
 	if stacked:
 		return true
 	var mine := _corners(rect, xf)
-	for other: PackedVector2Array in _placed:
-		if _overlap(mine, other):
-			skipped.append("%s: %s at (%.1f, %.1f) (on another thing)" % [lot_id, what, xf.origin.x, xf.origin.z])
+	var grown := _corners(rect.grow(GAP_M * 0.5), xf)
+	for other: Array in _placed:
+		# Its own entry's things may touch (a row of crates, a rail's horses); another's stands off by
+		# GAP_M or touches nothing: no slot a man walks into and sticks (#1304: a wagon and the jail's horses).
+		var hit := _overlap(mine, other[0]) if other[2] == _group else _overlap(grown, other[1])
+		if hit:
+			skipped.append("%s: %s at (%.1f, %.1f) (on or too near another thing)" % [lot_id, what, xf.origin.x, xf.origin.z])
 			return false
-	_placed.append(mine)
+	_placed.append([mine, grown, _group])
 	return true
 
 

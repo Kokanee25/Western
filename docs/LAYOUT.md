@@ -874,6 +874,14 @@ timed (`--real`, `--sdfgi=on|off`, `--limit-ms=` for a real GPU) with the spikes
   `<id>_back`, `back@x`, `rear@x`, `ns@z`, `creek@x`, split where long or the ground rises over
   0.3 m (`a>b~k`); a viewpoint on a walk is linked to its door. `ValleyMarkers.surface(x, z)`: a
   walk's planks or the ground. `tests/test_valley_town.gd` walks every door and passage.
+- **Main Street dressed** (#1304, art's): `ValleyStreetDressing` (`src/art/valley_street_dressing.gd`,
+  ValleyWorld's `MainStreetDressing`, made after RideThere; `-- --no-street-dress` leaves it out) from
+  `config/valley_street.json` (its own file: an edit to valley.json means re-baking the heights and ground
+  map): `lots` by lot id (`along` from x0, `out` off the front, minus into the street) and `street` (`x`, `z`).
+  Kinds `kit`, `rail` (with `horses`), `trough`, `wagon` (with `team`), `horse`. Nothing within `clear_m`
+  of a town link (the door flights' and passages' crossings at each door x, the walks' door-to-door line
+  0.6 m off the fronts, the spine) or on another thing: `skipped` says what and where. Wagons stand tilted
+  to the ground's slope (`_on_ground`). Unseen horses (off screen or past 60 m) hold their pose (`_wake`).
 - **Buildings from their specs** (#765): a town lot's `spec` (the building lab's format, the doctor's
   first) is built on it by `ValleyWorld._make_buildings` in place of its block (ValleyMarkers skips it),
   its floor at its walk's top; a lot's `pad` {y, x, z, blend} is dug level into the bake
