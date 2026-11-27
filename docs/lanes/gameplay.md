@@ -29,23 +29,19 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 - **Playtest faults (#1095-#1125)** built. Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds; the
   bridge's `tend` on an unhurt man kicks; the slowdown after dynamite and fire.
 - Story: #744, STORY.md; the bible #809.
-- **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-10: day and book, roster,
-  spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
-  the barks (`TownRegard`, `TownBarks`), the saloon as a room (#1157: `SaloonRoom`, bridge `read room`).
-  **Step 11, the gate** (#1162; `docs/playtests/2026-11-23-town-4.md`): not passed blind; #1213 fixed its last
-  faults, then Sean plays it himself (#1208). **#1230: the evening is in saloon B** (Sean on #755): the set is the
-  building's own (`set.hall`, `_bind_hall_set`: its bar, `no_law_table` and chairs by compass, the piano corner; the
-  band's ordinary nights there), the barkeep behind its bar day and night, the spots its use points, ways
-  `saloonb_*` (each swept straight: a test); No Law in by the corner door, out down the front steps; twelve fit.
-  Facts still say "yard" (`nolaw.seen_from`, `nolaw.earl_died`). Unjudged on screen: the walks, the room. Open: the
-  room's sounds are synth stand-ins (#807); no argument, round bought or song called for; react.fight*, body_child,
-  kett.meal untriggered; nobody carries the body.
-  A spot's `hall` is its building for the barks (`bark_ctx`, #1240: hall spots had lost the saloon's lines).
-- **Every verb gets an answer** (DESIGN §2 pillar 6; #1272 step 1 the shove and the shot, #1279 step 2 the card
-  table): the bench `experiments/answers/` (README: the table a verb, before and after). The table (LAYOUT CardGame
-  "The table answers you"): fire raises, G sat calls a cheat; each verb a line at once, `you_did` -> regard and
-  TownNews `table` (a pot, a bluff shown up, a cheat called told later). Still flat: standing close (nothing), the
-  barkeep's "Don't shoot!" over and over; the bench's "said" column counts the table's own game talk too.
+- **Townsfolk** (#850; `docs/briefs/townsfolk.md`; LAYOUT "src/people"): steps 2-10 done (book, roster, spots,
+  `Reaction`, `FetchHelp`, `TownNews`, `TownScript` (Script OK waiting on Sean, #1150), `TownRegard`, `TownBarks`,
+  `SaloonRoom`). Step 11's gate (#1162) not passed blind; Sean plays it himself (#1208). **The evening is in saloon B**
+  (#1230: `set.hall`, `_bind_hall_set`, ways `saloonb_*`). Facts still say "yard" (`nolaw.seen_from`,
+  `nolaw.earl_died`). Open: the room's sounds are synth stand-ins (#807); react.fight*, body_child, kett.meal
+  untriggered; nobody carries the body. A spot's `hall` is its building for the barks (#1240).
+- **Every verb gets an answer** (DESIGN §2 pillar 6; #1272, #1279 the card table): bench `experiments/answers/`.
+  Still flat: standing close (nothing), the barkeep's "Don't shoot!" over and over.
+- **The real card game** (#1294; LAYOUT CardGame "The real game", PlayerCards; `tests/test_card_play.gd`): an 1880s
+  deck (`PlayingCards`, `draw_cards.py`), your cards face down till lifted (aim or look down), your bets (Space call,
+  C fold, click raise by W/S's amount within `limit`) and draw (A/D, Space mark, click; 4 keeping an ace), men by
+  honest odds (`Poker.equity`, spread over frames) and natures (Earl bluffer/stare, drifter reckless/chips). Unjudged
+  on a real screen: the hand's pose round the fan. Open: no cheating by you; the men read nothing of your tells.
 
 - **The drink** (#1292; LAYOUT "src/player" PlayerPurse/PlayerDrink, "src/people" the bar; `config/drink.json`):
   a purse (saved; the card stake from it), E at saloon B's bar (tap whiskey, hold beer/the bottle, G a round), the

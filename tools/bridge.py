@@ -4,7 +4,7 @@
 Start the game with the bridge, send it commands, stop it:
 
     python3 tools/bridge.py start [--size=960x540] [--headless] [--port=8737] [--fps=N] [--movie=OUT.avi]
-        [--game-args=--young-town,...] [--render-thread=on]   (the old town unless --game-args=--world=valley or a story --mission=)
+        [--game-args=--young-town,...] [--render-thread=on] [--driver=opengl3]   (the old town unless --game-args=--world=valley or a story --mission=)
     python3 tools/bridge.py "goto saloon_porch" "look saloon_door" "screenshot /tmp/a.png"
     python3 tools/bridge.py -f script.txt          # one command a line, # comments
     python3 tools/bridge.py stop
@@ -63,7 +63,10 @@ def start(args):
     if _opt(args, "headless"):
         cmd += ["--headless"]
     else:
-        cmd = ["xvfb-run", "-a", "-s", "-screen 0 %sx24" % size] + cmd + ["--rendering-driver", "vulkan"]
+        # --driver=opengl3: saloon B at night crashes lavapipe's Vulkan (#1260); GL draws it.
+        cmd = ["xvfb-run", "-a", "-s", "-screen 0 %sx24" % size] + cmd + ["--rendering-driver", _opt(args, "driver", "vulkan")]
+        if _opt(args, "driver") == "opengl3":
+            cmd += ["--rendering-method", "gl_compatibility"]
         cmd += ["--resolution", size]
     fps = _opt(args, "fps")
     movie = _opt(args, "movie")

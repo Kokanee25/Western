@@ -116,7 +116,8 @@ func _physics_process(delta: float) -> void:
 	if holding() and gun_out():
 		drop()  # a gun drawn: the glass goes (the left hand to the gun, or just out of it)
 	_e_input(delta)
-	if holding() and player.input_enabled and Input.is_action_just_pressed(&"fire") and not gun_out():
+	if holding() and player.input_enabled and Input.is_action_just_pressed(&"fire") and not gun_out() \
+			and not (player.cards and player.cards.claims_fire()):  # (#1294: fire's the card table's on your turn)
 		sip()
 	_sip_step(delta)
 	_pose()
