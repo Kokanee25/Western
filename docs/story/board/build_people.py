@@ -225,20 +225,32 @@ def build():
         also.setdefault(b, []).append(a)
 
     # The town's script lines that carry a person and a place (#1293 adds them).
-    script = {}
+    # A line with `ex` is one turn of an overheard exchange (#1293): shown whole, in order, on each
+    # speaker's page under its place and in the place's own view; `story` ones wait on Sean's OK.
+    script, exchanges = {}, {}
     if os.path.exists(TOWN):
         for sc in json.load(open(TOWN, encoding='utf-8')).get('scenes', []):
             for ln in sc.get('lines', []):
                 if ln.get('who') in P and ln.get('place') in places:
                     w = ln.get('words')
                     w = w if isinstance(w, str) else (w[0].get('text') if w and isinstance(w[0], dict) else (w[0] if w else ''))
-                    script.setdefault(ln['who'], []).append({'id': ln['id'], 'place': ln['place'], 'words': w,
-                                                             'to': ln.get('to'), 'when': ln.get('when'), 'src': 'town'})
+                    row = {'id': ln['id'], 'place': ln['place'], 'words': w, 'to': ln.get('to'), 'when': ln.get('when'),
+                           'src': 'town'}
+                    if ln.get('ex'):
+                        row.update({'ex': ln['ex'], 'delivery': ln.get('delivery') or '', 'story': bool(ln.get('story')),
+                                    'pid': ln['who']})
+                        e = exchanges.setdefault(ln['ex'], {'id': ln['ex'], 'place': ln['place'], 'when': ln.get('when') or '',
+                                                            'story': bool(ln.get('story')), 'cast': [], 'lines': []})
+                        e['lines'].append(row)
+                        if ln['who'] not in e['cast']:
+                            e['cast'].append(ln['who'])
+                    script.setdefault(ln['who'], []).append(row)
 
     hours = {pid: hours_at(day_kinds(roster[pid]).get('ordinary') or [], spots) if pid in roster and day_kinds(roster[pid]) else {}
              for pid in P}
     label = lambda pid: P[pid].get('name') or P[pid]['role']
-    out_people, by_place = {}, {t: {'place': t, 'label': places[t], 'who': [], 'lines': []} for t in places}
+    out_people, by_place = {}, {t: {'place': t, 'label': places[t], 'who': [], 'lines': [],
+                                    'exchanges': [e for e in exchanges.values() if e['place'] == t]} for t in places}
     for pid, p in P.items():
         man = roster.get(pid)
         kinds = day_kinds(man) if man else {}
@@ -274,7 +286,8 @@ def build():
                 if o or told:
                     mates.append({'id': oid, 'name': label(oid), 'hours': span(*o) if o else ''})
             mine = [ln for ln in lines if ln['place'] == t]
-            groups.append({'place': t, 'label': places[t], 'when': when, 'with': mates, 'lines': mine})
+            groups.append({'place': t, 'label': places[t], 'when': when, 'with': mates, 'lines': mine,
+                           'exchanges': [e for e in exchanges.values() if e['place'] == t and pid in e['cast']]})
             by_place[t]['who'].append({'id': pid, 'name': label(pid), 'role': p['role'], 'when': when, 'n': len(mine)})
             for ln in mine:
                 by_place[t]['lines'].append(dict(ln, pid=pid))

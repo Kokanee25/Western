@@ -2049,7 +2049,20 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   `clear_far`; again after `group_again_s` if you stay, #1184). `_talk_step`: his news, else No Law's set (wins;
   the same limits; from `near_m`), else a `pass` bark (from `bark_m`). `_chat_step` (#1184, data `chat`): two calm
   day men by each other in your hearing: a `chat` line, a `chat.reply` a beat on (`_later`; none if the first's gone). A `talk` with nobody near
-  waits looking about (`SpotChore.alone_s`); a round moves on after `chat.alone_s` (#1230). **A shove answered** (#1272):
+  waits looking about (`SpotChore.alone_s`); a round moves on after `chat.alone_s` (#1230).
+  **Things to listen to** (#1293; `Overheard`, `src/people/overheard.gd`, data `overheard`; `tests/test_overheard.gd`):
+  two or three men by each other hold an exchange of the town's script (scenes `heard.*`: lines sharing an `ex`, each
+  `who` to `to` with a `delivery`, cast by person, tagged with a people.json `place`; `TownScript.exchanges()`). It
+  starts with its cast in play, calm, at spots carrying its place (`tags_of`, data `tags`) and within `talk_m`, you
+  within `start_m`; its first line's `if` (`on: heard`; hour, day, fact, regard, once) asked of the opener
+  (`TownBarks.holds`). Lines go out as `Events.overheard(speaker, text, info)` on the physics frame (`flush`):
+  `info.clarity` by distance and walls (`clarity_at`, Sight), `to`, `delivery`, `exchange`, `line`; FaceSpeech moves
+  his mouth; `PlayerWounds._on_overheard` shows it on its own line, words dropping out below `full_at` (`garbled`).
+  Heard ones aren't held again that town day (`heard_day`, in the save), never-heard first. Stopped by a shot, your
+  shout, a man of it not calm or saying something else (`ended`: why); stood at their elbow one may turn to you
+  (`heard.you`). The card table's are started between hands (`CardGame.between_talk` -> `table_break`), the band's
+  between tunes. The one-line `chat` goes out the same way (`murmur`). Bench: `experiments/overheard/` (run.py: what
+  you hear in four game hours at the bar, the back table, the porch, the store's walk, walking the street). **A shove answered** (#1272):
   the man shoved always knows it (even from behind), turns (`show_look`) and speaks up; everyone who saw it looks, the
   first `ROUGH_SPEAK` (2) by distance say `react.shove` (`CivilianBrain._saw_shove`); one shove seen turns a man cold
   (data `regard.deeds.shove`). Bark ctx `indoors` (a hall spot, at home, or in the saloon room): `react.inside` is out of
