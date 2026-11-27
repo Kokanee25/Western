@@ -40,3 +40,10 @@ python3 experiments/street_width/sheet.py experiments/street_width/results
 ```
 
 `results/<view>_<hour>.jpg`: A | B | C, 800 px each. `results/critic.md`: the blind critic on them.
+
+## D: the street dressed for real (#1304)
+
+Sean kept A's width (#1301). The game now dresses Main Street itself (`ValleyStreetDressing`,
+`config/valley_street.json`): `shots.py build/sw/D` renders it as the game is (C's `--dress` stand-in would
+now double it). `sheet_dressed.py experiments/street_width/dressed` puts A (#1295's render) beside D;
+`dressed/critic.md` is the blind critic. Sean's call on #1307.

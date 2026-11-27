@@ -36,7 +36,7 @@ session (no history: that goes in `docs/status/` and the PR). Keep under 10 KB (
   (`critic.py cheap`, `--refs=<Studio>/references`) for whole views. Judges vary about a grade run to run.
 
 ## Open
-- **Main Street's width** (#1295): three looks in `experiments/street_width/` (A 20.1 m, B 16 m, C dressed); Sean's pick on #1301; nothing moved till then.
+- **Main Street dressed** (#1304, PR #1306): `ValleyStreetDressing` from `config/valley_street.json`, kept off the ways, folk spots, slots; its props rest (`KitProp.rests`). Sheets `experiments/street_width/dressed/`; Sean's call on width (A kept or B) on #1307. Traps: spots' ways to the steps' head, not the door; wagons stand on 4 of 5 feet.
 - **The builder is in the game** (R1, #975): `src/structures/spec_building.gd` (+ stair, marks, stone), specs in
   `config/buildings/`; the lab (`experiments/building_lab/`) loads them from there. New buildings: add a spec there.
 - **Buildings in mission order** (#765): doctor's office done, in his paints (`experiments/building_lab/doctor/`,
