@@ -57,6 +57,8 @@ var sleep: PlayerSleep
 ## Money in your pocket and a drink in your hand (#1292).
 var purse: PlayerPurse
 var drink: PlayerDrink
+## Your hand of cards at a card table (#1294).
+var cards: PlayerCards
 
 var _crouch_toggled := false
 var _run_latched := false
@@ -200,6 +202,10 @@ func _arm() -> void:
 	drink.name = "Drink"
 	drink.player = self
 	add_child(drink)
+	cards = PlayerCards.new()
+	cards.name = "Cards"
+	cards.player = self
+	add_child(cards)
 
 
 func revolver() -> RevolverViewmodel:
