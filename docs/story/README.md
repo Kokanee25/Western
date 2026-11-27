@@ -126,7 +126,7 @@ it; every line has a note under it, and each mission has one for the whole of it
 
 ## The people board (Sean's page for going through the people)
 
-**PEOPLE_BOARD_URL**, pinned in Sean's claude.ai sidebar (#1309, Sean 2026-11-27: "each character has its own
+**https://claude.ai/artifact/2FKryCBxoS8bhGegoFLR38**, pinned in Sean's claude.ai sidebar (#1309, Sean 2026-11-27: "each character has its own
 individual slide for review"). It is [`people.json`](people.json) as a page: everyone in a list (the townsfolk, Sean's own,
 the missions' people), each on his own page (the whole sheet; his day from `config/valley_folk.json`, in words; his lines
 grouped by where you meet him, with the hours he's there and who's there with him), and a view by place (the saloon's

@@ -1,6 +1,6 @@
 {
   "_doc": "The people of Salt Creek (#1309, Sean 2026-11-27): one sheet a person, keyed by the roster's id (config/valley_folk.json's `id`: the game, the missions and the tests use those ids, so a name is a field here, never a new id). `aliases`: roster ids that are the same man as another entry. Each sheet: `kind` (townsfolk: this file's proposal, Sean's to OK on the People board; cast: a mission's character, only what the bible fixes, not renamed; sean: written by Sean, his facts fixed), `role`, `name` (null: roles only, C14 c), `called` (what the town calls him), `who` (one line), `age`, `born`, `from`, `came` (why he came), `work`, `place` (his place in town), `wants`, `secret` (one fear or secret), `likes` / `dislikes` ([{id, why}], ids of this file), `habit` (something the player can see), `talks` (how he talks: plain notes), `voice` (the casting brief), `body` and `clothes` (#1207: a shared body type, clothes by trade), `lines` (samples in his own voice: `id`, `place` (a tag of `places`, the same tag #1293's overheard talk and the game use), `to` (an id, or absent: anyone in earshot), `when` (only if it needs something to have happened), `words`, `src` (cast only: built / script / bible)), `seen` (cast with no day: where the story puts him), `day_proposed` (in words, only for a man not in valley_folk.json yet), `fixed` ({field: where it's fixed}: the bible's or Sean's; every other filled field is PROPOSED by #1309; a null field is open), `notes` (for the next writer). No line says Harlan's name (#1207), but the built ones. The board (docs/story/board/build_people.py, people_board.html) is built from this file and config/valley_folk.json; `python3 docs/story/board/build_people.py --check` checks ids, places and line ids.",
-  "status": "PROPOSED (#1309, 2026-11-27): every townsperson's name and sheet waits on Sean's Person OK on the People board. The cast's sheets hold only what the bible fixes. Claude Bérubé is Sean's (#1207).",
+  "status": "PROPOSED (#1309, 2026-11-27): every townsperson's name and sheet waits on Sean's Person OK on the People board. The cast's sheets hold only what the bible fixes. Claude Bérubé is Sean's (#1207). Read blind once (DIALOGUE.md section 4) on 2026-11-27 and re-worded: buttons, threes and writer's jokes cut, the voices pulled apart.",
   "assumed": [
     "The railroad reached Salt Creek in 1881: Claude Bérubé hauled his press in by freight wagon in 1880 (Sean, #1207), and the trains run in the missions. The teamster's and the livery man's sheets lean on it.",
     "The general store holds the valley's mail (most stores of the time did): the storekeeper's wife's sheet leans on it.",
@@ -26,613 +26,2153 @@
     "depot": "The depot",
     "out": "Out of town (the ranches, the mine, the creek, the roads)"
   },
-  "aliases": {"preacher": "churchman", "foreman": "stranger"},
+  "aliases": {
+    "preacher": "churchman",
+    "foreman": "stranger"
+  },
   "people": {
     "barkeep": {
-      "kind": "cast", "role": "Barkeep (owns the saloon)", "name": null, "called": "the barkeep; nobody in a script names him",
+      "kind": "cast",
+      "role": "Barkeep (owns the saloon)",
+      "name": null,
+      "called": "the barkeep; nobody in a script names him",
       "who": "Owns the saloon, hears everything, and sells it to whoever pays.",
-      "age": 46, "born": 1836, "from": "Peoria, Illinois, a distillery town",
+      "age": 46,
+      "born": 1836,
+      "from": "Peoria, Illinois, a distillery town",
       "came": "Sold whiskey out of a tent to the railroad's graders and stayed when the camp turned into a street; the saloon and its new dance hall are his.",
-      "work": "Behind his bar from ten in the morning till three; he never leaves it.", "place": "The saloon; sleeps over it.",
+      "work": "Behind his bar from ten in the morning till three; he never leaves it.",
+      "place": "The saloon; sleeps over it.",
       "wants": "To be paid: for the chair, for the glass, for what he heard. Tonight, his four dollars.",
       "secret": "What he was paid not to see. He takes the foreman's money to look into the till at the right moment, and he hasn't asked himself what for.",
-      "likes": [{"id": "earl", "why": "Never once took a drink on the house: he'd pour it and Earl would leave the dime."}, {"id": "saloon_girl", "why": "She brings the room to the bar and never drinks his profit."}],
-      "dislikes": [{"id": "loudmouth", "why": "Thirty-one dollars on the slate, worked off in gossip."}, {"id": "claude", "why": "Prints for a nickel what he sells for a dollar."}, {"id": "cody", "why": "Breaks furniture."}],
-      "habit": "Prices whatever a man is leaning on. Wipes the bar toward himself, as if raking it in.",
-      "talks": ["Aggrieved and quick; every sentence has a sum in it.", "Calls every man by his name: he knows them all.", "Swears by Jesus and God, in front of anybody."],
-      "voice": "Forties; a nasal Midwestern voice that rises when he's upset.", "body": "skinny", "clothes": "White shirt, black vest, sleeve garters, an apron he wipes his hands on.",
-      "lines": [
-        {"id": "barkeep.built.chair", "place": "saloon.bar", "to": "cody", "when": "night 1, No Law", "words": "Jesus, Cody, my chair!", "src": "built"},
-        {"id": "barkeep.built.fetch", "place": "saloon.bar", "when": "night 1, No Law", "words": "Somebody ought to fetch the... hell. Ain't nobody left to fetch.", "src": "built"},
-        {"id": "barkeep.script.dime", "place": "saloon.bar", "when": "after Earl", "words": "Never once took a drink on the house. I'd pour it and he'd leave the dime.", "src": "script"},
-        {"id": "barkeep.three", "place": "saloon.bar", "to": "miner", "words": "That's three, Jory. I'm counting if you ain't."},
-        {"id": "barkeep.glass", "place": "saloon.bar", "words": "Glass costs me eleven cents landed. Set it down like you paid for it."},
-        {"id": "barkeep.slate", "place": "saloon.bar", "to": "loudmouth", "words": "Thirty-one dollars, Rufe. I got it wrote down in two places."},
-        {"id": "barkeep.window", "place": "saloon.bar", "to": "saloon_girl", "words": "Kitty. Table by the window's got money and no company."}
+      "likes": [
+        {
+          "id": "earl",
+          "why": "Never once took a drink on the house: he'd pour it and Earl would leave the dime."
+        },
+        {
+          "id": "saloon_girl",
+          "why": "She brings the room to the bar and never drinks his profit."
+        }
       ],
-      "fixed": {"role": "VOICES.md, The barkeep", "name": "roles only (C14 c): he is in No Law's script, so no name until Sean gives one", "who": "DESIGN.md: 'hears everything, sells it to whoever pays'", "secret": "VOICES.md: 'What he was paid not to see' (whether he knows the stranger for the foreman is the script's, K11)", "talks": "VOICES.md"},
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Thirty-one dollars on the slate, worked off in gossip."
+        },
+        {
+          "id": "claude",
+          "why": "Prints for a nickel what he sells for a dollar."
+        },
+        {
+          "id": "cody",
+          "why": "Breaks furniture."
+        }
+      ],
+      "habit": "Prices whatever a man is leaning on. Wipes the bar toward himself, as if raking it in.",
+      "talks": [
+        "Aggrieved and quick; every sentence has a sum in it.",
+        "Calls every man by his name: he knows them all.",
+        "Swears by Jesus and God, in front of anybody."
+      ],
+      "voice": "Forties; a nasal Midwestern voice that rises when he's upset.",
+      "body": "skinny",
+      "clothes": "White shirt, black vest, sleeve garters, an apron he wipes his hands on.",
+      "lines": [
+        {
+          "id": "barkeep.built.chair",
+          "place": "saloon.bar",
+          "to": "cody",
+          "when": "night 1, No Law",
+          "words": "Jesus, Cody, my chair!",
+          "src": "built"
+        },
+        {
+          "id": "barkeep.built.fetch",
+          "place": "saloon.bar",
+          "when": "night 1, No Law",
+          "words": "Somebody ought to fetch the... hell. Ain't nobody left to fetch.",
+          "src": "built"
+        },
+        {
+          "id": "barkeep.script.dime",
+          "place": "saloon.bar",
+          "when": "after Earl",
+          "words": "Never once took a drink on the house. I'd pour it and he'd leave the dime.",
+          "src": "script"
+        },
+        {
+          "id": "barkeep.three",
+          "place": "saloon.bar",
+          "to": "miner",
+          "words": "That's three, Jory. I'm counting if you ain't."
+        },
+        {
+          "id": "barkeep.glass",
+          "place": "saloon.bar",
+          "words": "God damn it, Rufe, set it down like you paid for it. Them glasses is nine cents landed."
+        },
+        {
+          "id": "barkeep.slate",
+          "place": "saloon.bar",
+          "to": "loudmouth",
+          "words": "Thirty-one dollars, Rufe. I got it wrote down in two places."
+        },
+        {
+          "id": "barkeep.window",
+          "place": "saloon.bar",
+          "to": "saloon_girl",
+          "words": "Kitty. Table by the window's got money and no company."
+        }
+      ],
+      "fixed": {
+        "role": "VOICES.md, The barkeep",
+        "name": "roles only (C14 c): he is in No Law's script, so no name until Sean gives one",
+        "who": "DESIGN.md: 'hears everything, sells it to whoever pays'",
+        "secret": "VOICES.md: 'What he was paid not to see' (whether he knows the stranger for the foreman is the script's, K11)",
+        "talks": "VOICES.md"
+      },
       "notes": "Everything else (Peoria, the tent, the sums) is proposed. He calls the townsfolk by the names in this file."
     },
     "miner": {
-      "kind": "townsfolk", "role": "Miner (off shift)", "name": "Jory Trembath", "called": "Jory; 'Cousin Jack' to men who don't know him",
+      "kind": "townsfolk",
+      "role": "Miner (off shift)",
+      "name": "Jory Trembath",
+      "called": "Jory; 'Cousin Jack' to men who don't know him",
       "who": "A Cornish hard-rock man, thirty-nine years underground, who drinks his shift down at the bar and knew what Earl was.",
-      "age": 53, "born": 1829, "from": "St Just, Cornwall; tin at fourteen",
+      "age": 53,
+      "born": 1829,
+      "from": "St Just, Cornwall; tin at fourteen",
       "came": "Tin failed at home. Copper on the Keweenaw, then gold at Central City, then wherever the rock was hard and the pay in coin: Salt Creek's silver, three years now.",
-      "work": "Double-jack man and powder man at the silver mine; in town when he's off shift.", "place": "A bed at the hotel; the bar of an afternoon, and its south end from seven.",
+      "work": "Double-jack man and powder man at the silver mine; in town when he's off shift.",
+      "place": "A bed at the hotel; the bar of an afternoon, and its south end from seven.",
       "wants": "Passage money for his wife Loveday and their girl, eleven years promised. He sends four pounds home most months.",
       "secret": "The cough. It comes up black, he tells the doctor it's powder smoke, and he keeps it from the shift boss, who'd give his place to a younger man.",
-      "likes": [{"id": "smith", "why": "Draws drill steel the way it should be drawn, and says nothing while he does it."}, {"id": "doctor", "why": "Asks after the cough and doesn't tell."}, {"id": "landlady", "why": "Keeps his bed when he's short."}],
-      "dislikes": [{"id": "loudmouth", "why": "All that wind and never a day under ground."}, {"id": "earl", "why": "A cheat, a dollar at a time; he sat in anyway, for the company."}],
-      "habit": "Knocks twice on wood before he sits or drinks, as he'd sound a timber. Coughs into a blue rag and looks at it.",
-      "talks": ["Slow and heavy, a teacher's patience; 'my son' to any man, 'were' for 'was', 'tis'.", "A miner's word for everything: the drift, the face, timber, giant, bad air.", "Never 'reckon' and never an oath stronger than 'damme'."],
-      "voice": "Fifties, deep, slow, West Cornwall under thirty years of America.", "body": "heavy", "clothes": "Flannel shirt, canvas trousers, braces, heavy boots; candle grease on the hat; ore dust that never washes out.",
-      "lines": [
-        {"id": "miner.dust", "place": "saloon.bar", "to": "barkeep", "words": "Same again, my son. It do lay the dust."},
-        {"id": "miner.drift", "place": "saloon.bar", "words": "Ground's talking in the east drift. 'Tis only settling, timber man says, and him up top with his tea."},
-        {"id": "miner.whistle", "place": "hotel", "words": "There's the whistle. Night shift coming up, and wanting the beds we're hardly out of."},
-        {"id": "miner.letter", "place": "hotel", "to": "landlady", "words": "Letter for St Just goes Thursday, missus. Four pound in it, if the cards leave me be."},
-        {"id": "miner.cough", "place": "doctor", "to": "doctor", "words": "'Tis only the powder smoke, Doctor. Comes up black of a morning and then I'm right."}
+      "likes": [
+        {
+          "id": "smith",
+          "why": "Draws drill steel the way it should be drawn, and says nothing while he does it."
+        },
+        {
+          "id": "doctor",
+          "why": "Asks after the cough and doesn't tell."
+        },
+        {
+          "id": "landlady",
+          "why": "Keeps his bed when he's short."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 12", "talks": "no_law.json's cast: 'a hard-rock man, slow and heavy, a little Cornish' (proposed there)"},
-      "notes": "His one script line stands: 'He were cheating, my son, a dollar at a time, same as ever he did.' (no_law.json)."
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "All that wind and never a day under ground."
+        },
+        {
+          "id": "earl",
+          "why": "A cheat, a dollar at a time; he sat in anyway, for the company."
+        }
+      ],
+      "habit": "Knocks twice on wood before he sits or drinks, as he'd sound a timber. Coughs into a blue rag and looks at it.",
+      "talks": [
+        "Slow and heavy, a teacher's patience; 'my son' to any man, 'tis', 'it do', the surface is 'grass'.",
+        "A miner's word for everything: the drift, the face, timber, giant, bad air.",
+        "Never 'reckon' and never an oath stronger than 'damme'."
+      ],
+      "voice": "Fifties, deep, slow, West Cornwall under thirty years of America.",
+      "body": "heavy",
+      "clothes": "Flannel shirt, canvas trousers, braces, heavy boots; candle grease on the hat; ore dust that never washes out.",
+      "lines": [
+        {
+          "id": "miner.dust",
+          "place": "saloon.bar",
+          "to": "barkeep",
+          "words": "Same again, my son. It do lay the dust."
+        },
+        {
+          "id": "miner.drift",
+          "place": "saloon.bar",
+          "words": "Ground's talking in the east drift. Only settling, timber man says, and him up to grass by ten every morning."
+        },
+        {
+          "id": "miner.whistle",
+          "place": "hotel",
+          "words": "There's the whistle. Night shift coming up, and wanting the beds we're hardly out of."
+        },
+        {
+          "id": "miner.letter",
+          "place": "hotel",
+          "to": "landlady",
+          "words": "Letter for St Just goes Thursday, missus. Four pound in it, if the cards leave me be."
+        },
+        {
+          "id": "miner.cough",
+          "place": "doctor",
+          "to": "doctor",
+          "words": "'Tis only the powder smoke, Doctor. Comes up black of a morning and then I'm right."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 12",
+        "talks": "no_law.json's cast: 'a hard-rock man, slow and heavy, a little Cornish' (proposed there)"
+      },
+      "notes": "His one script line stands: 'He were cheating, my son, a dollar at a time, same as ever he did.' (no_law.json). 'He were' there is the script's wording (proposed there); the blind reader says Cornish runs 'they was', 'I be': to look at when that script is next read."
     },
     "rancher": {
-      "kind": "townsfolk", "role": "Rancher", "name": "Anselmo Gallegos", "called": "Don Anselmo by those who know him; 'the Mexican' by those who don't",
+      "kind": "townsfolk",
+      "role": "Rancher",
+      "name": "Anselmo Gallegos",
+      "called": "Don Anselmo by those who know him; 'the Mexican' by those who don't",
       "who": "A New Mexican stockman whose family ran sheep on the creek before there was a town, and who sold the Baron his first meadow.",
-      "age": 55, "born": 1827, "from": "Abiquiú, New Mexico; north to the Conejos with his father's sheep in the fifties",
+      "age": 55,
+      "born": 1827,
+      "from": "Abiquiú, New Mexico; north to the Conejos with his father's sheep in the fifties",
       "came": "Brought the flock over into this valley about 1860, when the grass was anybody's. He has been here longer than anyone in town.",
-      "work": "Sheep and a few cattle on his place, eleven miles south. In town for the store and the livery of an afternoon, one drink at night.", "place": "The north end of the bar from a quarter past seven; his horse at the store's rail.",
+      "work": "Sheep and a few cattle on his place, eleven miles south. In town for the store and the livery of an afternoon, one drink at night.",
+      "place": "The north end of the bar from a quarter past seven; his horse at the store's rail.",
       "wants": "To leave his sons a place with water on it and a paper the courts will read.",
       "secret": "He sold the Baron the low meadow in 1876, at a fair price. It was the Baron's first ground in the valley, and Anselmo counts it every winter.",
-      "likes": [{"id": "joe", "why": "They speak Spanish together; his father traded with Joe's people."}, {"id": "claude", "why": "The only other Catholic in town; they wait for the same priest twice a year."}, {"id": "liveryman", "why": "Knows a horse."}],
-      "dislikes": [{"id": "loudmouth", "why": "Called him 'the Mexican' across the room. Once."}, {"id": "baron", "why": "He paid in full, and then the creek ran lower."}],
-      "habit": "Takes his hat off indoors and holds it. Stands at the bar; pays in coin, exact, before he drinks.",
-      "talks": ["English is his second language: courteous, complete, few contractions, 'with your permission'.", "A Spanish word before the English one now and then ('acequia', 'compadre'), never for show.", "Never swears in English. Says a hard thing as a courtesy."],
-      "voice": "Fifties, low, a New Mexican's English: careful vowels, unhurried.", "body": "skinny", "clothes": "Short wool jacket, sash, wide flat-crowned hat, tall boots with big-rowelled spurs; everything old and brushed.",
-      "lines": [
-        {"id": "rancher.one", "place": "saloon.bar", "to": "barkeep", "words": "One, and slowly. I have eleven miles, and the horse knows I am old."},
-        {"id": "rancher.father", "place": "saloon.bar", "words": "My father watered sheep on that creek before there was a fence in this valley. Nobody asked him for a paper."},
-        {"id": "rancher.meadow", "place": "saloon.bar", "words": "I sold him the low meadow in 'seventy-six. He paid what I asked. I should have asked him what for."},
-        {"id": "rancher.book", "place": "store", "to": "storekeeper", "words": "Coffee, the Arbuckle's, one sack. And you will write it down, Mr. Hollis, I know. Write it."},
-        {"id": "rancher.fore", "place": "livery", "to": "liveryman", "words": "The left fore, Hiram. He does not complain, so I complain for him."}
+      "likes": [
+        {
+          "id": "joe",
+          "why": "They speak Spanish together; his father traded with Joe's people."
+        },
+        {
+          "id": "claude",
+          "why": "The only other Catholic in town; they wait for the same priest twice a year."
+        },
+        {
+          "id": "liveryman",
+          "why": "Knows a horse."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 13 (his face is the Studio's Mexican rancher)"},
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Called him 'the Mexican' across the room. Once."
+        },
+        {
+          "id": "baron",
+          "why": "He paid in full, and then the creek ran lower."
+        }
+      ],
+      "habit": "Takes his hat off indoors and holds it. Stands at the bar; pays in coin, exact, before he drinks.",
+      "talks": [
+        "English is his second language: courteous, complete, few contractions, 'with your permission'.",
+        "A Spanish word before the English one now and then ('acequia', 'compadre'), never for show.",
+        "Never swears in English. Says a hard thing as a courtesy."
+      ],
+      "voice": "Fifties, low, a New Mexican's English: careful vowels, unhurried.",
+      "body": "skinny",
+      "clothes": "Short wool jacket, sash, wide flat-crowned hat, tall boots with big-rowelled spurs; everything old and brushed.",
+      "lines": [
+        {
+          "id": "rancher.one",
+          "place": "saloon.bar",
+          "to": "barkeep",
+          "words": "One only, and I will take my time with it. The road home is dark past the ford."
+        },
+        {
+          "id": "rancher.father",
+          "place": "saloon.bar",
+          "words": "My father watered sheep on that creek before there was a fence in this valley. Nobody asked him for a paper."
+        },
+        {
+          "id": "rancher.meadow",
+          "place": "saloon.bar",
+          "words": "I sold him the low meadow in 'seventy-six. He paid what I asked, in gold, the same day."
+        },
+        {
+          "id": "rancher.book",
+          "place": "store",
+          "to": "storekeeper",
+          "words": "Coffee. Two pounds of the Arbuckle's. You are writing it, Mr. Hollis? Good."
+        },
+        {
+          "id": "rancher.fore",
+          "place": "livery",
+          "to": "liveryman",
+          "words": "The left fore, Hiram. Look at it for me. He has said nothing, but he is... how is it. Favoring."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 13 (his face is the Studio's Mexican rancher)"
+      },
       "notes": "His father's water was never filed; nothing here gives him a right in the widow's ditch or changes the Baron's plan."
     },
     "earl": {
-      "kind": "cast", "role": "Card player", "name": "Earl", "called": "Earl. Nobody can give his other name.",
+      "kind": "cast",
+      "role": "Card player",
+      "name": "Earl",
+      "called": "Earl. Nobody can give his other name.",
       "who": "The card player Cody kills on night one, in front of the whole saloon.",
-      "age": null, "born": null, "from": null, "came": null,
-      "work": "Cards, at the saloon's table from half past seven.", "place": "The west chair of the card table; in from Back Street. After night one, the undertaker's.",
+      "age": null,
+      "born": null,
+      "from": null,
+      "came": null,
+      "work": "Cards, at the saloon's table from half past seven.",
+      "place": "The west chair of the card table; in from Back Street. After night one, the undertaker's.",
       "wants": null,
       "secret": "He cheats, a dollar at a time, and the table knows it.",
-      "likes": [], "dislikes": [],
+      "likes": [],
+      "dislikes": [],
       "habit": "Leaves the dime for a drink the barkeep meant to stand him.",
-      "talks": ["Caught out and placating; quick to smile, quicker to apologise."],
-      "voice": "Sixties, thin and placating.", "body": null, "clothes": null,
-      "seen": [{"place": "saloon.table", "when": "every night until night one"}, {"place": "undertaker", "when": "the morning after"}],
-      "lines": [
-        {"id": "earl.built.never", "place": "saloon.table", "to": "cody", "when": "night 1, No Law", "words": "Now, Cody, I never...", "src": "built"},
-        {"id": "earl.script.arm", "place": "saloon.table", "when": "carried to the doctor's", "words": "Mind my arm.", "src": "script"}
+      "talks": [
+        "Caught out and placating; quick to smile, quicker to apologise."
       ],
-      "fixed": {"name": "the bible (Earl); the undertaker's line: 'Nobody can give me his other name'", "who": "No Law", "secret": "the miner's script line, and Cody's", "habit": "the barkeep's script line", "talks": "VOICES.md, Smaller voices", "voice": "no_law.json's cast"},
+      "voice": "Sixties, thin and placating.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "saloon.table",
+          "when": "every night until night one"
+        },
+        {
+          "place": "undertaker",
+          "when": "the morning after"
+        }
+      ],
+      "lines": [
+        {
+          "id": "earl.built.never",
+          "place": "saloon.table",
+          "to": "cody",
+          "when": "night 1, No Law",
+          "words": "Now, Cody, I never...",
+          "src": "built"
+        },
+        {
+          "id": "earl.script.arm",
+          "place": "saloon.table",
+          "when": "carried to the doctor's",
+          "words": "Mind my arm.",
+          "src": "script"
+        }
+      ],
+      "fixed": {
+        "name": "the bible (Earl); the undertaker's line: 'Nobody can give me his other name'",
+        "who": "No Law",
+        "secret": "the miner's script line, and Cody's",
+        "habit": "the barkeep's script line",
+        "talks": "VOICES.md, Smaller voices",
+        "voice": "no_law.json's cast"
+      },
       "notes": "Where he's from and what he wanted are open, and his other name stays unknown: the undertaker's book says so."
     },
     "drifter": {
-      "kind": "townsfolk", "role": "Drifter", "name": "Wiley Burdett", "called": "Wiley",
+      "kind": "townsfolk",
+      "role": "Drifter",
+      "name": "Wiley Burdett",
+      "called": "Wiley",
       "who": "A Texas hand between jobs who forks hay for a loft to sleep in and sits across the card table from Earl.",
-      "age": 26, "born": 1856, "from": "Angelina County, East Texas",
+      "age": 26,
+      "born": 1856,
+      "from": "Angelina County, East Texas",
       "came": "Up the trail to Dodge with a herd in 'seventy-nine, then Tascosa, then wherever the talk said there was work. The talk was wrong about Salt Creek too.",
-      "work": "Odd jobs. Forks the livery's stalls at six for his bed; holds up the saloon's porch post till supper.", "place": "The livery's loft, on credit; the card table's east chair at night.",
+      "work": "Odd jobs. Forks the livery's stalls at six for his bed; holds up the saloon's porch post till supper.",
+      "place": "The livery's loft, on credit; the card table's east chair at night.",
       "wants": "A riding job, forty a month and found. He'd take one tomorrow.",
       "secret": "He sold his saddle in Tascosa to eat, and tells it as stolen. A hand without a saddle is nobody's hand, and he knows the Baron's outfit hires men who needn't rope.",
-      "likes": [{"id": "liveryman", "why": "Grumbles and feeds him."}, {"id": "saloon_girl", "why": "Talks to him though she knows what's in his pocket."}],
-      "dislikes": [{"id": "smith", "why": "Keeps offering him a dollar a day to swing a hammer."}, {"id": "cody", "why": "He has ridden with that kind and got out of it once."}],
-      "habit": "Leans on whatever is nearest. Rolls a cigarette and puts it behind his ear for later.",
-      "talks": ["Dry and low, slow East Texas; a joke said without a smile.", "Counts in miles and months' pay; 'I'm out' is his whole card talk.", "Never complains straight: he says what a thing costs."],
-      "voice": "Twenties, low and unhurried, East Texas.", "body": "skinny", "clothes": "Faded shirt, a hand's boots worn over at the heel, spurs he still wears and no horse; hay in his hat brim.",
-      "lines": [
-        {"id": "drifter.forks", "place": "livery", "words": "Forty forkfuls buys me the loft. I counted. He counts different."},
-        {"id": "drifter.saddle", "place": "street", "words": "Saddle? Stolen. Tascosa's full of thieves. I knew most of 'em."},
-        {"id": "drifter.dollar", "place": "saloon.table", "words": "Deal me in light. I got a dollar and it's to see me to Sunday."},
-        {"id": "drifter.sixty", "place": "street", "words": "Baron's outfit's hiring. Sixty a month, and they don't ask can you rope."},
-        {"id": "drifter.lucky", "place": "saloon.table", "to": "earl", "when": "before night one", "words": "Earl, you're luckier than a man your age has any call to be."}
+      "likes": [
+        {
+          "id": "liveryman",
+          "why": "Grumbles and feeds him."
+        },
+        {
+          "id": "saloon_girl",
+          "why": "Talks to him though she knows what's in his pocket."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 14"},
+      "dislikes": [
+        {
+          "id": "smith",
+          "why": "Keeps offering him two dollars a day to swing a hammer."
+        },
+        {
+          "id": "cody",
+          "why": "He has ridden with that kind and got out of it once."
+        }
+      ],
+      "habit": "Leans on whatever is nearest. Rolls a cigarette and puts it behind his ear for later.",
+      "talks": [
+        "Dry and low, slow East Texas; a joke said without a smile.",
+        "Counts in miles and months' pay; 'I'm out' is most of his card talk.",
+        "Never complains straight: he says what a thing costs."
+      ],
+      "voice": "Twenties, low and unhurried, East Texas.",
+      "body": "skinny",
+      "clothes": "Faded shirt, a hand's boots worn over at the heel, spurs he still wears and no horse; hay in his hat brim.",
+      "lines": [
+        {
+          "id": "drifter.forks",
+          "place": "livery",
+          "words": "Forty forkfuls buys me the loft. I counted."
+        },
+        {
+          "id": "drifter.saddle",
+          "place": "street",
+          "words": "Saddle? Stole, in Tascosa. Ask me about something else."
+        },
+        {
+          "id": "drifter.dollar",
+          "place": "saloon.table",
+          "words": "Deal me in light. I got a dollar and it's to see me to Sunday."
+        },
+        {
+          "id": "drifter.sixty",
+          "place": "street",
+          "words": "Baron's outfit's hiring. Sixty a month, and they don't ask can you rope."
+        },
+        {
+          "id": "drifter.lucky",
+          "place": "saloon.table",
+          "to": "earl",
+          "when": "before night one",
+          "words": "Your deal, Earl. Cut 'em where I can see."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 14"
+      },
       "notes": "Built and script lines that stand: 'I'm out.', 'Rode in from Tascosa. Nothing there either.', 'Just holding up the wall. It'd fall without me.' The town script's brief says twenties; No Law's says thirties."
     },
     "fiddler": {
-      "kind": "townsfolk", "role": "Fiddler", "name": "Lemuel Stiles", "called": "Lem; 'Uncle Lem' to the room",
+      "kind": "townsfolk",
+      "role": "Fiddler",
+      "name": "Lemuel Stiles",
+      "called": "Lem; 'Uncle Lem' to the room",
       "who": "An old Arkansas fiddler who has played for dances since before the war and plays the saloon by ear.",
-      "age": 60, "born": 1822, "from": "Izard County, Arkansas, in the White River hills",
+      "age": 60,
+      "born": 1822,
+      "from": "Izard County, Arkansas, in the White River hills",
       "came": "Lost the farm after the war and followed the railroad camps west, a dollar a night and supper. Stopped where the camp did.",
-      "work": "Fiddle at the saloon from seven; on the dance hall's stage with the band on a payday night.", "place": "By the saloon's upright; a cot over the saloon.",
+      "work": "Fiddle at the saloon from seven; on the dance hall's stage with the band on a payday night.",
+      "place": "By the saloon's upright; a cot over the saloon.",
       "wants": "To play out the nights he has left sitting down, and be asked for the old tunes.",
       "secret": "His left hand is stiffening. He soaks it in warm water at the bar before he plays, and he has started to leave out the high part of 'Leather Britches'.",
-      "likes": [{"id": "pianist", "why": "Thirty years younger and can't play without paper; Lem wouldn't play with anyone else."}, {"id": "saloon_girl", "why": "She calls the tunes for him when the room won't."}],
-      "dislikes": [{"id": "barkeep", "why": "Docks him for the nights the room empties early."}],
-      "habit": "Tunes with the fiddle against his jaw and his eyes shut. Keeps time with his left heel.",
-      "talks": ["Little, and old-fashioned: 'I allow', 'a right smart', 'I'd as lief'.", "Names the tune and where he learned it; nothing about himself.", "Rode with an Arkansas regiment and doesn't bring it up."],
-      "voice": "Sixty, thin and cracked, Ozark hills.", "body": "skinny", "clothes": "A black coat gone green at the seams, collarless shirt, a rosin smudge on the left shoulder.",
-      "lines": [
-        {"id": "fiddler.call", "place": "saloon.room", "words": "Call it, then. I got 'Soldier's Joy' and I got 'Leather Britches' and I ain't got all night."},
-        {"id": "fiddler.paper", "place": "saloon.room", "to": "pianist", "words": "You go on and read it off the paper, Professor. I'll be along by ear."},
-        {"id": "fiddler.bowl", "place": "saloon.bar", "to": "barkeep", "words": "Warm water, in a bowl. It ain't to drink. It's for the hand."},
-        {"id": "fiddler.ridge", "place": "saloon.room", "words": "Played that one the night before Pea Ridge. A right smart of that set never heard it again."}
+      "likes": [
+        {
+          "id": "pianist",
+          "why": "Thirty years younger and can't play without paper; Lem wouldn't play with anyone else."
+        },
+        {
+          "id": "saloon_girl",
+          "why": "She calls the tunes for him when the room won't."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 11; #799 (the band's fiddler)"},
+      "dislikes": [
+        {
+          "id": "barkeep",
+          "why": "Docks him for the nights the room empties early."
+        }
+      ],
+      "habit": "Tunes with the fiddle against his jaw and his eyes shut. Keeps time with his left heel.",
+      "talks": [
+        "Little, and old-fashioned: 'I allow', 'a right smart', 'I'd as lief'.",
+        "Names the tune and where he learned it; nothing about himself.",
+        "Rode with an Arkansas regiment and doesn't bring it up."
+      ],
+      "voice": "Sixty, thin and cracked, Ozark hills.",
+      "body": "skinny",
+      "clothes": "A black coat gone green at the seams, collarless shirt, a rosin smudge on the left shoulder.",
+      "lines": [
+        {
+          "id": "fiddler.call",
+          "place": "saloon.room",
+          "words": "Well, call it. 'Soldier's Joy'? I allow I can still find 'Soldier's Joy'."
+        },
+        {
+          "id": "fiddler.paper",
+          "place": "saloon.room",
+          "to": "pianist",
+          "words": "You go on and read it off the paper, Professor. I'll be along by ear."
+        },
+        {
+          "id": "fiddler.bowl",
+          "place": "saloon.bar",
+          "to": "barkeep",
+          "words": "Warm water, in a bowl. It ain't to drink. It's for the hand."
+        },
+        {
+          "id": "fiddler.ridge",
+          "place": "saloon.room",
+          "words": "That's 'Leather Britches'. Had it off my uncle, on the White River. He had it off somebody."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 11; #799 (the band's fiddler)"
+      },
       "notes": "The roster sleeps him at the hotel; valley_folk.json has his home as the saloon. This sheet follows the game's data."
     },
     "pianist": {
-      "kind": "townsfolk", "role": "Piano player", "name": "Augustus Vogel", "called": "the Professor; 'Gus' to nobody but the fiddler",
+      "kind": "townsfolk",
+      "role": "Piano player",
+      "name": "Augustus Vogel",
+      "called": "the Professor; 'Gus' to nobody but the fiddler",
       "who": "A Cincinnati church organist come down to a saloon upright, who stops playing and gets under it when trouble starts.",
-      "age": 44, "born": 1838, "from": "Cincinnati, Ohio, a German cabinet-maker's son from Over-the-Rhine",
+      "age": 44,
+      "born": 1838,
+      "from": "Cincinnati, Ohio, a German cabinet-maker's son from Over-the-Rhine",
       "came": "Played the variety houses in Leadville until a man was shot against the piano he was playing. He took the next stage out, and Salt Creek was where his money stopped.",
-      "work": "Piano at the saloon from seven till one; the stage's upright on a payday night.", "place": "The saloon's piano stool; a room over the saloon.",
+      "work": "Piano at the saloon from seven till one; the stage's upright on a payday night.",
+      "place": "The saloon's piano stool; a room over the saloon.",
       "wants": "A church with an organ and a salary, and Mrs. Rudd's good opinion.",
       "secret": "He is sweet on the landlady and thinks nobody knows. The saloon woman tells everybody.",
-      "likes": [{"id": "landlady", "why": "She keeps a parlor organ and lets him mend it."}, {"id": "fiddler", "why": "Has never once come in on the beat, and is never wrong."}],
-      "dislikes": [{"id": "cody", "why": "Leans on the piano with his gun side."}, {"id": "barkeep", "why": "Won't pay a tuner."}],
-      "habit": "Wipes the keys with a handkerchief before he sits. At a raised voice his hands stop first, and then he looks.",
-      "talks": ["Fussy and proper, complete sentences, 'if you please'; no contractions when he is put out.", "Complains of the instrument and the damp, never of people.", "Never swears. 'Ach' escapes him."],
-      "voice": "Forties, soft, precise; Cincinnati with his father's German behind it.", "body": "heavy", "clothes": "A clean collar every night, striped vest, sleeve garters, coat hung on the piano's end.",
-      "lines": [
-        {"id": "pianist.key", "place": "saloon.room", "words": "The C above middle sticks. It has stuck since August. I have told him, and he asks what a new one costs."},
-        {"id": "pianist.glass", "place": "saloon.room", "words": "Gentlemen, the glass does not go on the instrument. On the floor, if you please."},
-        {"id": "pianist.under", "place": "saloon.room", "words": "If there is to be shooting I will be under here, and the waltz can finish itself."},
-        {"id": "pianist.organ", "place": "hotel", "to": "landlady", "words": "The parlor organ wants only a reed, Mrs. Rudd. I could look at it Sunday. It is no trouble."},
-        {"id": "pianist.leadville", "place": "saloon.room", "to": "fiddler", "words": "In Leadville the house had a Steinway. A man was shot against it, and they had me play it the same night, wet."}
+      "likes": [
+        {
+          "id": "landlady",
+          "why": "She keeps a parlor organ and lets him mend it."
+        },
+        {
+          "id": "fiddler",
+          "why": "Has never once come in on the beat, and is never wrong."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 10; #276: he stops when trouble starts, ducks, and starts again shakily", "secret": "town.json: 'The piano man's sweet on the landlady. Don't say I told you.'"},
+      "dislikes": [
+        {
+          "id": "cody",
+          "why": "Leans on the piano with his gun side."
+        },
+        {
+          "id": "barkeep",
+          "why": "Won't pay a tuner."
+        }
+      ],
+      "habit": "Wipes the keys with a handkerchief before he sits. At a raised voice his hands stop first, and then he looks.",
+      "talks": [
+        "Fussy and proper, a town man's English, 'if you please'; his father's German shows only when he's rattled.",
+        "Complains of the instrument and the damp, never of people.",
+        "Never swears. 'Ach' escapes him."
+      ],
+      "voice": "Forties, soft, precise; Cincinnati with his father's German behind it.",
+      "body": "heavy",
+      "clothes": "A clean collar every night, striped vest, sleeve garters, coat hung on the piano's end.",
+      "lines": [
+        {
+          "id": "pianist.key",
+          "place": "saloon.room",
+          "words": "The C above middle sticks. It's stuck since the wet weather. I told him, and he asked me what a new one costs."
+        },
+        {
+          "id": "pianist.glass",
+          "place": "saloon.room",
+          "words": "Gentlemen, the glass doesn't go on the instrument. On the floor, if you please."
+        },
+        {
+          "id": "pianist.under",
+          "place": "saloon.room",
+          "words": "That was a chair. Was that a chair? I'll just get down here till somebody tells me."
+        },
+        {
+          "id": "pianist.organ",
+          "place": "hotel",
+          "to": "landlady",
+          "words": "The parlor organ only wants a reed, Mrs. Rudd. I could look at it Sunday. It's no trouble."
+        },
+        {
+          "id": "pianist.leadville",
+          "place": "saloon.room",
+          "to": "fiddler",
+          "words": "In Leadville the house had a Steinway. A man was shot against it, and they had me play it the same night, wet."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 10; #276: he stops when trouble starts, ducks, and starts again shakily",
+        "secret": "town.json: 'The piano man's sweet on the landlady. Don't say I told you.'"
+      },
       "notes": "Sunday is the one day he could go up to the hotel by daylight; his day in the game is nights only, so his hotel line waits for a Sunday block."
     },
     "doctor": {
-      "kind": "cast", "role": "Doctor (the county coroner)", "name": null, "called": "Doc",
+      "kind": "cast",
+      "role": "Doctor (the county coroner)",
+      "name": null,
+      "called": "Doc",
       "who": "The town's one doctor, an educated man gone west; as coroner he is the acting sheriff once the sheriff dies, and keeps Harlan on.",
-      "age": 48, "born": 1834, "from": null, "came": null,
-      "work": "His dispensary and front room; crosses the street to a call and back.", "place": "The doctor's; sleeps behind the dispensary.",
+      "age": 48,
+      "born": 1834,
+      "from": null,
+      "came": null,
+      "work": "His dispensary and front room; crosses the street to a call and back.",
+      "place": "The doctor's; sleeps behind the dispensary.",
       "wants": "To get back to his patient.",
       "secret": "He knows more about the sheriff's wound than he says. What he keeps back is open in the bible.",
-      "likes": [{"id": "undertaker", "why": "The only other man in town who writes a thing down exactly."}, {"id": "runner", "why": "The boy boils what he's told to boil."}],
+      "likes": [
+        {
+          "id": "undertaker",
+          "why": "The only other man in town who writes a thing down exactly."
+        },
+        {
+          "id": "runner",
+          "why": "The boy boils what he's told to boil."
+        }
+      ],
       "dislikes": [],
       "habit": "Counts: hours, beds, pints. Washes his hands before and after, which is his own habit and not the profession's.",
-      "talks": ["Brisk, whole sentences, no slang, dry.", "The medicine of 1882: the ball, lint, carbolic, laudanum, shock.", "Never says all he knows, and never raises his voice. 'I can do nothing', not 'I'm sorry'."],
-      "voice": "Late forties, an educated Easterner; brisk, quiet, dry.", "body": null, "clothes": null,
-      "lines": [
-        {"id": "doctor.built.packed", "place": "doctor", "when": "day 1, the sheriff brought in", "words": "Somebody packed that wound, and packed it right. That's bought him some hours. Come back tonight.", "src": "built"},
-        {"id": "doctor.script.hang", "place": "doctor", "when": "No Justice", "words": "Bring them in if you like. I never yet saw a white man hang on an Indian's word.", "src": "script"},
-        {"id": "doctor.script.bleeding", "place": "street", "words": "Morning. If you're bleeding, come by. If you're not, good.", "src": "script"},
-        {"id": "doctor.script.cough", "place": "street", "to": "miner", "words": "That cough of yours wants listening to. Come by.", "src": "script"}
+      "talks": [
+        "Brisk, whole sentences, no slang, dry.",
+        "The medicine of 1882: the ball, lint, carbolic, laudanum, shock.",
+        "Never says all he knows, and never raises his voice. 'I can do nothing', not 'I'm sorry'."
       ],
-      "fixed": {"role": "VOICES.md, The doctor; C12 a (coroner, acting sheriff)", "name": "roles only (C14 c)", "who": "VOICES.md", "from": "open in the bible ('from where: O')", "wants": "DIALOGUE.md, the craft, 2", "secret": "DESIGN.md; VOICES.md (s19)", "habit": "VOICES.md ('Counts things'); WORDS.md ('clean is his own habit')", "talks": "VOICES.md; WORDS.md", "voice": "the scripts' cast"},
+      "voice": "Late forties, an educated Easterner; brisk, quiet, dry.",
+      "body": null,
+      "clothes": null,
+      "lines": [
+        {
+          "id": "doctor.built.packed",
+          "place": "doctor",
+          "when": "day 1, the sheriff brought in",
+          "words": "Somebody packed that wound, and packed it right. That's bought him some hours. Come back tonight.",
+          "src": "built"
+        },
+        {
+          "id": "doctor.script.hang",
+          "place": "doctor",
+          "when": "No Justice",
+          "words": "Bring them in if you like. I never yet saw a white man hang on an Indian's word.",
+          "src": "script"
+        },
+        {
+          "id": "doctor.script.bleeding",
+          "place": "street",
+          "words": "Morning. If you're bleeding, come by. If you're not, good.",
+          "src": "script"
+        },
+        {
+          "id": "doctor.script.cough",
+          "place": "street",
+          "to": "miner",
+          "words": "That cough of yours wants listening to. Come by.",
+          "src": "script"
+        }
+      ],
+      "fixed": {
+        "role": "VOICES.md, The doctor; C12 a (coroner, acting sheriff)",
+        "name": "roles only (C14 c)",
+        "who": "VOICES.md",
+        "from": "open in the bible ('from where: O')",
+        "wants": "DIALOGUE.md, the craft, 2",
+        "secret": "DESIGN.md; VOICES.md (s19)",
+        "habit": "VOICES.md ('Counts things'); WORDS.md ('clean is his own habit')",
+        "talks": "VOICES.md; WORDS.md",
+        "voice": "the scripts' cast"
+      },
       "notes": "Only his two likes are proposed here. His cough line to the miner is the town script's; the miner's secret is written to it."
     },
     "storekeeper": {
-      "kind": "townsfolk", "role": "Storekeeper", "name": "Amos Pratt Hollis", "called": "Mr. Hollis; 'Amos' to his wife and the livery man",
+      "kind": "townsfolk",
+      "role": "Storekeeper",
+      "name": "Amos Pratt Hollis",
+      "called": "Mr. Hollis; 'Amos' to his wife and the livery man",
       "who": "Keeps the general store and half the valley's debts, every one of them in the book.",
-      "age": 54, "born": 1828, "from": "Boonville, Missouri",
+      "age": 54,
+      "born": 1828,
+      "from": "Boonville, Missouri",
       "came": "His store at Boonville was cleaned out twice in the war, once by each side. He sold what was left and came out behind the mines in 'seventy-four, to a place nobody had fought over yet.",
-      "work": "The store, seven to half past five; sweeps his walk at six; a drink with the livery man till half past nine.", "place": "The general store, A. P. HOLLIS in gilt on the windows; lives over it.",
+      "work": "The store, seven to half past five; sweeps his walk at six; a drink with the livery man till half past nine.",
+      "place": "The general store, A. P. HOLLIS in gilt on the windows; lives over it.",
       "wants": "The book paid down before the railroad brings a second store.",
       "secret": "Night riders. He has stood behind a counter while armed men helped themselves, and he bars the door at dark and sells to anybody by day, the Baron's men included.",
-      "likes": [{"id": "liveryman", "why": "The one man he drinks with; they argue about the railroad every night and neither moves."}, {"id": "rancher", "why": "Pays in coin and never asks the price twice."}],
-      "dislikes": [{"id": "loudmouth", "why": "Carries his freight and drinks the pay before it's earned."}, {"id": "townsman", "why": "Stands in front of the store all day and buys a collar."}],
-      "habit": "Says the sum aloud, writes it, and says it again. Wets the pencil.",
-      "talks": ["Careful, polite to the penny; a Missouri 'I reckon' and 'directly'.", "Says less when he's frightened, not more.", "Never guesses: 'it's in the book'."],
-      "voice": "Fifties, a Missouri man, dry and careful.", "body": "skinny", "clothes": "Apron, sleeve garters, a pencil behind the ear, spectacles pushed up.",
-      "lines": [
-        {"id": "storekeeper.sum", "place": "store", "words": "Four dollars and ten cents. I'll say it again when I've wrote it, so we both heard."},
-        {"id": "storekeeper.dust", "place": "store", "words": "Dust is free. It's the one thing comes in this store I ain't been billed for."},
-        {"id": "storekeeper.bar", "place": "store", "words": "The bar goes across that door at dark. It did in Boonville and it does here."},
-        {"id": "storekeeper.oil", "place": "saloon.table", "to": "liveryman", "words": "Hiram, you owe me for the lamp oil, and I ain't mentioning it. I'm only saying I ain't."},
-        {"id": "storekeeper.book", "place": "store", "words": "There's eleven hundred dollars on that book, and not forty of it in the drawer."}
+      "likes": [
+        {
+          "id": "liveryman",
+          "why": "The one man he drinks with; they argue about the railroad every night and neither moves."
+        },
+        {
+          "id": "rancher",
+          "why": "Pays in coin and never asks the price twice."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 3", "name": "Sean, #1067: A. P. Hollis, gilded on the windows (what A. P. stands for is proposed)", "talks": "VOICES.md, Smaller voices: 'Careful; everything's written down'"},
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Carries his freight and drinks the pay before it's earned."
+        },
+        {
+          "id": "townsman",
+          "why": "Stands in front of the store all day and buys a collar."
+        }
+      ],
+      "habit": "Says the sum aloud, writes it, and says it again. Wets the pencil.",
+      "talks": [
+        "Careful, polite to the penny; a Missouri 'I reckon' and 'directly'.",
+        "Says less when he's frightened, not more.",
+        "Never guesses: 'it's in the book'."
+      ],
+      "voice": "Fifties, a Missouri man, dry and careful.",
+      "body": "skinny",
+      "clothes": "Apron, sleeve garters, a pencil behind the ear, spectacles pushed up.",
+      "lines": [
+        {
+          "id": "storekeeper.sum",
+          "place": "store",
+          "words": "Four dollars and ten cents. I'll say it again when I've wrote it, so we both heard."
+        },
+        {
+          "id": "storekeeper.dust",
+          "place": "store",
+          "words": "I reckon it'll be on Thursday's cars. Directly it's here I'll send the boy round."
+        },
+        {
+          "id": "storekeeper.bar",
+          "place": "store",
+          "words": "The bar goes across that door at dark. I don't open for a knock, and I don't care whose."
+        },
+        {
+          "id": "storekeeper.oil",
+          "place": "saloon.table",
+          "to": "liveryman",
+          "words": "Hiram, about that lamp oil. No, drink your drink. Saturday'll do."
+        },
+        {
+          "id": "storekeeper.book",
+          "place": "store",
+          "words": "Better than a thousand dollars on that book, and not forty in the drawer."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 3",
+        "name": "Sean, #1067: A. P. Hollis, gilded on the windows (what A. P. stands for is proposed)",
+        "talks": "VOICES.md, Smaller voices: 'Careful; everything's written down'"
+      },
       "notes": "The bible's line stands: 'One handsaw, to a man I never saw before. It's in the book. Everything's in the book.' One of the Colters is called Hollis too (a first name); no kin."
     },
     "store_wife": {
-      "kind": "townsfolk", "role": "Storekeeper's wife", "name": "Lavinia Hollis", "called": "Mrs. Hollis",
+      "kind": "townsfolk",
+      "role": "Storekeeper's wife",
+      "name": "Lavinia Hollis",
+      "called": "Mrs. Hollis",
       "who": "Runs the store's dry goods and the valley's mail, and knows from what people buy what is happening to them.",
-      "age": 47, "born": 1835, "from": "Boonville, Missouri; taught school there before she married",
+      "age": 47,
+      "born": 1835,
+      "from": "Boonville, Missouri; taught school there before she married",
       "came": "With Amos in 'seventy-four. Their one daughter married a railroad clerk and lives in Pueblo.",
-      "work": "The dry-goods side and the mail; two hours a day on the store's bench.", "place": "The general store and its bench; lives over it.",
+      "work": "The dry-goods side and the mail; two hours a day on the store's bench.",
+      "place": "The general store and its bench; lives over it.",
       "wants": "A school in Salt Creek, and to be asked to teach it.",
       "secret": "She reads the smith his sister's letters and writes his answers, in the back of the store with the door shut, and has never told a soul he can't.",
-      "likes": [{"id": "smith", "why": "He listens to a letter the way other men listen to a sermon."}, {"id": "claude", "why": "He prints the children's compositions, and she is the one who collects them."}, {"id": "churchman", "why": "She is most of his congregation."}],
-      "dislikes": [{"id": "landlady", "why": "The other end of the street always has the news first."}, {"id": "saloon_girl", "why": "'Those women'; she sells to her and looks at the shelf while she does it."}],
-      "habit": "Reads a postmark before she hands a letter over. Corrects a child's grammar and gives him the candy anyway.",
-      "talks": ["Plain and brisk, a schoolteacher's grammar; 'I'll thank you to' is a warning.", "Tells what she knows as a thing she happened to notice.", "Never an oath; never a man's first name but her husband's."],
-      "voice": "Forties, clear and quick, Missouri with the schoolroom over it.", "body": "woman, slight", "clothes": "Dark calico, a white collar, an apron with scissors on a ribbon.",
-      "lines": [
-        {"id": "store_wife.crape", "place": "store", "words": "Black crape, two yards. That's the third time this year I've cut it, and it isn't harvest yet."},
-        {"id": "store_wife.letter", "place": "store", "words": "There's a letter come for the smith. Tell him it's here, and tell him I've the time this afternoon."},
-        {"id": "store_wife.peck", "place": "store", "words": "That Mr. Peck has stood in front of this store since March. I have sold him one collar."},
-        {"id": "store_wife.cash", "place": "store", "words": "She pays cash, that girl. That's more than I can say for some who sit in the front pew."},
-        {"id": "store_wife.wick", "place": "store", "to": "storekeeper", "words": "Amos, the man asked for lamp wick, not what you think of the railroad."}
+      "likes": [
+        {
+          "id": "smith",
+          "why": "He listens to a letter the way other men listen to a sermon."
+        },
+        {
+          "id": "claude",
+          "why": "He prints the children's compositions, and she is the one who collects them."
+        },
+        {
+          "id": "churchman",
+          "why": "She is most of his congregation."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 4"},
+      "dislikes": [
+        {
+          "id": "landlady",
+          "why": "The other end of the street always has the news first."
+        },
+        {
+          "id": "saloon_girl",
+          "why": "'Those women'; she sells to her and looks at the shelf while she does it."
+        }
+      ],
+      "habit": "Reads a postmark before she hands a letter over. Corrects a child's grammar and gives him the candy anyway.",
+      "talks": [
+        "Plain and brisk, a schoolteacher's grammar; 'I'll thank you to' is a warning.",
+        "Longer sentences than the landlady's: tells what she knows as a thing she happened to notice.",
+        "Never an oath; never a man's first name but her husband's."
+      ],
+      "voice": "Forties, clear and quick, Missouri with the schoolroom over it.",
+      "body": "woman, slight",
+      "clothes": "Dark calico, a white collar, an apron with scissors on a ribbon.",
+      "lines": [
+        {
+          "id": "store_wife.crape",
+          "place": "store",
+          "words": "Black crape, two yards. That's the third time this year I've cut it, and it isn't harvest yet."
+        },
+        {
+          "id": "store_wife.letter",
+          "place": "store",
+          "words": "There's a letter come for the smith. Tell him it's here, and tell him I have the time this afternoon."
+        },
+        {
+          "id": "store_wife.peck",
+          "place": "store",
+          "words": "Mr. Peck was in again. A paper collar. That makes one a week since March, and never so much as a spool of thread with it."
+        },
+        {
+          "id": "store_wife.cash",
+          "place": "store",
+          "words": "She pays cash, that girl. I will say that for her, and I'll thank you not to repeat it."
+        },
+        {
+          "id": "store_wife.wick",
+          "place": "store",
+          "to": "storekeeper",
+          "words": "Amos, the man asked for lamp wick, not what you think of the railroad."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 4"
+      },
       "notes": "Her pool in the town's script is `townswoman`."
     },
     "liveryman": {
-      "kind": "townsfolk", "role": "Livery man", "name": "Hiram Yount", "called": "Hiram",
+      "kind": "townsfolk",
+      "role": "Livery man",
+      "name": "Hiram Yount",
+      "called": "Hiram",
       "who": "Keeps the livery, counts feed in nickels, and grumbles to hide that he minds.",
-      "age": 56, "born": 1826, "from": "Mason County, Kentucky",
+      "age": 56,
+      "born": 1826,
+      "from": "Mason County, Kentucky",
       "came": "Drove a six-mule team for the Army's quartermaster through the war and freighted the Santa Fe road after it, till the railroad took the road. He bought the livery with what the mules fetched.",
-      "work": "The livery from five in the morning; first up in the street, the last lamp out but the saloon's.", "place": "The livery; sleeps in its harness room.",
+      "work": "The livery from five in the morning; first up in the street, the last lamp out but the saloon's.",
+      "place": "The livery; sleeps in its harness room.",
       "wants": "To see every horse in his barn go out sound and come back the same.",
       "secret": "His eyes are going. At dusk he knows a horse by running a hand down it, and he is afraid of the day somebody notices which stall he walked past.",
-      "likes": [{"id": "storekeeper", "why": "Thirty years of the same argument with different men; this one's the best at it."}, {"id": "drifter", "why": "The boy forks clean and doesn't ask for anything. He'd not say so."}, {"id": "rancher", "why": "Brings a horse in before it's lame, not after."}],
-      "dislikes": [{"id": "smith", "why": "Four shoes owing, and he is reminded of it by everyone but the smith."}, {"id": "loudmouth", "why": "An ox driver. Whips what he can't talk to."}],
-      "habit": "Runs his hand down a horse's near foreleg before he says a word to its rider.",
-      "talks": ["Grumbles; every kindness comes out as a complaint about what it costs.", "Kentucky: 'I mind when', 'ary one'; horses are 'he' and men are 'that fellow'.", "Never says a horse is fine. He says what's wrong with it."],
-      "voice": "Fifties, gravel, northern Kentucky.", "body": "heavy", "clothes": "Collarless shirt, braces, a leather apron for the feet, chaff on everything, an old Army teamster's hat.",
-      "lines": [
-        {"id": "liveryman.off", "place": "livery", "words": "Don't come up on his off side. He's blind there, and so am I, near enough."},
-        {"id": "liveryman.oats", "place": "livery", "words": "Oats is two cents a pound, and that bay eats like a deacon at a burying."},
-        {"id": "liveryman.loft", "place": "livery", "to": "drifter", "words": "Loft ain't a hotel. Fork the far stalls first, they been standing in it."},
-        {"id": "liveryman.cars", "place": "saloon.table", "to": "storekeeper", "words": "Cars'll run clear to the mine by spring, Amos. Then who hires a team? You tell me."},
-        {"id": "liveryman.shoes", "place": "livery", "words": "Smith wants paying for four shoes. He put three on straight."}
+      "likes": [
+        {
+          "id": "storekeeper",
+          "why": "Thirty years of the same argument with different men; this one's the best at it."
+        },
+        {
+          "id": "drifter",
+          "why": "The boy forks clean and doesn't ask for anything. He'd not say so."
+        },
+        {
+          "id": "rancher",
+          "why": "Brings a horse in before it's lame, not after."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 5", "talks": "VOICES.md, Smaller voices: 'Grumbling to hide that he minds'"},
+      "dislikes": [
+        {
+          "id": "smith",
+          "why": "Four shoes owing, and he is reminded of it by everyone but the smith."
+        },
+        {
+          "id": "loudmouth",
+          "why": "An ox driver. Whips what he can't talk to."
+        }
+      ],
+      "habit": "Runs his hand down a horse's near foreleg before he says a word to its rider.",
+      "talks": [
+        "Grumbles; every kindness comes out as a complaint about what it costs.",
+        "Kentucky: 'ary' for any; horses are 'he' and men are 'that fellow'.",
+        "Never says a horse is fine. He says what's wrong with it."
+      ],
+      "voice": "Fifties, gravel, northern Kentucky.",
+      "body": "heavy",
+      "clothes": "Collarless shirt, braces, a leather apron for the feet, chaff on everything, an old Army teamster's hat.",
+      "lines": [
+        {
+          "id": "liveryman.off",
+          "place": "livery",
+          "words": "Come round his near side. He can't see you on the off."
+        },
+        {
+          "id": "liveryman.oats",
+          "place": "livery",
+          "words": "Oats is two cents a pound now. Two cents. And that bay'd eat the manger if I let him."
+        },
+        {
+          "id": "liveryman.loft",
+          "place": "livery",
+          "to": "drifter",
+          "words": "You sleep up there on my say. Fork the far stalls first, they been standing in it."
+        },
+        {
+          "id": "liveryman.cars",
+          "place": "saloon.table",
+          "to": "storekeeper",
+          "words": "Cars'll run clear to the mine by spring, Amos. Then who hires a team? You tell me."
+        },
+        {
+          "id": "liveryman.shoes",
+          "place": "livery",
+          "words": "Four shoes I owe the smith for. He ain't said ary word about it. I wish he would."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 5",
+        "talks": "VOICES.md, Smaller voices: 'Grumbling to hide that he minds'"
+      },
       "notes": "The bible's line stands, for after the funeral: 'That horse is eating my oats, and the man that owned him's in the ground. Somebody ought to take him home to her.' The roster sleeps him in the loft and the drifter there too; here the loft is the drifter's and the harness room his."
     },
     "smith": {
-      "kind": "townsfolk", "role": "Blacksmith", "name": "Eben Stroud", "called": "Stroud; 'Smith' to most",
+      "kind": "townsfolk",
+      "role": "Blacksmith",
+      "name": "Eben Stroud",
+      "called": "Stroud; 'Smith' to most",
       "who": "The blacksmith at the west end: at his fire before anyone is up, proud of his iron, and no hand with a pen.",
-      "age": 44, "born": 1838, "from": "A charcoal-furnace town in Lawrence County, Ohio",
+      "age": 44,
+      "born": 1838,
+      "from": "A charcoal-furnace town in Lawrence County, Ohio",
       "came": "Bound to the furnace's smith at twelve; shod horses for an Ohio cavalry regiment through the war; came out dressing tools for the railroad's graders and stayed for the mine's drill steel.",
-      "work": "The smithy from five: shoes, wagon tires, and sixty drills a day off the mine to be drawn and tempered.", "place": "The smithy at the west end; lives behind it.",
-      "wants": "A striker he can teach the trade to. He has his eye on the drifter's shoulders.",
+      "work": "The smithy from five: shoes, wagon tires, and sixty drills a day off the mine to be drawn and tempered.",
+      "place": "The smithy at the west end; lives behind it.",
+      "wants": "A striker he can teach the trade to, at two dollars a day. He has his eye on the drifter's shoulders.",
       "secret": "He can't read. He signs with his touchmark, a struck S, and Mrs. Hollis reads him his sister's letters.",
-      "likes": [{"id": "store_wife", "why": "She reads a letter twice if he asks, and never looks at him while she does."}, {"id": "miner", "why": "Brings his own steel down and tells him exactly how it broke."}],
-      "dislikes": [{"id": "townsman", "why": "A man with clean hands who wants to sell him a lot."}],
-      "habit": "Looks at the colour of the iron, never at the man talking. Hands a bill back for the other man to read out.",
-      "talks": ["Slow and few; iron, heat and money owed.", "Says a price once. 'I'll make my mark' for signing.", "Never talks about the war, and never says what he thinks of a man."],
-      "voice": "Forties, big and slow-spoken, southern Ohio.", "body": "heavy", "clothes": "Leather apron scorched at the hem, sleeves cut off, soot to the elbows, a cloth cap.",
-      "lines": [
-        {"id": "smith.steel", "place": "smithy", "words": "That's drill steel off the mine. Sixty a day, and they dull 'em faster than I can draw 'em."},
-        {"id": "smith.mark", "place": "smithy", "words": "You read it out. I'll make my mark on it after."},
-        {"id": "smith.cherry", "place": "smithy", "words": "Cherry red, see. Go on to white and it's burnt, and I start over on your dollar."},
-        {"id": "smith.striker", "place": "smithy", "to": "drifter", "words": "You got the shoulders for a striker. Dollar a day. You'd have to turn up."},
-        {"id": "smith.hinges", "place": "smithy", "when": "a burying", "words": "I'll not be up the hill for it. Hinges for the box is mine, tell him. No charge."}
+      "likes": [
+        {
+          "id": "store_wife",
+          "why": "She reads a letter twice if he asks, and never looks at him while she does."
+        },
+        {
+          "id": "miner",
+          "why": "Brings his own steel down and tells him exactly how it broke."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 6; he doesn't walk to the funeral (brief §3)", "secret": "town.json's cast: 'proud of his iron, shy of his letters' (#1184)"},
+      "dislikes": [
+        {
+          "id": "townsman",
+          "why": "A man with clean hands who wants to sell him a lot."
+        }
+      ],
+      "habit": "Looks at the colour of the iron, never at the man talking. Hands a bill back for the other man to read out.",
+      "talks": [
+        "Slow and few; iron, heat and money owed.",
+        "Says a price once. 'I'll make my mark' for signing.",
+        "Never talks about the war, and never says what he thinks of a man."
+      ],
+      "voice": "Forties, big and slow-spoken, southern Ohio.",
+      "body": "heavy",
+      "clothes": "Leather apron scorched at the hem, sleeves cut off, soot to the elbows, a cloth cap.",
+      "lines": [
+        {
+          "id": "smith.steel",
+          "place": "smithy",
+          "words": "That's drill steel off the mine. Sixty a day, and they dull 'em faster than I can draw 'em."
+        },
+        {
+          "id": "smith.mark",
+          "place": "smithy",
+          "words": "You read it out. I'll make my mark on it after."
+        },
+        {
+          "id": "smith.cherry",
+          "place": "smithy",
+          "words": "Cherry red, see. Go on to white and it's burnt, and you pay for the iron twice."
+        },
+        {
+          "id": "smith.striker",
+          "place": "smithy",
+          "to": "drifter",
+          "words": "You got the shoulders for a striker. Two dollars a day. You'd have to turn up."
+        },
+        {
+          "id": "smith.hinges",
+          "place": "smithy",
+          "when": "a burying",
+          "words": "I won't be up the hill for it. Hinges for the box is mine, tell him. No charge."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 6; he doesn't walk to the funeral (brief §3)",
+        "secret": "town.json's cast: 'proud of his iron, shy of his letters' (#1184)"
+      },
       "notes": "His town-script lines stand ('Livery owes me for four shoes. Don't tell him I said.')."
     },
     "landlady": {
-      "kind": "townsfolk", "role": "Hotel's landlady", "name": "Hester Rudd", "called": "Mrs. Rudd (Mrs. Cornelius Rudd, on paper)",
+      "kind": "townsfolk",
+      "role": "Hotel's landlady",
+      "name": "Hester Rudd",
+      "called": "Mrs. Rudd (Mrs. Cornelius Rudd, on paper)",
       "who": "A widow who runs the hotel, feeds the mine's men, and knows who is behind with his board.",
-      "age": 46, "born": 1836, "from": "Lockport, New York, where her mother kept boarders on the canal",
+      "age": 46,
+      "born": 1836,
+      "from": "Lockport, New York, where her mother kept boarders on the canal",
       "came": "Her husband Cornelius built the hotel in 'seventy-seven to board the mine's men, and died of lung fever in its second winter. She kept it open the day of the burying.",
-      "work": "The hotel: the rug over the porch rail at six, three meals, the beds; an hour on the porch at dusk.", "place": "The hotel.",
+      "work": "The hotel: the rug over the porch rail at six, three meals, the beds; an hour on the porch at dusk.",
+      "place": "The hotel.",
       "wants": "The note on the hotel paid, and her boy Caleb in a trade that isn't the mine.",
       "secret": "Cornelius's boots still stand by the kitchen door, blacked, so a caller thinks there is a man in the house.",
-      "likes": [{"id": "miner", "why": "Twenty years her husband's kind of man; she keeps his bed when he's short."}, {"id": "runner", "why": "Her son."}, {"id": "doctor", "why": "Pays the boy and teaches him to wash."}],
-      "dislikes": [{"id": "townsman", "why": "Three weeks behind and a clean collar on."}, {"id": "store_wife", "why": "Has an opinion of the hotel's sheets."}],
-      "habit": "Shakes the rug as if it owed her money. Counts heads at table before she sits.",
-      "talks": ["Brisk and plain, never loud; a New Yorker's 'I guess'.", "Says the rule and the hour, once.", "Never asks a man his business; she tells him what she has noticed."],
-      "voice": "Forties, level, upstate New York; never raised.", "body": "woman, stout", "clothes": "Grey wool, a long apron, sleeves pinned back, keys at the waist.",
-      "lines": [
-        {"id": "landlady.supper", "place": "hotel", "words": "Supper's at six. At ten past it's the dog's, and I haven't a dog."},
-        {"id": "landlady.peck", "place": "hotel", "to": "townsman", "words": "Mr. Peck, you owe me for three weeks, and you've a clean collar on. I notice both."},
-        {"id": "landlady.beds", "place": "hotel", "words": "Thirty-one beds, and the mine sends me men who never slept in one. I guess they learn."},
-        {"id": "landlady.organ", "place": "hotel", "to": "pianist", "words": "You may look at the organ, Mr. Vogel. You'll take your supper in the kitchen for it, same as anybody."},
-        {"id": "landlady.caleb", "place": "hotel", "to": "runner", "words": "Caleb. The doctor's wood box, then the slops. In that order."}
+      "likes": [
+        {
+          "id": "miner",
+          "why": "Twenty years her husband's kind of man; she keeps his bed when he's short."
+        },
+        {
+          "id": "runner",
+          "why": "Her son."
+        },
+        {
+          "id": "doctor",
+          "why": "Pays the boy and teaches him to wash."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 8", "talks": "town.json's cast: 'a widow who runs the hotel; brisk, plain, has fed worse men than these. Never raises her voice'"},
+      "dislikes": [
+        {
+          "id": "townsman",
+          "why": "Three weeks behind and a clean collar on."
+        },
+        {
+          "id": "store_wife",
+          "why": "Has an opinion of the hotel's sheets."
+        }
+      ],
+      "habit": "Shakes the rug as if it owed her money. Counts heads at table before she sits.",
+      "talks": [
+        "Brisk and plain, never loud; a New Yorker's 'I guess'.",
+        "Says the rule and the hour, once, and a man's name first.",
+        "Never asks a man his business; she tells him what she has noticed."
+      ],
+      "voice": "Forties, level, upstate New York; never raised.",
+      "body": "woman, stout",
+      "clothes": "Grey wool, a long apron, sleeves pinned back, keys at the waist.",
+      "lines": [
+        {
+          "id": "landlady.supper",
+          "place": "hotel",
+          "words": "Supper's at six. Six. I don't hold a plate."
+        },
+        {
+          "id": "landlady.peck",
+          "place": "hotel",
+          "to": "townsman",
+          "words": "Mr. Peck. Three weeks, I guess you know. I'll have something on it by Saturday."
+        },
+        {
+          "id": "landlady.beds",
+          "place": "hotel",
+          "words": "Twenty-six beds, and the mine sends me men who never slept in one."
+        },
+        {
+          "id": "landlady.organ",
+          "place": "hotel",
+          "to": "pianist",
+          "words": "You may look at the organ, Mr. Vogel. Supper's in the kitchen for it."
+        },
+        {
+          "id": "landlady.caleb",
+          "place": "hotel",
+          "to": "runner",
+          "words": "Caleb. The doctor's wood box first. Then the slops."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 8",
+        "talks": "town.json's cast: 'a widow who runs the hotel; brisk, plain, has fed worse men than these. Never raises her voice'"
+      },
       "notes": "Her town-script lines stand ('Your room's paid to Friday. After that, we'll see.' is to Mr. Peck's kind)."
     },
     "churchman": {
-      "kind": "townsfolk", "role": "Preacher", "name": "Enoch Hadley", "called": "Reverend; 'Brother Hadley' to his nine",
+      "kind": "townsfolk",
+      "role": "Preacher",
+      "name": "Enoch Hadley",
+      "called": "Reverend; 'Brother Hadley' to his nine",
       "who": "A Methodist circuit man with a church at the top of the lane and nine people in it, who walks Main Street every morning to be seen.",
-      "age": 57, "born": 1825, "from": "Wayne County, Indiana",
+      "age": 57,
+      "born": 1825,
+      "from": "Wayne County, Indiana",
       "came": "Twenty years on horseback round the Kansas circuits; the Conference gave him Salt Creek when his knees gave out, a mining town nobody else asked for.",
-      "work": "The church up Church Lane; one walk down Main Street and back, eight to nine; the buryings.", "place": "The church (north-west, up the lane) and the house beside it.",
+      "work": "The church up Church Lane; one walk down Main Street and back, eight to nine; the buryings.",
+      "place": "The church (north-west, up the lane) and the house beside it.",
       "wants": "A full bench on a Sunday, and a second stove before winter.",
       "secret": "The north side of his roof is the Baron's shingles. He thanks him by name every Sunday, and has begun to wonder what he was bought for.",
-      "likes": [{"id": "store_wife", "why": "She sings, she brings three others, and she tells him who is sick."}, {"id": "undertaker", "why": "Does his part properly and bills the county, not the widow."}],
-      "dislikes": [{"id": "barkeep", "why": "Eleven shutters to his one."}],
-      "habit": "Lifts his hat to every soul, the saloon woman included. Walks with a stick and stops to count things.",
-      "talks": ["Plain and carrying; the old words at a grave and his own in the street.", "Asks; doesn't preach outside his own door.", "Never an oath, and never 'damnation' on a weekday."],
-      "voice": "Fifties, a carrying voice, plain, Indiana; reads the old words without performing them.", "body": "tall", "clothes": "Black coat shiny at the elbows, a white stock, a wide black hat, a blackthorn stick.",
-      "lines": [
-        {"id": "churchman.nine", "place": "street", "to": "storekeeper", "words": "Morning, Mr. Hollis. I counted nine on Sunday. Your wife was four of them."},
-        {"id": "churchman.sunday", "place": "street", "words": "I don't ask what's in the glass. I ask are you coming Sunday. Eleven o'clock, and there's a stove."},
-        {"id": "churchman.shutters", "place": "street", "words": "Eleven shutters on that saloon and one on my church. I walked it off."},
-        {"id": "churchman.shingles", "place": "church", "words": "North side of that roof is the Baron's shingles. I thank him by name every Sunday. I've not yet got through it without a cough."},
-        {"id": "churchman.books", "place": "church", "words": "Hymn-books is eight. Sing off your neighbour's."},
-        {"id": "churchman.built.grave", "place": "graveyard", "when": "the funeral", "words": "Man that is born of a woman hath but a short time to live, and is full of misery. He cometh up, and is cut down, like a flower.", "src": "script"}
+      "likes": [
+        {
+          "id": "store_wife",
+          "why": "She sings, she brings three others, and she tells him who is sick."
+        },
+        {
+          "id": "undertaker",
+          "why": "Does his part properly and bills the county, not the widow."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 9", "talks": "no_law.json's cast: 'a Methodist circuit man; carrying voice, plain, unadorned'"},
+      "dislikes": [
+        {
+          "id": "barkeep",
+          "why": "Eleven shutters to his one."
+        }
+      ],
+      "habit": "Lifts his hat to every soul, the saloon woman included. Walks with a stick and stops to count things.",
+      "talks": [
+        "Plain and carrying; the old words at a grave and his own in the street.",
+        "Asks; doesn't preach outside his own door.",
+        "Never an oath, and never 'damnation' on a weekday."
+      ],
+      "voice": "Fifties, a carrying voice, plain, Indiana; reads the old words without performing them.",
+      "body": "tall",
+      "clothes": "Black coat shiny at the elbows, a white stock, a wide black hat, a blackthorn stick.",
+      "lines": [
+        {
+          "id": "churchman.nine",
+          "place": "street",
+          "to": "storekeeper",
+          "words": "Nine on Sunday, Mr. Hollis, and four of them came in with your wife. Tell her I said so."
+        },
+        {
+          "id": "churchman.sunday",
+          "place": "street",
+          "words": "I don't ask what's in the glass. I ask are you coming Sunday. There's a stove."
+        },
+        {
+          "id": "churchman.shutters",
+          "place": "street",
+          "words": "Eleven shutters on that saloon. I have the one on the church, and it wants a hinge."
+        },
+        {
+          "id": "churchman.shingles",
+          "place": "church",
+          "words": "North side of that roof is the Baron's shingles. I thank him for them by name, every Sunday, out loud."
+        },
+        {
+          "id": "churchman.books",
+          "place": "church",
+          "words": "Hymn-books is eight. Sing off your neighbor's."
+        },
+        {
+          "id": "churchman.built.grave",
+          "place": "graveyard",
+          "when": "the funeral",
+          "words": "Man that is born of a woman hath but a short time to live, and is full of misery. He cometh up, and is cut down, like a flower.",
+          "src": "script"
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 9",
+        "talks": "no_law.json's cast: 'a Methodist circuit man; carrying voice, plain, unadorned'"
+      },
       "notes": "Two roster ids, one man: `churchman` walks the street by day, `preacher` is the funeral's act man (aliases)."
     },
     "saloon_girl": {
-      "kind": "townsfolk", "role": "Saloon woman", "name": "Catherine Dolan", "called": "Kitty",
+      "kind": "townsfolk",
+      "role": "Saloon woman",
+      "name": "Catherine Dolan",
+      "called": "Kitty",
       "who": "Works the saloon's room at night: quick, tired, and able to tell a man's pay from the way he comes through the door.",
-      "age": 24, "born": 1858, "from": "Chicago, the Bridgeport Irish",
+      "age": 24,
+      "born": 1858,
+      "from": "Chicago, the Bridgeport Irish",
       "came": "Burned out in the Fire at thirteen and in service at fourteen; Denver by nineteen, where the wages for a girl in a kitchen were three dollars a week. The barkeep pays a share of every drink she sells.",
-      "work": "The saloon from seven: bar to tables, a dollar for a glass of cold tea, sits with whoever is winning.", "place": "A room over the saloon; its porch for the lamps' hour.",
+      "work": "The saloon from seven: bar to tables, a dollar for a glass of cold tea, sits with whoever is winning.",
+      "place": "A room over the saloon; its porch for the lamps' hour.",
       "wants": "Four hundred dollars and a hat shop in a town where nobody has seen her before.",
       "secret": "A little girl, Nora, four years old, boarded with a carpenter's wife in Pueblo. Eight dollars goes by money order on the first of every month.",
-      "likes": [{"id": "earl", "why": "Never put a hand on her, and tipped his hat as if she were the minister's wife."}, {"id": "fiddler", "why": "Plays 'The Rose of Tralee' when the room's thin, without being asked."}, {"id": "drifter", "why": "Broke, and knows it, and doesn't pretend."}],
-      "dislikes": [{"id": "cody", "why": "Pays and thinks that settles it."}, {"id": "store_wife", "why": "Takes her money looking at the shelf."}],
-      "habit": "Looks at a man's boots, then his hands, then his face. Laughs with her mouth before her eyes.",
-      "talks": ["Quick and teasing, tired underneath; says the price first.", "Chicago Irish: 'himself' for the barkeep, 'grand' when it isn't.", "Never tells a man her other name, and never says 'love'."],
-      "voice": "Twenties, quick, a little hoarse; Chicago with her mother's Cork in the vowels.", "body": "woman, slight", "clothes": "The red dress with the hem mended twice, a shawl for the porch, hair up with two combs.",
-      "lines": [
-        {"id": "saloon_girl.tea", "place": "saloon.table", "words": "Buy a lady a drink? It's tea, and it's a dollar, and you knew that."},
-        {"id": "saloon_girl.section", "place": "street", "words": "That one's a section hand. Paid Saturday, broke Sunday, sorry Monday. I've a calendar of them."},
-        {"id": "saloon_girl.picture", "place": "saloon.bar", "to": "barkeep", "words": "He's had six and he's showing me a picture of his mother. I want paying for that."},
-        {"id": "saloon_girl.eight", "place": "saloon.bar", "to": "barkeep", "words": "Hold eight back for the first, same as always. Money order, Pueblo."},
-        {"id": "saloon_girl.earl", "place": "saloon.table", "when": "after Earl", "words": "Earl never once put a hand on me. Tipped his hat like I was the minister's wife."}
+      "likes": [
+        {
+          "id": "earl",
+          "why": "Never put a hand on her, and tipped his hat as if she were the minister's wife."
+        },
+        {
+          "id": "fiddler",
+          "why": "Plays 'The Rose of Tralee' when the room's thin, without being asked."
+        },
+        {
+          "id": "drifter",
+          "why": "Broke, and knows it, and doesn't pretend."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 16; DESIGN.md §5: 'people, not prizes'"},
+      "dislikes": [
+        {
+          "id": "cody",
+          "why": "Pays and thinks that settles it."
+        },
+        {
+          "id": "store_wife",
+          "why": "Takes her money looking at the shelf."
+        }
+      ],
+      "habit": "Looks at a man's boots, then his hands, then his face. Laughs with her mouth before her eyes.",
+      "talks": [
+        "Quick and teasing, tired underneath; says the price first.",
+        "Chicago Irish: 'himself' for the barkeep; reads a man by his boots.",
+        "Never tells a man her other name, and never says 'love'."
+      ],
+      "voice": "Twenties, quick, a little hoarse; Chicago with her mother's Cork in the vowels.",
+      "body": "woman, slight",
+      "clothes": "The red dress with the hem mended twice, a shawl for the porch, hair up with two combs.",
+      "lines": [
+        {
+          "id": "saloon_girl.tea",
+          "place": "saloon.table",
+          "words": "Buy a lady a drink? It's cold tea and it's four bits, and himself gets three of them."
+        },
+        {
+          "id": "saloon_girl.section",
+          "place": "street",
+          "words": "That one's off the section gang. He'll have been paid Thursday. Look at his boots, they're new."
+        },
+        {
+          "id": "saloon_girl.picture",
+          "place": "saloon.bar",
+          "to": "barkeep",
+          "words": "He's had six and he's showing me a picture of his mother. I want paying for that."
+        },
+        {
+          "id": "saloon_girl.eight",
+          "place": "saloon.bar",
+          "to": "barkeep",
+          "words": "Hold eight back for the first, same as always. Money order, Pueblo."
+        },
+        {
+          "id": "saloon_girl.earl",
+          "place": "saloon.table",
+          "when": "after Earl",
+          "words": "Earl'd tip his hat to me. On the stairs, in front of them all. Like I was the minister's wife."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 16; DESIGN.md §5: 'people, not prizes'"
+      },
       "notes": "'The girls' to the barkeep, 'those women' to the town (WORDS.md); she is nobody's joke. Her town-script lines stand."
     },
     "townsman": {
-      "kind": "townsfolk", "role": "Townsman", "name": "Lyman Peck", "called": "Mr. Peck",
+      "kind": "townsfolk",
+      "role": "Townsman",
+      "name": "Lyman Peck",
+      "called": "Mr. Peck",
       "who": "A town-lot man who bought where the depot was going to be and has stood on the boardwalk ever since, telling the news.",
-      "age": 43, "born": 1839, "from": "Norwich, Connecticut",
+      "age": 43,
+      "born": 1839,
+      "from": "Norwich, Connecticut",
       "came": "Sold insurance and corner lots through three Kansas boom towns. Came to Salt Creek ahead of the railroad in 'eighty with borrowed money, and bought six lots at the west end. The company put its depot at the other.",
-      "work": "None anybody can see: the hotel's walk, the store's bench, the barber's, all day.", "place": "A room at the hotel; its porch at dusk.",
+      "work": "None anybody can see: the hotel's walk, the store's bench, the barber's, all day.",
+      "place": "A room at the hotel; its porch at dusk.",
       "wants": "One buyer. He would take a note.",
       "secret": "He is three weeks behind with Mrs. Rudd and the note on the lots falls due at the bank this autumn. The clean collar is all the capital he has left.",
-      "likes": [{"id": "claude", "why": "Printed his handbill on credit: 'CHOICE LOTS'."}, {"id": "storekeeper", "why": "A man of business; he'd like to be taken for another."}],
-      "dislikes": [{"id": "loudmouth", "why": "Says aloud in the street what Mr. Peck says low."}, {"id": "landlady", "why": "She notices."}],
-      "habit": "Glances over his shoulder before he tells you anything. Touches his collar.",
-      "talks": ["Low and worried, a Yankee's 'I calculate' and 'I guess'.", "Passes on what he was told and who told it; never what he saw.", "Never a man's name aloud if the man might be near."],
-      "voice": "Forties, low, quick, Connecticut; a salesman's voice with the confidence gone out of it.", "body": "skinny", "clothes": "A town suit worn at the cuffs, a paper collar changed daily, a watch chain with no watch on it.",
-      "lines": [
-        {"id": "townsman.lots", "place": "hotel", "words": "Six lots, west end, fronting where the depot ought to have gone. I calculate the company owes me a depot."},
-        {"id": "townsman.low", "place": "street", "words": "Low, now. That's one of the Baron's riders by the trough, and I'd as soon he didn't know my voice."},
-        {"id": "townsman.collar", "place": "store", "to": "store_wife", "words": "A collar, Mrs. Hollis. Only the collar. A man must look as though he's expecting good news."},
-        {"id": "townsman.stakes", "place": "hotel", "words": "The survey stakes run right past my corner. I walked out and looked at them again this morning."},
-        {"id": "townsman.note", "place": "street", "words": "You'd not be wanting a lot? Fifty feet on Main, and I'd take a note."}
+      "likes": [
+        {
+          "id": "claude",
+          "why": "Printed his handbill on credit: 'CHOICE LOTS'."
+        },
+        {
+          "id": "storekeeper",
+          "why": "A man of business; he'd like to be taken for another."
+        }
       ],
-      "fixed": {"role": "the scripts' townsman: 'a storekeeper type; worried, talks low, glances over his shoulder' (No Law, Beat 1)"},
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Says aloud in the street what Mr. Peck says low."
+        },
+        {
+          "id": "landlady",
+          "why": "She notices."
+        }
+      ],
+      "habit": "Glances over his shoulder before he tells you anything. Touches his collar.",
+      "talks": [
+        "Low and worried, a Yankee's 'I calculate' and 'I guess'.",
+        "Passes on what he was told and who told it; never what he saw.",
+        "Never a man's name aloud if the man might be near."
+      ],
+      "voice": "Forties, low, quick, Connecticut; a salesman's voice with the confidence gone out of it.",
+      "body": "skinny",
+      "clothes": "A town suit worn at the cuffs, a paper collar changed daily, a watch chain with no watch on it.",
+      "lines": [
+        {
+          "id": "townsman.lots",
+          "place": "hotel",
+          "words": "Six lots, west end, fronting where the depot ought to have gone. I calculate the company owes me a depot."
+        },
+        {
+          "id": "townsman.low",
+          "place": "street",
+          "words": "Low, now. That's one of the Baron's riders by the trough, and I'd as soon he didn't know my voice."
+        },
+        {
+          "id": "townsman.collar",
+          "place": "store",
+          "to": "store_wife",
+          "words": "A collar, Mrs. Hollis. Only the collar. There's a gentleman coming to look at a lot. He wrote that he might."
+        },
+        {
+          "id": "townsman.stakes",
+          "place": "hotel",
+          "words": "The survey stakes run right past my corner. I walked out and looked at them again this morning."
+        },
+        {
+          "id": "townsman.note",
+          "place": "street",
+          "words": "You wouldn't want a lot? Fifty feet on Main. I'd take a note."
+        }
+      ],
+      "fixed": {
+        "role": "the scripts' townsman: 'a storekeeper type; worried, talks low, glances over his shoulder' (No Law, Beat 1)"
+      },
       "notes": "He tells the town's news in the scripts (the `townsman` pool is everyone's default too); his own lines here are his."
     },
     "loudmouth": {
-      "kind": "townsfolk", "role": "Loudmouth", "name": "Rufus Mapes", "called": "Rufe",
+      "kind": "townsfolk",
+      "role": "Loudmouth",
+      "name": "Rufus Mapes",
+      "called": "Rufe",
       "who": "A bullwhacker the railroad put out of work, who carries freight when he's sober and tells the street about it when he isn't.",
-      "age": 34, "born": 1848, "from": "Pike County, Missouri",
+      "age": 34,
+      "born": 1848,
+      "from": "Pike County, Missouri",
       "came": "Drove ox teams on the freight roads to the mining camps from fifteen. The cars reached Salt Creek in 'eighty-one and the long hauls stopped; he stopped with them.",
-      "work": "Freight from the depot to the store's dock, mornings; the store's bench and the saloon's walk after.", "place": "A shack on the rear lane; the far end of the bar from six.",
+      "work": "Freight from the depot to the store's dock, mornings; the store's bench and the saloon's walk after.",
+      "place": "A shack on the rear lane; the far end of the bar from six.",
       "wants": "To be listened to. And twelve yoke of oxen, which nobody will ever hire again.",
       "secret": "He owes the barkeep thirty-one dollars and works it off in tales: who bought what, who came in on the noon train, who said what on the bench.",
-      "likes": [{"id": "barkeep", "why": "Still pours."}, {"id": "townsman", "why": "Somebody who'll stand and hear it out."}],
-      "dislikes": [{"id": "storekeeper", "why": "Pays by the load and counts the sacks twice."}, {"id": "rancher", "why": "Looked at him once and went on drinking."}, {"id": "liveryman", "why": "A mule man, and says so."}],
-      "habit": "Talks to a man's back as he walks away. Slaps the bench beside him for you to sit.",
-      "talks": ["Loud, and all in one breath: 'I said to him, I said'.", "Every story has him in it, in the right.", "Never says 'I don't know'."],
-      "voice": "Thirties, loud, a little thick with drink; Pike County.", "body": "heavy", "clothes": "A teamster's check shirt, galluses, a bull whip he still carries coiled on his shoulder, flour on his trousers.",
-      "lines": [
-        {"id": "loudmouth.flour", "place": "store", "words": "Two hundred pound of flour and he wants it up the step gentle. I drove twelve yoke over Mosquito Pass, I guess I can find a step."},
-        {"id": "loudmouth.credit", "place": "saloon.bar", "words": "I said to him, I said, you can stop my credit but you can't stop my mouth, and he said he'd noticed."},
-        {"id": "loudmouth.oxen", "place": "street", "words": "Railroad! Wasn't for the railroad I'd have forty head of oxen and a boy to cuss 'em for me."},
-        {"id": "loudmouth.tell", "place": "saloon.bar", "to": "miner", "words": "Stand me one, Jory, and I'll tell you what the storekeeper's wife said about the widow Rudd."},
-        {"id": "loudmouth.resting", "place": "street", "words": "I ain't drunk. I'm resting, and I been resting since noon, ask anybody."}
+      "likes": [
+        {
+          "id": "barkeep",
+          "why": "Still pours."
+        },
+        {
+          "id": "townsman",
+          "why": "Somebody who'll stand and hear it out."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 15; the scripts' 'bold man in the street': 'a teamster or a hand in town; too loud, a little drunk'"},
+      "dislikes": [
+        {
+          "id": "storekeeper",
+          "why": "Pays by the load and counts the sacks twice."
+        },
+        {
+          "id": "rancher",
+          "why": "Looked at him once and went on drinking."
+        },
+        {
+          "id": "liveryman",
+          "why": "A mule man, and says so."
+        }
+      ],
+      "habit": "Talks to a man's back as he walks away. Slaps the bench beside him for you to sit.",
+      "talks": [
+        "Loud, and all in one breath: 'I said to him, I said'.",
+        "Every story has him in it, in the right.",
+        "Never says 'I don't know'."
+      ],
+      "voice": "Thirties, loud, a little thick with drink; Pike County.",
+      "body": "heavy",
+      "clothes": "A teamster's check shirt, galluses, a bull whip he still carries coiled on his shoulder, flour on his trousers.",
+      "lines": [
+        {
+          "id": "loudmouth.flour",
+          "place": "store",
+          "words": "Two hundred pound of flour and he wants it up the step gentle. I drove twelve yoke over Mosquito Pass, I reckon I can find a step."
+        },
+        {
+          "id": "loudmouth.credit",
+          "place": "saloon.bar",
+          "words": "I said to him, I said, you can stop my credit but you can't stop my mouth, and he never had a word to say to that, not a word."
+        },
+        {
+          "id": "loudmouth.oxen",
+          "place": "street",
+          "words": "Railroad! Wasn't for the railroad I'd have forty head of oxen and a boy to cuss 'em for me."
+        },
+        {
+          "id": "loudmouth.tell",
+          "place": "saloon.bar",
+          "to": "miner",
+          "words": "Stand me one, Jory, and I'll tell you what the storekeeper's wife said about the widow Rudd."
+        },
+        {
+          "id": "loudmouth.resting",
+          "place": "street",
+          "words": "I ain't drunk. I'm resting, and I been resting since noon, ask anybody."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 15; the scripts' 'bold man in the street': 'a teamster or a hand in town; too loud, a little drunk'"
+      },
       "notes": "valley_folk.json has his home as the saloon; the roster says a shack on the rear lane. His script lines stand ('Ain't no sheriff tonight, boys!')."
     },
     "undertaker": {
-      "kind": "townsfolk", "role": "Undertaker (the carpenter too)", "name": "Phineas Colby", "called": "Mr. Colby",
+      "kind": "townsfolk",
+      "role": "Undertaker (the carpenter too)",
+      "name": "Phineas Colby",
+      "called": "Mr. Colby",
       "who": "The town's undertaker and its carpenter: unhurried, exact, and measuring you while you talk.",
-      "age": 63, "born": 1819, "from": "Bath, Maine; a ship joiner's apprentice",
+      "age": 63,
+      "born": 1819,
+      "from": "Bath, Maine; a ship joiner's apprentice",
       "came": "Came out with the rush of 'fifty-nine to build sluices and found men paid better for boxes. Twenty-three years in the Territory and the State, the last five here.",
-      "work": "Planing at his door by day; the dead taken up within the hour; the book. One whiskey at eight.", "place": "His shop at the east end; lives in it.",
+      "work": "Planing at his door by day; the dead taken up within the hour; the book. One whiskey at eight.",
+      "place": "His shop at the east end; lives in it.",
       "wants": "Seasoned black walnut, and a hearse with glass sides.",
       "secret": "His own is under the bench: walnut, brass handles, made to his measure in 'seventy-nine. He lies down in it of a Sunday to see it still fits.",
-      "likes": [{"id": "doctor", "why": "Signs what he saw and no more."}, {"id": "churchman", "why": "Keeps a burying under the half hour."}, {"id": "claude", "why": "Gets a dead man's name right in the paper."}],
-      "dislikes": [{"id": "loudmouth", "why": "Six foot one, and will want a wide box."}],
-      "habit": "Looks a man over from hat to boots and his lips move: he's taking your length.",
-      "talks": ["Unhurried and precise: feet and inches, dollars and the hour.", "Says a dry thing as plain fact and doesn't know it's funny.", "Never 'dead' where 'gone' will do, and never guesses a name for the book."],
-      "voice": "Sixties, dry, level; coast of Maine worn down by Colorado.", "body": "tall", "clothes": "Black vest, white shirt, sleeves rolled, a folding rule in the vest pocket, shavings on his cuffs.",
-      "lines": [
-        {"id": "undertaker.measure", "place": "undertaker", "words": "Five foot ten and a half. Don't mind me. It saves time after."},
-        {"id": "undertaker.walnut", "place": "undertaker", "words": "Pine's four dollars. Walnut comes from Kansas City, three weeks. Nobody's waited for it yet."},
-        {"id": "undertaker.eight", "place": "saloon.bar", "to": "barkeep", "words": "One, and the clock says eight. I've a lid to fit by lamplight and I want the hand steady."},
-        {"id": "undertaker.crossing", "place": "undertaker", "words": "That's the doctor crossing. If he comes back slow I'll sharpen the plane."},
-        {"id": "undertaker.mine", "place": "undertaker", "words": "Mine's under the bench. Walnut, brass handles. I lie in it of a Sunday to see it still fits."}
+      "likes": [
+        {
+          "id": "doctor",
+          "why": "Signs what he saw and no more."
+        },
+        {
+          "id": "churchman",
+          "why": "Keeps a burying under the half hour."
+        },
+        {
+          "id": "claude",
+          "why": "Gets a dead man's name right in the paper."
+        }
       ],
-      "fixed": {"role": "townsfolk brief §2, roster 7; #259", "talks": "the scripts' cast: 'unhurried, precise, a dry gallows humour he doesn't know he has'; DIALOGUE.md: 'exact'"},
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Six foot one, and will want a wide box."
+        }
+      ],
+      "habit": "Looks a man over from hat to boots and his lips move: he's taking your length.",
+      "talks": [
+        "Unhurried and precise: feet and inches, dollars and the hour.",
+        "Says a dry thing as plain fact and doesn't know it's funny.",
+        "Never 'dead' where 'gone' will do, and never guesses a name for the book."
+      ],
+      "voice": "Sixties, dry, level; coast of Maine worn down by Colorado.",
+      "body": "tall",
+      "clothes": "Black vest, white shirt, sleeves rolled, a folding rule in the vest pocket, shavings on his cuffs.",
+      "lines": [
+        {
+          "id": "undertaker.measure",
+          "place": "undertaker",
+          "words": "Five foot ten and a half. Near enough. Stand easy, I was only looking."
+        },
+        {
+          "id": "undertaker.walnut",
+          "place": "undertaker",
+          "words": "Pine's four dollars. Walnut I send to Kansas City for. Three weeks, if the cars are running."
+        },
+        {
+          "id": "undertaker.eight",
+          "place": "saloon.bar",
+          "to": "barkeep",
+          "words": "One, and the clock says eight. There's a lid to fit by lamplight and I want the hand steady."
+        },
+        {
+          "id": "undertaker.crossing",
+          "place": "undertaker",
+          "words": "Doctor's crossing over. Got his bag. I'd best see what pine I have dry."
+        },
+        {
+          "id": "undertaker.mine",
+          "place": "undertaker",
+          "words": "Mine's under the bench. Walnut, brass handles. I lie in it Sundays to see it still fits."
+        }
+      ],
+      "fixed": {
+        "role": "townsfolk brief §2, roster 7; #259",
+        "talks": "the scripts' cast: 'unhurried, precise, a dry gallows humour he doesn't know he has'; DIALOGUE.md: 'exact'"
+      },
       "notes": "His script lines stand ('Pine box, charged to the county.')."
     },
     "runner": {
-      "kind": "townsfolk", "role": "The young man the doctor sends", "name": "Caleb Rudd", "called": "Caleb",
+      "kind": "townsfolk",
+      "role": "The young man the doctor sends",
+      "name": "Caleb Rudd",
+      "called": "Caleb",
       "who": "The landlady's boy, sixteen, who runs the doctor's errands and hangs about the depot to watch the telegraph key.",
-      "age": 16, "born": 1866, "from": "Lockport, New York; in Salt Creek since he was eleven",
+      "age": 16,
+      "born": 1866,
+      "from": "Lockport, New York; in Salt Creek since he was eleven",
       "came": "With his mother and father when the hotel was built.",
-      "work": "Errands, wood and water for the doctor at fifty cents a week; the hotel's slops.", "place": "The hotel; the doctor's back door; the depot when he can get away.",
+      "work": "Errands, wood and water for the doctor at fifty cents a week; the hotel's slops.",
+      "place": "The hotel; the doctor's back door; the depot when he can get away.",
       "wants": "To be a telegraph operator. The depot agent lets him hold the key.",
       "secret": "He saw a man's leg taken off in the doctor's front room, held the lamp for it, and hasn't told his mother.",
-      "likes": [{"id": "doctor", "why": "Talks to him as if he were a man."}, {"id": "smith", "why": "Lets him work the bellows."}],
-      "dislikes": [{"id": "loudmouth", "why": "Calls him 'sonny' and sends him for tobacco."}],
-      "habit": "Runs everywhere, and stops dead to listen when the wire clicks or the whistle goes.",
-      "talks": ["Quick, half sentences, 'sir' and 'ma'am'.", "Railroad time and the doctor's words, both got slightly wrong.", "Never swears where his mother might hear of it, which is everywhere."],
-      "voice": "Sixteen, a voice not long broken, quick.", "body": "skinny", "clothes": "His father's vest taken in, trousers too short, a cap, a doctor's apron when he's been called in a hurry.",
-      "seen": [{"place": "doctor", "when": "day 2: the doctor sends him to find you"}, {"place": "street", "when": "running, most days"}, {"place": "hotel", "when": "mornings and supper"}],
-      "lines": [
-        {"id": "runner.built.asking", "place": "street", "when": "day 2, the sheriff dying", "words": "Harlan! Doc's asking for you.", "src": "built"},
-        {"id": "runner.boil", "place": "doctor", "words": "Doc says boil it. I boiled it. He says boil it again."},
-        {"id": "runner.key", "place": "hotel", "to": "landlady", "words": "Ma, the noon train's eleven minutes down. The agent let me hold the key."},
-        {"id": "runner.ice", "place": "street", "words": "Can't stop, mister. Doc's got me after ice, and there ain't any nearer than the butcher's."},
-        {"id": "runner.leg", "place": "street", "words": "Fifty cents a week and I seen a man's leg come off. Ma don't know about the leg."}
+      "likes": [
+        {
+          "id": "doctor",
+          "why": "Talks to him as if he were a man."
+        },
+        {
+          "id": "smith",
+          "why": "Lets him work the bellows."
+        }
       ],
-      "fixed": {"role": "valley_folk.json: the young man the doctor sends on day 2 (SheriffDies)"},
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Calls him 'sonny' and sends him for tobacco."
+        }
+      ],
+      "habit": "Runs everywhere, and stops dead to listen when the wire clicks or the whistle goes.",
+      "talks": [
+        "Quick, half sentences, 'sir' and 'ma'am'.",
+        "Railroad time and the doctor's words, both got slightly wrong.",
+        "Never swears where his mother might hear of it, which is everywhere."
+      ],
+      "voice": "Sixteen, a voice not long broken, quick.",
+      "body": "skinny",
+      "clothes": "His father's vest taken in, trousers too short, a cap, a doctor's apron when he's been called in a hurry.",
+      "seen": [
+        {
+          "place": "doctor",
+          "when": "day 2: the doctor sends him to find you"
+        },
+        {
+          "place": "street",
+          "when": "running, most days"
+        },
+        {
+          "place": "hotel",
+          "when": "mornings and supper"
+        }
+      ],
+      "lines": [
+        {
+          "id": "runner.built.asking",
+          "place": "street",
+          "when": "day 2, the sheriff dying",
+          "words": "Harlan! Doc's asking for you.",
+          "src": "built"
+        },
+        {
+          "id": "runner.boil",
+          "place": "doctor",
+          "words": "Doc has me wash in the carbolic. Hands, to the elbow. Then he looks, and I do it over."
+        },
+        {
+          "id": "runner.key",
+          "place": "hotel",
+          "to": "landlady",
+          "words": "Ma, the noon train's nine minutes down. The agent let me hold the key."
+        },
+        {
+          "id": "runner.ice",
+          "place": "street",
+          "words": "Can't stop, mister. Doc's got me after ice, and there ain't any nearer than the butcher's."
+        },
+        {
+          "id": "runner.leg",
+          "place": "street",
+          "words": "Fifty cents a week and I seen a man's leg come off. Ma don't know about the leg."
+        }
+      ],
+      "fixed": {
+        "role": "valley_folk.json: the young man the doctor sends on day 2 (SheriffDies)"
+      },
       "notes": "He has no day in valley_folk.json (an act man); the brief's runner (whoever fetches the doctor) is any townsman with duty."
     },
     "cody": {
-      "kind": "cast", "role": "The Baron's hired gun (Kett's crew)", "name": "Cody", "called": "Cody",
+      "kind": "cast",
+      "role": "The Baron's hired gun (Kett's crew)",
+      "name": "Cody",
+      "called": "Cody",
       "who": "The man who kills Earl in front of the saloon on night one, and later the one witness who can tie the Baron to it.",
-      "age": null, "born": null, "from": "Texas (the script's brief: 'a Texas cowhand gone bad')", "came": null,
-      "work": "The Baron's pay.", "place": "The saloon when he's in town; then Harlan's cell, and the depot's freight room.",
-      "wants": null, "secret": "He knows who shot the sheriff, who raided the camp, and who pays.",
-      "likes": [], "dislikes": [],
+      "age": null,
+      "born": null,
+      "from": "Texas (the script's brief: 'a Texas cowhand gone bad')",
+      "came": null,
+      "work": "The Baron's pay.",
+      "place": "The saloon when he's in town; then Harlan's cell, and the depot's freight room.",
+      "wants": null,
+      "secret": "He knows who shot the sheriff, who raided the camp, and who pays.",
+      "likes": [],
+      "dislikes": [],
       "habit": null,
-      "talks": ["Loud and short; brave with drink in him and a crew behind him.", "In the cell: sullen, then frightened, then bargaining.", "One of the few men allowed a slur (C13 b), only where it matters."],
-      "voice": "Late twenties, a hard flat voice, a sneer in it.", "body": null, "clothes": null,
-      "seen": [{"place": "saloon.table", "when": "night 1 (No Law); again after the funeral, when Harlan arrests him"}, {"place": "jail", "when": "after the arrest"}, {"place": "depot", "when": "the Water Tower night"}],
-      "lines": [
-        {"id": "cody.built.cheat", "place": "saloon.table", "to": "earl", "when": "night 1", "words": "Earl, you cheating son of a bitch!", "src": "script"},
-        {"id": "cody.built.nolaw", "place": "saloon.table", "to": "earl", "when": "night 1", "words": "Ain't no law left in this valley to save you now, Earl.", "src": "built"},
-        {"id": "cody.bible.breathing", "place": "jail", "when": "in the cell", "words": "You're the law, ain't you? Then it's on you to keep me breathing.", "src": "bible"}
+      "talks": [
+        "Loud and short; brave with drink in him and a crew behind him.",
+        "In the cell: sullen, then frightened, then bargaining.",
+        "One of the few men allowed a slur (C13 b), only where it matters."
       ],
-      "fixed": {"name": "the bible", "who": "VOICES.md, Cody (D)", "secret": "VOICES.md (D, 2026-11-11)", "talks": "VOICES.md", "voice": "no_law.json's cast"},
+      "voice": "Late twenties, a hard flat voice, a sneer in it.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "saloon.table",
+          "when": "night 1 (No Law); again after the funeral, when Harlan arrests him"
+        },
+        {
+          "place": "jail",
+          "when": "after the arrest"
+        },
+        {
+          "place": "depot",
+          "when": "the Water Tower night"
+        }
+      ],
+      "lines": [
+        {
+          "id": "cody.built.cheat",
+          "place": "saloon.table",
+          "to": "earl",
+          "when": "night 1",
+          "words": "Earl, you cheating son of a bitch!",
+          "src": "script"
+        },
+        {
+          "id": "cody.built.nolaw",
+          "place": "saloon.table",
+          "to": "earl",
+          "when": "night 1",
+          "words": "Ain't no law left in this valley to save you now, Earl.",
+          "src": "built"
+        },
+        {
+          "id": "cody.bible.breathing",
+          "place": "jail",
+          "when": "in the cell",
+          "words": "You're the law, ain't you? Then it's on you to keep me breathing.",
+          "src": "bible"
+        }
+      ],
+      "fixed": {
+        "name": "the bible",
+        "who": "VOICES.md, Cody (D)",
+        "secret": "VOICES.md (D, 2026-11-11)",
+        "talks": "VOICES.md",
+        "voice": "no_law.json's cast"
+      },
       "notes": "A mission's character: nothing added."
     },
     "stranger": {
-      "kind": "cast", "role": "The stranger at the table, who is the Baron's foreman", "name": null, "called": "nobody says; he calls you 'friend'",
+      "kind": "cast",
+      "role": "The stranger at the table, who is the Baron's foreman",
+      "name": null,
+      "called": "nobody says; he calls you 'friend'",
       "who": "The Baron's new foreman: he shot the sheriff from the saddle, and on night one he sits down at Harlan's table to learn what the sheriff said.",
-      "age": 50, "born": null, "from": null, "came": "New to the valley this season (proposed in the bible), which is why the sheriff didn't know him.",
-      "work": "The Baron's foreman: he pays the men and runs the errands.", "place": "The Baron's ranch; a bald-faced sorrel at the saloon's rail.",
+      "age": 50,
+      "born": null,
+      "from": null,
+      "came": "New to the valley this season (proposed in the bible), which is why the sheriff didn't know him.",
+      "work": "The Baron's foreman: he pays the men and runs the errands.",
+      "place": "The Baron's ranch; a bald-faced sorrel at the saloon's rail.",
       "wants": "To know whether the sheriff could talk.",
       "secret": "He shot the sheriff. And he is a coward: he fired once and rode, which is why the man lived a day. Held back for a mid-game reveal; nobody says the word.",
-      "likes": [], "dislikes": [],
+      "likes": [],
+      "dislikes": [],
       "habit": "Asks leave for what he means to do anyway.",
-      "talks": ["Soft-spoken and mannerly; 'friend', then 'Deputy' with a smile.", "The tenser it gets, the more courteous.", "'Ain't' when it suits him."],
-      "voice": "About fifty, Western, low; never hurried, never raised.", "body": null, "clothes": null,
-      "seen": [{"place": "saloon.table", "when": "night 1 (No Law)"}, {"place": "graveyard", "when": "the funeral, a step behind the Baron, saying nothing"}, {"place": "out", "when": "the widow's lane, with the deed"}],
-      "lines": [
-        {"id": "stranger.built.sit", "place": "saloon.table", "when": "night 1", "words": "Evening. Mind if I sit in a while?", "src": "built"},
-        {"id": "stranger.built.still", "place": "saloon.table", "when": "night 1", "words": "Don't move, friend. Whatever happens next, you sit still.", "src": "built"},
-        {"id": "stranger.built.glass", "place": "saloon.table", "when": "night 1", "words": "I'll say good night, friend. Anybody asks, I'd take it kindly if you'd been looking into your glass.", "src": "built"}
+      "talks": [
+        "Soft-spoken and mannerly; 'friend', then 'Deputy' with a smile.",
+        "The tenser it gets, the more courteous.",
+        "'Ain't' when it suits him."
       ],
-      "fixed": {"name": "roles only (C14 c)", "who": "C10 b, C16 a (D, Sean)", "secret": "D, Sean 2026-11-17, #1056", "habit": "VOICES.md (s21)", "talks": "VOICES.md", "voice": "no_law.json's cast"},
+      "voice": "About fifty, Western, low; never hurried, never raised.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "saloon.table",
+          "when": "night 1 (No Law)"
+        },
+        {
+          "place": "graveyard",
+          "when": "the funeral, a step behind the Baron, saying nothing"
+        },
+        {
+          "place": "out",
+          "when": "the widow's lane, with the deed"
+        }
+      ],
+      "lines": [
+        {
+          "id": "stranger.built.sit",
+          "place": "saloon.table",
+          "when": "night 1",
+          "words": "Evening. Mind if I sit in a while?",
+          "src": "built"
+        },
+        {
+          "id": "stranger.built.still",
+          "place": "saloon.table",
+          "when": "night 1",
+          "words": "Don't move, friend. Whatever happens next, you sit still.",
+          "src": "built"
+        },
+        {
+          "id": "stranger.built.glass",
+          "place": "saloon.table",
+          "when": "night 1",
+          "words": "I'll say good night, friend. Anybody asks, I'd take it kindly if you'd been looking into your glass.",
+          "src": "built"
+        }
+      ],
+      "fixed": {
+        "name": "roles only (C14 c)",
+        "who": "C10 b, C16 a (D, Sean)",
+        "secret": "D, Sean 2026-11-17, #1056",
+        "habit": "VOICES.md (s21)",
+        "talks": "VOICES.md",
+        "voice": "no_law.json's cast"
+      },
       "notes": "Two roster ids, one man: `stranger` (No Law) and `foreman` (the funeral)."
     },
     "dying_sheriff": {
-      "kind": "cast", "role": "The county sheriff", "name": null, "called": "Sheriff",
+      "kind": "cast",
+      "role": "The county sheriff",
+      "name": null,
+      "called": "Sheriff",
       "who": "The county sheriff, fourteen years on his claim east of town; shot over his water before dawn on day one, dead on day two whatever Harlan does.",
-      "age": 52, "born": null, "from": "A plains man, Missouri or Kansas (the script's brief)", "came": "Took up his claim in 1868 and cut its ditch with a spade and a borrowed mule.",
-      "work": "County sheriff; his own claim.", "place": "His claim east of town; then the doctor's cot; then his grave.",
+      "age": 52,
+      "born": null,
+      "from": "A plains man, Missouri or Kansas (the script's brief)",
+      "came": "Took up his claim in 1868 and cut its ditch with a spade and a borrowed mule.",
+      "work": "County sheriff; his own claim.",
+      "place": "His claim east of town; then the doctor's cot; then his grave.",
       "wants": "His wife and boys looked to.",
       "secret": null,
-      "likes": [], "dislikes": [],
+      "likes": [],
+      "dislikes": [],
       "habit": "Gives orders, even on his back.",
-      "talks": ["Orders; plain, dry, no wasted word.", "Calls a man of forty 'son'.", "As he loses blood the sentences shorten; short of breath, not quiet."],
-      "voice": "Early fifties, low and dry, gravel from pain; never a whisper until the very end.", "body": null, "clothes": null,
-      "seen": [{"place": "out", "when": "day 1, on the East Road"}, {"place": "doctor", "when": "day 1 and day 2"}, {"place": "graveyard", "when": "after"}],
-      "lines": [
-        {"id": "sheriff.built.nod", "place": "out", "when": "day 1", "words": "Well? Nod or don't, but don't just stand there.", "src": "built"},
-        {"id": "sheriff.sean.son", "place": "doctor", "when": "day 2", "words": "That ain't how it's done, son.", "src": "script"},
-        {"id": "sheriff.script.ditch", "place": "doctor", "when": "day 2", "words": "The Baron's wanted that ditch since the day I cut it. He'll go at my wife for it now. Look to her and the boys.", "src": "script"}
+      "talks": [
+        "Orders; plain, dry, no wasted word.",
+        "Calls a man of forty 'son'.",
+        "As he loses blood the sentences shorten; short of breath, not quiet."
       ],
-      "fixed": {"name": "roles only (C14 c)", "who": "VOICES.md (D)", "age": "Sean's note, 2026-11-12: early fifties", "came": "VOICES.md (the lock; the widow's line)", "talks": "VOICES.md", "voice": "the scripts' cast"},
+      "voice": "Early fifties, low and dry, gravel from pain; never a whisper until the very end.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "out",
+          "when": "day 1, on the East Road"
+        },
+        {
+          "place": "doctor",
+          "when": "day 1 and day 2"
+        },
+        {
+          "place": "graveyard",
+          "when": "after"
+        }
+      ],
+      "lines": [
+        {
+          "id": "sheriff.built.nod",
+          "place": "out",
+          "when": "day 1",
+          "words": "Well? Nod or don't, but don't just stand there.",
+          "src": "built"
+        },
+        {
+          "id": "sheriff.sean.son",
+          "place": "doctor",
+          "when": "day 2",
+          "words": "That ain't how it's done, son.",
+          "src": "script"
+        },
+        {
+          "id": "sheriff.script.ditch",
+          "place": "doctor",
+          "when": "day 2",
+          "words": "The Baron's wanted that ditch since the day I cut it. He'll go at my wife for it now. Look to her and the boys.",
+          "src": "script"
+        }
+      ],
+      "fixed": {
+        "name": "roles only (C14 c)",
+        "who": "VOICES.md (D)",
+        "age": "Sean's note, 2026-11-12: early fifties",
+        "came": "VOICES.md (the lock; the widow's line)",
+        "talks": "VOICES.md",
+        "voice": "the scripts' cast"
+      },
       "notes": "A mission's character: nothing added."
     },
     "wife": {
-      "kind": "cast", "role": "The sheriff's wife, then his widow", "name": null, "called": "ma'am; Mrs.",
+      "kind": "cast",
+      "role": "The sheriff's wife, then his widow",
+      "name": null,
+      "called": "ma'am; Mrs.",
       "who": "The sheriff's wife: the claim and its creek right are hers now, with two young sons and a dog, Blue. She won't sell.",
-      "age": 40, "born": null, "from": "A Midwestern farm wife with good schooling (the script's brief)", "came": null,
-      "work": "The claim: the stock, the ditch, the gate.", "place": "The homestead east of town; in town on day two and at the funeral.",
+      "age": 40,
+      "born": null,
+      "from": "A Midwestern farm wife with good schooling (the script's brief)",
+      "came": null,
+      "work": "The claim: the stock, the ditch, the gate.",
+      "place": "The homestead east of town; in town on day two and at the funeral.",
       "wants": "To keep the place.",
       "secret": null,
-      "likes": [], "dislikes": [{"id": "baron", "why": "He made his offer at the grave."}],
-      "habit": "Grief comes out as work.",
-      "talks": ["Straight and short; hard questions, not softened.", "Dry when she's easy, cold when she isn't.", "'Mr. Harlan', always."],
-      "voice": "About forty, level and low, short; grief held under work.", "body": null, "clothes": null,
-      "seen": [{"place": "doctor", "when": "day 2, at his bedside"}, {"place": "graveyard", "when": "the funeral"}, {"place": "out", "when": "the homestead"}],
-      "lines": [
-        {"id": "wife.sean.with", "place": "doctor", "when": "day 2", "words": "Were you with him?", "src": "script"},
-        {"id": "wife.script.covered", "place": "graveyard", "to": "baron", "when": "the funeral", "words": "He's not covered over yet.", "src": "script"},
-        {"id": "wife.bible.ditch", "place": "out", "words": "My husband cut that ditch with a spade and a borrowed mule. That man can offer till he's hoarse.", "src": "bible"}
+      "likes": [],
+      "dislikes": [
+        {
+          "id": "baron",
+          "why": "He made his offer at the grave."
+        }
       ],
-      "fixed": {"name": "roles only (C14 c)", "who": "VOICES.md (D); no romance with Harlan, ever", "talks": "VOICES.md", "voice": "the scripts' cast"},
+      "habit": "Grief comes out as work.",
+      "talks": [
+        "Straight and short; hard questions, not softened.",
+        "Dry when she's easy, cold when she isn't.",
+        "'Mr. Harlan', always."
+      ],
+      "voice": "About forty, level and low, short; grief held under work.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "doctor",
+          "when": "day 2, at his bedside"
+        },
+        {
+          "place": "graveyard",
+          "when": "the funeral"
+        },
+        {
+          "place": "out",
+          "when": "the homestead"
+        }
+      ],
+      "lines": [
+        {
+          "id": "wife.sean.with",
+          "place": "doctor",
+          "when": "day 2",
+          "words": "Were you with him?",
+          "src": "script"
+        },
+        {
+          "id": "wife.script.covered",
+          "place": "graveyard",
+          "to": "baron",
+          "when": "the funeral",
+          "words": "He's not covered over yet.",
+          "src": "script"
+        },
+        {
+          "id": "wife.bible.ditch",
+          "place": "out",
+          "words": "My husband cut that ditch with a spade and a borrowed mule. That man can offer till he's hoarse.",
+          "src": "bible"
+        }
+      ],
+      "fixed": {
+        "name": "roles only (C14 c)",
+        "who": "VOICES.md (D); no romance with Harlan, ever",
+        "talks": "VOICES.md",
+        "voice": "the scripts' cast"
+      },
       "notes": "A mission's character: nothing added."
     },
     "baron": {
-      "kind": "cast", "role": "The Baron", "name": null, "called": "the Baron",
+      "kind": "cast",
+      "role": "The Baron",
+      "name": null,
+      "called": "the Baron",
       "who": "The valley's cattle Baron: he wants every drop of water in it, and he is patient.",
-      "age": 60, "born": null, "from": "Eastern or British money; his accent is Sean's call", "came": null,
-      "work": "Cattle, and other men's water.", "place": "A masonry town house on the rise west of town; a ranch to the south-east.",
+      "age": 60,
+      "born": null,
+      "from": "Eastern or British money; his accent is Sean's call",
+      "came": null,
+      "work": "Cattle, and other men's water.",
+      "place": "A masonry town house on the rise west of town; a ranch to the south-east.",
       "wants": "Every drop of water in the valley.",
       "secret": "The plan: make the town look in revolt, so the Army comes.",
-      "likes": [], "dislikes": [{"id": "stranger", "why": "For the botched job on the road (proposed in the bible)."}],
-      "habit": "Remembers names. Offers to buy before he takes.",
-      "talks": ["Educated, courteous, unhurried; long sentences where everyone else is short.", "Never a threat in words: prices, and regrets.", "Doesn't swear. 'That would be a pity.'"],
-      "voice": "Sixty, educated, courteous and unhurried.", "body": null, "clothes": null,
-      "seen": [{"place": "graveyard", "when": "the funeral: his offer to the widow"}],
-      "lines": [
-        {"id": "baron.script.offer", "place": "graveyard", "to": "wife", "when": "the funeral", "words": "It is a hard day, ma'am, and I'd not trouble you on it, only to say that when that place grows too much for you, as it may, I hope you will come to me before another.", "src": "script"},
-        {"id": "baron.bible.buy", "place": "out", "words": "I have never taken a thing in this valley that I did not first offer to buy.", "src": "bible"}
+      "likes": [],
+      "dislikes": [
+        {
+          "id": "stranger",
+          "why": "For the botched job on the road (proposed in the bible)."
+        }
       ],
-      "fixed": {"name": "roles only (C14 c)", "who": "DESIGN.md; VOICES.md", "secret": "K10", "talks": "VOICES.md; WORDS.md", "voice": "the scripts' cast"},
+      "habit": "Remembers names. Offers to buy before he takes.",
+      "talks": [
+        "Educated, courteous, unhurried; long sentences where everyone else is short.",
+        "Never a threat in words: prices, and regrets.",
+        "Doesn't swear. 'That would be a pity.'"
+      ],
+      "voice": "Sixty, educated, courteous and unhurried.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "graveyard",
+          "when": "the funeral: his offer to the widow"
+        }
+      ],
+      "lines": [
+        {
+          "id": "baron.script.offer",
+          "place": "graveyard",
+          "to": "wife",
+          "when": "the funeral",
+          "words": "It is a hard day, ma'am, and I'd not trouble you on it, only to say that when that place grows too much for you, as it may, I hope you will come to me before another.",
+          "src": "script"
+        },
+        {
+          "id": "baron.bible.buy",
+          "place": "out",
+          "words": "I have never taken a thing in this valley that I did not first offer to buy.",
+          "src": "bible"
+        }
+      ],
+      "fixed": {
+        "name": "roles only (C14 c)",
+        "who": "DESIGN.md; VOICES.md",
+        "secret": "K10",
+        "talks": "VOICES.md; WORDS.md",
+        "voice": "the scripts' cast"
+      },
       "notes": "A mission's character: nothing added. The townsfolk's sheets touch him only where the bible already has him: he buys, he hires, he subscribes."
     },
     "cowboy": {
-      "kind": "cast", "role": "The bold cowboy", "name": null, "called": null,
+      "kind": "cast",
+      "role": "The bold cowboy",
+      "name": null,
+      "called": null,
       "who": "A Texas hand in the doctor's front office in No Justice, who says the law won't give justice for an Indian woman.",
-      "age": null, "born": null, "from": "Texas (the script's brief)", "came": null,
-      "work": null, "place": "The doctor's front office, No Justice.",
-      "wants": null, "secret": null, "likes": [], "dislikes": [], "habit": null,
-      "talks": ["Plain, blunt, unimpressed by anybody; says the ugly thing because it's true."],
-      "voice": "Thirties, a Texas hand.", "body": null, "clothes": null,
-      "seen": [{"place": "doctor", "when": "No Justice"}],
-      "lines": [
-        {"id": "cowboy.script.jury", "place": "doctor", "when": "No Justice", "words": "A jury? They'd stand him a drink.", "src": "script"}
+      "age": null,
+      "born": null,
+      "from": "Texas (the script's brief)",
+      "came": null,
+      "work": null,
+      "place": "The doctor's front office, No Justice.",
+      "wants": null,
+      "secret": null,
+      "likes": [],
+      "dislikes": [],
+      "habit": null,
+      "talks": [
+        "Plain, blunt, unimpressed by anybody; says the ugly thing because it's true."
       ],
-      "fixed": {"name": "roles only (C14 c)", "who": "VOICES.md, Smaller voices (his part is open, s4)", "talks": "no_justice.json's cast"},
+      "voice": "Thirties, a Texas hand.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "doctor",
+          "when": "No Justice"
+        }
+      ],
+      "lines": [
+        {
+          "id": "cowboy.script.jury",
+          "place": "doctor",
+          "when": "No Justice",
+          "words": "A jury? They'd stand him a drink.",
+          "src": "script"
+        }
+      ],
+      "fixed": {
+        "name": "roles only (C14 c)",
+        "who": "VOICES.md, Smaller voices (his part is open, s4)",
+        "talks": "no_justice.json's cast"
+      },
       "notes": "A mission's character: nothing added."
     },
     "joe": {
-      "kind": "cast", "role": "Joe", "name": "Joe", "called": "Joe (what the town calls him; his own name is not ours to make up)",
+      "kind": "cast",
+      "role": "Joe",
+      "name": "Joe",
+      "called": "Joe (what the town calls him; his own name is not ours to make up)",
       "who": "A Southern Ute man whose wife was murdered in the raid on night one; Harlan's one full companion.",
-      "age": null, "born": null, "from": "His people's camp; the Southern Ute bands", "came": null,
-      "work": null, "place": "The camp; the doctor's office in No Justice.",
+      "age": null,
+      "born": null,
+      "from": "His people's camp; the Southern Ute bands",
+      "came": null,
+      "work": null,
+      "place": "The camp; the doctor's office in No Justice.",
       "wants": "The man in the faded red shirt.",
-      "secret": null, "likes": [{"id": "rancher", "why": "Proposed here: they have Spanish in common."}], "dislikes": [], "habit": "Wears a cowboy's hat and neckerchief, so the gang's friends won't take it out on his people.",
-      "talks": ["English is his third language, after Ute and Spanish: exact and plain, not broken, not grand.", "Says a thing once; long quiet; dry humour; his questions are tests.", "Talks about things, never about what they mean."],
-      "voice": "Low, exact, unhurried. Cast with care.", "body": null, "clothes": null,
-      "seen": [{"place": "doctor", "when": "No Justice"}, {"place": "out", "when": "the camp, the ride, the cabin"}],
-      "lines": [
-        {"id": "joe.sean.stop", "place": "out", "when": "No Justice", "words": "Are you going to stop me?", "src": "script"},
-        {"id": "joe.sean.mine", "place": "out", "when": "No Justice", "words": "That was mine to take.", "src": "script"}
+      "secret": null,
+      "likes": [
+        {
+          "id": "rancher",
+          "why": "Proposed here: they have Spanish in common."
+        }
       ],
-      "fixed": {"name": "the bible (VOICES.md, Names)", "who": "VOICES.md (D)", "habit": "C4 a (D): the costume stays", "talks": "VOICES.md; WORDS.md; DIALOGUE.md tell 9"},
+      "dislikes": [],
+      "habit": "Wears a cowboy's hat and neckerchief, so the gang's friends won't take it out on his people.",
+      "talks": [
+        "English is his third language, after Ute and Spanish: exact and plain, not broken, not grand.",
+        "Says a thing once; long quiet; dry humour; his questions are tests.",
+        "Talks about things, never about what they mean."
+      ],
+      "voice": "Low, exact, unhurried. Cast with care.",
+      "body": null,
+      "clothes": null,
+      "seen": [
+        {
+          "place": "doctor",
+          "when": "No Justice"
+        },
+        {
+          "place": "out",
+          "when": "the camp, the ride, the cabin"
+        }
+      ],
+      "lines": [
+        {
+          "id": "joe.sean.stop",
+          "place": "out",
+          "when": "No Justice",
+          "words": "Are you going to stop me?",
+          "src": "script"
+        },
+        {
+          "id": "joe.sean.mine",
+          "place": "out",
+          "when": "No Justice",
+          "words": "That was mine to take.",
+          "src": "script"
+        }
+      ],
+      "fixed": {
+        "name": "the bible (VOICES.md, Names)",
+        "who": "VOICES.md (D)",
+        "habit": "C4 a (D): the costume stays",
+        "talks": "VOICES.md; WORDS.md; DIALOGUE.md tell 9"
+      },
       "notes": "Not in valley_folk.json (the acts place him). Listed because the townsfolk's sheets name him. Only the rancher's liking is proposed."
     },
     "kett": {
-      "kind": "cast", "role": "The red shirt", "name": "Silas Kett", "called": "'the red shirt', until someone names him; 'Red' to his crew",
+      "kind": "cast",
+      "role": "The red shirt",
+      "name": "Silas Kett",
+      "called": "'the red shirt', until someone names him; 'Red' to his crew",
       "who": "The Baron's hired gun who led the raid on the camp and killed Joe's wife. A coward.",
-      "age": null, "born": null, "from": null, "came": "Has done time in the state prison at Cañon City (the script's brief).",
-      "work": "The Baron's pay.", "place": "The cabin; Harlan's jail in the arrest ending; Main Street once he's turned loose.",
-      "wants": null, "secret": null, "likes": [], "dislikes": [], "habit": "Rates a jail by its supper.",
-      "talks": ["Easy, friendly, a drummer's patter; he sells.", "Wheedles when cornered and bargains with what he knows.", "'Deputy', made to sound like a joke. One of the few men allowed a slur (C13 b)."],
-      "voice": "Thirties, light, friendly, quick; a voice that cracks.", "body": null, "clothes": "A faded red shirt.",
-      "seen": [{"place": "out", "when": "No Justice: the cabin"}, {"place": "jail", "when": "the arrest ending"}, {"place": "street", "when": "the arrest ending, turned loose"}],
-      "lines": [
-        {"id": "kett.bible.liberty", "place": "street", "when": "the arrest ending", "words": "Morning, Deputy. Fine day to be at liberty.", "src": "bible"}
+      "age": null,
+      "born": null,
+      "from": null,
+      "came": "Has done time in the state prison at Cañon City (the script's brief).",
+      "work": "The Baron's pay.",
+      "place": "The cabin; Harlan's jail in the arrest ending; Main Street once he's turned loose.",
+      "wants": null,
+      "secret": null,
+      "likes": [],
+      "dislikes": [],
+      "habit": "Rates a jail by its supper.",
+      "talks": [
+        "Easy, friendly, a drummer's patter; he sells.",
+        "Wheedles when cornered and bargains with what he knows.",
+        "'Deputy', made to sound like a joke. One of the few men allowed a slur (C13 b)."
       ],
-      "fixed": {"name": "the bible", "who": "VOICES.md (D)", "habit": "DIALOGUE.md, the craft, 5", "talks": "VOICES.md"},
+      "voice": "Thirties, light, friendly, quick; a voice that cracks.",
+      "body": null,
+      "clothes": "A faded red shirt.",
+      "seen": [
+        {
+          "place": "out",
+          "when": "No Justice: the cabin"
+        },
+        {
+          "place": "jail",
+          "when": "the arrest ending"
+        },
+        {
+          "place": "street",
+          "when": "the arrest ending, turned loose"
+        }
+      ],
+      "lines": [
+        {
+          "id": "kett.bible.liberty",
+          "place": "street",
+          "when": "the arrest ending",
+          "words": "Morning, Deputy. Fine day to be at liberty.",
+          "src": "bible"
+        }
+      ],
+      "fixed": {
+        "name": "the bible",
+        "who": "VOICES.md (D)",
+        "habit": "DIALOGUE.md, the craft, 5",
+        "talks": "VOICES.md"
+      },
       "notes": "Not in valley_folk.json. A mission's character: nothing added."
     },
     "claude": {
-      "kind": "sean", "role": "Editor and printer of the Salt Creek Clarion", "name": "Claude Bérubé", "called": "Mr. Bérubé; 'the Frenchman' behind his back",
+      "kind": "sean",
+      "role": "Editor and printer of the Salt Creek Clarion",
+      "name": "Claude Bérubé",
+      "called": "Mr. Bérubé; 'the Frenchman' behind his back",
       "who": "Writes, sets and prints the weekly Clarion alone, gets the facts right, and won't print the Baron's version of things.",
-      "age": 38, "born": 1844, "from": "Trois-Rivières, Quebec; printer's devil at twelve at a French weekly",
+      "age": 38,
+      "born": 1844,
+      "from": "Trois-Rivières, Quebec; printer's devil at twelve at a French weekly",
       "came": "Went west with the Manitoba boom and set type for a French paper in Winnipeg; followed the rails to Denver, bought a tired second-hand press and hauled it to Salt Creek on a freight wagon in 1880. His wife Marie-Louise died of typhoid in Winnipeg in 1878, the winter before he came west, and their baby son with her: much of why he left, and why he works late.",
       "work": "The weekly Clarion, alone; handbills, wanted posters, wedding cards and the hotel's menus. What he prints the next morning is how the town hears what Harlan did.",
       "place": "The back room of his print shop on Main Street: a cot, a stove, books in two languages, the smell of ink, the press next door, two cats for the mice.",
       "wants": "To get it right in Thursday's paper; and one chapter of his history of Salt Creek finished, which it won't be.",
       "secret": "Her picture on the shelf over his cot is the only thing he dusts. He never speaks of her unless asked straight out, and then too long. He is a target and knows it: the Baron's account of things sits unprinted in his shop.",
-      "likes": [{"id": "store_wife", "why": "She brings him the children's compositions, spelled as written."}, {"id": "rancher", "why": "The other Catholic; they wait on the same priest."}, {"id": "undertaker", "why": "Gives him a name, an age and a cause, and never an opinion."}],
-      "dislikes": [{"id": "barkeep", "why": "Sells what he knows by the glass, and gets a third of it wrong."}],
-      "habit": "Ink to the second knuckle. Takes out a pencil stub while you talk, and mouths your sentence back with the grammar mended.",
-      "talks": ["Polite and precise, and a little too long: he finishes the sentence, and then one more.", "Corrects grammar without meaning to. English learned from print; a French word when he's tired ('bon', 'enfin').", "One glass of wine, never whiskey; never an oath in English, and never a thing he hasn't checked."],
-      "voice": "Late thirties, light, exact; a French Canadian's English, the h's sometimes missing when he hurries.", "body": "skinny", "clothes": "Printer's apron, black sleeve guards, a pencil in the hair, a good coat for interviews that has ink on the right cuff.",
-      "day_proposed": "Up at six to feed the cats and light the stove. Seven to noon at the case, setting type by the front window, where the street can see him. Noon, dinner at the hotel, where he reads the menus he printed. One to five, the walk: the depot for the wire and the noon train's news, the store, the doctor's door, the undertaker's book; he asks, and writes it down. Five to seven at the press. Half past seven, one glass of claret at the bar's quiet end, listening. Then back to the shop, the lamp lit till midnight; Wednesday night the press runs till the paper is out. Sundays he fishes the creek, badly, and writes his move to the priest in Montreal.",
-      "seen": [{"place": "print_shop", "when": "mornings at the case, evenings at the press, the lamp till midnight"}, {"place": "hotel", "when": "dinner at noon"}, {"place": "street", "when": "one to five, asking"}, {"place": "saloon.bar", "when": "half past seven, one glass"}, {"place": "out", "when": "Sundays, the creek"}],
-      "lines": [
-        {"id": "claude.whom", "place": "print_shop", "words": "It is 'whom', but I will set it the way you said it. A man should sound like himself in his own notice."},
-        {"id": "claude.account", "place": "print_shop", "words": "The Baron's man brought me his account of it, very clean, on good paper. It is there, under the cat."},
-        {"id": "claude.saw", "place": "street", "words": "You saw it? Then tell me only what you saw. What people think, I am given all week, and I do not print it."},
-        {"id": "claude.claret", "place": "saloon.bar", "to": "barkeep", "words": "The claret, one glass. No, the bottle with my name on it. Yes, I know what it costs you, you told me Thursday."},
-        {"id": "claude.fish", "place": "out", "words": "Since April I have caught two, and one of them I think was already dead. Pass me the tin, there, please."},
-        {"id": "claude.their", "place": "print_shop", "words": "'Their', Tommy: t, h, e, i, r. Otherwise it is very good. It goes on page three, beside the cattle prices."},
-        {"id": "claude.marie", "place": "print_shop", "when": "asked straight out about the picture", "words": "That is Marie-Louise. Winnipeg, in 'seventy-eight, the typhoid, and the boy the same week. She set type faster than I do, you know, she had the small hands for it, and she would sing while she did it, which I told her was bad for the spacing, and it was not, her spacing was..."}
+      "likes": [
+        {
+          "id": "store_wife",
+          "why": "She brings him the children's compositions, spelled as written."
+        },
+        {
+          "id": "rancher",
+          "why": "The other Catholic; they wait on the same priest."
+        },
+        {
+          "id": "undertaker",
+          "why": "Gives him a name, an age and a cause, and never an opinion."
+        }
       ],
-      "fixed": {"name": "Sean, #1207, 2026-11-27", "role": "Sean, #1207", "who": "Sean, #1207", "born": "Sean: born about 1844", "from": "Sean, #1207", "came": "Sean, #1207", "work": "Sean, #1207", "place": "Sean, #1207", "secret": "Sean, #1207 (the picture, how he speaks of her, quietly brave and a target); that the Baron's account sits in his shop is proposed", "talks": "Sean, #1207 (polite, precise, talks a little too long, corrects grammar; one glass of wine, never whiskey; honest to a fault); the French words are proposed"},
+      "dislikes": [
+        {
+          "id": "barkeep",
+          "why": "Sells what he knows by the glass, and gets a third of it wrong."
+        }
+      ],
+      "habit": "Ink to the second knuckle. Takes out a pencil stub while you talk, and mouths your sentence back with the grammar mended.",
+      "talks": [
+        "Polite and precise, and a little too long: he finishes the sentence, and then one more.",
+        "Corrects grammar without meaning to. English learned from print; a French word when he's tired ('bon', 'enfin').",
+        "One glass of wine, never whiskey; never an oath in English, and never a thing he hasn't checked."
+      ],
+      "voice": "Late thirties, light, exact; a French Canadian's English, the h's sometimes missing when he hurries.",
+      "body": "skinny",
+      "clothes": "Printer's apron, black sleeve guards, a pencil in the hair, a good coat for interviews that has ink on the right cuff.",
+      "day_proposed": "Up at six to feed the cats and light the stove. Seven to noon at the case, setting type by the front window, where the street can see him. Noon, dinner at the hotel, where he reads the menus he printed. One to five, the walk: the depot for the wire and the noon train's news, the store, the doctor's door, the undertaker's book; he asks, and writes it down. Five to seven at the press. Half past seven, one glass of claret at the bar's quiet end, listening. Then back to the shop, the lamp lit till midnight; Wednesday night the press runs till the paper is out. Sundays he fishes the creek, badly, and writes his move to the priest in Montreal.",
+      "seen": [
+        {
+          "place": "print_shop",
+          "when": "mornings at the case, evenings at the press, the lamp till midnight"
+        },
+        {
+          "place": "hotel",
+          "when": "dinner at noon"
+        },
+        {
+          "place": "street",
+          "when": "one to five, asking"
+        },
+        {
+          "place": "saloon.bar",
+          "when": "half past seven, one glass"
+        },
+        {
+          "place": "out",
+          "when": "Sundays, the creek"
+        }
+      ],
+      "lines": [
+        {
+          "id": "claude.whom",
+          "place": "print_shop",
+          "words": "It is 'whom'. But I will set it the way you said it, it is your notice."
+        },
+        {
+          "id": "claude.account",
+          "place": "print_shop",
+          "words": "The Baron's man brought me his account of it. Very clean, on good paper. No, I have not lost it. It is in the drawer."
+        },
+        {
+          "id": "claude.saw",
+          "place": "street",
+          "words": "You saw it? Then tell me only what you saw. What people think, I am given all week, and I do not print it."
+        },
+        {
+          "id": "claude.claret",
+          "place": "saloon.bar",
+          "to": "barkeep",
+          "words": "The claret, one glass. No, the bottle with my name on it. Yes, I know what it costs you, you told me Thursday."
+        },
+        {
+          "id": "claude.fish",
+          "place": "out",
+          "words": "Two fish, all this summer, and one of them I think was already dead. Pass me the tin there, please."
+        },
+        {
+          "id": "claude.their",
+          "place": "print_shop",
+          "words": "'Their', Tommy: t, h, e, i, r. Otherwise it is very good. It goes on page three, beside the cattle prices."
+        },
+        {
+          "id": "claude.marie",
+          "place": "print_shop",
+          "when": "asked straight out about the picture",
+          "words": "That is Marie-Louise. Winnipeg, in 'seventy-eight, the typhoid, and the boy the same week. She set type faster than I do, you know, she had the small hands for it, and she would sing while she did it, which I told her was bad for the spacing, and it was not, her spacing was..."
+        }
+      ],
+      "fixed": {
+        "name": "Sean, #1207, 2026-11-27",
+        "role": "Sean, #1207",
+        "who": "Sean, #1207",
+        "born": "Sean: born about 1844",
+        "from": "Sean, #1207",
+        "came": "Sean, #1207",
+        "work": "Sean, #1207",
+        "place": "Sean, #1207",
+        "secret": "Sean, #1207 (the picture, how he speaks of her, quietly brave and a target); that the Baron's account sits in his shop is proposed",
+        "talks": "Sean, #1207 (polite, precise, talks a little too long, corrects grammar; one glass of wine, never whiskey; honest to a fault); the French words are proposed"
+      },
       "notes": "Not in the valley yet: he needs a print shop on a Main Street lot, his press as a prop, and the Clarion's page as a texture the town's news fills (TownNews is the town's talk; the Clarion could print it the next morning). Also Sean's, not in a field above: chess by letter with a priest in Montreal, a move a fortnight; a scrapbook of everything in town; a history of Salt Creek he'll never finish; gentle with the town's children, prints their school compositions for free. Filled here and marked proposed: his age to the year, what he wants, who he likes, his habit, his voice, clothes and body, his day, and his lines."
     }
   }
