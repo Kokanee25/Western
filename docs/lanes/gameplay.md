@@ -52,6 +52,10 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   barkeep pours a kit bottle into a kit glass, the glass in your hand, the dial (sway, settle, nerve, the walk
   weaves). Answers: round, deputy, drunk, alone; news `bar`. Unjudged on screen: the hand round the glass, the pour.
   12 + 6 lines for Sean's script OK (#1150). Open: only the valley's bar has a BarService (no old town, no hotel).
+- **The town drunk** (#1312; LAYOUT "src/people" The town drunk; `TownDrunk`, `DrunkNotes`, `config/drunk_notes.json`):
+  Sarge in the valley (`town_drunk`), a jibe a meeting from 81 (TownBarks `you`/`sober`), answers (nod, shake, shove, a
+  glass given, G walks him to the jail), the street's word, regard, news; eleven notes by data. Read blind twice; Sean's
+  script OK (#1150). Open: no privy in the valley (the picture's on the livery); no mud or water on Harlan (no tags).
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's

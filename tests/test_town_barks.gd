@@ -7,8 +7,8 @@ extends TestCase
 ## - regard: each man's band from his own view of Harlan and the story's facts, the town's the average;
 ## - what you see by band (a man in a plain world): a nod, a look away, a turned shoulder, a step aside.
 
-const ONS := ["pass", "chat", "chat.reply", "knock", "knock.wait", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "react.back.saw", "react.back.you", "react.shove", "undertaker", "room.toast", "room.hail", "room.leave", "room.answer", "room.glass", "bar.round.thanks", "bar.alone", "bar.deputy", "bar.drunk"]
-const KNOWN := ["on", "once", "regard", "view", "fact", "day", "hour", "spot", "at", "whom", "who_you", "shaken", "indoors", "opinion"]
+const ONS := ["pass", "chat", "chat.reply", "knock", "knock.wait", "react.shot_far", "react.flee", "react.ring", "react.doc", "react.gun", "react.back", "react.back.saw", "react.back.you", "react.shove", "undertaker", "room.toast", "room.hail", "room.leave", "room.answer", "room.glass", "bar.round.thanks", "bar.alone", "bar.deputy", "bar.drunk", "jibe.first", "jibe", "jibe.nod", "jibe.shake", "jibe.shove", "jibe.drink", "jibe.drink.again", "jibe.lead", "jibe.let_go", "jibe.jail", "jibe.heard"]
+const KNOWN := ["on", "once", "regard", "view", "fact", "day", "hour", "spot", "at", "whom", "who_you", "shaken", "indoors", "opinion", "you", "sober"]
 const FACTS := ["news.", "nolaw.", "sheriff.", "nojustice.", "kett."]
 
 var world: Node3D

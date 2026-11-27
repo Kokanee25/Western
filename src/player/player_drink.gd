@@ -152,7 +152,8 @@ func _e_input(delta: float) -> void:
 		_e_t = -1.0
 		match _e_for:
 			&"hand":
-				set_down()
+				if not give_away():
+					set_down()
 			&"glass":
 				var v := vessel_here()
 				if v != null:
@@ -279,6 +280,20 @@ func set_down() -> bool:
 	v.put_down(_host if _host != null and is_instance_valid(_host) else player.get_parent(), Transform3D(Basis(Vector3.UP, player.rotation.y), at + Vector3.UP * 0.003))
 	last = &"set"
 	let_go.emit(v, false)
+	return true
+
+
+## Hand the glass to the town drunk by you (#1312, TownDrunk.takes_glass): a drink stood him. True if he took it.
+func give_away() -> bool:
+	var f := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk if is_inside_tree() else null
+	if not holding() or f == null or f.drunk == null or not f.drunk.takes_glass(player):
+		return false
+	var v := vessel
+	_release()
+	last = &"given"
+	let_go.emit(v, false)
+	v.queue_free()  # it's off you and down him before you've let go of it
+	f.drunk.answer(&"drink")
 	return true
 
 

@@ -98,6 +98,9 @@ func _on_table_deed(verb: StringName, info: Dictionary) -> void:
 		news.table(verb, info, at)
 
 
+## The town drunk (TownDrunk, #1312) and his notes about town (DrunkNotes).
+var drunk: TownDrunk
+var notes: DrunkNotes
 ## The card game at the set's table (CardGame, #766).
 var cards: CardGame
 ## Built and out of the world till wanted (id -> HumanBody).
@@ -231,6 +234,11 @@ func _ready() -> void:
 			_your_hands += 1
 		)
 	cards.you_did.connect(_on_table_deed)
+	# The town drunk (#1312): his jibes and answers, and his notes about town.
+	if data.has("drunk") and not _person(TownDrunk.ID).is_empty():
+		drunk = TownDrunk.new(self, data.drunk)
+		notes = DrunkNotes.new(self)
+		add_child(notes)
 	var mpath := "res://config/moments/%s.json" % MURDER
 	if FileAccess.file_exists(mpath):
 		_murder_data = JSON.parse_string(FileAccess.get_file_as_string(mpath))
@@ -1164,6 +1172,14 @@ func _physics_process(delta: float) -> void:
 		if service:
 			service.step(delta)
 		Prof.stop(&"saloon_room", t)
+	# The drunk and his notes (#1312): on the physics frame, as their sight and rays ask.
+	if drunk or notes:
+		var dt := Prof.start()
+		if drunk:
+			drunk.step(delta)
+		if notes:
+			notes.step(delta)
+		Prof.stop(&"valley_folk", dt)
 	if _to_say.is_empty():
 		return
 	var list := _to_say
@@ -2054,6 +2070,8 @@ func _talk_step() -> void:
 		var rid: int = news.to_say(id) if news != null and not pd.has("act") else 0
 		if not pd.has("says") and rid == 0 and (pd.has("act") or not pd.has("day")):
 			continue
+		if pd.has("jibes"):
+			continue  # the drunk's talk at you is his jibes (TownDrunk)
 		var man := folk_man(id)
 		if man == null or state.get(id) != &"in" or not man.physiology.is_conscious():
 			continue
@@ -2828,7 +2846,8 @@ func save_dict() -> Dictionary:
 	return {"state": state.duplicate(), "here": here, "book": book.rows.duplicate(true), "laid": lay,
 			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands,
 			"news": news.save_dict() if news else {}, "news_day": _news_day, "dead_out": dead,
-			"kept": kept.duplicate(true), "regard": regard.save_dict() if regard else {}}
+			"kept": kept.duplicate(true), "regard": regard.save_dict() if regard else {},
+			"drunk": drunk.to_dict() if drunk else {}, "notes": notes.to_dict() if notes else {}}
 
 
 ## A save's town day put back on a fresh town, before its people's bodies are (`SaveGame.apply`):
@@ -2844,6 +2863,10 @@ func load_dict(d: Dictionary) -> void:
 	_news_day = int(d.get("news_day", -1))
 	if regard:
 		regard.load_dict(d.get("regard", {}))
+	if drunk:
+		drunk.from_dict(d.get("drunk", {}))
+	if notes:
+		notes.from_dict(d.get("notes", {}))
 	kept = (d.get("kept", {}) as Dictionary).duplicate(true)
 	dead_out.clear()
 	for id: StringName in d.get("dead_out", {}):
