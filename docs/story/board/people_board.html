@@ -1,0 +1,583 @@
+<title>Salt Creek People</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: one column, phone first, the mission board's paper, ink and type. A home list (everyone, then the places);
+   tap a person for his sheet: every field and line has a note under it, and a Person OK at the foot. */
+:root {
+  --bg: #eef0ec; --page: #fbfbf8; --ink: #1d2124; --muted: #5f676b; --rule: #d4d8d2;
+  --accent: #8a3b22;   /* dried-blood brick: Sean's own, the bible's, a saved note */
+  --new: #2f5e7a;      /* proposed */
+  --open: #6b5a1e;     /* open */
+  --field: #ffffff; --ok: #2f6b3a;
+  --f-script: "Courier Prime", "Courier New", Courier, monospace;
+  --f-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15181a; --page: #1d2124; --ink: #e6e4dc; --muted: #9aa3a6; --rule: #343a3d;
+  --accent: #d9805f; --new: #7fb3d1; --open: #cdb466; --field: #15181a; --ok: #7cc48a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #15181a; --page: #1d2124; --ink: #e6e4dc; --muted: #9aa3a6; --rule: #343a3d;
+  --accent: #d9805f; --new: #7fb3d1; --open: #cdb466; --field: #15181a; --ok: #7cc48a; color-scheme: dark; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 44rem; margin: 0 auto; padding-block: 16px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sheet { background: var(--page); border: 1px solid var(--rule); border-radius: 4px; padding: 20px 16px; display: grid; gap: 22px; }
+@media (min-width: 640px) { .sheet { padding: 32px 40px; } }
+h1 { font-family: var(--f-script); font-weight: 700; font-size: 1.3rem; letter-spacing: .02em; margin: 0; text-transform: uppercase; text-wrap: balance; }
+h2 { font-family: var(--f-script); font-weight: 700; font-size: 1.02rem; margin: 0; text-transform: uppercase; letter-spacing: .03em; text-wrap: balance; }
+h3 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0; }
+p { margin: 0; }
+.small { font-size: 12.5px; color: var(--muted); }
+.label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.head { display: grid; gap: 8px; }
+.notice { font-size: 13px; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 10px; }
+.one { font-family: var(--f-script); font-size: 16.5px; line-height: 1.45; }
+
+.group { display: grid; gap: 4px; }
+.group > .small { padding-bottom: 4px; }
+.row { display: grid; gap: 2px; width: 100%; text-align: left; padding: 10px 2px; border: 0; border-top: 1px solid var(--rule);
+  background: none; color: var(--ink); font: inherit; cursor: pointer; }
+.row:hover .t, .row:focus-visible .t { text-decoration: underline; }
+.row .t { font-family: var(--f-script); font-weight: 700; font-size: 16px; }
+.row .r { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.row .o { font-size: 13.5px; color: var(--muted); }
+.row .c { font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.has { color: var(--accent); font-weight: 600; }
+.okd { color: var(--ok); font-weight: 600; }
+.stale { color: var(--open); font-weight: 600; }
+
+.back { justify-self: start; font: 600 13px var(--f-ui); border: 1px solid var(--rule); border-radius: 4px; background: var(--page); color: var(--ink); padding: 7px 12px; cursor: pointer; }
+.sec { display: grid; gap: 12px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.f { display: grid; gap: 3px; }
+.f .k { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.f .v { min-width: 0; overflow-wrap: anywhere; }
+.f .v.none { color: var(--muted); font-style: italic; }
+.why { color: var(--muted); }
+.tag { font-family: var(--f-ui); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; white-space: nowrap; }
+.tag.d { color: var(--accent); } .tag.p { color: var(--new); } .tag.o { color: var(--open); }
+.src { font-size: 11.5px; color: var(--muted); }
+.say { font-family: var(--f-script); font-size: 16px; line-height: 1.45; }
+.meta { display: block; font-size: 12px; color: var(--muted); }
+.link { text-align: left; font: inherit; color: var(--new); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.day { display: grid; grid-template-columns: minmax(7.5em, auto) 1fr; gap: 4px 12px; font-size: 14px; }
+.day .h { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.place { display: grid; gap: 10px; padding: 12px; background: var(--bg); border-radius: 4px; }
+.place h4 { margin: 0; font-family: var(--f-script); font-size: 15px; text-transform: uppercase; letter-spacing: .03em; }
+
+.nb { display: grid; gap: 3px; margin-top: 2px; }
+.addnote { justify-self: start; font: 600 11.5px var(--f-ui); color: var(--muted); border: 1px dashed var(--rule); border-radius: 4px; background: none; padding: 2px 8px; cursor: pointer; }
+.addnote.on { color: var(--accent); border-style: solid; border-color: var(--accent); }
+textarea { width: 100%; box-sizing: border-box; min-height: 2.6em; resize: vertical; font: 14px/1.4 var(--f-ui); color: var(--ink);
+  background: var(--field); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; }
+textarea:focus-visible, button:focus-visible { outline: 2px solid var(--new); outline-offset: 2px; }
+.saved { font-size: 11.5px; color: var(--muted); min-height: 1em; }
+.big { display: grid; gap: 6px; padding: 12px; background: var(--bg); border-radius: 4px; }
+.okbtn { justify-self: start; font: 600 15px var(--f-ui); border: 2px solid var(--ok); color: var(--ok); background: var(--page); border-radius: 4px; padding: 10px 18px; cursor: pointer; }
+.okbtn.done { background: var(--ok); color: var(--page); }
+.fold { border-top: 1px solid var(--rule); padding-top: 10px; }
+.fold > summary { cursor: pointer; font-family: var(--f-script); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: .95rem; padding: 4px 0; }
+.fold > summary:focus-visible { outline: 2px solid var(--new); outline-offset: 2px; }
+.fold > summary .n { font-family: var(--f-ui); font-weight: 400; font-size: 11.5px; color: var(--muted); text-transform: none; letter-spacing: 0; margin-left: 6px; }
+.fold > .in { display: grid; gap: 12px; padding: 10px 0 4px; }
+.okbtn:disabled { opacity: .5; cursor: default; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <article class="sheet" id="sheet">
+    <header class="head">
+      <div class="label">Salt Creek · the people</div>
+      <h1>People</h1>
+      <p class="small" id="status">Loading the people…</p>
+    </header>
+  </article>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const sheet = document.getElementById("sheet");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let db = null, notes = {}, oks = {}, data = null, storeState = "loading";
+
+  function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  const nameOf = (p) => p.name || p.role;
+  const go = (hash) => { location.hash = hash; };
+
+  function saver(key, getData, statusEl) {
+    let timer = null, busy = false, again = false;
+    async function write() {
+      if (!db) return;
+      if (busy) { again = true; return; }
+      busy = true; statusEl.textContent = "Saving…";
+      const d = getData();
+      try {
+        if (d.note.trim()) await db.doc("notes/" + key).set(Object.assign(d, { at: new Date().toISOString() }));
+        else if (notes[key]) await db.doc("notes/" + key).delete();
+        if (d.note.trim()) notes[key] = d; else delete notes[key];
+        statusEl.textContent = d.note.trim() ? "Saved" : "";
+      } catch (e) { statusEl.textContent = "Not saved: " + (e && e.code ? e.code : "the store refused it") + ". Try again in a moment."; }
+      busy = false; if (again) { again = false; write(); }
+    }
+    return { soon() { clearTimeout(timer); timer = setTimeout(write, 700); }, now() { clearTimeout(timer); write(); } };
+  }
+
+  // A note under one field or line (key); `about` is its own words, kept with the note so a later session can find
+  // what it was on even after the sheet changes.
+  function noteBox(key, about, where, open) {
+    const box = el("div", "nb");
+    const has = !!(notes[key] && notes[key].note);
+    const btn = el("button", "addnote" + (has ? " on" : ""), has ? "Your note" : "+ note"); btn.type = "button";
+    const ta = document.createElement("textarea"); ta.id = "n-" + key; ta.rows = 2; ta.value = has ? notes[key].note : "";
+    ta.placeholder = "Keep, cut, change, or your own version"; ta.setAttribute("aria-label", "Note on: " + String(about).slice(0, 80));
+    const saved = el("div", "saved");
+    const s = saver(key, () => ({ note: ta.value, about: String(about).slice(0, 300), where: where }), saved);
+    ta.disabled = !db; ta.hidden = !(has || open); saved.hidden = ta.hidden;
+    btn.hidden = !!open;
+    btn.addEventListener("click", () => { ta.hidden = !ta.hidden; saved.hidden = ta.hidden; if (!ta.hidden) ta.focus(); });
+    ta.addEventListener("input", () => { btn.textContent = ta.value.trim() ? "Your note" : "+ note"; btn.classList.toggle("on", !!ta.value.trim()); s.soon(); });
+    ta.addEventListener("blur", () => s.now());
+    box.append(btn, ta, saved);
+    return box;
+  }
+
+  const countNotes = (prefix) => Object.keys(notes).filter((k) => k === prefix || k.startsWith(prefix + ".")).length;
+  // An OK counts only for the sheet it was tapped on: the stored hash must be this sheet's.
+  const okState = (p) => { const o = oks[p.id]; if (!o || !o.ok) return "no"; return o.hash === p.hash ? "ok" : "stale"; };
+  const when = (iso) => { try { return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }); } catch (e) { return iso; } };
+
+  function storeLine() {
+    if (storeState === "loading") return el("p", "small", "Loading your notes…");
+    if (!db) return el("p", "notice", "Notes and OKs can't be saved in this view (signed out, or the store didn't answer). Everything still reads.");
+    return el("p", "small", "Notes save as you type. " + Object.keys(notes).length + " saved so far.");
+  }
+
+  // Whose word a field is: the bible's or Sean's (fixed), this file's proposal, or open.
+  function tagFor(p, field, empty) {
+    const fx = p.fixed && p.fixed[field];
+    if (fx) return '<span class="tag d">' + (p.kind === "sean" ? "yours" : "from the bible") + '</span> <span class="src">' + esc(fx) + "</span>";
+    if (empty) return '<span class="tag o">open</span>';
+    return '<span class="tag p">proposed</span>';
+  }
+
+  function field(p, key, title, value) {
+    const f = el("div", "f");
+    const empty = value == null || value === "" || (Array.isArray(value) && !value.length);
+    f.append(el("div", "k", '<span class="label">' + esc(title) + "</span> " + tagFor(p, key, empty)));
+    f.append(el("div", "v" + (empty ? " none" : ""), empty ? "Not in the bible; nothing proposed." : esc(value)));
+    f.append(noteBox("p." + p.id + "." + key, title + ": " + (empty ? "" : value), nameOf(p)));
+    return f;
+  }
+
+  function lineBlock(ln, owner, showWho) {
+    const p = data.people[owner];
+    const f = el("div", "f");
+    const bits = [];
+    if (showWho) bits.push("<b>" + esc(nameOf(p)) + "</b>");
+    if (ln.to && data.people[ln.to]) bits.push("to " + esc(nameOf(data.people[ln.to])));
+    if (ln.when) bits.push(esc(ln.when));
+    if (ln.src) bits.push('<span class="tag d">' + ({ built: "in the game", script: "from the script", bible: "from the bible", town: "the town's script" }[ln.src] || esc(ln.src)) + "</span>");
+    else bits.push('<span class="tag p">proposed</span>');
+    f.append(el("div", "meta", bits.join(" · ")));
+    f.append(el("div", "say", esc(ln.words)));
+    f.append(noteBox("p." + owner + ".line." + ln.id, ln.words, nameOf(p) + " / " + ln.place));
+    return f;
+  }
+
+  function personRow(p) {
+    const r = el("button", "row"); r.type = "button";
+    r.append(el("span", "t", esc(nameOf(p))));
+    r.append(el("span", "r", esc(p.name ? p.role : (p.called || ""))));
+    r.append(el("span", "o", esc(p.who)));
+    const c = [], st = okState(p), n = countNotes("p." + p.id);
+    if (st === "ok") c.push('<span class="okd">Person OK ✓</span>');
+    if (st === "stale") c.push('<span class="stale">changed since your OK</span>');
+    if (!p.in_valley) c.push("<span>not in the valley yet</span>");
+    c.push("<span>" + p.lines.length + (p.lines.length === 1 ? " line" : " lines") + "</span>");
+    if (p.kind !== "cast") c.push(p.more ? "<span>full card</span>" : "<span>more to come</span>");
+    if (n) c.push('<span class="has">' + n + " of your notes</span>");
+    r.append(el("span", "c", c.join("")));
+    r.addEventListener("click", () => go("p-" + p.id));
+    return r;
+  }
+
+  function home() {
+    sheet.innerHTML = "";
+    const all = data.order.map((id) => data.people[id]);
+    const head = el("header", "head");
+    head.append(el("div", "label", "Salt Creek · 1882 · everyone you can walk up to"));
+    head.append(el("h1", "", "The people"));
+    head.append(el("p", "", "Pick a person to read the whole sheet: who they are, their day, and what they say, grouped by where you meet them. Leave a note under any field or line, and tap <b>Person OK</b> at the foot when the sheet is right."));
+    head.append(el("p", "small", '<span class="tag p">proposed</span> is written for you to judge; <span class="tag d">from the bible</span> is already fixed; <span class="tag o">open</span> has nothing yet. Built ' + esc(data.built) + "."));
+    const town = all.filter((p) => p.kind === "townsfolk"), done = town.filter((p) => okState(p) === "ok").length;
+    if (storeState === "ready") head.append(el("p", "small", done + " of " + town.length + " townsfolk have your OK."));
+    head.append(storeLine());
+    sheet.append(head);
+
+    const groups = [
+      ["The townsfolk", "New names and sheets, all proposed. These want your OK.", town],
+      ["Yours", "Written by you; only the gaps are filled in, and marked.", all.filter((p) => p.kind === "sean")],
+      ["The missions' people", "What the bible already fixes. Nobody here is renamed; open fields are left open.", all.filter((p) => p.kind === "cast")],
+    ];
+    groups.forEach(([title, sub, list]) => {
+      if (!list.length) return;
+      const g = el("section", "group"); g.append(el("h2", "", esc(title))); g.append(el("p", "small", esc(sub)));
+      list.forEach((p) => g.append(personRow(p)));
+      sheet.append(g);
+    });
+
+    const g = el("section", "group"); g.append(el("h2", "", "By place")); g.append(el("p", "small", "Everyone you meet in one place, and everything said there."));
+    data.places.forEach((pl) => {
+      const r = el("button", "row"); r.type = "button";
+      r.append(el("span", "t", esc(pl.label)));
+      r.append(el("span", "c", "<span>" + pl.who.length + (pl.who.length === 1 ? " person" : " people") + "</span><span>" + pl.lines.length + (pl.lines.length === 1 ? " line" : " lines") + "</span>"));
+      r.addEventListener("click", () => go("at-" + pl.place.replace(".", "-")));
+      g.append(r);
+    });
+    sheet.append(g);
+
+    const x = el("section", "group"); x.append(el("h2", "", "Shared cards"));
+    [["x-nobody", "The man nobody knew", "Funeral lines for strangers, drifters, a gang's riders and a known outlaw."],
+     ["x-homes", "Where everyone lives", data.homes.filter((h) => h.state === "built").length + " built, " + data.homes.filter((h) => h.state !== "built").length + " to be built."]].forEach(([h, t, o]) => {
+      const r = el("button", "row"); r.type = "button"; r.append(el("span", "t", esc(t))); r.append(el("span", "o", esc(o)));
+      r.addEventListener("click", () => go(h)); x.append(r);
+    });
+    sheet.append(x);
+
+    if (data.assumed && data.assumed.length) {
+      const a = el("section", "sec"); a.append(el("h3", "", "Assumed, to make the sheets fit"));
+      data.assumed.forEach((t, i) => { const f = el("div", "f"); f.append(el("div", "v", esc(t))); f.append(noteBox("a." + i, t, "Assumed")); a.append(f); });
+      sheet.append(a);
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function backBtn() { const b = el("button", "back", "← Everyone"); b.type = "button"; b.addEventListener("click", () => go("")); return b; }
+
+  function okBox(p) {
+    const big = el("div", "big");
+    big.append(el("h3", "", "Person OK"));
+    const btn = el("button", "okbtn"); btn.type = "button"; btn.id = "ok-" + p.id;
+    const line = el("p", "small");
+    const paint = () => {
+      const st = okState(p), o = oks[p.id];
+      btn.textContent = st === "ok" ? "Person OK ✓ (tap to take it back)" : "Person OK";
+      btn.classList.toggle("done", st === "ok"); btn.disabled = !db;
+      line.textContent = st === "ok" ? "You OK'd this sheet " + when(o.at) + "."
+        : st === "stale" ? "You OK'd an earlier version " + when(o.at) + ". The sheet has changed since, so it wants your OK again."
+        : "Tap when the sheet is right. A later change to the sheet asks for your OK again.";
+    };
+    btn.addEventListener("click", async () => {
+      if (!db) return;
+      const on = okState(p) !== "ok";
+      const d = { ok: on, hash: p.hash, name: nameOf(p), at: new Date().toISOString() };
+      btn.disabled = true;
+      try { await db.doc("ok/" + p.id).set(d); oks[p.id] = d; }
+      catch (e) { line.textContent = "Not saved: " + (e && e.code ? e.code : "the store refused it") + ". Try again in a moment."; btn.disabled = false; return; }
+      paint();
+    });
+    paint();
+    big.append(btn, line);
+    return big;
+  }
+
+  function relations(p, key, title) {
+    const s = el("div", "f");
+    const list = p[key] || [];
+    s.append(el("div", "k", '<span class="label">' + esc(title) + "</span> " + (list.length ? '<span class="tag p">proposed</span>' : '<span class="tag o">open</span>')));
+    if (!list.length) s.append(el("div", "v none", "Nobody named."));
+    list.forEach((r) => {
+      const o = data.people[r.id]; if (!o) return;
+      const f = el("div", "f");
+      const v = el("div", "v");
+      const b = el("button", "link"); b.type = "button"; b.textContent = nameOf(o); b.addEventListener("click", () => go("p-" + r.id));
+      v.append(b); v.append(el("span", "why", ": " + esc(r.why)));
+      f.append(v); f.append(noteBox("p." + p.id + "." + key + "." + r.id, title + " " + nameOf(o) + ": " + r.why, nameOf(p)));
+      s.append(f);
+    });
+    return s;
+  }
+
+  function person(p) {
+    sheet.innerHTML = "";
+    sheet.append(backBtn());
+    const head = el("header", "head");
+    head.append(el("div", "label", esc(p.role) + (p.in_valley ? "" : " · not in the valley yet")));
+    head.append(el("h1", "", esc(nameOf(p))));
+    head.append(el("p", "one", esc(p.who)));
+    head.append(el("p", "small", p.kind === "townsfolk" ? "A townsperson: the name and the sheet are proposed, for your OK."
+      : p.kind === "sean" ? "Yours, as you wrote him. Only what you left open is filled in, and marked proposed."
+      : "A mission's character: listed with what the bible fixes, not renamed. Open fields stay open unless you say otherwise in a note."));
+    if (p.roster_ids && p.roster_ids.length) head.append(el("p", "small", "In the game as <code>" + p.roster_ids.map(esc).join("</code>, <code>") + "</code>" + (p.dials ? " · nerve " + p.dials.nerve + ", nosy " + p.dials.nosy + ", duty " + p.dials.duty : "") + "."));
+    head.append(storeLine());
+    sheet.append(head);
+
+    const big = el("div", "big");
+    big.append(el("h3", "", "Your note on the whole person"));
+    big.append(noteBox("p." + p.id, nameOf(p), nameOf(p), true));
+    sheet.append(big);
+
+    const who = el("section", "sec"); who.append(el("h2", "", "The sheet"));
+    who.append(field(p, "name", "Name", p.name));
+    who.append(field(p, "called", "What the town calls them", p.called));
+    who.append(field(p, "age", "Age", p.age == null ? null : p.age + (p.born ? " (born " + p.born + ")" : "")));
+    who.append(field(p, "from", "From", p.from));
+    who.append(field(p, "came", "Why they came", p.came));
+    who.append(field(p, "work", "Work", p.work));
+    who.append(field(p, "place", "Their place in town", p.place));
+    who.append(field(p, "wants", "Wants", p.wants));
+    who.append(field(p, "secret", "A fear or a secret", p.secret));
+    who.append(field(p, "habit", "A habit you can see", p.habit));
+    who.append(relations(p, "likes", "Likes"));
+    who.append(relations(p, "dislikes", "Dislikes"));
+    sheet.append(who);
+
+    const talk = el("section", "sec"); talk.append(el("h2", "", "How they talk"));
+    const tk = el("div", "f"); tk.append(el("div", "k", tagFor(p, "talks", !(p.talks || []).length))); talk.append(tk);
+    (p.talks || []).forEach((t, i) => { const f = el("div", "f"); f.append(el("div", "v", esc(t))); f.append(noteBox("p." + p.id + ".talks." + i, t, nameOf(p))); talk.append(f); });
+    if (!p.more) {
+      talk.append(field(p, "voice", "The voice, for casting", p.voice));
+      talk.append(field(p, "body", "Body", p.body));
+      talk.append(field(p, "clothes", "Clothes", p.clothes));
+    }
+    sheet.append(talk);
+
+    const day = el("section", "sec"); day.append(el("h2", "", "Their day"));
+    if (p.day && p.day.length) {
+      day.append(el("p", "small", "From the game's own schedule."));
+      p.day.forEach((k) => {
+        day.append(el("h3", "", esc(k.label)));
+        const d = el("div", "day");
+        k.rows.forEach((r) => { d.append(el("span", "h", esc(r.h))); d.append(el("span", "", esc(r.what))); });
+        day.append(d);
+      });
+    } else if (p.day_proposed) {
+      day.append(el("p", "small", 'Not in the game yet. <span class="tag p">proposed</span>'));
+      day.append(el("p", "", esc(p.day_proposed)));
+    } else {
+      day.append(el("p", "small", "No day of their own: the story places them."));
+    }
+    day.append(noteBox("p." + p.id + ".day", "Their day", nameOf(p)));
+    sheet.append(day);
+
+    const pl = el("section", "sec"); pl.append(el("h2", "", "Where you meet them, and what they say there"));
+    p.groups.forEach((g) => {
+      const box = el("div", "place");
+      const h = el("h4"); const hb = el("button", "link"); hb.type = "button"; hb.textContent = g.label; hb.addEventListener("click", () => go("at-" + g.place.replace(".", "-"))); h.append(hb);
+      box.append(h);
+      box.append(el("p", "small", "<b>When:</b> " + esc(g.when)));
+      if (g.with.length) {
+        const w = el("p", "small"); w.append(el("b", "", "With: "));
+        g.with.forEach((m, i) => {
+          const b = el("button", "link"); b.type = "button"; b.textContent = m.name; b.addEventListener("click", () => go("p-" + m.id));
+          w.append(b); w.append(document.createTextNode((m.hours ? " (" + m.hours + ")" : "") + (i < g.with.length - 1 ? ", " : "")));
+        });
+        box.append(w);
+      }
+      if (!g.lines.length) box.append(el("p", "small", "No lines here yet."));
+      g.lines.forEach((ln) => box.append(lineBlock(ln, p.id, false)));
+      pl.append(box);
+    });
+    sheet.append(pl);
+
+    sheet.append(more(p));
+    if (p.notes) { const n = el("section", "sec"); n.append(el("h3", "", "For the next writer")); n.append(el("p", "small", esc(p.notes))); sheet.append(n); }
+    sheet.append(okBox(p));
+    sheet.append(backBtn());
+    window.scrollTo(0, 0);
+  }
+
+
+  // The further sections (Sean, 2026-11-27): each folded until opened, open already where a note of yours sits.
+  const SUBS = {
+    circle: [["friends", "Friends, and where they go"], ["family", "Family and loved ones"]],
+    harlan: [["starts", "Where they start"], ["warms", "What warms them"], ["cools", "What turns them"]],
+    looks: [["body", "Body"], ["hair", "Hair"], ["beard", "Beard"], ["clothes", "Clothes"], ["wear", "Their trade's wear"]],
+    casting: [["voice", "The voice"], ["accent", "Accent"], ["pace", "Pace"], ["say_name", "How to say the name"]],
+    owns: [["money", "Money"], ["home", "At home"], ["pockets", "In their pockets"], ["owes", "Owes"]],
+    week: [["sunday", "Sundays"], ["payday", "Payday"], ["vices", "Vices"]],
+    loyalty: [["side", "With the Baron, or against"], ["why", "Why"]],
+  };
+  const GREET = [["warm", "Warm"], ["wary", "Wary"], ["cold", "Cold"], ["afraid", "Afraid"]];
+  function sub(p, sec, key, title, value) {
+    const f = el("div", "f");
+    const empty = value == null || value === "";
+    f.append(el("div", "k", '<span class="label">' + esc(title) + "</span>"));
+    f.append(el("div", "v" + (empty ? " none" : ""), empty ? "Nothing." : esc(value)));
+    f.append(noteBox("p." + p.id + "." + sec + "." + key, title + ": " + (value || ""), nameOf(p)));
+    return f;
+  }
+  function said(key, who, words, src, where) {
+    const f = el("div", "f");
+    f.append(el("div", "meta", "<b>" + esc(who) + "</b>" + (src ? ' · <span class="tag d">' + (src === "script" ? "from the script" : esc(src)) + "</span>" : "")));
+    f.append(el("div", "say", esc(words)));
+    f.append(noteBox(key, words, where));
+    return f;
+  }
+  function fold(p, sec, title, count, fill) {
+    const d = document.createElement("details"); d.className = "fold"; d.id = "f-" + p.id + "-" + sec;
+    d.open = countNotes("p." + p.id + "." + sec) > 0;
+    const fx = p.fixed && p.fixed[sec];
+    d.append(el("summary", "", esc(title) + (count ? '<span class="n">' + esc(count) + "</span>" : "")));
+    const inn = el("div", "in");
+    if (fx) inn.append(el("div", "k", '<span class="tag d">' + (p.kind === "sean" ? "yours" : "from the bible") + '</span> <span class="src">' + esc(fx) + "</span>"));
+    fill(inn);
+    d.append(inn);
+    return d;
+  }
+  function more(p) {
+    const box = el("section", "sec");
+    box.append(el("h2", "", "More about them"));
+    if (!p.more) {
+      box.append(el("p", "small", p.kind === "cast" ? "A mission's character: these sections are left to the bible and the scripts." : "Not written yet: time in town, friends and family, home, funeral, what they know, and the rest come in the next batch."));
+      if (p.if_dies) box.append(fold(p, "if_dies", "If they die", p.if_dies.lines.length + " lines", (inn) => dies(p, inn)));
+      return box;
+    }
+    box.append(el("p", "small", 'Each section opens when tapped. All of it is <span class="tag p">proposed</span> unless marked.'));
+    const whole = (sec) => (inn) => { inn.append(el("div", "v", esc(p[sec]))); inn.append(noteBox("p." + p.id + "." + sec, p[sec], nameOf(p))); };
+    const subs = (sec) => (inn) => { SUBS[sec].forEach(([k, t]) => { if (sec === "looks" && k === "beard" && !p.looks.beard) return; inn.append(sub(p, sec, k, t, p[sec][k])); }); };
+    box.append(fold(p, "in_town", "Their time in town", "", whole("in_town")));
+    box.append(fold(p, "circle", "Friends, circle and family", "", subs("circle")));
+    box.append(fold(p, "home", "Where they live", p.home.state, (inn) => {
+      const f = el("div", "f");
+      f.append(el("div", "k", '<span class="tag ' + (p.home.state === "built" ? "d" : "o") + '">' + esc(p.home.state) + '</span> <span class="src">' + esc(p.home.where || "") + "</span>"));
+      f.append(el("div", "v", esc(p.home.what))); f.append(noteBox("p." + p.id + ".home", p.home.what, nameOf(p))); inn.append(f);
+    }));
+    box.append(fold(p, "if_dies", "If they die", p.if_dies.lines.length + " lines", (inn) => dies(p, inn)));
+    box.append(fold(p, "knows", "What they know of the story", "", (inn) => {
+      p.knows.forEach((k, i) => {
+        const f = el("div", "f");
+        f.append(el("div", "v", esc(k.what)));
+        const m = [];
+        if (k.from) m.push("<b>From:</b> " + esc(k.from)); if (k.tells) m.push("<b>Tells:</b> " + esc(k.tells)); if (k.takes) m.push("<b>What it takes:</b> " + esc(k.takes));
+        if (m.length) f.append(el("div", "meta", m.join("<br>")));
+        f.append(noteBox("p." + p.id + ".knows." + i, k.what, nameOf(p)));
+        inn.append(f);
+      });
+    }));
+    box.append(fold(p, "trouble", "When things go wrong", "", whole("trouble")));
+    box.append(fold(p, "harlan", "How they feel about Harlan", "", (inn) => {
+      subs("harlan")(inn);
+      inn.append(el("h3", "", "How they greet the deputy"));
+      GREET.forEach(([k, t]) => inn.append(said("p." + p.id + ".harlan.greet." + k, t, p.harlan.greets[k], "", nameOf(p) + " / greeting")));
+    }));
+    box.append(fold(p, "jobs", "Jobs they could bring the deputy", p.jobs.length + "", (inn) => {
+      p.jobs.forEach((j, i) => { const f = el("div", "f"); f.append(el("div", "v", esc(j))); f.append(noteBox("p." + p.id + ".jobs." + i, j, nameOf(p))); inn.append(f); });
+    }));
+    box.append(fold(p, "looks", "How they look", "", subs("looks")));
+    box.append(fold(p, "casting", "Their voice, for casting", "", subs("casting")));
+    box.append(fold(p, "owns", "What they own and owe", "", subs("owns")));
+    box.append(fold(p, "week", "Their week", "", subs("week")));
+    box.append(fold(p, "loyalty", "Their loyalties", "", subs("loyalty")));
+    return box;
+  }
+  function dies(p, inn) {
+    const x = p.if_dies;
+    inn.append(sub(p, "if_dies", "grief", "Who grieves, and how", x.grief));
+    inn.append(el("h3", "", "At the grave"));
+    x.lines.forEach((ln) => inn.append(said("p." + p.id + ".grave." + ln.id, ln.by_name, ln.words, ln.src, nameOf(p) + " / funeral")));
+    inn.append(sub(p, "if_dies", "bearers", "Who carries the coffin", x.bearers));
+    inn.append(sub(p, "if_dies", "after", "What changes in town", x.after));
+  }
+
+  function nobody() {
+    sheet.innerHTML = "";
+    sheet.append(backBtn());
+    const head = el("header", "head");
+    head.append(el("div", "label", "One shared card")); head.append(el("h1", "", "The man nobody knew"));
+    head.append(el("p", "small", 'Funeral lines for a stranger, for a gang\'s rider nobody claims, and for a known outlaw. <span class="tag p">proposed</span>'));
+    head.append(storeLine());
+    sheet.append(head);
+    [["stranger", "A stranger or a drifter"], ["rider", "A gang's rider (Kett's crew, the Colters' men)"], ["outlaw", "A known outlaw"]].forEach(([g, t]) => {
+      const s = el("section", "sec"); s.append(el("h2", "", t));
+      (data.nobody[g] || []).forEach((ln) => s.append(said("n." + ln.id, ln.by_name, ln.words, "", "The man nobody knew / " + g)));
+      sheet.append(s);
+    });
+    sheet.append(backBtn());
+    window.scrollTo(0, 0);
+  }
+  function homes() {
+    sheet.innerHTML = "";
+    sheet.append(backBtn());
+    const head = el("header", "head");
+    head.append(el("div", "label", "For the buildings list")); head.append(el("h1", "", "Where everyone lives"));
+    head.append(el("p", "small", "Built means it stands in the valley today. A note here is the same note as on the person's page."));
+    sheet.append(head);
+    ["to be built", "built"].forEach((st) => {
+      const s = el("section", "sec"); s.append(el("h2", "", st === "built" ? "Built" : "To be built"));
+      data.homes.filter((h) => h.state === st).forEach((h) => {
+        const f = el("div", "f"); const v = el("div", "v");
+        const b = el("button", "link"); b.type = "button"; b.textContent = h.name; b.addEventListener("click", () => go("p-" + h.id));
+        v.append(b); v.append(el("span", "why", ": " + esc(h.what) + (h.where ? " (" + esc(h.where) + ")" : "")));
+        f.append(v); f.append(noteBox("p." + h.id + ".home", h.what, h.name)); s.append(f);
+      });
+      sheet.append(s);
+    });
+    sheet.append(backBtn());
+    window.scrollTo(0, 0);
+  }
+
+  function place(pl) {
+    sheet.innerHTML = "";
+    sheet.append(backBtn());
+    const head = el("header", "head");
+    head.append(el("div", "label", "By place")); head.append(el("h1", "", esc(pl.label)));
+    head.append(el("p", "small", "Who is here and when, then everything said here. A note on a line here is the same note as on the person's own page."));
+    head.append(storeLine());
+    sheet.append(head);
+    const who = el("section", "sec"); who.append(el("h2", "", "Who's here"));
+    pl.who.forEach((w) => {
+      const f = el("div", "f"); const v = el("div", "v");
+      const b = el("button", "link"); b.type = "button"; b.textContent = w.name; b.addEventListener("click", () => go("p-" + w.id));
+      v.append(b); v.append(el("span", "why", " · " + esc(w.when)));
+      f.append(v); who.append(f);
+    });
+    sheet.append(who);
+    const said = el("section", "sec"); said.append(el("h2", "", "What's said here"));
+    if (!pl.lines.length) said.append(el("p", "small", "No lines here yet."));
+    pl.lines.forEach((ln) => said.append(lineBlock(ln, ln.pid, true)));
+    sheet.append(said);
+    sheet.append(backBtn());
+    window.scrollTo(0, 0);
+  }
+
+  function route() {
+    if (!data) return;
+    const h = (location.hash || "").replace(/^#/, "");
+    if (h.startsWith("p-") && data.people[h.slice(2)]) return person(data.people[h.slice(2)]);
+    if (h === "x-nobody") return nobody();
+    if (h === "x-homes") return homes();
+    if (h.startsWith("at-")) { const pl = data.places.find((x) => x.place.replace(".", "-") === h.slice(3)); if (pl) return place(pl); }
+    home();
+  }
+
+  async function start() {
+    try {
+      const r = await fetch("people_board.json", { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      data = await r.json();
+    } catch (e) {
+      document.getElementById("status").textContent = "The people file didn't load (" + e.message + "). Reload the page.";
+      return;
+    }
+    route();
+    window.addEventListener("hashchange", route);
+    const giveUp = setTimeout(() => { if (storeState === "loading") { storeState = "none"; route(); } }, 10000);
+    try {
+      const use = window.claude && window.claude.use;
+      db = use ? await window.claude.use("db") : null;
+    } catch (e) { db = null; }
+    if (db) {
+      try { const c = await db.collection("notes").get(); c.docs.forEach((x) => { notes[x.id] = x.data(); }); } catch (e) { /* an empty store */ }
+      try { const c = await db.collection("ok").get(); c.docs.forEach((x) => { oks[x.id] = x.data(); }); } catch (e) { /* an empty store */ }
+    }
+    clearTimeout(giveUp); storeState = db ? "ready" : "none";
+    // Don't redraw over a note being typed: only when nothing has focus in a field.
+    if (!(document.activeElement && document.activeElement.tagName === "TEXTAREA")) route();
+  }
+  start();
+})();
+</script>
