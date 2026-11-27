@@ -1,3 +1,599 @@
 {
- "error": "the game exited (-15); see build/bridge/godot.log\n"
+ "clock": "00:14",
+ "cmd": "oh_stop",
+ "lines": [
+  [
+   "rancher",
+   "To the last one. And the next.",
+   3.4,
+   "20:32",
+   "said",
+   1.0
+  ],
+  [
+   "miner",
+   "Earl! Get in here.",
+   1.2,
+   "20:32",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Somebody cut.",
+   9.8,
+   "20:36",
+   "said",
+   1.0
+  ],
+  [
+   "rancher",
+   "Look what the wind blew in.",
+   3.4,
+   "20:37",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Check.",
+   11.2,
+   "20:40",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "I'll knock.",
+   9.8,
+   "20:41",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Two pair, eights and fours. Don't look at me like that.",
+   11.2,
+   "20:44",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Every damn hand.",
+   9.8,
+   "20:44",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Come on, come on. Ante.",
+   11.2,
+   "20:48",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Bet.",
+   9.8,
+   "20:52",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Obliged.",
+   9.8,
+   "20:53",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Same game, gents.",
+   9.8,
+   "20:58",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Three. And make 'em good.",
+   11.2,
+   "21:03",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A pair of threes. Don't all thank me at once.",
+   9.8,
+   "21:06",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "These cards have been against me since Christmas.",
+   11.2,
+   "21:10",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Three. Don't spare me.",
+   9.8,
+   "21:15",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Three.",
+   11.2,
+   "21:16",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Bet two bits more'n it's worth.",
+   9.8,
+   "21:17",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "See you.",
+   11.2,
+   "21:18",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A pair of jacks. Read 'em and weep.",
+   9.8,
+   "21:18",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Cut 'em thin, deal 'em true.",
+   9.8,
+   "21:23",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Three, and quit smiling.",
+   9.8,
+   "21:28",
+   "said",
+   1.0
+  ],
+  [
+   "storekeeper",
+   "Night, all.",
+   5.5,
+   "21:30",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Two pair, queens and eights. Now ain't that something.",
+   11.2,
+   "21:31",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "You're a lucky old man, Earl.",
+   9.8,
+   "21:31",
+   "said",
+   1.0
+  ],
+  [
+   "barkeep",
+   "Night.",
+   2.1,
+   "21:31",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Deal's mine. Watch my hands, if you like.",
+   11.2,
+   "21:35",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A pair of nines.",
+   9.8,
+   "21:43",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Five-card draw. Ante up.",
+   9.8,
+   "21:48",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A dollar.",
+   9.8,
+   "21:52",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Don't mind if I do.",
+   11.2,
+   "21:53",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Nobody wants it? I'll mind it for you.",
+   9.8,
+   "21:57",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "My deal. Ante up, boys.",
+   11.2,
+   "22:02",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Two pair, aces and fives. Clean deck, boys. Clean as Sunday.",
+   11.2,
+   "22:11",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Funny how it goes, Earl.",
+   9.8,
+   "22:11",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Let's see if these are any kinder.",
+   9.8,
+   "22:15",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "A pair of sevens. Read 'em out loud, boys, if you can.",
+   11.2,
+   "22:23",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Five-card. Same as ever.",
+   11.2,
+   "22:28",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Two.",
+   11.2,
+   "22:34",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Call.",
+   9.8,
+   "22:37",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Three queens. Lady's been kind tonight.",
+   11.2,
+   "22:37",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Ante.",
+   9.8,
+   "22:41",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "I'll see that.",
+   9.8,
+   "22:46",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A full house, jacks over sevens. Come to papa.",
+   9.8,
+   "22:51",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "That's a lot of hand for this table.",
+   11.2,
+   "22:51",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "I'll bet.",
+   9.8,
+   "23:02",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "A pair of kings. Thank you kindly.",
+   11.2,
+   "23:03",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Another, then.",
+   9.8,
+   "23:08",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A pair of queens, gents.",
+   9.8,
+   "23:17",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Damn the luck.",
+   11.2,
+   "23:17",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A pair of jacks. Pay the man. That's me.",
+   9.8,
+   "23:29",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Ante up. You know the price.",
+   9.8,
+   "23:34",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "A pair of aces. I'll take that.",
+   9.8,
+   "23:43",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Two pair, eights and twos. Sorry, boys. No I ain't.",
+   11.2,
+   "23:55",
+   "said",
+   1.0
+  ],
+  [
+   "earl",
+   "Two pair, fours and twos. Read 'em.",
+   11.2,
+   "00:07",
+   "said",
+   1.0
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|miner": 243.0,
+  "barkeep|rancher": 243.0,
+  "drifter|earl": 219.0,
+  "drifter|fiddler": 219.0,
+  "drifter|pianist": 219.0,
+  "earl|pianist": 224.0,
+  "fiddler|pianist": 243.0,
+  "fiddler|saloon_girl": 107.0,
+  "fiddler|storekeeper": 40.0,
+  "liveryman|loudmouth": 107.0,
+  "liveryman|miner": 107.0,
+  "liveryman|rancher": 107.0,
+  "liveryman|saloon_girl": 107.0,
+  "liveryman|storekeeper": 40.0,
+  "loudmouth|miner": 243.0,
+  "loudmouth|rancher": 243.0,
+  "loudmouth|saloon_girl": 240.0,
+  "loudmouth|storekeeper": 40.0,
+  "miner|rancher": 243.0,
+  "miner|saloon_girl": 107.0,
+  "miner|storekeeper": 40.0,
+  "rancher|saloon_girl": 240.0,
+  "rancher|storekeeper": 40.0,
+  "saloon_girl|storekeeper": 40.0
+ },
+ "s": 450.1,
+ "t": 478.37,
+ "where": {
+  "barkeep|miner": {
+   "bar_back:counter + bar_south:drink": 91
+  },
+  "barkeep|rancher": {
+   "bar_back:counter + bar_north:drink": 91
+  },
+  "drifter|earl": {
+   "card_e:play + card_w:play": 82
+  },
+  "drifter|fiddler": {
+   "card_e:play + band_fiddle:play": 82
+  },
+  "drifter|pianist": {
+   "card_e:play + piano_chair:play": 82
+  },
+  "earl|pianist": {
+   "card_w:play + piano_chair:play": 84
+  },
+  "fiddler|pianist": {
+   "band_fiddle:play + piano_chair:play": 91
+  },
+  "fiddler|saloon_girl": {
+   "band_fiddle:play + room_talk_c:talk": 40
+  },
+  "fiddler|storekeeper": {
+   "band_fiddle:play + room_talk_b:talk": 15
+  },
+  "liveryman|loudmouth": {
+   "room_talk_a:talk + bar_far:drink": 40
+  },
+  "liveryman|miner": {
+   "bar_south:drink + room_talk_a:talk": 40
+  },
+  "liveryman|rancher": {
+   "bar_north:drink + room_talk_a:talk": 40
+  },
+  "liveryman|saloon_girl": {
+   "room_talk_a:talk + room_talk_c:talk": 40
+  },
+  "liveryman|storekeeper": {
+   "room_talk_a:talk + room_talk_b:talk": 15
+  },
+  "loudmouth|miner": {
+   "bar_south:drink + bar_far:drink": 91
+  },
+  "loudmouth|rancher": {
+   "bar_north:drink + bar_far:drink": 91
+  },
+  "loudmouth|saloon_girl": {
+   "room_bar_end:stand + bar_far:drink": 50,
+   "room_talk_c:talk + bar_far:drink": 40
+  },
+  "loudmouth|storekeeper": {
+   "bar_far:drink + room_talk_b:talk": 15
+  },
+  "miner|rancher": {
+   "bar_south:drink + bar_north:drink": 91
+  },
+  "miner|saloon_girl": {
+   "bar_south:drink + room_talk_c:talk": 40
+  },
+  "miner|storekeeper": {
+   "bar_south:drink + room_talk_b:talk": 15
+  },
+  "rancher|saloon_girl": {
+   "bar_north:drink + room_bar_end:stand": 50,
+   "bar_north:drink + room_talk_c:talk": 40
+  },
+  "rancher|storekeeper": {
+   "bar_north:drink + room_talk_b:talk": 15
+  },
+  "saloon_girl|storekeeper": {
+   "room_talk_c:talk + room_talk_b:talk": 15
+  }
+ },
+ "start": {
+  "clock": "20:13",
+  "cmd": "oh_where",
+  "men": {
+   "barkeep": {
+    "d": 2.1,
+    "spot": "bar_back:counter",
+    "tags": []
+   },
+   "fiddler": {
+    "d": 11.6,
+    "spot": "band_fiddle:play",
+    "tags": []
+   },
+   "liveryman": {
+    "d": 5.8,
+    "spot": "room_talk_a:talk",
+    "tags": []
+   },
+   "loudmouth": {
+    "d": 6.6,
+    "spot": "bar_far:drink",
+    "tags": []
+   },
+   "miner": {
+    "d": 1.2,
+    "spot": "bar_south:drink",
+    "tags": []
+   },
+   "pianist": {
+    "d": 12.4,
+    "spot": "piano_chair:play",
+    "tags": []
+   },
+   "rancher": {
+    "d": 3.4,
+    "spot": "bar_north:drink",
+    "tags": []
+   },
+   "saloon_girl": {
+    "d": 7.1,
+    "spot": "room_talk_c:talk",
+    "tags": []
+   }
+  },
+  "ok": true,
+  "t": 28.25
+ }
 }
