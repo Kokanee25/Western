@@ -1,5 +1,5 @@
 {
- "_doc": "Who is played by a private man (#933, #1282): a MetaHuman the Character Studio made, fetched into the git-ignored assets/people/private/ by tools/characters/fetch_private.sh (never committed, #692; the bundle's clothes on him are paid and private too, #1176). Read by PeopleBodies.cast_of/cast_model/cast_dress, asked by every HumanBody as he's made (HumanBody._ready): his own entry in `people` (an id: config/valley_folk.json's, a mission's), else with `everyone` one of `looks`, picked by his id, unless his model is kept (`keep_models`, the start of its name: the women) or he is (`keep_people`). He gets `build`'s level (`level`, else `near`: lod1, the review's 4-25 m level; `far`: lod3, past 60 m) when it's laid in, else keeps his own model: nothing changes in a build without the private files. A look re-dresses him so the same face doesn't read as clones: `hat` (a tint on his own hat; [0,0,0,0] for none, his hair shows), `vest`, `shirt`, `trousers`, `skin` (tints on his own shapes' textures, `skin` his head too), `off` (shapes he goes without: beard, mustache). Costs: docs/reviews/2026-11-metahumans-town.md.",
+ "_doc": "Who is played by a private man (#933, #1282): a MetaHuman the Character Studio made, fetched into the git-ignored assets/people/private/ by tools/characters/fetch_private.sh (never committed, #692; the bundle's clothes on him are paid and private too, #1176). Read by PeopleBodies.cast_of/cast_model/cast_dress, asked by every HumanBody as he's made (HumanBody._ready): his own entry in `people` (an id: config/valley_folk.json's, a mission's), else with `everyone` one of `looks`, picked by his id, unless his model is kept (`keep_models`, the start of its name: the women) or he is (`keep_people`). He gets `build`'s level (`level`, else `near`: lod1, the review's 4-25 m level; `far`: lod3, past 60 m) when it's laid in, else keeps his own model: nothing changes in a build without the private files. A look re-dresses him so the same face doesn't read as clones: `hat` (a tint on his own hat; [0, 0, 0, 0] for none, his hair shows), `vest`, `shirt`, `trousers`, `skin` (tints on his own shapes' textures, `skin` his head too), `off` (shapes he goes without: beard, mustache). Costs: docs/reviews/2026-11-metahumans-town.md.",
  "on": true,
  "_on": "On for debug and local builds (#1282, Sean 2026-11-26: the whole cast on him, for testing the slice). `release` false: a release export keeps everyone's own model until the release encryption is built (#1176's \u00a721A.3; its own issue). The Studio's private build for Sean sets it true (its .github/workflows/private_build.yml).",
  "release": false,
@@ -7,219 +7,62 @@
  "near": "lod1",
  "far": "lod3",
  "everyone": true,
- "keep_models": [
-  "widow",
-  "working_girl"
- ],
- "keep_people": [
-  "player"
- ],
+ "keep_models": ["widow", "working_girl"],
+ "keep_people": ["player"],
  "looks": [
   {
-   "hat": [
-    1,
-    1,
-    1
-   ],
-   "vest": [
-    1,
-    1,
-    1
-   ],
-   "shirt": [
-    1,
-    1,
-    1
-   ],
-   "trousers": [
-    1,
-    1,
-    1
-   ]
+   "hat": [1, 1, 1],
+   "vest": [1, 1, 1],
+   "shirt": [1, 1, 1],
+   "trousers": [1, 1, 1]
   },
   {
-   "hat": [
-    0.45,
-    0.42,
-    0.4
-   ],
-   "vest": [
-    0.55,
-    0.55,
-    0.55
-   ],
-   "shirt": [
-    0.82,
-    0.86,
-    0.95
-   ],
-   "trousers": [
-    0.7,
-    0.68,
-    0.66
-   ],
-   "off": [
-    "beard"
-   ]
+   "hat": [1.6, 1.5, 1.35],
+   "vest": [0.55, 0.55, 0.55],
+   "shirt": [0.62, 0.7, 0.9],
+   "trousers": [0.7, 0.68, 0.66],
+   "off": ["beard"]
   },
   {
-   "hat": [
-    0,
-    0,
-    0,
-    0
-   ],
-   "vest": [
-    0.72,
-    0.85,
-    0.75
-   ],
-   "shirt": [
-    0.95,
-    0.9,
-    0.82
-   ],
-   "trousers": [
-    0.55,
-    0.5,
-    0.45
-   ],
-   "skin": [
-    1.05,
-    1.0,
-    0.96
-   ]
+   "hat": [0, 0, 0, 0],
+   "shirt": [0.95, 0.9, 0.82],
+   "trousers": [0.55, 0.5, 0.45],
+   "skin": [1.05, 1.0, 0.96],
+   "off": ["vest"]
   },
   {
-   "hat": [
-    0.3,
-    0.28,
-    0.26
-   ],
-   "vest": [
-    0.35,
-    0.32,
-    0.3
-   ],
-   "shirt": [
-    0.7,
-    0.72,
-    0.78
-   ],
-   "trousers": [
-    1,
-    1,
-    1
-   ],
-   "off": [
-    "beard",
-    "mustache"
-   ]
+   "hat": [0.3, 0.28, 0.26],
+   "vest": [0.35, 0.32, 0.3],
+   "shirt": [0.85, 0.85, 0.85],
+   "trousers": [1, 1, 1],
+   "off": ["beard", "mustache"]
   },
   {
-   "hat": [
-    0.85,
-    0.75,
-    0.6
-   ],
-   "vest": [
-    1.1,
-    0.95,
-    0.75
-   ],
-   "shirt": [
-    0.88,
-    0.8,
-    0.7
-   ],
-   "trousers": [
-    0.8,
-    0.78,
-    0.74
-   ],
-   "skin": [
-    0.92,
-    0.88,
-    0.85
-   ]
+   "hat": [1.8, 1.6, 1.3],
+   "vest": [1.0, 0.95, 0.75],
+   "shirt": [0.75, 0.55, 0.45],
+   "trousers": [0.8, 0.78, 0.74],
+   "skin": [0.92, 0.88, 0.85]
   },
   {
-   "hat": [
-    0.6,
-    0.5,
-    0.42
-   ],
-   "vest": [
-    0.5,
-    0.55,
-    0.7
-   ],
-   "shirt": [
-    1,
-    1,
-    1
-   ],
-   "trousers": [
-    0.6,
-    0.6,
-    0.62
-   ],
-   "off": [
-    "mustache"
-   ]
+   "hat": [0, 0, 0, 0],
+   "vest": [0.5, 0.6, 0.75],
+   "shirt": [1, 1, 1],
+   "trousers": [0.6, 0.6, 0.62],
+   "off": ["mustache"]
   },
   {
-   "hat": [
-    0,
-    0,
-    0,
-    0
-   ],
-   "vest": [
-    0.82,
-    0.7,
-    0.62
-   ],
-   "shirt": [
-    0.78,
-    0.82,
-    0.9
-   ],
-   "trousers": [
-    0.9,
-    0.85,
-    0.78
-   ],
-   "off": [
-    "beard"
-   ],
-   "skin": [
-    0.96,
-    0.92,
-    0.9
-   ]
+   "hat": [1.2, 1.2, 1.2],
+   "shirt": [0.55, 0.6, 0.78],
+   "trousers": [0.9, 0.85, 0.78],
+   "off": ["beard", "vest"],
+   "skin": [0.96, 0.92, 0.9]
   },
   {
-   "hat": [
-    0.2,
-    0.19,
-    0.18
-   ],
-   "vest": [
-    0.25,
-    0.24,
-    0.23
-   ],
-   "shirt": [
-    0.92,
-    0.92,
-    0.9
-   ],
-   "trousers": [
-    0.45,
-    0.44,
-    0.43
-   ]
+   "hat": [0, 0, 0, 0],
+   "vest": [0.25, 0.24, 0.23],
+   "shirt": [0.92, 0.92, 0.9],
+   "trousers": [0.45, 0.44, 0.43]
   }
  ],
  "people": {
@@ -229,5 +72,6 @@
   "loudmouth": {
    "look": 2
   }
- }
+ },
+ "_looks": "Eight looks so the one face reads as many men (#1282's critic: across the saloon at night they were clones): three hatless, two in shirtsleeves (no vest), hats light and dark (a tint over 1 lightens his tan hat), beards and mustaches off; tints multiply his own textures."
 }

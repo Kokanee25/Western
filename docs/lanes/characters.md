@@ -19,11 +19,18 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - No working girl for now (#698).
 - MetaHumans (#889): `tools/metahuman_to_game.sh <build>` in the Studio lays one into the git-ignored
   `assets/people/private/` (model `private/<build>`; never committed, #692's licence) with three lighter
-  levels cut at load (`<build>_lod1..3`, `PeopleBodies.glb_of/simplified/thin_cards`), the grooms' alpha cut,
-  his hair under a hat. Costs: `docs/reviews/2026-11-metahumans-town.md` (~18 with levels, like today's men;
-  ~150 MB textures a distinct man). Fetched by `tools/characters/fetch_private.sh` (CI's export, with
-  `STUDIO_TOKEN`); cast by `config/private_cast.json` (townsman, loudmouth; lod1; hat and vest re-dressed)
-  but **off**: his export wears only a vest and drawers. Sean picks how to dress him (#933's waiting issue).
+  levels cut at load (`<build>_lod1..3`), the grooms' alpha cut, textures at most 2048. Fetched by
+  `tools/characters/fetch_private.sh <build>` (a frozen GLB over 100 MB is in `.glb.part0/1`).
+- **The MetaHuman townsman** (`sean_metahuman_t1`, frozen; NOT Harlan, Sean 2026-11-26; #1282): the bundle's
+  trousers, boots and hat with the sewn shirt and our red-brown vest. `config/private_cast.json` casts him as
+  every man (`everyone`) but the women and the player, in eight `looks` (tints, hatless, shirtsleeves, beard or
+  mustache off); HumanBody._ready casts any man; tests run uncast (`PeopleBodies.cast_suspended`). On in debug
+  and local builds, **off in release exports** (`release`) until #1300 encrypts the pack. Sean's build with the
+  cast: the Studio's `private_build.yml` (Actions, or push `private_build.txt` naming a game build tag to a
+  `claude/studio-*` branch) -> the Studio's private release `private-build`. The public CI still fetches only
+  s3 (for the hands): keep it so. People cost as the Studio men's (night saloon ~4.1/4.0 ms either way).
+  Left (critic): clones across the saloon at night; his neck's back dark with orange specks; the beard rim
+  spiky; two hats sized oddly. The bundle's whole Jacket lost to our vest (Studio METAHUMAN.md).
 
 ## Open
 - **First-person hands, option 2: in the game** (#914). `HeldHand` cuts MetaHuman Sean's hands, cuff and coat
@@ -43,16 +50,15 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
   the stage's lamp glows cream-yellow, the cloud is a disc round the muzzle. `game_views.gd` steps the smoke
   by hand and puts the world's flash light out at 0.07 s; `--fog` for the valley's haze.
   No Hunt pictures reachable from a session: the judge works from memory.
-- **Harlan / MetaHuman Sean** (#692): waiting on Sean's Unreal re-export with blend shapes
+- **Harlan** (#692; a MetaHuman of his own, not the townsman): waiting on Sean's Unreal re-export with blend shapes
   (`Sean_blendshapes.zip` in the private `sean-metahuman` release).
 - A MetaHuman's finger bones point +Y to the tip with the hinge flipped (rest hand ~20° closed):
   `HeldHand._canonical_fingers` reframes them (from #919, closed unmerged; its Studio branch kept).
 - Talking face: four men's jaws go back more than down (#247).
-- **Harlan's sewn clothes** (Studio, private; its `docs/METAHUMAN.md`): shirt and trousers from period patterns
-  (w8, #1013), our own vest (`sew_vest.py`, Hecklinger 1883) recut to his figure in round 2 (w11, #1198: his own
-  arcs, the armhole from his armpit; in w8's red-brown (w12) the blind critic ranks it first). Waiting
-  on Sean (#1209): which vest, and whether the shirt and trousers are cut to his measures that way. Studio branch
-  `claude/studio-vest-round2` (unmerged). Store empty in a new container: rebuild w8/b2/w12 (free, 4 min each).
+- **The townsman's sewn clothes** (Studio, private; its `docs/METAHUMAN.md`): shirt and trousers from period
+  patterns (w8, #1013, paused), our vest (w12) on him in t1. Still open: whether the shirt and trousers are cut
+  to his measures like the vest (#1209's second question). Store empty in a new container: rebuild what you need
+  (free, ~4-6 min); the Studio's body shots need ~11 GB, run them alone.
 - Proper garments (shirt, waistcoat, trousers as their own meshes): brief first; not in the slice.
 - The run's planting foot drifts (foot IK).
 - **Joe's people's clothes** (#1096): brief `docs/briefs/ute-dress.md` (plain, no beads etc.); waiting on Sean's OK of
