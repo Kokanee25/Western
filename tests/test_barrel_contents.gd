@@ -250,3 +250,40 @@ func test_blown_open_its_staves_go_no_faster_than_a_blast_throws_anything() -> v
 		await physics_frames(2)
 	check(fastest <= Blast.t().max_throw * 1.05, "no stave faster than %.0f m/s (%.1f)" % [Blast.t().max_throw, fastest])
 
+
+
+func test_knocked_over_whole_it_keeps_its_oil_through_a_save() -> void:
+	# #1315: a street barrel a blast shoved loose whole (the cask shut, its oil in it) was put back
+	# by a load as loose rubble its contents weren't told of; they took it for blown apart and let
+	# all 169 litres go on the walk, a frame after loading.
+	var barrel := PropKit.spawn(&"oil_barrel", &"saved_oil_barrel")
+	barrel.position = Vector3(0, 0.3, 0)
+	world.add_child(barrel)
+	await physics_frames(KitProp.SETTLE_FRAMES + 2)
+	barrel.contents.litres -= 40.0  # (some drawn off: the save keeps its level, not the full cask's)
+	var left := barrel.contents.litres
+	barrel.go_loose()
+	await physics_frames(120)
+	check(barrel.loose and not barrel.contents.released, "gone over whole, it's shut")
+	var d := barrel.to_dict()
+	check(d.has("contents") and absf(float(d.contents.litres) - left) < 1e-3, "the save holds what's in it (%s)" % [d.get("contents")])
+	check((d.rubble as Array).size() == 1, "it lies in one piece")
+	for rb in barrel.rubble:
+		if is_instance_valid(rb):
+			rb.queue_free()
+	barrel.queue_free()
+	await physics_frames(3)
+	spilled.clear()
+	# A new game: the barrel as made, the save put back on it.
+	var again := PropKit.spawn(&"oil_barrel", &"saved_oil_barrel")
+	again.position = Vector3(0, 0.3, 0)
+	world.add_child(again)
+	await physics_frames(KitProp.SETTLE_FRAMES + 2)
+	check_eq(again.from_dict(d), 0, "every member found")
+	await physics_frames(60)
+	check(again.loose and not again.contents.released, "it's loose and still shut")
+	check(absf(again.contents.litres - left) < 1e-3, "with what was in it (%.1f of %.1f l)" % [again.contents.litres, left])
+	check(_spilled_litres() < 0.01, "and none of it on the floor (%.1f l)" % _spilled_litres())
+	# And the save of it now is the save it was loaded from: its level, its one body.
+	var back := again.to_dict()
+	check(absf(float(back.get("contents", {}).get("litres", -1.0)) - left) < 1e-3, "saved again, the same")

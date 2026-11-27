@@ -279,6 +279,29 @@ func break_members(list: Array[StructureMember], pushes: Array[Vector3], cuts: A
 	return super.break_members(list, pushes, cuts, budget)
 
 
+## A save holds what's in it too (PropContents: its level, whether it's all gone), and puts it back
+## after the members and rubble are (#1315).
+func to_dict() -> Dictionary:
+	var out := super.to_dict()
+	if contents:
+		var c := contents.to_dict()
+		if not c.is_empty():
+			out["contents"] = c
+	return out
+
+
+func from_dict(d: Dictionary) -> int:
+	# Loose before its members drop as the rubble they were: each break is going loose (so its
+	# contents don't take a stave for a side gone, nor its balance a foot), as in go_loose.
+	if d.has("loose"):
+		wake()
+		loose = true
+	var missed := super.from_dict(d)
+	if contents:
+		contents.restore(d.get("contents", {}))
+	return missed
+
+
 func _exit_tree() -> void:
 	if resting:
 		resting = false
