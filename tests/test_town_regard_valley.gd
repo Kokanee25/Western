@@ -89,10 +89,13 @@ func test_a_shot_and_a_shove_move_the_men_who_saw_them() -> void:
 	var a := men[0]
 	var w := men[1]
 	var p := _player()
-	var here := a.global_position + Vector3(0.0, 0.0, 4.0)
+	# The street's middle by the crossroads, clear of its dressing (#1304: where a man happened to be, a
+	# wagon or a tied horse could stand between them).
+	var here := Vector3(4.0, 0.0, 1.0)
 	here.y = f.ground(here.x, here.z)
-	_put(here, a.global_position)
-	var ab := _stand(a, a.global_position, here)
+	var at_a := here - Vector3(0.0, 0.0, 4.0)
+	_put(here, at_a)
+	var ab := _stand(a, at_a, here)
 	var wb := _stand(w, here + Vector3(6.0, 0.0, 0.0), here)
 	var seen := await wait_until(func() -> bool: return ab.senses.sees(p) and wb.senses.sees(p), 60 * 4)
 	check(seen, "both see Harlan")

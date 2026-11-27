@@ -73,6 +73,8 @@ const NO_JUSTICE_CABIN_ARG := "--mission=no_justice_cabin"
 var coach_cut: CoachCut
 ## "Ride there" (#1120): the hitching rails, your horse and the ride list (RideThere).
 var ride: RideThere
+## Main Street's dressing (#1304: ValleyStreetDressing; `-- --no-street-dress` leaves it out).
+var street_dress: ValleyStreetDressing
 ## How long each part of the valley took to build in `_ready` (ms; perf_bench's load, #865): the
 ## ground, the railway, the farmhouse, the markers (the grey-box town), the spec buildings, the
 ## folk's set (their men are built a frame later: `folk.build_ms`).
@@ -133,6 +135,15 @@ func _ready() -> void:
 		add_child(ride)
 		ride.add_places(markers.places)
 		u = _took(&"ride", u)
+		# Main Street dressed (#1304, art's: config/valley_street.json), clear of the ways just laid.
+		if markers.town and ValleyStreetDressing.dress_default:
+			street_dress = ValleyStreetDressing.new()
+			street_dress.layout = layout
+			street_dress.town = markers.town
+			street_dress.places = markers.places
+			street_dress.ride = ride
+			add_child(street_dress)
+			u = _took(&"street_dress", u)
 	var player := get_node_or_null(^"Player") as Node3D
 	if player:
 		player.transform = start_transform(layout)

@@ -30,6 +30,9 @@ const REIN_LENGTH := 1.0
 const REIN_COLOUR := Color(0.2, 0.11, 0.06)
 ## How often the collision follows the bones (s); the idle is slow.
 const SHAPE_STEP := 0.1
+## How far a bone may move from his collision shape on it before the shape follows (m): his idle's
+## small shifts (an ear, a breath) are under a ball's width.
+const SHAPE_SLACK := 0.03
 ## How often the idle is posed (s): its keys are 15 a second, so posing him every frame bought
 ## nothing (four horses so cost ~3.5 ms a frame headless on this workspace's core). Far off,
 ## less often.
@@ -187,12 +190,21 @@ func bone_move(bone: int) -> Transform3D:
 	return _sk_xf * m * _sk_xf.affine_inverse()
 
 
-## Each collision shape onto its bone as it is now.
-func follow_bones() -> void:
+## Each collision shape onto its bone as it is now; one his idle has moved less than SHAPE_SLACK from
+## where it is stays put (each shape moved costs the physics a rebuild: a street of tied horses was
+## ~1.2 ms a frame, #1304). `exact` moves every one.
+func follow_bones(exact := false) -> void:
+	var moved := false
 	for i in _shapes.size():
 		if _shape_bones[i] >= 0:
-			_shapes[i].transform = bone_move(_shape_bones[i]) * _shape_rest[i]
-	if body:
+			var to := bone_move(_shape_bones[i]) * _shape_rest[i]
+			var now := _shapes[i].transform
+			# (A turn: how far its axes' tips moved, a capsule's half-length being under a metre.)
+			if exact or now.origin.distance_to(to.origin) > SHAPE_SLACK \
+					or (now.basis.x - to.basis.x).length() > SHAPE_SLACK or (now.basis.y - to.basis.y).length() > SHAPE_SLACK:
+				_shapes[i].transform = to
+				moved = true
+	if body and moved:
 		Sight.shapes_moved(body)
 
 
