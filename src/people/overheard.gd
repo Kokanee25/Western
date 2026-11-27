@@ -30,8 +30,8 @@ extends RefCounted
 
 ## Defaults; ValleyFolk's data `overheard` may set them.
 const DIALS := {
-	"hear_m": 10.0, "clear_m": 3.5, "wall": 0.35, "full_at": 0.8, "min_clarity": 0.12, "heard_at": 0.3,
-	"start_m": 11.0, "talk_m": 6.5, "try_s": 2.0, "stagger_s": 8.0, "rest_s": [50.0, 90.0],
+	"hear_m": 10.0, "clear_m": 3.5, "wall": 0.35, "full_at": 0.8, "min_clarity": 0.12, "heard_at": 0.12,
+	"start_m": 11.0, "talk_m": 8.0, "try_s": 2.0, "stagger_s": 8.0, "rest_s": [40.0, 75.0],
 	"first_s": [4.0, 14.0], "pause_s": [0.3, 1.0], "max_at_once": 2, "unheard_again_s": 240.0,
 	"table_gap_s": 60.0, "table_hold_s": 26.0, "shot_m": 40.0, "shout_m": 12.0, "before_murder": true,
 	"notice": {"m": 2.0, "s": 7.0, "chance": 0.5, "again_s": 150.0},
