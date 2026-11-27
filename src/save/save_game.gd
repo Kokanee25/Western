@@ -151,6 +151,11 @@ static func _player(p: Player) -> Dictionary:
 		out["blood_on_you"] = p.carry.blood_on_you
 	if p.wounds:
 		out["wounds"] = p.wounds.save_dict()
+	# His money and the drink in him (#1292).
+	if p.purse:
+		out["purse"] = p.purse.save_dict()
+	if p.drink:
+		out["drink"] = p.drink.save_dict()
 	return out
 
 
@@ -317,6 +322,10 @@ static func _apply_player(p: Player, sd: Dictionary) -> void:
 		p.carry.blood_on_you = float(sd.blood_on_you)
 	if p.wounds and sd.has("wounds"):
 		p.wounds.load_dict(sd.wounds)
+	if p.purse and sd.has("purse"):
+		p.purse.load_dict(sd.purse)
+	if p.drink and sd.has("drink"):
+		p.drink.load_dict(sd.drink)
 
 
 # --- The file ----------------------------------------------------------------------------------

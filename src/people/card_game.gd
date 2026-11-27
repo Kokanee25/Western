@@ -93,6 +93,7 @@ var _mucked := 0
 var _you_bluffing := false  # raised on a hand under call_at
 var _cheat_hand := -1  # the hand (`hands` then) the cheat last dealt himself from the bottom
 var _came_with := 0  # your stack when you sat down
+var _bought := false  # your stake bought from your purse this sitting (#1292)
 var _needle := false  # a big pot taken: the next hand starts with a word at you
 var _watched := 0.0  # you stood by the table, not sat (s)
 var _invited_at := -INF
@@ -363,6 +364,7 @@ func _watch_you() -> void:
 	if now and not _you_seated and state not in [&"idle", &"stopped", &"between", &"shuffle"]:
 		_prompt(String(data.you.next_hand), 2.5)
 	if now and not _you_seated:
+		_buy_in()
 		_say(_a_man(), "greet", {}, true)  # (#1213: nobody greeted you at the table)
 		_came_with = int(stacks.get(YOU, (data.get("stack", {}) as Dictionary).get("you", 0)))
 		_watched = 0.0
@@ -372,7 +374,41 @@ func _watch_you() -> void:
 		var ahead := int(stacks.get(YOU, _came_with)) > _came_with
 		_say(_a_man(), "you_up_ahead" if ahead else "you_up", {}, true)
 		you_did.emit(&"up", {"men": _men(), "ahead": ahead})
+		_cash_out()
 	_you_seated = now
+
+
+## Your stake (#1292): `stack.you` chips bought from your purse at `chip_cents` (config/drink.json) a chip,
+## as many as you can pay for (what you'd kept at the table first); without a purse (a test's table, the old
+## town) the table's own `stack.you`.
+func _buy_in() -> void:
+	var p := get_tree().get_first_node_in_group(&"player") as Player if is_inside_tree() else null
+	if p == null or p.purse == null or _bought:
+		return
+	_bought = true
+	_broke_told = false
+	var chip := maxi(int(PlayerPurse.data().get("chip_cents", 5)), 1)
+	var have := int(stacks.get(YOU, 0))
+	var want := maxi(int((data.get("stack", {}) as Dictionary).get("you", 20)) - have, 0)
+	var n := mini(want, floori(p.purse.cents / float(chip)))
+	if n > 0 and p.purse.pay(n * chip, &"chips"):
+		p.purse.say_paid(n * chip, "%d chips" % n)
+	stacks[YOU] = have + maxi(n, 0)
+
+
+## Up from the table (#1292): your chips cashed back into your purse.
+func _cash_out() -> void:
+	var p := get_tree().get_first_node_in_group(&"player") as Player if is_inside_tree() else null
+	if p == null or p.purse == null or not _bought:
+		return
+	_bought = false
+	var n := int(stacks.get(YOU, 0))
+	var chip := maxi(int(PlayerPurse.data().get("chip_cents", 5)), 1)
+	if n > 0:
+		p.purse.take(n * chip, &"chips")
+		if p.wounds:
+			p.wounds.say("Cashed %d chips: %s (%s on you)" % [n, PlayerPurse.money(n * chip), PlayerPurse.money(p.purse.cents)], 2.5)
+	stacks[YOU] = 0
 
 
 ## The men sat at the table (not you).
@@ -430,6 +466,8 @@ func _start_hand() -> void:
 		if id != YOU and int(stacks[id]) < int(data.get("rebuy_below", 3)):
 			stacks[id] = int(stacks[id]) + int(data.stack.men)
 			_say(x[1], "rebuy")
+		if id == YOU and not _bought:
+			_buy_in()
 		if id == YOU and int(stacks[id]) < ante:
 			if not _broke_told:
 				_broke_told = true

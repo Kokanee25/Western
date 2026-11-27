@@ -65,6 +65,9 @@ func chair_here() -> KitProp:
 	# A man down by you, or one by the collar, has E first (PlayerCarry, #1057).
 	if player.carry != null and (player.carry.carrying() or player.carry.near_man() != null):
 		return null
+	# A glass in your hand, one of yours in view, or a barkeep before you: E is the drink's (#1292).
+	if player.drink != null and player.drink.claims_use(player):
+		return null
 	var t := player.tuning
 	var c := Seating.free_chair_near(player.get_tree(), player.global_position + Vector3.UP * 0.47, t.seat_reach + 0.5)
 	if c == null or String(c.kit_id).contains("bed"):

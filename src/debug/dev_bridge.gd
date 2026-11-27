@@ -52,6 +52,8 @@ const HELP := {
 	"band": "band [hush] -> the band (#799, Band): its state, tune, clock and each part's gain, bus, place and man; hush stops it as a shot would",
 	"sit": "sit [n|e|s|w] -> E by a free kit chair, as the key does (sits you in it); with a compass letter, put by that chair of the valley's card table first (#766)",
 	"stand": "stand -> E sat: up out of the chair (something holding you there: says why)",
+	"drink": "drink [bar|buy whiskey|beer|bottle|round|take|sip [N]|set|drop] -> #1292: bar: stood at the valley's bar facing the barkeep; buy: ask him (as E/G there); take: E at the glass he set you (looked at); sip: fire N times, waiting for each; set: E with it in hand; drop: let it fall; none: the report",
+	"purse": "purse [CENTS] -> what's in Harlan's pocket (#1292); with CENTS, set it",
 	"sleep": "sleep [bed] -> E at a bed (#1148, PlayerSleep): sleep till dawn and save to slot1. With `bed`: put by the nearest bed first. Answers the night (hours, day, hour, the save's size and time) or why it was refused",
 	"save": "save [SLOT] -> save now without sleeping (SaveGame.save; default slot1): its size and time",
 	"load": "load [SLOT] -> the game reloaded with that save on it (as Continue): answers, then the scene reloads; `state` after shows it",
@@ -1028,6 +1030,80 @@ func _cmd_saves(a: Array) -> Dictionary:
 			"card_up": get_tree().root.find_child("ContinueCard", true, false) != null}
 
 
+## #1292: the bar, the glass, the drink (PlayerDrink, BarService).
+func _cmd_drink(a: Array) -> Dictionary:
+	var dr := player.drink
+	var what := String(a[0]) if a.size() > 0 else ""
+	await get_tree().physics_frame  # (its look round and the barkeep's answer ask the physics space)
+	var out := {}
+	match what:
+		"bar":
+			var bar := get_tree().get_first_node_in_group(&"bars")
+			if bar == null:
+				return {"ok": false, "error": "no bar with a barkeep in this world"}
+			var at: Array = bar.call(&"customer_spot")
+			if at.is_empty():
+				return {"ok": false, "error": "no barkeep at his bar"}
+			player.global_position = at[0]
+			player.velocity = Vector3.ZERO
+			var to: Vector3 = (at[1] as Vector3) - (at[0] as Vector3)
+			player.rotation.y = atan2(-to.x, -to.z)
+			await _physics_frames(3)
+			out["at_bar"] = dr.bar_here() != null
+		"buy":
+			out = dr.order(StringName(a[1] if a.size() > 1 else "whiskey"))
+			await _physics_frames(2)
+		"take":
+			var v := dr.vessel_here()
+			if v == null:
+				# Look at the nearest of yours first.
+				for n in get_tree().get_nodes_in_group(&"glass_props"):
+					var g := n as GlassProp
+					if g != null and not g.broken and g.has_meta(&"served_to") and g.get_meta(&"served_to") == player and g.global_position.distance_to(player.global_position) < 2.0:
+						_look_at_point(g.global_position + Vector3.UP * 0.04)
+						await _physics_frames(2)
+						v = dr.vessel_here()
+						break
+			out["took"] = dr.take(v) if v != null else false
+		"sip":
+			var n := int(a[1]) if a.size() > 1 else 1
+			var done := 0
+			for i in n:
+				if not dr.sip():
+					break
+				done += 1
+				for k in 240:
+					await get_tree().physics_frame
+					if dr._sip_t < 0.0:
+						break
+			out["sips"] = done
+		"set":
+			out["set"] = dr.set_down()
+		"drop":
+			dr.drop()
+			out["dropped"] = true
+	var r := dr.report()
+	r.merge(out, true)
+	r["purse"] = player.purse.cents
+	return r
+
+
+func _cmd_purse(a: Array) -> Dictionary:
+	if a.size() > 0 and String(a[0]).is_valid_int():
+		player.purse.cents = int(a[0])
+	return {"cents": player.purse.cents, "money": PlayerPurse.money(player.purse.cents), "log": player.purse.log.slice(-8)}
+
+
+func _look_at_point(p: Vector3) -> void:
+	var to := p - player.camera.global_position
+	player.rotation.y = atan2(-to.x, -to.z)
+	var pitch := rad_to_deg(atan2(to.y, Vector2(to.x, to.z).length()))
+	var was := player.input_enabled
+	player.input_enabled = true
+	player.add_look(Vector2(0.0, pitch - player.get_pitch_degrees()), false)
+	player.input_enabled = was
+
+
 func _cmd_stand(_a: Array) -> Dictionary:
 	if not player.seat.seated():
 		return {"ok": false, "error": "you're not sat down"}
@@ -1483,6 +1559,9 @@ func _player_state() -> Dictionary:
 	if player.knock:
 		out["knock"] = player.knock.report()
 		out["sleep"] = player.sleep.report()
+	if player.drink:
+		out["drink"] = player.drink.report()
+		out["purse"] = player.purse.cents
 	if w and w.physiology:
 		out["blood_ml"] = int(w.physiology.blood_ml)
 		out["alive"] = w.physiology.alive

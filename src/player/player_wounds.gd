@@ -845,6 +845,10 @@ func _physics_step(delta: float) -> void:
 			# Sat at the card table (#1279): calling a cheat on the man you face (CardGame.accuse).
 			say("\"You're dealing off the bottom!\"", 2.5)
 			Events.shouted.emit(player, &"cheat")
+		elif player.drink != null and player.drink.bar_here() != null and not player.drink.gun_out():
+			# At a bar, the barkeep before you (#1292): drinks for the house (BarService's round).
+			say("\"Drinks for the house!\"", 2.0)
+			player.drink.order(&"round")
 		elif companion != null:
 			# Your companion in the middle of your view: a word to him (wait here, come on; #843).
 			say(companion.told(player), 2.0)

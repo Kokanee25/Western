@@ -21,7 +21,7 @@
       "test_hurt_townsfolk.gd", "test_runner.gd", "test_companion.gd", "test_catch_up.gd"
     ],
     "valley": [
-      "test_valley*", "test_world_places.gd", "test_town_*_valley.gd", "test_town_open.gd",
+      "test_valley*", "test_world_places.gd", "test_drink.gd", "test_town_*_valley.gd", "test_town_open.gd",
       "test_town_streets.gd", "test_undertaker_valley.gd", "test_save_game.gd", "test_saloon_room.gd", "test_answers.gd",
       "test_band.gd", "test_sleep.gd", "test_spot_chore.gd", "test_scene_hold.gd", "test_wall_clock.gd"
     ],
@@ -117,6 +117,7 @@
     {"name": "people's looks", "paths": ["assets/people/**"], "tests": ["test_studio_*", "test_garment_handoff.gd", "test_hat.gd", "test_people_lod.gd", "test_bodies.gd", "test_face_*", "test_valley_folk.gd", "test_valley_town.gd"]},
     {"name": "weapons", "paths": ["src/weapons/**", "src/ballistics/**", "assets/weapons/**", "config/revolver.tres", "config/shotgun.tres", "config/winchester73.tres", "config/gun_hand.tres", "config/fp_holds.json", "config/ballistics.tres"], "tests": ["@weapons"]},
     {"name": "the player", "paths": ["src/player/**", "config/player_tuning.tres", "config/movement/**", "config/feel_ranges.json"], "tests": ["@player"]},
+    {"name": "the drink (#1292)", "paths": ["config/drink.json"], "tests": ["test_drink.gd", "test_card_game.gd", "test_save_game.gd"]},
     {"name": "dressing (what's placed in the valley, where the missions play)", "paths": ["src/props/prop_dressing.gd*", "src/art/*_dressing.gd*", "src/art/valley_scatter*.gd*"], "tests": ["@missions", "@valley"]},
     {"name": "props", "paths": ["src/props/**", "assets/props/**"], "tests": ["@props"]},
     {"name": "the look", "paths": ["src/render/**", "src/art/**", "src/ui/**", "assets/textures/**", "config/looks/**", "config/material_library.json", "config/room_light.tres", "config/look_panel.json", "config/valley_ground_art.tres", "**/*.gdshader", "**/*.gdshaderinc", "**/*.gdshader.uid", "**/*.gdshaderinc.uid"], "tests": ["@look"]},

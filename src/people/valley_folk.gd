@@ -155,6 +155,8 @@ var regard: TownRegard
 var barks: TownBarks
 ## The saloon at night as a room (townsfolk step 10, #1157): its mood, the bits, the hush.
 var room: SaloonRoom
+## The barkeep's side of a drink (#1292): saloon B's bar, its barkeep at his counter.
+var service: BarService
 ## The dead taken away (#1051): id -> {since (absolute clock hours), seen (anyone saw him down),
 ## undertaker (fetched to him)}.
 var dead_out := {}
@@ -219,6 +221,9 @@ func _ready() -> void:
 	u = Time.get_ticks_usec()
 	_build_set()
 	_build_seats()
+	if props.has("bar"):
+		service = BarService.new(self)
+		add_child(service)
 	build_ms["set"] = (Time.get_ticks_usec() - u) / 1000.0
 	_build_band()
 	cards.hand_done.connect(func(w: String, _p: int, _h: String) -> void:
@@ -1156,6 +1161,8 @@ func _physics_process(delta: float) -> void:
 		var t := Prof.start()
 		room.step(delta)
 		room.tick()
+		if service:
+			service.step(delta)
 		Prof.stop(&"saloon_room", t)
 	if _to_say.is_empty():
 		return
