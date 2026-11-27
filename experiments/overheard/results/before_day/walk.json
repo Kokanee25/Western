@@ -1,0 +1,181 @@
+{
+ "clock": "17:37",
+ "cmd": "oh_stop",
+ "lines": [
+  [
+   "liveryman",
+   "Feed bill's due. I'm not a charity.",
+   21.2,
+   "13:45",
+   "said",
+   1.0
+  ],
+  [
+   "smith",
+   "Might be, might be.",
+   15.5,
+   "13:46",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "Dry as a bone. We could use a rain.",
+   1.2,
+   "14:20",
+   "said",
+   1.0
+  ],
+  [
+   "smith",
+   "Stand off the anvil. I don't want to burn you.",
+   1.7,
+   "15:01",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Sun's warm. Wall's warm. I'm not moving.",
+   0.7,
+   "15:14",
+   "said",
+   1.0
+  ],
+  [
+   "barkeep",
+   "Beer's warm. Ice wagon never came.",
+   21.7,
+   "15:26",
+   "said",
+   1.0
+  ],
+  [
+   "miner",
+   "I heard different.",
+   11.8,
+   "15:27",
+   "said",
+   1.0
+  ],
+  [
+   "townsman",
+   "Preacher's coming through next month, if he don't get lost again.",
+   5.9,
+   "15:56",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "You're telling me.",
+   5.1,
+   "15:57",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "I'll take any work going. Fences, horses, anything.",
+   21.3,
+   "16:13",
+   "said",
+   1.0
+  ],
+  [
+   "miner",
+   "Tell me later. I've work.",
+   15.3,
+   "16:14",
+   "said",
+   1.0
+  ],
+  [
+   "undertaker",
+   "Quiet week. Good news for everybody but me.",
+   0.6,
+   "16:46",
+   "said",
+   1.0
+  ],
+  [
+   "miner",
+   "Night, all.",
+   90.3,
+   "16:46",
+   "said",
+   1.0
+  ],
+  [
+   "barkeep",
+   "Night.",
+   88.2,
+   "16:47",
+   "said",
+   1.0
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|drifter": 53.0,
+  "barkeep|loudmouth": 8.0,
+  "barkeep|miner": 101.0,
+  "barkeep|townsman": 35.0,
+  "drifter|miner": 45.0,
+  "liveryman|smith": 5.0,
+  "loudmouth|townsman": 8.0
+ },
+ "s": 477.4,
+ "t": 521.87,
+ "where": {
+  "barkeep|drifter": {
+   "bar_back_day:counter + bar_day_2:drink": 20
+  },
+  "barkeep|loudmouth": {
+   "bar_back_day:counter + bar_day_4:drink": 3
+  },
+  "barkeep|miner": {
+   "bar_back_day:counter + bar_day_1:drink": 38
+  },
+  "barkeep|townsman": {
+   "bar_back:counter + bar_day_3:drink": 13
+  },
+  "drifter|miner": {
+   "bar_day_2:drink + bar_day_1:drink": 17
+  },
+  "liveryman|smith": {
+   "livery_lean:lean + livery_lean:talk": 2
+  },
+  "loudmouth|townsman": {
+   "store_bench:sit + store_bench2:sit": 3
+  }
+ },
+ "start": {
+  "clock": "13:22",
+  "cmd": "oh_where",
+  "men": {
+   "barkeep": {
+    "d": 23.4,
+    "spot": "bar_back_day:counter",
+    "tags": []
+   },
+   "doctor": {
+    "d": 28.8,
+    "spot": "doctor_walk:stand",
+    "tags": []
+   },
+   "drifter": {
+    "d": 0.6,
+    "spot": "hotel_walk:stand",
+    "tags": []
+   },
+   "liveryman": {
+    "d": 70.8,
+    "spot": "livery_lean:lean",
+    "tags": []
+   }
+  },
+  "ok": true,
+  "t": 44.45
+ }
+}

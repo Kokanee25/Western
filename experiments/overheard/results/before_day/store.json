@@ -1,0 +1,61 @@
+{
+ "clock": "12:19",
+ "cmd": "oh_stop",
+ "lines": [
+  [
+   "loudmouth",
+   "Mm. Morning.",
+   1.5,
+   "09:37",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "Dry as a bone. We could use a rain.",
+   1.8,
+   "09:53",
+   "said",
+   1.0
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|drifter": 69.0
+ },
+ "s": 450.1,
+ "t": 487.78,
+ "where": {
+  "barkeep|drifter": {
+   "bar_back_day:counter + bar_day_2:drink": 26
+  }
+ },
+ "start": {
+  "clock": "08:19",
+  "cmd": "oh_where",
+  "men": {
+   "drifter": {
+    "d": 29.5,
+    "spot": "livery_lean:lean",
+    "tags": []
+   },
+   "liveryman": {
+    "d": 20.0,
+    "spot": "wagonwright_walk:stand",
+    "tags": []
+   },
+   "smith": {
+    "d": 42.6,
+    "spot": "smith_door:work",
+    "tags": []
+   },
+   "undertaker": {
+    "d": 156.8,
+    "spot": "undertaker_walk:work",
+    "tags": []
+   }
+  },
+  "ok": true,
+  "t": 37.7
+ }
+}
