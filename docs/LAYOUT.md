@@ -658,6 +658,12 @@ real look RoomLight is on whatever `Settings.room_light` says.
   ValleyFolk's `door_places`, homes and day `in`s) bangs on it: three `thump`s there, a `knock` deed, the owner's
   `knock(place, by, at)` (ValleyFolk: `knocked(place, inside, by, at)`, the book's rows inside, `knocks`).
   Nobody answers on his own yet: an act does (NoLawCarry). `read player`'s `knock`.
+- `PlayerCards` (`player_cards.gd`, #1294; dials config/card_game.json `hand`): your hand at a card table you're
+  dealt into: aim (RMB, LT) or looking down past `look_down_deg` (or your draw) lifts your five cards fanned in
+  the right hand (a HeldHand under the camera's `CardHold`, the held layer; the table's copy hidden: `CardGame.lift`).
+  Keys on your bet: jump call/check, crouch's toggle fold, fire raise by your amount, forward/back the amount; at
+  your draw left/right a card, jump mark it (it rides up, shaded), fire draw. `claims_fire` keeps a drink's sip off
+  fire then. `force_lift` (bridge `cards lift`).
 - `PlayerPurse` (`player_purse.gd`, #1292; `config/drink.json` `purse`, `chip_cents`): `player.purse.cents`, `pay`,
   `take`, `money(c)` ("15 cents", "$3.40"), `say_paid`; saved (SaveGame player `purse`). CardGame buys your stake
   with it on sitting (`_buy_in`, `stack.you` chips) and cashes it back on getting up (`_cash_out`). Bridge `purse [CENTS]`.
@@ -2141,6 +2147,17 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   standing only folds you. Cards and chips are stand-ins (two MultiMeshes, faces Label3D text), not
   drawn past 40 m. `speed` runs it faster (tests). Bridge `cards [wait N]`; Prof `card_game`;
   valley_bench spot `card_seat` (you sat in the north chair, the game going).
+  **The real game** (#1294; `tests/test_card_play.gd`): the cards, chips and coin are `PlayingCards` (an 1880s
+  deck, a card face down is the card turned over; the MultiMesh's custom data the face); your cards lie face
+  down till you lift them (`lift`, PlayerCards) and are turned up only at a showdown. Your play: `you_call`,
+  `you_fold`, `you_raise(n)` (1..`limit()`, the round's; `you_more`), at your draw (`you_drawing`) `you_mark(slot)`
+  and `you_draw()` by `draw` (`most` 3, four keeping an ace: `Poker.can_throw`; out of time, what's marked). The
+  men: `Poker.equity` (their own cards against hands dealt from the 47 they can't see, everyone drawing as
+  `discards`) queued after the deal and the draw and worked `odds.per_frame` deals a frame (`_work_odds`, `odds`,
+  `share_now` against fewer); `decide(nature, share, ...)` (static, `natures`: careful, reckless, bluffer; `men`
+  gives each his and his tell); `tells`: the chips man's hand to his chips while strong (`strong`, `tells_shown`),
+  the bluffer's eyes on you while he's bluffing (`_bluffing`). Silver beside each stack (`coins`; yours your purse's
+  dollars). Bridge `cards lift|call|fold|raise N|mark S..|draw [S..]|turn [S]`.
   **The table answers you** (#1279, pillar 6; `tests/test_card_answers.gd`): fire on your turn raises
   (`you_raise`; on a hand under `call_at` it's a bluff, `_you_bluffing`), G sat there calls a cheat on the
   man you face (PlayerWounds `_at_cards` -> Events.shouted `cheat` -> `accuse`: true if he's `cheat.who`
@@ -2679,6 +2696,8 @@ crossing's frame. Lab bridge: `trestle_lab`, `trestle_cost`, `trestle_collapse`,
 
 ## The texture factory (tools/textures)
 
+- **The deck and chips** (#1294): `draw_cards.py` draws the 1880s deck (its sources in its head) into
+  `assets/textures/cards/deck.png` (8 x 7 cards of 120 x 168) and the clay chip's greys into `chips.png`; no calls.
 - **Painted sidings** (the light pass round 2, Sean #321, $0.88): `material_lab.json` set
   `studio10p` uses `paint_woods.py`'s `new_woods` (a wood painted from another's boards: whitewash,
   barn red, pale green, ochre from `store_boards`; run on Actions, `people.yml` `textures:
