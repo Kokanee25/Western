@@ -1,6 +1,6 @@
 {
   "_doc": "The people of Salt Creek (#1309, Sean 2026-11-27): one sheet a person, keyed by the roster's id (config/valley_folk.json's `id`: the game, the missions and the tests use those ids, so a name is a field here, never a new id). `aliases`: roster ids that are the same man as another entry. Each sheet: `kind` (townsfolk: this file's proposal, Sean's to OK on the People board; cast: a mission's character, only what the bible fixes, not renamed; sean: written by Sean, his facts fixed), `role`, `name` (null: roles only, C14 c), `called` (what the town calls him), `who` (one line), `age`, `born`, `from`, `came` (why he came), `work`, `place` (his place in town), `wants`, `secret` (one fear or secret), `likes` / `dislikes` ([{id, why}], ids of this file), `habit` (something the player can see), `talks` (how he talks: plain notes), `voice` (the casting brief), `body` and `clothes` (#1207: a shared body type, clothes by trade), `lines` (samples in his own voice: `id`, `place` (a tag of `places`, the same tag #1293's overheard talk and the game use), `to` (an id, or absent: anyone in earshot), `when` (only if it needs something to have happened), `words`, `src` (cast only: built / script / bible)), `seen` (cast with no day: where the story puts him), `day_proposed` (in words, only for a man not in valley_folk.json yet), `fixed` ({field: where it's fixed}: the bible's or Sean's; every other filled field is PROPOSED by #1309; a null field is open), `notes` (for the next writer). No line says Harlan's name (#1207), but the built ones. The board (docs/story/board/build_people.py, people_board.html) is built from this file and config/valley_folk.json; `python3 docs/story/board/build_people.py --check` checks ids, places and line ids. MORE (Sean, 2026-11-27, #1309's later comments), each its own folded section on the board: `in_town` (how long, how he came, what he's seen change, what he did before), `circle` ({friends, family}), `home` ({what, state: built | to be built (against config/valley.json), where}), `if_dies` ({grief, lines: [{id, by (a person's id), words}], bearers, after}), `knows` ([{what, from (when he has it), tells (whom), takes (trust, money or a threat)}]: nobody gives away one of VOICES.md's secrets before its beat), `trouble` (his nerve, nosy and duty dials in words), `harlan` ({starts, warms, cools, greets: {warm, wary, cold, afraid}}: TownRegard's four bands), `jobs` (small happenings he could bring the deputy), `looks` ({body, hair, beard, clothes, wear}), `casting` ({voice, accent, pace, say_name}), `owns` ({money, home, pockets, owes}), `week` ({sunday, payday, vices}), `loyalty` ({side, why}: where he stands with the Baron). A sheet without them is not written yet (`more_done` lists who has them). Top level `nobody_knew`: the shared card of funeral lines for a stranger, a gang's rider and a known outlaw.",
-  "status": "PROPOSED (#1309, 2026-11-27): every townsperson's name and sheet waits on Sean's Person OK on the People board. The cast's sheets hold only what the bible fixes. Claude Bérubé is Sean's (#1207). Read blind once (DIALOGUE.md section 4) on 2026-11-27 and re-worded: buttons, threes and writer's jokes cut, the voices pulled apart. The fourteen further sections (Sean, 2026-11-27) are written for the saloon's regulars and Claude Bérubé (`more_done`); the rest of the town's are the next session's.",
+  "status": "PROPOSED (#1309, 2026-11-27): every townsperson's name and sheet waits on Sean's Person OK on the People board. The cast's sheets hold only what the bible fixes. Claude Bérubé is Sean's (#1207). Read blind once (DIALOGUE.md section 4) on 2026-11-27 and re-worded: buttons, threes and writer's jokes cut, the voices pulled apart. The fourteen further sections (Sean, 2026-11-27) are written for the saloon's regulars and Claude Bérubé (`more_done`); the rest of the town's are the next session's. The town drunk (Sean, 2026-11-27) is added as a new person, `town_drunk`, with a full card; his notes about town and the mocking as a mechanic are #1312's.",
   "assumed": [
     "The railroad reached Salt Creek in 1881: Claude Bérubé hauled his press in by freight wagon in 1880 (Sean, #1207), and the trains run in the missions. The teamster's and the livery man's sheets lean on it.",
     "The general store holds the valley's mail (most stores of the time did): the storekeeper's wife's sheet leans on it.",
@@ -123,6 +123,12 @@
           "place": "saloon.bar",
           "to": "saloon_girl",
           "words": "Kitty. Table by the window's got money and no company."
+        },
+        {
+          "id": "barkeep.brevet",
+          "place": "saloon.bar",
+          "when": "after the drunk has first called you Brevet",
+          "words": "Brevet's Army talk. Rank with no pay to it. He means you got the badge and not the wages. He ain't wrong, is he?"
         }
       ],
       "fixed": {
@@ -150,7 +156,7 @@
           {
             "id": "barkeep.grave.1",
             "by": "churchman",
-            "words": "He kept a saloon, and I have counted its shutters. He shut it for every burying I have read in this town and stood at the back with his apron on. I never thanked him for it."
+            "words": "He kept a saloon, and he and I did not agree about it. Every burying I've read in this town, he shut his doors and stood at the back with his apron still on, there, by the gate."
           },
           {
             "id": "barkeep.grave.2",
@@ -160,7 +166,7 @@
           {
             "id": "barkeep.grave.3",
             "by": "fiddler",
-            "words": "He docked me the slow nights. He never docked me a sick one."
+            "words": "Docked me the slow nights, regular. The winter I had the pleurisy he paid me the whole of it and said it was a mistake in the book."
           }
         ],
         "bearers": "Trembath, Mapes, Yount, Stroud, Hollis, Burdett.",
@@ -188,8 +194,8 @@
         "greets": {
           "warm": "Deputy. This one's mine to stand.",
           "wary": "Deputy. What'll it be?",
-          "cold": "You drinking, or you come in to count my customers?",
-          "afraid": "Take it outside. Please, Deputy. I only just got that mirror."
+          "cold": "You drinking, Deputy, or standing?",
+          "afraid": "Not in here. Please, Deputy. Outside."
         }
       },
       "jobs": [
@@ -308,7 +314,7 @@
         "talks": "no_law.json's cast: 'a hard-rock man, slow and heavy, a little Cornish' (proposed there)"
       },
       "notes": "His one script line stands: 'He were cheating, my son, a dollar at a time, same as ever he did.' (no_law.json). 'He were' there is the script's wording (proposed there); the blind reader says Cornish runs 'they was', 'I be': to look at when that script is next read.",
-      "in_town": "Three years. He walked up alone from the end of the stage road in the spring of 'seventy-nine with his drills on his back, when the mine was one adit and a tent. He has seen it go to three shifts and a whistle, the hotel built to hold its men, the cars come in 'eighty-one and bring cheaper men with them, and the Baron's fence posts go round water the mine's mules used to drink at. Before: tin at St Just from fourteen, copper on the Keweenaw, gold at Central City.",
+      "in_town": "Three years. He walked up alone from the end of the stage road in the spring of 'seventy-nine with his drills on his back, when the mine was one adit and a tent. He has seen it go to three shifts and a whistle, the hotel fill with its men, the cars come in 'eighty-one and bring cheaper men with them, and the Baron's fence posts go round water the mine's mules used to drink at. Before: tin at St Just from fourteen, copper on the Keweenaw, gold at Central City.",
       "circle": {
         "friends": "The south end of the bar with whoever is there; cards at Earl's table on a Friday, knowing what Earl is. He takes his drill steel down to Stroud himself, for the talk. Sits on the hotel's porch with Mrs. Rudd of an evening, neither saying much. Chapel-bred: he goes up to Hadley's church at Christmas and Easter and sings bass.",
         "family": "His wife Loveday and their girl Tamsin in St Just; Tamsin is seventeen now, and he last saw her at six. A brother, Petherick, killed in the Keweenaw copper."
@@ -329,12 +335,12 @@
           {
             "id": "miner.grave.2",
             "by": "landlady",
-            "words": "He paid Friday. When he couldn't, he told me Thursday. I have his box. There's a wife in Cornwall to write to."
+            "words": "Fridays, he paid. Short, he'd come and tell me the night before, cap in his hand. His box is in my kitchen. I have the address off his letters."
           },
           {
             "id": "miner.grave.3",
             "by": "smith",
-            "words": "He'd bring the steel down himself. Never sent a boy. I'll make the cross. Iron. No charge."
+            "words": "Brung his own steel down, every time, and stood there and told me how it broke. I'll do his cross in iron."
           }
         ],
         "bearers": "Stroud, Yount, Burdett, Mapes (who talks the whole way up), and two men off his shift.",
@@ -508,7 +514,7 @@
           {
             "id": "rancher.grave.2",
             "by": "claude",
-            "words": "Anselmo Gallegos, in this valley since 1860: before the town, before the county. I have it right, I asked him twice. He is buried on his own ground, and the priest comes in October."
+            "words": "In this valley since 1860. I asked him the year twice, to have it right, and the second time he laughed at me. He is buried on his own ground; the priest comes in October."
           },
           {
             "id": "rancher.grave.3",
@@ -545,10 +551,10 @@
         "warms": "Looking to the widow; treating Joe as a man; an arrest where a shooting was easier.",
         "cools": "Taking the Baron's side or his money; letting Joe hang.",
         "greets": {
-          "warm": "Deputy. You will take a glass with me. No, I insist on it.",
+          "warm": "Deputy. A glass. Sit, sit.",
           "wary": "Good evening, Deputy.",
-          "cold": "Señor.",
-          "afraid": "I have no quarrel with you. I am going to my horse."
+          "cold": "Señor. I am only buying flour.",
+          "afraid": "No, no. I am going. My horse is there."
         }
       },
       "jobs": [
@@ -662,12 +668,12 @@
           {
             "id": "earl.grave.3",
             "by": "churchman",
-            "words": "Earl. That is all of his name we have. He played cards in this town for longer than anyone can tell me. If he had people, Lord, tell them, for we can't."
+            "words": "Earl. That is all of his name we have, and Mr. Colby has asked. He played cards in this town longer than anyone can tell me."
           },
           {
             "id": "earl.grave.4",
             "by": "miner",
-            "words": "He cheated me a dollar at a time for three year. I'd sit down with him tonight."
+            "words": "Cheated me a dollar a time, three year, and I knowed it. Friday I'd have sat in, same as always."
           }
         ],
         "bearers": "The barkeep, Trembath, Burdett, Yount.",
@@ -766,12 +772,12 @@
           {
             "id": "drifter.grave.1",
             "by": "churchman",
-            "words": "Wiley Burdett. I have that from Mr. Yount, and I have no more. He was from Texas, and somebody there is his mother. Lord, You know the rest of him. We don't."
+            "words": "Wiley Burdett. Mr. Yount gave me the name, and Texas, and that is as far as anyone here can take it."
           },
           {
             "id": "drifter.grave.2",
             "by": "liveryman",
-            "words": "He forked clean. He never asked me for nothing. There's a mother in Texas and I don't know the county."
+            "words": "Forked clean. Never asked me for nothing but the loft. Texas is all he'd say, and I didn't push him."
           },
           {
             "id": "drifter.grave.3",
@@ -936,12 +942,12 @@
           {
             "id": "fiddler.grave.2",
             "by": "churchman",
-            "words": "Lemuel Stiles, sixty years old, of Arkansas. He played for this town's dancing every night it danced. Saturdays he played till one, and Sundays I did not see him. I don't hold it against him now."
+            "words": "Lemuel Stiles, of Arkansas, sixty years old. He played this town's dancing every night it danced, and Saturdays till one, which I have heard about from my bed."
           },
           {
             "id": "fiddler.grave.3",
             "by": "barkeep",
-            "words": "I docked him for slow nights. I did, I'll say it. Fiddle's his daughter's, I guess. Somebody find out where."
+            "words": "I docked him for slow nights. I did, I'll say it. That fiddle's his daughter's, I guess, if anybody knows what town she's in."
           }
         ],
         "bearers": "Vogel, the barkeep, Yount, Stroud, Mapes, Trembath.",
@@ -1100,7 +1106,7 @@
           {
             "id": "pianist.grave.1",
             "by": "fiddler",
-            "words": "Professor could read anything you set in front of him. I'd as lief he'd looked up more. He was all right. He was."
+            "words": "Professor could play anything you set in front of him, off the paper. I'd learn him the 'Arkansaw Traveler' by ear and he'd write it down after, every note, and play it wrong."
           },
           {
             "id": "pianist.grave.2",
@@ -1110,7 +1116,7 @@
           {
             "id": "pianist.grave.3",
             "by": "churchman",
-            "words": "Augustus Vogel, of Cincinnati. He played in a saloon. He asked me once, very low, what our hymn-book was, and I told him. I ought to have asked him why."
+            "words": "Augustus Vogel. He asked me once at the store, very low, what hymn-book we use. I told him the Methodist, and he nodded as though that settled something, and went back across the street."
           }
         ],
         "bearers": "The barkeep, Yount, Stroud, Peck, Burdett and the undertaker's hired man. Stiles walks behind.",
@@ -1142,10 +1148,10 @@
         "warms": "Guns kept out of the saloon; a word of thanks for the music.",
         "cools": "A pistol drawn in the room, whatever the cause.",
         "greets": {
-          "warm": "Deputy! Good evening. Is there something you'd like to hear?",
+          "warm": "Deputy! Guten Abend. Good evening. You want something played?",
           "wary": "Good evening, Deputy.",
           "cold": "I only play the piano.",
-          "afraid": "Please. Not in here. Please."
+          "afraid": "Bitte. Not in here. Not by the piano."
         }
       },
       "jobs": [
@@ -1254,9 +1260,127 @@
         "secret": "DESIGN.md; VOICES.md (s19)",
         "habit": "VOICES.md ('Counts things'); WORDS.md ('clean is his own habit')",
         "talks": "VOICES.md; WORDS.md",
-        "voice": "the scripts' cast"
+        "voice": "the scripts' cast",
+        "knows": "VOICES.md, The doctor, 'Knows' (B1, B3, B5, B12); what he keeps back is O (s19)",
+        "harlan.starts": "VOICES.md, The doctor, 'Calls Harlan'; C12 a (coroner, acting sheriff, keeps Harlan on)",
+        "home": "config/valley.json (the doctor's lot); valley_folk.json (sleeps behind the dispensary)",
+        "casting": "the scripts' cast (voice); C14 c (no name)"
       },
-      "notes": "Only his two likes are proposed here. His cough line to the miner is the town script's; the miner's secret is written to it."
+      "notes": "Only his two likes are proposed here. His cough line to the miner is the town script's; the miner's secret is written to it. #1311: every other new section is PROPOSED (marked where it touches what the bible leaves open: where he's from, his family, his dials, his looks); the sheet's own `from`, `came`, `body` and `clothes` stay null until Sean fills them.",
+      "in_town": "PROPOSED: four years; he came in 'seventy-eight, by stage, with a medical school's diploma, two trunks of books and a microscope, after a practice in the East that he doesn't speak of. Where from stays open (the bible's O). He has seen the mine's accidents go from one a month to one a week, the cars bring a druggist's catalogue, and the town's dead come to his front room first. Before: medical school and a city hospital's wards (where, open).",
+      "circle": {
+        "friends": "Colby, the only other man in town who writes a thing down exactly. Caleb, whom he pays and teaches. Mrs. Rudd, at whose table he eats at noon. He plays chess by himself and reads the journals a month late.",
+        "family": "Open in the bible. PROPOSED: none he speaks of; a letter comes twice a year from a woman in Philadelphia and he answers it the same day."
+      },
+      "home": {
+        "what": "The room behind the dispensary, a bed and his books; the front room is for the sick and the dead.",
+        "state": "built",
+        "where": "the doctor's (doctor)"
+      },
+      "if_dies": {
+        "grief": "There's no doctor for two days' ride. The county has no coroner. Caleb sits on the dispensary's step. Mrs. Rudd sets his place at noon and takes it up again.",
+        "lines": [
+          {
+            "id": "doctor.grave.1",
+            "by": "churchman",
+            "words": "He sat up with the sheriff to the end, and with half of you before that. I never knew him send a bill to a widow."
+          },
+          {
+            "id": "doctor.grave.2",
+            "by": "undertaker",
+            "words": "Three hundred and some certificates he wrote me. I have them filed by the year, the cause on one line, every one."
+          },
+          {
+            "id": "doctor.grave.3",
+            "by": "runner",
+            "words": "I scrubbed in the carbolic this morning, to the elbow, like he showed me, and then I stood there with my hands up."
+          },
+          {
+            "id": "doctor.grave.4",
+            "by": "miner",
+            "words": "Asked after my chest every time he passed, he did. Not a word of it to the shift boss, my son, not ever."
+          }
+        ],
+        "bearers": "Colby's hired man, Trembath, Yount, Hollis, Bérubé, Caleb; Stroud to the gate.",
+        "after": "Nobody signs the certificates: Colby writes 'cause unknown' for the first time. Until the county names a man, the deputy holds the badge on nobody's word now. The next man shot is carried to Pueblo in a wagon and dies on the road."
+      },
+      "knows": [
+        {
+          "what": "From B1: that the sheriff will die, and that whoever packed the wound has done it before (built).",
+          "from": "day 1",
+          "tells": "the deputy",
+          "takes": "Nothing: he says it."
+        },
+        {
+          "what": "From B3: the sheriff's last words; from then he is acting sheriff, and the deputy holds the badge on his word.",
+          "from": "day 2",
+          "tells": "the deputy; the inquest, as coroner",
+          "takes": "Nothing."
+        },
+        {
+          "what": "From B5: what was done at the camp (Joe is in his office). That the law won't punish it.",
+          "from": "No Justice",
+          "tells": "the deputy",
+          "takes": "Nothing."
+        },
+        {
+          "what": "From B12: that he can't take them all, and what Rourke's paper is for.",
+          "from": "Payday Night",
+          "tells": "the deputy",
+          "takes": "Nothing."
+        },
+        {
+          "what": "What he keeps back about the sheriff's wound: open in the bible (s19). Not written here.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "PROPOSED: nerve 0.8, nosy 0.3, duty 1.0. He crosses the street to a call with his bag, whatever is going on in it. He doesn't take cover until there's a man on the ground, and then he takes it beside the man. He doesn't carry a gun.",
+      "harlan": {
+        "starts": "From the bible: he keeps the deputy on, and calls him 'Harlan' in private and 'Deputy' in front of the town (after B3).",
+        "warms": "A wound packed right; a man brought in alive; doing what he's told and not asking why.",
+        "cools": "Men killed who might have been brought in; drink before a call; a man brought in dead who had given himself up.",
+        "greets": {
+          "warm": "Deputy. Sit. I have ten minutes before the Swede's dressing wants changing.",
+          "wary": "Deputy. Is somebody hurt?",
+          "cold": "If it's not a wound it can wait, Deputy.",
+          "afraid": "Put that down. I have a man on the table."
+        }
+      },
+      "jobs": [
+        "Laudanum gone from the dispensary, two ounces, measured. He has his idea who and won't say it aloud.",
+        "A miner with a crushed hand won't come in, because the shift boss would see. The doctor wants him carried down.",
+        "As coroner he needs six men for an inquest jury by noon and the saloon won't lend him any."
+      ],
+      "looks": {
+        "body": "PROPOSED: skinny (the sheet's `body` is open).",
+        "hair": "PROPOSED: dark, greying, cut short.",
+        "beard": "PROPOSED: a close-trimmed dark beard going grey at the chin.",
+        "clothes": "PROPOSED: a dark frock coat off for work, a waistcoat, shirt sleeves rolled, a black bag.",
+        "wear": "Hands scrubbed raw; carbolic; ink on the right cuff."
+      },
+      "casting": {
+        "voice": "Late forties, an educated Easterner; brisk, quiet, dry.",
+        "accent": "Educated East (where from is open).",
+        "pace": "Brisk; whole sentences; counts.",
+        "say_name": "'Doc' (he has no name: C14 c)"
+      },
+      "owns": {
+        "money": "PROPOSED: what the county pays the coroner, late; forty dollars; a book of bills he doesn't send.",
+        "home": "His instruments, a microscope, the journals, a medicine chest, the front room's table.",
+        "pockets": "A watch, a lancet case, a stub of pencil, a list of the day's calls.",
+        "owes": "The druggist in Denver. Nobody in town."
+      },
+      "week": {
+        "sunday": "PROPOSED: no church. Calls at the ranches in the buggy, and the journals.",
+        "payday": "He keeps the lamp lit till two for the stitching.",
+        "vices": "PROPOSED: a glass of claret at supper; sleep he doesn't get."
+      },
+      "loyalty": {
+        "side": "against him (by the bible's course)",
+        "why": "As coroner he is the law until the county names a man, and he keeps the deputy on. What he thinks of the Baron he doesn't say until it can be proved."
+      }
     },
     "storekeeper": {
       "kind": "townsfolk",
@@ -1334,7 +1458,110 @@
         "name": "Sean, #1067: A. P. Hollis, gilded on the windows (what A. P. stands for is proposed)",
         "talks": "VOICES.md, Smaller voices: 'Careful; everything's written down'"
       },
-      "notes": "The bible's line stands: 'One handsaw, to a man I never saw before. It's in the book. Everything's in the book.' One of the Colters is called Hollis too (a first name); no kin."
+      "notes": "The bible's line stands: 'One handsaw, to a man I never saw before. It's in the book. Everything's in the book.' One of the Colters is called Hollis too (a first name); no kin.",
+      "in_town": "Eight years. He came up from the Arkansas in the fall of 'seventy-four with Lavinia and two wagons of stock, when the mine was a prospect hole and a promise, and put up the first front on the street; his book starts that October. He has seen the smithy and the saloon go up beside him, the hotel, the mine's three shifts, the cars come in 'eighty-one with a Denver drummer on every one, and the Baron's account grow to the biggest on his book. Before: a store at Boonville, cleaned out once by Price's men and once by the militia.",
+      "circle": {
+        "friends": "Yount, every night at the saloon's back table till half past nine, the same argument about the railroad. Sundays he sits at the back of Hadley's church and counts the plate in his head. He keeps out of the bar's front, and he's never sat at Earl's table.",
+        "family": "Lavinia. Their daughter Susan, married to a railroad clerk in Pueblo, with a boy he has seen once. A brother in Boonville who writes at Christmas and wants money."
+      },
+      "home": {
+        "what": "Three rooms over the store: a parlor with Lavinia's piano that nobody plays, the kitchen, the bedroom over the street. The bar for the door leans by the stairs.",
+        "state": "built",
+        "where": "the general store (general_store), upstairs"
+      },
+      "if_dies": {
+        "grief": "Lavinia shuts the store one day and opens it the next, with the book on the counter where it always is. Yount doesn't come in to the saloon that night, or for a week.",
+        "lines": [
+          {
+            "id": "storekeeper.grave.1",
+            "by": "churchman",
+            "words": "Mr. Hollis put up the first front on this street. There are men standing here whose winter he carried on his book, and he wouldn't tell me which, though I asked him."
+          },
+          {
+            "id": "storekeeper.grave.2",
+            "by": "liveryman",
+            "words": "Every night, him and me. He'd say the cars was the making of us and I'd say they'd ruin us, and then he'd be at his purse before I could get to mine."
+          },
+          {
+            "id": "storekeeper.grave.3",
+            "by": "store_wife",
+            "words": "He wrote it all down, every sack of flour since 'seventy-four. I have the book upstairs, and I don't intend that any of you should lose sleep over it this winter."
+          }
+        ],
+        "bearers": "Yount, Stroud (to the gate), Peck, Bérubé, Gallegos, and Mapes, who still swears he was shorted two loads.",
+        "after": "Lavinia keeps the store open, and the debts stop being collected. The Denver house sends a man to look at the stock. By spring there's talk of a second store by the depot, which is the thing he was afraid of."
+      },
+      "knows": [
+        {
+          "what": "Night one: nothing he saw. He had barred the door at dark, the sheriff being shot, and heard it from upstairs with Lavinia's hand on his arm.",
+          "from": "night one",
+          "tells": "anyone, as the reason he bars the door",
+          "takes": "Nothing."
+        },
+        {
+          "what": "The handsaw (SETUPS.md S23): on the morning of Payday Night he sold one handsaw, fine-toothed, to a man he had never seen before, and wrote it in the day-book on the counter. He thinks nothing of it: men buy saws. 'One handsaw, to a man I never saw before. It's in the book. Everything's in the book.'",
+          "from": "Payday Night, the morning (the saw is bought before anyone knows how the train will go)",
+          "tells": "a man who asks him about strangers, or reads the book on the counter; he volunteers it to nobody",
+          "takes": "The right question. Before the floor he can give the man's coat and that he paid in silver, not what he wanted it for. After the floor (B12) he says it to the deputy unasked, once he has heard there was a cut."
+        },
+        {
+          "what": "The Baron's account: the biggest on the book, settled each quarter in gold by the foreman; cartridges by the case since spring, more than a ranch shoots at coyotes.",
+          "from": "always",
+          "tells": "nobody: it's business",
+          "takes": "Being shown why it matters, by a man he trusts, with the door shut. A threat gets nothing: he says less when he's frightened."
+        },
+        {
+          "what": "The sawn floor: only the saw, as above.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.3, nosy 0.4, duty 0.5. At a shot he has the bar across the door before the echo stops, and Lavinia behind the counter with him. He doesn't look out. When it's over he opens up, puts lint, carbolic and a bolt of sheeting on the counter for whoever comes, and writes each one down for the county. At a fire next door he is on the roof with wet sacks, because the store is everything he has.",
+      "harlan": {
+        "starts": "Wary: a deputy brings trouble to a man's door, and a man with a badge has been known to help himself.",
+        "warms": "Paying on the nail; the store robbery stopped (store-robbery); being asked about the book and not told what to think of it.",
+        "cools": "Shooting in the street near his windows; the Baron's riders made angry at the town; anything taken from the shelf for 'the law' without a word written.",
+        "greets": {
+          "warm": "Deputy. Your cartridges are on the counter, wrote down. Saturday'll do.",
+          "wary": "Deputy. Something I can sell you?",
+          "cold": "We're closing directly.",
+          "afraid": "Whatever you want. Take it."
+        }
+      },
+      "jobs": [
+        "Mapes swears the store shorted him two loads' pay. Hollis wants the deputy to read the book and tell Mapes so, in front of the bench.",
+        "Somebody tried the bar on the back door at two in the morning. Nothing taken. He hasn't slept since.",
+        "A box of .44s is short on the shelf and the book says it was never sold. He'd as soon not know who, if it was one of the Baron's men."
+      ],
+      "looks": {
+        "body": "skinny",
+        "hair": "Thin, sandy going grey, combed flat with water.",
+        "beard": "Clean-shaven but for short side-whiskers.",
+        "clothes": "Apron, sleeve garters, a pencil behind the ear, spectacles pushed up.",
+        "wear": "Pencil lead on the right fingers; flour on the apron; a stoop from the counter."
+      },
+      "casting": {
+        "voice": "Fifties, a Missouri man, dry and careful.",
+        "accent": "Central Missouri (the river towns).",
+        "pace": "Careful; slower with numbers, and slower still when he's frightened.",
+        "say_name": "AY-mus PRAT HOL-iss; 'Mr. Hollis'"
+      },
+      "owns": {
+        "money": "Under forty dollars in the drawer; better than a thousand on the book; four hundred in the bank at the county seat.",
+        "home": "The store and its stock, the rooms upstairs, a Hall's safe, Lavinia's piano, the day-books back to 1874 in a crate.",
+        "pockets": "A pencil, a short rule, the keys, a Missouri half-dime for luck.",
+        "owes": "The Denver wholesale house, six hundred on ninety days. The bank's note on the building."
+      },
+      "week": {
+        "sunday": "Church with Lavinia, at the back. The store shut; the books in the afternoon.",
+        "payday": "The best day on the book and the worst for his nerves: the mine's men pay down, the store open till dark, the bar across at dark all the same.",
+        "vices": "One drink a night with Yount, two on payday. Worry."
+      },
+      "loyalty": {
+        "side": "afraid of him",
+        "why": "The Baron's is the biggest account on the book and the foreman pays in gold. He sells to his men and asks nothing, as he sold to both sides in the war. He would never stand against him in daylight; with the book, he might in court."
+      }
     },
     "store_wife": {
       "kind": "townsfolk",
@@ -1414,7 +1641,115 @@
       "fixed": {
         "role": "townsfolk brief §2, roster 4"
       },
-      "notes": "Her pool in the town's script is `townswoman`."
+      "notes": "Her pool in the town's script is `townswoman`.",
+      "in_town": "Eight years, with Amos, in 'seventy-four. She has seen the street go from their one front to two rows, the mail come up by stage and then by the cars, and the town get children enough for a school and no school. She has seen 'those women' arrive, and the church built. Before: taught the district school at Boonville from seventeen until she married.",
+      "circle": {
+        "friends": "Hadley, whose congregation she mostly is: she brings three wives on Sundays and starts the hymn when he loses it. Bérubé, who prints the children's compositions she collects on Fridays. Stroud, in the back of the store with the door shut and a letter. The wives of the bakery and the butcher, on the store's bench in the mornings.",
+        "family": "Amos. Their daughter Susan in Pueblo, who writes every Sunday. A sister in St. Louis who married better and says so."
+      },
+      "home": {
+        "what": "The rooms over the store.",
+        "state": "built",
+        "where": "the general store (general_store), upstairs"
+      },
+      "if_dies": {
+        "grief": "Amos stands behind the counter and can't make the sums come. The mail goes unsorted for a week. Stroud stops coming in.",
+        "lines": [
+          {
+            "id": "store_wife.grave.1",
+            "by": "churchman",
+            "words": "Mrs. Hollis brought me four of my nine the first Sunday, and the hymn-books in a basket. When I lost the tune she'd start it again from the second row, and I'd follow her."
+          },
+          {
+            "id": "store_wife.grave.2",
+            "by": "smith",
+            "words": "She'd read one twice if I asked. Never looked up at me, doing it. There's one come from my sister Tuesday, and it ain't opened."
+          },
+          {
+            "id": "store_wife.grave.3",
+            "by": "storekeeper",
+            "words": "Twenty-five years. I'd wet the pencil, and she'd already— She did the sums. I wrote them."
+          },
+          {
+            "id": "store_wife.grave.4",
+            "by": "claude",
+            "words": "The compositions came Fridays, in her basket, the spelling corrected in red. This week's came Thursday. I do not know how to print red."
+          }
+        ],
+        "bearers": "Yount, Stroud (to the gate), Bérubé, Peck, the doctor, and the baker.",
+        "after": "Nobody reads the smith his letters. The children's compositions stop. Amos sells the piano. Mrs. Rudd has the news first now, and finds she doesn't want it."
+      },
+      "knows": [
+        {
+          "what": "The valley's mail: whose letters come from where, who sends money and who stopped. Kitty's money orders to Pueblo, eight dollars on the first: she sells them, and has never said a word.",
+          "from": "always",
+          "tells": "nobody, of Kitty; of the rest, the deputy, as things she happened to notice",
+          "takes": "Trust, and a good reason. She is ashamed of reading postmarks and does it anyway."
+        },
+        {
+          "what": "The ranch's mail: letters in Army envelopes, from department headquarters, all spring. Beef contracts, she supposes; the Army buys beef. PROPOSED, for Sean: an innocent notice that means something only after B12 (the letter's date) and B14 (the papers); it gives nothing away alone.",
+          "from": "always",
+          "tells": "the deputy, if he asks what comes for the ranch",
+          "takes": "Being asked plainly. She'd think it was nothing."
+        },
+        {
+          "what": "Night one: nothing. She was upstairs with Amos and the door barred.",
+          "from": "night one",
+          "tells": "",
+          "takes": ""
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.5, nosy 0.7, duty 0.6. At a shot she calls the children in off the walk by name, all of them, hers or not, and shuts them in the back of the store. Then she watches from the upstairs window and can tell you the order it happened in. After, she is on the street with the store's sheeting and the doctor's name. In a brawl she says 'I'll thank you to stop that' once, and has been obeyed.",
+      "harlan": {
+        "starts": "Warm, with a schoolteacher's reserve: the sheriff was a reader.",
+        "warms": "Being civil to Kitty in front of the store; the children walking past the saloon safe on a Saturday; a man who reads.",
+        "cools": "Swearing in front of the bench; drink on him in the store; anyone killed in front of a child.",
+        "greets": {
+          "warm": "Good morning, Deputy. Nothing for you in the mail, I'm afraid. Coffee's on in the back.",
+          "wary": "Deputy. I'll thank you to wipe your boots.",
+          "cold": "Mr. Hollis will serve you.",
+          "afraid": "My husband is just upstairs. He'll be down directly."
+        }
+      },
+      "jobs": [
+        "A letter came to the store with its seal lifted and stuck down again. Not her doing, and she wants to know whose before Amos hears of it.",
+        "She wants every child in the valley counted for the county, to show there are enough for a school. The ranches won't answer her; they might answer a deputy.",
+        "The Gallegos boy and the butcher's boy fought at the creek, and the butcher's wife says a knife came out. Lavinia doesn't believe it and wants it looked into before it's believed."
+      ],
+      "looks": {
+        "body": "woman, slight",
+        "hair": "Brown with grey at the temples, parted in the middle and drawn back in a knot.",
+        "beard": "",
+        "clothes": "Dark calico, a white collar, an apron with scissors on a ribbon.",
+        "wear": "Ink on the second finger; spectacles on a cord, put on to read a postmark."
+      },
+      "casting": {
+        "voice": "Forties, clear and quick, Missouri with the schoolroom over it.",
+        "accent": "Missouri, schooled out of it but for the vowels.",
+        "pace": "Quick and even; longer sentences than anyone on the street.",
+        "say_name": "la-VIN-ya HOL-iss; 'Mrs. Hollis'"
+      },
+      "owns": {
+        "money": "Egg money and the dry-goods side's takings in a tea caddy: thirty dollars, hers.",
+        "home": "Her school books, a McGuffey set for the school that isn't, the parlor piano, a copy of Mrs. Beeton.",
+        "pockets": "Scissors on a ribbon, spectacles, a peppermint for whichever child has earned it.",
+        "owes": "Nothing. Stroud thinks he owes her, and she won't let him."
+      },
+      "week": {
+        "sunday": "Church, three wives brought with her; she starts the hymns. Writes to Susan in the afternoon.",
+        "payday": "The mail is heaviest the day after: money orders home, by the dozen. She sells them and keeps her face still.",
+        "vices": "Reading other people's postmarks. Sugar in her tea."
+      },
+      "loyalty": {
+        "side": "against him, quietly",
+        "why": "She has watched what his riders buy and how they talk on the bench, and the sheriff was a friend. She would say so before Amos would, and Amos knows it."
+      }
     },
     "liveryman": {
       "kind": "townsfolk",
@@ -1496,7 +1831,115 @@
         "role": "townsfolk brief §2, roster 5",
         "talks": "VOICES.md, Smaller voices: 'Grumbling to hide that he minds'"
       },
-      "notes": "The bible's line stands, for after the funeral: 'That horse is eating my oats, and the man that owned him's in the ground. Somebody ought to take him home to her.' The roster sleeps him in the loft and the drifter there too; here the loft is the drifter's and the harness room his."
+      "notes": "The bible's line stands, for after the funeral: 'That horse is eating my oats, and the man that owned him's in the ground. Somebody ought to take him home to her.' The roster sleeps him in the loft and the drifter there too; here the loft is the drifter's and the harness room his.",
+      "in_town": "Two years. He came up on the last of the freight before the cars, in the summer of 'eighty, with eight mules to sell and a bad eye coming on, and bought the livery off a man going to Leadville. The Army's quartermaster through the war; the Santa Fe road after it, twelve years. He's seen the cars take the freighting, Hollis pay Mapes by the load and then stop, and the Baron's riders stable at the ranch and not with him.",
+      "circle": {
+        "friends": "Hollis at the saloon's back table every night till half past nine. Sarge, to argue mules with on the livery's bench of an afternoon: they have it out every day. Burdett, who forks his stalls. Gallegos, who knows a horse. He doesn't go to church and says the preacher's horse is a disgrace.",
+        "family": "Nobody living that he speaks of. A wife who died in Kansas City in 'sixty-eight, of the cholera. A nephew in Covington who writes when he wants a loan."
+      },
+      "home": {
+        "what": "A cot in the harness room, with the stove and the lantern and the ledger he can't read well by now.",
+        "state": "to be built",
+        "where": "the livery's lot (not built yet)"
+      },
+      "if_dies": {
+        "grief": "Burdett forks the stalls the next morning without being told. The horses aren't fed till late the first day, and the town hears them.",
+        "lines": [
+          {
+            "id": "liveryman.grave.1",
+            "by": "churchman",
+            "words": "Mr. Yount had a corner of near every box that's come up this hill since he came, and all he ever said on the way was to mind the ruts."
+          },
+          {
+            "id": "liveryman.grave.2",
+            "by": "drifter",
+            "words": "He'd say the far stalls was a disgrace. Then he'd go do 'em himself before I was up, and tell folks I had."
+          },
+          {
+            "id": "liveryman.grave.3",
+            "by": "storekeeper",
+            "words": "I went over at half past nine last night, out of habit. The lamp was out in the harness room. I stood at the door a while before I come home."
+          },
+          {
+            "id": "liveryman.grave.4",
+            "by": "town_drunk",
+            "words": "He said a mule can count to four. I said three. Well, I'll not get that settled now."
+          }
+        ],
+        "bearers": "Hollis, Burdett, Stroud (to the gate), Trembath, Gallegos, Sarge (sober).",
+        "after": "The livery shuts until a nephew sells it to the Baron's man, who doesn't keep it as a livery. Burdett has no loft. Hollis drinks alone at half past nine, and then stops going."
+      },
+      "knows": [
+        {
+          "what": "Every horse that stables in town and whose. The sheriff's horse, from day 2, eating his oats (the widow's place opens from it: 'Somebody ought to take him home to her').",
+          "from": "day 2",
+          "tells": "anyone at the livery door, as a complaint about oats",
+          "takes": "Nothing."
+        },
+        {
+          "what": "The ranch's riders never stable with him; their horses stand at the saloon's rail. He didn't see the stranger's horse on night one and wouldn't know it.",
+          "from": "always",
+          "tells": "the deputy",
+          "takes": "Asking."
+        },
+        {
+          "what": "His eyes: he walks past a stall at dusk and can't say what's in it. Nobody knows.",
+          "from": "always",
+          "tells": "nobody",
+          "takes": "Catching him at it."
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.5, nosy 0.3, duty 0.6. At a shot he shuts the barn's doors and stands inside them with a fork. At a fire anywhere on the street he has the horses out first, a sack over each one's eyes, cursing the whole time: then he comes to the buckets. He doesn't gawk and doesn't fetch. He'd use the fork.",
+      "harlan": {
+        "starts": "Wary: the sheriff's horse is in his barn and nobody's paid for it.",
+        "warms": "Taking the sheriff's horse home to the widow (widows-place); bringing a horse back sound; paying for the stall without being asked.",
+        "cools": "A horse run lame; the ranch's men given the street; the drifter moved on.",
+        "greets": {
+          "warm": "Bring that one round. I'll look at the near fore. Ain't charging you for looking.",
+          "wary": "Deputy. Stall's a quarter. Feed's extra.",
+          "cold": "Ain't got ary stall.",
+          "afraid": "Take the bay. Take him. Only don't run him on the road, he ain't— Go on, take him."
+        }
+      },
+      "jobs": [
+        "The sheriff's horse eats his oats, and the man that owned him's in the ground: somebody ought to take him home to her (the bible's; it opens widows-place).",
+        "He's short a horse he hired out Tuesday to a man who said Pueblo. He won't go to the law about it himself; he'll grumble at the deputy until the deputy goes.",
+        "His horses are sweated in the mornings. Somebody rides them at night and puts them back."
+      ],
+      "looks": {
+        "body": "heavy",
+        "hair": "Grey, thick, cut by Mrs. Rudd at the kitchen door twice a year.",
+        "beard": "A grey spade beard stained by tobacco.",
+        "clothes": "Collarless shirt, braces, a leather apron for the feet, chaff on everything, an old Army teamster's hat.",
+        "wear": "Chaff; the smell of the barn; a cloudy left eye he turns away."
+      },
+      "casting": {
+        "voice": "Fifties, gravel, northern Kentucky.",
+        "accent": "Northern Kentucky (the Ohio river), thirty years on the road.",
+        "pace": "Steady, grumbling; quick only when he's afraid.",
+        "say_name": "HY-rum YOWNT"
+      },
+      "owns": {
+        "money": "Sixty dollars in a coffee tin in the harness room, and what the town owes for stalls.",
+        "home": "The livery and its lot, nine horses and two mules, harness, a buggy for hire; his Army discharge in the ledger.",
+        "pockets": "A hoof pick, a twist of tobacco, a horse's tooth he won't explain.",
+        "owes": "Stroud, four shoes; he'd pay if the smith would say. The bank, the last of the livery's price."
+      },
+      "week": {
+        "sunday": "The horses, same as any day. The bench in the afternoon with Sarge, and a mule to argue over.",
+        "payday": "Every horse hired out by noon and two come back lame by night.",
+        "vices": "His one drink with Hollis, and chewing tobacco."
+      },
+      "loyalty": {
+        "side": "nobody's, leaning against",
+        "why": "The ranch's riders never pay him a stall and ride their horses hard. He'd no more work for the Baron than for the railroad. He fears him less than he should."
+      }
     },
     "smith": {
       "kind": "townsfolk",
@@ -1570,7 +2013,109 @@
         "role": "townsfolk brief §2, roster 6; he doesn't walk to the funeral (brief §3)",
         "secret": "town.json's cast: 'proud of his iron, shy of his letters' (#1184)"
       },
-      "notes": "His town-script lines stand ('Livery owes me for four shoes. Don't tell him I said.')."
+      "notes": "His town-script lines stand ('Livery owes me for four shoes. Don't tell him I said.'). Why he carries a box to the gate and no further: the burial detail at Stones River, which he never talks about. Nobody in town knows it; the first nine list him as a bearer, and his card squares it: he takes his corner to the foot of Church Lane and hands it to whoever is behind.",
+      "in_town": "Two years. He came up the line with the railroad's graders in 'eighty, dressing their picks, and when they went on he bought the smithy off a Swede who'd had it since 'seventy-six and wanted to go home. He's seen the mine's work turn his shop to drill steel, sixty a day, and the cars bring bar iron cheaper than it ever came by wagon.",
+      "circle": {
+        "friends": "Trembath, who brings his steel down himself. Mrs. Hollis, who reads him his letters. Caleb Rudd on the bellows when he can get away. He drinks at the bar on payday, a short beer, and is home by eight.",
+        "family": "His sister Ruth in Ironton, Ohio, who writes every other month and thinks he answers in his own hand. A wife and a boy who died of the diphtheria at the furnace in 'sixty-six, when he was not long home from the war."
+      },
+      "home": {
+        "what": "A room behind the smithy, against the forge wall for the warmth, with a bed and a chest.",
+        "state": "to be built",
+        "where": "the blacksmith's lot at the west end (not built yet)"
+      },
+      "if_dies": {
+        "grief": "The smithy's fire goes out for the first time in two years, and the street notices the quiet before it notices why. Trembath takes the drill steel to the mine's own forge, and swears at it.",
+        "lines": [
+          {
+            "id": "smith.grave.1",
+            "by": "churchman",
+            "words": "He made most of the iron crosses on this hill, and charged nobody. He'd carry a man as far as that gate and give his corner to whoever was behind him."
+          },
+          {
+            "id": "smith.grave.2",
+            "by": "store_wife",
+            "words": "His sister in Ohio is called Ruth. She writes every other month, and I have answered for him these two years in a hand she must take for his. Now I have to write to her in mine."
+          },
+          {
+            "id": "smith.grave.3",
+            "by": "liveryman",
+            "words": "Four shoes. I owe him four shoes. Who do I pay now? You tell me that."
+          },
+          {
+            "id": "smith.grave.4",
+            "by": "runner",
+            "words": "He'd let me on the bellows. Said I'd make a striker if I could quit talking."
+          }
+        ],
+        "bearers": "Trembath, Yount, Burdett, Caleb, and two men off the mine; they carry him through the gate he never came through.",
+        "after": "No smith in town: shoes and tires go to the mine's forge, which charges double, and the drill steel goes dull. There's no iron for the next cross, and the next grave on the hill has a board."
+      },
+      "knows": [
+        {
+          "what": "Iron: a broken shoe, a sprung tire, a drawn spike. PROPOSED, for Sean: after Hell on Wheels, shown one of the pulled rail's spikes, he can say it was drawn with a claw bar, not shaken loose by the train. It only confirms what the player already holds (K7 is learned at B11).",
+          "from": "after Hell on Wheels, if shown a spike",
+          "tells": "whoever brings it to him",
+          "takes": "Bringing it to the smithy. He won't go and look."
+        },
+        {
+          "what": "Night one: nothing. He was asleep behind the forge by eight.",
+          "from": "night one",
+          "tells": "",
+          "takes": ""
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.8, nosy 0.2, duty 0.5. A shot down the street doesn't stop his hammer. A brawl at his door, he picks a man up by his belt and sets him in the road. At a fire he's first with the buckets and a hook to pull down what's burning. He has his hammer in his hand already and doesn't need a gun; he'd never take one up.",
+      "harlan": {
+        "starts": "Wary, the way he is with everyone: he looks at the iron.",
+        "warms": "Paying for a shoe without reading the bill; reading him a paper without being asked to; never mentioning it after.",
+        "cools": "Being made to sign a thing he can't read; a man who brings trouble to the smithy.",
+        "greets": {
+          "warm": "Deputy. Hold that a minute. No, by the tongs.",
+          "wary": "Shoe or a tire?",
+          "cold": "Fire's hot. Come back after.",
+          "afraid": "I ain't got nothing against you. Put it down."
+        }
+      },
+      "jobs": [
+        "The mine's shift boss pays for fifty drills a day and sends sixty. Stroud won't argue it with a man who can write; he'd like the deputy to count them.",
+        "Somebody took his sledge from the smithy door. It has his mark on the face, a struck S.",
+        "A rider left a horse to be shod and never came back for it, and the bill's three weeks old."
+      ],
+      "looks": {
+        "body": "heavy",
+        "hair": "Black, cropped short against the sparks.",
+        "beard": "A short black beard with a burn-scar bald through it.",
+        "clothes": "Leather apron scorched at the hem, sleeves cut off, soot to the elbows, a cloth cap.",
+        "wear": "Soot to the elbows; small white burn-scars on both forearms; one ear thick from a horse."
+      },
+      "casting": {
+        "voice": "Forties, big and slow-spoken, southern Ohio.",
+        "accent": "Southern Ohio (the Hanging Rock iron country), half Kentucky.",
+        "pace": "Slow and few.",
+        "say_name": "EE-ben STROWD"
+      },
+      "owns": {
+        "money": "A hundred and twenty dollars in a can buried under the forge's floor.",
+        "home": "The smithy, its anvil and tools, a chest with his cavalry jacket and Ruth's letters in it.",
+        "pockets": "A piece of chalk, a nail, his touchmark punch.",
+        "owes": "Nothing. Yount owes him four shoes and he won't say."
+      },
+      "week": {
+        "sunday": "The fire banked. He mends his own tools and sits at the smithy door. He doesn't go up to church.",
+        "payday": "The mine pays his contract at noon. A short beer, one, at the bar, home by eight.",
+        "vices": "None to speak of. He chews."
+      },
+      "loyalty": {
+        "side": "nobody's",
+        "why": "He shoes the ranch's horses for cash and the foreman pays without looking at the bill. He has no opinion of the Baron that he would say aloud, which is the only kind of opinion he has."
+      }
     },
     "landlady": {
       "kind": "townsfolk",
@@ -1653,7 +2198,115 @@
         "role": "townsfolk brief §2, roster 8",
         "talks": "town.json's cast: 'a widow who runs the hotel; brisk, plain, has fed worse men than these. Never raises her voice'"
       },
-      "notes": "Her town-script lines stand ('Your room's paid to Friday. After that, we'll see.' is to Mr. Peck's kind)."
+      "notes": "Her town-script lines stand ('Your room's paid to Friday. After that, we'll see.' is to Mr. Peck's kind).",
+      "in_town": "Five years. She came out from Lockport with Cornelius and Caleb in 'seventy-seven when Cornelius took the hotel's contract, and buried him in its second winter, of lung fever, in 1879. She has seen the mine's men fill her beds twice over, the cars bring drummers who want sheets changed, and Mr. Peck. Before: her mother's boarding house on the canal at Lockport, from a girl.",
+      "circle": {
+        "friends": "Trembath on the porch of an evening, neither saying much. Vogel over her parlor organ, Sundays. The doctor, who pays Caleb and teaches him to wash. She leaves a plate on the back step for Sarge at half past six and has never mentioned it to a soul. She doesn't go to the Hollises' and they don't come to her.",
+        "family": "Caleb, sixteen. Cornelius on the hill under an iron cross Stroud didn't make (it was before him). A married sister in Rochester."
+      },
+      "home": {
+        "what": "Her room off the hotel's kitchen, with Cornelius's boots by the door.",
+        "state": "to be built",
+        "where": "the hotel's lot (not built yet)"
+      },
+      "if_dies": {
+        "grief": "Caleb sits in the kitchen and won't eat. The mine's men find there's no breakfast and go to the saloon for it. The plate isn't on the back step at half past six.",
+        "lines": [
+          {
+            "id": "landlady.grave.1",
+            "by": "churchman",
+            "words": "She kept the hotel open the day we buried Cornelius. The men who carried him came down the hill and she had their dinner on at noon."
+          },
+          {
+            "id": "landlady.grave.2",
+            "by": "runner",
+            "words": "Six o'clock. I was late most nights. She'd say my name the once, at the door, and that'd do it."
+          },
+          {
+            "id": "landlady.grave.3",
+            "by": "miner",
+            "words": "Kept my bed when I was short, she did, and never a word of it in front of the table. 'Tis her I wrote home about, more than the mine."
+          },
+          {
+            "id": "landlady.grave.4",
+            "by": "town_drunk",
+            "words": "Half after six there'd be a plate on the back step with a cloth over it. Biscuits, Tuesdays. I'd like to know who told her I was partial to biscuits."
+          }
+        ],
+        "bearers": "Trembath, Yount, Stroud (to the gate), Peck, Vogel, the doctor. Caleb walks behind and won't be given a corner.",
+        "after": "The hotel's note is called. Caleb goes to his aunt in Rochester or the doctor keeps him: the town takes sides on which. The mine's men are in the saloon's back room at night, and there are more fights."
+      },
+      "knows": [
+        {
+          "what": "Who's in her beds, who's behind, and who left in the night. Every stranger who takes a room in Salt Creek signs her book.",
+          "from": "always",
+          "tells": "the deputy, if he asks at the right hour (after dinner, before supper)",
+          "takes": "Asking her plainly, once. She tells what she noticed, not what she thinks."
+        },
+        {
+          "what": "PROPOSED, for Sean (one possible answer to s22, how the deputy knows the men on the gallery): on the morning of Payday Night two men took her front rooms for a week, paid in advance, in gold, and asked for the gallery side. They were out all that night. She thought nothing of it until the floor.",
+          "from": "Payday Night",
+          "tells": "the deputy, the day after, if he asks about strangers",
+          "takes": "Trust; she won't have shooting in her house, and says so."
+        },
+        {
+          "what": "Night one: nothing she saw. Trembath came back late and sat in her kitchen and said a man was dead; she gave him tea.",
+          "from": "night one",
+          "tells": "",
+          "takes": ""
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.7, nosy 0.6, duty 0.7. At a shot she locks the front door, sends the guests into the kitchen, and tells Caleb to stay where he is, which he never does. She puts water on to boil before anyone asks for it. A brawl in her dining room, she takes the coffee pot to it. She doesn't run and she doesn't watch.",
+      "harlan": {
+        "starts": "Wary: Caleb talks about him too much.",
+        "warms": "Sending Caleb home instead of along; paying for a meal; keeping the shooting off her porch.",
+        "cools": "Caleb taken into danger; a fight brought into the hotel; Peck put out on the street.",
+        "greets": {
+          "warm": "Deputy. There's a plate kept back. Kitchen.",
+          "wary": "Deputy. Dinner's at noon. Boots off the rail.",
+          "cold": "We're full.",
+          "afraid": "Caleb, go up. Now. ... Well? What is it you want?"
+        }
+      },
+      "jobs": [
+        "A drummer left in the night without paying, and his valise was full of bricks. She wants the bricks' price.",
+        "Mr. Peck is three weeks behind. She won't put him out. She'd like the deputy to say a word to him so she needn't.",
+        "Caleb is at the depot at all hours. She asks the deputy to bring him home, and not to tell him she asked."
+      ],
+      "looks": {
+        "body": "woman, stout",
+        "hair": "Dark, greying, scraped back under a cap.",
+        "beard": "",
+        "clothes": "Grey wool, a long apron, sleeves pinned back, keys at the waist.",
+        "wear": "Red, cracked hands from the wash; flour at the hem."
+      },
+      "casting": {
+        "voice": "Forties, level, upstate New York; never raised.",
+        "accent": "Upstate New York (the Erie canal).",
+        "pace": "Brisk; short sentences; the hour and the rule.",
+        "say_name": "HES-ter RUDD; 'Mrs. Rudd'"
+      },
+      "owns": {
+        "money": "The board money in a cash box in her room, sixty-odd dollars a week in and most of it out again.",
+        "home": "The hotel, on a note to the Denver bank; twenty-six beds; the parlor organ; Cornelius's boots.",
+        "pockets": "The keys, a pencil, a list.",
+        "owes": "The bank, the hotel's note, due each quarter. Hollis, for flour, paid every Saturday."
+      },
+      "week": {
+        "sunday": "Breakfast at seven, dinner at one, no supper but cold. Vogel at the organ in the afternoon. Church once a month, when she can leave the kitchen.",
+        "payday": "Board collected from the mine's men at the door before they reach the saloon.",
+        "vices": "None. A sherry at Christmas."
+      },
+      "loyalty": {
+        "side": "nobody's",
+        "why": "She takes any man's board who pays. The Baron's riders drink on her gallery and she charges them for the chairs. Against him, if she were shown why; she would want to be shown."
+      }
     },
     "churchman": {
       "kind": "townsfolk",
@@ -1733,7 +2386,115 @@
         "role": "townsfolk brief §2, roster 9",
         "talks": "no_law.json's cast: 'a Methodist circuit man; carrying voice, plain, unadorned'"
       },
-      "notes": "Two roster ids, one man: `churchman` walks the street by day, `preacher` is the funeral's act man (aliases)."
+      "notes": "Two roster ids, one man: `churchman` walks the street by day, `preacher` is the funeral's act man (aliases).",
+      "in_town": "Two years. The Conference sent him in the spring of 'eighty, when his knees gave out on the Kansas circuits, to a church the miners had framed and nobody had preached in. Mapes carried the stove up the hill for him on his own back and took nothing for it. He has seen the congregation go from four to nine, the saloon add shutters, and the Baron's shingles go on the north side of his roof. Before: twenty years on horseback through Kansas, three hundred miles a round.",
+      "circle": {
+        "friends": "Mrs. Hollis, who brings three of the nine and tells him who is sick. Colby, at every burying. He stops on his walk for anybody: Sarge on the church's low step on Sundays (he leaves the door open on his side), Kitty on the saloon porch (he lifts his hat). He takes his supper at the hotel on Wednesdays.",
+        "family": "His wife Martha, buried at Council Grove in 'seventy-three. Two grown sons in Indiana, one a Methodist preacher and one who isn't anything, and writes more."
+      },
+      "home": {
+        "what": "Two rooms in the house beside the church, a cot, his books, a stove that smokes.",
+        "state": "to be built",
+        "where": "beside the church, up Church Lane (the church stands; the house is not built yet)"
+      },
+      "if_dies": {
+        "grief": "There's nobody to bury him: the Conference is three weeks away by letter. Mrs. Hollis reads the service from his own book. The nine come, and more than nine.",
+        "lines": [
+          {
+            "id": "churchman.grave.1",
+            "by": "store_wife",
+            "words": "There's no one to read it, so I shall. He'd marked the place himself, in his own book, with a slip of paper. I only found it this morning."
+          },
+          {
+            "id": "churchman.grave.2",
+            "by": "town_drunk",
+            "words": "Left the door propped my side, Sundays. I'd sit on the low step and get the hymn for nothing."
+          },
+          {
+            "id": "churchman.grave.3",
+            "by": "undertaker",
+            "words": "Six foot and one half inch. He asked me for his measure in 'eighty and I gave it him, and he said, 'Then that's settled.'"
+          },
+          {
+            "id": "churchman.grave.4",
+            "by": "loudmouth",
+            "words": "I carried that stove up this hill on my back for him. Took nothing for it. Nothing! You ask anybody."
+          }
+        ],
+        "bearers": "Colby, Hollis, Mapes, Yount, Trembath, Peck; Stroud to the gate. Sarge walks behind, sober.",
+        "after": "The church stands shut until the Conference sends a younger man who doesn't walk the street. The door isn't open on Sarge's side. The Baron sends a letter of sympathy, and Mrs. Hollis doesn't read it out."
+      },
+      "knows": [
+        {
+          "what": "The Baron's shingles: given the spring before last, when the roof leaked on the bench. He thanks him every Sunday and has begun to wonder what for.",
+          "from": "always",
+          "tells": "anyone who asks about the roof",
+          "takes": "Nothing."
+        },
+        {
+          "what": "PROPOSED, for Sean: last winter the Baron asked him, idly, at the church door, whether the sheriff's wife had any people back East the place might go to. Hadley thought it a kindness. After B4 (the grave, the water named) he understands the question.",
+          "from": "after B4",
+          "tells": "the deputy, in the church, not in the street",
+          "takes": "Being asked in the church. He would think it a confidence otherwise."
+        },
+        {
+          "what": "Who is sick, who drinks, who stopped coming: the street's whole state of health, from Mrs. Hollis.",
+          "from": "always",
+          "tells": "the deputy, as a thing to pray for",
+          "takes": "Walking with him."
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.6, nosy 0.5, duty 0.9. He walks toward it, slowly, with his hat on and his stick, which has stopped one fight in his life. He kneels by the man on the ground whoever shot him. He doesn't run, doesn't take up a gun, and doesn't get out of the way when he should.",
+      "harlan": {
+        "starts": "Warm: the sheriff came to church at Christmas, and swore him in.",
+        "warms": "Coming up the hill on a Sunday; a burying done decently; Sarge let alone.",
+        "cools": "A man shot in the back, or with his hands up; drink on him at a grave; the Baron's account believed against his own people.",
+        "greets": {
+          "warm": "Good morning to you, Deputy. Walk with me as far as the corner, if you're going that way.",
+          "wary": "Morning, Deputy. Mind the mud by the trough.",
+          "cold": "I had heard. Good day to you.",
+          "afraid": "You'll put that up, now. Whatever it is. There's a woman at that window."
+        }
+      },
+      "jobs": [
+        "The church's poor box was broken open Saturday night. Four dollars and a Mexican real. He doesn't want the man punished, he wants him found and fed.",
+        "Sarge has back pension owing as First Sergeant Tolliver and won't sign for it (his card). Hadley asks the deputy to write to the Pension Office.",
+        "Men come out of the saloon at midnight and sing under his window, the same three songs. He wants the deputy to ask them for a fourth."
+      ],
+      "looks": {
+        "body": "tall",
+        "hair": "White, long at the back, thin on top.",
+        "beard": "A white chin-beard, the upper lip shaved.",
+        "clothes": "Black coat shiny at the elbows, a white stock, a wide black hat, a blackthorn stick.",
+        "wear": "Saddle-bowed legs, a stiff walk from the knees; mud on the stick's ferrule."
+      },
+      "casting": {
+        "voice": "Fifties, a carrying voice, plain, Indiana; reads the old words without performing them.",
+        "accent": "Indiana (the Quaker counties), plain.",
+        "pace": "Unhurried, carrying; slower at a grave.",
+        "say_name": "EE-nok HAD-lee; 'Reverend'"
+      },
+      "owns": {
+        "money": "The Conference's three hundred a year, of which he has seen two hundred; nine dollars in a drawer.",
+        "home": "The church's Bible and his own; Wesley's sermons; a bed, a stove, a horse he doesn't ride.",
+        "pockets": "A New Testament, a pencil, a list of the sick.",
+        "owes": "Hollis, for lamp oil and the hymn-books. The Baron, he has begun to think."
+      },
+      "week": {
+        "sunday": "Preaches at ten and at six. Stands at the door to shake every hand, and lifts his hat to Sarge on the step.",
+        "payday": "Walks past the saloon twice in the evening, slowly, so the men see him.",
+        "vices": "Coffee, strong. He lets a sermon run long."
+      },
+      "loyalty": {
+        "side": "owing him",
+        "why": "The Baron's shingles are on the roof, and he thanks him for them by name. He'd turn the day he understood what the shingles were for, and say so from the pulpit."
+      }
     },
     "saloon_girl": {
       "kind": "townsfolk",
@@ -1832,12 +2593,12 @@
           {
             "id": "saloon_girl.grave.1",
             "by": "churchman",
-            "words": "Catherine Dolan. That was her name; the town had another for her. She was twenty-four. I lifted my hat to her every morning, and I am glad of it today."
+            "words": "Catherine Dolan, twenty-four. That was her name, whatever the street called her. I lifted my hat to her on that porch most mornings, and she'd nod back, the way a lady does."
           },
           {
             "id": "saloon_girl.grave.2",
             "by": "barkeep",
-            "words": "She never shorted the till. Jesus. Eight dollars the first of every month to Pueblo and I never asked her what for. Somebody's waiting on that."
+            "words": "She never shorted the till. Jesus. Eight dollars the first of every month to Pueblo, and I never asked her what for. Who's got them stubs?"
           },
           {
             "id": "saloon_girl.grave.3",
@@ -1880,9 +2641,9 @@
         "cools": "He sat at that table while Earl was shot, and she saw him sit; being looked through.",
         "greets": {
           "warm": "Deputy. Sit, I'll not charge you for the tea.",
-          "wary": "Evening, Deputy. Looking for somebody, or only looking?",
+          "wary": "Evening, Deputy. You're not here for the tea.",
           "cold": "Bar's that way.",
-          "afraid": "I've a child. Whatever it is. I've a child."
+          "afraid": "I've a child, mister. Whatever it is."
         }
       },
       "jobs": [
@@ -1993,7 +2754,115 @@
       "fixed": {
         "role": "the scripts' townsman: 'a storekeeper type; worried, talks low, glances over his shoulder' (No Law, Beat 1)"
       },
-      "notes": "He tells the town's news in the scripts (the `townsman` pool is everyone's default too); his own lines here are his."
+      "notes": "He tells the town's news in the scripts (the `townsman` pool is everyone's default too); his own lines here are his.",
+      "in_town": "Two years. He came in the spring of 'eighty ahead of the railroad with a carpetbag and borrowed money, bought six lots at the west end, and watched the company put its depot at the east. He's seen the cars come in, the town grow toward the wrong end, and the price of a lot fall by half. Before: insurance at Norwich; corner lots at Abilene, Wichita and Garden City, a boom in each and a bust after.",
+      "circle": {
+        "friends": "Mapes, who will talk to him on the store's bench, and he listens. Bérubé, who printed his handbill on credit. The hotel's porch at dusk with whoever is on it. Church on Sundays, because buyers go to church.",
+        "family": "A wife, Adelia, at Norwich with her father, who wrote last spring that she would join him when he had a house. He hasn't answered."
+      },
+      "home": {
+        "what": "A back room at the hotel, three weeks behind; his deeds in a tin trunk under the bed.",
+        "state": "to be built",
+        "where": "the hotel's lot (not built yet); his six lots at the west end stand empty, with stakes"
+      },
+      "if_dies": {
+        "grief": "Not much, and he'd have expected more. Mapes misses him most and says so loudest.",
+        "lines": [
+          {
+            "id": "townsman.grave.1",
+            "by": "churchman",
+            "words": "Mr. Peck bought six lots at the west end ahead of the railroad, and I believe he walked out to look at them every morning, rain or not."
+          },
+          {
+            "id": "townsman.grave.2",
+            "by": "landlady",
+            "words": "Three weeks, and the room. I'll not ask it of anybody. Saturdays I'd say his name, and he'd touch his collar."
+          },
+          {
+            "id": "townsman.grave.3",
+            "by": "loudmouth",
+            "words": "Lyman'd stand there and let me talk, the whole of it. There's nobody else in this town ever— Who am I going to tell it to now? Hollis?"
+          },
+          {
+            "id": "townsman.grave.4",
+            "by": "undertaker",
+            "words": "Paper collar, a fresh one. I don't know where he found the dime for it."
+          }
+        ],
+        "bearers": "Mapes, Yount, Burdett, Colby's hired man, Bérubé; Stroud to the gate. Nobody had to be asked.",
+        "after": "The six lots are sold for the note, to the Baron's agent, for a fifth of what Peck paid. A letter from Norwich comes to the hotel and Mrs. Rudd answers it."
+      },
+      "knows": [
+        {
+          "what": "Everything he's been told, and who told him. After B3, the town's loose version: 'some stranger on a sorrel'. Before it, 'road agents, or Utes'.",
+          "from": "night one; loosely after B3",
+          "tells": "everybody, low, looking over his shoulder",
+          "takes": "Nothing. It is worth what it cost."
+        },
+        {
+          "what": "That the Baron's agent has been at the county seat's land office asking after lots on the creek side of town. He heard it from a drummer.",
+          "from": "always",
+          "tells": "the deputy, if he will listen",
+          "takes": "Listening. It may be true."
+        },
+        {
+          "what": "What he saw himself: almost nothing. He was behind the trough.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.2, nosy 0.9, duty 0.1. First behind the trough at the first shot, and first out from behind it when it's over, to tell the street what happened, wrongly. He'll carry if somebody asks him to, because he can't say no to a man's face.",
+      "harlan": {
+        "starts": "Warm, too quickly: a deputy might know a buyer.",
+        "warms": "Being listened to; being asked; being seen with him on the walk.",
+        "cools": "Being told he's wrong in front of the bench; the Baron's riders angry with the town, which is bad for lots.",
+        "greets": {
+          "warm": "Deputy! A word. Low, now. I was told something this morning, and I calculate you'll want it.",
+          "wary": "Morning, Deputy. Nothing I know of. Not a thing.",
+          "cold": "Not here. People are looking.",
+          "afraid": "Now— now, I only heard it. On the bench. Ask anybody was on the bench."
+        }
+      },
+      "jobs": [
+        "Somebody pulled the survey stakes on his corner lots and threw them in the creek. He wants it known it was a crime.",
+        "A gentleman has written he may come to look at a lot. Peck wants the deputy there when he does, to show the town is orderly.",
+        "Mapes repeated in the saloon something Peck said low on the bench, and now one of the Baron's riders wants a word with him."
+      ],
+      "looks": {
+        "body": "skinny",
+        "hair": "Brown, thinning, oiled and combed over.",
+        "beard": "A small waxed moustache.",
+        "clothes": "A town suit worn at the cuffs, a paper collar changed daily, a watch chain with no watch on it.",
+        "wear": "Shiny cuffs and elbows; boots polished over cracks."
+      },
+      "casting": {
+        "voice": "Forties, low, quick, Connecticut; a salesman's voice with the confidence gone out of it.",
+        "accent": "Eastern Connecticut Yankee.",
+        "pace": "Quick and low; louder when he's selling, and then catches himself.",
+        "say_name": "LY-man PECK; 'Mr. Peck'"
+      },
+      "owns": {
+        "money": "Two dollars and some cents, and six lots worth less than the note on them.",
+        "home": "A tin trunk: deeds, the plat of Salt Creek with his lots inked red, two shirts, a box of collars.",
+        "pockets": "A handbill, CHOICE LOTS; a pencil; the watch chain; a letter from Norwich unanswered.",
+        "owes": "Mrs. Rudd, three weeks. The county bank, the note on the lots, due this autumn. Bérubé, for the handbills."
+      },
+      "week": {
+        "sunday": "Church, in the second row, where a buyer would see him.",
+        "payday": "On the walk outside the mine office, with handbills. Nobody buys.",
+        "vices": "Talk. A cigar he can't afford, on Saturdays."
+      },
+      "loyalty": {
+        "side": "anybody's, for a buyer",
+        "why": "He'd sell to the Baron tomorrow and thank him. The Baron hasn't asked, which is worse than being afraid of him."
+      }
     },
     "loudmouth": {
       "kind": "townsfolk",
@@ -2090,7 +2959,7 @@
           {
             "id": "loudmouth.grave.1",
             "by": "churchman",
-            "words": "Rufus Mapes. He was loud, and he was idle when he could be, and there isn't a man here he didn't tell so to his face. He carried my stove up that hill and would take nothing for it. I had forgot that until today."
+            "words": "Rufus Mapes. He told every man here what was wrong with him, mostly in the street, and he told me twice. He carried my stove up this hill on his back the first winter and wouldn't hear of a dollar."
           },
           {
             "id": "loudmouth.grave.2",
@@ -2133,8 +3002,8 @@
         "cools": "Being fined, or made small in front of the bench.",
         "greets": {
           "warm": "Deputy! Here, sit, I was just telling 'em how you done it.",
-          "wary": "Well, it's the law. Morning, law.",
-          "cold": "Farmer.",
+          "wary": "Morning, Deputy! Fine morning for it, ain't it?",
+          "cold": "You again. Go on by, farmer.",
           "afraid": "I never said it! Whoever told you I said it's a liar!"
         }
       },
@@ -2247,7 +3116,115 @@
         "role": "townsfolk brief §2, roster 7; #259",
         "talks": "the scripts' cast: 'unhurried, precise, a dry gallows humour he doesn't know he has'; DIALOGUE.md: 'exact'"
       },
-      "notes": "His script lines stand ('Pine box, charged to the county.')."
+      "notes": "His script lines stand ('Pine box, charged to the county.').",
+      "in_town": "Five years. He came over from Georgetown in 'seventy-seven with a wagon of tools and a coffin he had made to his own measure, when the hotel was going up and there was framing to be had. He framed half the street, the church included, and buried the rest. He's seen the hill fill: forty-one boards and crosses when he came, more now than there are men in the saloon on payday. Before: a ship joiner at Bath; the sluices of 'fifty-nine; boxes ever since.",
+      "circle": {
+        "friends": "The doctor, who signs what he saw and no more. Hadley, at every burying. Bérubé, to whom he gives the dead on a Monday, name, age and cause. One whiskey at the bar at eight, alone. A hired man, Swede, who digs.",
+        "family": "None living. A wife in Maine he left in 'fifty-nine and wrote to for ten years after; the letters stopped coming back. He doesn't know which of them stopped."
+      },
+      "home": {
+        "what": "The back of his shop, a bed beside the bench; his own walnut under the bench.",
+        "state": "built",
+        "where": "the undertaker's (undertaker)"
+      },
+      "if_dies": {
+        "grief": "There's nobody to take his measure: the doctor does it, and finds it's in the book already. They bury him in his own walnut, which still fits.",
+        "lines": [
+          {
+            "id": "undertaker.grave.1",
+            "by": "churchman",
+            "words": "Mr. Colby brought up this hill every soul I have buried here, and stood at the foot with his watch open."
+          },
+          {
+            "id": "undertaker.grave.2",
+            "by": "doctor",
+            "words": "He'd written his own measure in the book in 'seventy-nine: six foot two. I took it again this morning, for the certificate, and he'd lost half an inch to that bench."
+          },
+          {
+            "id": "undertaker.grave.3",
+            "by": "smith",
+            "words": "Brass handles, from Kansas City. I'd have made him iron. No charge."
+          },
+          {
+            "id": "undertaker.grave.4",
+            "by": "claude",
+            "words": "Every Monday: name, age and cause, in his square hand. For his own I have gone to the doctor, and the doctor will not guess the age."
+          }
+        ],
+        "bearers": "His hired man, the doctor, Yount, Hollis, Bérubé, and Hadley's arm on the box; Stroud to the gate.",
+        "after": "No one makes boxes: the next man goes up the hill in a wagon box, and the county sends to Pueblo for one. The planing at his door stops, and the street is quieter in a way people don't place."
+      },
+      "knows": [
+        {
+          "what": "The dead, exactly: he lays out everyone. The sheriff, day 2: the ball went in level and close, from a man sitting a horse beside him, the way the doctor said. He gives it to the doctor and the book.",
+          "from": "day 2 (after B3)",
+          "tells": "the doctor; the deputy, if asked at the shop",
+          "takes": "Asking him as a tradesman. He doesn't guess past what he measured."
+        },
+        {
+          "what": "Earl: shot by one Cody, before witnesses (his book's line).",
+          "from": "day 2",
+          "tells": "anyone",
+          "takes": "Nothing."
+        },
+        {
+          "what": "After the floor: shown the girder, he can say at once it was a saw's kerf, a fine-toothed handsaw, new, and not a break: he framed the room's floor. K8 reaches the town at B12 only if someone shows them the cut; he is the one who'd say what it is.",
+          "from": "after Payday Night, if he is taken to the girder",
+          "tells": "the deputy, and anyone standing there",
+          "takes": "Being taken to it. He won't go into the rubble on his own."
+        },
+        {
+          "what": "The strangers' boxes: the boots and pockets of every man nobody claimed, kept a year with the date.",
+          "from": "always",
+          "tells": "the deputy",
+          "takes": "Asking for the box by date."
+        }
+      ],
+      "trouble": "Nerve 0.7, nosy 0.3, duty 0.4. At a shot he steps back inside his door and waits, as he has for twenty years. When it's done he comes out with his rule. At a fire he takes his tools out first, and then helps at the buckets with the carpenter's eye for what will fall. He has never carried a gun.",
+      "harlan": {
+        "starts": "Level: he takes the deputy's length, as anyone's.",
+        "warms": "Bringing the dead in decently; a name found for a stranger; the county billed and not a widow.",
+        "cools": "Bodies left in the street; strangers shot with nobody to say who they were.",
+        "greets": {
+          "warm": "Morning, Deputy. Five foot eleven, near enough. You're keeping well.",
+          "wary": "Deputy. Is it business?",
+          "cold": "Deputy. I'll be at the bench, if it's the county's business.",
+          "afraid": "I only bury them. I don't— You'd want the doctor."
+        }
+      },
+      "jobs": [
+        "A year's up on a stranger's boots. There was a letter in the pocket from a woman in Trinidad: he'd like the deputy to write to her before he burns it.",
+        "Walnut planks gone from his yard, eight feet each. He knows the measure exactly, and would know them anywhere.",
+        "A body up a draw on the East Road, two weeks dead, the county wants fetched, and he won't go alone."
+      ],
+      "looks": {
+        "body": "tall",
+        "hair": "White, cut short, a cowlick he wets.",
+        "beard": "Clean-shaven every morning, carefully.",
+        "clothes": "Black vest, white shirt, sleeves rolled, a folding rule in the vest pocket, shavings on his cuffs.",
+        "wear": "Shavings on his cuffs; a carpenter's flat thumb; a pencil behind each ear."
+      },
+      "casting": {
+        "voice": "Sixties, dry, level; coast of Maine worn down by Colorado.",
+        "accent": "Down East Maine.",
+        "pace": "Unhurried; precise with numbers.",
+        "say_name": "fih-NEE-us KOHL-bee; 'Mr. Colby'"
+      },
+      "owns": {
+        "money": "The county's warrants, unpaid, three hundred dollars of them; forty in coin.",
+        "home": "His shop and its tools, seasoned pine, a little walnut, his own box, the book of the dead since 'seventy-seven.",
+        "pockets": "A folding rule, a pencil, a watch he winds at eight.",
+        "owes": "Nothing. The county owes him."
+      },
+      "week": {
+        "sunday": "Church at ten; in the afternoon he lies down in his own box to see it still fits.",
+        "payday": "Payday nights are business. One whiskey at eight, as always.",
+        "vices": "One whiskey at eight, by the clock."
+      },
+      "loyalty": {
+        "side": "nobody's",
+        "why": "He bills the county for everybody, the Baron's men too. He has buried two of the ranch's riders this year and noted where they were shot from."
+      }
     },
     "runner": {
       "kind": "townsfolk",
@@ -2335,7 +3312,115 @@
       "fixed": {
         "role": "valley_folk.json: the young man the doctor sends on day 2 (SheriffDies)"
       },
-      "notes": "He has no day in valley_folk.json (an act man); the brief's runner (whoever fetches the doctor) is any townsman with duty."
+      "notes": "He has no day in valley_folk.json (an act man); the brief's runner (whoever fetches the doctor) is any townsman with duty.",
+      "in_town": "Five years: he came at eleven with his mother and father in 'seventy-seven, and helped carry his father up the hill at twelve. He's seen everything the town has, at a run: the cars come in, the depot and its key, the doctor's front room. Before: Lockport, where he remembers the canal and nothing else.",
+      "circle": {
+        "friends": "The doctor. Stroud, on the bellows. The depot agent, who lets him hold the key. The section gang's boys, at the water tower. Mapes calls him sonny and he'd like to fight him.",
+        "family": "His mother. His father on the hill. An aunt in Rochester he's to be sent to if he doesn't find a trade."
+      },
+      "home": {
+        "what": "A cot in the room off the hotel's kitchen, next to his mother's.",
+        "state": "to be built",
+        "where": "the hotel's lot (not built yet)"
+      },
+      "if_dies": {
+        "grief": "Mrs. Rudd closes the hotel for the first time. The doctor does his own errands and is late for them. The depot agent sends a message down the line that nobody asked him to send.",
+        "lines": [
+          {
+            "id": "runner.grave.1",
+            "by": "churchman",
+            "words": "Caleb Rudd, sixteen. He went past my gate a dozen times a day, running, with something for the doctor in his hand."
+          },
+          {
+            "id": "runner.grave.2",
+            "by": "doctor",
+            "words": "He held the lamp for me through an amputation in March and it didn't shake. His mother didn't know."
+          },
+          {
+            "id": "runner.grave.3",
+            "by": "landlady",
+            "words": "That's his father's vest. I took it in for him in March."
+          },
+          {
+            "id": "runner.grave.4",
+            "by": "smith",
+            "words": "Talked the whole time on them bellows. I'd tell him quit and he'd quit for about a minute."
+          }
+        ],
+        "bearers": "Stroud, who comes through the gate for him, the doctor, Trembath, Yount, Colby, and the depot agent.",
+        "after": "The doctor has nobody to send. Mrs. Rudd sells the hotel by spring. Cornelius's boots go up the hill with her, or stay by the kitchen door for the next owner to find."
+      },
+      "knows": [
+        {
+          "what": "The doctor's front room on day 2: Earl's body on the table under a sheet, and the doctor's word that the sheriff isn't to know (S50). He held the lamp.",
+          "from": "day 2",
+          "tells": "nobody: the doctor told him not to",
+          "takes": "The doctor's leave."
+        },
+        {
+          "what": "The wires: he hears the agent read them off. PROPOSED, for Sean: the captain's wire, the morning it comes (I Am the Law), before the street has it, got slightly wrong.",
+          "from": "Act III",
+          "tells": "everybody, at a run",
+          "takes": "Nothing; he can't keep it."
+        },
+        {
+          "what": "Every horse that came through on the East Road while he was at the depot. He doesn't know whose.",
+          "from": "always",
+          "tells": "the deputy",
+          "takes": "Being asked like a man."
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "Nerve 0.5, nosy 0.9, duty 0.7. He runs for the doctor before anyone says so, and then runs back to see, and gets too close. At a fire he's on the bucket line, then up a ladder he shouldn't be on. He's never held a gun and would like to.",
+      "harlan": {
+        "starts": "Warm: he ran to fetch him on day 2, and the deputy came.",
+        "warms": "Being sent on an errand; being told something first; being called by his name.",
+        "cools": "Being sent home to his mother; seeing a man shot who had his hands up.",
+        "greets": {
+          "warm": "Deputy! Doc's in. You want something run? I'm quick.",
+          "wary": "Morning, sir. Can't stop.",
+          "cold": "Ma says I'm not to talk to you.",
+          "afraid": "I wasn't— I was only at the depot, sir. You ask the agent."
+        }
+      },
+      "jobs": [
+        "The agent says a telegram went missing between the key and the hotel, and Caleb carried it.",
+        "Mapes called him sonny in front of the section boys. His mother asks the deputy to stop the fight before it happens.",
+        "He found a saddled horse loose on the East Road and has hidden it in the doctor's shed, hoping to be paid for it."
+      ],
+      "looks": {
+        "body": "skinny",
+        "hair": "Tow-coloured, cut by his mother with a bowl.",
+        "beard": "",
+        "clothes": "His father's vest taken in, trousers too short, a cap, a doctor's apron when he's been called in a hurry.",
+        "wear": "Scrubbed red hands to the elbow; carbolic smell; scabbed knees through the trousers."
+      },
+      "casting": {
+        "voice": "Sixteen, a voice not long broken, quick.",
+        "accent": "Upstate New York gone Colorado: his mother's vowels, the section boys' grammar.",
+        "pace": "Quick, half sentences, out of breath.",
+        "say_name": "KAY-leb RUDD"
+      },
+      "owns": {
+        "money": "Two dollars and a quarter in a sock, toward a telegraph key of his own.",
+        "home": "A cot, a box with his father's pocket knife, a Morse table copied out in pencil.",
+        "pockets": "A dime for holding a horse, a piece of telegraph wire, the doctor's list.",
+        "owes": "Nothing. The doctor owes him a week."
+      },
+      "week": {
+        "sunday": "Church with his mother, fidgeting. The depot in the afternoon, to see the train.",
+        "payday": "Holding horses outside the saloon for dimes until his mother finds him.",
+        "vices": "A chaw behind the livery, once, which made him sick."
+      },
+      "loyalty": {
+        "side": "nobody's",
+        "why": "The Baron's riders give him a dime to hold a horse and he thinks their horses are the finest in the valley. He'd go over to anyone who gave him a gun."
+      }
     },
     "cody": {
       "kind": "cast",
@@ -2991,22 +4076,22 @@
           {
             "id": "claude.grave.1",
             "by": "churchman",
-            "words": "Claude Bérubé. He was not of my church, and he told me so, politely, the first week. He printed our hymn sheets and charged us for the paper. This town knew what had happened in it because he walked round and asked."
+            "words": "Claude Bérubé. He was not of my church, and told me so the first week, very politely, and then printed our hymn sheets at cost. He'd stop me in the street to ask how a name was spelled."
           },
           {
             "id": "claude.grave.2",
             "by": "store_wife",
-            "words": "He printed every one of those compositions with the spelling mended and not another word changed. There are forty children in this valley who have seen their names in type."
+            "words": "He printed every composition with the spelling mended and not another word changed. The Ortiz girl's, about her goat, ran a whole column, and he set the title in the big type."
           },
           {
             "id": "claude.grave.3",
             "by": "undertaker",
-            "words": "Thirty-eight. Five foot seven. He always had the name right, and the age. I have his right. I made sure of it."
+            "words": "Thirty-eight years. Five foot seven. He always asked me the name and the age before he'd ask the cause, and I have his down in that order."
           },
           {
             "id": "claude.grave.4",
             "by": "rancher",
-            "words": "He waited for the priest with me. Now I will wait alone, and I will tell the father there were two."
+            "words": "Twice a year he rode out to my house for the mass, and he sat a horse like a sack of meal. In October I will have to tell the father."
           }
         ],
         "bearers": "Gallegos, Hollis, Yount, Stroud, Peck and the doctor.",
@@ -3044,10 +4129,10 @@
         "warms": "Being told straight what happened, even when it's bad.",
         "cools": "Being lied to, or asked not to print.",
         "greets": {
-          "warm": "Deputy, good, sit. I have only three questions, and one of them is short.",
+          "warm": "Deputy. Sit, sit. I have a question for you, maybe two.",
           "wary": "Deputy. You will tell me when you are ready, I think.",
-          "cold": "I print what I can confirm, Deputy. It is less than I would like.",
-          "afraid": "You may shoot the press also. Thursday's page is already set."
+          "cold": "Deputy. Thursday is press day. Excuse me.",
+          "afraid": "Not the press. Please. It came over the pass on a wagon."
         }
       },
       "jobs": [
@@ -3083,6 +4168,276 @@
         "side": "against him",
         "why": "Sean's: he won't print the Baron's version of things; quietly brave, and a target."
       }
+    },
+    "town_drunk": {
+      "kind": "townsfolk",
+      "role": "The town drunk, an old soldier",
+      "name": "Ephraim Tolliver",
+      "called": "Sarge, by the whole town, and none of them mean it kindly but the preacher",
+      "who": "A broken first sergeant of the Union army, drunk by noon, who mocks the deputy every time he lays eyes on him and is right about him more often than he's funny.",
+      "age": 58,
+      "born": 1824,
+      "from": "Sangamon County, Illinois; a wheelwright's son",
+      "came": "Mustered out a private in 'sixty-five with a pension he drank and a trade his hands had forgotten. Drove a team for the Army's posts in Kansas, then for the mine's first freight in 'seventy-six, and was let go the same winter for being found asleep under the wagon.",
+      "work": "None. Sweeps the saloon out at ten for the heel-taps in last night's glasses; holds a horse for a dime; carries a note or a rumour anywhere for a drink.",
+      "place": "The saloon's walk and its back step; the jail's cot on a cold night.",
+      "wants": "A drink. After that, somebody to say it to who was there.",
+      "secret": "He was broken to the ranks for telling the truth. In Tennessee in the winter of 'sixty-three he reported what another command's men did to a district the Army had called disloyal, and it was his stripes that came off. He jokes about every wound he has but that one.",
+      "likes": [
+        {
+          "id": "barkeep",
+          "why": "An Illinois man who clerked for a sutler: he has been selling Ephraim whiskey, one way or another, since the war. Lets him sweep for it."
+        },
+        {
+          "id": "churchman",
+          "why": "Lifts his hat to him as he does to everybody, and has never once asked him to come Sunday."
+        },
+        {
+          "id": "landlady",
+          "why": "Leaves a plate on the hotel's back step at half past six and has never mentioned it."
+        },
+        {
+          "id": "fiddler",
+          "why": "The other man in town who was there, on the other side. Ephraim calls for 'Dixie' to rile him; Lem plays him 'The Battle Cry of Freedom', badly, on purpose."
+        },
+        {
+          "id": "liveryman",
+          "why": "An Army teamster. They have argued mules against oxen for six years."
+        }
+      ],
+      "dislikes": [
+        {
+          "id": "loudmouth",
+          "why": "Loud and never served. Ephraim is the funnier of the two and Rufe knows it."
+        },
+        {
+          "id": "store_wife",
+          "why": "Sweeps the store's walk toward him."
+        }
+      ],
+      "habit": "Comes to attention, badly, and salutes with the wrong hand when the deputy passes. Sober, he doesn't salute at all, and that is how you tell.",
+      "talks": [
+        "Loud, hoarse and quick; a first sergeant's bark gone to seed. Army words for everything: the sink, the guardhouse, the quickstep, a brevet.",
+        "Crude about the body and never about a woman. Every joke has him in it getting the worst of it.",
+        "Never says the name of the place in Tennessee, and never calls any man 'sir'."
+      ],
+      "voice": "Late fifties, hoarse and carrying, central Illinois; drunk it slides, sober it is short and exact.",
+      "body": "skinny",
+      "clothes": "A Union sack coat gone the colour of dust, the darker cloth still showing on the sleeve where three stripes and a diamond were; a forage cap with no badge; boots that aren't a pair.",
+      "day_proposed": "Wakes about nine wherever he lay down: the jail's cot, the livery's loft, or the saloon's back step. Ten, sweeps the saloon out and drinks the heel-taps. Eleven to five, the saloon's walk and the store's bench, calling at whoever passes, the deputy above all; a dime's errand when there is one. Half past six, the hotel's back step, where a plate is. Seven to ten, the bar's door end, until the barkeep says 'That'll do, Sarge'. Then the jail if it's cold and the door's open, the loft if Yount is asleep, the back step if neither.",
+      "seen": [
+        {
+          "place": "street",
+          "when": "eleven to five, on the saloon's walk and the store's bench"
+        },
+        {
+          "place": "saloon.bar",
+          "when": "ten in the morning, sweeping; seven to ten at night, by the door"
+        },
+        {
+          "place": "hotel",
+          "when": "half past six, the back step"
+        },
+        {
+          "place": "jail",
+          "when": "cold nights, the cot, the door not locked"
+        },
+        {
+          "place": "livery",
+          "when": "other nights, the loft"
+        },
+        {
+          "place": "church",
+          "when": "the porch, in the worst of the winter"
+        }
+      ],
+      "lines": [
+        {
+          "id": "town_drunk.brevet",
+          "place": "street",
+          "when": "the first time he sees the badge on you: always his first, because it says what the word means",
+          "words": "Well, look at this. A brevet! That's Army, farmer: all of the rank and none of the pay, and nobody bound to mind you. Salute, Brevet. A sergeant's owed it, even a broke one."
+        },
+        {
+          "id": "town_drunk.brevet2",
+          "place": "street",
+          "when": "later, in turn with the others",
+          "words": "Brevet! They pin it on you and forget to send the wages. I seen colonels made that way at Corinth, by a clerk, in an afternoon."
+        },
+        {
+          "id": "town_drunk.britches",
+          "place": "street",
+          "when": "once you wear the badge",
+          "words": "First shot you hear in earnest, Brevet, you'll shit yer britches. Every man does. I done it at Shiloh, and I was a sergeant."
+        },
+        {
+          "id": "town_drunk.quickstep",
+          "place": "street",
+          "when": "once you wear the badge",
+          "words": "You walk like a man with the quickstep and no sink dug. Ease off, Brevet, nobody's shooting yet."
+        },
+        {
+          "id": "town_drunk.pistol",
+          "place": "street",
+          "when": "once you carry a gun",
+          "words": "That your pistol, or you minding it for the sheriff? T'other end, farmer. The hole goes forward."
+        },
+        {
+          "id": "town_drunk.privy",
+          "place": "saloon.bar",
+          "when": "once you wear the badge",
+          "words": "I seen better law on a privy door. That had a latch on it, anyhow."
+        },
+        {
+          "id": "town_drunk.drawers",
+          "place": "street",
+          "when": "once you wear the badge",
+          "words": "Brevet! Your drawers is showing. No, t'other pair. The pair you'll want changing by sundown."
+        },
+        {
+          "id": "town_drunk.seat",
+          "place": "saloon.bar",
+          "words": "Took a ball in the seat at Shiloh. Going forward! I'd bent for my cap. Surgeon said it was the one part of me he could find to hit."
+        },
+        {
+          "id": "town_drunk.bled",
+          "place": "saloon.bar",
+          "words": "Stand a veteran a drink. I bled for this country. Out the hind end, mind, but it come out red."
+        },
+        {
+          "id": "town_drunk.dixie",
+          "place": "saloon.bar",
+          "to": "fiddler",
+          "words": "Give us 'Dixie', Johnny! Go on. I never could hear it but from the far side of a fence."
+        },
+        {
+          "id": "town_drunk.cell",
+          "place": "jail",
+          "when": "sober; the first cold night after the sheriff is buried",
+          "words": "He left that door unlocked six winters. Never said a word about it. I don't know what you mean to do."
+        },
+        {
+          "id": "town_drunk.tied",
+          "place": "street",
+          "when": "sober; after he has seen you tend a wound",
+          "words": "You tied that off like a man that's done fifty. I know where they teach that knot, Brevet."
+        }
+      ],
+      "in_town": "Six years. He came in on the mine's first freight wagons in 'seventy-six, driving, and was let go before the snow. He has seen the town from the ground up, mostly from the ground: the store when it was the only front, the sheriff ride in from his claim on court days, the hotel, the graders' camp, the cars, and the Baron's riders begin to come in armed. Before: a wheelwright's shop in Sangamon County; four years in an Illinois infantry regiment, first sergeant of his company by Shiloh and a private by Chattanooga; ten years driving for Army posts in Kansas.",
+      "circle": {
+        "friends": "The barkeep, who lets him sweep. Stiles, across the war: they sit on the saloon's back step of an afternoon, one with his hand in a bowl and one with a bottle, and say nothing for an hour. Yount, to argue with. The preacher, who stops. Mrs. Rudd he never speaks to; he leaves her plate washed.",
+        "family": "A wife, Hannah, in Illinois, who had him declared dead in 'seventy-one and married a harness-maker, and was right to. A daughter he has not seen since she was four. Nobody in town knows of either."
+      },
+      "home": {
+        "what": "Nowhere of his own. The jail's cot when it's cold and the door is left unlocked; the livery's loft; the saloon's back step; the church porch in the worst of the winter.",
+        "state": "built",
+        "where": "the jail, the saloon and the church stand today; the livery's loft is to be built"
+      },
+      "if_dies": {
+        "grief": "Nobody expects to mind, and the whole street does. It is found frozen on the saloon's back step, or shot standing where a sober man would have ducked. The saloon's walk is quiet in a way that people remark on for a week, and then they stop remarking and it stays quiet.",
+        "lines": [
+          {
+            "id": "town_drunk.grave.1",
+            "by": "churchman",
+            "words": "Ephraim Tolliver, First Sergeant, of an Illinois regiment. I have that from the Pension Office; I wrote to them this week, for it seemed somebody should. He was drunk every day I knew him, and the only thing he ever asked me for was the time of day."
+          },
+          {
+            "id": "town_drunk.grave.2",
+            "by": "barkeep",
+            "words": "He swept that floor for what was left in the glasses. I'd leave a finger in a few. Don't nobody tell that round."
+          },
+          {
+            "id": "town_drunk.grave.3",
+            "by": "fiddler",
+            "words": "Same field, him and me, from the two ends of it. I'll play him that Yankee tune of his. In time, too, which he'd say I couldn't."
+          },
+          {
+            "id": "town_drunk.grave.4",
+            "by": "landlady",
+            "words": "Plate came back washed. Every night. It's on the step tonight; I put it out before I remembered."
+          }
+        ],
+        "bearers": "Yount, Stiles (who has carried nobody else), the barkeep, Stroud, Trembath, and the deputy if he will: Hadley asks him.",
+        "after": "The saloon's floor goes unswept until noon. Nobody on the street says aloud what they think of the deputy, and he finds he had been using that. Stiles plays 'The Battle Cry of Freedom' through, in time, the night of the burying, and doesn't play it again. Whatever notes and chalked insults he left about town stay where they are."
+      },
+      "knows": [
+        {
+          "what": "Night one: he was at the door end of the bar. He saw Cody shoot Earl, and he watched the stranger hold a man in his chair with a word. He knows that kind of quiet: the provost's men had it.",
+          "from": "night one",
+          "tells": "the whole street, as a joke on the deputy ('sat through it like a recruit at church')",
+          "takes": "Nothing. Getting the true part out from under the joke takes finding him sober, before ten."
+        },
+        {
+          "what": "The deputy is an Army man: the way he stands, the way he ties a bandage. He can tell a hospital steward's knot, and says so only sober.",
+          "from": "the first time he sees you tend a wound",
+          "tells": "the deputy alone",
+          "takes": "It is offered, once. A plant for what Harlan was (SETUPS.md S38). PROPOSED."
+        },
+        {
+          "what": "Rourke. When the officer steps down from the train on Payday Night, Ephraim knows the face and the voice: it was that man's command, in Tennessee in the winter of 'sixty-three, that burned out a district the Army had called disloyal and fouled its wells, and it was Ephraim's report of it that cost him his stripes. He is sober inside the minute. He doesn't know the deputy served under the same man.",
+          "from": "Payday Night, when Rourke arrives",
+          "tells": "the deputy, that night or the morning after, in six plain sentences with no joke in them",
+          "takes": "Nothing: he comes to you. DECIDED (Sean, 2026-11-27: 'let's keep the Rourke past'): it gives Rourke a past in the war (he is Harlan's old commander, C15 a) and rhymes with the Baron's plan, a town made to look in revolt so the Army will come and its water taken."
+        },
+        {
+          "what": "The sawn floor: nothing.",
+          "from": "",
+          "tells": "",
+          "takes": ""
+        }
+      ],
+      "trouble": "PROPOSED (no dials yet; say nerve 0.9 drunk and 0.7 sober, nosy 0.7, duty 0.3). Drunk, he doesn't move: he stands in the open and calls the shooting like a drill sergeant, which men's aim and which man flinched. He has been shot at by better. Sober, he is the best man on the street: he gets people down behind something, names who is to fetch the doctor, and has his hands on the wound before the doctor's there. He won't take up a gun, and he'll tell you why not if you ask him before ten.",
+      "harlan": {
+        "starts": "Hostile, as a matter of principle: a badge pinned on by a dying man is a brevet, and every soldier he ever saw with a badge was a provost guard marching him somewhere.",
+        "warms": "The jail's door left unlocked on a cold night, as the sheriff left it. A drink stood him without a sermon. Seeing the deputy go toward a shot man instead of away. Being asked what he saw, and listened to.",
+        "cools": "Being locked in. Being moved off the saloon's walk. Soldiers brought to town. A man shot who had his hands up.",
+        "greets": {
+          "warm": "Brevet. I'd salute, only I'm sober and it wouldn't be respectful.",
+          "wary": "Here's the Brevet. Mind the step, it's higher than a furrow.",
+          "cold": "Don't stand there. You're keeping the sun off a veteran.",
+          "afraid": "Go on, then. You'd not be the first of your kind to do it."
+        }
+      },
+      "jobs": [
+        "Somebody has been chalking things about the deputy on the jail's wall and the privy door. Everybody knows who. The storekeeper wants it stopped; the barkeep thinks it's good for trade.",
+        "He says a rider took his forage cap off him on the saloon's walk and rode off laughing. He wants it back and will not say why it matters.",
+        "The preacher asks the deputy to write to the Pension Office for him: there is back pension owing to a First Sergeant Tolliver, and the man won't sign his name to ask for it."
+      ],
+      "looks": {
+        "body": "skinny",
+        "hair": "Grey, long, cut with a knife when it gets in his eyes.",
+        "beard": "A week's grey stubble, always a week's.",
+        "clothes": "A Union sack coat gone the colour of dust, the darker cloth still showing on the sleeve where three stripes and a diamond were; a forage cap with no badge; boots that aren't a pair.",
+        "wear": "Sawdust from the saloon's floor on his knees; a red nose; he sits down slowly and to one side."
+      },
+      "casting": {
+        "voice": "Late fifties, hoarse and carrying; a parade-ground voice worn through. Drunk it slides, sober it is short and exact.",
+        "accent": "Central Illinois.",
+        "pace": "Fast and loud drunk; slow and low sober. The change should be heard.",
+        "say_name": "EE-frum TOL-i-ver; 'Sarge'"
+      },
+      "owns": {
+        "money": "A dime, when he has held a horse.",
+        "home": "Nothing anywhere.",
+        "pockets": "A stub of carpenter's chalk, a stub of pencil, a tin cup, a discharge paper folded to the size of a card and gone soft as cloth.",
+        "owes": "The barkeep, by a reckoning neither of them keeps. The sheriff, six winters."
+      },
+      "week": {
+        "sunday": "The saloon opens at noon. Until then he sits on the church's lowest step, outside, and hears the hymn; Hadley leaves the door open on his side.",
+        "payday": "The best day of the fortnight: the miners stand him drinks to hear him go at the deputy, and he is asleep under the store's bench by nine.",
+        "vices": "Whiskey, whatever is left of it. Nothing else: he never plays cards and has never been upstairs."
+      },
+      "loyalty": {
+        "side": "against him, though nobody would think to ask",
+        "why": "He has seen once before how a place is called disloyal and what comes after, and he knows a hired rider from a hand. The Baron's men think he is furniture and talk in front of him."
+      },
+      "fixed": {
+        "role": "Sean, #1309, 2026-11-27: the town drunk, an old war veteran who mocks Harlan every time he sees him, and leaves insults about town (the notes and the mechanic are #1312's)",
+        "secret": "Sean, 2026-11-27: the Rourke past is kept (the district in Tennessee, the report, the stripes)",
+        "knows": "Sean, 2026-11-27: he knows Rourke from Tennessee, 1863, and says so from Payday Night; the other entries are proposed",
+        "called": "Sean, 2026-11-27: 'Brevet' for the deputy is liked ('I like brevet'); 'Sarge' for him is proposed"
+      },
+      "notes": "A new person: none of the 27 fits (the loudmouth is thirty-four and never served). Not in valley_folk.json yet; #1312 puts him there. Sean's brief, and how each part is answered: his war and side (the Union; an Illinois infantry regiment), the rank he lost (first sergeant, broken to private), the wound he jokes about (a ball in the seat at Shiloh), why Harlan (a brevet badge; he knows an Army man; and Rourke, DECIDED by Sean 2026-11-27), his nickname for him ('Brevet': an honorary rank with no pay and no authority, which is what a deputy sworn by a dying man looks like to a sergeant; he never says the deputy's name), who tolerates him (the barkeep, the preacher, Mrs. Rudd the widow who feeds him), where he sleeps it off, his funeral, and two sober moments (the jail's door; the knot) with a third at Payday Night. The jibes are samples for #1312: crude, period (britches, drawers, the quickstep, the sink), no slurs, nothing about Joe, none before the badge. Read blind with the whole town's funeral lines and greetings (#1311); four jibes re-worded from it. How the player learns the word (Sean asked, 2026-11-27): his first jibe defines it, a second repeats the sense, and the barkeep explains it at the bar if you come in after."
     }
   },
   "nobody_knew": {
@@ -3091,7 +4446,7 @@
       {
         "id": "nobody.stranger.1",
         "by": "churchman",
-        "words": "We have no name to give You, Lord. He came into this valley from somewhere, and he has a mother somewhere. That is all I can say of him that I know to be so."
+        "words": "We have no name to give You, Lord. He came over the pass, Mr. Colby thinks, by the state of his boots. That is all we know of him that is so."
       },
       {
         "id": "nobody.stranger.2",
@@ -3106,12 +4461,12 @@
       {
         "id": "nobody.stranger.4",
         "by": "undertaker",
-        "words": "I keep the boots and what was in the pockets a year, in a box with the date on it. Somebody may write. Somebody did, once."
+        "words": "I keep the boots and what was in the pockets a year, in a box with the date on it. In 'seventy-nine a woman wrote from Ohio, and I sent her a knife and a tintype."
       },
       {
         "id": "nobody.stranger.5",
         "by": "barkeep",
-        "words": "He drank in my place twice. Paid both times. That's every word I got for him."
+        "words": "Drank in my place twice. Rye, paid in silver. Sat by the stove."
       }
     ],
     "rider": [
@@ -3140,22 +4495,22 @@
       {
         "id": "nobody.outlaw.2",
         "by": "churchman",
-        "words": "I am told to say some good of the dead. He was somebody's boy once. I can go that far."
+        "words": "I am told to say some good of the dead. He was somebody's boy once, I suppose. We'll go on to the prayer."
       },
       {
         "id": "nobody.outlaw.3",
         "by": "undertaker",
-        "words": "{name}. Shot, before witnesses. I have buried two that he sent me. He gets the same pine they got."
+        "words": "{name}. Shot, before witnesses. I have buried two that he sent me, and he goes in beside them, as there's no other row dug."
       },
       {
         "id": "nobody.outlaw.4",
         "by": "liveryman",
-        "words": "I'll dig. I ain't praying."
+        "words": "Hand me the shovel. Somebody else can say the words over him; I'll be at the wagon."
       },
       {
         "id": "nobody.outlaw.5",
         "by": "store_wife",
-        "words": "I came up to see him put under. I have seen it. I'm going home."
+        "words": "I came up to see him put under, and so I have. Amos will want his supper."
       }
     ]
   },
@@ -3168,6 +4523,17 @@
     "saloon_girl",
     "loudmouth",
     "barkeep",
-    "claude"
+    "claude",
+    "town_drunk",
+    "storekeeper",
+    "store_wife",
+    "liveryman",
+    "smith",
+    "landlady",
+    "churchman",
+    "townsman",
+    "undertaker",
+    "runner",
+    "doctor"
   ]
 }

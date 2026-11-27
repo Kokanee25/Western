@@ -71,6 +71,7 @@ var _spill_t := 0.0
 var _frames := 0
 var _jets: MeshInstance3D
 var _rid_cache: Array[RID] = []
+var _made_litres := 0.0  # what it held as made (a save keeps only a change from it)
 
 
 ## A prop's contents from its kit file ("holds", "contents"), or null when it holds nothing.
@@ -90,6 +91,7 @@ static func make(p: KitProp) -> PropContents:
 	pc._tabulate()
 	pc.liquid = StringName(c.get("liquid", "water"))
 	pc.litres = pc.capacity if c.get("full", false) else minf(float(c.get("litres", 0.0)), pc.capacity)
+	pc._made_litres = pc.litres
 	pc.flammable = bool(c.get("flammable", pc.liquid == &"lamp_oil"))
 	pc.colour = COLOURS.get(pc.liquid, pc.colour)
 	var col: Array = c.get("colour", [])
@@ -405,6 +407,42 @@ func on_loose(bodies: Array[RigidBody3D]) -> void:
 	_body.mass = _body_kg + kg()
 	_pieces = _bodies()
 	set_physics_process(true)  # (watching it land: it may come apart)
+
+
+## What a save keeps of it (KitProp.to_dict, SaveGame): how much is left in it and whether it's all
+## gone; {} as it was made (full, or its kit file's litres).
+func to_dict() -> Dictionary:
+	if absf(_made_litres - litres) < 1e-4 and not released and spilled <= 0.0:
+		return {}
+	return {"litres": litres, "spilled": spilled, "released": released}
+
+
+## A save put back (KitProp.from_dict, after its members and rubble are): what's left in it, and, the
+## prop gone loose whole, it in its body as it went (#1315: told nothing, it took loose-and-not-in-a-
+## body for blown apart, and a street barrel knocked over whole spilled its 169 litres on loading).
+func restore(d: Dictionary) -> void:
+	if not d.is_empty():
+		litres = float(d.get("litres", litres))
+		spilled = float(d.get("spilled", spilled))
+		if bool(d.get("released", false)):
+			released = true
+			litres = 0.0
+			set_physics_process(false)
+			if _jets:
+				_jets.visible = false
+	if released or litres <= 0.0 or not prop.loose or _in_body:
+		return
+	var whole := prop.rubble.filter(func(b: Variant) -> bool: return is_instance_valid(b) and (b as RigidBody3D).mass > 1.0)
+	if whole.size() != 1:
+		return  # (a loose prop in pieces let it all go when it went: saved `released`)
+	var bodies: Array[RigidBody3D] = [whole[0] as RigidBody3D]
+	on_loose(bodies)
+	# The body's laid where it lay, not where it was made (Structure.from_dict): the prop's space in
+	# it as it was when it went (made at its first member's place, unturned: Structure._drop).
+	var ids: Array = _body.get_meta(&"members", [])
+	var first := prop.get_member(StringName(String(ids[0]))) if not ids.is_empty() else null
+	if first:
+		_body_from = Transform3D(Basis(), first.global_position).affine_inverse() * prop.global_transform
 
 
 ## The cask's come apart as it landed (its rubble broken up into more bodies): it's open.
