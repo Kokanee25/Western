@@ -60,6 +60,11 @@ var railway: ValleyRailway
 ## {id, kind (lot | extra | place), centre (Vector3, its base's middle), size (x across its
 ## heading, y up, z along), heading (compass deg)} each block.
 var blocks: Array[Dictionary] = []
+## A place's own building built from its spec (the church, #1142) stands where its block was: its pad
+## is still stepped out of by the places' points (`out_of_blocks`), not built or drawn. Without it the
+## church's points were in its crawlspace, 0.9 m under its floor, and a goto there was pushed out
+## whichever way the physics found first (#1304: 0.54 m off on main, 0.75 with a street of horses).
+var footprints: Array[Dictionary] = []
 ## {id, at (Vector3, the post's foot), name, cat} each post.
 var posts: Array[Dictionary] = []
 var places := Waypoints.new()
@@ -133,7 +138,12 @@ func _find_blocks() -> void:
 		# (one with its building's spec is built in its place by ValleyWorld, #1286: no block)
 		if ex.has("at") and ex.has("w") and ex.has("d") and not ex.has("spec"):
 			_add_block(String(ex.id), "extra", ValleyLayout.xz(ex.at), Vector2(float(ex.w), float(ex.d)), 90.0, float(ex.get("h", BLOCK_H)))
+	footprints.clear()
 	for p: Dictionary in layout.places():
+		var pd: Dictionary = p.get("pad", {})
+		if (p.get("building", {}) as Dictionary).has("spec") and pd.has("w") and pd.has("d"):
+			footprints.append({"map": ValleyLayout.xz(pd.at) if pd.has("at") else ValleyLayout.xz(p.at),
+				"wd": Vector2(float(pd.w), float(pd.d)), "heading": float(pd.get("heading", 90.0))})
 		var b: Dictionary = p.get("block", {})
 		if b.is_empty():
 			continue
@@ -627,7 +637,7 @@ func surface(x: float, z: float) -> float:
 ## `c`, or if it's inside a block (or within 0.3 m of it), the nearest point POST_OFF outside that
 ## block's nearest side.
 func out_of_blocks(c: Vector2) -> Vector2:
-	for b: Dictionary in blocks:
+	for b: Dictionary in blocks + footprints:
 		var ax := _axes(float(b.heading))
 		var wd: Vector2 = b.wd
 		var r: Vector2 = c - (b.map as Vector2)
