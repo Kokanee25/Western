@@ -6,8 +6,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746): `-- --world=valley --mission=sheriff`; `StoryState`, `HeadGesture`, `Act`.
-  #1081: carried in over the shoulder (not dragged: Sean), a knock brings the doctor by day; a slow nod answers.
-  The clock runs at a quarter of the day's rate till it's over (#1082: in by about 08:00). Waiting on Sean: #755. The carry's pose is unjudged on a real screen.
+  #1081: carried in over the shoulder, a knock brings the doctor by day; a slow nod answers; the clock at a quarter
+  rate till it's over (#1082). Waiting on Sean: #755. The carry's pose is unjudged on a real screen.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
   **The night's carry (#1057):** Cody's ball through Earl's collarbone; the barkeep sends you to Doc's; `PlayerCarry`,
@@ -26,8 +26,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`; down in the fight, Enter retries it (`retry_on_load`).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest faults (#1095-#1125)** built. Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds; the
-  bridge's `tend` on an unhurt man kicks; the slowdown after dynamite and fire.
+- **Playtest faults (#1095-#1125)** built. Open: one stick at 1.2-1.7 m takes a foot, a hand; the slowdown after dynamite.
 - Story: #744, STORY.md; the bible #809.
 - **Townsfolk** (#850; `docs/briefs/townsfolk.md`, 11 steps; LAYOUT "src/people"). Done 2-10: day and book, roster,
   spots, `Reaction`, `FetchHelp`, `TownNews`, the script (`TownScript`; Script OK waiting on Sean, #1150), regard and
@@ -41,17 +40,20 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   room's sounds are synth stand-ins (#807); no argument, round bought or song called for; react.fight*, body_child,
   kett.meal untriggered; nobody carries the body.
   A spot's `hall` is its building for the barks (`bark_ctx`, #1240: hall spots had lost the saloon's lines).
-- **Every verb gets an answer** (DESIGN §2 pillar 6; #1272 step 1 the shove and the shot, #1279 step 2 the card
-  table): the bench `experiments/answers/` (README: the table a verb, before and after). The table (LAYOUT CardGame
-  "The table answers you"): fire raises, G sat calls a cheat; each verb a line at once, `you_did` -> regard and
-  TownNews `table` (a pot, a bluff shown up, a cheat called told later). Still flat: standing close (nothing), the
-  barkeep's "Don't shoot!" over and over; the bench's "said" column counts the table's own game talk too.
+- **Things to listen to** (#1293; LAYOUT "src/people" Overheard; data `overheard`; `tests/test_overheard.gd`; bench
+  `experiments/overheard/`): men stood together hold exchanges of the town's script (scenes `heard.*`, 115, cast by
+  person, tagged by place; 20 `story` ones wait on Sean's OK on the People board), heard by distance and walls on their
+  own subtitle line, not twice a night, cut by a shot or your shout; the card table's between hands. Open: by day the
+  street's men are seldom within 8 m of each other, so its exchanges rarely play; no Sunday at the church; the drunk, the
+  editor and Caleb have exchanges but no day; `delivery` is carried for #1316's gestures, unused; unjudged on screen.
+- **Every verb gets an answer** (DESIGN §2 pillar 6; #1272 the shove and the shot, #1279 the card table): the bench
+  `experiments/answers/`. The table (LAYOUT CardGame "The table answers you"): fire raises, G sat calls a cheat;
+  `you_did` -> regard and TownNews `table`. Still flat: the barkeep's "Don't shoot!" over and over.
 
 - **The drink** (#1292; LAYOUT "src/player" PlayerPurse/PlayerDrink, "src/people" the bar; `config/drink.json`):
-  a purse (saved; the card stake from it), E at saloon B's bar (tap whiskey, hold beer/the bottle, G a round), the
-  barkeep pours a kit bottle into a kit glass, the glass in your hand, the dial (sway, settle, nerve, the walk
-  weaves). Answers: round, deputy, drunk, alone; news `bar`. Unjudged on screen: the hand round the glass, the pour.
-  12 + 6 lines for Sean's script OK (#1150). Open: only the valley's bar has a BarService (no old town, no hotel).
+  a purse (saved), E at saloon B's bar (tap whiskey, hold beer/the bottle, G a round), a real bottle and glass, the dial
+  (sway, nerve, the walk weaves). Answers: round, deputy, drunk, alone; news `bar`. Unjudged on screen. 18 lines for
+  Sean's script OK (#1150). Open: only the valley's bar has a BarService (no old town, no hotel).
 
 ## Systems the slice leans on
 - **Ride there** (#1120, `RideThere`; LAYOUT "src/creatures"): E at a tied horse, a fade, the clock on, you at the place's
