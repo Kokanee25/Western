@@ -311,7 +311,8 @@ func test_a_gun_drawn_by_the_table_is_noticed() -> void:
 	var p := _player()
 	# Stood by the table, between the bar and it, a while, so they've seen you.
 	p.global_position = f.cards.centre() + Vector3(-1.8, 0.0, 0.0)
-	p.global_position.y = f.ground(p.global_position.x, p.global_position.z) + 0.1
+	# On the bar room's floor (#1304: the street's ground under it put you in the floor, pushed out up or down by luck).
+	p.global_position.y = f.floor_under(p.global_position.x, p.global_position.z, f.cards.centre().y) + 0.1
 	await physics_frames(60 * 2)
 	said.clear()
 	Events.deed.emit(p, &"draw", null, p.global_position)
