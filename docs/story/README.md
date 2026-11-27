@@ -144,8 +144,9 @@ bar, the store, the street: who's there and everything said there).
 - **The further sections** (Sean, 2026-11-27, #1309's later comments): time in town, circle and family, home (`built` or
   `to be built`, against `config/valley.json`), if he dies (funeral lines, bearers, what changes), what he knows of the
   story and what it takes, trouble, Harlan (and a greeting at each of TownRegard's four bands), jobs, looks, casting,
-  owns and owes, his week, his loyalties: each a folded section on his page. Written for those in `more_done` (the saloon's
-  regulars and Claude Bérubé); the rest of the town is the next batch. Two shared cards: `nobody_knew` (funeral lines for a
+  owns and owes, his week, his loyalties: each a folded section on his page. Written for everyone in `more_done` (the
+  saloon's regulars, Claude Bérubé and the drunk in #1309; the rest of the town and the doctor in #1311); the missions' other people
+  have none. The funeral lines and greetings were read blind once, all together (#1311). Two shared cards: `nobody_knew` (funeral lines for a
   stranger, a gang's rider, a known outlaw) and the homes list. Note ids: `p.<id>.<section>` or `p.<id>.<section>.<key>`
   (`knows.<n>`, `jobs.<n>`, `harlan.greet.<band>`), `p.<id>.grave.<line id>`, `n.<line id>` (the shared card).
 - **Person OK:** collection `ok`, one document a person (`{ok, hash, at, name}`). It counts only while `hash` is the
