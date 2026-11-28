@@ -2382,10 +2382,25 @@ func _snap_to_ground() -> void:
 
 func _ground_ray(space: PhysicsDirectSpaceState3D, at: Vector3, reach: float) -> Dictionary:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * reach, Layers.STAND)
+	var ex: Array[RID] = []
 	if _blocker and is_instance_valid(_blocker):
-		q.exclude = [_blocker.get_rid()]
+		ex.append(_blocker.get_rid())
+	# Not the player's capsule (on WORLD, #1325): a man walked into you stood on your head, and when you went
+	# on he dropped 1.9 m and lay in the street ("a man down by the bakery", test_town_barks_valley's flake).
+	if not is_instance_valid(_player_body) and is_inside_tree():
+		_player_look -= 1
+		if _player_look <= 0:
+			_player_look = 60  # (no player, as in a lab: looked for again now and then, not every step)
+			_player_body = get_tree().get_first_node_in_group(&"player") as CollisionObject3D
+	if is_instance_valid(_player_body):
+		ex.append(_player_body.get_rid())
+	q.exclude = ex
 	Prof.count(&"q_walk")
 	return space.intersect_ray(q)
+
+
+var _player_body: CollisionObject3D = null
+var _player_look := 0
 
 
 ## The ground near him was dug or laid on (Ground): a man standing there finds it again, and goes

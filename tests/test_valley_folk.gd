@@ -462,6 +462,8 @@ func test_nobody_appears_or_vanishes_in_view() -> void:
 	await _watch_hotel(true)
 	var door: Vector3 = f.places.at(&"hotel")
 	check(f.seen_man_at(door), "you can see the hotel's door from across the street")
+	# (#1325: the log keeps its last 400; a busier day filled it by now, and a slice from its end was empty)
+	f.view_log.clear()
 	var log_from := f.view_log.size()
 	# The miner's to come out of the hotel at seven: with you watching its door he waits behind it.
 	await _run_clock(18.9, 19.1)

@@ -2197,10 +2197,10 @@ func _chat_step() -> void:
 	# Men an exchange could start with now keep for it (#1325: walking the street, two traded a one-liner
 	# as you came up and their exchange began as you went on): the one-line chat is for the others.
 	var keep := {}
-	if overheard and free.size() >= 2:
-		for f: Array in overheard.fitting(_ran):
-			for pid: StringName in (f[5] as Dictionary):
-				keep[pid] = true
+	if overheard and free.size() >= 2 and overheard._near_running() < int(overheard.d.max_at_once):
+		var fits := overheard.fitting(_ran)
+		if not fits.is_empty():
+			keep = (fits[0][5] as Dictionary).duplicate()
 	for i in free.size():
 		for j in range(i + 1, free.size()):
 			var a: Array = free[i]

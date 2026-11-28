@@ -2064,7 +2064,8 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   (`TownBarks.holds`). Lines go out as `Events.overheard(speaker, text, info)` on the physics frame (`flush`):
   `info.clarity` by distance and walls (`clarity_at`, Sight), `to`, `delivery`, `exchange`, `line`; FaceSpeech moves
   his mouth; `PlayerWounds._on_overheard` shows it on its own line, words dropping out below `full_at` (`garbled`).
-  Heard ones aren't held again that town day (`heard_day`, in the save), never-heard first. Stopped by a shot, your
+  One begun (a line said) isn't held again that town day (`heard_day`, in the save; #1325), never-heard first;
+  `max_at_once` counts only those within your hearing (`_near_running`). Stopped by a shot, your
   shout, a man of it not calm or saying something else (`ended`: why); stood at their elbow one may turn to you
   (`heard.you`). The card table's are started between hands (`CardGame.between_talk` -> `table_break`), the band's
   between tunes. The one-line `chat` goes out the same way (`murmur`). Bench: `experiments/overheard/` (run.py: what
@@ -2072,7 +2073,8 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   the hotel's porch; `why_not` says what stopped each). **By day** (#1325) the street's company gather where their
   exchanges are: the store's walk and benches by morning (the preacher stops there 8-10), the livery's doors 13-15 (the
   smith at `livery_post`, tagged smithy too), the hotel's porch from three, the saloon's walk at five; a man mid-exchange
-  stays on his leg up to `EXCHANGE_HOLD_S` (ValleyFolk) to finish it. **A shove answered** (#1272):
+  stays on his leg up to `EXCHANGE_HOLD_S` (ValleyFolk) to finish it, and the one-line chat leaves alone the men
+  of the exchange about to start. A man's ground ray doesn't take the player's capsule for ground (HumanBody). **A shove answered** (#1272):
   the man shoved always knows it (even from behind), turns (`show_look`) and speaks up; everyone who saw it looks, the
   first `ROUGH_SPEAK` (2) by distance say `react.shove` (`CivilianBrain._saw_shove`); one shove seen turns a man cold
   (data `regard.deeds.shove`). Bark ctx `indoors` (a hall spot, at home, or in the saloon room): `react.inside` is out of

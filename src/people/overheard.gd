@@ -17,7 +17,7 @@ extends RefCounted
 ##   `Events.overheard` (his mouth, FaceSpeech; the subtitle, PlayerWounds), with a `clarity` 0 to 1:
 ##   whole within `clear_m`, thinning to nothing at `hear_m`, a wall between (Sight) leaving `wall`
 ##   of it. Under `full_at` words drop out of the subtitle (`garbled`); under `min_clarity` nothing shows.
-## - **Not twice a night:** an exchange you heard (`heard_at`) isn't held again that town day, and
+## - **Not twice a night:** an exchange begun (a line of it said) isn't held again that town day (#1325), and
 ##   the ones you've never heard come first, then the longest unheard (`heard_day`, kept in the save).
 ## - **Interrupted:** a shot (`shot_m`), a man of it no longer calm (a fight, a fright, a scene taking
 ##   him), one of them saying something else (a bark at you, the barkeep serving), your shout, or
@@ -452,14 +452,14 @@ func flush(now: float) -> void:
 	_settle(now)
 
 
-## Exchanges ended, their last line out: heard today if you caught any of it (`heard_at`). Else it's
-## left for later (`unheard_again_s`).
+## Exchanges ended, their last line out: once a line of it is said it's told for today (`heard_day`:
+## not again till tomorrow). One that ended before its first line is left for later (`unheard_again_s`).
 func _settle(now: float) -> void:
 	for r: Dictionary in _over:
 		var id := String(r.ex.id)
-		# (#1325: any of it caught counts, cut short or not: begun again later it would tell you its first
-		# lines twice; the bench's store saw "I ain't drunk, missus" twice in a morning.)
-		if int(r.said) > 0 and float(r.best) >= float(d.heard_at):
+		# (#1325: begun is spent, heard or not, cut short or not: begun again later it told its first lines
+		# twice; the bench's store had "I ain't drunk, missus" twice in a morning. It starts only with you near.)
+		if int(r.said) > 0:
 			heard_day[id] = folk.town_day()
 		else:
 			_left[id] = now

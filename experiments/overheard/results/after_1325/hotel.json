@@ -1,0 +1,517 @@
+{
+ "clock": "19:21",
+ "cmd": "oh_stop",
+ "ended": [
+  [
+   "heard.three_weeks",
+   "done",
+   5
+  ],
+  [
+   "heard.wood_to_split",
+   "done",
+   5
+  ],
+  [
+   "heard.nine_minutes_down",
+   "done",
+   4
+  ],
+  [
+   "heard.peppermints",
+   "done",
+   4
+  ],
+  [
+   "heard.swedes_hand",
+   "done",
+   5
+  ]
+ ],
+ "lines": [
+  [
+   "drifter",
+   "Same as yesterday. Hotter.",
+   4.0,
+   "15:36",
+   "said",
+   1.0
+  ],
+  [
+   "landlady",
+   "Mr. Peck. Three weeks, I guess you know.",
+   3.4,
+   "15:38",
+   "exchange:heard.three_weeks",
+   1.0
+  ],
+  [
+   "townsman",
+   "Not on the porch, Mrs. Rudd, please.",
+   3.8,
+   "15:40",
+   "exchange:heard.three_weeks",
+   0.96
+  ],
+  [
+   "landlady",
+   "I'll have something on it by Saturday.",
+   3.4,
+   "15:42",
+   "exchange:heard.three_weeks",
+   1.0
+  ],
+  [
+   "townsman",
+   "There's a gentleman writing from Pueblo...",
+   3.8,
+   "15:44",
+   "exchange:heard.three_weeks",
+   0.96
+  ],
+  [
+   "landlady",
+   "Saturday, Mr. Peck.",
+   3.4,
+   "15:46",
+   "exchange:heard.three_weeks",
+   1.0
+  ],
+  [
+   "landlady",
+   "Rooms are fifty cents. Clean sheets are extra, and worth it.",
+   3.4,
+   "15:47",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "I'll take any work going. Fences, horses, anything.",
+   4.0,
+   "15:52",
+   "exchange:",
+   0.92
+  ],
+  [
+   "drifter",
+   "Looks like weather out west.",
+   4.0,
+   "15:53",
+   "said",
+   1.0
+  ],
+  [
+   "townsman",
+   "I heard different.",
+   3.8,
+   "15:53",
+   "exchange:",
+   0.96
+  ],
+  [
+   "landlady",
+   "You can't stand there all day, young man.",
+   3.4,
+   "15:58",
+   "exchange:heard.wood_to_split",
+   1.0
+  ],
+  [
+   "drifter",
+   "No, ma'am. I was fixing to move along directly.",
+   4.0,
+   "16:00",
+   "exchange:heard.wood_to_split",
+   0.92
+  ],
+  [
+   "landlady",
+   "Have you eaten?",
+   3.4,
+   "16:02",
+   "exchange:heard.wood_to_split",
+   1.0
+  ],
+  [
+   "townsman",
+   "Sit if you like. Bench don't belong to me.",
+   3.8,
+   "16:03",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Yesterday.",
+   4.0,
+   "16:04",
+   "exchange:heard.wood_to_split",
+   0.92
+  ],
+  [
+   "landlady",
+   "There's wood wants splitting at the back. Dinner comes with it. You'll wash first.",
+   3.4,
+   "16:05",
+   "exchange:heard.wood_to_split",
+   1.0
+  ],
+  [
+   "drifter",
+   "I've seen worse towns. Not many.",
+   4.0,
+   "16:09",
+   "said",
+   1.0
+  ],
+  [
+   "townsman",
+   "I had it from the depot that the noon train was nine minutes down.",
+   3.8,
+   "16:19",
+   "exchange:heard.nine_minutes_down",
+   0.96
+  ],
+  [
+   "landlady",
+   "Caleb said. He was there for it.",
+   3.4,
+   "16:22",
+   "exchange:heard.nine_minutes_down",
+   1.0
+  ],
+  [
+   "townsman",
+   "Did he say why it was down?",
+   3.8,
+   "16:24",
+   "exchange:heard.nine_minutes_down",
+   0.96
+  ],
+  [
+   "landlady",
+   "He didn't say. He ate and went out again.",
+   3.4,
+   "16:25",
+   "exchange:heard.nine_minutes_down",
+   1.0
+  ],
+  [
+   "landlady",
+   "Supper's at six. Late is cold.",
+   3.4,
+   "16:25",
+   "said",
+   1.0
+  ],
+  [
+   "miner",
+   "Night, all.",
+   40.8,
+   "16:39",
+   "said",
+   1.0
+  ],
+  [
+   "barkeep",
+   "Night.",
+   38.8,
+   "16:39",
+   "said",
+   1.0
+  ],
+  [
+   "landlady",
+   "Don't block the walk, please.",
+   3.4,
+   "16:41",
+   "said",
+   1.0
+  ],
+  [
+   "store_wife",
+   "I happened to notice your Mr. Vogel buying peppermints again.",
+   3.8,
+   "16:47",
+   "exchange:heard.peppermints",
+   0.95
+  ],
+  [
+   "landlady",
+   "He's not my Mr. Vogel.",
+   3.4,
+   "16:50",
+   "exchange:heard.peppermints",
+   1.0
+  ],
+  [
+   "store_wife",
+   "A quarter pound. It is a great many peppermints for one man.",
+   3.9,
+   "16:51",
+   "exchange:heard.peppermints",
+   0.94
+  ],
+  [
+   "landlady",
+   "I guess he likes them. I don't go through his pockets.",
+   3.4,
+   "16:54",
+   "exchange:heard.peppermints",
+   1.0
+  ],
+  [
+   "store_wife",
+   "Evening to you.",
+   3.9,
+   "17:00",
+   "said",
+   1.0
+  ],
+  [
+   "landlady",
+   "You'll have heard about the Swede's hand.",
+   3.4,
+   "17:10",
+   "exchange:heard.swedes_hand",
+   1.0
+  ],
+  [
+   "store_wife",
+   "I had not.",
+   3.9,
+   "17:12",
+   "exchange:heard.swedes_hand",
+   0.94
+  ],
+  [
+   "landlady",
+   "Crushed, Wednesday. The doctor's been twice.",
+   3.4,
+   "17:13",
+   "exchange:heard.swedes_hand",
+   1.0
+  ],
+  [
+   "store_wife",
+   "I am sorry for it. Has he anybody?",
+   3.9,
+   "17:15",
+   "exchange:heard.swedes_hand",
+   0.94
+  ],
+  [
+   "landlady",
+   "A sister in Minnesota. I wrote her last night.",
+   3.4,
+   "17:18",
+   "exchange:heard.swedes_hand",
+   1.0
+  ],
+  [
+   "townsman",
+   "Evening.",
+   3.9,
+   "17:28",
+   "said",
+   1.0
+  ],
+  [
+   "townsman",
+   "Preacher's coming through next month, if he don't get lost again.",
+   3.8,
+   "17:36",
+   "exchange:",
+   0.96
+  ],
+  [
+   "store_wife",
+   "Well, I never.",
+   3.9,
+   "17:37",
+   "exchange:",
+   0.94
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|loudmouth": 35.0,
+  "barkeep|miner": 80.0,
+  "barkeep|town_drunk": 53.0,
+  "drifter|landlady": 56.0,
+  "drifter|town_drunk": 27.0,
+  "drifter|townsman": 56.0,
+  "fiddler|pianist": 11.0,
+  "landlady|store_wife": 56.0,
+  "landlady|townsman": 93.0,
+  "liveryman|smith": 21.0,
+  "loudmouth|miner": 13.0,
+  "loudmouth|town_drunk": 27.0,
+  "miner|town_drunk": 13.0,
+  "store_wife|storekeeper": 13.0,
+  "store_wife|townsman": 35.0
+ },
+ "s": 450.1,
+ "t": 491.55,
+ "where": {
+  "barkeep|loudmouth": {
+   "bar_back_day:counter + bar_day_4:drink": 13
+  },
+  "barkeep|miner": {
+   "bar_back_day:counter + bar_day_1:drink": 30
+  },
+  "barkeep|town_drunk": {
+   "bar_back:counter + sarge_walk:lean": 15,
+   "bar_back_day:counter + sarge_walk:lean": 5
+  },
+  "drifter|landlady": {
+   "hotel_steps:lean + hotel_porch2:sit": 9,
+   "hotel_steps:lean + hotel_rug:sweep": 12
+  },
+  "drifter|town_drunk": {
+   "saloon_porch:stand + saloon_porch2:lean": 6,
+   "sarge_walk:lean + saloon_porch2:lean": 4
+  },
+  "drifter|townsman": {
+   "hotel_porch4:sit + hotel_steps:lean": 21
+  },
+  "fiddler|pianist": {
+   "band_fiddle:play + piano_chair:play": 4
+  },
+  "landlady|store_wife": {
+   "hotel_porch3:stand + hotel_porch2:sit": 21
+  },
+  "landlady|townsman": {
+   "hotel_porch4:sit + hotel_porch2:sit": 23,
+   "hotel_porch4:sit + hotel_rug:sweep": 12
+  },
+  "liveryman|smith": {
+   "livery_door:stand + livery_post:stand": 8
+  },
+  "loudmouth|miner": {
+   "bar_day_1:drink + bar_day_4:drink": 5
+  },
+  "loudmouth|town_drunk": {
+   "saloon_walk:stand + saloon_porch:stand": 10
+  },
+  "miner|town_drunk": {
+   "sarge_walk:lean + bar_day_1:drink": 5
+  },
+  "store_wife|storekeeper": {
+   "store_walk:stand + store_bench:sit": 5
+  },
+  "store_wife|townsman": {
+   "hotel_porch4:sit + hotel_porch3:stand": 13
+  }
+ },
+ "why_not": {
+  "heard.a_collar": {
+   "not_free:townsman": 1,
+   "tags:townsman": 22
+  },
+  "heard.nine_minutes_down": {
+   "busy:townsman": 8,
+   "not_free:landlady": 5,
+   "not_free:townsman": 7
+  },
+  "heard.peppermints": {
+   "busy:store_wife": 3
+  },
+  "heard.smiths_letter": {
+   "busy:store_wife": 4,
+   "not_free:store_wife": 6,
+   "tags:store_wife": 13
+  },
+  "heard.swedes_hand": {
+   "busy:landlady": 6,
+   "not_free:landlady": 5
+  },
+  "heard.three_weeks": {
+   "busy:landlady": 5
+  },
+  "heard.wood_to_split": {
+   "busy:landlady": 8,
+   "not_free:landlady": 4
+  }
+ },
+ "start": {
+  "clock": "15:21",
+  "cmd": "oh_where",
+  "men": {
+   "barkeep": {
+    "d": 38.8,
+    "spot": "bar_back_day:counter",
+    "tags": [
+     "saloon.bar"
+    ]
+   },
+   "drifter": {
+    "d": 4.0,
+    "spot": "hotel_steps:lean",
+    "tags": [
+     "hotel",
+     "street"
+    ]
+   },
+   "liveryman": {
+    "d": 84.3,
+    "spot": "livery_door:stand",
+    "tags": [
+     "livery",
+     "street"
+    ]
+   },
+   "miner": {
+    "d": 40.8,
+    "spot": "bar_day_1:drink",
+    "tags": [
+     "saloon.bar"
+    ]
+   },
+   "smith": {
+    "d": 86.8,
+    "spot": "livery_post:stand",
+    "tags": [
+     "livery",
+     "smithy",
+     "street"
+    ]
+   },
+   "store_wife": {
+    "d": 112.7,
+    "spot": "store_bench:sit",
+    "tags": [
+     "store",
+     "street"
+    ]
+   },
+   "storekeeper": {
+    "d": 106.8,
+    "spot": "store_walk:stand",
+    "tags": [
+     "store",
+     "street"
+    ]
+   },
+   "townsman": {
+    "d": 15.3,
+    "spot": "hotel_walk:lean",
+    "tags": [
+     "hotel",
+     "street"
+    ]
+   },
+   "undertaker": {
+    "d": 50.1,
+    "spot": "undertaker_walk:work",
+    "tags": [
+     "undertaker",
+     "street"
+    ]
+   }
+  },
+  "ok": true,
+  "t": 41.42
+ }
+}

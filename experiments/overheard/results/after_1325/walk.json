@@ -1,0 +1,539 @@
+{
+ "clock": "17:33",
+ "cmd": "oh_stop",
+ "ended": [
+  [
+   "heard.morgan_tree",
+   "done",
+   6
+  ],
+  [
+   "heard.a_lot",
+   "done",
+   5
+  ],
+  [
+   "heard.bar_iron",
+   "done",
+   4
+  ],
+  [
+   "heard.day_slate",
+   "done",
+   3
+  ],
+  [
+   "heard.peppermints",
+   "done",
+   4
+  ]
+ ],
+ "lines": [
+  [
+   "doctor",
+   "Nobody's sick today. I don't trust it.",
+   5.9,
+   "13:24",
+   "said",
+   1.0
+  ],
+  [
+   "liveryman",
+   "Feed bill's due. I'm not a charity.",
+   20.6,
+   "13:41",
+   "exchange:",
+   0.0
+  ],
+  [
+   "loudmouth",
+   "Might be, might be.",
+   12.8,
+   "13:42",
+   "exchange:",
+   0.0
+  ],
+  [
+   "liveryman",
+   "Man from the J-Bar was in asking for a hand. Forty and found.",
+   15.3,
+   "13:47",
+   "exchange:heard.morgan_tree",
+   0.0
+  ],
+  [
+   "drifter",
+   "He ask had I a saddle?",
+   23.7,
+   "13:50",
+   "exchange:heard.morgan_tree",
+   0.0
+  ],
+  [
+   "liveryman",
+   "First thing.",
+   30.1,
+   "13:52",
+   "exchange:heard.morgan_tree",
+   0.0
+  ],
+  [
+   "drifter",
+   "Well. That's that.",
+   26.9,
+   "13:53",
+   "exchange:heard.morgan_tree",
+   0.0
+  ],
+  [
+   "store_wife",
+   "Don't block the walk, please.",
+   4.8,
+   "13:54",
+   "said",
+   1.0
+  ],
+  [
+   "liveryman",
+   "There's an old Morgan tree in the harness room. Horn's cracked. I been meaning to burn it.",
+   30.1,
+   "13:54",
+   "exchange:heard.morgan_tree",
+   0.0
+  ],
+  [
+   "drifter",
+   "Don't burn it yet.",
+   26.9,
+   "13:58",
+   "exchange:heard.morgan_tree",
+   0.0
+  ],
+  [
+   "barkeep",
+   "Church roof wants fixing before the snow.",
+   17.9,
+   "14:13",
+   "exchange:",
+   0.0
+  ],
+  [
+   "townsman",
+   "You wouldn't want a lot? Fifty feet on Main. The west end.",
+   13.2,
+   "14:17",
+   "exchange:heard.a_lot",
+   0.0
+  ],
+  [
+   "barkeep",
+   "Depot's at the east end, Mr. Peck.",
+   12.1,
+   "14:20",
+   "exchange:heard.a_lot",
+   0.0
+  ],
+  [
+   "townsman",
+   "The company may yet see reason. I calculate... A siding, at the least.",
+   13.3,
+   "14:22",
+   "exchange:heard.a_lot",
+   0.0
+  ],
+  [
+   "barkeep",
+   "What'd you give for 'em?",
+   12.0,
+   "14:25",
+   "exchange:heard.a_lot",
+   0.0
+  ],
+  [
+   "townsman",
+   "I'd as soon not say it in here.",
+   13.1,
+   "14:26",
+   "exchange:heard.a_lot",
+   0.0
+  ],
+  [
+   "drifter",
+   "I'll take any work going. Fences, horses, anything.",
+   21.4,
+   "14:42",
+   "exchange:",
+   0.0
+  ],
+  [
+   "liveryman",
+   "I heard different.",
+   13.8,
+   "14:43",
+   "exchange:",
+   0.0
+  ],
+  [
+   "miner",
+   "Night, all.",
+   94.4,
+   "15:51",
+   "said",
+   1.0
+  ],
+  [
+   "barkeep",
+   "Night.",
+   96.1,
+   "15:52",
+   "said",
+   1.0
+  ],
+  [
+   "smith",
+   "Bring it round after dinner and I'll true it up.",
+   20.4,
+   "15:58",
+   "exchange:",
+   0.0
+  ],
+  [
+   "liveryman",
+   "You're telling me.",
+   15.8,
+   "16:00",
+   "exchange:",
+   0.0
+  ],
+  [
+   "smith",
+   "Bar iron's two cents down since the cars.",
+   10.7,
+   "16:01",
+   "exchange:heard.bar_iron",
+   0.0
+  ],
+  [
+   "liveryman",
+   "I get that off Hollis every night of my life. Flour's down, oil's down, iron's down.",
+   9.7,
+   "16:03",
+   "exchange:heard.bar_iron",
+   0.04
+  ],
+  [
+   "smith",
+   "Shoes ain't down.",
+   25.9,
+   "16:06",
+   "exchange:heard.bar_iron",
+   0.0
+  ],
+  [
+   "liveryman",
+   "No. I didn't think they would be.",
+   30.2,
+   "16:08",
+   "exchange:heard.bar_iron",
+   0.0
+  ],
+  [
+   "loudmouth",
+   "I'll tell you what this town needs. A second saloon.",
+   20.8,
+   "16:13",
+   "exchange:",
+   0.0
+  ],
+  [
+   "barkeep",
+   "Not now, I'm busy.",
+   12.4,
+   "16:14",
+   "exchange:",
+   0.0
+  ],
+  [
+   "loudmouth",
+   "I carried nine loads for Hollis this week and he paid me for seven!",
+   14.5,
+   "16:16",
+   "exchange:heard.day_slate",
+   0.0
+  ],
+  [
+   "barkeep",
+   "So you got seven loads' pay on you.",
+   12.1,
+   "16:19",
+   "exchange:heard.day_slate",
+   0.0
+  ],
+  [
+   "loudmouth",
+   "...I had.",
+   14.5,
+   "16:20",
+   "exchange:heard.day_slate",
+   0.0
+  ],
+  [
+   "storekeeper",
+   "If you're buying, I'm selling. If you're looking, look quick.",
+   4.1,
+   "16:40",
+   "said",
+   1.0
+  ],
+  [
+   "store_wife",
+   "The Pratt girl's walking out with the bank clerk.",
+   20.7,
+   "17:05",
+   "exchange:",
+   0.0
+  ],
+  [
+   "landlady",
+   "Well, I never.",
+   13.9,
+   "17:06",
+   "exchange:",
+   0.0
+  ],
+  [
+   "store_wife",
+   "I happened to notice your Mr. Vogel buying peppermints again.",
+   10.4,
+   "17:07",
+   "exchange:heard.peppermints",
+   0.0
+  ],
+  [
+   "landlady",
+   "He's not my Mr. Vogel.",
+   3.4,
+   "17:10",
+   "exchange:heard.peppermints",
+   1.0
+  ],
+  [
+   "store_wife",
+   "A quarter pound. It is a great many peppermints for one man.",
+   4.0,
+   "17:12",
+   "exchange:heard.peppermints",
+   0.93
+  ],
+  [
+   "landlady",
+   "I guess he likes them. I don't go through his pockets.",
+   3.4,
+   "17:14",
+   "exchange:heard.peppermints",
+   1.0
+  ],
+  [
+   "store_wife",
+   "Evening to you.",
+   4.0,
+   "17:14",
+   "said",
+   1.0
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|loudmouth": 85.0,
+  "barkeep|miner": 77.0,
+  "barkeep|town_drunk": 96.0,
+  "barkeep|townsman": 37.0,
+  "drifter|landlady": 13.0,
+  "drifter|liveryman": 56.0,
+  "drifter|loudmouth": 45.0,
+  "drifter|store_wife": 13.0,
+  "drifter|townsman": 13.0,
+  "landlady|store_wife": 80.0,
+  "landlady|townsman": 83.0,
+  "liveryman|loudmouth": 53.0,
+  "liveryman|smith": 53.0,
+  "liveryman|town_drunk": 35.0,
+  "loudmouth|miner": 43.0,
+  "loudmouth|saloon_girl": 32.0,
+  "miner|townsman": 19.0,
+  "smith|town_drunk": 27.0,
+  "store_wife|storekeeper": 29.0,
+  "store_wife|townsman": 45.0,
+  "storekeeper|town_drunk": 5.0
+ },
+ "s": 472.0,
+ "t": 514.27,
+ "where": {
+  "barkeep|loudmouth": {
+   "bar_back_day:counter + bar_day_4:drink": 32
+  },
+  "barkeep|miner": {
+   "bar_back_day:counter + bar_day_1:drink": 29
+  },
+  "barkeep|town_drunk": {
+   "bar_back_day:counter + sarge_walk:lean": 36
+  },
+  "barkeep|townsman": {
+   "bar_back_day:counter + bar_day_3:drink": 14
+  },
+  "drifter|landlady": {
+   "hotel_steps:lean + hotel_porch2:sit": 5
+  },
+  "drifter|liveryman": {
+   "livery_gate:stand + livery_door:stand": 8,
+   "livery_lean:lean + livery_door:stand": 13
+  },
+  "drifter|loudmouth": {
+   "livery_gate:stand + livery_rail:lean": 8,
+   "livery_lean:lean + livery_rail:lean": 9
+  },
+  "drifter|store_wife": {
+   "hotel_steps:lean + hotel_porch3:stand": 5
+  },
+  "drifter|townsman": {
+   "hotel_steps:lean + hotel_porch4:sit": 5
+  },
+  "landlady|store_wife": {
+   "hotel_porch3:stand + hotel_porch2:sit": 30
+  },
+  "landlady|townsman": {
+   "hotel_porch4:sit + hotel_porch2:sit": 22,
+   "hotel_porch4:sit + hotel_rug:sweep": 9
+  },
+  "liveryman|loudmouth": {
+   "livery_rail:lean + livery_door:stand": 20
+  },
+  "liveryman|smith": {
+   "livery_post:stand + livery_door:stand": 9,
+   "livery_post:stand + livery_lean:lean": 11
+  },
+  "liveryman|town_drunk": {
+   "livery_trough:stand + livery_lean:lean": 13
+  },
+  "loudmouth|miner": {
+   "bar_day_4:drink + bar_day_1:drink": 16
+  },
+  "loudmouth|saloon_girl": {
+   "saloon_porch2:lean + saloon_walk:stand": 12
+  },
+  "miner|townsman": {
+   "bar_day_3:drink + bar_day_1:drink": 7
+  },
+  "smith|town_drunk": {
+   "livery_trough:stand + livery_post:stand": 10
+  },
+  "store_wife|storekeeper": {
+   "store_bench:sit + store_walk:stand": 11
+  },
+  "store_wife|townsman": {
+   "hotel_porch4:sit + hotel_porch3:stand": 17
+  },
+  "storekeeper|town_drunk": {
+   "sarge_store:sit + store_walk:stand": 2
+  }
+ },
+ "why_not": {
+  "heard.a_collar": {
+   "tags:townsman": 2
+  },
+  "heard.bar_iron": {
+   "busy:smith": 2
+  },
+  "heard.holding_the_wall": {
+   "busy:drifter": 1,
+   "not_free:drifter": 1
+  },
+  "heard.morgan_tree": {
+   "busy:liveryman": 1
+  },
+  "heard.nine_minutes_down": {
+   "busy:landlady": 1,
+   "not_free:landlady": 1
+  },
+  "heard.ox_or_mule": {
+   "busy:liveryman": 1,
+   "not_free:liveryman": 1,
+   "not_free:loudmouth": 1
+  },
+  "heard.peppermints": {
+   "busy:store_wife": 3
+  },
+  "heard.sixty_a_day": {
+   "busy:liveryman": 2
+  },
+  "heard.smiths_letter": {
+   "busy:store_wife": 1,
+   "not_free:store_wife": 1
+  },
+  "heard.swedes_hand": {
+   "busy:landlady": 3,
+   "not_free:landlady": 1
+  },
+  "heard.the_gray": {
+   "busy:smith": 2
+  },
+  "heard.three_weeks": {
+   "busy:landlady": 1,
+   "not_free:landlady": 1
+  }
+ },
+ "start": {
+  "clock": "13:21",
+  "cmd": "oh_where",
+  "men": {
+   "barkeep": {
+    "d": 38.8,
+    "spot": "bar_back_day:counter",
+    "tags": [
+     "saloon.bar"
+    ]
+   },
+   "doctor": {
+    "d": 5.9,
+    "spot": "hotel_corner:stand",
+    "tags": [
+     "hotel",
+     "street"
+    ]
+   },
+   "liveryman": {
+    "d": 84.0,
+    "spot": "livery_door:stand",
+    "tags": [
+     "livery",
+     "street"
+    ]
+   },
+   "smith": {
+    "d": 146.2,
+    "spot": "smith_door:work",
+    "tags": [
+     "smithy",
+     "street"
+    ]
+   },
+   "town_drunk": {
+    "d": 40.5,
+    "spot": "sarge_walk:lean",
+    "tags": [
+     "street"
+    ]
+   },
+   "townsman": {
+    "d": 112.7,
+    "spot": "store_bench:sit",
+    "tags": [
+     "store",
+     "street"
+    ]
+   }
+  },
+  "ok": true,
+  "t": 42.23
+ }
+}

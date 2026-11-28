@@ -35,11 +35,12 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `nolaw.earl_died`). Open: the room's sounds are synth stand-ins (#807); react.fight*, body_child, kett.meal
   untriggered; nobody carries the body. A spot's `hall` is its building for the barks (#1240).
 - **Things to listen to** (#1293; LAYOUT "src/people" Overheard; data `overheard`; `tests/test_overheard.gd`; bench
-  `experiments/overheard/`): men stood together hold exchanges of the town's script (scenes `heard.*`, 115, cast by
-  person, tagged by place; 20 `story` ones wait on Sean's OK on the People board), heard by distance and walls on their
-  own subtitle line, not twice a night, cut by a shot or your shout; the card table's between hands. Open: by day the
-  street's men are seldom within 8 m of each other, so its exchanges rarely play; no Sunday at the church; the drunk, the
-  editor and Caleb have exchanges but no day; `delivery` is carried for #1316's gestures, unused; unjudged on screen.
+  `experiments/overheard/`): men stood together hold exchanges of the town's script (scenes `heard.*`, cast by person,
+  tagged by place; 20 `story` ones wait on Sean's OK on the People board), heard by distance and walls, one begun not
+  again that day. By day (#1325) the company gather (store mornings, livery 13-15, hotel porch from 3, saloon walk at
+  5): four hours at the store hear 8-11, livery 4-5, hotel 5-7, walking 0-3 (bench README). The store is near its
+  script's cap (~13): Sean's call on more lines or the rate. Open: no Sunday at the church (no lot spot); the editor
+  and Caleb have exchanges but no day; `delivery` unused (#1316); unjudged on screen.
 - **Every verb gets an answer** (DESIGN §2 pillar 6; #1272, #1279 the card table): bench `experiments/answers/`.
   Still flat: standing close (nothing), the barkeep's "Don't shoot!" over and over.
 - **The real card game** (#1294; LAYOUT CardGame "The real game", PlayerCards; `tests/test_card_play.gd`): an 1880s
