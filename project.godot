@@ -41,7 +41,12 @@ common/max_physics_steps_per_frame=2
 common/physics_ticks_per_second=60
 jolt_physics_3d/simulation/velocity_steps=20
 jolt_physics_3d/simulation/position_steps=8
-jolt_physics_3d/limits/max_bodies=65536
+; Every collision object is a Jolt body, per world (#1327, measured 2026-11-27): the valley 53,149; with
+; the hotel and the Railroad Saloon on their lots 70,709; the whole town (11 more lots ~4.5k each, the
+; opera house ~28k) ~155k before anything breaks. 262,144 holds it under 60%; the limit costs ~4 MB a 32k
+; and no load time. tests/test_valley.gd fails past 80%. Pairs and contacts at Jolt's defaults: no
+; overflow in the placed valley's blast and chaos runs (2,033 loose bodies).
+jolt_physics_3d/limits/max_bodies=262144
 
 [shader_globals]
 
