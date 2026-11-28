@@ -16,6 +16,12 @@ func after_each() -> void:
 	pass
 
 
+## Called once after the file's last test (#1326): put back what the file set for all its tests (a
+## static dial, an engine setting), so the runner's leak check finds the world as the file found it.
+func after_all() -> void:
+	pass
+
+
 func check(condition: bool, message: String) -> bool:
 	if not condition:
 		failures.append("%s: %s" % [current_test, message])

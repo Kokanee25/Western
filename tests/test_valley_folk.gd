@@ -6,6 +6,10 @@ extends TestCase
 ## (the folk's own Waypoints: the town's and the set's, not the valley's thousand), and out again
 ## at the end of them.
 
+## No Law's murder as the file found it (#1326: put back once its tests are done).
+var _murder_was := ValleyFolk.murder_auto
+
+
 var holder: Node
 var valley: ValleyWorld
 
@@ -579,3 +583,7 @@ func test_the_town_s_spots_stand_on_their_walks() -> void:
 		check(not lot.is_empty() and at.x >= float(lot.x0) and at.x <= float(lot.x1), "%s: in its lot's width (%s)" % [k, at])
 		check(absf(at.z) > 8.0 and absf(at.z) < 12.0, "%s: on a walk by the street, not in it (%.1f)" % [k, at.z])
 	check(count >= 20, "the street's spots (%d)" % count)
+
+
+func after_all() -> void:
+	ValleyFolk.murder_auto = _murder_was

@@ -749,7 +749,9 @@ func _over_the_wreck(delta: float) -> void:
 	var l := shack.global_transform.affine_inverse() * joe.global_position
 	var on_sill := absf(l.z) < 0.6 and absf(l.x - shack.width * 0.5) < 0.8
 	var moved := joe.global_position.distance_to(_sill_at)
-	if not on_sill or moved > 0.08:
+	# (on a knee getting up, or stumbling, he isn't held by the wreck: a plank going over took his legs,
+	# #1326's run 8; he walks on once he's up)
+	if not on_sill or moved > 0.08 or _joe_down_a_moment():
 		_sill_at = joe.global_position
 		_sill_t = 0.0
 		return
@@ -762,6 +764,11 @@ func _over_the_wreck(delta: float) -> void:
 		_note("Joe over the broken door")
 
 
+## Joe getting up or stumbling (not the wreck holding him): the step-overs' clocks wait.
+func _joe_down_a_moment() -> bool:
+	return joe.rising or joe.stumbling > 0.0
+
+
 var _sill_at := Vector3.INF
 var _sill_t := 0.0
 
@@ -771,7 +778,7 @@ var _sill_t := 0.0
 ## `wreck_s`, he steps over them to Kett.
 func _over_the_pieces(to: Vector3, delta: float) -> void:
 	var d := _flat(joe.global_position, to)
-	if d < _over_best - 0.05 or not hideout.in_shack(joe.global_position):
+	if d < _over_best - 0.05 or not hideout.in_shack(joe.global_position) or _joe_down_a_moment():
 		_over_best = d
 		_over_t = 0.0
 		return
