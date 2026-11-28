@@ -434,6 +434,8 @@
      "when": "who known",
      "condition": "low, telling",
      "delivery": "Leans in. Pleased to be the one who has it.",
+     "tag": "proud",
+     "strength": 0.7,
      "words": [
       {
        "text": "{who} shot {whom} dead, out by {where}.",
@@ -556,6 +558,8 @@
      "when": "shots only",
      "condition": "uneasy",
      "delivery": "He only heard it. He keeps looking the way it came from.",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Shooting, down by {where}. {shots}.",
@@ -871,6 +875,8 @@
      "when": "cards won_pot; who Harlan; told to him",
      "condition": "",
      "delivery": "Half sore, half admiring.",
+     "tag": "mocking",
+     "strength": 0.5,
      "words": [
       {
        "text": "You took that pot off us, {at}. Don't make a habit of it.",
@@ -909,6 +915,8 @@
      "when": "cards bluff_called; who Harlan; told to him",
      "condition": "",
      "delivery": "Grinning at you.",
+     "tag": "laughing",
+     "strength": 0.6,
      "words": [
       {
        "text": "Raised on nothing at cards, {at}. We all saw your hand, mister.",
@@ -928,6 +936,8 @@
      "when": "cards bluff_called; who known",
      "condition": "",
      "delivery": "Telling it as a joke.",
+     "tag": "laughing",
+     "strength": 0.8,
      "words": [
       {
        "text": "{who} tried a bluff at cards, {at}. Caught with nothing in his hand.",
@@ -981,6 +991,8 @@
      "when": "cards cheat_false; who Harlan; told to him",
      "condition": "",
      "delivery": "Cold.",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "You called {whom} a cheat, {at}. Never proved a thing.",
@@ -1015,6 +1027,8 @@
      "when": "bar round; who Harlan; told to him",
      "condition": "",
      "delivery": "Warm.",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "You stood us all a drink, {at}. Decent of you.",
@@ -1075,6 +1089,8 @@
      "when": "bar drunk; who known",
      "condition": "",
      "delivery": "Telling it as a joke.",
+     "tag": "laughing",
+     "strength": 0.8,
      "words": [
       {
        "text": "{who} got good and drunk, {at}.",
@@ -1095,6 +1111,8 @@
      "when": "bar deputy; who Harlan; told to him",
      "condition": "",
      "delivery": "Disapproving.",
+     "tag": "angry",
+     "strength": 0.5,
      "words": [
       {
        "text": "You were drinking on duty, {at}. With that badge on.",
@@ -1172,6 +1190,8 @@
      },
      "condition": "relieved, to her neighbour",
      "delivery": "Half to him, half to the woman beside her.",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "He'd shot one already, they say. Before you stopped him.",
@@ -1211,6 +1231,8 @@
      },
      "condition": "low, to another",
      "delivery": "Said once Harlan is past, loud enough.",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "That's him. Shot a man in the street.",
@@ -2118,6 +2140,8 @@
      },
      "condition": "",
      "delivery": "Not to his face.",
+     "tag": "low",
+     "strength": 0.8,
      "words": [
       {
        "text": "Some rode right by him, I hear.",
@@ -2262,6 +2286,8 @@
      },
      "condition": "",
      "delivery": "Peering at the jail's window.",
+     "tag": "scared",
+     "strength": 0.4,
      "words": [
       {
        "text": "Is that him? He don't look like much, behind a door.",
@@ -2564,6 +2590,8 @@
      },
      "condition": "",
      "delivery": "Across the room, glad of him.",
+     "tag": "laughing",
+     "strength": 0.4,
      "words": [
       {
        "text": "Hey, {whom}!",
@@ -2589,6 +2617,8 @@
      },
      "condition": "",
      "delivery": "Loud, friendly.",
+     "tag": "laughing",
+     "strength": 0.6,
      "words": [
       {
        "text": "Hey, you old thief!",
@@ -2723,6 +2753,8 @@
      },
      "condition": "",
      "delivery": "Too loud. Half the bar drinks to it, half looks at its boots.",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "To the sheriff. He ain't here to mind the noise.",
@@ -2792,6 +2824,8 @@
      },
      "condition": "",
      "delivery": "Aggrieved even when he's being kind: he's counted what it costs him.",
+     "tag": "angry",
+     "strength": 0.5,
      "words": [
       {
        "text": "On the house. Just the one, mind.",
@@ -2956,6 +2990,8 @@
      "when": "said every time",
      "condition": "",
      "delivery": "Loud, for the room.",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "The new man's buying! Step up, gents.",
@@ -3064,6 +3100,8 @@
      },
      "condition": "",
      "delivery": "Half amused, half tired of it.",
+     "tag": "laughing",
+     "strength": 0.5,
      "words": [
       {
        "text": "Steady, now. You've had a few.",
@@ -4877,6 +4915,8 @@
      },
      "condition": "",
      "delivery": "Loud, for the street; he comes to attention badly.",
+     "tag": "proud",
+     "strength": 0.8,
      "words": [
       {
        "text": "Well, look at this. A brevet! That's Army, farmer: all of the rank and none of the pay, and nobody bound to mind you. Salute me, Brevet, I outrank you sober.",
@@ -5778,6 +5818,7 @@
      },
      "condition": "",
      "delivery": "Short, low; no salute.",
+     "tag": "low",
      "words": [
       {
        "text": "Morning. I ain't drunk yet, so this don't count. Come back after ten and I'll tell you what I think of you.",
@@ -6777,6 +6818,8 @@
      },
      "condition": "",
      "delivery": "Low and short. No joke in it.",
+     "tag": "sad",
+     "strength": 0.6,
      "words": [
       {
        "text": "He left that door unlocked six winters. Never said a word about it. I don't know what you mean to do.",
@@ -7274,6 +7317,8 @@
      },
      "condition": "",
      "delivery": "Sober inside the sentence. No salute.",
+     "tag": "sad",
+     "strength": 0.5,
      "words": [
       {
        "text": "Obliged. The night they shot Earl I was at the door end. I seen the stranger hold a man in his chair with a word. Nobody's asked me. You could, before ten.",
@@ -7299,6 +7344,8 @@
      },
      "condition": "",
      "delivery": "Sober for as long as it takes to say it.",
+     "tag": "sad",
+     "strength": 0.5,
      "words": [
       {
        "text": "Thank you. I mean it, and I'll deny it. Don't let 'em move you off the walk, Brevet. They moved me.",
@@ -7325,6 +7372,8 @@
      },
      "condition": "",
      "delivery": "Quiet; then louder, to cover it.",
+     "tag": "low",
+     "strength": 0.7,
      "words": [
       {
        "text": "You never preached at me when you done that. Sheriff never did neither. ... There. That's all you get.",
@@ -7596,6 +7645,7 @@
      },
      "condition": "",
      "delivery": "A laugh first.",
+     "tag": "laughing",
      "words": [
       {
        "text": "Ha! He's got your number, Deputy.",
@@ -7620,6 +7670,7 @@
      },
      "condition": "",
      "delivery": "Behind her hand.",
+     "tag": "sly",
      "words": [
       {
        "text": "Oh! I shouldn't laugh.",
@@ -9316,6 +9367,8 @@
      },
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Same again, my son. It do lay the dust.",
@@ -9383,6 +9436,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Ground's talking in the east drift again. All night shift she were at it.",
@@ -9403,6 +9457,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Talking how?",
@@ -9443,6 +9499,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Well. He'd know, I guess.",
@@ -9490,9 +9548,10 @@
      },
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
-       "text": "God damn it, Rufe, set it down like you paid for it!",
+       "text": "God damn it, Rufe, *set it down like you paid for it!",
        "status": "new"
       }
      ],
@@ -9510,6 +9569,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I did pay for it!",
@@ -9530,6 +9591,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "You paid for the whiskey. Them glasses come up from Denver in straw, and half of 'em don't come.",
@@ -9550,6 +9613,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "laughing",
+     "tag": "laughing",
      "words": [
       {
        "text": "I've throwed better glasses than that at a mule! In Santa Fe, this was, the mule had got into...",
@@ -9597,6 +9661,7 @@
      },
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Fellow got down off the noon train with a saddle and no trunk. That's worth a short one.",
@@ -9637,6 +9702,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Texas rig, double cinch. Went up to the hotel and never looked at nobody.",
@@ -9677,6 +9743,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I never followed him in! I got freight to carry, I can't be following every man with a saddle!",
@@ -9724,6 +9792,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "You're an hour over every one, Don Anselmo. I could have had three men at that piece of rail.",
@@ -9834,6 +9904,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "No. Only the creek below it, it used to come up to my knee. Now it's here. My ankle.",
@@ -9884,6 +9955,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Hey! Hey, Mexican! What's wool fetching?",
@@ -9904,6 +9977,8 @@
      "when": "19:00 to 03:00, once only",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Twenty-two cents. My name is Gallegos, Mr. Mapes.",
@@ -9924,6 +9999,7 @@
      "when": "19:00 to 03:00, once only",
      "condition": "",
      "delivery": "mocking",
+     "tag": "mocking",
      "words": [
       {
        "text": "I hear a heap of things. I disremember the most of 'em.",
@@ -9944,6 +10020,8 @@
      "when": "19:00 to 03:00, once only",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "Rufe.",
@@ -9964,6 +10042,8 @@
      "when": "19:00 to 03:00, once only",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "What? I only asked the man about wool!",
@@ -10031,6 +10111,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "I had a faro dealer told me that. We put him up the hill inside the year.",
@@ -10138,6 +10220,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Loveday, and the maid. Maid were six when I come away. She's seventeen now, and writes a better hand than her mother.",
@@ -10265,6 +10348,8 @@
      "when": "20:00 to 20:36",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Who for?",
@@ -10312,6 +10397,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "What're you looking at, Colby?",
@@ -10352,6 +10439,8 @@
      "when": "20:00 to 20:36",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I ain't sick!",
@@ -10392,6 +10481,8 @@
      "when": "20:00 to 20:36",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "You seen him, Jory. He was looking right at me. I don't care for it, a man in that trade.",
@@ -10479,6 +10570,7 @@
      "when": "20:00 to 20:36",
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "What's the difference to a man?",
@@ -10526,6 +10618,8 @@
      },
      "condition": "",
      "delivery": "tired",
+     "tag": "sad",
+     "strength": 0.6,
      "words": [
       {
        "text": "He's had six and he's showing me a picture of his mother.",
@@ -10566,6 +10660,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "She's a hard-looking woman, is what. And he wants me to say she's not.",
@@ -10586,6 +10682,7 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Fellow by the window's got nobody with him.",
@@ -10606,6 +10703,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "tired",
+     "tag": "sad",
+     "strength": 0.6,
      "words": [
       {
        "text": "I saw him. Let me stand here a while first.",
@@ -10633,6 +10732,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Hold eight back for the first. Same as always.",
@@ -10673,6 +10773,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "It's wrote in your book where it goes. You needn't say it out across the bar.",
@@ -10693,6 +10795,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I never said a thing but the town.",
@@ -10720,6 +10824,7 @@
      },
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Stand me one, Jory, and I'll tell you what Hollis's wife said about the widow Rudd.",
@@ -10760,6 +10865,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Well, that's how come you'd want to know!",
@@ -10807,6 +10914,7 @@
      },
      "condition": "",
      "delivery": "proud",
+     "tag": "proud",
      "words": [
       {
        "text": "Twelve yoke I had. Twelve! Over Mosquito Pass in the snow, and never lost a sack.",
@@ -10847,6 +10955,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
        "text": "Butcher's got the last of 'em. Railroad done that. I went down to the agent and I told him what I thought of his cars, to his face!",
@@ -10867,6 +10976,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "What'd he say to that?",
@@ -10887,6 +10998,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "He never heard me. He was inside.",
@@ -10915,6 +11027,7 @@
      },
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Mine paid at noon?",
@@ -10955,6 +11068,8 @@
      "when": "18:00 to 03:00, a payday",
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "And the rest?",
@@ -11003,6 +11118,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "They docked you for candles again! I wouldn't stand for it, not me!",
@@ -11043,6 +11160,8 @@
      "when": "18:00 to 03:00, a payday",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "That's robbery!",
@@ -11091,6 +11210,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Preacher's gone by twice. Slow, both times.",
@@ -11111,6 +11232,8 @@
      "when": "18:00 to 03:00, a payday",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "He's counting your shutters.",
@@ -11131,6 +11254,7 @@
      "when": "18:00 to 03:00, a payday",
      "condition": "",
      "delivery": "proud",
+     "tag": "proud",
      "words": [
       {
        "text": "Eleven. He can count till dark, they're paid for.",
@@ -11181,6 +11305,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Road agents. I said it this morning. Man rides that East Road alone before light...",
@@ -11202,6 +11328,8 @@
      "when": "19:00 to 03:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "He's ridden that road since before you came, Mr. Mapes. Every court day.",
@@ -11223,6 +11351,8 @@
      "when": "19:00 to 03:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Then it's Utes.",
@@ -11244,6 +11374,8 @@
      "when": "19:00 to 03:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Did you see a Ute? I didn't. I saw nobody, I was with my sheep.",
@@ -11296,6 +11428,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Four dollars he owed me. Who do I ask for it? The county?",
@@ -11317,6 +11451,8 @@
      "when": "19:00 to 03:00, after Earl is killed",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Ask Cody.",
@@ -11338,6 +11474,7 @@
      "when": "19:00 to 03:00, after Earl is killed",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Jesus, Jory. Not so loud, he's got friends drink in here.",
@@ -11391,6 +11528,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I'll shut for the burying. Two hours, and it's a weekday.",
@@ -11412,6 +11551,7 @@
      "when": "19:00 to 03:00, after the sheriff has died, before the burying",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "He took up that claim in 'sixty-eight. I rode over the first week to see who it was.",
@@ -11454,6 +11594,7 @@
      "when": "19:00 to 03:00, after the sheriff has died, before the burying",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "You did. Two hours is good. It's a long walk up that hill.",
@@ -11485,6 +11626,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "A farmer! Doc's swore in a farmer for deputy!",
@@ -11527,6 +11670,8 @@
      "when": "19:00 to 03:00, once the deputy is sworn",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I'd have took it, if I was asked!",
@@ -11583,6 +11728,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Don't look round. That deputy's come in.",
@@ -11625,6 +11771,7 @@
      "when": "19:00 to 03:00, once the deputy is sworn, the speaker cold or afraid to the deputy",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "What's he want in here?",
@@ -11646,6 +11793,7 @@
      "when": "19:00 to 03:00, once the deputy is sworn, the speaker cold or afraid to the deputy",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "A drink, maybe. Hush up, Rufe, he ain't deaf.",
@@ -11680,6 +11828,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "That's the deputy come in.",
@@ -11743,6 +11892,8 @@
      "when": "19:00 to 03:00, once the deputy is sworn, the speaker warm to the deputy",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "He'll think it's me.",
@@ -11792,6 +11943,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Creek's down again. My well's fourteen foot to water, and it was ten.",
@@ -11812,6 +11965,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "My acequia's a hand deep at noon. When I was a boy it was over my head. We lost my brother in it.",
@@ -11832,6 +11986,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Drowned?",
@@ -11899,6 +12055,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Whiskey's up a dollar ten the barrel since the cars. They told me the cars'd bring it down.",
@@ -11939,6 +12097,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "They all got a paper.",
@@ -11966,6 +12126,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "My younger boy wants to go on the railroad. A brakeman.",
@@ -12133,6 +12294,7 @@
      "when": "23:30 to 01:00",
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Get him?",
@@ -12220,6 +12382,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Share it! We never met. He's in it days and I'm in it nights. I know him by his boots under it.",
@@ -12240,6 +12404,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "She charge the both of you?",
@@ -12307,9 +12472,11 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
-       "text": "It's the same barrel as yesterday.",
+       "text": "It's the *same barrel as yesterday.",
        "status": "new"
       }
      ],
@@ -12347,6 +12514,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
        "text": "Somebody's been at it with a dipper, then, and by God it ain't me. I'll sleep down here tonight.",
@@ -12394,6 +12562,8 @@
      "when": "21:00 to 03:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Then I'll take my trade down to the Railroad Saloon!",
@@ -12434,6 +12604,8 @@
      "when": "21:00 to 03:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "They got forty-rod at a nickel!",
@@ -12481,6 +12653,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Kitty! Come sit by a man that's been somewhere.",
@@ -12501,6 +12675,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "It's four bits, Rufe. Have you got it?",
@@ -12521,6 +12697,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Put it on the slate!",
@@ -12541,6 +12719,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "Ask himself, so. I'll wait here while you do.",
@@ -12568,6 +12748,8 @@
      },
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "You'd not buy a lady a drink, Jory?",
@@ -12608,6 +12790,7 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "laughing",
+     "tag": "laughing",
      "words": [
       {
        "text": "It is, and he gets three parts of the money.",
@@ -12628,6 +12811,7 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Then here. That's for you. Put it away before he looks round.",
@@ -12655,6 +12839,8 @@
      },
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "Don Anselmo. You'll want nothing from me, same as ever.",
@@ -12695,6 +12881,8 @@
      "when": "22:00 to 03:00",
      "condition": "",
      "delivery": "tired",
+     "tag": "sad",
+     "strength": 0.6,
      "words": [
       {
        "text": "My feet aren't. The rest of me's grand.",
@@ -12782,6 +12970,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "So now they haul it up from the creek, two barrels a day.",
@@ -12849,6 +13039,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Professor wants a tuner up from Denver. Twelve dollars and his fare.",
@@ -12956,6 +13148,8 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "Who says?",
@@ -12996,6 +13190,7 @@
      "when": "19:00 to 03:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "It wasn't heavy. And don't you go telling that round, I got a name in this town.",
@@ -13024,6 +13219,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Quiet tonight.",
@@ -13064,6 +13261,8 @@
      "when": "19:00 to 03:00, the day after a shooting",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "She don't sell drink.",
@@ -13112,6 +13311,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I seen the whole of it! I was no further than from here to that post.",
@@ -13152,6 +13353,8 @@
      "when": "19:00 to 03:00, the day after a shooting",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Well, a man can see from behind a trough!",
@@ -13224,6 +13427,7 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Earl takes a dollar off you every time he deals.",
@@ -13293,6 +13497,8 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "I got a nickel. I was working up to it.",
@@ -13313,6 +13519,8 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "Work up to it off the varnish. That top come from St. Louis.",
@@ -13333,6 +13541,8 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Beer, then. Slow as you like.",
@@ -13360,6 +13570,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "You wouldn't want a lot? Fifty feet on Main. The west end.",
@@ -13400,6 +13611,8 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "The company may yet see reason. I calculate... a siding, at the least.",
@@ -13420,6 +13633,7 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "What'd you give for 'em?",
@@ -13440,6 +13654,7 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I'd as soon not say it in here.",
@@ -13467,6 +13682,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I carried nine loads for Hollis this week and he paid me for seven!",
@@ -13507,6 +13724,7 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "...I had.",
@@ -13534,6 +13752,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I had it at the depot that they're laying off a shift at the mine.",
@@ -13574,6 +13793,7 @@
      "when": "10:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "A drummer. In hardware.",
@@ -13641,6 +13861,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I swept this floor! Every board of it!",
@@ -13681,6 +13903,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
        "text": "A sutler's clerk. Putting out a sergeant.",
@@ -13728,6 +13952,8 @@
      "when": "19:30 to 21:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I know the bottle. Ain't another man in the county would drink it.",
@@ -13768,6 +13994,7 @@
      "when": "19:30 to 21:00",
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "What's in the paper?",
@@ -13826,6 +14053,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Cars'll run clear to the mine by spring, Amos. And who hires a team after that?",
@@ -13866,6 +14095,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Every one wants a horse for a dollar and fetches him back lame.",
@@ -13906,6 +14137,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "The roan. He's standing on three legs this minute.",
@@ -13953,6 +14186,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "And who hauled it at ten? Men that et at your counter and stabled with me.",
@@ -13993,6 +14228,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "He did. He did do that. ...I ain't saying the cars is all bad.",
@@ -14040,6 +14277,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I know about the lamp oil.",
@@ -14080,6 +14319,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "It's a long way to bring a man to tell him Saturday.",
@@ -14107,6 +14348,8 @@
      },
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
        "text": "This one's mine to stand.",
@@ -14147,9 +14390,10 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
-       "text": "You stood last night!",
+       "text": "You *stood last night!",
        "status": "new"
       }
      ],
@@ -14187,6 +14431,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Put me down. I never in my life.",
@@ -14214,6 +14460,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Four shoes I owe Stroud for. Since August.",
@@ -14254,6 +14502,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "He ain't said ary word. Stands there looking at his iron.",
@@ -14294,6 +14544,7 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
        "text": "I mean to pay him! That ain't what I'm telling you.",
@@ -14321,6 +14572,8 @@
      },
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "I added the book again this evening.",
@@ -14341,9 +14594,11 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
-       "text": "Quit adding it.",
+       "text": "*Quit adding it.",
        "status": "new"
       }
      ],
@@ -14361,6 +14616,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "The single men pay. It's the ones with families run behind, and I can't... there's a woman comes in for cornmeal, Hiram.",
@@ -14381,6 +14638,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Then you'll carry her, same as last winter. Drink that.",
@@ -14428,6 +14687,7 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Lavinia drops it behind me. I knock three and one and she lifts it.",
@@ -14448,6 +14708,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Three and one.",
@@ -14468,6 +14730,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Don't say it over, Hiram.",
@@ -14495,6 +14759,8 @@
      },
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "Mr. Hollis. Your wife sold me a card of buttons today and never once looked at me.",
@@ -14515,6 +14781,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "She... I'm sure she meant nothing by it.",
@@ -14535,6 +14803,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "tired",
+     "tag": "sad",
+     "strength": 0.6,
      "words": [
       {
        "text": "Ah, she did. It's no matter, Mr. Hollis, I've the buttons.",
@@ -14562,6 +14832,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Is Wiley eating, Hiram?",
@@ -14582,6 +14853,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "There's bread goes missing off the feed bin. I ain't looked into it.",
@@ -14602,6 +14875,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "You leave it there for him.",
@@ -14622,6 +14897,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
        "text": "I set it down and forget it. I'm an old man. Leave me be.",
@@ -14649,6 +14926,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Ranch crowd rode in six strong today and tied at the rail. Not a nickel's hay amongst 'em.",
@@ -14712,6 +14991,7 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Goods.",
@@ -14754,6 +15034,7 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I'd as soon not, Hiram. How's the roan?",
@@ -14842,6 +15123,8 @@
      "when": "21:00 to 21:30",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Go on, then. Mind the hole by the trough, I near went in it.",
@@ -14869,6 +15152,7 @@
      },
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Watch the Professor when I say 'Mrs. Rudd'. ...There. Did you hear that?",
@@ -14889,6 +15173,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "He's dropped a note.",
@@ -14909,6 +15195,7 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "laughing",
+     "tag": "laughing",
      "words": [
       {
        "text": "He mends her organ Sundays and eats in the kitchen for it.",
@@ -14949,6 +15236,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "Ah, sure. I wouldn't say it to him.",
@@ -14977,6 +15266,7 @@
      },
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "Two tonight?",
@@ -15017,6 +15307,8 @@
      "when": "19:00 to 22:00, a payday",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Every horse I own went out this morning. I ain't been round the stalls yet to see what come back.",
@@ -15064,6 +15356,7 @@
      },
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
        "text": "Mapes laid a whip on a team outside my door today. Hired team.",
@@ -15104,6 +15397,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I know whose freight he carries. That near mule won't stand to be harnessed now for a week. I'll be the one gets kicked.",
@@ -15155,6 +15450,7 @@
      "when": "19:00 to 22:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Lavinia said go. She said sit where I always sit.",
@@ -15176,6 +15472,8 @@
      "when": "19:00 to 22:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "She's the sense of the two of you.",
@@ -15197,6 +15495,7 @@
      "when": "19:00 to 22:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I had my store cleaned out twice at Boonville, Hiram. I stood there. I held the door for one of 'em.",
@@ -15228,6 +15527,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Sheriff's horse is eating my oats, and the man that owned him's gone.",
@@ -15270,6 +15571,8 @@
      "when": "19:00 to 22:00, after the sheriff has died",
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
        "text": "I ain't putting it to nobody. Somebody ought to take him home to her.",
@@ -15301,6 +15604,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "You're light tonight, Wiley.",
@@ -15322,6 +15627,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "I got a dollar and it's to see me to Sunday.",
@@ -15343,6 +15650,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "placating",
+     "tag": "pleading",
+     "strength": 0.6,
      "words": [
       {
        "text": "Dimes, then. We'll play for dimes, I don't mind it.",
@@ -15395,6 +15704,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "placating",
+     "tag": "pleading",
+     "strength": 0.6,
      "words": [
       {
        "text": "Now, Wiley. Have I ever...",
@@ -15416,6 +15727,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Twice last night. I let it go by.",
@@ -15437,6 +15750,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "placating",
+     "tag": "pleading",
+     "strength": 0.6,
      "words": [
       {
        "text": "Well. Well, there, you cut them. Go on. Cut them yourself.",
@@ -15468,6 +15783,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "What come of your saddle, anyhow?",
@@ -15531,6 +15848,7 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Ask me about something else, Earl.",
@@ -15552,6 +15870,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "placating",
+     "tag": "pleading",
+     "strength": 0.6,
      "words": [
       {
        "text": "I'm sorry. I'm sorry, I only... It's your deal.",
@@ -15583,6 +15903,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Baron's outfit's hiring. Sixty a month.",
@@ -15604,6 +15925,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Sixty! For riding?",
@@ -15625,6 +15948,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "They don't ask can you rope.",
@@ -15646,6 +15971,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "What do they ask?",
@@ -15740,6 +16067,8 @@
      "when": "19:00 to 03:00, before Earl is killed",
      "condition": "",
      "delivery": "placating",
+     "tag": "pleading",
+     "strength": 0.6,
      "words": [
       {
        "text": "I left the dime on the bar anyhow. He looked at it a good while.",
@@ -15779,6 +16108,8 @@
      },
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "It is in G, Mr. Stiles. It's printed in G.",
@@ -15819,6 +16150,8 @@
      "when": "19:00 to 01:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
        "text": "Then play it in A. Play it in A, I'll find you.",
@@ -15846,6 +16179,8 @@
      },
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "The C above middle is stuck again. It's the damp. I told him, and he asked me what a new one costs.",
@@ -15866,6 +16201,8 @@
      "when": "19:00 to 01:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "What's it cost?",
@@ -15886,9 +16223,11 @@
      "when": "19:00 to 01:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
-       "text": "It isn't sold by the note!",
+       "text": "It isn't sold by the *note!",
        "status": "new"
       }
      ],
@@ -15933,6 +16272,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "In Leadville the house had a Steinway.",
@@ -15973,6 +16313,7 @@
      "when": "19:00 to 01:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "A man was shot against it. They had me play it the same night, they didn't even...",
@@ -15993,6 +16334,8 @@
      "when": "19:00 to 01:00",
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Gus. Give me 'Soldier's Joy'. Look at your hands, not the door.",
@@ -16020,6 +16363,8 @@
      },
      "condition": "",
      "delivery": "tired",
+     "tag": "sad",
+     "strength": 0.6,
      "words": [
       {
        "text": "'The Rose of Tralee', Uncle Lem. The room's thin.",
@@ -16040,6 +16385,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "I can find it.",
@@ -16060,6 +16407,8 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "I haven't the music for that.",
@@ -16107,6 +16456,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Give us 'Dixie', Johnny! Go on!",
@@ -16147,9 +16498,10 @@
      "when": "19:00 to 22:00",
      "condition": "",
      "delivery": "mocking",
+     "tag": "mocking",
      "words": [
       {
-       "text": "You play it like you was sawing a rail!",
+       "text": "You play it like you was sawing a *rail!",
        "status": "new"
       }
      ],
@@ -16205,6 +16557,8 @@
      },
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Up the step gentle, Mr. Mapes. That's two hundred pound of flour.",
@@ -16225,6 +16579,8 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I been carrying flour since before you had a step!",
@@ -16265,6 +16621,8 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Fourteen! Count the wagon too, there's one on the wagon!",
@@ -16292,9 +16650,10 @@
      },
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
-       "text": "You shorted me two loads in August and I'll say it in front of anybody!",
+       "text": "You shorted me *two loads in August and I'll say it in front of anybody!",
        "status": "new"
       }
      ],
@@ -16332,6 +16691,8 @@
      "when": "08:00 to 18:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Nine!",
@@ -16372,6 +16733,7 @@
      "when": "08:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I ain't coming in to read no book.",
@@ -16466,6 +16828,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "A collar, Mrs. Hollis. Only the collar.",
@@ -16506,6 +16869,8 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "There's a gentleman coming to look at a lot. He wrote that he might.",
@@ -16553,6 +16918,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I ain't drunk, missus. I'm resting.",
@@ -16593,6 +16960,8 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I never said a word a child couldn't hear!",
@@ -16613,6 +16982,8 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "You said two. I'll thank you to take them down the street.",
@@ -16640,6 +17011,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Trade brisk, Mr. Hollis? I ask as one man of business to another.",
@@ -16680,6 +17053,8 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Ah.",
@@ -16727,6 +17102,7 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "The time for what, ma'am?",
@@ -16767,6 +17143,8 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Ought I to say who it's from? Only so that I...",
@@ -16787,6 +17165,8 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "You ought to say what I said, Mr. Peck.",
@@ -16817,6 +17197,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "She came in herself for the crape. Two yards. I'd have carried it out to her.",
@@ -16859,6 +17240,8 @@
      "when": "07:00 to 18:00, after the sheriff has died",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I did not, Amos.",
@@ -16880,6 +17263,7 @@
      "when": "07:00 to 18:00, after the sheriff has died",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "...No. No, that's right.",
@@ -16908,6 +17292,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Sit down, Peck, I'll tell you a thing. Section boss was put off the noon train. By the conductor! For drink!",
@@ -16928,6 +17314,7 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Who told you so?",
@@ -16948,6 +17335,8 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I seen it! I was on the platform. Well, I was by the platform.",
@@ -16968,6 +17357,8 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Which conductor? The stout one? ...I ask because I had it otherwise from the hotel.",
@@ -16995,6 +17386,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Peck here says the Baron's man's been down at the land office!",
@@ -17016,6 +17409,7 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "A drummer said it. Not so loud, Mr. Mapes.",
@@ -17037,6 +17431,8 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Asking after lots on the creek side! That's what you told me!",
@@ -17058,6 +17454,8 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "I told it to you.",
@@ -17079,6 +17477,7 @@
      "when": "09:00 to 18:00",
      "condition": "",
      "delivery": "proud",
+     "tag": "proud",
      "words": [
       {
        "text": "Well, and now they got it too.",
@@ -17147,6 +17546,8 @@
      "when": "13:00 to 17:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "You needn't print the red, Mr. Bérubé. Only what it says.",
@@ -17167,6 +17568,8 @@
      "when": "13:00 to 17:00",
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Tommy has 'their' wrong again. I think I'll leave it. His mother cuts them out, she'll want it how he wrote it.",
@@ -17205,6 +17608,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Mr. Peck. I had you in the second row Sunday.",
@@ -17225,6 +17630,7 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "A man of business ought to be seen, Reverend.",
@@ -17265,6 +17671,8 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "I have some handbills, Reverend, if you'd leave a few by the door.",
@@ -17292,6 +17700,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Nine on Sunday, Mr. Hollis, and four of them came in with your wife. Tell her I said so.",
@@ -17352,6 +17762,8 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "It came to a dollar ninety. Was that what you made it?",
@@ -17379,6 +17791,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "I never thanked you rightly for that stove, Mr. Mapes.",
@@ -17399,6 +17813,7 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "You thanked me. Leave it lay, Reverend.",
@@ -17439,6 +17854,8 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
        "text": "I got a sore head Sundays.",
@@ -17459,6 +17876,8 @@
      "when": "08:00 to 10:00",
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Bring it along. I've preached to worse.",
@@ -17486,6 +17905,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "That one's off the section gang. He'll have been paid Thursday. Look at his boots.",
@@ -17506,6 +17926,8 @@
      "when": "17:00 to 19:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I had boots like them in Santa Fe!",
@@ -17526,6 +17948,8 @@
      "when": "17:00 to 19:00",
      "condition": "",
      "delivery": "tired",
+     "tag": "sad",
+     "strength": 0.6,
      "words": [
       {
        "text": "Go in, Rufe. You're standing in my light.",
@@ -17553,6 +17977,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Evening, Kitty.",
@@ -17573,6 +17999,8 @@
      "when": "16:00 to 19:00",
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "Wiley. You've had that cigarette behind your ear since Monday.",
@@ -17593,6 +18021,8 @@
      "when": "16:00 to 19:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "I'm saving it.",
@@ -17613,6 +18043,8 @@
      "when": "16:00 to 19:00",
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "For what?",
@@ -17633,6 +18065,7 @@
      "when": "16:00 to 19:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I ain't settled that. Something good.",
@@ -17660,6 +18093,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "You there! You been holding that post up since breakfast.",
@@ -17680,6 +18115,8 @@
      "when": "10:00 to 17:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "It ain't complained.",
@@ -17700,6 +18137,8 @@
      "when": "10:00 to 17:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I carried nine loads before you was awake!",
@@ -17720,6 +18159,8 @@
      "when": "10:00 to 17:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "I was awake. I heard every one.",
@@ -17767,6 +18208,7 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "It's nothing. The hotel's beds.",
@@ -17807,6 +18249,8 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "I have an engagement at four. I may have.",
@@ -17837,6 +18281,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Doctor, a word. Is it true what's being said about the sheriff?",
@@ -17879,6 +18324,7 @@
      "when": "07:00 to 18:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I had it from Mapes, who had it from the boy...",
@@ -17900,6 +18346,8 @@
      "when": "07:00 to 18:00, while the sheriff lies shot at the doctor's",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "He's my patient, Mr. Peck, and I've been up since three. Good morning.",
@@ -18113,6 +18561,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Fork the far stalls first. They been standing in it.",
@@ -18133,6 +18583,8 @@
      "when": "05:00 to 10:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Forty forkfuls buys me the loft. That's what you said.",
@@ -18173,6 +18625,8 @@
      "when": "05:00 to 10:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "I figured it would.",
@@ -18200,6 +18654,8 @@
      },
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
        "text": "Man from the J-Bar was in asking for a hand. Forty and found.",
@@ -18260,6 +18716,8 @@
      "when": "05:00 to 18:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "Well. That's that.",
@@ -18280,6 +18738,8 @@
      "when": "05:00 to 18:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "There's an old Morgan tree in the harness room. Horn's cracked. I been meaning to burn it.",
@@ -18300,6 +18760,7 @@
      "when": "05:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Don't burn it yet.",
@@ -18347,6 +18808,8 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "So you keep telling me.",
@@ -18387,6 +18850,7 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I'd be no good to you. I'd hear a horse go by and set the hammer down.",
@@ -18434,6 +18898,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "A buggy, Friday, should my gentleman come. I'd settle after.",
@@ -18474,6 +18939,8 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "After the sale.",
@@ -18494,6 +18961,8 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Dollar a day, paid before. And the mare's got a splint coming, so you'll walk her.",
@@ -18514,6 +18983,7 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I see. Yes. I'll send word.",
@@ -18541,6 +19011,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "A mule! I wouldn't give you one yoke of oxen for a barn full of mules.",
@@ -18561,6 +19033,8 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Nobody's asked for an ox in this town since the cars come.",
@@ -18581,6 +19055,7 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "proud",
+     "tag": "proud",
      "words": [
       {
        "text": "An ox don't spook, and you can eat him after!",
@@ -18601,9 +19076,11 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "sharp",
+     "tag": "angry",
+     "strength": 0.7,
      "words": [
       {
-       "text": "Get off my bench.",
+       "text": "Get off my *bench.",
        "status": "new"
       }
      ],
@@ -18648,6 +19125,7 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "angry",
+     "tag": "angry",
      "words": [
       {
        "text": "I get that off Hollis every night of my life. Flour's down, oil's down, iron's down.",
@@ -18688,6 +19166,8 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "No. I didn't think they would be.",
@@ -18715,6 +19195,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "A mule'll go where an ox won't, and you know it. You drove 'em.",
@@ -18735,6 +19217,8 @@
      "when": "13:00 to 17:00",
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "I drove six of 'em into the river at Pittsburg Landing, and they went, and I ain't forgive a one!",
@@ -18775,9 +19259,10 @@
      "when": "13:00 to 17:00",
      "condition": "",
      "delivery": "mocking",
+     "tag": "mocking",
      "words": [
       {
-       "text": "That was General Buell's driving! I only had the lines.",
+       "text": "That was General *Buell's driving! I only had the lines.",
        "status": "new"
       }
      ],
@@ -18813,6 +19298,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "That's a heap of iron for one shop.",
@@ -18920,6 +19407,8 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I know it. I had my hand down that leg this morning.",
@@ -18960,6 +19449,8 @@
      "when": "13:00 to 18:00",
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I owe you for four already.",
@@ -19038,6 +19529,7 @@
      "when": "06:00 to 20:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Not on the porch, Mrs. Rudd, please.",
@@ -19078,6 +19570,8 @@
      "when": "06:00 to 20:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "There's a gentleman writing from Pueblo...",
@@ -19125,6 +19619,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I had it from the depot that the noon train was nine minutes down.",
@@ -19165,6 +19660,8 @@
      "when": "06:00 to 20:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Did he say why it was down?",
@@ -19212,6 +19709,7 @@
      },
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "I happened to notice your Mr. Vogel buying peppermints again.",
@@ -19252,6 +19750,8 @@
      "when": "15:00 to 18:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "A quarter pound. It is a great many peppermints for one man.",
@@ -19272,6 +19772,8 @@
      "when": "15:00 to 18:00",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I guess he likes them. I don't go through his pockets.",
@@ -19319,6 +19821,8 @@
      "when": "15:00 to 18:00",
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "I had not.",
@@ -19446,6 +19950,8 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "He comes home smelling of that carbolic.",
@@ -19486,6 +19992,7 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I know it.",
@@ -19533,6 +20040,8 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "No, ma'am. I was fixing to move along directly.",
@@ -19573,6 +20082,7 @@
      "when": "07:00 to 18:00",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "Yesterday.",
@@ -19660,6 +20170,7 @@
      "when": "06:00 to 20:00",
      "condition": "",
      "delivery": "proud",
+     "tag": "proud",
      "words": [
       {
        "text": "It was the Denver wire, Ma, it come right through my hand...",
@@ -19715,6 +20226,7 @@
      },
      "condition": "",
      "delivery": "proud",
+     "tag": "proud",
      "words": [
       {
        "text": "Twelve this morning, Mrs. Hollis. I counted twice.",
@@ -19755,6 +20267,8 @@
      "when": "a Sunday",
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "He was in the house. I'm counting him.",
@@ -19862,6 +20376,8 @@
      "when": "a Sunday",
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "You think I oughtn't.",
@@ -19908,6 +20424,7 @@
      },
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "The back bench again, Mr. Hollis. A man of your standing ought to come forward.",
@@ -19948,6 +20465,8 @@
      "when": "a Sunday",
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "One is so little seen, at the back.",
@@ -19992,6 +20511,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Good morning, Sergeant.",
@@ -20012,9 +20533,11 @@
      "when": "a Sunday",
      "condition": "",
      "delivery": "gruff",
+     "tag": "angry",
+     "strength": 0.6,
      "words": [
       {
-       "text": "It ain't Sergeant. Ain't been since 'sixty-three.",
+       "text": "It ain't *Sergeant. Ain't been since 'sixty-three.",
        "status": "new"
       }
      ],
@@ -20052,6 +20575,7 @@
      "when": "a Sunday",
      "condition": "",
      "delivery": "low",
+     "tag": "low",
      "words": [
       {
        "text": "I can hear Watts from the step.",
@@ -20200,6 +20724,8 @@
      },
      "condition": "",
      "delivery": "warm",
+     "tag": "laughing",
+     "strength": 0.35,
      "words": [
       {
        "text": "Deputy. Come in on this, we can't settle it.",
@@ -20248,6 +20774,8 @@
      },
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Was there something?",
@@ -20272,6 +20800,8 @@
      },
      "condition": "",
      "delivery": "uneasy",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "It wasn't about you, mister. It was about a horse.",
@@ -20295,6 +20825,8 @@
      },
      "condition": "",
      "delivery": "cold",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "Was there something you wanted?",
@@ -20318,6 +20850,7 @@
      },
      "condition": "",
      "delivery": "sly",
+     "tag": "sly",
      "words": [
       {
        "text": "You want a drink, I'm right here.",
@@ -20341,6 +20874,8 @@
      },
      "condition": "",
      "delivery": "loud",
+     "tag": "proud",
+     "strength": 0.6,
      "words": [
       {
        "text": "Pull up, mister, you'll want to hear this!",
@@ -20364,6 +20899,8 @@
      },
      "condition": "",
      "delivery": "teasing",
+     "tag": "mocking",
+     "strength": 0.7,
      "words": [
       {
        "text": "Are you buying, or only looking?",
@@ -20387,6 +20924,8 @@
      },
      "condition": "",
      "delivery": "grumbling",
+     "tag": "angry",
+     "strength": 0.4,
      "words": [
       {
        "text": "You want a horse, say so.",
@@ -20433,6 +20972,8 @@
      },
      "condition": "",
      "delivery": "worried",
+     "tag": "scared",
+     "strength": 0.5,
      "words": [
       {
        "text": "Something I can get you?",
@@ -20456,6 +20997,8 @@
      },
      "condition": "",
      "delivery": "dry",
+     "tag": "sly",
+     "strength": 0.6,
      "words": [
       {
        "text": "You looking for somebody, mister?",

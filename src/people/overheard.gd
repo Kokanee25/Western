@@ -288,7 +288,7 @@ func _advance(now: float) -> void:
 				man.face(to.global_position + Vector3.UP * 1.5)
 				to.face(man.global_position + Vector3.UP * 1.5)
 			_out.append([man, text, {"exchange": String(ex.id), "line": String(l.id), "delivery": String(l.delivery),
-					"to": to, "place": String(ex.place), "r": r}])
+					"tag": TownScript.tag_of(String(l.id))[0], "to": to, "place": String(ex.place), "r": r}])
 			r.said = int(r.said) + 1
 			folk.heard.append([String(l.who), String(l.id), text])
 		r.i = int(r.i) + 1

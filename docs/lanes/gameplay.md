@@ -34,12 +34,14 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (#1230: `set.hall`, `_bind_hall_set`, ways `saloonb_*`). Facts still say "yard" (`nolaw.seen_from`,
   `nolaw.earl_died`). Open: the room's sounds are synth stand-ins (#807); react.fight*, body_child, kett.meal
   untriggered; nobody carries the body. A spot's `hall` is its building for the barks (#1240).
-- **Things to listen to** (#1293; LAYOUT "src/people" Overheard; data `overheard`; `tests/test_overheard.gd`; bench
-  `experiments/overheard/`): men stood together hold exchanges of the town's script (scenes `heard.*`, 115, cast by
-  person, tagged by place; 20 `story` ones wait on Sean's OK on the People board), heard by distance and walls on their
-  own subtitle line, not twice a night, cut by a shot or your shout; the card table's between hands. Open: by day the
-  street's men are seldom within 8 m of each other, so its exchanges rarely play; no Sunday at the church; the drunk, the
-  editor and Caleb have exchanges but no day; `delivery` is carried for #1316's gestures, unused; unjudged on screen.
+- **Things to listen to** (#1293; LAYOUT "src/people" Overheard; `test_overheard`; `experiments/overheard/`): exchanges of
+  the town's script (`heard.*`; 20 `story` ones wait on Sean's OK on the People board), heard by distance and walls.
+  Open: by day the street's men seldom stand within 8 m, so its exchanges rarely play; no Sunday at the church; the
+  drunk, the editor and Caleb have exchanges but no day; unjudged on screen.
+- **Lines with the face and body** (#1316; LAYOUT "src/bodies" LineGesture; `config/delivery.json`; `test_line_gesture`;
+  `experiments/line_gestures/`): a tag a line (town.json `tag`, `*` beat), his face and a gesture on the beat over his
+  chore (`gesture_offsets`, `hand_busy`), listeners answer, Sarge steady. Open: mission lines (`config/moments/`)
+  untagged; recorded gestures wait on Sean (#1333); MetaHuman shapes (#692); unjudged in the game's look.
 - **Every verb gets an answer** (DESIGN §2 pillar 6; #1272, #1279 the card table): bench `experiments/answers/`.
   Still flat: standing close (nothing), the barkeep's "Don't shoot!" over and over.
 - **The real card game** (#1294; LAYOUT CardGame "The real game", PlayerCards; `tests/test_card_play.gd`): an 1880s

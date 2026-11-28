@@ -1,0 +1,267 @@
+{
+ "cmd": "lg_stop",
+ "lines": [
+  {
+   "d": 20.4,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 115.7,
+     "body": 21.7,
+     "face": 0.0,
+     "head": 44.0,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 68.3,
+    "body": 10.8,
+    "face": 0.0,
+    "head": 29.5,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "calm",
+   "text": "Beer's warm. Ice wagon never came.",
+   "who": "barkeep"
+  },
+  {
+   "d": 16.5,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 25.6,
+     "body": 7.4,
+     "face": 0.0,
+     "head": 0.7,
+     "shape": "",
+     "who": "barkeep"
+    }
+   ],
+   "speaker": {
+    "arms": 136.0,
+    "body": 16.1,
+    "face": 0.0,
+    "head": 40.1,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "Might be, might be.",
+   "who": "miner"
+  },
+  {
+   "d": 10.7,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 90.5,
+     "body": 6.5,
+     "face": 0.0,
+     "head": 34.9,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 30.5,
+    "body": 9.6,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "calm",
+   "text": "Church roof wants fixing before the snow.",
+   "who": "barkeep"
+  },
+  {
+   "d": 10.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 20.8,
+     "body": 6.5,
+     "face": 0.0,
+     "head": 1.0,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 125.5,
+     "body": 9.3,
+     "face": 0.0,
+     "head": 45.9,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 128.5,
+    "body": 7.4,
+    "face": 0.0,
+    "head": 39.9,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "I heard different.",
+   "who": "miner"
+  },
+  {
+   "d": 22.3,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 77.6,
+     "body": 10.9,
+     "face": 0.0,
+     "head": 28.7,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 126.1,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 30.7,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 179.6,
+    "body": 8.5,
+    "face": 0.0,
+    "head": 40.9,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "laughing",
+   "text": "Look what the wind blew in.",
+   "who": "miner"
+  },
+  {
+   "d": 0.9,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [],
+   "speaker": {
+    "arms": 115.9,
+    "body": 9.2,
+    "face": 0.0,
+    "head": 143.2,
+    "shape": "",
+    "who": "smith"
+   },
+   "tag": "calm",
+   "text": "Stand off the anvil. I don't want to burn you.",
+   "who": "smith"
+  },
+  {
+   "d": 89.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 76.8,
+     "body": 7.4,
+     "face": 0.0,
+     "head": 22.6,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 129.4,
+     "body": 6.6,
+     "face": 0.0,
+     "head": 5.0,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 18.2,
+    "body": 15.1,
+    "face": 0.0,
+    "head": 0.0,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "Night, all.",
+   "who": "miner"
+  },
+  {
+   "d": 88.5,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 94.3,
+     "body": 7.2,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 23.3,
+    "body": 9.7,
+    "face": 0.0,
+    "head": 0.1,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "calm",
+   "text": "Night.",
+   "who": "barkeep"
+  },
+  {
+   "d": 0.6,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [],
+   "speaker": {
+    "arms": 92.1,
+    "body": 8.6,
+    "face": 0.0,
+    "head": 31.6,
+    "shape": "",
+    "who": "liveryman"
+   },
+   "tag": "calm",
+   "text": "Wind's got the horses jumpy.",
+   "who": "liveryman"
+  }
+ ],
+ "ms_a_tick": {
+  "brains": 0.0,
+  "faces": 0.011,
+  "people_body": 1.528,
+  "senses": 0.346,
+  "town_life": 0.0,
+  "valley_folk": 0.178
+ },
+ "ok": true,
+ "s": 245.7,
+ "t": 283.37,
+ "ticks": 14740
+}

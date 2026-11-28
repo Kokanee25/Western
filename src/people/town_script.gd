@@ -13,6 +13,10 @@ extends RefCounted
 const PATH := "res://config/town_script.json"
 
 static var _lines: Dictionary = {}
+## #1316: each line's tag ([tag, strength]) and, where a wording marks its beat (`*`), the wordings as
+## written (the mark in); `_lines` holds them clean, as said.
+static var _tags: Dictionary = {}
+static var _marked: Dictionary = {}
 static var _meta: Dictionary = {}
 static var _exchanges: Dictionary = {}
 static var _loaded := false
@@ -25,6 +29,8 @@ static func lines() -> Dictionary:
 		_lines = {}
 		_meta = {}
 		_exchanges = {}
+		_tags = {}
+		_marked = {}
 		var f := FileAccess.open(PATH, FileAccess.READ)
 		if f != null:
 			var d: Variant = JSON.parse_string(f.get_as_text())
@@ -32,9 +38,16 @@ static func lines() -> Dictionary:
 				for s: Dictionary in (d as Dictionary).get("scenes", []):
 					for l: Dictionary in s.get("lines", []):
 						var ws: Array[String] = []
+						var marked := []
 						for w: Dictionary in l.get("words", []):
-							ws.append(String(w.get("text", "")))
+							var tx := String(w.get("text", ""))
+							marked.append(tx)
+							ws.append(tx.replace("*", ""))
 						_lines[String(l.id)] = ws
+						if l.has("tag") or ws != Array(marked):
+							_tags[String(l.id)] = [Delivery.tag_named(String(l.get("tag", "calm"))), float(l.get("strength", 1.0))]
+						if ws != Array(marked):
+							_marked[String(l.id)] = marked
 						# Step 9's barks (TownBarks): who says it and its `if` (the `when` as data).
 						_meta[String(l.id)] = {"speaker": String(l.get("speaker", "")), "if": l.get("if", {}),
 								"scene": String(s.get("id", ""))}
@@ -74,13 +87,25 @@ static func words(id: String) -> Array:
 
 
 ## The first of `ids` that has words, one wording by `seed`, its slots filled from `slots`; "" if none.
+## A tagged line is remembered as said (Delivery.remember: its tag and beat, for LineGesture).
 static func pick(ids: Array, seed: int, slots: Dictionary = {}) -> String:
 	for id: String in ids:
 		var ws := words(id)
 		if ws.is_empty():
 			continue
-		return fill(String(ws[posmod(seed, ws.size())]), slots)
+		var i := posmod(seed, ws.size())
+		if not _tags.has(id):
+			return fill(String(ws[i]), slots)
+		var t: Array = _tags[id]
+		var m: Array = _marked.get(id, ws)
+		return Delivery.remember(fill(String(m[i]), slots), t[0], float(t[1]))
 	return ""
+
+
+## A line's tag and strength ([tag, strength]; calm if it has none).
+static func tag_of(id: String) -> Array:
+	lines()
+	return _tags.get(id, [&"calm", 1.0])
 
 
 ## A wording's slots filled, each sentence's first letter a capital.
@@ -95,7 +120,7 @@ static func capitalise(text: String) -> String:
 	var up := true
 	for i in text.length():
 		var c := text[i]
-		if up and c != " ":
+		if up and c != " " and c != "*":
 			out += c.to_upper()
 			up = false
 		else:

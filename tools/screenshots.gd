@@ -182,6 +182,7 @@ func _run() -> void:
 	# The talking men's faces at rest in the fixed views, as their goldens (FaceLife; --face-life: alive).
 	# (By path: naming it compiles FaceLife, which uses the Events autoload, before the autoloads exist.)
 	load("res://src/bodies/face_life.gd").enabled = OS.get_cmdline_user_args().has("--face-life")
+	load("res://src/bodies/line_gesture.gd").enabled = OS.get_cmdline_user_args().has("--face-life")  # (#1316: lines' gestures with them)
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out = arg.substr(6)

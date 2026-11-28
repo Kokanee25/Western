@@ -15,7 +15,7 @@ extends Node
 ## HumanBody adds one to a man whose model has a talking face (its report's "facerig"); further
 ## from the camera than near_camera it rests (nobody can see his eyes there).
 
-const EXPRESSIONS := [&"brows_up", &"brows_down", &"squint", &"scowl"]
+const EXPRESSIONS := [&"brows_up", &"brows_down", &"squint", &"scowl", &"smile", &"smile_l", &"smile_r"]
 ## The noises that start him (Events.noise kinds); any other he hears only draws a look.
 const STARTLING := [&"gunshot", &"glass", &"timber"]
 ## Off for a whole run: the fixed screenshot views hold every face at rest (their golden images).
@@ -33,7 +33,15 @@ var _brain: Node
 var _senses: Senses
 var _faces: Array[MeshInstance3D] = []
 var _index := []                 # per face, per EXPRESSIONS entry: its blend shape (-1: none)
-var _w := [0.0, 0.0, 0.0, 0.0]    # the expressions' weights now
+var _w := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]    # the expressions' weights now (EXPRESSIONS' order)
+## How a line is said, on his face (#1316, LineGesture: config/delivery.json's `face`): shape -> 0..1,
+## renewed every tick it's wanted (`set_tone`). EXPRESSIONS' shapes mix with his own (the larger
+## wins); any other name is the hook for a face with more shapes (the MetaHuman's, #692: jawForward,
+## eyeWide, mouthFrown, noseSneer...): set on his mesh if it has a shape of that name, else nothing.
+var _tone := {}
+var _tone_frame := -10
+var _extra := {}                  # other shape name -> [[face index, blend shape]] (found once)
+var _extra_w := {}                # other shape name -> its weight now
 var _who: Node3D                  # whom he's looking at (null: a point)
 var _point := Vector3.ZERO        # the point he's looking at when nobody
 var _hold := 0.0                  # seconds left on this look
@@ -129,7 +137,7 @@ func step(delta: float) -> void:
 		var lids := tuning.dead_lids if not p.alive else tuning.out_lids
 		_lids = move_toward(_lids, lids, delta / maxf(tuning.lids_time, 0.01))
 		gaze.lids = _lids
-		_express([0.0, 0.0, 0.0, 0.0], delta)
+		_express([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], delta)
 		gaze.step(delta)
 		return
 	_lids = move_toward(_lids, 0.0, delta / maxf(tuning.lids_time, 0.01))
@@ -164,7 +172,14 @@ func step(delta: float) -> void:
 	var hurt := clampf(p.felt_pain() / maxf(p.tuning.pain_faint, 0.01), 0.0, 1.0) * tuning.pain_grimace
 	var up := maxf(tuning.startle_brows * _startle, tuning.fear_brows * fear) * (1.0 - hurt)
 	up = maxf(up, 0.25 * mirth * (1.0 - hurt))
-	_express([up, hurt, maxf(maxf(hurt * 0.7, tuning.aim_squint if aiming else 0.0), 0.8 * mirth), hurt], delta)
+	var goal := [up, hurt, maxf(maxf(hurt * 0.7, tuning.aim_squint if aiming else 0.0), 0.8 * mirth), hurt,
+			0.85 * mirth * (1.0 - hurt), 0.0, 0.0]
+	if toned():
+		# A line's tone over his own face: each shape the larger of the two (pain still shows through).
+		for i in EXPRESSIONS.size():
+			goal[i] = maxf(float(goal[i]), float(_tone.get(EXPRESSIONS[i], 0.0)) * (1.0 - hurt * 0.5))
+	_express(goal, delta)
+	_express_extra(delta)
 	mirth = maxf(mirth - delta * 3.0, 0.0)
 	gaze.step(delta)
 
@@ -180,7 +195,41 @@ func _express(goal: Array, delta: float) -> void:
 				_faces[f].set_blend_shape_value(ids[i], clampf(_w[i], 0.0, 1.0))
 
 
-## The expressions' weights now (brows_up, brows_down, squint, scowl), for tests and the lab.
+## A line's tone on his face this tick (shape -> 0..1; see `_tone`). Call it every tick it's wanted.
+func set_tone(shapes: Dictionary) -> void:
+	_tone = shapes
+	_tone_frame = Engine.get_physics_frames()
+
+
+func toned() -> bool:
+	return Engine.get_physics_frames() - _tone_frame <= 2
+
+
+## The tone's shapes the face hasn't among EXPRESSIONS (the MetaHuman's, #692), where his mesh has them.
+func _express_extra(delta: float) -> void:
+	var want := _tone if toned() else {}
+	if want.is_empty() and _extra_w.is_empty():
+		return
+	var k := 1.0 - exp(-delta / maxf(tuning.ease_time, 0.001))
+	for n: Variant in want:
+		if not EXPRESSIONS.has(n) and not _extra.has(n):
+			var found := []
+			for f in _faces.size():
+				var i := _faces[f].find_blend_shape_by_name(StringName(n))
+				if i >= 0:
+					found.append([f, i])
+			_extra[n] = found
+	for n: Variant in _extra:
+		var w := lerpf(float(_extra_w.get(n, 0.0)), float(want.get(n, 0.0)), k)
+		for fi: Array in _extra[n]:
+			_faces[int(fi[0])].set_blend_shape_value(int(fi[1]), clampf(w, 0.0, 1.0))
+		if w < 0.001 and not want.has(n):
+			_extra_w.erase(n)
+		else:
+			_extra_w[n] = w
+
+
+## The expressions' weights now (EXPRESSIONS: brows_up, brows_down, squint, scowl, smile, smile_l, smile_r).
 func expression() -> Dictionary:
 	var out := {}
 	for i in EXPRESSIONS.size():

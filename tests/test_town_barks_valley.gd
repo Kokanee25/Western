@@ -131,6 +131,15 @@ func test_the_barkeep_behind_saloon_bs_bar_is_at_the_saloon() -> void:
 ## more than twice.
 func test_ten_minutes_on_the_street_by_day() -> void:
 	var total := 0
+	# Who fell, where and by what (a "man down" line repeated means one did: #1334's CI, to say who).
+	var falls := []
+	var on_fell := func(who: Node, _conscious: bool) -> void:
+		if who is HumanBody:
+			var m := who as HumanBody
+			falls.append("%s at %s by %s, %s" % [m.person_id, m.global_position.snapped(Vector3.ONE * 0.1),
+					m.get_meta(&"last_hit_by").name if m.has_meta(&"last_hit_by") and is_instance_valid(m.get_meta(&"last_hit_by")) else "nothing",
+					valley.get_node(^"DayCycle").get_clock_text() if valley.get_node_or_null(^"DayCycle") else ""])
+	Events.person_fell.connect(on_fell)
 	for h: float in [7.0, 12.0, 17.5]:
 		var f := valley.folk
 		var clock := valley.get_node(^"DayCycle") as DayCycle
@@ -193,8 +202,11 @@ func test_ten_minutes_on_the_street_by_day() -> void:
 		for e: Array in said:
 			texts[e[1]] = int(texts.get(e[1], 0)) + 1
 		for text: String in texts:
-			check(int(texts[text]) <= 2, "%.1f h: \"%s\" heard at most twice (%d)" % [h, text, texts[text]])
+			check(int(texts[text]) <= 2, "%.1f h: \"%s\" heard at most twice (%d; falls: %s)" % [h, text, texts[text], falls])
 		if h < 17.0:
 			# The next hour afresh: a new valley would cost a minute; the day moves on instead.
 			f.barks.said.clear()
+	Events.person_fell.disconnect(on_fell)
+	if not falls.is_empty():
+		print("  falls in the ten minutes: %s" % [falls])
 	check(total >= 36, "about a dozen lines every ten minutes by day (%d in thirty)" % total)
