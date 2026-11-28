@@ -2068,7 +2068,11 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   shout, a man of it not calm or saying something else (`ended`: why); stood at their elbow one may turn to you
   (`heard.you`). The card table's are started between hands (`CardGame.between_talk` -> `table_break`), the band's
   between tunes. The one-line `chat` goes out the same way (`murmur`). Bench: `experiments/overheard/` (run.py: what
-  you hear in four game hours at the bar, the back table, the porch, the store's walk, walking the street). **A shove answered** (#1272):
+  you hear in four game hours at the bar, the back table, the porch, the store's walk, walking the street, the livery,
+  the hotel's porch; `why_not` says what stopped each). **By day** (#1325) the street's company gather where their
+  exchanges are: the store's walk and benches by morning (the preacher stops there 8-10), the livery's doors 13-15 (the
+  smith at `livery_post`, tagged smithy too), the hotel's porch from three, the saloon's walk at five; a man mid-exchange
+  stays on his leg up to `EXCHANGE_HOLD_S` (ValleyFolk) to finish it. **A shove answered** (#1272):
   the man shoved always knows it (even from behind), turns (`show_look`) and speaks up; everyone who saw it looks, the
   first `ROUGH_SPEAK` (2) by distance say `react.shove` (`CivilianBrain._saw_shove`); one shove seen turns a man cold
   (data `regard.deeds.shove`). Bark ctx `indoors` (a hall spot, at home, or in the saloon room): `react.inside` is out of

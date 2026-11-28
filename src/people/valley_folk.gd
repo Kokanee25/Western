@@ -1063,6 +1063,8 @@ var _legs := {}
 var run_seed := 0
 ## A leg not reached in this long (stuck on the way) is given up for the next.
 const LEG_GIVE_UP_S := 180.0
+## A leg's stay run out mid-exchange (#1325): he stays up to this long more to finish it.
+const EXCHANGE_HOLD_S := 45.0
 
 
 ## Someone other than `id` at spot `name`, or on his way to it.
@@ -1132,6 +1134,8 @@ func _leg_step(id: StringName, p: Dictionary, b: Dictionary) -> bool:
 		return false
 	elif _ran < float(lg.until) and not _talking_alone(id):
 		return false
+	elif overheard and overheard.busy(id) and _ran < float(lg.until) + EXCHANGE_HOLD_S:
+		return false  # mid-exchange (#1325): he has it out before his round walks him off mid-line
 	var round: Array = []
 	for x: Dictionary in blocks_of(p, day_kind(town_day())):
 		if float(x.from) == float(lg.base) and x.has("round"):
@@ -2190,12 +2194,21 @@ func _chat_step() -> void:
 		if _ran - float(_chat_at.get(id, -INF)) < gap or _ran - float(_spoke_at.get(id, -INF)) < 6.0:
 			continue
 		free.append([id, man])
+	# Men an exchange could start with now keep for it (#1325: walking the street, two traded a one-liner
+	# as you came up and their exchange began as you went on): the one-line chat is for the others.
+	var keep := {}
+	if overheard and free.size() >= 2:
+		for f: Array in overheard.fitting(_ran):
+			for pid: StringName in (f[5] as Dictionary):
+				keep[pid] = true
 	for i in free.size():
 		for j in range(i + 1, free.size()):
 			var a: Array = free[i]
 			var b: Array = free[j]
 			var am: HumanBody = a[1]
 			var bm: HumanBody = b[1]
+			if keep.has(a[0]) or keep.has(b[0]):
+				continue
 			if am.global_position.distance_to(bm.global_position) > float(c.get("chat_m", 4.0)):
 				continue
 			var key := "%s|%s" % [a[0], b[0]] if String(a[0]) < String(b[0]) else "%s|%s" % [b[0], a[0]]

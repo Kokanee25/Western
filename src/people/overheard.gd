@@ -235,12 +235,29 @@ func step(now: float) -> void:
 	if now < _try_at:
 		return
 	_try_at = now + float(d.try_s)
-	if running.size() >= int(d.max_at_once) or _story(now):
+	if _near_running() >= int(d.max_at_once) or _story(now):
 		return
 	var f := fitting(now)
 	if not f.is_empty():
 		_begin(f[0][4], f[0][5], now, _r("first_s", String(f[0][4]), "first") if log.is_empty() else 0.4)
 		_try_at = now + float(d.stagger_s)
+
+
+## The exchanges going on within your hearing (#1325: walking the street, two left talking behind you at
+## the livery and the store kept the hotel's porch from starting one as you came by): `max_at_once` is
+## how many you hear at once, not how many the town holds.
+func _near_running() -> int:
+	var p := _player()
+	if p == null:
+		return running.size()
+	var n := 0
+	for r: Dictionary in running:
+		for pid: StringName in r.men:
+			var man: HumanBody = r.men[pid]
+			if is_instance_valid(man) and man.global_position.distance_to(p.global_position) <= float(d.start_m) + float(d.hear_m):
+				n += 1
+				break
+	return n
 
 
 func _begin(id: String, men: Dictionary, now: float, wait: float) -> void:
@@ -435,13 +452,14 @@ func flush(now: float) -> void:
 	_settle(now)
 
 
-## Exchanges ended, their last line out: heard tonight if it ran out or most of it had, and you
-## caught any of it (`heard_at`). Else it's left for later tonight (`unheard_again_s`).
+## Exchanges ended, their last line out: heard today if you caught any of it (`heard_at`). Else it's
+## left for later (`unheard_again_s`).
 func _settle(now: float) -> void:
 	for r: Dictionary in _over:
 		var id := String(r.ex.id)
-		var n := (r.ex.lines as Array).size()
-		if int(r.said) > 0 and float(r.best) >= float(d.heard_at) and (String(r.why) == "done" or int(r.said) * 2 >= n):
+		# (#1325: any of it caught counts, cut short or not: begun again later it would tell you its first
+		# lines twice; the bench's store saw "I ain't drunk, missus" twice in a morning.)
+		if int(r.said) > 0 and float(r.best) >= float(d.heard_at):
 			heard_day[id] = folk.town_day()
 		else:
 			_left[id] = now

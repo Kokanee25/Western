@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """The listening bench (#1293): what you hear in four game hours stood at each spot. Usage:
 
-    python3 experiments/overheard/run.py OUT_DIR [--only=bar,table,porch,store,walk] [--murder]
+    python3 experiments/overheard/run.py OUT_DIR [--only=bar,table,porch,store,walk,livery,hotel] [--murder]
 
 Each spot is its own headless game (its own port, all at once): an ordinary evening in saloon B
 20:00-24:00 (`--no-murder`; `--murder` leaves No Law's night on) stood at the bar, by the back table
 and on the porch; Main Street by day stood on the store's walk 08:00-12:00 and walked end to end
-13:00-17:00. Writes OUT_DIR/<spot>.json (every line: who, words, metres off, clock, kind, clarity;
+13:00-17:00; by the livery's doors 13:00-17:00 and the hotel's porch 15:00-19:00 (#1325). Writes OUT_DIR/<spot>.json (every line: who, words, metres off, clock, kind, clarity;
 pairs of men within 6 m, in game minutes) and OUT_DIR/table.md.
 A game hour is 112.5 s (config/day_cycle.tres), so four are 450 s.
 """
@@ -18,14 +18,20 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 BRIDGE = [sys.executable, os.path.join(ROOT, "tools", "bridge.py")]
 HOURS = 4.0
 S = HOURS * 112.5
-WALK = ["hotel_walk", "store_walk", "saloon_porch", "livery_door", "smith_door", "livery_door", "saloon_porch",
-        "store_walk", "hotel_walk", "undertaker_walk", "bank_walk", "undertaker_walk"]
+# #1325: the street a few metres off each place's walk (not on a man's spot: stood there you'd stand
+# him off it): the hotel, the store, the saloon, the livery, the smith's, back, the undertaker's, the bank.
+HOTEL, STORE, SALOON, LIVERY, SMITH = "61 -6", "-47.8 -6", "14 -6", "-20 6", "-84 6"
+UNDERTAKER, BANK = "111 -6", "47 6"
+WALK = [HOTEL, STORE, SALOON, LIVERY, SMITH, LIVERY, SALOON, STORE, HOTEL, UNDERTAKER, BANK, UNDERTAKER]
 SPOTS = {
     "bar": (8741, 20.0, ["walk saloon_room", "drink bar"]),
     "table": (8742, 20.0, ["walk saloon_room", "oh_by liveryman 2.5"]),
     "porch": (8743, 20.0, ["walk saloon_porch"]),
-    "store": (8744, 8.0, ["walk store_walk"]),
-    "walk": (8745, 13.0, ["walk hotel_walk"]),
+    # #1325: stood in the street by each place's company (not on a man's spot: you'd stand him off it).
+    "store": (8744, 8.0, ["walk " + STORE]),
+    "walk": (8745, 13.0, ["walk " + HOTEL]),
+    "livery": (8746, 13.0, ["walk " + LIVERY]),
+    "hotel": (8747, 15.0, ["walk " + HOTEL]),
 }
 # Heard: the old subtitle shows any line within 45 m; near is what a man stood there would catch.
 SHOWN_M, NEAR_M = 45.0, 10.0
@@ -78,7 +84,8 @@ def row(name, d):
     hours = float(d.get("s", S)) / 112.5 or 1.0
     shown = [l for l in lines if l[2] <= SHOWN_M and (l[4] == "said" or l[5] >= 0.12)]
     near = [l for l in lines if l[2] <= NEAR_M]
-    ex = [l for l in shown if str(l[4]).startswith("exchange:")]
+    # (#1325: the one-line chat goes out as "exchange:" with no id: not an exchange)
+    ex = [l for l in shown if str(l[4]).startswith("exchange:") and len(str(l[4])) > len("exchange:")]
     texts = collections.Counter(l[1] for l in shown)
     rep = sum(n - 1 for n in texts.values())
     exch = len(set(l[4] for l in ex))

@@ -22,6 +22,10 @@ var _where := {}
 var _t0 := 0.0
 var _next := 0.0
 var _hooked := false
+## #1325: each sample, every exchange that might be on (its hours, not heard today) whose cast are all in
+## play near you: why it isn't (the first that fails: a man not free, at a spot not of its place, apart,
+## its `if`), counted.
+var _why_not := {}
 
 
 func _folk() -> ValleyFolk:
@@ -57,6 +61,7 @@ func _cmd_oh_start(_a: Array) -> Dictionary:
 	_lines = []
 	_pairs = {}
 	_where = {}
+	_why_not = {}
 	_t0 = bridge._game_seconds()
 	_next = _t0
 	return {"clock": _clock_text()}
@@ -68,8 +73,10 @@ func _cmd_oh_stop(_a: Array) -> Dictionary:
 	for k: String in _pairs:
 		# Game minutes: a sample each SAMPLE_S real seconds; a game hour is 112.5 s (config/day_cycle.tres).
 		pairs[k] = snappedf(float(_pairs[k]) * SAMPLE_S / 112.5 * 60.0, 1.0)
+	var vf := _folk()
 	return {"lines": _lines, "pairs": pairs, "where": _where, "s": snappedf(bridge._game_seconds() - _t0, 0.1),
-			"clock": _clock_text()}
+			"clock": _clock_text(), "ended": vf.overheard.ended if vf != null and vf.overheard != null else [],
+			"why_not": _why_not}
 
 
 func _men() -> Dictionary:
@@ -140,3 +147,51 @@ func _physics_process(_delta: float) -> void:
 			if not _where.has(key):
 				_where[key] = {}
 			_where[key][w] = int((_where[key] as Dictionary).get(w, 0)) + 1
+	_sample_why(vf, men)
+
+
+func _sample_why(vf: ValleyFolk, men: Dictionary) -> void:
+	var o := vf.overheard
+	if o == null:
+		return
+	var now := vf._ran
+	var all := TownScript.exchanges()
+	for id: String in all:
+		var ex: Dictionary = all[id]
+		var c: Dictionary = ex["if"]
+		if String(c.get("on", "")) != "heard" or String(ex.place).begins_with("saloon"):
+			continue
+		if c.has("hour") and not TownBarks.in_hours(vf.hour(), float(c.hour[0]), float(c.hour[1])):
+			continue
+		if int(o.heard_day.get(id, -1)) == vf.town_day():
+			continue
+		var near := true
+		for who: String in ex.cast:
+			var m: HumanBody = men.get(StringName(who))
+			near = near and m != null and m.global_position.distance_to(player.global_position) <= 15.0
+		if not near:
+			continue
+		var why := ""
+		var fm := {}
+		for who: String in ex.cast:
+			var pid := StringName(who)
+			if o.busy(pid):
+				why = "busy:" + who
+			elif o.free_man(pid, now) == null:
+				why = "not_free:" + who
+			elif not o.tags_of(pid).has(String(ex.place)):
+				why = "tags:" + who
+			if why != "":
+				break
+			fm[pid] = men[pid]
+		if why == "" and not o._together(fm, player.global_position):
+			why = "apart"
+		if why == "" and not TownBarks.holds(c, vf.bark_ctx(StringName(String(ex.lines[0].who)), fm[StringName(String(ex.lines[0].who))])):
+			why = "if"
+		if why == "" and now - float(o._left.get(id, -INF)) < float(o.d.unheard_again_s):
+			why = "left"
+		if why == "":
+			why = "could"
+		if not _why_not.has(id):
+			_why_not[id] = {}
+		_why_not[id][why] = int((_why_not[id] as Dictionary).get(why, 0)) + 1
