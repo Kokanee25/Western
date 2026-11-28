@@ -156,6 +156,8 @@ var _news_day := -1
 ## town's script's lines picked by their `if`, with the brief's limits (data `barks`).
 var regard: TownRegard
 var barks: TownBarks
+## Men talking to each other in your hearing (#1293).
+var overheard: Overheard
 ## The saloon at night as a room (townsfolk step 10, #1157): its mood, the bits, the hush.
 var room: SaloonRoom
 ## The barkeep's side of a drink (#1292): saloon B's bar, its barkeep at his counter.
@@ -211,6 +213,11 @@ func _ready() -> void:
 	data = JSON.parse_string(FileAccess.get_file_as_string(DATA))
 	regard = TownRegard.new(self, data.get("regard", {}))
 	barks = TownBarks.new(data.get("barks", {}))
+	overheard = Overheard.new(self, data.get("overheard", {}))
+	# What stops an exchange (#1293): a shot, your shout, one of its men saying something else.
+	Events.shot_fired.connect(_heard_shot)
+	Events.shouted.connect(_heard_shout)
+	Events.spoke.connect(_heard_spoke)
 	room = SaloonRoom.new(self, data.get("room", {}))
 	# The run's own town (fault 4): the news' slips and the room's bits by it (0: as they always were).
 	news._rng.seed = 1051 + run_seed
@@ -398,6 +405,8 @@ func hall_use(lot_id: String, id: String) -> Array:
 func _build_set() -> void:
 	var s: Dictionary = data.set
 	cards = CardGame.new()
+	# The table talks between hands, not over them (#1293).
+	cards.between_talk = func() -> float: return overheard.table_break(_ran) if overheard else 0.0
 	cards.rng.seed = int(s.get("cards_seed", 766))
 	var hall := String(s.get("hall", ""))
 	if halls.has(hall) and is_instance_valid(halls[hall]):
@@ -1154,6 +1163,19 @@ func _talking_alone(id: StringName) -> bool:
 	return c != null and c.kind == &"talk" and c.alone_s > float((data.get("chat", {}) as Dictionary).get("alone_s", 20.0))
 
 
+func _heard_shot(at: Vector3, _dir: Vector3, _who: Node) -> void:
+	overheard.stop_near(at, float(overheard.d.shot_m), "shot", _ran)
+
+
+func _heard_shout(who: Node, _kind: StringName) -> void:
+	if who is Node3D and who.is_in_group(&"player"):
+		overheard.stop_near((who as Node3D).global_position, float(overheard.d.shout_m), "shout", _ran)
+
+
+func _heard_spoke(who: Node, _text: String) -> void:
+	overheard.spoke(who, _ran)
+
+
 ## Lines said on the next physics frame (`say_soon`): a line is a noise (DeedWatch's speech), and the
 ## ears that hear it look along a ray, which only the physics frame may (the folk step in _process).
 var _to_say: Array = []
@@ -1172,6 +1194,8 @@ func _physics_process(delta: float) -> void:
 		if service:
 			service.step(delta)
 		Prof.stop(&"saloon_room", t)
+	if overheard:
+		overheard.flush(_ran)
 	# The drunk and his notes (#1312): on the physics frame, as their sight and rays ask.
 	if drunk or notes:
 		var dt := Prof.start()
@@ -1204,6 +1228,8 @@ func _step(delta: float) -> void:
 	_regard_step(delta)
 	_answer_step(delta)
 	_later_step()
+	if overheard:
+		overheard.step(_ran)
 	for id: StringName in _going_for.keys():
 		_going_for[id] += delta
 		var man: HumanBody = people.get(id)
@@ -2075,6 +2101,8 @@ func _talk_step() -> void:
 		var man := folk_man(id)
 		if man == null or state.get(id) != &"in" or not man.physiology.is_conscious():
 			continue
+		if overheard and overheard.busy(id):
+			continue  # mid-exchange with another man (#1293): he turns to you by its own rule, or not
 		# A bark reaches you from a stride or two further (`bark_m`, #1184: the day street's talk was thin);
 		# his set's lines and his news, from `near_m`.
 		var reach := float(talk.get("near_m", 4.0)) if pd.has("says") or rid != 0 else float(talk.get("bark_m", talk.get("near_m", 4.0)))
@@ -2156,6 +2184,8 @@ func _chat_step() -> void:
 			continue
 		if String(block_now(pd, hour()).get("do", "")) in ["play", "sleep"] or _room_night(man):
 			continue
+		if overheard and overheard.busy(id):
+			continue
 		var gap := float(c.get("gap_s", 45.0)) * (1.0 + float(c.get("jitter", 0.4)) * (2.0 * _jit(id, "chat:%d" % int(_said_by.get(id, 0))) - 1.0))
 		if _ran - float(_chat_at.get(id, -INF)) < gap or _ran - float(_spoke_at.get(id, -INF)) < 6.0:
 			continue
@@ -2187,7 +2217,11 @@ func _chat_step() -> void:
 			_said_by[a[0]] = int(_said_by.get(a[0], 0)) + 1
 			am.face(bm.global_position + Vector3.UP * 1.5)
 			bm.face(am.global_position + Vector3.UP * 1.5)
-			say_soon(am, String(l[1]))
+			# Said to each other, not to the room (#1293): it fades with distance and walls as an exchange does.
+			if overheard:
+				overheard.murmur(am, String(l[1]), bm, {"line": String(l[0])})
+			else:
+				say_soon(am, String(l[1]))
 			heard.append([String(a[0]), String(l[0]), String(l[1])])
 			var r := barks.pick("chat.reply", bark_ctx(b[0], bm), day, _ran)
 			if not r.is_empty():
@@ -2230,7 +2264,10 @@ func _later_step() -> void:
 				continue
 			var br := (x[1] as Node).get_node_or_null(^"Brain") as CivilianBrain
 			if br == null or br.may_speak():
-				say_soon(x[1], String(x[2]))
+				if overheard and x.size() > 3:
+					overheard.murmur(x[1], String(x[2]), x[3] as HumanBody)
+				else:
+					say_soon(x[1], String(x[2]))
 	_later = keep
 
 
@@ -2292,6 +2329,8 @@ func room_line(id: StringName, on: String, extra: Dictionary = {}) -> Array:
 	var man := folk_man(id)
 	if barks == null or man == null:
 		return []
+	if overheard and overheard.busy(id):
+		return []  # mid-exchange with another man (#1293): the room's toast or hail is somebody else's
 	var ctx := bark_ctx(id, man)
 	ctx.merge(extra, true)
 	var l := barks.pick(on, ctx, town_day(), _ran, extra.get("slots", {}))
@@ -2847,6 +2886,7 @@ func save_dict() -> Dictionary:
 			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands,
 			"news": news.save_dict() if news else {}, "news_day": _news_day, "dead_out": dead,
 			"kept": kept.duplicate(true), "regard": regard.save_dict() if regard else {},
+			"overheard": overheard.save_dict() if overheard else {},
 			"drunk": drunk.to_dict() if drunk else {}, "notes": notes.to_dict() if notes else {}}
 
 
@@ -2863,6 +2903,8 @@ func load_dict(d: Dictionary) -> void:
 	_news_day = int(d.get("news_day", -1))
 	if regard:
 		regard.load_dict(d.get("regard", {}))
+	if overheard:
+		overheard.load_dict(d.get("overheard", {}))
 	if drunk:
 		drunk.from_dict(d.get("drunk", {}))
 	if notes:

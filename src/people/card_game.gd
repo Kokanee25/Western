@@ -33,6 +33,10 @@ extends Node3D
 
 signal interrupted(reason: StringName)
 signal hand_done(winner: String, pot: int, hand: String)
+
+## Asked as a hand ends (#1293, Overheard.table_break): the seconds the next deal should wait while
+## the men at the table talk (0: none). The table's own talk between hands, not a second one.
+var between_talk := Callable()
 ## You did `verb` at the table (#1279): sit, up, call, fold, raise, won_pot, lost_pot, bluff_called,
 ## cheat_true, cheat_false. `info`: the table's men (`men`), and the verb's own (`pot`, `bluff`, `ahead`,
 ## `accused`). ValleyFolk makes it regard and news.
@@ -402,6 +406,9 @@ func step(dt: float) -> void:
 			if _t <= 0.0:
 				state = &"between"
 				_t = _beat("between_s")
+				# (Not with a man sat down and waiting to be dealt in, you included: the next hand is his.)
+				if between_talk.is_valid() and not _you_turn and sat().size() == seats.size():
+					_t += float(between_talk.call())
 		&"between":
 			if _t <= 0.0:
 				_clear_table()

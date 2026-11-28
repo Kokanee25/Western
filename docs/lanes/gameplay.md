@@ -6,8 +6,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 
 ## The slice's missions (LAYOUT "src/missions", "src/moments")
 - **The sheriff on the road** (#746): `-- --world=valley --mission=sheriff`; `StoryState`, `HeadGesture`, `Act`.
-  #1081: carried in over the shoulder (not dragged: Sean), a knock brings the doctor by day; a slow nod answers.
-  The clock runs at a quarter of the day's rate till it's over (#1082: in by about 08:00). Waiting on Sean: #755. The carry's pose is unjudged on a real screen.
+  #1081: carried in over the shoulder, a knock brings the doctor by day; a slow nod answers; the clock at a quarter
+  rate till it's over (#1082). Waiting on Sean: #755. The carry's pose is unjudged on a real screen.
 - **No Law** steps 1-5 done (`ValleyFolk`, `PlayerSeat`, `CardGame`, `NoLawMurder`, `SheriffDies`, `Funeral`;
   `experiments/valley_folk/README.md`). Cody isn't the red shirt (Kett); the stranger shot the sheriff (#905).
   **The night's carry (#1057):** Cody's ball through Earl's collarbone; the barkeep sends you to Doc's; `PlayerCarry`,
@@ -26,8 +26,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **Played whole (#979):** `tests/test_no_justice_whole.gd`; down in the fight, Enter retries it (`retry_on_load`).
   Open: the hideout fight's hard (#349, Sean's); the jail and rides are cards; no line when Kett's jailed (C8 a);
   Joe out cold in the cabin it waits for him. A limp man goes through the player (`HumanBody._through_the_player`, #1092); so the carry lays him with all of him clear of you (`PlayerCarry.LAY_CLEAR_M`).
-- **Playtest faults (#1095-#1125)** built. Open: one stick at 1.2-1.7 m takes a foot, a hand, 15-19 wounds; the
-  bridge's `tend` on an unhurt man kicks; the slowdown after dynamite and fire.
+- **Playtest faults (#1095-#1125)** built. Open: one stick at 1.2-1.7 m takes a foot, a hand; the slowdown after dynamite.
 - Story: #744, STORY.md; the bible #809.
 - **Townsfolk** (#850; `docs/briefs/townsfolk.md`; LAYOUT "src/people"): steps 2-10 done (book, roster, spots,
   `Reaction`, `FetchHelp`, `TownNews`, `TownScript` (Script OK waiting on Sean, #1150), `TownRegard`, `TownBarks`,
@@ -35,6 +34,12 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   (#1230: `set.hall`, `_bind_hall_set`, ways `saloonb_*`). Facts still say "yard" (`nolaw.seen_from`,
   `nolaw.earl_died`). Open: the room's sounds are synth stand-ins (#807); react.fight*, body_child, kett.meal
   untriggered; nobody carries the body. A spot's `hall` is its building for the barks (#1240).
+- **Things to listen to** (#1293; LAYOUT "src/people" Overheard; data `overheard`; `tests/test_overheard.gd`; bench
+  `experiments/overheard/`): men stood together hold exchanges of the town's script (scenes `heard.*`, 115, cast by
+  person, tagged by place; 20 `story` ones wait on Sean's OK on the People board), heard by distance and walls on their
+  own subtitle line, not twice a night, cut by a shot or your shout; the card table's between hands. Open: by day the
+  street's men are seldom within 8 m of each other, so its exchanges rarely play; no Sunday at the church; the drunk, the
+  editor and Caleb have exchanges but no day; `delivery` is carried for #1316's gestures, unused; unjudged on screen.
 - **Every verb gets an answer** (DESIGN §2 pillar 6; #1272, #1279 the card table): bench `experiments/answers/`.
   Still flat: standing close (nothing), the barkeep's "Don't shoot!" over and over.
 - **The real card game** (#1294; LAYOUT CardGame "The real game", PlayerCards; `tests/test_card_play.gd`): an 1880s
@@ -44,10 +49,9 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   on a real screen: the hand's pose round the fan. Open: no cheating by you; the men read nothing of your tells.
 
 - **The drink** (#1292; LAYOUT "src/player" PlayerPurse/PlayerDrink, "src/people" the bar; `config/drink.json`):
-  a purse (saved; the card stake from it), E at saloon B's bar (tap whiskey, hold beer/the bottle, G a round), the
-  barkeep pours a kit bottle into a kit glass, the glass in your hand, the dial (sway, settle, nerve, the walk
-  weaves). Answers: round, deputy, drunk, alone; news `bar`. Unjudged on screen: the hand round the glass, the pour.
-  12 + 6 lines for Sean's script OK (#1150). Open: only the valley's bar has a BarService (no old town, no hotel).
+  a purse (saved), E at saloon B's bar (tap whiskey, hold beer/the bottle, G a round), a real bottle and glass, the dial
+  (sway, nerve, the walk weaves). Answers: round, deputy, drunk, alone; news `bar`. Unjudged on screen. 18 lines for
+  Sean's script OK (#1150). Open: only the valley's bar has a BarService (no old town, no hotel).
 - **The town drunk** (#1312; LAYOUT "src/people" The town drunk; `TownDrunk`, `DrunkNotes`, `config/drunk_notes.json`):
   Sarge in the valley (`town_drunk`), a jibe a meeting from 124 (TownBarks `you`/`sober`), answers (nod, shake, shove, a
   glass given, G walks him to the jail; nerves of steel, `steady`), the street's word, regard, news; eleven notes by data. Read blind twice; Sean's

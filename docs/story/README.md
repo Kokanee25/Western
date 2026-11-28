@@ -141,6 +141,11 @@ bar, the store, the street: who's there and everything said there).
   says what it's on: `p.<id>` (the whole person), `p.<id>.<field>` (name, called, age, from, came, work, place, wants,
   secret, habit, voice, body, clothes, day), `p.<id>.likes.<other id>`, `p.<id>.talks.<n>`, `p.<id>.line.<line id>`,
   `a.<n>` (an assumption on the front page). They are his: never overwrite or delete one. Act on a note in `people.json`.
+- **Overheard exchanges** (#1293): the town script's `heard.*` scenes hold the talk between people (lines sharing an `ex`,
+  in order). The build puts each exchange whole on every speaker's page under its place, and in the place's view
+  ("Overheard here"); each line keeps its own note (`p.<id>.line.<line id>`). An exchange marked `story` (it touches the
+  story's people or events) shows "waits on your OK"; the rest are background, accepted as written (Sean, 2026-11-23).
+  New ones are written in `town.json` (copy it to `config/town_script.json`), one wording a line, each answering the last.
 - **The further sections** (Sean, 2026-11-27, #1309's later comments): time in town, circle and family, home (`built` or
   `to be built`, against `config/valley.json`), if he dies (funeral lines, bearers, what changes), what he knows of the
   story and what it takes, trouble, Harlan (and a greeting at each of TownRegard's four bands), jobs, looks, casting,

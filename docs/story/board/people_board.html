@@ -59,6 +59,8 @@ p { margin: 0; }
 .tag { font-family: var(--f-ui); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; white-space: nowrap; }
 .tag.d { color: var(--accent); } .tag.p { color: var(--new); } .tag.o { color: var(--open); }
 .src { font-size: 11.5px; color: var(--muted); }
+.ex { border-left: 3px solid var(--rule); margin: 14px 0 18px; padding-left: 10px; }
+.ex > .meta { margin-bottom: 4px; }
 .say { font-family: var(--f-script); font-size: 16px; line-height: 1.45; }
 .meta { display: block; font-size: 12px; color: var(--muted); }
 .link { text-align: left; font: inherit; color: var(--new); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
@@ -178,13 +180,24 @@ textarea:focus-visible, button:focus-visible { outline: 2px solid var(--new); ou
     const bits = [];
     if (showWho) bits.push("<b>" + esc(nameOf(p)) + "</b>");
     if (ln.to && data.people[ln.to]) bits.push("to " + esc(nameOf(data.people[ln.to])));
-    if (ln.when) bits.push(esc(ln.when));
+    if (ln.when && !ln.ex) bits.push(esc(ln.when));
+    if (ln.delivery) bits.push("<i>" + esc(ln.delivery) + "</i>");
     if (ln.src) bits.push('<span class="tag d">' + ({ built: "in the game", script: "from the script", bible: "from the bible", town: "the town's script" }[ln.src] || esc(ln.src)) + "</span>");
     else bits.push('<span class="tag p">proposed</span>');
     f.append(el("div", "meta", bits.join(" · ")));
     f.append(el("div", "say", esc(ln.words)));
     f.append(noteBox("p." + owner + ".line." + ln.id, ln.words, nameOf(p) + " / " + ln.place));
     return f;
+  }
+
+  // An overheard exchange (#1293): its lines in order, each with its own note box.
+  function exchangeBlock(ex) {
+    const box = el("div", "ex");
+    const names = ex.cast.map((id) => esc(nameOf(data.people[id]))).join(", ");
+    box.append(el("div", "meta", "<b>Overheard:</b> " + names + (ex.when ? " · " + esc(ex.when) : "") +
+      (ex.story ? ' · <span class="tag o">touches the story: waits on your OK</span>' : ' · <span class="tag p">background, as written</span>')));
+    ex.lines.forEach((ln) => box.append(lineBlock(ln, ln.pid, true)));
+    return box;
   }
 
   function personRow(p) {
@@ -378,7 +391,8 @@ textarea:focus-visible, button:focus-visible { outline: 2px solid var(--new); ou
         box.append(w);
       }
       if (!g.lines.length) box.append(el("p", "small", "No lines here yet."));
-      g.lines.forEach((ln) => box.append(lineBlock(ln, p.id, false)));
+      g.lines.filter((ln) => !ln.ex).forEach((ln) => box.append(lineBlock(ln, p.id, false)));
+      (g.exchanges || []).forEach((ex) => box.append(exchangeBlock(ex)));
       pl.append(box);
     });
     sheet.append(pl);
@@ -538,7 +552,11 @@ textarea:focus-visible, button:focus-visible { outline: 2px solid var(--new); ou
     sheet.append(who);
     const said = el("section", "sec"); said.append(el("h2", "", "What's said here"));
     if (!pl.lines.length) said.append(el("p", "small", "No lines here yet."));
-    pl.lines.forEach((ln) => said.append(lineBlock(ln, ln.pid, true)));
+    pl.lines.filter((ln) => !ln.ex).forEach((ln) => said.append(lineBlock(ln, ln.pid, true)));
+    if ((pl.exchanges || []).length) {
+      said.append(el("h3", "", "Overheard here (" + pl.exchanges.length + " exchanges)"));
+      pl.exchanges.forEach((ex) => said.append(exchangeBlock(ex)));
+    }
     sheet.append(said);
     sheet.append(backBtn());
     window.scrollTo(0, 0);

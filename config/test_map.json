@@ -27,7 +27,7 @@
     ],
     "valley": [
       "test_valley*", "test_world_places.gd", "test_drink.gd", "test_town_*_valley.gd", "test_town_open.gd",
-      "test_town_streets.gd", "test_undertaker_valley.gd", "test_save_game.gd", "test_saloon_room.gd", "test_answers.gd",
+      "test_town_streets.gd", "test_undertaker_valley.gd", "test_save_game.gd", "test_saloon_room.gd", "test_overheard.gd", "test_answers.gd",
       "test_band.gd", "test_sleep.gd", "test_spot_chore.gd", "test_scene_hold.gd", "test_wall_clock.gd"
     ],
     "town": [

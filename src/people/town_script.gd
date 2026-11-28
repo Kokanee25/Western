@@ -14,6 +14,7 @@ const PATH := "res://config/town_script.json"
 
 static var _lines: Dictionary = {}
 static var _meta: Dictionary = {}
+static var _exchanges: Dictionary = {}
 static var _loaded := false
 
 
@@ -23,6 +24,7 @@ static func lines() -> Dictionary:
 		_loaded = true
 		_lines = {}
 		_meta = {}
+		_exchanges = {}
 		var f := FileAccess.open(PATH, FileAccess.READ)
 		if f != null:
 			var d: Variant = JSON.parse_string(f.get_as_text())
@@ -36,6 +38,20 @@ static func lines() -> Dictionary:
 						# Step 9's barks (TownBarks): who says it and its `if` (the `when` as data).
 						_meta[String(l.id)] = {"speaker": String(l.get("speaker", "")), "if": l.get("if", {}),
 								"scene": String(s.get("id", ""))}
+						# #1293's overheard talk (Overheard): a line with `ex` is one turn of an exchange, in
+						# the file's order; `who` says it to `to`, at `place`, its `delivery` for the gestures.
+						if l.has("ex"):
+							var ex := String(l.ex)
+							if not _exchanges.has(ex):
+								_exchanges[ex] = {"id": ex, "place": String(l.get("place", "")), "if": l.get("if", {}),
+										"story": bool(l.get("story", false)), "lines": [], "cast": []}
+							var who := String(l.get("who", ""))
+							(_exchanges[ex].lines as Array).append({"id": String(l.id), "who": who, "to": String(l.get("to", "")),
+									"delivery": String(l.get("delivery", ""))})
+							# Its cast: everyone who speaks in it or is spoken to (a third man may only listen).
+							for c: String in [who, String(l.get("to", ""))]:
+								if c != "" and not (_exchanges[ex].cast as Array).has(c):
+									(_exchanges[ex].cast as Array).append(c)
 	return _lines
 
 
@@ -43,6 +59,13 @@ static func lines() -> Dictionary:
 static func meta() -> Dictionary:
 	lines()
 	return _meta
+
+
+## #1293's exchanges: id -> {id, place (a people.json place tag), if (its first line's: `on` "heard"),
+## story (waits on Sean's OK), cast [person ids], lines [{id, who, to, delivery}] in order}.
+static func exchanges() -> Dictionary:
+	lines()
+	return _exchanges
 
 
 ## The wordings of `id` (empty if the script hasn't it).

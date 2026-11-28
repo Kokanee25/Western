@@ -144,6 +144,11 @@ func test_ten_minutes_on_the_street_by_day() -> void:
 		var hook := func(who: Node, text: String) -> void:
 			said.append([String((who as HumanBody).person_id) if who is HumanBody else "?", text])
 		Events.spoke.connect(hook)
+		# Two men's talk to each other goes out as Events.overheard since #1293: it counts where you'd be shown it.
+		var hook2 := func(who: Node, text: String, info: Dictionary) -> void:
+			if float(info.get("clarity", 0.0)) >= float(Overheard.DIALS.min_clarity):
+				said.append([String((who as HumanBody).person_id) if who is HumanBody else "?", text])
+		Events.overheard.connect(hook2)
 		var from := f.heard.size()
 		var t := 0.0
 		var k := 0
@@ -169,6 +174,7 @@ func test_ten_minutes_on_the_street_by_day() -> void:
 				await physics_frames(60 * 5)
 				t += 5.0
 		Events.spoke.disconnect(hook)
+		Events.overheard.disconnect(hook2)
 		clock.time_scale = 1.0
 		var lines := f.heard.slice(from)
 		print("  %05.2f, ten minutes: %d lines heard: %s" % [h, said.size(), said])
