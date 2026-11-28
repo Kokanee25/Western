@@ -122,6 +122,12 @@ func free_man(pid: StringName, now: float, table := false) -> HumanBody:
 		return null
 	if now - float(folk._spoke_at.get(pid, -INF)) < 4.0:
 		return null  # he's just said something to you
+	# Stood (or sat) at his spot, not walking to it: a man turned to face another mid-stride walks
+	# where he isn't looking (a round's legs keep him `in` while he goes between them).
+	var post: Array = folk.post_of(pd)
+	if not post.is_empty() and post[0] is Vector3 \
+			and Vector2(man.global_position.x - post[0].x, man.global_position.z - post[0].z).length() > 2.0:
+		return null
 	return man
 
 
