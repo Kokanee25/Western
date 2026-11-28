@@ -371,6 +371,8 @@ func _answers_to_order(p: Player, kind: StringName, men: Array) -> void:
 			folk.regard.saw_harlan("round", at, p, null, men)
 		if folk.news != null:
 			folk.news.bar(&"round", men + [man], at)
+		if folk.drunk != null:
+			folk.drunk.round_bought(men)  # #1312: the town hears of it; Sarge in the room, a drink stood him
 		# The room lifts its glasses; the first two by distance thank you.
 		var near := men.duplicate()
 		near.sort_custom(func(a: HumanBody, b: HumanBody) -> bool: return a.global_position.distance_to(p.global_position) < b.global_position.distance_to(p.global_position))

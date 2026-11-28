@@ -392,6 +392,11 @@ func _read() -> void:
 
 
 ## The choice, by his dials against the fear (the brief's table, §4).
+## A steady man's remark by what it was (`react.steady.<this>`).
+const STEADY_ON := {&"shot": &"shot", &"shot_seen": &"shot", &"at_me": &"shot", &"blast": &"blast", &"down": &"down",
+		&"gun": &"shot", &"hush": &"brawl", &"shove": &"brawl"}
+
+
 func _decide() -> void:
 	var nerve := _nerve()
 	var nosy := _nosy()
@@ -407,6 +412,16 @@ func _decide() -> void:
 	errand = {}
 	told = false
 	_calm_need = CALM_WATCH + CALM_WATCH_NOSY * nosy
+	if brain.steady():
+		# Nerves of steel (#1312): whatever it is, he carries on as he was, and may say so.
+		choice = &"carry_on"
+		_calm_need = lerpf(BREATH.x, BREATH.y, _rng.randf())
+		brain._steady_says("react.steady." + String(STEADY_ON.get(kind, &"shot")))
+		var refuge := _refuge() if brain.hurt and body.physiology.can_stand() else Vector3.INF
+		if refuge != Vector3.INF:
+			choice = &"back_away"  # hit, he takes himself in to a door, at a walk: he doesn't hurry about it
+			_go(refuge, WALK)
+		return
 	if float(brain.dials.get("ducks", 0.0)) > 0.0 and (scared or kind == &"hush") and not brain.hurt:
 		# The piano player: stops and ducks where he is, and comes up when it's been quiet a while.
 		choice = &"hide"
