@@ -406,7 +406,8 @@ func step(dt: float) -> void:
 			if _t <= 0.0:
 				state = &"between"
 				_t = _beat("between_s")
-				if between_talk.is_valid() and not _you_turn:
+				# (Not with a man sat down and waiting to be dealt in, you included: the next hand is his.)
+				if between_talk.is_valid() and not _you_turn and sat().size() == seats.size():
 					_t += float(between_talk.call())
 		&"between":
 			if _t <= 0.0:
