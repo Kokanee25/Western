@@ -13,7 +13,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   **The night's carry (#1057):** Cody's ball through Earl's collarbone; the barkeep sends you to Doc's; `PlayerCarry`,
   `PlayerKnock`, `NoLawCarry` (Earl laid in the front room), `tests/test_no_law_carry.gd`. Open: the doctor in the
   doorway can block dragging him in; he's laid on the floor, not "on the table"; carry.street, morning.coat and the
-  undertaker's lines aren't wired; the coat isn't drawn bloody. The funeral (#868) as it was. No Law's script
+  undertaker's lines aren't wired; the coat isn't drawn bloody. No Law's script
   isn't OK'd (#1059). **Next: the whole mission played end to end, its seams mended (#876).**
 - **No Justice: steps 1-4 done** (#843's plan; each `-- --world=valley --mission=<m>`, bridge `moment <m> set_up=1`).
   Joe is `CompanionBrain` (`--joe`, the lab's `joe=1`, `--joe-tune`); `held`, a scene walks him and he doesn't step out
@@ -71,11 +71,11 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   stranger, Cody), the cabin (Joe, no breaks), a card hand's chairs. Not yet: No Justice's camp and hideout (Joe's
   `held` set by hand), the sheriff's scenes, the funeral (#1050's handover).
 - **Winchester** (#792, key 6; waiting on Sean's play, #801). **The Colt** (#693). **Gunfight D+** (#633; #349 is Sean's).
-- **Benches:** chaos (`docs/reviews/2026-11-chaos-bench.md`, `perf_bench --scene=chaos [--world=valley]`; open:
-  `kit_blast` ~130 ms after saloon B's sticks); the valley (`docs/reviews/2026-11-valley-bench.md`, `--townsfolk=N`:
-  24 fit; open: ~1 ms untimed, the outlaws' first cover moves ~120 ms).
-- **Building memory** (#1259, #1262, #1270; `docs/reviews/2026-11-member-memory.md`, `tools/member_memory.gd`): hotel
-  18.6 KB a member (held to 20); resting members' nodes are rows (ask `drawn_node()`, not `pieces`). 15 KB: #1275.
+- **Benches:** chaos (`docs/reviews/2026-11-chaos-bench.md`, `--scene=chaos [--world=valley]`; open: `kit_blast`
+  ~130 ms after saloon B's sticks); the valley (`docs/reviews/2026-11-valley-bench.md`, `--townsfolk=N`: 24 fit).
+- **Bodies and memory** (#1327; #1259, #1262, #1270, `docs/reviews/2026-11-member-memory.md`): `max_bodies` 262,144
+  (project.godot says why; `test_valley` fails past 80%); valley 53k, + hotel + Railroad Saloon 70.7k, town ~155k est.
+  Memory binds first: hotel 18.6 KB a member (held to 20; 15 KB: #1275); resting members' nodes are rows (`drawn_node()`).
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
 - **Flaky in shard order:** `test_town_day`'s fights. **Two collapses** (#1214): compare with impacts off.
@@ -85,8 +85,8 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
 ## Open problems
 - **The valley's people tests** (#925): sample a people test's odds by running its scene many times in one
   process, each start shifted a few frames (#1248: a run here is deterministic; CI's shard order isn't).
-  Traps: `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI draws differently from a
-  workspace (#1094); a kit chair's pieces keep exceptions to freed bodies (test by `body_test_motion`).
+  Traps: `intersect_shape(q, N)` on `Layers.WORLD` counts standing members; CI draws differently (#1094); a kit
+  chair's pieces keep exceptions to freed bodies (test by `body_test_motion`).
   `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
 - **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks, smoke legs (valley, sheriff,
   `sheriff_dies`, coach); a red night opens a `nightly red` issue. Trap: a `.gdignore` drops its folder from the pack.
@@ -101,7 +101,7 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   `outlaw_brain.gd` while `run.py` runs.
 - Tests at night in the valley turn the murder off (`-- --no-murder`); a drawn rifle on Main Street sets the
   gang off (use the rope range).
-- A fresh container has no Godot (the 4.7.2 zip from GitHub to ~/.local/bin) nor native plugin: `cargo build --release`
-  in it (2.5 min), the .so to `bin/`, then `godot --headless --import` (~10 min).
+- A fresh container: Godot 4.7.2's zip from GitHub, `cargo build --release` in the plugin (.so to `bin/`), then
+  `godot --headless --import` (~10 min). project.godot changes select all 231 tests (~2.7 h on one core).
 - Bridge commands: LAYOUT "The dev bridge". `bridge.py start` is the old town (the gang, the store, the widow) unless
-  `--game-args=--world=valley` or a story `--mission=`; the clock's held (`clock on`).
+  `--game-args=--world=valley` or a story `--mission=`; clock held (`clock on`).

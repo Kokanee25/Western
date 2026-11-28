@@ -546,9 +546,13 @@ func step(delta: float) -> void:
 		_take_heard()
 	for t: Dictionary in talks.duplicate():
 		t.t -= delta
+		# Checked before typing them: a typed var can't take a freed brain (a man sent off mid-talk).
+		if not is_instance_valid(t.a) or not is_instance_valid(t.b):
+			talks.erase(t)
+			continue
 		var a: CivilianBrain = t.a
 		var b: CivilianBrain = t.b
-		if not is_instance_valid(a) or not is_instance_valid(b) or not _calm(a) or not _calm(b):
+		if not _calm(a) or not _calm(b):
 			talks.erase(t)  # broken off: trouble, or one of them sent off
 			continue
 		if a.body.global_position.distance_to(b.body.global_position) > TALK_M + 1.5:
