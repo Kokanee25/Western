@@ -307,6 +307,12 @@ const DROP_FALLS := 1.0
 ## Walking, the most he rises in one step (m): a stair's riser and some (walks' treads are 0.2 at most,
 ## config/valley.json `riser_max`); more is in his way (walk_to).
 const STEP_UP_MAX := 0.35
+
+
+## Risen more than STEP_UP_MAX since `was`, and that far above the ground he last stood level on (back up
+## to it is a step: a man sunk in a hollow comes out).
+func _climbed(was: Vector3) -> bool:
+	return _stood and global_position.y - was.y > STEP_UP_MAX and global_position.y - _level_y > STEP_UP_MAX
 ## Ground steeper than this (the up of its face: ~50 degrees) he can't walk down, and going on down
 ## it more than STEEP_DROP (m) below where he last stood level he falls.
 const STEEP_UP := 0.64
@@ -2193,12 +2199,20 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 		var fwd := look - global_position
 		global_rotation.y = atan2(-fwd.x, -fwd.z)
 	_snap_to_ground()
-	if _stood and global_position.y - was.y > STEP_UP_MAX:
-		# More than a stair's riser up in one step is something in his way, not a step (#1325: the snap's ray
-		# takes anything within half a metre above as ground, and the loudmouth walked up a freight wagon's
-		# wheel, bed and load in four steps, off its top and down in the street: "a man down by the bakery").
+	if _climbed(was):
+		# More than a stair's riser up in one step, above the ground he last stood level on, is something in his
+		# way, not a step (#1325: the snap's ray takes anything within half a metre above as ground, and the
+		# loudmouth walked up a freight wagon's wheel, bed and load in four steps, off its top and down in the
+		# street: "a man down by the bakery"). He tries round it to either side, else stops there.
 		global_position = was
 		moved = Vector3.ZERO
+		for turn: float in [deg_to_rad(60.0), deg_to_rad(-60.0)]:
+			var side := _slide(dir.rotated(Vector3.UP, turn) * step)
+			_snap_to_ground()
+			if not _climbed(was):
+				moved = side
+				break
+			global_position = was
 	gait = how
 	move_speed = moved.length() / maxf(delta, 1e-4)
 	lib_travel = global_basis.inverse() * moved / maxf(delta, 1e-4)

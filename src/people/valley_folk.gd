@@ -1442,7 +1442,7 @@ func _regard_step(delta: float) -> void:
 	if regard:
 		regard.step(delta, p)
 	if barks:
-		barks.clear_far(p.global_position)
+		barks.clear_far(p.global_position, _ran)
 
 
 ## Where his block puts him, at once (the clock jumped: nobody's watching it happen).
@@ -2134,7 +2134,9 @@ func _talk_step() -> void:
 			l = ["news.%d" % rid, news.line_of(id, rid, TownNews.HARLAN)]
 			news.said(id, rid)
 			_news_to_you[rid] = _ran
-		elif pd.has("says"):
+		elif pd.has("says") and not (barks and barks.blocked(man.global_position, _ran)):
+			# (One at you a group, his set's lines too, #1325: the townsman sat by the storekeeper's wife, she said
+			# good day and he said the weather 2.6 s after.)
 			l = line_for(String(pd.says))
 			if not l.is_empty() and barks and not barks.allowed(String(id), String(l[0]), day, _ran):
 				l = []  # said today, or another's said it within the minute

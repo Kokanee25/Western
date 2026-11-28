@@ -229,7 +229,7 @@ func blocked(at: Vector3, now := -1.0) -> bool:
 		if Vector2(b.x - at.x, b.z - at.z).length() < group_m:
 			return true
 		var by: Variant = block_by[i] if i < block_by.size() else null
-		if by is Node3D and is_instance_valid(by):
+		if by != null and is_instance_valid(by) and by is Node3D:
 			var n := (by as Node3D).global_position
 			if Vector2(n.x - at.x, n.z - at.z).length() < group_m:
 				return true
@@ -243,13 +243,17 @@ func block(at: Vector3, now := -1.0, by: Node3D = null) -> void:
 
 
 ## Harlan's moved on: the groups he's left behind may greet him again next time.
-func clear_far(harlan: Vector3) -> void:
+## (`now` given: a block younger than CLEAR_AFTER_S stays, #1325: off 40 m and straight back, the group you'd
+## just passed greeted you again 2.6 s on.)
+const CLEAR_AFTER_S := 8.0
+func clear_far(harlan: Vector3, now := -1.0) -> void:
 	var keep: Array[Vector3] = []
 	var keep_t: Array[float] = []
 	var keep_by: Array = []
 	for i in blocks.size():
 		var b := blocks[i]
-		if Vector2(b.x - harlan.x, b.z - harlan.z).length() < group_clear_m:
+		if Vector2(b.x - harlan.x, b.z - harlan.z).length() < group_clear_m \
+				or (now >= 0.0 and block_t[i] >= 0.0 and now - block_t[i] < CLEAR_AFTER_S):
 			keep.append(b)
 			keep_t.append(block_t[i])
 			keep_by.append(block_by[i] if i < block_by.size() else null)
