@@ -28,15 +28,28 @@ const IGNORED_STATICS := {
 ## Nodes a system makes on the root the first time it's needed when there's no current scene (in the
 ## game they go in the scene and go with it): taken away after every file so the next makes its own
 ## fresh, but not the file's fault. SpawnQueue kept its tick's room and its place in the physics
-## order from one file to the next (#1326: the shack walk's run 8 red in its shard's order only).
-const SYSTEM_NODES := ["GameAudio", "SpawnQueue"]
+## order from one file to the next; DentWatch its listener on Events.bullet_hit.
+const SYSTEM_NODES := ["GameAudio", "SpawnQueue", "DentWatch"]
+
+## Statics that follow a setting (the runner puts the settings back before every file): not the file's
+## fault, but put back after every file by their own function, so the next starts as the suite did.
+## class.var -> the function that sets it.
+## "" : the runner's own settings restore re-applies it (Settings._apply_quantise).
+const FOLLOWERS := {
+	"RealLook.shaders_real": "swap_shaders",  # (the world's shaders recompiled for the real look)
+	"PixelArt.real": "", "PixelArt.blocks": "", "PixelArt.bold": "", "PixelArt.smooth": "",
+	"PeopleBodies.smooth_paint": "",
+}
 
 ## Every `static var` at a script's top level, by class (from the sources: Godot doesn't list them).
 var statics := {}  # class name -> [script, [var names]]
 var _before := {}
+var _followers := {}  # class.var -> its value before the file
 
 
 func _init() -> void:
+	for k: String in FOLLOWERS:
+		_followers[k] = null
 	var re := RegEx.create_from_string("(?m)^static var ([A-Za-z_][A-Za-z0-9_]*)")
 	for c: Dictionary in ProjectSettings.get_global_class_list():
 		var path: String = c.path
@@ -49,7 +62,8 @@ func _init() -> void:
 		for m in re.search_all(text):
 			var n := m.get_string(1)
 			# (a public static is a dial a test may set; an `_x` one is a system's own cache or count)
-			if not n.begins_with("_") and not IGNORED_STATICS.has("%s.%s" % [c.class, n]):
+			var k := "%s.%s" % [c.class, n]
+			if not n.begins_with("_") and not IGNORED_STATICS.has(k) and not FOLLOWERS.has(k):
 				names.append(n)
 		if not names.is_empty():
 			statics[String(c.class)] = [path, names]
@@ -139,11 +153,13 @@ func _engine(root: Window) -> Dictionary:
 	return out
 
 
-## The picture before a file (call it in a physics frame: the space is asked).
+## The picture before a file.
 func take(root: Window) -> void:
 	var kids := {}
 	for c in root.get_children():
 		kids[c.get_instance_id()] = _count(c) if _is_autoload(c) else 0
+	for k: String in _followers:
+		_followers[k] = _static_now(k)
 	_before = {
 		"kids": kids,
 		"physics": physics_count(root),
@@ -155,7 +171,7 @@ func take(root: Window) -> void:
 
 
 ## What's different now (`case` is the file's own node, on its way out): one line each, empty if
-## nothing. Call it in a physics frame, a few frames after the file's node was freed.
+## nothing. Call it a few frames after the file's node was freed.
 func leaks(root: Window, case: Node = null) -> PackedStringArray:
 	var out: PackedStringArray = []
 	var kids: Dictionary = _before.kids
@@ -237,12 +253,32 @@ func free_leaks(root: Window, case: Node = null) -> void:
 			Engine.set_meta(m, en0[k])
 
 
-## What the systems made on the root (SYSTEM_NODES), taken away after every file, leak or not.
+static func _class_script(cls: String) -> GDScript:
+	for c: Dictionary in ProjectSettings.get_global_class_list():
+		if String(c.class) == cls:
+			return load(c.path) as GDScript
+	return null
+
+
+func _static_now(k: String) -> Variant:
+	var parts := k.split(".")
+	var s := _class_script(parts[0])
+	return s.get(parts[1]) if s else null
+
+
+## After every file, leak or not: what the systems made on the root (SYSTEM_NODES) taken away, and
+## the FOLLOWERS put back as they were before it. How many nodes went.
 func free_system_nodes(root: Window) -> int:
+	for k: String in _followers:
+		var was: Variant = _followers[k]
+		if was != null and FOLLOWERS[k] != "" and _static_now(k) != was:
+			var parts := k.split(".")
+			_class_script(parts[0]).call(FOLLOWERS[k], was)
 	var n := 0
 	for c in root.get_children():
 		if SYSTEM_NODES.has(String(c.name)) and not c.is_queued_for_deletion():
-			root.remove_child(c)
-			c.queue_free()
+			# (freed now, not queued: a sound's delayed play, a SceneTreeTimer from the file, is let go with
+			# its player instead of playing it out of the tree in the next file)
+			c.free()
 			n += 1
 	return n

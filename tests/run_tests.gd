@@ -146,9 +146,14 @@ func _fresh_start() -> void:
 	(load("res://src/main/game_reset.gd") as GDScript).call(&"clear_statics")
 	var settings := root.get_node_or_null(^"Settings")
 	if settings:
+		var put_back := false
 		for key: String in _settings_at_start:
 			if settings.get(key) != _settings_at_start[key]:
 				settings.set(key, _settings_at_start[key])
+				put_back = true
+		# (set straight, a setting doesn't reach what it drives: the look's statics follow it again, #1326)
+		if put_back and settings.has_method(&"_apply_quantise"):
+			settings.call(&"_apply_quantise")
 	Engine.max_physics_steps_per_frame = ProjectSettings.get_setting(
 			"physics/common/max_physics_steps_per_frame", 8)
 
@@ -217,8 +222,7 @@ func _run() -> void:
 		var file_started := Time.get_ticks_msec()
 		_fresh_start()
 		if leaks:
-			await physics_frame
-			leaks.call(&"take", root)
+			leaks.call(&"take", root)  # (no frame waited for: a file starts on the frame it always did)
 		var path := "res://tests/%s" % file
 		var script := load(path) as GDScript
 		if script == null or not script.can_instantiate():
@@ -250,6 +254,9 @@ func _run() -> void:
 				for f in case.failures:
 					failed.append(f)
 					print("  FAIL %s" % f)
+		await case.after_all()
+		for e in _catcher.take():
+			failed.append("%s: script error after its tests: %s" % [file, e])
 		case.queue_free()
 		await process_frame
 		if leaks:
