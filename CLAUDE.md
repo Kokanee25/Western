@@ -68,12 +68,14 @@ the history in `docs/status/`.
 - **A PR runs the tests its changes need; main runs them all** (Sean, #1234): a PR's run is a core set
   plus what `config/test_map.json` maps from its files (the run's summary lists them;
   `python3 tools/test_select.py --base=origin/main` shows it locally); merging main in after a green run
-  reruns only what that push touched (docs clashes: the core set). `[full]` in the last commit runs
+  reruns what that push touched, plus the mission `canary` if main's code came in (docs: the core set). `[full]` in the last commit runs
   everything. Merge on that run green; main's full run after the merge is the net: watch it and give
   Sean its build number. A red main is fixed first by the next session (as now). A new folder or kind
   of file runs everything until a rule maps it.
 - **After merging, confirm the build on `main` is green** (Actions → "Test and build" for that
   commit) and give Sean the build number. A red main is fixed before anything else.
+  **Why main went red** (#1326): the fix's PR says in a line what broke it and why its PR was green
+  (replay the shard with `--files=`, `LEAK` lines, `--shuffle=N`); if no check would catch it, add one.
 - **Never edit the other session's files without saying so**: in the commit message and in your
   status entry (`docs/status/`), naming the file and why. If it's more than a line or two, ask Sean first.
 - **A brief per big job:** before anything larger than a day, write `docs/briefs/<name>.md` (goal,
