@@ -5,9 +5,18 @@ extends Node3D
 ## in a free chair there (PlayerSeat). A scene, not a minigame: the men shuffle, ante, deal, bet,
 ## draw and show by the data's rules, a line now and then (Events.spoke: their mouths, subtitles),
 ## their hands to the deck and the pot (HumanBody.reach_to), their eyes on the table; the cards
-## and chips lie on the table (stand-ins: boxes and discs, the faces as text). On your turn a nod
-## calls or checks and a shake folds (HeadGesture), fire raises (#1279), and waited on you check, or
-## fold to a bet. Sat, a shout calls a cheat on the man you face (PlayerWounds, `accuse`).
+## (an 1880s deck, PlayingCards: a card face down is the card turned over), clay chips and silver
+## dollars lie on the table. Your cards lie face down before you: you lift them to read (PlayerCards,
+## first person); nobody sees them till the showdown. On your turn a nod calls or checks and a shake
+## folds (HeadGesture), and PlayerCards' keys call, fold or raise by an amount within the table's
+## `limit` (#1294); at the draw you choose what to throw (`you_mark`, `you_draw`: `draw.most`, one more
+## keeping an ace); waited on you check, or fold to a bet. Sat, a shout calls a cheat on the man you
+## face (PlayerWounds, `accuse`).
+##
+## The men play to their hands (#1294): each bets by his honest odds (`odds`, Poker.equity: his cards
+## against hands dealt from what he can't see, spread over frames) and his nature (`natures`, `men`:
+## careful, reckless, a bluffer), and has a tell a watchful player can learn (`tells`: a man who
+## touches his chips when he's strong, one who stares at you when he's bluffing).
 ##
 ## Everything you do here gets an answer (#1279, DESIGN §2 pillar 6): a line from the table at once in
 ## words that match what they saw (your raise, your bluff shown up, a pot taken or lost, a cheat called
@@ -31,12 +40,8 @@ signal you_did(verb: StringName, info: Dictionary)
 
 const DATA := "res://config/card_game.json"
 const YOU := "you"
-const CARD_SIZE := Vector3(0.063, 0.0012, 0.088)
-const CHIP_R := 0.019
-const CHIP_H := 0.0035
-const CHIP_COLOURS := [Color(0.62, 0.12, 0.1), Color(0.86, 0.84, 0.78), Color(0.14, 0.2, 0.45)]
-const BACK := Color(0.42, 0.1, 0.08)
-const FACE := Color(0.93, 0.91, 0.85)
+const CHIP_H := PlayingCards.CHIP_H
+const CHIP_COLOURS := PlayingCards.CHIP_COLOURS
 const STACK_MAX := 20
 ## Past this (m) the cards and chips aren't drawn.
 const SEEN_FROM := 40.0
@@ -68,6 +73,18 @@ var last_winner := ""
 var last_hand := ""
 ## What each did last: id -> "check", "bet", "call", "raise", "fold", "draw 2"...
 var last_move := {}
+## The men's honest odds this hand (#1294): id -> {share (of the pot, 0..1), opp (against how many),
+## round}, worked out a few deals a frame (`odds.per_frame`) after the deal and after the draw.
+var odds := {}
+## Each man's silver dollars beside his chips (his money off the table: a rebuy spends `coins.rebuy`).
+var coins := {}
+## Your cards lifted to read (PlayerCards): off the table, in your hand.
+var lifted := false
+## Your draw: waiting on you (`you_drawing`), the slots you've marked to throw.
+var you_drawing := false
+var you_marks: Array[int] = []
+## What a raise of yours adds (1 .. the round's `limit`).
+var you_amount := 1
 
 var _t := 0.0
 var _calm := 0.0
@@ -86,6 +103,11 @@ var _you_turn := false
 var _you_told := false
 var _you_warned := false  # the last seconds of your turn said (#773's playtest: a late nod folded unwarned)
 var _reach := {}  # id -> [side, point, until]
+var _odds_q: Array = []  # [id, round, he_draws, opp, won, n, rest]
+var _bluffing := {}  # id -> true: he bet or raised this hand on less than his share
+var _tell_at := {}  # id -> when he may show his tell next
+## Tells shown (a hand to his chips), for the bench and the tests.
+var tells_shown := 0
 var _you_seated := false
 var _broke_told := false
 var _mucked := 0
@@ -105,8 +127,8 @@ var _chip_flights: Array[Dictionary] = []  # {from, to, t, colour}
 var _pot_flying := 0
 var _card_mm: MultiMeshInstance3D
 var _chip_mm: MultiMeshInstance3D
+var _coin_mm: MultiMeshInstance3D
 var _dirty := true
-var _letters := false
 var _centre := Vector3.ZERO
 var _centre_at := -1.0
 var _top := -1.0
@@ -121,10 +143,10 @@ func _init() -> void:
 func _ready() -> void:
 	add_to_group(&"card_game")
 	if data.is_empty():
-		data = JSON.parse_string(FileAccess.get_file_as_string(DATA))
-	_letters = not ThemeDB.fallback_font.has_char(0x2665)
-	_card_mm = _multimesh("Cards", _box_mesh())
-	_chip_mm = _multimesh("Chips", _chip_mesh())
+		data = data_file().duplicate(true)
+	_card_mm = _multimesh("Cards", PlayingCards.card_mesh(), true, false)
+	_chip_mm = _multimesh("Chips", PlayingCards.chip_mesh())
+	_coin_mm = _multimesh("Coins", PlayingCards.coin_mesh(), false, false)
 	Events.shot_fired.connect(_on_shot)
 	Events.exploded.connect(_on_blast)
 	Events.shouted.connect(_on_shouted)
@@ -139,6 +161,16 @@ func _exit_tree() -> void:
 		Events.shouted.disconnect(_on_shouted)
 
 
+## The game's data (config/card_game.json), read once (PlayerCards' dials are in it too).
+static func data_file() -> Dictionary:
+	if _file.is_empty():
+		_file = JSON.parse_string(FileAccess.get_file_as_string(DATA))
+	return _file
+
+
+static var _file := {}
+
+
 func _beat(k: String) -> float:
 	return float((data.get("beats", {}) as Dictionary).get(k, 1.0))
 
@@ -149,6 +181,26 @@ func _play(k: String) -> float:
 
 func _place(k: String) -> float:
 	return float((data.get("place", {}) as Dictionary).get(k, 0.3))
+
+
+## The most a bet or a raise adds this round (#1294: the table's limit, `limit` [before, after the draw]).
+func limit() -> int:
+	var l: Array = data.get("limit", data.get("bets", [1, 2]))
+	return maxi(int(l[mini(betting_round, l.size() - 1)]), 1)
+
+
+func _draw_rule(k: String, dflt: Variant) -> Variant:
+	return (data.get("draw", {}) as Dictionary).get(k, dflt)
+
+
+## A man's nature at the table (#1294; `men`, `natures`): his betting's numbers, his tell.
+func nature_of(id: String) -> Dictionary:
+	var man: Dictionary = (data.get("men", {}) as Dictionary).get(id, {})
+	var n: Dictionary = (data.get("natures", {}) as Dictionary).get(String(man.get("nature", data.get("nature", "careful"))), {})
+	var out := n.duplicate()
+	out["name"] = String(man.get("nature", data.get("nature", "careful")))
+	out["tell"] = String(man.get("tell", ""))
+	return out
 
 
 # --- Who's at the table --------------------------------------------------------------------------
@@ -257,6 +309,7 @@ func _physics_process(delta: float) -> void:
 	var t := Prof.start()
 	var dt := delta * speed
 	step(dt)
+	_work_odds()
 	_animate(dt)
 	_act()
 	Prof.stop(&"card_game", t)
@@ -463,8 +516,11 @@ func _start_hand() -> void:
 		var id := id_of(x[1])
 		if not stacks.has(id):
 			stacks[id] = int(data.stack.you if id == YOU else data.stack.men)
+		if id != YOU and not coins.has(id):
+			coins[id] = int((data.get("coins", {}) as Dictionary).get("men", 6))
 		if id != YOU and int(stacks[id]) < int(data.get("rebuy_below", 3)):
 			stacks[id] = int(stacks[id]) + int(data.stack.men)
+			coins[id] = maxi(int(coins[id]) - int((data.get("coins", {}) as Dictionary).get("rebuy", 2)), 0)
 			_say(x[1], "rebuy")
 		if id == YOU and not _bought:
 			_buy_in()
@@ -492,6 +548,13 @@ func _start_hand() -> void:
 	_hold_seats()
 	_t = _beat("shuffle_s")
 	_you_bluffing = false
+	odds.clear()
+	_odds_q.clear()
+	_bluffing.clear()
+	_tell_at.clear()
+	you_drawing = false
+	you_marks.clear()
+	you_amount = 1
 	if _needle and you_in():
 		# A big pot of theirs in front of you (#1279): the hand starts with a word at it.
 		_needle = false
@@ -560,7 +623,7 @@ func _deal_step() -> void:
 				_cheat_hand = hands
 				break
 	s.cards.append(c)
-	_add_card(c, _deck_at(), _card_at(s.chair, int(job[1])), s.id == YOU)
+	_add_card(c, _deck_at(), _card_at(s.chair, int(job[1])), false)
 	_reach_for(dealer_id, "r", _card_at(s.chair, int(job[1])).origin.lerp(_deck_at().origin, 0.5), _beat("deal_every_s") * 1.5)
 	_t = _beat("deal_every_s")
 
@@ -570,8 +633,13 @@ func _begin_round(n: int) -> void:
 	_round_bet = 0
 	_raises = 0
 	_acted.clear()
+	you_amount = clampi(you_amount, 1, limit())
 	for s in seats:
 		s.put = 0
+	# Each man works out his odds: before the draw with his draw to come, after it on what he holds.
+	for s in _from_dealer():
+		if s.in and s.id != YOU:
+			_queue_odds(s, n == 0)
 	state = &"bet"
 	_turn = -1
 	_next_turn()
@@ -620,31 +688,23 @@ func _bet_step(dt: float) -> void:
 		if not _you_told:
 			_you_told = true
 			# What it costs and what you've got: the playtest couldn't tell the stakes.
-			var t := String(data.you.turn if to_call > 0 else data.you.turn_check).replace("{call}", str(to_call))
+			var t := String(data.you.turn if to_call > 0 else data.you.turn_check).replace("{call}", str(to_call)).replace("{raise}", str(you_amount))
 			_prompt(t + String(data.you.stakes).replace("{pot}", str(pot)).replace("{stack}", str(stacks.get(YOU, 0))), _beat("you_wait_s"))
 			var asker := _seat(dealer_id)
 			if not asker.is_empty() and asker.id != YOU:
 				_say(asker.who, "your_turn")
 		var p := s.who as Player
-		if p and p.input_enabled and Input.is_action_just_pressed(&"fire") and you_raise():
-			return
 		var g := _gesture.feed(rad_to_deg(p.rotation.y), p.get_pitch_degrees(), dt) if p else &""
 		if g == &"shake":
-			_you_turn = false
-			_fold(s, true)
-			_prompt(String(data.you.you_fold), 1.5)
-			you_did.emit(&"fold", {"men": _men()})
-		elif g == &"nod" or (_t <= 0.0 and to_call <= 0):
+			you_fold()
+			return
+		elif g == &"nod":
+			you_call()
+			return
+		elif _t <= 0.0 and to_call <= 0:
 			_you_turn = false
 			_call(s)
-			_prompt(String(data.you.you_call if to_call > 0 else data.you.you_check), 1.5)
-			if g == &"nod" and to_call > 0:
-				# Your call answered (#1279): the man who bet it, or whoever's next.
-				_say(_next_man(), "you_call", {}, true)
-				you_did.emit(&"call", {"men": _men()})
-			elif g == &"nod":
-				# A check: a word now and then (the table's own pace), their eyes on you as ever.
-				_say(_next_man(), "you_check")
+			_prompt(String(data.you.you_check), 1.5)
 		elif _t <= 3.0 and to_call > 0 and not _you_warned:
 			_you_warned = true
 			_prompt(String(data.you.get("hurry", "Nod to call, shake to fold: 3 s")), 3.0)
@@ -658,30 +718,104 @@ func _bet_step(dt: float) -> void:
 			return
 		_next_turn()
 		return
-	if _t > 0.0:
-		return
-	var st := Poker.strength(s.cards)
-	var bet := int((data.get("bets", [1, 2]) as Array)[mini(betting_round, 1)])
-	if to_call <= 0:
-		if st >= _play("open_at") and rng.randf() < _play("open_chance") and _raises < int(data.get("max_raises", 2)):
-			_round_bet += bet
+	if _t > 0.0 or not odds.has(s.id) or int(odds[s.id].get("round", -1)) != betting_round:
+		return  # thinking (his odds a few deals a frame: `_work_odds`)
+	var opp := _in_hand().size() - 1
+	var can_raise := _raises < int(data.get("max_raises", 2)) and int(stacks[s.id]) > to_call
+	var d := decide(nature_of(s.id), share_now(s.id, opp), opp, to_call, pot, can_raise, limit(), rng)
+	match String(d.move):
+		"bet", "raise":
+			if bool(d.bluff):
+				_bluffing[s.id] = true
+			_round_bet += int(d.n)
 			_raises += 1
 			_put(s, _round_bet - int(s.put))
-			_did(s, "bet")
-		else:
+			_did(s, String(d.move))
+		"call":
+			_call(s)
+			_did(s, "call")
+		"check":
 			_did(s, "check")
-	elif st >= _play("raise_at") and rng.randf() < _play("raise_chance") and _raises < int(data.get("max_raises", 2)):
-		_round_bet += bet
-		_raises += 1
-		_put(s, _round_bet - int(s.put))
-		_did(s, "raise")
-	elif st >= _play("call_at") or rng.randf() < _play("bluff_call"):
-		_call(s)
-		_did(s, "call")
-	else:
-		_fold(s, true)
-		_did(s, "fold")
+		_:
+			_fold(s, true)
+			_did(s, "fold")
 	_next_turn()
+
+
+## What a man does with `share` (his odds, 0..1) against `opp` others, `to_call` to stay in a pot of
+## `pot`, by his `nature` (#1294; config/card_game.json `natures`): {move: check/bet/call/raise/fold,
+## n (what a bet or raise adds, 1..`lim`), bluff}. `r` is his share over a fair one (1: an even chance
+## among them); he opens past `open` and raises past `raise`, calls when his share's worth the price
+## (`call` times the pot's odds) or now and then regardless (`loose`), and bets or raises on nothing
+## `bluff` of the time. Pure: the tests play it seeded.
+static func decide(nature: Dictionary, share: float, opp: int, to_call: int, pot: int, can_raise: bool, lim: int, rng: RandomNumberGenerator) -> Dictionary:
+	var r := share * float(maxi(opp, 1) + 1)
+	var bluff := float(nature.get("bluff", 0.05))
+	if to_call <= 0:
+		if can_raise and r >= float(nature.get("open", 1.3)) and rng.randf() < float(nature.get("open_chance", 0.85)):
+			return {"move": "bet", "n": _bet_size(nature, r, lim), "bluff": false}
+		if can_raise and r < 1.0 and rng.randf() < bluff:
+			return {"move": "bet", "n": _bluff_size(nature, lim), "bluff": true}
+		return {"move": "check", "n": 0, "bluff": false}
+	var price := float(to_call) / float(maxi(pot + to_call, 1))
+	if can_raise and r >= float(nature.get("raise", 1.8)) and rng.randf() < float(nature.get("raise_chance", 0.6)):
+		return {"move": "raise", "n": _bet_size(nature, r, lim), "bluff": false}
+	if share >= price * float(nature.get("call", 1.0)):
+		return {"move": "call", "n": 0, "bluff": false}
+	if can_raise and rng.randf() < bluff * 0.5:
+		return {"move": "raise", "n": _bluff_size(nature, lim), "bluff": true}
+	if rng.randf() < float(nature.get("loose", 0.1)):
+		return {"move": "call", "n": 0, "bluff": false}
+	return {"move": "fold", "n": 0, "bluff": false}
+
+
+## A bet's size by how strong he is: 1 at a fair share, toward the limit by `size` as it grows.
+static func _bet_size(nature: Dictionary, r: float, lim: int) -> int:
+	var k := clampf((r - 1.0) / 1.5, 0.0, 1.0) * float(nature.get("size", 0.5)) * 1.6
+	return clampi(roundi(1.0 + float(lim - 1) * k), 1, lim)
+
+
+## A bluff's size: big enough to scare, by his `size`.
+static func _bluff_size(nature: Dictionary, lim: int) -> int:
+	return clampi(roundi(1.0 + float(lim - 1) * float(nature.get("size", 0.5))), 1, lim)
+
+
+# --- The men's odds (#1294) -------------------------------------------------------------------------
+
+## His odds to work out: `he_draws` before the draw. Against however many are in now.
+func _queue_odds(s: Dictionary, he_draws: bool) -> void:
+	odds.erase(s.id)
+	var opp := maxi(_in_hand().size() - 1, 1)
+	_odds_q.append([s.id, betting_round, he_draws, opp, 0.0, 0, Poker.unseen(s.cards), (s.cards as Array).duplicate()])
+
+
+## A few deals a frame (`odds.per_frame` in all, `odds.samples` a man): the queue's first man first.
+func _work_odds() -> void:
+	var o: Dictionary = data.get("odds", {})
+	var budget := int(o.get("per_frame", 4)) * maxi(int(ceil(speed)), 1)
+	var want := int(o.get("samples", 100))
+	var fwa := bool(_draw_rule("four_with_ace", true))
+	while budget > 0 and not _odds_q.is_empty():
+		var j: Array = _odds_q[0]
+		j[4] = float(j[4]) + Poker.equity_sample(j[7], int(j[3]), rng, j[6], bool(j[2]), fwa)
+		j[5] = int(j[5]) + 1
+		budget -= 1
+		if int(j[5]) >= want:
+			odds[j[0]] = {"share": float(j[4]) / float(j[5]), "opp": int(j[3]), "round": int(j[1])}
+			_odds_q.pop_front()
+
+
+## His share now, against `opp` others (his odds were against `odds.opp`: a man folded since, each
+## other hand beaten about as often as ever).
+func share_now(id: String, opp: int) -> float:
+	var o: Dictionary = odds.get(id, {})
+	if o.is_empty():
+		return 1.0 / float(opp + 1)
+	var was := maxi(int(o.opp), 1)
+	if opp == was:
+		return float(o.share)
+	var each := pow(maxf(float(o.share), 0.0001), 1.0 / float(was))
+	return pow(each, float(maxi(opp, 1)))
 
 
 func _did(s: Dictionary, move: String) -> void:
@@ -694,20 +828,65 @@ func _did(s: Dictionary, move: String) -> void:
 	_say(s.who, move)
 
 
-## You raise (#1279: fire on your turn; the bridge's and the tests' too): the bet up one step, as a man
-## raises, if the raises aren't spent and you've the chips to go past the call. A raise on a hand under
-## `call_at` is a bluff, known only to you till it's shown down. The next man to act answers it.
-func you_raise() -> bool:
-	if not _you_turn or _turn < 0 or _turn >= seats.size() or seats[_turn].id != YOU:
+## You call (or check, nothing to call): the nod, PlayerCards' key, the bridge's and the tests'.
+func you_call() -> bool:
+	if not your_turn():
 		return false
 	var s: Dictionary = seats[_turn]
-	var bet := int((data.get("bets", [1, 2]) as Array)[mini(betting_round, 1)])
 	var to_call := _round_bet - int(s.put)
-	if _raises >= int(data.get("max_raises", 2)) or int(stacks.get(YOU, 0)) < to_call + bet:
+	_you_turn = false
+	_call(s)
+	_prompt(String(data.you.you_call if to_call > 0 else data.you.you_check), 1.5)
+	if to_call > 0:
+		# Your call answered (#1279): the man who bet it, or whoever's next.
+		_say(_next_man(), "you_call", {}, true)
+		you_did.emit(&"call", {"men": _men()})
+	else:
+		# A check: a word now and then (the table's own pace), their eyes on you as ever.
+		_say(_next_man(), "you_check")
+	_next_turn()
+	return true
+
+
+## You fold: the shake, PlayerCards' key.
+func you_fold() -> bool:
+	if not your_turn():
+		return false
+	_you_turn = false
+	_fold(seats[_turn], true)
+	_prompt(String(data.you.you_fold), 1.5)
+	you_did.emit(&"fold", {"men": _men()})
+	_next_turn()
+	return true
+
+
+func your_turn() -> bool:
+	return _you_turn and _turn >= 0 and _turn < seats.size() and seats[_turn].id == YOU and state == &"bet"
+
+
+## Your raise's size, `d` more or less (1 .. the round's limit; #1294).
+func you_more(d: int) -> int:
+	you_amount = clampi(you_amount + d, 1, limit())
+	if your_turn():
+		_prompt(String(data.you.get("amount", "Raise by {n}")).replace("{n}", str(you_amount)), 1.5)
+	return you_amount
+
+
+## You raise (#1279: fire on your turn, PlayerCards; the bridge's and the tests' too) by `n` (else your
+## `you_amount`; #1294: 1 .. the round's `limit`), if the raises aren't spent and you've the chips to go
+## past the call. A raise on a hand under `call_at` is a bluff, known only to you till it's shown down.
+## The next man to act answers it.
+func you_raise(n := -1) -> bool:
+	if not your_turn():
+		return false
+	var s: Dictionary = seats[_turn]
+	var by := clampi(n if n > 0 else you_amount, 1, limit())
+	var to_call := _round_bet - int(s.put)
+	if _raises >= int(data.get("max_raises", 2)) or int(stacks.get(YOU, 0)) < to_call + by:
 		_prompt(String(data.you.get("no_raise", "You can't raise that")), 1.5)
 		return false
 	_you_turn = false
-	_round_bet += bet
+	_round_bet += by
 	_raises += 1
 	_put(s, _round_bet - int(s.put))
 	_acted[YOU] = true
@@ -718,6 +897,46 @@ func you_raise() -> bool:
 	_say(_next_man(), "you_raise", {"n": str(_round_bet)}, true)
 	you_did.emit(&"raise", {"men": _men(), "bluff": weak})
 	_next_turn()
+	return true
+
+
+## Your cards, in their slots (empty when you're not dealt in).
+func your_cards() -> Array:
+	var s := _seat(YOU)
+	return (s.cards as Array).duplicate() if not s.is_empty() else []
+
+
+## At your draw (#1294): mark or unmark the card in `slot` to throw. False past what the rule lets you.
+func you_mark(slot: int) -> bool:
+	if not you_drawing or slot < 0 or slot > 4:
+		return false
+	if you_marks.has(slot):
+		you_marks.erase(slot)
+		return true
+	var most := int(_draw_rule("most", 3))
+	if you_marks.size() >= most + (1 if bool(_draw_rule("four_with_ace", true)) else 0):
+		_prompt(String(data.you.get("draw_most", "No more than {n}")).replace("{n}", str(most)), 1.5)
+		return false
+	you_marks.append(slot)
+	return true
+
+
+## At your draw: throw what you've marked (else `throw`) and be dealt as many. False when it's past the
+## rule (three, four only keeping an ace): you choose again.
+func you_draw(throw: Variant = null) -> bool:
+	if not you_drawing:
+		return false
+	var s := _seat(YOU)
+	var out: Array[int] = []
+	for i: int in (throw if throw != null else you_marks):
+		out.append(i)
+	out.sort()
+	if not Poker.can_throw(s.cards, out, int(_draw_rule("most", 3)), bool(_draw_rule("four_with_ace", true))):
+		_prompt(String(data.you.get("draw_rule", "Three at most; four keeping an ace")), 2.0)
+		return false
+	you_drawing = false
+	you_marks.clear()
+	_draw_for(s, out)
 	return true
 
 
@@ -808,6 +1027,11 @@ func _put(s: Dictionary, n: int) -> void:
 
 
 func _draw_step() -> void:
+	if you_drawing:
+		# Waiting on your choice; out of time, you draw what you'd marked (or stand pat).
+		if _t <= 0.0 and not you_draw():
+			you_draw([])
+		return
 	if _t > 0.0:
 		return
 	var order := _from_dealer()
@@ -818,8 +1042,17 @@ func _draw_step() -> void:
 		_begin_round(1)
 		return
 	var s: Dictionary = order[_draw_i]
-	var out := Poker.discards(s.cards)
-	# Thrown in face down, and as many dealt him.
+	if s.id == YOU:
+		you_drawing = true
+		you_marks.clear()
+		_t = _beat("you_wait_s") * float(data.beats.get("you_draw_x", 1.5))
+		_prompt(String(data.you.get("your_draw", "Your draw")), _t)
+		return
+	_draw_for(s, Poker.discards(s.cards, bool(_draw_rule("four_with_ace", true))))
+
+
+## His cards in `out` (slots) thrown in face down, and as many dealt him.
+func _draw_for(s: Dictionary, out: Array[int]) -> void:
 	for k in out:
 		for card in _cards:
 			if card.get("owner", "") == s.id and card.get("slot", -1) == k:
@@ -828,7 +1061,7 @@ func _draw_step() -> void:
 				_mucked += 1
 		var c: int = deck.pop_back()
 		s.cards[k] = c
-		_add_card(c, _deck_at(), _card_at(s.chair, k, 1), s.id == YOU, 0.25 + 0.12 * out.find(k), s.id, k)
+		_add_card(c, _deck_at(), _card_at(s.chair, k, 1), false, 0.25 + 0.12 * out.find(k), s.id, k)
 	last_move[s.id] = "draw %d" % out.size()
 	if s.id == YOU:
 		_prompt(String(data.you.you_draw).replace("{n}", str(out.size())) if not out.is_empty() else String(data.you.you_stand_pat), 1.6)
@@ -842,6 +1075,7 @@ func _showdown() -> void:
 	var live := _in_hand()
 	_turn = -1
 	_you_turn = false
+	you_drawing = false
 	var best: Array[Dictionary] = []
 	for s in live:
 		if best.is_empty() or Poker.compare(s.cards, best[0].cards) > 0:
@@ -853,8 +1087,7 @@ func _showdown() -> void:
 		for card in _cards:
 			for s in live:
 				if card.get("owner", "") == s.id:
-					card.up = true
-					_show_face(card)
+					_fly(card, card.to, true)
 	var share := pot / maxi(best.size(), 1)
 	var won := pot
 	for w in best:
@@ -935,7 +1168,10 @@ func _say(who: Variant, kind: String, fill := {}, always := false) -> void:
 	for k: String in fill:
 		text = text.replace("{%s}" % k, String(fill[k]))
 	_said[id] = _clock
+	# Timed on its own (inside `card_game`): its listeners are the faces', the subtitles', the news's.
+	var t0 := Prof.start()
 	Events.spoke.emit(who, text)
+	Prof.stop(&"card_say", t0)
 
 
 ## One of the men sat at the table (not you), at random; null if none.
@@ -975,7 +1211,12 @@ func _act() -> void:
 				if other == null:
 					continue
 				look = other.global_position + Vector3.UP * 1.15 if other is HumanBody else (other as Player).camera.global_position
+			# The bluffer's tell (#1294): on nothing, his eyes stay on you.
+			var you := _seat(YOU)
+			if s.in and _bluffing.has(s.id) and nature_of(s.id).tell == "stare" and not you.is_empty() and you.who is Player:
+				look = (you.who as Player).camera.global_position
 			life.attend_to(look)
+		_tell(s)
 	for k: String in _reach.keys():
 		var r: Array = _reach[k]
 		var who: Variant = _seat(r[0]).get("who")
@@ -988,6 +1229,28 @@ func _act() -> void:
 		man.reach_to(String(r[1]), r[2], Vector3.UP, ease)
 
 
+## A man's tell (#1294; `tells`, his `men` row): strong (his share past `tells.chips_at` of a fair one),
+## the chips man's hand goes to his chips now and then while another acts (`every_s`, `chance`).
+func _tell(s: Dictionary) -> void:
+	if not s.in or s.id == YOU or (_turn >= 0 and _turn < seats.size() and seats[_turn].id == s.id):
+		return
+	var nat := nature_of(s.id)
+	if nat.tell != "chips" or _clock < float(_tell_at.get(s.id, 0.0)):
+		return
+	var tl: Dictionary = data.get("tells", {})
+	var every: Array = tl.get("every_s", [2.5, 5.0])
+	_tell_at[s.id] = _clock + rng.randf_range(float(every[0]), float(every[1]))
+	if strong(s.id) and rng.randf() < float(tl.get("chance", 0.7)):
+		_reach_for(s.id, "l", _chips_at(s.chair) + Vector3.UP * 0.03, float(tl.get("touch_s", 1.1)))
+		tells_shown += 1
+
+
+## He holds better than a fair share by `tells.chips_at` (what the chips man's tell gives away).
+func strong(id: String) -> bool:
+	var opp := maxi(_in_hand().size() - 1, 1)
+	return odds.has(id) and share_now(id, opp) * float(opp + 1) >= float((data.get("tells", {}) as Dictionary).get("chips_at", 1.5))
+
+
 # --- Cards and chips on the table -------------------------------------------------------------------
 
 func _add_card(c: int, from: Transform3D, to: Transform3D, up: bool, delay := 0.0, owner := "", slot := -1) -> void:
@@ -997,63 +1260,37 @@ func _add_card(c: int, from: Transform3D, to: Transform3D, up: bool, delay := 0.
 			if x.cards.has(c):
 				owner = x.id
 				slot = x.cards.find(c)
-	var card := {"c": c, "from": from, "to": to, "t": -delay, "up": up, "owner": owner, "slot": slot}
+	var card := {"c": c, "from": from, "to": to, "t": -delay, "up": up, "was_up": up, "owner": owner, "slot": slot}
 	_cards.append(card)
-	if up:
-		_show_face(card)
 	_dirty = true
 
 
+## It goes to `to` (a hop), turned `up` or down on the way.
 func _fly(card: Dictionary, to: Transform3D, up: bool) -> void:
-	card.from = _card_xform(card)
+	card.from = _card_xform(card, true)
+	card.was_up = card.up
 	card.to = to
 	card.t = 0.0
 	card.up = up
-	if not up and card.get("label"):
-		(card.label as Label3D).queue_free()
-		card.erase("label")
 	_dirty = true
 
 
-func _show_face(card: Dictionary) -> void:
-	if card.get("label"):
-		return
-	var l := Label3D.new()
-	l.text = Poker.label(int(card.c), _letters)
-	l.pixel_size = 0.0006
-	l.font_size = 40
-	l.outline_size = 0
-	l.modulate = Color(0.62, 0.06, 0.05) if Poker.red(int(card.c)) else Color(0.05, 0.05, 0.05)
-	l.shaded = false
-	l.double_sided = true
-	l.alpha_cut = Label3D.ALPHA_CUT_OPAQUE_PREPASS
-	l.visibility_range_end = SEEN_FROM
-	add_child(l)
-	card.label = l
-	_place_label(card)
-
-
-func _place_label(card: Dictionary) -> void:
-	var l: Label3D = card.get("label")
-	if l == null:
-		return
-	var x := _card_xform(card)
-	l.global_transform = Transform3D(x.basis * Basis(Vector3.RIGHT, -PI * 0.5), x.origin + x.basis.y * 0.0015)
-
-
-func _card_xform(card: Dictionary) -> Transform3D:
+## Where it is (`flat`: its place without the face-down turn).
+func _card_xform(card: Dictionary, flat := false) -> Transform3D:
 	var k := clampf(float(card.t) / _beat("card_fly_s"), 0.0, 1.0)
 	var a: Transform3D = card.from
 	var b: Transform3D = card.to
 	var x := a.interpolate_with(b, k)
 	x.origin.y += sin(k * PI) * 0.05
-	return x
+	if flat:
+		return x
+	# Face down is the card over on its long axis; turned up in the air (the turn's half way at the top).
+	var was := 0.0 if bool(card.get("was_up", card.up)) else PI
+	var now := 0.0 if bool(card.up) else PI
+	return Transform3D(x.basis * Basis(Vector3.BACK, lerpf(was, now, k)), x.origin)
 
 
 func _clear_table() -> void:
-	for card in _cards:
-		if card.get("label"):
-			(card.label as Label3D).queue_free()
 	_cards.clear()
 	_mucked = 0
 	_chip_flights.clear()
@@ -1067,7 +1304,6 @@ func _animate(dt: float) -> void:
 	for card in _cards:
 		if float(card.t) < fly:
 			card.t = float(card.t) + dt
-			_place_label(card)
 			_dirty = true
 	var cf := _beat("chip_fly_s")
 	for i in range(_chip_flights.size() - 1, -1, -1):
@@ -1084,28 +1320,45 @@ func _animate(dt: float) -> void:
 		_draw_chips()
 
 
+## Lift your cards off the table into your hand (PlayerCards), or lay them back down.
+func lift(on: bool) -> void:
+	if on != lifted:
+		lifted = on
+		_dirty = true
+
+
 func _draw_cards() -> void:
 	var mm := _card_mm.multimesh
-	var shown := _cards.filter(func(c: Dictionary) -> bool: return float(c.t) >= 0.0)
+	var fly := _beat("card_fly_s")
+	# Yours in your hand while you hold them (once they've landed), not on the table.
+	var shown := _cards.filter(func(c: Dictionary) -> bool:
+		return float(c.t) >= 0.0 and not (lifted and c.get("owner", "") == YOU and float(c.t) >= fly and not c.up))
 	var deck_n := mini(deck.size(), 12) if state not in [&"idle", &"between"] and not seats.is_empty() else 0
 	mm.instance_count = shown.size() + deck_n
 	var i := 0
 	for card in shown:
 		mm.set_instance_transform(i, _card_xform(card))
-		mm.set_instance_color(i, FACE if card.up else BACK)
+		mm.set_instance_custom_data(i, Color(float(card.c), 0.0, 0.0, 0.0))
 		i += 1
 	var d := _deck_at()
 	for k in deck_n:
-		mm.set_instance_transform(i, Transform3D(d.basis, d.origin + Vector3.UP * (k * 0.0012 - 0.005)))
-		mm.set_instance_color(i, BACK)
+		mm.set_instance_transform(i, Transform3D(d.basis * PlayingCards.FACE_DOWN, d.origin + Vector3.UP * (k * 0.0012 - 0.005)))
+		mm.set_instance_custom_data(i, Color(float(PlayingCards.BACK), 0.0, 0.0, 0.0))
 		i += 1
 
 
 func _draw_chips() -> void:
 	var xs: Array[Transform3D] = []
 	var cs: Array[Color] = []
+	var coin_xs: Array[Transform3D] = []
 	for s in seats:
 		_stack(xs, cs, _chips_at(s.chair), int(stacks.get(s.id, 0)))
+		# His silver beside his chips (yours: what's in your purse, a dollar a coin).
+		var n := int(coins.get(s.id, 0)) if s.id != YOU else _your_dollars()
+		var d := _dir(s.chair)
+		var at := _chips_at(s.chair) + d.cross(Vector3.UP) * 0.075 + d * 0.02
+		for k in mini(n, 12):
+			coin_xs.append(Transform3D(Basis(Vector3.UP, k * 1.3), at + Vector3(0.0, PlayingCards.COIN_H * (k + 0.5), 0.0)))
 	_stack(xs, cs, _pot_at(), pot - _pot_flying, true)
 	var cf := _beat("chip_fly_s")
 	for f in _chip_flights:
@@ -1120,6 +1373,15 @@ func _draw_chips() -> void:
 	for i in xs.size():
 		mm.set_instance_transform(i, xs[i])
 		mm.set_instance_color(i, cs[i])
+	var cm := _coin_mm.multimesh
+	cm.instance_count = coin_xs.size()
+	for i in coin_xs.size():
+		cm.set_instance_transform(i, coin_xs[i])
+
+
+func _your_dollars() -> int:
+	var p := get_tree().get_first_node_in_group(&"player") as Player if is_inside_tree() else null
+	return int(p.purse.cents / 100) if p and p.purse else 0
 
 
 ## `n` chips as stacks of three colours at `at` (a pile, `spread`, for the pot).
@@ -1128,17 +1390,18 @@ func _stack(xs: Array[Transform3D], cs: Array[Color], at: Vector3, n: int, sprea
 	for i in n:
 		var col := i % 3 if spread else mini(i / STACK_MAX, 2)
 		var h := i / 3 if spread else i % STACK_MAX
-		var off := Vector3(float(col) * CHIP_R * 2.2, 0.0, 0.0) if not spread else Vector3(cos(col * 2.1) * 0.035, 0.0, sin(col * 2.1) * 0.035)
+		var off := Vector3(float(col) * PlayingCards.CHIP_R * 2.2, 0.0, 0.0) if not spread else Vector3(cos(col * 2.1) * 0.035, 0.0, sin(col * 2.1) * 0.035)
 		xs.append(Transform3D(Basis(Vector3.UP, i * 0.7), at + off + Vector3.UP * (CHIP_H * 0.5 + h * CHIP_H)))
 		cs.append(CHIP_COLOURS[col])
 
 
-func _multimesh(n: String, mesh: Mesh) -> MultiMeshInstance3D:
+func _multimesh(n: String, mesh: Mesh, custom := false, colours := true) -> MultiMeshInstance3D:
 	var mmi := MultiMeshInstance3D.new()
 	mmi.name = n
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_colors = true
+	mm.use_colors = colours
+	mm.use_custom_data = custom
 	mm.mesh = mesh
 	mmi.multimesh = mm
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -1152,39 +1415,18 @@ func _multimesh(n: String, mesh: Mesh) -> MultiMeshInstance3D:
 	return mmi
 
 
-static func _box_mesh() -> Mesh:
-	var m := BoxMesh.new()
-	m.size = CARD_SIZE
-	m.material = _vertex_material(0.75)
-	return m
-
-
-static func _chip_mesh() -> Mesh:
-	var m := CylinderMesh.new()
-	m.top_radius = CHIP_R
-	m.bottom_radius = CHIP_R
-	m.height = CHIP_H
-	m.radial_segments = 10
-	m.rings = 1
-	m.material = _vertex_material(0.55)
-	return m
-
-
-static func _vertex_material(rough: float) -> StandardMaterial3D:
-	var mat := StandardMaterial3D.new()
-	mat.vertex_color_use_as_albedo = true
-	mat.roughness = rough
-	return mat
-
-
 ## What it's doing, for the bridge and the tests.
 func report() -> Dictionary:
 	var ss := []
 	for s in seats:
 		ss.append({"id": s.id, "stack": int(stacks.get(s.id, 0)), "in": s.in, "put": int(s.put),
 				"cards": (s.cards as Array).map(func(c: int) -> String: return Poker.label(c, true)),
-				"hand": Poker.name(s.cards) if (s.cards as Array).size() == 5 else "", "last": String(last_move.get(s.id, ""))})
+				"hand": Poker.name(s.cards) if (s.cards as Array).size() == 5 else "", "last": String(last_move.get(s.id, "")),
+				"nature": nature_of(s.id).name if s.id != YOU else "", "odds": snappedf(float((odds.get(s.id, {}) as Dictionary).get("share", -1.0)), 0.01),
+				"coins": int(coins.get(s.id, 0))})
 	return {"state": String(state), "stopped_by": String(stop_reason), "hands": hands, "dealer": dealer_id,
 			"round": betting_round, "turn": String(seats[_turn].id) if _turn >= 0 and _turn < seats.size() else "",
 			"pot": pot, "seats": ss, "wins": wins.duplicate(), "cheated": cheated, "you_in": you_in(),
-			"last_winner": last_winner, "last_hand": last_hand, "cards_on_table": _cards.size(), "held": holds.keys()}
+			"last_winner": last_winner, "last_hand": last_hand, "cards_on_table": _cards.size(), "held": holds.keys(),
+			"limit": limit(), "your_turn": your_turn(), "you_drawing": you_drawing, "you_marks": you_marks.duplicate(),
+			"you_amount": you_amount, "lifted": lifted, "tells_shown": tells_shown}

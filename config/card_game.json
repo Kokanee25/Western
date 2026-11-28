@@ -1,24 +1,43 @@
 {
-  "_doc": "The card game at No Law's card table in saloon B's bar room (#1230; was the yard's; #766, No Law step 2; CardGame, src/people/card_game.gd): five-card draw among whoever is sat at it (two or more), the player dealt in when he sits in a free chair there. A scene, not a minigame (Sean, #766): the men deal, ante, bet, draw and show by these rules and numbers, saying a line now and then; on your turn a nod calls (or checks) and a shake folds, and if you do neither for `you_wait_s` you check, or fold to a bet. It runs until something stops it (`stop_on`, a man out of his chair, an act's `interrupt`); the cards stay where they lie. Chips are a stake each, no money yet.",
+  "_doc": "The card game at No Law's card table in saloon B's bar room (#1230; was the yard's; #766, No Law step 2; CardGame, src/people/card_game.gd): five-card draw among whoever is sat at it (two or more), the player dealt in when he sits in a free chair there. A scene, not a minigame (Sean, #766): the men deal, ante, bet, draw and show by these rules and numbers, saying a line now and then; on your turn a nod calls (or checks) and a shake folds, and if you do neither for `you_wait_s` you check, or fold to a bet. It runs until something stops it (`stop_on`, a man out of his chair, an act's `interrupt`); the cards stay where they lie. Chips are bought from your purse (#1292). #1294: a real deck (PlayingCards), your cards face down till you lift them (PlayerCards), your own bets and draw, and men who bet by their odds and natures (`natures`, `men`, `tells`).",
   "status": "PROPOSED (#766): the game, the stakes, the timings and the lines are this session's; No Law (docs/missions/no-law.md) asks only for 'a card game' that's interrupted.",
   "ante": 1,
-  "bets": [1, 2],
-  "max_raises": 2,
+  "limit": [2, 4], "_limit": "#1294: a bet or a raise adds 1 to this many chips, before the draw and after it (limit draw poker, as the saloons' small games were).",
+  "max_raises": 3,
+  "draw": {"most": 3, "four_with_ace": true, "_doc": "#1294: throw 0 to `most` at the draw, or one more keeping an ace (the house rule, shown: Poker.can_throw)."},
+  "coins": {"men": 6, "rebuy": 2, "_doc": "#1294: a man's silver dollars beside his chips; a rebuy spends `rebuy` of them (40 chips at 5 cents is two dollars). Yours are your purse's dollars."},
+  "odds": {"samples": 100, "per_frame": 4, "_doc": "#1294: each man's honest odds (Poker.equity: his cards against hands dealt from what he can't see, each drawing as a man does) from `samples` deals, `per_frame` deals a frame in all while he thinks."},
+  "nature": "careful",
+  "natures": {
+    "_doc": "#1294: how a man bets by his odds. r is his share of the pot over a fair one (1: an even chance among those in). He opens past `open` (`open_chance` of the time) and raises a bet past `raise` (`raise_chance`); calls when his share is worth the price (his share >= `call` x what the call is of the pot after it), else now and then anyway (`loose`); bets on less than a fair share `bluff` of the time (raises on it half that). `size`: how far toward the limit he bets when strong (and how big his bluffs are).",
+    "careful": {"open": 1.5, "open_chance": 0.8, "raise": 2.1, "raise_chance": 0.5, "call": 1.25, "loose": 0.03, "bluff": 0.03, "size": 0.35},
+    "reckless": {"open": 1.05, "open_chance": 0.9, "raise": 1.45, "raise_chance": 0.75, "call": 0.7, "loose": 0.3, "bluff": 0.12, "size": 0.85},
+    "bluffer": {"open": 1.25, "open_chance": 0.85, "raise": 1.7, "raise_chance": 0.6, "call": 0.95, "loose": 0.1, "bluff": 0.35, "size": 0.75}
+  },
+  "men": {
+    "_doc": "#1294: each man's nature (else `nature`) and his tell: `chips` his hand goes to his chips while he's strong; `stare` his eyes stay on you while he's bluffing. Earl talks and bluffs (and deals from the bottom: `cheat`); the drifter plays every hand like his last.",
+    "earl": {"nature": "bluffer", "tell": "stare"},
+    "drifter": {"nature": "reckless", "tell": "chips"}
+  },
+  "tells": {"chips_at": 1.5, "every_s": [2.5, 5.0], "chance": 0.7, "touch_s": 1.1, "_doc": "#1294: the chips tell: strong (r past `chips_at`), every `every_s` while another acts, `chance` of the time, a hand to his chips for `touch_s`."},
   "stack": {"men": 40, "you": 20},
   "rebuy_below": 3,
   "beats": {
     "_doc": "Seconds: the shuffle, everyone's ante, a card dealt every deal_every_s (each in the air card_fly_s), a man's think (between the two), the draw a man, the showdown's look, between hands; on your turn you're waited on you_wait_s; a chip pushed takes chip_fly_s.",
     "shuffle_s": 2.4, "ante_s": 1.2, "deal_every_s": 0.16, "card_fly_s": 0.22, "think_s": [1.0, 2.6],
-    "draw_s": 1.3, "showdown_s": 5.0, "between_s": 3.5, "you_wait_s": 10.0, "chip_fly_s": 0.3
+    "draw_s": 1.3, "showdown_s": 5.0, "between_s": 3.5, "you_wait_s": 10.0, "you_draw_x": 2.0, "chip_fly_s": 0.3
   },
   "play": {
-    "_doc": "How the men play their cards (Poker.strength, 0..1: a pair of jacks ~0.47): open the betting past open_at, raise past raise_at (each with its chance), call with anything past call_at, and with less now and then (bluff_call); a man folds what he won't call.",
-    "open_at": 0.4, "open_chance": 0.7, "raise_at": 0.6, "raise_chance": 0.5, "call_at": 0.27, "bluff_call": 0.25
+    "_doc": "Since #1294 the men bet by `natures` and their odds; `call_at` (Poker.strength, 0..1: a pair of jacks ~0.47) is left as the line under which your raise counts as a bluff (#1279's `bluff_called`).",
+    "call_at": 0.27
   },
   "cheat": {
     "_doc": "Earl deals himself from the bottom now and then (No Law: the card player Cody believes has been cheating): dealing, `odds` that one of his cards is swapped for one that pairs his best. Counted in the report (`cheated`).",
     "who": "earl", "odds": 0.3
   },
+  "hand": {"_doc": "#1294: your cards in your hand (PlayerCards), in the camera's space (m): `down` out of sight, `up` held to read (lifted over `lift_s`, tipped back `tilt_deg`), fanned `fan_deg` a card, the hand `hand_at` from the fan's foot; lifted by aim or by looking down past `look_down_deg`.",
+    "down": [0.08, -0.4, -0.3], "up": [0.03, -0.11, -0.27], "lift_s": 0.35, "tilt_deg": -22.0, "fan_deg": 15.0,
+    "hand_at": [0.004, -0.045, -0.045], "look_down_deg": 42.0},
   "say_chance": 0.55,
   "say_gap_s": 2.5,
   "same_line_s": 600.0, "_same_line": "#1184: no line the table said within this (s); the lines came round every few hands.",
@@ -29,11 +48,16 @@
     "cards_in": 0.33, "card_gap": 0.072, "chips_in": 0.4, "chips_side": 0.2, "deck_in": 0.22, "pot_off": [0.0, 0.0]
   },
   "you": {
-    "turn": "Your bet: {call} to call. Nod: call · shake: fold · fire: raise",
-    "turn_check": "Your bet. Nod: check · shake: fold · fire: raise",
+    "_doc": "#1294: the keys at the table (PlayerCards): Space/A call or check (a nod too), C/B fold (a shake too), click/RT raise by your amount, W/S (stick) the amount; at the draw A/D (stick) a card, Space/A mark it, click/RT draw; hold right-click/LT, or look down, to read your cards.",
+    "turn": "Your bet: {call} to call. Space/A call · C/B fold · click/RT raise {raise} (W/S)",
+    "turn_check": "Your bet. Space/A check · C/B fold · click/RT bet {raise} (W/S)",
+    "amount": "Raise by {n}",
+    "your_draw": "Your draw: A/D a card · Space/A mark it · click/RT draw (0-3, 4 keeping an ace)",
+    "draw_most": "Four at most, and that keeping an ace",
+    "draw_rule": "Three at most; four only keeping an ace",
     "stakes": "\n(pot {pot} · you have {stack})",
     "they_bet": "{who} makes it {n}",
-    "dealt": "You're dealt in: {hand}",
+    "dealt": "Dealt in. Look down, or hold right-click/LT, to read your cards",
     "next_hand": "You're in from the next hand",
     "you_call": "You call", "you_check": "You check", "hurry": "Nod to call, shake to fold: 3 s left.", "you_fold": "You fold",
     "you_draw": "You draw {n}", "you_stand_pat": "You stand pat",

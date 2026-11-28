@@ -17,7 +17,8 @@ extends Resource
 ## part -> Prof systems (timer names) summed into it; anything not listed is "else".
 @export var parts := {
 	&"people": [&"people_body", &"people_skeleton", &"senses", &"outlaw_brain", &"civilian_brain",
-			&"player", &"town_life", &"valley_folk", &"blood", &"cloth", &"mop", &"faces", &"people_prep", &"people_bands"],
+			&"player", &"town_life", &"valley_folk", &"blood", &"cloth", &"mop", &"faces", &"people_prep", &"people_bands",
+			&"card_game"],
 	&"structures": [&"structures", &"voxels", &"ballistics", &"floor_marks", &"rubble_rest", &"spawn_queue", &"settle_queue",
 			&"shadow_set", &"kit_blast", &"kit_balance"],
 	&"fire_effects": [&"fire", &"smoke", &"dynamite", &"char_looks"],
@@ -27,7 +28,7 @@ extends Resource
 ## time, so in no part (each was counted again in "else": the blaze's "else" was mostly the fire's
 ## own tick, #434). By prefix, and by name; `people_prep_sum` is the workers' summed time.
 @export var inside_prefixes: Array[String] = ["fire_", "smoke_", "blast_", "cut_", "settle_", "bu_", "analysis_", "rr_"]
-@export var inside: Array[StringName] = [&"lines_senses", &"civ_fire_look", &"people_prep_sum"]
+@export var inside: Array[StringName] = [&"lines_senses", &"civ_fire_look", &"people_prep_sum", &"card_say"]
 ## Memory (#1259, Sean 2026-11-25: "the buildings are taking too much memory"): what a building may cost a
 ## member, in KB of Godot's static memory (tools/member_memory.gd builds one alone and takes it apart;
 ## tests/test_member_memory.gd holds the hotel to it), and the valley's peak RSS on load with every

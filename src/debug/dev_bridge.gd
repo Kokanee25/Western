@@ -60,7 +60,7 @@ const HELP := {
 	"continue": "continue -> the start's Continue (the save in slot1 loaded, as Enter on the card)",
 	"newgame": "newgame -> the start's card answered with a new game (Space): the old save is kept",
 	"saves": "saves [SLOT] -> the slot's head (day, hour, when written), the last load's report",
-	"cards": "cards [wait N] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s)",
+	"cards": "cards [wait N | guests | lift on|off | call | fold | raise [N] | mark S.. | draw [S..] | turn [S]] -> the card game at the valley's table (CardGame): its state, the hand, who's in, stacks, wins; wait: till N more hands are done (up to 180 s); sat there (#1294): lift your cards to read, call or check, fold, raise by N, mark slots 0-4 to throw at your draw, draw (the marked, or the slots given); turn: wait up to S s (30) for your bet or your draw; guests: stand-ins of the roster's card players (no brains) sat in its free chairs, so a game deals by day (photographs: saloon B at night crashes lavapipe, #1260)",
 	"joe": "joe [here|wait|come|state] -> Joe, the companion (#843): here brings him in beside you (none yet), wait/come is your word to him (G looking at him), state what he's doing (the default)",
 	"glove": "glove MAN [toss_to X Y Z] -> MAN (any man with a Skin_whole: a Studio man) takes off a long glove (#949, GloveAct): it's made from his skin and put on his left arm, drawn off by his right hand as real cloth and flicked away (toward X Y Z if given: not aimed, it lands where it lands); again while he's at it: its phase",
 	"nod": "nod -> nod your head (the view down, up, down: HeadGesture's yes)",
@@ -1119,6 +1119,55 @@ func _cmd_cards(a: Array) -> Dictionary:
 	var g := get_tree().get_first_node_in_group(&"card_game") as CardGame
 	if g == null:
 		return {"ok": false, "error": "no card game (the valley: -- --world=valley, at night)"}
+	var verb := String(a[0]) if a.size() > 0 else ""
+	var did: Variant = null
+	match verb:
+		"guests":
+			var folk := get_tree().get_first_node_in_group(&"valley_folk") as ValleyFolk
+			var ids := [&"earl", &"drifter", &"earl"]
+			var k := 0
+			for c: KitProp in g.chairs:
+				if c.seated != null or folk == null:
+					continue
+				var man := folk._make(folk._person(ids[k % ids.size()]))
+				man.person_id = StringName("guest_%d" % k)
+				man.name = "Guest%d" % k
+				man.rng_seed += 100 + k
+				k += 1
+				get_tree().current_scene.add_child(man)
+				man.global_position = Seating.spot(c) - c.global_basis.z * 0.4
+				for i in 300:
+					if Seating.sit_step(man, c, 1.0 / 60.0):
+						break
+					await get_tree().physics_frame
+			did = k
+		"lift":
+			if player.cards:
+				player.cards.force_lift = a.size() < 2 or a[1] != "off"
+			await _physics_frames(30)
+		"call":
+			did = g.you_call()
+		"fold":
+			did = g.you_fold()
+		"raise":
+			did = g.you_raise(int(a[1]) if a.size() > 1 else -1)
+		"mark":
+			did = []
+			for x in a.slice(1):
+				(did as Array).append(g.you_mark(int(x)))
+		"draw":
+			did = g.you_draw(a.slice(1).map(func(x: Variant) -> int: return int(x)) if a.size() > 1 else null)
+		"turn":
+			var ticks := 0
+			var most := (float(a[1]) if a.size() > 1 else 30.0) * Engine.physics_ticks_per_second
+			while not (g.your_turn() or g.you_drawing) and g.state != &"stopped" and ticks < most:
+				await get_tree().physics_frame
+				ticks += 1
+	if did != null:
+		var r := g.report()
+		r["did"] = did
+		r["your_cards"] = g.your_cards().map(func(c: int) -> String: return Poker.label(c, true))
+		return r
 	if a.size() > 1 and a[0] == "wait":
 		var want := g.hands + int(a[1])
 		var ticks := 0
