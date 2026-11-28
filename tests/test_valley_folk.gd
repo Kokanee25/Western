@@ -64,7 +64,7 @@ func _at(h: float) -> void:
 ## test_band, and the roster's street folk, #936, are others).
 const NIGHT := [&"barkeep", &"miner", &"rancher", &"earl", &"drifter"]
 ## The night's men with day hours too (#1167): the saloon open from ten, the drifter's errands.
-const DAY_TOO := [&"barkeep", &"drifter"]
+const DAY_TOO := [&"barkeep", &"drifter", &"town_drunk"]  # (the drunk, #1312: on the walks all day)
 
 
 ## Who of the night's five is in the world.

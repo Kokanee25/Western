@@ -16,7 +16,9 @@ extends RefCounted
 ##   is (`saloon`, `store`, his block's place or spot); `whom` his version has the man down's name
 ##   (true) or not (false); `who_you` his version has Harlan firing; `shaken`; `indoors` (true or false:
 ##   under a roof, #1272: "Get in and shut it" from a woman already in the saloon); `opinion` {name: at
-##   least}; `once` "ever" (said once in the game, not once a day).
+##   least}; `once` "ever" (said once in the game, not once a day); `you` tags of Harlan's that must
+##   all be in ctx `you` ("!x": must not be; TownDrunk.you_tags, #1312: what the drunk sees on him and
+##   the town knows he did today), each counting 3; `sober` (true or false: the drunk's own, #1312).
 ## The rules: the most specific line that fits wins (`specificity`, his own pool's one more; then a
 ## line of his own pool before a shared one); a person says a given line once a day; nobody says a line another said in
 ## the last `same_line_s`; the speaker must hold the news (view, whom, who_you are his own
@@ -93,6 +95,9 @@ static func specificity(c: Dictionary) -> int:
 			n += 2 * (c[k] as Dictionary).size()
 		elif k == "opinion":
 			n += (c[k] as Dictionary).size()
+		elif k == "you":
+			for t: Variant in (c[k] if c[k] is Array else [c[k]]):
+				n += 0 if String(t).begins_with("!") else 3  # what he sees on you, over the story's facts (2 each)
 		else:
 			n += int(WEIGHT.get(k, 1))
 	return n
@@ -131,7 +136,16 @@ static func holds(c: Dictionary, ctx: Dictionary) -> bool:
 					any = any or tags.has(String(w))
 				if not any:
 					return false
-			"whom", "who_you", "shaken", "indoors":
+			"you":
+				var tags: Array = ctx.get("you", [])
+				for w: Variant in (want if want is Array else [want]):
+					var t := String(w)
+					if t.begins_with("!"):
+						if tags.has(t.substr(1)):
+							return false
+					elif not tags.has(t):
+						return false
+			"whom", "who_you", "shaken", "indoors", "sober":
 				if not ctx.has(k) or bool(ctx[k]) != bool(want):
 					return false
 			"opinion":

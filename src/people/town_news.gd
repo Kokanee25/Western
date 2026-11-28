@@ -54,7 +54,7 @@ const SIZES := {&"killing": 1.0, &"shooting": 0.7, &"down": 0.4, &"cheat": 0.35,
 ## The bar (#1292, BarService): a round Harlan stood the house, Harlan drunk, the deputy drinking on duty; a
 ## record of its own like the table's (`rough` true, never merged with shots, told after `ROUGH_TELL_S`),
 ## `bar` the verb. Held by the men the bar names and those who saw it.
-const BAR_NEWS := [&"round", &"drunk", &"deputy"]
+const BAR_NEWS := [&"round", &"drunk", &"deputy", &"jibe", &"stood_sarge", &"jailed_sarge"]
 ## The card table (#1279, CardGame.you_did by ValleyFolk): what's news of it, a record of its own like a
 ## shove's (`rough` true, so never merged with shots, and not told till `ROUGH_TELL_S` after), `cards` the
 ## verb: a pot Harlan took, his bluff shown up (small, `cards`), a cheat he called true or false (`cheat`:
@@ -895,6 +895,12 @@ func _built_head(v: Dictionary, to: StringName, here := false) -> String:
 					return "%s stood the house a round, %s." % [_doer(v, to), at]
 				&"drunk":
 					return "%s got good and drunk, %s." % [_doer(v, to), at]
+				&"jibe":
+					return "Sarge had a go at %s again, %s." % ["you" if v.who == HARLAN and to == HARLAN else name_of(v.who), at]
+				&"stood_sarge":
+					return "%s stood Sarge a drink, %s." % [_doer(v, to), at]
+				&"jailed_sarge":
+					return "%s walked Sarge to the jail to sleep it off, %s." % [_doer(v, to), at]
 			return "%s took a drink on duty, %s." % [_doer(v, to), at]
 		&"rough":
 			if v.who != &"":
