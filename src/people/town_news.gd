@@ -546,9 +546,7 @@ func step(delta: float) -> void:
 		_take_heard()
 	for t: Dictionary in talks.duplicate():
 		t.t -= delta
-		# (Looked at untyped first: a man gone in at his door mid-talk is a freed brain, and a freed
-		# instance can't be put in a typed variable: #1293's CI, "Trying to assign invalid previously
-		# freed instance" every frame of the street's ten-minute test.)
+		# Checked before typing them: a typed var can't take a freed brain (a man sent off mid-talk).
 		if not is_instance_valid(t.a) or not is_instance_valid(t.b):
 			talks.erase(t)
 			continue

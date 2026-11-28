@@ -184,8 +184,35 @@ func test_the_valley_scene_is_empty() -> void:
 	var low := day.get_sun_direction(18.0)
 	var flat := Vector3(low.x, 0.0, low.z).normalized()
 	check(flat.dot(Vector3.LEFT) > 0.99, "the evening sun's bearing down Main Street (%s)" % flat)
+	_check_body_headroom(valley)
 	valley.queue_free()
 	await process_frames(2)
+
+
+## #1327: every collision object in the world is a Jolt body, and past physics/jolt_physics_3d/
+## limits/max_bodies Jolt refuses new ones (rubble that doesn't appear, men who can't fall). The
+## loaded valley stays under 80% of it, leaving the rest for what breaks and falls. Counted under this
+## valley only: the limit is per world (each space its own), and a test can hold two (the save test).
+const BODY_HEADROOM := 0.8
+
+
+func _check_body_headroom(valley: Node) -> void:
+	var limit := int(ProjectSettings.get_setting("physics/jolt_physics_3d/limits/max_bodies", 0))
+	var by := {}
+	var total := 0
+	for n in valley.find_children("*", "CollisionObject3D", true, false):
+		total += 1
+		var top: Node = n
+		while top.get_parent() != valley:
+			top = top.get_parent()
+		by[top.name] = int(by.get(top.name, 0)) + 1
+	var names := by.keys()
+	names.sort_custom(func(a, b) -> bool: return by[a] > by[b])
+	var biggest := ", ".join(names.slice(0, 6).map(func(k) -> String: return "%s %d" % [k, by[k]]))
+	print("  valley bodies: %d of max_bodies %d (%.0f%%); biggest: %s" % [total, limit, 100.0 * total / maxf(limit, 1), biggest])
+	check(total > 1000, "the valley's bodies counted (%d)" % total)
+	check(total < BODY_HEADROOM * limit, "the valley's %d bodies under %d%% of max_bodies %d (project.godot): raise it or merge members; biggest: %s"
+			% [total, int(BODY_HEADROOM * 100), limit, biggest])
 
 
 func test_main_loads_one_world() -> void:
