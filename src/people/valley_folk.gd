@@ -1063,6 +1063,8 @@ var _legs := {}
 var run_seed := 0
 ## A leg not reached in this long (stuck on the way) is given up for the next.
 const LEG_GIVE_UP_S := 180.0
+## A leg's stay run out mid-exchange (#1325): he stays up to this long more to finish it.
+const EXCHANGE_HOLD_S := 45.0
 
 
 ## Someone other than `id` at spot `name`, or on his way to it.
@@ -1132,6 +1134,8 @@ func _leg_step(id: StringName, p: Dictionary, b: Dictionary) -> bool:
 		return false
 	elif _ran < float(lg.until) and not _talking_alone(id):
 		return false
+	elif overheard and overheard.busy(id) and _ran < float(lg.until) + EXCHANGE_HOLD_S:
+		return false  # mid-exchange (#1325): he has it out before his round walks him off mid-line
 	var round: Array = []
 	for x: Dictionary in blocks_of(p, day_kind(town_day())):
 		if float(x.from) == float(lg.base) and x.has("round"):
@@ -1438,7 +1442,7 @@ func _regard_step(delta: float) -> void:
 	if regard:
 		regard.step(delta, p)
 	if barks:
-		barks.clear_far(p.global_position)
+		barks.clear_far(p.global_position, _ran)
 
 
 ## Where his block puts him, at once (the clock jumped: nobody's watching it happen).
@@ -2130,7 +2134,9 @@ func _talk_step() -> void:
 			l = ["news.%d" % rid, news.line_of(id, rid, TownNews.HARLAN)]
 			news.said(id, rid)
 			_news_to_you[rid] = _ran
-		elif pd.has("says"):
+		elif pd.has("says") and not (barks and barks.blocked(man.global_position, _ran, man)):
+			# (One at you a group, his set's lines too, #1325: the townsman sat by the storekeeper's wife, she said
+			# good day and he said the weather 2.6 s after.)
 			l = line_for(String(pd.says))
 			if not l.is_empty() and barks and not barks.allowed(String(id), String(l[0]), day, _ran):
 				l = []  # said today, or another's said it within the minute
@@ -2141,7 +2147,7 @@ func _talk_step() -> void:
 		if l.is_empty() or String(l[1]) == "":
 			continue
 		if barks:
-			barks.block(man.global_position, _ran)  # one line at you a group as you pass (again once you've stood by a while)
+			barks.block(man.global_position, _ran, man)  # one line at you a group as you pass (again once you've stood by a while)
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
 		_said_by[id] = int(_said_by.get(id, 0)) + 1
 		_spoke_at[id] = _talk_clock()
@@ -2190,12 +2196,21 @@ func _chat_step() -> void:
 		if _ran - float(_chat_at.get(id, -INF)) < gap or _ran - float(_spoke_at.get(id, -INF)) < 6.0:
 			continue
 		free.append([id, man])
+	# Men an exchange could start with now keep for it (#1325: walking the street, two traded a one-liner
+	# as you came up and their exchange began as you went on): the one-line chat is for the others.
+	var keep := {}
+	if overheard and free.size() >= 2 and overheard._near_running() < int(overheard.d.max_at_once):
+		var fits := overheard.fitting(_ran)
+		if not fits.is_empty():
+			keep = (fits[0][5] as Dictionary).duplicate()
 	for i in free.size():
 		for j in range(i + 1, free.size()):
 			var a: Array = free[i]
 			var b: Array = free[j]
 			var am: HumanBody = a[1]
 			var bm: HumanBody = b[1]
+			if keep.has(a[0]) or keep.has(b[0]):
+				continue
 			if am.global_position.distance_to(bm.global_position) > float(c.get("chat_m", 4.0)):
 				continue
 			var key := "%s|%s" % [a[0], b[0]] if String(a[0]) < String(b[0]) else "%s|%s" % [b[0], a[0]]

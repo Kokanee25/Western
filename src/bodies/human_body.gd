@@ -304,6 +304,15 @@ var limp := false
 ## A drop under his feet further than this (m) and he falls rather than steps down: further than
 ## the snap to the ground ever followed.
 const DROP_FALLS := 1.0
+## Walking, the most he rises in one step (m): a stair's riser and some (walks' treads are 0.2 at most,
+## config/valley.json `riser_max`); more is in his way (walk_to).
+const STEP_UP_MAX := 0.35
+
+
+## Risen more than STEP_UP_MAX since `was`, and that far above the ground he last stood level on (back up
+## to it is a step: a man sunk in a hollow comes out).
+func _climbed(was: Vector3) -> bool:
+	return _stood and global_position.y - was.y > STEP_UP_MAX and global_position.y - _level_y > STEP_UP_MAX
 ## Ground steeper than this (the up of its face: ~50 degrees) he can't walk down, and going on down
 ## it more than STEEP_DROP (m) below where he last stood level he falls.
 const STEEP_UP := 0.64
@@ -2183,12 +2192,27 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 		if need < ticks:
 			step = minf(need * per, dist)
 			_walk_spare = (ticks - need) * tick
+	var was := global_position
 	var moved := _slide(dir * step)
 	if facing and moved.length() > 0.001:
 		var look := global_position + (moved if not prone else dir)
 		var fwd := look - global_position
 		global_rotation.y = atan2(-fwd.x, -fwd.z)
 	_snap_to_ground()
+	if _climbed(was):
+		# More than a stair's riser up in one step, above the ground he last stood level on, is something in his
+		# way, not a step (#1325: the snap's ray takes anything within half a metre above as ground, and the
+		# loudmouth walked up a freight wagon's wheel, bed and load in four steps, off its top and down in the
+		# street: "a man down by the bakery"). He tries round it to either side, else stops there.
+		global_position = was
+		moved = Vector3.ZERO
+		for turn: float in [deg_to_rad(60.0), deg_to_rad(-60.0)]:
+			var side := _slide(dir.rotated(Vector3.UP, turn) * step)
+			_snap_to_ground()
+			if not _climbed(was):
+				moved = side
+				break
+			global_position = was
 	gait = how
 	move_speed = moved.length() / maxf(delta, 1e-4)
 	lib_travel = global_basis.inverse() * moved / maxf(delta, 1e-4)
@@ -7001,7 +7025,9 @@ func _load(d: Dictionary) -> void:
 		var w := saved.duplicate(true)
 		w["stain"] = null
 		wounds.append(w)
-		if w.get("kind", &"") in [&"severed", &"amputated"] or w.get("entry") == null or not w.has("dir") or not visuals.has(w.segment):
+		# (A blast's wound is never painted as it's made (take_blast): painted here it came back with a stop and a
+		# stain it never had: #1325, men by the store when test_save_game's charge went off.)
+		if w.get("kind", &"") in [&"severed", &"amputated", &"blast"] or w.get("entry") == null or not w.has("dir") or not visuals.has(w.segment):
 			continue
 		if not w.has("stop"):
 			w["stop"] = null

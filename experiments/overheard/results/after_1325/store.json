@@ -1,0 +1,665 @@
+{
+ "clock": "12:18",
+ "cmd": "oh_stop",
+ "ended": [
+  [
+   "heard.up_the_step",
+   "done",
+   4
+  ],
+  [
+   "heard.a_collar",
+   "done",
+   4
+  ],
+  [
+   "heard.two_loads",
+   "done",
+   5
+  ],
+  [
+   "heard.smiths_letter",
+   "done",
+   5
+  ],
+  [
+   "heard.bench_news",
+   "done",
+   4
+  ],
+  [
+   "heard.lamp_wick",
+   "done",
+   3
+  ],
+  [
+   "heard.creek_side",
+   "done",
+   5
+  ],
+  [
+   "heard.resting",
+   "done",
+   4
+  ],
+  [
+   "heard.man_of_business",
+   "done",
+   3
+  ]
+ ],
+ "lines": [
+  [
+   "loudmouth",
+   "Mm. Morning.",
+   3.3,
+   "08:40",
+   "said",
+   1.0
+  ],
+  [
+   "store_wife",
+   "The Pratt girl's walking out with the bank clerk.",
+   4.8,
+   "08:43",
+   "exchange:",
+   0.8
+  ],
+  [
+   "loudmouth",
+   "Might be, might be.",
+   3.3,
+   "08:44",
+   "exchange:",
+   0.35
+  ],
+  [
+   "storekeeper",
+   "Up the step gentle, Mr. Mapes. That's two hundred pound of flour.",
+   4.1,
+   "08:53",
+   "exchange:heard.up_the_step",
+   0.91
+  ],
+  [
+   "store_wife",
+   "Don't block the walk, please.",
+   4.8,
+   "08:56",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "I been carrying flour since before you had a step!",
+   3.3,
+   "08:56",
+   "exchange:heard.up_the_step",
+   0.35
+  ],
+  [
+   "storekeeper",
+   "I make it thirteen sacks. There was fourteen come off the car.",
+   4.1,
+   "08:58",
+   "exchange:heard.up_the_step",
+   0.91
+  ],
+  [
+   "loudmouth",
+   "Fourteen! Count the wagon too, there's one on the wagon!",
+   3.3,
+   "09:01",
+   "exchange:heard.up_the_step",
+   0.35
+  ],
+  [
+   "storekeeper",
+   "Freight wagon's due Thursday, if the road holds.",
+   4.1,
+   "09:01",
+   "said",
+   1.0
+  ],
+  [
+   "townsman",
+   "A collar, Mrs. Hollis. Only the collar.",
+   5.8,
+   "09:08",
+   "exchange:heard.a_collar",
+   0.65
+  ],
+  [
+   "store_wife",
+   "That is the fifth this month, Mr. Peck.",
+   4.8,
+   "09:11",
+   "exchange:heard.a_collar",
+   0.8
+  ],
+  [
+   "townsman",
+   "There's a gentleman coming to look at a lot. He wrote that he might.",
+   5.8,
+   "09:13",
+   "exchange:heard.a_collar",
+   0.65
+  ],
+  [
+   "store_wife",
+   "I hope he does. Eight cents.",
+   4.8,
+   "09:16",
+   "exchange:heard.a_collar",
+   0.8
+  ],
+  [
+   "store_wife",
+   "Morning. Mind the mud by the trough.",
+   4.8,
+   "09:16",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "You shorted me two loads in August and I'll say it in front of anybody!",
+   3.3,
+   "09:17",
+   "exchange:heard.two_loads",
+   0.35
+  ],
+  [
+   "storekeeper",
+   "It's in the book. Seven loads, the week of the twelfth.",
+   4.1,
+   "09:20",
+   "exchange:heard.two_loads",
+   0.91
+  ],
+  [
+   "loudmouth",
+   "Nine!",
+   3.3,
+   "09:22",
+   "exchange:heard.two_loads",
+   0.35
+  ],
+  [
+   "storekeeper",
+   "Come in and read it. I'll turn it round to you.",
+   4.1,
+   "09:24",
+   "exchange:heard.two_loads",
+   0.91
+  ],
+  [
+   "loudmouth",
+   "I ain't coming in to read no book.",
+   3.3,
+   "09:26",
+   "exchange:heard.two_loads",
+   0.35
+  ],
+  [
+   "storekeeper",
+   "Directly. I'm in the middle of something.",
+   4.1,
+   "09:26",
+   "said",
+   1.0
+  ],
+  [
+   "store_wife",
+   "Mr. Peck, you'll pass the smithy. There's a letter come for Mr. Stroud. Tell him it's here, and that I have the time this afternoon.",
+   4.8,
+   "09:34",
+   "exchange:heard.smiths_letter",
+   0.8
+  ],
+  [
+   "townsman",
+   "The time for what, ma'am?",
+   5.8,
+   "09:39",
+   "exchange:heard.smiths_letter",
+   0.65
+  ],
+  [
+   "store_wife",
+   "He'll know.",
+   4.8,
+   "09:40",
+   "exchange:heard.smiths_letter",
+   0.8
+  ],
+  [
+   "townsman",
+   "Ought I to say who it's from? Only so that I...",
+   5.8,
+   "09:41",
+   "exchange:heard.smiths_letter",
+   0.65
+  ],
+  [
+   "storekeeper",
+   "These crates don't get any lighter.",
+   3.1,
+   "09:42",
+   "said",
+   1.0
+  ],
+  [
+   "store_wife",
+   "You ought to say what I said, Mr. Peck.",
+   4.8,
+   "09:44",
+   "exchange:heard.smiths_letter",
+   0.8
+  ],
+  [
+   "storekeeper",
+   "Got a bolt of blue calico in. Pretty, if you like blue.",
+   4.0,
+   "09:53",
+   "exchange:",
+   0.92
+  ],
+  [
+   "loudmouth",
+   "I heard different.",
+   4.2,
+   "09:55",
+   "exchange:",
+   0.89
+  ],
+  [
+   "storekeeper",
+   "Dry as a bone. We could use a rain.",
+   4.2,
+   "09:58",
+   "said",
+   1.0
+  ],
+  [
+   "loudmouth",
+   "Sit down, Peck, I'll tell you a thing. Section boss was put off the noon train. By the conductor! For drink!",
+   4.2,
+   "10:25",
+   "exchange:heard.bench_news",
+   0.89
+  ],
+  [
+   "townsman",
+   "Who told you so?",
+   4.8,
+   "10:29",
+   "exchange:heard.bench_news",
+   0.8
+  ],
+  [
+   "loudmouth",
+   "I seen it! I was on the platform. Well, I was by the platform.",
+   4.2,
+   "10:31",
+   "exchange:heard.bench_news",
+   0.89
+  ],
+  [
+   "townsman",
+   "Which conductor? The stout one? ...I ask because I had it otherwise from the hotel.",
+   4.8,
+   "10:34",
+   "exchange:heard.bench_news",
+   0.8
+  ],
+  [
+   "storekeeper",
+   "Waiting on the mail. It's always late.",
+   4.2,
+   "10:39",
+   "said",
+   1.0
+  ],
+  [
+   "storekeeper",
+   "It'll be on Thursday's cars, I reckon. If the cars... Now, it's my notion that railroad never...",
+   4.1,
+   "10:42",
+   "exchange:heard.lamp_wick",
+   0.91
+  ],
+  [
+   "store_wife",
+   "Amos. The man asked for lamp wick.",
+   5.8,
+   "10:46",
+   "exchange:heard.lamp_wick",
+   0.65
+  ],
+  [
+   "loudmouth",
+   "Peck here says the Baron's man's been down at the land office!",
+   4.2,
+   "10:47",
+   "exchange:heard.creek_side",
+   0.89
+  ],
+  [
+   "storekeeper",
+   "I was coming to the wick.",
+   4.1,
+   "10:48",
+   "exchange:heard.lamp_wick",
+   0.91
+  ],
+  [
+   "townsman",
+   "A drummer said it. Not so loud, Mr. Mapes.",
+   4.8,
+   "10:49",
+   "exchange:heard.creek_side",
+   0.8
+  ],
+  [
+   "loudmouth",
+   "Asking after lots on the creek side! That's what you told me!",
+   4.2,
+   "10:52",
+   "exchange:heard.creek_side",
+   0.89
+  ],
+  [
+   "townsman",
+   "I told it to you.",
+   4.8,
+   "10:54",
+   "exchange:heard.creek_side",
+   0.8
+  ],
+  [
+   "loudmouth",
+   "Well, and now they got it too.",
+   4.2,
+   "10:56",
+   "exchange:heard.creek_side",
+   0.89
+  ],
+  [
+   "loudmouth",
+   "I ain't drunk, missus. I'm resting.",
+   4.2,
+   "11:04",
+   "exchange:heard.resting",
+   0.89
+  ],
+  [
+   "store_wife",
+   "The children pass this bench going to their dinners, Mr. Mapes.",
+   5.8,
+   "11:06",
+   "exchange:heard.resting",
+   0.65
+  ],
+  [
+   "loudmouth",
+   "I never said a word a child couldn't hear!",
+   4.2,
+   "11:09",
+   "exchange:heard.resting",
+   0.89
+  ],
+  [
+   "store_wife",
+   "You said two. I'll thank you to take them down the street.",
+   5.8,
+   "11:11",
+   "exchange:heard.resting",
+   0.65
+  ],
+  [
+   "townsman",
+   "Trade brisk, Mr. Hollis? I ask as one man of business to another.",
+   4.8,
+   "11:13",
+   "exchange:heard.man_of_business",
+   0.8
+  ],
+  [
+   "loudmouth",
+   "Hot as the hinges out here. Somebody stand me a beer.",
+   3.4,
+   "11:14",
+   "said",
+   1.0
+  ],
+  [
+   "storekeeper",
+   "I've sold a collar.",
+   4.1,
+   "11:16",
+   "exchange:heard.man_of_business",
+   0.91
+  ],
+  [
+   "townsman",
+   "Ah.",
+   4.8,
+   "11:17",
+   "exchange:heard.man_of_business",
+   0.8
+  ],
+  [
+   "loudmouth",
+   "Sun's straight up. Not a lick of shade.",
+   3.4,
+   "11:30",
+   "said",
+   1.0
+  ],
+  [
+   "storekeeper",
+   "Busy. Talk later.",
+   4.5,
+   "11:30",
+   "said",
+   1.0
+  ],
+  [
+   "storekeeper",
+   "Preacher's coming through next month, if he don't get lost again.",
+   3.1,
+   "11:33",
+   "exchange:",
+   1.0
+  ],
+  [
+   "townsman",
+   "You're telling me.",
+   4.8,
+   "11:35",
+   "exchange:",
+   0.8
+  ],
+  [
+   "store_wife",
+   "Hens have stopped laying. It's the heat.",
+   4.5,
+   "11:49",
+   "exchange:",
+   0.85
+  ],
+  [
+   "loudmouth",
+   "Tell me later. I've work.",
+   4.2,
+   "11:50",
+   "exchange:",
+   0.89
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|drifter": 35.0,
+  "barkeep|town_drunk": 48.0,
+  "churchman|loudmouth": 3.0,
+  "churchman|storekeeper": 3.0,
+  "churchman|townsman": 3.0,
+  "loudmouth|store_wife": 131.0,
+  "loudmouth|storekeeper": 141.0,
+  "loudmouth|townsman": 141.0,
+  "store_wife|storekeeper": 61.0,
+  "store_wife|townsman": 107.0,
+  "storekeeper|townsman": 72.0
+ },
+ "s": 450.2,
+ "t": 486.73,
+ "where": {
+  "barkeep|drifter": {
+   "bar_back_day:counter + bar_day_2:drink": 13
+  },
+  "barkeep|town_drunk": {
+   "sarge_walk:lean + bar_back_day:counter": 12,
+   "sarge_walk:sweep + bar_back_day:counter": 6
+  },
+  "churchman|loudmouth": {
+   "store_bench2:sit + preacher_store:stand": 1
+  },
+  "churchman|storekeeper": {
+   "preacher_store:stand + store_freight:carry": 1
+  },
+  "churchman|townsman": {
+   "preacher_store:stand + store_lean:stand": 1
+  },
+  "loudmouth|store_wife": {
+   "store_bench2:sit + store_bench:sit": 12,
+   "store_bench2:sit + store_lean:stand": 15,
+   "store_edge:stand + store_bench:sit": 20,
+   "store_edge:stand + store_lean:stand": 2
+  },
+  "loudmouth|storekeeper": {
+   "store_bench2:sit + store_freight:carry": 15,
+   "store_bench2:sit + store_walk:stand": 12,
+   "store_edge:stand + store_freight:carry": 5,
+   "store_edge:stand + store_walk:stand": 21
+  },
+  "loudmouth|townsman": {
+   "store_bench2:sit + store_bench:sit": 18,
+   "store_bench2:sit + store_lean:stand": 15,
+   "store_edge:stand + store_bench:sit": 10,
+   "store_edge:stand + store_lean:stand": 10
+  },
+  "store_wife|storekeeper": {
+   "store_bench:sit + store_freight:carry": 6,
+   "store_bench:sit + store_walk:stand": 15,
+   "store_freight:carry + store_bench:sit": 2
+  },
+  "store_wife|townsman": {
+   "store_bench:sit + store_lean:stand": 36,
+   "store_lean:stand + store_bench:sit": 4
+  },
+  "storekeeper|townsman": {
+   "store_bench:sit + store_freight:carry": 3,
+   "store_bench:sit + store_walk:stand": 19,
+   "store_freight:carry + store_lean:stand": 4,
+   "store_lean:stand + store_freight:carry": 1
+  }
+ },
+ "why_not": {
+  "heard.a_collar": {
+   "busy:townsman": 3
+  },
+  "heard.bench_news": {
+   "busy:loudmouth": 6,
+   "busy:townsman": 3,
+   "not_free:loudmouth": 9,
+   "not_free:townsman": 5
+  },
+  "heard.crape": {
+   "busy:store_wife": 12,
+   "busy:storekeeper": 5,
+   "if": 4,
+   "not_free:store_wife": 16,
+   "not_free:storekeeper": 7
+  },
+  "heard.creek_side": {
+   "busy:loudmouth": 10,
+   "busy:townsman": 3,
+   "not_free:loudmouth": 14,
+   "not_free:townsman": 5
+  },
+  "heard.lamp_wick": {
+   "busy:store_wife": 2,
+   "busy:storekeeper": 11,
+   "not_free:store_wife": 3,
+   "not_free:storekeeper": 13
+  },
+  "heard.man_of_business": {
+   "busy:storekeeper": 1,
+   "busy:townsman": 13,
+   "not_free:townsman": 21
+  },
+  "heard.nine_on_sunday": {
+   "not_free:storekeeper": 1
+  },
+  "heard.resting": {
+   "busy:loudmouth": 11,
+   "busy:store_wife": 3,
+   "not_free:loudmouth": 19,
+   "not_free:store_wife": 3
+  },
+  "heard.second_row": {
+   "not_free:townsman": 1
+  },
+  "heard.smiths_letter": {
+   "busy:store_wife": 7,
+   "not_free:store_wife": 6,
+   "not_free:townsman": 1
+  },
+  "heard.sore_heads": {
+   "could": 1
+  },
+  "heard.the_plate": {
+   "busy:townsman": 13,
+   "not_free:townsman": 26,
+   "tags:townsman": 9
+  },
+  "heard.two_loads": {
+   "busy:loudmouth": 8,
+   "not_free:loudmouth": 6
+  },
+  "heard.up_the_step": {
+   "busy:storekeeper": 5
+  }
+ },
+ "start": {
+  "clock": "08:18",
+  "cmd": "oh_where",
+  "men": {
+   "drifter": {
+    "d": 29.3,
+    "spot": "livery_lean:lean",
+    "tags": [
+     "livery",
+     "street"
+    ]
+   },
+   "smith": {
+    "d": 14.7,
+    "spot": "hardware_walk:stand",
+    "tags": [
+     "street"
+    ]
+   },
+   "undertaker": {
+    "d": 32.2,
+    "spot": "carpenter_walk:stand",
+    "tags": [
+     "street"
+    ]
+   }
+  },
+  "ok": true,
+  "t": 36.53
+ }
+}

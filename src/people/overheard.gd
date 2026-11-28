@@ -17,7 +17,7 @@ extends RefCounted
 ##   `Events.overheard` (his mouth, FaceSpeech; the subtitle, PlayerWounds), with a `clarity` 0 to 1:
 ##   whole within `clear_m`, thinning to nothing at `hear_m`, a wall between (Sight) leaving `wall`
 ##   of it. Under `full_at` words drop out of the subtitle (`garbled`); under `min_clarity` nothing shows.
-## - **Not twice a night:** an exchange you heard (`heard_at`) isn't held again that town day, and
+## - **Not twice a night:** an exchange begun (a line of it said) isn't held again that town day (#1325), and
 ##   the ones you've never heard come first, then the longest unheard (`heard_day`, kept in the save).
 ## - **Interrupted:** a shot (`shot_m`), a man of it no longer calm (a fight, a fright, a scene taking
 ##   him), one of them saying something else (a bark at you, the barkeep serving), your shout, or
@@ -235,12 +235,29 @@ func step(now: float) -> void:
 	if now < _try_at:
 		return
 	_try_at = now + float(d.try_s)
-	if running.size() >= int(d.max_at_once) or _story(now):
+	if _near_running() >= int(d.max_at_once) or _story(now):
 		return
 	var f := fitting(now)
 	if not f.is_empty():
 		_begin(f[0][4], f[0][5], now, _r("first_s", String(f[0][4]), "first") if log.is_empty() else 0.4)
 		_try_at = now + float(d.stagger_s)
+
+
+## The exchanges going on within your hearing (#1325: walking the street, two left talking behind you at
+## the livery and the store kept the hotel's porch from starting one as you came by): `max_at_once` is
+## how many you hear at once, not how many the town holds.
+func _near_running() -> int:
+	var p := _player()
+	if p == null:
+		return running.size()
+	var n := 0
+	for r: Dictionary in running:
+		for pid: StringName in r.men:
+			var man: HumanBody = r.men[pid]
+			if is_instance_valid(man) and man.global_position.distance_to(p.global_position) <= float(d.start_m) + float(d.hear_m):
+				n += 1
+				break
+	return n
 
 
 func _begin(id: String, men: Dictionary, now: float, wait: float) -> void:
@@ -435,13 +452,14 @@ func flush(now: float) -> void:
 	_settle(now)
 
 
-## Exchanges ended, their last line out: heard tonight if it ran out or most of it had, and you
-## caught any of it (`heard_at`). Else it's left for later tonight (`unheard_again_s`).
+## Exchanges ended, their last line out: once a line of it is said it's told for today (`heard_day`:
+## not again till tomorrow). One that ended before its first line is left for later (`unheard_again_s`).
 func _settle(now: float) -> void:
 	for r: Dictionary in _over:
 		var id := String(r.ex.id)
-		var n := (r.ex.lines as Array).size()
-		if int(r.said) > 0 and float(r.best) >= float(d.heard_at) and (String(r.why) == "done" or int(r.said) * 2 >= n):
+		# (#1325: begun is spent, heard or not, cut short or not: begun again later it told its first lines
+		# twice; the bench's store had "I ain't drunk, missus" twice in a morning. It starts only with you near.)
+		if int(r.said) > 0:
 			heard_day[id] = folk.town_day()
 		else:
 			_left[id] = now
