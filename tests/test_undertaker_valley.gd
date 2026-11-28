@@ -4,6 +4,10 @@ extends TestCase
 ## spec's yard plane true to the bake, and a man walks from the yard down the bulkhead, through the
 ## cellar and up the stair into the workroom on the valley's own ground.
 
+## No Law's murder as the file found it (#1326: put back once its tests are done).
+var _murder_was := ValleyFolk.murder_auto
+
+
 var holder: Node
 var valley: ValleyWorld
 
@@ -87,3 +91,7 @@ func test_a_man_walks_from_the_yard_down_into_the_cellar_and_up_into_the_workroo
 	var down: Vector3 = b.to_local(feet.call(route[2]))
 	check(absf(down.y - c) < 0.05, "down on the cellar's flags (%.2f)" % down.y)
 	check(bad.is_empty(), "walked every stretch: %s" % [bad])
+
+
+func after_all() -> void:
+	ValleyFolk.murder_auto = _murder_was

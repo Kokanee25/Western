@@ -8,6 +8,14 @@ extends SceneTree
 ## `--shard=K/N` (#1015) runs only the K-th of N shares of the files (CI's parallel test jobs),
 ## split by config/test_times.json's seconds per file: longest first, each to the lightest share.
 ## A file not in the table counts as 30 s; refresh it with tools/test_times.py from CI's logs.
+## `--shuffle=SEED` (#1326) runs the files (after any shard's split) in an order shuffled by SEED
+## (`--shuffle=random` picks one and prints it), so a test that only passes after another shows up by
+## name; main's nightly runs it. Rerun the same order with the seed it printed.
+## After every file the runner checks what it left behind (tests/leak_check.gd, #1326): nodes in the
+## tree, physics bodies, autoload signals, class statics, the engine's dials, tweens. A file that
+## leaks fails, naming what, and what it left is taken away before the next file. Files in
+## config/test_leaks.json's "known" print their leaks without failing (a ratchet: fix one, take it
+## off; a known file that comes up clean says so). `--leaks=off` skips the check.
 
 
 class ErrorCatcher:
@@ -33,6 +41,7 @@ class ErrorCatcher:
 
 var _catcher := ErrorCatcher.new()
 var _settings_at_start := {}
+const LEAKS_PATH := "res://config/test_leaks.json"
 
 
 func _initialize() -> void:
@@ -100,6 +109,26 @@ static func pick_files(files: Array, chosen: String) -> Array:
 	return files.filter(func(f: String) -> bool: return want.has(f))
 
 
+## `files` in an order shuffled by `seed_n` (the same seed, the same order, on any machine).
+static func shuffled(files: Array, seed_n: int) -> Array:
+	var out := files.duplicate()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_n
+	for i in range(out.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var t: Variant = out[i]
+		out[i] = out[j]
+		out[j] = t
+	return out
+
+
+## config/test_leaks.json's "known": file -> why (files whose leaks print but don't fail yet).
+static func load_known_leaks() -> Dictionary:
+	var text := FileAccess.get_file_as_string(LEAKS_PATH)
+	var parsed: Variant = JSON.parse_string(text) if text != "" else null
+	return parsed.get("known", {}) if parsed is Dictionary else {}
+
+
 static func load_times() -> Dictionary:
 	var text := FileAccess.get_file_as_string(TIMES_PATH)
 	var parsed: Variant = JSON.parse_string(text) if text != "" else null
@@ -117,9 +146,14 @@ func _fresh_start() -> void:
 	(load("res://src/main/game_reset.gd") as GDScript).call(&"clear_statics")
 	var settings := root.get_node_or_null(^"Settings")
 	if settings:
+		var put_back := false
 		for key: String in _settings_at_start:
 			if settings.get(key) != _settings_at_start[key]:
 				settings.set(key, _settings_at_start[key])
+				put_back = true
+		# (set straight, a setting doesn't reach what it drives: the look's statics follow it again, #1326)
+		if put_back and settings.has_method(&"_apply_quantise"):
+			settings.call(&"_apply_quantise")
 	Engine.max_physics_steps_per_frame = ProjectSettings.get_setting(
 			"physics/common/max_physics_steps_per_frame", 8)
 
@@ -128,9 +162,15 @@ func _run() -> void:
 	var only := ""
 	var shard := ""
 	var chosen := ""
+	var shuffle := ""
+	var leak_check := true
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			only = arg.substr(7)
+		elif arg.begins_with("--shuffle="):
+			shuffle = arg.substr(10)
+		elif arg == "--leaks=off":
+			leak_check = false
 		elif arg.begins_with("--files="):
 			chosen = arg.substr(8)
 		elif arg.begins_with("--shard="):
@@ -166,6 +206,14 @@ func _run() -> void:
 		for f: String in files:
 			expect += float(times.get(f, MISSING_SECONDS))
 		print("shard %d/%d: %d files, ~%.0f s by %s" % [k, n, files.size(), expect, TIMES_PATH])
+	if shuffle != "":
+		var seed_n := randi() % 1000000 if shuffle == "random" else int(shuffle)
+		files = shuffled(files, seed_n)
+		print("order: shuffled by seed %d (rerun it: --shuffle=%d)" % [seed_n, seed_n])
+	var leaks: RefCounted = (load("res://tests/leak_check.gd") as GDScript).new() if leak_check else null
+	var known := load_known_leaks()
+	var leaked_files: PackedStringArray = []
+	var ran_files := 0
 	var passed := 0
 	var failed: PackedStringArray = []
 	var started := Time.get_ticks_msec()
@@ -173,6 +221,8 @@ func _run() -> void:
 	for file in files:
 		var file_started := Time.get_ticks_msec()
 		_fresh_start()
+		if leaks:
+			leaks.call(&"take", root)  # (no frame waited for: a file starts on the frame it always did)
 		var path := "res://tests/%s" % file
 		var script := load(path) as GDScript
 		if script == null or not script.can_instantiate():
@@ -185,6 +235,7 @@ func _run() -> void:
 				methods.append(n)
 		if methods.is_empty():
 			continue
+		ran_files += 1
 		var case: TestCase = script.new()
 		case.name = file.get_basename()
 		root.add_child(case)
@@ -203,8 +254,26 @@ func _run() -> void:
 				for f in case.failures:
 					failed.append(f)
 					print("  FAIL %s" % f)
+		await case.after_all()
+		for e in _catcher.take():
+			failed.append("%s: script error after its tests: %s" % [file, e])
 		case.queue_free()
 		await process_frame
+		if leaks:
+			# (no frames of its own: what the file queue_freed went at the frame's end, and every later file
+			# starts on the frame it always did; a file sensitive to that is #1326's next red)
+			var left: PackedStringArray = leaks.call(&"leaks", root)
+			leaks.call(&"free_system_nodes", root)
+			if not left.is_empty():
+				leaked_files.append(file)
+				var head := "leaks (known, config/test_leaks.json)" if known.has(file) else "leaks"
+				for l in left:
+					print("  %s %s: %s" % ["LEAK" if not known.has(file) else "leak", file, l])
+				if not known.has(file):
+					failed.append("%s: %s: %s" % [file, head, "; ".join(left)])
+				leaks.call(&"free_leaks", root)
+			elif known.has(file):
+				print("  clean %s: listed in config/test_leaks.json but left nothing behind (take it off)" % file)
 		# Read by tools/test_times.py to refresh config/test_times.json (#1015).
 		print("  time %s %.1fs" % [file, (Time.get_ticks_msec() - file_started) / 1000.0])
 
@@ -212,6 +281,9 @@ func _run() -> void:
 	await process_frame
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	print("\n%d passed, %d failed (%.1fs)" % [passed, failed.size(), seconds])
+	if leaks:
+		print("leaks: %d of %d files left something behind%s" % [leaked_files.size(), ran_files,
+				(": " + " ".join(leaked_files)) if not leaked_files.is_empty() else ""])
 	for f in failed:
 		print("  - %s" % f)
 	await _quit_as_the_game_does()

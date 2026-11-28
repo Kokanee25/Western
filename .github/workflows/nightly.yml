@@ -7,7 +7,7 @@ name: Nightly soak
 # town (the gang, fires, sticks) and the valley (No Law's folk and their murder, the player carried
 # round at a gallop, sticks and holes). Then the smoke test from source on the valley and each
 # mission (src/debug/smoke_test.gd: the valley, the sheriff on the road, No Law's sheriff's last day,
-# the coach heist). A red night opens (or adds to) an issue labelled `nightly red`.
+# the coach heist). And the whole test suite in a shuffled order (#1326). A red night opens (or adds to) an issue labelled `nightly red`.
 
 on:
   schedule:
@@ -206,10 +206,68 @@ jobs:
           name: smoke-valley
           path: build/smoke
 
+  # The whole suite in a shuffled order (#1326): each shard's files run in an order seeded by the
+  # run's number (printed: rerun it locally with --shuffle=N and the shard), so a test that passes
+  # only after another, or breaks the one after it, shows up here by name and not as a random red on
+  # main. The leak check runs as on every run. Red opens the `nightly red` issue below.
+  shuffled:
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    name: shuffled tests (${{ matrix.shard }}/8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSLO "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          rm ./*.zip
+
+      - name: Build the native plugin (Linux)
+        uses: ./.github/actions/native-build
+        with:
+          target: x86_64-unknown-linux-gnu
+          tests: "false"
+
+      - name: Restore the last import
+        uses: actions/cache/restore@v4
+        with:
+          path: .godot
+          key: godot-import-${{ env.GODOT_VERSION }}-${{ hashFiles('**/*.import') }}
+          restore-keys: godot-import-${{ env.GODOT_VERSION }}-
+
+      - name: Import project
+        run: ~/godot/godot --headless --import || true
+
+      - name: Run tests (shuffled)
+        run: |
+          echo "Shard ${{ matrix.shard }}/8 shuffled by seed ${{ github.run_number }}: rerun with" \
+            "--shard=${{ matrix.shard }}/8 --shuffle=${{ github.run_number }}" >> "$GITHUB_STEP_SUMMARY"
+          ~/godot/godot --headless --fixed-fps 60 -s res://tests/run_tests.gd -- \
+              --shard=${{ matrix.shard }}/8 --shuffle=${{ github.run_number }}
+
   # A red night says so where Sean looks (#863: the soak was red two weeks and blocked nothing):
   # an issue labelled `nightly red`, or a comment on the one still open.
   red:
-    needs: [soak, smoke]
+    needs: [soak, smoke, shuffled]
     if: failure()
     runs-on: ubuntu-latest
     permissions:
@@ -219,7 +277,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          body="The nightly soak or smoke failed on main ($GITHUB_SHA): $RUN"
+          body="The nightly soak, smoke or shuffled tests failed on main ($GITHUB_SHA): $RUN"
           open=$(gh issue list -R "$GITHUB_REPOSITORY" --label "nightly red" --state open --json number -q '.[0].number // ""')
           if [ -n "$open" ]; then
             gh issue comment "$open" -R "$GITHUB_REPOSITORY" --body "Red again. $body"

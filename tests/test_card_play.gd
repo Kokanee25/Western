@@ -5,6 +5,10 @@ extends TestCase
 ## raise and your own draw, your cards face down till the showdown and in your hand when lifted, the
 ## tells, and the table's cost with four men at it.
 
+## No Law's murder as the file found it (#1326: put back once its tests are done).
+var _murder_was := ValleyFolk.murder_auto
+
+
 var holder: Node
 var valley: ValleyWorld
 
@@ -337,3 +341,7 @@ func _people_ms(fb: FrameBudget) -> float:
 	for k: StringName in fb.parts.people:
 		us += int(Prof._sum.get(k, 0)) - int(_people_at.get(k, 0))
 	return float(us) / 1000.0 / maxf(_people_frames, 1) * fb.clock_scale
+
+
+func after_all() -> void:
+	ValleyFolk.murder_auto = _murder_was

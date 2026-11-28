@@ -5,6 +5,10 @@ extends TestCase
 ## in words that match what they saw, move the table's regard, and the bigger ones are news told later.
 ## The table starts things too: a man asks you to sit if you stand watching, and needles you after a big pot.
 
+## No Law's murder as the file found it (#1326: put back once its tests are done).
+var _murder_was := ValleyFolk.murder_auto
+
+
 var holder: Node
 var valley: ValleyWorld
 var said: Array = []  # [who, text]
@@ -279,3 +283,7 @@ func test_a_call_on_a_bet_is_answered() -> void:
 	check(not _said_kind("you_call", from).is_empty(), "the table answers your call (%s)" % [said.slice(from)])
 	for m: HumanBody in g._men():
 		check(_deeds(m.person_id).has("call"), "%s keeps it" % m.person_id)
+
+
+func after_all() -> void:
+	ValleyFolk.murder_auto = _murder_was

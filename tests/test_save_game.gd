@@ -5,6 +5,10 @@ extends TestCase
 ## where a lot has happened, saved, read into a valley built fresh, and the two compared system by
 ## system.
 
+## No Law's murder as the file found it (#1326: put back once its tests are done).
+var _murder_was := ValleyFolk.murder_auto
+
+
 const SLOT := "test_save_game"
 
 var holder: Node
@@ -408,3 +412,7 @@ func test_the_valley_saved_and_loaded_matches() -> void:
 			var man: HumanBody = valley.folk.folk_man(id)
 			check(man != null and _worst_off(man, a.people[id].lie) < 0.03, "%s still lies where he lay (%.2f m off at worst)" % [id, _worst_off(man, a.people[id].lie) if man else -1.0])
 	print("    save: %d bytes, capture %.1f ms, write %.1f ms; load %.1f ms %s" % [size, timed.capture_ms, timed.write_ms, load_ms, report.ms])
+
+
+func after_all() -> void:
+	ValleyFolk.murder_auto = _murder_was

@@ -3444,6 +3444,17 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   GameQuit does, without the watchdog (in-flight tasks waited for, the sound warm-up finished):
   without it three of the six shards crashed at exit (SIGABRT, a null mutex in the engine's
   cleanup) after every test passed; the whole suite in one run didn't.
+- **The leak check** (#1326, `tests/leak_check.gd`): after each file the runner compares the root's
+  children, the nodes under each autoload, the world's physics bodies, dead listeners on autoload
+  signals, every class's public plain `static var`, the engine's dials and tweens with before it. A
+  leak fails the file (`LEAK test_x.gd: static ValleyFolk.murder_auto: true -> false`) and is put back;
+  `config/test_leaks.json` "known" only prints. Put a file-wide dial back in `after_all()` (TestCase,
+  once after its last test). GameAudio, SpawnQueue and DentWatch (made on the root with no scene) are
+  freed after every file; statics that follow a setting are re-applied (`FOLLOWERS`); counters are
+  `IGNORED_STATICS`. SceneTreeTimers can't be listed. `--leaks=off` skips it (to replay the old order).
+- `--shuffle=SEED` (or `random`) runs the files in a seeded order after the shard's split; the nightly
+  (`nightly.yml` "shuffled tests") runs all eight shards shuffled by its run number. Replay a red
+  shard's order exactly with `--files=` (its files up to the red one, in order).
 
 ## CI
 
@@ -3476,7 +3487,9 @@ one man. `two_tests_renders.sh` / `two_tests_sheet.py`: the sheet's renders and 
   the table's seconds / `per_shard_seconds`, at most `max_shards`; matrix jobs past that only echo
   (names stay `test (K/8)`). On a push to an open PR whose previous head had a green run
   (`--since`): what the push changed in the PR's own files, plus the PR's tests main's files also
-  touch. The runner takes the list as `--files=` (before `--shard`). `--check` (in the job and
+  touch, plus the `canary` group if main's files hold code (#1326). The `canary` (the whole mission
+  runs and the save) also rides every building, structure, blast, body, prop, people's-look and
+  plugin rule. The runner takes the list as `--files=` (before `--shard`). `--check` (in the job and
   `test_test_map.gd`) fails on a pattern matching no test; `--replay=N` puts main's last N merges
   through the map with estimated minutes (table x1.5 + 4 min setup). Trap: a test that moves into the
   valley belongs in the `valley` or `missions` group, or valley changes stop running it.
