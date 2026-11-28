@@ -149,6 +149,21 @@ func test_two_calm_men_pass_it_on_and_a_third_further_off_doesnt() -> void:
 	b.body.queue_free()
 
 
+## #1331's CI: a man freed mid-talk (sent off, a scene's end) broke the talk off with a script error
+## each frame; now the talk's just dropped.
+func test_a_man_freed_mid_talk_breaks_it_off() -> void:
+	var a := _man("teller", 31, Vector3(0.0, 0.0, 0.0), Vector3(2.0, 1.5, 0.0))
+	var b := _man("hearer", 32, Vector3(2.0, 0.0, 0.0), Vector3(0.0, 1.5, 0.0))
+	await physics_frames(10)
+	_seen(&"teller", &"killing", &"gunman", &"victim", &"gunman", 2, true)
+	var talking := await wait_until(func() -> bool: return not news.talks.is_empty(), 60 * 4)
+	check(talking, "they start a talk")
+	b.body.free()
+	news.step(1.0 / 60.0)
+	check(news.talks.is_empty(), "the talk dropped with its man")
+	a.body.queue_free()
+
+
 func test_overnight_the_big_news_reaches_everyone_a_bit_wrong_and_the_day_is_uneasy() -> void:
 	for i in 200:
 		news.town.append(StringName("folk_%d" % i))
