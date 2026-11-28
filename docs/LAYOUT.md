@@ -3296,6 +3296,21 @@ PlayerWounds shows a line. Numbers: `config/speech.tres` (`SpeechTuning`). Prof 
 where it lies on him, settled between, and a puff of breath over his mouth). Tools: `speech_dump.gd`
 + `speech_check.py` (the rules against espeak-ng), `speech_bench.gd` (cost), `talk_audio.py` (an
 espeak-ng stand-in recording and its phonemes), `face_lab.gd --mode=talk` + `talk_video.sh` (the film).
+Lines with the face and body (#1316): `src/people/delivery.gd` (`Delivery`: the tags calm, angry, laughing,
+mocking, scared, sly, sad, low, proud, pleading; a script note read as one, `tag_of_note`; the `*` beat mark,
+`strip_beat`; `remember`/`of`: a line said, under its final text) and `config/delivery.json` (each tag's `face`,
+`beat` stress/end/start, `gestures` by posture, `with`, `listen` to/others; the gestures as `keys` about the beat
+or the line, `osc`, `hand`, `reach`, `look`, `walk`; `recorded`: the MotionClip slot, docs/MOCAP.md Batch 3b).
+TownScript gives a line's `tag` (town.json, written by `tools/delivery_tags.py`) to `Delivery` as it's picked.
+`src/bodies/line_gesture.gd` (`LineGesture`, on every HumanBody; a ticker only while it plays): on his
+Events.spoke/overheard the tag's face (`FaceLife.set_tone`: smile, smile_l/r added to FaceLife's shapes; other
+names are the MetaHuman's hook, set where his mesh has them) and gestures in `HumanBody.gesture_offsets` (added
+over pose_offsets and the chores', never instead), the beat from FaceSpeech's plan (`words` times, `nods`); a
+busy hand (`HumanBody.hand_busy`: a reach this tick, the gun, a wound, a clip, the poses with arms) is left be
+(the other hand, mirrored, or head and body); walking (`gait`) head and face only; the listeners (an exchange's
+cast, else men within `listen_m`) `hear` it a beat later; a `steady` man neither answers nor is scared. Off:
+`LineGesture.enabled` (screenshots.gd with FaceLife's). Tests `tests/test_line_gesture.gd`; bench and the
+before/after sheet `experiments/line_gestures/` (README).
 
 A whole dressed man (the two tests, 2026-10-19): `fit_tripo.py` with people.json `"bare": true`
 fits a hatless whole man at his true height (`bare_shares`, hips `HIP_OVER_CROTCH` over his

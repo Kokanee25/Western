@@ -136,6 +136,7 @@ var _line := ""
 var _out := PackedFloat32Array([0, 0, 0, 0, 0, 0, 0])
 var _drawn := false                   # his shapes are off rest (they need writing back to 0)
 var _nod := 0.0
+var _plan := {}                       # the line's plan as loaded (its words' times for LineGesture)
 var _own_nod := 0.0                   # with no FaceGaze: what this added to his head's offset
 
 
@@ -234,6 +235,11 @@ func speaking() -> bool:
 	return _talking
 
 
+## The plan of the line he's saying (or last said): its "words" times, "nods", "voice", "seconds".
+func current_plan() -> Dictionary:
+	return _plan
+
+
 ## The line he's saying (or last said).
 func line() -> String:
 	return _line
@@ -248,6 +254,7 @@ func mouth() -> Dictionary:
 
 
 func _load(p: Dictionary) -> void:
+	_plan = p
 	var segs: Array = p.segs
 	segs.sort_custom(func(x: Array, y: Array) -> bool: return float(x[1]) + float(x[2]) * 0.5 < float(y[1]) + float(y[2]) * 0.5)
 	var n := segs.size()
@@ -433,6 +440,8 @@ static func plan(text: String, tu: SpeechTuning = null) -> Dictionary:
 	var segs := []
 	var nods := []
 	var pauses := []
+	var words_t := []   # each word's first sound (s), the line's words counted as [A-Za-z']+ (#1316's beat)
+	var wbase := 0
 	var t := 0.03 + lead
 	var first := -1.0
 	var last := 0.0
@@ -502,12 +511,17 @@ static func plan(text: String, tu: SpeechTuning = null) -> Dictionary:
 				gain *= tu.stress_open if on else tu.weak_open
 			if first < 0.0:
 				first = t
+			while words_t.size() <= wbase + int(s[5]):
+				words_t.append(t)
 			# The phrase leans on its last stressed word (a nod), a long one on its first too.
 			if kind == 1 and on and (i == stressed[-1] or (i == stressed[0] and syllables > 6)):
 				nods.append([t, tu.shout_nod_deg if shout or caps else tu.nod_deg])
 			segs.append([cls, t, d, gain])
 			t += d
 		last = t
+		while words_t.size() < wbase + words.size():
+			words_t.append(t)
+		wbase += words.size()
 		if pi < phrases.size() - 1 or end == &"dash" or end == &"ellipsis":
 			var pz := _pause_seconds(end, tu)
 			if pz > 0.0:
@@ -517,10 +531,10 @@ static func plan(text: String, tu: SpeechTuning = null) -> Dictionary:
 				t += pz
 	# Quiet either side: the mouth comes from rest and goes back to it.
 	if first < 0.0:
-		return {"segs": [], "nods": [], "pauses": [], "voice": [0.0, 0.0], "seconds": 0.0}
+		return {"segs": [], "nods": [], "pauses": [], "words": [], "voice": [0.0, 0.0], "seconds": 0.0}
 	segs.append([&"_", 0.0, first, 1.0])
 	segs.append([&"_", t, 0.4, 1.0])
-	return {"segs": segs, "nods": nods, "pauses": pauses, "voice": [first, last], "seconds": t + 0.12}
+	return {"segs": segs, "nods": nods, "pauses": pauses, "words": words_t, "voice": [first, last], "seconds": t + 0.12}
 
 
 static func _pause_kind(tok: String) -> StringName:
@@ -1039,6 +1053,9 @@ static func fit(p: Dictionary, env: PackedFloat32Array, rate: float, tu: SpeechT
 	var nods := []
 	for nd: Array in p.nods:
 		nods.append([warp.call(float(nd[0])), nd[1]])
+	var words_t := []
+	for wt: float in p.get("words", []):
+		words_t.append(warp.call(wt))
 	# The mouth's opening with the loudness, and a gate that shuts it in the quiet (slow, so the
 	# hush of a stop's closure inside a word doesn't).
 	var open := PackedFloat32Array()
@@ -1052,7 +1069,7 @@ static func fit(p: Dictionary, env: PackedFloat32Array, rate: float, tu: SpeechT
 		for g in range(maxi(f - wide, 0), mini(f + wide + 1, env.size())):
 			m = maxf(m, env[g])
 		gate[f] = smoothstep(tu.loud_gate * 0.5, tu.loud_gate * 1.5, m)
-	return {"segs": segs, "nods": nods, "pauses": [], "voice": [v0 / rate, (v1 + 1) / rate],
+	return {"words": words_t, "segs": segs, "nods": nods, "pauses": [], "voice": [v0 / rate, (v1 + 1) / rate],
 			"seconds": (v1 + 1) / rate + 0.12, "open": open, "gate": gate, "rate": rate}
 
 

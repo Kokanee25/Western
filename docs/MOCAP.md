@@ -96,6 +96,25 @@ real:
 `lean_bar_drink`, `sit_cards`, `talk_calm`, `talk_agitated`, `tip_hat`, `point`, `sweep_boardwalk`,
 `carry_bucket`, `shovel`, `hammer`, `lead_horse`, `sleep_in_bed`, `wake_up`
 
+### Batch 3b — talking gestures (12; #1316)
+A man's lines move his face and body (`LineGesture`, `config/delivery.json`): today each gesture is
+procedural, and one of these recorded replaces it where it fits (stood, both hands free). Each is **one
+gesture on one spoken line**, said aloud as you do it so the clip's beat can be found: the beat is the
+word in capitals (Claude marks it as the clip's `beat` from the sound). Stood still, feet planted, facing
+the phone, 3-4 seconds; 2 takes each. Don't act the face: only the body is used.
+1. `talk_fist_bar` (angry): "You **never** paid me." the right fist comes down on a bar-high surface on "never".
+2. `talk_jab` (angry): "I'm telling **you**, mister." a finger jabbed forward twice.
+3. `talk_laugh_knee` (laughing): a laugh after "and the mule walked **in**!" bent over, a slap on your thigh.
+4. `talk_mock_wave` (mocking): "Oh, **sure** you did." a flap of the hand, waving it off.
+5. `talk_step_back` (scared): "Somebody's **out** there." half a step back, hands coming up.
+6. `talk_aside` (sly): "I never saw a **thing**." a glance and turn of the head aside, a small smile.
+7. `talk_head_down` (sad): "She was a **good** woman." head down, a slow breath out.
+8. `talk_thumbs_vest` (proud): "Built every board **myself**." thumbs in the vest or belt, chest out.
+9. `talk_open_hands` (pleading): "Please, I got **children**." both hands out, palms up.
+10. `talk_beat_hand` (calm): "Coffee's on, if you **want** it." an easy hand beat on the word.
+11. `talk_shrug` (calm): "Who **knows**." a shrug, palms half up.
+12. `talk_point_away` (calm): "Went up the **creek** road." a point off to the side with the head after it.
+
 ### Batch 4 — the kids (~6–8)
 `kid_run_chase`, `kid_play`, `kid_peek_corner`, `kid_hide_behind_adult`, `kid_wave`, `kid_scared_walk`
 

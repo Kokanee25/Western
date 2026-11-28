@@ -319,6 +319,9 @@ var pose := &"stand"
 ## Staged scenes' touch on top of whatever pose he's in: segment -> extra rotation (degrees, same
 ## axes as POSES), e.g. {&"head": Vector3(0, 12, -10)} to turn his head to you and tip it.
 var pose_offsets := {}
+## A line's gestures (#1316, LineGesture): segment -> degrees on top of pose_offsets and whatever his
+## chore or bit lays there (added, never written over: a nod over his wiping lean, not instead of it).
+var gesture_offsets := {}
 ## The "post" pose's joints for him (PostPose.make from his dials, `take_post`).
 var post_pose := {}
 var _post_made := 0
@@ -574,6 +577,9 @@ func _ready() -> void:
 		var speech := FaceSpeech.new()   # his mouth saying his lines (Events.spoke)
 		speech.name = "FaceSpeech"
 		add_child(speech)
+	var gest := LineGesture.new()   # his lines' face and gestures (#1316; a ticker only while one plays)
+	gest.name = "LineGesture"
+	add_child(gest)
 	if has_gun:
 		_give_gun()
 	_use_wound_materials()
@@ -2473,7 +2479,8 @@ func _pose_maths(delta: float, snap: bool) -> void:
 	_injury_targets()
 	# (Asked of every joint every tick: only the lists with something in them.)
 	var injured := not _injury_now.is_empty() or not _injury_w.is_empty()
-	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty()
+	var leans := not overlay.is_empty() or not pose_offsets.is_empty() or not _stumble_lean.is_empty() or not _favour_lean.is_empty() \
+			or not gesture_offsets.is_empty()
 	var track := _hands_goals(delta, snap, target)
 	_rots.resize(pivots.size())
 	var i := 0
@@ -2481,7 +2488,7 @@ func _pose_maths(delta: float, snap: bool) -> void:
 		var tracked := track.has(sid)
 		var goal: Vector3 = track[sid] if tracked else target.get(sid, Vector3.ZERO)
 		if leans:
-			goal += overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) \
+			goal += overlay.get(sid, Vector3.ZERO) + pose_offsets.get(sid, Vector3.ZERO) + gesture_offsets.get(sid, Vector3.ZERO) \
 					+ _stumble_lean.get(sid, Vector3.ZERO) + _favour_lean.get(sid, Vector3.ZERO)
 		if injured:
 			goal = _injured(sid, goal, delta)
@@ -2617,7 +2624,7 @@ func _pose_writes(delta: float, snap: bool) -> void:
 			# The library clip under any played one (a kick, his own walk lead over it), what's on
 			# top of any pose on top of it, as the played clip's.
 			var lf: Vector3 = (_flinch.get(sid, _NO_FLINCH) as Array)[0]
-			var lx: Vector3 = lf + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO) \
+			var lx: Vector3 = lf + pose_offsets.get(sid, Vector3.ZERO) + gesture_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO) \
 					+ _favour_lean.get(sid, Vector3.ZERO)
 			var lq: Quaternion = lib[sid] if lx == Vector3.ZERO else (lib[sid] as Quaternion) * Quaternion.from_euler(lx * (PI / 180.0))
 			pv.quaternion = lq if lib_only else pv.quaternion.slerp(lq, lib_j)
@@ -2627,7 +2634,7 @@ func _pose_writes(delta: float, snap: bool) -> void:
 			# as he stumbles, the lean his wounds give him) on top of it. The played clip leads
 			# every joint it has.
 			var flinch: Vector3 = (_flinch.get(sid, _NO_FLINCH) as Array)[0]
-			var extra: Vector3 = (flinch + pose_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
+			var extra: Vector3 = (flinch + pose_offsets.get(sid, Vector3.ZERO) + gesture_offsets.get(sid, Vector3.ZERO) + _stumble_lean.get(sid, Vector3.ZERO)
 					+ _favour_lean.get(sid, Vector3.ZERO)) * (PI / 180.0)
 			if mocap_here:
 				pv.quaternion = pv.quaternion.slerp((clip[sid] as Quaternion) * Quaternion.from_euler(extra), _mocap_w)
@@ -3799,6 +3806,24 @@ func wound_under_hand(side: String) -> float:
 ## The hand going to (or holding) a wound, "r"/"l", or "" if neither.
 func grab_side() -> String:
 	return "" if _grab.is_empty() else String(_grab.side)
+
+
+## The poses whose arms are the pose's business (a gun up, hands up or bound, clutching himself).
+const HANDS_POSES := [&"aim", &"crouch_aim", &"prone_aim", &"hands_up", &"hands_bound", &"clutch", &"wince", &"duck"]
+
+
+## Is the hand on `side` ("r"/"l") about something (#1316: a line's gesture leaves it be)? A chore's
+## reach renewed this tick or last (a glass, the cloth, his cards, the fiddle), a hand to a wound, the
+## gun out in his right, a clip or the mocap leading his arms, carried or limp, or a pose that has them.
+func hand_busy(side: String) -> bool:
+	if limp or carried or _clip != null or pose in HANDS_POSES:
+		return true
+	var r: Variant = _reach.get(side)
+	if r != null and Engine.get_physics_frames() - int((r as Dictionary).frame) <= 2 and float((r as Dictionary).k) > 0.05:
+		return true
+	if grab_side() == side or _dying.has(side):
+		return true
+	return side == "r" and held_gun != null and not gun_holstered
 
 
 func _reach_step() -> void:
