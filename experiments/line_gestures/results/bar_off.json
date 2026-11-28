@@ -1,0 +1,3140 @@
+{
+ "cmd": "lg_stop",
+ "lines": [
+  {
+   "d": 7.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 8.6,
+     "body": 9.6,
+     "face": 0.0,
+     "head": 59.9,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 94.7,
+     "body": 9.6,
+     "face": 0.0,
+     "head": 38.7,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 127.6,
+     "body": 17.7,
+     "face": 0.0,
+     "head": 30.6,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 123.5,
+     "body": 9.6,
+     "face": 0.0,
+     "head": 30.6,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 91.1,
+    "body": 9.6,
+    "face": 0.0,
+    "head": 29.6,
+    "shape": "",
+    "who": "saloon_girl"
+   },
+   "tag": "sly",
+   "text": "Watch the Professor when I say 'Mrs. Rudd'. ...There. Did you hear that?",
+   "who": "saloon_girl"
+  },
+  {
+   "d": 2.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 82.3,
+     "body": 10.6,
+     "face": 0.0,
+     "head": 63.0,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 27.0,
+    "body": 8.1,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "calm",
+   "text": "You sitting in Friday?",
+   "who": "barkeep"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.7,
+     "face": 0.0,
+     "head": 26.9,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 122.9,
+    "body": 14.3,
+    "face": 0.0,
+    "head": 60.4,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Somebody cut.",
+   "who": "drifter"
+  },
+  {
+   "d": 5.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 178.5,
+     "body": 16.5,
+     "face": 0.0,
+     "head": 129.0,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 7.0,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 21.2,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 90.1,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 1.3,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 134.5,
+     "body": 16.8,
+     "face": 0.0,
+     "head": 6.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 86.0,
+     "body": 17.2,
+     "face": 0.0,
+     "head": 0.0,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 96.2,
+    "body": 11.1,
+    "face": 0.0,
+    "head": 1.2,
+    "shape": "",
+    "who": "liveryman"
+   },
+   "tag": "sly",
+   "text": "He's dropped a note.",
+   "who": "liveryman"
+  },
+  {
+   "d": 1.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 23.7,
+     "body": 7.9,
+     "face": 0.0,
+     "head": 28.4,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 178.6,
+     "body": 17.7,
+     "face": 0.0,
+     "head": 126.8,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 81.5,
+     "body": 16.7,
+     "face": 0.0,
+     "head": 0.0,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 56.9,
+    "body": 6.6,
+    "face": 0.0,
+    "head": 27.5,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "I always sit in Friday.",
+   "who": "miner"
+  },
+  {
+   "d": 3.4,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 61.2,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 7.1,
+     "shape": "",
+     "who": "miner"
+    },
+    {
+     "answered": false,
+     "arms": 9.8,
+     "body": 6.8,
+     "face": 0.0,
+     "head": 26.3,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 9.4,
+     "body": 6.8,
+     "face": 0.0,
+     "head": 39.1,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 135.5,
+     "body": 17.8,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 102.4,
+     "body": 16.5,
+     "face": 0.0,
+     "head": 0.0,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 178.1,
+    "body": 17.7,
+    "face": 0.0,
+    "head": 63.1,
+    "shape": "",
+    "who": "rancher"
+   },
+   "tag": "laughing",
+   "text": "Look what the wind blew in.",
+   "who": "rancher"
+  },
+  {
+   "d": 2.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 126.7,
+     "body": 11.8,
+     "face": 0.0,
+     "head": 12.7,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 33.8,
+    "body": 10.5,
+    "face": 0.0,
+    "head": 27.6,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "sly",
+   "text": "Earl takes a dollar off you every time he deals.",
+   "who": "barkeep"
+  },
+  {
+   "d": 7.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 6.0,
+     "body": 10.1,
+     "face": 0.0,
+     "head": 64.0,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 5.7,
+     "body": 10.1,
+     "face": 0.0,
+     "head": 40.4,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 123.8,
+     "body": 10.1,
+     "face": 0.0,
+     "head": 9.9,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 134.3,
+     "body": 17.3,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 89.9,
+    "body": 10.1,
+    "face": 0.0,
+    "head": 44.7,
+    "shape": "",
+    "who": "saloon_girl"
+   },
+   "tag": "laughing",
+   "text": "He mends her organ Sundays and eats in the kitchen for it.",
+   "who": "saloon_girl"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.8,
+     "body": 5.8,
+     "face": 0.85,
+     "head": 20.2,
+     "shape": "smile",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 5.9,
+    "face": 0.85,
+    "head": 20.2,
+    "shape": "smile",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Bet two bits more'n it's worth.",
+   "who": "earl"
+  },
+  {
+   "d": 6.7,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 122.0,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 5.9,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 8.6,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 38.9,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 90.3,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 12.1,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 92.9,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 2.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 122.4,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 1.2,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 89.9,
+    "body": 11.1,
+    "face": 0.0,
+    "head": 36.4,
+    "shape": "",
+    "who": "storekeeper"
+   },
+   "tag": "calm",
+   "text": "That's nobody's business but theirs.",
+   "who": "storekeeper"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 3.6,
+     "face": 0.0,
+     "head": 10.2,
+     "shape": "smile",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.8,
+    "body": 3.7,
+    "face": 0.33,
+    "head": 16.3,
+    "shape": "smile",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Three. Don't spare me.",
+   "who": "drifter"
+  },
+  {
+   "d": 1.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 58.2,
+     "body": 11.8,
+     "face": 0.0,
+     "head": 0.1,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 125.2,
+     "body": 11.5,
+     "face": 0.0,
+     "head": 12.2,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 125.1,
+     "body": 11.5,
+     "face": 0.0,
+     "head": 9.7,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 88.1,
+    "body": 11.5,
+    "face": 0.0,
+    "head": 58.1,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "He do. I watch for how. Three year, and I've not caught him at it yet.",
+   "who": "miner"
+  },
+  {
+   "d": 7.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 6.9,
+     "body": 7.5,
+     "face": 0.0,
+     "head": 63.5,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 6.6,
+     "body": 7.5,
+     "face": 0.0,
+     "head": 40.8,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 127.4,
+     "body": 7.5,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 79.7,
+     "body": 7.5,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 89.8,
+    "body": 7.5,
+    "face": 0.0,
+    "head": 46.0,
+    "shape": "",
+    "who": "saloon_girl"
+   },
+   "tag": "mocking",
+   "text": "Ah, sure. I wouldn't say it to him.",
+   "who": "saloon_girl"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.3,
+     "body": 2.0,
+     "face": 0.0,
+     "head": 20.9,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 1.4,
+    "face": 0.0,
+    "head": 19.6,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "I'll bet.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.4,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 20.6,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.3,
+    "body": 2.0,
+    "face": 0.0,
+    "head": 1.2,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Call.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.3,
+     "body": 2.0,
+     "face": 0.0,
+     "head": 1.2,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 2.4,
+    "face": 0.0,
+    "head": 20.8,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Two pair, eights and fours. Read 'em out loud, boys, if you can.",
+   "who": "earl"
+  },
+  {
+   "d": 11.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.3,
+     "face": 0.0,
+     "head": 1.0,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.2,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "laughing",
+   "text": "What come of your saddle, anyhow?",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.4,
+     "face": 0.0,
+     "head": 0.8,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.0,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Stole. In Tascosa.",
+   "who": "drifter"
+  },
+  {
+   "d": 6.6,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 86.1,
+     "body": 18.2,
+     "face": 0.0,
+     "head": 130.0,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 6.2,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 16.8,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 5.9,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 42.2,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 4.7,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 2.5,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 165.2,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 11.1,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 178.8,
+    "body": 6.9,
+    "face": 0.0,
+    "head": 11.3,
+    "shape": "",
+    "who": "loudmouth"
+   },
+   "tag": "calm",
+   "text": "Ain't no sheriff tonight, boys!",
+   "who": "loudmouth"
+  },
+  {
+   "d": 11.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.3,
+     "face": 0.0,
+     "head": 1.0,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.3,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "That's hard. Man can't hire on without one.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.2,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.4,
+    "face": 0.0,
+    "head": 1.4,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "low",
+   "text": "Ask me about something else, Earl.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.9,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.7,
+    "body": 1.4,
+    "face": 0.0,
+    "head": 1.2,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Five-card. Same as ever.",
+   "who": "earl"
+  },
+  {
+   "d": 11.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.7,
+    "body": 2.0,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "pleading",
+   "text": "I'm sorry. I'm sorry, I only... It's your deal.",
+   "who": "earl"
+  },
+  {
+   "d": 3.4,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 126.6,
+     "body": 11.1,
+     "face": 0.0,
+     "head": 78.5,
+     "shape": "",
+     "who": "miner"
+    },
+    {
+     "answered": false,
+     "arms": 6.4,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 65.5,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 6.1,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 41.7,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 86.5,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 22.7,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 126.5,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 178.2,
+    "body": 11.1,
+    "face": 0.0,
+    "head": 62.9,
+    "shape": "",
+    "who": "rancher"
+   },
+   "tag": "calm",
+   "text": "To the last one. And the next.",
+   "who": "rancher"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 23.0,
+     "body": 2.1,
+     "face": 0.0,
+     "head": 20.0,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 1.2,
+    "face": 0.0,
+    "head": 20.0,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Check.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.6,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 50.1,
+    "body": 2.3,
+    "face": 0.0,
+    "head": 20.2,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Three. And make 'em good.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 19.9,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 1.7,
+    "face": 0.0,
+    "head": 19.9,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "A dollar.",
+   "who": "drifter"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.2,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 2.4,
+    "face": 0.0,
+    "head": 19.9,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Obliged.",
+   "who": "drifter"
+  },
+  {
+   "d": 1.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 70.8,
+     "body": 7.8,
+     "face": 0.0,
+     "head": 27.4,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 126.5,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 59.4,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 124.1,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 139.2,
+    "body": 10.8,
+    "face": 0.0,
+    "head": 6.0,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "That's your grass the Baron's wire goes round, down by the ford?",
+   "who": "miner"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.3,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.7,
+    "body": 1.5,
+    "face": 0.0,
+    "head": 0.8,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Cut 'em thin, deal 'em true.",
+   "who": "drifter"
+  },
+  {
+   "d": 5.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 121.7,
+     "body": 8.3,
+     "face": 0.0,
+     "head": 5.4,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 5.5,
+     "body": 8.3,
+     "face": 0.0,
+     "head": 14.4,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 4.3,
+     "body": 8.3,
+     "face": 0.0,
+     "head": 44.2,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 123.8,
+     "body": 8.3,
+     "face": 0.0,
+     "head": 25.4,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 122.6,
+     "body": 8.3,
+     "face": 0.0,
+     "head": 35.8,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 91.7,
+    "body": 8.3,
+    "face": 0.0,
+    "head": 3.5,
+    "shape": "",
+    "who": "liveryman"
+   },
+   "tag": "angry",
+   "text": "Four shoes I owe Stroud for. Since August.",
+   "who": "liveryman"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.2,
+     "body": 2.0,
+     "face": 0.0,
+     "head": 20.0,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.4,
+    "face": 0.0,
+    "head": 19.8,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "I'll knock.",
+   "who": "earl"
+  },
+  {
+   "d": 3.4,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 109.3,
+     "body": 9.3,
+     "face": 0.0,
+     "head": 84.4,
+     "shape": "",
+     "who": "miner"
+    },
+    {
+     "answered": false,
+     "arms": 7.6,
+     "body": 9.3,
+     "face": 0.0,
+     "head": 65.3,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 91.1,
+     "body": 9.3,
+     "face": 0.0,
+     "head": 42.7,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 127.2,
+     "body": 9.3,
+     "face": 0.0,
+     "head": 38.2,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 129.1,
+     "body": 9.3,
+     "face": 0.0,
+     "head": 37.4,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 125.6,
+    "body": 9.3,
+    "face": 0.0,
+    "head": 28.1,
+    "shape": "",
+    "who": "rancher"
+   },
+   "tag": "calm",
+   "text": "It was mine. I sold him the low meadow in 'seventy-six. He paid what I asked, in gold, the same day.",
+   "who": "rancher"
+  },
+  {
+   "d": 6.7,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 92.3,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 56.2,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 85.6,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 39.3,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 5.6,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 1.3,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 21.2,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 1.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 128.3,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 29.4,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 7.4,
+    "body": 7.6,
+    "face": 0.0,
+    "head": 54.4,
+    "shape": "",
+    "who": "storekeeper"
+   },
+   "tag": "calm",
+   "text": "Has he asked?",
+   "who": "storekeeper"
+  },
+  {
+   "d": 1.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 25.2,
+     "body": 9.1,
+     "face": 0.0,
+     "head": 0.0,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 113.5,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 47.6,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 127.5,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 38.2,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 170.7,
+    "body": 7.6,
+    "face": 0.0,
+    "head": 56.5,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "Then you've no quarrel with him.",
+   "who": "miner"
+  },
+  {
+   "d": 5.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 126.9,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 58.3,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 8.7,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 66.1,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 6.6,
+     "body": 6.7,
+     "face": 0.39,
+     "head": 67.4,
+     "shape": "smile",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 126.8,
+     "body": 17.0,
+     "face": 0.0,
+     "head": 9.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 70.9,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 11.6,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 85.0,
+    "body": 6.7,
+    "face": 0.0,
+    "head": 49.1,
+    "shape": "",
+    "who": "liveryman"
+   },
+   "tag": "angry",
+   "text": "He ain't said ary word. Stands there looking at his iron.",
+   "who": "liveryman"
+  },
+  {
+   "d": 6.7,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 122.2,
+     "body": 7.1,
+     "face": 0.0,
+     "head": 100.6,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 5.7,
+     "body": 7.1,
+     "face": 0.0,
+     "head": 2.3,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 4.6,
+     "body": 7.1,
+     "face": 0.59,
+     "head": 45.7,
+     "shape": "smile",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 135.3,
+     "body": 20.1,
+     "face": 0.0,
+     "head": 10.7,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 127.2,
+     "body": 7.1,
+     "face": 0.0,
+     "head": 3.0,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 6.0,
+    "body": 7.1,
+    "face": 0.0,
+    "head": 60.0,
+    "shape": "",
+    "who": "storekeeper"
+   },
+   "tag": "calm",
+   "text": "Pay him, Hiram.",
+   "who": "storekeeper"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.4,
+     "body": 2.3,
+     "face": 0.0,
+     "head": 21.2,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 1.6,
+    "face": 0.0,
+    "head": 0.8,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Funny how it goes, Earl.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.6,
+     "face": 0.0,
+     "head": 0.8,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 2.3,
+    "face": 0.0,
+    "head": 21.2,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "A pair of nines. Now ain't that something.",
+   "who": "earl"
+  },
+  {
+   "d": 3.4,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 152.4,
+     "body": 17.5,
+     "face": 0.0,
+     "head": 63.2,
+     "shape": "",
+     "who": "miner"
+    },
+    {
+     "answered": false,
+     "arms": 9.7,
+     "body": 10.7,
+     "face": 0.0,
+     "head": 66.0,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 93.2,
+     "body": 10.7,
+     "face": 0.0,
+     "head": 52.7,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 122.9,
+     "body": 17.4,
+     "face": 0.0,
+     "head": 10.8,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 124.1,
+     "body": 17.2,
+     "face": 0.0,
+     "head": 1.6,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 125.4,
+    "body": 10.7,
+    "face": 0.0,
+    "head": 62.6,
+    "shape": "",
+    "who": "rancher"
+   },
+   "tag": "low",
+   "text": "No. Only the creek below it, it used to come up to my knee. Now it's here. My ankle.",
+   "who": "rancher"
+  },
+  {
+   "d": 5.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 124.4,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 59.1,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 7.7,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 62.0,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 5.9,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 88.8,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 124.0,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 10.9,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 121.4,
+     "body": 17.1,
+     "face": 0.0,
+     "head": 0.9,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 92.7,
+    "body": 10.8,
+    "face": 0.0,
+    "head": 40.2,
+    "shape": "",
+    "who": "liveryman"
+   },
+   "tag": "angry",
+   "text": "I mean to pay him! That ain't what I'm telling you.",
+   "who": "liveryman"
+  },
+  {
+   "d": 2.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 171.0,
+     "body": 17.3,
+     "face": 0.0,
+     "head": 66.6,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 66.5,
+    "body": 11.8,
+    "face": 0.0,
+    "head": 2.2,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "angry",
+   "text": "God damn it, Rufe, set it down like you paid for it!",
+   "who": "barkeep"
+  },
+  {
+   "d": 1.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 44.9,
+     "body": 11.5,
+     "face": 0.0,
+     "head": 1.5,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 121.1,
+     "body": 10.9,
+     "face": 0.0,
+     "head": 6.6,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 134.8,
+     "body": 16.5,
+     "face": 0.0,
+     "head": 10.5,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 143.4,
+    "body": 10.9,
+    "face": 0.0,
+    "head": 42.3,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "That's the dry years, maybe.",
+   "who": "miner"
+  },
+  {
+   "d": 6.6,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 126.1,
+     "body": 9.0,
+     "face": 0.0,
+     "head": 56.1,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 7.3,
+     "body": 9.0,
+     "face": 0.0,
+     "head": 2.8,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 7.0,
+     "body": 9.0,
+     "face": 0.0,
+     "head": 40.1,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 5.6,
+     "body": 9.0,
+     "face": 0.0,
+     "head": 2.3,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 126.5,
+     "body": 9.0,
+     "face": 0.0,
+     "head": 11.2,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 120.1,
+    "body": 9.0,
+    "face": 0.0,
+    "head": 28.6,
+    "shape": "",
+    "who": "loudmouth"
+   },
+   "tag": "proud",
+   "text": "I did pay for it!",
+   "who": "loudmouth"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.0,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.8,
+    "body": 1.3,
+    "face": 0.0,
+    "head": 1.2,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Come on, come on. Ante.",
+   "who": "earl"
+  },
+  {
+   "d": 2.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 120.2,
+     "body": 11.5,
+     "face": 0.85,
+     "head": 75.6,
+     "shape": "smile",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 55.2,
+    "body": 12.2,
+    "face": 0.0,
+    "head": 32.6,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "angry",
+   "text": "You paid for the whiskey. Them glasses come up from Denver in straw, and half of 'em don't come.",
+   "who": "barkeep"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.0,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 50.1,
+    "body": 1.4,
+    "face": 0.0,
+    "head": 20.0,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "One.",
+   "who": "earl"
+  },
+  {
+   "d": 6.6,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 178.2,
+     "body": 8.7,
+     "face": 0.0,
+     "head": 67.4,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 8.7,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 63.1,
+     "shape": "",
+     "who": "storekeeper"
+    },
+    {
+     "answered": false,
+     "arms": 8.3,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 50.7,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 6.7,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 44.7,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 127.2,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 14.1,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 126.0,
+    "body": 6.9,
+    "face": 0.0,
+    "head": 11.3,
+    "shape": "",
+    "who": "loudmouth"
+   },
+   "tag": "laughing",
+   "text": "I've throwed better glasses than that at a mule! In Santa Fe, this was, the mule had got into...",
+   "who": "loudmouth"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.4,
+     "body": 1.2,
+     "face": 0.0,
+     "head": 21.1,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.3,
+    "body": 2.2,
+    "face": 0.0,
+    "head": 0.9,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "I'll see that.",
+   "who": "drifter"
+  },
+  {
+   "d": 2.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 112.5,
+     "body": 12.0,
+     "face": 0.0,
+     "head": 64.8,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 64.3,
+    "body": 10.8,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "calm",
+   "text": "Thirty-one dollars, Rufe.",
+   "who": "barkeep"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.3,
+     "body": 2.2,
+     "face": 0.0,
+     "head": 0.9,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 1.3,
+    "face": 0.0,
+    "head": 21.1,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Two pair, queens and threes. Clean deck, boys. Clean as Sunday.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.6,
+     "face": 0.0,
+     "head": 0.7,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 39.5,
+    "body": 1.8,
+    "face": 0.0,
+    "head": 1.4,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Cut 'em where I can see, Earl.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 111.5,
+     "body": 7.7,
+     "face": 0.0,
+     "head": 12.0,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.4,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "pleading",
+   "text": "Now, Wiley. Have I ever...",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 1.0,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 1.9,
+    "face": 0.0,
+    "head": 1.3,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "sly",
+   "text": "Twice last night. I let it go by.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.8,
+     "body": 2.2,
+     "face": 0.0,
+     "head": 1.3,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.3,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "pleading",
+   "text": "Well. Well, there, you cut them. Go on. Cut them yourself.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 1.3,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.8,
+    "body": 2.0,
+    "face": 0.0,
+    "head": 1.3,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Let's see if these are any kinder.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.2,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 21.1,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 1.7,
+    "face": 0.0,
+    "head": 19.8,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Bet.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.2,
+     "face": 0.0,
+     "head": 19.8,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 50.1,
+    "body": 1.3,
+    "face": 0.0,
+    "head": 11.3,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Don't mind if I do.",
+   "who": "drifter"
+  },
+  {
+   "d": 5.6,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 71.8,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 54.8,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 5.9,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 5.8,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 4.7,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 38.6,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 83.9,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 28.7,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 114.7,
+     "body": 6.9,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 63.8,
+    "body": 12.8,
+    "face": 0.0,
+    "head": 55.6,
+    "shape": "",
+    "who": "storekeeper"
+   },
+   "tag": "calm",
+   "text": "Night, all.",
+   "who": "storekeeper"
+  },
+  {
+   "d": 2.1,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 135.6,
+     "body": 17.8,
+     "face": 0.0,
+     "head": 65.4,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 22.0,
+    "body": 7.6,
+    "face": 0.0,
+    "head": 22.5,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "calm",
+   "text": "Night.",
+   "who": "barkeep"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.4,
+     "body": 2.1,
+     "face": 0.0,
+     "head": 20.9,
+     "shape": "",
+     "who": "earl"
+    },
+    {
+     "answered": false,
+     "arms": 70.1,
+     "body": 15.8,
+     "face": 0.0,
+     "head": 130.0,
+     "shape": "",
+     "who": "storekeeper"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 11.3,
+    "face": 0.0,
+    "head": 8.7,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "You're a lucky old man, Earl.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 11.3,
+     "face": 0.0,
+     "head": 8.7,
+     "shape": "",
+     "who": "drifter"
+    },
+    {
+     "answered": false,
+     "arms": 70.1,
+     "body": 15.8,
+     "face": 0.0,
+     "head": 130.1,
+     "shape": "",
+     "who": "storekeeper"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 2.1,
+    "face": 0.0,
+    "head": 20.9,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "A pair of twos. Don't look at me like that.",
+   "who": "earl"
+  },
+  {
+   "d": 7.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 8.7,
+     "body": 6.4,
+     "face": 0.0,
+     "head": 55.1,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 61.9,
+     "body": 6.4,
+     "face": 0.0,
+     "head": 1.7,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 116.2,
+     "body": 6.4,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 7.0,
+    "body": 6.4,
+    "face": 0.0,
+    "head": 59.6,
+    "shape": "",
+    "who": "saloon_girl"
+   },
+   "tag": "low",
+   "text": "Is Wiley eating, Hiram?",
+   "who": "saloon_girl"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.7,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.6,
+    "body": 9.1,
+    "face": 0.0,
+    "head": 9.0,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Deal's mine. Watch my hands, if you like.",
+   "who": "earl"
+  },
+  {
+   "d": 5.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 127.2,
+     "body": 7.9,
+     "face": 0.0,
+     "head": 39.2,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 88.0,
+     "body": 7.2,
+     "face": 0.0,
+     "head": 56.5,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 126.6,
+     "body": 7.2,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 91.1,
+     "body": 7.2,
+     "face": 0.0,
+     "head": 0.0,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 175.7,
+    "body": 7.2,
+    "face": 0.0,
+    "head": 55.2,
+    "shape": "",
+    "who": "liveryman"
+   },
+   "tag": "angry",
+   "text": "There's bread goes missing off the feed bin. I ain't looked into it.",
+   "who": "liveryman"
+  },
+  {
+   "d": 7.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 178.6,
+     "body": 8.6,
+     "face": 0.0,
+     "head": 11.9,
+     "shape": "",
+     "who": "liveryman"
+    },
+    {
+     "answered": false,
+     "arms": 120.5,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 7.9,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 120.6,
+     "body": 7.6,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 88.1,
+    "body": 7.6,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "saloon_girl"
+   },
+   "tag": "mocking",
+   "text": "You leave it there for him.",
+   "who": "saloon_girl"
+  },
+  {
+   "d": 2.1,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 126.2,
+     "body": 16.6,
+     "face": 0.0,
+     "head": 59.9,
+     "shape": "",
+     "who": "miner"
+    }
+   ],
+   "speaker": {
+    "arms": 28.4,
+    "body": 7.2,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "barkeep"
+   },
+   "tag": "angry",
+   "text": "Professor wants a tuner up from Denver. Twelve dollars and his fare.",
+   "who": "barkeep"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.3,
+     "face": 0.0,
+     "head": 20.0,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 50.1,
+    "body": 2.3,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "See you.",
+   "who": "earl"
+  },
+  {
+   "d": 5.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 62.6,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 64.8,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 7.3,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 0.0,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 126.2,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "loudmouth"
+    },
+    {
+     "answered": false,
+     "arms": 126.9,
+     "body": 6.7,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 96.5,
+    "body": 6.7,
+    "face": 0.0,
+    "head": 1.0,
+    "shape": "",
+    "who": "liveryman"
+   },
+   "tag": "angry",
+   "text": "I set it down and forget it. I'm an old man. Leave me be.",
+   "who": "liveryman"
+  },
+  {
+   "d": 1.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 82.5,
+     "body": 12.2,
+     "face": 0.0,
+     "head": 23.7,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 125.1,
+     "body": 11.5,
+     "face": 0.0,
+     "head": 5.7,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 119.2,
+     "body": 11.5,
+     "face": 0.0,
+     "head": 7.2,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 134.7,
+    "body": 17.3,
+    "face": 0.0,
+    "head": 54.8,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "Help you, mister?",
+   "who": "miner"
+  },
+  {
+   "d": 1.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 68.5,
+     "body": 10.8,
+     "face": 0.0,
+     "head": 23.7,
+     "shape": "",
+     "who": "barkeep"
+    },
+    {
+     "answered": false,
+     "arms": 126.7,
+     "body": 6.5,
+     "face": 0.0,
+     "head": 4.6,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 115.4,
+     "body": 6.5,
+     "face": 0.0,
+     "head": 11.3,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 135.7,
+    "body": 17.0,
+    "face": 0.0,
+    "head": 50.2,
+    "shape": "",
+    "who": "miner"
+   },
+   "tag": "calm",
+   "text": "The C sticks. I've heard it stick.",
+   "who": "miner"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.2,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 1.3,
+    "face": 0.0,
+    "head": 21.2,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Nobody? Then that's mine.",
+   "who": "drifter"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.3,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 49.8,
+    "body": 2.2,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Ante up. You know the price.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 50.0,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 19.1,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.2,
+    "face": 0.0,
+    "head": 20.8,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Three, and quit smiling.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.4,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 20.9,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.0,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "Fold.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.0,
+     "face": 0.0,
+     "head": 1.1,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.4,
+    "body": 2.4,
+    "face": 0.0,
+    "head": 20.9,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "Nobody wants it? I'll mind it for you.",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 32.5,
+     "body": 4.6,
+     "face": 0.0,
+     "head": 7.5,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.3,
+    "face": 0.0,
+    "head": 0.8,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "low",
+   "text": "Baron's outfit's hiring. Sixty a month.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.1,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "drifter"
+    },
+    {
+     "answered": false,
+     "arms": 90.6,
+     "body": 20.0,
+     "face": 0.0,
+     "head": 97.7,
+     "shape": "",
+     "who": "liveryman"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.4,
+    "face": 0.0,
+    "head": 1.8,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "laughing",
+   "text": "Sixty! For riding?",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.4,
+     "face": 0.0,
+     "head": 0.4,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.0,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "sly",
+   "text": "They don't ask can you rope.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 2.4,
+     "face": 0.0,
+     "head": 0.3,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 2.1,
+    "face": 0.0,
+    "head": 1.1,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "scared",
+   "text": "What do they ask?",
+   "who": "earl"
+  },
+  {
+   "d": 9.8,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 49.7,
+     "body": 2.3,
+     "face": 0.0,
+     "head": 1.2,
+     "shape": "",
+     "who": "earl"
+    }
+   ],
+   "speaker": {
+    "arms": 0.0,
+    "body": 1.6,
+    "face": 0.0,
+    "head": 0.9,
+    "shape": "",
+    "who": "drifter"
+   },
+   "tag": "calm",
+   "text": "I come away before he got to it.",
+   "who": "drifter"
+  },
+  {
+   "d": 11.2,
+   "exchange": false,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 0.0,
+     "body": 1.9,
+     "face": 0.0,
+     "head": 0.2,
+     "shape": "",
+     "who": "drifter"
+    }
+   ],
+   "speaker": {
+    "arms": 49.7,
+    "body": 1.4,
+    "face": 0.0,
+    "head": 0.9,
+    "shape": "",
+    "who": "earl"
+   },
+   "tag": "calm",
+   "text": "These cards have been against me since Christmas.",
+   "who": "earl"
+  },
+  {
+   "d": 6.6,
+   "exchange": true,
+   "gestures": [],
+   "listeners": [
+    {
+     "answered": false,
+     "arms": 126.7,
+     "body": 7.0,
+     "face": 0.0,
+     "head": 57.5,
+     "shape": "",
+     "who": "rancher"
+    },
+    {
+     "answered": false,
+     "arms": 179.9,
+     "body": 8.5,
+     "face": 0.0,
+     "head": 23.4,
+     "shape": "",
+     "who": "saloon_girl"
+    },
+    {
+     "answered": false,
+     "arms": 63.4,
+     "body": 7.0,
+     "face": 0.0,
+     "head": 0.0,
+     "shape": "",
+     "who": "town_drunk"
+    }
+   ],
+   "speaker": {
+    "arms": 126.6,
+    "body": 7.0,
+    "face": 0.0,
+    "head": 11.3,
+    "shape": "",
+    "who": "loudmouth"
+   },
+   "tag": "proud",
+   "text": "Kitty! Come sit by a man that's been somewhere.",
+   "who": "loudmouth"
+  }
+ ],
+ "ms_a_tick": {
+  "brains": 0.0,
+  "faces": 0.039,
+  "people_body": 2.543,
+  "senses": 0.877,
+  "town_life": 0.0,
+  "valley_folk": 0.185
+ },
+ "ok": true,
+ "s": 225.1,
+ "t": 253.7,
+ "ticks": 13505
+}

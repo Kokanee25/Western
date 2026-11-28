@@ -20,9 +20,25 @@ gesture on its beat; the listeners answer).
 
       python3 experiments/line_gestures/run.py experiments/line_gestures/results
 
-## Results
+## Results (2026-11-28, two game hours a spot, this workspace's 2.1 GHz core)
 
-See `results/table.md` (and the PR).
+| | saloon B 20:00-22:00, off | on | the street 13:00-15:00, off | on |
+|---|---|---|---|---|
+| lines within 15 m (an exchange's) | 83 (45) | 80 (48) | 9 (0) | 10 (1) |
+| tagged (not calm) | 30 | 29 | 1 | 2 |
+| a tagged line's speaker: face moved > 0.15 | 0 of 30 | 21 of 29 | 0 of 1 | 0 of 1 |
+| men within 4 m who answered it | 0 of 84 | 44 of 96 | - | 1 of 1 |
+| gestures played (the most) | none | lean_in_small 7, laugh_shake 5, proud 4, nod 4, jab 4, low 4, head_back 3, mock_tilt 3 | none | proud, nod |
+| `faces` timer, ms a tick (FaceLife, FaceSpeech, LineGesture) | 0.039 | 0.105 | 0.011 | 0.010 |
+
+Before: a man saying a line moved his mouth and, at the bar, his room bit (a laugh, a toast) when the
+director gave him one; nothing else in his face or body followed the words, and nobody near him answered.
+His joints moved anyway (`table.md`: median 50° of arm at the bar, off or on), from his chores, so
+the joints' share can't tell a gesture from wiping a glass; the face and the answers can. The listeners
+who didn't answer weren't calm, were Sarge, or were past 1.5 x `listen_m` from him. By day the street's
+men seldom stand together (#1293's finding), so few lines are said near you there. The cost:
++0.07 ms a tick at the busiest (+0.04 at Sean's clock), only while lines play; the people's total held
+(people_body 2.3-2.5, senses 0.9 either way).
 
 ## What the face can't do yet (the MetaHuman, #692)
 
