@@ -78,36 +78,30 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   18.6 KB a member (held to 20); resting members' nodes are rows (ask `drawn_node()`, not `pieces`). 15 KB: #1275.
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
-  The `canary` (#1326: whole missions + the save) rides building/structure/blast/body/prop/plugin changes and merge-ins.
-- **The leak check** (#1326, LAYOUT "tests"): a file that leaves nodes, bodies, statics or engine dials fails by name;
-  put a file-wide dial back in `after_all()`. A red only in shard order: replay its shard's files with `--files=`
-  (`--leaks=off` for the old behaviour); the nightly runs all shards `--shuffle`d. Known order faults left: #1332
-  (kit props at the origin a tick: test_valley's crossroads), test_valley_folk's miner after shard 8's files (with
-  test_times.json's real shack-walk time, 420 s; the table still says 30).
-- **Flaky in shard order:** `test_town_day`'s fights. **Two collapses** (#1214): compare with impacts off.
+  `canary` (#1326): whole missions + the save, on building/structure/blast/body/prop changes and merge-ins.
+- **Leak check** (#1326, LAYOUT "tests"): leaks fail by name; dials back in `after_all()`. Shard-order red: replay
+  with `--files=`. Left: #1332; test_valley_folk after shard 8's files.
+- **Two collapses** (#1214): compare with impacts off.
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
 
 ## Open problems
 - **The valley's people tests** (#925): sample a people test's odds by running its scene many times in one
   process, each start shifted a few frames (#1248: a run here is deterministic; CI's shard order isn't).
-  Traps: `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI draws differently from a
-  workspace (#1094); a kit chair's pieces keep exceptions to freed bodies (test by `body_test_motion`).
-  `run_tests.gd -- --only=a,b,c` takes a list; `-- --no-buildings` is the valley without its spec buildings.
-- **The nightly checks run the valley and the missions** (#863, `nightly.yml`): soaks, smoke legs (valley, sheriff,
-  `sheriff_dies`, coach); a red night opens a `nightly red` issue. Trap: a `.gdignore` drops its folder from the pack.
-  Not yet in the valley: the goldens and the tour (art's views).
+  Traps: `intersect_shape(q, N)` on `Layers.WORLD` counts standing members toward N; CI draws differently (#1094);
+  a kit chair's pieces keep exceptions to freed bodies. `--only=a,b,c` takes a list; `-- --no-buildings`.
+- **The nightly** (#863, `nightly.yml`): soaks, smoke legs (valley, sheriff, `sheriff_dies`, coach), the suite shuffled
+  (#1326); red opens `nightly red`. Trap: a `.gdignore` drops its folder from the pack. Not in the valley: goldens, tour.
 
 ## Traps
 - A `-s` script can't build a structure (autoloads); probe through a test or the bridge. A `-s` tool must
   `load()` GameQuit, not name it.
 - Never measure two games at once; compare alternately. The lab's `--deterministic` keeps the workers'
   merges off: crashes in threaded paths need runs without it.
-- After merging main mid-run: `godot --headless --import` before the next game. Never edit
-  `outlaw_brain.gd` while `run.py` runs.
+- After merging main: `godot --headless --import` before the next run (a new class_name breaks every script).
+  Three valley test runs at once run out of memory.
 - Tests at night in the valley turn the murder off (`-- --no-murder`); a drawn rifle on Main Street sets the
   gang off (use the rope range).
-- A fresh container has no Godot (the 4.7.2 zip from GitHub to ~/.local/bin) nor native plugin: `cargo build --release`
-  in it (2.5 min), the .so to `bin/`, then `godot --headless --import` (~10 min).
+- A fresh container: Godot 4.7.2's zip from GitHub, `cargo build --release` the plugin (.so to `bin/`), import (~10 min).
 - Bridge commands: LAYOUT "The dev bridge". `bridge.py start` is the old town (the gang, the store, the widow) unless
   `--game-args=--world=valley` or a story `--mission=`; the clock's held (`clock on`).
