@@ -202,6 +202,14 @@
    "bible": "townsfolk brief §2 (the roster)",
    "brief": "Twenties, quick and tired; teases, sizes a man up by his purse (#1184).",
    "voice": null
+  },
+  {
+   "id": "town_drunk",
+   "name": "The town drunk (Sarge)",
+   "called": "Sarge; he calls Harlan Brevet",
+   "bible": "docs/story/people.json town_drunk; VOICES.md (Rourke, His war)",
+   "brief": "Late fifties, a broken Union first sergeant from central Illinois; hoarse and carrying, fast and loud drunk, short and exact sober; crude about the body, never about a woman, and every joke has him getting the worst of it too.",
+   "voice": null
   }
  ],
  "scenes": [
@@ -4854,6 +4862,4441 @@
    ]
   },
   {
+   "id": "drunk",
+   "title": "The town drunk has a go at the deputy",
+   "when": "Any day once Harlan wears the badge",
+   "built": true,
+   "reads": "TownDrunk (#1312): `jibe.first` once for good, then `jibe` once a meeting, the most specific that fits (what he sees on Harlan and the town knows of his day: `you`; the story's facts; the hour; his band; `sober`), each once a game day; Harlan's answers `jibe.nod`, `jibe.shake`, `jibe.shove`, `jibe.drink` (the sober lines, once each for good) then `jibe.drink.again`, `jibe.lead`, `jibe.let_go`, `jibe.jail`; the man by who hears it `jibe.heard` by his band. `gag` marks the running jokes Sean asked for (britches, pecker, bachelor).",
+   "setting": "The saloon's walk, the store's bench, the jail's walk; the bar's door end at night. He never says the deputy's name (Brevet, farmer); nothing about Joe; no slurs; Rourke and the place in Tennessee not before Payday Night.",
+   "lines": [
+    {
+     "id": "drunk.brevet",
+     "speaker": "town_drunk",
+     "trigger": "The first time he sees the badge on you: always his first",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.first",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false,
+      "once": "ever"
+     },
+     "condition": "",
+     "delivery": "Loud, for the street; he comes to attention badly.",
+     "words": [
+      {
+       "text": "Well, look at this. A brevet! That's Army, farmer: all of the rank and none of the pay, and nobody bound to mind you. Salute me, Brevet, I outrank you sober.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.brevet2",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Brevet! They pin it on you and forget to send the wages. I seen colonels made that way. I seen 'em unmade quicker.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.britches",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "First shot you hear in earnest, Brevet, you'll shit yer britches. Every man does. I done it at Shiloh, and I was a sergeant.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.quickstep",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You walk like a man with the quickstep and no sink dug. Ease off, Brevet, nobody's shooting yet.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.drawers",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Brevet! Your drawers is showing. No, t'other pair. The pair you'll want changing by sundown.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.privy",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I seen better law on a privy door. That had a latch on it, anyhow.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.seat",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Took a ball in the seat at Shiloh. Going forward! I'd bent for my cap. Surgeon said it was the one part of me he could find to hit.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.bled",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Stand a veteran a drink. I bled for this country. Out the hind end, but it was all the one blood.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.pistol",
+     "speaker": "town_drunk",
+     "trigger": "Once you carry the sheriff's pistol",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.revolver": "given"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That your pistol, or you minding it for the sheriff? T'other end, farmer. The hole goes forward.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.fall_in",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Fall in, Brevet! Fall in! ... Well, fall over, then. I'll show you how.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.drummer",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "In my company you'd have been the drummer boy, Brevet. First off the field, and you'd have took the drum with you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.graybacks",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I had graybacks at Corinth with more authority than that badge. They kept a whole regiment up nights.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.dress",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Dress your line, Brevet! You're a line of one and you're still crooked.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.mule",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Badge on a farmer. Regiment pinned stripes on a mule once, for a joke. That mule outranked me by spring.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.fresh_fish",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Fresh fish! Fresh fish! That's what we hollered at recruits, Brevet, and they always looked round for the fish.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.advice",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Never volunteer, Brevet, and never eat the beans the night before. I done both at Corinth. They let me march on my own, upwind.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.elephant",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Seen the elephant yet, Brevet? You'll know him. First it's the noise, then it's the smell, and the smell's you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.two_pair",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "My advice, for when the shooting starts. Two pair of drawers. I wore three at Corinth and it was a near thing.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.recruits",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Every recruit I ever had soiled hisself the first time out. No disgrace in it. There is, but I'd say there ain't.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.loaded",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You got the look of a man fixing to load his breeches. I'd know. I've loaded mine in four states and a territory.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.necessary",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Find the necessary before you find the trouble, Brevet. I say it as a man downwind.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shitepoke",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Look at him stand there, all neck and legs, like a shitepoke. You know why they call it that? Flush one and see. Flush you and we'd all see.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.hundred_men",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Hundred men jumped when I spoke, Brevet. Course, I spoke mostly when the shells come over.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.adding_up",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Big star, big pistol, big hat. I'm adding it up, Brevet, and somewheres you come out short.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "pecker",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.holster",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Holster hangs low on you, Brevet. Lower than anything else on you hangs, I'd wager.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "pecker",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.sword",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "In the Army we had a word for a man with a big sword and a little pecker. Colonel.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "pecker",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.bachelor",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Never seen you with a woman, Brevet. Confirmed bachelor, are you? I was one four years, in the Army. You get used to a man snoring in your ear. Then you get to missing it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "bachelor",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.pretty",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Pretty fellow like you wearing the star. I was pretty once, Brevet. A corporal proposed. I said I'd think on it, and I'm thinking still.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "bachelor",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.stairs",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "No wife, no sweetheart, never once up the saloon's stairs. The whole street's wondered, Brevet. The girls upstairs have quit wondering.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "bachelor",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.combed",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Boots blacked and hair combed, and not a woman in town to see it. Who's it for, Brevet? Don't tell me. I'll guess, and it'll be worse.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "bachelor",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.wary",
+     "speaker": "town_drunk",
+     "trigger": "His own band of you: wary",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": "wary",
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Here's the Brevet. Mind the step, it's higher than a furrow.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.cold",
+     "speaker": "town_drunk",
+     "trigger": "His own band of you: cold",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": "cold",
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Don't stand there. You're keeping the sun off a veteran.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.afraid",
+     "speaker": "town_drunk",
+     "trigger": "His own band of you: afraid",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": "afraid",
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Go on, then. I been hit by provosts. You'll do it softer.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.warm",
+     "speaker": "town_drunk",
+     "trigger": "His own band of you: warm",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": "warm",
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Brevet! I'll say this for you. No, I won't, the street's listening. Go on with you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.warm_sober",
+     "speaker": "town_drunk",
+     "trigger": "Warm, and sober",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": "warm",
+      "sober": true
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Brevet. I'd salute, only I'm sober and it wouldn't be respectful.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.morning",
+     "speaker": "town_drunk",
+     "trigger": "Morning, sober",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       6.0,
+       10.0
+      ],
+      "sober": true
+     },
+     "condition": "",
+     "delivery": "Short, low; no salute.",
+     "words": [
+      {
+       "text": "Morning. I ain't drunk yet, so this don't count. Come back after ten and I'll tell you what I think of you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.too_early",
+     "speaker": "town_drunk",
+     "trigger": "Morning, sober",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       6.0,
+       10.0
+      ],
+      "sober": true
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Too early, Brevet. I can't be funny about you on an empty stomach. On a full one neither, but I can try.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.noon",
+     "speaker": "town_drunk",
+     "trigger": "Noon",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       11.5,
+       13.5
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Noon, Brevet! I been drunk two hours and you ain't done a thing yet. One of us is working.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.hot",
+     "speaker": "town_drunk",
+     "trigger": "The afternoon",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       13.5,
+       17.5
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sweating under that star, Brevet? You sweat like a recruit at his first inspection. He'd at least washed.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.evening",
+     "speaker": "town_drunk",
+     "trigger": "Evening",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       17.0,
+       21.0
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Evening, Brevet. I been lit since noon, and you're only now lighting the lamps.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.rounds",
+     "speaker": "town_drunk",
+     "trigger": "Night",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       21.0,
+       29.0
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Out on your rounds this hour? I'll come along. I know every place in town a man can fall down in the dark.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shot_near",
+     "speaker": "town_drunk",
+     "trigger": "A shot came near you today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "shot_near"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Heard the shooting, Brevet. Heard you too. Fresh pair of inexpressibles, is it? Go on, I won't tell nobody. I'll shout it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.skedaddle",
+     "speaker": "town_drunk",
+     "trigger": "You ran from a shot today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "fled"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I seen you skedaddle, Brevet! Lord, you can run. Like a man that's left something behind him, and he has.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.third_kind",
+     "speaker": "town_drunk",
+     "trigger": "You ran from a shot today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "fled"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Two kinds of soldier when the balls fly. Them as stands, and them as shit their britches and run. I was the third kind. Done both.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.running",
+     "speaker": "town_drunk",
+     "trigger": "You're running",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "running"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Where's the fire, Brevet? Or is it the backhouse? Run, man! You'll never make it. I never did.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.put_it_up",
+     "speaker": "town_drunk",
+     "trigger": "Your gun's out",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "gun_out"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Put that up before you hurt yourself. Last man I saw wave one like that shot his own foot and shat his britches, in that order. Or t'other.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.ladies",
+     "speaker": "town_drunk",
+     "trigger": "Your gun's out",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "gun_out"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Whoa! Put it away, Brevet, there's ladies on the street. ... Oh, the pistol. Well, put that away too.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "pecker",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.their_blood",
+     "speaker": "town_drunk",
+     "trigger": "Blood on you, not yours",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "bloody",
+       "!hurt"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Somebody else's blood on you, Brevet. Good. Last time I come home bloody it was mine, and Doc wanted paying.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.dirt",
+     "speaker": "town_drunk",
+     "trigger": "You were down on the ground today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "fell"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Dirt all down your back, Brevet. Back of the britches too. I won't ask which end hit first.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.meal_sack",
+     "speaker": "town_drunk",
+     "trigger": "You were down on the ground today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "fell"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Seen you go down in the street. You went down like I go down, only I meant it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.guardhouse",
+     "speaker": "town_drunk",
+     "trigger": "You're drunk",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "drunk"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Drunk on duty! I'd have you in the guardhouse, Brevet, only I'm in it Thursdays myself.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.weave",
+     "speaker": "town_drunk",
+     "trigger": "You're drunk",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "drunk"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Look at him weave! That's my walk, Brevet. Took me twenty years to get it. Get your own.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.regiment",
+     "speaker": "town_drunk",
+     "trigger": "You're drunk",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "drunk"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Drunk! Now you're a soldier, Brevet. Took me two years to get that look. You done it in an afternoon.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.glass",
+     "speaker": "town_drunk",
+     "trigger": "A glass in your hand",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "glass"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That glass don't suit you, Brevet. Hand it here. Some men's built for whiskey, and I'm built round it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.three_for_three",
+     "speaker": "town_drunk",
+     "trigger": "You lost at cards today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "lost_cards"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Lost at cards! I'd have lent you my luck, Brevet, only I lost that at cards too.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.picket_fence",
+     "speaker": "town_drunk",
+     "trigger": "You lost at cards today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "lost_cards"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "They cleaned you out at the table. Should have asked me. I can read your face from across the street, and I can't read.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.won_pot",
+     "speaker": "town_drunk",
+     "trigger": "You won a pot today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "won_cards"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Won a pot, did you? Stand a veteran a drink out of it and I'll swear you never dealt off the bottom.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.lucky",
+     "speaker": "town_drunk",
+     "trigger": "You won a pot today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "won_cards"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Won a pot! First thing you've took off a man since you come here, Brevet. Excepting the sheriff's star.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.bluff",
+     "speaker": "town_drunk",
+     "trigger": "Your bluff was called today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "bluffed"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Tried a bluff at cards and got caught. You couldn't bluff a dog off a porch, Brevet. Nor can I. That's why I drink.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.tuesdays",
+     "speaker": "town_drunk",
+     "trigger": "You shoved a man today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "shoved"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Seen you shove a man about. Good for you, Brevet. Pick one your own size. I'm free Tuesdays.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.brigadier",
+     "speaker": "town_drunk",
+     "trigger": "You shoved a man today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "shoved"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "There's the bully of the street! I been shoved about by better. I been shoved by a brigadier, and he was drunker than me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.forty_rounds",
+     "speaker": "town_drunk",
+     "trigger": "You shot a man today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "hit_man"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Shot a man today. Took you long enough. Army give me forty rounds at Shiloh and I come home with thirty-nine and a dent in my canteen.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.aiming",
+     "speaker": "town_drunk",
+     "trigger": "You fired today and hit nobody",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "fired",
+       "!hit_man"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Heard you let off a round. Hit anything? Course not. You was aiming.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.hotel",
+     "speaker": "town_drunk",
+     "trigger": "A blast near you today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "blast"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Something blowed up. Was that you, Brevet? Or did you eat at the hotel?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.odds",
+     "speaker": "town_drunk",
+     "trigger": "You arrested a man today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "arrested"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Took a man in alive! I'd have give odds on him taking you. I did give odds. I'm out a dime.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.heel_taps",
+     "speaker": "town_drunk",
+     "trigger": "You stood the house a round today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "round"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Stood the house a round, and me out on the walk! I'll drink what they left in the glasses come morning. Your health, Brevet, a day late.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.carry",
+     "speaker": "town_drunk",
+     "trigger": "You're carrying a man",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "carrying"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Carry him gentle, Brevet. I carried men two years. Dropped one in a creek once and he thanked me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.walls",
+     "speaker": "town_drunk",
+     "trigger": "You read one of his notes today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "noted"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Been reading the walls, Brevet? Educational, ain't they. Somebody in this town can spell 'pecker'. Weren't me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "pecker",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.chalk",
+     "speaker": "town_drunk",
+     "trigger": "You read one of his notes today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "noted"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Somebody's been writing things about you on the jail. I'd rub 'em out for you, only they're true and I'm short of chalk.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.cot",
+     "speaker": "town_drunk",
+     "trigger": "You walked him to the jail last night or today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "jailed_him"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Slept in your jail, Brevet. Cot's softer than you'd think. Softer than you, which I did think.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.cell",
+     "speaker": "town_drunk",
+     "trigger": "Sober, the morning after you walked him to the jail, the sheriff buried (his card's)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.sheriff": "dead"
+      },
+      "you": [
+       "jailed_him"
+      ],
+      "sober": true,
+      "once": "ever"
+     },
+     "condition": "",
+     "delivery": "Low and short. No joke in it.",
+     "words": [
+      {
+       "text": "He left that door unlocked six winters. Never said a word about it. I don't know what you mean to do.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "jail"
+    },
+    {
+     "id": "drunk.boots",
+     "speaker": "town_drunk",
+     "trigger": "The sheriff dead",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.sheriff": "dead"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sheriff's buried and you're wearing his tin. I wore a dead man's boots once. They pinched too, and I kept 'em.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.bucket",
+     "speaker": "town_drunk",
+     "trigger": "The sheriff dead",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.sheriff": "dead"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sheriff stood up to that bunch with a ball in his belly. You'd want a bucket and a clean pair, Brevet.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.peach",
+     "speaker": "town_drunk",
+     "trigger": "The sheriff dead",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.sheriff": "dead"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Doc says the sheriff picked you himself. Man was dying, Brevet. Dying men pick queer. I seen one ask for his mother and a peach.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.hill",
+     "speaker": "town_drunk",
+     "trigger": "You missed the sheriff's funeral",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.funeral": "missed"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Didn't see you up the hill at the burying. Busy? I was busy too. Crying in a bottle. But I went, and I took the bottle.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.lane",
+     "speaker": "town_drunk",
+     "trigger": "You watched the funeral from off",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.funeral": "distance"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Watched the burying from the lane, I hear. Like a picket. Afraid he'd sit up and ask for his star back?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.church",
+     "speaker": "town_drunk",
+     "trigger": "You sat at the table through Earl's murder (his card's knows)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.seen_from": "table"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Man shot dead across the table and you sat there like a recruit at church. I was by the door. I never moved neither, but I'm drunk.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.door",
+     "speaker": "town_drunk",
+     "trigger": "You carried Earl to the doctor's",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.carried_earl": "yes"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Carried Earl clear up the street, they say. I'd have helped, only I was holding the door. From the inside.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.prisoners",
+     "speaker": "town_drunk",
+     "trigger": "No Justice ended in an arrest",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nojustice.ending": "arrest"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Brought the one from the hills in alive! I never brought a man in alive in four years. Mostly they brought me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.company",
+     "speaker": "town_drunk",
+     "trigger": "No Justice ended without an arrest",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nojustice.ending": [
+        "revenge",
+        "murder"
+       ]
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Rode out after a man and come home without him. Lost him? I lost a whole company once. Still turning up, some of 'em.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.nod",
+     "speaker": "town_drunk",
+     "trigger": "Harlan answers a jibe with a nod",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.nod",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "He agrees! The Brevet agrees with me! Somebody chalk it up.",
+       "status": "new"
+      },
+      {
+       "text": "There, he nods. Even the Brevet's heard about the Brevet.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.nod2",
+     "speaker": "town_drunk",
+     "trigger": "Harlan answers a jibe with a nod",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.nod",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Nodding at me like a mule at a gate. I like a mule.",
+       "status": "new"
+      },
+      {
+       "text": "He takes it! Like the beans at Corinth, and it'll come out the same way.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.nod3",
+     "speaker": "town_drunk",
+     "trigger": "Harlan answers a jibe with a nod",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.nod",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Own it, Brevet. I owned mine. Mine's in a ditch outside Corinth.",
+       "status": "new"
+      },
+      {
+       "text": "Good man. I'll be kinder tomorrow. I won't, but it's a nice thing to hear.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shake",
+     "speaker": "town_drunk",
+     "trigger": "Harlan answers a jibe with a shake",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.shake",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Shaking your head? Careful, Brevet, it's the only one you got and it's half empty.",
+       "status": "new"
+      },
+      {
+       "text": "No, he says! Half the street heard it, Brevet, and the other half's coming.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shake2",
+     "speaker": "town_drunk",
+     "trigger": "Harlan answers a jibe with a shake",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.shake",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Don't shake it so hard, it'll come off. Then where'd you hang your hat?",
+       "status": "new"
+      },
+      {
+       "text": "You say no. Your britches say otherwise.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shove",
+     "speaker": "town_drunk",
+     "trigger": "Harlan shoves or kicks him",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.shove",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": [
+       "warm",
+       "wary"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Ha! Struck a veteran! Go on, there's room on the other side.",
+       "status": "new"
+      },
+      {
+       "text": "That's it, shove the old soldier. I been shoved by Johnny Reb, I can stand a farmer.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shove_cold",
+     "speaker": "town_drunk",
+     "trigger": "Harlan shoves or kicks him; cold",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.shove",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "regard": [
+       "cold",
+       "afraid"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Do that again and I'll tell the whole street you done it. I'll tell it better than it was.",
+       "status": "new"
+      },
+      {
+       "text": "Had a provost shove me once, Brevet. He's dead now. Not me that done it. Fevers.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shove2",
+     "speaker": "town_drunk",
+     "trigger": "Harlan shoves or kicks him",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.shove",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Knocked me flat and never spilt a drop. That's training, Brevet. That's twenty years.",
+       "status": "new"
+      },
+      {
+       "text": "Easy! I'm the only man in town says it to your face. You'd miss me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.drink.earl",
+     "speaker": "town_drunk",
+     "trigger": "Harlan stands him a drink (the glass given him, or a round with him in the room): the first few times, a sober line, once each for good",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.drink",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.murder": true
+      },
+      "once": "ever"
+     },
+     "condition": "",
+     "delivery": "Sober inside the sentence. No salute.",
+     "words": [
+      {
+       "text": "Obliged. The night they shot Earl I was at the door end. I seen the stranger hold a man in his chair with a word. Nobody's asked me. You could, before ten.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "drunk.drink.walk",
+     "speaker": "town_drunk",
+     "trigger": "Harlan stands him a drink (the glass given him, or a round with him in the room): the first few times, a sober line, once each for good",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.drink",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "once": "ever"
+     },
+     "condition": "",
+     "delivery": "Sober for as long as it takes to say it.",
+     "words": [
+      {
+       "text": "Thank you. I mean it, and I'll deny it. Don't let 'em move you off the walk, Brevet. They moved me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "drunk.drink.preach",
+     "speaker": "town_drunk",
+     "trigger": "Harlan stands him a drink (the glass given him, or a round with him in the room): the first few times, a sober line, once each for good",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.drink",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.sheriff": "dead"
+      },
+      "once": "ever"
+     },
+     "condition": "",
+     "delivery": "Quiet; then louder, to cover it.",
+     "words": [
+      {
+       "text": "You never preached at me when you done that. Sheriff never did neither. ... There. That's all you get.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "drunk.drink.slow",
+     "speaker": "town_drunk",
+     "trigger": "Harlan stands him a drink (the glass given him, or a round with him in the room): the first few times, a sober line, once each for good",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.drink",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "once": "ever"
+     },
+     "condition": "",
+     "delivery": "Looking at the glass, not at you.",
+     "words": [
+      {
+       "text": "A man stood me a drink the night before Corinth and I never saw him after. Drink yours slow, Brevet.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "drunk.drink.again",
+     "speaker": "town_drunk",
+     "trigger": "A drink stood him, after the sober lines",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.drink.again",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Your health, Brevet! And mine, which is worse.",
+       "status": "new"
+      },
+      {
+       "text": "God bless the Union, the Republic, and the fool that pays.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "drunk.drink.again2",
+     "speaker": "town_drunk",
+     "trigger": "A drink stood him, after the sober lines",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.drink.again",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Now that's a deputy. I take back near half of it.",
+       "status": "new"
+      },
+      {
+       "text": "Down the hatch. I'll think of something worse about you directly.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "drunk.drink.again3",
+     "speaker": "town_drunk",
+     "trigger": "A drink stood him, after the sober lines",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.drink.again",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Obliged, Brevet. I'll go easy on you till sundown.",
+       "status": "new"
+      },
+      {
+       "text": "Pour a veteran a drink and he's yours for an hour. Two, if it's the good.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "drunk.lead",
+     "speaker": "town_drunk",
+     "trigger": "G at him: Harlan walks him to the jail",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.lead",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Arresting a veteran! On what charge? Drunk? Guilty. Lead on, Brevet.",
+       "status": "new"
+      },
+      {
+       "text": "Where we going? The jail? I know the way. I been carried it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.lead2",
+     "speaker": "town_drunk",
+     "trigger": "G at him: Harlan walks him to the jail",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.lead",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I'll come quiet. Quieter than you'd go.",
+       "status": "new"
+      },
+      {
+       "text": "March me, then. Left! Left! ... You ain't got a left, Brevet. You got two rights and a stagger.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.let_go",
+     "speaker": "town_drunk",
+     "trigger": "Harlan lets him go on the way (G again, or walks off)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.let_go",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Lost your prisoner, Brevet. Happens to the best. Never happened to me, mind. I was always the prisoner.",
+       "status": "new"
+      },
+      {
+       "text": "Done with me? I'll be on the walk. I'm always on the walk.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.jail",
+     "speaker": "town_drunk",
+     "trigger": "At the jail's door: in he goes to sleep it off",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.jail",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Leave the door off the latch. He always did.",
+       "status": "new"
+      },
+      {
+       "text": "Cot's still warm from the last fool. That was me, too.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "jail"
+    },
+    {
+     "id": "drunk.jail2",
+     "speaker": "town_drunk",
+     "trigger": "At the jail's door: in he goes to sleep it off",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.jail",
+      "fact": {
+       "nolaw.deputy": true
+      }
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Don't lock it, Brevet. I'd only holler, and I got the voice for it.",
+       "status": "new"
+      },
+      {
+       "text": "Night, Brevet. Don't let the graybacks bite.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "jail"
+    },
+    {
+     "id": "drunk.heard.laugh",
+     "speaker": "townsman",
+     "trigger": "A man by hears Sarge's jibe; cold: he laughs",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard",
+      "regard": "cold"
+     },
+     "condition": "",
+     "delivery": "A laugh first.",
+     "words": [
+      {
+       "text": "Ha! He's got your number, Deputy.",
+       "status": "new"
+      },
+      {
+       "text": "Give it him, Sarge!",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.heard.laugh.woman",
+     "speaker": "townswoman",
+     "trigger": "A man by hears Sarge's jibe; cold: she laughs",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard",
+      "regard": "cold"
+     },
+     "condition": "",
+     "delivery": "Behind her hand.",
+     "words": [
+      {
+       "text": "Oh! I shouldn't laugh.",
+       "status": "new"
+      },
+      {
+       "text": "Well. Somebody had to say it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.heard.wince",
+     "speaker": "townsman",
+     "trigger": "A man by hears Sarge's jibe; wary: he winces",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard",
+      "regard": "wary"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Lord, Sarge.",
+       "status": "new"
+      },
+      {
+       "text": "That's enough now, Sarge.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.heard.wince.woman",
+     "speaker": "townswoman",
+     "trigger": "A man by hears Sarge's jibe; wary: she winces",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard",
+      "regard": "wary"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Must he?",
+       "status": "new"
+      },
+      {
+       "text": "That man. Every morning of the week.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.heard.hush",
+     "speaker": "townsman",
+     "trigger": "A man by hears Sarge's jibe; warm: he tells him to hush",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard",
+      "regard": [
+       "warm",
+       "afraid"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Hush, Sarge. He's doing what he can.",
+       "status": "new"
+      },
+      {
+       "text": "Leave him be, Sarge. Go sleep it off.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.heard.hush.woman",
+     "speaker": "townswoman",
+     "trigger": "A man by hears Sarge's jibe; warm: she tells him to hush",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard",
+      "regard": [
+       "warm",
+       "afraid"
+      ]
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Ephraim Tolliver, you hush.",
+       "status": "new"
+      },
+      {
+       "text": "Pay him no mind, Deputy. Nobody does.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.heard.barkeep",
+     "speaker": "barkeep",
+     "trigger": "A man by hears Sarge's jibe: the barkeep",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That'll do, Sarge.",
+       "status": "new"
+      },
+      {
+       "text": "Sarge. Inside, or quiet.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.heard.rufe",
+     "speaker": "loudmouth",
+     "trigger": "A man by hears Sarge's jibe: Rufe, who's the less funny and knows it",
+     "when": "once a day",
+     "if": {
+      "on": "jibe.heard"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That ain't even funny, Sarge.",
+       "status": "new"
+      },
+      {
+       "text": "I'd have said it louder.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "drunk.hit",
+     "speaker": "town_drunk",
+     "trigger": "You're hurt",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "hurt"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Hit, are you? Show me. ... Lord, that's nothing. I been kicked worse by a mule, and the mule said sorry.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.wages",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "What they paying you, Brevet? Don't say. I'll guess it's more than you're worth, and I'll be right, and I'll still be poorer.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.horse",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That your horse at the rail? Fine animal. Looks at you the way the mules looked at me, and the mules was right.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.stand_up",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Stand up straight! There. Now you look like a man about to be shot. Before, you looked like one about to be shot in the back.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.fence",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Funny, the look of you. Put me in mind of a fellow going over a fence at Corinth with his britches round his boots. Wasn't you. Was me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.retreat",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "If you're the law, I'm the regimental band. Want a tune, Brevet? I only know the one, and it's the retreat.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shine",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Badge shines, Brevet. You polish it, or does it just shine from never being used?",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.hope",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You look like you been living on hardtack and hope. I can spare you the hope. I've no use for it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.spurs",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Them spurs ring like a sutler's cart. Every rebel in the county hears you coming. And going, mostly.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.words",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "When you're shot, and you will be, I'll say a few words over you. Short ones. You'll have earned 'em.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.mother",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Does your mother know you're the law? Mine thought I'd make a wheelwright. We was both wrong about something.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.smell",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Smell that? That's fear, Brevet. Or it's me. Stand closer and we'll settle it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.chew",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Spare a chew for a veteran? No? Then spare me the look. I've had warmer looks off a dead mule.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.shadow",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Jumped at your own shadow just now. Can't blame you. I've seen it. It's a better shot than you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.necessary_brave",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Saw you go in the necessary this morning and come out quick. Brave man. I go in there armed.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.cross",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Ladies cross the street when you go by, Brevet. They do for me too. Only with me they hold their noses.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.guessed",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Girls upstairs had a guess at what you're carrying, Brevet. They guessed the pistol was the bigger. They was being kind.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "pecker",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.walnut",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Surgeon took a ball out of me at Shiloh the size of a walnut. Still bigger than yours, the girls say. They're rough, them girls.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "pecker",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.preacher",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You and the preacher, Brevet. Only two men in town never been up the saloon's stairs. He's got the Lord for an excuse.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "bachelor",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.peoria",
+     "speaker": "town_drunk",
+     "trigger": "Any meeting once you wear the badge (the second batch)",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "First winter in the Army I shared a blanket with a corporal from Peoria. I still think about it. The blanket, Brevet. The blanket.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "bachelor",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.split_rail",
+     "speaker": "town_drunk",
+     "trigger": "Morning, sober",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       6.0,
+       10.0
+      ],
+      "sober": true
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Not now, Brevet. I've a head like a split rail. Come back after ten and I'll have something for you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.both_tired",
+     "speaker": "town_drunk",
+     "trigger": "Morning, sober",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       6.0,
+       10.0
+      ],
+      "sober": true
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Come ten I'll be drunk and you'll be a fool. Till then we're both just tired.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.dogs",
+     "speaker": "town_drunk",
+     "trigger": "The heat of the day",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       12.0,
+       17.0
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Heat of the day and the law's out walking. Even the dogs know better, Brevet. Even me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.go_home",
+     "speaker": "town_drunk",
+     "trigger": "Night",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "hour": [
+       21.0,
+       29.0
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Go home, Brevet. Nothing out this hour but drunks and dead men, and I'm the best of both.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.my_smell",
+     "speaker": "town_drunk",
+     "trigger": "You're drunk",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "drunk"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You smell of the bar, Brevet. That's my smell. I'll want it back.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.two_of_me",
+     "speaker": "town_drunk",
+     "trigger": "You're drunk",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "drunk"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "See two of me? That's two veterans you owe a drink. Pay up.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.sipping",
+     "speaker": "town_drunk",
+     "trigger": "A glass in your hand",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "glass"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sip it like that and you'll be at it till Easter. Down it, man! The Union never won a thing by sipping.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.own_side",
+     "speaker": "town_drunk",
+     "trigger": "Your gun's out",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "gun_out"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Mind where you point that. I been shot by our own side twice, and I'd hate to make a habit of it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.hold_coat",
+     "speaker": "town_drunk",
+     "trigger": "You're running",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "running"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Run, Brevet! I'll hold your coat. I'd hold your britches too, only I can see from here I'd not want to.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.lie_down",
+     "speaker": "town_drunk",
+     "trigger": "You're hurt",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "hurt"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Bleeding, are you? Lie down. That's what I done, and look how long I lasted.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.view",
+     "speaker": "town_drunk",
+     "trigger": "You were down on the ground today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "fell"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sat down sudden in the street, did you? I do it every night. You get to like the view.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.close_ones",
+     "speaker": "town_drunk",
+     "trigger": "A shot came near you today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "shot_near"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Ball come close, did it? It's the close ones. They give a man ideas about the necessary.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "gag": "britches",
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.retreats",
+     "speaker": "town_drunk",
+     "trigger": "You ran from a shot today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "fled"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "I seen faster retreats than yours today. Not many. Most of 'em mine.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.hopeful",
+     "speaker": "town_drunk",
+     "trigger": "You lost at cards today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "lost_cards"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "They say you play cards like you shoot. Hopeful, and all over the table.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.walking_home",
+     "speaker": "town_drunk",
+     "trigger": "You won a pot today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "won_cards"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Won at cards! Watch your back, Brevet. A man that wins in this town is a man somebody walks home behind.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.lying_down",
+     "speaker": "town_drunk",
+     "trigger": "You shoved a man today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "shoved"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Shoved a man in the street! I'd have stopped you, only I was lying down at the time.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.first_blood",
+     "speaker": "town_drunk",
+     "trigger": "You shot a man today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "hit_man"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Shot a man, they're saying. First blood! You'll want to sit down. I'd sit with you, only I'm sat already.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.door_unlocked",
+     "speaker": "town_drunk",
+     "trigger": "You arrested a man today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "arrested"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Jailed a man today! Hope you left the door off the latch. Somebody might want to sleep there.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.pension",
+     "speaker": "town_drunk",
+     "trigger": "You're carrying a man",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "carrying"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Carrying another man again! That's the way to stay out of the shooting. I carried two years, and they give me a pension for it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.forgive",
+     "speaker": "town_drunk",
+     "trigger": "You stood the house a round today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "round"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Bought the house a round and never asked me. I'll forgive you, Brevet. I'll remember it, but I'll forgive you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.spelling",
+     "speaker": "town_drunk",
+     "trigger": "You read one of his notes today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "noted"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Read the jail wall yet? The spelling's mine. The sentiment's the whole town's.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.best_run",
+     "speaker": "town_drunk",
+     "trigger": "You walked him to the jail last night or today",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "jailed_him"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Kept me in your jail all night and nobody stole me. Best-run jail in the county, Brevet.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.wear_it",
+     "speaker": "town_drunk",
+     "trigger": "Blood on you, not yours",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true
+      },
+      "you": [
+       "bloody",
+       "!hurt"
+      ],
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Whose is that on your coat? Never mind. Wear it a week. Folk'll cross the street and you'll have the whole walk to yourself, like me.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.polish",
+     "speaker": "town_drunk",
+     "trigger": "The sheriff dead",
+     "when": "once a day",
+     "if": {
+      "on": "jibe",
+      "fact": {
+       "nolaw.deputy": true,
+       "nolaw.sheriff": "dead"
+      },
+      "sober": false
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sheriff wore that star twenty years and never once polished it. You'll wear it through polishing it in a month.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.shot",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: a shot, a gun out, men running",
+     "when": "",
+     "if": {
+      "on": "react.steady.shot"
+     },
+     "condition": "",
+     "delivery": "Not looking up.",
+     "words": [
+      {
+       "text": "Somebody's shooting. Somebody always is.",
+       "status": "new"
+      },
+      {
+       "text": "That one went by my ear. They used to be better shots.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.running",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: men running by",
+     "when": "",
+     "if": {
+      "on": "react.steady.shot"
+     },
+     "condition": "",
+     "delivery": "To his bottle.",
+     "words": [
+      {
+       "text": "Run if you like. I done my running in 'sixty-two.",
+       "status": "new"
+      },
+      {
+       "text": "Everybody running every which way. Same as Shiloh, only nobody's paid.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.fire",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: a building alight by him",
+     "when": "",
+     "if": {
+      "on": "react.steady.fire"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Fire. I'll move when it's on the bench.",
+       "status": "new"
+      },
+      {
+       "text": "Warm, for the time of year.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.fire2",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: a building alight by him",
+     "when": "",
+     "if": {
+      "on": "react.steady.fire"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Somebody fetch a bucket. Not me. I'm sat.",
+       "status": "new"
+      },
+      {
+       "text": "There goes the dry goods. Well. They was dry.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.blast",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: a blast",
+     "when": "",
+     "if": {
+      "on": "react.steady.blast"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Dynamite. You get so you can tell it from the cannon. Cannon's politer.",
+       "status": "new"
+      },
+      {
+       "text": "There goes somebody's chimney.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.hat",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: his cap shot off",
+     "when": "",
+     "if": {
+      "on": "react.steady.hat"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "That was my cap. Missed the head. They always do, it's the smallest bit of me.",
+       "status": "new"
+      },
+      {
+       "text": "Shot my cap off. I'll want it back. It's the only one I've got that fits.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.down",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: a man down by him",
+     "when": "",
+     "if": {
+      "on": "react.steady.down"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "There's a man down. He'll keep. They mostly do.",
+       "status": "new"
+      },
+      {
+       "text": "Somebody see to him. I seen to enough of 'em.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "street"
+    },
+    {
+     "id": "drunk.steady.brawl",
+     "speaker": "town_drunk",
+     "trigger": "Trouble round him; he doesn't move: a brawl, the room gone quiet",
+     "when": "",
+     "if": {
+      "on": "react.steady.brawl"
+     },
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Go on, hit him. Then I'll have a quiet drink.",
+       "status": "new"
+      },
+      {
+       "text": "Fighting in a saloon. In my day we done it in a ditch, like Christians.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": [],
+     "who": "town_drunk",
+     "place": "saloon.bar"
+    },
+    {
+     "id": "news.bar.jibe.you",
+     "speaker": "townsman",
+     "trigger": "His version told to Harlan's face: Sarge had a go at him (#1312)",
+     "when": "",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sarge had a go at you again, {at}. Pays to let it go by.",
+       "status": "new"
+      },
+      {
+       "text": "Heard Sarge on at you {at}. He's like that with everybody. More with you.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.jibe",
+     "speaker": "townsman",
+     "trigger": "His version: Sarge had a go at the deputy (#1312)",
+     "when": "",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "Sarge had a go at {who} again, {at}.",
+       "status": "new"
+      },
+      {
+       "text": "The old soldier was on at {who} again, {at}. The whole walk heard it.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.stood_sarge.you",
+     "speaker": "townsman",
+     "trigger": "Told to Harlan's face: Harlan stood Sarge a drink (#1312)",
+     "when": "",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You stood Sarge a drink, {at}. He won't say thank you. He means it.",
+       "status": "new"
+      },
+      {
+       "text": "Bought Sarge one, {at}. He'll be easier on you. For a day.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.stood_sarge",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan stood Sarge a drink (#1312)",
+     "when": "",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} stood Sarge a drink, {at}.",
+       "status": "new"
+      },
+      {
+       "text": "{who} bought the old soldier a whiskey, {at}. Never preached at him, neither.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.jailed_sarge.you",
+     "speaker": "townsman",
+     "trigger": "Told to Harlan's face: Harlan walked Sarge to the jail (#1312)",
+     "when": "",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "You walked Sarge to the jail, {at}. Sheriff used to do that, cold nights.",
+       "status": "new"
+      },
+      {
+       "text": "Put Sarge in the jail to sleep it off, did you? {at}, I heard.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    },
+    {
+     "id": "news.bar.jailed_sarge",
+     "speaker": "townsman",
+     "trigger": "His version: Harlan walked Sarge to the jail (#1312)",
+     "when": "",
+     "condition": "",
+     "delivery": "",
+     "words": [
+      {
+       "text": "{who} walked Sarge off to the jail, {at}, to sleep it off.",
+       "status": "new"
+      },
+      {
+       "text": "{who} took Sarge to the jail {at}. Sheriff did that, winters.",
+       "status": "new"
+      }
+     ],
+     "added": "2026-11-27 (#1312)",
+     "takes": []
+    }
+   ]
+  },
+  {
    "id": "heard.saloon.bar",
    "title": "Overheard at the saloon's bar",
    "when": "With you in hearing; each exchange by its own `when`",
@@ -9197,7 +13640,7 @@
     {
      "id": "heard.thatll_do.2",
      "ex": "heard.thatll_do",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "barkeep",
      "place": "saloon.bar",
@@ -9237,7 +13680,7 @@
     {
      "id": "heard.thatll_do.4",
      "ex": "heard.thatll_do",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "barkeep",
      "place": "saloon.bar",
@@ -11656,7 +16099,7 @@
     {
      "id": "heard.dixie.1",
      "ex": "heard.dixie",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "fiddler",
      "place": "saloon.room",
@@ -11703,7 +16146,7 @@
     {
      "id": "heard.dixie.3",
      "ex": "heard.dixie",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "fiddler",
      "place": "saloon.room",
@@ -14291,7 +18734,7 @@
     {
      "id": "heard.mules_at_the_landing.2",
      "ex": "heard.mules_at_the_landing",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "liveryman",
      "place": "livery",
@@ -14331,7 +18774,7 @@
     {
      "id": "heard.mules_at_the_landing.4",
      "ex": "heard.mules_at_the_landing",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "liveryman",
      "place": "livery",
@@ -15568,7 +20011,7 @@
     {
      "id": "heard.open_door.2",
      "ex": "heard.open_door",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "churchman",
      "place": "church",
@@ -15608,7 +20051,7 @@
     {
      "id": "heard.open_door.4",
      "ex": "heard.open_door",
-     "speaker": "townsman",
+     "speaker": "town_drunk",
      "who": "town_drunk",
      "to": "churchman",
      "place": "church",

@@ -98,6 +98,9 @@ func _on_table_deed(verb: StringName, info: Dictionary) -> void:
 		news.table(verb, info, at)
 
 
+## The town drunk (TownDrunk, #1312) and his notes about town (DrunkNotes).
+var drunk: TownDrunk
+var notes: DrunkNotes
 ## The card game at the set's table (CardGame, #766).
 var cards: CardGame
 ## Built and out of the world till wanted (id -> HumanBody).
@@ -238,6 +241,11 @@ func _ready() -> void:
 			_your_hands += 1
 		)
 	cards.you_did.connect(_on_table_deed)
+	# The town drunk (#1312): his jibes and answers, and his notes about town.
+	if data.has("drunk") and not _person(TownDrunk.ID).is_empty():
+		drunk = TownDrunk.new(self, data.drunk)
+		notes = DrunkNotes.new(self)
+		add_child(notes)
 	var mpath := "res://config/moments/%s.json" % MURDER
 	if FileAccess.file_exists(mpath):
 		_murder_data = JSON.parse_string(FileAccess.get_file_as_string(mpath))
@@ -666,7 +674,7 @@ static func home_of(p: Dictionary) -> StringName:
 static func dials_of(p: Dictionary) -> Dictionary:
 	var d: Dictionary = p.get("dials", {})
 	return {"nerve": float(d.get("nerve", 0.5)), "nosy": float(d.get("nosy", 0.5)), "duty": float(d.get("duty", 0.5)),
-			"ducks": float(d.get("ducks", 0.0))}
+			"ducks": float(d.get("ducks", 0.0)), "steady": float(d.get("steady", 0.0))}
 
 
 ## Where he'd run from trouble (Reaction's flee): his own door, then the town's open doors, the
@@ -1188,6 +1196,14 @@ func _physics_process(delta: float) -> void:
 		Prof.stop(&"saloon_room", t)
 	if overheard:
 		overheard.flush(_ran)
+	# The drunk and his notes (#1312): on the physics frame, as their sight and rays ask.
+	if drunk or notes:
+		var dt := Prof.start()
+		if drunk:
+			drunk.step(delta)
+		if notes:
+			notes.step(delta)
+		Prof.stop(&"valley_folk", dt)
 	if _to_say.is_empty():
 		return
 	var list := _to_say
@@ -2080,6 +2096,8 @@ func _talk_step() -> void:
 		var rid: int = news.to_say(id) if news != null and not pd.has("act") else 0
 		if not pd.has("says") and rid == 0 and (pd.has("act") or not pd.has("day")):
 			continue
+		if pd.has("jibes"):
+			continue  # the drunk's talk at you is his jibes (TownDrunk)
 		var man := folk_man(id)
 		if man == null or state.get(id) != &"in" or not man.physiology.is_conscious():
 			continue
@@ -2868,7 +2886,8 @@ func save_dict() -> Dictionary:
 			"gone_for_good": gone_for_good.duplicate(), "kept_out": kept_out.duplicate(), "hands": _your_hands,
 			"news": news.save_dict() if news else {}, "news_day": _news_day, "dead_out": dead,
 			"kept": kept.duplicate(true), "regard": regard.save_dict() if regard else {},
-			"overheard": overheard.save_dict() if overheard else {}}
+			"overheard": overheard.save_dict() if overheard else {},
+			"drunk": drunk.to_dict() if drunk else {}, "notes": notes.to_dict() if notes else {}}
 
 
 ## A save's town day put back on a fresh town, before its people's bodies are (`SaveGame.apply`):
@@ -2886,6 +2905,10 @@ func load_dict(d: Dictionary) -> void:
 		regard.load_dict(d.get("regard", {}))
 	if overheard:
 		overheard.load_dict(d.get("overheard", {}))
+	if drunk:
+		drunk.from_dict(d.get("drunk", {}))
+	if notes:
+		notes.from_dict(d.get("notes", {}))
 	kept = (d.get("kept", {}) as Dictionary).duplicate(true)
 	dead_out.clear()
 	for id: StringName in d.get("dead_out", {}):

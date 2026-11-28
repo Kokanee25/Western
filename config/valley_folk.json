@@ -80,6 +80,10 @@
     "hotel_porch3": {"lot": "hotel", "at": [21.6, -1.0], "faces": [20.5, -1.0]},
     "doctor_walk": {"lot": "doctor", "at": [3.8, -1.0]},
     "main_corner": {"lot": "jail", "at": [4.0, -1.0]},
+    "sarge_walk": {"lot": "saloon", "at": [13.0, -1.0], "_doc": "#1312: the drunk's piece of the saloon's walk, east of its door"},
+    "sarge_store": {"lot": "general_store", "at": [6.2, -1.5], "_doc": "#1312: between the benches and the store's door, clear of the dock's crates (a spot is a way: at 12.0 it put three crates out)"},
+    "sarge_jail": {"lot": "jail", "at": [8.5, -1.0], "faces": [8.5, -8.0]},
+    "bar_door_end": {"hall": "saloon", "use": "drinker_4", "bar_top": true, "_doc": "#1312: the drunk's place at night, the bar's door end (his card)"},
     "saloon_porch": {"lot": "saloon", "at": [6.0, -1.0]},
     "hardware_walk": {"lot": "hardware", "at": [7.5, -1.0]},
     "carpenter_walk": {"lot": "carpenter", "at": [7.8, -1.0]},
@@ -352,7 +356,16 @@
     {"id": "foreman", "name": "Foreman", "model": "colter_rider_s2_talking", "seed": 870, "gun": true, "shirt": [0.45, 0.4, 0.33], "vest": [0.2, 0.17, 0.14], "act": "funeral", "from": "undertaker",
      "_doc": "The Baron's foreman, a step behind him at the funeral, saying nothing (script setup S39). A stand-in man."},
     {"id": "cowboy", "name": "Cowboy", "model": "bold_cowboy_s3_talking", "seed": 859, "shirt": [0.55, 0.42, 0.3], "vest": [0.16, 0.13, 0.1], "act": "no_justice", "from": "doctor",
-     "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."}
+     "_doc": "The bold cowboy in the doctor's front office (No Justice step 2, NoJusticeCamp; his part is OPEN, s4: the card's one line). The bold cowboy's own model; No Law's stranger is a stand-in in it too."},
+    {"id": "town_drunk", "name": "Sarge", "model": "oldtimer_factory", "seed": 1312, "dials": {"nerve": 1.0, "nosy": 0.7, "duty": 0.3, "steady": 1.0}, "shirt": [0.5, 0.47, 0.4], "vest": [0.33, 0.33, 0.36], "home": "livery", "jibes": true,
+     "day": [
+       {"from": 9.5, "do": "sweep", "round": [{"at": "sarge_walk", "do": "sweep", "stay": [120, 240]}, {"at": "saloon_porch", "do": "stand", "stay": [60, 120]}]},
+       {"from": 11.0, "do": "lean", "round": [{"at": "sarge_walk", "do": "lean", "stay": [120, 260]}, {"at": "sarge_store", "do": "sit", "stay": [90, 200]}, {"at": "sarge_jail", "do": "stand", "stay": [60, 150]}, {"at": "saloon_porch", "do": "stand", "stay": [60, 120]}]},
+       {"from": 18.5, "in": "hotel", "do": "supper"},
+       {"from": 19.0, "at": "bar_door_end", "do": "drink"},
+       {"from": 22.5, "in": "livery", "do": "sleep"}
+     ],
+     "_doc": "#1312: the town drunk, Ephraim 'Sarge' Tolliver (docs/story/people.json `town_drunk`; his day is its `day_proposed`): wakes about nine in the livery's loft, sweeps the saloon's walk at ten for the heel-taps, eleven to half past six on the saloon's walk, the store's bench and the jail's walk calling at whoever passes, the hotel's back step for the plate, the bar's door end till half past ten, the loft again. `jibes`: his talk at you is TownDrunk's, not the street's barks. Nerves of steel (Sean, 2026-11-27: `steady`, nerve at its top): he never runs, ducks, cowers or hides, whatever's going on; he carries on and may pass a remark (`react.steady.*`). A stand-in body (the old-timer's) till the Studio makes him; his clothes' colours the card's dust-coloured sack coat."}
   ],
   "shops": {"_doc": "The town gate's fault 3 (#1167): a shop's open hours and its keeper. A knock at its door while it's open and he's in (on the book at it) brings him out to `spot` facing you, with a line by his regard (TownBarks `knock`, else `pass`, `at` the shop); he goes back to his day once you're `leave_m` off or after `answer_s`. Shut, or him out: nobody comes.", "general_store": {"hours": [7.0, 18.0], "keeper": "storekeeper", "spot": "store_walk", "inside": {"hall": "general_store", "use": "serve_east"}, "walk_mps": 1.2, "ready_s": 1.5, "_inside": "#1230: in on the book, he comes from here (his counter) at `walk_mps`, `ready_s` to put down what he's at: out at the door that long after the knock, not the instant of it.", "answer_s": 45.0, "leave_m": 8.0, "by_door_m": 6.0, "again_s": 12.0, "again_m": 4.0}, "_1184": "#1184: the knock's own line (`knock`) first, then his `pass`; out on his walk within `by_door_m` of the door he answers too; you still within `again_m` `again_s` after his line, he asks again (`knock.wait`)."},
   "no_knock": ["saloon", "saloon_annex"],
@@ -365,7 +378,9 @@
     "warm_at": 0.2, "cold_at": -0.2, "afraid_at": 0.55, "fear_each_more": 0.12,
     "_deeds": "What a man saw Harlan do himself (#1167: a shot, a shove, a won pot used to move nothing; #1272: one shove seen turns a man cold, so the room shows it as you pass). Each is what one seen adds; the man it was done to counts it as `to_him` seen; the nth of a kind adds `each_more`^(n-1). `fired`: each of his news versions (seen or told) with Harlan firing and nobody down. Seen: within `see_m` and his Senses see Harlan. PROPOSED numbers.",
     "see_m": 20.0, "to_him": 2.0, "each_more": 0.5,
-    "deeds": {
+    "deeds": {"mocked": {"respect": -0.02}, "took_it": {"liking": 0.05, "respect": 0.02}, "stood_sarge": {"liking": 0.06, "trust": 0.03}, "jailed_sarge": {"respect": 0.03, "trust": 0.05},
+      "_drunk": "#1312: Sarge's jibes heard (mocked), a nod at one (took_it), a drink stood him, walking him to the jail; the man it's done to counts it as `to_him` (him for the last three). PROPOSED numbers.",
+      
       "fired": {"trust": -0.12, "fear": 0.15, "respect": -0.08},
       "shoot_at": {"trust": -0.3, "fear": 0.3, "liking": -0.2},
       "aim_at": {"trust": -0.2, "fear": 0.18, "liking": -0.1},
@@ -401,6 +416,7 @@
       "shot_a_man": {"trust": -0.45, "liking": -0.35, "respect": -0.1, "fear": 0.35}
     },
     "facts": [
+      {"_doc": "#1312: the drunk, hostile on principle to a badge pinned on by a dying man (his card's `harlan.starts`)", "if": {"nolaw.deputy": true}, "who": {"town_drunk": {"liking": -0.15, "respect": -0.2}}},
       {"_doc": "the sheriff brought in well: curious about the man from up the creek; the doctor's respect", "if": {"sheriff.care": "good"}, "all": {"liking": 0.1, "trust": 0.05}, "who": {"doctor": {"respect": 0.3}}},
       {"_doc": "he rode by the sheriff: wary to cold", "if": {"sheriff.care": ["left", "left him"]}, "all": {"trust": -0.35, "liking": -0.3}},
       {"_doc": "No Law: he sat at the table and never moved (the town split, morning.you_were_there)", "if": {"nolaw.seen_from": "table"}, "split": [{}, {"respect": -0.25}]},
@@ -419,6 +435,7 @@
     "group_again_s": 30.0, "_group_again": "#1184: a group you stand by speaks again after this long (it kept quiet till you'd walked off and back).",
     "pools": {
       "_default": ["townsman"],
+      "town_drunk": ["town_drunk"],
       "barkeep": ["barkeep", "townsman"],
       "storekeeper": ["storekeeper", "townsman"],
       "store_wife": ["townswoman"],
@@ -487,6 +504,10 @@
       "look": {"base": 0.25, "per_m": 0.07, "nerve": 0.15}, "look_s": 4.0, "live_s": 3.0},
     "sounds": {"on": true, "laugh_db": -9.0, "cough_db": -12.0, "glass_db": -8.0}
   },
+  "drunk": {"_doc": "The town drunk's jibes and answers (TownDrunk, #1312). Within `call_m` and in his sight, one jibe a meeting (a meeting over once you're `gone_m` off for `gone_s`; stood by him `again_s`, another); answered within `answer_s` and `answer_m`; heard by the townsfolk within `hear_m`, one of whom answers `heard_s` on. G at him within `lead_m` walks him to the jail (lost past `lead_lost_m`; in at `jail_in_m` of its door, kept till `jail_until_h`); a glass given him within `give_m`. Sober from waking till `sober_until_h`. Harlan's tags: `run_mps` running, a shot within `shot_near_m` near him, run within `fled_s` of it fled, a blast within `blast_m`. PROPOSED numbers.",
+    "call_m": 7.0, "gone_m": 25.0, "gone_s": 45.0, "again_s": 240.0, "answer_s": 12.0, "answer_m": 5.0, "hear_m": 12.0, "heard_s": 2.5,
+    "lead_m": 4.0, "lead_lost_m": 10.0, "jail_in_m": 2.5, "jail_until_h": 9.0, "give_m": 1.8, "sober_until_h": 10.0,
+    "run_mps": 4.2, "shot_near_m": 15.0, "fled_s": 20.0, "blast_m": 40.0},
   "talk": {
     "_doc": "What the day folk say when you pass (`says` names a set here): within `near_m` of you, one line each `gap_s` at most, the first entry whose `if` the story holds (StoryState facts: a value, a list of values, \"*\" set at all, a key with ! not set), its words in turn. Each entry's id is its line in the scripts (docs/scripts/no_law.json, on PR #837's branch till it merges).",
     "near_m": 4.0, "bark_m": 6.0, "_bark_m": "#1184: a bark (TownBarks `pass`) reaches you from here; a set's line or his news from `near_m`.",

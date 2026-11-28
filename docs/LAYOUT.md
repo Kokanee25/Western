@@ -2200,6 +2200,25 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   broken: `end` broken, `nolaw.hold_broken`), NoJusticeCabin (Joe, no breaks: its answers are yours),
   CardGame (`seat_hold`: a hand's chairs). `tests/test_scene_hold.gd`.
 
+- **The town drunk** (#1312; `TownDrunk` `src/people/town_drunk.gd`, `ValleyFolk.drunk`; dials `config/valley_folk.json`
+  `drunk`; his card `docs/story/people.json` `town_drunk`, Sarge; the roster's `town_drunk`, `jibes: true` keeps him off the
+  street's barks). A meeting (Harlan within `call_m`, seen): one jibe, TownBarks `on: jibe` (`jibe.first` the brevet's, once
+  for good), the most specific of his pool by the picker's `you` (Harlan's tags: what he sees now, the town's day-deeds,
+  `you_tags`) and `sober` (before ten; the morning after the jail); none before `nolaw.deputy`. Answers within `answer_s`:
+  nod/shake (HeadGesture), a shove (any time), a drink (E with a glass by him, `PlayerDrink.give_away`, or a round with
+  him in the room, `BarService` -> `round_bought`): `jibe.drink` once each, then `.again`; G at him walks him to the jail
+  (`state` called, `_lead_step`; in at its door, `kept_out` till `jail_until_h`). The nearest calm hearer answers by his
+  band (`jibe.heard`, via `_later`); regard deeds `mocked`, `took_it`, `stood_sarge`, `jailed_sarge`; TownNews.bar `jibe`
+  (once a day), `stood_sarge`, `jailed_sarge`. Saved in the folk's save (`drunk`: deeds, the jail, his said-for-good).
+  **His notes** (`DrunkNotes` `src/people/drunk_notes.gd`, `ValleyFolk.notes`; `config/drunk_notes.json`): paper, a bill,
+  chalk, a knife's scratch (Label3D lettering; `SignArt.letters(id)` where the factory paints it; a picture's strokes as
+  data), put up by a ray into a lot's front, when due (`day` from the badge's day, `fact`, `after` a TownDrunk deed
+  `after_h` on) and not in view; read within `read_m` looking at it (PlayerWounds.say, held). The scene `drunk` in
+  `docs/scripts/town.json`; tests `tests/test_town_drunk.gd`.
+  **Nerves of steel** (Sean): his dials `nerve` 1.0 and `steady` (`ValleyFolk.dials_of`): `CivilianBrain.steady()` gates
+  every flight: Reaction `_decide` carries on (hurt, a walk to a door), no flinch, no cower at his cap shot off, no fire
+  flight or bucket run; a dry word `react.steady.<shot|fire|blast|hat|down|brawl>` (`_steady_says`, one a `STEADY_GAP`).
+
 ## src/audio
 
 - `src/audio/synth_sounds.gd` — `SynthSounds`: every sound made in code, cached (22 kHz; the sound
