@@ -20,7 +20,7 @@ extends Node
 ## a face is playing (on events, not per frame: the people budget).
 
 ## Off for a whole run (the before of the bench and the contact sheet; the goldens hold faces still).
-static var enabled := false  # EXPERIMENT (#1334 CI): off by default, to tell whether the gestures running cause shard 4's fall; reverted next commit
+static var enabled := true
 const ARMS := [&"upper_arm_r", &"forearm_r", &"hand_r", &"upper_arm_l", &"forearm_l", &"hand_l"]
 
 var body: HumanBody
