@@ -12,6 +12,7 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - AI crowd men (Meshy 7.1 on fal, #1303, #1339): tried and set aside (Sean, 2026-11-28: "we need meta"). Ten made
   (Studio `docs/crowd_six/`, branch `claude/studio-crowd-six`): fine for trousered men at 10 m+, but clothes and hats
   baked on, a skirt fails the fit, the talking face tears on beards. The crowd stays MetaHuman.
+
 ## What's in the game
 - Every Studio man: MakeHuman face grafted (20 blend shapes), `FaceLife`, `FaceSpeech` (talking), skinned
   hands, bandanas; the fuller skeleton (`DeformRig`: 30 finger, 10 deform bones; LAYOUT "src/bodies").
