@@ -42,6 +42,9 @@ var last_said := {}
 ## folk's seconds, -1 for good till he's off).
 var blocks: Array[Vector3] = []
 var block_t: Array[float] = []
+## Who barked at each block (#1325: a man who barked walking by, then sat with another, let her bark too):
+## a block holds round where he stands now as well as where he spoke.
+var block_by: Array = []
 ## What was said: [pid, line id, text, on, when].
 var log: Array = []
 
@@ -225,25 +228,34 @@ func blocked(at: Vector3, now := -1.0) -> bool:
 			continue
 		if Vector2(b.x - at.x, b.z - at.z).length() < group_m:
 			return true
+		var by: Variant = block_by[i] if i < block_by.size() else null
+		if by is Node3D and is_instance_valid(by):
+			var n := (by as Node3D).global_position
+			if Vector2(n.x - at.x, n.z - at.z).length() < group_m:
+				return true
 	return false
 
 
-func block(at: Vector3, now := -1.0) -> void:
+func block(at: Vector3, now := -1.0, by: Node3D = null) -> void:
 	blocks.append(at)
 	block_t.append(now)
+	block_by.append(by)
 
 
 ## Harlan's moved on: the groups he's left behind may greet him again next time.
 func clear_far(harlan: Vector3) -> void:
 	var keep: Array[Vector3] = []
 	var keep_t: Array[float] = []
+	var keep_by: Array = []
 	for i in blocks.size():
 		var b := blocks[i]
 		if Vector2(b.x - harlan.x, b.z - harlan.z).length() < group_clear_m:
 			keep.append(b)
 			keep_t.append(block_t[i])
+			keep_by.append(block_by[i] if i < block_by.size() else null)
 	blocks = keep
 	block_t = keep_t
+	block_by = keep_by
 
 
 func to_dict() -> Dictionary:

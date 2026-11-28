@@ -576,16 +576,23 @@ func _you_came_in(p: Node3D) -> bool:
 		return true
 	var band := folk.regard.town_band()
 	if band == &"warm":
-		# A man who's warm to him himself, who sees him, says it.
-		for o: StringName in ins:
-			var b := _brain(o)
-			if not can_do(o) or folk.regard.band(o) != &"warm" or b.senses == null or not b.senses.sees(p):
-				continue
-			var l := folk.room_line(o, "room.hail", {"whom": false, "who_you": true})
-			if l.is_empty():
-				continue
-			_give(o, {"what": &"hail", "for": 2.2, "look": p, "say": String(l[1]), "line": String(l[0]), "say_at": 0.3}, ["you"])
-			return true
+		# A man who's warm to him himself, who sees him, says it: one not talking first, else one breaks off his
+		# exchange for it (#1325: the room's talk had every warm man busy, and Harlan came in unhailed).
+		for pass_ in 2:
+			for o: StringName in ins:
+				var b := _brain(o)
+				if not can_do(o) or folk.regard.band(o) != &"warm" or b.senses == null or not b.senses.sees(p):
+					continue
+				var talking := folk.overheard != null and folk.overheard.busy(o)
+				if talking != (pass_ == 1):
+					continue
+				if talking:
+					folk.overheard.spoke(folk.folk_man(o), folk._ran)
+				var l := folk.room_line(o, "room.hail", {"whom": false, "who_you": true})
+				if l.is_empty():
+					continue
+				_give(o, {"what": &"hail", "for": 2.2, "look": p, "say": String(l[1]), "line": String(l[0]), "say_at": 0.3}, ["you"])
+				return true
 		return false
 	elif band in [&"cold", &"afraid"]:
 		# The talk drops: mouths shut, the nearest few look round at him and away.

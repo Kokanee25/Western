@@ -10,6 +10,7 @@ const HELP := {
 	"oh_stop": "oh_stop -> ends it: {lines: [[who, text, metres from you, clock, kind, shown]], pairs: {a|b: game minutes within 6 m}, where: {a|b: spots}, s}",
 	"oh_by": "oh_by PERSON [D] -> you stood D m (2.5) from PERSON, facing him",
 	"oh_where": "oh_where -> each valley man in play: his spot, his place tags, metres from you",
+	"oh_route": "oh_route PERSON SPOT -> the way he'd walk from where he is to that spot (FireFlight.route over the folk's places)",
 }
 
 const PAIR_M := 6.0
@@ -195,3 +196,14 @@ func _sample_why(vf: ValleyFolk, men: Dictionary) -> void:
 		if not _why_not.has(id):
 			_why_not[id] = {}
 		_why_not[id][why] = int((_why_not[id] as Dictionary).get(why, 0)) + 1
+
+
+func _cmd_oh_route(a: Array) -> Dictionary:
+	var vf := _folk()
+	var man := person(String(a[0])) if a.size() > 0 else null
+	if vf == null or man == null or a.size() < 2:
+		return {"ok": false, "error": "oh_route PERSON SPOT"}
+	var to: Vector3 = vf.spot_point(vf.spot(String(a[1])))[0]
+	var r := FireFlight.route(vf.places, man, to)
+	return {"from": [snappedf(man.global_position.x, 0.1), snappedf(man.global_position.z, 0.1)],
+			"points": r.map(func(v: Vector3) -> Array: return [snappedf(v.x, 0.1), snappedf(v.y, 0.1), snappedf(v.z, 0.1)])}

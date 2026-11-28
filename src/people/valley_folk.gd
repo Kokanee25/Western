@@ -2145,7 +2145,7 @@ func _talk_step() -> void:
 		if l.is_empty() or String(l[1]) == "":
 			continue
 		if barks:
-			barks.block(man.global_position, _ran)  # one line at you a group as you pass (again once you've stood by a while)
+			barks.block(man.global_position, _ran, man)  # one line at you a group as you pass (again once you've stood by a while)
 		_said_n[l[0]] = int(_said_n.get(l[0], 0)) + 1
 		_said_by[id] = int(_said_by.get(id, 0)) + 1
 		_spoke_at[id] = _talk_clock()

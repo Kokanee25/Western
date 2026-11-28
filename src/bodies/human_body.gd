@@ -304,6 +304,9 @@ var limp := false
 ## A drop under his feet further than this (m) and he falls rather than steps down: further than
 ## the snap to the ground ever followed.
 const DROP_FALLS := 1.0
+## Walking, the most he rises in one step (m): a stair's riser and some (walks' treads are 0.2 at most,
+## config/valley.json `riser_max`); more is in his way (walk_to).
+const STEP_UP_MAX := 0.35
 ## Ground steeper than this (the up of its face: ~50 degrees) he can't walk down, and going on down
 ## it more than STEEP_DROP (m) below where he last stood level he falls.
 const STEEP_UP := 0.64
@@ -2183,12 +2186,19 @@ func walk_to(target: Vector3, speed: float, delta: float, facing := true) -> boo
 		if need < ticks:
 			step = minf(need * per, dist)
 			_walk_spare = (ticks - need) * tick
+	var was := global_position
 	var moved := _slide(dir * step)
 	if facing and moved.length() > 0.001:
 		var look := global_position + (moved if not prone else dir)
 		var fwd := look - global_position
 		global_rotation.y = atan2(-fwd.x, -fwd.z)
 	_snap_to_ground()
+	if _stood and global_position.y - was.y > STEP_UP_MAX:
+		# More than a stair's riser up in one step is something in his way, not a step (#1325: the snap's ray
+		# takes anything within half a metre above as ground, and the loudmouth walked up a freight wagon's
+		# wheel, bed and load in four steps, off its top and down in the street: "a man down by the bakery").
+		global_position = was
+		moved = Vector3.ZERO
 	gait = how
 	move_speed = moved.length() / maxf(delta, 1e-4)
 	lib_travel = global_basis.inverse() * moved / maxf(delta, 1e-4)
@@ -2382,25 +2392,10 @@ func _snap_to_ground() -> void:
 
 func _ground_ray(space: PhysicsDirectSpaceState3D, at: Vector3, reach: float) -> Dictionary:
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * reach, Layers.STAND)
-	var ex: Array[RID] = []
 	if _blocker and is_instance_valid(_blocker):
-		ex.append(_blocker.get_rid())
-	# Not the player's capsule (on WORLD, #1325): a man walked into you stood on your head, and when you went
-	# on he dropped 1.9 m and lay in the street ("a man down by the bakery", test_town_barks_valley's flake).
-	if not is_instance_valid(_player_body) and is_inside_tree():
-		_player_look -= 1
-		if _player_look <= 0:
-			_player_look = 60  # (no player, as in a lab: looked for again now and then, not every step)
-			_player_body = get_tree().get_first_node_in_group(&"player") as CollisionObject3D
-	if is_instance_valid(_player_body):
-		ex.append(_player_body.get_rid())
-	q.exclude = ex
+		q.exclude = [_blocker.get_rid()]
 	Prof.count(&"q_walk")
 	return space.intersect_ray(q)
-
-
-var _player_body: CollisionObject3D = null
-var _player_look := 0
 
 
 ## The ground near him was dug or laid on (Ground): a man standing there finds it again, and goes
@@ -7016,7 +7011,9 @@ func _load(d: Dictionary) -> void:
 		var w := saved.duplicate(true)
 		w["stain"] = null
 		wounds.append(w)
-		if w.get("kind", &"") in [&"severed", &"amputated"] or w.get("entry") == null or not w.has("dir") or not visuals.has(w.segment):
+		# (A blast's wound is never painted as it's made (take_blast): painted here it came back with a stop and a
+		# stain it never had: #1325, men by the store when test_save_game's charge went off.)
+		if w.get("kind", &"") in [&"severed", &"amputated", &"blast"] or w.get("entry") == null or not w.has("dir") or not visuals.has(w.segment):
 			continue
 		if not w.has("stop"):
 			w["stop"] = null
