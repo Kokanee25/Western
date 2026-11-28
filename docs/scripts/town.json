@@ -203,14 +203,7 @@
    "brief": "Twenties, quick and tired; teases, sizes a man up by his purse (#1184).",
    "voice": null
   },
-  {
-   "id": "town_drunk",
-   "name": "The town drunk (Sarge)",
-   "called": "Sarge; he calls Harlan Brevet",
-   "bible": "docs/story/people.json town_drunk; VOICES.md (Rourke, His war)",
-   "brief": "Late fifties, a broken Union first sergeant from central Illinois; hoarse and carrying, fast and loud drunk, short and exact sober; crude about the body, never about a woman, and every joke has him getting the worst of it too.",
-   "voice": null
-  }
+  {"id": "town_drunk", "name": "The town drunk (Sarge)", "called": "Sarge; he calls Harlan Brevet", "bible": "docs/story/people.json town_drunk; VOICES.md (Rourke, His war)", "brief": "Late fifties, a broken Union first sergeant from central Illinois; hoarse and carrying, fast and loud drunk, short and exact sober; crude about the body, never about a woman, and every joke has him getting the worst of it too.", "voice": null}
  ],
  "scenes": [
   {
