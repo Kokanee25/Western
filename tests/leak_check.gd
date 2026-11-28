@@ -21,7 +21,7 @@ extends RefCounted
 ## fresh start leaves to fill (GameReset clears what must be). Checked by class.name.
 const IGNORED_STATICS := {
 	"Cover.asked": true, "Waypoints.asked": true, "Prof.frame_number": true,  # (counts of what was asked)
-	"Ground.lifted": true, "Ground.rescued": true,
+	"Ground.lifted": true, "Ground.rescued": true, "Structure.runaways": true,
 	"ContinueCard.done": true,  # (once a run: every valley built headless sets it)
 }
 
@@ -171,7 +171,7 @@ func take(root: Window) -> void:
 
 
 ## What's different now (`case` is the file's own node, on its way out): one line each, empty if
-## nothing. Call it a few frames after the file's node was freed.
+## nothing. Call it once the file's node is gone (the frame after its queue_free).
 func leaks(root: Window, case: Node = null) -> PackedStringArray:
 	var out: PackedStringArray = []
 	var kids: Dictionary = _before.kids
@@ -233,6 +233,7 @@ func free_leaks(root: Window, case: Node = null) -> void:
 	for c in root.get_children():
 		if kids.has(c.get_instance_id()) or (case != null and is_instance_valid(case) and c == case):
 			continue
+		root.remove_child(c)  # (out now: the next file starts on this frame)
 		c.queue_free()
 	var st := _statics()
 	var st0: Dictionary = _before.statics

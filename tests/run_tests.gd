@@ -260,10 +260,8 @@ func _run() -> void:
 		case.queue_free()
 		await process_frame
 		if leaks:
-			# (a few frames for what the file queue_freed at its end, then the space asked in a physics frame)
-			for i in 3:
-				await process_frame
-			await physics_frame
+			# (no frames of its own: what the file queue_freed went at the frame's end, and every later file
+			# starts on the frame it always did; a file sensitive to that is #1326's next red)
 			var left: PackedStringArray = leaks.call(&"leaks", root)
 			leaks.call(&"free_system_nodes", root)
 			if not left.is_empty():
@@ -274,7 +272,6 @@ func _run() -> void:
 				if not known.has(file):
 					failed.append("%s: %s: %s" % [file, head, "; ".join(left)])
 				leaks.call(&"free_leaks", root)
-				await process_frame
 			elif known.has(file):
 				print("  clean %s: listed in config/test_leaks.json but left nothing behind (take it off)" % file)
 		# Read by tools/test_times.py to refresh config/test_times.json (#1015).
