@@ -24,10 +24,11 @@ static var enabled := true
 const ARMS := [&"upper_arm_r", &"forearm_r", &"hand_r", &"upper_arm_l", &"forearm_l", &"hand_l"]
 
 var body: HumanBody
-var _items: Array = []   # {keys: [[t, {seg: deg}]], osc, hand, look, look_at, reach, mirror, k, end}
+var _items: Array = []   # {keys: [[t, {seg: deg}]], osc, hand, look, look_at, mirror, k, end}
 var _tones: Array = []   # {shapes, a, b, peak, k}
 var _t := 0.0
 var _on := false
+var _posture0 := &"stand"   # how he was as it began
 var _rng := RandomNumberGenerator.new()
 ## The last line he said as played: {tag, beat (s from its start), gestures [names], listeners,
 ## posture, clip}; tests and the bench read it.
@@ -89,6 +90,7 @@ func say(text: String, info: Dictionary) -> float:
 	_items.clear()
 	_tones.clear()
 	var posture := _posture()
+	_posture0 = posture
 	var names: Array[String] = []
 	var to: Node3D = info.get("to") as Node3D if info.get("to") is Node3D else null
 	var clip := _recorded(tag, beat, posture)
@@ -118,7 +120,9 @@ func say(text: String, info: Dictionary) -> float:
 func hear(spec: Dictionary, speaker: Node3D, at: float, strength: float, mates: Array, tag: StringName) -> void:
 	if not enabled or not _able() or spec.is_empty():
 		return
-	_t = 0.0 if not _on else _t
+	if not _on:
+		_t = 0.0
+		_posture0 = _posture()
 	var g := String(spec.get("g", ""))
 	var mate: Node3D = null
 	for m: Variant in mates:
@@ -145,8 +149,8 @@ func tick(delta: float) -> void:
 
 func _step(delta: float) -> void:
 	_t += delta
-	if not _able():
-		_stop()
+	if not _able() or _posture() != _posture0:
+		_stop()   # (he stood, sat or set off, or was put somewhere: what he was doing is over)
 		return
 	var offs := {}
 	var alive := false
@@ -155,14 +159,12 @@ func _step(delta: float) -> void:
 			continue
 		alive = true
 		var w := _eval(it, _t)
-		var busy_r := body.hand_busy("r") if not it.has("reach") else false
-		var busy_l := body.hand_busy("l") if not it.has("reach") else false
+		var busy_r := body.hand_busy("r")
+		var busy_l := body.hand_busy("l")
 		for seg: StringName in w:
 			if seg in ARMS and ((String(seg).ends_with("_r") and busy_r) or (String(seg).ends_with("_l") and busy_l)):
 				continue   # that hand is about his chore: the gesture leaves it be
 			offs[seg] = (offs.get(seg, Vector3.ZERO) as Vector3) + (w[seg] as Vector3)
-		if it.has("reach"):
-			_reach_step(it, _t)
 		if it.get("look", "") != "" and _t >= float(it.t0) and _t <= float(it.t1):
 			_look(it)
 	body.gesture_offsets = offs
@@ -227,8 +229,6 @@ func _fits(g: Dictionary, posture: StringName) -> bool:
 		return false
 	if posture == &"walk" and not bool(g.get("walk", false)):
 		return false
-	if g.has("reach") and posture != &"sit":
-		return false
 	return true
 
 
@@ -243,8 +243,6 @@ func _choose(opts: Array, posture: StringName) -> String:
 			continue
 		var hand := String(g.get("hand", ""))
 		if hand != "" and body.hand_busy("r") and body.hand_busy("l"):
-			continue
-		if g.has("reach") and body.hand_busy("r") and body.hand_busy("l"):
 			continue
 		fit.append(n)
 	if fit.is_empty():
@@ -296,12 +294,6 @@ func _add(n: String, beat: float, a: float, b: float, k: float, look_at: Node3D,
 				"from": (a + f * span) if ol else beat + f, "to": (a + to * span if to <= 1.0 else b + to - 1.0) if ol else beat + to}
 		it.t0 = minf(float(it.t0), float(it.osc.from))
 		it.end = maxf(float(it.end), float(it.osc.to))
-	if g.has("reach"):
-		var side := "l" if (mirror or body.hand_busy("r")) else "r"
-		it["reach"] = {"side": side, "to": String(g.reach), "lift": float(g.get("lift", 0.15)), "beat": beat,
-				"from": beat - 0.45, "to_t": beat + 0.6}
-		it.t0 = minf(float(it.t0), beat - 0.45)
-		it.end = maxf(float(it.end), beat + 0.9)
 	_items.append(it)
 
 
@@ -342,25 +334,6 @@ static func _eval(it: Dictionary, t: float) -> Dictionary:
 			for seg: Variant in o.segs:
 				out[seg] = (out.get(seg, Vector3.ZERO) as Vector3) + (o.segs[seg] as Vector3) * s
 	return out
-
-
-## A hand to his knee (a slap as he laughs): it comes in from above and lands on the beat.
-func _reach_step(it: Dictionary, t: float) -> void:
-	var r: Dictionary = it.reach
-	if t < float(r.from) or t > float(r.to_t) + 0.3:
-		return
-	var side := String(r.side)
-	var thigh := body.parts.get(StringName("thigh_" + side)) as Node3D
-	var shin := body.parts.get(StringName("shin_" + side)) as Node3D
-	if thigh == null or shin == null:
-		return
-	var knee := thigh.global_position.lerp(shin.global_position, 0.55) + Vector3.UP * 0.06
-	var beat := float(r.beat)
-	var k := clampf((t - float(r.from)) / maxf(beat - float(r.from), 0.01), 0.0, 1.0)
-	if t > float(r.to_t):
-		k = clampf(1.0 - (t - float(r.to_t)) / 0.3, 0.0, 1.0)
-	var lift := float(r.lift) * clampf((beat - t) / 0.2, 0.0, 1.0)
-	body.reach_to(side, knee + Vector3.UP * lift, Vector3.UP, smoothstep(0.0, 1.0, k))
 
 
 func _look(it: Dictionary) -> void:

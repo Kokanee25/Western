@@ -3300,7 +3300,7 @@ Lines with the face and body (#1316): `src/people/delivery.gd` (`Delivery`: the 
 mocking, scared, sly, sad, low, proud, pleading; a script note read as one, `tag_of_note`; the `*` beat mark,
 `strip_beat`; `remember`/`of`: a line said, under its final text) and `config/delivery.json` (each tag's `face`,
 `beat` stress/end/start, `gestures` by posture, `with`, `listen` to/others; the gestures as `keys` about the beat
-or the line, `osc`, `hand`, `reach`, `look`, `walk`; `recorded`: the MotionClip slot, docs/MOCAP.md Batch 3b).
+or the line, `osc`, `hand`, `look`, `walk`: joint turns only, stopped when his posture changes; `recorded`: the MotionClip slot, docs/MOCAP.md Batch 3b).
 TownScript gives a line's `tag` (town.json, written by `tools/delivery_tags.py`) to `Delivery` as it's picked.
 `src/bodies/line_gesture.gd` (`LineGesture`, on every HumanBody; a ticker only while it plays): on his
 Events.spoke/overheard the tag's face (`FaceLife.set_tone`: smile, smile_l/r added to FaceLife's shapes; other
