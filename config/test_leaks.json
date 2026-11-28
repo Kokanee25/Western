@@ -1,0 +1,5 @@
+{
+  "_doc": "Test files that still leave something behind after they run (#1326; tests/leak_check.gd, tests/run_tests.gd): their leaks are printed, not failed. Any other file that leaks fails. Fix one and take it off; the runner says when a listed file comes up clean.",
+  "known": {
+  }
+}

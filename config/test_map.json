@@ -1,5 +1,5 @@
 {
-  "_doc": "Which tests a change needs (#1234; tools/test_select.py, docs/LAYOUT.md 'CI'). A PR runs 'core' plus the tests every rule matching a changed file names (globs on tests/test_*.gd, '@group' a group below, 'all' everything, [] nothing), plus the tests that name the file (its res:// path or class_name), plus a changed test itself. A file no rule matches runs everything. Main runs everything after the merge. Add a rule when a new folder or kind of file appears; keep the groups honest when a test moves into the valley.",
+  "_doc": "Which tests a change needs (#1234; tools/test_select.py, docs/LAYOUT.md 'CI'). A PR runs 'core' plus the tests every rule matching a changed file names (globs on tests/test_*.gd, '@group' a group below, 'all' everything, [] nothing), plus the tests that name the file (its res:// path or class_name), plus a changed test itself. A file no rule matches runs everything. Main runs everything after the merge. Add a rule when a new folder or kind of file appears; keep the groups honest when a test moves into the valley. 'canary' (#1326): the whole mission runs and the save round trip, on every building, structure, blast, body, prop, people's-look and plugin change (people, the world and missions reach them through @missions) and on every merge-in that brings main's code, so a PR can't go green while breaking a mission.",
   "per_shard_seconds": 420,
   "max_shards": 8,
   "all_shards": 8,
@@ -14,6 +14,10 @@
     "test_docs_size.gd"
   ],
   "groups": {
+    "canary": [
+      "test_no_law_carry.gd", "test_no_law_murder.gd", "test_no_justice_whole.gd", "test_no_justice_shack_walk.gd",
+      "test_card_game.gd", "test_sheriff.gd", "test_save_game.gd"
+    ],
     "missions": [
       "test_no_justice_*", "test_no_law_*", "test_sheriff*", "test_funeral.gd", "test_card_game.gd",
       "test_card_cheat.gd", "test_coach*", "test_cabin_faults.gd", "test_chaos_faults.gd",
@@ -100,26 +104,26 @@
     {"name": "tools", "paths": ["tools/**"], "tests": []},
     {"name": "other workflows", "paths": [".github/**"], "tests": []},
     {"name": "the build itself", "paths": [".github/workflows/build.yml", ".github/actions/**"], "tests": "all"},
-    {"name": "the runner", "paths": ["tests/run_tests.gd", "tests/run_tests.gd.uid", "tests/test_case.gd", "tests/test_case.gd.uid"], "tests": "all"},
+    {"name": "the runner", "paths": ["tests/run_tests.gd", "tests/run_tests.gd.uid", "tests/test_case.gd", "tests/test_case.gd.uid", "tests/leak_check.gd", "tests/leak_check.gd.uid", "config/test_leaks.json"], "tests": "all"},
     {"name": "test helpers", "paths": ["tests/feel.gd", "tests/feel.gd.uid", "tests/labs/**"], "tests": []},
     {"name": "the map", "paths": ["config/test_map.json", "config/test_times.json", "tools/test_select.py", "tools/test_times.py"], "tests": ["test_test_shards.gd", "test_test_map.gd"]},
     {"name": "the game's frame", "paths": ["project.godot", "export_presets.cfg", "src/autoload/**", "src/main/**", "scenes/main.tscn", "scenes/player.tscn", "default_bus_layout.tres"], "tests": "all"},
-    {"name": "the native plugin", "paths": ["addons/**"], "tests": ["test_native.gd", "@structures", "@blast", "test_voxel*", "test_ballistics.gd"]},
+    {"name": "the native plugin", "paths": ["addons/**"], "tests": ["test_native.gd", "@structures", "@blast", "test_voxel*", "test_ballistics.gd", "@canary"]},
 
     {"name": "the world", "paths": ["src/world/**", "scenes/valley.tscn", "scenes/test_street.tscn", "config/valley*", "config/valley_ground/**", "config/town.json", "config/ground*.tres", "config/day_cycle.tres", "config/cemetery.json", "config/floor_marks.tres"], "except": ["**/*.gdshader", "**/*.gdshader.uid", "**/*.gdshaderinc", "**/*.gdshaderinc.uid"], "tests": ["@people", "@look", "test_ground.gd", "test_day_cycle.gd", "test_floor_marks.gd", "test_cemetery.gd"]},
     {"name": "people", "paths": ["src/people/**", "config/sight.tres", "config/speech.tres", "config/gaze.tres", "config/people_tick.tres", "config/town_script.json", "config/walks.json", "config/street_wear.json", "config/private_cast.json", "config/card_game.json", "config/companion_joe.json", "config/drunk_notes.json", "config/mop.tres", "config/wipe.tres", "config/band.json"], "tests": ["@people"]},
     {"name": "missions and moments", "paths": ["src/missions/**", "src/moments/**", "config/moments/**", "config/farmhouse.tres", "config/coach_fight.tres", "config/ride_there.json"], "tests": ["@missions", "test_game_reset.gd"]},
-    {"name": "a building", "paths": ["config/buildings/{b}.json"], "tests": ["test_building_{b}*", "test_{b}*", "test_valley_{b}*", "test_{b}_*", "test_valley.gd", "test_valley_town.gd", "test_town_buildings.gd", "test_building_lab.gd"]},
-    {"name": "structures", "paths": ["src/structures/**", "config/destruction/**", "config/timber.tres", "config/voxel_damage.tres", "config/dents.tres", "config/building_age.tres", "config/trestle.tres"], "tests": ["@structures"]},
-    {"name": "blast", "paths": ["src/blast/**", "config/blast.tres"], "tests": ["@blast"]},
+    {"name": "a building", "paths": ["config/buildings/{b}.json"], "tests": ["test_building_{b}*", "test_{b}*", "test_valley_{b}*", "test_{b}_*", "test_valley.gd", "test_valley_town.gd", "test_town_buildings.gd", "test_building_lab.gd", "@canary"]},
+    {"name": "structures", "paths": ["src/structures/**", "config/destruction/**", "config/timber.tres", "config/voxel_damage.tres", "config/dents.tres", "config/building_age.tres", "config/trestle.tres"], "tests": ["@structures", "@canary"]},
+    {"name": "blast", "paths": ["src/blast/**", "config/blast.tres"], "tests": ["@blast", "@canary"]},
     {"name": "fire and effects", "paths": ["src/fire/**", "src/effects/**", "config/fire.tres", "config/smoke.tres"], "tests": ["@fire"]},
-    {"name": "bodies", "paths": ["src/bodies/**", "assets/animations/**", "experiments/mocap_walk/**", "config/anatomy.json", "config/physiology.tres", "config/skeleton.tres", "config/falls.tres", "config/face_life.tres", "config/post_step.tres", "config/shove.tres", "config/climb.tres"], "tests": ["@bodies"]},
-    {"name": "people's looks", "paths": ["assets/people/**"], "tests": ["test_studio_*", "test_garment_handoff.gd", "test_hat.gd", "test_people_lod.gd", "test_bodies.gd", "test_face_*", "test_valley_folk.gd", "test_valley_town.gd"]},
+    {"name": "bodies", "paths": ["src/bodies/**", "assets/animations/**", "experiments/mocap_walk/**", "config/anatomy.json", "config/physiology.tres", "config/skeleton.tres", "config/falls.tres", "config/face_life.tres", "config/post_step.tres", "config/shove.tres", "config/climb.tres"], "tests": ["@bodies", "@canary"]},
+    {"name": "people's looks", "paths": ["assets/people/**"], "tests": ["test_studio_*", "test_garment_handoff.gd", "test_hat.gd", "test_people_lod.gd", "test_bodies.gd", "test_face_*", "test_valley_folk.gd", "test_valley_town.gd", "@canary"]},
     {"name": "weapons", "paths": ["src/weapons/**", "src/ballistics/**", "assets/weapons/**", "config/revolver.tres", "config/shotgun.tres", "config/winchester73.tres", "config/gun_hand.tres", "config/fp_holds.json", "config/ballistics.tres"], "tests": ["@weapons"]},
     {"name": "the player", "paths": ["src/player/**", "config/player_tuning.tres", "config/movement/**", "config/feel_ranges.json"], "tests": ["@player"]},
     {"name": "the drink (#1292)", "paths": ["config/drink.json"], "tests": ["test_drink.gd", "test_card_game.gd", "test_save_game.gd"]},
     {"name": "dressing (what's placed in the valley, where the missions play)", "paths": ["src/props/prop_dressing.gd*", "src/art/*_dressing.gd*", "src/art/valley_scatter*.gd*"], "tests": ["@missions", "@valley"]},
-    {"name": "props", "paths": ["src/props/**", "assets/props/**"], "tests": ["@props"]},
+    {"name": "props", "paths": ["src/props/**", "assets/props/**"], "tests": ["@props", "@canary"]},
     {"name": "the look", "paths": ["src/render/**", "src/art/**", "src/ui/**", "assets/textures/**", "config/looks/**", "config/material_library.json", "config/room_light.tres", "config/look_panel.json", "config/valley_ground_art.tres", "**/*.gdshader", "**/*.gdshaderinc", "**/*.gdshader.uid", "**/*.gdshaderinc.uid"], "tests": ["@look"]},
     {"name": "sound", "paths": ["src/audio/**", "assets/audio/**", "config/sound.tres", "config/train_sound.tres"], "tests": ["@sound"]},
     {"name": "the train", "paths": ["src/train/**", "assets/train/**", "config/train.tres"], "tests": ["@train"]},

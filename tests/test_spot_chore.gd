@@ -4,6 +4,10 @@ extends TestCase
 ## pose held 20 s, watched 10 minutes) by its plan; each kind run on a body on flat ground; trouble
 ## stops it and what's in his hands goes down.
 
+## No Law's murder as the file found it (#1326: put back once its tests are done).
+var _murder_was := ValleyFolk.murder_auto
+
+
 const KINDS := [&"stand", &"lean", &"sit", &"counter", &"sweep", &"carry", &"talk", &"drink", &"work"]
 
 var world: Node3D
@@ -211,3 +215,7 @@ func test_the_valley_s_blocks_name_their_chores() -> void:
 				check(c.sit != null and c.sit.busy(), "%.1f %s: sat on the store's chair" % [h, id])
 	holder.queue_free()
 	await physics_frames(2)
+
+
+func after_all() -> void:
+	ValleyFolk.murder_auto = _murder_was

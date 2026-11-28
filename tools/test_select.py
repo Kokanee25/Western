@@ -15,8 +15,9 @@ A changed file no rule matches runs everything (and says so): new kinds of file 
 someone maps them.
 
 Merging main in (--since=SHA, the PR's last green run's commit): what that push changed in the
-PR's own files is selected as above; main's files only bring the PR's tests they share. A merge
-whose clashes were only in docs then runs the core set alone.
+PR's own files is selected as above; main's files bring the PR's tests they share, and if any of
+them is code (maps to a test), the "canary" group's mission runs too (#1326). A merge whose
+clashes were only in docs then runs the core set alone.
 
     python3 tools/test_select.py --base=origin/main [--head=HEAD] [--since=SHA]   # the selection
     python3 tools/test_select.py ... --github         # writes GITHUB_OUTPUT and the step summary
@@ -193,6 +194,9 @@ class Selector:
     def core(self):
         return self.expand(self.map["core"])
 
+    def canary(self):
+        return self.expand(["@canary"]) if "canary" in self.groups else set()
+
     def seconds(self, tests):
         tests = self.tests if tests == ALL else tests
         return sum(float(self.times.get(t, MISSING)) for t in tests)
@@ -240,6 +244,11 @@ def select(sel, base, head, since=None):
             tests = ALL
         else:
             tests = own_t | shared
+            # Main's code came in (not only notes): the mission runs too (#1326), the ones main's
+            # merges broke while each PR's own run was green.
+            if main_t and tests != ALL:
+                tests |= sel.canary()
+                lines.append("main's code came in: the canary's %d mission tests too" % len(sel.canary()))
         lines.append("the PR's tests main's files also touch: %s"
                      % ("all" if shared == ALL else len(shared)))
         each = own_each

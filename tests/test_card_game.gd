@@ -5,6 +5,10 @@ extends TestCase
 ## rules; E stands you up (unless an act holds you); the chair kicked out from under you drops you
 ## on the floor; a shot, a man out of his chair or an act stops the game where it lies.
 
+## No Law's murder as the file found it (#1326: put back once its tests are done).
+var _murder_was := ValleyFolk.murder_auto
+
+
 var holder: Node
 var valley: ValleyWorld
 
@@ -376,3 +380,7 @@ func test_a_win_is_said_once_in_ten_minutes_or_not_at_all() -> void:
 		g._say(men[0], kind, {}, true)
 		Events.spoke.disconnect(hook)
 		check(said.size() == before + 1, "a line for %s" % kind)
+
+
+func after_all() -> void:
+	ValleyFolk.murder_auto = _murder_was
