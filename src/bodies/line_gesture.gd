@@ -180,8 +180,6 @@ func _step(delta: float) -> void:
 		life.set_tone(shapes)
 	if not alive:
 		_stop()
-	else:
-		body.wake()
 
 
 # --- the line's timing ------------------------------------------------------------------------------
@@ -497,7 +495,8 @@ func _begin() -> void:
 	if not _on:
 		_on = true
 		body.add_ticker(self)
-	body.wake()
+	# (No wake(): a line plays on his own tick at his band's rate. Waking him ticked a far man every
+	# frame and changed his walk's steps: #1334's CI saw the loudmouth step off the store's dock.)
 
 
 func _stop() -> void:
