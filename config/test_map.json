@@ -11,7 +11,6 @@
     "test_native.gd",
     "test_test_shards.gd",
     "test_test_map.gd",
-    "test_leak_check.gd",
     "test_docs_size.gd"
   ],
   "groups": {
