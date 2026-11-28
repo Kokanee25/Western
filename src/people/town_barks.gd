@@ -221,9 +221,11 @@ func said_today(pid: String, id: String, day: int) -> bool:
 
 ## One bark at Harlan a group as he passes: a man within `group_m` of a group already barked at.
 ## `now` (the folk's seconds) given: a block older than `group_again_s` has lapsed.
-func blocked(at: Vector3, now := -1.0) -> bool:
+func blocked(at: Vector3, now := -1.0, but: Node3D = null) -> bool:
 	for i in blocks.size():
 		var b := blocks[i]
+		if but != null and i < block_by.size() and is_instance_valid(block_by[i]) and block_by[i] == but:
+			continue  # (`but`: his own block doesn't hold him: his set's next line, #1325)
 		if now >= 0.0 and block_t[i] >= 0.0 and now - block_t[i] > group_again_s:
 			continue
 		if Vector2(b.x - at.x, b.z - at.z).length() < group_m:

@@ -2134,7 +2134,7 @@ func _talk_step() -> void:
 			l = ["news.%d" % rid, news.line_of(id, rid, TownNews.HARLAN)]
 			news.said(id, rid)
 			_news_to_you[rid] = _ran
-		elif pd.has("says") and not (barks and barks.blocked(man.global_position, _ran)):
+		elif pd.has("says") and not (barks and barks.blocked(man.global_position, _ran, man)):
 			# (One at you a group, his set's lines too, #1325: the townsman sat by the storekeeper's wife, she said
 			# good day and he said the weather 2.6 s after.)
 			l = line_for(String(pd.says))
