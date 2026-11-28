@@ -41,6 +41,11 @@ signal person_surrendered(person: Node)
 signal person_arrested(person: Node, by: Node)
 ## Someone said something out loud (shown as a subtitle to a player in earshot).
 signal spoke(speaker: Node, text: String)
+## Someone said something to another, not to the room (#1293, Overheard): two men talking. `info`:
+## `clarity` 0..1 how well the player hears it (distance, walls), `to` the man spoken to (or null),
+## `delivery` how it's said (angry, laughing, sly, low...: for the gestures), `exchange` and `line`
+## (the town script's ids), `place`. His mouth moves as for `spoke`; the subtitle fades by `clarity`.
+signal overheard(speaker: Node, text: String, info: Dictionary)
 ## Someone's too close to a fire: `amount` is how badly it burnt them this moment.
 signal scorched(person: Node, amount: float)
 ## A charge went off: where, and how big (kg TNT as it hits: one on the ground counts 1.8 times its

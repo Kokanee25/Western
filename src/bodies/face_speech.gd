@@ -147,6 +147,7 @@ func _ready() -> void:
 		body = get_parent()
 	_find_faces()
 	Events.spoke.connect(_on_spoke)
+	Events.overheard.connect(_on_overheard)
 
 
 ## Ticked by PeopleTick after his body, in his order (HumanBody.add_ticker); the engine calls no
@@ -197,6 +198,12 @@ func _find_faces() -> void:
 
 
 func _on_spoke(speaker: Node, text: String) -> void:
+	if speaker == body:
+		say(text)
+
+
+## Said to another man, not to the room (#1293, Overheard): his mouth moves all the same.
+func _on_overheard(speaker: Node, text: String, _info: Dictionary) -> void:
 	if speaker == body:
 		say(text)
 

@@ -1,0 +1,208 @@
+{
+ "clock": "17:26",
+ "cmd": "oh_stop",
+ "lines": [
+  [
+   "barkeep",
+   "Beer's warm. Ice wagon never came.",
+   18.9,
+   "13:28",
+   "exchange:",
+   0.0
+  ],
+  [
+   "miner",
+   "Might be, might be.",
+   15.3,
+   "13:30",
+   "exchange:",
+   0.0
+  ],
+  [
+   "drifter",
+   "I'll take any work going. Fences, horses, anything.",
+   21.1,
+   "14:18",
+   "exchange:",
+   0.0
+  ],
+  [
+   "barkeep",
+   "That's not how I heard it.",
+   17.1,
+   "14:20",
+   "exchange:",
+   0.0
+  ],
+  [
+   "barkeep",
+   "You drinking, Wiley, or leaning?",
+   14.6,
+   "14:30",
+   "exchange:heard.leaning",
+   0.0
+  ],
+  [
+   "miner",
+   "Night, all.",
+   19.6,
+   "14:32",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "I got a nickel. I was working up to it.",
+   24.0,
+   "14:32",
+   "exchange:heard.leaning",
+   0.0
+  ],
+  [
+   "barkeep",
+   "Work up to it off the varnish. That top come from St. Louis.",
+   35.2,
+   "14:34",
+   "exchange:heard.leaning",
+   0.0
+  ],
+  [
+   "drifter",
+   "Beer, then. Slow as you like.",
+   48.3,
+   "14:37",
+   "exchange:heard.leaning",
+   0.0
+  ],
+  [
+   "smith",
+   "Stand off the anvil. I don't want to burn you.",
+   0.6,
+   "14:57",
+   "said",
+   1.0
+  ],
+  [
+   "liveryman",
+   "Wind's got the horses jumpy.",
+   0.6,
+   "15:21",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Sun's warm. Wall's warm. I'm not moving.",
+   0.6,
+   "15:35",
+   "said",
+   1.0
+  ],
+  [
+   "drifter",
+   "Same as yesterday. Hotter.",
+   5.9,
+   "16:29",
+   "said",
+   1.0
+  ]
+ ],
+ "ok": true,
+ "pairs": {
+  "barkeep|drifter": 69.0,
+  "barkeep|loudmouth": 51.0,
+  "barkeep|miner": 64.0,
+  "barkeep|townsman": 35.0,
+  "drifter|liveryman": 13.0,
+  "drifter|miner": 37.0,
+  "drifter|townsman": 5.0,
+  "miner|townsman": 32.0,
+  "store_wife|storekeeper": 11.0
+ },
+ "s": 463.8,
+ "t": 500.65,
+ "where": {
+  "barkeep|drifter": {
+   "bar_back_day:counter + bar_day_2:drink": 26
+  },
+  "barkeep|loudmouth": {
+   "bar_back:counter + bar_day_4:drink": 10,
+   "bar_back_day:counter + bar_day_4:drink": 9
+  },
+  "barkeep|miner": {
+   "bar_back_day:counter + bar_day_1:drink": 24
+  },
+  "barkeep|townsman": {
+   "bar_back_day:counter + bar_day_3:drink": 13
+  },
+  "drifter|liveryman": {
+   "livery_lean:lean + livery_door:stand": 5
+  },
+  "drifter|miner": {
+   "bar_day_2:drink + bar_day_1:drink": 14
+  },
+  "drifter|townsman": {
+   "bar_day_2:drink + bar_day_3:drink": 2
+  },
+  "miner|townsman": {
+   "bar_day_3:drink + bar_day_1:drink": 12
+  },
+  "store_wife|storekeeper": {
+   "store_bench:sit + store_walk:stand": 4
+  }
+ },
+ "start": {
+  "clock": "13:18",
+  "cmd": "oh_where",
+  "men": {
+   "barkeep": {
+    "d": 23.5,
+    "spot": "bar_back_day:counter",
+    "tags": [
+     "saloon.bar"
+    ]
+   },
+   "drifter": {
+    "d": 71.5,
+    "spot": "livery_lean:lean",
+    "tags": [
+     "livery",
+     "street"
+    ]
+   },
+   "liveryman": {
+    "d": 70.3,
+    "spot": "livery_door:stand",
+    "tags": [
+     "livery",
+     "street"
+    ]
+   },
+   "smith": {
+    "d": 131.7,
+    "spot": "smith_door:work",
+    "tags": [
+     "smithy",
+     "street"
+    ]
+   },
+   "storekeeper": {
+    "d": 91.8,
+    "spot": "store_walk:stand",
+    "tags": [
+     "store",
+     "street"
+    ]
+   },
+   "undertaker": {
+    "d": 125.8,
+    "spot": "carpenter_walk:stand",
+    "tags": [
+     "street"
+    ]
+   }
+  },
+  "ok": true,
+  "t": 36.85
+ }
+}

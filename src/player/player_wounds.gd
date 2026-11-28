@@ -64,6 +64,14 @@ var _drip_ml := 0.0
 var _overlay: ColorRect
 var _message: Label
 var _message_time := 0.0
+## Talk overheard (#1293, Events.overheard): its own line above the message, dimmer the fainter it's
+## heard; a clearer exchange isn't written over by a fainter one while it shows.
+var _heard: Label
+var _heard_time := 0.0
+var _heard_clarity := 0.0
+var _heard_ex := ""
+## The last overheard subtitle: [who, the words as shown, clarity] (the tests, the bridge).
+var last_heard: Array = []
 var _held := 0.0
 var _day_cycle: Node
 ## What a blast does to you that isn't a wound (#596 step 2; BlastTuning's "On you"), each by the
@@ -157,7 +165,23 @@ func _ready() -> void:
 	_message.add_theme_color_override(&"font_outline_color", Color.BLACK)
 	_message.add_theme_constant_override(&"outline_size", 4)
 	layer.add_child(_message)
+	_heard = Label.new()
+	_heard.anchor_left = 0.1
+	_heard.anchor_right = 0.9
+	_heard.anchor_top = 1.0
+	_heard.anchor_bottom = 1.0
+	_heard.offset_top = -112.0
+	_heard.offset_bottom = -64.0
+	_heard.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_heard.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_heard.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_heard.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_heard.add_theme_color_override(&"font_color", Color(0.86, 0.84, 0.78))
+	_heard.add_theme_color_override(&"font_outline_color", Color.BLACK)
+	_heard.add_theme_constant_override(&"outline_size", 4)
+	layer.add_child(_heard)
 	Events.spoke.connect(_on_spoke)
+	Events.overheard.connect(_on_overheard)
 	Events.scorched.connect(_on_scorched)
 
 
@@ -178,6 +202,26 @@ func _on_spoke(speaker: Node, text: String) -> void:
 		var who := String((speaker as HumanBody).person_id).capitalize() if speaker is HumanBody else "Someone"
 		# Up as long as he takes to say it (his mouth, FaceSpeech), and a moment more.
 		_show("%s: \"%s\"" % [who, text], FaceSpeech.subtitle_seconds(text))
+
+
+## Two men talking near you (Overheard): the words as clearly as you hear them (`info.clarity`: whole
+## close by, words dropping out further off or through a wall, nothing under `min_clarity`).
+func _on_overheard(speaker: Node, text: String, info: Dictionary) -> void:
+	var c := float(info.get("clarity", 0.0))
+	if c < float(Overheard.DIALS.min_clarity):
+		return
+	var ex := String(info.get("exchange", ""))
+	if _heard_time > 0.0 and ex != _heard_ex and c < _heard_clarity:
+		return  # the nearer talk stays up
+	var full := float(Overheard.DIALS.full_at)
+	var shown := Overheard.garbled(text, c, full, hash(text))
+	var who := String((speaker as HumanBody).person_id).capitalize() if speaker is HumanBody and c >= 0.5 else "Someone"
+	_heard.text = "%s: \"%s\"" % [who, shown]
+	_heard.modulate.a = lerpf(0.4, 0.92, clampf(c / full, 0.0, 1.0))
+	_heard_time = FaceSpeech.subtitle_seconds(text)
+	_heard_clarity = c
+	_heard_ex = ex
+	last_heard = [String(speaker.get("person_id")) if speaker.get("person_id") != null else "", shown, c]
 
 
 ## Show a line; `hold` keeps people's talk from writing over it while it shows.
@@ -906,6 +950,11 @@ func _physics_step(delta: float) -> void:
 		_message_time -= delta
 		if _message_time <= 0.0:
 			_message.text = ""
+	if _heard_time > 0.0:
+		_heard_time -= delta
+		if _heard_time <= 0.0:
+			_heard.text = ""
+			_heard_clarity = 0.0
 
 
 ## You leave a trail: drops of your blood on the ground where you go.

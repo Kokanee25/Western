@@ -332,6 +332,7 @@ func _listen() -> void:
 			return "you"
 		return String(n.person_id) if n is HumanBody else String((n as Node).name)
 	_hook(Events.spoke, func(w: Node, text: String) -> void: note.call("said", "%s: %s" % [who.call(w), text]))
+	_hook(Events.overheard, func(w: Node, text: String, _info: Dictionary) -> void: note.call("overheard", "%s: %s" % [who.call(w), text]))
 	_hook(Events.shot_fired, func(_o: Vector3, _d: Vector3, s: Node) -> void: note.call("shot", "%s fired" % who.call(s)))
 	_hook(Events.body_hit, func(info: Dictionary) -> void:
 		if info.get("kind") == &"blast":  # what the blast did to him, not a "hit" in the chest (#488)
