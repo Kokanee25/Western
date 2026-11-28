@@ -8,9 +8,14 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - New men by `tools/characters/RECIPE.md` (Rodin portrait route; skill `new-portrait-man`); another route
   only with Sean's OK. Women and hard faces: from Sean's own pictures (the widow, #414).
 - Paid calls run in the Studio on GitHub (a request in its `requests/` on a `claude/studio-*` branch). Ask
-  Sean before any training run; give each man's cost before paying. Studio ledger $65.47 of $75 (check it).
-- Meshy is a second opinion only; Rodin stays. The crowd bake-off (#1303): Meshy 7.1 on fal (Studio `crowd3d`)
-  passed from 1-3 m beside the MetaHuman; waiting on Sean's pick (#1335). Labs: `experiments/crowd_lab/`.
+  Sean before any training run; give each man's cost before paying. Studio ledger $75.69 of $85 (check it).
+- The crowd (men seen at 10 m+): Meshy 7.1 on fal (Sean's pick from the bake-off, #1303). A front by GPT-5.4
+  in the Studio's `crowd` look (hats on), then `crowd3d` tool `meshy71_norig` ($1.20; ~$1.47 a man), fitted by
+  route `ai_whole`. Six made (#1339: teamster, trooper, passenger, hardrock, farmhand, merchant; builds
+  `<man>_crowd_s1`, Studio `docs/crowd_six/`); waiting on Sean's pick (#1340). Meshy's own rig's weights are far
+  worse than our fit's (sit 3724 cm² vs 4.7): don't pay for it. Lab: `experiments/crowd_lab/`. Traps: a fresh
+  game checkout needs the native plugin built (`cargo build --release`, LAYOUT) or the valley runs out of memory;
+  seven men in the valley still run out after ~9 shots under Vulkan, so shoot in runs of three.
 
 ## What's in the game
 - Every Studio man: MakeHuman face grafted (20 blend shapes), `FaceLife`, `FaceSpeech` (talking), skinned
