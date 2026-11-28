@@ -258,7 +258,10 @@ func test_a_meeting_a_jibe_and_the_answers() -> void:
 	await wait_until(func() -> bool: return not _drunk_said(n).is_empty(), 60 * 6)
 	var again := _drunk_said(n)
 	check(not again.is_empty() and again[0] != first[0], "back again: another jibe (%s)" % [again])
-	var cards := TownScript.words("drunk.three_for_three") + TownScript.words("drunk.picket_fence")
+	var cards := []
+	for id: String in TownScript.meta():
+		if ((TownScript.meta()[id]["if"] as Dictionary).get("you", []) as Array).has("lost_cards"):
+			cards += TownScript.words(id)
 	check(not again.is_empty() and cards.has(again[0]), "and it fits what the town knows: cards lost (%s)" % [again])
 	# A drink stood him: a sober line, once for good, then the ordinary thanks.
 	n = said.size()
