@@ -78,6 +78,12 @@ structures, blast, the valley, performance, CI. Replace your lines here at the e
   18.6 KB a member (held to 20); resting members' nodes are rows (ask `drawn_node()`, not `pieces`). 15 KB: #1275.
 - **CI runs what a PR needs** (#1234, LAYOUT "CI"): `config/test_map.json` + `tools/test_select.py` (core set + mapped
   tests, up to 8 shards); main runs all 8. A test moving into the valley joins the map's `valley`/`missions` group.
+  The `canary` (#1326: whole missions + the save) rides building/structure/blast/body/prop/plugin changes and merge-ins.
+- **The leak check** (#1326, LAYOUT "tests"): a file that leaves nodes, bodies, statics or engine dials fails by name;
+  put a file-wide dial back in `after_all()`. A red only in shard order: replay its shard's files with `--files=`
+  (`--leaks=off` for the old behaviour); the nightly runs all shards `--shuffle`d. Known order faults left: #1332
+  (kit props at the origin a tick: test_valley's crossroads), test_valley_folk's miner after shard 8's files (with
+  test_times.json's real shack-walk time, 420 s; the table still says 30).
 - **Flaky in shard order:** `test_town_day`'s fights. **Two collapses** (#1214): compare with impacts off.
 - **Resets and places** (#864): `GameReset` (reload wipes the story; `retry` from the mission's checkpoint);
   `WorldPlaces` (knocked out in the valley you wake at its doctor's).
