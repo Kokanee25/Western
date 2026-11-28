@@ -157,12 +157,12 @@ in the script's `kept` list with the reader's objection, for Sean.
 
 ## 5. The town drunk's jibes (#1312)
 
-Sarge's lines are the scene `drunk` in `docs/scripts/town.json` (81 jibes, his answers, the street's), read blind twice
+Sarge's lines are the scene `drunk` in `docs/scripts/town.json` (124 jibes, his answers, the street's; the first 81 read blind twice, the last 43 added on Sean's word "It needs more insults", not read blind)
 (2026-11-27). What the reads taught, for anyone adding to his pool:
 
 - **He gets the worst of it too.** The best lines end on him: "I wore three at Corinth and it was a near thing", "I'm out
   a dime", "Not me that done it. Fevers." A line that only hits the deputy is a remark, not his joke.
-- **The britches are his thing, not his only thing**: under a quarter of the pool (18 of 81 now; at 25 it grated). Vary
+- **The britches are his thing, not his only thing**: under a quarter of the pool (22 of 124 now; at 25 of 86 it grated). Vary
   the angle: smell, the laundress, upwind, the necessary, not every time "you'll shit yourself".
 - **The bachelor ribbing is innuendo with him in it** ("You get used to a man snoring in your ear. Then you get to missing
   it"). A line that sneers at men who are that way, rather than needling the deputy, is cut (`blanket`, round 2).

@@ -102,6 +102,9 @@ var mood := Mood.CALM
 var fear := 0.0
 ## His dials, each 0 to 1 (ValleyFolk.dials_of): nerve, nosy, duty; the middle if nobody set them.
 var dials := {"nerve": 0.5, "nosy": 0.5, "duty": 0.5}
+## A steady man's last remark on trouble, and how long till he'll pass another (s).
+var _steady_said := 0.0
+const STEADY_GAP := 20.0
 ## Held by a scene (SceneHold, #1050): it walks and turns him, not his day or his fright; his senses
 ## still take things in, and his own brain has him again from where he stands when it lets go.
 var held := false
@@ -307,6 +310,12 @@ func say_line(text: String) -> void:
 
 
 ## May he say anything now (awake, able, not hushed by a scene)?
+## Nerves of steel (dial `steady`, #1312: Sarge): he never flees, cowers, ducks or hides, whatever's going on;
+## he carries on with what he was doing and may pass a remark on it. He's hurt like anyone.
+func steady() -> bool:
+	return float(dials.get("steady", 0.0)) > 0.0
+
+
 func may_speak() -> bool:
 	return body.physiology.is_conscious() and body.physiology.can_speak() and _hush <= 0.0
 
@@ -374,7 +383,7 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 				and (actor as Node3D).global_position.distance_to(body.global_position) < ASSAULT_SEEN:
 			# A man kicked in front of him: it's turned ugly.
 			fear += 0.1 if kind == &"kick" else 0.2
-			_flinch = 1.0
+			_flinch = 0.0 if steady() else 1.0
 		elif kind == &"draw" and actor is Node3D and actor != _gun_seen \
 				and (actor as Node3D).global_position.distance_to(body.global_position) < GUN_SEEN and senses.sees(actor):
 			# A gun out near him (the playtest's, #773: drawn 3 m from the table and nobody minded):
@@ -400,7 +409,7 @@ func _on_deed(actor: Node, kind: StringName, target: Node, _at: Vector3) -> void
 	match kind:
 		&"shove", &"kick", &"kick_down":
 			fear += 0.25 if kind == &"shove" else 0.5
-			_flinch = 1.0
+			_flinch = 0.0 if steady() else 1.0
 			_troubled(actor)
 			if actor is Node3D:
 				show_look((actor as Node3D).global_position, actor as Node3D, ROUGH_LOOK_S)  # round to see who
@@ -579,6 +588,9 @@ func _on_hat_shot(person: Node, _shooter: Node, _at: Vector3) -> void:
 	if person != body or not body.physiology.is_conscious():
 		return
 	say(&"hat")
+	if steady():
+		_steady_says("react.steady.hat")
+		return  # (his hat in the street and him still stood there)
 	_cower = maxf(_cower, 10.0)
 	fear += 0.5
 
@@ -673,7 +685,7 @@ func _look_for_fire() -> void:
 		# not on him.
 		if fights_fire and mood == Mood.CALM and body.physiology.can_run():
 			var seen := _fire.fire_near(body.global_position, FIRE_SEEN)
-			if seen.count > 0 and _fire.fire_near(seen.at, 8.0).count <= PAST_SAVING:
+			if seen.count > 0 and _fire.fire_near(seen.at, 8.0).count <= PAST_SAVING and not steady():
 				mood = Mood.FLEEING
 				_fire_at = seen.at
 				_fire_out = 0.0
@@ -794,6 +806,9 @@ static func water_side(trough: Node3D, fire_at: Vector3) -> Vector3:
 
 ## Off, away from the fire at `from`, to the nearest place clear of any.
 func _flee(from: Vector3) -> void:
+	if steady():
+		_steady_says("react.steady.fire")
+		return  # he doesn't run from it (#1312); he can still burn
 	if mood != Mood.FLEEING:
 		_shout_in = _rng.randf_range(0.15, 1.6)  # a few men don't all shout in the same breath
 	mood = Mood.FLEEING
@@ -804,6 +819,14 @@ func _flee(from: Vector3) -> void:
 	reaction.drop()
 	_flinch = 0.0
 	_route = FireFlight.way_out(_fire, _places(), body, FIRE_CLEAR)
+
+
+## A steady man's remark on the trouble (`on`: react.steady.<shot|fire|blast|hat|down|brawl>), once in a while.
+func _steady_says(on: String, extra: Dictionary = {}) -> void:
+	if _steady_said > 0.0 or not bark.is_valid() or not may_speak():
+		return
+	if bool(bark.call(self, on, extra)):
+		_steady_said = STEADY_GAP
 
 
 func _places() -> Waypoints:
@@ -915,6 +938,7 @@ func _physics_step(delta: float) -> void:
 	if held:
 		return  # the scene has him
 	_since_said += delta
+	_steady_said -= delta
 	_hush = maxf(_hush - delta, 0.0)
 	if body.stumbling > 0.0:
 		return  # going down: his last steps are his body's, not his

@@ -2185,6 +2185,9 @@ from `sheriff_from` the sheriff's last day starts (`start_sheriff_dies`).
   data), put up by a ray into a lot's front, when due (`day` from the badge's day, `fact`, `after` a TownDrunk deed
   `after_h` on) and not in view; read within `read_m` looking at it (PlayerWounds.say, held). The scene `drunk` in
   `docs/scripts/town.json`; tests `tests/test_town_drunk.gd`.
+  **Nerves of steel** (Sean): his dials `nerve` 1.0 and `steady` (`ValleyFolk.dials_of`): `CivilianBrain.steady()` gates
+  every flight: Reaction `_decide` carries on (hurt, a walk to a door), no flinch, no cower at his cap shot off, no fire
+  flight or bucket run; a dry word `react.steady.<shot|fire|blast|hat|down|brawl>` (`_steady_says`, one a `STEADY_GAP`).
 
 ## src/audio
 

@@ -665,7 +665,7 @@ static func home_of(p: Dictionary) -> StringName:
 static func dials_of(p: Dictionary) -> Dictionary:
 	var d: Dictionary = p.get("dials", {})
 	return {"nerve": float(d.get("nerve", 0.5)), "nosy": float(d.get("nosy", 0.5)), "duty": float(d.get("duty", 0.5)),
-			"ducks": float(d.get("ducks", 0.0))}
+			"ducks": float(d.get("ducks", 0.0)), "steady": float(d.get("steady", 0.0))}
 
 
 ## Where he'd run from trouble (Reaction's flee): his own door, then the town's open doors, the

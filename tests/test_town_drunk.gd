@@ -327,3 +327,45 @@ func test_a_note_turns_up_after_its_deed() -> void:
 	check(not notes.readable_by("jail_rhyme", eye, normal), "your back to it: not")
 	var s := notes.to_dict()
 	check((s.up_day as Dictionary).has("card_sharps"), "saved")
+
+
+## Nerves of steel (Sean, 2026-11-27): shots past him, a blast, a fire by him, his cap shot off, a man down:
+## he never flees, cowers, ducks or hides; he stays at his post and may say a dry word on it.
+func test_nerves_of_steel() -> void:
+	await _valley(13.0)
+	var folk := valley.folk
+	var man := _drunk()
+	check(man != null, "he's out")
+	if man == null:
+		return
+	var b := man.get_node(^"Brain") as CivilianBrain
+	check(b.steady() and float(b.dials.nerve) >= 1.0, "his nerve at its top, steady (%s)" % [b.dials])
+	var start := man.global_position
+	var n := said.size()
+	var bad := []
+	for k: StringName in [&"shot_seen", &"blast", &"at_me", &"shot", &"down"]:
+		b.reaction.sense(k, man.global_position + Vector3(3.0, 0.0, 2.0), null)
+		for i in 90:
+			await physics_frames(2)
+			if b.reaction.choice in [&"flee", &"hide"] or b.mood in [CivilianBrain.Mood.FLEEING, CivilianBrain.Mood.COWERING, CivilianBrain.Mood.RUNNING]:
+				bad.append("%s: %s %s" % [k, b.reaction.choice, b.mood])
+				break
+	b._flee(man.global_position + Vector3(2.0, 0.0, 0.0))  # a fire on him
+	await physics_frames(10)
+	check(b.mood != CivilianBrain.Mood.FLEEING, "a fire by him: he doesn't run")
+	Events.hat_shot.emit(man, _player(), man.global_position + Vector3.UP * 1.7)
+	await physics_frames(30)
+	check(b._cower <= 0.0 and b.mood != CivilianBrain.Mood.COWERING, "his cap shot off: he doesn't go down on the boards")
+	check(bad.is_empty(), "never the flee, hide or cower branches (%s)" % [bad])
+	check(man.global_position.distance_to(start) < 2.5, "still where he was (%.1f m)" % man.global_position.distance_to(start))
+	var dry := false
+	for i in range(n, said.size()):
+		if said[i][0] == man:
+			for id: String in TownScript.meta():
+				if id.begins_with("drunk.steady.") and TownScript.words(id).has(String(said[i][1])):
+					dry = true
+	check(dry, "and a dry word on it (%s)" % [_drunk_said(n)])
+	# Anybody else still runs: the loudmouth takes the blast like a man.
+	var lm := folk.folk_man(&"loudmouth")
+	if lm != null:
+		check(not (lm.get_node(^"Brain") as CivilianBrain).steady(), "the others aren't steady")
