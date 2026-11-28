@@ -8,8 +8,9 @@ Keep this file under ~10 KB. Full history to 2026-11-11: `docs/status/current-st
 - New men by `tools/characters/RECIPE.md` (Rodin portrait route; skill `new-portrait-man`); another route
   only with Sean's OK. Women and hard faces: from Sean's own pictures (the widow, #414).
 - Paid calls run in the Studio on GitHub (a request in its `requests/` on a `claude/studio-*` branch). Ask
-  Sean before any training run; give each man's cost before paying. Studio ledger ~$68 of $75 (check it).
-- Meshy is a second opinion only; Rodin stays.
+  Sean before any training run; give each man's cost before paying. Studio ledger $65.47 of $75 (check it).
+- Meshy is a second opinion only; Rodin stays. The crowd bake-off (#1303): Meshy 7.1 on fal (Studio `crowd3d`)
+  passed from 1-3 m beside the MetaHuman; waiting on Sean's pick (#1335). Labs: `experiments/crowd_lab/`.
 
 ## What's in the game
 - Every Studio man: MakeHuman face grafted (20 blend shapes), `FaceLife`, `FaceSpeech` (talking), skinned
